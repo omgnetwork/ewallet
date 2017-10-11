@@ -230,6 +230,12 @@ components:
           type: string
         metadata:
           type: object
+      required:
+        - object
+        - id
+        - username
+        - provider_user_id
+        - metadata
       example:
         object: "user"
         id: "cec34607-0761-4a59-8357-18963e42a1aa"
@@ -246,43 +252,27 @@ components:
           type: string
         message:
           type: string
+      required:
+        - object
+        - code
+        - message
       example:
         object: error
         code: server_error
         message: Server error
     # Schema for a list object
-    ListSchema:
+    UnpaginatedListSchema:
       type: object
       properties:
         object:
           type: string
-        current_page:
-          type: integer
-        next_page:
-          type: integer
-        page_count:
-          type: integer
-        total_count:
-          type: integer
-        per_page:
-          type: integer
         data:
           type: array
       required:
         - object
-        - current_page
-        - next_page
-        - page_count
-        - total_count
-        - per_page
         - data
       example:
         object: list
-        current_page: 1
-        next_page: 2
-        page_count: 150
-        total_count: 3000
-        per_page: 20
     # Schema for success response body
     BaseResponseSchema:
       type: object
@@ -382,9 +372,9 @@ components:
         name:
           type: string
       required:
-        - address
-        - type
-        - amount
+        - object
+        - symbol
+        - name
       example:
         object: "currency_token"
         symbol: "MNT"
@@ -431,7 +421,7 @@ components:
           data:
             type: object
             allOf:
-              - $ref: '#/components/schemas/ListSchema'
+              - $ref: '#/components/schemas/UnpaginatedListSchema'
               - type: object
                 properties:
                   data:
@@ -443,11 +433,6 @@ components:
         example:
           data:
             object: list
-            current_page: 1
-            next_page: 2
-            page_count: 150
-            total_count: 3000
-            per_page: 20
             data:
             - object: "balance"
               address: "XXXXXXXXXXXXXXXXXXXXX"
@@ -472,6 +457,9 @@ components:
                 type: array
                 items:
                  $ref: '#/components/schemas/CurrencyTokenSchema'
+            required:
+              - object
+              - tokens
         example:
           data:
             object: "setting"
@@ -488,7 +476,7 @@ components:
       description: User object that needs to be created or updated
       required: true
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             properties:
               provider_user_id:
@@ -500,6 +488,7 @@ components:
             required:
               - provider_user_id
               - username
+              - metadata
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
               username: "thibault@omise.co"
@@ -509,7 +498,7 @@ components:
       description: The provider id
       required: true
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             properties:
               provider_user_id:
@@ -523,7 +512,7 @@ components:
       description: Description of the desired adjustment
       required: true
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             properties:
               provider_user_id:
@@ -572,41 +561,41 @@ components:
     ServerError:
       description: Server error
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             $ref: '#/components/schemas/ErrorResponseSchema'
     # User response
     UserResponse:
       description: User response
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             $ref: '#/components/schemas/UserResponseSchema'
     # Authentication token response
     AuthenticationTokenResponse:
       description: Authentication token response
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             $ref: '#/components/schemas/AuthenticationTokenResponse'
     # Balance response
     BalanceResponse:
       description: Balance response
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             $ref: '#/components/schemas/BalanceResponse'
     # Balances response
     BalancesResponse:
       description: Balances response
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             $ref: '#/components/schemas/BalancesResponse'
     # Setting response
     SettingResponse:
       description: Setting response
       content:
-        application/vnd.omisego.v1+json:
+        application/vnd.omisego.v1.0.0+json:
           schema:
             $ref: '#/components/schemas/SettingResponse'
