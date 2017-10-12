@@ -3,6 +3,7 @@ defmodule KuberaAPI.Application do
   KuberaAPI's startup and shutdown functionalities
   """
   use Application
+  alias KuberaAPI.Endpoint
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -11,7 +12,8 @@ defmodule KuberaAPI.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(KuberaAPI.Endpoint, []),
-      # Start your own worker by calling: KuberaAPI.Worker.start_link(arg1, arg2, arg3)
+      # Start your own worker by calling:
+      #   KuberaAPI.Worker.start_link(arg1, arg2, arg3)
       # worker(KuberaAPI.Worker, [arg1, arg2, arg3]),
     ]
 
@@ -24,7 +26,7 @@ defmodule KuberaAPI.Application do
   # Tell Phoenix to update the endpoint configuration
   # whenever the application is updated.
   def config_change(changed, _new, removed) do
-    KuberaAPI.Endpoint.config_change(changed, removed)
+    Endpoint.config_change(changed, removed)
     :ok
   end
 end
