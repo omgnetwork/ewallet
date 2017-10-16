@@ -7,11 +7,11 @@ defmodule KuberaDB.Factory do
 
   def user_factory do
     %User{
-      username: sequence("thabaultzaa"),
+      username: sequence("johndoe"),
       provider_user_id: sequence("provider_id"),
       metadata: %{
-        "first_name" => sequence("Thibault"),
-        "last_name" => sequence("Denizet")
+        "first_name" => sequence("John"),
+        "last_name" => sequence("Doe")
       }
     }
   end

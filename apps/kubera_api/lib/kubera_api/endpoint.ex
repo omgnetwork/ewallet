@@ -18,5 +18,5 @@ defmodule KuberaAPI.Endpoint do
   plug Plug.MethodOverride
   plug Plug.Head
 
-  plug KuberaAPI.Router
+  plug KuberaAPI.VersionedRouter
 end
