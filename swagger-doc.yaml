@@ -350,17 +350,21 @@ components:
         symbol:
           type: string
         amount:
-          type: integer
+          type: number
+        subunit_to_unit:
+          type: number
       required:
         - object
         - address
         - symbol
         - amount
+        - subunit_to_unit
       example:
         object: "balance"
         address: "XXXXXXXXXXXXXXXXXXXXX"
         symbol: "MNT"
         amount: 100
+        subunit_to_unit: 100000000000000000
     # Schema for individual currency token object
     CurrencyTokenSchema:
       type: object
@@ -371,14 +375,18 @@ components:
           type: string
         name:
           type: string
+        subunit_to_unit:
+          type: number
       required:
         - object
         - symbol
         - name
+        - subunit_to_unit
       example:
         object: "currency_token"
         symbol: "MNT"
         name: "Mint"
+        subunit_to_unit: 100000000000000000
     # Schema for authentication token body response
     AuthenticationTokenResponse:
       allOf:
@@ -438,10 +446,12 @@ components:
               address: "XXXXXXXXXXXXXXXXXXXXX"
               symbol: "MNT"
               amount: 100
+              subunit_to_unit: 100000000000000000
             - object: "balance"
               address: "XXXXXXXXXXXXXXXXXXXXX"
               symbol: "OMG"
               amount: 100
+              subunit_to_unit: 100000000000000000
     # Schema for settings response body
     SettingResponse:
       allOf:
@@ -467,9 +477,11 @@ components:
               - object: "currency_token"
                 symbol: "MNT"
                 name: "Mint"
+                subunit_to_unit: 100000000000000000
               - object: "currency_token"
                 symbol: "OMG"
                 name: "OmiseGO"
+                subunit_to_unit: 100000000000000000
   requestBodies:
     # Body for a create / update user request
     UserBody:
