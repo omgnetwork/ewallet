@@ -15,7 +15,7 @@ use Mix.Config
 # which you typically run after static files are built.
 config :kubera_api, KuberaAPI.Endpoint,
   load_from_system_env: true,
-  url: [host: System.get_env("HOST"), port: System.get_env("PORT")],
+  url: [host: System.get_env("HOST"), port: System.get_env("PORT")]
 
 config :kubera_api, KuberaAPI.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE")
