@@ -9,6 +9,12 @@ defmodule KuberaAPI.V1.UserController do
     |> respond(conn)
   end
 
+  def get(conn, %{"provider_user_id" => provider_user_id}) do
+    provider_user_id
+    |> User.get_by_provider_user_id()
+    |> respond(conn)
+  end
+
   def create(conn, attrs) do
     attrs
     |> User.insert()

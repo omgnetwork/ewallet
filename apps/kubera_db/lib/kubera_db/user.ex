@@ -47,6 +47,13 @@ defmodule KuberaDB.User do
   end
 
   @doc """
+  Retrieves a specific user from its provider_user_id.
+  """
+  def get_by_provider_user_id(provider_user_id) do
+    Repo.get_by(User, provider_user_id: provider_user_id)
+  end
+
+  @doc """
   Creates a user.
 
   ## Examples

@@ -114,4 +114,21 @@ defmodule KuberaDB.UserTest do
       assert user == nil
     end
   end
+
+  describe "get_by_provider_user_id/1" do
+    test "returns the existing user from the provider_user_id" do
+      {_, inserted_user} =
+        :user
+        |> build(%{provider_user_id: "1234"})
+        |> Repo.insert
+
+      user = User.get_by_provider_user_id("1234")
+      assert user.provider_user_id == inserted_user.provider_user_id
+    end
+
+    test "returns nil if user does not exist" do
+      user = User.get_by_provider_user_id("an_invalid_provider_id")
+      assert user == nil
+    end
+  end
 end
