@@ -5,6 +5,3 @@ use Mix.Config
 config :kubera_api, KuberaAPI.Endpoint,
   http: [port: 4001],
   server: false
-
-# Uncomment this line to hide database requests when running tests
-config :logger, level: :warn

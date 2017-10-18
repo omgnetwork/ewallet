@@ -12,10 +12,7 @@ config :kubera_api,
 # Configures the endpoint
 config :kubera_api, KuberaAPI.Endpoint,
   url: [host: "localhost"],
-  secret_key_base: System.get_env("SECRET_KEY_BASE"),
-  render_errors: [view: KuberaAPI.V1.ErrorView, accepts: ~w(json)],
-  pubsub: [name: KuberaAPI.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  render_errors: [view: KuberaAPI.V1.ErrorView, accepts: ~w(json)]
 
 # Configures Elixir's Logger
 config :logger, :console,
