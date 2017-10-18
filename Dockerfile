@@ -7,4 +7,9 @@ RUN mix local.hex --force && \
 COPY . /app
 WORKDIR /app
 
-RUN MIX_ENV=prod mix do deps.get
+RUN MIX_ENV=prod mix do deps.get, compile
+
+ENV PORT 4000
+EXPOSE 4000
+
+CMD ["mix", "phx.server"]
