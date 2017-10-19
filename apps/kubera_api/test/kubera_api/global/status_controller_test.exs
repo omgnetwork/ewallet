@@ -9,7 +9,7 @@ defmodule KuberaAPI.StatusControllerTest do
         |> get("/")
         |> json_response(:ok)
 
-      assert response == %{"status" => "ok"}
+      assert response == %{"success" => true}
     end
   end
 end
