@@ -3,7 +3,6 @@ defmodule KuberaAPI.V1.JSON.UserSerializer do
   Serializes user data into V1 JSON response format.
   """
   use KuberaAPI.V1
-  alias KuberaAPI.V1.JSON.MetadataSerializer
 
   def serialize(user) do
     %{

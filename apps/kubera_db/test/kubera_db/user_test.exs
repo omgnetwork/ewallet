@@ -1,7 +1,7 @@
 defmodule KuberaDB.UserTest do
   use ExUnit.Case
   import KuberaDB.Factory
-  alias KuberaDB.{User, Repo}
+  alias KuberaDB.{Repo, User}
   alias Ecto.Adapters.SQL.Sandbox
 
   setup do
@@ -25,20 +25,6 @@ defmodule KuberaDB.UserTest do
       assert changeset.errors == expected_errors
     end
 
-    test "prevents creation of a user with an username already in DB" do
-      {:ok, _} =
-        :user
-        |> build(%{username: "same_username"})
-        |> Repo.insert
-
-      {:error, user} =
-        %User{}
-        |> User.changeset(params_for(:user, %{username: "same_username"}))
-        |> Repo.insert
-
-      assert user.errors == [username: {"has already been taken", []}]
-    end
-
     test "prevents creation of a user without provider_user_id" do
       changeset = User.changeset(
         %User{},
@@ -53,7 +39,21 @@ defmodule KuberaDB.UserTest do
       assert changeset.errors == expected_errors
     end
 
-    test "prevents creation of a user with a provider_user_id already in DB" do
+    test "prevents creation of a user with an existing username" do
+      {:ok, _} =
+        :user
+        |> build(%{username: "same_username"})
+        |> Repo.insert
+
+      {:error, user} =
+        %User{}
+        |> User.changeset(params_for(:user, %{username: "same_username"}))
+        |> Repo.insert
+
+      assert user.errors == [username: {"has already been taken", []}]
+    end
+
+    test "prevents creation of a user with an existing provider_user_id" do
       {:ok, _} =
         :user
         |> build(%{provider_user_id: "same_provider_user_id"})
@@ -95,6 +95,12 @@ defmodule KuberaDB.UserTest do
       assert res == :ok
       assert user.inserted_at != nil
       assert user.updated_at != nil
+    end
+
+    test "automatically creates a balance when user is created" do
+      {_result, user} = :user |> params_for |> User.insert
+
+      assert length(user.balances) == 1
     end
   end
 

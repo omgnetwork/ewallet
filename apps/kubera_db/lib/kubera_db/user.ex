@@ -4,26 +4,22 @@ defmodule KuberaDB.User do
   """
   use Ecto.Schema
   import Ecto.Changeset
-  alias KuberaDB.{Repo, User}
+  alias Ecto.UUID
+  alias KuberaDB.{Repo, Balance, User}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:id, UUID, autogenerate: true}
 
   schema "user" do
     field :username, :string
     field :provider_user_id, :string
     field :metadata, :map
+    has_many :balances, Balance
 
     timestamps()
   end
 
   @doc """
   Validates user data.
-
-  ## Examples
-
-      iex> changeset(%User{}, %{field: value})
-      %User{}
-
   """
   def changeset(%User{} = user, attrs) do
     user
@@ -35,15 +31,11 @@ defmodule KuberaDB.User do
 
   @doc """
   Retrieves a specific user.
-
-  ## Examples
-
-      iex> get(123)
-      %User{}
-
   """
   def get(id) do
-    Repo.get(User, id)
+    User
+    |> Repo.get(id)
+    |> Repo.preload(:balances)
   end
 
   @doc """
@@ -61,9 +53,21 @@ defmodule KuberaDB.User do
       iex> insert(%{field: value})
       {:ok, %User{}}
 
+  Creates a user and their first balance.
   """
   def insert(attrs) do
     changeset = User.changeset(%User{}, attrs)
-    Repo.insert(changeset)
+
+    case Repo.insert(changeset) do
+      {:ok, user} ->
+        insert_balance(user)
+        {:ok, get(user.id)}
+      {:error, changeset} ->
+        {:error, changeset}
+    end
+  end
+
+  defp insert_balance(%User{} = user) do
+    %{user_id: user.id, metadata: nil} |> Balance.insert
   end
 end

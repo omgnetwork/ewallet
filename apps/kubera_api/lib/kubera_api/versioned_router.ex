@@ -34,9 +34,9 @@ defmodule KuberaAPI.VersionedRouter do
     accept_info =
       case get_req_header(conn, "accept") do
         [accept] ->
-          accept_info = "Given \"" <> accept <> "\"."
+          "Given \"" <> accept <> "\"."
         _ ->
-          accept_info = "Accept header not found."
+          "Accept header not found."
       end
 
     conn

@@ -17,7 +17,7 @@ defmodule KuberaAPI.V1.ErrorViewTest do
         }
       }
 
-      assert render(ErrorView, "error.json", 
+      assert render(ErrorView, "error.json",
         %{code: "custom_code", message: "Custom message"}) == expected
     end
 
