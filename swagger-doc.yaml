@@ -345,26 +345,27 @@ components:
       properties:
         object:
           type: string
+        minted_token:
+          type: object
+          $ref: '#/components/schemas/MintedTokenSchema'
         address:
-          type: string
-        symbol:
           type: string
         amount:
           type: number
-        subunit_to_unit:
-          type: number
       required:
         - object
+        - minted_token
         - address
-        - symbol
         - amount
-        - subunit_to_unit
       example:
         object: "balance"
+        minted_token:
+          object: 'minted_token'
+          symbol: "MNT"
+          name: "Mint"
+          subunit_to_unit: 100000000000000000
         address: "XXXXXXXXXXXXXXXXXXXXX"
-        symbol: "MNT"
         amount: 100
-        subunit_to_unit: 100000000000000000
     # Schema for individual minted token object
     MintedTokenSchema:
       type: object
@@ -417,9 +418,13 @@ components:
         example:
           data:
             object: "balance"
-            address: "XXXXXXXXXXXXXXXXXXXXX"
-            symbol: "MNT"
+            minted_token:
+              object: 'minted_token'
+              symbol: "MNT"
+              name: "Mint"
+              subunit_to_unit: 100000000000000000
             amount: 100
+            address: "XXXXXXXXXXXXXXXXXXXXX"
     # Schema for balance response body
     BalancesResponse:
       allOf:
@@ -443,15 +448,21 @@ components:
             object: list
             data:
             - object: "balance"
+              minted_token:
+                object: 'minted_token'
+                symbol: "MNT"
+                name: "Mint"
+                subunit_to_unit: 100000000000000000
               address: "XXXXXXXXXXXXXXXXXXXXX"
-              symbol: "MNT"
               amount: 100
-              subunit_to_unit: 100000000000000000
             - object: "balance"
+              minted_token:
+                object: 'minted_token'
+                symbol: "OMG"
+                name: "OmiseGO"
+                subunit_to_unit: 100000000000000000
               address: "XXXXXXXXXXXXXXXXXXXXX"
-              symbol: "OMG"
               amount: 100
-              subunit_to_unit: 100000000000000000
     # Schema for settings response body
     SettingResponse:
       allOf:
