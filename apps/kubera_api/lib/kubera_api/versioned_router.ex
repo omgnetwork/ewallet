@@ -5,8 +5,7 @@ defmodule KuberaAPI.VersionedRouter do
   version.
   """
   import Plug.Conn
-  alias KuberaAPI.V1.{ErrorView, Router}
-  alias Phoenix.Controller
+  import KuberaAPI.V1.ErrorHandler
 
   def init(opts), do: opts
 
@@ -15,36 +14,31 @@ defmodule KuberaAPI.VersionedRouter do
   and routes to respective router for that version.
   """
   def call(conn, opts) do
-    case get_accept_version(conn) do
-      {:ok, [:v1]} ->
-        Router.call(conn, Router.init(opts))
+    [accept] = get_req_header(conn, "accept")
+
+    # Call the respected version of the router if mapping found,
+    # raise an error otherwise.
+    case get_accept_version(accept) do
+      {:ok, router_module} ->
+        dispatch_to_router(conn, opts, router_module)
       _ ->
-        handle_invalid_version(conn)
+        handle_invalid_version(conn, accept)
     end
   end
 
-  defp get_accept_version(conn) do
-    [accept] = get_req_header(conn, "accept")
-
-    mime_types = Application.get_env(:mime, :types)
-    Map.fetch(mime_types, accept)
+  defp get_accept_version(accept) do
+    api_version = Application.get_env(:kubera_api, :api_versions)
+    Map.fetch(api_version, accept)
   end
 
-  defp handle_invalid_version(conn) do
-    accept_info =
-      case get_req_header(conn, "accept") do
-        [accept] ->
-          "Given \"" <> accept <> "\"."
-        _ ->
-          "Accept header not found."
-      end
+  defp dispatch_to_router(conn, opts, router_module) do
+    opts = apply(router_module, :init, [opts])
+    apply(router_module, :call, [conn, opts])
+  end
 
+  defp handle_invalid_version(conn, accept) do
     conn
-    |> put_status(:bad_request)
-    |> Controller.render(ErrorView, "error.json", %{
-        code: "invalid_request_version",
-        message: "Invalid request version. " <> accept_info
-      })
-    |> halt()
+    |> assign(:accept, accept)
+    |> handle_error(:invalid_version)
   end
 end

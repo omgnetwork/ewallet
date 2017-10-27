@@ -25,6 +25,23 @@ defmodule KuberaDB.UserTest do
       assert changeset.errors == expected_errors
     end
 
+    test "prevents creation of a user with an username already in DB" do
+      {:ok, _} =
+        :user
+        |> build(%{username: "same_username"})
+        |> Repo.insert
+
+      {:error, user} =
+        %User{}
+        |> User.changeset(params_for(:user, %{username: "same_username"}))
+        |> Repo.insert
+
+      assert user.errors == [
+        username: {"has already been taken",
+        [validation: :unsafe_unique, fields: [:username]]}
+      ]
+    end
+
     test "prevents creation of a user without provider_user_id" do
       changeset = User.changeset(
         %User{},
@@ -39,20 +56,6 @@ defmodule KuberaDB.UserTest do
       assert changeset.errors == expected_errors
     end
 
-    test "prevents creation of a user with an existing username" do
-      {:ok, _} =
-        :user
-        |> build(%{username: "same_username"})
-        |> Repo.insert
-
-      {:error, user} =
-        %User{}
-        |> User.changeset(params_for(:user, %{username: "same_username"}))
-        |> Repo.insert
-
-      assert user.errors == [username: {"has already been taken", []}]
-    end
-
     test "prevents creation of a user with an existing provider_user_id" do
       {:ok, _} =
         :user
@@ -64,7 +67,13 @@ defmodule KuberaDB.UserTest do
         |> User.changeset(params_for(:user, %{provider_user_id: "same_provider_user_id"}))
         |> Repo.insert
 
-      expected_errors = [provider_user_id: {"has already been taken", []}]
+      expected_errors = [
+        provider_user_id: {
+          "has already been taken",
+          [validation: :unsafe_unique, fields: [:provider_user_id]]
+        }
+      ]
+
       assert user.errors == expected_errors
     end
   end

@@ -1,18 +1,16 @@
 defmodule KuberaAPI.V1.UserController do
   use KuberaAPI, :controller
-  alias KuberaAPI.V1.ErrorView
+  import KuberaAPI.V1.ErrorHandler
   alias KuberaDB.User
-
-  def get(conn, %{"id" => id}) do
-    id
-    |> User.get()
-    |> respond(conn)
-  end
 
   def get(conn, %{"provider_user_id" => provider_user_id}) do
     provider_user_id
     |> User.get_by_provider_user_id()
     |> respond(conn)
+  end
+
+  def get(conn, _params) do
+    handle_error(conn, :invalid_parameter)
   end
 
   def create(conn, attrs) do
@@ -29,21 +27,16 @@ defmodule KuberaAPI.V1.UserController do
   # Responds with valid user data
   defp respond(%User{} = user, conn) do
     conn
-    |> put_status(:ok)
-    |> render("user.json", %{user: user})
+    |> render(:user, %{user: user})
   end
 
   # Responds when user is saved unsucessfully
-  defp respond({:error, _changeset}, conn) do
-    conn
-    |> put_status(:bad_request)
-    |> render(ErrorView, "error.json", %{code: "invalid_data", message: "Invalid user data"})
+  defp respond({:error, changeset}, conn) do
+    handle_error(conn, :invalid_parameter, changeset)
   end
 
   # Responds when user is not found
   defp respond(nil, conn) do
-    conn
-    |> put_status(:not_found)
-    |> render(ErrorView, "error.json", %{code: "user_not_found", message: "User not found"})
+    handle_error(conn, :provider_user_id_not_found)
   end
 end

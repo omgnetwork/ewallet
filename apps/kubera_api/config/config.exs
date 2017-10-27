@@ -10,9 +10,14 @@ config :kubera_api,
   namespace: KuberaAPI
 
 # Configures the endpoint
-config :kubera_api, KuberaAPI.Endpoint,
+config :kubera_api,
+  KuberaAPI.Endpoint,
   url: [host: "localhost"],
-  render_errors: [view: KuberaAPI.V1.ErrorView, accepts: ~w(json)]
+  render_errors: [
+    view: KuberaAPI.ErrorView,
+    accepts: ~w(json),
+    default_format: "json"
+  ]
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -22,10 +27,23 @@ config :logger, :console,
 config :kubera_api, :generators,
   context_app: false
 
-# Maps accept header to a supported version implementation
+# Two configs need to be added to have a new Kubera API version:
+#
+# 1. `kubera_api.api_versions`
+#    This tells what router should handle the specified accept header.
+# 2. `mime.types`
+#    This tells Phoenix what extension type it should match the response to.
+
+# Maps an accept header to the respective router version.
+config :kubera_api, :api_versions, %{
+  "application/vnd.omisego.v1+json" => KuberaAPI.V1.Router
+}
+
+# Maps accept header to an extension type so Phoenix knows
+# what format to respond with.
 # Run `mix deps.clean --build mime` when updaing this mapping.
 config :mime, :types, %{
-  "application/vnd.omisego.v1+json" => [:v1]
+  "application/vnd.omisego.v1+json" => ["json"]
 }
 
 # Import environment specific config. This must remain at the bottom

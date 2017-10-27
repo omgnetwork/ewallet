@@ -13,20 +13,21 @@ defmodule KuberaAPI.VersionedRouterTest do
     end
 
     test "rejects unrecognized version requests" do
-      response = build_conn()
-      |> put_req_header("accept", "application/vnd.omisego.invalid_ver+json")
-      |> post("/")
-      |> json_response(:bad_request)
-
       expected = %{
-        "version" => @expected_version,
-        "success" => :false,
+        "version" => "1",
+        "success" => false,
         "data" => %{
           "object" => "error",
-          "code" => "invalid_request_version",
-          "message" => "Invalid request version. Given \"application/vnd.omisego.invalid_ver+json\"."
+          "code" => "client:invalid_version",
+          "description" => "Invalid API version. Given: \"application/vnd.omisego.invalid_ver+json\".",
+          "messages" => nil
         }
       }
+
+      response = build_conn()
+      |> put_req_header("accept", "application/vnd.omisego.invalid_ver+json")
+      |> post("/status")
+      |> json_response(:ok)
 
       assert response == expected
     end
