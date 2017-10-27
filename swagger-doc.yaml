@@ -13,6 +13,8 @@ info:
     name: License To define
     url: 'https://omg.omise.co/'
 tags:
+  - name: Session
+    description: These are the endpoints related to the session tokens.
   - name: User
     description: These are the endpoints related to the user resource. A user is an entity uniquely identified by its provider_user_id which is the user id in the provider database.
   - name: Balance
@@ -20,6 +22,45 @@ tags:
   - name: Setting
     description: These are the endpoints related to the global settings of the wallet.
 paths:
+  ############################
+  #         SESSION          #
+  ############################
+  # Endpoint to login a user.
+  /login:
+    post:
+      tags:
+        - Session
+      summary: Server - Login an existing user. The provider can call this to get an authentication token for a specific user.
+      description: This is a server call only.
+      operationId: login
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ServerAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/ProviderIdBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AuthenticationTokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to logout a user. (invalidate its authentication_token)
+  /logout:
+    post:
+      tags:
+        - Session
+      summary: Client - Expires a user's authentication_token.
+      description: This is a wallet call.
+      operationId: logout
+      security:
+        - ClientAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   ############################
   #           USERS          #
   ############################
@@ -59,25 +100,6 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  # Endpoint to login a user.
-  /user.login:
-    post:
-      tags:
-        - User
-      summary: Server - Login an existing user. The provider can call this to get an authentication token for a specific user.
-      description: This is a server call only.
-      operationId: user_login
-      security:
-        - ServerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/ServerAuthorizationHeader"
-      requestBody:
-        $ref: '#/components/requestBodies/ProviderIdBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/AuthenticationTokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   # Endpoint to get an existing user from its id
@@ -252,14 +274,18 @@ components:
           type: string
         description:
           type: string
+        messages:
+          type: object
       required:
         - object
         - code
         - description
+        - messages
       example:
         object: "error"
         code: "server:internal_server_error"
         description: "Something went wrong on the server"
+        messages: {"error_key": "error_reason"}
     # Schema for a list object
     UnpaginatedListSchema:
       type: object
@@ -290,6 +316,7 @@ components:
       example:
         version: "1"
         success: true
+        data: {}
     # Schema for error response body
     ErrorResponseSchema:
       allOf:
@@ -333,13 +360,9 @@ components:
           type: string
         authentication_token:
           type: string
-        expires_at:
-          type: string
-          format: date
       required:
         - object
         - authentication_token
-        - expires_at
     # Schema for individual balance object
     BalanceSchema:
       type: object
@@ -404,7 +427,6 @@ components:
           data:
             object: "authentication_token"
             authentication_token: "azJRj09l7jvR8KhTqUs3"
-            expires_at: "2020-10-10 00:00:00+00:00"
     # Schema for single balance body response
     BalanceResponse:
       allOf:
@@ -576,11 +598,18 @@ components:
       in: header
       name: Authorization
     # Authentication for client calls
-    client_auth:
+    ClientAuth:
       type: apiKey
       in: header
       name: Authorization
   responses:
+    # Empty
+    EmptyResponse:
+      description: Empty response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/BaseResponseSchema'
     # Response when there was an internal server error (should never happen)
     InternalServerError:
       description: Something went wrong on the server
