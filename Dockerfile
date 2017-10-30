@@ -10,7 +10,7 @@ WORKDIR /app
 
 RUN set -xe && \
     mix deps.get && \
-    ENV=prod mix compile
+    MIX_ENV=prod mix compile
 
 ENV PORT 4000
 EXPOSE 4000
