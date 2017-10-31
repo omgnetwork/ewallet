@@ -78,6 +78,7 @@ paths:
         $ref: '#/components/requestBodies/UserBody'
       parameters:
         - $ref: "#/components/parameters/ServerAuthorizationHeader"
+        - $ref: "#/components/parameters/IdempotencyToken"
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
@@ -95,6 +96,7 @@ paths:
         - ServerAuth: []
       parameters:
         - $ref: "#/components/parameters/ServerAuthorizationHeader"
+        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/UserBody'
       responses:
@@ -189,6 +191,7 @@ paths:
         - ServerAuth: []
       parameters:
         - $ref: "#/components/parameters/ServerAuthorizationHeader"
+        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
@@ -208,6 +211,7 @@ paths:
         - ServerAuth: []
       parameters:
         - $ref: "#/components/parameters/ServerAuthorizationHeader"
+        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
@@ -588,6 +592,13 @@ components:
       in: header
       name: Authorization
       description: OMGClient Base64(api_key:authentication_token)
+      required: true
+      schema:
+        type: string
+    IdempotencyToken:
+      in: header
+      name: Idempotency-Token
+      description: The idempotency token for the request
       required: true
       schema:
         type: string
