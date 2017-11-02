@@ -6,12 +6,7 @@ defmodule CaishenMQ.PublisherTest do
     {:ok, _pid} = Consumer.start_link()
 
     Publisher.send(%{hello: "Universe"}, fn response ->
-      assert response == %{
-        "status" => "ok",
-        "payload" => %{
-          "hello" => "Universe"
-        }
-      }
+      assert response == {:ok, %{"hello" => "Universe"}}
     end)
   end
 end

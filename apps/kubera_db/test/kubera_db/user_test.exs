@@ -108,8 +108,8 @@ defmodule KuberaDB.UserTest do
 
     test "automatically creates a balance when user is created" do
       {_result, user} = :user |> params_for |> User.insert
-
-      assert length(user.balances) == 1
+      User.get_main_balance(user)
+      assert length(User.get(user.id).balances) == 1
     end
   end
 
@@ -144,6 +144,21 @@ defmodule KuberaDB.UserTest do
     test "returns nil if user does not exist" do
       user = User.get_by_provider_user_id("an_invalid_provider_id")
       assert user == nil
+    end
+  end
+
+  describe "get_main_balance/1" do
+    test "returns the first balance" do
+      {:ok, inserted} = User.insert(params_for(:user))
+      balance = User.get_main_balance(inserted)
+
+      user =
+        inserted.id
+        |> User.get()
+        |> Repo.preload([:balances])
+
+      assert balance != nil
+      assert balance == Enum.at(user.balances, 0)
     end
   end
 end

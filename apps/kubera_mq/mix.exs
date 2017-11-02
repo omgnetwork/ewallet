@@ -28,7 +28,8 @@ defmodule KuberaMQ.Mixfile do
   defp deps do
     [
       {:amqp, "~> 0.3.0"},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:kubera_db, in_umbrella: true}
     ]
   end
 

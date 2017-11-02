@@ -55,6 +55,13 @@ defmodule KuberaAPI.V1.ErrorHandler do
   end
 
   @doc """
+  Handles response from external service error code and description.
+  """
+  def handle_error(conn, code, description) do
+    respond(conn, code, description)
+  end
+
+  @doc """
   Handles response of invalid version error with accept header provided.
   """
   def handle_error(conn, :invalid_version) do

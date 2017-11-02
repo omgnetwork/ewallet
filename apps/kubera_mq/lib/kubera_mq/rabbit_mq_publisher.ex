@@ -50,7 +50,16 @@ defmodule KuberaMQ.RabbitMQPublisher do
   defp wait_for_messages(_channel, correlation_id, callback) do
     receive do
       {:basic_deliver, payload, %{correlation_id: ^correlation_id}} ->
-        callback.(Poison.decode!(payload))
+        response = Poison.decode!(payload)
+
+        res = case response["success"] do
+          true ->
+            {:ok, response["data"]}
+          _ ->
+            {:error, response["data"]["code"], response["data"]["message"]}
+        end
+
+        if callback, do: callback.(res)
     end
   end
 

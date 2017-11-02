@@ -21,6 +21,8 @@ defmodule KuberaAPI.V1.Router do
   scope "/", KuberaAPI.V1 do
     pipe_through :api
 
+    post "/user.credit_balance", BalanceController, :credit
+
     post "/status", StatusController, :index
     post "/status.deps", StatusController, :status_deps
     post "/status.server_error", StatusController, :server_error

@@ -21,7 +21,7 @@ defmodule KuberaMQ.RabbitMQClient do
 
   def consume(channel, payload, meta) do
     payload = Poison.decode!(payload)
-    reply(channel, meta, Poison.encode!(%{status: "ok", payload: payload}))
+    reply(channel, meta, Poison.encode!(%{success: true, data: payload}))
   rescue
     exception ->
       reply(channel, meta, Poison.encode!(%{error: exception}))

@@ -3,7 +3,7 @@ defmodule KuberaDB.User do
   Ecto Schema representing users.
   """
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias KuberaDB.{Repo, Balance, User}
 
@@ -62,10 +62,26 @@ defmodule KuberaDB.User do
 
     case Repo.insert(changeset) do
       {:ok, user} ->
-        insert_balance(user)
         {:ok, get(user.id)}
       {:error, changeset} ->
         {:error, changeset}
+    end
+  end
+
+  @doc """
+  Retrieve the main balance for a minted token. If not available,
+  inserts a new one and return it.
+  """
+  def get_main_balance(user) do
+    balances = Repo.all(from b in Balance, where: b.user_id == ^user.id)
+    balance = List.first(balances)
+
+    case balance do
+      nil ->
+        {:ok, balance} = insert_balance(user)
+        balance
+      balance ->
+        balance
     end
   end
 

@@ -12,6 +12,7 @@ defmodule KuberaDB.Balance do
 
   schema "balance" do
     field :address, :string
+    field :genesis, :boolean, default: false
     belongs_to :user, User, foreign_key: :user_id,
                             references: :id,
                             type: UUID
@@ -31,10 +32,12 @@ defmodule KuberaDB.Balance do
   def changeset(%Balance{} = balance, attrs) do
     balance
     |> cast(attrs, [
-      :address, :account_id, :minted_token_id, :user_id, :metadata
+      :address, :account_id, :minted_token_id, :user_id, :metadata, :genesis
     ])
     |> validate_required(:address)
-    |> validate_required_exclusive([:account_id, :minted_token_id, :user_id])
+    |> validate_required_exclusive([
+      :account_id, :minted_token_id, :user_id, :genesis
+    ])
     |> unique_constraint(:address)
     |> assoc_constraint(:account)
     |> assoc_constraint(:minted_token)
@@ -58,5 +61,36 @@ defmodule KuberaDB.Balance do
     %Balance{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Returns the genesis balance.
+  """
+  def genesis do
+    case get("genesis") do
+      nil ->
+        insert_without_conflict("genesis", nil, true)
+      balance ->
+        {:ok, balance}
+    end
+  end
+
+  @doc """
+  Inserts a special kind of balance (either a genesis one or a master balance).
+  """
+  def insert_without_conflict(address, minted_token_id, genesis \\ false) do
+    changeset = Balance.changeset(%Balance{}, %{
+      address: address,
+      minted_token_id: minted_token_id,
+      genesis: genesis
+    })
+    opts = [on_conflict: :nothing, conflict_target: :address]
+
+    case Repo.insert(changeset, opts) do
+      {:ok, _balance} ->
+        {:ok, get(address)}
+      {:error, changeset} ->
+        {:error, changeset}
+    end
   end
 end

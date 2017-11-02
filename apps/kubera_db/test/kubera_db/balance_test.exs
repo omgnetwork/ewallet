@@ -32,7 +32,8 @@ defmodule KuberaDB.BalanceTest do
 
       refute changeset.valid?
       assert changeset.errors ==
-        [{[:account_id, :minted_token_id, :user_id], {"can't all be blank", []}}]
+        [{[:account_id, :minted_token_id, :user_id, :genesis],
+         {"can't all be blank", []}}]
     end
 
     test "validates user and minted_token can't both be present" do
@@ -43,7 +44,8 @@ defmodule KuberaDB.BalanceTest do
 
       refute changeset.valid?
       assert changeset.errors ==
-        [{[:account_id, :minted_token_id, :user_id], {"only one must be present", []}}]
+        [{[:account_id, :minted_token_id, :user_id, :genesis],
+         {"only one must be present", []}}]
     end
   end
 
@@ -112,7 +114,7 @@ defmodule KuberaDB.BalanceTest do
         [address: {"can't be blank", [validation: :required]}]
     end
 
-    test "prevents creation of a balance without a user nor minted token" do
+    test "prevents creation of a balance without a user/minted token/genesis" do
       {result, changeset} =
         :balance
         |> params_for(%{user: nil, minted_token: nil})
@@ -120,7 +122,7 @@ defmodule KuberaDB.BalanceTest do
 
       assert result == :error
       assert changeset.errors ==
-        [{[:account_id, :minted_token_id, :user_id], {"can't all be blank", []}}]
+        [{[:account_id, :minted_token_id, :user_id, :genesis], {"can't all be blank", []}}]
     end
 
     test "prevents creation of a balance with both a user and minted token" do
@@ -129,7 +131,8 @@ defmodule KuberaDB.BalanceTest do
 
       assert result == :error
       assert changeset.errors ==
-        [{[:account_id, :minted_token_id, :user_id], {"only one must be present", []}}]
+        [{[:account_id, :minted_token_id, :user_id, :genesis],
+         {"only one must be present", []}}]
     end
 
     test "returns error if balance with same address already exists" do
@@ -160,6 +163,20 @@ defmodule KuberaDB.BalanceTest do
 
     test "returns nil if the balance address does not exist" do
       assert Balance.get("nonexisting_address") == nil
+    end
+  end
+
+  describe "genesis/0" do
+    test "inserts the genesis address if not existing" do
+      assert Balance.get("genesis") == nil
+      {:ok, genesis} = Balance.genesis()
+      assert Balance.get("genesis") == genesis
+    end
+
+    test "returns the existing genesis address if present" do
+      {:ok, inserted_genesis} = Balance.genesis()
+      {:ok, genesis} = Balance.genesis()
+      assert inserted_genesis == genesis
     end
   end
 end

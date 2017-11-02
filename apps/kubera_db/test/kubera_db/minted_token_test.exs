@@ -105,6 +105,20 @@ defmodule KuberaDB.MintedTokenTest do
       assert result_2 == :error
       assert changeset_2.errors == [name: {"has already been taken", []}]
     end
+
+    test "inserts a balance for the minted token" do
+      {res, minted_token} =
+        MintedToken.insert(params_for(:minted_token))
+      MintedToken.get_main_balance(minted_token)
+
+      assert res == :ok
+      minted_token =
+        minted_token.symbol
+        |> MintedToken.get()
+        |> Repo.preload([:balances])
+
+      assert length(minted_token.balances) == 1
+    end
   end
 
   describe "all/0" do
@@ -130,6 +144,21 @@ defmodule KuberaDB.MintedTokenTest do
     test "returns nil if the minted token does not exist" do
       token = MintedToken.get("unknown")
       assert token == nil
+    end
+  end
+
+  describe "get_main_balance/1" do
+    test "returns the first balance" do
+      {:ok, inserted} = MintedToken.insert(params_for(:minted_token))
+      balance = MintedToken.get_main_balance(inserted)
+
+      minted_token =
+        inserted.symbol
+        |> MintedToken.get()
+        |> Repo.preload([:balances])
+
+      assert balance != nil
+      assert balance == Enum.at(minted_token.balances, 0)
     end
   end
 end

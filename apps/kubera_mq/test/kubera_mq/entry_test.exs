@@ -11,12 +11,7 @@ defmodule CaishenMQ.EntryTest do
     {:ok, _pid} = Consumer.start_link()
 
     Entry.all(fn response ->
-      assert response == %{
-        "status" => "ok",
-        "payload" => %{
-          "operation" => "entry.all"
-        }
-      }
+      assert response == {:ok, %{"operation" => "entry.all"}}
     end)
   end
 
@@ -24,13 +19,10 @@ defmodule CaishenMQ.EntryTest do
     {:ok, _pid} = Consumer.start_link()
 
     Entry.get("123", fn response ->
-      assert response == %{
-        "status" => "ok",
-        "payload" => %{
+      assert response == {:ok, %{
           "operation" => "entry.get",
           "data" => %{"id" => "123"}
-        }
-      }
+      }}
     end)
   end
 
@@ -38,13 +30,10 @@ defmodule CaishenMQ.EntryTest do
     {:ok, _pid} = Consumer.start_link()
 
     Entry.insert(%{}, fn response ->
-      assert response == %{
-        "payload" => %{
-          "operation" => "entry.insert",
-          "data" => %{}
-        },
-        "status" => "ok"
-      }
+      assert response == {:ok, %{
+        "operation" => "entry.insert",
+        "data" => %{}
+      }}
     end)
   end
 
@@ -52,13 +41,10 @@ defmodule CaishenMQ.EntryTest do
     {:ok, _pid} = Consumer.start_link()
 
     Entry.genesis(%{}, fn response ->
-      assert response == %{
-        "payload" => %{
-          "data" => %{},
-          "operation" => "entry.genesis"
-        },
-        "status" => "ok"
-      }
+      assert response == {:ok, %{
+        "data" => %{},
+        "operation" => "entry.genesis"
+      }}
     end)
   end
 end

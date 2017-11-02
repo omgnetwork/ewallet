@@ -18,7 +18,7 @@ defmodule KuberaMQ.Publisher do
     GenServer.call(__MODULE__, {:publish, payload, callback})
   end
 
-  def handle_call({:publish, payload, callback}, from, chan) do
+  def handle_call({:publish, payload, callback}, _from, chan) do
     RabbitMQPublisher.call(chan, payload, callback)
     {:reply, %{}, chan}
   end
