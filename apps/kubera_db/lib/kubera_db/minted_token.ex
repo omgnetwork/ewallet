@@ -4,8 +4,8 @@ defmodule KuberaDB.MintedToken do
   """
   use Ecto.Schema
   import Ecto.Changeset
-  alias KuberaDB.{Balance, MintedToken}
-  alias KuberaDB.Repo
+  alias Ecto.UUID
+  alias KuberaDB.{Repo, Account, Balance, MintedToken}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
@@ -24,6 +24,9 @@ defmodule KuberaDB.MintedToken do
     field :locked, :boolean # false
     has_many :balances, Balance, foreign_key: :minted_token_id,
                                  references: :id
+    belongs_to :account, Account, foreign_key: :account_id,
+                                           references: :id,
+                                           type: UUID
     timestamps()
   end
 
@@ -41,7 +44,7 @@ defmodule KuberaDB.MintedToken do
     |> cast(attrs, [
       :symbol, :iso_code, :name, :description, :short_symbol,
       :subunit, :subunit_to_unit, :symbol_first, :html_entity,
-      :iso_numeric, :smallest_denomination
+      :iso_numeric, :smallest_denomination, :locked, :account_id
     ])
     |> validate_required([
       :symbol, :name, :subunit_to_unit
@@ -51,6 +54,7 @@ defmodule KuberaDB.MintedToken do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
+    |> assoc_constraint(:account)
   end
 
   @doc """

@@ -4,9 +4,14 @@ defmodule KuberaAPI.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   import Phoenix.Controller, only: [json: 2]
+  import Plug.Conn, only: [halt: 1]
   alias KuberaAPI.V1.JSON.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
+    invalid_access_secret_key: %{
+      code: "client:invalid_access_secret_key",
+      description: "Invalid access and/or secret key"
+    },
     invalid_parameter: %{
       code: "client:invalid_parameter",
       description: "Invalid parameter provided"
@@ -46,18 +51,19 @@ defmodule KuberaAPI.V1.ErrorHandler do
     messages =
       error_fields(changeset)
 
-    render_error(conn, code, description, messages)
+    respond(conn, code, description, messages)
   end
 
   @doc """
   Handles response of invalid version error with accept header provided.
   """
   def handle_error(conn, :invalid_version) do
-    render_error(
-      conn,
-      @errors.invalid_version.code, # Use default error code
+    code =
+      @errors.invalid_version.code
+    description =
       "Invalid API version. Given: \"" <> conn.assigns.accept <> "\"."
-    )
+
+    respond(conn, code, description)
   end
 
   @doc """
@@ -66,7 +72,7 @@ defmodule KuberaAPI.V1.ErrorHandler do
   def handle_error(conn, error_name) do
     case Map.fetch(@errors, error_name) do
       {:ok, error} ->
-        render_error(conn, error.code, error.description)
+        respond(conn, error.code, error.description)
       _ ->
         handle_error(conn, :internal_server_error)
     end
@@ -89,12 +95,12 @@ defmodule KuberaAPI.V1.ErrorHandler do
     end)
   end
 
-  defp render_error(conn, code, description, messages \\ nil) do
+  defp respond(conn, code, description, messages \\ nil) do
     content =
       code
       |> ErrorSerializer.serialize(description, messages)
       |> ResponseSerializer.serialize(success: false)
 
-    json(conn, content)
+    conn |> json(content) |> halt()
   end
 end

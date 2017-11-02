@@ -6,7 +6,7 @@ defmodule KuberaDB.Balance do
   import Ecto.Changeset
   import KuberaDB.Validator
   alias Ecto.UUID
-  alias KuberaDB.{Repo, Balance, MintedToken, User}
+  alias KuberaDB.{Repo, Account, Balance, MintedToken, User}
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -18,6 +18,9 @@ defmodule KuberaDB.Balance do
     belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
                                            references: :id,
                                            type: UUID
+    belongs_to :account, Account, foreign_key: :account_id,
+                                  references: :id,
+                                  type: UUID
     field :metadata, :map
     timestamps()
   end
@@ -27,10 +30,13 @@ defmodule KuberaDB.Balance do
   """
   def changeset(%Balance{} = balance, attrs) do
     balance
-    |> cast(attrs, [:address, :minted_token_id, :user_id, :metadata])
+    |> cast(attrs, [
+      :address, :account_id, :minted_token_id, :user_id, :metadata
+    ])
     |> validate_required(:address)
-    |> validate_required_exclusive([:minted_token_id, :user_id])
+    |> validate_required_exclusive([:account_id, :minted_token_id, :user_id])
     |> unique_constraint(:address)
+    |> assoc_constraint(:account)
     |> assoc_constraint(:minted_token)
     |> assoc_constraint(:user)
   end

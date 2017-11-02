@@ -1,13 +1,6 @@
 defmodule KuberaAPI.V1.UserControllerTest do
   use KuberaAPI.ConnCase, async: true
   use KuberaAPI.EndpointCase, :v1
-  import KuberaDB.Factory
-  alias KuberaDB.Repo
-  alias Ecto.Adapters.SQL.Sandbox
-
-  setup do
-    :ok = Sandbox.checkout(Repo)
-  end
 
   describe "/user.create" do
     test "creates and responds with a newly created user if attributes are valid" do
@@ -15,16 +8,19 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
       response = build_conn()
         |> put_req_header("accept", @header_accept)
+        |> put_req_header("authorization", @header_auth)
         |> post("/user.create", request_data)
         |> json_response(:ok)
 
       assert response["version"] == @expected_version
       assert response["success"] == :true
       assert Map.has_key?(response["data"], "id")
+
       data = response["data"]
       assert data["object"] == "user"
       assert data["provider_user_id"] == request_data.provider_user_id
       assert data["username"] == request_data.username
+
       metadata = data["metadata"]
       assert metadata["first_name"] == request_data.metadata["first_name"]
       assert metadata["last_name"] == request_data.metadata["last_name"]
@@ -35,6 +31,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
       response = build_conn()
       |> put_req_header("accept", @header_accept)
+      |> put_req_header("authorization", @header_auth)
       |> post("/user.create", request_data)
       |> json_response(:ok)
 
@@ -55,6 +52,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
       response = build_conn()
         |> put_req_header("accept", @header_accept)
+        |> put_req_header("authorization", @header_auth)
         |> post("/user.get", provider_user_id: inserted_user.provider_user_id)
         |> json_response(:ok)
 
@@ -90,6 +88,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
       response = build_conn()
         |> put_req_header("accept", @header_accept)
+        |> put_req_header("authorization", @header_auth)
         |> post("/user.get", provider_user_id: "unknown_id999")
         |> json_response(:ok)
 

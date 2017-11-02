@@ -32,7 +32,7 @@ defmodule KuberaDB.BalanceTest do
 
       refute changeset.valid?
       assert changeset.errors ==
-        [{[:minted_token_id, :user_id], {"can't all be blank", []}}]
+        [{[:account_id, :minted_token_id, :user_id], {"can't all be blank", []}}]
     end
 
     test "validates user and minted_token can't both be present" do
@@ -43,7 +43,7 @@ defmodule KuberaDB.BalanceTest do
 
       refute changeset.valid?
       assert changeset.errors ==
-        [{[:minted_token_id, :user_id], {"only one must be present", []}}]
+        [{[:account_id, :minted_token_id, :user_id], {"only one must be present", []}}]
     end
   end
 
@@ -120,7 +120,7 @@ defmodule KuberaDB.BalanceTest do
 
       assert result == :error
       assert changeset.errors ==
-        [{[:minted_token_id, :user_id], {"can't all be blank", []}}]
+        [{[:account_id, :minted_token_id, :user_id], {"can't all be blank", []}}]
     end
 
     test "prevents creation of a balance with both a user and minted token" do
@@ -129,7 +129,7 @@ defmodule KuberaDB.BalanceTest do
 
       assert result == :error
       assert changeset.errors ==
-        [{[:minted_token_id, :user_id], {"only one must be present", []}}]
+        [{[:account_id, :minted_token_id, :user_id], {"only one must be present", []}}]
     end
 
     test "returns error if balance with same address already exists" do
