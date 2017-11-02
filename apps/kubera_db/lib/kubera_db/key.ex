@@ -38,8 +38,10 @@ defmodule KuberaDB.Key do
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:access_key, &generate_key/0)
-      |> Map.put_new_lazy(:secret_key, &generate_key/0)
+      |> Map.put_new_lazy(:access_key,
+        fn -> Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:secret_key,
+        fn -> Crypto.generate_key(@key_bytes) end)
 
     %Key{}
     |> Key.changeset(attrs)
@@ -81,11 +83,5 @@ defmodule KuberaDB.Key do
       true -> key
       _ -> nil
     end
-  end
-
-  defp generate_key do
-    @key_bytes
-    |> :crypto.strong_rand_bytes()
-    |> Base.url_encode64(padding: false)
   end
 end

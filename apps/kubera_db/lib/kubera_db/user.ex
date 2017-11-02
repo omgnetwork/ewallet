@@ -5,7 +5,7 @@ defmodule KuberaDB.User do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias KuberaDB.{Repo, Balance, User}
+  alias KuberaDB.{Repo, AuthToken, Balance, User}
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -14,6 +14,7 @@ defmodule KuberaDB.User do
     field :provider_user_id, :string
     field :metadata, :map
     has_many :balances, Balance
+    has_many :auth_tokens, AuthToken
 
     timestamps()
   end

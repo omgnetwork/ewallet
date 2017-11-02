@@ -16,6 +16,8 @@ defmodule KuberaAPI.V1.Router do
 
     post "/user.create", UserController, :create
     post "/user.get", UserController, :get
+
+    post "/login", AuthController, :login
   end
 
   scope "/", KuberaAPI.V1 do
