@@ -24,11 +24,15 @@ defmodule KuberaAPI.ConnCase do
 
       # The default endpoint for testing
       @endpoint KuberaAPI.Endpoint
+
+      defp put_auth_header(conn, type, a, b),
+        do: put_auth_header(conn, type, Base.encode64(a <> ":" <> b))
+      defp put_auth_header(conn, type, content),
+        do: put_req_header(conn, "authorization", type <> " " <> content)
     end
   end
 
   setup _tags do
     {:ok, conn: ConnTest.build_conn()}
   end
-
 end

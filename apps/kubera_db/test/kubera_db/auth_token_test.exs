@@ -36,11 +36,11 @@ defmodule KuberaDB.AuthTokenTest do
   end
 
   describe "generate/1" do
-    test "generates an auth token string with length == 32" do
+    test "generates an auth token string with length == 43" do
       {:ok, user} = :user |> params_for() |> User.insert()
       auth_token = AuthToken.generate(user)
 
-      assert String.length(auth_token) == 32
+      assert String.length(auth_token) == 43
     end
 
     test "allows multiple auth tokens for each user" do

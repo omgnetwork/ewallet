@@ -1,18 +1,22 @@
 defmodule KuberaAPI.V1.Router do
   use KuberaAPI, :router
-  alias KuberaAPI.V1.Plug.ProviderAuth
+  alias KuberaAPI.V1.Plug.{ClientAuth, ProviderAuth}
 
   pipeline :provider_api do
-    plug :accepts, ["json"]
     plug ProviderAuth
+  end
+
+  pipeline :client_api do
+    plug ClientAuth
   end
 
   pipeline :api do
     plug :accepts, ["json"]
   end
 
+  # Provider endpoints
   scope "/", KuberaAPI.V1 do
-    pipe_through :provider_api
+    pipe_through [:api, :provider_api]
 
     post "/user.create", UserController, :create
     post "/user.get", UserController, :get
@@ -20,8 +24,16 @@ defmodule KuberaAPI.V1.Router do
     post "/login", AuthController, :login
   end
 
+  # Client endpoints
   scope "/", KuberaAPI.V1 do
-    pipe_through :api
+    pipe_through [:api, :client_api]
+
+    post "/me.get", SelfController, :get
+  end
+
+  # Public endpoints
+  scope "/", KuberaAPI.V1 do
+    pipe_through [:api]
 
     post "/user.credit_balance", BalanceController, :credit
 

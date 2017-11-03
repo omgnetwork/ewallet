@@ -3,7 +3,8 @@ defmodule KuberaDB.Factory do
   Factories used for testing.
   """
   use ExMachina.Ecto, repo: KuberaDB.Repo
-  alias KuberaDB.{Account, AuthToken, Balance, Key, MintedToken, User, Mint}
+  alias KuberaDB.{Account, APIKey, AuthToken, Balance, Key, Mint,
+    MintedToken, User}
 
   def balance_factory do
     %Balance{
@@ -62,6 +63,14 @@ defmodule KuberaDB.Factory do
       access_key: sequence("access_key"),
       secret_key: sequence("secret_key"),
       account: insert(:account),
+    }
+  end
+
+  def api_key_factory do
+    %APIKey{
+      key: sequence("api_key"),
+      account: insert(:account),
+      expired: false,
     }
   end
 

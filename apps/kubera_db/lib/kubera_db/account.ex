@@ -5,7 +5,7 @@ defmodule KuberaDB.Account do
   use Ecto.Schema
   import Ecto.Changeset
   alias Ecto.UUID
-  alias KuberaDB.{Repo, Account, Balance, Key, MintedToken}
+  alias KuberaDB.{Repo, Account, APIKey, Balance, Key, MintedToken}
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -16,6 +16,7 @@ defmodule KuberaDB.Account do
     has_many :balances, Balance
     has_many :minted_tokens, MintedToken
     has_many :keys, Key
+    has_many :api_keys, APIKey
 
     timestamps()
   end

@@ -8,9 +8,17 @@ defmodule KuberaAPI.V1.ErrorHandler do
   alias KuberaAPI.V1.JSON.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
+    invalid_auth_scheme: %{
+      code: "client:invalid_auth_scheme",
+      description: "The provided authentication scheme is not supported"
+    },
     invalid_access_secret_key: %{
       code: "client:invalid_access_secret_key",
       description: "Invalid access and/or secret key"
+    },
+    invalid_api_key: %{
+      code: "client:invalid_api_key",
+      description: "The provided API key can't be found or is invalid"
     },
     invalid_parameter: %{
       code: "client:invalid_parameter",
@@ -28,10 +36,14 @@ defmodule KuberaAPI.V1.ErrorHandler do
       code: "server:internal_server_error",
       description: "Something went wrong on the server"
     },
+    access_token_not_found: %{
+      code: "user:access_token_not_found",
+      description: "There is no user corresponding to the provided access_token"
+    },
     provider_user_id_not_found: %{
       code: "user:provider_user_id_not_found",
       description: "There is no user corresponding to the provided provider_user_id"
-    },
+    }
   }
 
   # Used for mapping any Ecto.changeset validation

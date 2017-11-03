@@ -67,24 +67,24 @@ defmodule KuberaDB.KeyTest do
         [account_id: {"can't be blank", [validation: :required]}]
     end
 
-    test "generates access_key with length == 32 if not provided" do
+    test "generates access_key with length == 43" do
       {result, key} =
         :key
         |> params_for(%{access_key: nil})
         |> Key.insert
 
       assert result == :ok
-      assert String.length(key.access_key) == 32
+      assert String.length(key.access_key) == 43
     end
 
-    test "generates secret_key with length == 32 if not provided" do
+    test "generates secret_key with length == 43" do
       {result, key} =
         :key
         |> params_for(%{secret_key: nil})
         |> Key.insert
 
       assert result == :ok
-      assert String.length(key.secret_key) == 32
+      assert String.length(key.secret_key) == 43
     end
 
     test "returns error if a key with same access/secret key already exists" do

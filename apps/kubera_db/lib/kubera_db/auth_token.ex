@@ -48,7 +48,7 @@ defmodule KuberaDB.AuthToken do
 
   @doc """
   Retrieves an auth token using the specified token.
-  Handles unsafe nil values so Ecto does not throw warnings.
+  Returns the associated user if authenticated, false otherwise.
   """
   def authenticate(token) do
     case get(token) do

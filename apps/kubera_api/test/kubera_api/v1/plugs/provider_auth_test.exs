@@ -1,6 +1,5 @@
 defmodule KuberaAPI.V1.Plug.ProviderAuthTest do
-  use ExUnit.Case
-  use Phoenix.ConnTest
+  use KuberaAPI.ConnCase, async: true
   import KuberaDB.Factory, only: [insert: 2]
   alias Ecto.Adapters.SQL.Sandbox
   alias KuberaAPI.V1.Plug.ProviderAuth
@@ -20,7 +19,7 @@ defmodule KuberaAPI.V1.Plug.ProviderAuthTest do
     test "assigns authenticated and account if access/secret key are correct" do
       conn =
         build_conn()
-        |> put_req_header("authorization", "OMGServer " <> Base.encode64(@access_key <> ":" <> @secret_key))
+        |> put_auth_header("OMGServer", @access_key, @secret_key)
         |> ProviderAuth.call([])
 
       refute conn.halted
@@ -31,7 +30,7 @@ defmodule KuberaAPI.V1.Plug.ProviderAuthTest do
     test "halts if access/secret key are incorrect" do
       conn =
         build_conn()
-        |> put_req_header("authorization", "OMGServer " <> Base.encode64(@access_key <> ":invalid_secret"))
+        |> put_auth_header("OMGServer", @access_key, "invalid_secret")
         |> ProviderAuth.call([])
 
       assert conn.halted
@@ -45,7 +44,7 @@ defmodule KuberaAPI.V1.Plug.ProviderAuthTest do
     test "assigns authenticated and account if access/secret key are correct" do
       conn =
         build_conn()
-        |> put_req_header("authorization", "Basic " <> Base.encode64(@access_key <> ":" <> @secret_key))
+        |> put_auth_header("Basic", @access_key, @secret_key)
         |> ProviderAuth.call([])
 
       refute conn.halted
@@ -56,7 +55,7 @@ defmodule KuberaAPI.V1.Plug.ProviderAuthTest do
     test "halts if access/secret key are incorrect" do
       conn =
         build_conn()
-        |> put_req_header("authorization", "Basic " <> Base.encode64(@access_key <> ":invalid_secret"))
+        |> put_auth_header("Basic", @access_key, "invalid_secret")
         |> ProviderAuth.call([])
 
       assert conn.halted
@@ -70,7 +69,7 @@ defmodule KuberaAPI.V1.Plug.ProviderAuthTest do
     test "halts if auth type is not supported" do
       conn =
         build_conn()
-        |> put_req_header("authorization", "InvalidAuth " <> Base.encode64(@access_key <> ":" <> @secret_key))
+        |> put_auth_header("InvalidAuth", @access_key, @secret_key)
         |> ProviderAuth.call([])
 
       assert conn.halted

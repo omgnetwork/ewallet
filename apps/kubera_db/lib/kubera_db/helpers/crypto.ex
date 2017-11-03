@@ -19,11 +19,10 @@ defmodule KuberaDB.Helpers.Crypto do
     |> Kernel.==(0)
   end
 
-  def generate_key(key_length) when is_integer(key_length) do
-    key_length
+  def generate_key(key_bytes) when is_integer(key_bytes) do
+    key_bytes
     |> :crypto.strong_rand_bytes()
-    |> Base.encode64
-    |> binary_part(0, key_length)
+    |> Base.url_encode64(padding: false)
   end
 
   defp do_bxor({left, right}, acc) do
