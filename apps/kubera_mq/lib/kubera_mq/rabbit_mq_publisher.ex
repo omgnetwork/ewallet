@@ -18,7 +18,7 @@ defmodule KuberaMQ.RabbitMQPublisher do
     end
   end
 
-  def call(chan, payload, callback) do
+  def call(chan, payload) do
     config = get_config()
     correlation_id = generate_correlation_id()
 
@@ -30,7 +30,7 @@ defmodule KuberaMQ.RabbitMQPublisher do
                   reply_to: setup_tmp_queue(chan, config),
                   correlation_id: correlation_id
 
-    wait_for_messages(chan, correlation_id, callback)
+    wait_for_messages(chan, correlation_id)
   end
 
   defp open_channel(conn, config) do
@@ -47,19 +47,17 @@ defmodule KuberaMQ.RabbitMQPublisher do
     {:ok, chan}
   end
 
-  defp wait_for_messages(_channel, correlation_id, callback) do
+  defp wait_for_messages(_channel, correlation_id) do
     receive do
       {:basic_deliver, payload, %{correlation_id: ^correlation_id}} ->
         response = Poison.decode!(payload)
 
-        res = case response["success"] do
+        case response["success"] do
           true ->
             {:ok, response["data"]}
           _ ->
-            {:error, response["data"]["code"], response["data"]["message"]}
+            {:error, response["data"]["code"], response["data"]["description"]}
         end
-
-        if callback, do: callback.(res)
     end
   end
 

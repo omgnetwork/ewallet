@@ -21,6 +21,10 @@ defmodule KuberaAPI.V1.Router do
     post "/user.create", UserController, :create
     post "/user.get", UserController, :get
 
+    post "/user.list_balances", BalanceController, :all
+    post "/user.credit_balance", BalanceController, :credit
+    post "/user.debit_balance", BalanceController, :debit
+
     post "/login", AuthController, :login
   end
 
@@ -34,8 +38,6 @@ defmodule KuberaAPI.V1.Router do
   # Public endpoints
   scope "/", KuberaAPI.V1 do
     pipe_through [:api]
-
-    post "/user.credit_balance", BalanceController, :credit
 
     post "/status", StatusController, :index
     post "/status.deps", StatusController, :status_deps

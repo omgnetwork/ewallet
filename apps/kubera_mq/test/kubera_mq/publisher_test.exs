@@ -4,9 +4,7 @@ defmodule CaishenMQ.PublisherTest do
 
   test "sends an RPC call through RabbitMQ" do
     {:ok, _pid} = Consumer.start_link()
-
-    Publisher.send(%{hello: "Universe"}, fn response ->
-      assert response == {:ok, %{"hello" => "Universe"}}
-    end)
+    response = Publisher.send(%{hello: "Universe"})
+    assert response == {:ok, %{"hello" => "Universe"}}
   end
 end

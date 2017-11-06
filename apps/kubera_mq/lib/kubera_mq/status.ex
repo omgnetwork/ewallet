@@ -4,8 +4,8 @@ defmodule KuberaMQ.Status do
   """
   alias KuberaMQ.Publisher
 
-  def check(callback) do
+  def check do
     attrs = %{operation: "status.check"}
-    Publisher.send(attrs, callback)
+    Publisher.send(attrs)
   end
 end

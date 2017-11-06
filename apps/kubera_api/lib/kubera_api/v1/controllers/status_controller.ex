@@ -7,12 +7,7 @@ defmodule KuberaAPI.V1.StatusController do
   end
 
   def status_deps(conn, _attrs) do
-    Status.check(fn response ->
-      json conn, response
-    end)
-
-    # This should never be returned.
-    json conn, %{success: true, callback: false}
+    json conn, Status.check()
   end
 
   def server_error(_conn, _attrs) do

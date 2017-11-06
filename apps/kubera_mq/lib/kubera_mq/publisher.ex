@@ -14,13 +14,13 @@ defmodule KuberaMQ.Publisher do
     RabbitMQPublisher.init
   end
 
-  def send(payload, callback) do
-    GenServer.call(__MODULE__, {:publish, payload, callback})
+  def send(payload) do
+    GenServer.call(__MODULE__, {:publish, payload})
   end
 
-  def handle_call({:publish, payload, callback}, _from, chan) do
-    RabbitMQPublisher.call(chan, payload, callback)
-    {:reply, %{}, chan}
+  def handle_call({:publish, payload}, _from, chan) do
+    response = RabbitMQPublisher.call(chan, payload)
+    {:reply, response, chan}
   end
 
   # Confirmation sent by the broker after registering this process as a consumer

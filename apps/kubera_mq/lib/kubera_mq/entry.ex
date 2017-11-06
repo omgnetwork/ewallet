@@ -4,23 +4,29 @@ defmodule KuberaMQ.Entry do
   """
   alias KuberaMQ.Publisher
 
-  def all(callback) do
-    attrs = %{operation: "entry.all"}
-    Publisher.send(attrs, callback)
+  def all do
+    Publisher.send(%{
+      operation: "v1.entry.all"
+    })
   end
 
-  def get(id, callback) do
-    attrs = %{operation: "entry.get", data: %{id: id}}
-    Publisher.send(attrs, callback)
+  def get(id) do
+    Publisher.send(%{
+      operation: "v1.entry.get",
+      data: %{id: id}
+    })
   end
 
-  def insert(data, callback) do
-    attrs = %{operation: "entry.insert", data: data}
-    Publisher.send(attrs, callback)
+  def insert(data) do
+    Publisher.send(%{
+      operation: "v1.entry.insert",
+      data: data})
   end
 
-  def genesis(data, callback) do
-    attrs = %{operation: "entry.genesis", data: data}
-    Publisher.send(attrs, callback)
+  def genesis(data) do
+    Publisher.send(%{
+      operation: "v1.entry.genesis",
+      data: data
+    })
   end
 end

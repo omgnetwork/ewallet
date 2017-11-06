@@ -7,44 +7,40 @@ defmodule CaishenMQ.EntryTest do
     :ok
   end
 
-  test "sends the 'entry.all' operation" do
+  test "sends the 'v1.entry.all' operation" do
     {:ok, _pid} = Consumer.start_link()
 
-    Entry.all(fn response ->
-      assert response == {:ok, %{"operation" => "entry.all"}}
-    end)
+    assert Entry.all() == {:ok, %{"operation" => "v1.entry.all"}}
   end
 
-  test "sends the 'entry.get' operation" do
+  test "sends the 'v1.entry.get' operation" do
     {:ok, _pid} = Consumer.start_link()
 
-    Entry.get("123", fn response ->
-      assert response == {:ok, %{
-          "operation" => "entry.get",
-          "data" => %{"id" => "123"}
-      }}
-    end)
+    response = Entry.get("123")
+
+    assert response == {:ok, %{
+      "operation" => "v1.entry.get",
+      "data" => %{"id" => "123"}
+    }}
   end
 
-  test "sends the 'entry.insert' operation" do
+  test "sends the 'v1.entry.insert' operation" do
     {:ok, _pid} = Consumer.start_link()
 
-    Entry.insert(%{}, fn response ->
-      assert response == {:ok, %{
-        "operation" => "entry.insert",
-        "data" => %{}
-      }}
-    end)
+    response = Entry.insert(%{})
+
+    assert response == {:ok, %{
+      "operation" => "v1.entry.insert",
+      "data" => %{}
+    }}
   end
 
-  test "sends the 'entry.genesis' operation" do
+  test "sends the 'v1.entry.genesis' operation" do
     {:ok, _pid} = Consumer.start_link()
 
-    Entry.genesis(%{}, fn response ->
-      assert response == {:ok, %{
-        "data" => %{},
-        "operation" => "entry.genesis"
-      }}
-    end)
+    assert Entry.genesis(%{}) == {:ok, %{
+      "data" => %{},
+      "operation" => "v1.entry.genesis"
+    }}
   end
 end

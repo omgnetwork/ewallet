@@ -86,6 +86,11 @@ defmodule KuberaDB.MintedToken do
     Repo.get_by(MintedToken, symbol: symbol)
   end
 
+  def get_all(symbols) do
+    Repo.all(from m in MintedToken,
+                       where: m.symbol in ^symbols)
+  end
+
   @doc """
   Retrieve the main balance for a minted token. If not available,
   safely inserts a new one and return it.

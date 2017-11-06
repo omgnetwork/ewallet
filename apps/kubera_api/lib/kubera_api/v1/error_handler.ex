@@ -43,6 +43,10 @@ defmodule KuberaAPI.V1.ErrorHandler do
     provider_user_id_not_found: %{
       code: "user:provider_user_id_not_found",
       description: "There is no user corresponding to the provided provider_user_id"
+    },
+    minted_token_not_found: %{
+      code: "user:minted_token_not_found",
+      description: "There is no minted token matching the provided symbol."
     }
   }
 
@@ -67,7 +71,7 @@ defmodule KuberaAPI.V1.ErrorHandler do
   end
 
   @doc """
-  Handles response from external service error code and description.
+  Handles response with custom error code and description.
   """
   def handle_error(conn, code, description) do
     respond(conn, code, description)

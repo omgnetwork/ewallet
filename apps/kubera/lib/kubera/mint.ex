@@ -14,49 +14,53 @@ defmodule Kubera.Mint do
 
   ## Examples
 
-    Mint.insert(%{
+    res = Mint.insert(%{
       minted_token: minted_token,
       amount: 100_000,
       description: "Another mint bites the dust.",
       metadata: %{probably: "something useful. Or not."}
-    }, fn res ->
-      case res do
-        {:ok, mint, response} ->
-          # Everything went well, do something.
-          # response is the response returned by the local ledger (Caishen for
-          # example).
-        {:error, code, description} ->
-          # Something went wrong on the other side (Caishen maybe) and the
-          # insert failed.
-        {:error, changeset, nil} ->
-          # Something went wrong, check the errors in the changeset!
-      end
-    end)
+    })
+
+    case res do
+      {:ok, mint, response} ->
+        # Everything went well, do something.
+        # response is the response returned by the local ledger (Caishen for
+        # example).
+      {:error, code, description} ->
+        # Something went wrong on the other side (Caishen maybe) and the
+        # insert failed.
+      {:error, changeset, nil} ->
+        # Something went wrong, check the errors in the changeset!
+    end
 
   """
-  def insert(%{minted_token: minted_token, amount: amount,
-               description: description, metadata: metadata},
-               callback \\ nil) do
+  def insert(%{
+    minted_token: minted_token,
+    amount: amount,
+    description: description,
+    metadata: metadata
+  }) do
     mint = insert(minted_token, amount, description)
 
     case mint do
       {:ok, mint} ->
-        minted_token |> serialize(amount, metadata) |> genesis(mint, callback)
+        minted_token |> serialize(amount, metadata) |> genesis(mint)
       {:error, changeset} ->
-        callback.({:error, changeset, nil})
+        {:error, changeset, nil}
     end
   end
 
-  defp genesis(data, mint, callback) do
-    Entry.genesis(data, fn response ->
-      case response do
-        {:ok, data} ->
-          {:ok, mint} = Mint.confirm(mint)
-          callback.({:ok, mint, data})
-        {:error, code, description} ->
-          callback.({:error, mint, code, description})
-      end
-    end)
+  defp genesis({:ok, data}, mint) do
+    {:ok, mint} = Mint.confirm(mint)
+    {:ok, mint, data}
+  end
+  defp genesis({:error, code, description}, mint) do
+    {:error, mint, code, description}
+  end
+  defp genesis(data, mint) do
+    data
+    |> Entry.genesis
+    |> genesis(mint)
   end
 
   defp insert(minted_token, amount, description) do
