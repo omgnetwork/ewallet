@@ -25,21 +25,15 @@ defmodule KuberaAPI.V1.Plug.ClientAuth do
       |> get_req_header("authorization")
       |> List.first()
 
-    keys =
-      case String.split(header, " ", parts: 2) do
-        [type, auth] when type in ["Basic", "OMGClient"] ->
-          auth
-          |> Base.decode64!()
-          |> String.split(":", parts: 2)
-        _ ->
-          :error
-      end
-
-    case keys do
-      [api_key, auth_token] ->
-        conn
-        |> put_private(:auth_api_key, api_key)
-        |> put_private(:auth_auth_token, auth_token)
+    with header when not is_nil(header) <- header,
+         [scheme, content] <- String.split(header, " ", parts: 2),
+         true <- scheme in ["Basic", "OMGClient"],
+         {:ok, decoded} <- Base.decode64(content),
+         [key, token] <- String.split(decoded, ":", parts: 2) do
+      conn
+      |> put_private(:auth_api_key, key)
+      |> put_private(:auth_auth_token, token)
+    else
       _ ->
         conn
         |> assign(:authenticated, false)
@@ -47,7 +41,8 @@ defmodule KuberaAPI.V1.Plug.ClientAuth do
     end
   end
 
-  defp authenticate_client(%{assigns: %{authenticated: false}} = conn), do: conn
+  # Skip client auth if it already failed since header parsing
+  defp authenticate_client(%{assigns: %{authenticated: :false}} = conn), do: conn
   defp authenticate_client(conn) do
     api_key = conn.private[:auth_api_key]
 

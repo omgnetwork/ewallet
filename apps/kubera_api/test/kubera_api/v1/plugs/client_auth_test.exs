@@ -94,17 +94,45 @@ defmodule KuberaAPI.V1.Plug.ClientAuthTest do
       refute Map.has_key?(conn.assigns, :user)
       assert body["data"]["code"] == "client:invalid_auth_scheme"
     end
+  end
 
-    test "halts and returns error code if auth content is invalid" do
+  describe "call/2 with invalid auth scheme" do
+    test "halts with :invalid_auth_scheme if credentials format is invalid" do
       conn =
         build_conn()
-        |> put_auth_header("OMGServer", "invalidformat")
+        |> put_auth_header("OMGClient", "not_colon_separated_base64")
         |> ClientAuth.call([])
       {:ok, body} = conn |> Map.get(:resp_body) |> Parser.parse()
 
       assert conn.halted
       refute conn.assigns[:authenticated]
       refute Map.has_key?(conn.assigns, :user)
+      assert body["data"]["code"] == "client:invalid_auth_scheme"
+    end
+
+    test "halts with :invalid_auth_scheme if auth header is not provided" do
+      conn = build_conn() |> ClientAuth.call([])
+      {:ok, body} = conn |> Map.get(:resp_body) |> Parser.parse()
+
+      assert conn.halted
+      assert conn.status == 200
+      refute conn.assigns[:authenticated]
+      refute Map.has_key?(conn.assigns, :account)
+      assert body["data"]["code"] == "client:invalid_auth_scheme"
+    end
+
+    test "halts with :invalid_auth_scheme if auth scheme is not supported" do
+      conn =
+        build_conn()
+        |> put_auth_header("InvalidScheme", @api_key, @auth_token)
+        |> ClientAuth.call([])
+
+      {:ok, body} = conn |> Map.get(:resp_body) |> Parser.parse()
+
+      assert conn.halted
+      assert conn.status == 200
+      refute conn.assigns[:authenticated]
+      refute Map.has_key?(conn.assigns, :account)
       assert body["data"]["code"] == "client:invalid_auth_scheme"
     end
   end
