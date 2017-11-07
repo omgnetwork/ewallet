@@ -1,5 +1,5 @@
 defmodule KuberaAPI.V1.ResponseSerializerTest do
-  use ExUnit.Case
+  use KuberaAPI.SerializerCase, :v1
   alias KuberaAPI.V1.JSON.ResponseSerializer
 
   describe "V1.JSON.ResponseSerializer" do

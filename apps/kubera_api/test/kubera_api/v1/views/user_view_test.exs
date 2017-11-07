@@ -17,7 +17,7 @@ defmodule KuberaAPI.V1.UserViewTest do
       }
 
       expected = %{
-        version: "1",
+        version: @expected_version,
         success: true,
         data: %{
           object: "user",

@@ -1,5 +1,5 @@
 defmodule KuberaAPI.V1.UserSerializerTest do
-  use ExUnit.Case
+  use KuberaAPI.SerializerCase, :v1
   alias KuberaAPI.V1.JSON.UserSerializer
   alias Ecto.UUID
 
