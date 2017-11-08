@@ -3,8 +3,8 @@ defmodule KuberaAPI.V1.UserController do
   import KuberaAPI.V1.ErrorHandler
   alias KuberaDB.User
 
-  def get(conn, %{"provider_user_id" => provider_user_id}) do
-    provider_user_id
+  def get(conn, %{"provider_user_id" => id}) when not is_nil(id) do
+    id
     |> User.get_by_provider_user_id()
     |> respond(conn)
   end

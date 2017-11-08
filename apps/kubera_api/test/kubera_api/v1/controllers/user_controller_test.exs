@@ -94,5 +94,47 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
       assert response == expected
     end
+
+    test "responds :invalid_parameter if provider_user_id not given" do
+      expected = %{
+        "version" => @expected_version,
+        "success" => false,
+        "data" => %{
+          "object" => "error",
+          "code" => "client:invalid_parameter",
+          "description" => "Invalid parameter provided",
+          "messages" => nil
+        }
+      }
+
+      response = build_conn()
+        |> put_req_header("accept", @header_accept)
+        |> put_req_header("authorization", @header_auth)
+        |> post("/user.get", %{})
+        |> json_response(:ok)
+
+      assert response == expected
+    end
+
+    test "responds :invalid_parameter if provider_user_id is nil" do
+      expected = %{
+        "version" => @expected_version,
+        "success" => false,
+        "data" => %{
+          "object" => "error",
+          "code" => "client:invalid_parameter",
+          "description" => "Invalid parameter provided",
+          "messages" => nil
+        }
+      }
+
+      response = build_conn()
+        |> put_req_header("accept", @header_accept)
+        |> put_req_header("authorization", @header_auth)
+        |> post("/user.get", provider_user_id: nil)
+        |> json_response(:ok)
+
+      assert response == expected
+    end
   end
 end
