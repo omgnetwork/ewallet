@@ -34,6 +34,7 @@ defmodule KuberaAPI.V1.Router do
     pipe_through [:api, :client_api]
 
     post "/me.get", SelfController, :get
+    post "/logout", AuthController, :logout
   end
 
   # Public endpoints

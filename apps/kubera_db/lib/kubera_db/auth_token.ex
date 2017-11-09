@@ -48,12 +48,16 @@ defmodule KuberaDB.AuthToken do
 
   @doc """
   Retrieves an auth token using the specified token.
-  Returns the associated user if authenticated, false otherwise.
+  Returns the associated user if authenticated,
+  returns :token_expired if token exists but expired,
+  returns false otherwise.
   """
   def authenticate(token) do
     case get(token) do
       nil ->
         false
+      %{expired: true} ->
+        :token_expired
       token ->
         token
         |> Repo.preload(:user)
@@ -63,12 +67,12 @@ defmodule KuberaDB.AuthToken do
 
   # `get/1` is private to prohibit direct auth token access,
   # please use `authenticate/1` instead.
-  defp get(token) when is_nil(token), do: nil
-  defp get(token) do
+  defp get(token) when is_binary(token) and byte_size(token) > 0 do
     AuthToken
-    |> Repo.get_by([token: token, expired: false])
+    |> Repo.get_by(token: token)
     |> Repo.preload(:user)
   end
+  defp get(_token), do: nil
 
   # `insert/1` is private to prohibit direct auth token insertion,
   # please use `generate/1` instead.
@@ -76,5 +80,19 @@ defmodule KuberaDB.AuthToken do
     %AuthToken{}
     |> AuthToken.changeset(attrs)
     |> Repo.insert()
+  end
+
+  # Expires the given token.
+  def expire(%AuthToken{} = token),
+    do: update(token, %{expired: true})
+  def expire(token),
+    do: token |> get() |> expire()
+
+  # `insert/1` is private to prohibit direct auth token updates,
+  # if expiring the token, please use `expire/1` instead.
+  defp update(%AuthToken{} = token, attrs) do
+    token
+    |> AuthToken.changeset(attrs)
+    |> Repo.update()
   end
 end

@@ -40,6 +40,10 @@ defmodule KuberaAPI.V1.ErrorHandler do
       code: "user:access_token_not_found",
       description: "There is no user corresponding to the provided access_token"
     },
+    access_token_expired: %{
+      code: "user:access_token_expired",
+      description: "The provided token is expired or has been invalidated"
+    },
     provider_user_id_not_found: %{
       code: "user:provider_user_id_not_found",
       description: "There is no user corresponding to the provided provider_user_id"

@@ -8,4 +8,9 @@ defmodule KuberaAPI.V1.AuthView do
     |> AuthTokenSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
+  def render("empty_response.json", _attrs) do
+    %{}
+    |> ResponseSerializer.serialize(success: true)
+  end
 end

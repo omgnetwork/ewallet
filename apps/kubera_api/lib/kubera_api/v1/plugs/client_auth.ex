@@ -72,10 +72,26 @@ defmodule KuberaAPI.V1.Plug.ClientAuth do
         conn
         |> assign(:authenticated, false)
         |> handle_error(:access_token_not_found)
+      :token_expired ->
+        conn
+        |> assign(:authenticated, false)
+        |> handle_error(:access_token_expired)
       user ->
         conn
         |> assign(:authenticated, :client)
         |> assign(:user, user)
     end
+  end
+
+  @doc """
+  Expires the authentication token used in this connection.
+  """
+  def expire_token(conn) do
+    token_string = conn.private[:auth_auth_token]
+    AuthToken.expire(token_string)
+
+    conn
+    |> assign(:authenticated, false)
+    |> assign(:user, nil)
   end
 end

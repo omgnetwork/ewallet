@@ -68,12 +68,40 @@ defmodule KuberaDB.AuthTokenTest do
       assert auth_user.id == user.id
     end
 
+    test "returns :token_expired if token exists but expired" do
+      {:ok, token} = :auth_token
+        |> insert()
+        |> AuthToken.expire()
+
+      assert AuthToken.authenticate(token.token) == :token_expired
+    end
+
     test "returns false if token does not exists" do
       assert AuthToken.authenticate("unmatched") == false
     end
 
     test "returns false if auth token is nil" do
       assert AuthToken.authenticate(nil) == false
+    end
+  end
+
+  describe "expire/1" do
+    test "expires AuthToken sucessfully given an AuthToken" do
+      token = insert(:auth_token)
+      token_string = token.token
+
+      assert AuthToken.authenticate(token_string) # Ensure token is usable.
+      AuthToken.expire(token)
+      assert AuthToken.authenticate(token_string) == :token_expired
+    end
+
+    test "expires AuthToken successfully given the token string" do
+      token = insert(:auth_token)
+      token_string = token.token
+
+      assert AuthToken.authenticate(token_string) # Ensure token is usable.
+      AuthToken.expire(token_string)
+      assert AuthToken.authenticate(token_string) == :token_expired
     end
   end
 end

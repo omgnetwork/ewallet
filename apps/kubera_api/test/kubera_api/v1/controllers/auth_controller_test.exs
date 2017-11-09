@@ -89,4 +89,21 @@ defmodule KuberaAPI.V1.AuthControllerTest do
       assert response == expected
     end
   end
+
+  describe "/logout" do
+    test "responds success with empty response if logout successfully" do
+      api_key = insert(:api_key).key
+      auth_token = insert(:auth_token).token
+
+      response = build_conn()
+        |> put_req_header("accept", @header_accept)
+        |> put_auth_header("OMGClient", api_key, auth_token)
+        |> post("/logout", %{})
+        |> json_response(:ok)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == :true
+      assert response["data"] == %{}
+    end
+  end
 end
