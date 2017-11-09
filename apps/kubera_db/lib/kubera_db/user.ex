@@ -4,6 +4,7 @@ defmodule KuberaDB.User do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
+  import KuberaDB.Validator
   alias Ecto.UUID
   alias KuberaDB.{Repo, AuthToken, Balance, User}
 
@@ -25,7 +26,8 @@ defmodule KuberaDB.User do
   def changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:username, :provider_user_id, :metadata])
-    |> validate_required([:username, :provider_user_id])
+    |> validate_required([:username, :provider_user_id, :metadata])
+    |> validate_immutable(:provider_user_id)
     |> unsafe_validate_unique(:username, Repo)
     |> unsafe_validate_unique(:provider_user_id, Repo)
     |> unique_constraint(:username)
@@ -64,8 +66,22 @@ defmodule KuberaDB.User do
     case Repo.insert(changeset) do
       {:ok, user} ->
         {:ok, get(user.id)}
-      {:error, changeset} ->
-        {:error, changeset}
+      result ->
+        result
+    end
+  end
+
+  @doc """
+  Updates a user with the provided attributes.
+  """
+  def update(%User{} = user, attrs) do
+    changeset = User.changeset(user, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        {:ok, get(user.id)}
+      result ->
+        result
     end
   end
 

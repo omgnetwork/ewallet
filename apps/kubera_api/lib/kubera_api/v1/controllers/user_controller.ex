@@ -3,7 +3,8 @@ defmodule KuberaAPI.V1.UserController do
   import KuberaAPI.V1.ErrorHandler
   alias KuberaDB.User
 
-  def get(conn, %{"provider_user_id" => id}) when not is_nil(id) do
+  def get(conn, %{"provider_user_id" => id})
+  when is_binary(id) and byte_size(id) > 0  do
     id
     |> User.get_by_provider_user_id()
     |> respond(conn)
@@ -18,6 +19,26 @@ defmodule KuberaAPI.V1.UserController do
     |> User.insert()
     |> respond(conn)
   end
+
+  @doc """
+  Updates the user if all required parameters are provided.
+  """
+  # Pattern matching for required params because changeset will treat
+  # missing param as not need to update.
+  def update(conn, %{
+    "provider_user_id" => id,
+    "username" => _,
+    "metadata" => %{}
+  } = attrs) when is_binary(id) and byte_size(id) > 0  do
+    id
+    |> User.get_by_provider_user_id()
+    |> update_user(attrs)
+    |> respond(conn)
+  end
+  def update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
+
+  defp update_user(%User{} = user, attrs), do: User.update(user, attrs)
+  defp update_user(_, _attrs), do: nil
 
   # Responds when user is saved successfully
   defp respond({:ok, user}, conn) do

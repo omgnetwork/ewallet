@@ -3,7 +3,8 @@ defmodule KuberaAPI.V1.AuthController do
   import KuberaAPI.V1.ErrorHandler
   alias KuberaDB.{AuthToken, User}
 
-  def login(conn, %{"provider_user_id" => id}) when not is_nil(id) do
+  def login(conn, %{"provider_user_id" => id})
+  when is_binary(id) and byte_size(id) > 0  do
     id
     |> User.get_by_provider_user_id()
     |> generate_token()

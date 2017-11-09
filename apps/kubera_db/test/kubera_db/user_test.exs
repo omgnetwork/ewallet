@@ -76,6 +76,17 @@ defmodule KuberaDB.UserTest do
 
       assert user.errors == expected_errors
     end
+
+    test "prevents creation of a user without metadata" do
+      changeset = User.changeset(%User{}, params_for(:user, %{metadata: nil}))
+      refute changeset.valid?
+
+      expected_errors = [
+        metadata: {"can't be blank", [validation: :required]}
+      ]
+
+      assert changeset.errors == expected_errors
+    end
   end
 
   describe "insert/1" do
@@ -110,6 +121,38 @@ defmodule KuberaDB.UserTest do
       {_result, user} = :user |> params_for |> User.insert
       User.get_main_balance(user)
       assert length(User.get(user.id).balances) == 1
+    end
+  end
+
+  describe "update/2" do
+    test "updates a user with provided attributes" do
+      {res, user} =
+        :user
+        |> insert(%{username: "original"})
+        |> User.update(%{username: "changed"})
+
+      assert res == :ok
+      assert user.username == "changed"
+    end
+
+    test "updates a user with unchanged provider_user_id" do
+      {res, user} =
+        :user
+        |> insert(%{provider_user_id: "original", username: "original"})
+        |> User.update(%{provider_user_id: "original", username: "changed"})
+
+      assert res == :ok
+      assert user.username == "changed"
+    end
+
+    test "prevents changing provider_user_id" do
+      {res, changeset} =
+        :user
+        |> insert(%{provider_user_id: "original"})
+        |> User.update(%{provider_user_id: "changed"})
+
+      assert res == :error
+      assert changeset.errors == [provider_user_id: {"can't be changed", []}]
     end
   end
 

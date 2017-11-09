@@ -60,4 +60,49 @@ defmodule KuberaDB.ValidatorTest do
         [{[:attr1, :attr2, :attr3], {"only one must be present", []}}]
     end
   end
+
+  describe "validate_immutable/2" do
+    test "returns valid if provider_user_id has not been set before" do
+      struct =
+        %SampleStruct{}
+        |> cast(%{attr1: nil}, [:attr1])
+        |> apply_changes()
+
+      changeset =
+        struct
+        |> cast(%{attr1: "new_value"}, [:attr1])
+        |> validate_immutable(:attr1)
+
+      assert changeset.valid?
+    end
+
+    test "returns valid if provider_user_id is unchanged" do
+      struct =
+        %SampleStruct{}
+        |> cast(%{attr1: "old_value"}, [:attr1])
+        |> apply_changes()
+
+      changeset =
+        struct
+        |> cast(%{attr1: "old_value"}, [:attr1])
+        |> validate_immutable(:attr1)
+
+      assert changeset.valid?
+    end
+
+    test "returns invalid if provider_user_id changed" do
+      struct =
+        %SampleStruct{}
+        |> cast(%{attr1: "old_value"}, [:attr1])
+        |> apply_changes()
+
+      changeset =
+        struct
+        |> cast(%{attr1: "new_value"}, [:attr1])
+        |> validate_immutable(:attr1)
+
+      refute changeset.valid?
+      assert changeset.errors == [{:attr1, {"can't be changed", []}}]
+    end
+  end
 end

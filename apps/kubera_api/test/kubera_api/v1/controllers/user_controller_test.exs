@@ -44,6 +44,116 @@ defmodule KuberaAPI.V1.UserControllerTest do
     end
   end
 
+  describe "/user.update" do
+    test "Updates the user if attributes are valid" do
+      user = insert(:user)
+
+      # Prepare the update data while keeping only provider_user_id the same
+      request_data = params_for(:user, %{
+        provider_user_id: user.provider_user_id,
+        username: "updated_username",
+        metadata: %{
+          first_name: "updated_first_name",
+          last_name: "updated_last_name"
+        }
+      })
+
+      response = build_conn()
+        |> put_req_header("accept", @header_accept)
+        |> put_req_header("authorization", @header_auth)
+        |> post("/user.update", request_data)
+        |> json_response(:ok)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == :true
+
+      data = response["data"]
+      assert data["object"] == "user"
+      assert data["provider_user_id"] == user.provider_user_id
+      assert data["username"] == request_data.username
+
+      metadata = data["metadata"]
+      assert metadata["first_name"] == request_data.metadata.first_name
+      assert metadata["last_name"] == request_data.metadata.last_name
+    end
+
+    test "returns an error if provider_user_id is not provided" do
+      request_data = params_for(:user, %{provider_user_id: ""})
+
+      response = build_conn()
+      |> put_req_header("accept", @header_accept)
+      |> put_req_header("authorization", @header_auth)
+      |> post("/user.update", request_data)
+      |> json_response(:ok)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == :false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
+    end
+
+    test "returns an error if user for provider_user_id is not found" do
+      request_data = params_for(:user, %{provider_user_id: "unknown_id"})
+
+      response = build_conn()
+      |> put_req_header("accept", @header_accept)
+      |> put_req_header("authorization", @header_auth)
+      |> post("/user.update", request_data)
+      |> json_response(:ok)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == :false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:provider_user_id_not_found"
+      assert response["data"]["description"] == "There is no user corresponding to the provided provider_user_id"
+    end
+
+    test "returns an error if username is not provided" do
+      user = insert(:user)
+
+      # ExMachine will remove the param if set to nil.
+      request_data = params_for(:user, %{
+        provider_user_id: user.provider_user_id,
+        username: nil
+      })
+
+      response = build_conn()
+      |> put_req_header("accept", @header_accept)
+      |> put_req_header("authorization", @header_auth)
+      |> post("/user.update", request_data)
+      |> json_response(:ok)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
+    end
+
+    test "returns an error if metadata is not provided" do
+      user = insert(:user)
+
+      # ExMachine will remove the param if set to nil.
+      request_data = params_for(:user, %{
+        provider_user_id: user.provider_user_id,
+        metadata: nil
+      })
+
+      response = build_conn()
+      |> put_req_header("accept", @header_accept)
+      |> put_req_header("authorization", @header_auth)
+      |> post("/user.update", request_data)
+      |> json_response(:ok)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
+    end
+  end
+
   describe "/user.get" do
     test "responds with user data if the user is found by its provider_user_id" do
       {:ok, inserted_user} = :user
