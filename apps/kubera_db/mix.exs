@@ -39,7 +39,8 @@ defmodule KuberaDB.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1"},
       {:ex_machina, "~> 2.0", only: :test},
-      {:poison, "~> 3.1"}
+      {:poison, "~> 3.1"},
+      {:bcrypt_elixir, "~> 1.0"},
     ]
   end
 

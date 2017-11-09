@@ -7,11 +7,12 @@ defmodule KuberaAPI.V1.Plug.ProviderAuthTest do
 
   @access_key "test_access_key"
   @secret_key "test_secret_key"
+  @secret_key_hash Bcrypt.hash_pwd_salt(@secret_key)
 
   # Setup sandbox and provider's access/secret keys
   setup do
     :ok = Sandbox.checkout(Repo)
-    insert(:key, %{access_key: @access_key, secret_key: @secret_key})
+    insert(:key, %{access_key: @access_key, secret_key_hash: @secret_key_hash})
     :ok
   end
 

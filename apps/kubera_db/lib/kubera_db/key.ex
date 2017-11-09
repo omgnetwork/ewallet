@@ -4,6 +4,7 @@ defmodule KuberaDB.Key do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query
   alias Ecto.UUID
   alias KuberaDB.{Repo, Account, Key}
   alias KuberaDB.Helpers.Crypto
@@ -13,7 +14,8 @@ defmodule KuberaDB.Key do
 
   schema "key" do
     field :access_key, :string
-    field :secret_key, :string
+    field :secret_key, :string, virtual: true
+    field :secret_key_hash, :string
     belongs_to :account, Account, foreign_key: :account_id,
                                   references: :id,
                                   type: UUID
@@ -27,7 +29,8 @@ defmodule KuberaDB.Key do
     key
     |> cast(attrs, [:access_key, :secret_key, :account_id])
     |> validate_required([:access_key, :secret_key, :account_id])
-    |> unique_constraint(:access_key, name: :key_access_key_secret_key_index)
+    |> unique_constraint(:access_key, name: :key_access_key_index)
+    |> put_change(:secret_key_hash, Crypto.hash_password(attrs[:secret_key]))
     |> assoc_constraint(:account)
   end
 
@@ -38,10 +41,8 @@ defmodule KuberaDB.Key do
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:access_key,
-        fn -> Crypto.generate_key(@key_bytes) end)
-      |> Map.put_new_lazy(:secret_key,
-        fn -> Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@key_bytes) end)
 
     %Key{}
     |> Key.changeset(attrs)
@@ -55,33 +56,38 @@ defmodule KuberaDB.Key do
   Use this function instead of the usual get/2
   to avoid passing the access/secret key information around.
   """
-  def authenticate(access, secret) do
-    case get(access, secret) do
-      nil ->
-        false
-      key ->
-        key
-        |> Repo.preload(:account)
-        |> Map.get(:account)
+  def authenticate(access, secret)
+    when is_binary(access)
+    and is_binary(secret)
+  do
+    query =
+      from(k in Key,
+        where: k.access_key == ^access,
+        join: a in assoc(k, :account),
+        preload: [account: a])
+
+    query
+    |> KuberaDB.Repo.all()
+    |> Enum.at(0)
+    |> authenticate(secret)
+  end
+
+  def authenticate(%{secret_key_hash: secret_key_hash} = key, secret) do
+    case Crypto.verify_password(secret, secret_key_hash) do
+      true -> Map.get(key, :account)
+      _ -> false
     end
   end
 
-  defp get(access, secret) when is_nil(access) or is_nil(secret), do: nil
-  defp get(access, secret) do
-    key = Repo.get_by(Key, [access_key: access])
-
-    securely_matched =
-      case key do
-        %{secret_key: stored_secret} ->
-          Crypto.compare(stored_secret, secret)
-        _ ->
-          false
-      end
-
-    # Returns the stored key only if the secret keys securely matched.
-    case securely_matched do
-      true -> key
-      _ -> nil
-    end
+  # Deliberately slow down invalid query to make user enumeration harder.
+  #
+  # There is still timing leak when the query wasn't called due to either
+  # access or secret being nil, but no enumeration could took place in
+  # such cases.
+  #
+  # There is also timing leak due to fake_verify not performing comparison
+  # (only performing Bcrypt hash operation) which may be a problem.
+  def authenticate(_, _) do
+    Crypto.fake_verify
   end
 end

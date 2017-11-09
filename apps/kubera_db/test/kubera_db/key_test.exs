@@ -14,6 +14,21 @@ defmodule KuberaDB.KeyTest do
   end
 
   describe "changeset/2" do
+    test "hashes secret_key with bcrypt before saving" do
+      changeset = Key.changeset(%Key{}, params_for(:key))
+
+      assert changeset.valid?
+      assert "$2b$" <> _ = changeset.changes.secret_key_hash
+      refute changeset.changes.secret_key == changeset.changes.secret_key_hash
+    end
+
+    test "prevents secret_key_hash from being overridden" do
+      changeset = Key.changeset(%Key{}, params_for(:key, %{secret_key_hash: "foobar"}))
+
+      assert changeset.valid?
+      refute changeset.changes.secret_key_hash == "foobar"
+    end
+
     test "validates access_key can't be blank" do
       changeset = Key.changeset(%Key{}, params_for(:key, %{access_key: nil}))
 
@@ -87,15 +102,25 @@ defmodule KuberaDB.KeyTest do
       assert String.length(key.secret_key) == 43
     end
 
-    test "returns error if a key with same access/secret key already exists" do
-      {_result, _key} =
+    test "hashes secret_key with bcrypt before saving" do
+      {result, key} =
         :key
-        |> params_for(%{access_key: "same_access", secret_key: "same_secret"})
+        |> params_for(%{secret_key: "foo"})
+        |> Key.insert
+
+      assert result == :ok
+      assert "$2b$" <> _ = key.secret_key_hash
+    end
+
+    test "returns error if a key with same access key already exists" do
+      {:ok, _} =
+        :key
+        |> params_for(%{access_key: "same_access"})
         |> Key.insert
 
       {result, changeset} =
         :key
-        |> params_for(%{access_key: "same_access", secret_key: "same_secret"})
+        |> params_for(%{access_key: "same_access"})
         |> Key.insert
 
       assert result == :error
