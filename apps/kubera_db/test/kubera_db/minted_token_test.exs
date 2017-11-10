@@ -109,7 +109,7 @@ defmodule KuberaDB.MintedTokenTest do
     test "inserts a balance for the minted token" do
       {res, minted_token} =
         MintedToken.insert(params_for(:minted_token))
-      MintedToken.get_main_balance(minted_token)
+      MintedToken.get_master_balance(minted_token)
 
       assert res == :ok
       minted_token =
@@ -150,7 +150,7 @@ defmodule KuberaDB.MintedTokenTest do
   describe "get_main_balance/1" do
     test "returns the first balance" do
       {:ok, inserted} = MintedToken.insert(params_for(:minted_token))
-      balance = MintedToken.get_main_balance(inserted)
+      balance = MintedToken.get_master_balance(inserted)
 
       minted_token =
         inserted.symbol
@@ -159,6 +159,13 @@ defmodule KuberaDB.MintedTokenTest do
 
       assert balance != nil
       assert balance == Enum.at(minted_token.balances, 0)
+    end
+
+    test "make sure only 1 master balance is created at most" do
+      {:ok, inserted} = MintedToken.insert(params_for(:minted_token))
+      balance_1 = MintedToken.get_master_balance(inserted)
+      balance_2 = MintedToken.get_master_balance(inserted)
+      assert balance_1 == balance_2
     end
   end
 end

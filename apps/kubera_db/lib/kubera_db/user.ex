@@ -47,7 +47,9 @@ defmodule KuberaDB.User do
   Retrieves a specific user from its provider_user_id.
   """
   def get_by_provider_user_id(provider_user_id) do
-    Repo.get_by(User, provider_user_id: provider_user_id)
+    User
+    |> Repo.get_by(provider_user_id: provider_user_id)
+    |> Repo.preload(:balances)
   end
 
   @doc """
@@ -90,9 +92,14 @@ defmodule KuberaDB.User do
   inserts a new one and return it.
   """
   def get_main_balance(user) do
-    balances = Repo.all(from b in Balance, where: b.user_id == ^user.id)
-    balance = List.first(balances)
+    Balance
+    |> where([b], b.user_id == ^user.id)
+    |> Repo.all()
+    |> List.first
+    |> get_or_insert_balance(user)
+  end
 
+  defp get_or_insert_balance(balance, user) do
     case balance do
       nil ->
         {:ok, balance} = insert_balance(user)

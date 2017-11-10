@@ -10,4 +10,12 @@ defmodule KuberaMQ.Balance do
       address: address
     })
   end
+
+  def get(symbol, address) do
+    Publisher.send(%{
+      operation: "v1.balance.get",
+      symbol: symbol,
+      address: address
+    })
+  end
 end

@@ -159,7 +159,7 @@ paths:
         $ref: '#/components/requestBodies/ProviderIdBody'
       responses:
         '200':
-          $ref: "#/components/responses/BalancesResponse"
+          $ref: "#/components/responses/AddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   #Endpoint to get the balances of a user from its authentication_token
@@ -176,7 +176,7 @@ paths:
         - $ref: "#/components/parameters/ClientAuthorizationHeader"
       responses:
         '200':
-          $ref: "#/components/responses/BalancesResponse"
+          $ref: "#/components/responses/AddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   #Endpoint to credit an existing user balance
@@ -196,7 +196,7 @@ paths:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
         '200':
-          $ref: "#/components/responses/BalanceResponse"
+          $ref: "#/components/responses/SingleAddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   # Endpoint to debit an exsiting user balance
@@ -216,7 +216,7 @@ paths:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
         '200':
-          $ref: "#/components/responses/BalanceResponse"
+          $ref: "#/components/responses/SingleAddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   ############################
@@ -376,8 +376,6 @@ components:
         minted_token:
           type: object
           $ref: '#/components/schemas/MintedTokenSchema'
-        address:
-          type: string
         amount:
           type: number
       required:
@@ -392,7 +390,6 @@ components:
           symbol: "MNT"
           name: "Mint"
           subunit_to_unit: 100000000000000000
-        address: "XXXXXXXXXXXXXXXXXXXXX"
         amount: 100
     # Schema for individual minted token object
     MintedTokenSchema:
@@ -451,9 +448,8 @@ components:
               name: "Mint"
               subunit_to_unit: 100000000000000000
             amount: 100
-            address: "XXXXXXXXXXXXXXXXXXXXX"
-    # Schema for balance response body
-    BalancesResponse:
+    # Schema for a single addresses body response (for credit / debit responses)
+    SingleAddressesResponse:
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -467,29 +463,85 @@ components:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/BalanceSchema'
+                      $ref: '#/components/schemas/AddressResponse'
         required:
-        - data
+          - object
+          - balances
+          - address
         example:
           data:
             object: list
             data:
-            - object: "balance"
-              minted_token:
-                object: 'minted_token'
-                symbol: "MNT"
-                name: "Mint"
-                subunit_to_unit: 100000000000000000
-              address: "XXXXXXXXXXXXXXXXXXXXX"
-              amount: 100
-            - object: "balance"
-              minted_token:
-                object: 'minted_token'
-                symbol: "OMG"
-                name: "OmiseGO"
-                subunit_to_unit: 100000000000000000
-              address: "XXXXXXXXXXXXXXXXXXXXX"
-              amount: 100
+            - object: "address"
+              address: "XXX123"
+              balances:
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  symbol: "MNT"
+                  name: "Mint"
+                  subunit_to_unit: 100000000000000000
+    # Schema for addresses body response
+    AddressesResponse:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/UnpaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AddressResponse'
+        required:
+          - object
+          - balances
+          - address
+        example:
+          data:
+            object: list
+            data:
+            - object: "address"
+              address: "XXX123"
+              balances:
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  symbol: "MNT"
+                  name: "Mint"
+                  subunit_to_unit: 100000000000000000
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  symbol: "OMG"
+                  name: "OmiseGO"
+                  subunit_to_unit: 100000000000000000
+            - object: "address"
+              address: "XXX456"
+              balances: []
+    # Schema for single address body response
+    AddressResponse:
+      type: object
+      properties:
+        object:
+          type: string
+        balances:
+          type: array
+          $ref: '#/components/schemas/BalanceSchema'
+        address:
+          type: string
+      required:
+        - balances
+        - address
+      example:
+        data:
+          object: "address"
+          balances: []
+          address: "XXXXXXXXXXXXXXXXXXXXX"
     # Schema for settings response body
     SettingResponse:
       allOf:
@@ -642,20 +694,20 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AuthenticationTokenResponse'
-    # Balance response
-    BalanceResponse:
-      description: Balance response
+    # Single Addresses response
+    SingleAddressesResponse:
+      description: Addresses response
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/BalanceResponse'
-    # Balances response
-    BalancesResponse:
-      description: Balances response
+            $ref: '#/components/schemas/SingleAddressesResponse'
+    # Addresses response
+    AddressesResponse:
+      description: Addresses response
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/BalancesResponse'
+            $ref: '#/components/schemas/AddressesResponse'
     # Setting response
     SettingResponse:
       description: Setting response

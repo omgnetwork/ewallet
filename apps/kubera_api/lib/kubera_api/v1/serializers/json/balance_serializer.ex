@@ -9,7 +9,6 @@ defmodule KuberaAPI.V1.JSON.BalanceSerializer do
     %{
       object: "balance",
       minted_token: MintedTokenSerializer.serialize(balance.minted_token),
-      address: balance.address,
       amount: balance.amount
     }
   end

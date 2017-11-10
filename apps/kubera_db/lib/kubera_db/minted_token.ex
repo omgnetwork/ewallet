@@ -95,11 +95,15 @@ defmodule KuberaDB.MintedToken do
   Retrieve the main balance for a minted token. If not available,
   safely inserts a new one and return it.
   """
-  def get_main_balance(minted_token) do
-    balances = Repo.all(from b in Balance,
-                        where: b.minted_token_id == ^minted_token.id)
-    balance = List.first(balances)
+  def get_master_balance(minted_token) do
+    Balance
+    |> where([b], b.minted_token_id == ^minted_token.id)
+    |> Repo.all()
+    |> List.first
+    |> get_or_insert_balance(minted_token)
+  end
 
+  defp get_or_insert_balance(balance, minted_token) do
     case balance do
       nil ->
         address = "master:#{minted_token.symbol}"

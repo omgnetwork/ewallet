@@ -41,8 +41,10 @@ defmodule KuberaDB.Key do
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_key(@key_bytes) end)
-      |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:access_key, fn ->
+        Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:secret_key, fn ->
+        Crypto.generate_key(@key_bytes) end)
 
     %Key{}
     |> Key.changeset(attrs)
@@ -67,7 +69,7 @@ defmodule KuberaDB.Key do
         preload: [account: a])
 
     query
-    |> KuberaDB.Repo.all()
+    |> Repo.all()
     |> Enum.at(0)
     |> authenticate(secret)
   end

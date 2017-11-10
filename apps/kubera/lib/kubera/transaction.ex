@@ -4,98 +4,50 @@ defmodule Kubera.Transaction do
   """
   alias KuberaMQ.Serializers.Transaction
   alias KuberaMQ.Entry
-  alias KuberaDB.{User, MintedToken}
+  alias Kubera.Transactions.{RecordFetcher, BalanceLoader, Formatter}
 
-  @doc """
-  Initialize a credit transaction
-  """
-  def init_credit(%{
+  def credit_type, do: "credit"
+  def debit_type, do: "debit"
+
+  def process(%{
     "provider_user_id" => provider_user_id,
     "symbol" => symbol,
-    "amount" => _,
-    "metadata" => _
-  } = attrs) do
-    provider_user_id
-    |> load_records(symbol)
-    |> init_credit(attrs)
-  end
-  def init_credit({:error, code}, _), do: {:error, code}
-  def init_credit({:ok, user, minted_token}, attrs) do
-    from = MintedToken.get_main_balance(minted_token)
-    to = User.get_main_balance(user)
-    init(attrs, minted_token, from, to)
-  end
-
-  @doc """
-  Initialize a debit transaction
-  """
-  def init_debit(%{
-    "provider_user_id" => provider_user_id,
-    "symbol" => symbol,
-    "amount" => _,
-    "metadata" => _
-  } = attrs) do
-    provider_user_id
-    |> load_records(symbol)
-    |> init_debit(attrs)
-  end
-  def init_debit({:error, code}, _), do: {:error, code}
-  def init_debit({:ok, user, minted_token}, attrs) do
-    from = User.get_main_balance(user)
-    to = MintedToken.get_main_balance(minted_token)
-    init(attrs, minted_token, from, to)
-  end
-
-  defp init(%{
     "amount" => amount,
     "metadata" => metadata
-  }, minted_token, from_balance, to_balance) do
-    {
-      :ok,
-      %{
-        from: from_balance,
-        to: to_balance,
-        minted_token: minted_token,
-        amount: amount,
-        metadata: metadata
-      }
-    }
+  }, type) do
+    res = fetch_user_and_minted_token(provider_user_id, symbol)
+
+    case res do
+      {:ok, user, minted_token} = res ->
+        res
+        |> load_balances(type)
+        |> format(amount, metadata)
+        |> insert()
+        |> process(user, minted_token)
+      {:error, code} ->
+        {:error, code}
+    end
   end
 
-  defp load_records(provider_user_id, symbol) do
-    user = User.get_by_provider_user_id(provider_user_id)
-    minted_token = MintedToken.get(symbol)
-    load_records({user, minted_token})
+  defp fetch_user_and_minted_token(provider_user_id, symbol) do
+    RecordFetcher.fetch_user_and_minted_token(provider_user_id, symbol)
   end
-  defp load_records({nil, _}), do: {:error, :provider_user_id_not_found}
-  defp load_records({_, nil}), do: {:error, :minted_token_not_found}
-  defp load_records({user, minted_token}), do: {:ok, user, minted_token}
 
-  @doc """
-  Initiate a transfer between the balance 'from' to the balance 'to'.
+  defp load_balances({:ok, user, minted_token}, type) do
+    BalanceLoader.load(user, minted_token, type)
+  end
+  defp load_balances({:error, code}, _type), do: {:error, code}
 
-  ## Examples
+  defp format({minted_token, from, to}, amount, metadata) do
+    Formatter.format(from, to, minted_token, amount, metadata)
+  end
 
-    Transaction.create(%{
-      from: from_balance,
-      to: to_balance,
-      minted_token: minted_token,
-      amount: 100_000,
-      metadata: %{}
-    }, fn res ->
-      case res do
-        {:ok, data} ->
-          # The transaction was a success!
-        {:error, code, description} ->
-          # The transaction failed... Check the code and description to see
-          # what went wrong.
-      end
-    end)
+  defp insert(attrs) do
+    attrs |> Transaction.serialize() |> Entry.insert()
+  end
 
-  """
-  def create(attrs) do
-    attrs
-    |> Transaction.serialize()
-    |> Entry.insert()
+  defp process({:ok, _trans}, user, minted_token), do: {:ok, user, minted_token}
+  defp process({:error, code, description}, _user, _minted_token) do
+    {:error, code, description}
   end
 end

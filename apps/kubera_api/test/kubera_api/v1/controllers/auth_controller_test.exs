@@ -42,7 +42,6 @@ defmodule KuberaAPI.V1.AuthControllerTest do
       assert response == expected
     end
 
-
     test "returns :invalid_parameter if provider_user_id is nil" do
       request_data = %{provider_user_id: nil}
 

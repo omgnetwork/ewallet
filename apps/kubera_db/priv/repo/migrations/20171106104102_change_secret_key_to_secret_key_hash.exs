@@ -2,6 +2,7 @@ defmodule KuberaDB.Repo.Migrations.ChangeSecretKeyToSecretKeyHash do
   use Ecto.Migration
   import Ecto.Query
   alias KuberaDB.Helpers.Crypto
+  alias KuberaDB.Repo
 
   def up do
     alter table(:key) do
@@ -20,7 +21,7 @@ defmodule KuberaDB.Repo.Migrations.ChangeSecretKeyToSecretKeyHash do
         lock: "FOR UPDATE")
 
     query
-    |> KuberaDB.Repo.all()
+    |> Repo.all()
     |> migrate_secret_keys()
 
     drop unique_index(:key, [:access_key, :secret_key])
@@ -39,7 +40,7 @@ defmodule KuberaDB.Repo.Migrations.ChangeSecretKeyToSecretKeyHash do
           where: k.id == ^id,
           update: [set: [secret_key_hash: ^secret_key_hash]])
 
-      KuberaDB.Repo.update_all(query, [])
+      Repo.update_all(query, [])
     end
   end
 end

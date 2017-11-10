@@ -23,7 +23,8 @@ defmodule KuberaDB.KeyTest do
     end
 
     test "prevents secret_key_hash from being overridden" do
-      changeset = Key.changeset(%Key{}, params_for(:key, %{secret_key_hash: "foobar"}))
+      changeset =
+         Key.changeset(%Key{}, params_for(:key, %{secret_key_hash: "foobar"}))
 
       assert changeset.valid?
       refute changeset.changes.secret_key_hash == "foobar"

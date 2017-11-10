@@ -74,7 +74,7 @@ defmodule Kubera.Mint do
   defp serialize(minted_token, amount, metadata) do
     Transaction.serialize(%{
       from: genesis(),
-      to: MintedToken.get_main_balance(minted_token),
+      to: MintedToken.get_master_balance(minted_token),
       minted_token: minted_token,
       amount: amount,
       metadata: metadata

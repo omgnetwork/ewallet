@@ -55,9 +55,9 @@ end
 # {:ok, genesis} = KuberaDB.Balance.genesis()
 # data = KuberaMQ.Serializers.Transaction.serialize(%{
 #   from: genesis,
-#   to: KuberaDB.MintedToken.get_main_balance(minted_token),
+#   to: KuberaDB.MintedToken.get_master_balance(minted_token),
 #   minted_token: minted_token,
 #   amount: 10000000,
 #   metadata: %{}
 # })
-# KuberaMQ.Entry.genesis(data, nil)
+# KuberaMQ.Entry.genesis(data)

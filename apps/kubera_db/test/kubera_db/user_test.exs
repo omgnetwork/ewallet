@@ -203,5 +203,12 @@ defmodule KuberaDB.UserTest do
       assert balance != nil
       assert balance == Enum.at(user.balances, 0)
     end
+
+    test "make sure only 1 balance is created at most" do
+      {:ok, inserted} = User.insert(params_for(:user))
+      balance_1 = User.get_main_balance(inserted)
+      balance_2 = User.get_main_balance(inserted)
+      assert balance_1 == balance_2
+    end
   end
 end
