@@ -1,6 +1,9 @@
 defmodule KuberaAPI.V1.SelfControllerTest do
   use KuberaAPI.ConnCase, async: true
   use KuberaAPI.EndpointCase, :v1
+  import Mock
+  alias KuberaMQ.Balance
+  alias KuberaDB.User
 
   describe "/me.get" do
     test "responds with user data" do
@@ -35,6 +38,71 @@ defmodule KuberaAPI.V1.SelfControllerTest do
       assert response["success"]
       assert Map.has_key?(response["data"], "minted_tokens")
       assert is_list(response["data"]["minted_tokens"])
+    end
+  end
+
+  def valid_balances_response do
+    {:ok, %{
+      "object" => "balance",
+      "address" => "master",
+      "amounts" => %{"BTC" => 9850, "OMG" => 1000}
+    }}
+  end
+
+  describe "/me.list_balances" do
+    test "responds with a list of balances" do
+      with_mocks [
+        {Balance, [], [all: fn _pid -> valid_balances_response() end]}
+        ] do
+          user         = insert(:user)
+          api_key      = insert(:api_key).key
+          auth_token   = insert(:auth_token, %{user: user}).token
+          btc          = insert(:minted_token, %{symbol: "BTC"})
+          omg          = insert(:minted_token, %{symbol: "OMG"})
+
+          response =
+            build_conn()
+            |> put_req_header("accept", @header_accept)
+            |> put_auth_header("OMGClient", api_key, auth_token)
+            |> post("/me.list_balances", %{})
+            |> json_response(:ok)
+
+            assert response == %{
+              "version" => "1",
+              "success" => true,
+              "data" => %{
+                "object" => "list",
+                "data" => [
+                  %{
+                    "object" => "address",
+                    "address" => User.get_main_balance(user).address,
+                    "balances" => [
+                      %{
+                        "object" => "balance",
+                        "amount" => 9850,
+                        "minted_token" => %{
+                          "name" => btc.name,
+                          "object" => "minted_token",
+                          "subunit_to_unit" => btc.subunit_to_unit,
+                          "symbol" => btc.symbol
+                        }
+                      },
+                      %{
+                        "object" => "balance",
+                        "amount" => 1000,
+                        "minted_token" => %{
+                          "name" => omg.name,
+                          "object" => "minted_token",
+                          "subunit_to_unit" => omg.subunit_to_unit,
+                          "symbol" => omg.symbol
+                        }
+                      }
+                    ]
+                  }
+                ]
+              }
+            }
+        end
     end
   end
 end

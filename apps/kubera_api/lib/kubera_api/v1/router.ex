@@ -36,6 +36,7 @@ defmodule KuberaAPI.V1.Router do
 
     post "/me.get", SelfController, :get
     post "/me.get_settings", SelfController, :get_settings
+    post "/me.list_balances", SelfController, :get_balances
 
     post "/logout", AuthController, :logout
   end
