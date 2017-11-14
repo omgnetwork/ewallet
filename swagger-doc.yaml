@@ -222,7 +222,24 @@ paths:
   ############################
   #          SETTINGS        #
   ############################
-  # Endpoint to get global settings
+  # Endpoint to get global settings by the provider server
+  /get_settings:
+    post:
+      tags:
+        - Setting
+      summary: Server - Get the global settings.
+      description: This is a server call only.
+      operationId: get_settings
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ServerAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/SettingResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get global settings by the provider client
   /me.get_settings:
     post:
       tags:

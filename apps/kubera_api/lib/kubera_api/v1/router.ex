@@ -23,11 +23,12 @@ defmodule KuberaAPI.V1.Router do
     post "/user.update", UserController, :update
 
     post "/user.list_balances", BalanceController, :all
-
     post "/user.credit_balance", TransactionController, :credit
     post "/user.debit_balance", TransactionController, :debit
 
     post "/login", AuthController, :login
+
+    post "/get_settings", SettingsController, :get_settings
   end
 
   # Client endpoints
