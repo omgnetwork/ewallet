@@ -8,84 +8,10 @@ defmodule KuberaDB.UserTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  describe "User validation" do
+  describe "factory" do
     test "has a valid factory" do
-      changeset = User.changeset(%User{}, params_for(:user))
-      assert changeset.valid?
-    end
-
-    test "prevents creation of a user without username" do
-      changeset = User.changeset(%User{}, params_for(:user, %{username: nil}))
-      refute changeset.valid?
-
-      expected_errors = [
-        username: {"can't be blank", [validation: :required]}
-      ]
-
-      assert changeset.errors == expected_errors
-    end
-
-    test "prevents creation of a user with an username already in DB" do
-      {:ok, _} =
-        :user
-        |> build(%{username: "same_username"})
-        |> Repo.insert
-
-      {:error, user} =
-        %User{}
-        |> User.changeset(params_for(:user, %{username: "same_username"}))
-        |> Repo.insert
-
-      assert user.errors == [
-        username: {"has already been taken",
-        [validation: :unsafe_unique, fields: [:username]]}
-      ]
-    end
-
-    test "prevents creation of a user without provider_user_id" do
-      changeset = User.changeset(
-        %User{},
-        params_for(:user, %{provider_user_id: nil}))
-
-      refute changeset.valid?
-
-      expected_errors = [
-        provider_user_id: {"can't be blank", [validation: :required]}
-      ]
-
-      assert changeset.errors == expected_errors
-    end
-
-    test "prevents creation of a user with an existing provider_user_id" do
-      {:ok, _} =
-        :user
-        |> build(%{provider_user_id: "same_provider_user_id"})
-        |> Repo.insert
-
-      {:error, user} =
-        %User{}
-        |> User.changeset(params_for(:user, %{provider_user_id: "same_provider_user_id"}))
-        |> Repo.insert
-
-      expected_errors = [
-        provider_user_id: {
-          "has already been taken",
-          [validation: :unsafe_unique, fields: [:provider_user_id]]
-        }
-      ]
-
-      assert user.errors == expected_errors
-    end
-
-    test "prevents creation of a user without metadata" do
-      changeset = User.changeset(%User{}, params_for(:user, %{metadata: nil}))
-      refute changeset.valid?
-
-      expected_errors = [
-        metadata: {"can't be blank", [validation: :required]}
-      ]
-
-      assert changeset.errors == expected_errors
+      {res, _user} = User.insert(params_for(:user))
+      assert res == :ok
     end
   end
 
@@ -121,6 +47,63 @@ defmodule KuberaDB.UserTest do
       {_result, user} = :user |> params_for |> User.insert
       User.get_main_balance(user)
       assert length(User.get(user.id).balances) == 1
+    end
+
+    test "prevents creation of a user with existing username" do
+      {:ok, _user} =
+        User.insert(params_for(:user, %{username: "same_username"}))
+
+      {:error, changeset} =
+        User.insert(params_for(:user, %{username: "same_username"}))
+
+      assert changeset.errors == [
+        username: {"has already been taken",
+        [validation: :unsafe_unique, fields: [:username]]}
+      ]
+    end
+
+    test "prevents creation of a user with existing provider_user_id" do
+      {:ok, _user} =
+        User.insert(params_for(:user, %{provider_user_id: "same_provider_user_id"}))
+
+      {:error, changeset} =
+        User.insert(params_for(:user, %{provider_user_id: "same_provider_user_id"}))
+
+      expected_errors = [
+        provider_user_id: {
+          "has already been taken",
+          [validation: :unsafe_unique, fields: [:provider_user_id]]
+        }
+      ]
+
+      assert changeset.errors == expected_errors
+    end
+
+    test "prevents creation of a user without a username" do
+      {result, changeset} =
+        User.insert(params_for(:user, %{username: ""}))
+
+      assert result == :error
+      assert changeset.errors ==
+        [username: {"can't be blank", [validation: :required]}]
+    end
+
+    test "prevents creation of a user without a provider_user_id" do
+      {result, changeset} =
+        User.insert(params_for(:user, %{provider_user_id: ""}))
+
+      assert result == :error
+      assert changeset.errors ==
+        [provider_user_id: {"can't be blank", [validation: :required]}]
+    end
+
+    test "prevents creation of a user without metadata" do
+      {result, changeset} =
+        User.insert(params_for(:user, %{metadata: nil}))
+
+      assert result == :error
+      assert changeset.errors ==
+        [metadata: {"can't be blank", [validation: :required]}]
     end
   end
 

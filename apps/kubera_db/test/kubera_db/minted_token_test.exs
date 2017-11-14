@@ -8,37 +8,10 @@ defmodule KuberaDB.MintedTokenTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "has a valid factory" do
-    changeset = MintedToken.changeset(%MintedToken{}, params_for(:minted_token))
-    assert changeset.valid?
-  end
-
-  describe "changeset/2" do
-    test "validates symbol can't be blank" do
-      changeset = MintedToken.changeset(%MintedToken{},
-        params_for(:minted_token, %{symbol: ""}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [symbol: {"can't be blank", [validation: :required]}]
-    end
-
-    test "validates name can't be blank" do
-      changeset = MintedToken.changeset(%MintedToken{},
-        params_for(:minted_token, %{name: ""}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [name: {"can't be blank", [validation: :required]}]
-    end
-
-    test "validates subunit_to_unit can't be blank" do
-      changeset = MintedToken.changeset(%MintedToken{},
-        params_for(:minted_token, %{subunit_to_unit: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [subunit_to_unit: {"can't be blank", [validation: :required]}]
+  describe "factory" do
+    test "has a valid factory" do
+      {res, _minted_token} = MintedToken.insert(params_for(:minted_token))
+      assert res == :ok
     end
   end
 
@@ -68,6 +41,24 @@ defmodule KuberaDB.MintedTokenTest do
       assert result == :error
       assert changeset.errors ==
         [symbol: {"can't be blank", [validation: :required]}]
+    end
+
+    test "prevents creation of a minted token without a name" do
+      {result, changeset} =
+        MintedToken.insert(params_for(:minted_token, %{name: ""}))
+
+      assert result == :error
+      assert changeset.errors ==
+        [name: {"can't be blank", [validation: :required]}]
+    end
+
+    test "prevents creation of a minted token without subunit_to_unit" do
+      {result, changeset} =
+        MintedToken.insert(params_for(:minted_token, %{subunit_to_unit: nil}))
+
+      assert result == :error
+      assert changeset.errors ==
+        [subunit_to_unit: {"can't be blank", [validation: :required]}]
     end
 
     test "prevents creation of a minted token with existing symbol" do

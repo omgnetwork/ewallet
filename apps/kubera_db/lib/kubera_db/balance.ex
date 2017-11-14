@@ -26,10 +26,7 @@ defmodule KuberaDB.Balance do
     timestamps()
   end
 
-  @doc """
-  Validates balance data.
-  """
-  def changeset(%Balance{} = balance, attrs) do
+  defp changeset(%Balance{} = balance, attrs) do
     balance
     |> cast(attrs, [
       :address, :account_id, :minted_token_id, :user_id, :metadata, :genesis
@@ -79,7 +76,7 @@ defmodule KuberaDB.Balance do
   Inserts a special kind of balance (either a genesis one or a master balance).
   """
   def insert_without_conflict(address, minted_token_id, genesis \\ false) do
-    changeset = Balance.changeset(%Balance{}, %{
+    changeset = changeset(%Balance{}, %{
       address: address,
       minted_token_id: minted_token_id,
       genesis: genesis

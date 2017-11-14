@@ -8,33 +8,6 @@ defmodule KuberaDB.AuthTokenTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "has a valid factory" do
-    changeset = AuthToken.changeset(%AuthToken{}, params_for(:auth_token))
-    assert changeset.valid?
-  end
-
-  describe "changeset/2" do
-  test "validates token can't be blank" do
-      changeset =
-        %AuthToken{}
-        |> AuthToken.changeset(params_for(:auth_token, %{token: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [token: {"can't be blank", [validation: :required]}]
-    end
-
-    test "validates user can't be blank" do
-      changeset =
-        %AuthToken{}
-        |> AuthToken.changeset(params_for(:auth_token, %{user: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [user_id: {"can't be blank", [validation: :required]}]
-    end
-  end
-
   describe "generate/1" do
     test "generates an auth token string with length == 43" do
       {:ok, user} = :user |> params_for() |> User.insert()

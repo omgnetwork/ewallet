@@ -20,10 +20,7 @@ defmodule KuberaDB.User do
     timestamps()
   end
 
-  @doc """
-  Validates user data.
-  """
-  def changeset(%User{} = user, attrs) do
+  defp changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [:username, :provider_user_id, :metadata])
     |> validate_required([:username, :provider_user_id, :metadata])
@@ -63,7 +60,7 @@ defmodule KuberaDB.User do
   Creates a user and their first balance.
   """
   def insert(attrs) do
-    changeset = User.changeset(%User{}, attrs)
+    changeset = changeset(%User{}, attrs)
 
     case Repo.insert(changeset) do
       {:ok, user} ->
@@ -77,7 +74,7 @@ defmodule KuberaDB.User do
   Updates a user with the provided attributes.
   """
   def update(%User{} = user, attrs) do
-    changeset = User.changeset(user, attrs)
+    changeset = changeset(user, attrs)
 
     case Repo.update(changeset) do
       {:ok, user} ->

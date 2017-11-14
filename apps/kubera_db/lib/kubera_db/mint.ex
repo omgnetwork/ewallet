@@ -19,16 +19,7 @@ defmodule KuberaDB.Mint do
     timestamps()
   end
 
-  @doc """
-  Validates mint data.
-
-  ## Examples
-
-      iex> changeset(%Mint{}, %{field: value})
-      %Mint{}
-
-  """
-  def changeset(%Mint{} = minted_token, attrs) do
+  defp changeset(%Mint{} = minted_token, attrs) do
     minted_token
     |> cast(attrs, [:description, :amount, :minted_token_id, :confirmed])
     |> validate_required([:amount, :minted_token_id])
@@ -39,12 +30,14 @@ defmodule KuberaDB.Mint do
   Create a new mint with the passed attributes.
   """
   def insert(attrs) do
-    changeset = Mint.changeset(%Mint{}, attrs)
-    Repo.insert(changeset)
+    %Mint{}
+    |> changeset(attrs)
+    |> Repo.insert()
   end
 
   def confirm(mint) do
-    changeset = Mint.changeset(mint, %{confirmed: true})
-    Repo.update(changeset)
+    mint
+    |> changeset(%{confirmed: true})
+    |> Repo.update()
   end
 end

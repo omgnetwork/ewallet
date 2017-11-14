@@ -20,10 +20,7 @@ defmodule KuberaDB.APIKey do
     timestamps()
   end
 
-  @doc """
-  Validates API key data.
-  """
-  def changeset(%APIKey{} = key, attrs) do
+  defp changeset(%APIKey{} = key, attrs) do
     key
     |> cast(attrs, [:key, :account_id, :expired])
     |> validate_required([:key, :account_id])
@@ -41,7 +38,7 @@ defmodule KuberaDB.APIKey do
     )
 
     %APIKey{}
-    |> APIKey.changeset(attrs)
+    |> changeset(attrs)
     |> Repo.insert()
   end
 

@@ -8,50 +8,10 @@ defmodule KuberaDB.KeyTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "has a valid factory" do
-    changeset = Key.changeset(%Key{}, params_for(:key))
-    assert changeset.valid?
-  end
-
-  describe "changeset/2" do
-    test "hashes secret_key with bcrypt before saving" do
-      changeset = Key.changeset(%Key{}, params_for(:key))
-
-      assert changeset.valid?
-      assert "$2b$" <> _ = changeset.changes.secret_key_hash
-      refute changeset.changes.secret_key == changeset.changes.secret_key_hash
-    end
-
-    test "prevents secret_key_hash from being overridden" do
-      changeset =
-         Key.changeset(%Key{}, params_for(:key, %{secret_key_hash: "foobar"}))
-
-      assert changeset.valid?
-      refute changeset.changes.secret_key_hash == "foobar"
-    end
-
-    test "validates access_key can't be blank" do
-      changeset = Key.changeset(%Key{}, params_for(:key, %{access_key: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [access_key: {"can't be blank", [validation: :required]}]
-    end
-
-    test "validates secret_key can't be blank" do
-      changeset = Key.changeset(%Key{}, params_for(:key, %{secret_key: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [secret_key: {"can't be blank", [validation: :required]}]
-    end
-
-    test "validates account can't be blank" do
-      changeset = Key.changeset(%Key{}, params_for(:key, %{account: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [account_id: {"can't be blank", [validation: :required]}]
+  describe "factory" do
+    test "has a valid factory" do
+      {res, _key} = Key.insert(params_for(:key))
+      assert res == :ok
     end
   end
 
@@ -83,7 +43,7 @@ defmodule KuberaDB.KeyTest do
         [account_id: {"can't be blank", [validation: :required]}]
     end
 
-    test "generates access_key with length == 43" do
+    test "generates access_key with length == 43 if not provided" do
       {result, key} =
         :key
         |> params_for(%{access_key: nil})
@@ -93,7 +53,7 @@ defmodule KuberaDB.KeyTest do
       assert String.length(key.access_key) == 43
     end
 
-    test "generates secret_key with length == 43" do
+    test "generates secret_key with length == 43 if not provided" do
       {result, key} =
         :key
         |> params_for(%{secret_key: nil})
@@ -104,16 +64,19 @@ defmodule KuberaDB.KeyTest do
     end
 
     test "hashes secret_key with bcrypt before saving" do
-      {result, key} =
-        :key
-        |> params_for(%{secret_key: "foo"})
-        |> Key.insert
+      {res, key} = Key.insert(params_for(:key, %{secret_key: "my_secret"}))
 
-      assert result == :ok
+      assert res == :ok
       assert "$2b$" <> _ = key.secret_key_hash
+      refute key.secret_key == key.secret_key_hash
     end
 
-    test "returns error if a key with same access key already exists" do
+    test "does not save secret_key to database" do
+      {:ok, key} = Key.insert(params_for(:key))
+      assert Repo.get(Key, key.id).secret_key == nil
+    end
+
+    test "returns error if same access key already exists" do
       {:ok, _} =
         :key
         |> params_for(%{access_key: "same_access"})

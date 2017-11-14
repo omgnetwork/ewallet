@@ -8,19 +8,10 @@ defmodule KuberaDB.AccountTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "has a valid factory" do
-    changeset = Account.changeset(%Account{}, params_for(:account))
-    assert changeset.valid?
-  end
-
-  describe "changeset/2" do
-    test "validates name can't be blank" do
-      changeset =
-        Account.changeset(%Account{}, params_for(:account, %{name: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [name: {"can't be blank", [validation: :required]}]
+  describe "factory" do
+    test "has a valid factory" do
+      {res, _account} = Account.insert(params_for(:account))
+      assert res == :ok
     end
   end
 

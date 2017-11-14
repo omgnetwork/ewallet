@@ -20,10 +20,7 @@ defmodule KuberaDB.AuthToken do
     timestamps()
   end
 
-  @doc """
-  Validates auth token data.
-  """
-  def changeset(%AuthToken{} = token, attrs) do
+  defp changeset(%AuthToken{} = token, attrs) do
     token
     |> cast(attrs, [:token, :user_id, :expired])
     |> validate_required([:token, :user_id])
@@ -78,7 +75,7 @@ defmodule KuberaDB.AuthToken do
   # please use `generate/1` instead.
   defp insert(attrs) do
     %AuthToken{}
-    |> AuthToken.changeset(attrs)
+    |> changeset(attrs)
     |> Repo.insert()
   end
 
@@ -92,7 +89,7 @@ defmodule KuberaDB.AuthToken do
   # if expiring the token, please use `expire/1` instead.
   defp update(%AuthToken{} = token, attrs) do
     token
-    |> AuthToken.changeset(attrs)
+    |> changeset(attrs)
     |> Repo.update()
   end
 end

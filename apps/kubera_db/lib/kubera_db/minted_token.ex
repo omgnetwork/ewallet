@@ -31,16 +31,7 @@ defmodule KuberaDB.MintedToken do
     timestamps()
   end
 
-  @doc """
-  Validates minted token data.
-
-  ## Examples
-
-      iex> changeset(%MintedToken{}, %{field: value})
-      %MintedToken{}
-
-  """
-  def changeset(%MintedToken{} = minted_token, attrs) do
+  defp changeset(%MintedToken{} = minted_token, attrs) do
     minted_token
     |> cast(attrs, [
       :symbol, :iso_code, :name, :description, :short_symbol,
@@ -69,7 +60,7 @@ defmodule KuberaDB.MintedToken do
   Create a new minted token with the passed attributes.
   """
   def insert(attrs) do
-    changeset = MintedToken.changeset(%MintedToken{}, attrs)
+    changeset = changeset(%MintedToken{}, attrs)
 
     case Repo.insert(changeset) do
       {:ok, minted_token} ->

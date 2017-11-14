@@ -22,10 +22,7 @@ defmodule KuberaDB.Key do
     timestamps()
   end
 
-  @doc """
-  Validates key data.
-  """
-  def changeset(%Key{} = key, attrs) do
+  defp changeset(%Key{} = key, attrs) do
     key
     |> cast(attrs, [:access_key, :secret_key, :account_id])
     |> validate_required([:access_key, :secret_key, :account_id])
@@ -47,7 +44,7 @@ defmodule KuberaDB.Key do
         Crypto.generate_key(@key_bytes) end)
 
     %Key{}
-    |> Key.changeset(attrs)
+    |> changeset(attrs)
     |> Repo.insert()
   end
 

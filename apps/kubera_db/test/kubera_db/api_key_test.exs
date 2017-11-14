@@ -8,30 +8,10 @@ defmodule KuberaDB.APIKeyTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "has a valid factory" do
-    changeset = APIKey.changeset(%APIKey{}, params_for(:api_key))
-    assert changeset.valid?
-  end
-
-  describe "changeset/2" do
-    test "validates key can't be blank" do
-      changeset =
-        %APIKey{}
-        |> APIKey.changeset(params_for(:api_key, %{key: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [key: {"can't be blank", [validation: :required]}]
-    end
-
-    test "validates account can't be blank" do
-      changeset =
-        %APIKey{}
-        |> APIKey.changeset(params_for(:api_key, %{account: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [account_id: {"can't be blank", [validation: :required]}]
+  describe "factory" do
+    test "has a valid factory" do
+      {res, _api_key} = APIKey.insert(params_for(:api_key))
+      assert res == :ok
     end
   end
 

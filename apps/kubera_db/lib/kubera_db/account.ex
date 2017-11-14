@@ -21,10 +21,7 @@ defmodule KuberaDB.Account do
     timestamps()
   end
 
-  @doc """
-  Validates account data.
-  """
-  def changeset(%Account{} = account, attrs) do
+  defp changeset(%Account{} = account, attrs) do
     account
     |> cast(attrs, [:name, :description, :master])
     |> validate_required(:name)
@@ -36,7 +33,7 @@ defmodule KuberaDB.Account do
   """
   def insert(attrs) do
     %Account{}
-    |> Account.changeset(attrs)
+    |> changeset(attrs)
     |> Repo.insert()
   end
 

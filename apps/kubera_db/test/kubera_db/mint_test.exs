@@ -8,31 +8,10 @@ defmodule KuberaDB.MintTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "has a valid factory" do
-    attrs = params_for(:mint)
-    changeset = Mint.changeset(%Mint{}, attrs)
-    assert changeset.valid?
-  end
-
-  describe "changeset/1" do
-    test "validates amount can't be blank" do
-      changeset =
-        Mint.changeset(%Mint{}, params_for(:mint, %{amount: nil}))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [amount: {"can't be blank", [validation: :required]}]
-    end
-
-    test "validates minted_token_id can't be blank" do
-      changeset =
-        Mint.changeset(%Mint{}, params_for(:mint, %{
-          minted_token_id: nil
-        }))
-
-      refute changeset.valid?
-      assert changeset.errors ==
-        [{:minted_token_id, {"can't be blank", [validation: :required]}}]
+  describe "factory" do
+    test "has a valid factory" do
+      {res, _mint} = Mint.insert(params_for(:mint))
+      assert res == :ok
     end
   end
 
