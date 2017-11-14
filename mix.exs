@@ -5,7 +5,8 @@ defmodule Kubera.Umbrella.Mixfile do
     [
       apps_path: "apps",
       start_permanent: Mix.env == :prod,
-      deps: deps()
+      deps: deps(),
+      aliases: aliases(),
     ]
   end
 
@@ -17,6 +18,25 @@ defmodule Kubera.Umbrella.Mixfile do
   defp deps do
     [
       {:credo, "~> 0.8", only: [:dev, :test], runtime: false}
+    ]
+  end
+
+  # Aliases for easier command executions
+  def aliases do
+    [
+      init: [
+        "ecto.create",
+        "ecto.migrate",
+        "seed",
+      ],
+      reset: [
+        "ecto.drop",
+        "init",
+        "seed",
+      ],
+      seed: [
+        "run apps/kubera_db/priv/repo/seeds.exs"
+      ]
     ]
   end
 end

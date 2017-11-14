@@ -39,4 +39,11 @@ defmodule KuberaDB.Account do
     |> Account.changeset(attrs)
     |> Repo.insert()
   end
+
+  @doc """
+  Retrieve the account with the given name.
+  """
+  def get(name) when is_binary(name) and byte_size(name) > 0 do
+    Repo.get_by(Account, name: name)
+  end
 end

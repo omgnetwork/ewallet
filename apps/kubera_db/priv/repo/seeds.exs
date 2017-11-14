@@ -1,63 +1,71 @@
-# Script for populating the database. You can run it as:
+# Script for populating the database.
 #
-#     mix run priv/repo/seeds.exs
+## Usage
 #
-# Inside the script, you can read and write to any of your
-# repositories directly:
+# You can run the seed through mix alias on the root umbrella app folder:
 #
-#     KuberaDB.Repo.insert!(%KuberaDB.SomeSchema{})
+# ```
+# mix seed
+# ```
 #
-# We recommend using the bang functions (`insert!`, `update!`
-# and so on) as they will fail if something goes wrong.
+# Or run the seed directly:
+#
+# ```
+# mix run apps/kubera_db/priv/repo/seeds.exs
+# ```
+#
+# And run the seed with genesis (requires Caishen to be running):
+#
+# ```
+# mix run apps/kubera_db/priv/repo/seeds.exs --with-genesis
+# ```
+#
+# All mix aliases that runs the seed also automatically
+# supports `--with-genesis` flag:
+#
+# ```
+# mix init --with-genesis
+# mix reset --with-genesis
+# mix seed --with-genesis
+# ```
+#
+## Naming convention
+#
+# To add more types of seeds, simply create a new seed file,
+# then append the new file name to the `files` list below.
+#
+# Note that the numbered prefix is used to help group the context
+# and/or visualize the dependencies.
+#
+# i.e. accounts --> other entities --> authentications
+#
+# Prefix increments by 10 in case new seeds need to be inserted in the middle.
+# Try to name the seed file the same as the schema.
+#
+## Seeding script
+#
+# Inside each seed file, you can seed the entity by calling
+# the schema's insert function:
+#
+# ```
+# KuberaDB.SomeSchema.insert(a_data_map)
+# ```
+#
+# Direct repo insert, e.g. `KuberaDB.Repo.insert!` should be avoided because
+# it does not preserve data integrity implemented in the schema.
 
-KuberaDB.MintedToken.insert(%{
-  symbol: "OMG",
-  name: "OmiseGO",
-  subunit_to_unit: 10_000
-})
-
-KuberaDB.MintedToken.insert(%{
-  symbol: "KNC",
-  name: "Kyber",
-  subunit_to_unit: 1000
-})
-
-KuberaDB.MintedToken.insert(%{
-  symbol: "BTC",
-  name: "Bitcoin",
-  subunit_to_unit: 10_000
-})
-
-KuberaDB.MintedToken.insert(%{
-  symbol: "MNT",
-  name: "Mint",
-  subunit_to_unit: 100
-})
-
-KuberaDB.MintedToken.insert(%{
-  symbol: "ETH",
-  name: "Ether",
-  subunit_to_unit: 1_000_000_000_000_000_000
-})
-
-case KuberaDB.User.get_by_provider_user_id("123") do
-  nil ->
-    KuberaDB.User.insert(%{username: "john", provider_user_id: "123"})
+case Application.get_env(:kubera_db, :env) do
+  :prod ->
+    KuberaDB.CLI.halt("Seeder cannot be run on :prod environment!")
   _ ->
-    # credo:disable-for-next-line
-    IO.inspect("User already in DB.")
+    nil
 end
 
-# Use the following to create value out of nowhere.
-#
-# in IEX
-# minted_token = KuberaDB.MintedToken.get("OMG")
-# {:ok, genesis} = KuberaDB.Balance.genesis()
-# data = KuberaMQ.Serializers.Transaction.serialize(%{
-#   from: genesis,
-#   to: KuberaDB.MintedToken.get_master_balance(minted_token),
-#   minted_token: minted_token,
-#   amount: 10000000,
-#   metadata: %{}
-# })
-# KuberaMQ.Entry.genesis(data)
+# Disable noisy debug messages. Seeders already have their own log messages.
+Logger.configure(level: :warn)
+
+# Seed by executing each file in `./seeders`
+__DIR__ <> "/seeders"
+|> File.ls!()
+|> Enum.sort()
+|> Enum.each(fn(file) -> Code.load_file(file, __DIR__ <> "/seeders") end)
