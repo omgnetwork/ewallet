@@ -22,7 +22,8 @@ defmodule KuberaDB.MintedToken do
     field :iso_numeric, :string # "978"
     field :smallest_denomination, :integer # 1
     field :locked, :boolean # false
-    field :metadata, :map
+    field :metadata, Cloak.EncryptedMapField
+    field :encryption_version, :binary
     has_many :balances, Balance, foreign_key: :minted_token_id,
                                  references: :id
     belongs_to :account, Account, foreign_key: :account_id,
@@ -36,7 +37,8 @@ defmodule KuberaDB.MintedToken do
     |> cast(attrs, [
       :symbol, :iso_code, :name, :description, :short_symbol,
       :subunit, :subunit_to_unit, :symbol_first, :html_entity,
-      :iso_numeric, :smallest_denomination, :locked, :account_id
+      :iso_numeric, :smallest_denomination, :locked, :account_id,
+      :metadata
     ])
     |> validate_required([
       :symbol, :name, :subunit_to_unit
@@ -47,6 +49,7 @@ defmodule KuberaDB.MintedToken do
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
     |> assoc_constraint(:account)
+    |> put_change(:encryption_version, Cloak.version)
   end
 
   @doc """

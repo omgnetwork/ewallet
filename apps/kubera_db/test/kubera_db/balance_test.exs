@@ -2,6 +2,7 @@ defmodule KuberaDB.BalanceTest do
   use ExUnit.Case
   import KuberaDB.Factory
   alias KuberaDB.{Repo, Balance}
+  alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
 
   setup do
@@ -39,6 +40,20 @@ defmodule KuberaDB.BalanceTest do
       assert res == :ok
       assert balance.inserted_at != nil
       assert balance.updated_at != nil
+    end
+
+    test "saves the encrypted metadata" do
+      {_, balance} =
+        :balance
+        |> params_for(metadata: %{something: "cool"})
+        |> Balance.insert
+
+      {:ok, results} = SQL.query(Repo, "SELECT metadata FROM balance", [])
+      row = Enum.at(results.rows, 0)
+      assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+
+      balance = Repo.get(Balance, balance.id)
+      assert balance.metadata == %{"something" => "cool"}
     end
 
     test "allows insert if provided a user without minted_token" do

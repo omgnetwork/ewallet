@@ -1,0 +1,13 @@
+build:
+  version: 2016-03-14
+  steps:
+    builder:
+      name: _env(IMAGE):_env(TAG)
+      dockerfile: Dockerfile
+      secrets:
+        ssh_key:
+          type: file
+          value: _env(GIT_SSH_KEY)
+        ssh_config:
+          type: file
+          value: _env(GIT_SSH_CONFIG)

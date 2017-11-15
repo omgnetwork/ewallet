@@ -22,7 +22,8 @@ defmodule KuberaDB.Balance do
     belongs_to :account, Account, foreign_key: :account_id,
                                   references: :id,
                                   type: UUID
-    field :metadata, :map
+    field :metadata, Cloak.EncryptedMapField
+    field :encryption_version, :binary
     timestamps()
   end
 
@@ -39,6 +40,7 @@ defmodule KuberaDB.Balance do
     |> assoc_constraint(:account)
     |> assoc_constraint(:minted_token)
     |> assoc_constraint(:user)
+    |> put_change(:encryption_version, Cloak.version)
   end
 
   @doc """

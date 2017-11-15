@@ -41,6 +41,8 @@ defmodule KuberaDB.Mixfile do
       {:ex_machina, "~> 2.0", only: :test},
       {:poison, "~> 3.1"},
       {:bcrypt_elixir, "~> 1.0"},
+      {:salty, git: "ssh://git@phabricator.omisego.io/source/salty.git"},
+      {:cloak, "~> 0.3.3"},
     ]
   end
 

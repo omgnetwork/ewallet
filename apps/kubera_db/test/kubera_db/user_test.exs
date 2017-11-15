@@ -2,6 +2,7 @@ defmodule KuberaDB.UserTest do
   use ExUnit.Case
   import KuberaDB.Factory
   alias KuberaDB.{Repo, User}
+  alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
 
   setup do
@@ -12,6 +13,18 @@ defmodule KuberaDB.UserTest do
     test "has a valid factory" do
       {res, _user} = User.insert(params_for(:user))
       assert res == :ok
+    end
+
+    test "saves the encrypted metadata" do
+      {_, user} =
+        :user
+        |> params_for(metadata: %{something: "cool"})
+        |> User.insert
+
+      {:ok, results} = SQL.query(Repo, "SELECT metadata FROM \"user\"", [])
+      row = Enum.at(results.rows, 0)
+      assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+      assert user.metadata == %{"something" => "cool"}
     end
   end
 

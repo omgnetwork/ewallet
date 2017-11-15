@@ -2,6 +2,7 @@ defmodule KuberaDB.MintedTokenTest do
   use ExUnit.Case
   import KuberaDB.Factory
   alias KuberaDB.{MintedToken, Repo}
+  alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
 
   setup do
@@ -32,6 +33,18 @@ defmodule KuberaDB.MintedTokenTest do
       assert res == :ok
       assert minted_token.inserted_at != nil
       assert minted_token.updated_at != nil
+    end
+
+    test "saves the encrypted metadata" do
+      {_, minted_token} =
+        :minted_token
+        |> params_for(metadata: %{something: "cool"})
+        |> MintedToken.insert
+
+      {:ok, results} = SQL.query(Repo, "SELECT metadata FROM minted_token", [])
+      row = Enum.at(results.rows, 0)
+      assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+      assert minted_token.metadata == %{"something" => "cool"}
     end
 
     test "prevents creation of a minted token without a symbol" do

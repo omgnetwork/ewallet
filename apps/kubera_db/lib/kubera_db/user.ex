@@ -13,7 +13,8 @@ defmodule KuberaDB.User do
   schema "user" do
     field :username, :string
     field :provider_user_id, :string
-    field :metadata, :map
+    field :metadata, Cloak.EncryptedMapField
+    field :encryption_version, :binary
     has_many :balances, Balance
     has_many :auth_tokens, AuthToken
 
@@ -29,6 +30,7 @@ defmodule KuberaDB.User do
     |> unsafe_validate_unique(:provider_user_id, Repo)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
+    |> put_change(:encryption_version, Cloak.version)
   end
 
   @doc """
