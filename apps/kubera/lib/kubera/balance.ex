@@ -32,7 +32,7 @@ defmodule Kubera.Balance do
         {:error, :provider_user_id_not_found}
       user ->
         balance = User.get_main_balance(user)
-        format(balance.address)
+        format_all(balance.address)
     end
   end
 
@@ -56,7 +56,7 @@ defmodule Kubera.Balance do
 
   """
   def all(%{"address" => address}) do
-    format(address)
+    format_all(address)
   end
 
   @doc """
@@ -84,22 +84,20 @@ defmodule Kubera.Balance do
   end
 
   def get(symbol, address) do
-    symbol |> Balance.get(address) |> process_response(address)
+    symbol |> Balance.get(address) |> process_response(address, :one)
   end
 
-  defp format(address) do
-    address |> Balance.all() |> process_response(address)
+  defp format_all(address) do
+    address |> Balance.all() |> process_response(address, :all)
   end
 
-  defp process_response(response, address) do
+  defp process_response(response, address, type) do
     case response do
       {:ok, data} ->
         balances =
-          data["amounts"]
-          |> Map.keys()
-          |> MintedToken.get_all()
-          |> map_minted_tokens(data["amounts"])
-
+        type
+        |> load_minted_tokens(data["amounts"])
+        |> map_minted_tokens(data["amounts"])
         # For now Caishen returns a single address but we're preparing for an
         # array to be returned
         {:ok, [%{address: address, balances: balances}]}
@@ -108,11 +106,16 @@ defmodule Kubera.Balance do
     end
   end
 
+  defp load_minted_tokens(:all, _), do: MintedToken.all()
+  defp load_minted_tokens(:one, amounts) do
+    amounts |> Map.keys() |> MintedToken.get_all()
+  end
+
   defp map_minted_tokens(minted_tokens, amounts) do
     Enum.map(minted_tokens, fn minted_token ->
       %{
         minted_token: minted_token,
-        amount: amounts[minted_token.symbol]
+        amount: amounts[minted_token.symbol] || 0
       }
     end)
   end
