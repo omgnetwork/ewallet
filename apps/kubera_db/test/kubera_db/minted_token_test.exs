@@ -1,39 +1,9 @@
 defmodule KuberaDB.MintedTokenTest do
-  use ExUnit.Case
-  import KuberaDB.Factory
-  alias KuberaDB.{MintedToken, Repo}
-  alias Ecto.Adapters.SQL
-  alias Ecto.Adapters.SQL.Sandbox
+  use KuberaDB.SchemaCase
+  alias KuberaDB.MintedToken
 
-  setup do
-    :ok = Sandbox.checkout(Repo)
-  end
-
-  describe "factory" do
-    test "has a valid factory" do
-      {res, _minted_token} = MintedToken.insert(params_for(:minted_token))
-      assert res == :ok
-    end
-  end
-
-  describe "insert/1" do
-    test "generates a UUID in place of a regular ID" do
-      {res, minted_token} =
-        MintedToken.insert(params_for(:minted_token))
-
-      assert res == :ok
-      assert String.match?(minted_token.id,
-        ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-    end
-
-    test "generates the inserted_at and updated_at values" do
-      {res, minted_token} =
-        MintedToken.insert(params_for(:minted_token))
-
-      assert res == :ok
-      assert minted_token.inserted_at != nil
-      assert minted_token.updated_at != nil
-    end
+  describe "MintedToken factory" do
+    test_has_valid_factory MintedToken
 
     test "saves the encrypted metadata" do
       {_, minted_token} =
@@ -46,68 +16,28 @@ defmodule KuberaDB.MintedTokenTest do
       assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
       assert minted_token.metadata == %{"something" => "cool"}
     end
+  end
 
-    test "prevents creation of a minted token without a symbol" do
-      {result, changeset} =
-        MintedToken.insert(params_for(:minted_token, %{symbol: ""}))
+  describe "insert/1" do
+    test_insert_generate_uuid MintedToken, :id
+    test_insert_generate_timestamps MintedToken
+    test_insert_prevent_blank MintedToken, :symbol
+    test_insert_prevent_blank MintedToken, :name
+    test_insert_prevent_blank MintedToken, :subunit_to_unit
+    test_insert_prevent_duplicate MintedToken, :symbol
+    test_insert_prevent_duplicate MintedToken, :iso_code
+    test_insert_prevent_duplicate MintedToken, :name
 
-      assert result == :error
-      assert changeset.errors ==
-        [symbol: {"can't be blank", [validation: :required]}]
-    end
+    test "saves the encrypted metadata" do
+      {_, minted_token} =
+        :minted_token
+        |> params_for(metadata: %{something: "cool"})
+        |> MintedToken.insert
 
-    test "prevents creation of a minted token without a name" do
-      {result, changeset} =
-        MintedToken.insert(params_for(:minted_token, %{name: ""}))
-
-      assert result == :error
-      assert changeset.errors ==
-        [name: {"can't be blank", [validation: :required]}]
-    end
-
-    test "prevents creation of a minted token without subunit_to_unit" do
-      {result, changeset} =
-        MintedToken.insert(params_for(:minted_token, %{subunit_to_unit: nil}))
-
-      assert result == :error
-      assert changeset.errors ==
-        [subunit_to_unit: {"can't be blank", [validation: :required]}]
-    end
-
-    test "prevents creation of a minted token with existing symbol" do
-      {result_1, _changeset_1} =
-        MintedToken.insert(params_for(:minted_token, %{symbol: "SYM"}))
-
-      {result_2, changeset_2} =
-        MintedToken.insert(params_for(:minted_token, %{symbol: "SYM"}))
-
-      assert result_1 == :ok
-      assert result_2 == :error
-      assert changeset_2.errors == [symbol: {"has already been taken", []}]
-    end
-
-    test "prevents creation of a minted token with existing iso_code" do
-      {result_1, _changeset_1} =
-        MintedToken.insert(params_for(:minted_token, %{iso_code: "SYM"}))
-
-      {result_2, changeset_2} =
-        MintedToken.insert(params_for(:minted_token, %{iso_code: "SYM"}))
-
-      assert result_1 == :ok
-      assert result_2 == :error
-      assert changeset_2.errors == [iso_code: {"has already been taken", []}]
-    end
-
-    test "prevents creation of a minted token with existing name" do
-      {result_1, _changeset_1} =
-        MintedToken.insert(params_for(:minted_token, %{name: "Same Token Name"}))
-
-      {result_2, changeset_2} =
-        MintedToken.insert(params_for(:minted_token, %{name: "Same Token Name"}))
-
-      assert result_1 == :ok
-      assert result_2 == :error
-      assert changeset_2.errors == [name: {"has already been taken", []}]
+      {:ok, results} = SQL.query(Repo, "SELECT metadata FROM minted_token", [])
+      row = Enum.at(results.rows, 0)
+      assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+      assert minted_token.metadata == %{"something" => "cool"}
     end
 
     test "inserts a balance for the minted token" do

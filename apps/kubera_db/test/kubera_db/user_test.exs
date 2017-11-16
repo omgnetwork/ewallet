@@ -1,19 +1,9 @@
 defmodule KuberaDB.UserTest do
-  use ExUnit.Case
-  import KuberaDB.Factory
-  alias KuberaDB.{Repo, User}
-  alias Ecto.Adapters.SQL
-  alias Ecto.Adapters.SQL.Sandbox
+  use KuberaDB.SchemaCase
+  alias KuberaDB.User
 
-  setup do
-    :ok = Sandbox.checkout(Repo)
-  end
-
-  describe "factory" do
-    test "has a valid factory" do
-      {res, _user} = User.insert(params_for(:user))
-      assert res == :ok
-    end
+  describe "User factory" do
+    test_has_valid_factory User
 
     test "saves the encrypted metadata" do
       {_, user} =
@@ -40,116 +30,25 @@ defmodule KuberaDB.UserTest do
       assert user.metadata["last_name"] == inserted_user.metadata["last_name"]
     end
 
-    test "generates a UUID in place of a regular integer ID" do
-      {res, user} = :user |> build |> Repo.insert
-      uuid_pattern = ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-
-      assert res == :ok
-      assert String.match?(user.id, uuid_pattern)
-    end
-
-    test "generates the inserted_at and updated_at values" do
-      {res, user} = :user |> build |> Repo.insert
-
-      assert res == :ok
-      assert user.inserted_at != nil
-      assert user.updated_at != nil
-    end
+    test_insert_generate_uuid User, :id
+    test_insert_generate_timestamps User
+    test_insert_prevent_blank User, :username
+    test_insert_prevent_blank User, :provider_user_id
+    test_insert_prevent_blank User, :metadata
+    test_insert_prevent_duplicate User, :username
+    test_insert_prevent_duplicate User, :provider_user_id
 
     test "automatically creates a balance when user is created" do
       {_result, user} = :user |> params_for |> User.insert
       User.get_main_balance(user)
       assert length(User.get(user.id).balances) == 1
     end
-
-    test "prevents creation of a user with existing username" do
-      {:ok, _user} =
-        User.insert(params_for(:user, %{username: "same_username"}))
-
-      {:error, changeset} =
-        User.insert(params_for(:user, %{username: "same_username"}))
-
-      assert changeset.errors == [
-        username: {"has already been taken",
-        [validation: :unsafe_unique, fields: [:username]]}
-      ]
-    end
-
-    test "prevents creation of a user with existing provider_user_id" do
-      {:ok, _user} =
-        User.insert(params_for(:user, %{provider_user_id: "same_provider_user_id"}))
-
-      {:error, changeset} =
-        User.insert(params_for(:user, %{provider_user_id: "same_provider_user_id"}))
-
-      expected_errors = [
-        provider_user_id: {
-          "has already been taken",
-          [validation: :unsafe_unique, fields: [:provider_user_id]]
-        }
-      ]
-
-      assert changeset.errors == expected_errors
-    end
-
-    test "prevents creation of a user without a username" do
-      {result, changeset} =
-        User.insert(params_for(:user, %{username: ""}))
-
-      assert result == :error
-      assert changeset.errors ==
-        [username: {"can't be blank", [validation: :required]}]
-    end
-
-    test "prevents creation of a user without a provider_user_id" do
-      {result, changeset} =
-        User.insert(params_for(:user, %{provider_user_id: ""}))
-
-      assert result == :error
-      assert changeset.errors ==
-        [provider_user_id: {"can't be blank", [validation: :required]}]
-    end
-
-    test "prevents creation of a user without metadata" do
-      {result, changeset} =
-        User.insert(params_for(:user, %{metadata: nil}))
-
-      assert result == :error
-      assert changeset.errors ==
-        [metadata: {"can't be blank", [validation: :required]}]
-    end
   end
 
   describe "update/2" do
-    test "updates a user with provided attributes" do
-      {res, user} =
-        :user
-        |> insert(%{username: "original"})
-        |> User.update(%{username: "changed"})
-
-      assert res == :ok
-      assert user.username == "changed"
-    end
-
-    test "updates a user with unchanged provider_user_id" do
-      {res, user} =
-        :user
-        |> insert(%{provider_user_id: "original", username: "original"})
-        |> User.update(%{provider_user_id: "original", username: "changed"})
-
-      assert res == :ok
-      assert user.username == "changed"
-    end
-
-    test "prevents changing provider_user_id" do
-      {res, changeset} =
-        :user
-        |> insert(%{provider_user_id: "original"})
-        |> User.update(%{provider_user_id: "changed"})
-
-      assert res == :error
-      assert changeset.errors == [provider_user_id: {"can't be changed", []}]
-    end
+    test_update_field_ok User, :username
+    test_update_field_ok User, :metadata, %{"field" => "old"}, %{"field" => "new"}
+    test_update_prevents_changing User, :provider_user_id
   end
 
   describe "get/1" do

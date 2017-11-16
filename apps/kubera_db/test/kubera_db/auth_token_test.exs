@@ -1,14 +1,8 @@
 defmodule KuberaDB.AuthTokenTest do
-  use ExUnit.Case
-  import KuberaDB.Factory
-  alias KuberaDB.{Repo, AuthToken, User}
-  alias Ecto.Adapters.SQL.Sandbox
+  use KuberaDB.SchemaCase
+  alias KuberaDB.{AuthToken, User}
 
-  setup do
-    :ok = Sandbox.checkout(Repo)
-  end
-
-  describe "generate/1" do
+  describe "AuthToken.generate/1" do
     test "generates an auth token string with length == 43" do
       {:ok, user} = :user |> params_for() |> User.insert()
       auth_token = AuthToken.generate(user)
@@ -32,7 +26,7 @@ defmodule KuberaDB.AuthTokenTest do
     end
   end
 
-  describe "authenticate/2" do
+  describe "AuthToken.authenticate/2" do
     test "returns an existing token if exists" do
       {:ok, user} = :user |> params_for() |> User.insert()
       auth_token_string = AuthToken.generate(user)
@@ -58,7 +52,7 @@ defmodule KuberaDB.AuthTokenTest do
     end
   end
 
-  describe "expire/1" do
+  describe "AuthToken.expire/1" do
     test "expires AuthToken sucessfully given an AuthToken" do
       token = insert(:auth_token)
       token_string = token.token

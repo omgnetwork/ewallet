@@ -26,8 +26,6 @@ defmodule KuberaDB.User do
     |> cast(attrs, [:username, :provider_user_id, :metadata])
     |> validate_required([:username, :provider_user_id, :metadata])
     |> validate_immutable(:provider_user_id)
-    |> unsafe_validate_unique(:username, Repo)
-    |> unsafe_validate_unique(:provider_user_id, Repo)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
     |> put_change(:encryption_version, Cloak.version)

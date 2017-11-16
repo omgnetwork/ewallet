@@ -3,8 +3,22 @@ defmodule KuberaDB.Factory do
   Factories used for testing.
   """
   use ExMachina.Ecto, repo: KuberaDB.Repo
+  alias ExMachina.Strategy
   alias KuberaDB.{Account, APIKey, AuthToken, Balance, Key, Mint,
     MintedToken, User}
+
+  @doc """
+  Get factory name (as atom) from schema.
+
+  The function should explicitly handle schemas that produce incorrect factory name,
+  e.g. when APIKey becomes :a_p_i_key
+  """
+  def get_factory(APIKey), do: :api_key
+  def get_factory(schema) when is_atom(schema) do
+    schema
+    |> struct
+    |> Strategy.name_from_struct
+  end
 
   def balance_factory do
     %Balance{

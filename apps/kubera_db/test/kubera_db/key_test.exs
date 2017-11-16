@@ -1,67 +1,19 @@
 defmodule KuberaDB.KeyTest do
-  use ExUnit.Case
-  import KuberaDB.Factory
-  alias KuberaDB.{Repo, Key}
-  alias Ecto.Adapters.SQL.Sandbox
+  use KuberaDB.SchemaCase
+  alias KuberaDB.Key
 
-  setup do
-    :ok = Sandbox.checkout(Repo)
-  end
-
-  describe "factory" do
-    test "has a valid factory" do
-      {res, _key} = Key.insert(params_for(:key))
-      assert res == :ok
-    end
+  describe "Key factory" do
+    test_has_valid_factory Key
   end
 
   describe "insert/1" do
-    test "generates a UUID in place of a regular ID" do
-      {res, key} = :key |> params_for |> Key.insert
+    test_insert_generate_uuid Key, :id
+    test_insert_generate_timestamps Key
+    test_insert_generate_length Key, :access_key, 43
+    test_insert_generate_length Key, :secret_key, 43
 
-      assert res == :ok
-      assert String.match?(key.id,
-        ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-    end
-
-    test "generates the inserted_at and updated_at values" do
-      {res, key} = :key |> params_for |> Key.insert
-
-      assert res == :ok
-      assert key.inserted_at != nil
-      assert key.updated_at != nil
-    end
-
-    test "prevents creation of a key without account specified" do
-      {result, changeset} =
-        :key
-        |> params_for(%{account: ""})
-        |> Key.insert
-
-      assert result == :error
-      assert changeset.errors ==
-        [account_id: {"can't be blank", [validation: :required]}]
-    end
-
-    test "generates access_key with length == 43 if not provided" do
-      {result, key} =
-        :key
-        |> params_for(%{access_key: nil})
-        |> Key.insert
-
-      assert result == :ok
-      assert String.length(key.access_key) == 43
-    end
-
-    test "generates secret_key with length == 43 if not provided" do
-      {result, key} =
-        :key
-        |> params_for(%{secret_key: nil})
-        |> Key.insert
-
-      assert result == :ok
-      assert String.length(key.secret_key) == 43
-    end
+    test_insert_prevent_blank_assoc Key, :account
+    test_insert_prevent_duplicate Key, :access_key
 
     test "hashes secret_key with bcrypt before saving" do
       {res, key} = Key.insert(params_for(:key, %{secret_key: "my_secret"}))
@@ -74,21 +26,6 @@ defmodule KuberaDB.KeyTest do
     test "does not save secret_key to database" do
       {:ok, key} = Key.insert(params_for(:key))
       assert Repo.get(Key, key.id).secret_key == nil
-    end
-
-    test "returns error if same access key already exists" do
-      {:ok, _} =
-        :key
-        |> params_for(%{access_key: "same_access"})
-        |> Key.insert
-
-      {result, changeset} =
-        :key
-        |> params_for(%{access_key: "same_access"})
-        |> Key.insert
-
-      assert result == :error
-      assert changeset.errors == [access_key: {"has already been taken", []}]
     end
   end
 
