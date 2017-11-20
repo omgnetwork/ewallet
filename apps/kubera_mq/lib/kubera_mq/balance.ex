@@ -11,10 +11,10 @@ defmodule KuberaMQ.Balance do
     })
   end
 
-  def get(symbol, address) do
+  def get(friendly_id, address) do
     Publisher.send(%{
       operation: "v1.balance.get",
-      symbol: symbol,
+      friendly_id: friendly_id,
       address: address
     })
   end

@@ -11,7 +11,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
     {:ok, %{
       "object" => "balance",
       "address" => "master",
-      "amounts" => %{"BTC" => 9850, "OMG" => 1000}
+      "amounts" => %{"BTC:123" => 9850, "OMG:123" => 1000}
     }}
   end
 
@@ -22,9 +22,9 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
         ] do
           {:ok, user} = :user |> params_for() |> User.insert()
           {:ok, btc} =
-            :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
           {:ok, omg} =
-            :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
 
           request_data = %{provider_user_id: user.provider_user_id}
 
@@ -51,7 +51,8 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
                         "name" => btc.name,
                         "object" => "minted_token",
                         "subunit_to_unit" => btc.subunit_to_unit,
-                        "symbol" => btc.symbol
+                        "symbol" => btc.symbol,
+                        "id" => btc.friendly_id,
                       }
                     },
                     %{
@@ -61,7 +62,8 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
                         "name" => omg.name,
                         "object" => "minted_token",
                         "subunit_to_unit" => omg.subunit_to_unit,
-                        "symbol" => omg.symbol
+                        "symbol" => omg.symbol,
+                        "id" => omg.friendly_id,
                       }
                     }
                   ]
@@ -78,9 +80,9 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
         ] do
           {:ok, user} = :user |> params_for() |> User.insert()
           {:ok, btc} =
-            :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
           {:ok, omg} =
-            :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
 
           address = User.get_main_balance(user).address
           request_data = %{address: address}
@@ -108,7 +110,8 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
                         "name" => btc.name,
                         "object" => "minted_token",
                         "subunit_to_unit" => btc.subunit_to_unit,
-                        "symbol" => btc.symbol
+                        "symbol" => btc.symbol,
+                        "id" => btc.friendly_id
                       }
                     },
                     %{
@@ -118,7 +121,8 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
                         "name" => omg.name,
                         "object" => "minted_token",
                         "subunit_to_unit" => omg.subunit_to_unit,
-                        "symbol" => omg.symbol
+                        "symbol" => omg.symbol,
+                        "id" => omg.friendly_id
                       }
                     }
                   ]

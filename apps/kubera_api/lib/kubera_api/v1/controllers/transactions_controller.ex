@@ -9,12 +9,12 @@ defmodule KuberaAPI.V1.TransactionController do
 
   defp transfer(conn, type, %{
     "provider_user_id" => provider_user_id,
-    "symbol" => symbol,
+    "token_id" => token_id,
     "amount" => amount,
     "metadata" => metadata} = attrs
   )
   when provider_user_id != nil
-  and symbol != nil
+  and token_id != nil
   and is_integer(amount)
   and metadata != nil
   do

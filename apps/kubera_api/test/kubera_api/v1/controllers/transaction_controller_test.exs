@@ -20,7 +20,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
           "balance_address" => "dda0b902-0a37-4ecf-bb96-e81e89db3d2b",
           "id" => "688b8e65-248a-48ce-a7c6-ad593f7c56b2",
           "inserted_at" => "2017-11-01T06:42:58.043203",
-          "minted_token_symbol" => "OMG",
+          "minted_token_friendly_id" => "OMG:123",
           "object" => "transaction",
           "type" => "debit"
         },
@@ -29,7 +29,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
           "balance_address" => "5b54d25e-8411-4ea7-ac65-9eeed311a6a2",
           "id" => "f1ba0a6a-fbea-4ede-bf69-8b2d127b92c2",
           "inserted_at" => "2017-11-01T06:42:58.044764",
-          "minted_token_symbol" => "OMG",
+          "minted_token_friendly_id" => "OMG:123",
           "object" => "transaction",
           "type" => "credit"
         }
@@ -41,7 +41,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
     {:ok, %{
       "object" => "balance",
       "address" => "master",
-      "amounts" => %{"BTC" => 9850}
+      "amounts" => %{"BTC:123" => 9850}
     }}
   end
 
@@ -65,11 +65,11 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
       ] do
           {:ok, user} = :user |> params_for() |> User.insert()
           {:ok, minted_token} =
-            :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
 
           request_data = %{
             provider_user_id: user.provider_user_id,
-            symbol: minted_token.symbol,
+            token_id: minted_token.friendly_id,
             amount: 100_000,
             metadata: %{}
           }
@@ -97,8 +97,8 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
                         "name" => minted_token.name,
                         "object" => "minted_token",
                         "subunit_to_unit" => 100,
-                        "symbol" =>
-                        "BTC"
+                        "id" => "BTC:123",
+                        "symbol" => "BTC"
                       }
                     }
                   ]
@@ -123,7 +123,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
 
           request_data = %{
-            symbol: minted_token.symbol,
+            token_id: minted_token.friendly_id,
             amount: 100_000,
             metadata: %{}
           }
@@ -160,7 +160,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
 
           request_data = %{
             provider_user_id: "fake",
-            symbol: minted_token.symbol,
+            token_id: minted_token.friendly_id,
             amount: 100_000,
             metadata: %{}
           }
@@ -197,7 +197,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
 
           request_data = %{
             provider_user_id: user.provider_user_id,
-            symbol: "BTC",
+            token_id: "BTC:456",
             amount: 100_000,
             metadata: %{}
           }
@@ -214,7 +214,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             "data" => %{
               "code" => "user:minted_token_not_found",
               "description" =>
-                "There is no minted token matching the provided symbol.",
+                "There is no minted token matching the provided token_id.",
               "messages" => nil,
               "object" => "error"
             }}
@@ -238,7 +238,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
 
           request_data = %{
             provider_user_id: user.provider_user_id,
-            symbol: minted_token.symbol,
+            token_id: minted_token.friendly_id,
             amount: 100_000,
             metadata: %{}
           }
@@ -273,11 +273,11 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
       ] do
           {:ok, user} = :user |> params_for() |> User.insert()
           {:ok, minted_token} =
-            :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
 
           request_data = %{
             provider_user_id: user.provider_user_id,
-            symbol: minted_token.symbol,
+            token_id: minted_token.friendly_id,
             amount: 100_000,
             metadata: %{}
           }
@@ -305,7 +305,8 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
                         "name" => minted_token.name,
                         "object" => "minted_token",
                         "subunit_to_unit" => 100,
-                        "symbol" => "BTC"
+                        "symbol" => "BTC",
+                        "id" => minted_token.friendly_id,
                       }
                     }
                   ]

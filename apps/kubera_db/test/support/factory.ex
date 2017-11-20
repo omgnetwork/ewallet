@@ -6,6 +6,7 @@ defmodule KuberaDB.Factory do
   alias ExMachina.Strategy
   alias KuberaDB.{Account, APIKey, AuthToken, Balance, Key, Mint,
     MintedToken, User}
+  alias Ecto.UUID
 
   @doc """
   Get factory name (as atom) from schema.
@@ -31,6 +32,7 @@ defmodule KuberaDB.Factory do
 
   def minted_token_factory do
     %MintedToken{
+      friendly_id: sequence("jon") <> ":" <> UUID.generate(),
       symbol: sequence("jon"),
       iso_code: sequence("JON"),
       name: sequence("John Currency"),

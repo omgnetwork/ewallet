@@ -404,6 +404,7 @@ components:
         object: "balance"
         minted_token:
           object: 'minted_token'
+          id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
           symbol: "MNT"
           name: "Mint"
           subunit_to_unit: 100000000000000000
@@ -413,6 +414,8 @@ components:
       type: object
       properties:
         object:
+          type: string
+        id:
           type: string
         symbol:
           type: string
@@ -427,6 +430,7 @@ components:
         - subunit_to_unit
       example:
         object: "minted_token"
+        id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
         symbol: "MNT"
         name: "Mint"
         subunit_to_unit: 100000000000000000
@@ -461,6 +465,7 @@ components:
             object: "balance"
             minted_token:
               object: 'minted_token'
+              id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
               symbol: "MNT"
               name: "Mint"
               subunit_to_unit: 100000000000000000
@@ -495,6 +500,7 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
+                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
                   symbol: "MNT"
                   name: "Mint"
                   subunit_to_unit: 100000000000000000
@@ -528,12 +534,14 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
+                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
                   symbol: "MNT"
                   name: "Mint"
                   subunit_to_unit: 100000000000000000
               - amount: 100
                 minted_token:
                   object: 'minted_token'
+                  id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
                   symbol: "OMG"
                   name: "OmiseGO"
                   subunit_to_unit: 100000000000000000
@@ -582,10 +590,12 @@ components:
             object: "setting"
             minted_tokens:
               - object: "minted_token"
+                id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
                 symbol: "MNT"
                 name: "Mint"
                 subunit_to_unit: 100000000000000000
               - object: "minted_token"
+                id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
                 symbol: "OMG"
                 name: "OmiseGO"
                 subunit_to_unit: 100000000000000000
@@ -636,17 +646,17 @@ components:
             properties:
               provider_user_id:
                 type: string
-              symbol:
+              token_id:
                 type: string
               amount:
                 type: integer
             required:
               - provider_user_id
-              - symbol
+              - token_id
               - amount
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
-              symbol: "MNT"
+              token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
               amount: 100
   parameters:
     # Headers

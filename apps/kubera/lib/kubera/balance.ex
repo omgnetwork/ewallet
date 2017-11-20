@@ -60,12 +60,12 @@ defmodule Kubera.Balance do
   end
 
   @doc """
-  Prepare the list of balances (actually only 1 element) and turn them into a
-  suitable format for KuberaAPI using address and symbol
+  Prepare the list of balances and turn them into a
+  suitable format for KuberaAPI using a user and a token_friendly_id
 
   ## Examples
 
-    res = Balance.get("OMG", "d26fc18f-d403-4a39-a039-21e2bc713688"})
+    res = Balance.get(user, "OMG:e4222f72-46c5-4baa-98c0-680908fcdd84")
 
     case res do
       {:ok, balances} ->
@@ -80,11 +80,30 @@ defmodule Kubera.Balance do
   """
   def get(%User{} = user, %MintedToken{} = minted_token) do
     user_balance = User.get_main_balance(user)
-    get(minted_token.symbol, user_balance.address)
+    get(minted_token.friendly_id, user_balance.address)
   end
 
-  def get(symbol, address) do
-    symbol |> Balance.get(address) |> process_response(address, :one)
+  @doc """
+  Prepare the list of balances and turn them into a
+  suitable format for KuberaAPI using a token_friendly_id and an address
+
+  ## Examples
+
+    res = Balance.get("OMG:e4222f72-46c5-4baa-98c0-680908fcdd84", "22a83591-d684-4bfd-9310-6bdecdec4f81")
+
+    case res do
+      {:ok, balances} ->
+        # Everything went well, do something.
+        # response is the response returned by the local ledger (Caishen for
+        # example).
+      {:error, code, description} ->
+        # Something went wrong on the other side (Caishen maybe) and the
+        # retrieval failed.
+    end
+
+  """
+  def get(friendly_id, address) do
+    friendly_id |> Balance.get(address) |> process_response(address, :one)
   end
 
   defp format_all(address) do
@@ -115,7 +134,7 @@ defmodule Kubera.Balance do
     Enum.map(minted_tokens, fn minted_token ->
       %{
         minted_token: minted_token,
-        amount: amounts[minted_token.symbol] || 0
+        amount: amounts[minted_token.friendly_id] || 0
       }
     end)
   end

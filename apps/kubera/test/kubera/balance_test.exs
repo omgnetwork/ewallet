@@ -14,7 +14,7 @@ defmodule Kubera.BalanceTest do
     {:ok, %{
       "object" => "balance",
       "address" => "master",
-      "amounts" => %{"BTC" => 9850, "OMG" => 1000}
+      "amounts" => %{"BTC:123" => 9850, "OMG:123" => 1000}
     }}
   end
 
@@ -22,7 +22,7 @@ defmodule Kubera.BalanceTest do
     {:ok, %{
       "object" => "balance",
       "address" => "master",
-      "amounts" => %{"OMG" => 1000}
+      "amounts" => %{"OMG:123" => 1000}
     }}
   end
 
@@ -33,11 +33,11 @@ defmodule Kubera.BalanceTest do
         ] do
           {:ok, inserted_user} = User.insert(params_for(:user))
           {:ok, btc} =
-            :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
           {:ok, omg} =
-            :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
           {:ok, mnt} =
-            :minted_token |> params_for(symbol: "MNT") |> MintedToken.insert()
+            :minted_token |> params_for(friendly_id: "MNT:123", symbol: "MNT") |> MintedToken.insert()
           {status, addresses} =
             Balance.all(%{"provider_user_id" => inserted_user.provider_user_id})
           assert status == :ok
@@ -61,14 +61,14 @@ defmodule Kubera.BalanceTest do
       ] do
         {:ok, inserted_user} = User.insert(params_for(:user))
         {:ok, omg} =
-          :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+          :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
         {:ok, _} =
-          :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+          :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
         {:ok, _} =
-          :minted_token |> params_for(symbol: "MNT") |> MintedToken.insert()
+          :minted_token |> params_for(friendly_id: "MNT:123", symbol: "MNT") |> MintedToken.insert()
 
         user_address = User.get_main_balance(inserted_user).address
-        {status, addresses} = Balance.get("OMG", user_address)
+        {status, addresses} = Balance.get(omg.friendly_id, user_address)
         assert status == :ok
         assert length(addresses) == 1
         main_address = List.first(addresses)

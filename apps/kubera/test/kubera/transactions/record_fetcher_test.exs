@@ -19,7 +19,7 @@ defmodule Kubera.Transactions.RecordFetcherTest do
         User.insert(params_for(:user, %{provider_user_id: provider_user_id}))
 
       {:ok, user, minted_token} =
-        RecordFetcher.fetch_user_and_minted_token(provider_user_id, symbol)
+        RecordFetcher.fetch_user_and_minted_token(provider_user_id, inserted_token.friendly_id)
 
       assert user == inserted_user
       assert minted_token == inserted_token

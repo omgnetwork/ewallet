@@ -10,6 +10,7 @@ defmodule KuberaDB.MintedToken do
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "minted_token" do
+    field :friendly_id, :string # "EUR:123"
     field :symbol, :string # "eur"
     field :iso_code, :string # "EUR"
     field :name, :string # "Euro"
@@ -38,11 +39,13 @@ defmodule KuberaDB.MintedToken do
       :symbol, :iso_code, :name, :description, :short_symbol,
       :subunit, :subunit_to_unit, :symbol_first, :html_entity,
       :iso_numeric, :smallest_denomination, :locked, :account_id,
-      :metadata
+      :metadata, :friendly_id
     ])
     |> validate_required([
       :symbol, :name, :subunit_to_unit
     ])
+    |> set_friendly_id()
+    |> validate_required([:friendly_id])
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
@@ -50,6 +53,23 @@ defmodule KuberaDB.MintedToken do
     |> unique_constraint(:iso_numeric)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version)
+  end
+
+  defp set_friendly_id(changeset) do
+    case get_field(changeset, :friendly_id) do
+      nil ->
+        symbol = get_field(changeset, :symbol)
+        uuid = UUID.generate()
+
+        changeset
+        |> put_change(:id, uuid)
+        |> put_change(:friendly_id, build_friendly_id(symbol, uuid))
+      _ -> changeset
+    end
+  end
+
+  def build_friendly_id(symbol, uuid) do
+    "#{symbol}:#{uuid}"
   end
 
   @doc """
@@ -67,22 +87,22 @@ defmodule KuberaDB.MintedToken do
 
     case Repo.insert(changeset) do
       {:ok, minted_token} ->
-        {:ok, get(minted_token.symbol)}
+        {:ok, get(minted_token.friendly_id)}
       {:error, changeset} ->
         {:error, changeset}
     end
   end
 
   @doc """
-  Retrieve a minted token by symbol.
+  Retrieve a minted token by friendly_id.
   """
-  def get(symbol) do
-    Repo.get_by(MintedToken, symbol: symbol)
+  def get(friendly_id) do
+    Repo.get_by(MintedToken, friendly_id: friendly_id)
   end
 
-  def get_all(symbols) do
+  def get_all(friendly_ids) do
     Repo.all(from m in MintedToken,
-                       where: m.symbol in ^symbols)
+                       where: m.friendly_id in ^friendly_ids)
   end
 
   @doc """
@@ -100,7 +120,7 @@ defmodule KuberaDB.MintedToken do
   defp get_or_insert_balance(balance, minted_token) do
     case balance do
       nil ->
-        address = "master:#{minted_token.symbol}"
+        address = "master:#{minted_token.friendly_id}"
         {:ok, balance} = Balance.insert_without_conflict(address,
                                                          minted_token.id)
         balance

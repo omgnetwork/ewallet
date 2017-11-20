@@ -50,7 +50,7 @@ defmodule KuberaAPI.V1.ErrorHandler do
     },
     minted_token_not_found: %{
       code: "user:minted_token_not_found",
-      description: "There is no minted token matching the provided symbol."
+      description: "There is no minted token matching the provided token_id."
     }
   }
 

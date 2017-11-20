@@ -8,6 +8,7 @@ defmodule KuberaAPI.V1.MintedTokenSerializerTest do
 
       expected = %{
         object: "minted_token",
+        id: minted_token.friendly_id,
         symbol: minted_token.symbol,
         name: minted_token.name,
         subunit_to_unit: minted_token.subunit_to_unit
@@ -26,12 +27,14 @@ defmodule KuberaAPI.V1.MintedTokenSerializerTest do
       expected = [
         %{
           object: "minted_token",
+          id: token1.friendly_id,
           symbol: token1.symbol,
           name: token1.name,
           subunit_to_unit: token1.subunit_to_unit
         },
         %{
           object: "minted_token",
+          id: token2.friendly_id,
           symbol: token2.symbol,
           name: token2.name,
           subunit_to_unit: token2.subunit_to_unit

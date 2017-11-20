@@ -28,26 +28,38 @@ defmodule KuberaDB.MintedTokenTest do
     test_insert_prevent_duplicate MintedToken, :iso_code
     test_insert_prevent_duplicate MintedToken, :name
 
-    test "saves the encrypted metadata" do
-      {_, minted_token} =
-        :minted_token
-        |> params_for(metadata: %{something: "cool"})
-        |> MintedToken.insert
+    test "generates a friendly_id" do
+      {:ok, minted_token} =
+        :minted_token |> params_for(friendly_id: nil, symbol: "OMG") |> MintedToken.insert
 
+      assert "OMG:" <> uuid = minted_token.friendly_id
+      assert minted_token.id == uuid
+      assert String.match?(uuid, ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+    end
+
+    test "does not regenerate a friendly_id if already there" do
+      {:ok, minted_token} =
+        :minted_token |> params_for(friendly_id: "OMG:123") |> MintedToken.insert
+
+      assert minted_token.friendly_id == "OMG:123"
+    end
+
+    test "saves the encrypted metadata" do
+      {:ok, minted_token} =
+        :minted_token |> params_for(metadata: %{something: "cool"}) |> MintedToken.insert
       {:ok, results} = SQL.query(Repo, "SELECT metadata FROM minted_token", [])
+
       row = Enum.at(results.rows, 0)
       assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
       assert minted_token.metadata == %{"something" => "cool"}
     end
 
     test "inserts a balance for the minted token" do
-      {res, minted_token} =
-        MintedToken.insert(params_for(:minted_token))
+      {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert
       MintedToken.get_master_balance(minted_token)
 
-      assert res == :ok
       minted_token =
-        minted_token.symbol
+        minted_token.friendly_id
         |> MintedToken.get()
         |> Repo.preload([:balances])
 
@@ -59,9 +71,9 @@ defmodule KuberaDB.MintedTokenTest do
     test "returns all existing minted tokens" do
       assert length(MintedToken.all) == 0
 
-      MintedToken.insert(params_for(:minted_token))
-      MintedToken.insert(params_for(:minted_token))
-      MintedToken.insert(params_for(:minted_token))
+      :minted_token |> params_for() |> MintedToken.insert
+      :minted_token |> params_for() |> MintedToken.insert
+      :minted_token |> params_for() |> MintedToken.insert
 
       assert length(MintedToken.all) == 3
     end
@@ -69,9 +81,11 @@ defmodule KuberaDB.MintedTokenTest do
 
   describe "get/1" do
     test "returns an existing minted token using a symbol" do
-      MintedToken.insert(params_for(:minted_token, %{symbol: "sym"}))
+      {:ok, inserted} =
+        :minted_token |> params_for(friendly_id: nil, symbol: "sym") |> MintedToken.insert
 
-      token = MintedToken.get("sym")
+      token = MintedToken.get(inserted.friendly_id)
+      assert "sym:" <> _ = token.friendly_id
       assert token.symbol == "sym"
     end
 
@@ -83,11 +97,11 @@ defmodule KuberaDB.MintedTokenTest do
 
   describe "get_main_balance/1" do
     test "returns the first balance" do
-      {:ok, inserted} = MintedToken.insert(params_for(:minted_token))
+      {:ok, inserted} = :minted_token |> params_for() |> MintedToken.insert
       balance = MintedToken.get_master_balance(inserted)
 
       minted_token =
-        inserted.symbol
+        inserted.friendly_id
         |> MintedToken.get()
         |> Repo.preload([:balances])
 
@@ -96,7 +110,7 @@ defmodule KuberaDB.MintedTokenTest do
     end
 
     test "make sure only 1 master balance is created at most" do
-      {:ok, inserted} = MintedToken.insert(params_for(:minted_token))
+      {:ok, inserted} = :minted_token |> params_for() |> MintedToken.insert
       balance_1 = MintedToken.get_master_balance(inserted)
       balance_2 = MintedToken.get_master_balance(inserted)
       assert balance_1 == balance_2

@@ -11,11 +11,11 @@ defmodule Kubera.Transaction do
 
   def process(%{
     "provider_user_id" => provider_user_id,
-    "symbol" => symbol,
+    "token_id" => token_friendly_id,
     "amount" => amount,
     "metadata" => metadata
   }, type) do
-    res = fetch_user_and_minted_token(provider_user_id, symbol)
+    res = fetch_user_and_minted_token(provider_user_id, token_friendly_id)
 
     case res do
       {:ok, user, minted_token} = res ->
@@ -29,8 +29,8 @@ defmodule Kubera.Transaction do
     end
   end
 
-  defp fetch_user_and_minted_token(provider_user_id, symbol) do
-    RecordFetcher.fetch_user_and_minted_token(provider_user_id, symbol)
+  defp fetch_user_and_minted_token(provider_user_id, token_friendly_id) do
+    RecordFetcher.fetch_user_and_minted_token(provider_user_id, token_friendly_id)
   end
 
   defp load_balances({:ok, user, minted_token}, type) do

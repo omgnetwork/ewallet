@@ -45,7 +45,7 @@ defmodule KuberaAPI.V1.SelfControllerTest do
     {:ok, %{
       "object" => "balance",
       "address" => "master",
-      "amounts" => %{"BTC" => 9850, "OMG" => 1000}
+      "amounts" => %{"BTC:123" => 9850, "OMG:123" => 1000}
     }}
   end
 
@@ -57,8 +57,8 @@ defmodule KuberaAPI.V1.SelfControllerTest do
           user         = insert(:user)
           api_key      = insert(:api_key).key
           auth_token   = insert(:auth_token, %{user: user}).token
-          btc          = insert(:minted_token, %{symbol: "BTC"})
-          omg          = insert(:minted_token, %{symbol: "OMG"})
+          btc          = insert(:minted_token, %{friendly_id: "BTC:123", symbol: "BTC"})
+          omg          = insert(:minted_token, %{friendly_id: "OMG:123", symbol: "OMG"})
 
           response =
             build_conn()
@@ -84,7 +84,8 @@ defmodule KuberaAPI.V1.SelfControllerTest do
                           "name" => btc.name,
                           "object" => "minted_token",
                           "subunit_to_unit" => btc.subunit_to_unit,
-                          "symbol" => btc.symbol
+                          "symbol" => btc.symbol,
+                          "id" => btc.friendly_id
                         }
                       },
                       %{
@@ -94,7 +95,8 @@ defmodule KuberaAPI.V1.SelfControllerTest do
                           "name" => omg.name,
                           "object" => "minted_token",
                           "subunit_to_unit" => omg.subunit_to_unit,
-                          "symbol" => omg.symbol
+                          "symbol" => omg.symbol,
+                          "id" => omg.friendly_id
                         }
                       }
                     ]

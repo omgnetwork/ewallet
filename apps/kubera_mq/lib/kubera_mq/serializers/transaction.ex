@@ -12,7 +12,7 @@ defmodule KuberaMQ.Serializers.Transaction do
     %{
       metadata: metadata,
       minted_token: %{
-        symbol: minted_token.symbol,
+        friendly_id: minted_token.friendly_id,
         metadata: minted_token.metadata
       },
       debits: [%{

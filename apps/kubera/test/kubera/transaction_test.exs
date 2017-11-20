@@ -22,7 +22,7 @@ defmodule Kubera.TransactionTest do
 
           attrs = %{
             "provider_user_id" => inserted_user.provider_user_id,
-            "symbol" => inserted_token.symbol,
+            "token_id" => inserted_token.friendly_id,
             "amount" => 100_000,
             "metadata" => %{}
           }

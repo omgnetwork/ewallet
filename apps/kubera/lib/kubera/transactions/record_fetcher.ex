@@ -4,9 +4,9 @@ defmodule Kubera.Transactions.RecordFetcher do
   """
   alias KuberaDB.{User, MintedToken}
 
-  def fetch_user_and_minted_token(provider_user_id, symbol) do
+  def fetch_user_and_minted_token(provider_user_id, token_friendly_id) do
     user = User.get_by_provider_user_id(provider_user_id)
-    minted_token = MintedToken.get(symbol)
+    minted_token = MintedToken.get(token_friendly_id)
     fetch(user, minted_token)
   end
   defp fetch(nil, _), do: {:error, :provider_user_id_not_found}
