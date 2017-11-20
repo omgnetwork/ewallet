@@ -41,7 +41,7 @@ seeds = [
 KuberaDB.CLI.info("\nSeeding MintedToken...")
 
 Enum.each(seeds, fn(data) ->
-  with nil <- KuberaDB.MintedToken.get(data.symbol),
+  with nil <- KuberaDB.Repo.get_by(KuberaDB.MintedToken, symbol: data.symbol),
        {:ok, _} <- KuberaDB.MintedToken.insert(data)
   do
     KuberaDB.CLI.success("MintedToken inserted: #{data.symbol}")
@@ -56,7 +56,7 @@ end)
 
 if Enum.member?(System.argv, "--with-genesis") do
   Enum.each(seeds, fn(data) ->
-    minted_token = KuberaDB.MintedToken.get(data.symbol)
+    minted_token = KuberaDB.Repo.get_by(KuberaDB.MintedToken, symbol: data.symbol)
     {:ok, genesis} = KuberaDB.Balance.genesis()
 
     %{
