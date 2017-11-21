@@ -5,8 +5,8 @@ defmodule KuberaAPI.ErrorViewTest do
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
-  describe "KuberaAPI.ErrorView" do
-    test "renders 500.json when given a custom description" do
+  describe "KuberaAPI.ErrorView.render/2" do
+    test "renders 500.json with correct structure given a custom description" do
       assigns = %{
         reason: %{
           message: "Custom assigned error description"
@@ -17,10 +17,10 @@ defmodule KuberaAPI.ErrorViewTest do
         version: "1",
         success: false,
         data: %{
-          "object" => "error",
-          "code" => "server:internal_server_error",
-          "description" => "Custom assigned error description",
-          "messages" => nil
+          object: "error",
+          code: "server:internal_server_error",
+          description: "Custom assigned error description",
+          messages: nil
         }
       }
 
@@ -32,10 +32,10 @@ defmodule KuberaAPI.ErrorViewTest do
         version: "1",
         success: false,
         data: %{
-          "object" => "error",
-          "code" => "server:internal_server_error",
-          "description" => "Something went wrong on the server",
-          "messages" => nil
+          object: "error",
+          code: "server:internal_server_error",
+          description: "Something went wrong on the server",
+          messages: nil
         }
       }
 

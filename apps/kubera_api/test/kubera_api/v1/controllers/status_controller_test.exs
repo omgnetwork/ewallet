@@ -1,17 +1,10 @@
 defmodule KuberaAPI.V1.StatusControllerTest do
   use KuberaAPI.ConnCase, async: true
-  use KuberaAPI.EndpointCase, :v1
   alias Poison.Parser
 
   describe "/status" do
     test "returns success" do
-
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> post("/status")
-        |> json_response(:ok)
-
-      assert response == %{"success" => true}
+      assert public_request("/status") == %{"success" => true}
     end
   end
 
@@ -35,9 +28,7 @@ defmodule KuberaAPI.V1.StatusControllerTest do
       # See example: /phoenix/test/phoenix/endpoint/render_errors_test.exs
       {status, _headers, response} =
         assert_error_sent 500, fn ->
-          build_conn()
-          |> put_req_header("accept", @header_accept)
-          |> post("/status.server_error")
+          public_request("/status.server_error")
         end
 
       assert status == 500

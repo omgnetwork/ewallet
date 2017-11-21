@@ -4,12 +4,12 @@ defmodule KuberaAPI.V1.JSON.ErrorSerializer do
   """
   use KuberaAPI.V1
 
-  def serialize(code, message, messages \\ nil) do
+  def serialize(code, description, messages \\ nil) do
     %{
-      "object" => "error",
-      "code" => code,
-      "description" => message,
-      "messages" => messages
+      object: "error",
+      code: code,
+      description: description,
+      messages: messages
     }
   end
 end

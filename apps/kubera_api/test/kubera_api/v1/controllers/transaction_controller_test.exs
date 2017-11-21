@@ -1,11 +1,8 @@
 defmodule KuberaAPI.V1.TransactionControllerTest do
   use KuberaAPI.ConnCase, async: true
-  use KuberaAPI.EndpointCase, :v1
-  import KuberaDB.Factory
   import Mock
-  alias KuberaDB.{Repo, User, MintedToken}
+  alias KuberaDB.{User, MintedToken}
   alias KuberaMQ.{Entry, Balance}
-  alias Ecto.Adapters.SQL.Sandbox
 
   def valid_response do
     {:ok, %{
@@ -74,11 +71,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.credit_balance", request_data)
-            |> json_response(:ok)
+          response = provider_request("/user.credit_balance", request_data)
 
           assert response == %{
             "success" => true,
@@ -128,11 +121,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.credit_balance", request_data)
-            |> json_response(:ok)
+          response = provider_request("/user.credit_balance", request_data)
 
           assert response == %{
             "success" => false,
@@ -164,11 +153,8 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             amount: 100_000,
             metadata: %{}
           }
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.credit_balance", request_data)
-            |> json_response(:ok)
+
+          response = provider_request("/user.credit_balance", request_data)
 
           assert response == %{
             "success" => false,
@@ -202,11 +188,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.credit_balance", request_data)
-            |> json_response(:ok)
+          response = provider_request("/user.credit_balance", request_data)
 
           assert response == %{
             "success" => false,
@@ -243,11 +225,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.debit_balance", request_data)
-            |> json_response(:ok)
+          response = provider_request("/user.debit_balance", request_data)
 
           assert response == %{
             "success" => false,
@@ -282,11 +260,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.debit_balance", request_data)
-            |> json_response(:ok)
+          response = provider_request("/user.debit_balance", request_data)
 
           assert response == %{
             "version" => "1",

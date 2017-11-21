@@ -1,11 +1,10 @@
 defmodule KuberaAPI.VersionedRouterTest do
   use KuberaAPI.ConnCase, async: true
-  use KuberaAPI.EndpointCase, :v1
 
   describe "versioned router" do
     test "accepts v1+json requests" do
       response = build_conn()
-      |> put_req_header("accept", @header_accept)
+      |> put_req_header("accept", "application/vnd.omisego.v1+json")
       |> post("/status")
       |> json_response(:ok)
 

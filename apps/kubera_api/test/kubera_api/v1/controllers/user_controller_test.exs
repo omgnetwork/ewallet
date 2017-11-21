@@ -1,16 +1,10 @@
 defmodule KuberaAPI.V1.UserControllerTest do
   use KuberaAPI.ConnCase, async: true
-  use KuberaAPI.EndpointCase, :v1
 
   describe "/user.create" do
     test "creates and responds with a newly created user if attributes are valid" do
       request_data = params_for(:user)
-
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.create", request_data)
-        |> json_response(:ok)
+      response     = provider_request("/user.create", request_data)
 
       assert response["version"] == @expected_version
       assert response["success"] == :true
@@ -28,12 +22,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
     test "returns an error and does not create a user if provider_user_id is not provided" do
       request_data = params_for(:user, provider_user_id: "")
-
-      response = build_conn()
-      |> put_req_header("accept", @header_accept)
-      |> put_req_header("authorization", @header_auth)
-      |> post("/user.create", request_data)
-      |> json_response(:ok)
+      response     = provider_request("/user.create", request_data)
 
       assert response["version"] == @expected_version
       assert response["success"] == :false
@@ -58,11 +47,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
         }
       })
 
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.update", request_data)
-        |> json_response(:ok)
+      response = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
       assert response["success"] == :true
@@ -79,12 +64,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
     test "returns an error if provider_user_id is not provided" do
       request_data = params_for(:user, %{provider_user_id: ""})
-
-      response = build_conn()
-      |> put_req_header("accept", @header_accept)
-      |> put_req_header("authorization", @header_auth)
-      |> post("/user.update", request_data)
-      |> json_response(:ok)
+      response     = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
       assert response["success"] == :false
@@ -95,12 +75,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
     test "returns an error if user for provider_user_id is not found" do
       request_data = params_for(:user, %{provider_user_id: "unknown_id"})
-
-      response = build_conn()
-      |> put_req_header("accept", @header_accept)
-      |> put_req_header("authorization", @header_auth)
-      |> post("/user.update", request_data)
-      |> json_response(:ok)
+      response     = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
       assert response["success"] == :false
@@ -118,11 +93,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
         username: nil
       })
 
-      response = build_conn()
-      |> put_req_header("accept", @header_accept)
-      |> put_req_header("authorization", @header_auth)
-      |> post("/user.update", request_data)
-      |> json_response(:ok)
+      response = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
       assert response["success"] == false
@@ -140,11 +111,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
         metadata: nil
       })
 
-      response = build_conn()
-      |> put_req_header("accept", @header_accept)
-      |> put_req_header("authorization", @header_auth)
-      |> post("/user.update", request_data)
-      |> json_response(:ok)
+      response = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
       assert response["success"] == false
@@ -156,15 +123,9 @@ defmodule KuberaAPI.V1.UserControllerTest do
 
   describe "/user.get" do
     test "responds with user data if the user is found by its provider_user_id" do
-      {:ok, inserted_user} = :user
-                             |> build(provider_user_id: "provider_id_1")
-                             |> Repo.insert
-
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.get", provider_user_id: inserted_user.provider_user_id)
-        |> json_response(:ok)
+      inserted_user = insert(:user, %{provider_user_id: "provider_id_1"})
+      request_data  = %{provider_user_id: inserted_user.provider_user_id}
+      response      = provider_request("/user.get", request_data)
 
       expected = %{
         "version" => @expected_version,
@@ -196,11 +157,8 @@ defmodule KuberaAPI.V1.UserControllerTest do
         }
       }
 
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.get", provider_user_id: "unknown_id999")
-        |> json_response(:ok)
+      request_data = %{provider_user_id: "unknown_id999"}
+      response     = provider_request("/user.get", request_data)
 
       assert response == expected
     end
@@ -217,11 +175,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
         }
       }
 
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.get", %{})
-        |> json_response(:ok)
+      response = provider_request("/user.get", %{})
 
       assert response == expected
     end
@@ -238,11 +192,8 @@ defmodule KuberaAPI.V1.UserControllerTest do
         }
       }
 
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.get", provider_user_id: nil)
-        |> json_response(:ok)
+      request_data = %{provider_user_id: nil}
+      response = provider_request("/user.get", request_data)
 
       assert response == expected
     end

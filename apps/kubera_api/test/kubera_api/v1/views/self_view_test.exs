@@ -2,8 +2,8 @@ defmodule KuberaAPI.V1.SelfViewTest do
   use KuberaAPI.ViewCase, :v1
   alias KuberaAPI.V1.SelfView
 
-  describe "KuberaAPI.V1.UserView" do
-    test "render/2 with user.json" do
+  describe "KuberaAPI.V1.UserView.render/2" do
+    test "renders user.json with correct structure" do
       user = build(:user)
 
       expected = %{
@@ -24,7 +24,7 @@ defmodule KuberaAPI.V1.SelfViewTest do
       assert SelfView.render("user.json", %{user: user}) == expected
     end
 
-    test "render/2 with settings.json" do
+    test "renders settings.json with correct structure" do
       token1 = build(:minted_token)
       token2 = build(:minted_token)
 

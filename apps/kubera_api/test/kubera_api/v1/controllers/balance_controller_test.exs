@@ -1,11 +1,8 @@
 defmodule KuberaAPI.V1.BalanceControllerTest do
   use KuberaAPI.ConnCase, async: true
-  use KuberaAPI.EndpointCase, :v1
-  import KuberaDB.Factory
   import Mock
-  alias KuberaDB.{Repo, User, MintedToken}
+  alias KuberaDB.{User, MintedToken}
   alias KuberaMQ.Balance
-  alias Ecto.Adapters.SQL.Sandbox
 
   def valid_balances_response do
     {:ok, %{
@@ -27,12 +24,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
             :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
 
           request_data = %{provider_user_id: user.provider_user_id}
-
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.list_balances", request_data)
-            |> json_response(:ok)
+          response     = provider_request("/user.list_balances", request_data)
 
           assert response == %{
             "version" => "1",
@@ -84,14 +76,9 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
           {:ok, omg} =
             :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
 
-          address = User.get_main_balance(user).address
+          address      = User.get_main_balance(user).address
           request_data = %{address: address}
-
-          response = build_conn()
-            |> put_req_header("accept", @header_accept)
-            |> put_req_header("authorization", @header_auth)
-            |> post("/user.list_balances", request_data)
-            |> json_response(:ok)
+          response     = provider_request("/user.list_balances", request_data)
 
           assert response == %{
             "version" => "1",
@@ -135,12 +122,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
 
     test "Get all user balances with an invalid parameter should fail" do
       request_data = %{some_invalid_param: "some_invalid_value"}
-
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.list_balances", request_data)
-        |> json_response(:ok)
+      response     = provider_request("/user.list_balances", request_data)
 
       assert response == %{
         "version" => "1",
@@ -156,12 +138,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
 
     test "Get all user balances with a nil provider_user_id should fail" do
       request_data = %{provider_user_id: nil}
-
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.list_balances", request_data)
-        |> json_response(:ok)
+      response     = provider_request("/user.list_balances", request_data)
 
       assert response == %{
         "version" => "1",
@@ -177,12 +154,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
 
     test "Get all user balances with a nil address should fail" do
       request_data = %{address: nil}
-
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> put_req_header("authorization", @header_auth)
-        |> post("/user.list_balances", request_data)
-        |> json_response(:ok)
+      response     = provider_request("/user.list_balances", request_data)
 
       assert response == %{
         "version" => "1",

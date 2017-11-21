@@ -1,6 +1,5 @@
 defmodule KuberaAPI.V1.FallbackControllerTest do
   use KuberaAPI.ConnCase, async: true
-  use KuberaAPI.EndpointCase, :v1
 
   describe "/not_found" do
     test "returns correct error response format and error message" do
@@ -15,12 +14,7 @@ defmodule KuberaAPI.V1.FallbackControllerTest do
         }
       }
 
-      response = build_conn()
-        |> put_req_header("accept", @header_accept)
-        |> post("/not_found")
-        |> json_response(:ok)
-
-      assert response == expected
+      assert provider_request("/not_found") == expected
     end
   end
 end

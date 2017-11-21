@@ -2,9 +2,9 @@ defmodule KuberaAPI.V1.SettingsViewTest do
   use KuberaAPI.ViewCase, :v1
   alias KuberaAPI.V1.SettingsView
 
-  describe "KuberaAPI.V1.SettingsView" do
+  describe "KuberaAPI.V1.SettingsView.render/2" do
 
-    test "render/2 with settings.json" do
+    test "renders settings.json with correct structure" do
       token1 = build(:minted_token)
       token2 = build(:minted_token)
 

@@ -4,8 +4,8 @@ defmodule KuberaAPI.V1.UserViewTest do
   alias KuberaDB.User
   alias Ecto.UUID
 
-  describe "KuberaAPI.V1.UserView" do
-    test "renders with correct response format" do
+  describe "KuberaAPI.V1.UserView.render/2" do
+    test "renders user.json with correct structure" do
       user = %User{
         id: UUID.generate,
         username: "johndoe",
