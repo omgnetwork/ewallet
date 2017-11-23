@@ -27,10 +27,11 @@ defmodule CaishenMQ.EntryTest do
   test "sends the 'v1.entry.insert' operation" do
     {:ok, _pid} = Consumer.start_link()
 
-    response = Entry.insert(%{})
+    response = Entry.insert(%{}, "123")
 
     assert response == {:ok, %{
       "operation" => "v1.entry.insert",
+      "idempotency_token" => "123",
       "data" => %{}
     }}
   end

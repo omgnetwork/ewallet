@@ -1,6 +1,6 @@
 defmodule KuberaAPI.V1.Router do
   use KuberaAPI, :router
-  alias KuberaAPI.V1.Plug.{ClientAuth, ProviderAuth}
+  alias KuberaAPI.V1.Plug.{ClientAuth, ProviderAuth, Idempotency}
 
   pipeline :provider_api do
     plug ProviderAuth
@@ -8,6 +8,10 @@ defmodule KuberaAPI.V1.Router do
 
   pipeline :client_api do
     plug ClientAuth
+  end
+
+  pipeline :idempotency do
+    plug Idempotency
   end
 
   pipeline :api do
@@ -23,11 +27,16 @@ defmodule KuberaAPI.V1.Router do
     post "/user.update", UserController, :update
 
     post "/user.list_balances", BalanceController, :all
-    post "/user.credit_balance", TransactionController, :credit
-    post "/user.debit_balance", TransactionController, :debit
+
+    # Idempotent requests
+    scope "/" do
+      pipe_through [:idempotency]
+
+      post "/user.credit_balance", TransactionController, :credit
+      post "/user.debit_balance", TransactionController, :debit
+    end
 
     post "/login", AuthController, :login
-
     post "/get_settings", SettingsController, :get_settings
   end
 

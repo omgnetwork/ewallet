@@ -4,18 +4,7 @@ defmodule KuberaDB.UserTest do
 
   describe "User factory" do
     test_has_valid_factory User
-
-    test "saves the encrypted metadata" do
-      {_, user} =
-        :user
-        |> params_for(metadata: %{something: "cool"})
-        |> User.insert
-
-      {:ok, results} = SQL.query(Repo, "SELECT metadata FROM \"user\"", [])
-      row = Enum.at(results.rows, 0)
-      assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
-      assert user.metadata == %{"something" => "cool"}
-    end
+    test_encrypted_map_field User, "user", :metadata
   end
 
   describe "insert/1" do

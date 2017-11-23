@@ -5,7 +5,7 @@ defmodule KuberaDB.Factory do
   use ExMachina.Ecto, repo: KuberaDB.Repo
   alias ExMachina.Strategy
   alias KuberaDB.{Account, APIKey, AuthToken, Balance, Key, Mint,
-    MintedToken, User}
+    MintedToken, User, Transfer}
   alias Ecto.UUID
 
   @doc """
@@ -95,6 +95,14 @@ defmodule KuberaDB.Factory do
       token: sequence("auth_token"),
       user: insert(:user),
       expired: false,
+    }
+  end
+
+  def transfer_factory do
+    %Transfer{
+      idempotency_token: UUID.generate(),
+      payload: %{example: "Payload"},
+      metadata: %{some: "metadata"}
     }
   end
 end

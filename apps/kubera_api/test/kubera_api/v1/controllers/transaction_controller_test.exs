@@ -51,9 +51,36 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
   end
 
   describe "/user.credit_balance" do
+    test "returns idempotency error if header is not specified" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      {:ok, minted_token} =
+        :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
+
+      request_data = %{
+        provider_user_id: user.provider_user_id,
+        token_id: minted_token.friendly_id,
+        amount: 100_000,
+        metadata: %{}
+      }
+
+      response = provider_request("/user.credit_balance", request_data)
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "client:no_idempotency_token_provided",
+          "description" =>
+            "The call you made requires the Idempotency-Token header to prevent duplication.",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+
     test "updates the user balance and returns the updated amount" do
       with_mocks [
-        {Entry, [], [insert: fn _data -> valid_response() end]},
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
         {
           Balance,
           [],
@@ -71,7 +98,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = provider_request("/user.credit_balance", request_data)
+          response = provider_request_with_idempotency("/user.credit_balance",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
 
           assert response == %{
             "success" => true,
@@ -104,7 +133,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
 
     test "returns invalid_parameter when the provider_user_id is missing" do
       with_mocks [
-        {Entry, [], [insert: fn _data -> valid_response() end]},
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
         {
           Balance,
           [],
@@ -121,7 +150,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = provider_request("/user.credit_balance", request_data)
+          response = provider_request_with_idempotency("/user.credit_balance",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
 
           assert response == %{
             "success" => false,
@@ -137,7 +168,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
 
     test "returns user_not_found when the user is not found" do
       with_mocks [
-        {Entry, [], [insert: fn _data -> valid_response() end]},
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
         {
           Balance,
           [],
@@ -154,7 +185,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = provider_request("/user.credit_balance", request_data)
+          response = provider_request_with_idempotency("/user.credit_balance",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
 
           assert response == %{
             "success" => false,
@@ -172,7 +205,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
 
     test "returns minted_token_not_found when the minted token is not found" do
       with_mocks [
-        {Entry, [], [insert: fn _data -> valid_response() end]},
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
         {
           Balance,
           [],
@@ -188,7 +221,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = provider_request("/user.credit_balance", request_data)
+          response = provider_request_with_idempotency("/user.credit_balance",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
 
           assert response == %{
             "success" => false,
@@ -205,9 +240,36 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
   end
 
   describe "/user.debit_balance" do
+    test "returns idempotency error if header is not specified" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+      {:ok, minted_token} =
+        :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+
+      request_data = %{
+        provider_user_id: user.provider_user_id,
+        token_id: minted_token.friendly_id,
+        amount: 100_000,
+        metadata: %{}
+      }
+
+      response = provider_request("/user.debit_balance", request_data)
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "client:no_idempotency_token_provided",
+          "description" =>
+            "The call you made requires the Idempotency-Token header to prevent duplication.",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+
     test "returns insufficient_funds when the user is too poor" do
       with_mocks [
-        {Entry, [], [insert: fn _data -> insufficient_funds_response() end]},
+        {Entry, [], [insert: fn _data, _idempotency_token -> insufficient_funds_response() end]},
         {
           Balance,
           [],
@@ -225,8 +287,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = provider_request("/user.debit_balance", request_data)
-
+          response = provider_request_with_idempotency("/user.debit_balance",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
           assert response == %{
             "success" => false,
             "version" => "1",
@@ -242,7 +305,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
 
     test "returns the updated balances when the user has enough funds" do
       with_mocks [
-        {Entry, [], [insert: fn _data -> enough_funds_response() end]},
+        {Entry, [], [insert: fn _data, _idempotency_token -> enough_funds_response() end]},
         {
           Balance,
           [],
@@ -260,8 +323,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
             metadata: %{}
           }
 
-          response = provider_request("/user.debit_balance", request_data)
-
+          response = provider_request_with_idempotency("/user.debit_balance",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
           assert response == %{
             "version" => "1",
             "success" => true,

@@ -111,6 +111,22 @@ defmodule KuberaAPI.ConnCase do
   end
 
   @doc """
+  A helper function that generates a valid provider request
+  with given path and data, and return the parsed JSON response.
+  """
+  def provider_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
+    when is_binary(path)
+    and byte_size(path) > 0
+  do
+    build_conn()
+    |> put_req_header("idempotency-token", idempotency_token)
+    |> put_req_header("accept", @header_accept)
+    |> put_auth_header("OMGServer", @access_key, @secret_key)
+    |> post(path, data)
+    |> json_response(status)
+  end
+
+  @doc """
   A helper function that generates a valid client request
   with given path and data, and return the parsed JSON response.
   """

@@ -20,7 +20,7 @@ defmodule KuberaMQ.RabbitMQPublisher do
 
   def call(chan, payload) do
     config = get_config()
-    correlation_id = generate_correlation_id()
+    correlation_id = payload[:idempotency_token] || generate_correlation_id()
 
     Basic.publish chan,
                   config.exchange,
@@ -76,7 +76,7 @@ defmodule KuberaMQ.RabbitMQPublisher do
   end
 
   defp generate_correlation_id do
-    UUID.generate()
+    "#{UUID.generate()}:#{UUID.generate()}"
   end
 
   defp get_config do

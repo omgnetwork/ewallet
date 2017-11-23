@@ -17,8 +17,9 @@ defmodule KuberaMQ.Entry do
     })
   end
 
-  def insert(data) do
+  def insert(data, idempotency_token) do
     Publisher.send(%{
+      idempotency_token: idempotency_token,
       operation: "v1.entry.insert",
       data: data})
   end

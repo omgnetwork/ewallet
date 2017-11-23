@@ -51,6 +51,10 @@ defmodule KuberaAPI.V1.ErrorHandler do
     minted_token_not_found: %{
       code: "user:minted_token_not_found",
       description: "There is no minted token matching the provided token_id."
+    },
+    no_idempotency_token_provided: %{
+      code: "client:no_idempotency_token_provided",
+      description: "The call you made requires the Idempotency-Token header to prevent duplication."
     }
   }
 

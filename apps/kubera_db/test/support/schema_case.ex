@@ -36,6 +36,7 @@ defmodule KuberaDB.SchemaCase do
   ```
   """
   import KuberaDB.Factory
+  alias Ecto.Adapters.SQL
 
   defmacro __using__(_opts) do
     quote do
@@ -324,6 +325,30 @@ defmodule KuberaDB.SchemaCase do
 
         assert res == :error
         assert changeset.errors == [{field, {"can't be changed", []}}]
+      end
+    end
+  end
+
+  @doc """
+  Test schema's field encryption for the given field
+  """
+  defmacro test_encrypted_map_field(schema, table, field) do
+    quote do
+      test "saves #{unquote field} as encrypted data" do
+        schema = unquote(schema)
+        table = unquote(table)
+        field = unquote(field)
+
+        {_, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{field => %{something: "cool"}})
+          |> schema.insert()
+
+        {:ok, results} = SQL.query(KuberaDB.Repo, "SELECT #{field} FROM \"#{table}\"", [])
+        row = Enum.at(results.rows, 0)
+        assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+        assert Map.get(record, field) == %{"something" => "cool"}
       end
     end
   end

@@ -18,18 +18,22 @@ defmodule KuberaAPI.V1.TransactionController do
   and is_integer(amount)
   and metadata != nil
   do
-    case Transaction.process(attrs, type) do
-      {:ok, user, token} -> respond_with_balance(conn, user, token)
-      {:error, code} -> handle_error(conn, code)
-      {:error, code, description} -> handle_error(conn, code, description)
-    end
+    attrs
+    |> Map.put("type", type)
+    |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
+    |> Transaction.process()
+    |> respond_with_balance(conn)
   end
   defp transfer(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp respond_with_balance(conn, user, minted_token) do
+  defp respond_with_balance({:ok, user, minted_token}, conn) do
     user
     |> Balance.get(minted_token)
     |> respond(conn)
+  end
+  defp respond_with_balance({:error, code}, conn), do: handle_error(conn, code)
+  defp respond_with_balance({:error, code, description}, conn) do
+    handle_error(conn, code, description)
   end
 
   defp respond({:ok, addresses}, conn) do
