@@ -1,11 +1,11 @@
-defmodule KuberaAPI.ErrorViewTest do
-  use KuberaAPI.ViewCase, :v1
-  alias KuberaAPI.ErrorView
+defmodule KuberaAdmin.ErrorViewTest do
+  use KuberaAdmin.ViewCase, :v1
+  alias KuberaAdmin.ErrorView
 
   # Bring render/3 and render_to_string/3 for testing custom views
   import Phoenix.View
 
-  describe "KuberaAPI.ErrorView.render/2" do
+  describe "KuberaAdmin.ErrorView.render/2" do
     # Potential candidate to be moved to a shared library
     # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
     test "renders 500.json with correct structure given a custom description" do

@@ -1,5 +1,5 @@
-defmodule KuberaAPI.VersionedRouterTest do
-  use KuberaAPI.ConnCase, async: true
+defmodule KuberaAdmin.VersionedRouterTest do
+  use KuberaAdmin.ConnCase, async: true
 
   # Potential candidate to be moved to a shared library
   # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
