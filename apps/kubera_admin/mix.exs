@@ -24,7 +24,7 @@ defmodule KuberaAdmin.Mixfile do
   def application do
     [
       mod: {KuberaAdmin.Application, []},
-      extra_applications: [:logger, :runtime_tools]
+      extra_applications: [:sentry, :logger, :runtime_tools]
     ]
   end
 
@@ -39,6 +39,7 @@ defmodule KuberaAdmin.Mixfile do
     [
       {:phoenix, "~> 1.3.0"},
       {:cowboy, "~> 1.0"},
+      {:sentry, "~> 6.0.0"},
       {:kubera_db, in_umbrella: true},
       {:kubera, in_umbrella: true},
     ]

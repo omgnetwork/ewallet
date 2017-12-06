@@ -47,6 +47,19 @@ config :mime, :types, %{
   "application/vnd.omisego.v1+json" => ["json"]
 }
 
+# Configs for Sentry exception reporting
+config :sentry,
+  dsn: System.get_env("SENTRY_DSN"),
+  environment_name: Mix.env,
+  enable_source_code_context: true,
+  root_source_code_path: File.cwd!,
+  tags: %{
+    env: Mix.env,
+    application: Mix.Project.config[:app]
+  },
+  server_name: elem(:inet.gethostname, 1),
+  included_environments: [:prod]
+
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
