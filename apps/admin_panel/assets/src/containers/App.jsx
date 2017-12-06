@@ -1,14 +1,17 @@
 import React from "react";
 import { connect } from "react-redux";
 import { Route, Redirect, Switch } from "react-router-dom";
-import { ConnectedRouter, routerReducer, routerMiddleware, push } from "react-router-redux";
+import { ConnectedRouter } from "react-router-redux";
 
 import { alertActions } from "../actions";
 import { history } from "../helpers";
 import HomePage from "./HomePage";
-import LoginPage from "./LoginPage";
+import SignInPage from "./SignInPage";
 import DevTools from "./DevTools";
 import PrivateRoute from "../components/PrivateRoute";
+import ExternalHeader from "../components/ExternalHeader"
+import ExternalFooter from "../components/ExternalFooter"
+import Alerter from "../components/Alerter"
 
 class App extends React.Component {
 
@@ -24,32 +27,27 @@ class App extends React.Component {
 
   render() {
     const { alert } = this.props;
-    const { authentication } = this.props;
-
+    const { session } = this.props;
     return (
-      <div className="container">
-        <div className="col-sm-8 col-sm-offset-2">
-          {alert.message &&
-                        <div className={`alert ${alert.type}`}>
-                          {alert.message}
-                        </div>
-          }
-          <ConnectedRouter history={history}>
-            { authentication.checked &&
-              <div>
-                <Switch>
-                  <PrivateRoute exact path='/'
-                    component={HomePage}
-                    authenticated={authentication.authenticated}/>
-                  <Route path='/login' component={LoginPage} />
-                  <Redirect to="/" />
-                </Switch>
-              </div>
-            }
-          </ConnectedRouter>
-        </div>
-        <DevTools />
-      </div>
+      <ConnectedRouter history={history}>
+        { session.checked &&
+          <div>
+            <ExternalHeader authenticated={session.authenticated} />
+            <section className="external-container">
+              <Alerter alert={alert} />
+              <Switch>
+                <PrivateRoute exact path='/'
+                  component={HomePage}
+                  authenticated={session.authenticated}/>
+                <Route path='/login' component={SignInPage} />
+                <Redirect to="/" />
+              </Switch>
+            </section>
+            <ExternalFooter />
+            <DevTools />
+          </div>
+        }
+      </ConnectedRouter>
     );
   }
 }
@@ -57,10 +55,8 @@ class App extends React.Component {
 function mapStateToProps(state) {
   const { alert } = state;
   const { session } = state;
-  const authentication = {checked: session.checked,
-    authenticated: session.authenticated};
   return {
-    alert, authentication
+    alert, session
   };
 }
 
