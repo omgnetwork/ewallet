@@ -9,7 +9,7 @@ import { authHeader } from "../helpers";
 export const userActions = {
   login,
   logout
-  // Surrely more to come: logout / register / get / ...
+  // Surrely more to come: register / get / ...
 };
 
 function login(username, password) {

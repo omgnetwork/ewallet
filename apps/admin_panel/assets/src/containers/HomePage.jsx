@@ -4,6 +4,7 @@ import { withRouter } from "react-router-dom";
 
 import { userActions } from "../actions";
 import Loader from "../components/Loader";
+import { Button } from 'react-bootstrap';
 
 class HomePage extends Component {
 
@@ -23,9 +24,9 @@ class HomePage extends Component {
     return(
       <div>
         <p> This is the home page </p>
-        <button onClick={this.handleClickLogout}>
+        <Button onClick={this.handleClickLogout}>
           Logout
-        </button>
+        </Button>
         <Loader show= { loggingOut }/>
       </div>
     );
