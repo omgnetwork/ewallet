@@ -1,0 +1,206 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: Kubera Admin API
+  description: >
+    This is the API design for Kubera Admin.
+
+
+    All calls must be user-authenticated. That is, the client must first authenticate with the API using the user's email and password. On successful authentication, the API returns an authentication token (i.e. `authentication_token`).
+
+
+    Once a valid `authentication_token` is received, use the given auth token to make subsequent calls to the API via HTTP header
+    `Authorization=OMGAdmin Base64(api_key:authentication_token)`.
+
+
+    Due to HTTP-RPC nature, the API will always return a `200` HTTP status, including on errors.
+    Only in case of an internal server error that `500` will be returned.
+
+
+    Error codes are defined in  [Kubera API Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
+  contact:
+    name: OmiseGO
+    email: unnawut@omise.co
+  license:
+    name: License to be defined
+    url: 'https://omg.omise.co/'
+tags:
+  - name: Session
+    description: These are the endpoints related to the session tokens.
+  - name: Account
+    description: These are the endpoints related to the account. An account is an entity uniquely identified by its provider_user_id which is the user id in the provider database.
+paths:
+  ############################
+  #         SESSION          #
+  ############################
+  # Endpoint to login a user.
+  /login:
+    post:
+      tags:
+        - Session
+      summary: Login an existing user using email and password.
+      operationId: login
+      security:
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/LoginBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AuthenticationTokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to logout a user. (invalidate its authentication_token)
+  /logout:
+    post:
+      tags:
+        - Session
+      summary: Expires a user's authentication_token.
+      operationId: logout
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/AuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+components:
+  schemas:
+    # Schema for an error object
+    ErrorSchema:
+      type: object
+      properties:
+        object:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        messages:
+          type: object
+      required:
+        - object
+        - code
+        - description
+        - messages
+      example:
+        object: "error"
+        code: "server:internal_server_error"
+        description: "Something went wrong on the server"
+        messages: {"error_key": "error_reason"}
+    # Schema for success response body
+    BaseResponseSchema:
+      type: object
+      properties:
+        version:
+          type: string
+        success:
+          type: boolean
+        data:
+          type: object
+      required:
+        - version
+        - success
+        - data
+      example:
+        version: "1"
+        success: true
+        data: {}
+    # Schema for error response body
+    ErrorResponseSchema:
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/ErrorSchema'
+          required:
+            - data
+          example:
+            success: false
+            data:
+              object: "error"
+              code: "server:internal_server_error"
+              description: "Something went wrong on the server"
+              messages: {"error_key":"error_reason"}
+    # Schema for authentication token object
+    AuthenticationTokenSchema:
+      type: object
+      properties:
+        object:
+          type: string
+        authentication_token:
+          type: string
+      required:
+        - object
+        - authentication_token
+    # Schema for authentication token body response
+    AuthenticationTokenResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/AuthenticationTokenSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "authentication_token"
+            authentication_token: "azJRj09l7jvR8KhTqUs3"
+  requestBodies:
+    # Request body for logging in
+    LoginBody:
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+              password:
+                type: string
+            required:
+              - email
+              - password
+            example:
+              email: "test@example.com"
+              password: "the_password"
+  parameters:
+    # Headers
+    AuthorizationHeader:
+      in: header
+      name: Authorization
+      description: OMGAdmin Base64(api_key:authentication_token)
+      required: true
+      schema:
+        type: string
+  securitySchemes:
+    AdminAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+  responses:
+    # Authentication token response
+    AuthenticationTokenResponse:
+      description: Authentication token response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AuthenticationTokenResponseSchema'
+    # Empty
+    EmptyResponse:
+      description: Empty response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/BaseResponseSchema'
+    # Response when there was an internal server error (should never happen)
+    InternalServerError:
+      description: Something went wrong on the server
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseSchema'
