@@ -39,9 +39,10 @@ defmodule CaishenMQ.EntryTest do
   test "sends the 'v1.entry.genesis' operation" do
     {:ok, _pid} = Consumer.start_link()
 
-    assert Entry.genesis(%{}) == {:ok, %{
+    assert Entry.genesis(%{}, "123") == {:ok, %{
       "data" => %{},
-      "operation" => "v1.entry.genesis"
+      "operation" => "v1.entry.genesis",
+      "idempotency_token" => "123",
     }}
   end
 end

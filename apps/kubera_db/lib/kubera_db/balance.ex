@@ -8,11 +8,22 @@ defmodule KuberaDB.Balance do
   alias Ecto.UUID
   alias KuberaDB.{Repo, Account, Balance, MintedToken, User}
 
+  @genesis   "genesis"
+  @burn      "burn"
+  @primary   "primary"
+  @secondary "secondary"
+
+  def genesis, do: @genesis
+  def burn, do: @burn
+  def primary, do: @primary
+  def secondary, do: @secondary
+
   @primary_key {:id, UUID, autogenerate: true}
 
   schema "balance" do
     field :address, :string
-    field :genesis, :boolean, default: false
+    field :name, :string
+    field :identifier, :string
     belongs_to :user, User, foreign_key: :user_id,
                             references: :id,
                             type: UUID
@@ -30,16 +41,19 @@ defmodule KuberaDB.Balance do
   defp changeset(%Balance{} = balance, attrs) do
     balance
     |> cast(attrs, [
-      :address, :account_id, :minted_token_id, :user_id, :metadata, :genesis
+      :address, :account_id, :minted_token_id, :user_id, :metadata, :name, :identifier
     ])
-    |> validate_required(:address)
-    |> validate_required_exclusive([
-      :account_id, :minted_token_id, :user_id, :genesis
-    ])
+    |> validate_required([:address, :name, :identifier])
+    |> validate_format(:identifier, ~r/#{@genesis}|#{@burn}|#{@primary}|#{@secondary}:.*/)
+    |> validate_required_exclusive(%{account_id: nil, user_id: nil, identifier: @genesis})
     |> unique_constraint(:address)
     |> assoc_constraint(:account)
     |> assoc_constraint(:minted_token)
     |> assoc_constraint(:user)
+    |> unique_constraint(:unique_account_name, name: :balance_account_id_name_index)
+    |> unique_constraint(:unique_user_name, name: :balance_user_id_name_index)
+    |> unique_constraint(:unique_account_identifier, name: :balance_account_id_identifier_index)
+    |> unique_constraint(:unique_user_identifier, name: :balance_user_id_identifier_index)
     |> put_change(:encryption_version, Cloak.version)
   end
 
@@ -65,29 +79,26 @@ defmodule KuberaDB.Balance do
   @doc """
   Returns the genesis balance.
   """
-  def genesis do
-    case get("genesis") do
+  def get_genesis do
+    case get(@genesis) do
       nil ->
-        insert_without_conflict("genesis", nil, true)
+        {:ok, genesis} = insert_genesis()
+        genesis
       balance ->
-        {:ok, balance}
+        balance
     end
   end
 
   @doc """
-  Inserts a special kind of balance (either a genesis one or a master balance).
+  Inserts a genesis.
   """
-  def insert_without_conflict(address, minted_token_id, genesis \\ false) do
-    changeset = changeset(%Balance{}, %{
-      address: address,
-      minted_token_id: minted_token_id,
-      genesis: genesis
-    })
+  def insert_genesis do
+    changeset = changeset(%Balance{}, %{address: @genesis, name: @genesis, identifier: @genesis})
     opts = [on_conflict: :nothing, conflict_target: :address]
 
     case Repo.insert(changeset, opts) do
       {:ok, _balance} ->
-        {:ok, get(address)}
+        {:ok, get(@genesis)}
       {:error, changeset} ->
         {:error, changeset}
     end

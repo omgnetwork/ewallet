@@ -342,7 +342,7 @@ defmodule KuberaDB.SchemaCase do
         {_, record} =
           schema
           |> get_factory()
-          |> params_for(%{field => %{something: "cool"}})
+          |> params_for(%{field => %{"something" => "cool"}})
           |> schema.insert()
 
         {:ok, results} = SQL.query(KuberaDB.Repo, "SELECT #{field} FROM \"#{table}\"", [])

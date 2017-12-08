@@ -29,7 +29,7 @@ defmodule KuberaDB.UserTest do
 
     test "automatically creates a balance when user is created" do
       {_result, user} = :user |> params_for |> User.insert
-      User.get_main_balance(user)
+      User.get_primary_balance(user)
       assert length(User.get(user.id).balances) == 1
     end
   end
@@ -74,10 +74,10 @@ defmodule KuberaDB.UserTest do
     end
   end
 
-  describe "get_main_balance/1" do
+  describe "get_primary_balance/1" do
     test "returns the first balance" do
       {:ok, inserted} = User.insert(params_for(:user))
-      balance = User.get_main_balance(inserted)
+      balance = User.get_primary_balance(inserted)
 
       user =
         inserted.id
@@ -90,8 +90,8 @@ defmodule KuberaDB.UserTest do
 
     test "make sure only 1 balance is created at most" do
       {:ok, inserted} = User.insert(params_for(:user))
-      balance_1 = User.get_main_balance(inserted)
-      balance_2 = User.get_main_balance(inserted)
+      balance_1 = User.get_primary_balance(inserted)
+      balance_2 = User.get_primary_balance(inserted)
       assert balance_1 == balance_2
     end
   end

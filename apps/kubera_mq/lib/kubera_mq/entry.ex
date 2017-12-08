@@ -24,8 +24,9 @@ defmodule KuberaMQ.Entry do
       data: data})
   end
 
-  def genesis(data) do
+  def genesis(data, idempotency_token) do
     Publisher.send(%{
+      idempotency_token: idempotency_token,
       operation: "v1.entry.genesis",
       data: data
     })

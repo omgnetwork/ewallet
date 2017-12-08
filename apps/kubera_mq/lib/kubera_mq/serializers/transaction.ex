@@ -2,28 +2,22 @@ defmodule KuberaMQ.Serializers.Transaction do
   @moduledoc """
   Format a transaction the way Caishen expects it.
   """
-  def serialize(%{
-    from: from,
-    to: to,
-    minted_token: minted_token,
-    amount: amount,
-    metadata: metadata
-  }) do
+  def serialize(transfer) do
     %{
-      metadata: metadata,
+      metadata: transfer.metadata,
       minted_token: %{
-        friendly_id: minted_token.friendly_id,
-        metadata: minted_token.metadata
+        friendly_id: transfer.minted_token.friendly_id,
+        metadata: transfer.minted_token.metadata
       },
       debits: [%{
-        address: from.address,
-        amount: amount,
-        metadata: from.metadata
+        address: transfer.from_balance.address,
+        amount: transfer.amount,
+        metadata: transfer.from_balance.metadata
       }],
       credits: [%{
-        address: to.address,
-        amount: amount,
-        metadata: to.metadata
+        address: transfer.to_balance.address,
+        amount: transfer.amount,
+        metadata: transfer.to_balance.metadata
       }]
     }
   end

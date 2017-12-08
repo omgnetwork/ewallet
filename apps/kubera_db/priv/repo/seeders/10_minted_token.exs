@@ -6,35 +6,35 @@ seeds = [
     name: "OmiseGO",
     subunit_to_unit:        10_000,
     genesis_amount: 10_000_000_000, # 1,000,000 OMG
-    account: KuberaDB.Account.get("account1")
+    account: KuberaDB.Account.get_by_name("account1")
   },
   %{
     symbol: "KNC",
     name: "Kyber",
     subunit_to_unit:        1_000,
     genesis_amount: 1_000_000_000,  # 1,000,000 KNC
-    account: KuberaDB.Account.get("account1")
+    account: KuberaDB.Account.get_by_name("account1")
   },
   %{
     symbol: "BTC",
     name: "Bitcoin",
     subunit_to_unit:        10_000,
     genesis_amount: 10_000_000_000, # 1,000,000 BTC
-    account: KuberaDB.Account.get("account1")
+    account: KuberaDB.Account.get_by_name("account1")
   },
   %{
     symbol: "MNT",
     name: "Mint",
     subunit_to_unit:        100,
     genesis_amount: 100_000_000, # 1,000,000 MNT
-    account: KuberaDB.Account.get("account2")
+    account: KuberaDB.Account.get_by_name("account2")
   },
   %{
     symbol: "ETH",
     name: "Ether",
     subunit_to_unit:        1_000_000_000_000_000_000,
     genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 ETH
-    account: KuberaDB.Account.get("account2")
+    account: KuberaDB.Account.get_by_name("account2")
   },
 ]
 
@@ -61,7 +61,7 @@ if Enum.member?(System.argv, "--with-genesis") do
 
     %{
       from: genesis,
-      to: KuberaDB.MintedToken.get_master_balance(minted_token),
+      to: KuberaDB.MintedToken.get_primary_balance(minted_token),
       minted_token: minted_token,
       amount: data.genesis_amount,
       metadata: %{}

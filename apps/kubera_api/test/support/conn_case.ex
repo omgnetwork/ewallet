@@ -16,7 +16,7 @@ defmodule KuberaAPI.ConnCase do
   use ExUnit.CaseTemplate
   import KuberaDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
-  alias KuberaDB.{Repo, Key, User}
+  alias KuberaDB.{Repo, Key, User, Account}
   use Phoenix.ConnTest
 
   # Attributes required by Phoenix.ConnTest
@@ -61,10 +61,13 @@ defmodule KuberaAPI.ConnCase do
     :ok = Sandbox.checkout(Repo)
 
     # Insert necessary records for making authenticated calls.
-    account     = insert(:account)
-    user        = insert(:user, %{username: @username, provider_user_id: @provider_user_id})
-    _api_key    = insert(:api_key, %{key: @api_key})
-    _auth_token = insert(:auth_token, %{user: user, token: @auth_token})
+    {:ok, account} = :account |> params_for() |> Account.insert()
+    {:ok, user} =
+      :user
+      |> params_for(username: @username, provider_user_id: @provider_user_id)
+      |> User.insert()
+    _api_key       = insert(:api_key, %{key: @api_key})
+    _auth_token    = insert(:auth_token, %{user: user, token: @auth_token})
 
     # Keys need to be inserted through `KuberaDB.Key.insert/1`
     # so that the secret key is hashed and usable by the tests.

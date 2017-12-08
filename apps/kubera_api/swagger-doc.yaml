@@ -638,7 +638,7 @@ components:
               provider_user_id: "wijf-fbancomw-dqwjudb"
     # Body for a credit / debit of a user's balance
     BalanceAdjustmentBody:
-      description: Description of the desired adjustment
+      description: Credit or debit the balance of the specified user by taking/giving back the given amount from/to the account_id. If not specified, the account owning the minted token will be used as the source. If no burn_balance_identifier is specified, the tokens won't be burned and will instead be returned to the primary balance of the selected account.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -650,6 +650,10 @@ components:
                 type: string
               amount:
                 type: integer
+              account_id:
+                type: string
+              burn_balance_identifier:
+                type: string
             required:
               - provider_user_id
               - token_id
@@ -658,6 +662,8 @@ components:
               provider_user_id: "wijf-fbancomw-dqwjudb"
               token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
               amount: 100
+              account_id: "865ff420-899a-4eb3-8364-19edc5d51676"
+              burn_balance_identifier: "burn"
   parameters:
     # Headers
     ServerAuthorizationHeader:

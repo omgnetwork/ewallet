@@ -24,6 +24,8 @@ defmodule KuberaDB.Factory do
   def balance_factory do
     %Balance{
       address: sequence("address"),
+      name: sequence("name"),
+      identifier: Balance.primary,
       user: insert(:user),
       minted_token: nil,
       metadata: %{}
@@ -45,6 +47,7 @@ defmodule KuberaDB.Factory do
       iso_numeric: sequence("990"),
       smallest_denomination: 1,
       locked: false,
+      account: insert(:account)
     }
   end
 
@@ -62,7 +65,8 @@ defmodule KuberaDB.Factory do
   def mint_factory do
     %Mint{
       amount: 100_000,
-      minted_token_id: insert(:minted_token).id
+      minted_token_id: insert(:minted_token).id,
+      transfer_id: insert(:transfer).id
     }
   end
 
@@ -70,7 +74,6 @@ defmodule KuberaDB.Factory do
     %Account{
       name: sequence("account"),
       description: sequence("description for account"),
-      master: true,
     }
   end
 
@@ -102,7 +105,11 @@ defmodule KuberaDB.Factory do
     %Transfer{
       idempotency_token: UUID.generate(),
       payload: %{example: "Payload"},
-      metadata: %{some: "metadata"}
+      metadata: %{some: "metadata"},
+      amount: 100,
+      minted_token: insert(:minted_token),
+      from_balance: insert(:balance),
+      to_balance: insert(:balance)
     }
   end
 end

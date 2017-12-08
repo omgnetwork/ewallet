@@ -34,7 +34,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
               "data" => [
                 %{
                   "object" => "address",
-                  "address" => User.get_main_balance(user).address,
+                  "address" => User.get_primary_balance(user).address,
                   "balances" => [
                     %{
                       "object" => "balance",
@@ -76,7 +76,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
           {:ok, omg} =
             :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
 
-          address      = User.get_main_balance(user).address
+          address      = User.get_primary_balance(user).address
           request_data = %{address: address}
           response     = provider_request("/user.list_balances", request_data)
 

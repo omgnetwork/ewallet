@@ -44,7 +44,7 @@ defmodule Kubera.BalanceTest do
           assert length(addresses) == 1
           main_address = List.first(addresses)
           assert main_address.address ==
-            User.get_main_balance(inserted_user).address
+            User.get_primary_balance(inserted_user).address
           assert main_address.balances == [
             %{minted_token: btc, amount: 9850},
             %{minted_token: omg, amount: 1000},
@@ -56,29 +56,28 @@ defmodule Kubera.BalanceTest do
 
   describe "get/2" do
     test "retrieve the specific balance from a minted_token and an address" do
-    with_mocks [
-      {KuberaMQ.Balance, [], [get: fn _symbol, _pid -> balance_response() end]}
+      with_mocks [
+        {KuberaMQ.Balance, [], [get: fn _symbol, _pid -> balance_response() end]}
       ] do
-        {:ok, inserted_user} = User.insert(params_for(:user))
-        {:ok, omg} =
-          :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
-        {:ok, _} =
-          :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
-        {:ok, _} =
-          :minted_token |> params_for(friendly_id: "MNT:123", symbol: "MNT") |> MintedToken.insert()
+          {:ok, inserted_user} = User.insert(params_for(:user))
+          {:ok, omg} =
+            :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
+          {:ok, _} =
+            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
+          {:ok, _} =
+            :minted_token |> params_for(friendly_id: "MNT:123", symbol: "MNT") |> MintedToken.insert()
 
-        user_address = User.get_main_balance(inserted_user).address
-        {status, addresses} = Balance.get(omg.friendly_id, user_address)
-        assert status == :ok
-        assert length(addresses) == 1
-        main_address = List.first(addresses)
-        assert main_address.address ==
-          User.get_main_balance(inserted_user).address
-        assert main_address.balances == [
-          %{minted_token: omg, amount: 1000},
-        ]
+          user_address = User.get_primary_balance(inserted_user).address
+          {status, addresses} = Balance.get(omg.friendly_id, user_address)
+          assert status == :ok
+          assert length(addresses) == 1
+          main_address = List.first(addresses)
+          assert main_address.address ==
+            User.get_primary_balance(inserted_user).address
+          assert main_address.balances == [
+            %{minted_token: omg, amount: 1000},
+          ]
+      end
     end
-  end
-
   end
 end

@@ -2,15 +2,15 @@
 
 seeds = [
   %{name: "account01", description: "Account 1 (Master)", master: true},
-  %{name: "account02", description: "Account 2 (Master)", master: true},
-  %{name: "account03", description: "Account 3 (Non-Master)", master: false},
-  %{name: "account04", description: "Account 4 (Non-Master)", master: false},
+  %{name: "account02", description: "Account 2 (Non-Master)"},
+  %{name: "account03", description: "Account 3 (Non-Master)"},
+  %{name: "account04", description: "Account 4 (Non-Master)"},
 ]
 
 KuberaDB.CLI.info("\nSeeding Account...")
 
 Enum.each(seeds, fn(data) ->
-  with nil <- KuberaDB.Account.get(data.name),
+  with nil <- KuberaDB.Account.get_by_name(data.name),
        {:ok, _} <- KuberaDB.Account.insert(data)
   do
     KuberaDB.CLI.success("Account inserted: #{data.name}")

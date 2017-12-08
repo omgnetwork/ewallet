@@ -7,6 +7,7 @@ defmodule KuberaDB.User do
   import KuberaDB.Validator
   alias Ecto.UUID
   alias KuberaDB.{Repo, AuthToken, Balance, User}
+  alias Ecto.Multi
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -57,17 +58,38 @@ defmodule KuberaDB.User do
       iex> insert(%{field: value})
       {:ok, %User{}}
 
-  Creates a user and their first balance.
+  Creates a user and their primary balance.
   """
   def insert(attrs) do
-    changeset = changeset(%User{}, attrs)
+    multi =
+      Multi.new
+      |> Multi.insert(:user, changeset(%User{}, attrs))
+      |> Multi.run(:balance, fn %{user: user} ->
+        insert_balance(user, Balance.primary)
+      end)
 
-    case Repo.insert(changeset) do
-      {:ok, user} ->
-        {:ok, get(user.id)}
-      result ->
-        result
+    case Repo.transaction(multi) do
+      {:ok, result} ->
+        user = result.user |> Repo.preload([:balances])
+        {:ok, user}
+      # Only the account insertion should fail. If the balance insert fails, there is
+      # something wrong with our code.
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
+  end
+
+  @doc """
+  Inserts a balance for the given user.
+  """
+  def insert_balance(%User{} = user, identifier) do
+    %{
+      user_id: user.id,
+      name: identifier,
+      identifier: identifier,
+      metadata: %{}
+    }
+    |> Balance.insert()
   end
 
   @doc """
@@ -85,28 +107,12 @@ defmodule KuberaDB.User do
   end
 
   @doc """
-  Retrieve the main balance for a minted token. If not available,
-  inserts a new one and return it.
+  Retrieve the primary balance for a user.
   """
-  def get_main_balance(user) do
+  def get_primary_balance(user) do
     Balance
     |> where([b], b.user_id == ^user.id)
-    |> Repo.all()
-    |> List.first
-    |> get_or_insert_balance(user)
-  end
-
-  defp get_or_insert_balance(balance, user) do
-    case balance do
-      nil ->
-        {:ok, balance} = insert_balance(user)
-        balance
-      balance ->
-        balance
-    end
-  end
-
-  defp insert_balance(%User{} = user) do
-    %{user_id: user.id, metadata: nil} |> Balance.insert
+    |> where([b], b.identifier == ^Balance.primary)
+    |> Repo.one()
   end
 end

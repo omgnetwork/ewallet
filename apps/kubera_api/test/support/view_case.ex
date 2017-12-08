@@ -8,6 +8,12 @@ defmodule KuberaAPI.ViewCase do
       use ExUnit.Case
       import KuberaDB.Factory
       import Phoenix.View
+      alias KuberaDB.Repo
+      alias Ecto.Adapters.SQL.Sandbox
+
+      setup do
+        :ok = Sandbox.checkout(Repo)
+      end
 
       @expected_version "1" # The expected response version
     end

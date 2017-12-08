@@ -48,6 +48,14 @@ defmodule KuberaAPI.V1.ErrorHandler do
       code: "user:provider_user_id_not_found",
       description: "There is no user corresponding to the provided provider_user_id"
     },
+    burn_balance_not_found: %{
+      code: "user:burn_balance_not_found",
+      description: "There is no burn balance corresponding to the provided name"
+    },
+    account_id_not_found: %{
+      code: "user:account_id_not_found",
+      description: "There is no account corresponding to the provided account_id"
+    },
     minted_token_not_found: %{
       code: "user:minted_token_not_found",
       description: "There is no minted token matching the provided token_id."

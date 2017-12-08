@@ -8,9 +8,14 @@ defmodule KuberaDB.Validator do
   Validates that only one out of the provided fields can have value.
   """
   def validate_required_exclusive(changeset, attrs) do
-    fields_found = Enum.count(attrs, fn(attr) ->
+    fields_found = Enum.count(attrs, fn({attr, attr_value}) ->
       value = Changeset.get_field(changeset, attr)
-      value && value != ""
+      case attr_value do
+        nil ->
+          value && value != ""
+        attr_value ->
+          value && value != "" && value == attr_value
+      end
     end)
 
     case fields_found do

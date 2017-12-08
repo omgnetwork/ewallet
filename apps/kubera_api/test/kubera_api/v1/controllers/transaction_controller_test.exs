@@ -1,7 +1,7 @@
 defmodule KuberaAPI.V1.TransactionControllerTest do
   use KuberaAPI.ConnCase, async: true
   import Mock
-  alias KuberaDB.{User, MintedToken}
+  alias KuberaDB.{User, MintedToken, Account}
   alias KuberaMQ.{Entry, Balance}
 
   def valid_response do
@@ -88,8 +88,11 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
         }
       ] do
           {:ok, user} = :user |> params_for() |> User.insert()
+          {:ok, account} = :account |> params_for() |> Account.insert()
           {:ok, minted_token} =
-            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
+            :minted_token
+            |> params_for(account: account, friendly_id: "BTC:123", symbol: "BTC")
+            |> MintedToken.insert()
 
           request_data = %{
             provider_user_id: user.provider_user_id,
@@ -110,7 +113,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
               "data" => [
                 %{
                   "object" => "address",
-                  "address" => User.get_main_balance(user).address,
+                  "address" => User.get_primary_balance(user).address,
                   "balances" => [
                     %{
                       "object" => "balance",
@@ -175,8 +178,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
           [get: fn _symbol, _address -> valid_balances_response() end]
         }
       ] do
+          {:ok, account} = :account |> params_for() |> Account.insert()
           {:ok, minted_token} =
-            :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+            :minted_token |> params_for(account: account, symbol: "BTC") |> MintedToken.insert()
 
           request_data = %{
             provider_user_id: "fake",
@@ -203,6 +207,43 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
       end
     end
 
+    test "returns account_id when the account is not found" do
+      with_mocks [
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
+        {
+          Balance,
+          [],
+          [get: fn _symbol, _address -> valid_balances_response() end]
+        }
+      ] do
+          {:ok, user} = :user |> params_for() |> User.insert()
+          {:ok, minted_token} =
+            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
+
+          request_data = %{
+            provider_user_id: user.provider_user_id,
+            token_id: minted_token.friendly_id,
+            amount: 100_000,
+            account_id: "123",
+            metadata: %{}
+          }
+
+          response = provider_request_with_idempotency("/user.credit_balance",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
+
+          assert response == %{
+            "success" => false,
+            "version" => "1",
+            "data" => %{
+              "code" => "user:account_id_not_found",
+              "description" => "There is no account corresponding to the provided account_id",
+              "messages" => nil, "object" => "error"
+            }
+          }
+      end
+    end
+
     test "returns minted_token_not_found when the minted token is not found" do
       with_mocks [
         {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
@@ -213,12 +254,14 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
         }
       ] do
           {:ok, user} = :user |> params_for() |> User.insert()
+          {:ok, account} = :account |> params_for() |> Account.insert()
 
           request_data = %{
             provider_user_id: user.provider_user_id,
             token_id: "BTC:456",
             amount: 100_000,
-            metadata: %{}
+            metadata: %{},
+            account_id: account.id
           }
 
           response = provider_request_with_idempotency("/user.credit_balance",
@@ -242,8 +285,9 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
   describe "/user.debit_balance" do
     test "returns idempotency error if header is not specified" do
       {:ok, user} = :user |> params_for() |> User.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
       {:ok, minted_token} =
-        :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+        :minted_token |> params_for(account: account, symbol: "BTC") |> MintedToken.insert()
 
       request_data = %{
         provider_user_id: user.provider_user_id,
@@ -276,9 +320,10 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
           [get: fn _symbol, _address -> valid_balances_response() end]
         }
         ] do
+          {:ok, account} = :account |> params_for() |> Account.insert()
           {:ok, user} = :user |> params_for() |> User.insert()
           {:ok, minted_token} =
-            :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+            :minted_token |> params_for(account: account, symbol: "BTC") |> MintedToken.insert()
 
           request_data = %{
             provider_user_id: user.provider_user_id,
@@ -312,9 +357,12 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
           [get: fn _symbol, _address -> valid_balances_response() end]
         }
       ] do
+          {:ok, account} = :account |> params_for() |> Account.insert()
           {:ok, user} = :user |> params_for() |> User.insert()
           {:ok, minted_token} =
-            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
+            :minted_token
+            |> params_for(account: account, friendly_id: "BTC:123", symbol: "BTC")
+            |> MintedToken.insert()
 
           request_data = %{
             provider_user_id: user.provider_user_id,
@@ -334,7 +382,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
               "data" => [
                 %{
                   "object" => "address",
-                  "address" => User.get_main_balance(user).address,
+                  "address" => User.get_primary_balance(user).address,
                   "balances" => [
                     %{
                       "object" => "balance",

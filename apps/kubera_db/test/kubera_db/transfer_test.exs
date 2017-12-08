@@ -11,7 +11,7 @@ defmodule KuberaDB.TransferTest do
 
   describe "get_or_insert/1" do
     test "inserts a new transfer when idempotency token does not exist" do
-      transfer = :transfer |> params_for() |> Transfer.get_or_insert()
+      {:ok, transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
 
       assert transfer.id != nil
       assert transfer.type == Transfer.internal
@@ -19,8 +19,8 @@ defmodule KuberaDB.TransferTest do
 
     test "retrieves an existing transfer when idempotency token exists" do
       params = :transfer |> params_for()
-      inserted_transfer = params |> Transfer.get_or_insert()
-      transfer = params |> Transfer.get_or_insert()
+      {:ok, inserted_transfer} = params |> Transfer.get_or_insert()
+      {:ok, transfer} = params |> Transfer.get_or_insert()
 
       assert transfer.id == inserted_transfer.id
     end
@@ -28,7 +28,7 @@ defmodule KuberaDB.TransferTest do
 
   describe "get/1" do
     test "retrieves a transfer by idempotency token" do
-      inserted_transfer = :transfer |> params_for() |> Transfer.get_or_insert()
+      {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
       transfer = Transfer.get(inserted_transfer.idempotency_token)
 
       assert transfer.id == inserted_transfer.id
@@ -47,13 +47,17 @@ defmodule KuberaDB.TransferTest do
         :transfer
         |> params_for()
         |> Transfer.insert
-      assert Repo.all(Transfer) == [transfer]
+      transfers =
+        Transfer |> Repo.all() |> Repo.preload([:from_balance, :to_balance, :minted_token])
+
+      assert transfers == [transfer]
     end
 
     test "returns the existing transfer without error if already existing" do
       assert Repo.all(Transfer) == []
-      inserted_transfer = :transfer |> params_for(idempotency_token: "123") |> Transfer.insert
-      transfer = :transfer |> params_for(idempotency_token: "123") |> Transfer.insert
+      {:ok, inserted_transfer} =
+        :transfer |> params_for(idempotency_token: "123") |> Transfer.insert
+      {:ok, transfer} = :transfer |> params_for(idempotency_token: "123") |> Transfer.insert
 
       assert inserted_transfer == transfer
     end
@@ -62,14 +66,18 @@ defmodule KuberaDB.TransferTest do
       assert Repo.all(Transfer) == []
       {res, changeset} = %{idempotency_token: nil, payload: %{}} |> Transfer.insert
       assert res == :error
-      assert changeset.errors == [idempotency_token: {"can't be blank",
-                                            [validation: :required]}]
+      assert changeset.errors == [idempotency_token: {"can't be blank", [validation: :required]},
+                                  amount: {"can't be blank", [validation: :required]},
+                                  minted_token_id: {"can't be blank",
+                                                             [validation: :required]},
+                                  to: {"can't be blank", [validation: :required]},
+                                  from: {"can't be blank", [validation: :required]}]
     end
   end
 
   describe "confirm/2" do
     test "confirms a transfer" do
-      inserted_transfer = :transfer |> params_for() |> Transfer.get_or_insert()
+      {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
       assert inserted_transfer.status == Transfer.pending
       transfer = Transfer.confirm(inserted_transfer, %{ledger: "response"})
       assert transfer.id == inserted_transfer.id
@@ -80,7 +88,7 @@ defmodule KuberaDB.TransferTest do
 
   describe "fail/2" do
     test "sets a transfer as failed" do
-      inserted_transfer = :transfer |> params_for() |> Transfer.get_or_insert()
+      {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
       assert inserted_transfer.status == Transfer.pending
       transfer = Transfer.fail(inserted_transfer, %{ledger: "response"})
       assert transfer.id == inserted_transfer.id

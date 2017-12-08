@@ -23,7 +23,35 @@ defmodule KuberaDB.ValidatorTest do
 
       changeset = %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
-        |> validate_required_exclusive([:attr1, :attr2, :attr3])
+        |> validate_required_exclusive(%{attr1: nil, attr2: nil, attr3: nil})
+
+      assert changeset.valid?
+    end
+
+    test "valid if the attribute value matches the given value" do
+      attrs = %{
+        attr1: "value",
+        attr2: nil,
+        attr3: nil
+      }
+
+      changeset = %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2, :attr3])
+        |> validate_required_exclusive(%{attr1: "value", attr2: nil, attr3: nil})
+
+      assert changeset.valid?
+    end
+
+    test "valid if the attr value does not match the given value and another field is present" do
+      attrs = %{
+        attr1: "value",
+        attr2: "test",
+        attr3: nil
+      }
+
+      changeset = %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2, :attr3])
+        |> validate_required_exclusive(%{attr1: "something", attr2: nil, attr3: nil})
 
       assert changeset.valid?
     end
@@ -37,11 +65,11 @@ defmodule KuberaDB.ValidatorTest do
 
       changeset = %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
-        |> validate_required_exclusive([:attr1, :attr2, :attr3])
+        |> validate_required_exclusive(%{attr1: nil, attr2: nil, attr3: nil})
 
       refute changeset.valid?
       assert changeset.errors ==
-        [{[:attr1, :attr2, :attr3], {"can't all be blank", []}}]
+        [{%{attr1: nil, attr2: nil, attr3: nil}, {"can't all be blank", []}}]
     end
 
     test "invalid if more than one field is present" do
@@ -53,11 +81,27 @@ defmodule KuberaDB.ValidatorTest do
 
       changeset = %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
-        |> validate_required_exclusive([:attr1, :attr2, :attr3])
+        |> validate_required_exclusive(%{attr1: nil, attr2: nil, attr3: nil})
 
       refute changeset.valid?
       assert changeset.errors ==
-        [{[:attr1, :attr2, :attr3], {"only one must be present", []}}]
+        [{%{attr1: nil, attr2: nil, attr3: nil}, {"only one must be present", []}}]
+    end
+
+    test "invalid if more than one field is present with an attribute value given" do
+      attrs = %{
+        attr1: "value",
+        attr2: "test",
+        attr3: nil
+      }
+
+      changeset = %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2, :attr3])
+        |> validate_required_exclusive(%{attr1: "value", attr2: nil, attr3: nil})
+
+      refute changeset.valid?
+      assert changeset.errors ==
+        [{%{attr1: "value", attr2: nil, attr3: nil}, {"only one must be present", []}}]
     end
   end
 

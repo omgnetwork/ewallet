@@ -5,7 +5,7 @@ defmodule KuberaDB.MintedToken do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias KuberaDB.{Repo, Account, Balance, MintedToken}
+  alias KuberaDB.{Repo, Account, MintedToken}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
@@ -25,8 +25,6 @@ defmodule KuberaDB.MintedToken do
     field :locked, :boolean # false
     field :metadata, Cloak.EncryptedMapField
     field :encryption_version, :binary
-    has_many :balances, Balance, foreign_key: :minted_token_id,
-                                 references: :id
     belongs_to :account, Account, foreign_key: :account_id,
                                            references: :id,
                                            type: UUID
@@ -42,7 +40,7 @@ defmodule KuberaDB.MintedToken do
       :metadata, :friendly_id
     ])
     |> validate_required([
-      :symbol, :name, :subunit_to_unit
+      :symbol, :name, :subunit_to_unit, :account_id
     ])
     |> set_friendly_id()
     |> validate_required([:friendly_id])
@@ -100,32 +98,11 @@ defmodule KuberaDB.MintedToken do
     Repo.get_by(MintedToken, friendly_id: friendly_id)
   end
 
+  @doc """
+  Retrieve a list of minted tokens by supplying a list of friendly IDs.
+  """
   def get_all(friendly_ids) do
     Repo.all(from m in MintedToken,
                        where: m.friendly_id in ^friendly_ids)
-  end
-
-  @doc """
-  Retrieve the main balance for a minted token. If not available,
-  safely inserts a new one and return it.
-  """
-  def get_master_balance(minted_token) do
-    Balance
-    |> where([b], b.minted_token_id == ^minted_token.id)
-    |> Repo.all()
-    |> List.first
-    |> get_or_insert_balance(minted_token)
-  end
-
-  defp get_or_insert_balance(balance, minted_token) do
-    case balance do
-      nil ->
-        address = "master:#{minted_token.friendly_id}"
-        {:ok, balance} = Balance.insert_without_conflict(address,
-                                                         minted_token.id)
-        balance
-      balance ->
-        balance
-    end
   end
 end

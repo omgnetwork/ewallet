@@ -1,10 +1,10 @@
 # This is the seeding script for APIKey.
 
 seeds = [
-  %{account: KuberaDB.Account.get("account01")},
-  %{account: KuberaDB.Account.get("account02")},
-  %{account: KuberaDB.Account.get("account03")},
-  %{account: KuberaDB.Account.get("account04")},
+  %{account: KuberaDB.Account.get_by_name("account01")},
+  %{account: KuberaDB.Account.get_by_name("account02")},
+  %{account: KuberaDB.Account.get_by_name("account03")},
+  %{account: KuberaDB.Account.get_by_name("account04")},
 ]
 
 KuberaDB.CLI.info("\nSeeding APIKey (always seed new ones)...")

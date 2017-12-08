@@ -32,28 +32,6 @@ defmodule KuberaDB.MintedTokenTest do
 
       assert minted_token.friendly_id == "OMG:123"
     end
-
-    test "saves the encrypted metadata" do
-      {:ok, minted_token} =
-        :minted_token |> params_for(metadata: %{something: "cool"}) |> MintedToken.insert
-      {:ok, results} = SQL.query(Repo, "SELECT metadata FROM minted_token", [])
-
-      row = Enum.at(results.rows, 0)
-      assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
-      assert minted_token.metadata == %{"something" => "cool"}
-    end
-
-    test "inserts a balance for the minted token" do
-      {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert
-      MintedToken.get_master_balance(minted_token)
-
-      minted_token =
-        minted_token.friendly_id
-        |> MintedToken.get()
-        |> Repo.preload([:balances])
-
-      assert length(minted_token.balances) == 1
-    end
   end
 
   describe "all/0" do
@@ -81,28 +59,6 @@ defmodule KuberaDB.MintedTokenTest do
     test "returns nil if the minted token does not exist" do
       token = MintedToken.get("unknown")
       assert token == nil
-    end
-  end
-
-  describe "get_main_balance/1" do
-    test "returns the first balance" do
-      {:ok, inserted} = :minted_token |> params_for() |> MintedToken.insert
-      balance = MintedToken.get_master_balance(inserted)
-
-      minted_token =
-        inserted.friendly_id
-        |> MintedToken.get()
-        |> Repo.preload([:balances])
-
-      assert balance != nil
-      assert balance == Enum.at(minted_token.balances, 0)
-    end
-
-    test "make sure only 1 master balance is created at most" do
-      {:ok, inserted} = :minted_token |> params_for() |> MintedToken.insert
-      balance_1 = MintedToken.get_master_balance(inserted)
-      balance_2 = MintedToken.get_master_balance(inserted)
-      assert balance_1 == balance_2
     end
   end
 end

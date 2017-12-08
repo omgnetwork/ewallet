@@ -31,7 +31,7 @@ defmodule Kubera.Balance do
       nil ->
         {:error, :provider_user_id_not_found}
       user ->
-        balance = User.get_main_balance(user)
+        balance = User.get_primary_balance(user)
         format_all(balance.address)
     end
   end
@@ -79,7 +79,7 @@ defmodule Kubera.Balance do
 
   """
   def get(%User{} = user, %MintedToken{} = minted_token) do
-    user_balance = User.get_main_balance(user)
+    user_balance = User.get_primary_balance(user)
     get(minted_token.friendly_id, user_balance.address)
   end
 

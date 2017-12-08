@@ -49,7 +49,7 @@ defmodule KuberaAPI.V1.SelfControllerTest do
             "data" => [
               %{
                 "object" => "address",
-                "address" => User.get_main_balance(user).address,
+                "address" => User.get_primary_balance(user).address,
                 "balances" => [
                   %{
                     "object" => "balance",
