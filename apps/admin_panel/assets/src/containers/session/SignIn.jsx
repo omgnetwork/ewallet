@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Button } from 'react-bootstrap';
+import { getTranslate } from 'react-localize-redux';
 
 import { userActions } from "../../actions";
 import OMGFieldGroup from "../../components/OMGFieldGroup"
@@ -65,18 +66,18 @@ class SignIn extends Component {
   }
 
   render() {
-    const { loggingIn } = this.props;
+    const { loggingIn, translate } = this.props;
     const { username, password } = this.state;
     return (
       <div className="row">
         <div className="col-xs-12 col-sm-8 col-sm-offset-2">
           <div className="omg-form">
-            <h2 className="omg-form__title">Sign in</h2>
+            <h2 className="omg-form__title">{translate("sign-in.sign-in")}</h2>
             <form onSubmit={this.handleSubmit}>
               <OMGFieldGroup
                 id="username"
-                label="Username"
-                help = "Username is required and should be at least 3 characters long"
+                label={translate("sign-in.username.label")}
+                help = {translate("sign-in.username.help")}
                 validationState={this.getUsernameValidationState()}
                 type="text"
                 value={username}
@@ -84,8 +85,8 @@ class SignIn extends Component {
               />
               <OMGFieldGroup
                 id="password"
-                label="Password"
-                help="Password is required and should be at least 8 characters long"
+                label={translate("sign-in.password.label")}
+                help={translate("sign-in.password.help")}
                 validationState={this.getPasswordValidationState()}
                 type="password"
                 value={password}
@@ -96,7 +97,7 @@ class SignIn extends Component {
                       disabled={loggingIn || !this.isFormValid()}
                       type="submit"
               >
-                {loggingIn ? 'Loading...' : 'Sign In'}
+                {loggingIn ? translate("global.loading") : translate("sign-in.sign-in")}
               </Button>
             </form>
           </div>
@@ -108,8 +109,9 @@ class SignIn extends Component {
 
 function mapStateToProps(state) {
   const { loggingIn } = state.authentication;
+  const translate = getTranslate(state.locale);
   return {
-    loggingIn
+    loggingIn, translate
   };
 }
 

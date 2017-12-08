@@ -1,0 +1,23 @@
+{
+  "global":{
+    "loading": "Loading..."
+  },
+  "sign-in": {
+    "sign-in": "Sign in",
+    "username": {
+      "label": "Username",
+      "help": "Username is required and should be at least 3 characters long"
+    },
+    "password": {
+      "label": "Password",
+      "help": "Password is required and should be at least 8 characters long"
+    }
+  },
+  "public-footer": {
+    "about": "About",
+    "documentation": "Documentation",
+    "help": "Help",
+    "terms": "Terms",
+    "privacy": "Privacy"
+  }
+}
