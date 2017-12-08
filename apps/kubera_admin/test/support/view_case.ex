@@ -2,6 +2,7 @@ defmodule KuberaAdmin.ViewCase do
   @moduledoc """
   This module defines common behaviors shared between V1 view tests.
   """
+  use ExUnit.CaseTemplate
 
   def v1 do
     quote do

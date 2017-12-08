@@ -54,6 +54,27 @@ defmodule KuberaDB.Account do
   end
 
   @doc """
+  Updates an account with the provided attributes.
+  """
+  def update(%Account{} = account, attrs) do
+    changeset = changeset(account, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, account} ->
+        {:ok, get_by_id(account.id)}
+      result ->
+        result
+    end
+  end
+
+  @doc """
+  Get all accounts.
+  """
+  def all do
+    Repo.all(Account)
+  end
+
+  @doc """
   Inserts a balance for the given account.
   """
   def insert_balance(%Account{} = account, identifier) do
@@ -135,5 +156,15 @@ defmodule KuberaDB.Account do
     |> where([b], b.identifier == ^identifier)
     |> where([b], b.account_id == ^account.id)
     |> Repo.one()
+  end
+
+  @doc """
+  Retrieve the account with the given id.
+  """
+  def get_by_id(id) when is_binary(id) and byte_size(id) > 0 do
+    case UUID.cast(id) do
+      {:ok, uuid} -> Repo.get_by(Account, id: uuid)
+      _ -> nil
+    end
   end
 end

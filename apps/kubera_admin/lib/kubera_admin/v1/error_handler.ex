@@ -43,6 +43,10 @@ defmodule KuberaAdmin.V1.ErrorHandler do
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
+    },
+    account_id_not_found: %{
+      code: "account:id_not_found",
+      description: "There is no account corresponding to the provided id"
     }
   }
 

@@ -21,6 +21,11 @@ defmodule KuberaAdmin.V1.Router do
   scope "/", KuberaAdmin.V1 do
     pipe_through [:api, :user_api]
 
+    post "/account.all", AccountController, :all
+    post "/account.get", AccountController, :get
+    post "/account.create", AccountController, :create
+    post "/account.update", AccountController, :update
+
     post "/logout", AuthController, :logout
   end
 
