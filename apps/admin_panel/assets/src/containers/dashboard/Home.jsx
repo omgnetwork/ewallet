@@ -2,11 +2,10 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 
-import { userActions } from "../actions";
-import Loader from "../components/Loader";
+import { userActions } from "../../actions";
 import { Button } from 'react-bootstrap';
 
-class HomePage extends Component {
+class Home extends Component {
 
   constructor(props) {
     super(props);
@@ -27,7 +26,6 @@ class HomePage extends Component {
         <Button onClick={this.handleClickLogout}>
           Logout
         </Button>
-        <Loader show= { loggingOut }/>
       </div>
     );
   }
@@ -41,4 +39,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withRouter(connect(mapStateToProps)(HomePage));
+export default withRouter(connect(mapStateToProps)(Home));

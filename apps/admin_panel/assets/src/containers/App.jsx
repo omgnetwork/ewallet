@@ -1,19 +1,17 @@
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
-import { Route, Redirect, Switch } from "react-router-dom";
+import { Redirect, Switch } from "react-router-dom";
 import { ConnectedRouter } from "react-router-redux";
 
 import { alertActions } from "../actions";
 import { history } from "../helpers";
-import HomePage from "./HomePage";
-import SignInPage from "./SignInPage";
 import DevTools from "./DevTools";
-import PrivateRoute from "../components/PrivateRoute";
-import ExternalHeader from "../components/ExternalHeader"
-import ExternalFooter from "../components/ExternalFooter"
-import Alerter from "../components/Alerter"
+import AuthenticatedRoute from "../components/routes/AuthenticatedRoute"
+import PublicRoute from "../components/routes/PublicRoute"
+import Home from "./dashboard/Home.jsx"
+import SignIn from "./session/SignIn.jsx"
 
-class App extends React.Component {
+class App extends Component {
 
   constructor(props) {
     super(props);
@@ -31,19 +29,15 @@ class App extends React.Component {
     return (
       <ConnectedRouter history={history}>
         { session.checked &&
-          <div>
-            <ExternalHeader authenticated={session.authenticated} />
-            <section className="external-container">
-              <Alerter alert={alert} />
-              <Switch>
-                <PrivateRoute exact path='/'
-                  component={HomePage}
-                  authenticated={session.authenticated}/>
-                <Route path='/login' component={SignInPage} />
-                <Redirect to="/" />
-              </Switch>
-            </section>
-            <ExternalFooter />
+          <div className="container">
+            <Switch>
+              <AuthenticatedRoute
+                exact path="/"
+                component={Home}
+                authenticated={session.authenticated}/>
+              <PublicRoute path="/signin" component={SignIn}/>
+              <Redirect to="/signin" />
+            </Switch>
             <DevTools />
           </div>
         }
@@ -53,10 +47,9 @@ class App extends React.Component {
 }
 
 function mapStateToProps(state) {
-  const { alert } = state;
   const { session } = state;
   return {
-    alert, session
+    session
   };
 }
 

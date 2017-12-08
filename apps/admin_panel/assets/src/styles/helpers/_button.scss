@@ -1,0 +1,47 @@
+@mixin omg-button($name, $color, $dark, $font-color) {
+  .btn-#{$name} {
+    color: $font-color;
+    background-color: $color;
+    border: 1px solid $color;
+    text-transform: none;
+    font-weight: normal;
+    border-radius: 2px;
+  }
+
+  .btn-#{$name}:hover,
+  .btn-#{$name}:focus,
+  .btn-#{$name}:active,
+  .btn-#{$name}.active,
+  .open .dropdown-toggle.btn-#{$name} {
+    color: $font-color;
+    background-color: $dark;
+    border-color: $dark;
+  }
+
+  .btn-#{$name}:active,
+  .btn-#{$name}.active,
+  .open .dropdown-toggle.btn-#{$name} {
+    background-image: none;
+  }
+
+  .btn-#{$name}.disabled,
+  .btn-#{$name}[disabled],
+  fieldset[disabled] .btn-#{$name},
+  .btn-#{$name}.disabled:hover,
+  .btn-#{$name}[disabled]:hover,
+  fieldset[disabled] .btn-#{$name}:hover,
+  .btn-#{$name}.disabled:focus,
+  .btn-#{$name}[disabled]:focus,
+  fieldset[disabled] .btn-#{$name}:focus,
+  .btn-#{$name}.disabled:active,
+  .btn-#{$name}[disabled]:active,
+  fieldset[disabled] .btn-#{$name}:active,
+  .btn-#{$name}.disabled.active,
+  .btn-#{$name}[disabled].active,
+  fieldset[disabled] .btn-#{$name}.active {
+    background-color: $dark;
+    border-color: $dark;
+  }
+}
+
+@include omg-button('omg-blue', $omise-blue, $omise-blue, $white);

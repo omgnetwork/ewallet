@@ -1,0 +1,13 @@
+.public-footer {
+  text-align: center;
+  margin-top: 8rem;
+
+  &__link {
+    color: $light-gray;
+  }
+
+  &__link:hover {
+    color: $omise-blue;
+  }
+
+}

@@ -6,6 +6,7 @@ import { App } from "./containers/App";
 import { store } from "./store/store";
 
 import "bootstrap/dist/css/bootstrap.css";
+import "./styles/styles.scss";
 
 render(
   <Provider store={store}>
