@@ -1,0 +1,30 @@
+.omg-form {
+  &__title {
+    font-size: 2rem;
+    font-weight: bold;
+    margin-bottom: 2rem;
+  }
+
+  &__label {
+    font-size: 1.4rem;
+    color: $dark-gray;
+    font-weight: 300;
+  }
+
+  &__input {
+    height: 4rem;
+    border: 1px solid $light-gray;
+    border-radius: 2px;
+  }
+
+  &__input:focus {
+    border: 1px solid $omise-blue;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  &__group {
+    margin-top: 1.5rem;
+    margin-bottom: 3rem;
+  }
+}

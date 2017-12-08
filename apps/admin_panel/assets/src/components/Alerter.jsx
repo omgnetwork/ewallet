@@ -4,7 +4,7 @@ class Alerter extends Component {
   render() {
     const { alert } = this.props
     return (
-      <div className="alert">
+      <div>
         {alert.message ? (
           <div className={`alert ${alert.type}`}>
             {alert.message}

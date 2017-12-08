@@ -1,13 +1,12 @@
-import React from "react";
+import React, { Component } from "react";
 import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Button } from 'react-bootstrap';
 
-import { userActions } from "../actions";
-import Loader from "../components/Loader";
-import FieldGroup from "../components/FieldGroup"
+import { userActions } from "../../actions";
+import OMGFieldGroup from "../../components/OMGFieldGroup"
 
-class SignInPage extends React.Component {
+class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -69,37 +68,40 @@ class SignInPage extends React.Component {
     const { loggingIn } = this.props;
     const { username, password } = this.state;
     return (
-      <section className="sign-in-form-container">
-        <h2>Sign in</h2>
-        <form onSubmit={this.handleSubmit}>
-          <FieldGroup
-            id="username"
-            label="Username"
-            help = "Username is required and should be at least 3 characters long"
-            validationState={this.getUsernameValidationState()}
-            placeholder="Username"
-            type="text"
-            value={username}
-            onChange={this.handleChange}
-          />
-          <FieldGroup
-            id="password"
-            label="Password"
-            help="Password is required and should be at least 8 characters long"
-            validationState={this.getPasswordValidationState()}
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={this.handleChange}
-          />
-          <Button bsStyle="primary"
-                  disabled={loggingIn || !this.isFormValid()}
-                  type="submit"
-          >
-            {loggingIn ? 'Loading...' : 'Sign In'}
-          </Button>
-        </form>
-      </section>
+      <div className="row">
+        <div className="col-xs-12 col-sm-8 col-sm-offset-2">
+          <div className="omg-form">
+            <h2 className="omg-form__title">Sign in</h2>
+            <form onSubmit={this.handleSubmit}>
+              <OMGFieldGroup
+                id="username"
+                label="Username"
+                help = "Username is required and should be at least 3 characters long"
+                validationState={this.getUsernameValidationState()}
+                type="text"
+                value={username}
+                onChange={this.handleChange}
+              />
+              <OMGFieldGroup
+                id="password"
+                label="Password"
+                help="Password is required and should be at least 8 characters long"
+                validationState={this.getPasswordValidationState()}
+                type="password"
+                value={password}
+                onChange={this.handleChange}
+              />
+              <Button bsClass="btn btn-omg-blue"
+                      bsStyle="primary"
+                      disabled={loggingIn || !this.isFormValid()}
+                      type="submit"
+              >
+                {loggingIn ? 'Loading...' : 'Sign In'}
+              </Button>
+            </form>
+          </div>
+        </div>
+      </div>
     );
   }
 }
@@ -111,4 +113,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withRouter(connect(mapStateToProps)(SignInPage));
+export default withRouter(connect(mapStateToProps)(SignIn));
