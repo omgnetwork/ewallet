@@ -2,15 +2,25 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import Alerter from "../components/Alerter"
+import Header from "../containers/dashboard/Header"
+import Sidebar from "../containers/dashboard/Sidebar"
 
 class AuthenticatedLayout extends Component {
 
   render() {
     const {alert} = this.props
     return (
-      <div>
-        <Alerter alert={alert} />
-        {this.props.children}
+      <div className="fh">
+        <Header />
+        <div className="row fh">
+          <div className="col-md-3 fh">
+            <Sidebar />
+          </div>
+          <div className="col-md-9 fh">
+            <Alerter alert={alert} />
+            {this.props.children}
+          </div>
+        </div>
       </div>
     );
   }
