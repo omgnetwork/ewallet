@@ -57,11 +57,12 @@ end)
 if Enum.member?(System.argv, "--with-genesis") do
   Enum.each(seeds, fn(data) ->
     minted_token = KuberaDB.Repo.get_by(KuberaDB.MintedToken, symbol: data.symbol)
-    {:ok, genesis} = KuberaDB.Balance.genesis()
+    account = KuberaDB.Account.get(minted_token.account_id)
+    genesis = KuberaDB.Balance.get_genesis()
 
     %{
       from: genesis,
-      to: KuberaDB.MintedToken.get_primary_balance(minted_token),
+      to: KuberaDB.Account.get_primary_balance(account),
       minted_token: minted_token,
       amount: data.genesis_amount,
       metadata: %{}

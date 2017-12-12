@@ -69,6 +69,7 @@ defmodule KuberaDB.Account do
   @doc """
   Retrieve the account with the given ID.
   """
+  def get(nil), do: nil
   def get(id) do
     case Helpers.UUID.valid?(id) do
       true -> Repo.get(Account, id)
