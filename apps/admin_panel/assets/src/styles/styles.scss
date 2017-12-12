@@ -1,3 +1,5 @@
+@import '../../node_modules/bootstrap/dist/css/bootstrap.css';
+
 @import 'config/_variables.scss';
 @import 'config/_fonts.scss';
 @import 'config/_init.scss';
@@ -9,5 +11,9 @@
 
 @import 'containers/_app.scss';
 @import 'containers/_public-layout.scss';
+@import 'containers/dashboard/_header.scss';
+@import 'containers/dashboard/_sidebar.scss';
+@import 'containers/_authenticated_layout.scss';
 
-@import 'helpers/_button.scss'
+@import 'helpers/_button.scss';
+@import 'helpers/_containers.scss'

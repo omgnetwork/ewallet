@@ -1,0 +1,9 @@
+.header {
+  background-color: $omise-dark-blue;
+  height: 64px;
+
+  &__navbar {
+    background-color: inherit;
+    border: 0;
+  }
+}
