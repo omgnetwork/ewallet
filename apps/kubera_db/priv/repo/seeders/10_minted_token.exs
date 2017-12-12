@@ -61,13 +61,13 @@ if Enum.member?(System.argv, "--with-genesis") do
     genesis = KuberaDB.Balance.get_genesis()
 
     %{
-      from: genesis,
-      to: KuberaDB.Account.get_primary_balance(account),
+      from_balance: genesis,
+      to_balance: KuberaDB.Account.get_primary_balance(account),
       minted_token: minted_token,
       amount: data.genesis_amount,
       metadata: %{}
     }
-    |> KuberaMQ.Serializers.Transaction.serialize
-    |> KuberaMQ.Entry.genesis
+    |> KuberaMQ.Serializers.Transaction.serialize()
+    |> KuberaMQ.Entry.genesis(Ecto.UUID.generate())
   end)
 end
