@@ -11,10 +11,10 @@ class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      username: "",
+      email: "",
       password: "",
       submitted: false,
-      didModifyUsername: false,
+      didModifyEmail: false,
       didModifyPassword: false,
     };
 
@@ -24,11 +24,11 @@ class SignIn extends Component {
 
   handleChange(e) {
     const { id, value } = e.target;
-    var { didModifyUsername, didModifyPassword} = this.state
-    if (id === "username") { didModifyUsername = true }
+    var { didModifyEmail, didModifyPassword} = this.state
+    if (id === "email") { didModifyEmail = true }
     else if (id === "password") { didModifyPassword = true }
     this.setState({ [id]: value,
-                    didModifyUsername: didModifyUsername,
+                    didModifyEmail: didModifyEmail,
                     didModifyPassword: didModifyPassword
                   });
   }
@@ -36,15 +36,15 @@ class SignIn extends Component {
   handleSubmit(e) {
     e.preventDefault();
     this.setState({ submitted: true });
-    const { username, password } = this.state;
+    const { email, password } = this.state;
     const { dispatch } = this.props;
-    if (username && password) {
-      dispatch(userActions.login(username, password));
+    if (email && password) {
+      dispatch(userActions.login(email, password));
     }
   }
 
-  isUsernameValid() {
-    return this.state.username.length >= 3
+  isEmailValid() {
+    return (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,})+$/.test(this.state.email))
   }
 
   isPasswordValid() {
@@ -52,12 +52,12 @@ class SignIn extends Component {
   }
 
   isFormValid() {
-    return this.isUsernameValid() && this.isPasswordValid()
+    return this.isEmailValid() && this.isPasswordValid()
   }
 
-  getUsernameValidationState() {
-    const { submitted, didModifyUsername } = this.state;
-    return (!this.isUsernameValid() && (submitted || didModifyUsername)) ? "error" : null
+  getEmailValidationState() {
+    const { submitted, didModifyEmail } = this.state;
+    return (!this.isEmailValid() && (submitted || didModifyEmail)) ? "error" : null
   }
 
   getPasswordValidationState() {
@@ -67,7 +67,7 @@ class SignIn extends Component {
 
   render() {
     const { loggingIn, translate } = this.props;
-    const { username, password } = this.state;
+    const { email, password } = this.state;
     return (
       <div className="row">
         <div className="col-xs-12 col-sm-8 col-sm-offset-2">
@@ -75,12 +75,12 @@ class SignIn extends Component {
             <h2 className="omg-form__title">{translate("sign-in.sign-in")}</h2>
             <form onSubmit={this.handleSubmit}>
               <OMGFieldGroup
-                id="username"
-                label={translate("sign-in.username.label")}
-                help = {translate("sign-in.username.help")}
-                validationState={this.getUsernameValidationState()}
+                id="email"
+                label={translate("sign-in.email.label")}
+                help = {translate("sign-in.email.help")}
+                validationState={this.getEmailValidationState()}
                 type="text"
-                value={username}
+                value={email}
                 onChange={this.handleChange}
               />
               <OMGFieldGroup

@@ -1,10 +1,11 @@
 import { OmiseGOError } from "../models/error";
 import { mergeHash } from "../helpers/helper";
 import { OMISEGO_BASE_URL } from "../config.js"
+import { authHeader } from "../helpers/auth-header.js"
 
-export function request(path, body, headers) {
+export function request(path, body) {
   const url = OMISEGO_BASE_URL + path;
-  return fetch(url, requestOptions(body, headers))
+  return fetch(url, requestOptions(body, authHeader()))
     .then(handleResponse)
     .then(parseJson)
     .catch(handleError);

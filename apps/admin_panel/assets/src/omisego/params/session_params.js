@@ -1,6 +1,6 @@
 export class LoginParams {
   constructor(attrs) {
-    this.username = attrs.username;
+    this.email = attrs.email;
     this.password = attrs.password;
   }
 

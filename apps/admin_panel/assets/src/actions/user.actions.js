@@ -4,7 +4,6 @@ import { push } from "react-router-redux";
 import { userConstants } from "../constants";
 import { sessionAPI } from "../omisego/services";
 import { alertActions } from "./";
-import { authHeader } from "../helpers";
 
 export const userActions = {
   login,
@@ -12,13 +11,13 @@ export const userActions = {
   // Surrely more to come: register / get / ...
 };
 
-function login(username, password) {
+function login(email, password) {
   return dispatch => {
     dispatch({ type: userConstants.LOGIN_REQUEST });
-    sessionAPI.login(username, password)
+    sessionAPI.login(email, password)
       .then(
         token => {
-          sessionService.saveSession(token.session_token)
+          sessionService.saveSession(token.authentication_token)
             .then(() => {
               dispatch({ type: userConstants.LOGIN_SUCCESS });
               dispatch(push("/"));
@@ -38,7 +37,7 @@ function login(username, password) {
 function logout() {
   return dispatch => {
     dispatch({ type: userConstants.LOGOUT_REQUEST });
-    sessionAPI.logout(authHeader())
+    sessionAPI.logout()
       .then(() => {
         sessionService.deleteSession()
           .then(() => {

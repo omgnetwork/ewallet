@@ -6,11 +6,10 @@ export const sessionAPI = {
   logout
 };
 
-function login(username, password) {
-  return request("login", new LoginParams({ username, password }).params());
+function login(email, password) {
+  return request("login", new LoginParams({ email, password }).params());
 }
 
-//TODO: Refactor
-function logout(authenticationHeader) {
-  return request("logout", null, authenticationHeader);
+function logout() {
+  return request("logout");
 }
