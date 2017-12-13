@@ -1,24 +1,31 @@
 import { userConstants } from "../constants";
 
-export function authentication(state = {}, action) {
+export function authentication(state = {loggingIn:false, loggingOut:false}, action) {
   switch (action.type) {
   case userConstants.LOGIN_REQUEST:
     return {
       loggingIn: true
     };
   case userConstants.LOGIN_SUCCESS:
-    return {};
+    return {
+      loggingIn: false
+    };
   case userConstants.LOGIN_FAILURE:
-    return {};
-
+    return {
+      loggingIn: false
+    };
   case userConstants.LOGOUT_REQUEST:
     return {
       loggingOut: true
     };
   case userConstants.LOGOUT_SUCCESS:
-    return {};
+    return {
+      loggingOut: false
+    };
   case userConstants.LOGOUT_FAILURE:
-    return {};
+    return {
+      loggingOut: false
+    };
   default:
     return state;
   }

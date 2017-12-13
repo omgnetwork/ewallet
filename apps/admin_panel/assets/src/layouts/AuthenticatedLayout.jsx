@@ -2,8 +2,8 @@ import React, { Component } from "react";
 import { connect } from "react-redux";
 
 import Alerter from "../components/Alerter"
-import Header from "../containers/dashboard/Header"
-import Sidebar from "../containers/dashboard/Sidebar"
+import Header from "../containers/authenticated/Header"
+import Sidebar from "../containers/authenticated/Sidebar"
 
 class AuthenticatedLayout extends Component {
 

@@ -37,9 +37,9 @@ class SignIn extends Component {
     e.preventDefault();
     this.setState({ submitted: true });
     const { email, password } = this.state;
-    const { dispatch } = this.props;
+    const { login } = this.props;
     if (email && password) {
-      dispatch(userActions.login(email, password));
+      login(email, password)
     }
   }
 
@@ -73,7 +73,7 @@ class SignIn extends Component {
         <div className="col-xs-12 col-sm-8 col-sm-offset-2">
           <div className="omg-form">
             <h2 className="omg-form__title">{translate("sign-in.sign-in")}</h2>
-            <form onSubmit={this.handleSubmit}>
+            <form onSubmit={this.handleSubmit} autoComplete="off">
               <OMGFieldGroup
                 id="email"
                 label={translate("sign-in.email.label")}
@@ -115,4 +115,12 @@ function mapStateToProps(state) {
   };
 }
 
-export default withRouter(connect(mapStateToProps)(SignIn));
+function mapDispatchToProps(dispatch) {
+  return {
+    login: (email, password) => {
+      return dispatch(userActions.login(email, password))
+    }
+  };
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SignIn));
