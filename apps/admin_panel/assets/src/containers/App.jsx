@@ -8,8 +8,9 @@ import { history } from "../helpers";
 import DevTools from "./DevTools";
 import AuthenticatedRoute from "../components/routes/AuthenticatedRoute"
 import PublicRoute from "../components/routes/PublicRoute"
-import Home from "./dashboard/Home.jsx"
-import SignIn from "./session/SignIn.jsx"
+import Home from "./authenticated/Home.jsx"
+import Accounts from "./authenticated/Accounts.jsx"
+import SignIn from "./public/SignIn.jsx"
 
 class App extends Component {
 
@@ -34,6 +35,10 @@ class App extends Component {
               <AuthenticatedRoute
                 exact path="/"
                 component={Home}
+                authenticated={session.authenticated}/>
+              <AuthenticatedRoute
+                exact path="/accounts"
+                component={Accounts}
                 authenticated={session.authenticated}/>
               <PublicRoute path="/signin" component={SignIn}/>
               <Redirect to="/signin" />

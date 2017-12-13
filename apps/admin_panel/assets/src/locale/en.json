@@ -19,5 +19,13 @@
     "help": "Help",
     "terms": "Terms",
     "privacy": "Privacy"
+  },
+  "accounts": {
+    "table": {
+      "id": "Id",
+      "name": "Name",
+      "master": "Master",
+      "description": "Description"
+    }
   }
 }

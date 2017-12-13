@@ -4,6 +4,7 @@ import { push } from "react-router-redux";
 import { userConstants } from "../constants";
 import { sessionAPI } from "../omisego/services";
 import { alertActions } from "./";
+import { handleAPIError } from "../helpers/errorHandler"
 
 export const userActions = {
   login,
@@ -20,15 +21,15 @@ function login(email, password) {
           sessionService.saveSession(token.authentication_token)
             .then(() => {
               dispatch({ type: userConstants.LOGIN_SUCCESS });
-              dispatch(push("/"));
+              dispatch(push("/accounts"));
             }).catch(error => {
               dispatch({ type: userConstants.LOGOUT_FAILURE, error });
               dispatch(alertActions.error(error));
             });
         },
         error => {
+          handleAPIError(dispatch, error)
           dispatch({ type: userConstants.LOGIN_FAILURE, error });
-          dispatch(alertActions.error(error.description));
         }
       );
   };
@@ -42,15 +43,15 @@ function logout() {
         sessionService.deleteSession()
           .then(() => {
             dispatch({ type: userConstants.LOGOUT_SUCCESS });
-            dispatch(push("/login"));
+            dispatch(push("/signin"));
           }).catch(error => {
             dispatch({ type: userConstants.LOGOUT_FAILURE, error });
             dispatch(alertActions.error(error));
           });
       },
       error => {
+        handleAPIError(dispatch, error)
         dispatch({ type: userConstants.LOGOUT_FAILURE, error });
-        dispatch(alertActions.error(error.description));
       });
   };
 }

@@ -21,9 +21,9 @@ class Header extends Component {
                     <NavDropdown eventKey={1} title="Select Accounts" id="basic-nav-dropdown">
                       <MenuItem eventKey={1.1}>Minor Group</MenuItem>
                       <MenuItem divider />
-                      <MenuItem eventKey={1.2}>Merchant 1</MenuItem>
-                      <MenuItem eventKey={1.3}>Merchant 2</MenuItem>
-                      <MenuItem eventKey={1.3}>Merchant 3</MenuItem>
+                      <MenuItem eventKey={1.2}>Account 1</MenuItem>
+                      <MenuItem eventKey={1.3}>Account 2</MenuItem>
+                      <MenuItem eventKey={1.3}>Account 3</MenuItem>
                     </NavDropdown>
                   </Nav>
                   <Nav pullRight>
