@@ -4,13 +4,13 @@
   },
   "sign-in": {
     "sign-in": "Sign in",
-    "username": {
-      "label": "Username",
-      "help": "Username is required and should be at least 3 characters long"
+    "email": {
+      "label": "Email",
+      "help": "Email is invalid"
     },
     "password": {
       "label": "Password",
-      "help": "Password is required and should be at least 8 characters long"
+      "help": "Password should be at least 8 characters long"
     }
   },
   "public-footer": {
