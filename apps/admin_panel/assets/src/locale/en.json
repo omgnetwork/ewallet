@@ -27,5 +27,14 @@
       "master": "Master",
       "description": "Description"
     }
+  },
+  "sidebar": {
+    "dashboard": "Dashboard",
+    "accounts": "Accounts",
+    "transactions": "Transactions",
+    "tokens": "Tokens",
+    "reports": "Reports",
+    "api_management": "API Management",
+    "setting": "Setting"
   }
 }
