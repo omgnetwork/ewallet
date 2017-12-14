@@ -60,6 +60,14 @@ defmodule KuberaAPI.V1.ErrorHandler do
       code: "user:minted_token_not_found",
       description: "There is no minted token matching the provided token_id."
     },
+    from_address_not_found: %{
+      code: "user:from_address_not_found",
+      description: "No balance found for the provided from_address."
+    },
+    to_address_not_found: %{
+      code: "user:to_address_not_found",
+      description: "No balance found for the provided to_address."
+    },
     no_idempotency_token_provided: %{
       code: "client:no_idempotency_token_provided",
       description: "The call you made requires the Idempotency-Token header to prevent duplication."

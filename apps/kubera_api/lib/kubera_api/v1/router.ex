@@ -34,6 +34,7 @@ defmodule KuberaAPI.V1.Router do
 
       post "/user.credit_balance", TransactionController, :credit
       post "/user.debit_balance", TransactionController, :debit
+      post "/transfer", TransactionController, :transfer
     end
 
     post "/login", AuthController, :login

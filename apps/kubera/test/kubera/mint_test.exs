@@ -22,7 +22,7 @@ defmodule Kubera.MintTest do
         end] do
           {:ok, minted_token} = MintedToken.insert(params_for(:minted_token))
 
-          {res, mint, data} = Mint.insert(%{
+          {res, mint, transfer} = Mint.insert(%{
             "idempotency_token" => UUID.generate(),
             "token_id" => minted_token.friendly_id,
             "amount" => 100_000,
@@ -33,7 +33,7 @@ defmodule Kubera.MintTest do
           assert res == :ok
           assert mint != nil
           assert mint.confirmed == true
-          assert data == %{data: "from ledger"}
+          assert transfer.ledger_response == %{"data" => "from ledger"}
       end
     end
 

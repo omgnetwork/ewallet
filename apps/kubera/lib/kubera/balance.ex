@@ -117,9 +117,8 @@ defmodule Kubera.Balance do
         type
         |> load_minted_tokens(data["amounts"])
         |> map_minted_tokens(data["amounts"])
-        # For now Caishen returns a single address but we're preparing for an
-        # array to be returned
-        {:ok, [%{address: address, balances: balances}]}
+
+        {:ok, %{address: address, balances: balances}}
       response ->
         response
     end

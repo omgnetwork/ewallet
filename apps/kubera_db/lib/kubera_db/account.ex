@@ -107,6 +107,13 @@ defmodule KuberaDB.Account do
   end
 
   @doc """
+  Retrieve the primary balance for an account with preloaded balances.
+  """
+  def get_preloaded_primary_balance(account) do
+    Enum.find(account.balances, fn balance -> balance.identifier == Balance.primary end)
+  end
+
+  @doc """
   Retrieve the primary balance for an account.
   """
   def get_primary_balance(account) do

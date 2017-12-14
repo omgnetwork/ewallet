@@ -1,4 +1,4 @@
-defmodule Kubera.Transactions.RecordFetcher do
+defmodule Kubera.Transactions.CreditDebitRecordFetcher do
   @moduledoc """
   Handles the logic for fetching the user and minted_token.
   """
@@ -18,8 +18,8 @@ defmodule Kubera.Transactions.RecordFetcher do
   defp load_account(nil, minted_token), do: Account.get(minted_token.account_id, %{preload: true})
   defp load_account(account_id, _minted_token), do: Account.get(account_id, %{preload: true})
 
+  defp handle_result(_, _, nil), do: {:error, :minted_token_not_found}
   defp handle_result(nil, _, _), do: {:error, :account_id_not_found}
   defp handle_result(_, nil, _), do: {:error, :provider_user_id_not_found}
-  defp handle_result(_, _, nil), do: {:error, :minted_token_not_found}
   defp handle_result(account, user, minted_token), do: {:ok, account, user, minted_token}
 end

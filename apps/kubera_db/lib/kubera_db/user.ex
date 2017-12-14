@@ -115,4 +115,11 @@ defmodule KuberaDB.User do
     |> where([b], b.identifier == ^Balance.primary)
     |> Repo.one()
   end
+
+  @doc """
+  Retrieve the primary balance for a user with preloaded balances.
+  """
+  def get_preloaded_primary_balance(user) do
+    Enum.find(user.balances, fn balance -> balance.identifier == Balance.primary end)
+  end
 end

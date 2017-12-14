@@ -38,14 +38,12 @@ defmodule Kubera.BalanceTest do
             :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
           {:ok, mnt} =
             :minted_token |> params_for(friendly_id: "MNT:123", symbol: "MNT") |> MintedToken.insert()
-          {status, addresses} =
+          {status, address} =
             Balance.all(%{"provider_user_id" => inserted_user.provider_user_id})
           assert status == :ok
-          assert length(addresses) == 1
-          main_address = List.first(addresses)
-          assert main_address.address ==
+          assert address.address ==
             User.get_primary_balance(inserted_user).address
-          assert main_address.balances == [
+          assert address.balances == [
             %{minted_token: btc, amount: 9850},
             %{minted_token: omg, amount: 1000},
             %{minted_token: mnt, amount: 0}
@@ -68,13 +66,11 @@ defmodule Kubera.BalanceTest do
             :minted_token |> params_for(friendly_id: "MNT:123", symbol: "MNT") |> MintedToken.insert()
 
           user_address = User.get_primary_balance(inserted_user).address
-          {status, addresses} = Balance.get(omg.friendly_id, user_address)
+          {status, address} = Balance.get(omg.friendly_id, user_address)
           assert status == :ok
-          assert length(addresses) == 1
-          main_address = List.first(addresses)
-          assert main_address.address ==
+          assert address.address ==
             User.get_primary_balance(inserted_user).address
-          assert main_address.balances == [
+          assert address.balances == [
             %{minted_token: omg, amount: 1000},
           ]
       end

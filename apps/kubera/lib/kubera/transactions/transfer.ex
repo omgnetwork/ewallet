@@ -88,8 +88,8 @@ defmodule Kubera.Transactions.Transfer do
   end
 
   defp update_transfer({:ok, ledger_response}, transfer) do
-    Transfer.confirm(transfer, ledger_response)
-    {:ok, ledger_response}
+    transfer = Transfer.confirm(transfer, ledger_response)
+    {:ok, transfer}
   end
   defp update_transfer({:error, code, description}, transfer) do
     Transfer.fail(transfer, %{

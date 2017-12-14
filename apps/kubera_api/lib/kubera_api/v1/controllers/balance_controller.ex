@@ -14,7 +14,7 @@ defmodule KuberaAPI.V1.BalanceController do
   defp get_all(conn, attrs), do: attrs |> Balance.all() |> respond(conn)
 
   defp respond({:ok, addresses}, conn) do
-    render(conn, :balances, %{addresses: addresses})
+    render(conn, :balances, %{addresses: [addresses]})
   end
   defp respond({:error, code, description}, conn) do
     handle_error(conn, code, description)

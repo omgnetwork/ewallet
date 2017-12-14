@@ -20,7 +20,7 @@ defmodule KuberaAPI.V1.SelfController do
   end
 
   defp respond({:ok, addresses}, conn) do
-    render(conn, :balances, %{addresses: addresses})
+    render(conn, :balances, %{addresses: [addresses]})
   end
   defp respond({:error, code, description}, conn) do
     handle_error(conn, code, description)

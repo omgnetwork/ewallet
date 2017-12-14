@@ -55,11 +55,11 @@
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
       mock_entry_insert_success fn ->
         {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-        {res, response} = Transactions.Transfer.process(transfer)
+        {res, transfer} = Transactions.Transfer.process(transfer)
         transfer = Transfer.get(transfer.idempotency_token)
 
         assert res == :ok
-        assert response == %{data: "from ledger"}
+        assert transfer.ledger_response == %{"data" => "from ledger"}
         assert transfer.status == Transfer.confirmed
       end
     end
@@ -82,11 +82,11 @@
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
       mock_entry_genesis_success fn ->
         {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-        {res, response} = Transactions.Transfer.genesis(transfer)
+        {res, transfer} = Transactions.Transfer.genesis(transfer)
         transfer = Transfer.get(transfer.idempotency_token)
 
         assert res == :ok
-        assert response == %{data: "from ledger"}
+        assert transfer.ledger_response == %{"data" => "from ledger"}
         assert transfer.status == Transfer.confirmed
       end
     end

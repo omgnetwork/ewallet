@@ -1,7 +1,7 @@
-defmodule Kubera.Transactions.RecordFetcherTest do
+defmodule Kubera.Transactions.CreditDebitRecordFetcherTest do
   use ExUnit.Case
   import KuberaDB.Factory
-  alias Kubera.Transactions.RecordFetcher
+  alias Kubera.Transactions.CreditDebitRecordFetcher
   alias KuberaDB.{Repo, MintedToken, User, Account}
   alias Ecto.Adapters.SQL.Sandbox
 
@@ -16,7 +16,7 @@ defmodule Kubera.Transactions.RecordFetcherTest do
       {:ok, inserted_user} = User.insert(params_for(:user))
 
       {:ok, account, user, minted_token} =
-        RecordFetcher.fetch(%{
+        CreditDebitRecordFetcher.fetch(%{
           "provider_user_id" => inserted_user.provider_user_id,
           "token_id" => inserted_token.friendly_id
         })
@@ -33,7 +33,7 @@ defmodule Kubera.Transactions.RecordFetcherTest do
       {:ok, inserted_user} = User.insert(params_for(:user))
 
       {:ok, account, user, minted_token} =
-        RecordFetcher.fetch(%{
+        CreditDebitRecordFetcher.fetch(%{
           "provider_user_id" => inserted_user.provider_user_id,
           "token_id" => inserted_token.friendly_id,
           "account_id" => inserted_account.id
@@ -48,7 +48,7 @@ defmodule Kubera.Transactions.RecordFetcherTest do
       {:ok, inserted_token} = MintedToken.insert(params_for(:minted_token))
       provider_user_id = "invalid_provider_user_id"
 
-      res = RecordFetcher.fetch(%{
+      res = CreditDebitRecordFetcher.fetch(%{
         "provider_user_id" => provider_user_id,
         "token_id" => inserted_token.friendly_id
       })
@@ -60,9 +60,9 @@ defmodule Kubera.Transactions.RecordFetcherTest do
       {:ok, inserted_token} = MintedToken.insert(params_for(:minted_token))
       {:ok, inserted_user} = User.insert(params_for(:user))
 
-      res = RecordFetcher.fetch(%{
+      res = CreditDebitRecordFetcher.fetch(%{
         "provider_user_id" => inserted_user.provider_user_id,
-        "token_id" =>  inserted_token.id,
+        "token_id" =>  inserted_token.friendly_id,
         "account_id" => "fake"
       })
 
@@ -73,7 +73,7 @@ defmodule Kubera.Transactions.RecordFetcherTest do
       {:ok, inserted_account} = Account.insert(params_for(:account))
       {:ok, inserted_user} = User.insert(params_for(:user))
 
-      res = RecordFetcher.fetch(%{
+      res = CreditDebitRecordFetcher.fetch(%{
         "provider_user_id" => inserted_user.provider_user_id,
         "token_id" =>  "invalid_friendly_id",
         "account_id" => inserted_account.id

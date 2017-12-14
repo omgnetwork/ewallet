@@ -199,7 +199,7 @@ paths:
           $ref: "#/components/responses/SingleAddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to debit an exsiting user balance
+  # Endpoint to debit an existing user balance
   /user.debit_balance:
     post:
       tags:
@@ -217,6 +217,26 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/SingleAddressesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to transfer an amount between two balances
+  /transfer:
+    post:
+      tags:
+        - Balance
+      summary: Server - Transfer the specified amount between two balances.
+      description: This is a server call only.
+      operationId: transfer
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ServerAuthorizationHeader"
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/TransferBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MultipleAddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   ############################
@@ -504,6 +524,50 @@ components:
                   symbol: "MNT"
                   name: "Mint"
                   subunit_to_unit: 100000000000000000
+    # Schema for multiple addresses with one balance (transfer)
+    MultipleAddressesResponse:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/UnpaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AddressResponse'
+        required:
+          - object
+          - balances
+          - address
+        example:
+          data:
+            object: list
+            data:
+            - object: "address"
+              address: "XXX123"
+              balances:
+              - amount: 0
+                minted_token:
+                  object: 'minted_token'
+                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "MNT"
+                  name: "Mint"
+                  subunit_to_unit: 100000000000000000
+            - object: "address"
+              address: "XXX456"
+              balances:
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "MNT"
+                  name: "Mint"
+                  subunit_to_unit: 100000000000000000
     # Schema for addresses body response
     AddressesResponse:
       allOf:
@@ -636,6 +700,36 @@ components:
               - provider_user_id
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
+    # Body for a transfer
+    TransferBody:
+      description: Transfer the given amount of the associated minted token from the `from_address` to the `to_address`.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              from_address:
+                type: string
+              to_address:
+                type: string
+              token_id:
+                type: string
+              amount:
+                type: integer
+              metadata:
+                type: object
+            required:
+              - from_address
+              - to_address
+              - token_id
+              - amount
+              - metadata
+            example:
+              from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
+              to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
+              token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              amount: 100
+              metadata: {}
     # Body for a credit / debit of a user's balance
     BalanceAdjustmentBody:
       description: Credit or debit the balance of the specified user by taking/giving back the given amount from/to the account_id. If not specified, the account owning the minted token will be used as the source. If no burn_balance_identifier is specified, the tokens won't be burned and will instead be returned to the primary balance of the selected account.
@@ -654,10 +748,13 @@ components:
                 type: string
               burn_balance_identifier:
                 type: string
+              metadata:
+                type: object
             required:
               - provider_user_id
               - token_id
               - amount
+              - metadata
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
               token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
@@ -734,6 +831,13 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/SingleAddressesResponse'
+    # Multiple Addresses response
+    MultipleAddressesResponse:
+      description: Multiple Addresses response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/MultipleAddressesResponse'
     # Addresses response
     AddressesResponse:
       description: Addresses response

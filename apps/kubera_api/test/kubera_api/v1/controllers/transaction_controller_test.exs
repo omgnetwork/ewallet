@@ -50,6 +50,261 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
     {:error, "client:insufficient_funds", "Description"}
   end
 
+  describe "/transfer" do
+    test "returns idempotency error if header is not specified" do
+      balance1 = insert(:balance)
+      balance2 = insert(:balance)
+      minted_token = insert(:minted_token)
+
+      request_data = %{
+        from_address: balance1.address,
+        to_address: balance2.address,
+        token_id: minted_token.friendly_id,
+        amount: 100_000,
+        metadata: %{}
+      }
+
+      response = provider_request("/transfer", request_data)
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "client:no_idempotency_token_provided",
+          "description" =>
+            "The call you made requires the Idempotency-Token header to prevent duplication.",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+
+    test "updates the user balance and returns the updated amount" do
+      with_mocks [
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
+        {
+          Balance,
+          [],
+          [get: fn _symbol, _address -> {:ok, %{
+            "object" => "balance",
+            "address" => "master",
+            "amounts" => %{
+              "BTC:123" => 9850
+            }
+          }} end]
+        }
+      ] do
+        balance1 = insert(:balance, address: "123")
+        balance2 = insert(:balance, address: "456")
+        minted_token = insert(:minted_token, friendly_id: "BTC:123", symbol: "BTC")
+
+        request_data = %{
+          from_address: balance1.address,
+          to_address: balance2.address,
+          token_id: minted_token.friendly_id,
+          amount: 100_000,
+          metadata: %{}
+        }
+
+        response = provider_request_with_idempotency("/transfer",
+                                                     "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                     request_data)
+
+        assert response == %{
+          "success" => true,
+          "version" => "1",
+          "data" => %{
+            "object" => "list",
+            "data" => [
+              %{
+                "object" => "address",
+                "address" => balance1.address,
+                "balances" => [
+                  %{
+                    "object" => "balance",
+                    "amount" => 9850,
+                    "minted_token" => %{
+                      "name" => minted_token.name,
+                      "object" => "minted_token",
+                      "subunit_to_unit" => 100,
+                      "id" => "BTC:123",
+                      "symbol" => "BTC"
+                    }
+                  }
+                ]
+              },
+              %{
+                "object" => "address",
+                "address" => balance2.address,
+                "balances" => [
+                  %{
+                    "object" => "balance",
+                    "amount" => 9850,
+                    "minted_token" => %{
+                      "id" => "BTC:123",
+                      "name" => minted_token.name,
+                      "object" => "minted_token",
+                      "subunit_to_unit" => 100,
+                      "symbol" => "BTC"
+                    },
+                  }
+                ]
+              }
+            ]
+          }
+        }
+      end
+    end
+
+    test "returns insufficient_funds when the user is too poor" do
+      with_mocks [
+        {Entry, [], [insert: fn _data, _idempotency_token -> insufficient_funds_response() end]},
+        {
+          Balance,
+          [],
+          [get: fn _symbol, _address -> valid_balances_response() end]
+        }
+        ] do
+          balance1 = insert(:balance, address: "123")
+          balance2 = insert(:balance, address: "456")
+          minted_token = insert(:minted_token, friendly_id: "BTC:123", symbol: "BTC")
+
+          request_data = %{
+            from_address: balance1.address,
+            to_address: balance2.address,
+            token_id: minted_token.friendly_id,
+            amount: 100_000,
+            metadata: %{}
+          }
+
+          response = provider_request_with_idempotency("/transfer",
+                                                       "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                       request_data)
+          assert response == %{
+            "success" => false,
+            "version" => "1",
+            "data" => %{
+              "code" => "client:insufficient_funds",
+              "description" => "Description",
+              "messages" => nil,
+              "object" => "error"
+            }
+          }
+      end
+    end
+
+    test "returns from_address_not_found when the from balance is not found" do
+      with_mocks [
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
+        {
+          Balance,
+          [],
+          [get: fn _symbol, _address -> valid_balances_response() end]
+        }
+      ] do
+        balance = insert(:balance, address: "456")
+        minted_token = insert(:minted_token, friendly_id: "BTC:123", symbol: "BTC")
+
+        request_data = %{
+          from_address: "123",
+          to_address: balance.address,
+          token_id: minted_token.friendly_id,
+          amount: 100_000,
+          metadata: %{}
+        }
+
+        response = provider_request_with_idempotency("/transfer",
+                                                     "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                     request_data)
+
+        assert response == %{
+         "success" => false,
+         "version" => "1",
+         "data" => %{
+           "code" => "user:from_address_not_found",
+           "description" =>
+             "No balance found for the provided from_address.",
+           "messages" => nil,
+           "object" => "error"
+         }}
+      end
+    end
+
+    test "returns to_address_not_found when the to balance is not found" do
+      with_mocks [
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
+        {
+          Balance,
+          [],
+          [get: fn _symbol, _address -> valid_balances_response() end]
+        }
+      ] do
+        balance = insert(:balance, address: "456")
+        minted_token = insert(:minted_token, friendly_id: "BTC:123", symbol: "BTC")
+
+        request_data = %{
+          from_address: balance.address,
+          to_address: "123",
+          token_id: minted_token.friendly_id,
+          amount: 100_000,
+          metadata: %{}
+        }
+
+        response = provider_request_with_idempotency("/transfer",
+                                                     "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                     request_data)
+
+        assert response == %{
+         "success" => false,
+         "version" => "1",
+         "data" => %{
+           "code" => "user:to_address_not_found",
+           "description" =>
+             "No balance found for the provided to_address.",
+           "messages" => nil,
+           "object" => "error"
+         }}
+      end
+    end
+
+    test "returns minted_token_not_found when the minted token is not found" do
+      with_mocks [
+        {Entry, [], [insert: fn _data, _idempotency_token -> valid_response() end]},
+        {
+          Balance,
+          [],
+          [get: fn _symbol, _address -> valid_balances_response() end]
+        }
+      ] do
+        balance1 = insert(:balance, address: "123")
+        balance2 = insert(:balance, address: "456")
+
+        request_data = %{
+          from_address: balance1.address,
+          to_address: balance2.address,
+          token_id: "BTC:456",
+          amount: 100_000,
+          metadata: %{}
+        }
+
+        response = provider_request_with_idempotency("/transfer",
+                                                     "5b688e97-8c0f-48af-943c-10b6f812c4f4",
+                                                     request_data)
+
+        assert response == %{
+          "success" => false,
+          "version" => "1",
+          "data" => %{
+            "code" => "user:minted_token_not_found",
+            "description" =>
+              "There is no minted token matching the provided token_id.",
+            "messages" => nil,
+            "object" => "error"
+          }}
+      end
+    end
+  end
+
   describe "/user.credit_balance" do
     test "returns idempotency error if header is not specified" do
       {:ok, user} = :user |> params_for() |> User.insert()
