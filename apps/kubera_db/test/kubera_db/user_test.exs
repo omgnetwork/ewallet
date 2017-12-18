@@ -21,9 +21,8 @@ defmodule KuberaDB.UserTest do
 
     test_insert_generate_uuid User, :id
     test_insert_generate_timestamps User
-    test_insert_prevent_blank User, :username
-    test_insert_prevent_blank User, :provider_user_id
     test_insert_prevent_blank User, :metadata
+    test_insert_prevent_duplicate User, :email
     test_insert_prevent_duplicate User, :username
     test_insert_prevent_duplicate User, :provider_user_id
 

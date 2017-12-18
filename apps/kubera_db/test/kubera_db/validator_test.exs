@@ -105,6 +105,68 @@ defmodule KuberaDB.ValidatorTest do
     end
   end
 
+  describe "validate_required_all_or_none/2" do
+    test "returns valid if all attributes are present" do
+      attrs = %{
+        attr1: "value1",
+        attr2: "value2",
+        attr3: "value3"
+      }
+
+      changeset = %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2, :attr3])
+        |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
+
+      assert changeset.valid?
+    end
+
+    test "returns valid if none of the attributes is present" do
+      attrs = %{
+        attr1: "",
+        attr2: "",
+        attr3: ""
+      }
+
+      changeset = %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2, :attr3])
+        |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
+
+      assert changeset.valid?
+    end
+
+    test "returns invalid if only one attribute is present" do
+      attrs = %{
+        attr1: "",
+        attr2: "value2",
+        attr3: ""
+      }
+
+      changeset = %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2, :attr3])
+        |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
+
+      refute changeset.valid?
+      assert changeset.errors ==
+        [{%{attr1: nil, attr2: nil, attr3: nil}, {"either all or none of them must be present", [validation: "all_or_none"]}}]
+    end
+
+    test "returns invalid if only some of the attributes are present" do
+      attrs = %{
+        attr1: "value1",
+        attr2: "",
+        attr3: "value3"
+      }
+
+      changeset = %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2, :attr3])
+        |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
+
+      refute changeset.valid?
+      assert changeset.errors ==
+        [{%{attr1: nil, attr2: nil, attr3: nil}, {"either all or none of them must be present", [validation: "all_or_none"]}}]
+    end
+  end
+
   describe "validate_immutable/2" do
     test "returns valid if provider_user_id has not been set before" do
       struct =

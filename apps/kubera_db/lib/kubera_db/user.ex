@@ -5,8 +5,8 @@ defmodule KuberaDB.User do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   import KuberaDB.Validator
-  alias Ecto.{Multi, UUID}
-  alias KuberaDB.{Repo, AuthToken, Balance, User}
+  alias Ecto.{Changeset, Multi, UUID}
+  alias KuberaDB.{Repo, Account, AuthToken, Balance, Membership, Role, User}
   alias KuberaDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
@@ -21,20 +21,30 @@ defmodule KuberaDB.User do
     field :encryption_version, :binary
     has_many :balances, Balance
     has_many :auth_tokens, AuthToken
+    has_many :memberships, Membership
+    many_to_many :roles, Role, join_through: Membership
+    many_to_many :accounts, Account, join_through: Membership
 
     timestamps()
   end
 
-  defp changeset(%User{} = user, attrs) do
-    user
-    |> cast(attrs, [:username, :email, :password, :provider_user_id, :metadata])
-    |> validate_required([:username, :provider_user_id, :metadata])
-    |> validate_immutable(:provider_user_id)
-    |> unique_constraint(:username)
-    |> unique_constraint(:email)
-    |> unique_constraint(:provider_user_id)
-    |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
-    |> put_change(:encryption_version, Cloak.version)
+  defp changeset(changeset, attrs) do
+    changeset =
+      changeset
+      |> cast(attrs, [:email, :password, :username, :provider_user_id, :metadata])
+      |> validate_required([:metadata])
+      |> validate_immutable(:provider_user_id)
+      |> unique_constraint(:email)
+      |> unique_constraint(:username)
+      |> unique_constraint(:provider_user_id)
+      |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
+      |> put_change(:encryption_version, Cloak.version)
+
+    if has_role?(changeset, :admin) do
+      validate_required(changeset, [:email, :password])
+    else
+      validate_required(changeset, [:username, :provider_user_id])
+    end
   end
 
   @doc """
@@ -62,6 +72,27 @@ defmodule KuberaDB.User do
     User
     |> Repo.get_by(email: email)
     |> Repo.preload(:balances)
+  end
+
+  @doc """
+  Checks if the user has a role on _any_ account.
+
+  If the user has the given role on an account and doesn't on another,
+  this function will return `true`. This is useful for checking for a role
+  regardless of the account, e.g. a user with admin role must have an email and password
+  irrespect of which account the user is an admin on.
+
+  However, this is a relatively expensive operation as it requires enumerating all memberships
+  until an admin role is found.
+  """
+  def has_role?(%Changeset{data: %User{} = user}, role_name) do
+    has_role?(user, role_name)
+  end
+  def has_role?(%User{} = user, role_name) when is_atom(role_name) do
+    user
+    |> Repo.preload(:roles)
+    |> Map.get(:roles, [])
+    |> Enum.any?(fn(role) -> Role.is_role?(role, role_name) end)
   end
 
   @doc """

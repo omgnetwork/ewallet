@@ -77,7 +77,8 @@ defmodule KuberaAPI.V1.ErrorHandler do
   # Used for mapping any Ecto.changeset validation
   # to make it more meaningful to send to the client.
   @validation_mapping %{
-    unsafe_unique: "already_taken"
+    unsafe_unique: "already_taken",
+    all_or_none: "missing_dependent_params"
   }
 
   @doc """
@@ -128,8 +129,21 @@ defmodule KuberaAPI.V1.ErrorHandler do
   defp stringify_errors(changeset, description) do
     Enum.reduce(changeset.errors, description,
       fn {field, {description, _values}}, acc ->
-        acc <> " `" <> to_string(field) <> "` " <> description <> "."
+        acc <> " " <> stringify_field(field) <> " " <> description <> "."
       end)
+  end
+
+  defp stringify_field(fields) when is_map(fields) do
+    Enum.map_join(fields, ", ", fn({key, _}) -> stringify_field(key) end)
+  end
+  defp stringify_field(fields) when is_list(fields) do
+    Enum.map(fields, &stringify_field/1)
+  end
+  defp stringify_field(field) when is_atom(field) do
+    "`" <> to_string(field) <> "`"
+  end
+  defp stringify_field({key, _}) do
+    "`" <> to_string(key) <> "`"
   end
 
   defp error_fields(changeset) do
