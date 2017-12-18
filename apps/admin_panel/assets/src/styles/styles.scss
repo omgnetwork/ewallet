@@ -8,12 +8,16 @@
 @import 'components/_alert.scss';
 @import 'components/_public_footer.scss';
 @import 'components/_public_header.scss';
+@import 'components/_omg_search_field.scss';
 
 @import 'containers/_app.scss';
 @import 'containers/_public-layout.scss';
+@import 'containers/_authenticated_layout.scss';
 @import 'containers/authenticated/_header.scss';
 @import 'containers/authenticated/_sidebar.scss';
-@import 'containers/_authenticated_layout.scss';
+@import 'containers/authenticated/_accounts_header.scss';
 
 @import 'helpers/_button.scss';
-@import 'helpers/_containers.scss'
+@import 'helpers/_containers.scss';
+@import 'helpers/_glyphicon.scss';
+@import 'helpers/_margins.scss';

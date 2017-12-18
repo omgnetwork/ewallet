@@ -1,0 +1,24 @@
+.accounts-header {
+  &__new_button {
+    transform: translateY(50%);
+    height: 40px;
+  }
+
+  &__dropdown-toggle {
+    height: 40px;
+    border-radius: 2px;
+  }
+
+  &__adv_filter_btn {
+    text-decoration: underline;
+    color: $omise-blue;
+  }
+
+  &__adv_filter_btn:active:focus {
+    outline: none;
+  }
+
+  &__adv_filter_btn:focus {
+    outline: none;
+  }
+}

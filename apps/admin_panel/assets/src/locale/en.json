@@ -21,6 +21,12 @@
     "privacy": "Privacy"
   },
   "accounts": {
+    "header": {
+      "accounts": "Accounts",
+      "new_account": "New Account",
+      "advanced_filters": "Advanced Filters",
+      "export": "Export"
+    },
     "table": {
       "id": "Id",
       "name": "Name",

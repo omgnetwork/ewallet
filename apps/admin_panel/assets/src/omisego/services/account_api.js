@@ -4,6 +4,6 @@ export const accountAPI = {
   getAll
 };
 
-function getAll() {
-  return request("account.all");
+function getAll(query) {
+  return request("account.all", { "q":query });
 }

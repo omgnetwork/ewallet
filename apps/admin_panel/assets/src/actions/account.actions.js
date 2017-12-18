@@ -1,24 +1,24 @@
-import { accountConstants } from "../constants";
-import { accountAPI } from "../omisego/services";
-import { alertActions } from "./";
 import { handleAPIError } from "../helpers/errorHandler"
+import { globalActions } from "./";
+import { accountAPI } from "../omisego/services";
 
 export const accountActions = {
-  getAll
-};
+  loadAccounts
+}
 
-function getAll() {
+function loadAccounts(query, onSuccess) {
   return dispatch => {
-    dispatch({ type: accountConstants.ACCOUNT_REQUEST });
-    accountAPI.getAll()
+    dispatch(globalActions.showLoading())
+    accountAPI.getAll(query)
       .then(
         accounts => {
-          dispatch({ type: accountConstants.ACCOUNT_SUCCESS, accounts });
+          onSuccess(accounts)
         },
         error => {
           handleAPIError(dispatch, error)
-          dispatch({ type: accountConstants.ACCOUNT_FAILURE, error });
         }
-      );
-  };
+      ).then(() => {
+        dispatch(globalActions.hideLoading())
+      });
+   };
 }
