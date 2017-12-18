@@ -3,7 +3,7 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Table } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
-
+import AccountRow from '../../components/authenticated/AccountRow'
 import { accountActions } from "../../actions";
 
 class Accounts extends Component {
@@ -20,14 +20,9 @@ class Accounts extends Component {
   render() {
     const { requesting, accounts, translate } = this.props;
     const acc = accounts.map(account =>
-      <tr key={account.id}>
-          <td>{account.id}</td>
-          <td>{account.name}</td>
-          <td>{account.master ? "true" : "false"}</td>
-          <td>{account.description}</td>
-      </tr>
+      <AccountRow account={account} key={account.id} />
     )
-    return(
+    return (
       <div>
         <Table responsive>
           <thead>
