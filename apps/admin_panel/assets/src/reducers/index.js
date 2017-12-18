@@ -4,15 +4,15 @@ import { routerReducer } from "react-router-redux";
 import { localeReducer as locale } from 'react-localize-redux'
 
 import { authentication } from "./authentication.reducer";
-import { account } from "./account.reducer";
 import { alert } from "./alert.reducer";
+import { global } from "./global.reducer";
 
 const rootReducer = combineReducers({
   session: sessionReducer,
   router: routerReducer,
   authentication,
-  account,
   alert,
+  global,
   locale
 });
 

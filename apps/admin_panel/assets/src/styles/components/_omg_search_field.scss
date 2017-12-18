@@ -1,0 +1,31 @@
+.omg-serch-field {
+  &__addon {
+    background: $white;
+    padding: 0;
+    border-top-right-radius: 1px;
+    border-bottom-right-radius: 1px;
+  }
+
+  &__input {
+    border-right:0;
+  	box-shadow:0 0 0;
+    height: 40px;
+    border-top-left-radius: 1px;
+    border-bottom-left-radius: 1px;
+  }
+
+  &__input:focus {
+    -webkit-box-shadow: none;
+    box-shadow: none;
+    border-color: #ccc;
+  }
+
+  &__submit {
+    border:0;
+    background:transparent;
+  }
+
+  &__submit:focus {
+    outline:none;
+  }
+}

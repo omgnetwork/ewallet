@@ -9,6 +9,7 @@
     "bootstrap": "^3.3.7",
     "js-cookie": "^2.2.0",
     "prop-types": "^15.6.0",
+    "query-string": "^5.0.1",
     "react": "^16.1.1",
     "react-bootstrap": "^0.31.5",
     "react-dom": "^16.1.1",
