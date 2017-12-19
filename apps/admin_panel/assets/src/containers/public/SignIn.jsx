@@ -66,7 +66,7 @@ class SignIn extends Component {
   }
 
   render() {
-    const { loggingIn, translate } = this.props;
+    const { loading, translate } = this.props;
     const { email, password } = this.state;
     return (
       <div className="row">
@@ -94,10 +94,10 @@ class SignIn extends Component {
               />
               <Button bsClass="btn btn-omg-blue"
                       bsStyle="primary"
-                      disabled={loggingIn || !this.isFormValid()}
+                      disabled={loading || !this.isFormValid()}
                       type="submit"
               >
-                {loggingIn ? translate("global.loading") : translate("sign-in.sign-in")}
+                {loading ? translate("global.loading") : translate("sign-in.sign-in")}
               </Button>
             </form>
           </div>
@@ -108,10 +108,10 @@ class SignIn extends Component {
 }
 
 function mapStateToProps(state) {
-  const { loggingIn } = state.authentication;
+  const { loading } = state.global;
   const translate = getTranslate(state.locale);
   return {
-    loggingIn, translate
+    loading, translate
   };
 }
 
