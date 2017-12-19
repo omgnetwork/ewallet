@@ -3,13 +3,9 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Table } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
-<<<<<<< HEAD
-import AccountRow from '../../components/authenticated/AccountRow'
-import { accountActions } from "../../actions";
-=======
 import { push } from "react-router-redux";
 
->>>>>>> Add accounts header (to refactor first)
+import AccountRow from "../../components/authenticated/AccountRow"
 import AccountsHeader from "./AccountsHeader"
 import { urlFormatter } from "../../helpers"
 import { accountActions } from "../../actions"

@@ -19,7 +19,7 @@ class Home extends Component {
   }
 
   render() {
-    const { loggingOut } = this.props;
+    const { loading } = this.props;
     return(
       <div>
         <p> This is the home page </p>
@@ -33,9 +33,9 @@ class Home extends Component {
 }
 
 function mapStateToProps(state) {
-  const { loggingOut } = state.authentication;
+  const { loading } = state.global;
   return {
-    loggingOut
+    loading
   };
 }
 
