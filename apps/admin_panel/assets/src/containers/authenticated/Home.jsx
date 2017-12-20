@@ -14,7 +14,6 @@ class Home extends Component {
   }
 
   handleClickLogout(e) {
-    e.preventDefault();
     this.props.dispatch(userActions.logout());
   }
 

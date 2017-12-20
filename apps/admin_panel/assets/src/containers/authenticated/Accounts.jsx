@@ -3,7 +3,6 @@ import { connect } from "react-redux";
 import { withRouter } from "react-router-dom";
 import { Table } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
-import { push } from "react-router-redux";
 
 import AccountRow from "../../components/authenticated/AccountRow"
 import AccountsHeader from "./AccountsHeader"
@@ -58,24 +57,19 @@ class Accounts extends Component {
     );
   }
 
-  loadAccounts() {
-    const { loadAccounts } = this.props
-    const { query } = this.state
-    loadAccounts(query, (accounts) => {
-      this.setState({accounts})
-    });
-  }
-
   updateURLQuery(query) {
-    const { pushURL } = this.props
-    pushURL(urlFormatter.formatURL("/accounts", {"q":query}))
+    const { push } = this.props.history
+    push(urlFormatter.formatURL("/accounts", {"q":query}))
   }
 
   processURLParams(location) {
+    const { loadAccounts } = this.props
     const params = urlFormatter.processURL(location)
     const query = params.q ? params.q : ""
     this.setState({query})
-    this.loadAccounts()
+    loadAccounts(query, (accounts) => {
+      this.setState({accounts})
+    });
   }
 }
 
@@ -89,9 +83,6 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    pushURL: (path) => {
-      return dispatch(push(path))
-    },
     loadAccounts: (query, onSuccess) => {
       return dispatch(accountActions.loadAccounts(query, onSuccess))
     }
