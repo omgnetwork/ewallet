@@ -32,6 +32,19 @@
       "name": "Name",
       "master": "Master",
       "description": "Description"
+    },
+    "new": {
+      "create_an_account": "Create an Account",
+      "create": "Create",
+      "name": {
+        "label": "Name",
+        "help": "Name should be at least 4 characters long"
+      },
+      "description": {
+        "label": "Description",
+        "help": ""
+      },
+      "success": "Successfully created ${ name }"
     }
   },
   "sidebar": {

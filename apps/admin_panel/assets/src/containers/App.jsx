@@ -10,6 +10,7 @@ import AuthenticatedRoute from "../components/routes/AuthenticatedRoute"
 import PublicRoute from "../components/routes/PublicRoute"
 import Home from "./authenticated/Home.jsx"
 import Accounts from "./authenticated/Accounts.jsx"
+import NewAccount from "./authenticated/NewAccount.jsx"
 import SignIn from "./public/SignIn.jsx"
 
 class App extends Component {
@@ -39,6 +40,10 @@ class App extends Component {
               <AuthenticatedRoute
                 exact path="/accounts"
                 component={Accounts}
+                authenticated={session.authenticated}/>
+              <AuthenticatedRoute
+                exact path="/accounts/new"
+                component={NewAccount}
                 authenticated={session.authenticated}/>
               <PublicRoute path="/signin" component={SignIn}/>
               <Redirect to="/signin" />

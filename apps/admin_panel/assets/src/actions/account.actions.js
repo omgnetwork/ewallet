@@ -3,7 +3,8 @@ import { globalActions } from "./";
 import { accountAPI } from "../omisego/services";
 
 export const accountActions = {
-  loadAccounts
+  loadAccounts,
+  createAccount
 }
 
 function loadAccounts(query, onSuccess) {
@@ -13,6 +14,23 @@ function loadAccounts(query, onSuccess) {
       .then(
         accounts => {
           onSuccess(accounts)
+        },
+        error => {
+          handleAPIError(dispatch, error)
+        }
+      ).then(() => {
+        dispatch(globalActions.hideLoading())
+      });
+   };
+}
+
+function createAccount(name, description, onSuccess) {
+  return dispatch => {
+    dispatch(globalActions.showLoading())
+    accountAPI.create(name, description)
+      .then(
+        account => {
+          onSuccess(account)
         },
         error => {
           handleAPIError(dispatch, error)
