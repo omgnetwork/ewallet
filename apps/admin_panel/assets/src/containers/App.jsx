@@ -9,8 +9,8 @@ import DevTools from "./DevTools";
 import AuthenticatedRoute from "../components/routes/AuthenticatedRoute"
 import PublicRoute from "../components/routes/PublicRoute"
 import Home from "./authenticated/Home.jsx"
-import Accounts from "./authenticated/Accounts.jsx"
-import NewAccount from "./authenticated/NewAccount.jsx"
+import Accounts from "./authenticated/accounts/Accounts.jsx"
+import NewAccount from "./authenticated/accounts/NewAccount.jsx"
 import SignIn from "./public/SignIn.jsx"
 
 class App extends Component {

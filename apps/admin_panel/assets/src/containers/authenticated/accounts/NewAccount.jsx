@@ -4,9 +4,9 @@ import { withRouter } from "react-router-dom";
 import { getTranslate } from 'react-localize-redux';
 import { Button } from 'react-bootstrap';
 
-import { accountActions } from "../../actions"
-import { alertActions } from "../../actions"
-import OMGFieldGroup from "../../components/OMGFieldGroup"
+import { accountActions } from "../../../actions"
+import { alertActions } from "../../../actions"
+import OMGFieldGroup from "../../../components/OMGFieldGroup"
 
 class NewAccount extends Component {
 

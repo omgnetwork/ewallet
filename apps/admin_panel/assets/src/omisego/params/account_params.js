@@ -11,6 +11,8 @@ export class NewAccountParams {
 
 export class GetAccountsParams {
   constructor(attrs) {
+    this.current_page = attrs.page
+    this.per = attrs.per
     this.query = attrs.query;
   }
 

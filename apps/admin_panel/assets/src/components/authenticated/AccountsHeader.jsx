@@ -1,25 +1,17 @@
 import React, { Component } from "react";
-import { connect } from "react-redux";
-import { getTranslate } from 'react-localize-redux';
-import { withRouter } from "react-router-dom";
+import { localize } from 'react-localize-redux';
 import { Button, Glyphicon, Dropdown, MenuItem } from "react-bootstrap"
 
-import OMGSearchField from "../../components/OMGSearchField"
+import OMGSearchField from "../OMGSearchField"
 
 class AccountsHeader extends Component {
 
   constructor(props) {
     super(props)
-    this.handleNewAccount = this.handleNewAccount.bind(this)
-  }
-
-  handleNewAccount(e) {
-    const { push } = this.props.history
-    push("/accounts/new")
   }
 
   render() {
-    const { translate, query, handleSubmit } = this.props;
+    const { translate, query, onSearchChange, onNewAccount } = this.props;
     return(
       <div className="accounts-header">
         <div className="row mb-3">
@@ -31,7 +23,7 @@ class AccountsHeader extends Component {
           <div className="col-md-6">
             <Button bsClass="accounts-header__new_button btn btn-omg-blue pull-right"
                     bsStyle="primary"
-                    onClick={this.handleNewAccount}>
+                    onClick={onNewAccount}>
               <Glyphicon glyph="plus" />
               {translate("accounts.header.new_account")}
             </Button>
@@ -41,7 +33,7 @@ class AccountsHeader extends Component {
           <div className="col-md-3">
             <OMGSearchField
               query={query}
-              handleSubmit={handleSubmit}
+              onSearchChange={onSearchChange}
             />
           </div>
           <div className="col-md-3">
@@ -66,11 +58,4 @@ class AccountsHeader extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  const translate = getTranslate(state.locale);
-  return {
-    translate
-  };
-}
-
-export default withRouter(connect(mapStateToProps)(AccountsHeader));
+export default localize(AccountsHeader, 'locale');
