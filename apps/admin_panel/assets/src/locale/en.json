@@ -1,6 +1,10 @@
 {
-  "global":{
+  "global": {
     "loading": "Loading..."
+  },
+  "pagination": {
+    "previous": "Previous",
+    "next": "Next"
   },
   "sign-in": {
     "sign-in": "Sign in",

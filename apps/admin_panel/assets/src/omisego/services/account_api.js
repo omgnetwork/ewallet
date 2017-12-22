@@ -6,8 +6,8 @@ export const accountAPI = {
   create
 };
 
-function getAll(query) {
-  return request("account.all", new GetAccountsParams({ query }).params());
+function getAll(query, page, per) {
+  return request("account.all", new GetAccountsParams({ query, page, per }).params());
 }
 
 function create(name, description) {

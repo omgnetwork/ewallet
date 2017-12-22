@@ -27,8 +27,8 @@ class OMGSearchField extends Component {
   handleSubmit(e) {
     e.preventDefault();
     const { query } = this.state
-    const { handleSubmit } = this.props
-    handleSubmit(query);
+    const { onSearchChange } = this.props
+    onSearchChange(query);
   }
 
   render() {

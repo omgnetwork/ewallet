@@ -7,13 +7,20 @@ export const accountActions = {
   createAccount
 }
 
-function loadAccounts(query, onSuccess) {
+function loadAccounts(query, page, per, onSuccess) {
   return dispatch => {
     dispatch(globalActions.showLoading())
-    accountAPI.getAll(query)
+    accountAPI.getAll(query, page, per)
       .then(
         accounts => {
-          onSuccess(accounts)
+          // DUMMY pagination (until server is ready)
+          const pagination = {
+            currentPage: 1,
+            per: 5,
+            isLastPage: false,
+            isFirstPage: true
+          }
+          onSuccess(accounts, pagination)
         },
         error => {
           handleAPIError(dispatch, error)
