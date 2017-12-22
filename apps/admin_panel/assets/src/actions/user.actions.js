@@ -17,7 +17,8 @@ function login(email, password) {
     sessionAPI.login(email, password)
       .then(
         token => {
-          sessionService.saveSession(token.authentication_token)
+          const mergedTokens = `${token.user_id}:${token.authentication_token}`
+          sessionService.saveSession(mergedTokens)
             .then(() => {
               dispatch(push("/accounts"));
             }).catch(error => {
