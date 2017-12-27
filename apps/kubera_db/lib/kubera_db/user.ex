@@ -5,14 +5,17 @@ defmodule KuberaDB.User do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   import KuberaDB.Validator
-  alias Ecto.UUID
+  alias Ecto.{Multi, UUID}
   alias KuberaDB.{Repo, AuthToken, Balance, User}
-  alias Ecto.Multi
+  alias KuberaDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
 
   schema "user" do
     field :username, :string
+    field :email, :string
+    field :password, :string, virtual: true
+    field :password_hash, :string
     field :provider_user_id, :string
     field :metadata, Cloak.EncryptedMapField
     field :encryption_version, :binary
@@ -24,11 +27,13 @@ defmodule KuberaDB.User do
 
   defp changeset(%User{} = user, attrs) do
     user
-    |> cast(attrs, [:username, :provider_user_id, :metadata])
+    |> cast(attrs, [:username, :email, :password, :provider_user_id, :metadata])
     |> validate_required([:username, :provider_user_id, :metadata])
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
+    |> unique_constraint(:email)
     |> unique_constraint(:provider_user_id)
+    |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
     |> put_change(:encryption_version, Cloak.version)
   end
 
@@ -47,6 +52,15 @@ defmodule KuberaDB.User do
   def get_by_provider_user_id(provider_user_id) do
     User
     |> Repo.get_by(provider_user_id: provider_user_id)
+    |> Repo.preload(:balances)
+  end
+
+  @doc """
+  Retrieves a specific user from its email.
+  """
+  def get_by_email(email) when is_binary(email) do
+    User
+    |> Repo.get_by(email: email)
     |> Repo.preload(:balances)
   end
 

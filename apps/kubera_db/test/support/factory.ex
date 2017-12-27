@@ -55,6 +55,21 @@ defmodule KuberaDB.Factory do
     %User{
       username: sequence("johndoe"),
       provider_user_id: sequence("provider_id"),
+      email: nil,
+      password_hash: nil,
+      metadata: %{
+        "first_name" => sequence("John"),
+        "last_name" => sequence("Doe")
+      }
+    }
+  end
+
+  def admin_user_factory do
+    %User{
+      username: nil,
+      provider_user_id: nil,
+      email: sequence("johndoe") <> "@example.com",
+      password_hash: nil,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
@@ -88,6 +103,7 @@ defmodule KuberaDB.Factory do
   def api_key_factory do
     %APIKey{
       key: sequence("api_key"),
+      owner_app: "some_app_name",
       account: insert(:account),
       expired: false,
     }
@@ -96,6 +112,7 @@ defmodule KuberaDB.Factory do
   def auth_token_factory do
     %AuthToken{
       token: sequence("auth_token"),
+      owner_app: "some_app_name",
       user: insert(:user),
       expired: false,
     }

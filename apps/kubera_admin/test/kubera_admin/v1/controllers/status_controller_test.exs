@@ -4,7 +4,7 @@ defmodule KuberaAdmin.V1.StatusControllerTest do
 
   describe "/status" do
     test "returns success" do
-      assert public_request("/status") == %{"success" => true}
+      assert client_request("/status") == %{"success" => true}
     end
   end
 
@@ -28,7 +28,7 @@ defmodule KuberaAdmin.V1.StatusControllerTest do
       # See example: /phoenix/test/phoenix/endpoint/render_errors_test.exs
       {status, _headers, response} =
         assert_error_sent 500, fn ->
-          public_request("/status.server_error")
+          client_request("/status.server_error")
         end
 
       assert status == 500

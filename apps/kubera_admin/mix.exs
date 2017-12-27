@@ -39,6 +39,7 @@ defmodule KuberaAdmin.Mixfile do
     [
       {:phoenix, "~> 1.3.0"},
       {:cowboy, "~> 1.0"},
+      {:cors_plug, "~> 1.5"},
       {:sentry, "~> 6.0.0"},
       {:kubera_db, in_umbrella: true},
       {:kubera, in_umbrella: true},

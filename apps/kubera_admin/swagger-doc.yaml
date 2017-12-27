@@ -42,6 +42,8 @@ paths:
       operationId: login
       security:
         - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
       requestBody:
         $ref: '#/components/requestBodies/LoginBody'
       responses:
@@ -59,7 +61,7 @@ paths:
       security:
         - AdminAuth: []
       parameters:
-        - $ref: "#/components/parameters/AuthorizationHeader"
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
       responses:
         '200':
           $ref: "#/components/responses/EmptyResponse"
@@ -132,9 +134,13 @@ components:
           type: string
         authentication_token:
           type: string
+        user_id:
+          type: string
+          format: uuid
       required:
         - object
         - authentication_token
+        - user_id
     # Schema for authentication token body response
     AuthenticationTokenResponseSchema:
       allOf:
@@ -150,6 +156,7 @@ components:
           data:
             object: "authentication_token"
             authentication_token: "azJRj09l7jvR8KhTqUs3"
+            user_id: "12345678-1234-1234-1234-123456789012"
   requestBodies:
     # Request body for logging in
     LoginBody:
@@ -160,8 +167,10 @@ components:
             properties:
               email:
                 type: string
+                format: email
               password:
                 type: string
+                format: password
             required:
               - email
               - password
@@ -170,13 +179,22 @@ components:
               password: "the_password"
   parameters:
     # Headers
-    AuthorizationHeader:
+    ClientAuthorizationHeader:
       in: header
       name: Authorization
-      description: OMGAdmin Base64(api_key:authentication_token)
+      description: OMGAdmin Base64(api_key_id:api_key)
       required: true
       schema:
         type: string
+        format: byte
+    UserAuthorizationHeader:
+      in: header
+      name: Authorization
+      description: OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
+      required: true
+      schema:
+        type: string
+        format: byte
   securitySchemes:
     AdminAuth:
       type: apiKey

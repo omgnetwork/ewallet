@@ -13,6 +13,7 @@ defmodule KuberaDB.APIKey do
 
   schema "api_key" do
     field :key, :string
+    field :owner_app, :string
     belongs_to :account, Account, foreign_key: :account_id,
                                   references: :id,
                                   type: UUID
@@ -22,8 +23,8 @@ defmodule KuberaDB.APIKey do
 
   defp changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:key, :account_id, :expired])
-    |> validate_required([:key, :account_id])
+    |> cast(attrs, [:key, :owner_app, :account_id, :expired])
+    |> validate_required([:key, :owner_app, :account_id])
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
   end
@@ -49,22 +50,50 @@ defmodule KuberaDB.APIKey do
   Use this function instead of the usual get/2
   to avoid passing the access/secret key information around.
   """
-  def authenticate(api_key) do
-    case get(api_key) do
-      nil ->
-        false
-      api_key ->
-        api_key
-        |> Repo.preload(:account)
-        |> Map.get(:account)
+  def authenticate(api_key_id, api_key, owner_app)
+    when byte_size(api_key_id) > 0
+    and byte_size(api_key) > 0
+    and is_atom(owner_app)
+  do
+    api_key_id
+    |> get(owner_app)
+    |> authenticate(api_key)
+  end
+  def authenticate(_, _, _), do: Crypto.fake_verify
+  def authenticate(%{key: expected_key} = api_key, input_key) do
+    case Crypto.secure_compare(expected_key, input_key) do
+      true -> Map.get(api_key, :account)
+      _ -> false
+    end
+  end
+  def authenticate(nil, _input_key), do: Crypto.fake_verify
+  # Unsafe comparison used by KuberaAPI.ClientAuth
+  def authenticate(api_key, owner_app) when is_atom(owner_app) do
+    case get_by_key(api_key, owner_app) do
+      nil -> false
+      api_key -> Map.get(api_key, :account)
     end
   end
 
-  # Handles unsafe nil values so Ecto does not throw warnings.
-  defp get(key) when is_nil(key), do: nil
-  defp get(key) do
+  defp get(id, _) when is_nil(id), do: nil # Handles unsafe nil query
+  defp get(id, owner_app) when is_binary(id) and is_atom(owner_app) do
     APIKey
-    |> Repo.get_by([key: key, expired: false])
+    |> Repo.get_by(%{
+      id: id,
+      owner_app: Atom.to_string(owner_app),
+      expired: false
+    })
+    |> Repo.preload(:account)
+  end
+
+  defp get_by_key(key, _) when is_nil(key), do: nil # Handles unsafe nil query
+  defp get_by_key(key, owner_app) when is_binary(key) and is_atom(owner_app) do
+    APIKey
+    |> Repo.get_by(%{
+      key: key,
+      owner_app: Atom.to_string(owner_app),
+      expired: false
+    })
     |> Repo.preload(:account)
   end
 end

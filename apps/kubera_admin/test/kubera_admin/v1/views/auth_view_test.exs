@@ -1,8 +1,8 @@
-defmodule KuberaAPI.V1.AuthViewTest do
-  use KuberaAPI.ViewCase, :v1
-  alias KuberaAPI.V1.AuthView
+defmodule KuberaAdmin.V1.AuthViewTest do
+  use KuberaAdmin.ViewCase, :v1
+  alias KuberaAdmin.V1.AuthView
 
-  describe "KuberaAPI.V1.AuthView.render/2" do
+  describe "KuberaAdmin.V1.AuthView.render/2" do
     # Potential candidate to be moved to a shared library
     # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
     test "renders auth_token.json with correct structure" do
@@ -11,11 +11,12 @@ defmodule KuberaAPI.V1.AuthViewTest do
         success: true,
         data: %{
           object: "authentication_token",
-          authentication_token: "the_auth_token"
+          authentication_token: "the_auth_token",
+          user_id: "the_user_id"
         }
       }
 
-      attrs = %{auth_token: "the_auth_token"}
+      attrs = %{auth_token: "the_auth_token", user: %{id: "the_user_id"}}
       assert AuthView.render("auth_token.json", attrs) == expected
     end
 

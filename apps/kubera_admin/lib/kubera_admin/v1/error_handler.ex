@@ -8,6 +8,14 @@ defmodule KuberaAdmin.V1.ErrorHandler do
   alias KuberaAdmin.V1.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
+    invalid_auth_scheme: %{
+      code: "client:invalid_auth_scheme",
+      description: "The provided authentication scheme is not supported"
+    },
+    invalid_api_key: %{
+      code: "client:invalid_api_key",
+      description: "The provided API key can't be found or is invalid"
+    },
     invalid_parameter: %{
       code: "client:invalid_parameter",
       description: "Invalid parameter provided"
@@ -24,13 +32,17 @@ defmodule KuberaAdmin.V1.ErrorHandler do
       code: "server:internal_server_error",
       description: "Something went wrong on the server"
     },
-    invalid_username_password: %{
-      code: "user:invalid_username_password",
-      description: "There is no user corresponding to the provided username and password"
-    },
     access_token_not_found: %{
       code: "user:access_token_not_found",
       description: "There is no user corresponding to the provided access_token"
+    },
+    access_token_expired: %{
+      code: "user:access_token_expired",
+      description: "The provided token is expired or has been invalidated"
+    },
+    invalid_login_credentials: %{
+      code: "user:invalid_login_credentials",
+      description: "There is no user corresponding to the provided login credentials"
     }
   }
 

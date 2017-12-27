@@ -46,7 +46,7 @@ defmodule KuberaAPI.V1.Plug.ClientAuth do
   defp authenticate_client(conn) do
     api_key = conn.private[:auth_api_key]
 
-    case APIKey.authenticate(api_key) do
+    case APIKey.authenticate(api_key, :kubera_api) do
       false ->
         conn
         |> assign(:authenticated, false)
@@ -62,7 +62,7 @@ defmodule KuberaAPI.V1.Plug.ClientAuth do
   defp authenticate_token(conn) do
     auth_token = conn.private[:auth_auth_token]
 
-    case AuthToken.authenticate(auth_token) do
+    case AuthToken.authenticate(auth_token, :kubera_api) do
       false ->
         conn
         |> assign(:authenticated, false)
@@ -83,7 +83,7 @@ defmodule KuberaAPI.V1.Plug.ClientAuth do
   """
   def expire_token(conn) do
     token_string = conn.private[:auth_auth_token]
-    AuthToken.expire(token_string)
+    AuthToken.expire(token_string, :kubera_api)
 
     conn
     |> assign(:authenticated, false)

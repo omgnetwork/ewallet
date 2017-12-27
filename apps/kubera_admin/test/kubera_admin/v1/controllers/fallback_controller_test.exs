@@ -14,7 +14,7 @@ defmodule KuberaAdmin.V1.FallbackControllerTest do
         }
       }
 
-      assert public_request("/not_found") == expected
+      assert client_request("/not_found") == expected
     end
   end
 end

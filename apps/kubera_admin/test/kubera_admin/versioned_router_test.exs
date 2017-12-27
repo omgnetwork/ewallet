@@ -7,6 +7,7 @@ defmodule KuberaAdmin.VersionedRouterTest do
     test "accepts v1+json requests" do
       response = build_conn()
       |> put_req_header("accept", "application/vnd.omisego.v1+json")
+      |> put_auth_header("OMGAdmin", [@api_key_id, @api_key])
       |> post("/status")
       |> json_response(:ok)
 

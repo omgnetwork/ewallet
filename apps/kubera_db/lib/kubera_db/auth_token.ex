@@ -4,6 +4,7 @@ defmodule KuberaDB.AuthToken do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
   alias KuberaDB.{Repo, AuthToken, User}
   alias KuberaDB.Helpers.Crypto
@@ -13,6 +14,7 @@ defmodule KuberaDB.AuthToken do
 
   schema "auth_token" do
     field :token, :string
+    field :owner_app, :string
     belongs_to :user, User, foreign_key: :user_id,
                             references: :id,
                             type: UUID
@@ -22,8 +24,8 @@ defmodule KuberaDB.AuthToken do
 
   defp changeset(%AuthToken{} = token, attrs) do
     token
-    |> cast(attrs, [:token, :user_id, :expired])
-    |> validate_required([:token, :user_id])
+    |> cast(attrs, [:token, :owner_app, :user_id, :expired])
+    |> validate_required([:token, :owner_app, :user_id])
     |> unique_constraint(:token)
     |> assoc_constraint(:user)
   end
@@ -32,8 +34,9 @@ defmodule KuberaDB.AuthToken do
   Generate an auth token for the specified user,
   then returns the auth token string.
   """
-  def generate(%User{} = user) do
+  def generate(%User{} = user, owner_app) when is_atom(owner_app) do
     attrs = %{
+      owner_app: Atom.to_string(owner_app),
       user_id: user.id,
       token: Crypto.generate_key(@key_length)
     }
@@ -45,12 +48,30 @@ defmodule KuberaDB.AuthToken do
 
   @doc """
   Retrieves an auth token using the specified token.
-  Returns the associated user if authenticated,
-  returns :token_expired if token exists but expired,
-  returns false otherwise.
+  Returns the associated user if authenticated, :token_expired if token exists but expired,
+  or false otherwise.
   """
-  def authenticate(token) do
-    case get(token) do
+  def authenticate(token, owner_app) when is_atom(owner_app) do
+    token
+    |> get_by_token(owner_app)
+    |> return_user()
+  end
+  def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
+    user_id
+    |> get_by_user(owner_app)
+    |> compare_multiple(token)
+    |> return_user()
+  end
+  def authenticate(_, _, _), do: Crypto.fake_verify
+
+  defp compare_multiple(token_records, token) when is_list(token_records) do
+    Enum.find(token_records, fn (record) ->
+      Crypto.secure_compare(record.token, token)
+    end)
+  end
+
+  defp return_user(token) do
+    case token do
       nil ->
         false
       %{expired: true} ->
@@ -62,17 +83,32 @@ defmodule KuberaDB.AuthToken do
     end
   end
 
-  # `get/1` is private to prohibit direct auth token access,
-  # please use `authenticate/1` instead.
-  defp get(token) when is_binary(token) and byte_size(token) > 0 do
+  # `get_by_token/2` is private to prohibit direct auth token access,
+  # please use `authenticate/2` instead.
+  defp get_by_token(token, owner_app) when is_binary(token) and is_atom(owner_app)
+  do
     AuthToken
-    |> Repo.get_by(token: token)
+    |> Repo.get_by(%{
+      token: token,
+      owner_app: Atom.to_string(owner_app)
+    })
     |> Repo.preload(:user)
   end
-  defp get(_token), do: nil
+  defp get_by_token(_, _), do: nil
+
+  # `get_by_user/2` is private to prohibit direct auth token access,
+  # please use `authenticate/3` instead.
+  defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
+    Repo.all(
+      from a in AuthToken,
+      where: a.user_id == ^user_id
+      and a.owner_app == ^Atom.to_string(owner_app)
+    )
+  end
+  defp get_by_user(_, _), do: nil
 
   # `insert/1` is private to prohibit direct auth token insertion,
-  # please use `generate/1` instead.
+  # please use `generate/2` instead.
   defp insert(attrs) do
     %AuthToken{}
     |> changeset(attrs)
@@ -80,13 +116,17 @@ defmodule KuberaDB.AuthToken do
   end
 
   # Expires the given token.
-  def expire(%AuthToken{} = token),
-    do: update(token, %{expired: true})
-  def expire(token),
-    do: token |> get() |> expire()
+  def expire(token, owner_app) when is_binary(token) and is_atom(owner_app) do
+    token
+    |> get_by_token(owner_app)
+    |> expire()
+  end
+  def expire(%AuthToken{} = token) do
+    update(token, %{expired: true})
+  end
 
-  # `insert/1` is private to prohibit direct auth token updates,
-  # if expiring the token, please use `expire/1` instead.
+  # `update/2` is private to prohibit direct auth token updates,
+  # if expiring the token, please use `expire/2` instead.
   defp update(%AuthToken{} = token, attrs) do
     token
     |> changeset(attrs)

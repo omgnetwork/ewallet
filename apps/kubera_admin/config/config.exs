@@ -13,6 +13,7 @@ config :kubera_admin,
 config :kubera_admin,
   KuberaAdmin.Endpoint,
   url: [host: "localhost"],
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [
     view: KuberaAdmin.ErrorView,
     accepts: ~w(json),
@@ -27,6 +28,25 @@ config :logger, :console,
 # Config for Phoenix's generators
 config :kubera_admin, :generators,
   context_app: false
+
+# Config for CORSPlug
+#
+# CORS_ORIGINS may contain multiple comma-separated origins, therefore it needs
+# to be splitted and trimmed. But since `config.exs` evaluates the options
+# at compile time, it does not allow an assignment with anonymous functions,
+# waiting to be executed at runtime.
+#
+# Because of this the anonymous function is invoked right away through
+# `(fn -> ... end).()` in order for :origin to be assigned at compile time.
+config :cors_plug,
+  max_age: System.get_env("CORS_MAX_AGE") || 600, # Lowest common value of all browsers
+  methods: ["POST"],
+  origin: (fn ->
+    case System.get_env("CORS_ORIGINS") do
+      nil -> [] # Disallow all origins if CORS_ORIGINS is not set
+      origins -> origins |> String.trim() |> String.split(~r{\s*,\s*})
+    end
+  end).()
 
 # Two configs need to be added to have a new Kubera Admin version:
 #

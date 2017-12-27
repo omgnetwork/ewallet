@@ -33,7 +33,7 @@ defmodule KuberaAPI.V1.Plug.ClientAuthTest do
     end
 
     test "halts with :access_token_expired if auth_token exists but expired" do
-      AuthToken.expire(@auth_token)
+      AuthToken.expire(@auth_token, :kubera_api)
       conn = invoke_conn(@api_key, @auth_token)
       assert_error(conn, "user:access_token_expired")
     end
@@ -62,7 +62,7 @@ defmodule KuberaAPI.V1.Plug.ClientAuthTest do
 
   describe "ClientAuth.expire_token/1" do
     test "expires auth token from the given connection successfully" do
-      assert AuthToken.authenticate(@auth_token)
+      assert AuthToken.authenticate(@auth_token, :kubera_api)
 
       conn =
         @api_key
@@ -73,7 +73,7 @@ defmodule KuberaAPI.V1.Plug.ClientAuthTest do
       # the typical unauthenticated flow. Expiring a token should be treated
       # as a successful authenticated call but with all auth info invalidated.
       refute conn.halted
-      assert AuthToken.authenticate(@auth_token) == :token_expired
+      assert AuthToken.authenticate(@auth_token, :kubera_api) == :token_expired
       refute conn.assigns[:authenticated]
       refute conn.assigns[:user]
     end

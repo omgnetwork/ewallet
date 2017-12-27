@@ -74,6 +74,23 @@ defmodule KuberaDB.UserTest do
     end
   end
 
+  describe "get_by_email/1" do
+    test "returns the existing user from the email" do
+      {_, inserted_user} =
+        :user
+        |> build(%{email: "test@example.com"})
+        |> Repo.insert
+
+      user = User.get_by_email("test@example.com")
+      assert user.email == inserted_user.email
+    end
+
+    test "returns nil if user with the given email does not exist" do
+      user = User.get_by_email("an_invalid_email")
+      assert user == nil
+    end
+  end
+
   describe "get_primary_balance/1" do
     test "returns the first balance" do
       {:ok, inserted} = User.insert(params_for(:user))

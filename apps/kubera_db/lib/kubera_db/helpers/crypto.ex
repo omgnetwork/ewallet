@@ -2,6 +2,7 @@ defmodule KuberaDB.Helpers.Crypto do
   @moduledoc """
   A helper to perform crytographic operations
   """
+  alias Plug.Crypto
 
   @spec generate_key(integer) :: binary
   def generate_key(key_bytes) when is_integer(key_bytes) do
@@ -27,4 +28,7 @@ defmodule KuberaDB.Helpers.Crypto do
   def fake_verify do
     Bcrypt.no_user_verify
   end
+
+  @spec secure_compare(String.t, String.t) :: boolean
+  def secure_compare(left, right), do: Crypto.secure_compare(left, right)
 end
