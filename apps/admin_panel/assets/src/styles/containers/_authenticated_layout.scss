@@ -1,6 +1,7 @@
 .authenticated-layout {
   &__sidebar {
     padding-right: 0rem;
+    position: fixed;
   }
   &__main {
     padding: 1rem 5rem 0rem 5rem; // top right bot left
