@@ -24,13 +24,14 @@ class SignIn extends Component {
 
   handleChange(e) {
     const { id, value } = e.target;
-    var { didModifyEmail, didModifyPassword} = this.state
+    var { didModifyEmail, didModifyPassword } = this.state
     if (id === "email") { didModifyEmail = true }
     else if (id === "password") { didModifyPassword = true }
-    this.setState({ [id]: value,
-                    didModifyEmail: didModifyEmail,
-                    didModifyPassword: didModifyPassword
-                  });
+    this.setState({
+      [id]: value,
+      didModifyEmail: didModifyEmail,
+      didModifyPassword: didModifyPassword
+    });
   }
 
   handleSubmit(e) {
@@ -70,14 +71,14 @@ class SignIn extends Component {
     const { email, password } = this.state;
     return (
       <div className="row">
-        <div className="col-xs-12 col-sm-8 col-sm-offset-2">
+        <div className="col-xs-12 col-sm-6 col-sm-offset-3">
           <div className="omg-form">
             <h2 className="omg-form__title">{translate("sign-in.sign-in")}</h2>
             <form onSubmit={this.handleSubmit} autoComplete="off">
               <OMGFieldGroup
                 id="email"
                 label={translate("sign-in.email.label")}
-                help = {translate("sign-in.email.help")}
+                help={translate("sign-in.email.help")}
                 validationState={this.getEmailValidationState()}
                 type="text"
                 value={email}
@@ -93,9 +94,9 @@ class SignIn extends Component {
                 onChange={this.handleChange}
               />
               <Button bsClass="btn btn-omg-blue"
-                      bsStyle="primary"
-                      disabled={loading || !this.isFormValid()}
-                      type="submit"
+                bsStyle="primary"
+                disabled={loading || !this.isFormValid()}
+                type="submit"
               >
                 {loading ? translate("global.loading") : translate("sign-in.sign-in")}
               </Button>

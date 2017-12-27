@@ -4,16 +4,16 @@
 
   &__logo {
     width: 100%;
-    margin-top: 3rem;
-    margin-bottom: 3rem;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
     border: 1px solid $light-gray;
   }
 
   &__title {
-    font-size: 1.8rem;
+    font-size: 1.2rem;
     font-weight: bold;
     color: $dark-gray;
-    margin-bottom: 4rem;
+    margin-bottom: 2.25rem;
     margin-top: inherit;
   }
 
@@ -21,11 +21,11 @@
     list-style: none;
     padding: 0;
     margin: 0;
-    font-size: 1.6rem;
+    font-size: 1rem;
   }
 
   &__li {
-    margin-bottom: 1.7rem;
+    margin-bottom: 1rem;
   }
 
   &__link {

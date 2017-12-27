@@ -1,0 +1,50 @@
+.omg-dropdown, .omg-dropdown .open {
+  margin-top: 12px;
+  
+  #omg-nav-dropdown {
+    color: $white;
+    border-color: $light-gray;
+    border-style: solid;
+    border-width: 0.5px;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    padding: 0.5rem 0.5rem 0.5rem 1rem;
+    background-color: $omise-dark-blue;
+    min-width: 11.25rem;
+  }
+
+  .dropdown-toggle[aria-expanded="true"]{
+    background-color: $omise-darker-blue;
+  }
+
+  .dropdown-toggle:hover {
+    color: $light-gray;
+    background-color: $omise-blue;
+    border-color: $white;
+  }
+
+  .dropdown-toggle > .caret {
+    float: right;
+    margin: 0.5rem 0rem 0rem 0rem;
+  }
+
+  .dropdown-menu {
+    border: 0rem;
+    padding: 1rem 0rem;
+    background-color: $omise-dark-blue;
+    -webkit-box-shadow: 0rem 0rem 0rem;
+    box-shadow: 0rem 0rem 0rem transparent;
+  }
+
+  .dropdown-menu > li[role="presentation"] {
+    min-width: 11.25rem; // dropdown width + border
+  }
+  
+  .dropdown-menu > li[role="presentation"] > a {
+    color: $white;
+  }
+
+  .dropdown-menu > li[role="presentation"] > a:hover {
+    background-color: $dark-gray;
+  }
+}
