@@ -1,0 +1,24 @@
+.omg-nav {
+    margin-right: 2.25rem;
+
+    &__user-info[role="presentation"] > a[role="button"]{
+      color: $light-gray;
+      font-size: 1rem;
+      padding: 1.25rem 0.5rem;
+    }
+
+    .navbar-text {
+      color: $light-gray;
+      margin: 1.25rem 0.5rem;
+    }
+
+    #avatar {
+      padding: 0.875rem 0.5rem;
+      max-height: 4rem;
+    }
+
+    #avatar > img {
+      width: 2.25rem;
+      height: 2.25rem;
+    }
+  }

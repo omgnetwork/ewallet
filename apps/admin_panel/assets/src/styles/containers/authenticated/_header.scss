@@ -1,9 +1,18 @@
 .header {
   background-color: $omise-dark-blue;
-  height: 64px;
+  height: 4rem;
 
   &__navbar {
     background-color: inherit;
     border: 0;
+  }
+
+  &__logo {
+    height: 4rem;
+    width: auto;
+  }
+
+  &__button-toolbar {
+    margin-left: -2rem;
   }
 }
