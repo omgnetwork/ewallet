@@ -5,6 +5,7 @@ defmodule KuberaAdmin.V1.ErrorHandler do
   import Ecto.Changeset, only: [traverse_errors: 2]
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
+  alias Ecto.Changeset
   alias KuberaAdmin.V1.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
@@ -59,7 +60,7 @@ defmodule KuberaAdmin.V1.ErrorHandler do
   @doc """
   Handles response of invalid parameter error with error details provided.
   """
-  def handle_error(conn, :invalid_parameter, changeset) do
+  def handle_error(conn, :invalid_parameter, %Changeset{} = changeset) do
     code =
       @errors.invalid_parameter.code
     description =

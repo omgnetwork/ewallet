@@ -128,4 +128,12 @@ defmodule KuberaAdmin.ConnCase do
   def put_auth_header(conn, type, content) when is_binary(content) do
     put_req_header(conn, "authorization", type <> " " <> content)
   end
+
+  def ensure_num_records(schema, num_required, attrs \\ %{}, count_field \\ :id) do
+    num_remaining = num_required - Repo.aggregate(schema, :count, count_field)
+    factory_name  = get_factory(schema)
+
+    insert_list(num_remaining, factory_name, attrs)
+    Repo.all(schema)
+  end
 end

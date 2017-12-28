@@ -22,22 +22,25 @@ defmodule KuberaAdmin.V1.AccountSerializerTest do
       account2 = build(:account)
       accounts = [account1, account2]
 
-      expected = [
-        %{
-          object: "account",
-          id: account1.id,
-          name: account1.name,
-          description: account1.description,
-          master: account1.master
-        },
-        %{
-          object: "account",
-          id: account2.id,
-          name: account2.name,
-          description: account2.description,
-          master: account2.master
-        }
-      ]
+      expected = %{
+        object: "list",
+        data: [
+          %{
+            object: "account",
+            id: account1.id,
+            name: account1.name,
+            description: account1.description,
+            master: account1.master
+          },
+          %{
+            object: "account",
+            id: account2.id,
+            name: account2.name,
+            description: account2.description,
+            master: account2.master
+          }
+        ]
+      }
 
       assert AccountSerializer.to_json(accounts) == expected
     end

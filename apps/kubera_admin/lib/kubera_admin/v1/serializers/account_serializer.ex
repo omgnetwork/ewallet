@@ -13,6 +13,9 @@ defmodule KuberaAdmin.V1.AccountSerializer do
     }
   end
   def to_json(accounts) when is_list(accounts) do
-    Enum.map(accounts, &to_json/1)
+    %{
+      object: "list",
+      data: Enum.map(accounts, &to_json/1)
+    }
   end
 end

@@ -1,15 +1,21 @@
 defmodule KuberaAdmin.V1.AccountControllerTest do
   use KuberaAdmin.ConnCase, async: true
-  alias KuberaDB.{Account, Repo}
 
   describe "/account.all" do
-    test "returns a list of all accounts in the system" do
-      count = Repo.aggregate(Account, :count, :id)
+    test "returns a list of accounts and pagination data" do
       response = user_request("/account.all")
 
+      # Asserts return data
       assert response["success"]
-      assert is_list(response["data"])
-      assert Enum.count(response["data"]) == count
+      assert response["data"]["object"] == "list"
+      assert is_list(response["data"]["data"])
+
+      # Asserts pagination data
+      pagination = response["pagination"]
+      assert is_integer pagination["per_page"]
+      assert is_integer pagination["current_page"]
+      assert is_boolean pagination["is_last_page"]
+      assert is_boolean pagination["is_first_page"]
     end
   end
 

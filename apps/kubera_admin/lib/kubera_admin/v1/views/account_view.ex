@@ -8,8 +8,8 @@ defmodule KuberaAdmin.V1.AccountView do
     |> ResponseSerializer.to_json(success: true)
   end
   def render("accounts.json", %{accounts: accounts}) do
-    accounts
+    accounts.data
     |> AccountSerializer.to_json()
-    |> ResponseSerializer.to_json(success: true)
+    |> ResponseSerializer.to_json(success: true, pagination: accounts.pagination)
   end
 end

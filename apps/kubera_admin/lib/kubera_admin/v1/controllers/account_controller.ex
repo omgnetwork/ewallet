@@ -1,23 +1,25 @@
 defmodule KuberaAdmin.V1.AccountController do
   use KuberaAdmin, :controller
   import KuberaAdmin.V1.ErrorHandler
+  alias Kubera.Web.Paginator
   alias KuberaDB.Account
 
-  def all(conn, _attrs) do
-    Account.all()
-    |> respond(conn)
+  def all(conn, attrs) do
+    Account
+    |> Paginator.paginate_attrs(attrs)
+    |> respond_multiple(conn)
   end
 
   def get(conn, %{"id" => id}) do
     id
     |> Account.get_by_id()
-    |> respond(conn)
+    |> respond_single(conn)
   end
 
   def create(conn, attrs) do
     attrs
     |> Account.insert()
-    |> respond(conn)
+    |> respond_single(conn)
   end
 
   @doc """
@@ -27,7 +29,7 @@ defmodule KuberaAdmin.V1.AccountController do
     id
     |> Account.get_by_id()
     |> update_account(attrs)
-    |> respond(conn)
+    |> respond_single(conn)
   end
   def update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
@@ -37,23 +39,27 @@ defmodule KuberaAdmin.V1.AccountController do
   defp update_account(_, _attrs), do: nil
 
   # Respond with a list of accounts
-  defp respond(accounts, conn) when is_list(accounts) do
-    render(conn, :accounts, %{accounts: accounts})
+  defp respond_multiple(%Paginator{} = paged_accounts, conn) do
+    render(conn, :accounts, %{accounts: paged_accounts})
   end
+  defp respond_multiple({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
   # Respond with a single account
-  defp respond(%Account{} = account, conn) do
+  defp respond_single(%Account{} = account, conn) do
     render(conn, :account, %{account: account})
   end
   # Respond when the account is saved successfully
-  defp respond({:ok, account}, conn) do
+  defp respond_single({:ok, account}, conn) do
     render(conn, :account, %{account: account})
   end
   # Responds when the account is saved unsucessfully
-  defp respond({:error, changeset}, conn) do
+  defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
   # Responds when the account is not found
-  defp respond(nil, conn) do
+  defp respond_single(nil, conn) do
     handle_error(conn, :account_id_not_found)
   end
 end
