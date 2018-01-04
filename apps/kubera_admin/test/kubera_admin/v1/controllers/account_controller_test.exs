@@ -11,7 +11,7 @@ defmodule KuberaAdmin.V1.AccountControllerTest do
       assert is_list(response["data"]["data"])
 
       # Asserts pagination data
-      pagination = response["pagination"]
+      pagination = response["data"]["pagination"]
       assert is_integer pagination["per_page"]
       assert is_integer pagination["current_page"]
       assert is_boolean pagination["is_last_page"]

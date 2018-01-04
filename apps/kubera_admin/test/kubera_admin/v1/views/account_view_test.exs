@@ -56,14 +56,14 @@ defmodule KuberaAdmin.V1.AccountViewTest do
               description: account2.description,
               master: account2.master
             }
-          ]
-        },
-        pagination: %{
-          per_page: 10,
-          current_page: 1,
-          is_first_page: true,
-          is_last_page: false,
-        },
+          ],
+          pagination: %{
+            per_page: 10,
+            current_page: 1,
+            is_first_page: true,
+            is_last_page: false,
+          },
+        }
       }
 
       assert AccountView.render("accounts.json", %{accounts: paginator}) == expected

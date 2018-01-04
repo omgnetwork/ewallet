@@ -2,7 +2,12 @@ defmodule KuberaAdmin.V1.AccountSerializer do
   @moduledoc """
   Serializes account(s) into V1 response format.
   """
+  alias KuberaAdmin.V1.PaginatorSerializer
+  alias Kubera.Web.Paginator
 
+  def to_json(%Paginator{} = paginator) do
+    PaginatorSerializer.to_json(paginator, &to_json/1)
+  end
   def to_json(account) when is_map(account) do
     %{
       object: "account",
@@ -10,12 +15,6 @@ defmodule KuberaAdmin.V1.AccountSerializer do
       name: account.name,
       description: account.description,
       master: account.master
-    }
-  end
-  def to_json(accounts) when is_list(accounts) do
-    %{
-      object: "list",
-      data: Enum.map(accounts, &to_json/1)
     }
   end
 end
