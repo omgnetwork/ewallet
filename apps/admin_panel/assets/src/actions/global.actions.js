@@ -1,18 +1,18 @@
-import { globalConstants } from "../constants";
+import { globalConstants } from '../constants';
 
-export const globalActions = {
+export const loadingActions = {
   showLoading,
-  hideLoading
+  hideLoading,
 };
 
 function showLoading() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({ type: globalConstants.SHOW_LOADING });
   };
 }
 
 function hideLoading() {
-  return dispatch => {
+  return (dispatch) => {
     dispatch({ type: globalConstants.HIDE_LOADING });
   };
 }

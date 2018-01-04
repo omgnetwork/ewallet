@@ -1,15 +1,16 @@
-import { request } from "./api_service";
-import { GetAccountsParams, NewAccountParams } from "../params/account_params";
+import request from './api_service';
+import { GetAccountsParams, NewAccountParams } from '../params/account_params';
 
 export const accountAPI = {
   getAll,
-  create
+  create,
 };
 
-function getAll(query, page, per) {
-  return request("account.all", new GetAccountsParams({ query, page, per }).params());
+function getAll(params, callback) {
+  const { currentPage, ...rest } = params;
+  return request('account.all', JSON.stringify({ current_page: currentPage, ...rest }), callback);
 }
 
-function create(name, description) {
-  return request("account.create", new NewAccountParams({ name, description }).params());
+function create(params, callback) {
+  return request('account.create', JSON.stringify(params), callback);
 }

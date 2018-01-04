@@ -1,4 +1,4 @@
-export class LoginParams {
+export default class LoginParams {
   constructor(attrs) {
     this.email = attrs.email;
     this.password = attrs.password;

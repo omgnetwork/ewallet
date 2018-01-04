@@ -1,18 +1,18 @@
-import queryString from "query-string"
+import queryString from 'query-string';
 
 export const urlFormatter = {
   formatURL,
-  processURL
-}
+  processURL,
+};
 
 function formatURL(path, query = {}) {
-  if (query === {}) { return  path; }
+  if (!query || query === {}) { return path; }
   const filteredQuery = {};
   Object.keys(query).forEach((key) => {
     if (query[key] !== '') { filteredQuery[key] = query[key]; }
   });
   const queryStr = queryString.stringify(filteredQuery);
-  return `${path}?${queryStr}`
+  return `${path}?${queryStr}`;
 }
 
 function processURL(location) {
