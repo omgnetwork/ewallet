@@ -1,3 +1,3 @@
 export const PAGINATION = {
-  PER:20, PAGE:1
+  PER: 10, PAGE: 1,
 }
