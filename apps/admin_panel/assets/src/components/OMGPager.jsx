@@ -11,24 +11,24 @@ class OMGPager extends Component {
   }
 
   render() {
-    const { isFirstPage, isLastPage, currentPage, translate } = this.props
+    const { isFirstPage, isLastPage, page, translate } = this.props
     return(
       <Pager>
         {!isFirstPage && <Pager.Item onSelect={this.handlePrevious} href="#">{translate("pagination.previous")}</Pager.Item>}
-        {currentPage}
+        {page}
         {!isLastPage && <Pager.Item onSelect={this.handleNext} href="#">{translate("pagination.next")}</Pager.Item>}
       </Pager>
     );
   }
 
   handlePrevious() {
-    const { currentPage, onPageChange } = this.props
-    onPageChange(currentPage - 1)
+    const { page, onPageChange } = this.props
+    onPageChange(page - 1)
   }
 
   handleNext() {
-    const { currentPage, onPageChange } = this.props
-    onPageChange(currentPage + 1)
+    const { page, onPageChange } = this.props
+    onPageChange(page + 1)
   }
 
 }

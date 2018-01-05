@@ -7,8 +7,8 @@ export const accountAPI = {
 };
 
 function getAll(params, callback) {
-  const { currentPage, ...rest } = params;
-  return request('account.all', JSON.stringify({ current_page: currentPage, ...rest }), callback);
+  const { per, ...rest } = params;
+  return request('account.all', JSON.stringify({ per_page: per, ...rest }), callback);
 }
 
 function create(params, callback) {
