@@ -17,6 +17,28 @@ defmodule KuberaAdmin.V1.AccountControllerTest do
       assert is_boolean pagination["is_last_page"]
       assert is_boolean pagination["is_first_page"]
     end
+
+    test "returns a list of accounts according to search_term, sort_by and sort_direction" do
+      insert(:account, %{name: "Matched 2"})
+      insert(:account, %{name: "Matched 3"})
+      insert(:account, %{name: "Matched 1"})
+      insert(:account, %{name: "Missed 1"})
+
+      attrs = %{
+        "search_term" => "MaTcHed", # Search is case-insensitive
+        "sort_by" => "name",
+        "sort_dir" => "desc"
+      }
+
+      response = user_request("/account.all", attrs)
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 3
+      assert Enum.at(accounts, 0)["name"] == "Matched 3"
+      assert Enum.at(accounts, 1)["name"] == "Matched 2"
+      assert Enum.at(accounts, 2)["name"] == "Matched 1"
+    end
   end
 
   describe "/account.get" do

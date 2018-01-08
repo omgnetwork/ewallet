@@ -1,21 +1,35 @@
 defmodule KuberaAdmin.V1.AccountController do
   use KuberaAdmin, :controller
   import KuberaAdmin.V1.ErrorHandler
-  alias Kubera.Web.Paginator
+  alias Kubera.Web.{SearchParser, SortParser, Paginator}
   alias KuberaDB.Account
 
+  @search_fields [{:id, :uuid}, :name, :description]
+  @sort_fields [:id, :name, :description]
+
+  @doc """
+  Retrieves a list of accounts.
+  """
   def all(conn, attrs) do
     Account
+    |> SearchParser.to_query(attrs, @search_fields)
+    |> SortParser.to_query(attrs, @sort_fields)
     |> Paginator.paginate_attrs(attrs)
     |> respond_multiple(conn)
   end
 
+  @doc """
+  Retrieves a specific account by its id.
+  """
   def get(conn, %{"id" => id}) do
     id
     |> Account.get_by_id()
     |> respond_single(conn)
   end
 
+  @doc """
+  Creates a new account.
+  """
   def create(conn, attrs) do
     attrs
     |> Account.insert()
