@@ -13,7 +13,7 @@ const AuthenticatedLayout = ({ alert, children }) => (
       <div className="col-md-3 authenticated-layout__sidebar fh">
         <Sidebar />
       </div>
-      <div className="col-md-9 authenticated-layout__main fh">
+      <div className="col-md-9 col-md-offset-3 authenticated-layout__main fh">
         <Alerter alert={alert} />
         {children}
       </div>
