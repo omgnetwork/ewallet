@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { PAGINATION } from '../helpers/constants';
-import { urlActions } from '../actions';
+import defaultPagination from '../constants/pagination.constants';
+import URLActions from '../actions/url.actions';
 import OMGPager from '../components/OMGPager';
 
 const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
@@ -10,43 +10,36 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
     constructor(props) {
       super(props);
       this.state = {
-        page: PAGINATION.PAGE,
-        per: PAGINATION.PER,
+        page: defaultPagination.PAGE,
+        per: defaultPagination.PER,
         isLastPage: true,
         isFirstPage: true,
         data: [],
         query: '',
       };
-      this.onPageChange = this.onPageChange.bind(this);
+      this.handlePageChange = this.handlePageChange.bind(this);
       this.updateURL = this.updateURL.bind(this);
       this.onURLChange = this.onURLChange.bind(this);
       this.updateQuery = this.updateQuery.bind(this);
     }
 
     componentDidMount() {
-      urlActions.processURLParams(this.props.history.location, this.onURLChange);
+      const { history } = this.props;
+      URLActions.processURLParams(history.location, this.onURLChange);
     }
 
     componentWillReceiveProps(nextProps) {
       const newLocation = nextProps.location;
-      const oldLocationSearch = this.props.location.search;
-      if (newLocation.search !== oldLocationSearch) {
-        urlActions.processURLParams(newLocation, this.onURLChange);
+      const { location } = this.props;
+      if (newLocation.search !== location.search) {
+        URLActions.processURLParams(newLocation, this.onURLChange);
       }
-    }
-
-    onPageChange(newPage) {
-      this.setState(
-        {
-          page: newPage,
-        },
-        this.updateURL,
-      );
     }
 
     onURLChange(params) {
       this.setState(params);
-      this.props.loadData(params, (data, pagination) => {
+      const { loadData } = this.props;
+      loadData(params, (data, pagination) => {
         this.setState({
           data,
           page: pagination.current_page,
@@ -56,22 +49,31 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
       });
     }
 
+    handlePageChange(newPage) {
+      this.setState(
+        {
+          page: newPage,
+        },
+        this.updateURL,
+      );
+    }
+
     updateURL() {
-      const { push, location } = this.props.history;
+      const { history } = this.props;
       const { page, per, query } = this.state;
       const params = {
         page,
         per,
         query,
       };
-      urlActions.updateURL(push, location.pathname, params);
+      URLActions.updateURL(history.push, history.location.pathname, params);
     }
 
     updateQuery(query) {
       this.setState(
         {
           query,
-          page: PAGINATION.PAGE,
+          page: defaultPagination.PAGE,
           isLastPage: true,
           isFirstPage: true,
         },
@@ -81,22 +83,22 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
 
     render() {
       const {
-        isFirstPage, isLastPage, page,
+        isFirstPage, isLastPage, page, data, query,
       } = this.state;
-
+      const { history } = this.props;
       return (
         <div>
           <PaginatedComponent
-            history={this.props.history}
+            data={data}
+            history={history}
+            query={query}
             updateQuery={this.updateQuery}
-            data={this.state.data}
-            query={this.state.query}
           />
           <OMGPager
             isFirstPage={isFirstPage}
             isLastPage={isLastPage}
+            onPageChange={this.handlePageChange}
             page={page}
-            onPageChange={this.onPageChange}
           />
         </div>
       );
@@ -104,9 +106,9 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
   }
 
   OMGPaginatorHOC.propTypes = {
+    history: PropTypes.object.isRequired,
     loadData: PropTypes.func.isRequired,
-    history: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
-    location: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+    location: PropTypes.object.isRequired,
   };
 
   function mapDispatchToProps(dispatch) {

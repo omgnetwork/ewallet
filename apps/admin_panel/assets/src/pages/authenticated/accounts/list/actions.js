@@ -1,14 +1,13 @@
 import { handleAPIError } from '../../../../helpers/errorHandler';
-import { accountAPI } from '../../../../omisego/services';
-import { loadingActions } from '../../../../actions/global.actions';
-import { PAGINATION } from '../../../../helpers/constants';
+import { getAll } from '../../../../omisego/services/account_api';
+import LoadingActions from '../../../../actions/loading.actions';
 
 class Actions {
   static loadAccounts(params, onSuccess) {
     return (dispatch) => {
-      dispatch(loadingActions.showLoading());
-      accountAPI.getAll(params, (err, results) => {
-        dispatch(loadingActions.hideLoading());
+      dispatch(LoadingActions.showLoading());
+      getAll(params, (err, results) => {
+        dispatch(LoadingActions.hideLoading());
         if (err) {
           handleAPIError(dispatch, err);
         } else {

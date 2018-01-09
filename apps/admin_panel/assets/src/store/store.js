@@ -7,7 +7,7 @@ import { initialize, addTranslationForLanguage } from 'react-localize-redux';
 import DevTools from '../pages/DevTools';
 
 import rootReducer from '../reducers';
-import { history } from '../helpers';
+import history from '../helpers/history';
 
 const routerMid = routerMiddleware(history);
 const loggerMiddleware = createLogger();

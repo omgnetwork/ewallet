@@ -1,11 +1,6 @@
 import queryString from 'query-string';
 
-export const urlFormatter = {
-  formatURL,
-  processURL,
-};
-
-function formatURL(path, query = {}) {
+export function formatURL(path, query = {}) {
   if (!query || query === {}) { return path; }
   const filteredQuery = {};
   Object.keys(query).forEach((key) => {
@@ -15,6 +10,6 @@ function formatURL(path, query = {}) {
   return `${path}?${queryStr}`;
 }
 
-function processURL(location) {
+export function processURL(location) {
   return queryString.parse(location.search);
 }

@@ -1,13 +1,13 @@
 import { handleAPIError } from '../../../../helpers/errorHandler';
-import { accountAPI } from '../../../../omisego/services';
-import { loadingActions } from '../../../../actions/global.actions';
+import { create } from '../../../../omisego/services/account_api';
+import LoadingActions from '../../../../actions/loading.actions';
 
 class Actions {
   static createAccount(params, onSuccess) {
     return (dispatch) => {
-      dispatch(loadingActions.showLoading());
-      accountAPI.create(params, (err, result) => {
-        dispatch(loadingActions.hideLoading());
+      dispatch(LoadingActions.showLoading());
+      create(params, (err, result) => {
+        dispatch(LoadingActions.hideLoading());
         if (err) { handleAPIError(dispatch, err); } else {
           onSuccess(result);
         }

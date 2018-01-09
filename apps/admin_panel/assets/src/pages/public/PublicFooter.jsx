@@ -8,8 +8,8 @@ const PublicFooter = ({ translate }) => (
     <ul className="list-inline">
       <li>
         <Button
-          className="list-inline-item public-footer__link"
           bsStyle="link"
+          className="list-inline-item public-footer__link"
           href="https://omisego.network"
         >
           {translate('public-footer.about')}
@@ -17,8 +17,8 @@ const PublicFooter = ({ translate }) => (
       </li>
       <li>
         <Button
-          className="list-inline-item public-footer__link"
           bsStyle="link"
+          className="list-inline-item public-footer__link"
           href="https://omisego.network"
         >
           {translate('public-footer.documentation')}
@@ -26,8 +26,8 @@ const PublicFooter = ({ translate }) => (
       </li>
       <li>
         <Button
-          className="list-inline-item public-footer__link"
           bsStyle="link"
+          className="list-inline-item public-footer__link"
           href="https://omisego.network"
         >
           {translate('public-footer.help')}
@@ -35,8 +35,8 @@ const PublicFooter = ({ translate }) => (
       </li>
       <li>
         <Button
-          className="list-inline-item public-footer__link"
           bsStyle="link"
+          className="list-inline-item public-footer__link"
           href="https://omisego.network"
         >
           {translate('public-footer.terms')}
@@ -44,8 +44,8 @@ const PublicFooter = ({ translate }) => (
       </li>
       <li>
         <Button
-          className="list-inline-item public-footer__link"
           bsStyle="link"
+          className="list-inline-item public-footer__link"
           href="https://omisego.network"
         >
           {translate('public-footer.privacy')}

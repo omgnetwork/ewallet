@@ -3,8 +3,8 @@ import { connect } from 'react-redux';
 import { Redirect, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import PropTypes from 'prop-types';
-import { alertActions } from '../actions';
-import { history } from '../helpers';
+import AlertActions from '../actions/alert.actions';
+import history from '../helpers/history';
 
 import DevTools from './DevTools';
 import AuthenticatedRoute from './authenticated/AuthenticatedRoute';
@@ -19,9 +19,9 @@ class App extends Component {
     super(props);
 
     const { dispatch } = this.props;
-    history.listen((location, action) => {
+    history.listen(() => {
       // clear alert on location change
-      dispatch(alertActions.clear());
+      dispatch(AlertActions.clear());
     });
   }
 
@@ -34,24 +34,24 @@ class App extends Component {
           <div className="container">
             <Switch>
               <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={Home}
                 exact
                 path="/"
-                component={Home}
-                authenticated={session.authenticated}
               />
               <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={Accounts}
                 exact
                 path="/accounts"
-                component={Accounts}
-                authenticated={session.authenticated}
               />
               <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={NewAccount}
                 exact
                 path="/accounts/new"
-                component={NewAccount}
-                authenticated={session.authenticated}
               />
-              <PublicRoute path="/signin" component={SignIn} />
+              <PublicRoute component={SignIn} path="/signin" />
               <Redirect to="/signin" />
             </Switch>
             <DevTools />
@@ -64,8 +64,8 @@ class App extends Component {
 
 App.propTypes = {
   // alert: PropTypes.func.isRequired,
-  session: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
   dispatch: PropTypes.func.isRequired,
+  session: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {

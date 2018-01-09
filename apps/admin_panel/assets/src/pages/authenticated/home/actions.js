@@ -1,16 +1,17 @@
 import { sessionService } from 'redux-react-session';
 import { push } from 'react-router-redux';
 
-import { sessionAPI } from '../../../omisego/services';
+import { logout } from '../../../omisego/services/session_api';
 import { handleAPIError } from '../../../helpers/errorHandler';
-import { loadingActions, alertActions } from '../../../actions';
+import LoadingActions from '../../../actions/loading.actions';
+import AlertActions from '../../../actions/alert.actions';
 
 class Actions {
   static logout() {
     return (dispatch) => {
-      dispatch(loadingActions.showLoading());
-      sessionAPI.logout((err, result) => { // eslint-disable-line no-unused-vars
-        dispatch(loadingActions.hideLoading());
+      dispatch(LoadingActions.showLoading());
+      logout((err, result) => { // eslint-disable-line no-unused-vars
+        dispatch(LoadingActions.hideLoading());
         if (err) {
           handleAPIError(dispatch, err);
         } else {
@@ -20,7 +21,7 @@ class Actions {
               dispatch(push('/signin'));
             })
             .catch((error) => {
-              dispatch(alertActions.error(error));
+              dispatch(AlertActions.error(error));
             });
         }
       });

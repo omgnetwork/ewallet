@@ -37,7 +37,7 @@ class Accounts extends Component {
 
 Accounts.propTypes = {
   updateQuery: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  history: PropTypes.object.isRequired,
   query: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,

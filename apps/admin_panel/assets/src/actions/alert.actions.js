@@ -1,25 +1,21 @@
-import { alertConstants } from '../constants';
+import alertConstants from '../constants/alert.constants';
 
-export const alertActions = {
-  success,
-  error,
-  info,
-  clear,
-};
+class AlertActions {
+  static success(message) {
+    return { type: alertConstants.SUCCESS, message };
+  }
 
-function success(message) {
-  return { type: alertConstants.SUCCESS, message };
+  static error(message) {
+    return { type: alertConstants.ERROR, message };
+  }
+
+  static info(message) {
+    return { type: alertConstants.INFO, message };
+  }
+
+  static clear() {
+    return { type: alertConstants.CLEAR };
+  }
 }
 
-function error(message) {
-  return { type: alertConstants.ERROR, message };
-}
-
-function info(message) {
-  return { type: alertConstants.INFO, message };
-}
-
-
-function clear() {
-  return { type: alertConstants.CLEAR };
-}
+export default AlertActions;

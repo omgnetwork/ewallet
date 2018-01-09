@@ -1,47 +1,48 @@
-import React, { Component } from "react";
-import { Button, Glyphicon, FormGroup, FormControl, InputGroup } from "react-bootstrap"
+import React, { Component } from 'react';
+import { Button, Glyphicon, FormGroup, FormControl, InputGroup } from 'react-bootstrap';
+import PropTypes from 'prop-types';
 
 class OMGSearchField extends Component {
-
   constructor(props) {
     super(props);
     this.state = {
-      query: props.query
+      query: props.query,
     };
     this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  componentWillUpdate(nextProps) {
+  componentWillReceiveProps(nextProps) {
     const { query } = this.props;
     if (nextProps.query !== query) {
-      this.setState({query: nextProps.query})
+      this.setState({ query: nextProps.query });
     }
   }
 
   handleFilterTextChange(e) {
     const { value } = e.target;
-    this.setState({query: value})
+    this.setState({ query: value });
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    const { query } = this.state
-    const { onSearchChange } = this.props
+    const { query } = this.state;
+    const { onSearchChange } = this.props;
     onSearchChange(query);
   }
 
   render() {
-    return(
+    const { query } = this.state;
+    return (
       <form className="omg-serch-field" onSubmit={this.handleSubmit}>
         <FormGroup>
           <InputGroup>
             <FormControl
               className="omg-serch-field__input"
-              type="text"
-              placeholder="Search"
-              value={this.state.query}
               onChange={this.handleFilterTextChange}
+              placeholder="Search"
+              type="text"
+              value={query}
             />
             <InputGroup.Addon className="omg-serch-field__addon">
               <Button
@@ -58,4 +59,9 @@ class OMGSearchField extends Component {
   }
 }
 
-export default OMGSearchField
+OMGSearchField.propTypes = {
+  onSearchChange: PropTypes.func.isRequired,
+  query: PropTypes.string.isRequired,
+};
+
+export default OMGSearchField;

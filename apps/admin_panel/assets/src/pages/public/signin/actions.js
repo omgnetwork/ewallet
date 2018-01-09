@@ -1,16 +1,17 @@
 import { sessionService } from 'redux-react-session';
 import { push } from 'react-router-redux';
 
-import { sessionAPI } from '../../../omisego/services';
+import { login } from '../../../omisego/services/session_api';
 import { handleAPIError } from '../../../helpers/errorHandler';
-import { loadingActions, alertActions } from '../../../actions';
+import LoadingActions from '../../../actions/loading.actions';
+import AlertActions from '../../../actions/alert.actions';
 
 class Actions {
   static login(params) {
     return (dispatch) => {
-      dispatch(loadingActions.showLoading());
-      sessionAPI.login(params, (err, result) => {
-        dispatch(loadingActions.hideLoading());
+      dispatch(LoadingActions.showLoading());
+      login(params, (err, result) => {
+        dispatch(LoadingActions.hideLoading());
         if (err) {
           handleAPIError(dispatch, err);
         } else {
@@ -21,7 +22,7 @@ class Actions {
               dispatch(push('/accounts'));
             })
             .catch((error) => {
-              dispatch(alertActions.error(error));
+              dispatch(AlertActions.error(error));
             });
         }
       });

@@ -1,5 +1,5 @@
-import { OmiseGOError } from '../models/error';
-import { mergeHash } from '../helpers/helper';
+import OmiseGOError from '../models/error';
+import mergeHash from '../helpers/helper';
 import { OMISEGO_BASE_URL } from '../config';
 import authHeader from '../helpers/auth-header';
 
