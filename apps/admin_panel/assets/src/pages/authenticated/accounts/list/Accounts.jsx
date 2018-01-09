@@ -1,53 +1,75 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 import AccountsHeader from './AccountsHeader';
-import AccountsTable from './AccountsTable';
 import Actions from './actions';
 import OMGPaginatorHOC from '../../../../components/OMGPaginatorHOC';
-
+import OMGTable from '../../../../components/OMGTable';
 
 class Accounts extends Component {
   constructor(props) {
     super(props);
+    const { translate } = this.props;
     this.onNewAccount = this.onNewAccount.bind(this);
+    this.headerTitles = [
+      'accounts.table.id',
+      'accounts.table.name',
+      'accounts.table.master',
+      'accounts.table.description',
+    ].map(translate);
   }
 
   onNewAccount() {
-    this.props.history.push('/accounts/new');
+    const { history } = this.props;
+    history.push('/accounts/new');
   }
 
   render() {
     const {
-      data, query,
+      data, query, updateQuery, updateSorting,
     } = this.props;
+
+    const contents = data.map(v => ({
+      id: v.id,
+      name: v.name,
+      master: v.master,
+      description: v.description,
+    }));
 
     return (
       <div>
         <AccountsHeader
+          handleNewAccount={this.onNewAccount}
+          handleSearchChange={updateQuery}
           query={query}
-          onSearchChange={this.props.updateQuery}
-          onNewAccount={this.onNewAccount}
         />
-        <AccountsTable accounts={data} />
+        <OMGTable
+          contents={contents}
+          headerTitles={this.headerTitles}
+          updateSorting={updateSorting}
+        />
       </div>
     );
   }
 }
 
 Accounts.propTypes = {
-  updateQuery: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired,
-  query: PropTypes.string.isRequired,
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
     name: PropTypes.string.isRequired,
     master: false,
     description: PropTypes.string,
   })).isRequired,
+  history: PropTypes.object.isRequired,
+  query: PropTypes.string.isRequired,
+  translate: PropTypes.func.isRequired,
+  updateQuery: PropTypes.func.isRequired,
+  updateSorting: PropTypes.func.isRequired,
 };
 
-export default withRouter(OMGPaginatorHOC(
-  Accounts,
-  (query, callback) => Actions.loadAccounts(query, callback),
-));
+const dataLoader = (query, callback) => Actions.loadAccounts(query, callback);
+
+const WrappedAccounts = OMGPaginatorHOC(localize(Accounts, 'locale'), dataLoader);
+
+export default withRouter(WrappedAccounts);

@@ -16,11 +16,14 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
         isFirstPage: true,
         data: [],
         query: '',
+        // sort_by: 'id',
+        // sort_dir: 'asc',
       };
       this.handlePageChange = this.handlePageChange.bind(this);
       this.updateURL = this.updateURL.bind(this);
       this.onURLChange = this.onURLChange.bind(this);
       this.updateQuery = this.updateQuery.bind(this);
+      this.updateSorting = this.updateSorting.bind(this);
     }
 
     componentDidMount() {
@@ -81,11 +84,24 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
       );
     }
 
+    updateSorting(sortBy, sortDir) {
+      const { data } = this.state;
+      console.log(data, sortBy, sortDir);
+      // this.setState({
+      // sort_by: sortBy,
+      // sort_dir: sortDir,
+      // });
+    }
+
     render() {
       const {
         isFirstPage, isLastPage, page, data, query,
       } = this.state;
-      const { history } = this.props;
+
+      const {
+        history,
+      } = this.props;
+
       return (
         <div>
           <PaginatedComponent
@@ -93,6 +109,7 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
             history={history}
             query={query}
             updateQuery={this.updateQuery}
+            updateSorting={this.updateSorting}
           />
           <OMGPager
             isFirstPage={isFirstPage}

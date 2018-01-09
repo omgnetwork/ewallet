@@ -5,7 +5,7 @@ import logo from '../../../public/images/omisego_logo_white.png';
 import avatar from '../../../public/images/user.svg';
 
 const Header = () => (
-  <div className="row">
+  <div>
     <div>
       <div className="header">
         <Navbar className="header header__navbar" collapseOnSelect fixedTop staticTop>
