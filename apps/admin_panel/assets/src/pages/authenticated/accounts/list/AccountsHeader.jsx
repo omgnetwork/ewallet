@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import OMGSearchField from '../../../../components/OMGSearchField';
 
 const AccountsHeader = ({
-  translate, query, onSearchChange, onNewAccount,
+  translate, query, handleSearchChange, handleNewAccount,
 }) => (
   <div className="accounts-header">
     <div className="row mb-3">
@@ -18,7 +18,7 @@ const AccountsHeader = ({
         <Button
           bsClass="accounts-header__new_button btn btn-omg-blue pull-right"
           bsStyle="primary"
-          onClick={onNewAccount}
+          onClick={handleNewAccount}
         >
           <Glyphicon glyph="plus" />
           {translate('accounts.header.new_account')}
@@ -27,7 +27,7 @@ const AccountsHeader = ({
     </div>
     <div className="row mb-1">
       <div className="col-md-3">
-        <OMGSearchField query={query} onSearchChange={onSearchChange} />
+        <OMGSearchField handleSearchChange={handleSearchChange} query={query} />
       </div>
       <div className="col-md-3">
         <Button bsClass="accounts-header__adv_filter_btn btn" bsStyle="link">
@@ -44,7 +44,9 @@ const AccountsHeader = ({
             {translate('accounts.header.export')}
           </Dropdown.Toggle>
           <Dropdown.Menu>
-            <MenuItem eventKey="1">CSV</MenuItem>
+            <MenuItem eventKey="1">
+              CSV
+            </MenuItem>
           </Dropdown.Menu>
         </Dropdown>
       </div>
@@ -53,10 +55,10 @@ const AccountsHeader = ({
 );
 
 AccountsHeader.propTypes = {
-  translate: PropTypes.func.isRequired,
+  handleNewAccount: PropTypes.func.isRequired,
+  handleSearchChange: PropTypes.func.isRequired,
   query: PropTypes.string.isRequired,
-  onSearchChange: PropTypes.func.isRequired,
-  onNewAccount: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 export default localize(AccountsHeader, 'locale');
