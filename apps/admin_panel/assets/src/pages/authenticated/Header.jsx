@@ -8,7 +8,7 @@ const Header = () => (
   <div className="row">
     <div>
       <div className="header">
-        <Navbar collapseOnSelect className="header header__navbar" fixedTop staticTop>
+        <Navbar className="header header__navbar" collapseOnSelect fixedTop staticTop>
           <div className="col-md-3 col-xs-12 col-sm-4">
             <Navbar.Header className="col-md-10 col-md-offset-1 col-xs-12 col-sm-12">
               <Navbar.Brand>
@@ -21,25 +21,33 @@ const Header = () => (
             <Navbar.Collapse>
               <Nav className="header__button-toolbar">
                 <NavDropdown
-                  eventKey={1}
-                  title="Select Accounts"
-                  id="omg-nav-dropdown"
                   className="omg-dropdown"
+                  eventKey={1}
+                  id="omg-nav-dropdown"
+                  title="Select Accounts"
                 >
-                  <MenuItem eventKey={1.2}>Account 1</MenuItem>
-                  <MenuItem eventKey={1.3}>Account 2</MenuItem>
-                  <MenuItem eventKey={1.3}>Account 3</MenuItem>
+                  <MenuItem eventKey={1.2}>
+                    Account 1
+                  </MenuItem>
+                  <MenuItem eventKey={1.3}>
+                    Account 2
+                  </MenuItem>
+                  <MenuItem eventKey={1.3}>
+                    Account 3
+                  </MenuItem>
                 </NavDropdown>
               </Nav>
-              <Nav pullRight className="omg-nav">
-                <NavItem eventKey={3} id="avatar" className="omg-nav__avatar" href="#">
-                  <Image src={avatar} circle />
+              <Nav className="omg-nav" pullRight>
+                <NavItem className="omg-nav__avatar" eventKey={3} href="#" id="avatar">
+                  <Image circle src={avatar} />
                 </NavItem>
-                <NavItem eventKey={4} href="#" className="omg-nav__user-info">
+                <NavItem className="omg-nav__user-info" eventKey={4} href="#">
                   First name
                 </NavItem>
-                <Navbar.Text>|</Navbar.Text>
-                <NavItem eventKey={6} href="#" className="omg-nav__user-info">
+                <Navbar.Text>
+                  |
+                </Navbar.Text>
+                <NavItem className="omg-nav__user-info" eventKey={6} href="#">
                   Admin
                 </NavItem>
               </Nav>

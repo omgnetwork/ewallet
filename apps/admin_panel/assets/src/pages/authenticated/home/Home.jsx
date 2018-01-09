@@ -12,24 +12,26 @@ class Home extends Component {
     this.handleClickLogout = this.handleClickLogout.bind(this);
   }
 
-  handleClickLogout(e) {
-    this.props.logout();
+  handleClickLogout() {
+    const { logout } = this.props;
+    logout();
   }
 
   render() {
     const { loading } = this.props; // eslint-disable-line no-unused-vars
     return (
       <div>
-        <p> This is the home page </p>
-        <Button onClick={this.handleClickLogout}>Logout</Button>
+        <Button onClick={this.handleClickLogout}>
+          Logout
+        </Button>
       </div>
     );
   }
 }
 
 Home.propTypes = {
-  logout: PropTypes.func.isRequired,
   loading: PropTypes.bool.isRequired,
+  logout: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {

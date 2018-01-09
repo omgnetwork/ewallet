@@ -3,15 +3,19 @@ import { Link } from 'react-router-dom';
 import PropTypes from 'prop-types';
 
 const SidebarLink = ({ title, to, currentPath }) => (
-  <Link to={to} href={to} className={`sidebar__link${currentPath === to ? ' sidebar__link--active' : ''}`}>
+  <Link
+    className={`sidebar__link${currentPath === to ? ' sidebar__link--active' : ''}`}
+    href={to}
+    to={to}
+  >
     {title}
   </Link>
 );
 
 SidebarLink.propTypes = {
+  currentPath: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   to: PropTypes.string.isRequired,
-  currentPath: PropTypes.string.isRequired,
 };
 
 export default SidebarLink;

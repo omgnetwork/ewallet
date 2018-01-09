@@ -1,18 +1,18 @@
-import { globalConstants } from "../constants";
+import globalConstants from '../constants/global.constants';
 
-export function global(state = { loading: false }, action) {
+export default function global(state = { loading: false }, action) {
   switch (action.type) {
-  case globalConstants.SHOW_LOADING:
-    return {
-      ...state,
-      loading: true
-    };
-  case globalConstants.HIDE_LOADING:
-    return {
-      ...state,
-      loading: false
-    };
-  default:
-    return state;
+    case globalConstants.SHOW_LOADING:
+      return {
+        ...state,
+        loading: true,
+      };
+    case globalConstants.HIDE_LOADING:
+      return {
+        ...state,
+        loading: false,
+      };
+    default:
+      return state;
   }
 }

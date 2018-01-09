@@ -7,7 +7,7 @@ const PublicHeader = () => (
   <div className="row">
     <div className="col-xs-12">
       <div className="public-header">
-        <Image className="public-header__logo" src={logo} responsive />
+        <Image className="public-header__logo" responsive src={logo} />
       </div>
     </div>
   </div>

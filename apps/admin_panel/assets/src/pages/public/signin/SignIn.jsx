@@ -34,11 +34,13 @@ class SignIn extends Component {
   }
 
   isEmailValid() {
-    return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(this.state.email);
+    const { email } = this.state;
+    return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(email);
   }
 
   isPasswordValid() {
-    return this.state.password.length >= 8;
+    const { password } = this.state;
+    return password.length >= 8;
   }
 
   isFormValid() {
@@ -47,16 +49,18 @@ class SignIn extends Component {
 
   handleChange(e) {
     const { id, value } = e.target;
-    let { didModifyEmail, didModifyPassword } = this.state;
-    if (id === 'email') {
-      didModifyEmail = true;
-    } else if (id === 'password') {
-      didModifyPassword = true;
-    }
-    this.setState({
-      [id]: value,
-      didModifyEmail,
-      didModifyPassword,
+    this.setState((prevState) => {
+      let { didModifyEmail, didModifyPassword } = prevState;
+      if (id === 'email') {
+        didModifyEmail = true;
+      } else if (id === 'password') {
+        didModifyPassword = true;
+      }
+      return {
+        [id]: value,
+        didModifyEmail,
+        didModifyPassword,
+      };
     });
   }
 
@@ -77,25 +81,27 @@ class SignIn extends Component {
       <div className="row">
         <div className="col-xs-12 col-sm-6 col-sm-offset-3">
           <div className="omg-form">
-            <h2 className="omg-form__title">{translate('sign-in.sign-in')}</h2>
-            <form onSubmit={this.handleSubmit} autoComplete="off">
+            <h2 className="omg-form__title">
+              {translate('sign-in.sign-in')}
+            </h2>
+            <form autoComplete="off" onSubmit={this.handleSubmit}>
               <OMGFieldGroup
+                help={translate('sign-in.email.help')}
                 id="email"
                 label={translate('sign-in.email.label')}
-                help={translate('sign-in.email.help')}
-                validationState={this.getEmailValidationState()}
-                type="text"
-                value={email}
                 onChange={this.handleChange}
+                type="text"
+                validationState={this.getEmailValidationState()}
+                value={email}
               />
               <OMGFieldGroup
+                help={translate('sign-in.password.help')}
                 id="password"
                 label={translate('sign-in.password.label')}
-                help={translate('sign-in.password.help')}
-                validationState={this.getPasswordValidationState()}
-                type="password"
-                value={password}
                 onChange={this.handleChange}
+                type="password"
+                validationState={this.getPasswordValidationState()}
+                value={password}
               />
               <Button
                 bsClass="btn btn-omg-blue"
@@ -115,8 +121,8 @@ class SignIn extends Component {
 
 SignIn.propTypes = {
   loading: PropTypes.bool.isRequired,
-  translate: PropTypes.func.isRequired,
   login: PropTypes.func.isRequired,
+  translate: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {

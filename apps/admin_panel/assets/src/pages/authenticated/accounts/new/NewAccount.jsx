@@ -5,7 +5,7 @@ import { getTranslate } from 'react-localize-redux';
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Actions from './actions';
-import { alertActions } from '../../../../actions';
+import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
 
 class NewAccount extends Component {
@@ -28,7 +28,8 @@ class NewAccount extends Component {
   }
 
   isNameValid() {
-    return this.state.name.length >= 4;
+    const { name } = this.state;
+    return name.length >= 4;
   }
 
   isFormValid() {
@@ -37,13 +38,15 @@ class NewAccount extends Component {
 
   handleChange(e) {
     const { id, value } = e.target;
-    let { didModifyName } = this.state;
-    if (id === 'name') {
-      didModifyName = true;
-    }
-    this.setState({
-      [id]: value,
-      didModifyName,
+    this.setState((prevState) => {
+      let { didModifyName } = prevState;
+      if (id === 'name') {
+        didModifyName = true;
+      }
+      return {
+        [id]: value,
+        didModifyName,
+      };
     });
   }
 
@@ -69,25 +72,27 @@ class NewAccount extends Component {
       <div className="row">
         <div className="col-xs-12 col-sm-8">
           <div className="omg-form">
-            <h2 className="omg-form__title">{translate('accounts.new.create_an_account')}</h2>
-            <form onSubmit={this.handleSubmit} autoComplete="off">
+            <h2 className="omg-form__title">
+              {translate('accounts.new.create_an_account')}
+            </h2>
+            <form autoComplete="off" onSubmit={this.handleSubmit}>
               <OMGFieldGroup
+                help={translate('accounts.new.name.help')}
                 id="name"
                 label={translate('accounts.new.name.label')}
-                help={translate('accounts.new.name.help')}
-                validationState={this.getNameValidationState()}
-                type="text"
-                value={name}
                 onChange={this.handleChange}
+                type="text"
+                validationState={this.getNameValidationState()}
+                value={name}
               />
               <OMGFieldGroup
+                help={translate('accounts.new.description.help')}
                 id="description"
                 label={translate('accounts.new.description.label')}
-                help={translate('accounts.new.description.help')}
-                validationState={null}
-                type="text"
-                value={description}
                 onChange={this.handleChange}
+                type="text"
+                validationState={null}
+                value={description}
               />
               <Button
                 bsClass="btn btn-omg-blue"
@@ -106,9 +111,9 @@ class NewAccount extends Component {
 }
 
 NewAccount.propTypes = {
-  loading: PropTypes.bool.isRequired,
   createAccount: PropTypes.func.isRequired,
-  history: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  history: PropTypes.object.isRequired,
+  loading: PropTypes.bool.isRequired,
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
 };
@@ -125,7 +130,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return {
     showSuccessAlert: (message) => {
-      dispatch(alertActions.info(message));
+      dispatch(AlertActions.info(message));
     },
     createAccount: (params, onSuccess) => dispatch(Actions.createAccount(params, onSuccess)),
   };

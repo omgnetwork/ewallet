@@ -1,3 +1,14 @@
 {
-    "extends": "airbnb"
+  "extends": ["airbnb", "plugin:react/all"],
+  "globals": { "fetch": false, "btoa": false },
+  "plugins": [
+      "react"
+  ],
+  "rules": {
+    "react/jsx-no-literals": "off",
+    "react/require-optimization": "off",
+    "react/no-set-state": "off",
+    "react/forbid-prop-types": "off",
+    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+  }
 }

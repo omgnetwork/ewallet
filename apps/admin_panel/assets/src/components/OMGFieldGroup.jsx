@@ -1,18 +1,13 @@
-import React, { Component } from "react";
-import FieldGroup from "./FieldGroup"
+import React from 'react';
+import FieldGroup from './FieldGroup';
 
-class OMGFieldGroup extends Component {
+const OMGFieldGroup = props => (
+  <FieldGroup
+    {...props}
+    groupClass="omg-form__group"
+    inputClass="omg-form__input"
+    labelClass="omg-form__label"
+  />
+);
 
-  render() {
-    return(
-      <FieldGroup {...this.props}
-        groupClass="omg-form__group"
-        labelClass="omg-form__label"
-        inputClass="omg-form__input"
-      />
-    );
-  }
-
-}
-
-export default OMGFieldGroup
+export default OMGFieldGroup;

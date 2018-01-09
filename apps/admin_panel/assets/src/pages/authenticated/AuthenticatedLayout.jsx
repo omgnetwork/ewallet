@@ -22,7 +22,7 @@ const AuthenticatedLayout = ({ alert, children }) => (
 );
 
 AuthenticatedLayout.propTypes = {
-  alert: PropTypes.object.isRequired, // eslint-disable-line react/forbid-prop-types
+  alert: PropTypes.object.isRequired,
   children: PropTypes.element.isRequired,
 };
 

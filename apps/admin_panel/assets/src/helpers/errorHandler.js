@@ -1,12 +1,14 @@
 import { push } from 'react-router-redux';
 
-import { alertActions } from '../actions';
+import AlertActions from '../actions/alert.actions';
 
-export function handleAPIError(dispatch, error) {
+function handleAPIError(dispatch, error) {
   const authenticationErrors = ['user:access_token_not_found'];
   if (authenticationErrors.includes(error.code)) {
     dispatch(push('/signin'));
   } else {
-    dispatch(alertActions.error(error.description));
+    dispatch(AlertActions.error(error.description));
   }
 }
+
+export default handleAPIError;
