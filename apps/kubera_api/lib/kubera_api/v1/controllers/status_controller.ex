@@ -1,6 +1,6 @@
 defmodule KuberaAPI.V1.StatusController do
   use KuberaAPI, :controller
-  alias KuberaMQ.Status
+  alias KuberaMQ.Publishers.Status
 
   def index(conn, _attrs) do
     json conn, %{"success" => :true}

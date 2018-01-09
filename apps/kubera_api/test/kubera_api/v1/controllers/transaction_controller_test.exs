@@ -2,7 +2,7 @@ defmodule KuberaAPI.V1.TransactionControllerTest do
   use KuberaAPI.ConnCase, async: true
   import Mock
   alias KuberaDB.{User, MintedToken, Account}
-  alias KuberaMQ.{Entry, Balance}
+  alias KuberaMQ.Publishers.{Entry, Balance}
 
   def valid_response do
     {:ok, %{

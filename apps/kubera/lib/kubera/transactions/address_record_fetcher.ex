@@ -8,7 +8,7 @@ defmodule Kubera.Transactions.AddressRecordFetcher do
     "from_address" => from_address,
     "to_address" => to_address,
     "token_id" => token_friendly_id
-  } = attrs) do
+  }) do
     from_balance = Balance.get(from_address)
     to_balance = Balance.get(to_address)
     minted_token = MintedToken.get(token_friendly_id)

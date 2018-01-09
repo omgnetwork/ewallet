@@ -68,6 +68,6 @@ if Enum.member?(System.argv, "--with-genesis") do
       metadata: %{}
     }
     |> KuberaMQ.Serializers.Transaction.serialize()
-    |> KuberaMQ.Entry.genesis(Ecto.UUID.generate())
+    |> KuberaMQ.Publishers.Entry.genesis(Ecto.UUID.generate())
   end)
 end

@@ -7,16 +7,20 @@ defmodule KuberaMQ.Application do
   import Supervisor.Spec
 
   def start(_type, _args) do
-    # List all child processes to be supervised
     children = [
-      supervisor(KuberaMQ.Publisher, [])
-      # Starts a worker by calling: KuberaMQ.Worker.start_link(arg)
-      # {KuberaMQ.Worker, arg},
+      supervisor(RabbitMQRPC.Supervisor, [get_config(), KuberaMQ.MQConsumer])
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: KuberaMQ.Supervisor]
     Supervisor.start_link(children, opts)
+  end
+
+  defp get_config do
+    %{
+      url: Application.get_env(:kubera_mq, :mq_url),
+      exchange: Application.get_env(:kubera_mq, :mq_exchange),
+      publish_queues: Application.get_env(:kubera_mq, :mq_publish_queues),
+      consume_queues: Application.get_env(:kubera_mq, :mq_consume_queues)
+    }
   end
 end

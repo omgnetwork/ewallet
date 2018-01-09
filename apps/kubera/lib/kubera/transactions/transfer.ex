@@ -3,7 +3,7 @@ defmodule Kubera.Transactions.Transfer do
   Handles the logic for a transfer of value between two addresses.
   """
   alias KuberaMQ.Serializers.Transaction
-  alias KuberaMQ.Entry
+  alias KuberaMQ.Publishers.Entry
   alias KuberaDB.Transfer
 
   @doc """

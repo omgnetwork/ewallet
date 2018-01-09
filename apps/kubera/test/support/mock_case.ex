@@ -5,7 +5,7 @@ defmodule Kubera.MockCase do
   """
   use ExUnit.CaseTemplate
   import Mock
-  alias KuberaMQ.Entry
+  alias KuberaMQ.Publishers.Entry
 
   using do
     quote do

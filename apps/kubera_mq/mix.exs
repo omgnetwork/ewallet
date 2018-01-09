@@ -19,7 +19,7 @@ defmodule KuberaMQ.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger, :amqp],
+      extra_applications: [:logger],
       mod: {KuberaMQ.Application, []}
     ]
   end
@@ -27,7 +27,8 @@ defmodule KuberaMQ.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:amqp, "~> 0.3.0"},
+      {:rabbitmq_rpc, git: "ssh://git@phabricator.omisego.io/source/rabbitmq-rpc.git",
+                      tag: "0.2.0"},
       {:poison, "~> 3.1"},
       {:kubera_db, in_umbrella: true}
     ]

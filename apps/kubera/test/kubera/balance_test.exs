@@ -29,7 +29,7 @@ defmodule Kubera.BalanceTest do
   describe "all/1" do
     test "retrieve all balances from a provider_user_id" do
       with_mocks [
-        {KuberaMQ.Balance, [], [all: fn _pid -> balances_response() end]}
+        {KuberaMQ.Publishers.Balance, [], [all: fn _pid -> balances_response() end]}
         ] do
           {:ok, inserted_user} = User.insert(params_for(:user))
           {:ok, btc} =
@@ -55,7 +55,7 @@ defmodule Kubera.BalanceTest do
   describe "get/2" do
     test "retrieve the specific balance from a minted_token and an address" do
       with_mocks [
-        {KuberaMQ.Balance, [], [get: fn _symbol, _pid -> balance_response() end]}
+        {KuberaMQ.Publishers.Balance, [], [get: fn _symbol, _pid -> balance_response() end]}
       ] do
           {:ok, inserted_user} = User.insert(params_for(:user))
           {:ok, omg} =

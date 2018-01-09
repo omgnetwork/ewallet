@@ -1,7 +1,7 @@
 defmodule KuberaAPI.V1.SelfControllerTest do
   use KuberaAPI.ConnCase, async: true
   import Mock
-  alias KuberaMQ.Balance
+  alias KuberaMQ.Publishers.Balance
   alias KuberaDB.User
 
   describe "/me.get" do

@@ -46,7 +46,7 @@ defmodule KuberaAPI.V1.TransactionController do
   end
   defp credit_or_debit(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp respond_with_balances({:ok, transfer, balances, minted_token}, conn) do
+  defp respond_with_balances({:ok, _transfer, balances, minted_token}, conn) do
     addresses = Enum.map(balances, fn balance ->
       case Balance.get(minted_token.friendly_id, balance.address) do
         {:ok, address} -> address
@@ -54,7 +54,7 @@ defmodule KuberaAPI.V1.TransactionController do
       end
     end)
 
-    case Enum.find(addresses, fn(e) -> match?({:error, code, description}, e) end) do
+    case Enum.find(addresses, fn(e) -> match?({:error, _code, _description}, e) end) do
       nil -> respond({:ok, addresses}, conn)
       error -> error
     end

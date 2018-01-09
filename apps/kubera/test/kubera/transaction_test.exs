@@ -4,7 +4,7 @@ defmodule Kubera.TransactionTest do
   import Mock
   alias Kubera.Transaction
   alias KuberaDB.{Repo, User, MintedToken, Transfer, Account}
-  alias KuberaMQ.Entry
+  alias KuberaMQ.Publishers.Entry
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 

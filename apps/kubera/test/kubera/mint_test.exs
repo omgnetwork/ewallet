@@ -3,7 +3,7 @@ defmodule Kubera.MintTest do
   import KuberaDB.Factory
   import Mock
   alias Kubera.Mint
-  alias KuberaMQ.Entry
+  alias KuberaMQ.Publishers.Entry
   alias KuberaDB.{MintedToken, Repo, Account}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID

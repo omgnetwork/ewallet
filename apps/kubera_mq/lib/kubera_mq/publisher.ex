@@ -1,30 +1,38 @@
 defmodule KuberaMQ.Publisher do
   @moduledoc """
-  GenServer module publishing operations through RabbitMQ.
+  Publishing logic for KuberaMQ through RabbitMQ-RPC.
   """
-  alias KuberaMQ.RabbitMQPublisher
-  require Logger
-  use GenServer
+  alias RabbitMQRPC.Publisher
 
-  def start_link do
-    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  def publish(queue, payload, correlation_id) do
+    send(%{
+      queue: queue,
+      payload: Poison.encode!(payload),
+      correlation_id: correlation_id
+    })
   end
 
-  def init(_opts) do
-    RabbitMQPublisher.init
+  def publish(queue, payload) do
+    send(%{
+      queue: queue,
+      payload: Poison.encode!(payload)
+    })
   end
 
-  def send(payload) do
-    GenServer.call(__MODULE__, {:publish, payload})
+  defp send(data) do
+    data
+    |> Publisher.publish()
+    |> handle_response()
   end
 
-  def handle_call({:publish, payload}, _from, chan) do
-    response = RabbitMQPublisher.call(chan, payload)
-    {:reply, response, chan}
-  end
+  defp handle_response({:ok, _correlation_id, payload}) do
+    response = Poison.decode!(payload)
 
-  # Confirmation sent by the broker after registering this process as a consumer
-  def handle_info({:basic_consume_ok, %{consumer_tag: _consumer_tag}}, chan) do
-    {:noreply, chan}
+    case response["success"] do
+      true ->
+        {:ok, response["data"]}
+      _ ->
+        {:error, response["data"]["code"], response["data"]["description"]}
+    end
   end
 end

@@ -2,7 +2,7 @@ defmodule KuberaAPI.V1.BalanceControllerTest do
   use KuberaAPI.ConnCase, async: true
   import Mock
   alias KuberaDB.{User, MintedToken}
-  alias KuberaMQ.Balance
+  alias KuberaMQ.Publishers.Balance
 
   def valid_balances_response do
     {:ok, %{

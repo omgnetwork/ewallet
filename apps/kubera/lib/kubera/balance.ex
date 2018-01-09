@@ -3,7 +3,7 @@ defmodule Kubera.Balance do
   Handles the retrieval and formatting of balances from the local ledger.
   """
   alias KuberaDB.{User, MintedToken}
-  alias KuberaMQ.Balance
+  alias KuberaMQ.Publishers.Balance
 
   @doc """
   Prepare the list of balances and turn them into a suitable format for
