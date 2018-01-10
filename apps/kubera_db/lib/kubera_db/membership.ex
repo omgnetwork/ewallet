@@ -79,6 +79,10 @@ defmodule KuberaDB.Membership do
     |> Repo.update()
   end
 
+  defp delete(%Membership{} = membership) do
+    Repo.delete(membership)
+  end
+
   @doc """
   Checks if the user is assigned to the given role, regardless of which account.
   """

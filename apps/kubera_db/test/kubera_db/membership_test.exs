@@ -49,16 +49,26 @@ defmodule KuberaDB.MembershipTest do
       assert res == :error
       assert reason == :role_not_found
     end
+  end
 
-    test "returns {:error, changeset} when failed to assign" do
+  describe "Membership.unassign/2" do
+    test "returns {:ok, membership} when unassigned successfully" do
+      user        = insert(:user)
+      account     = insert(:account)
+      role        = insert(:role, %{name: "some_role"})
+      _membership = insert(:membership, %{user: user, account: account, role: role})
+
+      assert Membership.user_get_roles(user) == [:some_role]
+
+      {:ok, _} = Membership.unassign(user, account)
+      assert Membership.user_get_roles(user) == []
+    end
+
+    test "returns {:error, :membership_not_found} if the user is not assigned to the account" do
       user    = insert(:user)
-      account = build(:account) # Account was built but not inserted
-      _role   = insert(:role, %{name: "some_role"})
+      account = insert(:account)
 
-      {res, changeset} = Membership.assign(user, account, :some_role)
-
-      assert res == :error
-      refute changeset.valid?
+      assert Membership.unassign(user, account) == {:error, :membership_not_found}
     end
   end
 
@@ -87,16 +97,15 @@ defmodule KuberaDB.MembershipTest do
       user     = insert(:user)
       account1 = insert(:account)
       account2 = insert(:account)
+      account3 = insert(:account)
       role1    = insert(:role, %{name: "role_one"})
       role2    = insert(:role, %{name: "role_two"})
 
       insert(:membership, %{user: user, account: account1, role: role1})
-      insert(:membership, %{user: user, account: account1, role: role2})
-      insert(:membership, %{user: user, account: account2, role: role1})
       insert(:membership, %{user: user, account: account2, role: role2})
+      insert(:membership, %{user: user, account: account3, role: role2})
 
-      roles = Membership.user_get_roles(user)
-      assert roles == [:role_one, :role_two]
+      assert Membership.user_get_roles(user) == [:role_one, :role_two]
     end
   end
 end
