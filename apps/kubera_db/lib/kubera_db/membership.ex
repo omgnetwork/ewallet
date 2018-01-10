@@ -10,8 +10,8 @@ defmodule KuberaDB.Membership do
   @primary_key false
 
   schema "membership" do
-    belongs_to :account, Account, type: UUID
     belongs_to :user, User, type: UUID
+    belongs_to :account, Account, type: UUID
     belongs_to :role, Role, type: UUID
 
     timestamps()
@@ -19,10 +19,11 @@ defmodule KuberaDB.Membership do
 
   def changeset(%Membership{} = membership, attrs) do
     membership
-    |> cast(attrs, [:account_id, :user_id, :role_id])
-    |> validate_required([:account_id, :user_id, :role_id])
-    |> assoc_constraint(:account)
+    |> cast(attrs, [:user_id, :account_id, :role_id])
+    |> validate_required([:user_id, :account_id, :role_id])
+    |> unique_constraint(:user_id, name: :membership_user_id_account_id_index)
     |> assoc_constraint(:user)
+    |> assoc_constraint(:account)
     |> assoc_constraint(:role)
   end
 
