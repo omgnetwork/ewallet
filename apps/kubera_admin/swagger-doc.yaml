@@ -160,6 +160,24 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  # Endpoint to unassign user to an account
+  /account.unassign_user:
+    post:
+      tags:
+        - Account
+      summary: Unassigns a user from an account
+      operationId: account_unassign_user
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AccountUnassignUserBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 components:
   schemas:
     # Schema for success response body
@@ -509,6 +527,26 @@ components:
               account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
               role_name: "admin"
+    # Request body for updating an account
+    AccountUnassignUserBody:
+      description: The parameters to use for unassigning a user from an account
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              user_id:
+                type: string
+                format: uuid
+              account_id:
+                type: string
+                format: uuid
+            required:
+              - user_id
+              - account_id
+            example:
+              account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
   parameters:
     # Headers
     ClientAuthorizationHeader:

@@ -1,5 +1,6 @@
 defmodule KuberaAdmin.V1.AccountControllerTest do
   use KuberaAdmin.ConnCase, async: true
+  alias Ecto.UUID
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -118,6 +119,110 @@ defmodule KuberaAdmin.V1.AccountControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided"
+    end
+  end
+
+  describe "/account.assign_user" do
+    test "returns empty success if assigned successfully" do
+      response = user_request("/account.assign_user", %{
+        user_id: insert(:user).id,
+        account_id: insert(:account).id,
+        role_name: insert(:role).name
+      })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test "returns an error if the given user id does not exist" do
+      response = user_request("/account.assign_user", %{
+        user_id: UUID.generate(),
+        account_id: insert(:account).id,
+        role_name: insert(:role).name
+      })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "The given user id could not be found."
+    end
+
+    test "returns an error if the given account id does not exist" do
+      response = user_request("/account.assign_user", %{
+        user_id: insert(:user).id,
+        account_id: UUID.generate(),
+        role_name: insert(:role).name
+      })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "The given account id could not be found."
+    end
+
+    test "returns an error if the given role does not exist" do
+      response = user_request("/account.assign_user", %{
+        user_id: insert(:user).id,
+        account_id: insert(:account).id,
+        role_name: "invalid_role"
+      })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "The given role name could not be found."
+    end
+  end
+
+  describe "/account.unassign_user" do
+    test "returns empty success if unassigned successfully" do
+      membership = insert(:membership)
+      response   = user_request("/account.unassign_user", %{
+        user_id: membership.user_id,
+        account_id: membership.account_id
+      })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test "returns an error if the user was not previously assigned to the account" do
+      user    = insert(:user)
+      account = insert(:account)
+
+      response = user_request("/account.unassign_user", %{
+        user_id: user.id,
+        account_id: account.id
+      })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "The user was not assigned to this account."
+    end
+
+    test "returns an error if the given user id does not exist" do
+      response = user_request("/account.unassign_user", %{
+        user_id: UUID.generate(),
+        account_id: insert(:account).id
+      })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "The given user id could not be found."
+    end
+
+    test "returns an error if the given account id does not exist" do
+      response = user_request("/account.unassign_user", %{
+        user_id: insert(:user).id,
+        account_id: UUID.generate()
+      })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "The given account id could not be found."
     end
   end
 end

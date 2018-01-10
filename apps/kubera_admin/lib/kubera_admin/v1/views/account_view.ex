@@ -12,4 +12,8 @@ defmodule KuberaAdmin.V1.AccountView do
     |> AccountSerializer.to_json()
     |> ResponseSerializer.to_json(success: true)
   end
+  def render("empty.json", %{success: success}) do
+    %{}
+    |> ResponseSerializer.to_json(success: success)
+  end
 end

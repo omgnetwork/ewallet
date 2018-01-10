@@ -129,6 +129,10 @@ defmodule KuberaAdmin.ConnCase do
     put_req_header(conn, "authorization", type <> " " <> content)
   end
 
+  @doc """
+  Checks the number of existing records for the given `schema`.
+  It then populates more records to meet the given `num_required`.
+  """
   def ensure_num_records(schema, num_required, attrs \\ %{}, count_field \\ :id) do
     num_remaining = num_required - Repo.aggregate(schema, :count, count_field)
     factory_name  = get_factory(schema)
