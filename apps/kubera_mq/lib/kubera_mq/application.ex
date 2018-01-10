@@ -16,11 +16,8 @@ defmodule KuberaMQ.Application do
   end
 
   defp get_config do
-    %{
-      url: Application.get_env(:kubera_mq, :mq_url),
-      exchange: Application.get_env(:kubera_mq, :mq_exchange),
-      publish_queues: Application.get_env(:kubera_mq, :mq_publish_queues),
-      consume_queues: Application.get_env(:kubera_mq, :mq_consume_queues)
-    }
+    :rabbitmq_rpc
+    |> Application.get_all_env()
+    |> Enum.into(%{})
   end
 end

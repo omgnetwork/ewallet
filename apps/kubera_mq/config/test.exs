@@ -7,9 +7,11 @@ ledger_queue = System.get_env("MQ_LEDGER_QUEUE") || "local_ledger_test"
 ewallet_queue = System.get_env("MQ_EWALLET_QUEUE") || "ewallet_test"
 
 config :kubera_mq,
-  mq_url: System.get_env("MQ_URL") || "amqp://guest:guest@localhost",
-  mq_exchange: System.get_env("MQ_EXCHANGE") || "#{random_queue_name}_transactions_exchange_test",
   mq_ledger_queue: ledger_queue,
-  mq_ewallet_queue: ewallet_queue,
-  mq_publish_queues: [ledger_queue],
-  mq_consume_queues: [ledger_queue]
+  mq_ewallet_queue: ewallet_queue
+
+config :rabbitmq_rpc,
+  url: System.get_env("MQ_URL") || "amqp://guest:guest@localhost",
+  exchange: System.get_env("MQ_EXCHANGE") || "#{random_queue_name}_transactions_exchange_test",
+  publish_queues: [ledger_queue],
+  consume_queues: [ledger_queue]
