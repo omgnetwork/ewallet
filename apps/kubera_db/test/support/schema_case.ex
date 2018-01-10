@@ -52,7 +52,7 @@ defmodule KuberaDB.SchemaCase do
     end
   end
 
-  def prepare_admin_user() do
+  def prepare_admin_user do
     user = insert(:user)
     account = insert(:account)
     role = insert(:role, %{name: "admin"})
