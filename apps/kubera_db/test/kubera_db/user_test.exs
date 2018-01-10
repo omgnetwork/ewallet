@@ -37,6 +37,22 @@ defmodule KuberaDB.UserTest do
     test_update_field_ok User, :username
     test_update_field_ok User, :metadata, %{"field" => "old"}, %{"field" => "new"}
     test_update_prevents_changing User, :provider_user_id
+
+    test "prevents updating an admin without email" do
+      user = prepare_admin_user()
+      {res, changeset} = User.update(user, %{email: nil})
+
+      assert res == :error
+      refute changeset.valid?
+    end
+
+    test "prevents updating an admin without password" do
+      user = prepare_admin_user()
+      {res, changeset} = User.update(user, %{password: nil})
+
+      assert res == :error
+      refute changeset.valid?
+    end
   end
 
   describe "get/1" do

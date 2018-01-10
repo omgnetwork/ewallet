@@ -5,7 +5,7 @@ defmodule KuberaDB.Account do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias KuberaDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
+  alias KuberaDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken, Role, User}
   alias Ecto.Multi
   alias KuberaDB.Helpers
 
