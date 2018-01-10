@@ -5,20 +5,20 @@ defmodule KuberaMQ.Publishers.Entry do
   alias KuberaMQ.Publisher
 
   def all do
-    Publisher.publish(System.get_env("MQ_LEDGER_QUEUE"), %{
+    Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue), %{
       operation: "v1.entry.all"
     })
   end
 
   def get(id) do
-    Publisher.publish(System.get_env("MQ_LEDGER_QUEUE"), %{
+    Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue), %{
       operation: "v1.entry.get",
       data: %{id: id}
     })
   end
 
   def insert(data, idempotency_token) do
-    Publisher.publish(System.get_env("MQ_LEDGER_QUEUE"), %{
+    Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue), %{
       idempotency_token: idempotency_token,
       operation: "v1.entry.insert",
       data: data
@@ -26,7 +26,7 @@ defmodule KuberaMQ.Publishers.Entry do
   end
 
   def genesis(data, idempotency_token) do
-    Publisher.publish(System.get_env("MQ_LEDGER_QUEUE"), %{
+    Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue), %{
       idempotency_token: idempotency_token,
       operation: "v1.entry.genesis",
       data: data
