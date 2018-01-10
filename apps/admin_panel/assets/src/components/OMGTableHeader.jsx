@@ -5,7 +5,7 @@ import CaretDown from '../../public/images/caret_down.svg';
 import Default from '../../public/images/caret_default.png';
 
 const sortingMode = ['asc', 'desc', 'default'];
-const nextSort = mode => sortingMode[(sortingMode.indexOf(mode) + 1) % sortingMode.length];
+const nextSort = mode => (mode === 'asc' ? 'desc' : 'asc');
 
 const OMGTableHeader = ({
   sortBy, title, position, handleClick,
