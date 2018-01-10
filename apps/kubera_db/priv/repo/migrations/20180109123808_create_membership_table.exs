@@ -3,6 +3,7 @@ defmodule KuberaDB.Repo.Migrations.CreateMembershipTable do
 
   def change do
     create table(:membership, primary_key: false) do
+      add :id, :uuid, primary_key: true
       add :user_id, references(:user, type: :uuid)
       add :account_id, references(:account, type: :uuid)
       add :role_id, references(:role, type: :uuid)

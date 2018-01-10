@@ -7,7 +7,7 @@ defmodule KuberaDB.Membership do
   alias Ecto.UUID
   alias KuberaDB.{Repo, Account, Membership, Role, User}
 
-  @primary_key false
+  @primary_key {:id, UUID, autogenerate: true}
 
   schema "membership" do
     belongs_to :user, User, type: UUID
@@ -27,26 +27,56 @@ defmodule KuberaDB.Membership do
     |> assoc_constraint(:role)
   end
 
+  defp get_by_user_and_account(user, account) do
+    Repo.get_by(Membership, %{user_id: user.id, account_id: account.id})
+  end
+
   @doc """
   Assigns the user to the given account and role.
   """
   def assign(user, account, role) when is_atom(role) and not is_nil(role) do
-    role = Role.get_by_name(role)
-    assign(user, account, role)
+    case Role.get_by_name(role) do
+      nil ->
+        {:error, :role_not_found}
+      role ->
+        assign(user, account, role)
+    end
   end
   def assign(%User{} = user, %Account{} = account, %Role{} = role) do
-    insert(%{
-      account_id: account.id,
-      user_id: user.id,
-      role_id: role.id
-    })
+    case get_by_user_and_account(user, account) do
+      nil ->
+        insert(%{
+          account_id: account.id,
+          user_id: user.id,
+          role_id: role.id
+        })
+      existing ->
+        update(existing, %{role_id: role.id})
+    end
   end
-  def assign(_, _, nil), do: {:error, :role_not_found}
+
+  @doc """
+  Unassigns the user from the given account.
+  """
+  def unassign(%User{} = user, %Account{} = account) do
+    case get_by_user_and_account(user, account) do
+      nil ->
+        {:error, :membership_not_found}
+      membership ->
+        delete(membership)
+    end
+  end
 
   defp insert(attrs) do
     %Membership{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp update(%Membership{} = membership, attrs) do
+    membership
+    |> changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """

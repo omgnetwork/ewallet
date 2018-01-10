@@ -27,17 +27,30 @@ defmodule KuberaDB.MembershipTest do
       assert membership.role_id == role.id
     end
 
+    test "re-assigns user to the new role if the user has an existing role on the account" do
+      user    = insert(:user)
+      account = insert(:account)
+
+      insert(:role, %{name: "old_role"})
+      insert(:role, %{name: "new_role"})
+
+      {:ok, _membership} = Membership.assign(user, account, :old_role)
+      {:ok, _membership}  = Membership.assign(user, account, :new_role)
+
+      user = Repo.preload(user, :roles, force: true)
+      assert Membership.user_get_roles(user) == [:new_role]
+    end
+
     test "returns {:error, :role_not_found} if the given role does not exist" do
       user    = insert(:user)
       account = insert(:account)
 
       {res, reason} = Membership.assign(user, account, :missing_role)
-
       assert res == :error
       assert reason == :role_not_found
     end
 
-    test "returns {:error, changeset} on unsuccessful assignment" do
+    test "returns {:error, changeset} when failed to assign" do
       user    = insert(:user)
       account = build(:account) # Account was built but not inserted
       _role   = insert(:role, %{name: "some_role"})
@@ -60,10 +73,10 @@ defmodule KuberaDB.MembershipTest do
     end
 
     test "returns false if the user is not assigned to the given role" do
-      user         = insert(:user)
-      account      = insert(:account)
-      role = insert(:role, %{name: "some_role"})
-      _membership  = insert(:membership, %{user: user, account: account, role: role})
+      user        = insert(:user)
+      account     = insert(:account)
+      role        = insert(:role, %{name: "some_role"})
+      _membership = insert(:membership, %{user: user, account: account, role: role})
 
       refute Membership.user_has_role?(user, :wrong_role)
     end
