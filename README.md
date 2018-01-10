@@ -2,11 +2,11 @@
 
 ## Getting Started
 
-1. OmiseGO SDK Overview
-2. OmiseGO SDK Integration Diagram
-3. Server-side components
-4. Client-side components
-5. Integrating the OmiseGO SDK
+- OmiseGO SDK Overview
+- OmiseGO SDK Integration Diagram
+- Server-side components
+- Client-side components
+- Integrating the OmiseGO SDK
 
 ### OmiseGO SDK Overview
 
@@ -14,9 +14,9 @@ The OmiseGO SDK provides various applications and tools that, once integrated, a
 
 The OmiseGO SDK is composed of different components that can be grouped in the three following categories:
 
-1. Server Applications: A set of Elixir applications allowing a provider to store users and their balances, as well as initiating transactions between them and the provider’s balances. Those applications need to be deployed on a server and integrated by the provider through the provided HTTP API.
-2. Server and client SDKs: To facilitate the communication with the server applications, OmiseGO provides language-specific SDKs to integrate both on the server side (for sensitive requests) and on the client side (for non-sensitive requests).
-3. Blockchain: Once the server applications are plugged on the blockchain, the setup will become a node of the decentralized OmiseGO network and allow inter-wallet transactions to happen.
+- __Server Applications__: A set of Elixir applications allowing a provider to store users and their balances, as well as initiating transactions between them and the provider’s balances. Those applications need to be deployed on a server and integrated by the provider through the provided HTTP API.
+- __Server and client SDKs__: To facilitate the communication with the server applications, OmiseGO provides language-specific SDKs to integrate both on the server side (for sensitive requests) and on the client side (for non-sensitive requests).
+- __Blockchain__: Once the server applications are plugged on the blockchain, the setup will become a node of the decentralized OmiseGO network and allow inter-wallet transactions to happen.
 
 While all of these are being developed simultaneously, they have not all reach the same stage of advancement, which is why the OmiseGO SDK is not actually plugged to the blockchain yet. For now, it acts as a silo-ed eWallet handling loyalty points. Once the blockchain is plugged, those loyalty points will become actual tradable cryptocurrencies.
 
@@ -28,52 +28,94 @@ Here’s an overview of all the components and what needs to be integrated  by a
 ![A provider's setup](docs/images/provider_setup.png)
 
 ### Understanding the server-side applications
-- entities
-- swagger
-- link to each project
+
+In order to integrate the OmiseGO SDK in the best possible way, it can be useful to know how it works. In this section, we'll explore the different entities that make up the OmiseGO server-side applications, then go through the applications themselves and how they interact together. We'll also go over the dependencies needed to run those applications before talking about the deployment steps.
 
 #### Entities
-- Minted Tokens
-- Mints
-- Accounts
-- Users
-- Balances
-- Client API Keys
-- Server API Keys
-- Auth tokens
-- Transactions
+
+- __Minted Tokens__: A currency (loyalty points, cryptocurrency, tokenized fiat). Identified by a symbol (OMG, BTC, USDT). By default, a token is not backend by the blockchain. If a provider wishes to have one of its token backed, the address of the smart contract on the blockchain needs to be defined in the token details to uniquely identify it.
+
+- __Mints__: Putting more tokens in circulation.
+
+- __Accounts__: A grouping of users, can be used by a provider admin to define merchants, teams, etc.
+
+- __Users__: A user can either be a regular user or a provider user. In the first case, it would be someone using the end-user applications created by providers (mobile applications for example), who was added to the eWallet database by the provider. In the second case, it's a user able to access the OmiseGO admin panel.
+
+- __Balances__: A balance identified by an address which is used to group transactions and holds a value. A user can have more than one balance if needed, and a balance can contain different currencies. You can learn more about balances [there](/docs/balances.md).
+
+- __Transactions__: A transaction is an exchange of value between two balances. Transactions are stored in the local ledger using a DEB approach. DEB (Double Entry Bookkeeping) is a system where an entry is created and DEBIT/CREDIT transactions are linked to it. The sum of all debits minus the sum of all credits for a specific entry has to be equal to 0. Summing up all credit transactions minus all debit transactions for a specific balance address/token symbol gives the balance of that address.
+
+- __Access Key__: Identify a pair of key (access/secret) used by a provider's server application to communicate with Kubera. A combination is used here instead of a single key to prevent timing- based attacks.
+
+- __Secret Key__: A secret key acting as a password and sent from a provider's backend application to authenticate requests.
+
+- __API Key__: A perishable key sent from a mobile applications to make authenticated non-sensitive API cals to Kubera.
+
+- __Access Token__: A temporary token generated by the Kubera API and returned through a provider's backend application to the client. It can then be used with an API key to make non-sensitive calls to Kubera.
 
 #### Components
-- eWallet API
+
+Below is the list of the components from the OmiseGO SDK that need to be run on one (or more) server(s):
+
+- eWallet
 - Local Ledger
-- Admin Panel API
 - Admin Panel
 - Request Logger
 - Blockchain Gateway
 
+##### eWallet API (formerly known as Kubera)
+  - ewallet
+  - ewallet_admin_api
+  - ewallet_web_api
+  - ewallet_db
+  - ewallet_mq
+
+
+##### Local Ledger (formerly known as Caishen)
+  - local_ledger
+  - local_ledger_db
+  - local_ledger_mq
+
+##### Admin Panel
+
+##### Request Logger
+
+Coming Soon.
+
+##### Blockchain Gateway
+
+Coming Soon.
+
 #### Dependencies
-- PostgreSQL
-- RabbitMQ
-- Libsodium
+
+- __PostgreSQL__:
+- __RabbitMQ__:
+- __Libsodium__:
 
 #### Deployment
+
 - Deploying with Docker Kubernetes
 - Deploying manually
 - Server configuration options
 
 ### Communicating with the server
+
 #### HTTP
+
 - eWallet API
 - Admin Panel API
 
 #### Server SDKs
+
 - Ruby SDK
 
 #### Mobile SDKs
+
 - iOS SDK
 - Android SDK
 
 ##### iOS
+
 ##### Android
 
 ### Integrating the SDKs
