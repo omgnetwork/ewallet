@@ -193,7 +193,19 @@ Integrating the OmiseGO SDK requires a new setup to be deployed. Feel free to ge
 
 ## Sample Setup
 
+OmiseGO has built a sample setup to show how the OmiseGO SDK can be integrated. It is a simple t-shirt store allowing users to receive loyalty points when buying something. They can then use those loyalty points to get a discount.
+
+![OMGShop](docs/images/omgshop.png)
+
+The code and documentation are available in the following repositories:
+
+- [Server integration (Ruby)](https://github.com/omisego/sample-server)
+- [Mobile Server integration (iOS)](https://github.com/omisego/sample-ios)
+- [Mobile Server integration (Android)](https://github.com/omisego/sample-android)
+
 ## Setting up the OmiseGO SDK in local
+
+
 
 ## Deploying the OmiseGO SDK
 
