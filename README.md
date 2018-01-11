@@ -23,6 +23,7 @@ While all of these are being developed simultaneously, they have not all reach t
 __The sections below describe the server applications and server/client SDKs provided as part of the OmiseGO SDK.__
 
 ### OmiseGO SDK Integration Diagram
+
 Here’s an overview of all the components and what needs to be integrated  by a provider (and how):
 
 ![A provider's setup](docs/images/provider_setup.png)
@@ -55,48 +56,67 @@ In order to integrate the OmiseGO SDK in the best possible way, it can be useful
 
 #### Components
 
-Below is the list of the components from the OmiseGO SDK that need to be run on one (or more) server(s):
+Below is the list of components from the OmiseGO SDK that need to be run on one (or more) server(s):
 
-- eWallet
-- Local Ledger
-- Admin Panel
-- Request Logger
-- Blockchain Gateway
+- [eWallet](#ewallet-formerly-known-as-kubera)
+- [Local Ledger](#local-ledger-formerly-known-as-caishen)
+- [Admin Panel](#admin-panel)
+- [Request Logger](#request-logger)
+- [Blockchain Gateway](#blockchain-gateway)
 
-##### eWallet API (formerly known as Kubera)
-  - ewallet
-  - ewallet_admin_api
-  - ewallet_web_api
-  - ewallet_db
-  - ewallet_mq
+##### eWallet (formerly known as Kubera)
 
+The eWallet, originally named [Kubera](https://en.wikipedia.org/wiki/Kubera), is the center piece of the OmiseGO SDK. Through the web APIs it offers, the eWallet can be used to create users and balances, and exchange values between them. The eWallet also contains entites that can be used to configure, organize and manage the eWallet (accounts, minted tokens, etc.). The web APIs offered by the eWallet are not REST APIs - instead, they follow a HTTP-RPC approach to stay as protocol-agnostic as possible. The Swagger specs can be found below.
+
+**Note that the exchange of value (the transactions) is delegated to the local ledger.**
+
+On a more technical note, the eWallet is an umbrella Elixir application containing the following sub-applications:
+
+  - [ewallet](/apps/kubera): Sub-application containing the business logic (minting process, transfer of value, etc.).
+
+  - [ewallet_web_api](/apps/kubera_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to interact with the eWallet. Check the [Swagger spec](/apps/kubera_api/swagger-doc.yaml) for more details.
+
+  - [admin_web_api](/apps/kubera_admin): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __manage__ the system. Check the [Swagger spec](/apps/kubera_admin/swagger-doc.yaml) for more details.
+
+  - [ewallet_db](/apps/kubera_db): Sub-application containing all the database schemas and migrations.
+
+  - [ewallet_mq](/apps/kubera_mq): Sub-application used to communicate with other services such as the local ledger through RabbitMQ.
 
 ##### Local Ledger (formerly known as Caishen)
-  - local_ledger
-  - local_ledger_db
-  - local_ledger_mq
+
+The Local Ledger is an internal ledger used by the eWallet application to record transactions. No integration is needed from the provider for this tool, but it can be useful to know that the transactions are stored inside a different database.
+
+Just like the eWallet application, the Local Ledger is an Umbrella Elixir application containing three sub applications:
+
+  - [local_ledger](https://github.com/omisego/caishen/tree/master/apps/caishen): Sub-application containing the business logic.
+
+  - [local_ledger_db](https://github.com/omisego/caishen/tree/master/apps/caishen_db): Sub-application containing all the database schemas and migrations.
+
+  - [local_ledger_mq](https://github.com/omisego/caishen/tree/master/apps/caishen_mq): Sub-application used to communicate with other services such as the eWallet through RabbitMQ.
 
 ##### Admin Panel
 
+Admin Panel allows provider’s admin, i.e. staff at the headquarter, to perform system-wide actions such as managing tokens, accounts, API keys, users and balances.
+
 ##### Request Logger
 
-Coming Soon.
+**Final name still to be defined - Coming Soon.**
+
+The Request Logger will offer details about each request made to the system, its current state and any error that occurred. It will be a powerful debugging tool for developers. Those logs will be available through the eWallet Admin API and shown in the admin panel.
 
 ##### Blockchain Gateway
 
-Coming Soon.
+**Final name still to be defined - Coming Soon.**
+
+The Blockchain Gateway will be the interface to the blockchain OmiseGO is building. It will push transactions to the blockchain as well as listen to events happening there before forwarding them to the eWallet to keep it in sync.
 
 #### Dependencies
 
-- __PostgreSQL__:
-- __RabbitMQ__:
-- __Libsodium__:
+- [PostgreSQL](https://www.postgresql.org/): PostgreSQL is used to store most of the data for the eWallet API and local ledger.
 
-#### Deployment
+- [RabbitMQ](https://www.rabbitmq.com/): RabbitMQ is used to exchange messages between the eWallet and the other applications (local ledger, request logger, etc).
 
-- Deploying with Docker Kubernetes
-- Deploying manually
-- Server configuration options
+- [Libsodium](https://github.com/jedisct1/libsodium): Sodium is a new, easy-to-use software library for encryption, decryption, signatures, password hashing and more. It is used to hash and encrypt/decrypt sensitive data.
 
 ### Communicating with the server
 
@@ -118,12 +138,29 @@ Coming Soon.
 
 ##### Android
 
+
 ### Integrating the SDKs
+
+#### Responsibilities
+
+##### OmiseGO's side
+
+##### Provider's side
 
 #### Sample Setup
 
-#### Settting up the OmiseGO SDK
+#### Setting up the OmiseGO SDK in local
+
+#### Deploying the OmiseGO SDK
+
+- Deploying with Docker Kubernetes
+- Deploying manually
+- Server configuration options
 
 ### Diving further
 
-- Balances
+- [A closer look at balances](/docs/balances.md)
+
+### Contributing
+
+Coming soon.
