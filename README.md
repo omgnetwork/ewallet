@@ -19,16 +19,13 @@ The OmiseGO SDK provides various applications and tools that, once integrated, a
 - [Communicating with the server applications](communicating-with-the-server-applications)
   - [HTTP](#http)
   - [Server SDKs](#server-sdks)
-  - [Mobile SDKs](#mobile-sdks)
-    - [iOS](#ios)
-    - [Android](#android)
+  - [Client SDKs](#client-sdks)
 - [Integrating the OmiseGO SDK](integrating-the-omisego-sdk)
   - [Responsibilities](#responsibilities)
   - [Sample Setup](#sample-setup)
   - [Setting Up the OmiseGO SDK in local](#setting-up-the-omisego-sdk-in-local)
   - [Deploying the OmiseGO SDK](#deploying-the-omisego-sdk)
 - [Diving further](#diving-further)
-  - [A closer look at balances](#a-closer-look-at-balances)
 - [Contributiong](#contributing)
 
 # OmiseGO SDK Overview
@@ -141,47 +138,73 @@ The Blockchain Gateway will be the interface to the blockchain OmiseGO is buildi
 
 # Communicating with the server applications
 
+The OmiseGO offers HTTP-RPC web APIs for communication. To make things easier to integrate, we've also created server-side and client-side SDKs wrapping those HTTP requests.
+
 ### HTTP
 
-- eWallet API
-- Admin Panel API
+If you wish to use the HTTP-RPC web APIs directly, here are the Swagger specifications containing all the available endpoints and how to interact with them.
+
+- [eWallet API](/apps/kubera_api/swagger-doc.yaml)
+- [Admin Web API](/apps/kubera_admin/swagger-doc.yaml)
 
 ### Server SDKs
 
-- Ruby SDK
+To implement the sensitive calls on your side (such as crediting or debiting tokens from/to a user), we currently have the following server-side SDKs available:
 
-### Mobile SDKs
+- [Ruby SDK](https://github.com/omisego/ruby-sdk)
 
-- iOS SDK
-- Android SDK
+### Client SDKs
 
-#### iOS
+For the client side (non-sensitive calls), we currently have the following mobile SDKs available:
 
-#### Android
+- [iOS SDK](https://github.com/omisego/ios-sdk)
+- [Android SDK](https://github.com/omisego/android-sdk)
 
+# Integrating the OmiseGO SDK
 
-## Integrating the OmiseGO SDK
+Integrating the OmiseGO SDK requires a new setup to be deployed. Feel free to get in touch for that step as we offer hosted solutions. Before starting any integration, it is important to understand which responsibilities is the OmiseGO taking care of and which ones you will need to implement.
 
-### Responsibilities
+## Responsibilities
 
-#### OmiseGO's side
+### OmiseGO's side
 
-#### Provider's side
+|Area of responsibilities|Tasks|
+|------------------------|-----|
+|Token management   | - Create loyalty tokens <br> - Put more loyalty tokens in circulation <br> - Remove loyalty tokens from circulation <br> - Provide user interface for creating new loyalty tokens <br> - Provide user interface for add/remove of loyalty tokens from circulation|
+|Secondary user store|- Create users along with their token balances. The user stored in the Wallet API is solely for identifying and transacting with the user’s token balances.|
+|Token transactions|- Perform credit/debit of loyalty tokens to/from users|
+|Entity management|- Create, update and list accounts<br>- Create, update and list users with their balances<br>- Assign and unassign roles to users in an account<br>- Assign and unassign permissions to roles|
+|API management|- Generate and invalidate access and secret keys (for server application)<br>- Generate and invalidate API keys (for mobile application)|
+|Transactions|- List all transactions and their credit/debit entries|
+|Payment request|- Generate payment requests with QR code|
+|Payment inquiry|- List pending payments<br>- List successful payments|
+|Notifications|- Notify merchant panel user of new successful payments|
 
-### Sample Setup
+### Provider's side
 
-### Setting up the OmiseGO SDK in local
+|Side|Area of responsibilities|Tasks|
+|----|------------------------|-----|
+|Server|User management|- Create and safely store end-user data<br>- Send user creation requests to Wallet API (only to interact with their balances)<br>- Maintain the immutable user identifier (provider_user_id) to identify a user in Wallet API|
+|Server|Mobile app authentication|- Authenticate mobile application user<br>- Request authentication tokens from Wallet API and send to the client application|
+|Server|Transactions (read/write)|- Perform credit and debit calls to Wallet API<br>- Perform all other data-changing operations with Wallet API|
+|Mobile   |User management   |  - Register new user with the server application<br>- Send user data updates to the server application|
+|Mobile   |User authentication   | - Authenticate user with the server application<br>- Retrieve and store Wallet API’s authentication token from the server application|
+|Mobile   |Transactions (read-only)  | - Retrieve user balances from the Wallet API<br>- Retrieve list of settings including supported tokens.<br>- All data-changing operations cannot be performed by the mobile application|
 
-### Deploying the OmiseGO SDK
+## Sample Setup
+
+## Setting up the OmiseGO SDK in local
+
+## Deploying the OmiseGO SDK
 
 - Deploying with Docker Kubernetes
 - Deploying manually
 - Server configuration options
 
-## Diving further
+# Diving further
 
 - [A closer look at balances](/docs/balances.md)
 
-## Contributing
+# Contributing
 
 Coming soon.
