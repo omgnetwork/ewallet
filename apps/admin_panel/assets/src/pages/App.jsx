@@ -13,6 +13,11 @@ import Home from './authenticated/home/Home';
 import Accounts from './authenticated/accounts/list/Accounts';
 import NewAccount from './authenticated/accounts/new/NewAccount';
 import SignIn from './public/signin/SignIn';
+import APIManagement from './authenticated/api_management/APIManagement';
+import Report from './authenticated/report/Report';
+import Transactions from './authenticated/transactions/Transactions';
+import Setting from './authenticated/setting/Setting';
+import Tokens from './authenticated/tokens/Tokens';
 
 class App extends Component {
   constructor(props) {
@@ -50,6 +55,36 @@ class App extends Component {
                 component={NewAccount}
                 exact
                 path="/accounts/new"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={APIManagement}
+                exact
+                path="/api_management"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={Report}
+                exact
+                path="/report"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={Transactions}
+                exact
+                path="/transactions"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={Tokens}
+                exact
+                path="/tokens"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={Setting}
+                exact
+                path="/setting"
               />
               <PublicRoute component={SignIn} path="/signin" />
               <Redirect to="/signin" />

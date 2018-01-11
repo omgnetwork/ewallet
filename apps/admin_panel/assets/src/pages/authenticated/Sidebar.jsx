@@ -34,35 +34,35 @@ const Sidebar = ({ translate, currentPath }) => (
           <SidebarLink
             currentPath={currentPath}
             title={translate('sidebar.transactions')}
-            to="/"
+            to="/transactions"
           />
         </li>
         <li className="sidebar__li">
           <SidebarLink
             currentPath={currentPath}
             title={translate('sidebar.tokens')}
-            to="/"
+            to="/tokens"
           />
         </li>
         <li className="sidebar__li">
           <SidebarLink
             currentPath={currentPath}
             title={translate('sidebar.reports')}
-            to="/"
+            to="/report"
           />
         </li>
         <li className="sidebar__li">
           <SidebarLink
             currentPath={currentPath}
             title={translate('sidebar.api_management')}
-            to="/"
+            to="/api_management"
           />
         </li>
         <li className="sidebar__li">
           <SidebarLink
             currentPath={currentPath}
             title={translate('sidebar.setting')}
-            to="/"
+            to="/setting"
           />
         </li>
       </ul>
