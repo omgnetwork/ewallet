@@ -10,16 +10,16 @@ const Header = () => (
       <div className="header">
         <Navbar className="header header__navbar" collapseOnSelect fixedTop staticTop>
           <div className="col-md-3 col-xs-12 col-sm-4">
-            <Navbar.Header className="col-md-10 col-md-offset-1 col-xs-12 col-sm-12">
+            <Navbar.Header className="col-md-10 col-md-offset-1 col-xs-12 col-sm-12 header__left">
               <Navbar.Brand>
                 <Image className="header__logo" src={logo} />
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
           </div>
-          <div className="col-md-9 col-sm-8 col-xs-12">
+          <div className="col-md-9 col-sm-8 col-xs-12 header__right">
             <Navbar.Collapse>
-              <Nav className="header__button-toolbar">
+              <Nav>
                 <NavDropdown
                   className="omg-dropdown"
                   eventKey={1}
