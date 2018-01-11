@@ -3,7 +3,7 @@ defmodule CaishenMQ.PublisherTest do
   alias KuberaMQ.Publisher
 
   test "sends an RPC call through RabbitMQ" do
-    response = Publisher.publish(System.get_env("MQ_LEDGER_QUEUE"),
+    response = Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue),
                                  %{"hello" => "Universe"})
     assert response == {:ok, %{"hello" => "Universe"}}
   end

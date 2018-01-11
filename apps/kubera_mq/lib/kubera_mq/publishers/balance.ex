@@ -5,14 +5,14 @@ defmodule KuberaMQ.Publishers.Balance do
   alias KuberaMQ.Publisher
 
   def all(address) do
-    Publisher.publish(System.get_env("MQ_LEDGER_QUEUE"), %{
+    Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue), %{
       operation: "v1.balance.all",
       address: address
     })
   end
 
   def get(friendly_id, address) do
-    Publisher.publish(System.get_env("MQ_LEDGER_QUEUE"), %{
+    Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue), %{
       operation: "v1.balance.get",
       friendly_id: friendly_id,
       address: address
