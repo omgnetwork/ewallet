@@ -5,13 +5,24 @@ import OMGTableHeader from './OMGTableHeader';
 import OMGTableContentRow from './OMGTableContentRow';
 
 class OMGTable extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
       sortedColumnIndex: 0,
       sortedColumnMode: 'asc',
     };
     this.sort = this.sort.bind(this);
+  }
+
+  componentWillReceiveProps(nextProps) {
+    const { sort, headerTitles } = this.props;
+    const headerTitlesKey = headerTitles.map(v => v.toLowerCase());
+    if (nextProps.sort !== sort) {
+      this.setState({
+        sortedColumnIndex: headerTitlesKey.indexOf(nextProps.sort.by.toLowerCase()),
+        sortedColumnMode: nextProps.sort.dir,
+      });
+    }
   }
 
   sort(sortedColumnIndex, sortedColumnMode) {
@@ -22,7 +33,10 @@ class OMGTable extends Component {
       },
       () => {
         const { updateSorting, headerTitles } = this.props;
-        updateSorting(headerTitles[sortedColumnIndex], sortedColumnMode);
+        updateSorting({
+          by: headerTitles[sortedColumnIndex].toLowerCase(),
+          dir: sortedColumnMode,
+        });
       },
     );
   }
@@ -62,6 +76,7 @@ class OMGTable extends Component {
 OMGTable.propTypes = {
   contents: PropTypes.array.isRequired,
   headerTitles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  sort: PropTypes.object.isRequired,
   updateSorting: PropTypes.func.isRequired,
 };
 
