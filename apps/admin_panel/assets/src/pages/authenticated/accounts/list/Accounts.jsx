@@ -27,7 +27,7 @@ class Accounts extends Component {
 
   render() {
     const {
-      data, query, updateQuery, updateSorting,
+      data, query, updateQuery, updateSorting, sort,
     } = this.props;
 
     const contents = data.map(v => ({
@@ -47,6 +47,7 @@ class Accounts extends Component {
         <OMGTable
           contents={contents}
           headerTitles={this.headerTitles}
+          sort={sort}
           updateSorting={updateSorting}
         />
       </div>
@@ -63,6 +64,7 @@ Accounts.propTypes = {
   })).isRequired,
   history: PropTypes.object.isRequired,
   query: PropTypes.string.isRequired,
+  sort: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,
   updateQuery: PropTypes.func.isRequired,
   updateSorting: PropTypes.func.isRequired,

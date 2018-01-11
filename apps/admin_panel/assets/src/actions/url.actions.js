@@ -10,9 +10,20 @@ class URLActions {
     const params = processURL(location);
     const query = params.query ? params.query : '';
     const page = params.page ? parseInt(params.page, 10) : defaultPagination.PAGE;
-    const per = params.per ? Math.min(parseInt(params.per, 10), defaultPagination.PER) :
-      defaultPagination.PER;
-    onCompleted({ query, page, per });
+    const per = params.per
+      ? Math.min(parseInt(params.per, 10), defaultPagination.PER)
+      : defaultPagination.PER;
+    const sortBy = params.sort_by ? params.sort_by : 'id';
+    const sortDir = params.sort_dir ? params.sort_dir : 'asc';
+
+    const sort = {
+      by: sortBy,
+      dir: sortDir,
+    };
+
+    onCompleted({
+      query, page, per, sort,
+    });
   }
 }
 
