@@ -52,12 +52,21 @@ defmodule KuberaDB.SchemaCase do
     end
   end
 
+  def prepare_admin_user do
+    user = insert(:user)
+    account = insert(:account)
+    role = insert(:role, %{name: "admin"})
+    _membership = insert(:membership, %{user: user, account: account, role: role})
+
+    user
+  end
+
   @doc """
   Test schema's factory produces params that can be inserted successfully.
   """
   defmacro test_has_valid_factory(schema) do
     quote do
-      test "produces valid params and insert successfully" do
+      test "produces valid params and inserts successfully" do
         schema = unquote(schema)
 
         {res, val} =

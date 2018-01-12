@@ -4,8 +4,8 @@ defmodule KuberaDB.Factory do
   """
   use ExMachina.Ecto, repo: KuberaDB.Repo
   alias ExMachina.Strategy
-  alias KuberaDB.{Account, APIKey, AuthToken, Balance, Key, Mint,
-    MintedToken, User, Transfer}
+  alias KuberaDB.{Account, APIKey, AuthToken, Balance, Key, Membership, Mint,
+    MintedToken, Role, User, Transfer}
   alias Ecto.UUID
 
   @doc """
@@ -74,6 +74,21 @@ defmodule KuberaDB.Factory do
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
       }
+    }
+  end
+
+  def role_factory do
+    %Role{
+      name: sequence("role"),
+      display_name: "Role display name"
+    }
+  end
+
+  def membership_factory do
+    %Membership{
+      user: insert(:user),
+      role: insert(:role),
+      account: insert(:account)
     }
   end
 

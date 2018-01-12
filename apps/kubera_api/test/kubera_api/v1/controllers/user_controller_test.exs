@@ -20,7 +20,7 @@ defmodule KuberaAPI.V1.UserControllerTest do
       assert metadata["last_name"] == request_data.metadata["last_name"]
     end
 
-    test "returns an error and does not create a user if provider_user_id is not provided" do
+    test "returns an error if provider_user_id is not provided" do
       request_data = params_for(:user, provider_user_id: "")
       response     = provider_request("/user.create", request_data)
 
@@ -28,8 +28,22 @@ defmodule KuberaAPI.V1.UserControllerTest do
       assert response["success"] == :false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. `provider_user_id` can't be blank."
+      assert response["data"]["description"] == "Invalid parameter provided. "
+        <> "`provider_user_id` can't be blank."
       assert response["data"]["messages"] == %{"provider_user_id" => ["required"]}
+    end
+
+    test "returns an error if username is not provided" do
+      request_data = params_for(:user, username: "")
+      response     = provider_request("/user.create", request_data)
+
+      assert response["version"] == @expected_version
+      assert response["success"] == :false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. "
+        <> "`username` can't be blank."
+      assert response["data"]["messages"] == %{"username" => ["required"]}
     end
   end
 
