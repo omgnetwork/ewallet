@@ -8,8 +8,8 @@ const propTypes = {
 const OMGTableContentRow = ({ data }) => {
   const tds = Object.values(data)
     .map(v => `${v}`)
-    .map(content => (
-      <td key={`${data.id}-${content}`}>
+    .map((content, index) => (
+      <td key={index}>
         {content}
       </td>
     ));
