@@ -7,18 +7,8 @@ defmodule KuberaDB.Validator do
   @doc """
   Validates that only one out of the provided fields can have value.
   """
-  def validate_required_exclusive(changeset, attrs) do
-    fields_found = Enum.count(attrs, fn({attr, attr_value}) ->
-      value = Changeset.get_field(changeset, attr)
-      case attr_value do
-        nil ->
-          value && value != ""
-        attr_value ->
-          value && value != "" && value == attr_value
-      end
-    end)
-
-    case fields_found do
+  def validate_required_exclusive(changeset, attrs) when is_map(attrs) or is_list(attrs) do
+    case count_fields_present(changeset, attrs) do
       1 ->
         changeset
       n when n > 1 ->
@@ -26,6 +16,41 @@ defmodule KuberaDB.Validator do
       _ ->
         Changeset.add_error(changeset, attrs, "can't all be blank")
     end
+  end
+
+  @doc """
+  Validates that either all or none the given fields are present.
+  """
+  def validate_required_all_or_none(changeset, attrs) do
+    num_attrs = Enum.count(attrs)
+    missing_attrs = Enum.filter(attrs, fn(attr) -> !field_present?(changeset, attr) end)
+
+    case Enum.count(missing_attrs) do
+      0 ->
+        changeset
+      ^num_attrs ->
+        changeset
+      _ ->
+        Changeset.add_error(
+          changeset,
+          attrs,
+          "either all or none of them must be present",
+          [validation: "all_or_none"])
+    end
+  end
+
+  def count_fields_present(changeset, attrs) do
+    Enum.count(attrs, fn(attr) -> field_present?(changeset, attr) end)
+  end
+
+  def field_present?(changeset, attr) when is_atom(attr) do
+    value = Changeset.get_field(changeset, attr)
+    value && value != ""
+  end
+  def field_present?(changeset, {attr, nil}), do: field_present?(changeset, attr)
+  def field_present?(changeset, {attr, attr_value}) do
+    value = Changeset.get_field(changeset, attr)
+    value && value != "" && value == attr_value
   end
 
   @doc """

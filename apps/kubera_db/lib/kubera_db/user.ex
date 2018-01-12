@@ -6,7 +6,7 @@ defmodule KuberaDB.User do
   import Ecto.{Changeset, Query}
   import KuberaDB.Validator
   alias Ecto.{Multi, UUID}
-  alias KuberaDB.{Repo, AuthToken, Balance, User}
+  alias KuberaDB.{Repo, Account, AuthToken, Balance, Membership, Role, User}
   alias KuberaDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
@@ -19,22 +19,45 @@ defmodule KuberaDB.User do
     field :provider_user_id, :string
     field :metadata, Cloak.EncryptedMapField
     field :encryption_version, :binary
+
     has_many :balances, Balance
     has_many :auth_tokens, AuthToken
+    has_many :memberships, Membership
+    many_to_many :roles, Role, join_through: Membership
+    many_to_many :accounts, Account, join_through: Membership
 
     timestamps()
   end
 
-  defp changeset(%User{} = user, attrs) do
-    user
-    |> cast(attrs, [:username, :email, :password, :provider_user_id, :metadata])
-    |> validate_required([:username, :provider_user_id, :metadata])
+  defp changeset(changeset, attrs) do
+    changeset
+    |> cast(attrs, [:username, :provider_user_id, :email, :password, :metadata])
+    |> validate_required([:metadata])
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
-    |> unique_constraint(:email)
     |> unique_constraint(:provider_user_id)
+    |> unique_constraint(:email)
     |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
     |> put_change(:encryption_version, Cloak.version)
+    |> validate_by_roles(attrs)
+  end
+
+  defp validate_by_roles(changeset, attrs) do
+    user = apply_changes(changeset)
+
+    if Membership.user_has_membership?(user) do
+      validate_loginable(changeset, attrs)
+    else
+      validate_provider_user(changeset, attrs)
+    end
+  end
+
+  defp validate_loginable(changeset, _attrs) do
+    validate_required(changeset, [:email, :password])
+  end
+
+  defp validate_provider_user(changeset, _attrs) do
+    validate_required(changeset, [:username, :provider_user_id])
   end
 
   @doc """

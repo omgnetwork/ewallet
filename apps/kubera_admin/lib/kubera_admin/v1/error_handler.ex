@@ -33,6 +33,10 @@ defmodule KuberaAdmin.V1.ErrorHandler do
       code: "server:internal_server_error",
       description: "Something went wrong on the server"
     },
+    unknown_error: %{
+      code: "server:unknown_error",
+      description: "An unknown error occured on the server"
+    },
     access_token_not_found: %{
       code: "user:access_token_not_found",
       description: "There is no user corresponding to the provided access_token"
@@ -69,6 +73,9 @@ defmodule KuberaAdmin.V1.ErrorHandler do
       error_fields(changeset)
 
     respond(conn, code, description, messages)
+  end
+  def handle_error(conn, :invalid_parameter, description) do
+    respond(conn, @errors.invalid_parameter.code, description)
   end
 
   @doc """
