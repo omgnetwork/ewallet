@@ -17,7 +17,7 @@ defmodule KuberaAdmin.V1.Router do
     plug UserAuthPlug
   end
 
-  # Authenticated endpoints
+  # Endpoints for working with accounts
   scope "/", KuberaAdmin.V1 do
     pipe_through [:api, :user_api]
 
@@ -25,11 +25,17 @@ defmodule KuberaAdmin.V1.Router do
     post "/account.get", AccountController, :get
     post "/account.create", AccountController, :create
     post "/account.update", AccountController, :update
+  end
 
+  # Endpoints for working with the currently authenticated user
+  scope "/", KuberaAdmin.V1 do
+    pipe_through [:api, :user_api]
+
+    post "/me.get", SelfController, :get
     post "/logout", AuthController, :logout
   end
 
-  # Public endpoints
+  # Public endpoints (still protected by api key)
   scope "/", KuberaAdmin.V1 do
     pipe_through [:api, :client_api]
 
