@@ -12,6 +12,8 @@ import PublicRoute from './public/PublicRoute';
 import Home from './authenticated/home/Home';
 import Accounts from './authenticated/accounts/list/Accounts';
 import NewAccount from './authenticated/accounts/new/NewAccount';
+import Users from './authenticated/users/list/Users';
+import NewUser from './authenticated/users/new/NewUser';
 import SignIn from './public/signin/SignIn';
 import APIManagement from './authenticated/api_management/APIManagement';
 import Report from './authenticated/report/Report';
@@ -73,6 +75,18 @@ class App extends Component {
                 component={Transactions}
                 exact
                 path="/transactions"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={Users}
+                exact
+                path="/users"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={NewUser}
+                exact
+                path="/users/new"
               />
               <AuthenticatedRoute
                 authenticated={session.authenticated}

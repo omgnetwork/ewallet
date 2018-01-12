@@ -51,9 +51,37 @@
       "success": "Successfully created ${ name }"
     }
   },
+  "users": {
+    "header": {
+      "users": "Users",
+      "new_user": "New User",
+      "advanced_filters": "Advanced Filters",
+      "export": "Export"
+    },
+    "table": {
+      "id": "Id",
+      "provider_user_id": "Provider user id",
+      "username": "Username",
+      "metadata": "Metadata"
+    },
+    "new": {
+      "create_a_user": "Create a User",
+      "create": "Create",
+      "name": {
+        "label": "Name",
+        "help": "Name should be at least 4 characters long"
+      },
+      "description": {
+        "label": "Description",
+        "help": ""
+      },
+      "success": "Successfully created ${ name }"
+    }
+  },
   "sidebar": {
     "dashboard": "Dashboard",
     "accounts": "Accounts",
+    "users": "Users",
     "transactions": "Transactions",
     "tokens": "Tokens",
     "reports": "Reports",
