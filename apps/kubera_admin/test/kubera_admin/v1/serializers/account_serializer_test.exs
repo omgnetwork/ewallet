@@ -1,26 +1,28 @@
 defmodule KuberaAdmin.V1.AccountSerializerTest do
   use KuberaAdmin.SerializerCase, :v1
   alias KuberaAdmin.V1.AccountSerializer
-  alias Kubera.Web.Paginator
+  alias Kubera.Web.{Paginator, Date}
 
   describe "AccountSerializer.to_json/1" do
     test "serializes an account into V1 response format" do
-      account = build(:account)
+      account = insert(:account)
 
       expected = %{
         object: "account",
         id: account.id,
         name: account.name,
         description: account.description,
-        master: account.master
+        master: account.master,
+        created_at: Date.to_iso8601(account.inserted_at),
+        updated_at: Date.to_iso8601(account.updated_at)
       }
 
       assert AccountSerializer.to_json(account) == expected
     end
 
     test "serializes an account paginator into a list object" do
-      account1 = build(:account)
-      account2 = build(:account)
+      account1 = insert(:account)
+      account2 = insert(:account)
       paginator = %Paginator{
         data: [account1, account2],
         pagination: %{
@@ -39,14 +41,18 @@ defmodule KuberaAdmin.V1.AccountSerializerTest do
             id: account1.id,
             name: account1.name,
             description: account1.description,
-            master: account1.master
+            master: account1.master,
+            created_at: Date.to_iso8601(account1.inserted_at),
+            updated_at: Date.to_iso8601(account1.updated_at)
           },
           %{
             object: "account",
             id: account2.id,
             name: account2.name,
             description: account2.description,
-            master: account2.master
+            master: account2.master,
+            created_at: Date.to_iso8601(account2.inserted_at),
+            updated_at: Date.to_iso8601(account2.updated_at)
           }
         ],
         pagination: %{

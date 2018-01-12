@@ -3,7 +3,7 @@ defmodule KuberaAdmin.V1.AccountSerializer do
   Serializes account(s) into V1 response format.
   """
   alias KuberaAdmin.V1.PaginatorSerializer
-  alias Kubera.Web.Paginator
+  alias Kubera.Web.{Paginator, Date}
 
   def to_json(%Paginator{} = paginator) do
     PaginatorSerializer.to_json(paginator, &to_json/1)
@@ -14,7 +14,9 @@ defmodule KuberaAdmin.V1.AccountSerializer do
       id: account.id,
       name: account.name,
       description: account.description,
-      master: account.master
+      master: account.master,
+      created_at: Date.to_iso8601(account.inserted_at),
+      updated_at: Date.to_iso8601(account.updated_at)
     }
   end
 end

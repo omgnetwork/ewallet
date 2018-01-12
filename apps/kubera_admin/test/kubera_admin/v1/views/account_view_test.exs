@@ -1,12 +1,11 @@
 defmodule KuberaAdmin.V1.AccountViewTest do
   use KuberaAdmin.ViewCase, :v1
-  alias Kubera.Web.Paginator
+  alias Kubera.Web.{Paginator, Date}
   alias KuberaAdmin.V1.AccountView
 
   describe "KuberaAdmin.V1.AccountView.render/2" do
     test "renders account.json with correct response structure" do
-      account = build(:account)
-
+      account = insert(:account)
       expected = %{
         version: @expected_version,
         success: true,
@@ -15,7 +14,9 @@ defmodule KuberaAdmin.V1.AccountViewTest do
           id: account.id,
           name: account.name,
           description: account.description,
-          master: account.master
+          master: account.master,
+          created_at: Date.to_iso8601(account.inserted_at),
+          updated_at: Date.to_iso8601(account.updated_at)
         }
       }
 
@@ -23,8 +24,8 @@ defmodule KuberaAdmin.V1.AccountViewTest do
     end
 
     test "renders accounts.json with correct response structure" do
-      account1 = build(:account)
-      account2 = build(:account)
+      account1 = insert(:account)
+      account2 = insert(:account)
 
       paginator = %Paginator{
         data: [account1, account2],
@@ -47,14 +48,18 @@ defmodule KuberaAdmin.V1.AccountViewTest do
               id: account1.id,
               name: account1.name,
               description: account1.description,
-              master: account1.master
+              master: account1.master,
+              created_at: Date.to_iso8601(account1.inserted_at),
+              updated_at: Date.to_iso8601(account1.updated_at)
             },
             %{
               object: "account",
               id: account2.id,
               name: account2.name,
               description: account2.description,
-              master: account2.master
+              master: account2.master,
+              created_at: Date.to_iso8601(account2.inserted_at),
+              updated_at: Date.to_iso8601(account2.updated_at)
             }
           ],
           pagination: %{
