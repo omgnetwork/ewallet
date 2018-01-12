@@ -29,6 +29,8 @@ tags:
     description: These are the endpoints related to the session tokens.
   - name: Account
     description: These are the endpoints related to the account.
+  - name: User
+    description: These are the endpoints related to users.
 paths:
   ############################
   #         SESSION          #
@@ -142,6 +144,9 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  ############################
+  #           USERS          #
+  ############################
   # Endpoint to assign user to an account
   /account.assign_user:
     post:
@@ -178,6 +183,25 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /me.get:
+    post:
+      tags:
+        - User
+      summary: Get the user corresponding to the provided authentication header.
+      operationId: me_get
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+# Components are objects that are reusable within this API spec.
+# They do not have any effect on the API unless they are
+# referenced from properties outside the component.
 components:
   schemas:
     # Schema for success response body
@@ -355,6 +379,53 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+    # Schema for a user object
+    UserSchema:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        username:
+          type: string
+        provider_user_id:
+          type: string
+        email:
+          type: string
+          format: email
+        metadata:
+          type: object
+      required:
+        - object
+        - id
+        - metadata
+      example:
+        object: "user"
+        id: "cec34607-0761-4a59-8357-18963e42a1aa"
+        provider_user_id: "wijf-fbancomw-dqwjudb"
+        username: "johndoe"
+        email: "johndoe@omise.co"
+        metadata: {"first_name": "John", "last_name": "Doe"}
+    # Schema for user response body
+    UserResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/UserSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "user"
+            id: "cec34607-0761-4a59-8357-18963e42a1aa"
+            provider_user_id: "wijf-fbancomw-dqwjudb"
+            username: "johndoe"
+            email: "johndoe@omise.co"
+            metadata: {"first_name": "John", "last_name": "Doe"}
     # Schema for an error object
     ErrorSchema:
       type: object
@@ -592,6 +663,13 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AccountsResponseSchema'
+    # User response
+    UserResponse:
+      description: User response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/UserResponseSchema'
     # Empty
     EmptyResponse:
       description: Empty response

@@ -21,6 +21,7 @@ defmodule KuberaAdmin.V1.Router do
   scope "/", KuberaAdmin.V1 do
     pipe_through [:api, :user_api]
 
+    # Account endpoints
     post "/account.all", AccountController, :all
     post "/account.get", AccountController, :get
     post "/account.create", AccountController, :create
@@ -28,10 +29,12 @@ defmodule KuberaAdmin.V1.Router do
     post "/account.assign_user", AccountController, :assign_user
     post "/account.unassign_user", AccountController, :unassign_user
 
+    # Self endpoints (operations on the currently authenticated user)
+    post "/me.get", SelfController, :get
     post "/logout", AuthController, :logout
   end
 
-  # Public endpoints
+  # Public endpoints (still protected by API key)
   scope "/", KuberaAdmin.V1 do
     pipe_through [:api, :client_api]
 
