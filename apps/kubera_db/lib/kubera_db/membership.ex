@@ -4,6 +4,7 @@ defmodule KuberaDB.Membership do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
   alias KuberaDB.{Repo, Account, Membership, Role, User}
 
@@ -27,14 +28,17 @@ defmodule KuberaDB.Membership do
     |> assoc_constraint(:role)
   end
 
-  defp get_by_user_and_account(user, account) do
+  @doc """
+  Retrieves the membership for the given user and account.
+  """
+  def get_by_user_and_account(user, account) do
     Repo.get_by(Membership, %{user_id: user.id, account_id: account.id})
   end
 
   @doc """
   Assigns the user to the given account and role.
   """
-  def assign(user, account, role) when is_atom(role) and not is_nil(role) do
+  def assign(user, account, role) when is_binary(role) do
     case Role.get_by_name(role) do
       nil ->
         {:error, :role_not_found}
@@ -84,9 +88,20 @@ defmodule KuberaDB.Membership do
   end
 
   @doc """
+  Checks if the user belongs to any account, regardless of the role.
+  """
+  # User does not have any membership if it has not been saved yet.
+  # Without pattern matching for nil id, Ecto will return an unsafe nil comparison error.
+  def user_has_membership?(%{id: nil}), do: false
+  def user_has_membership?(user) do
+    query = from(m in Membership, where: m.user_id == ^user.id)
+    Repo.aggregate(query, :count, :id) > 0
+  end
+
+  @doc """
   Checks if the user is assigned to the given role, regardless of which account.
   """
-  def user_has_role?(user, role) when is_atom(role) do
+  def user_has_role?(user, role) do
     user
     |> user_get_roles()
     |> Enum.member?(role)
@@ -94,12 +109,15 @@ defmodule KuberaDB.Membership do
 
   @doc """
   Get the list of unique roles that the given user is assigned to, regardless of the account.
+
+  This is useful when a check is required on a role but not depending on the account.
+  E.g. if the user is an admin, an email and password is required regardless of which account.
   """
   def user_get_roles(user) do
     user
     |> Repo.preload(:roles)
     |> Map.get(:roles, [])
-    |> Enum.map(&Role.to_atom/1)
+    |> Enum.map(fn(role) -> Map.fetch!(role, :name) end)
     |> Enum.uniq()
   end
 end

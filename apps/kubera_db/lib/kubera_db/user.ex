@@ -45,7 +45,7 @@ defmodule KuberaDB.User do
   defp validate_by_roles(changeset, attrs) do
     user = apply_changes(changeset)
 
-    if Membership.user_has_role?(user, :admin) do
+    if Membership.user_has_membership?(user) do
       validate_loginable(changeset, attrs)
     else
       validate_provider_user(changeset, attrs)

@@ -34,31 +34,17 @@ defmodule KuberaDB.Role do
   end
 
   @doc """
-  Retrieves a role by its string or atom name.
+  Retrieves a role by its string name.
   """
-  def get_by_name(nil), do: nil
-  def get_by_name(name) when is_atom(name) do
-    name
-    |> Atom.to_string()
-    |> get_by_name()
-  end
   def get_by_name(name) when is_binary(name) do
     Repo.get_by(Role, name: name)
   end
+  def get_by_name(_), do: nil
 
   @doc """
-  Compares that the given atom is equivalent to the given role.
+  Compares that the given string value is equivalent to the given role.
   """
-  def is_role?(%Role{} = role, role_atom) when is_atom(role_atom) do
-    to_atom(role) == role_atom
-  end
-
-  @doc """
-  Get the atom representation of the given role.
-  """
-  def to_atom(%Role{} = role) do
-    role
-    |> Map.get(:name)
-    |> String.to_atom()
+  def is_role?(%Role{} = role, role_name) do
+    role.name == role_name
   end
 end

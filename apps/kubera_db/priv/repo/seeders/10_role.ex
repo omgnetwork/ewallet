@@ -2,7 +2,7 @@
 
 seeds = [
   %{name: "admin", display_name: "Admin"},
-  %{name: "super_admin", display_name: "Super Admin"}
+  %{name: "viewer", display_name: "Viewer"}
 ]
 
 KuberaDB.CLI.info("\nSeeding Role...")
