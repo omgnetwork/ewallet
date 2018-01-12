@@ -4,24 +4,24 @@ import { Button, Glyphicon, Dropdown, MenuItem } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import OMGSearchField from '../../../../components/OMGSearchField';
 
-const AccountsHeader = ({
-  translate, query, handleSearchChange, handleNewAccount,
+const UsersHeader = ({
+  translate, query, handleSearchChange, handleNewUser,
 }) => (
   <div className="search-header">
     <div className="row mb-3">
       <div className="col-md-6">
         <h1 className="search-header__title pull-left">
-          {translate('accounts.header.accounts')}
+          {translate('users.header.users')}
         </h1>
       </div>
       <div className="col-md-6">
         <Button
           bsClass="search-header__new_button btn btn-omg-blue pull-right"
           bsStyle="primary"
-          onClick={handleNewAccount}
+          onClick={handleNewUser}
         >
           <Glyphicon glyph="plus" />
-          {translate('accounts.header.new_account')}
+          {translate('users.header.new_user')}
         </Button>
       </div>
     </div>
@@ -31,7 +31,7 @@ const AccountsHeader = ({
       </div>
       <div className="col-md-3">
         <Button bsClass="search-header__adv_filter_btn btn" bsStyle="link">
-          {translate('accounts.header.advanced_filters')}
+          {translate('users.header.advanced_filters')}
         </Button>
       </div>
       <div className="col-md-6">
@@ -41,7 +41,7 @@ const AccountsHeader = ({
         >
           <Dropdown.Toggle className="search-header__dropdown-toggle">
             <Glyphicon glyph="share" />
-            {translate('accounts.header.export')}
+            {translate('users.header.export')}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <MenuItem eventKey="1">
@@ -54,11 +54,11 @@ const AccountsHeader = ({
   </div>
 );
 
-AccountsHeader.propTypes = {
-  handleNewAccount: PropTypes.func.isRequired,
+UsersHeader.propTypes = {
+  handleNewUser: PropTypes.func.isRequired,
   handleSearchChange: PropTypes.func.isRequired,
   query: PropTypes.string.isRequired,
   translate: PropTypes.func.isRequired,
 };
 
-export default localize(AccountsHeader, 'locale');
+export default localize(UsersHeader, 'locale');

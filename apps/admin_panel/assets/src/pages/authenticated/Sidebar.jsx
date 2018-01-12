@@ -33,6 +33,13 @@ const Sidebar = ({ translate, currentPath }) => (
         <li className="sidebar__li">
           <SidebarLink
             currentPath={currentPath}
+            title={translate('sidebar.users')}
+            to="/users"
+          />
+        </li>
+        <li className="sidebar__li">
+          <SidebarLink
+            currentPath={currentPath}
             title={translate('sidebar.transactions')}
             to="/transactions"
           />
