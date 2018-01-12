@@ -2,7 +2,7 @@ import { sessionService } from 'redux-react-session';
 import { push } from 'react-router-redux';
 
 import { login } from '../../../omisego/services/session_api';
-import { handleAPIError } from '../../../helpers/errorHandler';
+import ErrorHandler from '../../../helpers/errorHandler';
 import LoadingActions from '../../../actions/loading.actions';
 import AlertActions from '../../../actions/alert.actions';
 
@@ -13,7 +13,7 @@ class Actions {
       login(params, (err, result) => {
         dispatch(LoadingActions.hideLoading());
         if (err) {
-          handleAPIError(dispatch, err);
+          ErrorHandler.handleAPIError(dispatch, err);
         } else {
           const mergedTokens = `${result.user_id}:${result.authentication_token}`;
           sessionService
