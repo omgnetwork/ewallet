@@ -11,8 +11,18 @@ const Alerter = ({ alert }) => (
   </div>
 );
 
+Alerter.defaultProps = {
+  alert: {
+    type: 'alert-danger',
+    message: 'alert.message should not be empty!',
+  },
+};
+
 Alerter.propTypes = {
-  alert: PropTypes.object.isRequired,
+  alert: PropTypes.shape({
+    type: PropTypes.oneOf(['alert-success', 'alert-danger']),
+    message: PropTypes.string,
+  }),
 };
 
 export default Alerter;

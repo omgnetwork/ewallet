@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
@@ -140,4 +139,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SignIn));
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);

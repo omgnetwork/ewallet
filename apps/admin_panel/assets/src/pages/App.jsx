@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Redirect, Switch } from 'react-router-dom';
+import { Redirect, Switch, withRouter } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import PropTypes from 'prop-types';
 import AlertActions from '../actions/alert.actions';
@@ -86,7 +86,7 @@ class App extends Component {
                 exact
                 path="/setting"
               />
-              <PublicRoute component={SignIn} path="/signin" />
+              <PublicRoute component={withRouter(SignIn)} path="/signin" />
               <Redirect to="/signin" />
             </Switch>
             <DevTools />
