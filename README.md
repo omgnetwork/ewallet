@@ -205,13 +205,76 @@ The code and documentation are available in the following repositories:
 
 ## Setting up the OmiseGO SDK in local
 
+To set up the OmiseGO SDK in local, you can use the [Goban](https://github.com/omisego/goban) bootstrapper which will use Vagrant and Ansible to install everything you need. If you prefer to manually set up everything, keep reading.
 
+1. Install the [dependencies](#dependencies)
+
+2. Install [Elixir](http://elixir-lang.github.io/install.html)
+
+3. Once you have installed the [dependencies](#dependencies) and started them, it's time to pull the code for the eWallet and the local ledger.
+
+Let's start by cloning the eWallet, getting the dependencies and migrating the database:
+
+```
+git clone git@github.com:omisego/kubera.git && cd /kubera
+```
+
+```
+mix deps.get
+```
+
+```
+mix do ecto.create, ecto.migrate
+```
+
+Now, same steps for the local ledger:
+
+```
+git clone git@github.com:omisego/caishen.git && cd /caishen
+```
+
+```
+mix deps.get
+```
+
+```
+mix do ecto.create, ecto.migrate
+```
+
+Everything is in place and we can actually start the local ledger:
+
+```
+mix run --no-halt
+```
+
+Navigate to the eWallet folder in a new window (we need to keep the local ledger running)  before running the following command. It will inserts some sample data in the eWallet and initiate the genesis for the minted tokens.
+
+```
+mix run apps/kubera_db/priv/repo/seeds.exs --with-genesis
+```
+
+With some data in the database, we can now start the eWallet:
+
+```
+mix phx.server
+```
+
+Navigate to  `http://localhost:4000/` in your browser and you should see the following JSON document popping up:
+
+```
+{"success":true}
+```
+
+All set! Start playing around with the API using the Swagger docs below to learn more about the available endpoints. Enjoy!
+
+- [eWallet API](/apps/kubera_api/swagger-doc.yaml)
+- [Admin Web API](/apps/kubera_admin/swagger-doc.yaml)
 
 ## Deploying the OmiseGO SDK
 
-- Deploying with Docker Kubernetes
-- Deploying manually
-- Server configuration options
+OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](thibault@omise.co) if you're interested.
+
+Deploying the OmiseGO SDK can be done on any infrastructure. For security reasons, it is recommended to run the applications on one server and the databases on a different one.
 
 # Diving further
 
