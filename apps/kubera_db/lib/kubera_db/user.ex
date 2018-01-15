@@ -63,8 +63,8 @@ defmodule KuberaDB.User do
   @doc """
   Retrieves a specific user.
   """
-  def get(id) do
-    User
+  def get(id, queryable \\ User) do
+    queryable
     |> Repo.get(id)
     |> Repo.preload(:balances)
   end
