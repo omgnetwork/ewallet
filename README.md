@@ -82,8 +82,14 @@ git clone git@github.com:omisego/kubera.git && cd /kubera
 mix deps.get
 ```
 
+Before we start the application, let's try running the tests:
+
 ```
-mix do ecto.create, ecto.migrate
+MIX_ENV=test mix do ecto.create, ecto.migrate
+```
+
+```
+mix test
 ```
 
 Now, same steps for the local ledger:
@@ -96,6 +102,18 @@ git clone git@github.com:omisego/caishen.git && cd /caishen
 mix deps.get
 ```
 
+Once again, let's try running the tests:
+
+```
+MIX_ENV=test mix do ecto.create, ecto.migrate
+```
+
+```
+mix test
+```
+
+If everything looks fine, we can create the development database:
+
 ```
 mix do ecto.create, ecto.migrate
 ```
@@ -106,7 +124,11 @@ Everything is in place and we can actually start the local ledger:
 mix run --no-halt
 ```
 
-Navigate to the eWallet folder in a new window (we need to keep the local ledger running)  before running the following command. It will inserts some sample data in the eWallet and initiate the genesis for the minted tokens.
+Navigate to the eWallet folder in a new window (we need to keep the local ledger running)  before running the following commands. It will generate the dev database and inserts some sample data in the eWallet and initiate the genesis for the minted tokens.
+
+```
+mix do ecto.create, ecto.migrate
+```
 
 ```
 mix run apps/kubera_db/priv/repo/seeds.exs --with-genesis
@@ -131,9 +153,11 @@ All set! Start playing around with the API using the Swagger docs below to learn
 
 ## Deploying the OmiseGO SDK
 
-OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](thibault@omise.co) if you're interested.
+OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](mailto:thibault@omise.co) if you're interested.
 
 Deploying the OmiseGO SDK can be done on any infrastructure. For security reasons, it is recommended to run the applications on one server and the databases on a different one.
+
+More information about deployment will be available soon.
 
 # Understanding the server-side applications
 
@@ -251,7 +275,7 @@ For the client side (non-sensitive calls), we currently have the following mobil
 
 # Integrating the OmiseGO SDK
 
-Integrating the OmiseGO SDK requires a new setup to be deployed. Feel free to get in touch for that step as we offer hosted solutions. Before starting any integration, it is important to understand which responsibilities OmiseGO is taking care of and which ones you will need to implement.
+Integrating the OmiseGO SDK requires a new setup to be deployed. Feel free to [get in touch](mailto:thibault@omise.co) for that step as we offer hosted solutions. Before starting any integration, it is important to understand which responsibilities OmiseGO is taking care of and which ones you will need to implement.
 
 ## Responsibilities
 
