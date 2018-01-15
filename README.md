@@ -36,7 +36,7 @@ The OmiseGO SDK is composed of different components that can be grouped in the t
 
 - __Server Applications__: A set of Elixir applications allowing a provider to store users and their balances, as well as initiating transactions between them and the provider’s balances. Those applications need to be deployed on a server and integrated by the provider through the provided HTTP API.
 - __Server and client SDKs__: To facilitate the communication with the server applications, OmiseGO provides language-specific SDKs to integrate both on the server side (for sensitive requests) and on the client side (for non-sensitive requests).
-- __Blockchain__: Once the server applications are plugged on the blockchain, the setup will become a node of the decentralized OmiseGO network (not n) and allow inter-wallet transactions to happen.
+- __Blockchain__: Once the server applications are plugged on the blockchain, the setup will become a node of the decentralized OmiseGO network and allow inter-wallet transactions to happen.
 
 While all of these are being developed simultaneously, they have not all reach the same stage of advancement, which is why the OmiseGO SDK is not actually plugged to the blockchain yet. For now, it acts as a silo-ed eWallet handling loyalty points. Once the blockchain is plugged, those loyalty points will become actual tradable cryptocurrencies.
 
