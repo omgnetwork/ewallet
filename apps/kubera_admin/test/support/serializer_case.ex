@@ -7,6 +7,12 @@ defmodule KuberaAdmin.SerializerCase do
     quote do
       use ExUnit.Case
       import KuberaDB.Factory
+      alias KuberaDB.Repo
+      alias Ecto.Adapters.SQL.Sandbox
+
+      setup do
+        :ok = Sandbox.checkout(Repo)
+      end
     end
   end
 
