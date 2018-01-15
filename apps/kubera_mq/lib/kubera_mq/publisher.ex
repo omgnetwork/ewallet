@@ -20,8 +20,8 @@ defmodule KuberaMQ.Publisher do
   end
 
   defp send(data) do
-    data
-    |> Publisher.publish()
+    :"kubera_mq.publisher"
+    |> Publisher.publish(data)
     |> handle_response()
   end
 

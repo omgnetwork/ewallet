@@ -8,7 +8,9 @@ defmodule KuberaMQ.Application do
 
   def start(_type, _args) do
     children = [
-      supervisor(RabbitMQRPC.Supervisor, [get_config(), KuberaMQ.MQConsumer])
+      supervisor(RabbitMQRPC.Supervisor, [get_config(),
+                                          KuberaMQ.MQConsumer,
+                                          :"kubera_mq.rabbitmq_rpc.supervisor"])
     ]
 
     opts = [strategy: :one_for_one, name: KuberaMQ.Supervisor]
@@ -16,8 +18,6 @@ defmodule KuberaMQ.Application do
   end
 
   defp get_config do
-    :rabbitmq_rpc
-    |> Application.get_all_env()
-    |> Enum.into(%{})
+    Application.get_all_env(:kubera_mq)[:rabbitmq_rpc]
   end
 end

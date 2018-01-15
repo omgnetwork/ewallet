@@ -4,29 +4,21 @@ defmodule CaishenMQ.Application do
   @moduledoc false
 
   use Application
+  import Supervisor.Spec
 
   def start(_type, _args) do
-    import Supervisor.Spec
-
-    # List all child processes to be supervised
     children = [
-      supervisor(RabbitMQRPC.Supervisor, [get_config(), CaishenMQ.MQConsumer])
-      # Starts a worker by calling: CaishenMQ.Worker.start_link(arg)
-      # {CaishenMQ.Worker, arg},
+      supervisor(RabbitMQRPC.Supervisor, [get_config(),
+                                          CaishenMQ.MQConsumer,
+                                          :"caishen_mq.rabbitmq_rpc.supervisor"])
     ]
 
-    # See https://hexdocs.pm/elixir/Supervisor.html
-    # for other strategies and supported options
     opts = [strategy: :one_for_one, name: CaishenMQ.Supervisor]
-
     :ok = :error_logger.add_report_handler(Sentry.Logger)
-
     Supervisor.start_link(children, opts)
   end
 
   defp get_config do
-    :rabbitmq_rpc
-    |> Application.get_all_env()
-    |> Enum.into(%{})
+    Application.get_all_env(:caishen_mq)[:rabbitmq_rpc]
   end
 end
