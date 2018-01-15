@@ -1,7 +1,7 @@
 defmodule Kubera.Mint do
   @moduledoc """
   Handles the mint creation logic. Since it relies on external applications to
-  handle the transactions (i.e. Caishen), a callback needs to be passed. See
+  handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
   examples on how to add value to a minted token.
   """
   alias KuberaDB.{Repo, Account, Mint, Balance, Transfer, MintedToken}
@@ -24,10 +24,10 @@ defmodule Kubera.Mint do
     case res do
       {:ok, mint, ledger_response} ->
         # Everything went well, do something.
-        # response is the response returned by the local ledger (Caishen for
+        # response is the response returned by the local ledger (LocalLedger for
         # example).
       {:error, code, description} ->
-        # Something went wrong on the other side (Caishen maybe) and the
+        # Something went wrong on the other side (LocalLedger maybe) and the
         # insert failed.
       {:error, changeset} ->
         # Something went wrong, check the errors in the changeset!

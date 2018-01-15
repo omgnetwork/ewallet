@@ -1,6 +1,6 @@
 defmodule KuberaMQ.Serializers.Transaction do
   @moduledoc """
-  Format a transaction the way Caishen expects it.
+  Format a transaction the way LocalLedger expects it.
   """
   def serialize(transfer) do
     %{

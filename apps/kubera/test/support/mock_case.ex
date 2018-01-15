@@ -1,7 +1,7 @@
 defmodule Kubera.MockCase do
   @moduledoc """
   This module defines the test case to be used by
-  tests that require mocking the calls to Caishen.
+  tests that require mocking the calls to LocalLedger.
   """
   use ExUnit.CaseTemplate
   import Mock

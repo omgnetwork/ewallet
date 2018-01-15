@@ -1,4 +1,4 @@
-defmodule CaishenMQ.Publishers.EntryTest do
+defmodule LocalLedgerMQ.Publishers.EntryTest do
   use ExUnit.Case
   alias KuberaMQ.Publishers.Entry
 
