@@ -64,7 +64,7 @@ defmodule KuberaDB.Factory do
     }
   end
 
-  def admin_user_factory do
+  def admin_factory do
     %User{
       username: nil,
       provider_user_id: nil,

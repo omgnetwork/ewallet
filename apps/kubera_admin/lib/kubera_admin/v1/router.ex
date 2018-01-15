@@ -33,6 +33,10 @@ defmodule KuberaAdmin.V1.Router do
     post "/user.all", UserController, :all
     post "/user.get", UserController, :get
 
+    # Admin endpoints
+    post "/admin.all", AdminController, :all
+    post "/admin.get", AdminController, :get
+
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get
     post "/logout", AuthController, :logout

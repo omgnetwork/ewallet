@@ -31,6 +31,8 @@ tags:
     description: These are the endpoints related to the account.
   - name: User
     description: These are the endpoints related to users.
+  - name: Admin
+    description: These are the endpoints related to admins.
 paths:
   ############################
   #         SESSION          #
@@ -230,6 +232,43 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  ############################
+  #          ADMINS          #
+  ############################
+  /admin.all:
+    post:
+      tags:
+        - Admin
+      summary: Get the list of admins
+      operationId: admin_all
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AdminAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AdminsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /admin.get:
+    post:
+      tags:
+        - Admin
+      summary: Get a specific admin
+      operationId: admin_get
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AdminGetBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AdminResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -509,6 +548,64 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+    # Schema for admin response body
+    AdminResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/UserSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "user"
+            id: "cec34607-0761-4a59-8357-18963e42a1aa"
+            provider_user_id: "wijf-fbancomw-dqwjudb"
+            username: "johndoe"
+            email: "johndoe@omise.co"
+            metadata: {"first_name": "John", "last_name": "Doe"}
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+    # Schema for admins body response
+    AdminsResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/UserSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "user"
+                id: "cec34607-0761-4a59-8357-18963e42a1aa"
+                provider_user_id: "wijf-fbancomw-dqwjudb"
+                username: "johndoe"
+                email: "johndoe@omise.co"
+                metadata: {"first_name": "John", "last_name": "Doe"}
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
     # Schema for an error object
     ErrorSchema:
       type: object
@@ -743,6 +840,48 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+    # Request body for listing admins
+    AdminAllBody:
+      description: The parameters to use for listing the admins
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              sort_by: "email"
+              sort_dir: "asc"
+    # Request body for getting a specific admin
+    AdminGetBody:
+      description: The parameters to use for retrieving a specific admin by its id
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+                format: uuid
+            required:
+              - id
+            example:
+              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
   parameters:
     # Headers
     ClientAuthorizationHeader:
@@ -802,6 +941,20 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/UsersResponseSchema'
+    # Admin response
+    AdminResponse:
+      description: Admin response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AdminResponseSchema'
+    # Admins response
+    AdminsResponse:
+      description: Admins response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AdminsResponseSchema'
     # Empty
     EmptyResponse:
       description: Empty response
