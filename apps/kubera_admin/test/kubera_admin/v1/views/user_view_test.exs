@@ -1,12 +1,15 @@
 defmodule KuberaAdmin.V1.UserViewTest do
   use KuberaAdmin.ViewCase, :v1
-  alias Kubera.Web.Paginator
+  alias Kubera.Web.{Date, Paginator}
   alias KuberaAdmin.V1.UserView
 
   describe "KuberaAdmin.V1.UserView.render/2" do
     test "renders user.json with correct response structure" do
-      user = build(:user)
+      user = insert(:user)
 
+      # I prefer to keep this test code duplicate with the `UserView.render/2` test,
+      # because in practice they are separate responses.
+      # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
       expected = %{
         version: @expected_version,
         success: true,
@@ -19,7 +22,9 @@ defmodule KuberaAdmin.V1.UserViewTest do
           metadata: %{
             "first_name" => user.metadata["first_name"],
             "last_name" => user.metadata["last_name"]
-          }
+          },
+          created_at: Date.to_iso8601(user.inserted_at),
+          updated_at: Date.to_iso8601(user.updated_at)
         }
       }
 
@@ -27,8 +32,8 @@ defmodule KuberaAdmin.V1.UserViewTest do
     end
 
     test "renders users.json with correct response structure" do
-      user1 = build(:user)
-      user2 = build(:user)
+      user1 = insert(:user)
+      user2 = insert(:user)
 
       paginator = %Paginator{
         data: [user1, user2],
@@ -55,7 +60,9 @@ defmodule KuberaAdmin.V1.UserViewTest do
               metadata: %{
                 "first_name" => user1.metadata["first_name"],
                 "last_name" => user1.metadata["last_name"]
-              }
+              },
+              created_at: Date.to_iso8601(user1.inserted_at),
+              updated_at: Date.to_iso8601(user1.updated_at)
             },
             %{
               object: "user",
@@ -66,7 +73,9 @@ defmodule KuberaAdmin.V1.UserViewTest do
               metadata: %{
                 "first_name" => user2.metadata["first_name"],
                 "last_name" => user2.metadata["last_name"]
-              }
+              },
+              created_at: Date.to_iso8601(user2.inserted_at),
+              updated_at: Date.to_iso8601(user2.updated_at)
             }
           ],
           pagination: %{

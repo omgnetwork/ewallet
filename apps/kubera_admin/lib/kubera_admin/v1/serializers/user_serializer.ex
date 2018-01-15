@@ -3,7 +3,7 @@ defmodule KuberaAdmin.V1.UserSerializer do
   Serializes user(s) into V1 JSON response format.
   """
   alias KuberaAdmin.V1.PaginatorSerializer
-  alias Kubera.Web.Paginator
+  alias Kubera.Web.{Date, Paginator}
 
   def to_json(%Paginator{} = paginator) do
     PaginatorSerializer.to_json(paginator, &to_json/1)
@@ -15,7 +15,9 @@ defmodule KuberaAdmin.V1.UserSerializer do
       username: user.username,
       provider_user_id: user.provider_user_id,
       email: user.email,
-      metadata: user.metadata
+      metadata: user.metadata,
+      created_at: Date.to_iso8601(user.inserted_at),
+      updated_at: Date.to_iso8601(user.updated_at)
     }
   end
 end

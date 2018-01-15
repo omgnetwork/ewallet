@@ -430,10 +430,18 @@ components:
           format: email
         metadata:
           type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
       required:
         - object
         - id
         - metadata
+        - created_at
+        - updated_at
       example:
         object: "user"
         id: "cec34607-0761-4a59-8357-18963e42a1aa"
@@ -441,6 +449,8 @@ components:
         username: "johndoe"
         email: "johndoe@omise.co"
         metadata: {"first_name": "John", "last_name": "Doe"}
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
     # Schema for user response body
     UserResponseSchema:
       allOf:
@@ -460,6 +470,8 @@ components:
             username: "johndoe"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
     # Schema for users body response
     UsersResponseSchema:
       allOf:
@@ -490,6 +502,8 @@ components:
                 username: "johndoe"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
             pagination:
               per_page: 10
               current_page: 1
