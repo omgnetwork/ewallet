@@ -27,7 +27,7 @@ defmodule KuberaMQ.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:rabbitmq_rpc, git: "ssh://git@phabricator.omisego.io/source/rabbitmq-rpc.git",
+      {:rabbitmq_rpc, git: "ssh://git@github.com/omisego/rabbitmq-rpc.git",
                       tag: "0.2.0"},
       {:poison, "~> 3.1"},
       {:kubera_db, in_umbrella: true}
