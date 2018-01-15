@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import CaretUp from '../../public/images/caret_up.svg';
-import CaretDown from '../../public/images/caret_down.svg';
+import CaretUp from '../../public/images/caret_up.png';
+import CaretDown from '../../public/images/caret_down.png';
 import Default from '../../public/images/caret_default.png';
 
 const sortingMode = ['asc', 'desc', 'default'];
@@ -25,7 +25,7 @@ const OMGTableHeader = ({
   return (
     <th className="omg-header-button" onClick={() => handleClick(position, nextSort(sortBy))}>
       {title}
-      <img alt="Caret" src={sortIcon} width={24} />
+      <img alt="Caret" height={24} src={sortIcon} width={24} />
     </th>
   );
 };
