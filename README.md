@@ -1,7 +1,7 @@
 OmiseGO eWallet
 ===============
 
-The OmiseGO SDK provides various applications and tools that, once integrated, allows any person or company to set up an eWallet with a node of the OmiseGO blockchain. A person or company setting up the OmiseGO SDK in such a way is called a **provider**.
+The OmiseGO SDK provides various applications and tools that, once integrated, allow any person or company to set up an eWallet with a node of the OmiseGO blockchain. A person or company setting up the OmiseGO SDK in such a way is called a **provider**.
 
 # Table of Contents
 
@@ -15,7 +15,6 @@ The OmiseGO SDK provides various applications and tools that, once integrated, a
   - [Entities](#entities)
   - [Components](#components)
     - [eWallet](#ewallet-formerly-known-as-kubera)
-    - [Local Ledger](#local-ledger-formerly-known-as-caishen)
     - [Admin Panel](#admin-panel)
     - [Request Logger](#request-logger)
     - [Blockchain Gateway](#blockchain-gateway)
@@ -64,13 +63,13 @@ The code and documentation are available in the following repositories:
 
 ## Setting up the OmiseGO SDK in local
 
-To set up the OmiseGO SDK in local, you can use the [Goban](https://github.com/omisego/goban) bootstrapper which will use Vagrant and Ansible to install everything you need. If you prefer to manually set up everything, keep reading.
+To set up the OmiseGO SDK in local, follow the steps below:
 
 1. Install the [dependencies](#dependencies)
 
 2. Install [Elixir](http://elixir-lang.github.io/install.html)
 
-3. Once you have installed the [dependencies](#dependencies) and started them, it's time to pull the code for the eWallet and the local ledger.
+3. Once you have installed the [dependencies](#dependencies) and they are running, it's time to pull the code for the eWallet.
 
 Let's start by cloning the eWallet, getting the dependencies and migrating the database:
 
@@ -92,58 +91,34 @@ MIX_ENV=test mix do ecto.create, ecto.migrate
 mix test
 ```
 
-Now, same steps for the local ledger:
-
-```
-git clone git@github.com:omisego/caishen.git && cd /caishen
-```
-
-```
-mix deps.get
-```
-
-Once again, let's try running the tests:
-
-```
-MIX_ENV=test mix do ecto.create, ecto.migrate
-```
-
-```
-mix test
-```
-
 If everything looks fine, we can create the development database:
 
 ```
 mix do ecto.create, ecto.migrate
 ```
 
-Everything is in place and we can actually start the local ledger:
-
-```
-mix run --no-halt
-```
-
-Navigate to the eWallet folder in a new window (we need to keep the local ledger running)  before running the following commands. It will generate the dev database and inserts some sample data in the eWallet and initiate the genesis for the minted tokens.
-
-```
-mix do ecto.create, ecto.migrate
-```
+Everything is in place and we can now run the seeds to have some data to play with. The following command will insert some sample data in the eWallet database and initiate the genesis for the minted tokens.
 
 ```
 mix run apps/kubera_db/priv/repo/seeds.exs --with-genesis
 ```
 
-With some data in the database, we can now start the eWallet:
+We can now start the application:
 
 ```
 mix phx.server
 ```
 
-Navigate to  `http://localhost:4000/` in your browser and you should see the following JSON document popping up:
+Navigate to  `http://localhost:4000/` in your browser and you should see the following JSON representation popping up:
 
 ```
-{"success":true}
+{
+  "success": true,
+  "services": {
+    "local_ledger": true,
+    "ewallet": true
+  }
+}
 ```
 
 All set! Start playing around with the API using the Swagger docs below to learn more about the available endpoints. Enjoy!
@@ -190,7 +165,6 @@ In order to integrate the OmiseGO SDK in the best possible way, it can be useful
 Below is the list of components from the OmiseGO SDK that need to be run on one (or more) server(s):
 
 - [eWallet](#ewallet-formerly-known-as-kubera)
-- [Local Ledger](#local-ledger-formerly-known-as-caishen)
 - [Admin Panel](#admin-panel)
 - [Request Logger](#request-logger)
 - [Blockchain Gateway](#blockchain-gateway)
@@ -198,6 +172,8 @@ Below is the list of components from the OmiseGO SDK that need to be run on one 
 ### eWallet (formerly known as Kubera)
 
 The eWallet, originally named [Kubera](https://en.wikipedia.org/wiki/Kubera), is the centerpiece of the OmiseGO SDK. Through the web APIs it offers, the eWallet can be used to create users and balances, and exchange values between them. The eWallet also contains entities that can be used to configure, organize and manage the eWallet (accounts, minted tokens, etc.). The web APIs offered by the eWallet follow an HTTP-RPC approach. They do not follow the REST recommendations to stay as protocol-agnostic as possible.
+
+The eWallet contains the Local Ledger which is an internal ledger used by the eWallet application to record transactions. No integration is needed from the provider for this tool, but it can be useful to know that the transactions are stored in a different database.
 
 **Note that the exchange of value (the transactions) is delegated to the local ledger.**
 
@@ -212,12 +188,6 @@ On a more technical note, the eWallet is an umbrella Elixir application containi
   - [ewallet_db](/apps/kubera_db): Sub-application containing all the database schemas and migrations.
 
   - [ewallet_mq](/apps/kubera_mq): Sub-application used to communicate with other services such as the local ledger through RabbitMQ.
-
-### Local Ledger (formerly known as Caishen)
-
-The Local Ledger is an internal ledger used by the eWallet application to record transactions. No integration is needed from the provider for this tool, but it can be useful to know that the transactions are stored in a different database.
-
-Just like the eWallet application, the Local Ledger is an Umbrella Elixir application containing three sub-applications:
 
   - [local_ledger](https://github.com/omisego/caishen/tree/master/apps/caishen): Sub-application containing the business logic.
 
