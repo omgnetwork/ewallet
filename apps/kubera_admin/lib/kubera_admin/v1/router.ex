@@ -29,6 +29,10 @@ defmodule KuberaAdmin.V1.Router do
     post "/account.assign_user", AccountController, :assign_user
     post "/account.unassign_user", AccountController, :unassign_user
 
+    # User endpoints
+    post "/user.all", UserController, :all
+    post "/user.get", UserController, :get
+
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get
     post "/logout", AuthController, :logout
