@@ -3,7 +3,7 @@ defmodule KuberaAdmin.V1.UserController do
   import KuberaAdmin.V1.ErrorHandler
   alias Ecto.UUID
   alias Kubera.Web.{SearchParser, SortParser, Paginator}
-  alias KuberaDB.{User}
+  alias KuberaDB.User
 
   @search_fields [{:id, :uuid}, :username, :provider_user_id]
   @sort_fields [:id, :username, :provider_user_id]
@@ -20,7 +20,7 @@ defmodule KuberaAdmin.V1.UserController do
   end
 
   @doc """
-  Retrieves a specific account by its id.
+  Retrieves a specific user by its id.
   """
   def get(conn, %{"id" => id}) do
     case UUID.cast(id) do
