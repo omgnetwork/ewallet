@@ -87,5 +87,40 @@
     "reports": "Reports",
     "api_management": "API Management",
     "setting": "Setting"
+  },
+  "transactions": {
+    "header": {
+      "transactions": "Transactions",
+      "new_transaction": "New Transaction",
+      "advanced_filters": "Advanced Filters",
+      "export": "Export"
+    },
+    "table": {
+      "id": "Id",
+      "amount": "Amount",
+      "token": "Token",
+      "balance_from": "Balance from",
+      "balance_to": "Balance to",
+      "date": "Date",
+      "status": "Status",
+      "idempotency_token": "Idempotency Token"
+    },
+    "new": {
+      "create_a_transaction": "Create a Transaction",
+      "create": "Create",
+      "field_1": {
+        "label": "Field 1"
+      },
+      "field_2": {
+        "label": "Field 2"
+      },
+      "field_3": {
+        "label": "Field 3"
+      },
+      "field_4": {
+        "label": "Field 4"
+      },
+      "success": "Successfully created ${ transaction_id }"
+    }
   }
 }
