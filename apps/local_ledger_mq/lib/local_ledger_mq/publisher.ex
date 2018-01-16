@@ -20,7 +20,9 @@ defmodule LocalLedgerMQ.Publisher do
   end
 
   defp send(data) do
-    :"local_ledger_mq.publisher"
+    :local_ledger_mq
+    |> Application.get_env(:rabbitmq_rpc)
+    |> Map.fetch!(:publisher_name)
     |> Publisher.publish(data)
     |> handle_response()
   end
