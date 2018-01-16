@@ -7,67 +7,50 @@ import OMGTableContentRow from './OMGTableContentRow';
 class OMGTable extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      sortedColumnIndex: 0,
-      sortedColumnMode: 'asc',
-    };
-    this.sort = this.sort.bind(this);
+    const sort = { by: 'id', dir: 'asc' };
+    this.state = (sort);
+    this.onSort = this.onSort.bind(this);
   }
 
   componentWillReceiveProps(nextProps) {
-    const { sort, headerTitles } = this.props;
-    const headerTitlesKey = headerTitles.map(v => v.toLowerCase());
-    if (nextProps.sort !== sort) {
-      this.setState({
-        sortedColumnIndex: headerTitlesKey.indexOf(nextProps.sort.by.toLowerCase()),
-        sortedColumnMode: nextProps.sort.dir,
-      });
-    }
+    this.setState(nextProps.sort);
   }
 
-  sort(sortedColumnIndex, sortedColumnMode) {
+  onSort(by, dir) {
     this.setState(
-      {
-        sortedColumnIndex,
-        sortedColumnMode,
-      },
+      { by, dir },
       () => {
-        const { updateSorting, headerTitles } = this.props;
-        updateSorting({
-          by: headerTitles[sortedColumnIndex].toLowerCase(),
-          dir: sortedColumnMode,
-        });
+        const { updateSorting } = this.props;
+        updateSorting({ by, dir });
       },
     );
   }
 
   render() {
-    const { sortedColumnIndex, sortedColumnMode } = this.state;
-    const { headerTitles, shortenedColumnIndexes } = this.props;
-    const headers = headerTitles.map((title, index) => (
-      <OMGTableHeader
-        key={index} // eslint-disable-line react/no-array-index-key
-        handleClick={this.sort}
-        position={index}
-        sortBy={index === sortedColumnIndex ? sortedColumnMode : 'default'}
-        title={title}
-      />
-    ));
-
+    const { by, dir } = this.state;
+    const { headers, shortenedColumnIds } = this.props;
+    const tableHeaders = Object.keys(headers).map(key =>
+      (<OMGTableHeader
+        key={key}
+        handleClick={this.onSort}
+        id={key}
+        sortDirection={key === by ? dir : 'default'}
+        title={headers[key]}
+      />));
     const { contents } = this.props;
 
     const datas = contents.map(data =>
       (<OMGTableContentRow
         key={data.id}
         data={data}
-        shortenedColumnIndexes={shortenedColumnIndexes}
+        shortenedColumnIds={shortenedColumnIds}
       />));
 
     return (
       <Table responsive>
         <thead>
           <tr>
-            {headers}
+            {tableHeaders}
           </tr>
         </thead>
         <tbody>
@@ -79,13 +62,13 @@ class OMGTable extends Component {
 }
 
 OMGTable.defaultProps = {
-  shortenedColumnIndexes: [],
+  shortenedColumnIds: [],
 };
 
 OMGTable.propTypes = {
   contents: PropTypes.array.isRequired,
-  headerTitles: PropTypes.arrayOf(PropTypes.string).isRequired,
-  shortenedColumnIndexes: PropTypes.arrayOf(PropTypes.number),
+  headers: PropTypes.objectOf(PropTypes.string).isRequired,
+  shortenedColumnIds: PropTypes.arrayOf(PropTypes.string),
   sort: PropTypes.object.isRequired,
   updateSorting: PropTypes.func.isRequired,
 };

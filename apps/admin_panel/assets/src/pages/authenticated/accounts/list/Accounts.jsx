@@ -12,12 +12,12 @@ class Accounts extends Component {
     super(props);
     const { translate } = this.props;
     this.onNewAccount = this.onNewAccount.bind(this);
-    this.headerTitles = [
-      'accounts.table.id',
-      'accounts.table.name',
-      'accounts.table.master',
-      'accounts.table.description',
-    ].map(translate);
+    this.headers = {
+      id: translate('users.table.id'),
+      name: translate('accounts.table.name'),
+      master: translate('accounts.table.master'),
+      description: translate('accounts.table.description'),
+    };
   }
 
   onNewAccount() {
@@ -46,8 +46,8 @@ class Accounts extends Component {
         />
         <OMGTable
           contents={contents}
-          headerTitles={this.headerTitles}
-          shortenedColumnIndexes={[0]}
+          headers={this.headers}
+          shortenedColumnIds={['id']}
           sort={sort}
           updateSorting={updateSorting}
         />

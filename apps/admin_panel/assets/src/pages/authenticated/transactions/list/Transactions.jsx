@@ -11,16 +11,16 @@ class Transactions extends Component {
   constructor(props) {
     super(props);
     const { translate } = props;
-    this.headerTitles = [
-      'transactions.table.id',
-      'transactions.table.amount',
-      'transactions.table.token',
-      'transactions.table.balance_from',
-      'transactions.table.balance_to',
-      'transactions.table.date',
-      'transactions.table.status',
-      'transactions.table.idempotency_token',
-    ].map(translate);
+    this.headers = {
+      id: translate('transactions.table.id'),
+      amount: translate('transactions.table.amount'),
+      token: translate('transactions.table.token'),
+      balance_from: translate('transactions.table.balance_from'),
+      balance_to: translate('transactions.table.balance_to'),
+      date: translate('transactions.table.date'),
+      status: translate('transactions.table.status'),
+      idempotency_token: translate('transactions.table.idempotency_token'),
+    };
 
     this.onNewTransaction = this.onNewTransaction.bind(this);
   }
@@ -44,8 +44,8 @@ class Transactions extends Component {
         />
         <OMGTable
           contents={data}
-          headerTitles={this.headerTitles}
-          shortenedColumnIndexes={[0]}
+          headers={this.headers}
+          shortenedColumnIds={['balance_from', 'balance_to']}
           sort={sort}
           updateSorting={updateSorting}
         />

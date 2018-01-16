@@ -6,18 +6,20 @@ import UsersHeader from './UsersHeader';
 import Actions from './actions';
 import OMGPaginatorHOC from '../../../../components/OMGPaginatorHOC';
 import OMGTable from '../../../../components/OMGTable';
+import dateFormatter from '../../../../helpers/dateFormatter';
 
 class Users extends Component {
   constructor(props) {
     super(props);
     const { translate } = this.props;
     this.onNewUser = this.onNewUser.bind(this);
-    this.headerTitles = [
-      'users.table.id',
-      'users.table.provider_user_id',
-      'users.table.username',
-      'users.table.metadata',
-    ].map(translate);
+    this.headers = {
+      id: translate('users.table.id'),
+      provider_user_id: translate('users.table.provider_user_id'),
+      username: translate('users.table.username'),
+      created_at: translate('users.table.created_at'),
+      updated_at: translate('users.table.updated_at'),
+    };
   }
 
   onNewUser() {
@@ -34,7 +36,8 @@ class Users extends Component {
       id: v.id,
       provider_user_id: v.provider_user_id,
       username: v.username,
-      metadata: v.metadata,
+      created_at: dateFormatter.format(v.created_at),
+      updated_at: dateFormatter.format(v.updated_at),
     }));
 
     return (
@@ -46,8 +49,8 @@ class Users extends Component {
         />
         <OMGTable
           contents={contents}
-          headerTitles={this.headerTitles}
-          shortenedColumnIndexes={[0]}
+          headers={this.headers}
+          shortenedColumnIds={['id']}
           sort={sort}
           updateSorting={updateSorting}
         />
@@ -59,9 +62,11 @@ class Users extends Component {
 Users.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
+    username: PropTypes.string.isRequired,
     master: false,
     description: PropTypes.string,
+    created_at: PropTypes.string.isRequired,
+    updated_at: PropTypes.string.isRequired,
   })).isRequired,
   history: PropTypes.object.isRequired,
   query: PropTypes.string.isRequired,
