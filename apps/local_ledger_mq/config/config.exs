@@ -6,7 +6,7 @@ config :local_ledger_mq, ecto_repos: []
 
 # Configs for Sentry exception reporting
 config :sentry,
-  dsn: System.get_env("SENTRY_DSN"),
+  dsn: System.get_env("LOCAL_LEDGER_SENTRY_DSN"),
   environment_name: Mix.env,
   enable_source_code_context: true,
   root_source_code_path: File.cwd!,
