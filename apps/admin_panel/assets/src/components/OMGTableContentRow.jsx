@@ -1,12 +1,22 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import numberWithCommas from '../helpers/numberFormatter';
 import OMGTruncatedCell from './OMGTruncatedCell';
 
 const OMGTableContentRow = ({ data, shortenedColumnIndexes }) => {
   const tds = Object.values(data)
-    .map(v => `${v}`)
+    .map((v) => {
+      switch (typeof v) {
+        case 'object':
+          return { content: v, className: 'omg-table-content-row__center' };
+        case 'number':
+          return { content: numberWithCommas(v), className: 'omg-table-content-row__right' };
+        default:
+          return { content: `${v}`, className: 'omg-table-content-row__left' };
+      }
+    })
     .map((content, index) => (
-      <td key={index}>
+      <td key={index} className={obj.className}>
         {shortenedColumnIndexes.includes(index) ?
           <OMGTruncatedCell content={content} /> : content
         }

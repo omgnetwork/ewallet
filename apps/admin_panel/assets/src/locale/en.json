@@ -123,5 +123,64 @@
       },
       "success": "Successfully created ${ transaction_id }"
     }
+  },
+  "tokens": {
+    "header": {
+      "tokens": "Tokens",
+      "new_token": "New Token",
+      "advanced_filters": "Advanced Filters",
+      "export": "Export"
+    },
+    "table": {
+      "id": "Id",
+      "symbol": "Symbol",
+      "name": "Name",
+      "subunit_to_unit": "Subunit to Unit",
+      "locked": "Locked",
+      "account": "Account",
+      "created_at": "Created at",
+      "updated_at": "Updated at"
+    },
+    "new": {
+      "create_a_token": "Create a Token",
+      "create": "Create",
+      "symbol": {
+        "label": "Symbol"
+      },
+      "iso_code": {
+        "label": "ISO Code"
+      },
+      "name": {
+        "label": "Name"
+      },
+      "description": {
+        "label": "Description"
+      },
+      "short_symbol": {
+        "label": "Short symbol"
+      },
+      "subunit": {
+        "label": "Subunit"
+      },
+      "subunit_to_unit": {
+        "label": "Subunit to Unit"
+      },
+      "symbol_first": {
+        "label": "Symbol First"
+      },
+      "html_entity": {
+        "label": "Html Entity"
+      },
+      "iso_numeric": {
+        "label": "ISO Numeric"
+      },
+      "smallest_denomination": {
+        "label": "Smallest Denomination"
+      },
+      "locked": {
+        "label": "Locked"
+      },
+      "success": "Successfully created ${ token_id }"
+    }
   }
 }
