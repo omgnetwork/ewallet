@@ -6,7 +6,7 @@ defmodule KuberaMQ.Publishers.Status do
 
   def check do
     Publisher.publish(Application.get_env(:kubera_mq, :mq_ledger_queue), %{
-      operation: "status.check"
+      operation: "v1.status.check"
     })
   end
 end

@@ -20,8 +20,10 @@ defmodule KuberaMQ.Publisher do
   end
 
   defp send(data) do
-    data
-    |> Publisher.publish()
+    :kubera_mq
+    |> Application.get_env(:rabbitmq_rpc)
+    |> Map.fetch!(:publisher_name)
+    |> Publisher.publish(data)
     |> handle_response()
   end
 

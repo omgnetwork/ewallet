@@ -28,7 +28,7 @@ defmodule KuberaMQ.Mixfile do
   defp deps do
     [
       {:rabbitmq_rpc, git: "ssh://git@github.com/omisego/rabbitmq-rpc.git",
-                      tag: "0.2.0"},
+                      tag: "0.3.0"},
       {:poison, "~> 3.1"},
       {:kubera_db, in_umbrella: true}
     ]
