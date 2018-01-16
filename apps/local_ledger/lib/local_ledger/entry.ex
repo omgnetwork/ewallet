@@ -3,10 +3,9 @@ defmodule LocalLedger.Entry do
   This module is an interface to the LocalLedgerDB schemas and contains the logic
   needed to insert valid entries and transactions.
   """
-  alias LocalLedgerDB.Entry
+  alias LocalLedgerDB.{Repo, Entry}
   alias LocalLedger.{Transaction, Balance}
   alias LocalLedger.Entry.Validator
-  alias LocalLedgerDB.Repo
 
   @doc """
   Retrieve all entries from the database.
