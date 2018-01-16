@@ -20,7 +20,8 @@ import Report from './authenticated/report/Report';
 import Transactions from './authenticated/transactions/list/Transactions';
 import NewTransaction from './authenticated/transactions/new/NewTransaction';
 import Setting from './authenticated/setting/Setting';
-import Tokens from './authenticated/tokens/Tokens';
+import Tokens from './authenticated/tokens/list/Tokens';
+import NewToken from './authenticated/tokens/new/NewToken';
 
 class App extends Component {
   constructor(props) {
@@ -83,11 +84,7 @@ class App extends Component {
                 exact
                 path="/transactions/new"
               />
-              <AuthenticatedRoute
-                component={Users}
-                exact
-                path="/users"
-              />
+              <AuthenticatedRoute component={Users} exact path="/users" />
               <AuthenticatedRoute
                 authenticated={session.authenticated}
                 component={NewUser}
@@ -99,6 +96,12 @@ class App extends Component {
                 component={Tokens}
                 exact
                 path="/tokens"
+              />
+              <AuthenticatedRoute
+                authenticated={session.authenticated}
+                component={NewToken}
+                exact
+                path="/tokens/new"
               />
               <AuthenticatedRoute
                 authenticated={session.authenticated}
