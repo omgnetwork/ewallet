@@ -8,10 +8,10 @@ const sortingMode = ['asc', 'desc', 'default'];
 const nextSort = mode => (mode === 'asc' ? 'desc' : 'asc');
 
 const OMGTableHeader = ({
-  sortBy, title, position, handleClick,
+  sortDirection, title, id, handleClick,
 }) => {
   let sortIcon;
-  switch (sortBy) {
+  switch (sortDirection) {
     case 'asc':
       sortIcon = CaretDown;
       break;
@@ -23,7 +23,7 @@ const OMGTableHeader = ({
   }
 
   return (
-    <th className="omg-header-button" onClick={() => handleClick(position, nextSort(sortBy))}>
+    <th className="omg-header-button" onClick={() => handleClick(id, nextSort(sortDirection))}>
       {title}
       <img alt="Caret" height={24} src={sortIcon} width={24} />
     </th>
@@ -31,13 +31,13 @@ const OMGTableHeader = ({
 };
 
 OMGTableHeader.defaultProps = {
-  sortBy: 'default',
+  sortDirection: 'default',
 };
 
 OMGTableHeader.propTypes = {
   handleClick: PropTypes.func.isRequired,
-  position: PropTypes.number.isRequired,
-  sortBy: PropTypes.oneOf(sortingMode),
+  id: PropTypes.string.isRequired,
+  sortDirection: PropTypes.oneOf(sortingMode),
   title: PropTypes.string.isRequired,
 };
 

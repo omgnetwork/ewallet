@@ -12,16 +12,16 @@ class Tokens extends Component {
   constructor(props) {
     super(props);
     const { translate } = props;
-    this.headerTitles = [
-      'tokens.table.id',
-      'tokens.table.symbol',
-      'tokens.table.name',
-      'tokens.table.subunit_to_unit',
-      'tokens.table.account',
-      'tokens.table.created_at',
-      'tokens.table.updated_at',
-      'tokens.table.locked',
-    ].map(translate);
+    this.headers = {
+      id: translate('tokens.table.id'),
+      symbol: translate('tokens.table.symbol'),
+      name: translate('tokens.table.name'),
+      subunit_to_unit: translate('tokens.table.subunit_to_unit'),
+      account: translate('tokens.table.account'),
+      created_at: translate('tokens.table.created_at'),
+      updated_at: translate('tokens.table.updated_at'),
+      locked: translate('tokens.table.locked'),
+    };
 
     this.onNewToken = this.onNewToken.bind(this);
   }
@@ -50,7 +50,8 @@ class Tokens extends Component {
         />
         <OMGTable
           contents={newData}
-          headerTitles={this.headerTitles}
+          headers={this.headers}
+          shortenedColumnIds={['account']}
           sort={sort}
           updateSorting={updateSorting}
         />

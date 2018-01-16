@@ -63,7 +63,8 @@
       "id": "Id",
       "provider_user_id": "Provider user id",
       "username": "Username",
-      "metadata": "Metadata"
+      "created_at": "Created at",
+      "updated_at": "Updated at"
     },
     "new": {
       "create_a_user": "Create a User",
