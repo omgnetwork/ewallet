@@ -22,9 +22,20 @@ defmodule KuberaDB.UserTest do
     test_insert_generate_uuid User, :id
     test_insert_generate_timestamps User
     test_insert_prevent_blank User, :metadata
-    test_insert_prevent_duplicate User, :email
     test_insert_prevent_duplicate User, :username
     test_insert_prevent_duplicate User, :provider_user_id
+
+    # The test below can't use `test_insert_prevent_duplicate/3` with :email
+    # because we need to use :admin factory to get proper data for admin user.
+    test "returns error if same :email already exists" do
+      params = params_for(:admin, %{email: "same@example.com"})
+
+      {:ok, _record} = User.insert(params)
+      {result, changeset} = User.insert(params)
+
+      assert result == :error
+      assert changeset.errors == [{:email, {"has already been taken", []}}]
+    end
 
     test "automatically creates a balance when user is created" do
       {_result, user} = :user |> params_for |> User.insert
