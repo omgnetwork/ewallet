@@ -56,6 +56,10 @@ defmodule KuberaAdmin.V1.ErrorHandler do
     account_id_not_found: %{
       code: "account:id_not_found",
       description: "There is no account corresponding to the provided id"
+    },
+    minted_token_id_not_found: %{
+      code: "minted_token:id_not_found",
+      description: "There is no minted token corresponding to the provided id"
     }
   }
 
