@@ -27,9 +27,8 @@ defmodule LocalLedgerMQ.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      # {:rabbitmq_rpc, git: "ssh://git@phabricator.omisego.io/source/rabbitmq-rpc.git",
-      #                 tag: "0.2.0"},
-      {:rabbitmq_rpc, "~> 0.3.0", path: "~/src/OmiseGO/libraries/rabbitmq_rpc"},
+      {:rabbitmq_rpc, git: "ssh://git@github.com/omisego/rabbitmq-rpc.git",
+                       tag: "0.3.0"},
       {:sentry, "~> 6.0.0"},
       {:local_ledger, in_umbrella: true}
     ]
