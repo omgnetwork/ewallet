@@ -47,6 +47,7 @@ class Users extends Component {
         <OMGTable
           contents={contents}
           headerTitles={this.headerTitles}
+          shortenedColumnIndexes={[0]}
           sort={sort}
           updateSorting={updateSorting}
         />

@@ -43,7 +43,7 @@ class OMGTable extends Component {
 
   render() {
     const { sortedColumnIndex, sortedColumnMode } = this.state;
-    const { headerTitles } = this.props;
+    const { headerTitles, shortenedColumnIndexes } = this.props;
     const headers = headerTitles.map((title, index) => (
       <OMGTableHeader
         key={index} // eslint-disable-line react/no-array-index-key
@@ -56,7 +56,12 @@ class OMGTable extends Component {
 
     const { contents } = this.props;
 
-    const datas = contents.map(data => <OMGTableContentRow key={data.id} data={data} />);
+    const datas = contents.map(data =>
+      (<OMGTableContentRow
+        key={data.id}
+        data={data}
+        shortenedColumnIndexes={shortenedColumnIndexes}
+      />));
 
     return (
       <Table responsive>
@@ -73,9 +78,14 @@ class OMGTable extends Component {
   }
 }
 
+OMGTable.defaultProps = {
+  shortenedColumnIndexes: [],
+};
+
 OMGTable.propTypes = {
   contents: PropTypes.array.isRequired,
   headerTitles: PropTypes.arrayOf(PropTypes.string).isRequired,
+  shortenedColumnIndexes: PropTypes.arrayOf(PropTypes.number),
   sort: PropTypes.object.isRequired,
   updateSorting: PropTypes.func.isRequired,
 };

@@ -1,0 +1,31 @@
+import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { Button } from 'react-bootstrap';
+import { localize } from 'react-localize-redux';
+import copyToClipboard from '../helpers/copier';
+
+class OMGTruncatedCell extends Component {
+  static shortenedString(string) {
+    const shorteningLength = 5;
+    return (string.length > shorteningLength) ? `${string.substr(0, shorteningLength)}...` : string;
+  }
+
+  render() {
+    const { content, translate } = this.props;
+    return (
+      <span>
+        {OMGTruncatedCell.shortenedString(content)}
+        <Button bsStyle="link" onClick={() => copyToClipboard(content)}>
+          {translate('global.copy')}
+        </Button>
+      </span>
+    );
+  }
+}
+
+OMGTruncatedCell.propTypes = {
+  content: PropTypes.string.isRequired,
+  translate: PropTypes.func.isRequired,
+};
+
+export default localize(OMGTruncatedCell, 'locale');

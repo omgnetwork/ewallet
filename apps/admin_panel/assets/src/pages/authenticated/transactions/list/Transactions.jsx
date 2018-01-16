@@ -45,6 +45,7 @@ class Transactions extends Component {
         <OMGTable
           contents={data}
           headerTitles={this.headerTitles}
+          shortenedColumnIndexes={[0]}
           sort={sort}
           updateSorting={updateSorting}
         />

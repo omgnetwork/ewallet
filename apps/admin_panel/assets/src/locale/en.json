@@ -1,6 +1,7 @@
 {
   "global": {
-    "loading": "Loading..."
+    "loading": "Loading...",
+    "copy": "Copy"
   },
   "pagination": {
     "previous": "Previous",
