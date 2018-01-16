@@ -2,11 +2,11 @@
 
 seeds = [
   # Auth tokens for kubera_api. The users with the given provider_user_id must already be seeded.
-  %{user: KuberaDB.User.get_by_provider_user_id("provider_user01"), owner_app: :kubera_api},
-  %{user: KuberaDB.User.get_by_provider_user_id("provider_user02"), owner_app: :kubera_api},
-  %{user: KuberaDB.User.get_by_provider_user_id("provider_user03"), owner_app: :kubera_api},
-  %{user: KuberaDB.User.get_by_provider_user_id("provider_user04"), owner_app: :kubera_api},
-  %{user: KuberaDB.User.get_by_provider_user_id("provider_user05"), owner_app: :kubera_api},
+  %{user: KuberaDB.User.get_by_provider_user_id("provider_user_id01"), owner_app: :kubera_api},
+  %{user: KuberaDB.User.get_by_provider_user_id("provider_user_id02"), owner_app: :kubera_api},
+  %{user: KuberaDB.User.get_by_provider_user_id("provider_user_id03"), owner_app: :kubera_api},
+  %{user: KuberaDB.User.get_by_provider_user_id("provider_user_id04"), owner_app: :kubera_api},
+  %{user: KuberaDB.User.get_by_provider_user_id("provider_user_id05"), owner_app: :kubera_api},
 
   # Auth tokens for kubera_admin. The users with the given email must already be seeded.
   %{user: KuberaDB.User.get_by_email("admin01@example.com"), owner_app: :kubera_admin},
