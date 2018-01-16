@@ -1,6 +1,7 @@
 {
   "extends": ["airbnb", "plugin:react/all"],
   "globals": { "fetch": false, "btoa": false },
+  "env": { "browser": true },
   "plugins": [
       "react"
   ],

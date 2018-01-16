@@ -1,16 +1,15 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import OMGTruncatedCell from './OMGTruncatedCell';
 
-const propTypes = {
-  data: PropTypes.object.isRequired,
-};
-
-const OMGTableContentRow = ({ data }) => {
+const OMGTableContentRow = ({ data, shortenedColumnIndexes }) => {
   const tds = Object.values(data)
     .map(v => `${v}`)
     .map((content, index) => (
       <td key={index}>
-        {content}
+        {shortenedColumnIndexes.includes(index) ?
+          <OMGTruncatedCell content={content} /> : content
+        }
       </td>
     ));
   return (
@@ -20,6 +19,9 @@ const OMGTableContentRow = ({ data }) => {
   );
 };
 
-OMGTableContentRow.propTypes = propTypes;
+OMGTableContentRow.propTypes = {
+  data: PropTypes.object.isRequired,
+  shortenedColumnIndexes: PropTypes.arrayOf(PropTypes.number).isRequired,
+};
 
 export default OMGTableContentRow;
