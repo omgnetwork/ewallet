@@ -42,21 +42,32 @@ defmodule KuberaDB.User do
     |> validate_by_roles(attrs)
   end
 
+  # Two cases to validate for loginable:
+  #
+  #   1. A new admin user has just been created. No membership assgined yet.
+  #      So `do_validate_loginable/2` if email is provided.
+  #   2. An existing provider user has been assigned a membership. No email provided yet.
+  #      So `do_validate_loginable/2` if membership exists.
+  #
+  # If neither conditions are met, then we can be certain that the user is a provider user.
   defp validate_by_roles(changeset, attrs) do
     user = apply_changes(changeset)
 
-    if Membership.user_has_membership?(user) do
-      validate_loginable(changeset, attrs)
-    else
-      validate_provider_user(changeset, attrs)
+    cond do
+      user.email != nil ->
+        do_validate_loginable(changeset, attrs)
+      Membership.user_has_membership?(user) ->
+        do_validate_loginable(changeset, attrs)
+      true ->
+        do_validate_provider_user(changeset, attrs)
     end
   end
 
-  defp validate_loginable(changeset, _attrs) do
+  defp do_validate_loginable(changeset, _attrs) do
     validate_required(changeset, [:email, :password])
   end
 
-  defp validate_provider_user(changeset, _attrs) do
+  defp do_validate_provider_user(changeset, _attrs) do
     validate_required(changeset, [:username, :provider_user_id])
   end
 

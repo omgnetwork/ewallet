@@ -6,6 +6,7 @@ defmodule KuberaDB.Factory do
   alias ExMachina.Strategy
   alias KuberaDB.{Account, APIKey, AuthToken, Balance, Key, Membership, Mint,
     MintedToken, Role, User, Transfer}
+  alias KuberaDB.Helpers.Crypto
   alias Ecto.UUID
 
   @doc """
@@ -65,11 +66,13 @@ defmodule KuberaDB.Factory do
   end
 
   def admin_factory do
+    password = sequence("password")
     %User{
       username: nil,
       provider_user_id: nil,
       email: sequence("johndoe") <> "@example.com",
-      password_hash: nil,
+      password: password,
+      password_hash: Crypto.hash_password(password),
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
