@@ -1,10 +1,11 @@
-import { sessionService } from 'redux-react-session';
+import Cookies from 'js-cookie';
 import { push } from 'react-router-redux';
 
 import { login } from '../../../omisego/services/session_api';
 import ErrorHandler from '../../../helpers/errorHandler';
 import LoadingActions from '../../../actions/loading.actions';
-import AlertActions from '../../../actions/alert.actions';
+import SessionActions from '../../../actions/session.actions';
+import sessionConstants from '../../../constants/session.constants';
 
 class Actions {
   static login(params) {
@@ -16,14 +17,13 @@ class Actions {
           ErrorHandler.handleAPIError(dispatch, err);
         } else {
           const mergedTokens = `${result.user_id}:${result.authentication_token}`;
-          sessionService
-            .saveSession(mergedTokens)
-            .then(() => {
-              dispatch(push('/accounts'));
-            })
-            .catch((error) => {
-              dispatch(AlertActions.error(error));
-            });
+          Cookies.set(
+            sessionConstants.SESSION_COOKIE,
+            mergedTokens,
+            { expires: sessionConstants.SESSION_COOKIE_EXPIRATION_TIME },
+          );
+          dispatch(SessionActions.setSync(false));
+          dispatch(push('/accounts'));
         }
       });
     };

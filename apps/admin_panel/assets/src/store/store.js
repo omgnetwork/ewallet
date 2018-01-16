@@ -1,5 +1,4 @@
 import { createStore, applyMiddleware, compose } from 'redux';
-import { sessionService } from 'redux-react-session';
 import { routerMiddleware } from 'react-router-redux';
 import thunkMiddleware from 'redux-thunk';
 import { createLogger } from 'redux-logger'; // eslint-disable-line import/no-extraneous-dependencies
@@ -16,8 +15,6 @@ const store = createStore(
   rootReducer,
   compose(applyMiddleware(thunkMiddleware, loggerMiddleware, routerMid), DevTools.instrument()),
 );
-
-sessionService.initSessionService(store, { driver: 'COOKIES' });
 
 const languages = ['en'];
 store.dispatch(initialize(languages));
