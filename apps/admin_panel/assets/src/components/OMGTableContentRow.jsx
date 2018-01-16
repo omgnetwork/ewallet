@@ -15,10 +15,10 @@ const OMGTableContentRow = ({ data, shortenedColumnIndexes }) => {
           return { content: `${v}`, className: 'omg-table-content-row__left' };
       }
     })
-    .map((content, index) => (
+    .map((obj, index) => (
       <td key={index} className={obj.className}>
         {shortenedColumnIndexes.includes(index) ?
-          <OMGTruncatedCell content={content} /> : content
+          <OMGTruncatedCell content={obj.content} /> : obj.content
         }
       </td>
     ));
