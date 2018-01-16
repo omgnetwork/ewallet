@@ -1,15 +1,30 @@
 defmodule KuberaAdmin.V1.MintedTokenController do
-  @docmodule """
+  @moduledoc """
   The controller to serve minted token endpoints.
   """
   use KuberaAdmin, :controller
   import KuberaAdmin.V1.ErrorHandler
-  alias Ecto.UUID
   alias Kubera.Web.{SearchParser, SortParser, Paginator}
   alias KuberaDB.MintedToken
 
-  @search_fields [{:id, :uuid}, :friendly_id, :symbol, :name]
-  @sort_fields [:id, :friendly_id, :symbol, :name]
+  # The field names to be mapped into DB column names.
+  # The keys and values must be strings as this is mapped early before
+  # any operations are done on the field names. For example:
+  # `"request_field_name" => "db_column_name"`
+  @mapped_fields %{
+    "created_at" => "inserted_at"
+  }
+
+  # The fields that are allowed to be searched.
+  # Note that these values here *must be the DB column names*
+  # Because requests cannot customize which fields to search (yet!),
+  # `@mapped_fields` don't affect them.
+  @search_fields [:friendly_id, :symbol, :name]
+
+  # The fields that are allowed to be sorted.
+  # Note that the values here *must be the DB column names*.
+  # If the request provides different names, map it via `@mapped_fields` first.
+  @sort_fields [:friendly_id, :symbol, :name, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of minted tokens.
@@ -17,7 +32,7 @@ defmodule KuberaAdmin.V1.MintedTokenController do
   def all(conn, attrs) do
     MintedToken
     |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields)
+    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
     |> Paginator.paginate_attrs(attrs)
     |> respond_multiple(conn)
   end
