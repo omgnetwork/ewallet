@@ -2,7 +2,7 @@ use Mix.Config
 
 config :local_ledger_db, LocalLedgerDB.Repo,
   adapter: Ecto.Adapters.Postgres,
-  url: System.get_env("DATABASE_URL") || "postgres://localhost/local_ledger_dev"
+  url: System.get_env("LOCAL_LEDGER_DATABASE_URL") || "postgres://localhost/local_ledger_dev"
 
 key = "j6fy7rZP9ASvf1bmywWGRjrmh8gKANrg40yWZ-rSKpI"
 
