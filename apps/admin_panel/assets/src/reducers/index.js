@@ -1,17 +1,17 @@
 import { combineReducers } from 'redux';
-import { sessionReducer } from 'redux-react-session';
-import { routerReducer } from 'react-router-redux';
+import { routerReducer as router } from 'react-router-redux';
 import { localeReducer as locale } from 'react-localize-redux';
 
 import alert from './alert.reducer';
 import global from './global.reducer';
+import session from './session.reducer';
 
 const rootReducer = combineReducers({
-  session: sessionReducer,
-  router: routerReducer,
+  router,
+  locale,
   alert,
   global,
-  locale,
+  session,
 });
 
 export default rootReducer;

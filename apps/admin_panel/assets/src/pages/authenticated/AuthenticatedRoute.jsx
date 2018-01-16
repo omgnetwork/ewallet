@@ -1,14 +1,14 @@
 import React from 'react';
 import { Route, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
-
+import { connect } from 'react-redux';
 import AuthenticatedLayout from './AuthenticatedLayout';
 
-const AuthenticatedRoute = ({ component: Component, authenticated, ...rest }) => (
+const AuthenticatedRoute = ({ component: Component, session, ...rest }) => (
   <Route
     {...rest}
     render={params =>
-      (authenticated ? (
+      (session.currentUser ? (
         <AuthenticatedLayout>
           <Component {...params} />
         </AuthenticatedLayout>
@@ -25,8 +25,15 @@ const AuthenticatedRoute = ({ component: Component, authenticated, ...rest }) =>
 );
 
 AuthenticatedRoute.propTypes = {
-  authenticated: PropTypes.bool.isRequired,
   component: PropTypes.func.isRequired,
+  session: PropTypes.object.isRequired,
 };
 
-export default AuthenticatedRoute;
+function mapStateToProps(state) {
+  const { session } = state;
+  return {
+    session,
+  };
+}
+
+export default connect(mapStateToProps)(AuthenticatedRoute);

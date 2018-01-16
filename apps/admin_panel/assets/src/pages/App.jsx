@@ -22,6 +22,7 @@ import NewTransaction from './authenticated/transactions/new/NewTransaction';
 import Setting from './authenticated/setting/Setting';
 import Tokens from './authenticated/tokens/list/Tokens';
 import NewToken from './authenticated/tokens/new/NewToken';
+import Startup from './startup/Startup';
 
 class App extends Component {
   constructor(props) {
@@ -36,86 +37,30 @@ class App extends Component {
 
   render() {
     // const { alert } = this.props;
-    const { session } = this.props;
     return (
-      <ConnectedRouter history={history}>
-        {session.checked && (
+      <Startup>
+        <ConnectedRouter history={history}>
           <div className="container">
             <Switch>
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={Home}
-                exact
-                path="/"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={Accounts}
-                exact
-                path="/accounts"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={NewAccount}
-                exact
-                path="/accounts/new"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={APIManagement}
-                exact
-                path="/api_management"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={Report}
-                exact
-                path="/report"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={Transactions}
-                exact
-                path="/transactions"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={NewTransaction}
-                exact
-                path="/transactions/new"
-              />
+              <AuthenticatedRoute component={Home} exact path="/" />
+              <AuthenticatedRoute component={Accounts} exact path="/accounts" />
+              <AuthenticatedRoute component={NewAccount} exact path="/accounts/new" />
+              <AuthenticatedRoute component={APIManagement} exact path="/api_management" />
+              <AuthenticatedRoute component={Report} exact path="/report" />
+              <AuthenticatedRoute component={Transactions} exact path="/transactions" />
+              <AuthenticatedRoute component={NewTransaction} exact path="/transactions/new" />
               <AuthenticatedRoute component={Users} exact path="/users" />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={NewUser}
-                exact
-                path="/users/new"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={Tokens}
-                exact
-                path="/tokens"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={NewToken}
-                exact
-                path="/tokens/new"
-              />
-              <AuthenticatedRoute
-                authenticated={session.authenticated}
-                component={Setting}
-                exact
-                path="/setting"
-              />
+              <AuthenticatedRoute component={NewUser} exact path="/users/new" />
+              <AuthenticatedRoute component={Tokens} exact path="/tokens" />
+              <AuthenticatedRoute component={NewToken} exact path="/tokens/new" />
+              <AuthenticatedRoute component={Setting} exact path="/setting" />
               <PublicRoute component={withRouter(SignIn)} path="/signin" />
               <Redirect to="/signin" />
             </Switch>
             <DevTools />
           </div>
-        )}
-      </ConnectedRouter>
+        </ConnectedRouter>
+      </Startup>
     );
   }
 }
@@ -123,15 +68,6 @@ class App extends Component {
 App.propTypes = {
   // alert: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
-  session: PropTypes.object.isRequired,
 };
-
-function mapStateToProps(state) {
-  const { session } = state;
-  return {
-    session,
-  };
-}
-
-const connectedApp = connect(mapStateToProps)(App);
-export default connectedApp;
+const connectApp = connect()(App);
+export default connectApp;

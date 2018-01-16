@@ -1,10 +1,12 @@
 import React from 'react';
 import { Image, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
 
 import logo from '../../../public/images/omisego_logo_white.png';
 import avatar from '../../../public/images/user.svg';
 
-const Header = () => (
+const Header = ({ session }) => (
   <div>
     <div>
       <div className="header">
@@ -42,7 +44,7 @@ const Header = () => (
                   <Image circle src={avatar} />
                 </NavItem>
                 <NavItem className="omg-nav__user-info" eventKey={4} href="#">
-                  First name
+                  {session.currentUser.email}
                 </NavItem>
                 <Navbar.Text>
                   |
@@ -58,4 +60,16 @@ const Header = () => (
     </div>
   </div>
 );
-export default Header;
+
+Header.propTypes = {
+  session: PropTypes.object.isRequired,
+};
+
+function mapStateToProps(state) {
+  const { session } = state;
+  return {
+    session,
+  };
+}
+
+export default connect(mapStateToProps)(Header);

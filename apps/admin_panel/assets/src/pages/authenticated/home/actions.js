@@ -1,10 +1,10 @@
-import { sessionService } from 'redux-react-session';
+import Cookies from 'js-cookie';
 import { push } from 'react-router-redux';
 
 import { logout } from '../../../omisego/services/session_api';
 import ErrorHandler from '../../../helpers/errorHandler';
 import LoadingActions from '../../../actions/loading.actions';
-import AlertActions from '../../../actions/alert.actions';
+import sessionConstants from '../../../constants/session.constants';
 
 class Actions {
   static logout() {
@@ -15,14 +15,8 @@ class Actions {
         if (err) {
           ErrorHandler.handleAPIError(dispatch, err);
         } else {
-          sessionService
-            .deleteSession()
-            .then(() => {
-              dispatch(push('/signin'));
-            })
-            .catch((error) => {
-              dispatch(AlertActions.error(error));
-            });
+          Cookies.remove(sessionConstants.SESSION_COOKIE);
+          dispatch(push('/signin'));
         }
       });
     };
