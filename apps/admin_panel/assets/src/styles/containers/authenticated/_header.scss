@@ -2,12 +2,12 @@
   background-color: $omise-dark-blue;
   height: 4rem;
 
-  &__left{
+  &__left {
     padding-left: 0rem;
     padding-right: 0rem;
   }
 
-  &__right{
+  &__right {
     padding-left: 0rem;
     padding-right: 0rem;
   }
@@ -20,5 +20,9 @@
   &__logo {
     height: 4rem;
     width: auto;
+  }
+
+  &__logo:hover {
+    cursor: pointer;
   }
 }
