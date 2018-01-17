@@ -22,7 +22,7 @@ const Header = ({ session, history }) => (
           </div>
           <div className="col-md-9 col-sm-8 col-xs-12 header__right">
             <Navbar.Collapse>
-              <Nav>
+              <Nav className="omg-hide">
                 <NavDropdown
                   className="omg-dropdown"
                   eventKey={1}
@@ -47,12 +47,14 @@ const Header = ({ session, history }) => (
                 <NavItem className="omg-nav__user-info" eventKey={4} href="#">
                   {session.currentUser.email}
                 </NavItem>
-                <Navbar.Text>
-                  |
-                </Navbar.Text>
-                <NavItem className="omg-nav__user-info" eventKey={6} href="#">
-                  Admin
-                </NavItem>
+                <div className="omg-hide">
+                  <Navbar.Text>
+                    |
+                  </Navbar.Text>
+                  <NavItem className="omg-nav__user-info" eventKey={6} href="#">
+                    Admin
+                  </NavItem>
+                </div>
               </Nav>
             </Navbar.Collapse>
           </div>
