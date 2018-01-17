@@ -14,7 +14,7 @@
 # mix run apps/kubera_db/priv/repo/seeds.exs
 # ```
 #
-# And run the seed with genesis (requires Caishen to be running):
+# And run the seed with genesis (requires LocalLedger to be running):
 #
 # ```
 # mix run apps/kubera_db/priv/repo/seeds.exs --with-genesis

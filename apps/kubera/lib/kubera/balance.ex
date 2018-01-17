@@ -16,10 +16,10 @@ defmodule Kubera.Balance do
     case res do
       {:ok, balances} ->
         # Everything went well, do something.
-        # response is the response returned by the local ledger (Caishen for
+        # response is the response returned by the local ledger (LocalLedger for
         # example).
       {:error, code, description} ->
-        # Something went wrong on the other side (Caishen maybe) and the
+        # Something went wrong on the other side (LocalLedger maybe) and the
         # retrieval failed.
     end
 
@@ -47,10 +47,10 @@ defmodule Kubera.Balance do
     case res do
       {:ok, balances} ->
         # Everything went well, do something.
-        # response is the response returned by the local ledger (Caishen for
+        # response is the response returned by the local ledger (LocalLedger for
         # example).
       {:error, code, description} ->
-        # Something went wrong on the other side (Caishen maybe) and the
+        # Something went wrong on the other side (LocalLedger maybe) and the
         # retrieval failed.
     end
 
@@ -70,10 +70,10 @@ defmodule Kubera.Balance do
     case res do
       {:ok, balances} ->
         # Everything went well, do something.
-        # response is the response returned by the local ledger (Caishen for
+        # response is the response returned by the local ledger (LocalLedger for
         # example).
       {:error, code, description} ->
-        # Something went wrong on the other side (Caishen maybe) and the
+        # Something went wrong on the other side (LocalLedger maybe) and the
         # retrieval failed.
     end
 
@@ -94,10 +94,10 @@ defmodule Kubera.Balance do
     case res do
       {:ok, balances} ->
         # Everything went well, do something.
-        # response is the response returned by the local ledger (Caishen for
+        # response is the response returned by the local ledger (LocalLedger for
         # example).
       {:error, code, description} ->
-        # Something went wrong on the other side (Caishen maybe) and the
+        # Something went wrong on the other side (LocalLedger maybe) and the
         # retrieval failed.
     end
 
