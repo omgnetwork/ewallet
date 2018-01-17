@@ -6,7 +6,7 @@ This file contains information about the balance system and how it can be used.
 
 Balances are used to "hold" amounts in specific minted tokens (a.k.a cryptocurrencies/loyalty/points/coins). Hold is between quotes because those amounts are not actually stored in any records, they are computed from the local ledger (using a Double Bookkeeping approach) by summing all the credits and subtracting all the debits.
 
-Balances are saved in Kubera DB, and a shadow copy is made in LocalLedger to ensure data consistency at the database level. Those balances have three fields that really matter: address, name and identifier.
+Balances are saved in eWallet DB, and a shadow copy is made in LocalLedger to ensure data consistency at the database level. Those balances have three fields that really matter: address, name and identifier.
 
 - `address`: The balance ID used to transfer funds to that balance.
 - `name`: A modifiable field used to identify a specific balance. By default, the identifier will be used as a name.

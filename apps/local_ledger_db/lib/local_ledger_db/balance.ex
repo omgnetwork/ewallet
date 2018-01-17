@@ -1,7 +1,7 @@
 defmodule LocalLedgerDB.Balance do
   @moduledoc """
   Ecto Schema representing balances. A balance is made up of a unique address
-  and the ID associated with it in Kubera DB.
+  and the ID associated with it in eWallet DB.
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
