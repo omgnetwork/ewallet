@@ -7,11 +7,11 @@ seeds = [
   %{account: EWalletDB.Account.get_by_name("account03"), owner_app: "ewallet_api"},
   %{account: EWalletDB.Account.get_by_name("account04"), owner_app: "ewallet_api"},
 
-  # Auth tokens for ewallet_admin
-  %{account: EWalletDB.Account.get_by_name("account01"), owner_app: "ewallet_admin"},
-  %{account: EWalletDB.Account.get_by_name("account02"), owner_app: "ewallet_admin"},
-  %{account: EWalletDB.Account.get_by_name("account03"), owner_app: "ewallet_admin"},
-  %{account: EWalletDB.Account.get_by_name("account04"), owner_app: "ewallet_admin"},
+  # Auth tokens for admin_api
+  %{account: EWalletDB.Account.get_by_name("account01"), owner_app: "admin_api"},
+  %{account: EWalletDB.Account.get_by_name("account02"), owner_app: "admin_api"},
+  %{account: EWalletDB.Account.get_by_name("account03"), owner_app: "admin_api"},
+  %{account: EWalletDB.Account.get_by_name("account04"), owner_app: "admin_api"},
 ]
 
 EWalletDB.CLI.info("\nSeeding APIKey (always seed new ones)...")

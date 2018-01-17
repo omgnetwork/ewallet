@@ -123,7 +123,7 @@ Navigate to  `http://localhost:4000/` in your browser and you should see the fol
 All set! Start playing around with the API using the Swagger docs below to learn more about the available endpoints. Enjoy!
 
 - [eWallet API](/apps/ewallet_api/swagger-doc.yaml)
-- [Admin Web API](/apps/ewallet_admin/swagger-doc.yaml)
+- [Admin API](/apps/admin_api/swagger-doc.yaml)
 
 ## Deploying the OmiseGO SDK
 
@@ -180,9 +180,9 @@ On a more technical note, the eWallet is an umbrella Elixir application containi
 
   - [ewallet](/apps/ewallet): Sub-application containing the business logic (minting process, transfer of value, etc.).
 
-  - [ewallet_web_api](/apps/ewallet_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __interact with the eWallet__. Check the [Swagger spec](/apps/ewallet_api/swagger-doc.yaml) for more details.
+  - [ewallet_api](/apps/ewallet_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __interact with the eWallet__. Check the [Swagger spec](/apps/ewallet_api/swagger-doc.yaml) for more details.
 
-  - [admin_web_api](/apps/ewallet_admin): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __manage__ the system. Check the [Swagger spec](/apps/ewallet_admin/swagger-doc.yaml) for more details.
+  - [admin_api](/apps/admin_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __manage__ the system. Check the [Swagger spec](/apps/admin_api/swagger-doc.yaml) for more details.
 
   - [ewallet_db](/apps/ewallet_db): Sub-application containing all the database schemas and migrations.
 
@@ -227,7 +227,7 @@ The OmiseGO offers HTTP-RPC web APIs for communication. To make things easier to
 If you wish to use the HTTP-RPC web APIs directly, here are the Swagger specifications containing all the available endpoints and how to interact with them.
 
 - [eWallet API](/apps/ewallet_api/swagger-doc.yaml)
-- [Admin Web API](/apps/ewallet_admin/swagger-doc.yaml)
+- [Admin API](/apps/admin_api/swagger-doc.yaml)
 
 ### Server SDKs
 
