@@ -1,4 +1,4 @@
-# EWalletMQ
+# eWalletMQ
 
 **TODO: Add description**
 

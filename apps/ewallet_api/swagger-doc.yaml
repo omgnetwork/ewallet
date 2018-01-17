@@ -1,9 +1,9 @@
 openapi: 3.0.0
 info:
   version: "1.0.0"
-  title: EWallet initial API
+  title: eWallet initial API
   description: >
-    This is the initial API design for EWallet.
+    This is the initial API design for eWallet.
     It was made using an HTTP-RPC style, following the requirements defined in [this document](https://docs.google.com/a/omise.co/document/d/1jy7CDpkkVcCoMy9Dp3GFEOzcMYPfNhpvK8dJH9L6q-E/edit?usp=sharing).
     Two kinds of endpoints can be found in this document: the server endpoints and the client (mobile wallet) endpoints. Basically, all API calls that modify the database need to be done from the server for security purposes using an `ACCESS_KEY`/`SECRET_KEY` combo. Retrieval calls can be made from the client (considered unsafe, 'never trust the client') using an API key (which can be disabled from the admin panel) and an authentication token. All API calls will be authorized using the 'Authorization' HTTP header using the following format: For server -> `Authorization=OMGServer Base64(access_key:secret_key)`, for client -> `Authorization=OMGClient Base64(api_key:authentication_token)`. Error codes are defined in the following [doc](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing). The API will always return a `200` HTTP status except if there was an internal server error, in that case, `500` will be returned.
   contact:

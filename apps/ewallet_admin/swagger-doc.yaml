@@ -1,9 +1,9 @@
 openapi: 3.0.0
 info:
   version: "1.0.0"
-  title: EWallet Admin API
+  title: eWallet Admin API
   description: >
-    This is the API design for EWallet Admin.
+    This is the API design for eWallet Admin.
 
 
     All calls must be user-authenticated. That is, the client must first authenticate with the API using the user's email and password. On successful authentication, the API returns an authentication token (i.e. `authentication_token`).
@@ -17,7 +17,7 @@ info:
     Only in case of an internal server error that `500` will be returned.
 
 
-    Error codes are defined in  [EWallet API Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
+    Error codes are defined in  [eWallet API Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
   contact:
     name: OmiseGO
     email: unnawut@omise.co
