@@ -8,12 +8,12 @@ seeds = [
   %{user: EWalletDB.User.get_by_provider_user_id("provider_user_id04"), owner_app: :ewallet_api},
   %{user: EWalletDB.User.get_by_provider_user_id("provider_user_id05"), owner_app: :ewallet_api},
 
-  # Auth tokens for ewallet_admin. The users with the given email must already be seeded.
-  %{user: EWalletDB.User.get_by_email("admin01@example.com"), owner_app: :ewallet_admin},
-  %{user: EWalletDB.User.get_by_email("admin02@example.com"), owner_app: :ewallet_admin},
-  %{user: EWalletDB.User.get_by_email("admin03@example.com"), owner_app: :ewallet_admin},
-  %{user: EWalletDB.User.get_by_email("viewer01@example.com"), owner_app: :ewallet_admin},
-  %{user: EWalletDB.User.get_by_email("viewer02@example.com"), owner_app: :ewallet_admin},
+  # Auth tokens for admin_api. The users with the given email must already be seeded.
+  %{user: EWalletDB.User.get_by_email("admin01@example.com"), owner_app: :admin_api},
+  %{user: EWalletDB.User.get_by_email("admin02@example.com"), owner_app: :admin_api},
+  %{user: EWalletDB.User.get_by_email("admin03@example.com"), owner_app: :admin_api},
+  %{user: EWalletDB.User.get_by_email("viewer01@example.com"), owner_app: :admin_api},
+  %{user: EWalletDB.User.get_by_email("viewer02@example.com"), owner_app: :admin_api},
 ]
 
 EWalletDB.CLI.info("\nSeeding AuthToken (always seed new ones)...")

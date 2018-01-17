@@ -24,8 +24,8 @@ defmodule EWallet.Umbrella.Mixfile do
           "EWallet API V1": ~r/EWalletAPI.V1(\..+)*$/,
           "EWallet DB": ~r/EWalletDB(\..+)*$/,
           "EWallet MQ": ~r/EWalletMQ(\..+)*$/,
-          "EWallet Admin": ~r/EWalletAdmin(?!\.V\d+)(\..+)*$/,
-          "EWallet Admin V1": ~r/EWalletAdmin.V1(\..+)*$/,
+          "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
+          "Admin API V1": ~r/AdminAPI.V1(\..+)*$/,
         ],
       ],
     ]
