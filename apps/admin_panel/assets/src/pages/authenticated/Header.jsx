@@ -1,13 +1,14 @@
 import React from 'react';
-import { Image, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
+import { Image, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 
+import Actions from './actions';
 import logo from '../../../public/images/omisego_logo_white.png';
 import avatar from '../../../public/images/user.svg';
 
-const Header = ({ session, history }) => (
+const Header = ({ session, history, logout }) => (
   <div>
     <div>
       <div className="header">
@@ -44,13 +45,33 @@ const Header = ({ session, history }) => (
                 <NavItem className="omg-nav__avatar" eventKey={3} href="#" id="avatar">
                   <Image circle src={avatar} />
                 </NavItem>
-                <NavItem className="omg-nav__user-info" eventKey={4} href="#">
-                  {session.currentUser.email}
-                </NavItem>
+                <NavDropdown
+                  className="omg-dropdown__gray"
+                  eventKey={4}
+                  id={4}
+                  title={session.currentUser.email}
+                >
+                  <MenuItem
+                    eventKey={4.1}
+                    onClick={() => {
+                      history.push('/profile');
+                    }}
+                  >
+                    Edit Profile
+                  </MenuItem>
+                  <MenuItem
+                    eventKey={4.2}
+                    onClick={() => {
+                      logout();
+                    }}
+                  >
+                    Log Out
+                  </MenuItem>
+                </NavDropdown>
                 <div className="omg-hide">
-                  <Navbar.Text>
+                  <NavItem className="omg-nav__user-info" eventKey={5} href="#">
                     |
-                  </Navbar.Text>
+                  </NavItem>
                   <NavItem className="omg-nav__user-info" eventKey={6} href="#">
                     Admin
                   </NavItem>
@@ -64,10 +85,11 @@ const Header = ({ session, history }) => (
   </div>
 );
 
-Header.propTypes = {
-  history: PropTypes.object.isRequired,
-  session: PropTypes.object.isRequired,
-};
+function mapDispatchToProps(dispatch) {
+  return {
+    logout: () => dispatch(Actions.logout()),
+  };
+}
 
 function mapStateToProps(state) {
   const { session } = state;
@@ -76,4 +98,10 @@ function mapStateToProps(state) {
   };
 }
 
-export default withRouter(connect(mapStateToProps)(Header));
+Header.propTypes = {
+  history: PropTypes.object.isRequired,
+  logout: PropTypes.func.isRequired,
+  session: PropTypes.object.isRequired,
+};
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Header));

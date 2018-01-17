@@ -19,11 +19,24 @@ module.exports = {
         loaders: ['style-loader', 'css-loader', 'sass-loader'],
       },
       {
-        test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+        test: /\.(png|jpg|gif|svg)$/,
         loader: 'url-loader',
         options: {
           limit: 10000,
         },
+      },
+      {
+        test: /\.(woff|woff2|eot|ttf)(\?.*$|$)/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'fonts/', // where the fonts will go
+              publicPath: '../', // override the default path
+            },
+          },
+        ],
       },
     ],
   },

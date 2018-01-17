@@ -14,18 +14,31 @@ module.exports = {
   module: {
     rules: [
       {
-        test: /\.scss$/,
-        loaders: ["style-loader", "css-loader", "sass-loader"],
-        include: path.resolve(__dirname, '../')
+        test: /\.(css|scss)$/,
+        loaders: ['style-loader', 'css-loader', 'sass-loader'],
+        include: path.resolve(__dirname, '../'),
       },
       {
-        test: /\.(png|jpg|gif|svg|eot|ttf|woff|woff2)$/,
+        test: /\.(png|jpg|gif)$/,
         loader: 'url-loader',
         options: {
           limit: 10000,
         },
-        include: path.resolve(__dirname, '../')
+        include: path.resolve(__dirname, '../'),
       },
-    ]
+      {
+        test: /\.(woff|woff2|eot|ttf|svg)(\?.*$|$)/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: {
+              name: '[name].[ext]',
+              outputPath: 'fonts/', // where the fonts will go
+              publicPath: '../', // override the default path
+            },
+          },
+        ],
+      },
+    ],
   },
 };

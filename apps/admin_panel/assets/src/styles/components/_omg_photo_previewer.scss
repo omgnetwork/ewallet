@@ -1,0 +1,24 @@
+.omg_photo_uploader {
+  position: relative;
+  width: 8rem;
+  height: 8rem;
+
+  &__img {
+    width: 8rem;
+    height: 8rem;
+    padding: 2rem;
+    border: 1px solid $light-gray;
+  }
+
+  &__center-button {
+    position: absolute;
+    top: 3rem;
+    left: 2.8rem;
+  }
+
+  &__top-right-button {
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
+  }
+}

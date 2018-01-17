@@ -1,0 +1,26 @@
+.omg_circle_button {
+  border: none;
+  color: white;
+  display: inline-block;
+  border-radius: 50%;
+  cursor: pointer;
+
+  &:hover,
+  &:focus {
+    transform: translateY(-0.1rem);
+  }
+
+  &__medium {
+    @extend .omg_circle_button;
+    background-color: $omise-blue;
+    padding: 0.5rem 0.64rem;
+    font-size: 1rem;
+  }
+
+  &__small {
+    @extend .omg_circle_button;
+    background-color: $light-gray;
+    padding: 0.1rem 0.3rem;
+    font-size: 0.75rem;
+  }
+}

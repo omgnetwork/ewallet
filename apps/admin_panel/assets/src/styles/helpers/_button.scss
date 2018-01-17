@@ -2,7 +2,7 @@
   .btn-#{$name} {
     color: $font-color;
     background-color: $color;
-    border: 1px solid $color;
+    border: 1px solid $dark;
     text-transform: none;
     font-weight: normal;
     border-radius: 2px;
@@ -14,7 +14,7 @@
   .btn-#{$name}.active,
   .open .dropdown-toggle.btn-#{$name} {
     color: $font-color;
-    background-color: $dark;
+    background-color: $color;
     border-color: $dark;
   }
 
@@ -45,3 +45,4 @@
 }
 
 @include omg-button('omg-blue', $omise-blue, $omise-blue, $white);
+@include omg-button('omg-white', $white, $omise-blue, $omise-blue);
