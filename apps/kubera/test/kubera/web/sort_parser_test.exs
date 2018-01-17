@@ -10,7 +10,7 @@ defmodule Kubera.Web.SortParserTest do
     insert(:account, %{name: "account999", description: "Account ZZZ"})
   end
 
-  describe "Kubera.Web.SortParser.to_query/3" do
+  describe "Kubera.Web.SortParser.to_query/4" do
     test "can sort a field by ascending order" do
       prepare_test_accounts()
 
@@ -32,6 +32,21 @@ defmodule Kubera.Web.SortParserTest do
       sorted =
         Account
         |> SortParser.to_query(attrs, [:description])
+        |> Repo.all()
+
+      assert Enum.at(sorted, 0).description == "Account ZZZ"
+      assert Enum.at(sorted, 1).description == "Account DDD"
+      assert Enum.at(sorted, 2).description == "Account AAA"
+    end
+
+    test "maps the given `sort_by` with `mapped_fields` before sorting" do
+      prepare_test_accounts()
+
+      mapped_fields = %{"some_description_field" => "description"}
+      attrs = %{"sort_by" => "some_description_field", "sort_dir" => "desc"}
+      sorted =
+        Account
+        |> SortParser.to_query(attrs, [:description], mapped_fields)
         |> Repo.all()
 
       assert Enum.at(sorted, 0).description == "Account ZZZ"

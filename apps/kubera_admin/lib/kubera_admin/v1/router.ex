@@ -21,6 +21,10 @@ defmodule KuberaAdmin.V1.Router do
   scope "/", KuberaAdmin.V1 do
     pipe_through [:api, :user_api]
 
+    # Minted Token endpoints
+    post "/minted_token.all", MintedTokenController, :all
+    post "/minted_token.get", MintedTokenController, :get
+
     # Account endpoints
     post "/account.all", AccountController, :all
     post "/account.get", AccountController, :get

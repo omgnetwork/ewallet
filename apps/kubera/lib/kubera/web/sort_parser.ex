@@ -10,18 +10,26 @@ defmodule Kubera.Web.SortParser do
   Parses sorting attributes and appends the resulting queries into the given queryable.
   """
   @spec to_query(Ecto.Query.t, map, list) :: {Ecto.Query.t}
-  def to_query(queryable, attrs, fields) when is_map(attrs) and is_list(fields) do
-    field = get_sort_field(attrs, fields)
+  def to_query(queryable, attrs, fields, mapped_fields \\ %{}) do
+    field = get_sort_field(attrs, fields, mapped_fields)
     direction = get_sort_direction(attrs)
 
     build_sort_query(queryable, field, direction)
   end
 
-  defp get_sort_field(%{"sort_by" => field}, allowed_fields) do
-    field = String.to_atom(field)
+  defp get_sort_field(%{"sort_by" => field}, allowed_fields, mapped_fields)
+    when is_binary(field) and byte_size(field) > 0
+    and is_list(allowed_fields)
+    and is_map(mapped_fields)
+  do
+    field =
+      mapped_fields
+      |> Map.get(field, field) # Defaults back to the original field name
+      |> String.to_atom()
+
     if Enum.member?(allowed_fields, field), do: field, else: nil
   end
-  defp get_sort_field(_, _), do: nil
+  defp get_sort_field(_, _, _), do: nil
 
   defp get_sort_direction(%{"sort_dir" => "asc"}), do: :asc
   defp get_sort_direction(%{"sort_dir" => "desc"}), do: :desc
