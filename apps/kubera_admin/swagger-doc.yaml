@@ -431,12 +431,20 @@ components:
           type: string
         subunit_to_unit:
           type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
       required:
         - object
         - id
         - symbol
         - name
         - subunit_to_unit
+        - created_at
+        - updated_at
     # Schema for token body response
     MintedTokenResponseSchema:
       allOf:
@@ -457,6 +465,8 @@ components:
             symbol: "ABC"
             name: "ABC Point"
             subunit_to_unit: 100
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
     # Schema for tokens body response
     MintedTokensResponseSchema:
       allOf:
@@ -486,6 +496,8 @@ components:
                 symbol: "ABC"
                 name: "ABC Point"
                 subunit_to_unit: 100
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
             pagination:
               per_page: 10
               current_page: 1
