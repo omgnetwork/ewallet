@@ -1,7 +1,7 @@
 defmodule LocalLedgerDB.MintedToken do
   @moduledoc """
   Ecto Schema representing minted tokens. Minted tokens are made up of a
-  friendly_id (e.g. MNT) and the associated ID in Kubera DB.
+  friendly_id (e.g. MNT) and the associated ID in eWallet DB.
   """
   use Ecto.Schema
   import Ecto.Changeset

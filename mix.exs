@@ -1,4 +1,4 @@
-defmodule Kubera.Umbrella.Mixfile do
+defmodule EWallet.Umbrella.Mixfile do
   use Mix.Project
 
   def project do
@@ -19,13 +19,13 @@ defmodule Kubera.Umbrella.Mixfile do
           "Entities": ["docs/balances.md"],
         ],
         groups_for_modules: [
-          "Kubera": ~r/Kubera(\..+)*$/,
-          "Kubera API": ~r/KuberaAPI(?!\.V\d+)(\..+)*$/,
-          "Kubera API V1": ~r/KuberaAPI.V1(\..+)*$/,
-          "Kubera DB": ~r/KuberaDB(\..+)*$/,
-          "Kubera MQ": ~r/KuberaMQ(\..+)*$/,
-          "Kubera Admin": ~r/KuberaAdmin(?!\.V\d+)(\..+)*$/,
-          "Kubera Admin V1": ~r/KuberaAdmin.V1(\..+)*$/,
+          "EWallet": ~r/EWallet(\..+)*$/,
+          "EWallet API": ~r/EWalletAPI(?!\.V\d+)(\..+)*$/,
+          "EWallet API V1": ~r/EWalletAPI.V1(\..+)*$/,
+          "EWallet DB": ~r/EWalletDB(\..+)*$/,
+          "EWallet MQ": ~r/EWalletMQ(\..+)*$/,
+          "EWallet Admin": ~r/EWalletAdmin(?!\.V\d+)(\..+)*$/,
+          "EWallet Admin V1": ~r/EWalletAdmin.V1(\..+)*$/,
         ],
       ],
     ]
@@ -57,7 +57,7 @@ defmodule Kubera.Umbrella.Mixfile do
         "seed",
       ],
       seed: [
-        "run apps/kubera_db/priv/repo/seeds.exs"
+        "run apps/ewallet_db/priv/repo/seeds.exs"
       ]
     ]
   end

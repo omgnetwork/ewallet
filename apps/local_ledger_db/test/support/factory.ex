@@ -14,7 +14,7 @@ defmodule LocalLedgerDB.Factory do
       friendly_id: "OMG:123",
       metadata: %{
         external_id: %{
-          app: "Kubera",
+          app: "EWallet",
           uuid: "123"
         }
       }
@@ -26,7 +26,7 @@ defmodule LocalLedgerDB.Factory do
       address: "test",
       metadata: %{
         external_id: %{
-          app: "Kubera",
+          app: "EWallet",
           uuid: "123"
         }
       }
