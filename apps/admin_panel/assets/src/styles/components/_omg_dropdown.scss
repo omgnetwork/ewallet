@@ -1,6 +1,7 @@
-.omg-dropdown, .omg-dropdown .open {
+.omg-dropdown,
+.omg-dropdown .open {
   margin-top: 12px;
-  
+
   #omg-nav-dropdown {
     color: $white;
     border-color: $light-gray;
@@ -13,7 +14,7 @@
     min-width: 11.25rem;
   }
 
-  .dropdown-toggle[aria-expanded="true"]{
+  .dropdown-toggle[aria-expanded='true'] {
     background-color: $omise-darker-blue;
   }
 
@@ -36,15 +37,28 @@
     box-shadow: 0rem 0rem 0rem transparent;
   }
 
-  .dropdown-menu > li[role="presentation"] {
+  .dropdown-menu > li[role='presentation'] {
     min-width: 11.25rem; // dropdown width + border
   }
-  
-  .dropdown-menu > li[role="presentation"] > a {
+
+  .dropdown-menu > li[role='presentation'] > a {
     color: $white;
   }
 
-  .dropdown-menu > li[role="presentation"] > a:hover {
+  .dropdown-menu > li[role='presentation'] > a:hover {
     background-color: $dark-gray;
+  }
+
+  &__gray.dropdown > .dropdown-menu {
+    color: $light-gray;
+    margin-top: 1rem;
+  }
+
+  // To override bootstrap's NavDropdown style
+  .navbar-default .navbar-nav >  &__gray.dropdown > .dropdown-toggle {
+    color: $light-gray;
+    font-size: 1rem;
+    padding: 1.25rem 0.5rem;
+    background-color: transparent;
   }
 }

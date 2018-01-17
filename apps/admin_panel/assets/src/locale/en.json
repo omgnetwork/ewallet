@@ -185,6 +185,34 @@
       "success": "Successfully created ${ token_id }"
     }
   },
+  "profile": {
+    "header": {
+      "profile": "Settings"
+    },
+    "form": {
+      "username": {
+        "label": "Username",
+        "help": "Name should be at least 4 characters long"
+      },
+      "email": {
+        "label": "Email",
+        "help": ""
+      },
+      "full_name": {
+        "label": "Full name",
+        "help": ""
+      },
+      "position": {
+        "label": "Position",
+        "help": ""
+      },
+      "company_name": {
+        "label": "Company name",
+        "help": ""
+      },
+      "success": "Successfully updated ${ name }"
+    }
+  },
   "admins": {
     "header": {
       "admins": "Admins",

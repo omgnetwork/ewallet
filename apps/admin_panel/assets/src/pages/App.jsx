@@ -23,6 +23,7 @@ import Setting from './authenticated/setting/Setting';
 import Tokens from './authenticated/tokens/list/Tokens';
 import Admins from './authenticated/admins/list/Admins';
 import NewToken from './authenticated/tokens/new/NewToken';
+import Profile from './authenticated/profile/Profile';
 import Startup from './startup/Startup';
 
 class App extends Component {
@@ -56,7 +57,8 @@ class App extends Component {
               <AuthenticatedRoute component={Tokens} exact path="/tokens" />
               <AuthenticatedRoute component={NewToken} exact path="/tokens/new" />
               <AuthenticatedRoute component={Setting} exact path="/setting" />
-              <PublicRoute component={withRouter(SignIn)} path="/signin" />
+              <AuthenticatedRoute component={withRouter(Profile)} exact path="/profile" />
+              <PublicRoute component={SignIn} path="/signin" />
               <Redirect to="/signin" />
             </Switch>
             <DevTools />

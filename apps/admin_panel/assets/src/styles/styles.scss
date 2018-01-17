@@ -1,4 +1,6 @@
+$fa-font-path: '~font-awesome/fonts';
 @import '../../node_modules/bootstrap/dist/css/bootstrap.css';
+@import '~font-awesome/scss/font-awesome.scss';
 
 @import 'config/_variables.scss';
 @import 'config/_fonts.scss';
@@ -13,6 +15,8 @@
 @import 'components/_omg_nav-item.scss';
 @import 'components/_omg_sortable_header_button.scss';
 @import 'components/_omg_table_content_row.scss';
+@import 'components/_omg_circle_button.scss';
+@import 'components/_omg_photo_previewer.scss';
 
 @import 'containers/_app.scss';
 @import 'containers/_public-layout.scss';
