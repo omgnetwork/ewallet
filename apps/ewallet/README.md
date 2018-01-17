@@ -1,4 +1,4 @@
-# EWallet
+# eWallet
 
 **TODO: Add description**
 

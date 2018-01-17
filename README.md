@@ -19,13 +19,12 @@ The OmiseGO SDK provides various applications and tools that, once integrated, a
     - [Request Logger](#request-logger)
     - [Blockchain Gateway](#blockchain-gateway)
   - [Dependencies](#dependencies)
-- [Communicating with the server applications](communicating-with-the-server-applications)
+- [Communicating with the server applications](#communicating-with-the-server-applications)
   - [HTTP](#http)
   - [Server SDKs](#server-sdks)
   - [Client SDKs](#client-sdks)
-- [Integrating the OmiseGO SDK](integrating-the-omisego-sdk)
+- [Integrating the OmiseGO SDK](#integrating-the-omisego-sdk)
   - [Responsibilities](#responsibilities)
-
 - [Diving further](#diving-further)
 - [Contributing](#contributing)
 
@@ -74,7 +73,7 @@ To set up the OmiseGO SDK in local, follow the steps below:
 Let's start by cloning the eWallet, getting the dependencies and migrating the database:
 
 ```
-git clone git@github.com:omisego/ewallet.git && cd /ewallet
+git clone git@github.com:omisego/ewallet.git && cd ./ewallet
 ```
 
 ```

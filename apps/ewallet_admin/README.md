@@ -1,3 +1,3 @@
-# EWallet Admin
+# eWallet Admin
 
-The Umbrella sub-app that allows admin panel to communicate with EWallet.
+The Umbrella sub-app that allows admin panel to communicate with eWallet.
