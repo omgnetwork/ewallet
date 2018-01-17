@@ -21,6 +21,7 @@ import Transactions from './authenticated/transactions/list/Transactions';
 import NewTransaction from './authenticated/transactions/new/NewTransaction';
 import Setting from './authenticated/setting/Setting';
 import Tokens from './authenticated/tokens/list/Tokens';
+import Admins from './authenticated/admins/list/Admins';
 import NewToken from './authenticated/tokens/new/NewToken';
 import Startup from './startup/Startup';
 
@@ -46,6 +47,7 @@ class App extends Component {
               <AuthenticatedRoute component={Accounts} exact path="/accounts" />
               <AuthenticatedRoute component={NewAccount} exact path="/accounts/new" />
               <AuthenticatedRoute component={APIManagement} exact path="/api_management" />
+              <AuthenticatedRoute component={Admins} exact path="/admins" />
               <AuthenticatedRoute component={Report} exact path="/report" />
               <AuthenticatedRoute component={Transactions} exact path="/transactions" />
               <AuthenticatedRoute component={NewTransaction} exact path="/transactions/new" />

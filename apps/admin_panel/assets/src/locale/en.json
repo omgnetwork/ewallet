@@ -84,6 +84,7 @@
     "dashboard": "Dashboard",
     "accounts": "Accounts",
     "users": "Users",
+    "admins": "Admins",
     "transactions": "Transactions",
     "tokens": "Tokens",
     "reports": "Reports",
@@ -182,6 +183,19 @@
         "label": "Locked"
       },
       "success": "Successfully created ${ token_id }"
+    }
+  },
+  "admins": {
+    "header": {
+      "admins": "Admins",
+      "advanced_filters": "Advanced Filters",
+      "export": "Export"
+    },
+    "table": {
+      "id": "Id",
+      "email": "Email",
+      "created_at": "Created At",
+      "updated_at": "Updated At"
     }
   }
 }
