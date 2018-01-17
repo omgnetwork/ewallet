@@ -2,11 +2,12 @@ import React from 'react';
 import { Image, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 import logo from '../../../public/images/omisego_logo_white.png';
 import avatar from '../../../public/images/user.svg';
 
-const Header = ({ session }) => (
+const Header = ({ session, history }) => (
   <div>
     <div>
       <div className="header">
@@ -14,7 +15,7 @@ const Header = ({ session }) => (
           <div className="col-md-3 col-xs-12 col-sm-4">
             <Navbar.Header className="col-md-10 col-md-offset-1 col-xs-12 col-sm-12 header__left">
               <Navbar.Brand>
-                <Image className="header__logo" src={logo} />
+                <Image className="header__logo" onClick={() => { history.push('/'); }} src={logo} />
               </Navbar.Brand>
               <Navbar.Toggle />
             </Navbar.Header>
@@ -62,6 +63,7 @@ const Header = ({ session }) => (
 );
 
 Header.propTypes = {
+  history: PropTypes.object.isRequired,
   session: PropTypes.object.isRequired,
 };
 
@@ -72,4 +74,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default connect(mapStateToProps)(Header);
+export default withRouter(connect(mapStateToProps)(Header));
