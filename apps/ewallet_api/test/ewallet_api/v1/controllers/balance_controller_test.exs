@@ -1,6 +1,5 @@
 defmodule EWalletAPI.V1.BalanceControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{User, MintedToken}
   alias EWalletDB.{User, MintedToken, Account}
 
   describe "/all" do
