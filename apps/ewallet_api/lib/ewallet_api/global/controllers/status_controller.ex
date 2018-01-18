@@ -1,6 +1,6 @@
 defmodule EWalletAPI.StatusController do
   use EWalletAPI, :controller
-  alias EWalletMQ.Publishers.Status
+  alias LocalLedger.Status
 
   def status(conn, _attrs) do
     json conn, %{
@@ -14,7 +14,7 @@ defmodule EWalletAPI.StatusController do
 
   defp local_ledger do
     case Status.check() do
-      {:ok, _} ->
+      :ok ->
         true
       _ ->
         false

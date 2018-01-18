@@ -1,8 +1,6 @@
 defmodule EWalletAPI.V1.SelfControllerTest do
   use EWalletAPI.ConnCase, async: true
-  import Mock
-  alias EWalletMQ.Publishers.Balance
-  alias EWalletDB.User
+  alias EWalletDB.{User, Account}
 
   describe "/me.get" do
     test "responds with user data" do
@@ -23,62 +21,60 @@ defmodule EWalletAPI.V1.SelfControllerTest do
     end
   end
 
-  def valid_balances_response do
-    {:ok, %{
-      "object" => "balance",
-      "address" => "master",
-      "amounts" => %{"BTC:123" => 9850, "OMG:123" => 1000}
-    }}
-  end
-
   describe "/me.list_balances" do
     test "responds with a list of balances" do
-      with_mocks [
-        {Balance, [], [all: fn _pid -> valid_balances_response() end]}
-      ] do
-        user     = get_test_user()
-        btc      = insert(:minted_token, %{friendly_id: "BTC:123", symbol: "BTC"})
-        omg      = insert(:minted_token, %{friendly_id: "OMG:123", symbol: "OMG"})
-        response = client_request("/me.list_balances")
+      account        = Account.get_master_account()
+      master_balance = Account.get_primary_balance(account)
+      user           = get_test_user()
+      user_balance   = User.get_primary_balance(user)
+      btc            = insert(:minted_token, %{symbol: "BTC"})
+      omg            = insert(:minted_token, %{symbol: "OMG"})
 
-        assert response == %{
-          "version" => "1",
-          "success" => true,
-          "data" => %{
-            "object" => "list",
-            "data" => [
-              %{
-                "object" => "address",
-                "address" => User.get_primary_balance(user).address,
-                "balances" => [
-                  %{
-                    "object" => "balance",
-                    "amount" => 9850,
-                    "minted_token" => %{
-                      "name" => btc.name,
-                      "object" => "minted_token",
-                      "subunit_to_unit" => btc.subunit_to_unit,
-                      "symbol" => btc.symbol,
-                      "id" => btc.friendly_id
-                    }
-                  },
-                  %{
-                    "object" => "balance",
-                    "amount" => 1000,
-                    "minted_token" => %{
-                      "name" => omg.name,
-                      "object" => "minted_token",
-                      "subunit_to_unit" => omg.subunit_to_unit,
-                      "symbol" => omg.symbol,
-                      "id" => omg.friendly_id
-                    }
+      mint!(btc)
+      mint!(omg)
+
+      transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
+
+      response = client_request("/me.list_balances")
+
+      assert response == %{
+        "version" => "1",
+        "success" => true,
+        "data" => %{
+          "object" => "list",
+          "data" => [
+            %{
+              "object" => "address",
+              "address" => user_balance.address,
+              "balances" => [
+                %{
+                  "object" => "balance",
+                  "amount" => 150_000 * btc.subunit_to_unit,
+                  "minted_token" => %{
+                    "name" => btc.name,
+                    "object" => "minted_token",
+                    "subunit_to_unit" => btc.subunit_to_unit,
+                    "symbol" => btc.symbol,
+                    "id" => btc.friendly_id
                   }
-                ]
-              }
-            ]
-          }
+                },
+                %{
+                  "object" => "balance",
+                  "amount" => 12_000 * omg.subunit_to_unit,
+                  "minted_token" => %{
+                    "name" => omg.name,
+                    "object" => "minted_token",
+                    "subunit_to_unit" => omg.subunit_to_unit,
+                    "symbol" => omg.symbol,
+                    "id" => omg.friendly_id
+                  }
+                }
+              ]
+            }
+          ]
         }
-      end
+      }
     end
   end
 end
