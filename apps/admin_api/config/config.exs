@@ -9,6 +9,8 @@ use Mix.Config
 config :admin_api,
   namespace: AdminAPI
 
+config :ewallet_admin, ecto_repos: []
+
 # Configs for the endpoint
 config :admin_api,
   AdminAPI.Endpoint,
