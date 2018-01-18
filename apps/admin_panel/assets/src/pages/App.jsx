@@ -15,6 +15,7 @@ import NewAccount from './authenticated/accounts/new/NewAccount';
 import Users from './authenticated/users/list/Users';
 import NewUser from './authenticated/users/new/NewUser';
 import SignIn from './public/signin/SignIn';
+import ForgotPassword from './public/forgot_password/ForgotPassword';
 import APIManagement from './authenticated/api_management/APIManagement';
 import Report from './authenticated/report/Report';
 import Transactions from './authenticated/transactions/list/Transactions';
@@ -57,8 +58,9 @@ class App extends Component {
               <AuthenticatedRoute component={Tokens} exact path="/tokens" />
               <AuthenticatedRoute component={NewToken} exact path="/tokens/new" />
               <AuthenticatedRoute component={Setting} exact path="/setting" />
-              <AuthenticatedRoute component={withRouter(Profile)} exact path="/profile" />
               <PublicRoute component={SignIn} path="/signin" />
+              <AuthenticatedRoute component={withRouter(Profile)} exact path="/profile" />
+              <PublicRoute component={ForgotPassword} exact path="/forgot_password" />
               <Redirect to="/signin" />
             </Switch>
             <DevTools />

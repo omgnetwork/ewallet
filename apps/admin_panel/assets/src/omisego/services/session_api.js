@@ -7,3 +7,8 @@ export function login(params, callback) {
 export function logout(callback) {
   return request('logout', null, callback);
 }
+
+export function forgotPassword(params, callback) {
+  callback(null, {});
+  // return request('forgot_password', JSON.stringify(params), callback);
+}
