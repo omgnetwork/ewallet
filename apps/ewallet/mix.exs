@@ -32,7 +32,7 @@ defmodule EWallet.Mixfile do
     [
       {:ewallet_db, in_umbrella: true},
       {:local_ledger, in_umbrella: true},
-      {:local_ledger_db, in_umbrella: true}
+      {:local_ledger_db, in_umbrella: true, only: :test}
     ]
   end
 end
