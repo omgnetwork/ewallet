@@ -16,7 +16,25 @@
     "password": {
       "label": "Password",
       "help": "Password should be at least 8 characters long"
-    }
+    },
+    "or": "or",
+    "forgot_password": "Forgot your password?"
+  },
+  "forgot-password": {
+    "forgot_password": "Forgot your password?",
+    "enter_your_email": "Enter your email address to reset your password.",
+    "email": {
+      "label": "Email",
+      "help": "Email is invalid"
+    },
+    "reset_your_password": "Reset your password",
+    "or": "or",
+    "sign_in": "Sign in"
+  },
+  "forgot-password-success": {
+    "reset_password_complete": "Reset your password completed",
+    "please_check_your_email": "Please check your email.",
+    "back_to_sign_in": "Back to sign in"
   },
   "public-footer": {
     "about": "About",

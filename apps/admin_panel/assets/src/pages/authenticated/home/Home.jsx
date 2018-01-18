@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import Actions from './actions';
+import Actions from '../actions';
 
 class Home extends Component {
   constructor(props) {

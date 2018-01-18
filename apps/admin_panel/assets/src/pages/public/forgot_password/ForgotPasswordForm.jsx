@@ -1,22 +1,20 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
-import { withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 
-class SignIn extends Component {
+class ForgotPasswordForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
       email: '',
-      password: '',
       submitted: false,
       didModifyEmail: false,
-      didModifyPassword: false,
     };
 
     this.handleChange = this.handleChange.bind(this);
@@ -28,38 +26,23 @@ class SignIn extends Component {
     return !this.isEmailValid() && (submitted || didModifyEmail) ? 'error' : null;
   }
 
-  getPasswordValidationState() {
-    const { submitted, didModifyPassword } = this.state;
-    return !this.isPasswordValid() && (submitted || didModifyPassword) ? 'error' : null;
-  }
-
   isEmailValid() {
     const { email } = this.state;
     return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(email);
   }
 
-  isPasswordValid() {
-    const { password } = this.state;
-    return password.length >= 8;
-  }
-
   isFormValid() {
-    return this.isEmailValid() && this.isPasswordValid();
+    return this.isEmailValid();
   }
 
   handleChange(e) {
     const { id, value } = e.target;
     this.setState((prevState) => {
-      let { didModifyEmail, didModifyPassword } = prevState;
-      if (id === 'email') {
-        didModifyEmail = true;
-      } else if (id === 'password') {
-        didModifyPassword = true;
-      }
+      let { didModifyEmail } = prevState;
+      didModifyEmail = true;
       return {
         [id]: value,
         didModifyEmail,
-        didModifyPassword,
       };
     });
   }
@@ -67,39 +50,33 @@ class SignIn extends Component {
   handleSubmit(e) {
     e.preventDefault();
     this.setState({ submitted: true });
-    const { email, password } = this.state;
-    const { login } = this.props;
-    if (email && password) {
-      login({ email, password });
+    const { email } = this.state;
+    const { forgotPassword, onSuccess } = this.props;
+    if (email) {
+      forgotPassword({ email }, onSuccess);
     }
   }
 
   render() {
     const { loading, translate, history } = this.props;
-    const { email, password } = this.state;
+    const { email } = this.state;
     return (
       <div className="omg-form">
         <h2 className="omg-form__title">
-          {translate('sign-in.sign-in')}
+          {translate('forgot-password.forgot_password')}
         </h2>
+        <h3 className="omg-form__subtitle">
+          {translate('forgot-password.enter_your_email')}
+        </h3>
         <form autoComplete="off" onSubmit={this.handleSubmit}>
           <OMGFieldGroup
-            help={translate('sign-in.email.help')}
+            help={translate('forgot-password.email.help')}
             id="email"
-            label={translate('sign-in.email.label')}
+            label={translate('forgot-password.email.label')}
             onChange={this.handleChange}
             type="text"
             validationState={this.getEmailValidationState()}
             value={email}
-          />
-          <OMGFieldGroup
-            help={translate('sign-in.password.help')}
-            id="password"
-            label={translate('sign-in.password.label')}
-            onChange={this.handleChange}
-            type="password"
-            validationState={this.getPasswordValidationState()}
-            value={password}
           />
           <div>
             <span>
@@ -109,18 +86,18 @@ class SignIn extends Component {
                 disabled={loading || !this.isFormValid()}
                 type="submit"
               >
-                {loading ? translate('global.loading') : translate('sign-in.sign-in')}
+                {loading ? translate('global.loading') : translate('forgot-password.reset_your_password')}
               </Button>
               <span className="ml-1">
-                {translate('sign-in.or')}
+                {translate('forgot-password.or')}
               </span>
               <Button
                 bsStyle="link"
                 className="link-omg-blue"
                 disabled={loading}
-                onClick={() => { history.push('/forgot_password'); }}
+                onClick={() => { history.push('/signin'); }}
               >
-                {translate('sign-in.forgot_password')}
+                {translate('forgot-password.sign_in')}
               </Button>
             </span>
           </div>
@@ -130,10 +107,11 @@ class SignIn extends Component {
   }
 }
 
-SignIn.propTypes = {
+ForgotPasswordForm.propTypes = {
+  forgotPassword: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
-  login: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
 };
 
@@ -148,8 +126,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    login: params => dispatch(Actions.login(params)),
+    forgotPassword: (email, onSuccess) => dispatch(Actions.forgotPassword(email, onSuccess)),
   };
 }
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(SignIn));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(ForgotPasswordForm));

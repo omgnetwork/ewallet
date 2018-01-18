@@ -13,7 +13,11 @@ const PublicLayout = ({ alert, children }) => (
         <PublicHeader />
         <div className="public-container">
           <Alerter alert={alert} />
-          {children}
+          <div className="row">
+            <div className="col-xs-12 col-sm-6 col-sm-offset-3">
+              {children}
+            </div>
+          </div>
         </div>
         <PublicFooter />
       </div>
