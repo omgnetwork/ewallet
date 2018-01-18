@@ -16,7 +16,9 @@ defmodule EWalletAPI.ConnCase do
   use ExUnit.CaseTemplate
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletDB.{Repo, Account, Key, User}
+  alias EWalletDB.{Account, Key, User}
+  alias EWallet.{Mint, Transaction}
+  alias Ecto.UUID
   use Phoenix.ConnTest
 
   # Attributes required by Phoenix.ConnTest
@@ -58,10 +60,11 @@ defmodule EWalletAPI.ConnCase do
   end
 
   setup do
-    :ok = Sandbox.checkout(Repo)
+    :ok = Sandbox.checkout(EWalletDB.Repo)
+    :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize balances, etc.
-    {:ok, account} = :account |> params_for() |> Account.insert()
+    {:ok, account} = :account |> params_for(master: true) |> Account.insert()
 
     {:ok, user} =
       :user
@@ -90,6 +93,32 @@ defmodule EWalletAPI.ConnCase do
 
   def get_test_user do
     User.get_by_provider_user_id(@provider_user_id)
+  end
+
+  def mint!(minted_token, amount \\ 1_000_000) do
+    {:ok, mint, _ledger_response} = Mint.insert(%{
+      "idempotency_token" => UUID.generate(),
+      "token_id" => minted_token.friendly_id,
+      "amount" => amount * minted_token.subunit_to_unit,
+      "description" => "Minting #{amount} #{minted_token.symbol}",
+      "metadata" => %{}
+    })
+
+    assert mint.confirmed == true
+    mint
+  end
+
+  def transfer!(from, to, minted_token, amount) do
+    {:ok, transfer, _balances, _minted_token} = Transaction.process_with_addresses(%{
+      "from_address" => from,
+      "to_address" => to,
+      "token_id" => minted_token.friendly_id,
+      "amount" => amount,
+      "metadata" => %{},
+      "idempotency_token" => UUID.generate()
+    })
+
+    transfer
   end
 
   @doc """

@@ -2,8 +2,8 @@ defmodule EWallet.Transactions.Transfer do
   @moduledoc """
   Handles the logic for a transfer of value between two addresses.
   """
-  alias EWalletMQ.Serializers.Transaction
-  alias EWalletMQ.Publishers.Entry
+  alias EWallet.Formatters
+  alias LocalLedger.Entry
   alias EWalletDB.Transfer
 
   @doc """
@@ -60,8 +60,8 @@ defmodule EWallet.Transactions.Transfer do
   """
   def process(transfer) do
     transfer
-    |> Transaction.serialize()
-    |> Entry.insert(transfer.idempotency_token)
+    |> Formatters.Transfer.format()
+    |> Entry.insert(%{genesis: false})
     |> update_transfer(transfer)
   end
 
@@ -82,13 +82,16 @@ defmodule EWallet.Transactions.Transfer do
   """
   def genesis(transfer) do
     transfer
-    |> Transaction.serialize()
-    |> Entry.genesis(transfer.idempotency_token)
+    |> Formatters.Transfer.format()
+    |> Entry.insert(%{genesis: true})
     |> update_transfer(transfer)
   end
 
-  defp update_transfer({:ok, ledger_response}, transfer) do
-    transfer = Transfer.confirm(transfer, ledger_response)
+  defp update_transfer({:ok, entry}, transfer) do
+    transfer = Transfer.confirm(transfer, %{
+      entry_id: entry.id
+    })
+
     {:ok, transfer}
   end
   defp update_transfer({:error, code, description}, transfer) do

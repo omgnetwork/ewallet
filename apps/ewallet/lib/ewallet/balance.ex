@@ -3,7 +3,7 @@ defmodule EWallet.Balance do
   Handles the retrieval and formatting of balances from the local ledger.
   """
   alias EWalletDB.{User, MintedToken}
-  alias EWalletMQ.Publishers.Balance
+  alias LocalLedger.Balance
 
   @doc """
   Prepare the list of balances and turn them into a suitable format for
@@ -110,17 +110,17 @@ defmodule EWallet.Balance do
     address |> Balance.all() |> process_response(address, :all)
   end
 
-  defp process_response(response, address, type) do
-    case response do
+  defp process_response(balances, address, type) do
+    case balances do
       {:ok, data} ->
         balances =
-        type
-        |> load_minted_tokens(data["amounts"])
-        |> map_minted_tokens(data["amounts"])
+          type
+          |> load_minted_tokens(data)
+          |> map_minted_tokens(data)
 
         {:ok, %{address: address, balances: balances}}
-      response ->
-        response
+      balances ->
+        balances
     end
   end
 
