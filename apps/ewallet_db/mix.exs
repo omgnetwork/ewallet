@@ -43,6 +43,7 @@ defmodule EWalletDB.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:salty, git: "ssh://git@github.com/omisego/salty.git"},
       {:cloak, "~> 0.3.3"},
+      {:plug, "~> 1.0"}
     ]
   end
 
