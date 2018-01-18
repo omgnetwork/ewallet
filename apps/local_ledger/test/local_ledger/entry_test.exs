@@ -2,7 +2,7 @@ defmodule LocalLedger.EntryTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
   alias LocalLedger.{Entry, Errors.InvalidAmountError}
-  alias LocalLedgerDB.{Repo, Transaction, Errors.InsufficientFundsError}
+  alias LocalLedgerDB.{Repo, Transaction}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 
@@ -17,7 +17,8 @@ defmodule LocalLedger.EntryTest do
                            |> build(entry_id: inserted_entry.id)
                            |> Repo.insert
 
-      entry = Enum.at(Entry.all, 0)
+      {:ok, entries} = Entry.all
+      entry = Enum.at(entries, 0)
       assert entry.id == inserted_entry.id
       assert entry.transactions == [transaction]
     end
@@ -30,7 +31,7 @@ defmodule LocalLedger.EntryTest do
                            |> build(entry_id: inserted_entry.id)
                            |> Repo.insert
 
-      entry = Entry.get(inserted_entry.id)
+      {:ok, entry} = Entry.get(inserted_entry.id)
       assert entry.id == inserted_entry.id
       assert entry.transactions == [transaction]
     end
@@ -68,7 +69,7 @@ defmodule LocalLedger.EntryTest do
         "credits" => credits(),
         "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
         "correlation_id" => UUID.generate
-      }, true)
+      }, %{genesis: true})
 
       entry
     end
@@ -106,7 +107,7 @@ defmodule LocalLedger.EntryTest do
         }],
         "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
         "correlation_id" => UUID.generate
-      })
+      }, %{genesis: false})
 
       assert entry != nil
       assert length(entry.transactions) == 2
@@ -131,7 +132,7 @@ defmodule LocalLedger.EntryTest do
         }],
         "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
         "correlation_id" => genesis_entry.correlation_id
-      })
+      }, %{genesis: false})
 
       assert status == :error
       assert error.errors == [correlation_id: {"has already been taken", []}]
@@ -141,23 +142,21 @@ defmodule LocalLedger.EntryTest do
           enough funds" do
       genesis()
 
-      assert_raise InsufficientFundsError, fn ->
-        Entry.insert(%{
+      {:error, "client:insufficient_funds", _} = Entry.insert(%{
+        "metadata" => %{},
+        "debits" => [%{
+          "address" => "mederic",
           "metadata" => %{},
-          "debits" => [%{
-            "address" => "mederic",
-            "metadata" => %{},
-            "amount" => 200
-          }],
-          "credits" => [%{
-            "address" => "thibault",
-            "metadata" => %{},
-            "amount" => 200
-          }],
-          "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
-          "correlation_id" => UUID.generate
-        })
-      end
+          "amount" => 200
+        }],
+        "credits" => [%{
+          "address" => "thibault",
+          "metadata" => %{},
+          "amount" => 200
+        }],
+        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "correlation_id" => UUID.generate
+      }, %{genesis: false})
     end
 
     test "raises an InvalidAmountError when amount is invalid
@@ -179,7 +178,7 @@ defmodule LocalLedger.EntryTest do
           }],
           "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
           "correlation_id" => UUID.generate
-        })
+        }, %{genesis: false})
       end
     end
 
@@ -207,7 +206,7 @@ defmodule LocalLedger.EntryTest do
           "credits" => [%{"address" => "sirn", "metadata" => %{}, "amount" => 50}],
           "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
           "correlation_id" => UUID.generate
-        })
+        }, %{genesis: false})
 
         send pid, :updated
       end
@@ -218,7 +217,7 @@ defmodule LocalLedger.EntryTest do
         "credits" => [%{"address" => "thibault", "metadata" => %{}, "amount" => 100}],
         "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
         "correlation_id" => UUID.generate
-      }, false, fn ->
+      }, %{genesis: false}, fn ->
         send new_pid, :select_for_update
       end)
 
@@ -241,24 +240,25 @@ defmodule LocalLedger.EntryTest do
         Sandbox.allow(Repo, pid, self())
         assert_receive :select_for_update, 5000
 
-        assert_raise InsufficientFundsError, fn ->
-          # this should block until the other transaction commit
-          Entry.insert(%{
+        # this should block until the other transaction commit
+        {res, error, _} = Entry.insert(%{
+          "metadata" => %{},
+          "debits" => [%{
+            "address" => "mederic",
             "metadata" => %{},
-            "debits" => [%{
-              "address" => "mederic",
-              "metadata" => %{},
-              "amount" => 100
-            }],
-            "credits" => [%{
-              "address" => "sirn",
-              "metadata" => %{},
-              "amount" => 100
-            }],
-            "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
-            "correlation_id" => UUID.generate
-          })
-        end
+            "amount" => 100
+          }],
+          "credits" => [%{
+            "address" => "sirn",
+            "metadata" => %{},
+            "amount" => 100
+          }],
+          "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+          "correlation_id" => UUID.generate
+        }, %{genesis: false})
+
+        assert res == :error
+        assert error == "client:insufficient_funds"
         send pid, :updated
       end
 
@@ -277,7 +277,7 @@ defmodule LocalLedger.EntryTest do
         }],
         "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
         "correlation_id" => UUID.generate
-      })
+      }, %{genesis: false})
 
       assert_receive :updated, 5000
       assert get_current_balance("mederic") == 50
@@ -300,7 +300,7 @@ defmodule LocalLedger.EntryTest do
         }],
         "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
         "correlation_id" => UUID.generate
-      }, true)
+      }, %{genesis: true})
 
       assert entry != nil
       assert length(entry.transactions) == 2
@@ -327,7 +327,7 @@ defmodule LocalLedger.EntryTest do
           }],
           "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
           "correlation_id" => UUID.generate
-        }, true)
+        }, %{genesis: true})
       end
     end
   end
