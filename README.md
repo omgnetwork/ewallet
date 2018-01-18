@@ -186,13 +186,9 @@ On a more technical note, the eWallet is an umbrella Elixir application containi
 
   - [ewallet_db](/apps/ewallet_db): Sub-application containing all the database schemas and migrations.
 
-  - [ewallet_mq](/apps/ewallet_mq): Sub-application used to communicate with other services such as the local ledger through RabbitMQ.
-
   - [local_ledger](/apps/local_ledger): Sub-application containing the business logic.
 
   - [local_ledger_db](/apps/local_ledger_db): Sub-application containing all the database schemas and migrations.
-
-  - [local_ledger_mq](/apps/local_ledger_mq): Sub-application used to communicate with other services such as the eWallet through RabbitMQ.
 
 ### Admin Panel
 
@@ -213,8 +209,6 @@ The Blockchain Gateway will be the interface to the blockchain OmiseGO is buildi
 ## Dependencies
 
 - [PostgreSQL](https://www.postgresql.org/): PostgreSQL is used to store most of the data for the eWallet API and local ledger.
-
-- [RabbitMQ](https://www.rabbitmq.com/): RabbitMQ is used to exchange messages between the eWallet and the other applications (local ledger, request logger, etc).
 
 - [Libsodium](https://github.com/jedisct1/libsodium): Sodium is a new, easy-to-use software library for encryption, decryption, signatures, password hashing and more. It is used to hash and encrypt/decrypt sensitive data.
 
