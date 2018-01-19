@@ -54,20 +54,14 @@ Enum.each(seeds, fn(data) ->
   end
 end)
 
-if Enum.member?(System.argv, "--with-genesis") do
-  Enum.each(seeds, fn(data) ->
-    minted_token = EWalletDB.Repo.get_by(EWalletDB.MintedToken, symbol: data.symbol)
-    account = EWalletDB.Account.get(minted_token.account_id)
-    genesis = EWalletDB.Balance.get_genesis()
+Enum.each(seeds, fn(data) ->
+  minted_token = EWalletDB.Repo.get_by(EWalletDB.MintedToken, symbol: data.symbol)
 
-    %{
-      from_balance: genesis,
-      to_balance: EWalletDB.Account.get_primary_balance(account),
-      minted_token: minted_token,
-      amount: data.genesis_amount,
-      metadata: %{}
-    }
-    |> EWalletMQ.Serializers.Transaction.serialize()
-    |> EWalletMQ.Publishers.Entry.genesis(Ecto.UUID.generate())
-  end)
-end
+  {:ok, _mint, _transfer} = EWallet.Mint.insert(%{
+    "idempotency_token" => Ecto.UUID.generate(),
+    "token_id" => minted_token.friendly_id,
+    "amount" => data.genesis_amount,
+    "description" => "Seeded #{data.genesis_amount} #{minted_token.friendly_id}.",
+    "metadata" => %{}
+  })
+end)

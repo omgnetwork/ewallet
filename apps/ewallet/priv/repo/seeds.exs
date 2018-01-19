@@ -11,22 +11,7 @@
 # Or run the seed directly:
 #
 # ```
-# mix run apps/ewallet_db/priv/repo/seeds.exs
-# ```
-#
-# And run the seed with genesis (requires LocalLedger to be running):
-#
-# ```
-# mix run apps/ewallet_db/priv/repo/seeds.exs --with-genesis
-# ```
-#
-# All mix aliases that runs the seed also automatically
-# supports `--with-genesis` flag:
-#
-# ```
-# mix init --with-genesis
-# mix reset --with-genesis
-# mix seed --with-genesis
+# mix run apps/ewallet/priv/repo/seeds.exs
 # ```
 #
 ## Naming convention

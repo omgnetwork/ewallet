@@ -99,7 +99,7 @@ mix do ecto.create, ecto.migrate
 Everything is in place and we can now run the seeds to have some data to play with. The following command will insert some sample data in the eWallet database and initiate the genesis for the minted tokens.
 
 ```
-mix run apps/ewallet_db/priv/repo/seeds.exs --with-genesis
+mix run apps/ewallet/priv/repo/seeds.exs
 ```
 
 We can now start the application:
