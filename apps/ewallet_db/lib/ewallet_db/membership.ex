@@ -120,4 +120,30 @@ defmodule EWalletDB.Membership do
     |> Enum.map(fn(role) -> Map.fetch!(role, :name) end)
     |> Enum.uniq()
   end
+
+  @doc """
+  Retrieves the list of accounts that the given user has membership, including their child accounts.
+  """
+  def user_get_accounts(user) do
+    account_ids =
+      user
+      |> User.get_accounts()
+      |> Enum.map(fn(%{id: id}) -> id end)
+
+    query =
+      from a in Account,
+      join: child in fragment("""
+        WITH RECURSIVE account_tree AS (
+          SELECT *
+          FROM account
+          WHERE account.id = ANY(?)
+        UNION
+          SELECT child.*
+          FROM account child
+          JOIN account_tree ON account_tree.id = child.parent_id
+        ) SELECT * FROM account_tree
+      """, type(^account_ids, {:array, :binary_id})), on: a.id == child.id
+
+    Repo.all(query)
+  end
 end

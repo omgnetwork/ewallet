@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
   alias AdminAPI.V1.AccountView
-  alias EWalletDB.User
+  alias EWalletDB.Membership
 
   @doc """
   Retrieves the currently authenticated user.
@@ -14,7 +14,7 @@ defmodule AdminAPI.V1.SelfController do
   Retrieve the list of accounts that the authenticated user has membership in.
   """
   def get_accounts(conn, _attrs) do
-    accounts = User.get_accounts(conn.assigns.user)
+    accounts = Membership.user_get_accounts(conn.assigns.user)
     render(conn, AccountView, :accounts, %{accounts: accounts})
   end
 end

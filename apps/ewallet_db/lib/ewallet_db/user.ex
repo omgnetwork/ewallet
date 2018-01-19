@@ -172,7 +172,7 @@ defmodule EWalletDB.User do
   end
 
   @doc """
-  Retrieve the list of accounts that the given user has membership in.
+  Retrieves the list of accounts that the given user has direct membership in.
   """
   def get_accounts(user) do
     user
