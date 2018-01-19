@@ -8,6 +8,9 @@ defmodule AdminAPI.V1.AccountSerializer do
   def to_json(%Paginator{} = paginator) do
     PaginatorSerializer.to_json(paginator, &to_json/1)
   end
+  def to_json(accounts) when is_list(accounts) do
+    Enum.map(accounts, &to_json/1)
+  end
   def to_json(account) when is_map(account) do
     %{
       object: "account",

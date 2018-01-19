@@ -11,9 +11,9 @@ admin_seeds = [
 ]
 
 memberships = [
-  %{email: "admin01@example.com", role_name: "admin", account_name: "account01"},
-  %{email: "admin02@example.com", role_name: "admin", account_name: "account02"},
-  %{email: "admin03@example.com", role_name: "admin", account_name: "account03"},
+  %{email: "admin01@example.com", role_name: "admin", account_name: "brand1"},
+  %{email: "admin02@example.com", role_name: "admin", account_name: "region1"},
+  %{email: "admin03@example.com", role_name: "admin", account_name: "branch1"},
   %{email: "viewer01@example.com", role_name: "viewer", account_name: "account01"},
   %{email: "viewer02@example.com", role_name: "viewer", account_name: "account02"},
 ]
