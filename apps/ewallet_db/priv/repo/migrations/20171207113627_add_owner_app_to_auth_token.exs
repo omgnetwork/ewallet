@@ -1,6 +1,5 @@
 defmodule EWalletDB.Repo.Migrations.AddOwnerAppToAuthTokenTable do
   use Ecto.Migration
-  import Ecto.Query
   alias EWalletDB.Repo
 
   def up do

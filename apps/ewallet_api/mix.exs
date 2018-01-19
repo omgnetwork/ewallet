@@ -41,8 +41,7 @@ defmodule EWalletAPI.Mixfile do
       {:cowboy, "~> 1.0"},
       {:sentry, "~> 6.0.0"},
       {:ewallet_db, in_umbrella: true},
-      {:ewallet, in_umbrella: true},
-      {:ewallet_mq, in_umbrella: true}
+      {:ewallet, in_umbrella: true}
     ]
   end
 

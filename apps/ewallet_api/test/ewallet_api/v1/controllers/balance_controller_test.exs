@@ -1,123 +1,120 @@
 defmodule EWalletAPI.V1.BalanceControllerTest do
   use EWalletAPI.ConnCase, async: true
-  import Mock
-  alias EWalletDB.{User, MintedToken}
-  alias EWalletMQ.Publishers.Balance
-
-  def valid_balances_response do
-    {:ok, %{
-      "object" => "balance",
-      "address" => "master",
-      "amounts" => %{"BTC:123" => 9850, "OMG:123" => 1000}
-    }}
-  end
+  alias EWalletDB.{User, MintedToken, Account}
 
   describe "/all" do
     test "Get all user balances from its provider_user_id" do
-      with_mocks [
-        {Balance, [], [all: fn _pid -> valid_balances_response() end]}
-        ] do
-          {:ok, user} = :user |> params_for() |> User.insert()
-          {:ok, btc} =
-            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
-          {:ok, omg} =
-            :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
+      account = Account.get_master_account()
+      master_balance = Account.get_primary_balance(account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_balance   = User.get_primary_balance(user)
+      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
 
-          request_data = %{provider_user_id: user.provider_user_id}
-          response     = provider_request("/user.list_balances", request_data)
+      mint!(btc)
+      mint!(omg)
 
-          assert response == %{
-            "version" => "1",
-            "success" => true,
-            "data" => %{
-              "object" => "list",
-              "data" => [
+      transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
+
+      response = provider_request("/user.list_balances", %{
+        provider_user_id: user.provider_user_id
+      })
+
+      assert response == %{
+        "version" => "1",
+        "success" => true,
+        "data" => %{
+          "object" => "list",
+          "data" => [
+            %{
+              "object" => "address",
+              "address" => User.get_primary_balance(user).address,
+              "balances" => [
                 %{
-                  "object" => "address",
-                  "address" => User.get_primary_balance(user).address,
-                  "balances" => [
-                    %{
-                      "object" => "balance",
-                      "amount" => 9850,
-                      "minted_token" => %{
-                        "name" => btc.name,
-                        "object" => "minted_token",
-                        "subunit_to_unit" => btc.subunit_to_unit,
-                        "symbol" => btc.symbol,
-                        "id" => btc.friendly_id,
-                      }
-                    },
-                    %{
-                      "object" => "balance",
-                      "amount" => 1000,
-                      "minted_token" => %{
-                        "name" => omg.name,
-                        "object" => "minted_token",
-                        "subunit_to_unit" => omg.subunit_to_unit,
-                        "symbol" => omg.symbol,
-                        "id" => omg.friendly_id,
-                      }
-                    }
-                  ]
+                  "object" => "balance",
+                  "amount" => 150_000 * btc.subunit_to_unit,
+                  "minted_token" => %{
+                    "name" => btc.name,
+                    "object" => "minted_token",
+                    "subunit_to_unit" => btc.subunit_to_unit,
+                    "symbol" => btc.symbol,
+                    "id" => btc.friendly_id,
+                  }
+                },
+                %{
+                  "object" => "balance",
+                  "amount" => 12_000 * omg.subunit_to_unit,
+                  "minted_token" => %{
+                    "name" => omg.name,
+                    "object" => "minted_token",
+                    "subunit_to_unit" => omg.subunit_to_unit,
+                    "symbol" => omg.symbol,
+                    "id" => omg.friendly_id,
+                  }
                 }
               ]
             }
-          }
-      end
+          ]
+        }
+      }
     end
 
     test "Get all user balances from an address" do
-      with_mocks [
-        {Balance, [], [all: fn _pid -> valid_balances_response() end]}
-        ] do
-          {:ok, user} = :user |> params_for() |> User.insert()
-          {:ok, btc} =
-            :minted_token |> params_for(friendly_id: "BTC:123", symbol: "BTC") |> MintedToken.insert()
-          {:ok, omg} =
-            :minted_token |> params_for(friendly_id: "OMG:123", symbol: "OMG") |> MintedToken.insert()
+      account = Account.get_master_account()
+      master_balance = Account.get_primary_balance(account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_balance   = User.get_primary_balance(user)
+      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
 
-          address      = User.get_primary_balance(user).address
-          request_data = %{address: address}
-          response     = provider_request("/user.list_balances", request_data)
+      mint!(btc)
+      mint!(omg)
 
-          assert response == %{
-            "version" => "1",
-            "success" => true,
-            "data" => %{
-              "object" => "list",
-              "data" => [
+      transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
+
+      response = provider_request("/user.list_balances", %{
+        address: user_balance.address
+      })
+
+      assert response == %{
+        "version" => "1",
+        "success" => true,
+        "data" => %{
+          "object" => "list",
+          "data" => [
+            %{
+              "object" => "address",
+              "address" => user_balance.address,
+              "balances" => [
                 %{
-                  "object" => "address",
-                  "address" => address,
-                  "balances" => [
-                    %{
-                      "object" => "balance",
-                      "amount" => 9850,
-                      "minted_token" => %{
-                        "name" => btc.name,
-                        "object" => "minted_token",
-                        "subunit_to_unit" => btc.subunit_to_unit,
-                        "symbol" => btc.symbol,
-                        "id" => btc.friendly_id
-                      }
-                    },
-                    %{
-                      "object" => "balance",
-                      "amount" => 1000,
-                      "minted_token" => %{
-                        "name" => omg.name,
-                        "object" => "minted_token",
-                        "subunit_to_unit" => omg.subunit_to_unit,
-                        "symbol" => omg.symbol,
-                        "id" => omg.friendly_id
-                      }
-                    }
-                  ]
+                  "object" => "balance",
+                  "amount" => 150_000 * btc.subunit_to_unit,
+                  "minted_token" => %{
+                    "name" => btc.name,
+                    "object" => "minted_token",
+                    "subunit_to_unit" => btc.subunit_to_unit,
+                    "symbol" => btc.symbol,
+                    "id" => btc.friendly_id
+                  }
+                },
+                %{
+                  "object" => "balance",
+                  "amount" => 12_000 * omg.subunit_to_unit,
+                  "minted_token" => %{
+                    "name" => omg.name,
+                    "object" => "minted_token",
+                    "subunit_to_unit" => omg.subunit_to_unit,
+                    "symbol" => omg.symbol,
+                    "id" => omg.friendly_id
+                  }
                 }
               ]
             }
-          }
-      end
+          ]
+        }
+      }
     end
 
     test "Get all user balances with an invalid parameter should fail" do

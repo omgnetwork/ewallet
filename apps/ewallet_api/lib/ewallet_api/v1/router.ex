@@ -57,7 +57,6 @@ defmodule EWalletAPI.V1.Router do
     pipe_through [:api]
 
     post "/status", StatusController, :index
-    post "/status.deps", StatusController, :status_deps
     post "/status.server_error", StatusController, :server_error
 
     match :*, "/*path", FallbackController, :not_found

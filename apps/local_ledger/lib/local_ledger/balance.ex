@@ -10,15 +10,15 @@ defmodule LocalLedger.Balance do
   with the given address.
   """
   def all(address) do
-    Transaction.calculate_all_balances(address)
+    {:ok, Transaction.calculate_all_balances(address)}
   end
 
   @doc """
   Calculate and returns the current balance for the specified minted token
   associated with the given address.
   """
-  def get(%{"friendly_id" => friendly_id, "address" => address}) do
-    Transaction.calculate_all_balances(address, friendly_id)
+  def get(friendly_id, address) do
+    {:ok, Transaction.calculate_all_balances(address, friendly_id)}
   end
 
   @doc """

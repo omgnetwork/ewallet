@@ -7,7 +7,8 @@ use Mix.Config
 
 # General application configuration
 config :ewallet_api,
-  namespace: EWalletAPI
+  namespace: EWalletAPI,
+  ecto_repos: []
 
 # Configures the endpoint
 config :ewallet_api,

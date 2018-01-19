@@ -43,6 +43,7 @@ defmodule EWalletDB.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:salty, git: "ssh://git@github.com/omisego/salty.git"},
       {:cloak, "~> 0.3.3"},
+      {:plug, "~> 1.0"}
     ]
   end
 
@@ -54,7 +55,7 @@ defmodule EWalletDB.Mixfile do
   # See the documentation for `Mix` for more info on aliases.
   defp aliases do
     [
-      "ecto.setup": ["ecto.create", "ecto.migrate", "run priv/repo/seeds.exs"],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
       "ecto.reset": ["ecto.drop", "ecto.setup"],
       "test": ["ecto.create --quiet", "ecto.migrate", "test"]
     ]

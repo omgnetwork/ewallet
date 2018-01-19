@@ -3,7 +3,7 @@ defmodule LocalLedger.Entry do
   This module is an interface to the LocalLedgerDB schemas and contains the logic
   needed to insert valid entries and transactions.
   """
-  alias LocalLedgerDB.{Repo, Entry}
+  alias LocalLedgerDB.{Repo, Entry, Errors.InsufficientFundsError}
   alias LocalLedger.{Transaction, Balance}
   alias LocalLedger.Entry.Validator
 
@@ -11,21 +11,21 @@ defmodule LocalLedger.Entry do
   Retrieve all entries from the database.
   """
   def all do
-    Entry.all
+    {:ok, Entry.all}
   end
 
   @doc """
   Retrieve a specific entry from the database.
   """
   def get(id) do
-    Entry.one(id)
+    {:ok, Entry.one(id)}
   end
 
   @doc """
   Retrieve a specific entry based on a correlation ID from the database.
   """
   def get_with_correlation_id(correlation_id) do
-    Entry.get_with_correlation_id(correlation_id)
+    {:ok, Entry.get_with_correlation_id(correlation_id)}
   end
 
   @doc """
@@ -73,11 +73,14 @@ defmodule LocalLedger.Entry do
   """
   def insert(%{"metadata" => metadata, "debits" => debits, "credits" => credits,
                "minted_token" => minted_token, "correlation_id" => correlation_id},
-               genesis \\ false, callback \\ nil) do
+               %{genesis: genesis}, callback \\ nil) do
     {debits, credits}
     |> Validator.validate_amount
     |> Transaction.build_all(minted_token)
     |> locked_insert(metadata, correlation_id, genesis, callback)
+  rescue
+    e in InsufficientFundsError ->
+      {:error, "client:insufficient_funds", e.message}
   end
 
   # Lock all the DEBIT addresses to ensure the truthness of the balances
