@@ -107,6 +107,7 @@ defmodule EWalletDB.Factory do
     %Account{
       name: sequence("account"),
       description: sequence("description for account"),
+      parent_id: nil
     }
   end
 

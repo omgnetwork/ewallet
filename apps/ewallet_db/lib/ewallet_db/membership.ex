@@ -36,6 +36,13 @@ defmodule EWalletDB.Membership do
   end
 
   @doc """
+  Retrieves all memberships for the given user.
+  """
+  def all_by_user(user) do
+    Repo.all from m in Membership, where: m.user_id == ^user.id
+  end
+
+  @doc """
   Assigns the user to the given account and role.
   """
   def assign(user, account, role) when is_binary(role) do
@@ -127,8 +134,8 @@ defmodule EWalletDB.Membership do
   def user_get_accounts(user) do
     account_ids =
       user
-      |> User.get_accounts()
-      |> Enum.map(fn(%{id: id}) -> id end)
+      |> Membership.all_by_user()
+      |> Enum.map(fn(m) -> Map.fetch!(m, :account_id) end)
 
     query =
       from a in Account,

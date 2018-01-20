@@ -122,4 +122,21 @@ defmodule EWalletDB.MembershipTest do
       assert Membership.user_get_roles(user) == ["role_one", "role_two"]
     end
   end
+
+  describe "user_get_accounts/1" do
+    test "returns a list of user's accounts and their sub-accounts" do
+      user        = insert(:user)
+      top_account = insert(:account)
+      mid_account = insert(:account, %{parent_id: top_account.id})
+      sub_account = insert(:account, %{parent_id: mid_account.id})
+      _unrelated  = insert(:account)
+      role        = insert(:role, %{name: "role_name"})
+
+      insert(:membership, %{user: user, account: mid_account, role: role})
+      [account1, account2] = Membership.user_get_accounts(user)
+
+      assert account1.id == mid_account.id
+      assert account2.id == sub_account.id
+    end
+  end
 end

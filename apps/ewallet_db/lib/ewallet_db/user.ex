@@ -170,13 +170,4 @@ defmodule EWalletDB.User do
   def get_preloaded_primary_balance(user) do
     Enum.find(user.balances, fn balance -> balance.identifier == Balance.primary end)
   end
-
-  @doc """
-  Retrieves the list of accounts that the given user has direct membership in.
-  """
-  def get_accounts(user) do
-    user
-    |> Repo.preload(:accounts)
-    |> Map.fetch!(:accounts)
-  end
 end
