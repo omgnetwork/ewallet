@@ -3,6 +3,17 @@
     "loading": "Loading...",
     "copy": "Copy"
   },
+  "components": {
+    "omg_member_item": {
+      "resend_invitation": "Resend Invitation",
+      "edit": "Edit"
+    },
+    "omg_add_member_form": {
+      "placeholder": "Type an email",
+      "select_item": "Select Item",
+      "add": "Add"
+    }
+  },
   "pagination": {
     "previous": "Previous",
     "next": "Next"
@@ -245,6 +256,37 @@
       "email": "Email",
       "created_at": "Created At",
       "updated_at": "Updated At"
+    }
+  },
+  "setting": {
+    "header": {
+      "setting": "Setting",
+      "edit_account": "Edit an account"
+    },
+    "form": {
+      "account_name": {
+        "label": "Account name"
+      },
+      "assign_team_member": {
+        "label": "Assign a team member"
+      },
+      "remove_account": {
+        "label": "Remove Account"
+      },
+      "save": {
+        "label": "Save"
+      },
+      "cancel": {
+        "label": "Cancel"
+      },
+      "remove": {
+        "label": "Remove"
+      },
+      "roles": {
+        "super_admin": "Super Admin",
+        "analyst": "Analyst",
+        "moderator": "Moderator"
+      }
     }
   }
 }
