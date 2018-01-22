@@ -23,6 +23,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
           "data" => %{
             "object" => "account",
             "id" => account.id,
+            "parent_id" => account.parent_id,
             "name" => account.name,
             "description" => account.description,
             "master" => account.master,
@@ -47,6 +48,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "data" => [%{
               "object" => "account",
               "id" => account.id,
+              "parent_id" => account.parent_id,
               "name" => account.name,
               "description" => account.description,
               "master" => account.master,
