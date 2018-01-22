@@ -2,31 +2,27 @@
 alias EWalletDB.Account
 
 seeds = [
-  # Flat-level accounts
-  %{name: "account01", description: "Account 1 (Master)", master: true, parent_name: nil},
-  %{name: "account02", description: "Account 2 (Non-Master)", master: false, parent_name: nil},
-  %{name: "account03", description: "Account 3 (Non-Master)", master: false, parent_name: nil},
-  %{name: "account04", description: "Account 4 (Non-Master)", master: false, parent_name: nil},
-
   # Hierarchical accounts:
-  # Brand 1 (top level)
-  # |- Region 1
-  #    |- Branch 1
-  #    |- Branch 2
-  # Brand 2 (top level)
-  # |- Region 2
-  #    |- Branch 3
-  #    |- Branch 4
-  %{name: "brand1", description: "Brand 1", master: true, parent_name: nil},
-  %{name: "brand2", description: "Brand 2", master: true, parent_name: nil},
-  # Region 1
-  %{name: "region1", description: "Region 1", master: false, parent_name: "brand1"},
-  %{name: "branch1", description: "Branch 1", master: false, parent_name: "region1"},
-  %{name: "branch2", description: "Branch 2", master: false, parent_name: "region1"},
+  # - Company Master Account (top level)
+  #   |- Brand 1
+  #      |- Branch 1
+  #      |- Branch 2
+  #   |- Brand 2
+  #      |- Branch 3
+  #      |- Branch 4
+
+  # Company Master Account
+  %{name: "master_account", description: "Company Master Account", master: true, parent_name: nil},
+
+  # Brand 1
+  %{name: "brand1", description: "Brand 1", master: false, parent_name: "master_account"},
+  %{name: "branch1", description: "Branch 1", master: false, parent_name: "brand1"},
+  %{name: "branch2", description: "Branch 2", master: false, parent_name: "brand1"},
+
   # Region 2
-  %{name: "region2", description: "Region 2", master: false, parent_name: "brand2"},
-  %{name: "branch3", description: "Branch 3", master: false, parent_name: "region2"},
-  %{name: "branch4", description: "Branch 4", master: false, parent_name: "region2"},
+  %{name: "brand2", description: "Region 2", master: false, parent_name: "master_account"},
+  %{name: "branch3", description: "Branch 3", master: false, parent_name: "brand2"},
+  %{name: "branch4", description: "Branch 4", master: false, parent_name: "brand2"},
 ]
 
 EWalletDB.CLI.info("\nSeeding Account...")
