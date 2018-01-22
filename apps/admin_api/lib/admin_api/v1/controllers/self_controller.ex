@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
   alias AdminAPI.V1.AccountView
+  alias EWallet.Web.Paginator
   alias EWalletDB.User
 
   @doc """
@@ -21,8 +22,12 @@ defmodule AdminAPI.V1.SelfController do
   @doc """
   Retrieves the list of accounts that the authenticated user has membership in.
   """
-  def get_accounts(conn, _attrs) do
-    accounts = User.get_accounts(conn.assigns.user)
+  def get_accounts(conn, attrs) do
+    accounts =
+      conn.assigns.user
+      |> User.query_accounts()
+      |> Paginator.paginate_attrs(attrs)
+
     render(conn, AccountView, :accounts, %{accounts: accounts})
   end
 end

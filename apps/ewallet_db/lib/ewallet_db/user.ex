@@ -225,7 +225,10 @@ defmodule EWalletDB.User do
     |> Repo.all()
   end
 
-  defp query_accounts(user) do
+  @doc """
+  Query the list of accounts that the given user has membership, including their child accounts.
+  """
+  def query_accounts(user) do
     account_ids =
       user
       |> Membership.all_by_user()

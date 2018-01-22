@@ -54,7 +54,13 @@ defmodule AdminAPI.V1.SelfControllerTest do
               "master" => account.master,
               "created_at" => Date.to_iso8601(account.inserted_at),
               "updated_at" => Date.to_iso8601(account.updated_at)
-            }]
+            }],
+            "pagination" => %{
+              "current_page" => 1,
+              "per_page" => 10,
+              "is_first_page" => true,
+              "is_last_page" => true
+            }
           }
         }
     end
