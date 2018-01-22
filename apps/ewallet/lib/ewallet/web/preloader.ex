@@ -10,7 +10,7 @@ defmodule EWallet.Web.Preloader do
   """
   @spec to_query(Ecto.Query.t, List.t) :: {Ecto.Query.t}
   def to_query(queryable, preload_fields) when is_list(preload_fields) do
-    from p in queryable, preload: ^preload_fields
+    from q in queryable, preload: ^preload_fields
   end
   def to_query(queryable, _), do: queryable
 end
