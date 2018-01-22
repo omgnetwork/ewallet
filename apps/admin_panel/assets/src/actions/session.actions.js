@@ -5,6 +5,10 @@ class SessionActions {
     return { type: sessionConstants.SAVE_CURRENT_USER, user };
   }
 
+  static saveCurrentAccount(account) {
+    return { type: sessionConstants.SAVE_CURRENT_ACCOUNT, account };
+  }
+
   static clear() {
     return { type: sessionConstants.CLEAR };
   }

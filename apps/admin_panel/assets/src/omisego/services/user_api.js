@@ -16,7 +16,3 @@ export function getAll(params, callback) {
 export function create(params, callback) {
   return request('user.create', JSON.stringify(params), callback);
 }
-
-export function getCurrent(callback) {
-  return request('me.get', null, callback);
-}

@@ -8,93 +8,99 @@ import SidebarLink from './SidebarLink';
 
 import logo from '../../../public/images/dummy_sidebar_logo.png';
 
-const Sidebar = ({ translate, currentPath }) => (
-  <div className="sidebar fh">
-    <div className="col-xs-10 col-xs-offset-1">
-      <Image className="sidebar__logo" src={logo} />
-      <h2 className="sidebar__title">
-        Minor International
-      </h2>
-      <ul className="sidebar__ul">
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.dashboard')}
-            to="/"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.accounts')}
-            to="/accounts"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.admins')}
-            to="/admins"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.users')}
-            to="/users"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.transactions')}
-            to="/transactions"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.tokens')}
-            to="/tokens"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.reports')}
-            to="/report"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.api_management')}
-            to="/api_management"
-          />
-        </li>
-        <li className="sidebar__li">
-          <SidebarLink
-            currentPath={currentPath}
-            title={translate('sidebar.setting')}
-            to="/setting"
-          />
-        </li>
-      </ul>
+const Sidebar = ({ translate, currentPath, session }) => {
+  const accountPath = `/a/${session.currentAccount.id}`;
+  return (
+    <div className="sidebar fh">
+      <div className="col-xs-10 col-xs-offset-1">
+        <Image className="sidebar__logo" src={logo} />
+        <h2 className="sidebar__title">
+          Minor International
+        </h2>
+        <ul className="sidebar__ul">
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.dashboard')}
+              to={`${accountPath}/`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.accounts')}
+              to={`${accountPath}/accounts`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.admins')}
+              to={`${accountPath}/admins`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.users')}
+              to={`${accountPath}/users`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.transactions')}
+              to={`${accountPath}/transactions`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.tokens')}
+              to={`${accountPath}/tokens`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.reports')}
+              to={`${accountPath}/report`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.api_management')}
+              to={`${accountPath}/api_management`}
+            />
+          </li>
+          <li className="sidebar__li">
+            <SidebarLink
+              currentPath={currentPath}
+              title={translate('sidebar.setting')}
+              to={`${accountPath}/setting`}
+            />
+          </li>
+        </ul>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 Sidebar.propTypes = {
   currentPath: PropTypes.string.isRequired,
+  session: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   const translate = getTranslate(state.locale);
   const currentPath = state.router.location.pathname;
+  const { session } = state;
   return {
     translate,
     currentPath,
+    session,
   };
 }
 

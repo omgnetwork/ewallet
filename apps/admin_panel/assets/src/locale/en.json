@@ -7,6 +7,9 @@
     "previous": "Previous",
     "next": "Next"
   },
+  "header": {
+    "edit_profile": "Edit Profile"
+  },
   "sign-in": {
     "sign-in": "Sign in",
     "email": {
