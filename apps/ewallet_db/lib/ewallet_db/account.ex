@@ -14,6 +14,7 @@ defmodule EWalletDB.Account do
     field :name, :string
     field :description, :string
     field :master, :boolean, default: false
+    field :relative_depth, :integer, virtual: true
     belongs_to :parent, Account, foreign_key: :parent_id, # this column
                                  references: :id, # the parent's column
                                  type: UUID

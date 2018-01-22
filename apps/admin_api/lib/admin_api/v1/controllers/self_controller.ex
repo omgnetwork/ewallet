@@ -11,7 +11,15 @@ defmodule AdminAPI.V1.SelfController do
   end
 
   @doc """
-  Retrieve the list of accounts that the authenticated user has membership in.
+  Retrieves the upper-most account that the given user has membership in.
+  """
+  def get_account(conn, _attrs) do
+    account = User.get_account(conn.assigns.user)
+    render(conn, AccountView, :account, %{account: account})
+  end
+
+  @doc """
+  Retrieves the list of accounts that the authenticated user has membership in.
   """
   def get_accounts(conn, _attrs) do
     accounts = User.get_accounts(conn.assigns.user)

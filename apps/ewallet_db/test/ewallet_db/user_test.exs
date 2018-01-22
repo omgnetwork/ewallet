@@ -185,6 +185,21 @@ defmodule EWalletDB.UserTest do
     end
   end
 
+  describe "get_account/1" do
+    test "returns an upper-most account that the given user has membership in" do
+      user        = insert(:user)
+      top_account = insert(:account)
+      mid_account = insert(:account, %{parent_id: top_account.id})
+      _unrelated  = insert(:account)
+      role        = insert(:role, %{name: "role_name"})
+
+      insert(:membership, %{user: user, account: mid_account, role: role})
+      account = User.get_account(user)
+
+      assert account.id == mid_account.id
+    end
+  end
+
   describe "get_accounts/1" do
     test "returns a list of user's accounts and their sub-accounts" do
       user        = insert(:user)

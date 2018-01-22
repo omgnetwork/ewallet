@@ -206,28 +206,43 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Retrieves the upper-most account that the given user has membership in.
+  """
+  def get_account(user) do
+    query = from [q, child] in query_accounts(user),
+      order_by: [asc: child.depth],
+      limit: 1
+
+    Repo.one(query)
+  end
+
+  @doc """
   Retrieves the list of accounts that the given user has membership, including their child accounts.
   """
   def get_accounts(user) do
+    user
+    |> query_accounts()
+    |> Repo.all()
+  end
+
+  defp query_accounts(user) do
     account_ids =
       user
       |> Membership.all_by_user()
       |> Enum.map(fn(m) -> Map.fetch!(m, :account_id) end)
 
-    query =
-      from a in Account,
+    from a in Account,
       join: child in fragment("""
         WITH RECURSIVE account_tree AS (
-          SELECT *
+          SELECT account.*, 0 AS depth
           FROM account
           WHERE account.id = ANY(?)
         UNION
-          SELECT child.*
+          SELECT child.*, account_tree.depth + 1 as depth
           FROM account child
           JOIN account_tree ON account_tree.id = child.parent_id
         ) SELECT * FROM account_tree
-      """, type(^account_ids, {:array, :binary_id})), on: a.id == child.id
-
-    Repo.all(query)
+      """, type(^account_ids, {:array, :binary_id})), on: a.id == child.id,
+      select: %{a | relative_depth: child.depth}
   end
 end
