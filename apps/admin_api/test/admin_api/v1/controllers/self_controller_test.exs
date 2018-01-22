@@ -20,15 +20,18 @@ defmodule AdminAPI.V1.SelfControllerTest do
         %{
           "version" => "1",
           "success" => true,
-          "data" => [%{
-            "object" => "account",
-            "id" => account.id,
-            "name" => account.name,
-            "description" => account.description,
-            "master" => account.master,
-            "created_at" => Date.to_iso8601(account.inserted_at),
-            "updated_at" => Date.to_iso8601(account.updated_at)
-          }]
+          "data" => %{
+            "object" => "list",
+            "data" => [%{
+              "object" => "account",
+              "id" => account.id,
+              "name" => account.name,
+              "description" => account.description,
+              "master" => account.master,
+              "created_at" => Date.to_iso8601(account.inserted_at),
+              "updated_at" => Date.to_iso8601(account.updated_at)
+            }]
+          }
         }
     end
   end
