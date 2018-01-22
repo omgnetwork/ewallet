@@ -1,0 +1,36 @@
+.omg-member-item {
+  margin: 1.5rem 0rem 1.5rem 0rem;
+  width: 30rem;
+
+  &__avatar {
+    padding-left: 0rem;
+    padding-right: 0rem;
+  }
+
+  &__avatar > img {
+    border-radius: 50%;
+    width: 3rem;
+    height: 3rem;
+  }
+
+  &__title {
+    color: #3c414d;
+  }
+
+  &__position {
+    color: #e1e3e6;
+    font-size: 0.9rem;
+  }
+
+  &__edit {
+    font-size: 0.8rem;
+    margin-left: 1rem;
+    color: #2176ff;
+  }
+
+  &__pending {
+    margin-left: 0.5rem;
+    font-style: italic;
+    color: $light-gray;
+  }
+}
