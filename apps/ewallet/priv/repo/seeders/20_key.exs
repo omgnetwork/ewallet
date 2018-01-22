@@ -1,10 +1,13 @@
 # This is the seeding script for access & secret keys.
 
 seeds = [
-  %{account: EWalletDB.Account.get_by_name("account01")},
-  %{account: EWalletDB.Account.get_by_name("account02")},
-  %{account: EWalletDB.Account.get_by_name("account03")},
-  %{account: EWalletDB.Account.get_by_name("account04")},
+  %{account: EWalletDB.Account.get_by_name("master_account")},
+  %{account: EWalletDB.Account.get_by_name("brand1")},
+  %{account: EWalletDB.Account.get_by_name("brand2")},
+  %{account: EWalletDB.Account.get_by_name("branch1")},
+  %{account: EWalletDB.Account.get_by_name("branch2")},
+  %{account: EWalletDB.Account.get_by_name("branch3")},
+  %{account: EWalletDB.Account.get_by_name("branch4")},
 ]
 
 EWalletDB.CLI.info("\nSeeding Access/Secret keys (always seed new ones)...")

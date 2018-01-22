@@ -53,12 +53,17 @@ defmodule EWalletDB.SchemaCase do
   end
 
   def prepare_admin_user do
-    user = insert(:user)
-    account = insert(:account)
-    role = insert(:role, %{name: "admin"})
+    {user, _} = insert_user_with_role("admin")
+    user
+  end
+
+  def insert_user_with_role(role_name) do
+    user        = insert(:user)
+    account     = insert(:account)
+    role        = insert(:role, %{name: role_name})
     _membership = insert(:membership, %{user: user, account: account, role: role})
 
-    user
+    {user, account}
   end
 
   @doc """

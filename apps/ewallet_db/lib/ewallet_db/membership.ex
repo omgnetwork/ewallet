@@ -36,6 +36,13 @@ defmodule EWalletDB.Membership do
   end
 
   @doc """
+  Retrieves all memberships for the given user.
+  """
+  def all_by_user(user) do
+    Repo.all from m in Membership, where: m.user_id == ^user.id
+  end
+
+  @doc """
   Assigns the user to the given account and role.
   """
   def assign(user, account, role) when is_binary(role) do
@@ -85,39 +92,5 @@ defmodule EWalletDB.Membership do
 
   defp delete(%Membership{} = membership) do
     Repo.delete(membership)
-  end
-
-  @doc """
-  Checks if the user belongs to any account, regardless of the role.
-  """
-  # User does not have any membership if it has not been saved yet.
-  # Without pattern matching for nil id, Ecto will return an unsafe nil comparison error.
-  def user_has_membership?(%{id: nil}), do: false
-  def user_has_membership?(user) do
-    query = from(m in Membership, where: m.user_id == ^user.id)
-    Repo.aggregate(query, :count, :id) > 0
-  end
-
-  @doc """
-  Checks if the user is assigned to the given role, regardless of which account.
-  """
-  def user_has_role?(user, role) do
-    user
-    |> user_get_roles()
-    |> Enum.member?(role)
-  end
-
-  @doc """
-  Get the list of unique roles that the given user is assigned to, regardless of the account.
-
-  This is useful when a check is required on a role but not depending on the account.
-  E.g. if the user is an admin, an email and password is required regardless of which account.
-  """
-  def user_get_roles(user) do
-    user
-    |> Repo.preload(:roles)
-    |> Map.get(:roles, [])
-    |> Enum.map(fn(role) -> Map.fetch!(role, :name) end)
-    |> Enum.uniq()
   end
 end

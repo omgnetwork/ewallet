@@ -10,6 +10,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
       expected = %{
         object: "account",
         id: account.id,
+        parent_id: account.parent_id,
         name: account.name,
         description: account.description,
         master: account.master,
@@ -39,6 +40,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
           %{
             object: "account",
             id: account1.id,
+            parent_id: account1.parent_id,
             name: account1.name,
             description: account1.description,
             master: account1.master,
@@ -48,6 +50,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
           %{
             object: "account",
             id: account2.id,
+            parent_id: account2.parent_id,
             name: account2.name,
             description: account2.description,
             master: account2.master,

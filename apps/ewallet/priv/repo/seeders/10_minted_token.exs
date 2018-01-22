@@ -6,35 +6,35 @@ seeds = [
     name: "OmiseGO",
     subunit_to_unit:        10_000,
     genesis_amount: 10_000_000_000, # 1,000,000 OMG
-    account_id: EWalletDB.Account.get_by_name("account01").id
+    account_id: EWalletDB.Account.get_by_name("master_account").id
   },
   %{
     symbol: "KNC",
     name: "Kyber",
     subunit_to_unit:        1_000,
     genesis_amount: 1_000_000_000,  # 1,000,000 KNC
-    account_id: EWalletDB.Account.get_by_name("account01").id
+    account_id: EWalletDB.Account.get_by_name("master_account").id
   },
   %{
     symbol: "BTC",
     name: "Bitcoin",
     subunit_to_unit:        10_000,
     genesis_amount: 10_000_000_000, # 1,000,000 BTC
-    account_id: EWalletDB.Account.get_by_name("account01").id
+    account_id: EWalletDB.Account.get_by_name("master_account").id
   },
   %{
     symbol: "MNT",
     name: "Mint",
     subunit_to_unit:        100,
     genesis_amount: 100_000_000, # 1,000,000 MNT
-    account_id: EWalletDB.Account.get_by_name("account01").id
+    account_id: EWalletDB.Account.get_by_name("master_account").id
   },
   %{
     symbol: "ETH",
     name: "Ether",
     subunit_to_unit:        1_000_000_000_000_000_000,
     genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 ETH
-    account_id: EWalletDB.Account.get_by_name("account01").id
+    account_id: EWalletDB.Account.get_by_name("master_account").id
   },
 ]
 

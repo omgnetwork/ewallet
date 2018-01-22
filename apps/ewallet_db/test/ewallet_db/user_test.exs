@@ -138,4 +138,82 @@ defmodule EWalletDB.UserTest do
       assert balance_1 == balance_2
     end
   end
+
+  describe "has_membership?/1" do
+    test "returns true if the user has a membership with any account" do
+      {user, _} = insert_user_with_role("some_role")
+      assert User.has_membership?(user)
+    end
+
+    test "returns false if the user does not have any membership" do
+      user = insert(:user)
+      refute User.has_membership?(user)
+    end
+
+    test "returns false if the user has not been created yet" do
+      user = build(:user)
+      refute User.has_membership?(user)
+    end
+  end
+
+  describe "has_role?/1" do
+    test "returns true if the user is assigned to the given role" do
+      {user, _} = insert_user_with_role("some_role")
+      assert User.has_role?(user, "some_role")
+    end
+
+    test "returns false if the user is not assigned to the given role" do
+      {user, _} = insert_user_with_role("some_role")
+      refute User.has_role?(user, "wrong_role")
+    end
+  end
+
+  describe "get_roles/1" do
+    test "returns a list of unique roles that the given user has" do
+      user     = insert(:user)
+      account1 = insert(:account)
+      account2 = insert(:account)
+      account3 = insert(:account)
+      role1    = insert(:role, %{name: "role_one"})
+      role2    = insert(:role, %{name: "role_two"})
+
+      insert(:membership, %{user: user, account: account1, role: role1})
+      insert(:membership, %{user: user, account: account2, role: role2})
+      insert(:membership, %{user: user, account: account3, role: role2})
+
+      assert User.get_roles(user) == ["role_one", "role_two"]
+    end
+  end
+
+  describe "get_account/1" do
+    test "returns an upper-most account that the given user has membership in" do
+      user        = insert(:user)
+      top_account = insert(:account)
+      mid_account = insert(:account, %{parent_id: top_account.id})
+      _unrelated  = insert(:account)
+      role        = insert(:role, %{name: "role_name"})
+
+      insert(:membership, %{user: user, account: mid_account, role: role})
+      account = User.get_account(user)
+
+      assert account.id == mid_account.id
+    end
+  end
+
+  describe "get_accounts/1" do
+    test "returns a list of user's accounts and their sub-accounts" do
+      user        = insert(:user)
+      top_account = insert(:account)
+      mid_account = insert(:account, %{parent_id: top_account.id})
+      sub_account = insert(:account, %{parent_id: mid_account.id})
+      _unrelated  = insert(:account)
+      role        = insert(:role, %{name: "role_name"})
+
+      insert(:membership, %{user: user, account: mid_account, role: role})
+      [account1, account2] = User.get_accounts(user)
+
+      assert account1.id == mid_account.id
+      assert account2.id == sub_account.id
+    end
+  end
 end

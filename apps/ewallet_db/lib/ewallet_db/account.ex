@@ -4,9 +4,8 @@ defmodule EWalletDB.Account do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias Ecto.UUID
+  alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
-  alias Ecto.Multi
   alias EWalletDB.Helpers
 
   @primary_key {:id, UUID, autogenerate: true}
@@ -15,6 +14,10 @@ defmodule EWalletDB.Account do
     field :name, :string
     field :description, :string
     field :master, :boolean, default: false
+    field :relative_depth, :integer, virtual: true
+    belongs_to :parent, Account, foreign_key: :parent_id, # this column
+                                 references: :id, # the parent's column
+                                 type: UUID
     has_many :balances, Balance
     has_many :minted_tokens, MintedToken
     has_many :keys, Key
@@ -26,9 +29,10 @@ defmodule EWalletDB.Account do
 
   defp changeset(%Account{} = account, attrs) do
     account
-    |> cast(attrs, [:name, :description, :master])
+    |> cast(attrs, [:name, :description, :master, :parent_id])
     |> validate_required(:name)
     |> unique_constraint(:name)
+    |> assoc_constraint(:parent)
   end
 
   @doc """
@@ -111,6 +115,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve the account with the given name.
   """
+  def get_by_name(nil), do: nil
   def get_by_name(name) when is_binary(name) and byte_size(name) > 0 do
     Repo.get_by(Account, name: name)
   end

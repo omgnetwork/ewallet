@@ -43,6 +43,8 @@ defmodule AdminAPI.V1.Router do
 
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get
+    post "/me.get_account", SelfController, :get_account
+    post "/me.get_accounts", SelfController, :get_accounts
     post "/logout", AuthController, :logout
   end
 

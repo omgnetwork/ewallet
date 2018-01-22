@@ -273,6 +273,36 @@ paths:
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /me.get_account:
+    post:
+      tags:
+        - User
+      summary: Get one upper-most account that the user has membership in.
+      operationId: me_get_account
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/AccountResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.get_accounts:
+    post:
+      tags:
+        - User
+      summary: Get the list of account and sub-accounts that the user has membership in.
+      operationId: me_get_accounts
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/AccountsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   ############################
   #          ADMINS          #
   ############################
@@ -512,6 +542,9 @@ components:
         id:
           type: string
           format: uuid
+        parent_id:
+          type: string
+          format: uuid
         name:
           type: string
         description:
@@ -527,6 +560,7 @@ components:
       required:
         - object
         - id
+        - parent_id
         - name
         - master
         - created_at
@@ -548,6 +582,7 @@ components:
           data:
             object: "account"
             id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            parent_id: "782da516-ec3a-453b-bbc7-4226a5f6fd66"
             name: "Account Name"
             description: "The account description"
             master: true
@@ -579,6 +614,7 @@ components:
             data:
               - object: "account"
                 id: "9bd32bec-082a-427e-8545-6922952cff35"
+                parent_id: "782da516-ec3a-453b-bbc7-4226a5f6fd66"
                 name: "Account name"
                 description: "The account description"
                 master: true
