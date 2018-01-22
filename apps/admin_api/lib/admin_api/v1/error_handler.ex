@@ -60,7 +60,11 @@ defmodule AdminAPI.V1.ErrorHandler do
     minted_token_id_not_found: %{
       code: "minted_token:id_not_found",
       description: "There is no minted token corresponding to the provided id"
-    }
+    },
+    transaction_id_not_found: %{
+      code: "transaction:id_not_found",
+      description: "There is no transaction corresponding to the provided id"
+    },
   }
 
   # Used for mapping any Ecto.changeset validation
