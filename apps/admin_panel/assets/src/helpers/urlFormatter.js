@@ -13,3 +13,7 @@ export function formatURL(path, query = {}) {
 export function processURL(location) {
   return queryString.parse(location.search);
 }
+
+export function accountURL(session, path) {
+  return `/a/${session.currentAccount.id}${path}`;
+}

@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import Actions from './actions';
 import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
+import { accountURL } from '../../../../helpers/urlFormatter';
 
 class NewUser extends Component {
   constructor(props) {
@@ -55,11 +56,11 @@ class NewUser extends Component {
     this.setState({ submitted: true });
     const { name, description } = this.state;
     const {
-      createUser, history, showSuccessAlert, translate,
+      createUser, history, showSuccessAlert, translate, session,
     } = this.props;
     if (name) {
       createUser({ name, description }, (user) => {
-        history.push('/users');
+        history.push(accountURL(session, '/users'));
         showSuccessAlert(translate('users.new.success', { name: user.name }));
       });
     }
@@ -114,6 +115,7 @@ NewUser.propTypes = {
   createUser: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
+  session: PropTypes.object.isRequired,
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
 };
@@ -121,9 +123,11 @@ NewUser.propTypes = {
 function mapStateToProps(state) {
   const { loading } = state.global;
   const translate = getTranslate(state.locale);
+  const { session } = state;
   return {
     translate,
     loading,
+    session,
   };
 }
 

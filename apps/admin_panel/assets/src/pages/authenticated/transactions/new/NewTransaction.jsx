@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import Actions from './actions';
 import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
+import { accountURL } from '../../../../helpers/urlFormatter';
 
 class NewTransaction extends Component {
   constructor(props) {
@@ -27,7 +28,7 @@ class NewTransaction extends Component {
       field1, field2, field3, field4,
     } = this.state;
     const {
-      history, translate, createAccount, showSuccessAlert,
+      history, translate, createAccount, showSuccessAlert, session,
     } = this.props;
 
     createAccount(
@@ -38,7 +39,7 @@ class NewTransaction extends Component {
         field4,
       },
       (transaction) => {
-        history.push('/transactions');
+        history.push(accountURL(session, '/transactions'));
         showSuccessAlert(translate('transactions.new.success', { transaction_id: transaction.id }));
       },
     );
@@ -112,9 +113,11 @@ class NewTransaction extends Component {
 function mapStateToProps(state) {
   const { loading } = state.global;
   const translate = getTranslate(state.locale);
+  const { session } = state;
   return {
     translate,
     loading,
+    session,
   };
 }
 
@@ -130,6 +133,7 @@ function mapDispatchToProps(dispatch) {
 NewTransaction.propTypes = {
   createAccount: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  session: PropTypes.object.isRequired,
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
 };

@@ -101,7 +101,7 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
         isFirstPage, isLastPage, page, data, query, sort,
       } = this.state;
 
-      const { history } = this.props;
+      const { history, ...rest } = this.props;
 
       return (
         <div>
@@ -112,6 +112,7 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
             sort={sort}
             updateQuery={this.updateQuery}
             updateSorting={this.updateSorting}
+            {...rest}
           />
           <OMGPager
             isFirstPage={isFirstPage}

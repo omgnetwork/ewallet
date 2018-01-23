@@ -7,6 +7,7 @@ import { Button } from 'react-bootstrap';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGPhotoPreviewer from '../../../components/OMGPhotoPreviewer';
 import PlaceHolder from '../../../../public/images/user_icon_placeholder.png';
+import { accountURL } from '../../../helpers/urlFormatter';
 
 class Profile extends Component {
   constructor(props) {
@@ -39,8 +40,8 @@ class Profile extends Component {
 
   handleCancel() {
     // Go to dashboard
-    const { history } = this.props;
-    history.push('/');
+    const { history, session } = this.props;
+    history.push(accountURL(session, '/'));
   }
 
   handleFileChanged(file) {
@@ -186,15 +187,18 @@ Profile.propTypes = {
     photoUrl: PropTypes.string,
   }),
   history: PropTypes.object.isRequired,
+  session: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   const { loading } = state.global;
   const translate = getTranslate(state.locale);
+  const { session } = state;
   return {
     translate,
     loading,
+    session,
   };
 }
 

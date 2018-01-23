@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { withRouter } from 'react-router-dom';
 import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
@@ -6,41 +6,49 @@ import OMGTable from '../../../../components/OMGTable';
 import OMGPaginatorFactory from '../../../../components/OMGPaginatorHOC';
 import Actions from './actions';
 import AdminsHeader from './AdminsHeader';
+import tableConstants from '../../../../constants/table.constants';
+import dateFormatter from '../../../../helpers/dateFormatter';
 
-class Admins extends Component {
-  constructor(props) {
-    super(props);
-    const { translate } = props;
-    this.headers = {
-      id: translate('admins.table.id'),
-      email: translate('admins.table.email'),
-      created_at: translate('admins.table.created_at'),
-      updated_at: translate('admins.table.updated_at'),
-    };
-  }
+const Admins = ({
+  data, query, updateQuery, sort, updateSorting, translate,
+}) => {
+  const content = data.map(v => ({
+    id: { type: tableConstants.PROPERTY, value: v.id, shortened: true },
+    email: { type: tableConstants.PROPERTY, value: v.email, shortened: false },
+    created_at: {
+      type: tableConstants.PROPERTY,
+      value: dateFormatter.format(v.created_at),
+      shortened: false,
+    },
+    updated_at: {
+      type: tableConstants.PROPERTY,
+      value: dateFormatter.format(v.updated_at),
+      shortened: false,
+    },
+  }));
+  const headers = {
+    id: { title: translate('admins.table.id'), sortable: true },
+    email: { title: translate('admins.table.email'), sortable: true },
+    created_at: { title: translate('admins.table.created_at'), sortable: true },
+    updated_at: { title: translate('admins.table.updated_at'), sortable: true },
+  };
 
-  render() {
-    const {
-      data, query, updateQuery, sort, updateSorting,
-    } = this.props;
+  return (
+    <div>
+      <AdminsHeader
+        handleSearchChange={updateQuery}
+        query={query}
+      />
+      <OMGTable
+        content={content}
+        headers={headers}
+        sort={sort}
+        updateSorting={updateSorting}
+      />
+    </div>
+  );
+};
 
-    return (
-      <div>
-        <AdminsHeader
-          handleSearchChange={updateQuery}
-          query={query}
-        />
-        <OMGTable
-          contents={data}
-          headers={this.headers}
-          shortenedColumnIds={['id']}
-          sort={sort}
-          updateSorting={updateSorting}
-        />
-      </div>
-    );
-  }
-}
 
 Admins.defaultProps = {};
 
@@ -51,7 +59,6 @@ Admins.propTypes = {
     created_at: PropTypes.string.isRequired,
     updated_at: PropTypes.string.isRequired,
   })).isRequired,
-  history: PropTypes.object.isRequired,
   query: PropTypes.string.isRequired,
   sort: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,

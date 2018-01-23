@@ -68,7 +68,11 @@
       "id": "Id",
       "name": "Name",
       "master": "Master",
-      "description": "Description"
+      "description": "Description",
+      "created_at": "Created at",
+      "updated_at": "Updated at",
+      "actions": "Actions",
+      "view_as": "View as"
     },
     "new": {
       "create_an_account": "Create an Account",

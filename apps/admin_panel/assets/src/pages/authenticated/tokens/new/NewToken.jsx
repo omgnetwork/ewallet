@@ -8,6 +8,7 @@ import Actions from './actions';
 import allFields from './fields';
 import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
+import { accountURL } from '../../../../helpers/urlFormatter';
 
 class NewToken extends Component {
   constructor(props) {
@@ -48,7 +49,7 @@ class NewToken extends Component {
     } = this.state;
 
     const {
-      history, translate, createToken, showSuccessAlert,
+      history, translate, createToken, showSuccessAlert, session,
     } = this.props;
 
     createToken(
@@ -67,7 +68,7 @@ class NewToken extends Component {
         locked,
       },
       (token) => {
-        history.push('/tokens');
+        history.push(accountURL(session, '/tokens'));
         showSuccessAlert(translate('tokens.new.success', { token_id: token.id }));
       },
     );
@@ -137,9 +138,11 @@ class NewToken extends Component {
 function mapStateToProps(state) {
   const { loading } = state.global;
   const translate = getTranslate(state.locale);
+  const { session } = state;
   return {
     translate,
     loading,
+    session,
   };
 }
 
@@ -155,6 +158,7 @@ function mapDispatchToProps(dispatch) {
 NewToken.propTypes = {
   createToken: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  session: PropTypes.object.isRequired,
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
 };

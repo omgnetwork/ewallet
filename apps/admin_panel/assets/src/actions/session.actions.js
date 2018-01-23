@@ -1,3 +1,4 @@
+import Cookies from 'js-cookie';
 import sessionConstants from '../constants/session.constants';
 
 class SessionActions {
@@ -6,10 +7,13 @@ class SessionActions {
   }
 
   static saveCurrentAccount(account) {
+    Cookies.set(sessionConstants.ACCOUNT_COOKIE, account.id);
     return { type: sessionConstants.SAVE_CURRENT_ACCOUNT, account };
   }
 
   static clear() {
+    Cookies.remove(sessionConstants.ACCOUNT_COOKIE);
+    Cookies.remove(sessionConstants.SESSION_COOKIE);
     return { type: sessionConstants.CLEAR };
   }
 

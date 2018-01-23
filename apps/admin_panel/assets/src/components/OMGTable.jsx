@@ -28,24 +28,24 @@ class OMGTable extends Component {
 
   render() {
     const { by, dir } = this.state;
-    const { headers, shortenedColumnIds } = this.props;
-    const tableHeaders = Object.keys(headers).map(key =>
-      (<OMGTableHeader
+    const { headers, content } = this.props;
+    const tableHeaders = Object.keys(headers).map((key) => {
+      const header = headers[key];
+      return (<OMGTableHeader
         key={key}
         handleClick={this.onSort}
         id={key}
+        sortable={header.sortable}
         sortDirection={key === by ? dir : 'default'}
-        title={headers[key]}
-      />));
-    const { contents } = this.props;
-
-    const datas = contents.map(data =>
-      (<OMGTableContentRow
-        key={data.id}
-        data={data}
-        shortenedColumnIds={shortenedColumnIds}
-      />));
-
+        title={header.title}
+      />);
+    });
+    const tableContent = content.map(row => (
+      <OMGTableContentRow
+        key={row.id.value}
+        data={row}
+      />
+    ));
     return (
       <Table responsive>
         <thead>
@@ -54,21 +54,16 @@ class OMGTable extends Component {
           </tr>
         </thead>
         <tbody>
-          {datas}
+          {tableContent}
         </tbody>
       </Table>
     );
   }
 }
 
-OMGTable.defaultProps = {
-  shortenedColumnIds: [],
-};
-
 OMGTable.propTypes = {
-  contents: PropTypes.array.isRequired,
-  headers: PropTypes.objectOf(PropTypes.string).isRequired,
-  shortenedColumnIds: PropTypes.arrayOf(PropTypes.string),
+  content: PropTypes.array.isRequired,
+  headers: PropTypes.object.isRequired,
   sort: PropTypes.object.isRequired,
   updateSorting: PropTypes.func.isRequired,
 };

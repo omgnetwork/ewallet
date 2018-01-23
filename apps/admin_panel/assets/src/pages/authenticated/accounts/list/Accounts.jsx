@@ -1,40 +1,65 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 import AccountsHeader from './AccountsHeader';
 import Actions from './actions';
 import OMGPaginatorHOC from '../../../../components/OMGPaginatorHOC';
 import OMGTable from '../../../../components/OMGTable';
+import dateFormatter from '../../../../helpers/dateFormatter';
+import tableConstants from '../../../../constants/table.constants';
+import { accountURL } from '../../../../helpers/urlFormatter';
 
 class Accounts extends Component {
   constructor(props) {
     super(props);
-    const { translate } = this.props;
     this.onNewAccount = this.onNewAccount.bind(this);
-    this.headers = {
-      id: translate('users.table.id'),
-      name: translate('accounts.table.name'),
-      master: translate('accounts.table.master'),
-      description: translate('accounts.table.description'),
-    };
   }
 
   onNewAccount() {
-    const { history } = this.props;
-    history.push('/accounts/new');
+    const { history, session } = this.props;
+    history.push(accountURL(session, '/accounts/new'));
   }
 
   render() {
     const {
-      data, query, updateQuery, updateSorting, sort,
+      data, query, updateQuery, updateSorting, sort, translate, handleViewAs,
     } = this.props;
 
-    const contents = data.map(v => ({
-      id: v.id,
-      name: v.name,
-      master: v.master,
-      description: v.description,
+    const headers = {
+      id: { title: translate('users.table.id'), sortable: true },
+      name: { title: translate('accounts.table.name'), sortable: true },
+      master: { title: translate('accounts.table.master'), sortable: true },
+      description: { title: translate('accounts.table.description'), sortable: true },
+      created_at: { title: translate('accounts.table.created_at'), sortable: true },
+      updated_at: { title: translate('accounts.table.updated_at'), sortable: true },
+      actions: { title: translate('accounts.table.actions'), sortable: false },
+    };
+
+    const content = data.map(v => ({
+      id: { type: tableConstants.PROPERTY, value: v.id, shortened: true },
+      name: { type: tableConstants.PROPERTY, value: v.name, shortened: false },
+      master: { type: tableConstants.PROPERTY, value: v.master, shortened: false },
+      description: { type: tableConstants.PROPERTY, value: v.description, shortened: false },
+      created_at: {
+        type: tableConstants.PROPERTY,
+        value: dateFormatter.format(v.created_at),
+        shortened: false,
+      },
+      updated_at: {
+        type: tableConstants.PROPERTY,
+        value: dateFormatter.format(v.updated_at),
+        shortened: false,
+      },
+      action: {
+        type: tableConstants.ACTIONS,
+        value: [{
+          title: translate('accounts.table.view_as'),
+          callback: handleViewAs,
+        }],
+        shortened: false,
+      },
     }));
 
     return (
@@ -45,9 +70,8 @@ class Accounts extends Component {
           query={query}
         />
         <OMGTable
-          contents={contents}
-          headers={this.headers}
-          shortenedColumnIds={['id']}
+          content={content}
+          headers={headers}
           sort={sort}
           updateSorting={updateSorting}
         />
@@ -62,9 +86,13 @@ Accounts.propTypes = {
     name: PropTypes.string.isRequired,
     master: false,
     description: PropTypes.string,
+    created_at: PropTypes.string,
+    updated_at: PropTypes.string,
   })).isRequired,
+  handleViewAs: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   query: PropTypes.string.isRequired,
+  session: PropTypes.object.isRequired,
   sort: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,
   updateQuery: PropTypes.func.isRequired,
@@ -72,7 +100,20 @@ Accounts.propTypes = {
 };
 
 const dataLoader = (query, callback) => Actions.loadAccounts(query, callback);
+function mapDispatchToProps(dispatch) {
+  return {
+    handleViewAs: accountId => dispatch(Actions.viewAs(accountId)),
+  };
+}
 
-const WrappedAccounts = OMGPaginatorHOC(localize(Accounts, 'locale'), dataLoader);
+function mapStateToProps(state) {
+  const { loading } = state.global;
+  const { session } = state;
+  return {
+    loading, session,
+  };
+}
+
+const WrappedAccounts = connect(mapStateToProps, mapDispatchToProps)(OMGPaginatorHOC(localize(Accounts, 'locale'), dataLoader));
 
 export default withRouter(WrappedAccounts);
