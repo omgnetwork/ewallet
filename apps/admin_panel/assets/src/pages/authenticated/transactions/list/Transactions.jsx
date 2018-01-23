@@ -29,30 +29,30 @@ class Transactions extends Component {
 
     const headers = {
       id: { title: translate('transactions.table.id'), sortable: true },
-      amount: { title: translate('transactions.table.amount'), sortable: true },
-      token: { title: translate('transactions.table.token'), sortable: true },
-      balance_from: { title: translate('transactions.table.balance_from'), sortable: true },
-      balance_to: { title: translate('transactions.table.balance_to'), sortable: true },
-      date: { title: translate('transactions.table.date'), sortable: true },
-      status: { title: translate('transactions.table.status'), sortable: true },
+      amount: { title: translate('transactions.table.amount'), sortable: false },
+      token: { title: translate('transactions.table.token'), sortable: false },
+      from: { title: translate('transactions.table.from'), sortable: true },
+      to: { title: translate('transactions.table.to'), sortable: true },
       idempotency_token: { title: translate('transactions.table.idempotency_token'), sortable: true },
+      status: { title: translate('transactions.table.status'), sortable: true },
+      created_at: { title: translate('transactions.table.created_at'), sortable: true },
     };
 
     const content = data.map(v => ({
       id: { type: tableConstants.PROPERTY, value: v.id, shortened: true },
       amount: { type: tableConstants.PROPERTY, value: v.amount, shortened: false },
-      token: { type: tableConstants.PROPERTY, value: v.token, shortened: false },
-      balance_from: { type: tableConstants.PROPERTY, value: v.balance_from, shortened: true },
-      balance_to: { type: tableConstants.PROPERTY, value: v.balance_to, shortened: true },
-      date: {
-        type: tableConstants.PROPERTY,
-        value: dateFormatter.format(v.date),
-        shortened: false,
-      },
-      status: { type: tableConstants.PROPERTY, value: v.status, shortened: false },
+      token: { type: tableConstants.PROPERTY, value: v.minted_token.id, shortened: true },
+      from: { type: tableConstants.PROPERTY, value: v.from, shortened: true },
+      to: { type: tableConstants.PROPERTY, value: v.to, shortened: true },
       idempotency_token: {
         type: tableConstants.PROPERTY,
         value: v.idempotency_token,
+        shortened: true,
+      },
+      status: { type: tableConstants.PROPERTY, value: v.status, shortened: false },
+      created_at: {
+        type: tableConstants.PROPERTY,
+        value: dateFormatter.format(v.created_at),
         shortened: false,
       },
     }));
@@ -79,12 +79,12 @@ Transactions.defaultProps = {};
 
 Transactions.propTypes = {
   data: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.number.isRequired,
+    id: PropTypes.string.isRequired,
     amount: PropTypes.number.isRequired,
-    token: PropTypes.string.isRequired,
-    balance_from: PropTypes.string.isRequired,
-    balance_to: PropTypes.string.isRequired,
-    date: PropTypes.string.isRequired,
+    minted_token: PropTypes.object.isRequired,
+    from: PropTypes.string.isRequired,
+    to: PropTypes.string.isRequired,
+    created_at: PropTypes.string.isRequired,
     status: PropTypes.oneOf(['pending', 'confirmed', 'failed']),
   })).isRequired,
   history: PropTypes.object.isRequired,

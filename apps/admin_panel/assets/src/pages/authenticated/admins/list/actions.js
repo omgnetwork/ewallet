@@ -1,4 +1,4 @@
-import { handleAPIError } from '../../../../helpers/errorHandler';
+import ErrorHandler from '../../../../helpers/errorHandler';
 import getAll from '../../../../omisego/services/admin_api';
 import LoadingActions from '../../../../actions/loading.actions';
 import dateFormatter from '../../../../helpers/dateFormatter';
@@ -10,7 +10,7 @@ class Actions {
       getAll(params, (err, results) => {
         dispatch(LoadingActions.hideLoading());
         if (err) {
-          handleAPIError(dispatch, err);
+          ErrorHandler.handleAPIError(dispatch, err);
         } else {
           const selectiveData = results.data.map(v => ({
             id: v.id,
