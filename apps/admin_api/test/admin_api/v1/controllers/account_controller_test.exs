@@ -152,6 +152,48 @@ defmodule AdminAPI.V1.AccountControllerTest do
           }
         }
     end
+
+    test "returns an empty list if account has no users" do
+      account = insert(:account)
+
+      assert user_request("/account.list_users", %{account_id: account.id}) ==
+        %{
+          "version" => "1",
+          "success" => true,
+          "data" => %{
+            "object" => "list",
+            "data" => []
+          }
+        }
+    end
+
+    test "returns account:id_not_found error if account id could not be found" do
+      assert user_request("/account.list_users", %{account_id: UUID.generate()}) ==
+        %{
+          "success" => false,
+          "version" => "1",
+          "data" => %{
+            "object" => "error",
+            "code" => "account:id_not_found",
+            "description" => "There is no account corresponding to the provided id",
+            "messages" => nil
+          }
+        }
+    end
+
+    test "returns invalid_parameter error if account id is not provided" do
+      assert user_request("/account.list_users", %{some_other_id: UUID.generate()}) ==
+        %{
+          "success" => false,
+          "version" => "1",
+          "data" => %{
+            "object" => "error",
+            "code" => "client:invalid_parameter",
+            "description" => "Invalid parameter provided",
+            "messages" => nil
+          }
+        }
+    end
   end
 
   describe "/account.assign_user" do

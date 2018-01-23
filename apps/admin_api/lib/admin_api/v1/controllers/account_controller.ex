@@ -82,13 +82,15 @@ defmodule AdminAPI.V1.AccountController do
   Lists the users that are assigned to the given account.
   """
   def list_users(conn, %{"account_id" => account_id}) do
-    memberships =
-      account_id
-      |> Account.get()
-      |> Account.get_memberships()
-
-    render(conn, MembershipView, :memberships, %{memberships: memberships})
+    case Account.get(account_id) do
+      %Account{} = account ->
+        memberships = Account.get_memberships(account)
+        render(conn, MembershipView, :memberships, %{memberships: memberships})
+      _ ->
+        handle_error(conn, :account_id_not_found)
+    end
   end
+  def list_users(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Assigns the user to the given account and role.
