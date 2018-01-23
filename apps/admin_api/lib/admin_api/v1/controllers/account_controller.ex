@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.MembershipView
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, Membership, Role, User}
 
@@ -75,6 +76,18 @@ defmodule AdminAPI.V1.AccountController do
   # Responds when the account is not found
   defp respond_single(nil, conn) do
     handle_error(conn, :account_id_not_found)
+  end
+
+  @doc """
+  Lists the users that are assigned to the given account.
+  """
+  def list_users(conn, %{"account_id" => account_id}) do
+    memberships =
+      account_id
+      |> Account.get()
+      |> Account.get_memberships()
+
+    render(conn, MembershipView, :memberships, %{memberships: memberships})
   end
 
   @doc """

@@ -173,4 +173,13 @@ defmodule EWalletDB.Account do
       _ -> nil
     end
   end
+
+  @doc """
+  Retrieve the list of memberships associated with the given account.
+  """
+  def get_memberships(account) do
+    account
+    |> Repo.preload(:memberships)
+    |> Map.fetch!(:memberships)
+  end
 end

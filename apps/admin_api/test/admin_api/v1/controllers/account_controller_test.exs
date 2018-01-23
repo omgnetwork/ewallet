@@ -1,6 +1,8 @@
 defmodule AdminAPI.V1.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
+  alias EWallet.Web.Date
+  alias EWalletDB.User
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -119,6 +121,36 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided"
+    end
+  end
+
+  describe "/account.list_users" do
+    test "returns a list of users with role and status" do
+      account = insert(:account)
+      user    = insert(:user)
+      role    = insert(:role)
+      _       = insert(:membership, %{account: account, user: user, role: role})
+
+      assert user_request("/account.list_users", %{account_id: account.id}) ==
+        %{
+          "version" => "1",
+          "success" => true,
+          "data" => %{
+            "object" => "list",
+            "data" => [%{
+              "object" => "user",
+              "id" => user.id,
+              "username" => user.username,
+              "provider_user_id" => user.provider_user_id,
+              "email" => user.email,
+              "metadata" => user.metadata,
+              "created_at" => Date.to_iso8601(user.inserted_at),
+              "updated_at" => Date.to_iso8601(user.updated_at),
+              "account_role" => role.name,
+              "status" => to_string(User.get_status(user))
+            }]
+          }
+        }
     end
   end
 

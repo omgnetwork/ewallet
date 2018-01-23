@@ -81,4 +81,19 @@ defmodule EWalletDB.AccountTest do
       assert balance.identifier == "burn"
     end
   end
+
+  describe "get_memberships/1" do
+    test "returns a membership" do
+      account     = insert(:account)
+      membership1 = insert(:membership, %{account: account})
+      membership2 = insert(:membership, %{account: account})
+      _           = insert(:membership) # This membership should not be returned
+
+      result = Account.get_memberships(account)
+
+      assert Enum.count(result) == 2
+      assert Enum.at(result, 0).id == membership1.id
+      assert Enum.at(result, 1).id == membership2.id
+    end
+  end
 end
