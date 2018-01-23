@@ -1,4 +1,4 @@
-import { handleAPIError } from '../../../../helpers/errorHandler';
+import ErrorHandler from '../../../../helpers/errorHandler';
 import { create } from '../../../../omisego/services/token_api';
 import LoadingActions from '../../../../actions/loading.actions';
 
@@ -9,7 +9,7 @@ class Actions {
       create(params, (err, result) => {
         dispatch(LoadingActions.hideLoading());
         if (err) {
-          handleAPIError(dispatch, err);
+          ErrorHandler.handleAPIError(dispatch, err);
         } else {
           onSuccess(result);
         }

@@ -138,9 +138,9 @@
       "id": "Id",
       "amount": "Amount",
       "token": "Token",
-      "balance_from": "Balance from",
-      "balance_to": "Balance to",
-      "date": "Date",
+      "from": "From",
+      "to": "To",
+      "created_at": "Created at",
       "status": "Status",
       "idempotency_token": "Idempotency Token"
     },
