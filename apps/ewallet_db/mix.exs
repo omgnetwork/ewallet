@@ -43,7 +43,15 @@ defmodule EWalletDB.Mixfile do
       {:bcrypt_elixir, "~> 1.0"},
       {:salty, git: "ssh://git@github.com/omisego/salty.git"},
       {:cloak, "~> 0.3.3"},
-      {:plug, "~> 1.0"}
+      {:plug, "~> 1.0"},
+      {:arc, "~> 0.8.0",},
+      {:arc_ecto, "~> 0.7.0"},
+      # {:arc_gcs, "~> 0.0.3"},
+      # # arc AWS dependencies
+      # {:ex_aws, "~> 1.1"},
+      # {:hackney, "~> 1.6"},
+      # {:poison, "~> 3.1"},
+      # {:sweet_xml, "~> 0.6"}
     ]
   end
 

@@ -3,6 +3,7 @@ defmodule EWalletDB.User do
   Ecto Schema representing users.
   """
   use Ecto.Schema
+  use Arc.Ecto.Schema
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
@@ -19,6 +20,7 @@ defmodule EWalletDB.User do
     field :provider_user_id, :string
     field :metadata, Cloak.EncryptedMapField
     field :encryption_version, :binary
+    field :avatar, EWalletDB.Uploaders.Avatar.Type
 
     has_many :balances, Balance
     has_many :auth_tokens, AuthToken
@@ -40,6 +42,11 @@ defmodule EWalletDB.User do
     |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
     |> put_change(:encryption_version, Cloak.version)
     |> validate_by_roles(attrs)
+  end
+
+  defp avatar_changeset(changeset, attrs) do
+    changeset
+    |> cast_attachments(attrs, [:avatar])
   end
 
   # Two cases to validate for loginable:
@@ -151,6 +158,18 @@ defmodule EWalletDB.User do
         {:ok, get(user.id)}
       result ->
         result
+    end
+  end
+
+  @doc """
+  Stores an avatar for the given user.
+  """
+  def store_avatar(%User{} = user, attrs) do
+    changeset = avatar_changeset(user, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, user} -> get(user.id)
+      result      -> result
     end
   end
 

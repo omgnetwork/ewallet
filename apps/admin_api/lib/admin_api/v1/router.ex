@@ -40,6 +40,7 @@ defmodule AdminAPI.V1.Router do
     # User endpoints
     post "/user.all", UserController, :all
     post "/user.get", UserController, :get
+    post "/user.upload_avatar", UserController, :upload_avatar
 
     # Admin endpoints
     post "/admin.all", AdminController, :all
