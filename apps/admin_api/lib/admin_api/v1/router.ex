@@ -25,6 +25,9 @@ defmodule AdminAPI.V1.Router do
     post "/minted_token.all", MintedTokenController, :all
     post "/minted_token.get", MintedTokenController, :get
 
+    post "/transaction.all", TransactionController, :all
+    post "/transaction.get", TransactionController, :get
+
     # Account endpoints
     post "/account.all", AccountController, :all
     post "/account.get", AccountController, :get
