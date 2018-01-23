@@ -7,6 +7,7 @@ const sessionConstants = {
   SET_SYNCED: 'SET_SYNCED',
   // GLOBAL
   SESSION_COOKIE: 'session',
+  ACCOUNT_COOKIE: 'account',
   SESSION_COOKIE_EXPIRATION_TIME: 3, // days
 };
 

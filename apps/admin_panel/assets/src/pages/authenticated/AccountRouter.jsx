@@ -28,7 +28,10 @@ const AccountRouter =
   const accountId = computedMatch.params.id;
   const accountPath = `/a/${currentAccount.id}`;
   if (!accountId) {
-    return (<Redirect to={`${accountPath}${history.location.pathname}`} />);
+    return (<Redirect to={{ pathname: `${accountPath}${history.location.pathname}`, search: history.location.search }} />);
+  } else if (accountId !== currentAccount.id) {
+    const updatedPath = history.location.pathname.replace(/\/a\/.*(?=\/)/, accountPath);
+    return (<Redirect to={{ pathname: updatedPath, search: history.location.search }} />);
   }
   return (
     <Switch>

@@ -16,3 +16,7 @@ export function getAll(params, callback) {
 export function create(params, callback) {
   return request('account.create', JSON.stringify(params), callback);
 }
+
+export function get(id, callback) {
+  return request('account.get', JSON.stringify({ id }), callback);
+}
