@@ -188,6 +188,24 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
   # Endpoint to assign user to an account
+  /account.list_users:
+    post:
+      tags:
+        - Account
+      summary: List the users that are currently assigned to the given acount
+      operationId: account_list_users
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AccountListUsersBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UsersResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to assign user to an account
   /account.assign_user:
     post:
       tags:
@@ -1125,6 +1143,21 @@ components:
               name: "Account Name"
               description: "The account description"
               master: true
+    # Request body for listing users in an account
+    AccountListUsersBody:
+      description: The parameters to use for assigning listing users in an account
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              account_id:
+                type: string
+                format: uuid
+            required:
+              - account_id
+            example:
+              account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
     # Request body for updating an account
     AccountAssignUserBody:
       description: The parameters to use for assigning a user to an account

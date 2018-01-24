@@ -172,6 +172,13 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Retrieves the status of the given user.
+  """
+  def get_status(_user) do
+    :active # Currently all users are active. This will become dynamic with the invitation feature.
+  end
+
+  @doc """
   Checks if the user belongs to any account, regardless of the role.
   """
   # User does not have any membership if it has not been saved yet.

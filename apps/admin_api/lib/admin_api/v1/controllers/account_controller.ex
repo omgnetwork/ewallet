@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.MembershipView
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, Membership, Role, User}
 
@@ -23,7 +24,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def get(conn, %{"id" => id}) do
     id
-    |> Account.get_by_id()
+    |> Account.get()
     |> respond_single(conn)
   end
 
@@ -41,7 +42,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def update(conn, %{"id" => id} = attrs) when is_binary(id) and byte_size(id) > 0  do
     id
-    |> Account.get_by_id()
+    |> Account.get()
     |> update_account(attrs)
     |> respond_single(conn)
   end
@@ -76,6 +77,18 @@ defmodule AdminAPI.V1.AccountController do
   defp respond_single(nil, conn) do
     handle_error(conn, :account_id_not_found)
   end
+
+  @doc """
+  Lists the users that are assigned to the given account.
+  """
+  def list_users(conn, %{"account_id" => account_id}) do
+    list_users(conn, Account.get(account_id, preload: [memberships: [:user, :role]]))
+  end
+  def list_users(conn, %Account{} = account) do
+    render(conn, MembershipView, :memberships, %{memberships: account.memberships})
+  end
+  def list_users(conn, nil), do: handle_error(conn, :account_id_not_found)
+  def list_users(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Assigns the user to the given account and role.
