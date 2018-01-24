@@ -62,7 +62,9 @@ defmodule AdminAPI.V1.UserController do
   # Respond with a single user
   defp respond_single(%User{} = user, conn), do: render(conn, :user, %{user: user})
   # Responds when the given params were invalid
-  defp respond_single({:error, changeset}, conn), do: handle_error(conn, :user_id_not_found)
+  defp respond_single({:error, changeset}, conn) do
+     handle_error(conn, :invalid_parameter, changeset)
+   end
   # Responds when the user is not found
   defp respond_single(nil, conn), do: handle_error(conn, :user_id_not_found)
 end

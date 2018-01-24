@@ -46,12 +46,14 @@ defmodule EWalletDB.Mixfile do
       {:plug, "~> 1.0"},
       {:arc, "~> 0.8.0",},
       {:arc_ecto, "~> 0.7.0"},
-      # {:arc_gcs, "~> 0.0.3"},
-      # # arc AWS dependencies
-      # {:ex_aws, "~> 1.1"},
-      # {:hackney, "~> 1.6"},
-      # {:poison, "~> 3.1"},
-      # {:sweet_xml, "~> 0.6"}
+
+      # arc GCS dependencies
+      {:arc_gcs, "~> 0.0.3", runtime: false},
+
+      # arc AWS dependencies
+      {:ex_aws, "~> 1.1"},
+      {:hackney, "~> 1.6"},
+      {:sweet_xml, "~> 0.6"}
     ]
   end
 

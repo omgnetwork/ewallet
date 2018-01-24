@@ -10,6 +10,3 @@ config :cloak, Salty.SecretBox.Cloak,
        tag: "SBX",
        default: true,
        keys: [%{tag: <<1>>, key: key, default: true}]
-
-config :arc,
-  storage: Arc.Storage.Local
