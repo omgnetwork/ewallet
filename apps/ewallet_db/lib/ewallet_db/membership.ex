@@ -43,16 +43,6 @@ defmodule EWalletDB.Membership do
   end
 
   @doc """
-  Retrieves the role name of the given membership.
-  """
-  def get_role_name(membership) do
-    membership
-    |> Repo.preload(:role)
-    |> Map.fetch!(:role)
-    |> Map.fetch!(:name)
-  end
-
-  @doc """
   Assigns the user to the given account and role.
   """
   def assign(user, account, role) when is_binary(role) do

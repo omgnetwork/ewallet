@@ -40,15 +40,6 @@ defmodule EWalletDB.MembershipTest do
     end
   end
 
-  describe "Membership.get_role_name/1" do
-    test "returns the role name associated with the given membership" do
-      {membership, _, _, role} = prepare_membership()
-      result = Membership.get_role_name(membership)
-
-      assert result == role.name
-    end
-  end
-
   describe "Membership.assign/3" do
     test "returns {:ok, membership} on successful assignment" do
       user    = insert(:user)

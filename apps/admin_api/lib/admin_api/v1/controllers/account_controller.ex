@@ -82,7 +82,7 @@ defmodule AdminAPI.V1.AccountController do
   Lists the users that are assigned to the given account.
   """
   def list_users(conn, %{"account_id" => account_id}) do
-    list_users(conn, Account.get(account_id, preload: [memberships: :user]))
+    list_users(conn, Account.get(account_id, preload: [memberships: [:user, :role]]))
   end
   def list_users(conn, %Account{} = account) do
     render(conn, MembershipView, :memberships, %{memberships: account.memberships})

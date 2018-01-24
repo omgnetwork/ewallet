@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.MembershipSerializer do
   Serializes membership(s) into V1 response format.
   """
   alias AdminAPI.V1.UserSerializer
-  alias EWalletDB.{Membership, User}
+  alias EWalletDB.User
 
   def to_user_json(memberships) when is_list(memberships) do
     %{
@@ -14,7 +14,7 @@ defmodule AdminAPI.V1.MembershipSerializer do
   def to_user_json(membership) when is_map(membership) do
     membership.user
     |> UserSerializer.to_json()
-    |> Map.put(:account_role, Membership.get_role_name(membership))
+    |> Map.put(:account_role, membership.role.name)
     |> Map.put(:status, User.get_status(membership.user))
   end
 end
