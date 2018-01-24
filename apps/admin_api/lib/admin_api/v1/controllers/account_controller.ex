@@ -24,7 +24,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def get(conn, %{"id" => id}) do
     id
-    |> Account.get_by_id()
+    |> Account.get()
     |> respond_single(conn)
   end
 
@@ -42,7 +42,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def update(conn, %{"id" => id} = attrs) when is_binary(id) and byte_size(id) > 0  do
     id
-    |> Account.get_by_id()
+    |> Account.get()
     |> update_account(attrs)
     |> respond_single(conn)
   end

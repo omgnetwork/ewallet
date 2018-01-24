@@ -66,7 +66,7 @@ defmodule EWalletDB.Account do
 
     case Repo.update(changeset) do
       {:ok, account} ->
-        {:ok, get_by_id(account.id)}
+        {:ok, get(account.id)}
       result ->
         result
     end
@@ -162,15 +162,5 @@ defmodule EWalletDB.Account do
     |> where([b], b.identifier == ^identifier)
     |> where([b], b.account_id == ^account.id)
     |> Repo.one()
-  end
-
-  @doc """
-  Retrieve the account with the given id.
-  """
-  def get_by_id(id) when is_binary(id) and byte_size(id) > 0 do
-    case UUID.cast(id) do
-      {:ok, uuid} -> Repo.get_by(Account, id: uuid)
-      _ -> nil
-    end
   end
 end
