@@ -46,8 +46,26 @@
     "sign_in": "Sign in"
   },
   "forgot-password-success": {
-    "reset_password_complete": "Reset your password completed",
+    "reset_password_complete": "You will get a password reset email shortly",
     "please_check_your_email": "Please check your email.",
+    "back_to_sign_in": "Back to sign in"
+  },
+  "reset-password": {
+    "reset_your_password": "Reset your password",
+    "email": "Email",
+    "password": {
+      "help": "Password should be at least 8 characters long",
+      "label": "Password"
+    },
+    "password_confirmation": {
+      "help": "Password and password confirmation don't match",
+      "label": "Confirm Password"
+    },
+    "reset_password": "Reset password",
+    "cancel": "Cancel"
+  },
+  "reset-password-success": {
+    "reset_password_complete": "Reset your password completed",
     "back_to_sign_in": "Back to sign in"
   },
   "public-footer": {

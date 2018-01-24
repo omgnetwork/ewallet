@@ -13,8 +13,9 @@ class ForgotPassword extends Component {
   render() {
     const { didReset } = this.state;
     return (
-      (didReset && <ForgotPasswordSuccess />) ||
-      <ForgotPasswordForm onSuccess={() => { this.setState({ didReset: true }); }} />
+      didReset
+        ? <ForgotPasswordSuccess />
+        : <ForgotPasswordForm onSuccess={() => { this.setState({ didReset: true }); }} />
     );
   }
 }

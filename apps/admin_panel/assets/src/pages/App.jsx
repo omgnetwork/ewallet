@@ -12,6 +12,7 @@ import PublicRoute from './public/PublicRoute';
 import Startup from './startup/Startup';
 import SignIn from './public/signin/SignIn';
 import ForgotPassword from './public/forgot_password/ForgotPassword';
+import ResetPassword from './public/reset_password/ResetPassword';
 
 class App extends Component {
   constructor(props) {
@@ -33,6 +34,7 @@ class App extends Component {
             <Switch>
               <PublicRoute component={SignIn} path="/signin" />
               <PublicRoute component={ForgotPassword} path="/forgot_password" />
+              <PublicRoute component={ResetPassword} path="/reset_password" />
               <AccountRouter path="/a/:id" />
               <AccountRouter path="/" />
               <Redirect to="/signin" />
