@@ -13,7 +13,7 @@ defmodule EWalletDB.MembershipTest do
     end
   end
 
-  defp prepare_membership() do
+  defp prepare_membership do
     user       = insert(:user)
     account    = insert(:account)
     role       = insert(:role, %{name: "some_role"})
