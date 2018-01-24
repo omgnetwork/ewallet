@@ -1,9 +1,9 @@
 import OmiseGOError from '../models/error';
 import mergeHash from '../helpers/helper';
 import { OMISEGO_BASE_URL } from '../config';
-import authHeader from '../helpers/auth-header';
+import headers from '../helpers/headers';
 
-function requestOptions(body, headers) {
+function requestOptions(body) {
   return {
     method: 'POST',
     headers: mergeHash(
@@ -11,7 +11,7 @@ function requestOptions(body, headers) {
         Accept: 'application/vnd.omisego.v1+json',
         'Content-Type': 'application/json',
       },
-      headers,
+      headers(),
     ),
     body,
   };
@@ -49,7 +49,7 @@ function handleError(error) {
 
 export default function request(path, body, callback) {
   const url = OMISEGO_BASE_URL + path;
-  return fetch(url, requestOptions(body, authHeader()))
+  return fetch(url, requestOptions(body))
     .then(handleResponse)
     .then(parseJson)
     .catch(handleError)
