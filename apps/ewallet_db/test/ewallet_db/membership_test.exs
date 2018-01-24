@@ -40,15 +40,6 @@ defmodule EWalletDB.MembershipTest do
     end
   end
 
-  describe "Membership.get_user/1" do
-    test "returns the user associated with the given membership" do
-      {membership, user, _, _} = prepare_membership()
-      result_user = Membership.get_user(membership)
-
-      assert result_user.id == user.id
-    end
-  end
-
   describe "Membership.get_role_name/1" do
     test "returns the role name associated with the given membership" do
       {membership, _, _, role} = prepare_membership()

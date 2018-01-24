@@ -106,10 +106,10 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve the account with the given ID and preloads balances.
   """
-  def get(id, %{preload: true}) do
+  def get(id, preload: preloads) do
     id
     |> get()
-    |> Repo.preload([:balances])
+    |> Repo.preload(preloads)
   end
 
   @doc """
@@ -172,14 +172,5 @@ defmodule EWalletDB.Account do
       {:ok, uuid} -> Repo.get_by(Account, id: uuid)
       _ -> nil
     end
-  end
-
-  @doc """
-  Retrieve the list of memberships associated with the given account.
-  """
-  def get_memberships(account) do
-    account
-    |> Repo.preload(:memberships)
-    |> Map.fetch!(:memberships)
   end
 end

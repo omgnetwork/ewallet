@@ -12,10 +12,9 @@ defmodule AdminAPI.V1.MembershipSerializer do
     }
   end
   def to_user_json(membership) when is_map(membership) do
-    user = Membership.get_user(membership)
-    user
+    membership.user
     |> UserSerializer.to_json()
     |> Map.put(:account_role, Membership.get_role_name(membership))
-    |> Map.put(:status, User.get_status(user))
+    |> Map.put(:status, User.get_status(membership.user))
   end
 end
