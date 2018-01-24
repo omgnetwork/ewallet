@@ -1,4 +1,7 @@
 defmodule EWalletDB.Uploaders.Avatar do
+  @moduledoc """
+  Uploads an avatar after renaming it and transforming it.
+  """
   use Arc.Definition
   use Arc.Ecto.Definition
   alias Ecto.UUID
@@ -23,7 +26,7 @@ defmodule EWalletDB.Uploaders.Avatar do
   end
 
   # Override the storage directory:
-  def storage_dir(version, {file, scope}) do
+  def storage_dir(_version, {_file, scope}) do
     "public/uploads/user/avatars/#{scope.id}"
   end
 end

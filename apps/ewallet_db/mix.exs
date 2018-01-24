@@ -44,7 +44,7 @@ defmodule EWalletDB.Mixfile do
       {:salty, git: "ssh://git@github.com/omisego/salty.git"},
       {:cloak, "~> 0.3.3"},
       {:plug, "~> 1.0"},
-      {:arc, "~> 0.8.0",},
+      {:arc, "~> 0.8.0"},
       {:arc_ecto, "~> 0.7.0"},
 
       # arc GCS dependencies

@@ -19,6 +19,9 @@ defmodule AdminAPI.V1.UserViewTest do
           username: user.username,
           provider_user_id: user.provider_user_id,
           email: user.email,
+          avatar: %{
+            original: nil
+          },
           metadata: %{
             "first_name" => user.metadata["first_name"],
             "last_name" => user.metadata["last_name"]
@@ -57,6 +60,9 @@ defmodule AdminAPI.V1.UserViewTest do
               username: user1.username,
               provider_user_id: user1.provider_user_id,
               email: user1.email,
+              avatar: %{
+                original: nil
+              },
               metadata: %{
                 "first_name" => user1.metadata["first_name"],
                 "last_name" => user1.metadata["last_name"]
@@ -70,6 +76,9 @@ defmodule AdminAPI.V1.UserViewTest do
               username: user2.username,
               provider_user_id: user2.provider_user_id,
               email: user2.email,
+              avatar: %{
+                original: nil
+              },
               metadata: %{
                 "first_name" => user2.metadata["first_name"],
                 "last_name" => user2.metadata["last_name"]
