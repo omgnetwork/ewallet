@@ -1,5 +1,6 @@
 defmodule EWalletDB.AccountTest do
   use EWalletDB.SchemaCase
+  alias Ecto.UUID
   alias EWalletDB.Account
 
   describe "Account factory" do
@@ -25,6 +26,55 @@ defmodule EWalletDB.AccountTest do
       assert primary != nil
       assert burn != nil
       assert length(account.balances) == 2
+    end
+  end
+
+  describe "get/1" do
+    test "accepts a uuid" do
+      {:ok, account} = :account |> params_for() |> Account.insert
+      result = Account.get(account.id)
+
+      assert result.id == account.id
+    end
+
+    test "returns nil if the given uuid is invalid" do
+      assert Account.get("not_a_uuid") == nil
+    end
+
+    test "returns nil if the account with the given uuid is not found" do
+      assert Account.get(UUID.generate()) == nil
+    end
+  end
+
+  describe "get/2" do
+    test "accepts a uuid and preload" do
+      {:ok, account} = :account |> params_for() |> Account.insert
+      result = Account.get(account.id, preload: :balances)
+
+      assert result.id == account.id
+      assert Ecto.assoc_loaded?(result.balances)
+    end
+  end
+
+  describe "get_by_name/1" do
+    test "accepts a non-empty string" do
+      {:ok, account} = :account |> params_for() |> Account.insert
+      result = Account.get_by_name(account.name)
+
+      assert result.id == account.id
+      assert result.name == account.name
+    end
+
+    test "returns nil if the given name is nil" do
+      assert Account.get(nil) == nil
+    end
+
+    test "returns nil if the given name is empty" do
+      assert Account.get("") == nil
+    end
+
+    test "returns nil if the account with the given name is not found" do
+      assert Account.get("not_an_account") == nil
     end
   end
 
