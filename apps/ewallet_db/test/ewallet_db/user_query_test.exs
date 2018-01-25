@@ -19,8 +19,8 @@ defmodule EWalletDB.UserQueryTest do
         |> Repo.all()
 
       assert Enum.count(result) == 2
-      assert Enum.at(result, 0).email == admin1.email
-      assert Enum.at(result, 1).email == admin2.email
+      assert Enum.any?(result, fn(admin) -> admin.email == admin1.email end)
+      assert Enum.any?(result, fn(admin) -> admin.email == admin2.email end)
       refute Enum.any?(result, fn(admin) -> admin.email == user.email end)
     end
 
