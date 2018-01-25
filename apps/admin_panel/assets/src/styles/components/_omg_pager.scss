@@ -1,0 +1,17 @@
+.omg_pager {
+  float: right;
+
+  &__item, &__item:focus, &__item:active:focus {
+    color: $omise-blue;
+    border: 1px solid $omise-blue;
+    border-radius: 4px;
+    background-color: $white;
+    -webkit-box-shadow: none;
+    box-shadow: none;
+  }
+
+  &__item:hover {
+    color: $white;
+    background-color: $omise-blue;
+  }
+}
