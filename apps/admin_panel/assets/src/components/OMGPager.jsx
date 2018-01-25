@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Pager } from 'react-bootstrap';
+import { Button } from 'react-bootstrap';
 import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 
@@ -22,20 +22,22 @@ class OMGPager extends Component {
 
   render() {
     const {
-      isFirstPage, isLastPage, page, translate,
+      isFirstPage, isLastPage, page,
     } = this.props;
     return (
-      <Pager>
+      <div className="omg_pager">
         {!isFirstPage &&
-        <Pager.Item href="#" onSelect={this.handlePrevious}>
-          {translate('pagination.previous')}
-        </Pager.Item>}
-        {page}
+        <Button className="omg_pager__item" href="#" onClick={this.handlePrevious}>
+          &lt;
+        </Button>}
+        <span className="ml-1 mr-1">
+          {page}
+        </span>
         {!isLastPage &&
-        <Pager.Item href="#" onSelect={this.handleNext}>
-          {translate('pagination.next')}
-        </Pager.Item>}
-      </Pager>
+        <Button className="omg_pager__item" href="#" onClick={this.handleNext}>
+          &gt;
+        </Button>}
+      </div>
     );
   }
 }
