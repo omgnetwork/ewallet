@@ -3,7 +3,6 @@ podTemplate(
     containers: [
         containerTemplate(name: 'jnlp', image: 'gcr.io/omise-go/jenkins-slave', args: '${computer.jnlpmac} ${computer.name}'),
         containerTemplate(name: 'postgresql', image: 'postgres:9.6'),
-        containerTemplate(name: 'rabbitmq', image: 'rabbitmq:3.7'),
     ],
     volumes: [
         hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
@@ -67,12 +66,39 @@ podTemplate(
                 docker run --rm \
                     -e DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_ewallet" \
                     -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_local_ledger" \
-                    -e MQ_URL="amqp://guest:guest@${nodeIP}" \
-                    -e MQ_EXCHANGE="ewallet_${gitCommit}" \
                     ${imageName}:${gitCommit} \
                     sh -c "cd /app && MIX_ENV=test mix do credo, ecto.create, ecto.migrate, test"
                 """.stripIndent()
             )
+        }
+
+        if (env.BRANCH_NAME == 'master') {
+            stage('Push') {
+                sh("gcloud docker -- push ${imageName}:${gitCommit}")
+                sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:latest")
+            }
+
+            stage('Deploy') {
+                dir("${tmpDir}/deploy") {
+                    checkout([
+                        $class: 'GitSCM',
+                        branches: [[name: '*/master']],
+                        userRemoteConfigs: [
+                            [
+                                url: 'ssh://git@github.com/omisego/kube.git',
+                                credentialsId: 'github',
+                            ],
+                        ]
+                    ])
+
+                    sh("sed -i.bak 's#${imageName}:latest#${imageName}:${gitCommit}#' staging/k8s/ewallet/ewallet.yaml")
+                    sh("kubectl apply -f staging/k8s/ewallet/ewallet.yaml")
+                    sh("kubectl rollout status --namespace=staging deployment/ewallet")
+
+                    def podID = getPodID('--namespace=staging -l app=ewallet')
+                    sh("kubectl exec ${podID} --namespace=staging mix ecto.migrate")
+                }
+            }
         }
     }
 }
@@ -80,5 +106,11 @@ podTemplate(
 String getNodeIP() {
     def rawNodeIP = sh(script: 'ip -4 -o addr show scope global', returnStdout: true).trim()
     def matched = (rawNodeIP =~ /inet (\d+\.\d+\.\d+\.\d+)/)
+    return "" + matched[0].getAt(1)
+}
+
+String getPodID(String opts) {
+    def pods = sh(script: "kubectl get pods ${opts} -o name", returnStdout: true).trim()
+    def matched = (pods.split()[0] =~ /pods\/(.+)/)
     return "" + matched[0].getAt(1)
 }
