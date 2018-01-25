@@ -3,6 +3,7 @@ defmodule LocalLedger.Balance do
   This module is an interface to the LocalLedgerDB schema (Balance and Transaction)
   and contains the logic needed to lock a list of addresses.
   """
+  alias LocalLedger.CachedBalance
   alias LocalLedgerDB.{Repo, Balance, Transaction}
 
   @doc """
@@ -10,7 +11,10 @@ defmodule LocalLedger.Balance do
   with the given address.
   """
   def all(address) do
-    {:ok, Transaction.calculate_all_balances(address)}
+    case Balance.get(address) do
+      nil -> {:ok, %{}}
+      balance -> CachedBalance.all(balance)
+    end
   end
 
   @doc """
@@ -18,7 +22,10 @@ defmodule LocalLedger.Balance do
   associated with the given address.
   """
   def get(friendly_id, address) do
-    {:ok, Transaction.calculate_all_balances(address, friendly_id)}
+    case Balance.get(address) do
+      nil -> {:ok, %{}}
+      balance -> CachedBalance.get(balance, friendly_id)
+    end
   end
 
   @doc """

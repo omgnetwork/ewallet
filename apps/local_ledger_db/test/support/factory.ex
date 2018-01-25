@@ -4,10 +4,7 @@ defmodule LocalLedgerDB.Factory do
   """
   use ExMachina.Ecto, repo: LocalLedgerDB.Repo
   alias Ecto.UUID
-  alias LocalLedgerDB.MintedToken
-  alias LocalLedgerDB.Balance
-  alias LocalLedgerDB.Entry
-  alias LocalLedgerDB.Transaction
+  alias LocalLedgerDB.{Entry, Balance, MintedToken, Transaction}
 
   def minted_token_factory do
     %MintedToken{
@@ -23,7 +20,7 @@ defmodule LocalLedgerDB.Factory do
 
   def balance_factory do
     %Balance{
-      address: "test",
+      address: "address",
       metadata: %{
         external_id: %{
           app: "EWallet",
@@ -49,9 +46,25 @@ defmodule LocalLedgerDB.Factory do
     }
   end
 
+  def credit_factory do
+    %Transaction{
+      amount: 150,
+      type: Transaction.credit_type,
+      entry_id: insert(:entry).id
+    }
+  end
+
+  def debit_factory do
+    %Transaction{
+      amount: 150,
+      type: Transaction.debit_type,
+      entry_id: insert(:entry).id
+    }
+  end
+
   def transaction_factory do
     %Transaction{
-      amount: 100,
+      amount: 10_000,
       type: Transaction.credit_type,
       minted_token_friendly_id: insert(:minted_token).friendly_id,
       balance_address: insert(:balance).address,

@@ -5,7 +5,7 @@ defmodule LocalLedgerDB.Transaction do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, MintedToken, Balance, Transaction,
+  alias LocalLedgerDB.{Entry, Repo, MintedToken, Balance, Transaction,
                    Errors.InsufficientFundsError}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
@@ -65,17 +65,13 @@ defmodule LocalLedgerDB.Transaction do
   Calculate the total balances for all the specified minted tokens associated
   with the given address.
   """
-  def calculate_all_balances(address, friendly_id) do
-    credits = sum(address, Transaction.credit_type, friendly_id)
-    debits = sum(address, Transaction.debit_type, friendly_id)
+  def calculate_all_balances(address, options \\ %{}) do
+    options = Map.put_new(options, :friendly_id, :all)
+    credits = sum(address, Transaction.credit_type, options)
+    debits = sum(address, Transaction.debit_type, options)
 
     credits |> subtract(debits) |> format()
   end
-  @doc """
-  Calculate the total balances for all the minted tokens associated with the
-  given address.
-  """
-  def calculate_all_balances(address), do: calculate_all_balances(address, :all)
 
   defp subtract(credits, debits) do
     Enum.map(credits, fn {friendly_id, amount} ->
@@ -85,22 +81,32 @@ defmodule LocalLedgerDB.Transaction do
 
   defp format(balances), do: Enum.into(balances, %{})
 
-  defp sum(address, type, friendly_id) do
+  defp sum(address, type, options) do
     address
-    |> query_sum(type, friendly_id)
+    |> build_sum_query(type, options)
     |> Repo.all()
     |> Enum.into(%{}, fn {k, v} -> {k, Decimal.to_integer(v)} end)
   end
 
-  defp query_sum(address, type, :all) do
+  defp build_sum_query(address, type, %{friendly_id: friendly_id, since: since}) do
+    address
+    |> build_sum_query(type, %{friendly_id: friendly_id})
+    |> where([t], t.inserted_at > ^since)
+  end
+  defp build_sum_query(address, type, %{friendly_id: friendly_id, upto: upto}) do
+    address
+    |> build_sum_query(type, %{friendly_id: friendly_id})
+    |> where([t], t.inserted_at <= ^upto)
+  end
+  defp build_sum_query(address, type, %{friendly_id: :all}) do
     Transaction
     |> where([t], t.balance_address == ^address and t.type == ^type)
     |> group_by([t], t.minted_token_friendly_id)
     |> select([t, _], {t.minted_token_friendly_id, sum(t.amount)})
   end
-  defp query_sum(address, type, friendly_id) do
+  defp build_sum_query(address, type, %{friendly_id: friendly_id}) do
     address
-    |> query_sum(type, :all)
+    |> build_sum_query(type, %{friendly_id: :all})
     |> where([t], t.minted_token_friendly_id == ^friendly_id)
   end
 

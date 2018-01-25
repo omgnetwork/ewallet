@@ -201,7 +201,9 @@ defmodule LocalLedgerDB.TransactionTest do
       transfer(balance, omg, 500, Transaction.credit_type)
       transfer(balance, knc, 100, Transaction.credit_type)
 
-      balances = Transaction.calculate_all_balances(balance.address, "OMG:209d3f5b-eab4-4906-9697-c482009fc865")
+      balances = Transaction.calculate_all_balances(balance.address, %{
+        friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865"
+      })
       assert balances == %{"OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 700}
     end
   end
