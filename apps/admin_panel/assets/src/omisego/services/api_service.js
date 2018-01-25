@@ -3,7 +3,7 @@ import mergeHash from '../helpers/helper';
 import { OMISEGO_BASE_URL } from '../config';
 import headers from '../helpers/headers';
 
-function requestOptions(body) {
+function requestOptions(body, authenticated) {
   return {
     method: 'POST',
     headers: mergeHash(
@@ -11,7 +11,7 @@ function requestOptions(body) {
         Accept: 'application/vnd.omisego.v1+json',
         'Content-Type': 'application/json',
       },
-      headers(),
+      headers(authenticated),
     ),
     body,
   };
@@ -47,9 +47,11 @@ function handleError(error) {
   }
 }
 
-export default function request(path, body, callback) {
+export default function request({
+  path, params, authenticated, callback,
+}) {
   const url = OMISEGO_BASE_URL + path;
-  return fetch(url, requestOptions(body))
+  return fetch(url, requestOptions(params, authenticated))
     .then(handleResponse)
     .then(parseJson)
     .catch(handleError)

@@ -4,15 +4,23 @@ export function getAll(params, callback) {
   const {
     per, sort, query, ...rest
   } = params;
-  return request(
-    'user.all',
-    JSON.stringify({
+  const requestParams = {
+    path: 'user.all',
+    params: JSON.stringify({
       per_page: per, sort_by: sort.by, sort_dir: sort.dir, search_term: query, ...rest,
     }),
+    authenticated: true,
     callback,
-  );
+  };
+  return request(requestParams);
 }
 
 export function create(params, callback) {
-  return request('user.create', JSON.stringify(params), callback);
+  const requestParams = {
+    path: 'user.create',
+    params: JSON.stringify(params),
+    authenticated: true,
+    callback,
+  };
+  return request(requestParams);
 }

@@ -1,9 +1,21 @@
 import request from './api_service';
 
 export function getCurrentUser(callback) {
-  return request('me.get', null, callback);
+  const requestParams = {
+    path: 'me.get',
+    params: null,
+    authenticated: true,
+    callback,
+  };
+  return request(requestParams);
 }
 
 export function getCurrentAccount(callback) {
-  return request('me.get_account', null, callback);
+  const requestParams = {
+    path: 'me.get_account',
+    params: null,
+    authenticated: true,
+    callback,
+  };
+  return request(requestParams);
 }
