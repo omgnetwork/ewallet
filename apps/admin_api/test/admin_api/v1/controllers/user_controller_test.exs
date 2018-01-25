@@ -39,6 +39,24 @@ defmodule AdminAPI.V1.UserControllerTest do
       assert Enum.at(users, 1)["username"] == "match_user2"
       assert Enum.at(users, 2)["username"] == "match_user1"
     end
+
+    test "returns a list of users by the given email serch term" do
+      insert(:user, %{email: "match-email@example.com"})
+      insert(:user, %{email: "email@match-domain.com"})
+      insert(:user, %{email: "missed@example.com"})
+
+      attrs = %{
+        "search_term" => "MaTcH" # Search is case-insensitive
+      }
+
+      response = user_request("/user.all", attrs)
+      users = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(users) == 2
+      assert Enum.at(users, 0)["email"] == "match-email@example.com"
+      assert Enum.at(users, 1)["email"] == "email@match-domain.com"
+    end
   end
 
   describe "/user.get" do
