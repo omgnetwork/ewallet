@@ -5,7 +5,7 @@ defmodule AdminAPI.V1.UserController do
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.User
 
-  @search_fields [{:id, :uuid}, :username, :provider_user_id, :email]
+  @search_fields [{:id, :uuid}, :username, :provider_user_id]
   @sort_fields [:id, :username, :provider_user_id]
 
   @doc """
