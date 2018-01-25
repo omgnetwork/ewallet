@@ -20,7 +20,7 @@ Alerter.defaultProps = {
 
 Alerter.propTypes = {
   alert: PropTypes.shape({
-    type: PropTypes.oneOf(['alert-success', 'alert-danger']),
+    type: PropTypes.oneOf(['alert-success', 'alert-danger', 'alert-info']),
     message: PropTypes.string,
   }),
 };

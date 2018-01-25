@@ -5,13 +5,16 @@ export function getAll(params, callback) {
   // const {
   //   per, sort, query, ...rest
   // } = params;
-  // return request(
-  //   'transactions.all',
-  //   JSON.stringify({
+  // const requestParams = {
+  //   path: 'transactions.all',
+  //   params: JSON.stringify({
   //     per_page: per, sort_by: sort.by, sort_dir: sort.dir, search_term: query, ...rest,
   //   }),
+  //   authenticated: true,
   //   callback,
-  // );
+  // };
+  // return request(requestParams);
+
   const mock = {
     version: '1',
     success: true,
@@ -72,5 +75,11 @@ export function getAll(params, callback) {
 
 export function create(params, callback) {
   callback(null, { id: 1234 });
-  // return request('transactions.create', JSON.stringify(params), callback);
+  // const requestParams = {
+  //   path: 'transactions.create',
+  //   params: JSON.stringify(params),
+  //   authenticated: true,
+  //   callback,
+  // };
+  // return request(requestParams);
 }

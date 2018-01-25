@@ -1,16 +1,34 @@
 import request from './api_service';
 
 export function login(params, callback) {
-  return request('login', JSON.stringify(params), callback);
+  const requestParams = {
+    path: 'login',
+    params: JSON.stringify(params),
+    authenticated: false,
+    callback,
+  };
+  return request(requestParams);
 }
 
 export function logout(callback) {
-  return request('logout', null, callback);
+  const requestParams = {
+    path: 'logout',
+    params: null,
+    authenticated: true,
+    callback,
+  };
+  return request(requestParams);
 }
 
 export function forgotPassword(params, callback) {
   callback(null, {});
-  // return request('forgot_password', JSON.stringify(params), callback);
+  // const requestParams = {
+  //   path: 'forgot_password',
+  //   params: JSON.stringify(params),
+  //   authenticated: false,
+  //   callback,
+  // };
+  // return request(requestParams);
 }
 
 export function resetPassword(params, callback) {
