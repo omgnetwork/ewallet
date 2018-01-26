@@ -14,6 +14,5 @@ config :admin_api, AdminAPI.Endpoint,
   check_origin: false,
   watchers: []
 
-# System.put_env("CORS_ORIGINS", "http://localhost:8080")
 config :cors_plug,
   origin: "http://localhost:8080"
