@@ -12,76 +12,78 @@ const Sidebar = ({ translate, history, session }) => {
   const accountPath = `/a/${session.currentAccount.id}`;
   return (
     <div className="sidebar fh">
-      <div className="col-xs-10 col-xs-offset-1">
-        <Image className="sidebar__logo" src={logo} />
-        <h2 className="sidebar__title">
-          {session.currentAccount.name}
-        </h2>
-        <ul className="sidebar__ul">
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.dashboard')}
-              to={`${accountPath}`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.accounts')}
-              to={`${accountPath}/accounts`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.admins')}
-              to={`${accountPath}/admins`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.users')}
-              to={`${accountPath}/users`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.transactions')}
-              to={`${accountPath}/transactions`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.tokens')}
-              to={`${accountPath}/tokens`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.reports')}
-              to={`${accountPath}/report`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.api_management')}
-              to={`${accountPath}/api_management`}
-            />
-          </li>
-          <li className="sidebar__li">
-            <SidebarLink
-              currentPath={history.location.pathname}
-              title={translate('sidebar.setting')}
-              to={`${accountPath}/setting`}
-            />
-          </li>
-        </ul>
+      <div className="sidebar__content">
+        <div className="col-xs-10 col-xs-offset-1">
+          <Image className="sidebar__logo" src={logo} />
+          <h2 className="sidebar__title">
+            {session.currentAccount.name}
+          </h2>
+          <ul className="sidebar__ul">
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.dashboard')}
+                to={`${accountPath}`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.accounts')}
+                to={`${accountPath}/accounts`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.admins')}
+                to={`${accountPath}/admins`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.users')}
+                to={`${accountPath}/users`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.transactions')}
+                to={`${accountPath}/transactions`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.tokens')}
+                to={`${accountPath}/tokens`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.reports')}
+                to={`${accountPath}/report`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.api_management')}
+                to={`${accountPath}/api_management`}
+              />
+            </li>
+            <li className="sidebar__li">
+              <SidebarLink
+                currentPath={history.location.pathname}
+                title={translate('sidebar.setting')}
+                to={`${accountPath}/setting`}
+              />
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   );

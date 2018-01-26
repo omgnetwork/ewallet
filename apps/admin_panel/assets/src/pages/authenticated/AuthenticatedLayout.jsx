@@ -10,10 +10,10 @@ const AuthenticatedLayout = ({ alert, children }) => (
   <div className="fh">
     <Header />
     <div className="fh">
-      <div className="col-md-3 authenticated-layout__sidebar fh">
+      <div className="col-md-3 authenticated-layout__sidebar">
         <Sidebar />
       </div>
-      <div className="col-md-9 col-md-offset-3 authenticated-layout__main fh">
+      <div className="col-md-9 col-md-offset-3 authenticated-layout__main">
         <Alerter alert={alert} />
         {children}
       </div>

@@ -1,6 +1,10 @@
 .sidebar {
   background-color: $sidebar-background;
 
+  &__content {
+    overflow-y: scroll;
+    height: 100%;
+  }
 
   &__logo {
     width: 100%;
