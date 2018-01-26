@@ -39,10 +39,11 @@
   .btn-#{$name}.disabled.active,
   .btn-#{$name}[disabled].active,
   fieldset[disabled] .btn-#{$name}.active {
-    background-color: $dark;
+    background-color: $color;
     border-color: $dark;
   }
 }
 
 @include omg-button('omg-blue', $omise-blue, $omise-blue, $white);
 @include omg-button('omg-white', $white, $omise-blue, $omise-blue);
+@include omg-button('omg-red', $white, $red-alert, $red-alert);

@@ -31,4 +31,20 @@
     margin-top: 1rem;
     margin-bottom: 2rem;
   }
+
+  &__horizontal {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-end;
+  }
+
+  &__button {
+    height: 2.5rem;
+    padding: 0rem 1.5rem 0rem 1.5rem;
+  }
+
+  &__flex-stretch {
+    flex: auto;
+    margin-bottom: 0rem;
+  }
 }

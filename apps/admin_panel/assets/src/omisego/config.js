@@ -1,7 +1,7 @@
 /* Euro's config */
 export const OMISEGO_BASE_URL = 'http://10.5.10.20:5000/';
-export const OMISEGO_API_KEY_ID = '10bcdf7f-ab7b-47d2-be48-3f5cc02e2942';
-export const OMISEGO_API_KEY = 'sspTAuzr8M2bLlt0xlkq-xfv7CH7ArCqXK8M1U0Wzr0';
+export const OMISEGO_API_KEY_ID = 'b4367924-9ab3-4a73-ad37-69a8ed5f6ede';
+export const OMISEGO_API_KEY = 'TuUL-NzMCWWSAO8_x0Eo2N7o7VyDthnmFBR2HqrFRCs';
 
 /* Mederic's config */
 // export const OMISEGO_BASE_URL = 'http://localhost:5000/';

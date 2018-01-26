@@ -10,7 +10,7 @@ import logo from '../../../public/images/omisego_logo_white.png';
 import avatar from '../../../public/images/user.svg';
 
 const Header = ({
-  session, history, logout, translate
+  session, history, logout, translate,
 }) => {
   const accountPath = `/a/${session.currentAccount.id}`;
   return (
@@ -73,14 +73,6 @@ const Header = ({
                       Log Out
                     </MenuItem>
                   </NavDropdown>
-                  <div className="omg-hide">
-                    <NavItem className="omg-nav__user-info" eventKey={5} href="#">
-                      |
-                    </NavItem>
-                    <NavItem className="omg-nav__user-info" eventKey={6} href="#">
-                      Admin
-                    </NavItem>
-                  </div>
                 </Nav>
               </Navbar.Collapse>
             </div>

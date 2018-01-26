@@ -4,47 +4,47 @@ import { getTranslate } from 'react-localize-redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Button } from 'react-bootstrap';
+import OMGLoadingButton from '../../../components/OMGLoadingButton';
+import AlertActions from '../../../actions/alert.actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGPhotoPreviewer from '../../../components/OMGPhotoPreviewer';
 import OMGAddMemberForm from '../../../components/OMGAddMemberForm';
 import OMGMemberItem from '../../../components/OMGMemberItem';
 import PlaceHolder from '../../../../public/images/user_icon_placeholder.png';
+import Actions from './actions';
 
 class Setting extends Component {
   constructor(props) {
     super(props);
-    const { currentUser } = props;
-    const {
-      email, fullName, position, companyName, photoUrl, username,
-    } = currentUser;
+    const { currentAccount } = props;
+    const { name, photoUrl } = currentAccount;
     this.state = {
-      email,
-      fullName,
-      position,
-      companyName,
-      username,
+      editId: 0,
+      accountName: name,
       photoUrl: photoUrl || PlaceHolder,
       photoFile: null,
-      valid: true,
+      memberList: [],
+      loading: {
+        saveAccount: false,
+        addMember: false,
+        updateMember: false,
+        removeMember: false,
+      },
     };
     this.handleFileChanged = this.handleFileChanged.bind(this);
     this.handleFormChanged = this.handleFormChanged.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
-    this.handleSave = this.handleSave.bind(this);
-    this.validate = this.validate.bind(this);
+    this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleCancelClick = this.handleCancelClick.bind(this);
+    this.handleSyncMember = this.handleSyncMember.bind(this);
+    this.reloadMembers = this.reloadMembers.bind(this);
+    this.handleUpdateFormSuccess = this.handleUpdateFormSuccess.bind(this);
+    this.handleSearchUsers = this.handleSearchUsers.bind(this);
+    this.handleUpdateAccount = this.handleUpdateAccount.bind(this);
   }
 
-  // Invoke when the user clicks save button.
-  handleSave() {
-    // Just log the state for now.
-    console.log(this.state);
-  }
-
-  // Invoke when the user clicks cancel button.
-  handleCancel() {
-    // Go to dashboard
-    const { history } = this.props;
-    history.push('/');
+  componentDidMount() {
+    const { listMemberInAccount, currentAccount } = this.props;
+    listMemberInAccount({ accountId: currentAccount.id }, this.reloadMembers);
   }
 
   // Invoke when the user browse and select a new photo.
@@ -65,19 +65,177 @@ class Setting extends Component {
     );
   }
 
-  // Invoke after handleFormChanged is called
-  validate() {
-    const valid = true; // TODO: change this to validate each fields, check for loading state, etc.
+  handleSyncMember(targetMember, actionType) {
+    const { add, update, remove } = OMGAddMemberForm.actionType();
+    const {
+      currentAccount, assignMember, unassignMember,
+    } = this.props;
+    const { memberList } = this.state;
+    const updatingMember = memberList.filter(member => member.email === targetMember.email)[0];
+    switch (actionType) {
+      case add:
+        assignMember({
+          accountId: currentAccount.id,
+          userId: targetMember.id,
+          roleName: targetMember.accountRole.toLowerCase(),
+        }, this.reloadMembers);
+        this.setState(prevState => ({
+          loading: {
+            ...prevState.loading,
+            addMember: true,
+          },
+        }));
+        break;
+      case update:
+        assignMember({
+          accountId: currentAccount.id,
+          userId: updatingMember.id,
+          roleName: targetMember.accountRole.toLowerCase(),
+        }, this.reloadMembers);
+        this.setState(prevState => ({
+          loading: {
+            ...prevState.loading,
+            updateMember: true,
+          },
+        }));
+        break;
+      case remove:
+        unassignMember({
+          accountId: currentAccount.id,
+          userId: targetMember.id,
+        }, this.reloadMembers);
+        this.setState(prevState => ({
+          loading: {
+            ...prevState.loading,
+            removeMember: true,
+          },
+        }));
+        break;
+      default:
+    }
+  }
+
+  handleSearchUsers(query, callback) {
+    const { searchUsers } = this.props;
+    const params = {
+      per: 5,
+      sort: {
+        by: 'email',
+        dir: 'asc',
+      },
+      query,
+    };
+    searchUsers(params, callback);
+  }
+
+  reloadMembers() {
+    const { currentAccount, listMemberInAccount } = this.props;
+    listMemberInAccount({ accountId: currentAccount.id }, (memberList) => {
+      // const nonNullEmailMembers = memberList.filter(member => member.email);
+      this.setState(prevState => ({
+        memberList,
+        editId: 0,
+        loading: {
+          ...prevState.loading,
+          addMember: false,
+          updateMember: false,
+          removeMember: false,
+        },
+      }));
+    });
+  }
+
+  handleUpdateFormSuccess(account) {
+    // TODO: Show some notification
+    const { showSuccessAlert, translate } = this.props;
+    showSuccessAlert(translate('setting.form.success', { name: account.name }));
+    this.setState(prevState => ({
+      loading: {
+        ...prevState.loading,
+        saveAccount: false,
+      },
+    }));
+  }
+
+  handleUpdateAccount() {
+    const { currentAccount, updateAccount } = this.props;
+    const { accountName } = this.state;
+    const params = {
+      ...currentAccount,
+      name: accountName,
+    };
+    updateAccount(params, this.handleUpdateFormSuccess);
+    this.setState(prevState => ({
+      loading: {
+        ...prevState.loading,
+        saveAccount: true,
+      },
+    }));
+  }
+
+  handleCancelClick() {
     this.setState({
-      valid,
+      editId: 0,
+    });
+  }
+
+  handleEditClick(member) {
+    this.setState({
+      editId: member.id,
     });
   }
 
   render() {
-    const { translate } = this.props;
+    const { translate, currentPath } = this.props;
     const {
-      username, email, fullName, position, companyName, photoUrl,
+      accountName,
+      photoUrl,
+      memberList,
+      editId,
+      loading,
     } = this.state;
+
+    const memberItems = memberList.map((member) => {
+      if (member.id !== editId) {
+        return (<OMGMemberItem
+          key={member.id}
+          currentPath={currentPath}
+          member={member}
+          onEdit={this.handleEditClick}
+        />);
+      }
+      return (
+        <OMGAddMemberForm
+          key={member.id}
+          isDisabledTextInput
+          isEdit
+          labelKey="email"
+          loading={loading}
+          member={member}
+          onCancel={this.handleCancelClick}
+          onRemove={this.handleSyncMember}
+          onUpdate={this.handleSyncMember}
+          roles={[
+            { label: 'setting.form.roles.admin', value: 'admin' },
+            { label: 'setting.form.roles.viewer', value: 'viewer' },
+          ]}
+        />
+      );
+    });
+
+    const formActions = (
+      <div className="mt-3">
+        <OMGLoadingButton
+          className="btn-omg-blue omg-form__button"
+          disabled={!accountName}
+          loading={loading.saveAccount}
+          onClick={this.handleUpdateAccount}
+          type="button"
+        >
+          {translate('setting.form.save.label')}
+        </OMGLoadingButton>
+      </div>
+    );
 
     return (
       <div className="row">
@@ -97,64 +255,36 @@ class Setting extends Component {
                 showUploadBtn={photoUrl === PlaceHolder}
               />
             </div>
-            <OMGFieldGroup
-              help=""
-              id="username"
-              label={translate('setting.form.account_name.label')}
-              onChange={this.handleFormChanged}
-              type="text"
-              validationState={null}
-              value={username}
-            />
+            <div className="mt-1">
+              <OMGFieldGroup
+                groupClass="form__group omg-form__flex-stretch"
+                help=""
+                id="accountName"
+                label={translate('setting.form.account_name.label')}
+                onChange={this.handleFormChanged}
+                type="text"
+                validationState={null}
+                value={accountName}
+              />
+              {formActions}
+            </div>
             <div className="mb-1 mt-3">
               <h4>
                 {translate('setting.form.assign_team_member.label')}
               </h4>
             </div>
             <OMGAddMemberForm
-              labelKey="label"
+              labelKey="email"
+              loading={loading}
+              onAdd={this.handleSyncMember}
+              onSearch={this.handleSearchUsers}
               roles={[
-                { label: 'setting.form.roles.super_admin', value: 'super_admin' },
-                { label: 'setting.form.roles.analyst', value: 'analyst' },
-                { label: 'setting.form.roles.moderator', value: 'moderator' },
+                { label: 'setting.form.roles.admin', value: 'admin' },
+                { label: 'setting.form.roles.viewer', value: 'viewer' },
               ]}
             />
-            <OMGMemberItem
-              imageUrl="https://6f553f294d9c2b381dc8-21a51a0c688da9b8f39d1cd2f922214e.ssl.cf3.rackcdn.com/photos/131-3-4.jpg"
-              name="Thibault Denizut"
-              position="OmiseGO Software Developer Team Lead"
-            />
-            <OMGMemberItem
-              imageUrl="https://6f553f294d9c2b381dc8-21a51a0c688da9b8f39d1cd2f922214e.ssl.cf3.rackcdn.com/photos/146-0-4.jpg"
-              isPending
-              name="Phuchit Sirimongkolsathien"
-              position="OmiseGO Mobile App Developer"
-            />
-            <OMGMemberItem
-              imageUrl="https://6f553f294d9c2b381dc8-21a51a0c688da9b8f39d1cd2f922214e.ssl.cf3.rackcdn.com/photos/139-0-4.jpg"
-              name="Mederic Petit"
-              position="OmiseGO Mobile App Developer"
-            />
-            <div className="mt-2">
-              <Button
-                bsClass="btn btn-omg-blue"
-                bsStyle="primary"
-                onClick={this.handleSave}
-                type="button"
-              >
-                {translate('setting.form.save.label')}
-              </Button>
-              <Button
-                bsClass="btn btn-omg-white"
-                bsStyle="primary"
-                className="ml-1"
-                onClick={this.handleCancel}
-                type="submit"
-              >
-                {translate('setting.form.cancel.label')}
-              </Button>
-            </div>
-            <div className="mt-3">
+            {memberItems}
+            <div className="mt-3 omg-hide">
               <h4>
                 {translate('setting.form.remove_account.label')}
                 <a className="omg-member-item__edit" href="#remove">
@@ -169,37 +299,52 @@ class Setting extends Component {
   }
 }
 
-Setting.defaultProps = {
-  currentUser: {
-    username: '',
-    email: '',
-    fullName: '',
-    position: '',
-    companyName: '',
-    photoUrl: '',
-  },
-};
-
 Setting.propTypes = {
-  currentUser: PropTypes.shape({
-    username: PropTypes.string,
-    email: PropTypes.string,
-    fullName: PropTypes.string,
-    position: PropTypes.string,
-    companyName: PropTypes.string,
-    photoUrl: PropTypes.string,
-  }),
-  history: PropTypes.object.isRequired,
+  assignMember: PropTypes.func.isRequired,
+  currentAccount: PropTypes.object.isRequired,
+  currentPath: PropTypes.string.isRequired,
+  listMemberInAccount: PropTypes.func.isRequired,
+  searchUsers: PropTypes.func.isRequired,
+  showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
+  unassignMember: PropTypes.func.isRequired,
+  updateAccount: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
   const { loading } = state.global;
   const translate = getTranslate(state.locale);
+  const currentPath = state.router.location.pathname;
+  const { currentAccount } = state.session;
   return {
     translate,
     loading,
+    currentPath,
+    currentAccount,
   };
 }
 
-export default withRouter(connect(mapStateToProps, null)(Setting));
+function mapDispatchToProps(dispatch) {
+  return {
+    updateAccount: (member, onSuccess) => {
+      dispatch(Actions.updateAccount(member, onSuccess));
+    },
+    assignMember: (member, onSuccess) => {
+      dispatch(Actions.assignMember(member, onSuccess));
+    },
+    listMemberInAccount: (params, onSuccess) => {
+      dispatch(Actions.listMembers(params, onSuccess));
+    },
+    searchUsers: (params, onSuccess) => {
+      dispatch(Actions.searchUsers(params, onSuccess));
+    },
+    unassignMember: (member, onSuccess) => {
+      dispatch(Actions.unassignMember(member, onSuccess));
+    },
+    showSuccessAlert: (message) => {
+      dispatch(AlertActions.success(message));
+    },
+  };
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Setting));

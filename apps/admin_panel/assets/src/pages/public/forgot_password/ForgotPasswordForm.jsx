@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
+import OMGLoadingButton from '../../../components/OMGLoadingButton';
 
 class ForgotPasswordForm extends Component {
   constructor(props) {
@@ -80,14 +81,13 @@ class ForgotPasswordForm extends Component {
           />
           <div>
             <span>
-              <Button
-                bsClass="btn btn-omg-blue"
-                bsStyle="primary"
-                disabled={loading || !this.isFormValid()}
+              <OMGLoadingButton
+                disabled={!this.isFormValid()}
+                loading={loading}
                 type="submit"
               >
-                {loading ? translate('global.loading') : translate('forgot-password.reset_your_password')}
-              </Button>
+                {translate('forgot-password.reset_your_password')}
+              </OMGLoadingButton>
               <span className="ml-1">
                 {translate('forgot-password.or')}
               </span>

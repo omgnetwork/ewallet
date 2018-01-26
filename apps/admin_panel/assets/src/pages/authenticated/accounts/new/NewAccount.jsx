@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 import Actions from './actions';
 import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
+import OMGLoadingButton from '../../../../components/OMGLoadingButton';
 import { accountURL } from '../../../../helpers/urlFormatter';
 
 class NewAccount extends Component {
@@ -95,14 +96,13 @@ class NewAccount extends Component {
                 validationState={null}
                 value={description}
               />
-              <Button
-                bsClass="btn btn-omg-blue"
-                bsStyle="primary"
-                disabled={loading || !this.isFormValid()}
+              <OMGLoadingButton
+                disabled={!this.isFormValid()}
+                loading={loading}
                 type="submit"
               >
-                {loading ? translate('global.loading') : translate('accounts.new.create')}
-              </Button>
+                {translate('accounts.new.create')}
+              </OMGLoadingButton>
             </form>
           </div>
         </div>
