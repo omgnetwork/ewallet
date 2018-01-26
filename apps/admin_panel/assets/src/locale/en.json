@@ -11,7 +11,10 @@
     "omg_add_member_form": {
       "placeholder": "Type an email",
       "select_item": "Select Item",
-      "add": "Add"
+      "add": "Add",
+      "update": "Update",
+      "remove": "Remove",
+      "cancel": "Cancel"
     }
   },
   "pagination": {
@@ -307,8 +310,11 @@
       "roles": {
         "super_admin": "Super Admin",
         "analyst": "Analyst",
-        "moderator": "Moderator"
-      }
+        "moderator": "Moderator",
+        "admin": "Admin",
+        "viewer": "Viewer"
+      },
+      "success": "Successfully updated ${ name }"
     }
   }
 }

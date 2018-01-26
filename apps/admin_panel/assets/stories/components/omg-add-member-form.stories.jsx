@@ -75,7 +75,7 @@ storiesOf('OMGAddMemberForm', module)
   .addDecorator(smallContainer)
   .addDecorator(reduxDecorator)
   .add('Normal state', () => <OMGAddMemberForm />)
-  .add('With default value', () => <OMGAddMemberForm defaultValue="OmiseGo" />)
+  .add('With default value', () => <OMGAddMemberForm defaultInputValue="OmiseGo" />)
   .add('With github users searching', () => (
     <OMGAddMemberForm
       customRenderMenuItem={customMenuItem}

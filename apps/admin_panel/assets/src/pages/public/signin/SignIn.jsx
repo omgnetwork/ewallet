@@ -7,6 +7,7 @@ import PropTypes from 'prop-types';
 
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
+import OMGLoadingButton from '../../../components/OMGLoadingButton';
 
 class SignIn extends Component {
   constructor(props) {
@@ -103,14 +104,13 @@ class SignIn extends Component {
           />
           <div>
             <span>
-              <Button
-                bsClass="btn btn-omg-blue"
-                bsStyle="primary"
-                disabled={loading || !this.isFormValid()}
+              <OMGLoadingButton
+                disabled={!this.isFormValid()}
+                loading={loading}
                 type="submit"
               >
-                {loading ? translate('global.loading') : translate('sign-in.sign-in')}
-              </Button>
+                {translate('sign-in.sign-in')}
+              </OMGLoadingButton>
               <span className="ml-1">
                 {translate('sign-in.or')}
               </span>

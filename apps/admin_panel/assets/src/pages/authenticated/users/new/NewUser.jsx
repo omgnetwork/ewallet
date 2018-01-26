@@ -2,11 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
-import { Button } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Actions from './actions';
 import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
+import OMGLoadingButton from '../../../../components/OMGLoadingButton';
 import { accountURL } from '../../../../helpers/urlFormatter';
 
 class NewUser extends Component {
@@ -95,14 +95,13 @@ class NewUser extends Component {
                 validationState={null}
                 value={description}
               />
-              <Button
-                bsClass="btn btn-omg-blue"
-                bsStyle="primary"
-                disabled={loading || !this.isFormValid()}
+              <OMGLoadingButton
+                disabled={!this.isFormValid()}
+                loading={loading}
                 type="submit"
               >
-                {loading ? translate('global.loading') : translate('users.new.create')}
-              </Button>
+                {translate('users.new.create')}
+              </OMGLoadingButton>
             </form>
           </div>
         </div>

@@ -1,11 +1,17 @@
 .open > .omg-add-member-form,
 .omg-add-member-form {
   white-space: nowrap;
+  margin-top: 1rem;
 
   .btn {
     height: 2.5rem;
     padding: 0rem 1.5rem 0rem 1.5rem;
-    margin-left: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .btn {
+      margin-left: 1rem;
+    }
   }
 
   /* For input box */
@@ -28,6 +34,10 @@
     border: 1px solid $omise-blue;
     box-shadow: none;
     -webkit-box-shadow: none;
+  }
+
+  .form-group > .input-group > .dropdown.input-group-btn {
+    width: auto;
   }
 
   &__input:focus > .rbt-input.form-control.focus {
@@ -59,5 +69,10 @@
 
   &__dropdown > .dropdown-sort {
     margin-left: 0.5rem;
+  }
+
+  /* For button groups */
+  &__button-group {
+    display: inline;
   }
 }

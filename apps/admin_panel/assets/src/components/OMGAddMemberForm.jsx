@@ -4,24 +4,37 @@ import { localize } from 'react-localize-redux';
 import { Form, FormGroup, InputGroup, DropdownButton, MenuItem, Button } from 'react-bootstrap';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
+import OMGLoadingButton from './OMGLoadingButton';
+import { upperCaseFirst } from '../helpers/stringFormatter';
 
 class OMGAddMemberForm extends Component {
+  static actionType() {
+    return {
+      add: 'add',
+      update: 'update',
+      remove: 'remove',
+    };
+  }
+
   constructor(props) {
     super(props);
     const {
-      defaultInputValue, defaultDropdownValue, roles, translate,
+      member, roles, translate, typeaheadOptions,
     } = this.props;
     this.state = {
-      dropdownSelectedItem: defaultDropdownValue || translate(roles[0].label),
-      inputValue: defaultInputValue,
+      dropdownSelectedItem: member.accountRole || translate(roles[0].label),
+      inputValue: member.email,
       isLoading: false,
-      dropdownOptions: roles,
+      typeaheadOptions,
+      enableAddMember: false,
     };
     this.handleChange = this.handleChange.bind(this);
     this.setTypeaheadComponent = this.setTypeaheadComponent.bind(this);
     this.handleSearchResult = this.handleSearchResult.bind(this);
-    this.handleAddClicked = this.handleAddClicked.bind(this);
     this.handleInputChanged = this.handleInputChanged.bind(this);
+    this.handleAddClick = this.handleAddClick.bind(this);
+    this.handleUpdateClick = this.handleUpdateClick.bind(this);
+    this.handleEnter = this.handleEnter.bind(this);
   }
 
   componentDidMount() {
@@ -39,8 +52,7 @@ class OMGAddMemberForm extends Component {
     }
   }
 
-  handleChange(eventKey, event) {
-    // eslint-disable-line no-unused-vars
+  handleChange(eventKey, event) { // eslint-disable-line no-unused-vars
     const { translate } = this.props;
     this.setState({ dropdownSelectedItem: translate(eventKey.label) });
   }
@@ -49,29 +61,114 @@ class OMGAddMemberForm extends Component {
     const { onSearch } = this.props;
     if (!onSearch) return;
     this.setState({ isLoading: true });
-    onSearch(query).then(options => this.setState({ dropdownOptions: options, isLoading: false }));
-  }
-
-  handleAddClicked() {
-    const { text } = this.state; // eslint-disable-line no-unused-vars
+    onSearch(query, (members) => {
+      console.log(members)
+      this.setState({ typeaheadOptions: members, isLoading: false });
+    });
   }
 
   handleInputChanged(text) {
-    this.setState({
-      inputValue: text,
+    this.setState((prevState) => {
+      const { typeaheadOptions } = prevState;
+      const memberExist = typeaheadOptions.filter(member => member.email === text).length > 0;
+      return ({
+        enableAddMember: memberExist,
+        inputValue: text,
+      });
     });
+  }
+
+  handleEnter(event) {
+    if (event.key === 'Enter') {
+      this.handleAddClick();
+    }
+  }
+
+  handleAddClick() {
+    const { inputValue, dropdownSelectedItem, typeaheadOptions } = this.state;
+    const { onAdd } = this.props;
+    const newMember = typeaheadOptions.filter(member => member.email === inputValue);
+
+    if (newMember[0]) {
+      onAdd(
+        { ...newMember[0], accountRole: dropdownSelectedItem },
+        OMGAddMemberForm.actionType().add,
+      );
+      this.setState({
+        inputValue: '',
+      }, () => {
+        this.typeahead.clear();
+      });
+    }
+  }
+
+  handleUpdateClick() {
+    const { inputValue, dropdownSelectedItem } = this.state;
+    const { onUpdate } = this.props;
+    onUpdate(
+      { email: inputValue, accountRole: dropdownSelectedItem },
+      OMGAddMemberForm.actionType().update,
+    );
   }
 
   render() {
     const {
-      placeholder, roles, customRenderMenuItem, labelKey, minLength, translate,
+      placeholder,
+      roles,
+      customRenderMenuItem,
+      labelKey,
+      loading,
+      minLength,
+      onCancel,
+      onRemove,
+      translate,
+      isDisabledTextInput,
+      isEdit,
+      member,
     } = this.props;
-    const { dropdownSelectedItem, dropdownOptions, isLoading } = this.state;
+    const {
+      dropdownSelectedItem, isLoading, typeaheadOptions, enableAddMember,
+    } = this.state;
     const dropdownItems = roles.map((v, index) => (
       <MenuItem key={index} eventKey={v}>
         {translate(v.label)}
       </MenuItem>
     ));
+
+    const actionButton = isEdit ? (
+      <div className="omg-add-member-form__button-group">
+        <OMGLoadingButton
+          disabled={loading.addMember || loading.removeMember || loading.updateMember}
+          loading={loading.updateMember}
+          onClick={this.handleUpdateClick}
+        >
+          {translate('components.omg_add_member_form.update')}
+        </OMGLoadingButton>
+        <OMGLoadingButton
+          className="btn-omg-red"
+          disabled={loading.addMember || loading.removeMember || loading.updateMember}
+          loading={loading.removeMember}
+          onClick={() => onRemove(member, OMGAddMemberForm.actionType().remove)}
+        >
+          {translate('components.omg_add_member_form.remove')}
+        </OMGLoadingButton>
+        <OMGLoadingButton
+          className="btn-omg-white"
+          disabled={loading.addMember || loading.removeMember || loading.updateMember}
+          onClick={() => onCancel()}
+        >
+          {translate('components.omg_add_member_form.cancel')}
+        </OMGLoadingButton>
+      </div>
+    ) : (
+      <OMGLoadingButton
+        disabled={!enableAddMember}
+        loading={loading.addMember}
+        onClick={this.handleAddClick}
+      >
+        {translate('components.omg_add_member_form.add')}
+      </OMGLoadingButton>
+    );
 
     return (
       <div>
@@ -81,12 +178,15 @@ class OMGAddMemberForm extends Component {
               <AsyncTypeahead
                 ref={component => this.setTypeaheadComponent(component)}
                 className="omg-add-member-form__input"
+                disabled={isDisabledTextInput}
+                filterBy={['email', 'id']}
                 isLoading={isLoading}
                 labelKey={labelKey}
                 minLength={minLength}
                 onInputChange={this.handleInputChanged}
+                onKeyDown={this.handleEnter}
                 onSearch={this.handleSearchResult}
-                options={dropdownOptions}
+                options={typeaheadOptions}
                 placeholder={translate(placeholder)}
                 renderMenuItemChildren={customRenderMenuItem}
               />
@@ -95,20 +195,13 @@ class OMGAddMemberForm extends Component {
                 componentClass={InputGroup.Button}
                 id="omg-add-member-dropdown"
                 onSelect={this.handleChange}
-                title={dropdownSelectedItem}
+                title={upperCaseFirst(dropdownSelectedItem)}
               >
                 {dropdownItems}
               </DropdownButton>
             </InputGroup>
           </FormGroup>
-          <Button
-            bsClass="btn btn-omg-blue"
-            bsStyle="primary"
-            onClick={this.handleAddClicked}
-            type="button"
-          >
-            {translate('components.omg_add_member_form.add')}
-          </Button>
+          {actionButton}
         </Form>
       </div>
     );
@@ -117,27 +210,61 @@ class OMGAddMemberForm extends Component {
 
 OMGAddMemberForm.propTypes = {
   customRenderMenuItem: PropTypes.func,
-  defaultDropdownValue: PropTypes.string,
-  defaultInputValue: PropTypes.string,
+  isDisabledTextInput: PropTypes.bool,
+  isEdit: PropTypes.bool,
   labelKey: PropTypes.string.isRequired, // This is `key` of the object where points to the value.
+  loading: PropTypes.shape({
+    addMember: PropTypes.bool,
+    removeMember: PropTypes.bool,
+    updateMember: PropTypes.bool,
+  }),
+  member: PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    accountRole: PropTypes.string,
+    email: PropTypes.string,
+  }),
   minLength: PropTypes.number,
+  onAdd: PropTypes.func,
+  onCancel: PropTypes.func,
+  onRemove: PropTypes.func,
   onSearch: PropTypes.func,
+  onUpdate: PropTypes.func,
   placeholder: PropTypes.string,
   roles: PropTypes.arrayOf(PropTypes.shape({
     label: PropTypes.string,
     value: PropTypes.string,
   })),
   translate: PropTypes.func.isRequired,
+  typeaheadOptions: PropTypes.arrayOf(PropTypes.shape({
+    email: PropTypes.string,
+  })),
 };
 
 OMGAddMemberForm.defaultProps = {
   customRenderMenuItem: null,
+  isEdit: false,
+  isDisabledTextInput: false,
   placeholder: 'components.omg_add_member_form.placeholder',
   minLength: 2,
+  loading: {
+    addMember: false,
+    removeMember: false,
+    updateMember: false,
+  },
   roles: [{ label: 'components.omg_add_member_form.select_item', value: 'select_item' }],
+  onAdd: null,
+  onRemove: null,
+  onCancel: null,
   onSearch: null,
-  defaultInputValue: '',
-  defaultDropdownValue: '',
+  onUpdate: null,
+  member: {
+    id: '',
+    name: '',
+    accountRole: '',
+    email: '',
+  },
+  typeaheadOptions: [],
 };
 
 export default localize(OMGAddMemberForm, 'locale');
