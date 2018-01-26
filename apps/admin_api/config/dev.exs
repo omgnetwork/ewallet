@@ -13,3 +13,6 @@ config :admin_api, AdminAPI.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: []
+
+config :cors_plug,
+  origin: "http://localhost:8080"
