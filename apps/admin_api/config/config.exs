@@ -42,7 +42,7 @@ config :admin_api, :generators,
 config :cors_plug,
   max_age: System.get_env("CORS_MAX_AGE") || 600, # Lowest common value of all browsers
   headers: ["Authorization", "Content-Type", "Accept", "Origin",
-            "User-Agent", "DNT","Cache-Control", "X-Mx-ReqToken",
+            "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken",
             "Keep-Alive", "X-Requested-With", "If-Modified-Since",
             "X-CSRF-Token", "OMGAdmin-Account-ID"],
   methods: ["POST"],
