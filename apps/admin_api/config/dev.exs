@@ -13,3 +13,5 @@ config :admin_api, AdminAPI.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: []
+
+System.put_env("CORS_ORIGINS", "http://localhost:8080")

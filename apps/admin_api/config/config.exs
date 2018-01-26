@@ -30,25 +30,6 @@ config :logger, :console,
 config :admin_api, :generators,
   context_app: false
 
-# Config for CORSPlug
-#
-# CORS_ORIGINS may contain multiple comma-separated origins, therefore it needs
-# to be splitted and trimmed. But since `config.exs` evaluates the options
-# at compile time, it does not allow an assignment with anonymous functions,
-# waiting to be executed at runtime.
-#
-# Because of this the anonymous function is invoked right away through
-# `(fn -> ... end).()` in order for :origin to be assigned at compile time.
-config :cors_plug,
-  max_age: System.get_env("CORS_MAX_AGE") || 600, # Lowest common value of all browsers
-  methods: ["POST"],
-  origin: (fn ->
-    case System.get_env("CORS_ORIGINS") do
-      nil -> [] # Disallow all origins if CORS_ORIGINS is not set
-      origins -> origins |> String.trim() |> String.split(~r{\s*,\s*})
-    end
-  end).()
-
 # Two configs need to be added to have a new EWallet Admin version:
 #
 # 1. `admin_api.api_versions`
@@ -84,3 +65,26 @@ config :sentry,
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
 import_config "#{Mix.env}.exs"
+
+# Config for CORSPlug
+#
+# CORS_ORIGINS may contain multiple comma-separated origins, therefore it needs
+# to be splitted and trimmed. But since `config.exs` evaluates the options
+# at compile time, it does not allow an assignment with anonymous functions,
+# waiting to be executed at runtime.
+#
+# Because of this the anonymous function is invoked right away through
+# `(fn -> ... end).()` in order for :origin to be assigned at compile time.
+config :cors_plug,
+  max_age: System.get_env("CORS_MAX_AGE") || 600, # Lowest common value of all browsers
+  headers: ["Authorization", "Content-Type", "Accept", "Origin",
+            "User-Agent", "DNT","Cache-Control", "X-Mx-ReqToken",
+            "Keep-Alive", "X-Requested-With", "If-Modified-Since",
+            "X-CSRF-Token", "OMGAdmin-Account-ID"],
+  methods: ["POST"],
+  origin: (fn ->
+    case System.get_env("CORS_ORIGINS") do
+      nil -> [] # Disallow all origins if CORS_ORIGINS is not set
+      origins -> origins |> String.trim() |> String.split(~r{\s*,\s*})
+    end
+  end).()
