@@ -4,6 +4,15 @@ defmodule LocalLedger.CachedBalance do
   """
   alias LocalLedgerDB.{CachedBalance, Transaction}
 
+  def cache_all() do
+    LocalLedgerDB.Balance.stream_all(fn balance ->
+      case CachedBalance.get(balance.address) do
+        nil            -> {:ok, calculate_and_insert(balance)}
+        cached_balance -> {:ok, calculate_and_insert(balance, cached_balance)}
+      end
+    end)
+  end
+
   def all(balance) do
     {:ok, get_amounts(balance)}
   end
@@ -38,8 +47,23 @@ defmodule LocalLedger.CachedBalance do
     Transaction.calculate_all_balances(balance.address, %{since: datetime})
   end
 
+  defp calculate_and_insert(balance, cached_balance) do
+    computed_at = NaiveDateTime.utc_now()
+
+    amounts = cached_balance.amounts
+
+    {:ok, _} = CachedBalance.insert(%{
+      amounts:         amounts,
+      balance_address: balance.address,
+      computed_at:     computed_at
+    })
+
+    amounts
+  end
+
   defp calculate_and_insert(balance) do
     computed_at = NaiveDateTime.utc_now()
+
     amounts = Transaction.calculate_all_balances(balance.address, %{
       upto: computed_at
     })

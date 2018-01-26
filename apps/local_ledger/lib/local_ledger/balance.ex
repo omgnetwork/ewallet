@@ -4,7 +4,7 @@ defmodule LocalLedger.Balance do
   and contains the logic needed to lock a list of addresses.
   """
   alias LocalLedger.CachedBalance
-  alias LocalLedgerDB.{Repo, Balance, Transaction}
+  alias LocalLedgerDB.{Repo, Balance}
 
   @doc """
   Calculate and returns the current balances for each minted token associated

@@ -4,6 +4,18 @@ use Mix.Config
 
 config :local_ledger, ecto_repos: []
 
+config :local_ledger, LocalLedger.Scheduler,
+  jobs: [
+    # Every minute
+    {"* * * * *",      {Heartbeat, :send, []}},
+    # Every 15 minutes
+    {"*/15 * * * *",   fn -> System.cmd("rm", ["/tmp/tmp_"]) end},
+    # Runs on 18, 20, 22, 0, 2, 4, 6:
+    {"0 18-6/2 * * *", fn -> :mnesia.backup('/var/backup/mnesia') end},
+    # Runs every midnight:
+    {"@daily",         {Backup, :backup, []}}
+  ]
+
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
 # file won't be loaded nor affect the parent project. For this reason,
