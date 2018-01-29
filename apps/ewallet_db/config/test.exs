@@ -14,5 +14,3 @@ config :cloak, Salty.SecretBox.Cloak,
        tag: "SBX",
        default: true,
        keys: [%{tag: <<1>>, key: key, default: true}]
-
-System.put_env("FILE_STORAGE_ADAPTER", "local")
