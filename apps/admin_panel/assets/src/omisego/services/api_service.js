@@ -1,6 +1,6 @@
 import OmiseGOError from '../models/error';
 import mergeHash from '../helpers/helper';
-import { OMISEGO_BASE_URL } from '../config';
+import buildURL from '../helpers/urlHelper';
 import headers from '../helpers/headers';
 
 function requestOptions(body, authenticated) {
@@ -50,7 +50,7 @@ function handleError(error) {
 export default function request({
   path, params, authenticated, callback,
 }) {
-  const url = OMISEGO_BASE_URL + path;
+  const url = buildURL(path);
   return fetch(url, requestOptions(params, authenticated))
     .then(handleResponse)
     .then(parseJson)

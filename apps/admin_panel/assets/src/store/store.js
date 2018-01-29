@@ -1,7 +1,7 @@
 import { createStore, applyMiddleware, compose } from 'redux';
 import { routerMiddleware } from 'react-router-redux';
 import thunkMiddleware from 'redux-thunk';
-import { createLogger } from 'redux-logger'; // eslint-disable-line import/no-extraneous-dependencies
+import { createLogger } from 'redux-logger';
 import { initialize, addTranslationForLanguage } from 'react-localize-redux';
 import DevTools from '../pages/DevTools';
 

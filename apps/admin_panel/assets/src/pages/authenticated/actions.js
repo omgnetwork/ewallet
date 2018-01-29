@@ -9,8 +9,7 @@ class Actions {
   static logout() {
     return (dispatch) => {
       dispatch(LoadingActions.showLoading());
-      logout((err, result) => {
-        // eslint-disable-line no-unused-vars
+      logout((err, result) => { // eslint-disable-line no-unused-vars
         dispatch(LoadingActions.hideLoading());
         if (err) {
           ErrorHandler.handleAPIError(dispatch, err);
