@@ -88,6 +88,12 @@ defmodule LocalLedgerDB.Transaction do
     |> Enum.into(%{}, fn {k, v} -> {k, Decimal.to_integer(v)} end)
   end
 
+  defp build_sum_query(address, type, %{friendly_id: friendly_id, since: since, upto: upto}) do
+    address
+    |> build_sum_query(type, %{friendly_id: friendly_id})
+    |> where([t], t.inserted_at > ^since)
+    |> where([t], t.inserted_at <= ^upto)
+  end
   defp build_sum_query(address, type, %{friendly_id: friendly_id, since: since}) do
     address
     |> build_sum_query(type, %{friendly_id: friendly_id})

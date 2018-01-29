@@ -29,6 +29,9 @@ defmodule LocalLedgerDB.Balance do
     |> put_change(:encryption_version, Cloak.version)
   end
 
+  @doc """
+  Batch load balances and run the callback for each balance.
+  """
   def stream_all(callback) do
     Repo
     |> EctoBatchStream.stream(Balance)
