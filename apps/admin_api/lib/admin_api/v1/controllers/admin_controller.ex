@@ -37,6 +37,24 @@ defmodule AdminAPI.V1.AdminController do
     end
   end
 
+  @doc """
+  Uploads an image as avatar for a specific user.
+  """
+  def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
+    case UUID.cast(id) do
+      {:ok, uuid} ->
+        case User.get(uuid, UserQuery.where_has_membership()) do
+          nil -> respond_single(nil, conn)
+          user ->
+            user
+            |> User.store_avatar(attrs)
+            |> respond_single(conn)
+        end
+      _ ->
+        handle_error(conn, :invalid_parameter, "Admin ID must be a UUID")
+    end
+  end
+
   # Respond with a list of admins
   defp respond_multiple(%Paginator{} = paged_users, conn) do
     render(conn, UserView, :users, %{users: paged_users})
@@ -49,6 +67,10 @@ defmodule AdminAPI.V1.AdminController do
   defp respond_single(%User{} = user, conn) do
     render(conn, UserView, :user, %{user: user})
   end
+  # Responds when the given params were invalid
+  defp respond_single({:error, changeset}, conn) do
+     handle_error(conn, :invalid_parameter, changeset)
+   end
   # Responds when the admin is not found
   defp respond_single(nil, conn) do
     handle_error(conn, :user_id_not_found)

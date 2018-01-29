@@ -90,4 +90,73 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["data"]["description"] == "Admin ID must be a UUID"
     end
   end
+
+  describe "/admin.upload_avatar" do
+    test "uploads an avatar for the specified user" do
+      account     = insert(:account)
+      role        = insert(:role, %{name: "some_role"})
+      admin       = insert(:admin, %{email: "admin@omise.co"})
+      uuid        = admin.id
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response = user_request("/admin.upload_avatar", %{
+        "id" => uuid,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      assert response["success"]
+      assert response["data"]["object"] == "user"
+      assert response["data"]["email"] == admin.email
+      assert response["data"]["avatar"]["original"] =~ "/public/uploads/test/user/avatars/#{uuid}/"
+    end
+
+    test "returns 'user:id_not_found' if the given ID is not an admin" do
+      user     = insert(:user)
+      response = user_request("/admin.upload_avatar", %{
+        "id" => user.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:id_not_found"
+      assert response["data"]["description"] == "There is no user corresponding to the provided id"
+    end
+
+    test "returns 'user:id_not_found' if the given ID was not found" do
+      response  = user_request("/admin.upload_avatar", %{
+        "id" => UUID.generate(),
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:id_not_found"
+      assert response["data"]["description"] == "There is no user corresponding to the provided id"
+    end
+
+    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
+      response  = user_request("/admin.upload_avatar", %{
+        "id" => "not_uuid",
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Admin ID must be a UUID"
+    end
+  end
 end

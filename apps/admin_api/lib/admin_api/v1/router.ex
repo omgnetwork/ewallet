@@ -40,11 +40,11 @@ defmodule AdminAPI.V1.Router do
     # User endpoints
     post "/user.all", UserController, :all
     post "/user.get", UserController, :get
-    post "/user.upload_avatar", UserController, :upload_avatar
 
     # Admin endpoints
     post "/admin.all", AdminController, :all
     post "/admin.get", AdminController, :get
+    post "/admin.upload_avatar", AdminController, :upload_avatar
 
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get

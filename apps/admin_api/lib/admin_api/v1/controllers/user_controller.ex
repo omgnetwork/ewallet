@@ -33,24 +33,6 @@ defmodule AdminAPI.V1.UserController do
     end
   end
 
-  @doc """
-  Uploads an image as avatar for a specific user.
-  """
-  def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    case UUID.cast(id) do
-      {:ok, uuid} ->
-        case User.get(uuid) do
-          nil -> respond_single(nil, conn)
-          user ->
-            user
-            |> User.store_avatar(attrs)
-            |> respond_single(conn)
-        end
-      _ ->
-        handle_error(conn, :invalid_parameter, "User ID must be a UUID")
-    end
-  end
-
   # Respond with a list of users
   defp respond_multiple(%Paginator{} = paged_users, conn) do
     render(conn, :users, %{users: paged_users})
