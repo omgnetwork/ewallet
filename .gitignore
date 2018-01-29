@@ -21,3 +21,4 @@ erl_crash.dump
 
 public/uploads
 apps/admin_api/public
+.env
