@@ -29,7 +29,55 @@ defmodule LocalLedger.CachedBalanceTest do
     %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
   end
 
-  describe "#all" do
+  describe "cache_all/0" do
+    test "caches all the balances",
+      %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance_1}
+    do
+      balance_2 = insert(:balance, address: "1232")
+
+      insert_list(12, :credit, minted_token: minted_token_1,
+                               balance: balance_2,
+                               amount: 3_327)
+      insert_list(9, :debit, minted_token: minted_token_1,
+                             balance: balance_2,
+                             amount: 3_892)
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 2
+      assert LocalLedgerDB.CachedBalance.get(balance_1.address).amounts == %{
+        minted_token_1.friendly_id => 58953,
+        minted_token_2.friendly_id => 85563
+      }
+      assert LocalLedgerDB.CachedBalance.get(balance_2.address).amounts == %{
+        minted_token_1.friendly_id => 4896
+      }
+    end
+
+    test "reuses the previous cached balance to calculate the new one",
+      %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
+    do
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
+
+      assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
+        minted_token_1.friendly_id => 58_953,
+        minted_token_2.friendly_id => 85_563
+      }
+
+      insert_list(2, :credit, minted_token: minted_token_1,
+                              balance: balance,
+                              amount: 500)
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 2
+      assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
+        minted_token_1.friendly_id => 58_953 + 1_000,
+        minted_token_2.friendly_id => 85_563
+      }
+    end
+  end
+
+  describe "all/1" do
     test "calculates the balance and inserts a new cached balance if not existing",
       %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
     do
@@ -76,7 +124,7 @@ defmodule LocalLedger.CachedBalanceTest do
     end
   end
 
-  describe "#get" do
+  describe "get/2" do
     test "calculates the balance and inserts a new cached balance if not existing",
       %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
     do
