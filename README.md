@@ -127,6 +127,32 @@ All set! Start playing around with the API using the Swagger docs below to learn
 
 ## Environment Variables
 
+### General
+
+Below are the general environment variables needed for the eWallet to run smoothly.
+
+- `MIX_ENV`: Environment in which the application is being ran. `prod` for production.
+- `API_HOST`: The domain name where the eWallet API should be accessible.
+- `API_PORT`: The port associated with the domain name above.
+- `ADMIN_API_HOST`: The domain name where the Admin API should be accessible.
+- `ADMIN_API_PORT`: The port associated with the domain name above.
+- `EWALLET_SECRET_KEY`: Encryption key used to encrypt some data in the database.
+
+### Database
+
+The eWallet needs access to two different databases: one for the eWallet itself and one for the local ledger. The following environment variables needs to be set.
+
+- `DATABASE_URL`
+- `DATABASE_PASSWORD`
+- `LOCAL_LEDGER_DATABASE_URL`
+- `LOCAL_LEDGER_DATABASE_PASSWORD`
+
+### Error Reporting
+
+The eWallet only supports Sentry for now. You can specify the DSN for it with the following environment variable:
+
+- `SENTRY_DSN`
+
 ### File Upload
 
 - `FILE_STORAGE_ADAPTER`: (`local`|`aws`|`gcs`, defaults to `local`)
