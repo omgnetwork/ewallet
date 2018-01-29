@@ -8,6 +8,13 @@ import PropTypes from 'prop-types';
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGLoadingButton from '../../../components/OMGLoadingButton';
+import {
+  getEmailValidationState,
+  getPasswordValidationState,
+  isFormValid,
+  onInputChange,
+  onSubmit,
+} from './stateFunctions';
 
 class SignIn extends Component {
   constructor(props) {
@@ -15,59 +22,23 @@ class SignIn extends Component {
     this.state = {
       email: '',
       password: '',
-      submitted: false,
-      didModifyEmail: false,
-      didModifyPassword: false,
+      submitted: false, //eslint-disable-line
+      didModifyEmail: false, //eslint-disable-line
+      didModifyPassword: false, //eslint-disable-line
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  getEmailValidationState() {
-    const { submitted, didModifyEmail } = this.state;
-    return !this.isEmailValid() && (submitted || didModifyEmail) ? 'error' : null;
-  }
-
-  getPasswordValidationState() {
-    const { submitted, didModifyPassword } = this.state;
-    return !this.isPasswordValid() && (submitted || didModifyPassword) ? 'error' : null;
-  }
-
-  isEmailValid() {
-    const { email } = this.state;
-    return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(email);
-  }
-
-  isPasswordValid() {
-    const { password } = this.state;
-    return password.length >= 8;
-  }
-
-  isFormValid() {
-    return this.isEmailValid() && this.isPasswordValid();
-  }
-
   handleChange(e) {
-    const { id, value } = e.target;
-    this.setState((prevState) => {
-      let { didModifyEmail, didModifyPassword } = prevState;
-      if (id === 'email') {
-        didModifyEmail = true;
-      } else if (id === 'password') {
-        didModifyPassword = true;
-      }
-      return {
-        [id]: value,
-        didModifyEmail,
-        didModifyPassword,
-      };
-    });
+    const { target } = e;
+    this.setState(prevState => (onInputChange(target, prevState)));
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    this.setState({ submitted: true });
+    this.setState(onSubmit());
     const { email, password } = this.state;
     const { login } = this.props;
     if (email && password) {
@@ -90,7 +61,7 @@ class SignIn extends Component {
             label={translate('sign-in.email.label')}
             onChange={this.handleChange}
             type="text"
-            validationState={this.getEmailValidationState()}
+            validationState={getEmailValidationState(this.state)}
             value={email}
           />
           <OMGFieldGroup
@@ -99,13 +70,13 @@ class SignIn extends Component {
             label={translate('sign-in.password.label')}
             onChange={this.handleChange}
             type="password"
-            validationState={this.getPasswordValidationState()}
+            validationState={getPasswordValidationState(this.state)}
             value={password}
           />
           <div>
             <span>
               <OMGLoadingButton
-                disabled={!this.isFormValid()}
+                disabled={!isFormValid(this.state)}
                 loading={loading}
                 type="submit"
               >

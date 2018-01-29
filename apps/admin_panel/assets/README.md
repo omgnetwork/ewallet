@@ -95,7 +95,7 @@ admin-panel
   ├─ public/          Asset files that do not need to be processed. Your images, icons, fonts, videos and other static files should go here.
   ├─ src/             Source files that need to be processed. Your JS, JSX, EJS files should go here.
   ├─ stories/         Source files for the stories.
-  ├─ tests/           Test files.
+  ├─ __tests__/       Test files.
   ├─ .gitignore       The list of files and folders that git should ignore
   ├─ package.json     The manifest that contains project's metadata, dependencies, etc.
   ├─ README.md        The document you are currently reading explaining how to get started

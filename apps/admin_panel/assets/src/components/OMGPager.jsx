@@ -47,7 +47,6 @@ OMGPager.propTypes = {
   isLastPage: PropTypes.bool.isRequired,
   onPageChange: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
-  translate: PropTypes.func.isRequired,
 };
 
 export default localize(OMGPager, 'locale');

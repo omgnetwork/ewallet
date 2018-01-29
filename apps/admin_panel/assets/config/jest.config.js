@@ -1,8 +1,8 @@
 module.exports = {
   verbose: true,
-  rootDir: "../tests/",
-  testMatch: [ '**/*.js?(x)' ],
+  rootDir: '../',
+  testMatch: ['**/*.test.js?(x)'],
   globals: {
-    __DEV__: true
-  }
-}
+    __DEV__: true,
+  },
+};
