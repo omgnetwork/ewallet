@@ -45,11 +45,11 @@ defmodule LocalLedger.CachedBalanceTest do
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 2
       assert LocalLedgerDB.CachedBalance.get(balance_1.address).amounts == %{
-        minted_token_1.friendly_id => 58953,
-        minted_token_2.friendly_id => 85563
+        minted_token_1.friendly_id => 58_953,
+        minted_token_2.friendly_id => 85_563
       }
       assert LocalLedgerDB.CachedBalance.get(balance_2.address).amounts == %{
-        minted_token_1.friendly_id => 4896
+        minted_token_1.friendly_id => 4_896
       }
     end
 

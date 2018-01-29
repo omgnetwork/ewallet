@@ -1,11 +1,18 @@
 defmodule LocalLedger.CachedBalance do
   @moduledoc """
-
+  This module is an interface to the LocalLedgerDB Balance schema. It is responsible for caching
+  balances and serves as an interface to retrieve the current balances (which will either be
+  loaded from a cached balance or computed - or both).
   """
-  alias LocalLedgerDB.{CachedBalance, Transaction}
+  alias LocalLedgerDB.{Balance, CachedBalance, Transaction}
 
+  @doc """
+  Cache all the balances using a batch stream mechanism for retrieval (1000 at a time). This
+  is meant to be used in some kind of schedulers, but can also be ran manually.
+  """
+  @spec cache_all() :: {}
   def cache_all do
-    LocalLedgerDB.Balance.stream_all(fn balance ->
+    Balance.stream_all(fn balance ->
       case CachedBalance.get(balance.address) do
         nil            -> {:ok, calculate_and_insert(balance)}
         cached_balance -> {:ok, calculate_from_cached_and_insert(balance, cached_balance)}
@@ -13,10 +20,19 @@ defmodule LocalLedger.CachedBalance do
     end)
   end
 
+  @doc """
+  Get all the balance amounts for the given balance.
+  """
+  @spec all(Balance.t) :: {:ok, Map.t}
   def all(balance) do
     {:ok, get_amounts(balance)}
   end
 
+  @doc """
+  Get the balance amount for the specified minted token (friendly_id) and
+  the given balance.
+  """
+  @spec get(Balance.t, String.t) :: {:ok, Map.t}
   def get(balance, friendly_id) do
     amounts = get_amounts(balance)
     {:ok, %{friendly_id => amounts[friendly_id] || 0}}

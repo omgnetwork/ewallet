@@ -6,12 +6,13 @@ defmodule LocalLedger.Application do
   def start(_type, _args) do
     import Supervisor.Spec
 
-    opts = [strategy: :one_for_one, name: LocalLedger.Supervisor]
+    children =
+      case System.get_env("CACHE_BALANCES_FREQUENCY") do
+        nil -> []
+        _ -> [supervisor(LocalLedger.Scheduler, [])]
+      end
 
-    case System.get_env("CACHE_BALANCES_FREQUENCY") do
-      nil -> []
-      _ -> [supervisor(LocalLedger.Scheduler, [])]
-    end
-    |> Supervisor.start_link(opts)
+    opts = [strategy: :one_for_one, name: LocalLedger.Supervisor]
+    Supervisor.start_link(children, opts)
   end
 end
