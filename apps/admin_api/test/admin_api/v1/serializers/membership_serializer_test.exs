@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
         },
+        avatar: %{original: nil},
         created_at: Date.to_iso8601(user.inserted_at),
         updated_at: Date.to_iso8601(user.updated_at),
         account_role: role.name,
@@ -46,6 +47,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
         },
+        avatar: %{original: nil},
         created_at: Date.to_iso8601(user.inserted_at),
         updated_at: Date.to_iso8601(user.updated_at),
         account_role: role.name,
