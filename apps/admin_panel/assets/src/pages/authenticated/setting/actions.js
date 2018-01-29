@@ -2,7 +2,7 @@ import ErrorHandler from '../../../helpers/errorHandler';
 import { assignMember, unassignMember, listMembers, updateMember, updateAccountInfo } from '../../../omisego/services/setting_api';
 import getAll from '../../../omisego/services/admin_api';
 import LoadingActions from '../../../actions/loading.actions';
-import { byCreatedAtAsc } from '../../../helpers/sorter';
+import SessionActions from '../../../actions/session.actions';
 
 export default class Actions {
   static updateAccount(params, onSuccess) {
@@ -14,6 +14,7 @@ export default class Actions {
           ErrorHandler.handleAPIError(dispatch, err);
         } else {
           onSuccess(result);
+          dispatch(SessionActions.saveCurrentAccount(result));
         }
       });
     };
