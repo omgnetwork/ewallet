@@ -125,6 +125,30 @@ All set! Start playing around with the API using the Swagger docs below to learn
 - [eWallet API](/apps/ewallet_api/swagger-doc.yaml)
 - [Admin API](/apps/admin_api/swagger-doc.yaml)
 
+## Environment Variables
+
+### File Upload
+
+- `FILE_STORAGE_ADAPTER`: (`local`|`aws`|`gcs`, defaults to `local`)
+
+In order to use the file upload feature (for profile pictures and account logos), environment variables need to be defined.
+
+#### Local Storage
+
+Nothing else to set, files will be stored at the root of the project in `public/uploads/`.
+
+#### Amazon S3
+
+- `AWS_BUCKET`: The name of your S3 bucket.
+- `AWS_REGION`: The region in which your bucket lives.
+- `AWS_ACCESS_KEY_ID`: Your AWS access key.
+- `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
+
+#### Google Cloud Storage
+
+- `GCS_BUCKET`: Your GCS bucket.
+- `GCS_CREDENTIALS`: A JSON containing your GCS credentials.
+
 ## Deploying the OmiseGO SDK
 
 OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](mailto:thibault@omise.co) if you're interested.
