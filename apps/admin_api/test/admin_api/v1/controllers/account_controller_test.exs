@@ -144,6 +144,9 @@ defmodule AdminAPI.V1.AccountControllerTest do
               "provider_user_id" => user.provider_user_id,
               "email" => user.email,
               "metadata" => user.metadata,
+              "avatar" => %{
+                "original" => nil
+              },
               "created_at" => Date.to_iso8601(user.inserted_at),
               "updated_at" => Date.to_iso8601(user.updated_at),
               "account_role" => role.name,

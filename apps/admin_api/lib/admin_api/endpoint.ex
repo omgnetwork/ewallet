@@ -1,6 +1,13 @@
 defmodule AdminAPI.Endpoint do
   use Phoenix.Endpoint, otp_app: :admin_api
 
+  plug Plug.Static,
+    at: "/public/",
+    from: Path.join(File.cwd!, "../../public/"),
+    only: ~w(uploads)
+
+  plug AdminAPI.AssetNotFoundPlug
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do

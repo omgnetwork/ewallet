@@ -19,6 +19,9 @@ defmodule AdminAPI.V1.SelfViewTest do
           username: user.username,
           provider_user_id: user.provider_user_id,
           email: user.email,
+          avatar: %{
+            original: nil
+          },
           metadata: %{
             "first_name" => user.metadata["first_name"],
             "last_name" => user.metadata["last_name"]

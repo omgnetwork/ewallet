@@ -360,6 +360,23 @@ paths:
           $ref: "#/components/responses/AdminResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /admin.upload_avatar:
+    post:
+      tags:
+        - Admin
+      summary: Uploads avatar for an admin
+      operationId: admin_upload_avatar
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AdminUploadBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AdminResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   ############################
   #       TRANSACTIONS       #
   ############################
@@ -699,6 +716,8 @@ components:
           format: email
         metadata:
           type: object
+        avatar:
+          type: object
         created_at:
           type: string
           format: date-time
@@ -718,6 +737,7 @@ components:
         username: "johndoe"
         email: "johndoe@omise.co"
         metadata: {"first_name": "John", "last_name": "Doe"}
+        avatar: {"original": "file_url"}
         created_at: "2018-01-01T00:00:00Z"
         updated_at: "2018-01-01T10:00:00Z"
     # Schema for user response body
@@ -797,6 +817,7 @@ components:
             username: "johndoe"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
+            avatar: {"original": "file_url"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
     # Schema for admins body response
@@ -829,6 +850,7 @@ components:
                 username: "johndoe"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
+                avatar: {"original": "file_url"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
             pagination:
@@ -1328,7 +1350,26 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-
+    # Request body for uploading an avatar for an admin
+    AdminUploadBody:
+      description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            properties:
+              id:
+                type: string
+                format: uuid
+              avatar:
+                type: string
+                format: binary
+            required:
+              - id
+              - avatar
+            example:
+              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              avatar: "/path/to/file"
   parameters:
     # Headers
     ClientAuthorizationHeader:
