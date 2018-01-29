@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom';
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGLoadingButton from '../../../components/OMGLoadingButton';
+import { OMISEGO_BASE_URL } from '../../../omisego/config';
 
 class ForgotPasswordForm extends Component {
   constructor(props) {
@@ -54,7 +55,7 @@ class ForgotPasswordForm extends Component {
     const { email } = this.state;
     const { forgotPassword, onSuccess } = this.props;
     if (email) {
-      forgotPassword({ email }, onSuccess);
+      forgotPassword({ email, url: OMISEGO_BASE_URL }, onSuccess);
     }
   }
 
@@ -126,7 +127,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    forgotPassword: (email, onSuccess) => dispatch(Actions.forgotPassword(email, onSuccess)),
+    forgotPassword: (params, onSuccess) => dispatch(Actions.forgotPassword(params, onSuccess)),
   };
 }
 
