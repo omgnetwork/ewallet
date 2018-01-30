@@ -6,19 +6,23 @@ defmodule EWalletDB.Uploaders.Avatar do
   use Arc.Ecto.Definition
 
   @acl      :public_read
-  @versions [:original]
+  @versions [:original, :large, :small, :thumb]
 
   def validate({file, _}) do
     ~w(.jpg .jpeg .gif .png) |> Enum.member?(Path.extname(file.file_name))
   end
 
-  # To add a thumbnail version:
-  # @versions [:original, :thumb]
+  def transform(:large, _) do
+    {:convert, "-strip -thumbnail 400x400^ -gravity center -extent 400x400"}
+  end
 
-  # Define a thumbnail transformation:
-  # def transform(:thumb, _) do
-  #   {:convert, "-strip -thumbnail 250x250^ -gravity center -extent 250x250 -format png", :png}
-  # end
+  def transform(:small, _) do
+    {:convert, "-strip -thumbnail 150x150^ -gravity center -extent 150x150"}
+  end
+
+  def transform(:thumb, _) do
+    {:convert, "-strip -thumbnail 50x50^ -gravity center -extent 50x50"}
+  end
 
   def filename(version, _) do
     version

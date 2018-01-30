@@ -145,7 +145,10 @@ defmodule AdminAPI.V1.AccountControllerTest do
               "email" => user.email,
               "metadata" => user.metadata,
               "avatar" => %{
-                "original" => nil
+                "original" => nil,
+                "large" => nil,
+                "small" => nil,
+                "thumb" => nil
               },
               "created_at" => Date.to_iso8601(user.inserted_at),
               "updated_at" => Date.to_iso8601(user.updated_at),

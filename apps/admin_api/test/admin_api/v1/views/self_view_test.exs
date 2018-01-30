@@ -20,7 +20,10 @@ defmodule AdminAPI.V1.SelfViewTest do
           provider_user_id: user.provider_user_id,
           email: user.email,
           avatar: %{
-            original: nil
+            original: nil,
+            large: nil,
+            small: nil,
+            thumb: nil
           },
           metadata: %{
             "first_name" => user.metadata["first_name"],
