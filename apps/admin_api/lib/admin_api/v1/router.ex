@@ -36,6 +36,7 @@ defmodule AdminAPI.V1.Router do
     post "/account.list_users", AccountController, :list_users
     post "/account.assign_user", AccountController, :assign_user
     post "/account.unassign_user", AccountController, :unassign_user
+    post "/account.upload_avatar", AccountController, :upload_avatar
 
     # User endpoints
     post "/user.all", UserController, :all

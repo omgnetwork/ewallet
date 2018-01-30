@@ -53,6 +53,19 @@ defmodule AdminAPI.V1.AccountController do
   end
   defp update_account(_, _attrs), do: nil
 
+  @doc """
+  Uploads an image as avatar for a specific account.
+  """
+  def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
+    case Account.get(id) do
+      nil -> respond_single(nil, conn)
+      account ->
+        account
+        |> Account.store_avatar(attrs)
+        |> respond_single(conn)
+    end
+  end
+
   # Respond with a list of accounts
   defp respond_multiple(%Paginator{} = paged_accounts, conn) do
     render(conn, :accounts, %{accounts: paged_accounts})

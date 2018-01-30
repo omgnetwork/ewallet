@@ -27,6 +27,14 @@ defmodule EWalletDB.Uploaders.Avatar do
 
   # Override the storage directory:
   def storage_dir(_version, {_file, scope}) do
-    "public/uploads/#{Mix.env}/user/avatars/#{scope.id}"
+    "public/uploads/#{Mix.env}/#{get_schema_name(scope)}/avatars/#{scope.id}"
+  end
+
+  defp get_schema_name(scope) do
+    scope.__struct__
+    |> Module.split()
+    |> Enum.take(-1)
+    |> Enum.at(0)
+    |> String.downcase()
   end
 end

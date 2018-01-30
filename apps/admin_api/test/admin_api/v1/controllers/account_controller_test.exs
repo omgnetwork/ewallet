@@ -302,4 +302,37 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["data"]["description"] == "The given account id could not be found."
     end
   end
+
+  describe "/account.upload_avatar" do
+    test "uploads an avatar for the specified user" do
+      account = insert(:account)
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      assert response["success"]
+      assert response["data"]["object"] == "account"
+      assert response["data"]["avatar"]["original"] =~ "/public/uploads/test/account/avatars/#{account.id}/"
+    end
+
+    test "returns 'account:id_not_found' if the given ID was not found" do
+      response = user_request("/account.upload_avatar", %{
+        "id" => "fake",
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "account:id_not_found"
+      assert response["data"]["description"] == "There is no account corresponding to the provided id"
+    end
+  end
 end
