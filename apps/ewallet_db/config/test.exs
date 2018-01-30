@@ -7,7 +7,7 @@ config :ewallet_db, EWalletDB.Repo,
 
 config :ewallet_db,
   # Replace this with unified domain name
-  host: System.get_env("ADMIN_API_HOST") || "http://example.com"
+  host: System.get_env("UPLOADS_BASE_URL") || "http://example.com"
 
 # Uncomment this line to hide database requests when running tests
 config :logger, level: :warn
