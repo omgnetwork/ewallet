@@ -35,6 +35,20 @@ defmodule AdminAPI.V1.SelfControllerTest do
           }
         }
     end
+
+    test "responds with error if the user does not have an account" do
+      assert user_request("/me.get_account") ==
+        %{
+          "version" => "1",
+          "success" => false,
+          "data"    => %{
+            "object"      => "error",
+            "code"        => "user:account_not_found",
+            "description" => "There is no account assigned to the provided user",
+            "messages"    => nil
+          }
+        }
+    end
   end
 
   describe "/me.get_accounts" do
