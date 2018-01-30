@@ -33,10 +33,12 @@ class Setting extends Component {
     this.handleFileChanged = this.handleFileChanged.bind(this);
     this.handleFormChanged = this.handleFormChanged.bind(this);
     this.handleEditClick = this.handleEditClick.bind(this);
+    this.handleResendClick = this.handleResendClick.bind(this);
     this.handleCancelClick = this.handleCancelClick.bind(this);
     this.handleSyncMember = this.handleSyncMember.bind(this);
     this.reloadMembers = this.reloadMembers.bind(this);
     this.handleUpdateFormSuccess = this.handleUpdateFormSuccess.bind(this);
+    this.handleResendInvitationSuccess = this.handleResendInvitationSuccess.bind(this);
     this.handleSearchUsers = this.handleSearchUsers.bind(this);
     this.handleUpdateAccount = this.handleUpdateAccount.bind(this);
   }
@@ -67,17 +69,28 @@ class Setting extends Component {
   handleSyncMember(targetMember, actionType) {
     const { add, update, remove } = OMGAddMemberForm.actionType();
     const {
-      currentAccount, assignMember, unassignMember,
+      currentAccount, assignMember, unassignMember, inviteMember,
     } = this.props;
     const { memberList } = this.state;
     const updatingMember = memberList.filter(member => member.email === targetMember.email)[0];
     switch (actionType) {
       case add:
-        assignMember({
-          accountId: currentAccount.id,
-          userId: targetMember.id,
-          roleName: targetMember.accountRole.toLowerCase(),
-        }, this.reloadMembers);
+        if (targetMember.status === 'pending_confirmation') {
+          inviteMember({
+            email: targetMember.email,
+            accountId: currentAccount.id,
+            roleName: targetMember.accountRole.toLowerCase(),
+          }, () => {
+            this.handleResendInvitationSuccess(targetMember);
+            this.reloadMembers();
+          });
+        } else {
+          assignMember({
+            accountId: currentAccount.id,
+            userId: targetMember.id,
+            roleName: targetMember.accountRole.toLowerCase(),
+          }, this.reloadMembers);
+        }
         this.setState(prevState => ({
           loading: {
             ...prevState.loading,
@@ -145,15 +158,24 @@ class Setting extends Component {
   }
 
   handleUpdateFormSuccess(account) {
-    // TODO: Show some notification
     const { showSuccessAlert, translate } = this.props;
-    showSuccessAlert(translate('setting.form.success', { name: account.name }));
+    showSuccessAlert(translate('setting.form.notification.success.update_account', { name: account.name }));
     this.setState(prevState => ({
       loading: {
         ...prevState.loading,
         saveAccount: false,
       },
     }));
+
+    // Go to the top of the page to see the notification
+    window.scrollTo(0, 0);
+  }
+
+  handleResendInvitationSuccess(member) {
+    const { showSuccessAlert, translate } = this.props;
+    showSuccessAlert(translate('setting.form.notification.success.resend_invitation', { email: member.email }));
+    // Go to the top of the page to see the notification
+    window.scrollTo(0, 0);
   }
 
   handleUpdateAccount() {
@@ -184,6 +206,15 @@ class Setting extends Component {
     });
   }
 
+  handleResendClick(targetMember) {
+    const { currentAccount, inviteMember } = this.props;
+    inviteMember({
+      email: targetMember.email,
+      accountId: currentAccount.id,
+      roleName: targetMember.accountRole.toLowerCase(),
+    }, this.handleResendInvitationSuccess);
+  }
+
   render() {
     const { translate, currentPath } = this.props;
     const {
@@ -199,8 +230,9 @@ class Setting extends Component {
         return (<OMGMemberItem
           key={member.id}
           currentPath={currentPath}
-          member={member}
+          member={{ ...member, isPending: member.status === 'pending_confirmation' }}
           onEdit={this.handleEditClick}
+          onResend={this.handleResendClick}
         />);
       }
       return (
@@ -302,6 +334,7 @@ Setting.propTypes = {
   assignMember: PropTypes.func.isRequired,
   currentAccount: PropTypes.object.isRequired,
   currentPath: PropTypes.string.isRequired,
+  inviteMember: PropTypes.func.isRequired,
   listMemberInAccount: PropTypes.func.isRequired,
   searchUsers: PropTypes.func.isRequired,
   showSuccessAlert: PropTypes.func.isRequired,
@@ -330,6 +363,9 @@ function mapDispatchToProps(dispatch) {
     },
     assignMember: (member, onSuccess) => {
       dispatch(Actions.assignMember(member, onSuccess));
+    },
+    inviteMember: (member, onSuccess) => {
+      dispatch(Actions.inviteMember(member, onSuccess));
     },
     listMemberInAccount: (params, onSuccess) => {
       dispatch(Actions.listMembers(params, onSuccess));

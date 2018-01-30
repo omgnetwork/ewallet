@@ -12,10 +12,12 @@ import OMGLoadingButton from '../../../components/OMGLoadingButton';
 class ResetPasswordForm extends Component {
   constructor(props) {
     super(props);
-    const { history } = props;
-    const { email, resetToken } = Actions.processURLParams(history.location);
+    const { history, isReset } = props;
+    const { email, resetToken } = isReset
+      ? Actions.processURLResetPWParams(history.location)
+      : Actions.processURLInvitationParams(history.location);
     if (!(email && resetToken)) {
-      history.push('/sigin');
+      history.push('/signin');
     }
     this.state = {
       email,
@@ -76,19 +78,29 @@ class ResetPasswordForm extends Component {
     e.preventDefault();
     this.setState({ submitted: true });
     const { password, resetToken, email } = this.state;
-    const { resetPassword, onSuccess } = this.props;
+    const {
+      createNewAdmin, resetPassword, onSuccess, isReset,
+    } = this.props;
     if (password && resetToken && email) {
-      resetPassword({ password, resetToken, email }, onSuccess);
+      if (isReset) {
+        resetPassword({ password, resetToken, email }, onSuccess);
+      } else {
+        createNewAdmin({
+          email, password, token: resetToken, passwordConfirm: password,
+        }, onSuccess);
+      }
     }
   }
 
   render() {
-    const { loading, translate, history } = this.props;
+    const {
+      loading, translate, history, submitText, title,
+    } = this.props;
     const { password, passwordConfirmation, email } = this.state;
     return (
       <div className="omg-form">
         <h2 className="omg-form__title">
-          {translate('reset-password.reset_your_password')}
+          {title}
         </h2>
         <h3 className="omg-form__subtitle">
           {translate('reset-password.email')}
@@ -122,7 +134,7 @@ class ResetPasswordForm extends Component {
                 loading={loading}
                 type="submit"
               >
-                {translate('reset-password.reset_password')}
+                {submitText}
               </OMGLoadingButton>
               <Button
                 bsStyle="link"
@@ -141,25 +153,36 @@ class ResetPasswordForm extends Component {
 }
 
 ResetPasswordForm.propTypes = {
+  createNewAdmin: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  isReset: PropTypes.bool,
   loading: PropTypes.bool.isRequired,
   onSuccess: PropTypes.func.isRequired,
   resetPassword: PropTypes.func.isRequired,
+  submitText: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   translate: PropTypes.func.isRequired,
+};
+
+ResetPasswordForm.defaultProps = {
+  isReset: false,
 };
 
 function mapStateToProps(state) {
   const { loading } = state.global;
   const translate = getTranslate(state.locale);
+  const isReset = state.router.location.pathname === '/reset_password';
   return {
     loading,
     translate,
+    isReset,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     resetPassword: (params, onSuccess) => dispatch(Actions.resetPassword(params, onSuccess)),
+    createNewAdmin: (params, onSuccess) => dispatch(Actions.createNewAdmin(params, onSuccess)),
   };
 }
 

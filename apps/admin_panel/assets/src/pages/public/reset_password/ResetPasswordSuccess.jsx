@@ -5,10 +5,10 @@ import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
-const ForgotPasswordSuccess = ({ translate, history }) => (
+const ForgotPasswordSuccess = ({ successText, translate, history }) => (
   <div className="omg-form">
     <h2 className="omg-form__title">
-      {translate('reset-password-success.reset_password_complete')}
+      {successText}
     </h2>
     <Button
       bsClass="btn btn-omg-blue"
@@ -23,6 +23,7 @@ const ForgotPasswordSuccess = ({ translate, history }) => (
 
 ForgotPasswordSuccess.propTypes = {
   history: PropTypes.object.isRequired,
+  successText: PropTypes.string.isRequired,
   translate: PropTypes.func.isRequired,
 };
 

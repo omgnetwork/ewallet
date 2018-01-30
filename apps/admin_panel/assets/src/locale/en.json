@@ -315,7 +315,18 @@
         "admin": "Admin",
         "viewer": "Viewer"
       },
-      "success": "Successfully updated ${ name }"
+      "notification": {
+        "success": {
+          "update_account": "Successfully updated ${ name }",
+          "resend_invitation": "Send an invitation to ${ email } successfully."
+        }
+      }
     }
+  },
+  "confirm-email": {
+    "title": "Thank you for confirming your email address.",
+    "setup_password": "Setup your new password",
+    "submit": "Submit",
+    "success": "Account has been created successfully. You can sign-in now."
   }
 }

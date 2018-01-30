@@ -5,6 +5,7 @@ import { ConnectedRouter } from 'react-router-redux';
 import PropTypes from 'prop-types';
 import AlertActions from '../actions/alert.actions';
 import history from '../helpers/history';
+import { invitationConst } from '../omisego/services/setting_api';
 
 import DevTools from './DevTools';
 import AccountRouter from './authenticated/AccountRouter';
@@ -35,6 +36,7 @@ class App extends Component {
               <PublicRoute component={SignIn} path="/signin" />
               <PublicRoute component={ForgotPassword} path="/forgot_password" />
               <PublicRoute component={ResetPassword} path="/reset_password" />
+              <PublicRoute component={ResetPassword} path={`/${invitationConst.pathname}`} />
               <AccountRouter path="/a/:id" />
               <AccountRouter path="/" />
               <Redirect to="/signin" />

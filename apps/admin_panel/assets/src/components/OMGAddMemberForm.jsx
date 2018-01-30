@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { localize } from 'react-localize-redux';
-import { Form, FormGroup, InputGroup, DropdownButton, MenuItem, Button } from 'react-bootstrap';
+import { Form, FormGroup, InputGroup, DropdownButton, MenuItem } from 'react-bootstrap';
 import { AsyncTypeahead } from 'react-bootstrap-typeahead';
 import 'react-bootstrap-typeahead/css/Typeahead.css';
 import OMGLoadingButton from './OMGLoadingButton';
@@ -62,19 +62,15 @@ class OMGAddMemberForm extends Component {
     if (!onSearch) return;
     this.setState({ isLoading: true });
     onSearch(query, (members) => {
-      console.log(members)
       this.setState({ typeaheadOptions: members, isLoading: false });
     });
   }
 
   handleInputChanged(text) {
-    this.setState((prevState) => {
-      const { typeaheadOptions } = prevState;
-      const memberExist = typeaheadOptions.filter(member => member.email === text).length > 0;
-      return ({
-        enableAddMember: memberExist,
-        inputValue: text,
-      });
+    const isEmailValid = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(text);
+    this.setState({
+      enableAddMember: isEmailValid,
+      inputValue: text,
     });
   }
 
@@ -99,6 +95,12 @@ class OMGAddMemberForm extends Component {
       }, () => {
         this.typeahead.clear();
       });
+    } else {
+      onAdd({
+        email: inputValue,
+        status: 'pending_confirmation',
+        accountRole: dropdownSelectedItem,
+      }, OMGAddMemberForm.actionType().add);
     }
   }
 

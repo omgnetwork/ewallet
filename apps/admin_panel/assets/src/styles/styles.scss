@@ -25,6 +25,7 @@ $fa-font-path: '~font-awesome/fonts';
 
 @import 'containers/_app.scss';
 @import 'containers/_public-layout.scss';
+@import 'containers/public/_confirm_email.scss';
 @import 'containers/_authenticated_layout.scss';
 @import 'containers/authenticated/_header.scss';
 @import 'containers/authenticated/_sidebar.scss';

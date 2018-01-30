@@ -5,7 +5,7 @@ import { localize } from 'react-localize-redux';
 import DefaultUserImg from '../../public/images/user_icon_placeholder.png';
 
 const OMGMemberItem = ({
-  currentPath, onEdit, translate, member,
+  currentPath, onEdit, onResend, translate, member,
 }) => {
   const pendingUI = member.isPending
     ? (
@@ -27,7 +27,7 @@ const OMGMemberItem = ({
           <Link
             className="omg-member-item__edit link-omg-blue"
             href={currentPath}
-            onClick={() => !member.isPending && onEdit(member)}
+            onClick={() => (member.isPending ? onResend(member) : onEdit(member))}
             to={currentPath}
           >
             {member.isPending
@@ -46,12 +46,14 @@ const OMGMemberItem = ({
 OMGMemberItem.propTypes = {
   currentPath: PropTypes.string.isRequired,
   member: PropTypes.shape({
+    email: PropTypes.string,
     imageUrl: PropTypes.string,
     isPending: PropTypes.bool,
     username: PropTypes.string,
     accountRole: PropTypes.string.isRequired,
   }),
-  onEdit: PropTypes.func,
+  onEdit: PropTypes.func.isRequired,
+  onResend: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
 };
 
@@ -61,7 +63,6 @@ OMGMemberItem.defaultProps = {
     imageUrl: DefaultUserImg,
     isPending: false,
   },
-  onEdit: () => { },
 };
 
 export default localize(OMGMemberItem, 'locale');
