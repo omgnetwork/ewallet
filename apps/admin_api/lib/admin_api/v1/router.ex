@@ -62,7 +62,12 @@ defmodule AdminAPI.V1.Router do
 
     post "/status", StatusController, :index
     post "/status.server_error", StatusController, :server_error
+  end
 
+  # Fallback endpoints. Handles all remaining routes
+  # that are not handled by the scopes above.
+  scope "/", AdminAPI.V1 do
+    pipe_through [:api]
     match :*, "/*path", FallbackController, :not_found
   end
 end
