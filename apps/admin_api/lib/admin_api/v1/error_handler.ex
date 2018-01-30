@@ -69,6 +69,22 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "transaction:id_not_found",
       description: "There is no transaction corresponding to the provided id"
     },
+    role_name_not_found: %{
+      code: "role:name_not_found",
+      description: "There is no role corresponding to the provided name"
+    },
+    membership_not_found: %{
+      code: "membership:not_found",
+      description: "The user is not assigned to the provided account"
+    },
+    invite_not_found: %{
+      code: "invite:not_found",
+      description: "There is no invite corresponding to the provided email and token"
+    },
+    passwords_mismatch: %{
+      code: "user:passwords_mismatch",
+      description: "The provided passwords do not match"
+    }
   }
 
   # Used for mapping any Ecto.changeset validation
