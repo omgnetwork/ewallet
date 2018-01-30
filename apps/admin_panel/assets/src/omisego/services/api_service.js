@@ -17,6 +17,20 @@ function requestOptions(body, authenticated) {
   };
 }
 
+function requestOptionsMultipart(body, authenticated) {
+  return {
+    method: 'POST',
+    headers: mergeHash(
+      {
+        Accept: 'application/vnd.omisego.v1+json',
+      },
+      headers(authenticated),
+    ),
+    body,
+  };
+}
+
+
 function handleResponse(response) {
   if ([200, 500].includes(response.status)) {
     return response.json();
@@ -48,19 +62,20 @@ function handleError(error) {
 }
 
 export default function request({
-  path, params, authenticated, callback,
+  path, params, authenticated, callback, isMultipart = false,
 }) {
   const url = buildURL(path);
-  return fetch(url, requestOptions(params, authenticated))
+  const options = isMultipart
+    ? requestOptionsMultipart(params, authenticated)
+    : requestOptions(params, authenticated);
+
+  return fetch(url, options)
     .then(handleResponse)
     .then(parseJson)
     .catch(handleError)
-    .then(
-      (results) => {
-        callback(null, results);
-      },
-      (error) => {
-        callback(error, null);
-      },
-    );
+    .then((results) => {
+      callback(null, results);
+    }, (error) => {
+      callback(error, null);
+    });
 }

@@ -3,92 +3,90 @@ import { withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
+import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
+import OMGLoadingButton from '../../../components/OMGLoadingButton';
 import OMGPhotoPreviewer from '../../../components/OMGPhotoPreviewer';
 import PlaceHolder from '../../../../public/images/user_icon_placeholder.png';
-import { accountURL } from '../../../helpers/urlFormatter';
+import { OMISEGO_BASE_URL } from '../../../omisego/config';
 
 class Profile extends Component {
   constructor(props) {
     super(props);
-    const { currentUser } = props;
+    const { session } = props;
+    const { currentUser } = session;
     this.state = {
-      username: currentUser.username,
-      email: currentUser.email,
-      fullName: currentUser.fullName,
-      position: currentUser.position,
-      companyName: currentUser.companyName,
-      photoUrl: currentUser.photoUrl ? currentUser.photoUrl : PlaceHolder,
-      photoFile: null,
-      valid: true,
+      username: currentUser.username || '',
+      email: currentUser.email || '',
+      fullName: (currentUser.metadata.first_name + currentUser.metadata.last_name) || '',
+      position: currentUser.position || '',
+      companyName: currentUser.companyName || '',
+      loading: {
+        submit: false,
+      },
+      avatar: `${currentUser.avatar.original}` || PlaceHolder,
+      avatarFile: null,
     };
-    this.handleSave = this.handleSave.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
     this.handleFileChanged = this.handleFileChanged.bind(this);
     this.handleFormChanged = this.handleFormChanged.bind(this);
-    this.validate = this.validate.bind(this);
   }
 
-  componentDidMount() {
-    // Initialize the state by fetching the data from the server here.
-  }
-
-  handleSave() {
-    console.log(this.state);
-  }
-
-  handleCancel() {
-    // Go to dashboard
-    const { history, session } = this.props;
-    history.push(accountURL(session, '/'));
+  handleSubmit(e) {
+    e.preventDefault();
+    const { avatarFile } = this.state;
+    const { uploadAvatar, session } = this.props;
+    const { currentUser } = session;
+    this.setState({ loading: { submit: true } });
+    uploadAvatar({
+      id: currentUser.id,
+      avatar: avatarFile,
+    }, (result) => {
+      this.setState({
+        avatar: `${OMISEGO_BASE_URL}${result.avatar.original.substr(1)}`,
+        avatarFile: null,
+        loading: {
+          submit: false,
+        },
+      });
+    });
   }
 
   handleFileChanged(file) {
     this.setState({
-      photoFile: file,
+      avatarFile: file,
     });
   }
 
   handleFormChanged(e) {
     const { id, value } = e.target;
-    this.setState(
-      {
-        [id]: value,
-      },
-      this.validate,
-    );
-  }
-
-  validate() {
-    const valid = true; // TODO: change this to validate each fields, check for loading state, etc.
     this.setState({
-      valid,
+      [id]: value,
     });
   }
 
   render() {
     const { translate } = this.props;
     const {
-      username, email, fullName, position, companyName, photoUrl,
+      username, email, fullName, position, companyName, avatar, loading,
     } = this.state;
     return (
-      <div className="row">
-        <div className="col-xs-12 col-sm-3">
+      <div className="row mb-3">
+        <div className="col-xs-12 col-sm-4">
           <div className="omg-form">
             <h1>
               {translate('profile.header.profile')}
             </h1>
-            <form autoComplete="off">
+            <form autoComplete="off" onSubmit={this.handleSubmit}>
               <div className="mt-2">
                 <h4>
                   Edit Profile
                 </h4>
                 <OMGPhotoPreviewer
-                  img={photoUrl}
+                  img={avatar}
                   onFileChanged={this.handleFileChanged}
-                  showCloseBtn={photoUrl !== PlaceHolder}
-                  showUploadBtn={photoUrl === PlaceHolder}
+                  showCloseBtn={avatar !== PlaceHolder}
+                  showUploadBtn={avatar === PlaceHolder}
                 />
               </div>
               <OMGFieldGroup
@@ -140,23 +138,12 @@ class Profile extends Component {
                 />
               </div>
               <div>
-                <Button
-                  bsClass="btn btn-omg-blue"
-                  bsStyle="primary"
-                  onClick={this.handleSave}
-                  type="button"
-                >
-                  Save
-                </Button>
-                <Button
-                  bsClass="btn btn-omg-white"
-                  bsStyle="primary"
-                  className="ml-1"
-                  onClick={this.handleCancel}
+                <OMGLoadingButton
+                  loading={loading.submit}
                   type="submit"
                 >
-                  Cancel
-                </Button>
+                  {translate('profile.form.submit')}
+                </OMGLoadingButton>
               </div>
             </form>
           </div>
@@ -166,29 +153,11 @@ class Profile extends Component {
   }
 }
 
-Profile.defaultProps = {
-  currentUser: {
-    username: '',
-    email: '',
-    fullName: '',
-    position: '',
-    companyName: '',
-    photoUrl: '',
-  },
-};
-
 Profile.propTypes = {
-  currentUser: PropTypes.shape({
-    username: PropTypes.string,
-    email: PropTypes.string,
-    fullName: PropTypes.string,
-    position: PropTypes.string,
-    companyName: PropTypes.string,
-    photoUrl: PropTypes.string,
-  }),
   history: PropTypes.object.isRequired,
   session: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,
+  uploadAvatar: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -202,4 +171,12 @@ function mapStateToProps(state) {
   };
 }
 
-export default withRouter(connect(mapStateToProps, null)(Profile));
+function mapDispatchToProps(dispatch) {
+  return {
+    uploadAvatar: (params, onSuccess) => {
+      dispatch(Actions.uploadAvatar(params, onSuccess));
+    },
+  };
+}
+
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(Profile));

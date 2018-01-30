@@ -1,5 +1,5 @@
 import ErrorHandler from '../../../../helpers/errorHandler';
-import getAll from '../../../../omisego/services/admin_api';
+import { getAll } from '../../../../omisego/services/admin_api';
 import LoadingActions from '../../../../actions/loading.actions';
 import dateFormatter from '../../../../helpers/dateFormatter';
 

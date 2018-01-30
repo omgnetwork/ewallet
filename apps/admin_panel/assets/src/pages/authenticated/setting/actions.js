@@ -1,6 +1,6 @@
 import ErrorHandler from '../../../helpers/errorHandler';
 import { assignMember, unassignMember, listMembers, updateMember, updateAccountInfo } from '../../../omisego/services/setting_api';
-import getAll from '../../../omisego/services/admin_api';
+import { getAll } from '../../../omisego/services/admin_api';
 import LoadingActions from '../../../actions/loading.actions';
 import SessionActions from '../../../actions/session.actions';
 

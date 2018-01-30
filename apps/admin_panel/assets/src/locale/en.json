@@ -267,6 +267,7 @@
         "label": "Company name",
         "help": ""
       },
+      "submit": "Submit",
       "success": "Successfully updated ${ name }"
     }
   },
