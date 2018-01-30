@@ -341,6 +341,21 @@ paths:
           $ref: "#/components/responses/AccountsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /invite.accept:
+    post:
+      tags:
+        - User
+      summary: Accepts an invite
+      operationId: invite_accept
+      security:
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/InviteAcceptBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   ############################
   #          ADMINS          #
   ############################
@@ -1210,19 +1225,40 @@ components:
       content:
         application/vnd.omisego.v1+json:
           schema:
-            properties:
-              user_id:
-                type: string
-                format: uuid
-              account_id:
-                type: string
-                format: uuid
-              role_name:
-                type: string
-            required:
-              - user_id
-              - account_id
-              - role_name
+            oneOf:
+              - properties:
+                  user_id:
+                    type: string
+                    format: uuid
+                  account_id:
+                    type: string
+                    format: uuid
+                  role_name:
+                    type: string
+                required:
+                  - user_id
+                  - account_id
+                  - role_name
+                example:
+                  user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+                  account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  role_name: "admin"
+              - properties:
+                  email:
+                    type: string
+                  account_id:
+                    type: string
+                    format: uuid
+                  role_name:
+                    type: string
+                required:
+                  - email
+                  - account_id
+                  - role_name
+                example:
+                  email: "user@example.com"
+                  account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  role_name: "admin"
             example:
               account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
@@ -1309,6 +1345,32 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+    # Request body for accepting an invite
+    InviteAcceptBody:
+      description: The parameters to use for accepting an invite
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+              token:
+                type: string
+              password:
+                type: string
+              password_confirm:
+                type: string
+            required:
+              - email
+              - token
+              - password
+              - password_confirm
+            example:
+              email: "example@omise.co"
+              token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
+              password: "user_provided_password"
+              password_confirm: "user_provided_password"
     # Request body for listing transactions
     TransactionAllBody:
       description: The parameters to use for listing the transactions

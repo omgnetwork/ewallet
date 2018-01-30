@@ -7,7 +7,7 @@ defmodule EWalletDB.User do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, AuthToken, Balance, Membership, Role, User}
+  alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite, Membership, Role, User}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
@@ -22,6 +22,7 @@ defmodule EWalletDB.User do
     field :encryption_version, :binary
     field :avatar, EWalletDB.Uploaders.Avatar.Type
 
+    belongs_to :invite, Invite, type: UUID
     has_many :balances, Balance
     has_many :auth_tokens, AuthToken
     has_many :memberships, Membership
@@ -33,12 +34,13 @@ defmodule EWalletDB.User do
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:username, :provider_user_id, :email, :password, :metadata])
+    |> cast(attrs, [:username, :provider_user_id, :email, :password, :metadata, :invite_id])
     |> validate_required([:metadata])
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
     |> unique_constraint(:email)
+    |> assoc_constraint(:invite)
     |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
     |> put_change(:encryption_version, Cloak.version)
     |> validate_by_roles(attrs)
@@ -194,8 +196,8 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the status of the given user.
   """
-  def get_status(_user) do
-    :active # Currently all users are active. This will become dynamic with the invitation feature.
+  def get_status(user) do
+    if user.invite_id == nil, do: :active, else: :pending_confirm
   end
 
   @doc """

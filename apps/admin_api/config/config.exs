@@ -30,6 +30,10 @@ config :logger, :console,
 config :admin_api, :generators,
   context_app: false
 
+# Configs for Bamboo emailing library
+config :admin_api, AdminAPI.Mailer,
+  adapter: Bamboo.LocalAdapter
+
 # Config for CORSPlug
 #
 # CORS_ORIGINS may contain multiple comma-separated origins, therefore it needs
