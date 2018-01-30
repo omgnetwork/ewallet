@@ -28,4 +28,7 @@ defmodule AdminAPI.V1.AccountSerializer do
       updated_at: Date.to_iso8601(account.updated_at)
     }
   end
+  def to_json(nil) do
+    nil
+  end
 end
