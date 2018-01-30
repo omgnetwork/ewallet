@@ -197,7 +197,7 @@ defmodule EWalletDB.User do
   Retrieves the status of the given user.
   """
   def get_status(user) do
-    if user.invite_id == nil, do: :active, else: :pending_confirm
+    if user.invite_id == nil, do: :active, else: :pending_confirmation
   end
 
   @doc """
