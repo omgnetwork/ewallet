@@ -137,6 +137,14 @@ Below are the general environment variables needed for the eWallet to run smooth
 - `ADMIN_API_HOST`: The domain name where the Admin API should be accessible.
 - `ADMIN_API_PORT`: The port associated with the domain name above.
 - `EWALLET_SECRET_KEY`: Encryption key used to encrypt some data in the database.
+- `LOCAL_LEDGER_SECRET_KEY`: Encryption key used to encrypt some data in the database.
+
+Tip: How to generate a new secret key using Elixir:
+
+```
+$ mix run -e "IO.puts Salty.SecretBox.generate_key()"
+8I_xIED7p7ruxxM1vNiWzsud3DALk0cnpcAncC2YyMs
+```
 
 ### Database
 
@@ -160,6 +168,8 @@ The eWallet only supports Sentry for now. You can specify the DSN for it with th
 In order to use the file upload feature (for profile pictures and account logos), environment variables need to be defined.
 
 #### Local Storage
+
+- `UPLOADS_BASE_URL`: The base URL used to retrieve the uploaded images. Example: `https//example.com`
 
 Nothing else to set, files will be stored at the root of the project in `public/uploads/`.
 
