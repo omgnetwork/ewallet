@@ -139,6 +139,18 @@ defmodule EWalletDB.UserTest do
     end
   end
 
+  describe "get_status/1" do
+    test "returns :active if the user does not have an associated invite" do
+      user = insert(:admin)
+      assert User.get_status(user) == :active
+    end
+
+    test "returns :pending_confirmation if the user has an associated invite" do
+      user = insert(:admin, %{invite: insert(:invite)})
+      assert User.get_status(user) == :pending_confirmation
+    end
+  end
+
   describe "has_membership?/1" do
     test "returns true if the user has a membership with any account" do
       {user, _} = insert_user_with_role("some_role")
