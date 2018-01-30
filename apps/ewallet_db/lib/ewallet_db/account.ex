@@ -3,6 +3,7 @@ defmodule EWalletDB.Account do
   Ecto Schema representing account.
   """
   use Ecto.Schema
+  use Arc.Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
@@ -15,6 +16,8 @@ defmodule EWalletDB.Account do
     field :description, :string
     field :master, :boolean, default: false
     field :relative_depth, :integer, virtual: true
+    field :avatar, EWalletDB.Uploaders.Avatar.Type
+
     belongs_to :parent, Account, foreign_key: :parent_id, # this column
                                  references: :id, # the parent's column
                                  type: UUID
@@ -33,6 +36,12 @@ defmodule EWalletDB.Account do
     |> validate_required(:name)
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
+  end
+
+  defp avatar_changeset(changeset, attrs) do
+    changeset
+    |> cast_attachments(attrs, [:avatar])
+    |> validate_required([:avatar])
   end
 
   @doc """
@@ -90,6 +99,18 @@ defmodule EWalletDB.Account do
       metadata: %{}
     }
     |> Balance.insert()
+  end
+
+  @doc """
+  Stores an avatar for the given account.
+  """
+  def store_avatar(%Account{} = account, attrs) do
+    changeset = avatar_changeset(account, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, account} -> get(account.id)
+      result         -> result
+    end
   end
 
   @doc """

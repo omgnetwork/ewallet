@@ -4,7 +4,6 @@ defmodule EWalletDB.Uploaders.Avatar do
   """
   use Arc.Definition
   use Arc.Ecto.Definition
-  alias Ecto.UUID
 
   @acl      :public_read
   @versions [:original]
@@ -22,11 +21,19 @@ defmodule EWalletDB.Uploaders.Avatar do
   # end
 
   def filename(version, _) do
-    "#{UUID.generate()}-#{version}"
+    version
   end
 
   # Override the storage directory:
   def storage_dir(_version, {_file, scope}) do
-    "public/uploads/#{Mix.env}/user/avatars/#{scope.id}"
+    "public/uploads/#{Mix.env}/#{get_schema_name(scope)}/avatars/#{scope.id}"
+  end
+
+  defp get_schema_name(scope) do
+    scope.__struct__
+    |> Module.split()
+    |> Enum.take(-1)
+    |> Enum.at(0)
+    |> String.downcase()
   end
 end

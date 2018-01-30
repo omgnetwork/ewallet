@@ -5,6 +5,10 @@ config :ewallet_db, EWalletDB.Repo,
   pool: Ecto.Adapters.SQL.Sandbox,
   url: System.get_env("DATABASE_URL") || "postgres://localhost/ewallet_test"
 
+config :ewallet_db,
+  # Replace this with unified domain name
+  host: System.get_env("UPLOADS_BASE_URL") || "http://example.com"
+
 # Uncomment this line to hide database requests when running tests
 config :logger, level: :warn
 

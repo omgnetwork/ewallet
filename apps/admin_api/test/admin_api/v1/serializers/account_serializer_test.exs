@@ -14,6 +14,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
         name: account.name,
         description: account.description,
         master: account.master,
+        avatar: %{original: nil},
         created_at: Date.to_iso8601(account.inserted_at),
         updated_at: Date.to_iso8601(account.updated_at)
       }
@@ -44,6 +45,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             name: account1.name,
             description: account1.description,
             master: account1.master,
+            avatar: %{original: nil},
             created_at: Date.to_iso8601(account1.inserted_at),
             updated_at: Date.to_iso8601(account1.updated_at)
           },
@@ -54,6 +56,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             name: account2.name,
             description: account2.description,
             master: account2.master,
+            avatar: %{original: nil},
             created_at: Date.to_iso8601(account2.inserted_at),
             updated_at: Date.to_iso8601(account2.updated_at)
           }
