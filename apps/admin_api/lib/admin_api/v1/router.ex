@@ -64,6 +64,10 @@ defmodule AdminAPI.V1.Router do
     post "/login", AuthController, :login
     post "/invite.accept", InviteController, :accept
 
+    # Forget Password endpoints
+    post "/password.reset", ResetPasswordController, :reset
+    post "/password.update", ResetPasswordController, :update
+
     post "/status", StatusController, :index
     post "/status.server_error", StatusController, :server_error
   end
