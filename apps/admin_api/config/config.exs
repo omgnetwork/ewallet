@@ -31,6 +31,10 @@ config :logger, :console,
 config :admin_api, :generators,
   context_app: false
 
+# Configs for emailing
+config :admin_api, :email,
+  sender: "admin@example.com"
+
 # Configs for Bamboo emailing library
 config :admin_api, AdminAPI.Mailer,
   adapter: Bamboo.LocalAdapter
