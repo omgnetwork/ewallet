@@ -1,7 +1,7 @@
 import ErrorHandler from '../../../helpers/errorHandler';
-import { assignMember, unassignMember, listMembers, updateMember, updateAccountInfo } from '../../../omisego/services/setting_api';
-import { getAll } from '../../../omisego/services/admin_api';
+import { assignMember, inviteMember, unassignMember, listMembers, updateMember, updateAccountInfo } from '../../../omisego/services/setting_api';
 import LoadingActions from '../../../actions/loading.actions';
+import { getAll } from '../../../omisego/services/admin_api';
 import SessionActions from '../../../actions/session.actions';
 
 export default class Actions {
@@ -29,6 +29,20 @@ export default class Actions {
           ErrorHandler.handleAPIError(dispatch, err);
         } else {
           onSuccess(result.data);
+        }
+      });
+    };
+  }
+
+  static inviteMember(params, onSuccess) {
+    return (dispatch) => {
+      dispatch(LoadingActions.showLoading());
+      inviteMember(params, (err, result) => { // eslint-disable-line no-unused-vars
+        dispatch(LoadingActions.hideLoading());
+        if (err) {
+          ErrorHandler.handleAPIError(dispatch, err);
+        } else {
+          onSuccess(params);
         }
       });
     };
