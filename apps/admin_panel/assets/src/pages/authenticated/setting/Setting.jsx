@@ -3,7 +3,6 @@ import { withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Button } from 'react-bootstrap';
 import OMGLoadingButton from '../../../components/OMGLoadingButton';
 import AlertActions from '../../../actions/alert.actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';

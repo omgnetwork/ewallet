@@ -24,3 +24,16 @@ export function create(params, callback) {
   };
   return request(requestParams);
 }
+
+export function getUser(params, callback) {
+  const { id } = params;
+  const requestParams = {
+    path: 'user.get',
+    params: JSON.stringify({
+      id,
+    }),
+    authenticated: true,
+    callback,
+  };
+  return request(requestParams);
+}
