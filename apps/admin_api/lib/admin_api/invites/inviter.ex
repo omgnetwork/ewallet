@@ -11,19 +11,21 @@ defmodule AdminAPI.Inviter do
   Creates the user if not exists, then sends the invite email out.
   """
   def invite(email, account, role) do
-    {:ok, invite} =
+    invite =
       email
       |> validate_email()
       |> get_or_create_user()
       |> do_invite()
+      |> send()
 
-    send(invite)
     {:ok, invite}
   catch
-    :user_already_active -> {:error, :user_already_active}
+    error when is_atom(error) -> {:error, error}
   end
 
-  defp validate_email(email), do: EmailValidator.validate(email)
+  defp validate_email(email) do
+    if EmailValidator.valid?(email), do: email, else: throw :invalid_email
+  end
 
   defp get_or_create_user(email) do
     case User.get_by_email(email) do
@@ -47,13 +49,11 @@ defmodule AdminAPI.Inviter do
   end
 
   defp do_invite(user) do
-    Invite.generate(user, preload: :user)
+    {:ok, invite} = Invite.generate(user, preload: :user)
+    invite
   end
 
-  @doc """
-  Sends or resends the user's invite.
-  """
-  def send(invite) do
+  defp send(invite) do
     invite
     |> InviteEmail.create()
     |> Mailer.deliver_now()
