@@ -4,14 +4,14 @@ defmodule AdminAPI.V1.ResetPasswordController do
   alias AdminAPI.{Mailer, ForgetPasswordEmail}
   alias EWalletDB.{User, ForgetPasswordRequest}
 
-  def reset(conn, %{"email" => email, "url" => url}) do
+  def reset(conn, %{"email" => email, "redirect_url" => redirect_url}) do
     case User.get_by_email(email) do
       nil -> handle_error(conn, :user_email_not_found)
       user ->
         user
         |> ForgetPasswordRequest.delete_all()
         |> ForgetPasswordRequest.generate()
-        |> ForgetPasswordEmail.create(url)
+        |> ForgetPasswordEmail.create(redirect_url)
         |> Mailer.deliver_now()
 
         render(conn, :empty, %{success: true})
@@ -32,12 +32,10 @@ defmodule AdminAPI.V1.ResetPasswordController do
     end
   end
 
-  # Respond with a single admin
   defp respond_single({:ok, %User{} = user}, conn) do
     ForgetPasswordRequest.delete_all(user)
     render(conn, :empty, %{success: true})
   end
-  # Responds when the given params were invalid
   defp respond_single({:error, changeset}, conn) do
      handle_error(conn, :invalid_parameter, changeset)
    end
