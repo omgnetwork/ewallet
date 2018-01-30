@@ -49,6 +49,10 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
     },
+    user_account_not_found: %{
+      code: "user:account_not_found",
+      description: "There is no account assigned to the provided user"
+    },
     user_id_not_found: %{
       code: "user:id_not_found",
       description: "There is no user corresponding to the provided id"

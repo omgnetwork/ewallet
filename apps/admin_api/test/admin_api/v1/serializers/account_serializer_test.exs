@@ -71,5 +71,34 @@ defmodule AdminAPI.V1.AccountSerializerTest do
 
       assert AccountSerializer.to_json(paginator) == expected
     end
+
+    test "serializes to nil if account is not given" do
+      assert AccountSerializer.to_json(nil) == nil
+    end
+
+    test "serializes an empty account paginator into a list object" do
+      paginator = %Paginator{
+        data: [],
+        pagination: %{
+          current_page: 1,
+          per_page: 10,
+          is_first_page: true,
+          is_last_page: true
+        }
+      }
+
+      expected = %{
+        object: "list",
+        data: [],
+        pagination: %{
+          current_page: 1,
+          per_page: 10,
+          is_first_page: true,
+          is_last_page: true
+        }
+      }
+
+      assert AccountSerializer.to_json(paginator) == expected
+    end
   end
 end
