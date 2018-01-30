@@ -64,7 +64,7 @@ defmodule EWalletDB.Invite do
   @doc """
   Generates an invite for the given user.
   """
-  def generate(user, opts \\ []) do
+  def generate(user, opts \\ [preload: []]) do
     # Insert a new invite
     {:ok, invite} = insert(%{token: Crypto.generate_key(@token_length)})
 
