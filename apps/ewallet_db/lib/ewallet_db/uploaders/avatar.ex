@@ -4,7 +4,6 @@ defmodule EWalletDB.Uploaders.Avatar do
   """
   use Arc.Definition
   use Arc.Ecto.Definition
-  alias Ecto.UUID
 
   @acl      :public_read
   @versions [:original]
@@ -22,7 +21,7 @@ defmodule EWalletDB.Uploaders.Avatar do
   # end
 
   def filename(version, _) do
-    "#{UUID.generate()}-#{version}"
+    version
   end
 
   # Override the storage directory:
