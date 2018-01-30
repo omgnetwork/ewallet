@@ -9,49 +9,29 @@ import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGLoadingButton from '../../../components/OMGLoadingButton';
 import { OMISEGO_BASE_URL } from '../../../omisego/config';
+import { onInputChange, onSubmit, getEmailValidationState, isFormValid } from './stateFunctions';
 
 class ForgotPasswordForm extends Component {
   constructor(props) {
     super(props);
     this.state = {
       email: '',
-      submitted: false,
-      didModifyEmail: false,
+      submitted: false, //eslint-disable-line
+      didModifyEmail: false, //eslint-disable-line
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  getEmailValidationState() {
-    const { submitted, didModifyEmail } = this.state;
-    return !this.isEmailValid() && (submitted || didModifyEmail) ? 'error' : null;
-  }
-
-  isEmailValid() {
-    const { email } = this.state;
-    return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(email);
-  }
-
-  isFormValid() {
-    return this.isEmailValid();
-  }
-
   handleChange(e) {
-    const { id, value } = e.target;
-    this.setState((prevState) => {
-      let { didModifyEmail } = prevState;
-      didModifyEmail = true;
-      return {
-        [id]: value,
-        didModifyEmail,
-      };
-    });
+    const { target } = e;
+    this.setState(onInputChange(target));
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    this.setState({ submitted: true });
+    this.setState(onSubmit());
     const { email } = this.state;
     const { forgotPassword, onSuccess } = this.props;
     if (email) {
@@ -77,13 +57,13 @@ class ForgotPasswordForm extends Component {
             label={translate('forgot-password.email.label')}
             onChange={this.handleChange}
             type="text"
-            validationState={this.getEmailValidationState()}
+            validationState={getEmailValidationState(this.state)}
             value={email}
           />
           <div>
             <span>
               <OMGLoadingButton
-                disabled={!this.isFormValid()}
+                disabled={!isFormValid(this.state)}
                 loading={loading}
                 type="submit"
               >
