@@ -62,7 +62,10 @@ defmodule AdminAPI.V1.Router do
 
     post "/status", StatusController, :index
     post "/status.server_error", StatusController, :server_error
+  end
 
+  scope "/", AdminAPI.V1 do
+    pipe_through [:api]
     match :*, "/*path", FallbackController, :not_found
   end
 end
