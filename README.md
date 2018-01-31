@@ -105,10 +105,10 @@ mix run apps/ewallet/priv/repo/seeds.exs
 We can now start the application:
 
 ```
-mix phx.server
+mix run --no-halt
 ```
 
-Navigate to  `http://localhost:4000/` in your browser and you should see the following JSON representation popping up:
+Navigate to  `http://localhost:8080/api` in your browser and you should see the following JSON representation popping up:
 
 ```
 {
