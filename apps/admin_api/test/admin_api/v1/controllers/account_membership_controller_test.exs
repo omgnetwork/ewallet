@@ -28,7 +28,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
               "updated_at" => Date.to_iso8601(user.updated_at),
               "account_role" => role.name,
               "status" => to_string(User.get_status(user)),
-              "avatar" => %{"original" => nil}
+              "avatar" => %{"original" => nil, "large" => nil, "small" => nil, "thumb" => nil}
             }]
           }
         }

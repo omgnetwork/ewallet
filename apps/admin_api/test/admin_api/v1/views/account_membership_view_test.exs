@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.AccountMembershipViewTest do
               username: membership1.user.username,
               provider_user_id: membership1.user.provider_user_id,
               email: membership1.user.email,
-              avatar: %{original: nil},
+              avatar: %{original: nil, large: nil, small: nil, thumb: nil},
               account_role: membership1.role.name,
               status: :active,
               metadata: %{
@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.AccountMembershipViewTest do
               username: membership2.user.username,
               provider_user_id: membership2.user.provider_user_id,
               email: membership2.user.email,
-              avatar: %{original: nil},
+              avatar: %{original: nil, large: nil, small: nil, thumb: nil},
               account_role: membership2.role.name,
               status: :active,
               metadata: %{

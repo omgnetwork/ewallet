@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.InviteControllerTest do
         "provider_user_id" => nil,
         "username" => nil,
         "email" => user.email,
-        "avatar" => %{"original" => nil},
+        "avatar" => %{"original" => nil, "large" => nil, "small" => nil, "thumb" => nil},
         "metadata" => %{
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
