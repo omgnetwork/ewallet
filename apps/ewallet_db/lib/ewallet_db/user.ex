@@ -201,6 +201,15 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Retrieves the user's invite if any.
+  """
+  def get_invite(user) do
+    user
+    |> Repo.preload(:invite)
+    |> Map.fetch!(:invite)
+  end
+
+  @doc """
   Checks if the user belongs to any account, regardless of the role.
   """
   # User does not have any membership if it has not been saved yet.

@@ -4,7 +4,7 @@ defmodule AdminAPI.Inviter do
   """
   alias AdminAPI.{InviteEmail, Mailer}
   alias EWallet.EmailValidator
-  alias EWalletDB.{Invite, Membership, User}
+  alias EWalletDB.{Repo, Invite, Membership, User}
   alias EWalletDB.Helpers.Crypto
 
   @doc """
@@ -54,8 +54,12 @@ defmodule AdminAPI.Inviter do
     Invite.generate(user, preload: :user)
   end
 
-  defp send_email(invite, redirect_url) do
+  @doc """
+  Sends the invite email.
+  """
+  def send_email(invite, redirect_url) do
     invite
+    |> Repo.preload(:user)
     |> InviteEmail.create(redirect_url)
     |> Mailer.deliver_now()
   end

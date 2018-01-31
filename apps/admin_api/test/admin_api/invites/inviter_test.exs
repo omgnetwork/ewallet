@@ -2,7 +2,8 @@ defmodule AdminAPI.InviterTest do
   use AdminAPI.ConnCase
   use Bamboo.Test
   alias AdminAPI.{Inviter, InviteEmail}
-  alias EWalletDB.{Invite, Membership}
+  alias EWalletDB.{Invite, Membership, Repo}
+  alias Bamboo.Email
 
   @redirect_url "https://invite_url/?email={email}&token={token}"
 
@@ -61,6 +62,18 @@ defmodule AdminAPI.InviterTest do
 
       assert res   == :error
       assert error == :user_already_active
+    end
+  end
+
+  describe "Inviter.send/3" do
+    test "creates and sends the invite email" do
+      invite = insert(:invite)
+      _user  = insert(:admin, %{invite: invite})
+      email  = Inviter.send_email(invite, @redirect_url)
+      invite = invite |> Repo.preload(:user)
+
+      assert %Email{} = email
+      assert_delivered_email InviteEmail.create(invite, @redirect_url)
     end
   end
 end

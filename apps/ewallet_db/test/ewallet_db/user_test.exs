@@ -1,6 +1,6 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.User
+  alias EWalletDB.{Invite, User}
 
   describe "User factory" do
     test_has_valid_factory User
@@ -148,6 +148,18 @@ defmodule EWalletDB.UserTest do
     test "returns :pending_confirmation if the user has an associated invite" do
       user = insert(:admin, %{invite: insert(:invite)})
       assert User.get_status(user) == :pending_confirmation
+    end
+  end
+
+  describe "get_invite/1" do
+    test "returns the user's invite if exists" do
+      user = insert(:admin, %{invite: insert(:invite)})
+      assert %Invite{} = User.get_invite(user)
+    end
+
+    test "returns nil if the user's invite does not exist" do
+      user = insert(:admin, %{invite: nil})
+      assert User.get_invite(user) == nil
     end
   end
 
