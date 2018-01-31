@@ -18,7 +18,7 @@ defmodule UrlDispatcher.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger],
+      extra_applications: [:logger, :cowboy, :plug, :admin_api, :ewallet_api],
       mod: {UrlDispatcher.Application, []}
     ]
   end
@@ -26,7 +26,10 @@ defmodule UrlDispatcher.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:reverse_proxy, "~> 0.3.0"}
+      {:plug, "~> 1.2"},
+      {:cowboy, "~> 1.0"},
+      {:admin_api, in_umbrella: true},
+      {:ewallet_api, in_umbrella: true}
     ]
   end
 end
