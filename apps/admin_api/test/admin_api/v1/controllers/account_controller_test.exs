@@ -136,13 +136,13 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "account"
       assert response["data"]["avatar"]["large"] =~
-             "http://example.com/public/uploads/test/account/avatars/#{account.id}/large.jpg?v="
+             "http://example.com/public/uploads/test/account/avatars/#{account.id}/large.png?v="
       assert response["data"]["avatar"]["original"] =~
              "http://example.com/public/uploads/test/account/avatars/#{account.id}/original.jpg?v="
       assert response["data"]["avatar"]["small"] =~
-             "http://example.com/public/uploads/test/account/avatars/#{account.id}/small.jpg?v="
+             "http://example.com/public/uploads/test/account/avatars/#{account.id}/small.png?v="
       assert response["data"]["avatar"]["thumb"] =~
-             "http://example.com/public/uploads/test/account/avatars/#{account.id}/thumb.jpg?v="
+             "http://example.com/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
     end
 
     test "returns 'account:id_not_found' if the given ID was not found" do

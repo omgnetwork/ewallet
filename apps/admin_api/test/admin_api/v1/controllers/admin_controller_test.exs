@@ -111,13 +111,13 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["data"]["object"] == "user"
       assert response["data"]["email"] == admin.email
       assert response["data"]["avatar"]["large"] =~
-             "http://example.com/public/uploads/test/user/avatars/#{uuid}/large.jpg?v="
+             "http://example.com/public/uploads/test/user/avatars/#{uuid}/large.png?v="
       assert response["data"]["avatar"]["original"] =~
              "http://example.com/public/uploads/test/user/avatars/#{uuid}/original.jpg?v="
       assert response["data"]["avatar"]["small"] =~
-             "http://example.com/public/uploads/test/user/avatars/#{uuid}/small.jpg?v="
+             "http://example.com/public/uploads/test/user/avatars/#{uuid}/small.png?v="
       assert response["data"]["avatar"]["thumb"] =~
-             "http://example.com/public/uploads/test/user/avatars/#{uuid}/thumb.jpg?v="
+             "http://example.com/public/uploads/test/user/avatars/#{uuid}/thumb.png?v="
     end
 
     test "returns 'user:id_not_found' if the given ID is not an admin" do

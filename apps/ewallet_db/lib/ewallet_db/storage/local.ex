@@ -9,7 +9,13 @@ defmodule EWallet.Storage.Local do
 
   def put(definition, version, {file, scope}) do
     destination_dir = definition.storage_dir(version, {file, scope})
-    path = Path.join(destination_dir, file.file_name)
+
+    path = Path.join([
+      Application.get_env(:ewallet, :root),
+      destination_dir,
+      file.file_name
+    ])
+
     path |> Path.dirname() |> File.mkdir_p!()
 
     if binary = file.binary do
