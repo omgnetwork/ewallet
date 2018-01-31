@@ -4,7 +4,7 @@ defmodule AdminAPI.Inviter do
   """
   alias AdminAPI.{InviteEmail, Mailer}
   alias EWallet.EmailValidator
-  alias EWalletDB.{Invite, User}
+  alias EWalletDB.{Invite, Membership, User}
   alias EWalletDB.Helpers.Crypto
 
   @doc """
@@ -16,6 +16,8 @@ defmodule AdminAPI.Inviter do
       |> validate_email()
       |> get_or_create_user()
       |> do_invite()
+
+    {:ok, _membership} = Membership.assign(invite.user, account, role)
 
     send(invite)
     {:ok, invite}

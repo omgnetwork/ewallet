@@ -2,7 +2,7 @@ defmodule AdminAPI.InviterTest do
   use AdminAPI.ConnCase
   use Bamboo.Test
   alias AdminAPI.Inviter
-  alias EWalletDB.Invite
+  alias EWalletDB.{Invite, Membership}
 
   describe "Inviter.invite/3" do
     test "sends email and returns the invite if successful" do
@@ -25,6 +25,18 @@ defmodule AdminAPI.InviterTest do
 
       assert_delivered_email AdminAPI.InviteEmail.create(invite1)
       assert_delivered_email AdminAPI.InviteEmail.create(invite2)
+    end
+
+    test "assigns the user to account and role" do
+      account = insert(:account)
+      role    = insert(:role)
+
+      {:ok, invite} = Inviter.invite("test@example.com", account, role)
+      memberships   = Membership.all_by_user(invite.user)
+
+      assert Enum.any?(memberships, fn(m) ->
+        m.account_id == account.id && m.role_id == role.id
+      end)
     end
 
     test "returns :invalid_email error if email is invalid" do
