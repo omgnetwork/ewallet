@@ -1,10 +1,6 @@
-import Enzyme from 'enzyme';
-import Adapter from 'enzyme-adapter-react-16';
 import SignIn from '../SignIn';
 import { validEmail, validPassword, invalidEmail, invalidPassword, validParams } from './stubs';
 import { ShallowComponentTester } from '../../../../../__tests__/ComponentTester';
-
-Enzyme.configure({ adapter: new Adapter() });
 
 describe('SignIn', () => {
   test('handleChange changes the state', () => {

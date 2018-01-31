@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import OMGCircleButton from './OMGCircleButton';
-import Placeholder from '../../public/images/user_icon_placeholder.png';
+import placeholder from '../../public/images/user_icon_placeholder.png';
 
 const defaultProps = {
-  img: Placeholder,
+  img: placeholder,
   containerClass: 'omg_photo_uploader',
   imgClass: 'omg_photo_uploader__img',
   showUploadBtn: true,
@@ -66,7 +66,7 @@ class OMGPhotoPreviewer extends Component {
     this.setState(
       {
         file: null,
-        img: Placeholder,
+        img: placeholder,
         showUploadBtn: true,
         showCloseBtn: false,
       },

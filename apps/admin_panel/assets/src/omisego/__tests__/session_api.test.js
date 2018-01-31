@@ -1,15 +1,15 @@
 import fetchMock from 'fetch-mock';
 
-import { login, forgotPassword } from '../services/session_api';
+import { login, resetPassword } from '../services/session_api';
 import {
   loginValidParams,
   loginInvalidParams,
-  forgotPasswordValidParams,
-  forgotPasswordInvalidParams,
+  resetPasswordValidParams,
+  resetPasswordInvalidParams,
 } from './stubs/params.stubs';
 import {
   loginStub,
-  forgotPasswordStub,
+  resetPasswordStub,
 } from './stubs/stubs';
 
 describe('login api', () => {
@@ -37,25 +37,25 @@ describe('login api', () => {
   });
 });
 
-describe('forgot password api', () => {
+describe('reset password api', () => {
   afterEach(() => {
     fetchMock.reset();
     fetchMock.restore();
   });
 
   test('callback success with valid params', () => {
-    const mock = forgotPasswordStub(forgotPasswordValidParams);
+    const mock = resetPasswordStub(resetPasswordValidParams);
     fetchMock.postOnce(mock.url, mock.response);
-    forgotPassword(forgotPasswordValidParams, (error, result) => {
+    resetPassword(resetPasswordValidParams, (error, result) => {
       expect(error).toBeNull();
       expect(result).toEqual(mock.response.data);
     });
   });
 
   test('callback error with invalid params', () => {
-    const mock = forgotPasswordStub(forgotPasswordInvalidParams);
+    const mock = resetPasswordStub(resetPasswordInvalidParams);
     fetchMock.postOnce(mock.url, mock.response);
-    forgotPassword(forgotPasswordInvalidParams, (error, result) => {
+    resetPassword(resetPasswordInvalidParams, (error, result) => {
       expect(result).toBeNull();
       expect(error).toEqual(mock.response.data);
     });

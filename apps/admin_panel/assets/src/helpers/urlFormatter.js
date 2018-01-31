@@ -17,3 +17,12 @@ export function processURL(location) {
 export function accountURL(session, path) {
   return `/a/${session.currentAccount.id}${path}`;
 }
+
+export function formatEmailLink(struct) {
+  /* This will generate something like `email={email}&token={token}&` */
+  let params = Object.keys(struct.params)
+    .reduce((previousValue, currentValue) => `${previousValue}${currentValue}={${currentValue}}&`, '');
+  // Remove last '&'
+  params = params.substr(0, params.length - 1);
+  return `${window.location.origin}/${struct.pathname}?${params}`;
+}

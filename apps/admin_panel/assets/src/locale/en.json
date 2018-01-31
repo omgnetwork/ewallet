@@ -35,10 +35,10 @@
       "help": "Password should be at least 8 characters long"
     },
     "or": "or",
-    "forgot_password": "Forgot your password?"
+    "reset_password": "Forgot your password?"
   },
-  "forgot-password": {
-    "forgot_password": "Forgot your password?",
+  "reset-password": {
+    "reset_password": "Forgot your password?",
     "enter_your_email": "Enter your email address to reset your password.",
     "email": {
       "label": "Email",
@@ -48,12 +48,12 @@
     "or": "or",
     "sign_in": "Sign in"
   },
-  "forgot-password-success": {
-    "reset_password_complete": "You will get a password reset email shortly",
+  "reset-password-success": {
+    "update_password_complete": "You will get a password reset email shortly",
     "please_check_your_email": "Please check your email.",
     "back_to_sign_in": "Back to sign in"
   },
-  "reset-password": {
+  "update-password": {
     "reset_your_password": "Reset your password",
     "email": "Email",
     "password": {
@@ -64,11 +64,11 @@
       "help": "Password and password confirmation don't match",
       "label": "Confirm Password"
     },
-    "reset_password": "Reset password",
+    "update_password": "Reset password",
     "cancel": "Cancel"
   },
-  "reset-password-success": {
-    "reset_password_complete": "Reset your password completed",
+  "update-password-success": {
+    "update_password_complete": "Reset your password completed",
     "back_to_sign_in": "Back to sign in"
   },
   "public-footer": {
@@ -318,7 +318,7 @@
       "notification": {
         "success": {
           "update_account": "Successfully updated ${ name }",
-          "resend_invitation": "Send an invitation to ${ email } successfully."
+          "resend_invitation": "Sent an invitation to ${ email } successfully."
         }
       }
     }
