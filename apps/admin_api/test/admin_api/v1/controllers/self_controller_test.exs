@@ -28,7 +28,10 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "description" => account.description,
             "master" => account.master,
             "avatar" => %{
-              "original" => nil
+              "original" => nil,
+              "large" => nil,
+              "small" => nil,
+              "thumb" => nil
             },
             "created_at" => Date.to_iso8601(account.inserted_at),
             "updated_at" => Date.to_iso8601(account.updated_at)
@@ -70,7 +73,10 @@ defmodule AdminAPI.V1.SelfControllerTest do
               "description" => account.description,
               "master" => account.master,
               "avatar" => %{
-                "original" => nil
+                "original" => nil,
+                "large" => nil,
+                "small" => nil,
+                "thumb" => nil
               },
               "created_at" => Date.to_iso8601(account.inserted_at),
               "updated_at" => Date.to_iso8601(account.updated_at)
