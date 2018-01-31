@@ -2,12 +2,12 @@ import buildURL from '../../helpers/urlHelper';
 import {
   serverErrorResponse,
   loginSuccessResponse,
-  forgotPasswordSuccessResponse,
+  resetPasswordSuccessResponse,
 } from './responses.stubs';
 
 import {
   loginValidParams,
-  forgotPasswordValidParams,
+  resetPasswordValidParams,
 } from './params.stubs';
 
 function formatStub(path, response) {
@@ -22,10 +22,10 @@ export function loginStub(params) {
   );
 }
 
-export function forgotPasswordStub(params) {
+export function resetPasswordStub(params) {
   return (
-    JSON.stringify(params) === JSON.stringify(forgotPasswordValidParams)
-      ? formatStub('forgot_password', forgotPasswordSuccessResponse)
-      : formatStub('forgot_password', serverErrorResponse)
+    JSON.stringify(params) === JSON.stringify(resetPasswordValidParams)
+      ? formatStub('password.reset', resetPasswordSuccessResponse)
+      : formatStub('password.reset', serverErrorResponse)
   );
 }

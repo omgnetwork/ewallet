@@ -5,11 +5,14 @@ import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
-const ForgotPasswordSuccess = ({ successText, translate, history }) => (
+const ResetPasswordSuccess = ({ translate, history }) => (
   <div className="omg-form">
     <h2 className="omg-form__title">
-      {successText}
+      {translate('reset-password-success.update_password_complete')}
     </h2>
+    <h3 className="omg-form__subtitle">
+      {translate('reset-password-success.please_check_your_email')}
+    </h3>
     <Button
       bsClass="btn btn-omg-blue"
       bsStyle="primary"
@@ -21,9 +24,8 @@ const ForgotPasswordSuccess = ({ successText, translate, history }) => (
 );
 
 
-ForgotPasswordSuccess.propTypes = {
+ResetPasswordSuccess.propTypes = {
   history: PropTypes.object.isRequired,
-  successText: PropTypes.string.isRequired,
   translate: PropTypes.func.isRequired,
 };
 
@@ -34,4 +36,4 @@ function mapStateToProps(state) {
   };
 }
 
-export default withRouter(connect(mapStateToProps)(ForgotPasswordSuccess));
+export default withRouter(connect(mapStateToProps)(ResetPasswordSuccess));

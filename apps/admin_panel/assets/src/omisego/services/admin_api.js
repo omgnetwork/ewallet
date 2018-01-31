@@ -34,3 +34,18 @@ export function uploadAvatar(params, callback) {
 
   return request(requestParams);
 }
+
+export function createAdmin(params, callback) {
+  const {
+    resetToken, password, passwordConfirmation, email,
+  } = params;
+  const requestParams = {
+    path: 'invite.accept',
+    params: JSON.stringify({
+      email, token: resetToken, password, password_confirmation: passwordConfirmation,
+    }),
+    authenticated: false,
+    callback,
+  };
+  return request(requestParams);
+}

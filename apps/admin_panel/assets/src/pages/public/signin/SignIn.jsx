@@ -89,9 +89,9 @@ class SignIn extends Component {
                 bsStyle="link"
                 className="link-omg-blue"
                 disabled={loading}
-                onClick={() => { history.push('/forgot_password'); }}
+                onClick={() => { history.push('/reset_password'); }}
               >
-                {translate('sign-in.forgot_password')}
+                {translate('sign-in.reset_password')}
               </Button>
             </span>
           </div>

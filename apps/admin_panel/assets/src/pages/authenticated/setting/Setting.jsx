@@ -11,6 +11,16 @@ import OMGAddMemberForm from '../../../components/OMGAddMemberForm';
 import OMGMemberItem from '../../../components/OMGMemberItem';
 import PlaceHolder from '../../../../public/images/user_icon_placeholder.png';
 import Actions from './actions';
+import { formatEmailLink } from '../../../helpers/urlFormatter';
+
+// When we need to customize the invitation params (add, rename, remove), we can config it here.
+export const INVITATION = {
+  params: {
+    email: 'email',
+    token: 'token',
+  },
+  pathname: 'accept_invitation',
+};
 
 class Setting extends Component {
   constructor(props) {
@@ -80,6 +90,7 @@ class Setting extends Component {
             email: targetMember.email,
             accountId: currentAccount.id,
             roleName: targetMember.accountRole.toLowerCase(),
+            url: formatEmailLink(INVITATION),
           }, () => {
             this.handleResendInvitationSuccess(targetMember);
             this.reloadMembers();
@@ -89,6 +100,7 @@ class Setting extends Component {
             accountId: currentAccount.id,
             userId: targetMember.id,
             roleName: targetMember.accountRole.toLowerCase(),
+            url: formatEmailLink(INVITATION),
           }, this.reloadMembers);
         }
         this.setState(prevState => ({
@@ -103,6 +115,7 @@ class Setting extends Component {
           accountId: currentAccount.id,
           userId: updatingMember.id,
           roleName: targetMember.accountRole.toLowerCase(),
+          url: formatEmailLink(INVITATION),
         }, this.reloadMembers);
         this.setState(prevState => ({
           loading: {
@@ -212,6 +225,7 @@ class Setting extends Component {
       email: targetMember.email,
       accountId: currentAccount.id,
       roleName: targetMember.accountRole.toLowerCase(),
+      url: formatEmailLink(INVITATION),
     }, this.handleResendInvitationSuccess);
   }
 
@@ -364,8 +378,8 @@ function mapDispatchToProps(dispatch) {
     assignMember: (member, onSuccess) => {
       dispatch(Actions.assignMember(member, onSuccess));
     },
-    inviteMember: (member, onSuccess) => {
-      dispatch(Actions.inviteMember(member, onSuccess));
+    inviteMember: (params, onSuccess) => {
+      dispatch(Actions.inviteMember(params, onSuccess));
     },
     listMemberInAccount: (params, onSuccess) => {
       dispatch(Actions.listMembers(params, onSuccess));

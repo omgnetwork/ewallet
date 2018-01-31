@@ -1,9 +1,8 @@
 import renderer from 'react-test-renderer';
-import ForgotPasswordSuccess from '../ForgotPasswordSuccess';
+import ResetPassword from '../ResetPassword';
 import { SnapshotComponentTester } from '../../../../../__tests__/ComponentTester';
 
 it('renders correctly', () => {
-  const tree =
-  renderer.create(SnapshotComponentTester(ForgotPasswordSuccess)).toJSON();
+  const tree = renderer.create(SnapshotComponentTester(ResetPassword, {})).toJSON();
   expect(tree).toMatchSnapshot();
 });

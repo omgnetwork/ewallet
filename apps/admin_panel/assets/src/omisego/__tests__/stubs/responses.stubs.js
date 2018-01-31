@@ -25,4 +25,4 @@ export const loginSuccessResponse = successBody({
   user_id: '12345678-1234-1234-1234-123456789012',
 });
 
-export const forgotPasswordSuccessResponse = successBody({});
+export const resetPasswordSuccessResponse = successBody({});

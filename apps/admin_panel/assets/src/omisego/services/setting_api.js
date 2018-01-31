@@ -1,14 +1,4 @@
 import request from './api_service';
-import { OMISEGO_BASE_URL } from '../config';
-
-// When we need to customize the invitation params (add, rename, remove), we can config it here.
-export const invitationConst = {
-  params: {
-    email: 'email',
-    token: 'token',
-  },
-  pathname: 'invitation_accept',
-};
 
 export function updateAccountInfo(params, callback) {
   const {
@@ -29,10 +19,16 @@ export function updateAccountInfo(params, callback) {
 }
 
 export function assignMember(params, callback) {
-  const { userId, accountId, roleName } = params;
+  const {
+    userId,
+    accountId,
+    roleName,
+    url,
+  } = params;
   const requestParams = {
     path: 'account.assign_user',
     params: JSON.stringify({
+      redirect_url: url,
       user_id: userId,
       account_id: accountId,
       role_name: roleName,
@@ -44,20 +40,18 @@ export function assignMember(params, callback) {
 }
 
 export function inviteMember(params, callback) {
-  const { email, accountId, roleName } = params;
-
-  /* This will generate something like `email={email}&token={token}&` */
-  let inviteParams = Object.keys(invitationConst.params)
-    .reduce((previousValue, currentValue) => `${previousValue}${currentValue}={${currentValue}}&`, '');
-
-  // Remove last '&'
-  inviteParams = inviteParams.substr(0, inviteParams.length - 1);
+  const {
+    email,
+    accountId,
+    roleName,
+    url,
+  } = params;
 
   const requestParams = {
     path: 'account.assign_user',
     params: JSON.stringify({
       email,
-      base_url: `${OMISEGO_BASE_URL}${invitationConst.pathname}?${inviteParams}`,
+      redirect_url: url,
       account_id: accountId,
       role_name: roleName,
     }),

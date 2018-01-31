@@ -22,7 +22,7 @@ const OMGMemberItem = ({
       </div>
       <div className="col-xs-10">
         <div className="row omg-member-item__title">
-          {member.username || 'Null'}
+          {member.email}
           {pendingUI}
           <Link
             className="omg-member-item__edit link-omg-blue"

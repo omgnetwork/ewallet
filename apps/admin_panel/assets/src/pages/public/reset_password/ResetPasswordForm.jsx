@@ -8,141 +8,85 @@ import { withRouter } from 'react-router-dom';
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGLoadingButton from '../../../components/OMGLoadingButton';
+import { onInputChange, onSubmit, getEmailValidationState, isFormValid } from './stateFunctions';
+import { formatEmailLink } from '../../../helpers/urlFormatter';
+
+export const UPDATE_PASSWORD = {
+  params: {
+    email: 'email',
+    token: 'token',
+  },
+  pathname: 'update_password',
+};
 
 class ResetPasswordForm extends Component {
   constructor(props) {
     super(props);
-    const { history, isReset } = props;
-    const { email, resetToken } = isReset
-      ? Actions.processURLResetPWParams(history.location)
-      : Actions.processURLInvitationParams(history.location);
-    if (!(email && resetToken)) {
-      history.push('/signin');
-    }
     this.state = {
-      email,
-      password: '',
-      passwordConfirmation: '',
-      resetToken,
-      submitted: false,
-      didModifyPassword: false,
-      didModifyPasswordConfimation: false,
+      email: '',
+      submitted: false, //eslint-disable-line
+      didModifyEmail: false, //eslint-disable-line
     };
 
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
   }
 
-  getPasswordValidationState() {
-    const { submitted, didModifyPassword } = this.state;
-    return !this.isPasswordValid() && (submitted || didModifyPassword) ? 'error' : null;
-  }
-
-  getPasswordConfirmationValidationState() {
-    const { didModifyPasswordConfimation } = this.state;
-    return !this.isPasswordConfirmationValid() && didModifyPasswordConfimation ? 'error' : null;
-  }
-
-  isPasswordValid() {
-    const { password } = this.state;
-    return password.length >= 8;
-  }
-
-  isPasswordConfirmationValid() {
-    const { password, passwordConfirmation } = this.state;
-    return password === passwordConfirmation;
-  }
-
-  isFormValid() {
-    return this.isPasswordValid() && this.isPasswordConfirmationValid();
-  }
-
   handleChange(e) {
-    const { id, value } = e.target;
-    this.setState((prevState) => {
-      let { didModifyPassword, didModifyPasswordConfimation } = prevState;
-      if (id === 'password') {
-        didModifyPassword = true;
-      } else if (id === 'passwordConfirmation') {
-        didModifyPasswordConfimation = true;
-      }
-      return {
-        [id]: value,
-        didModifyPassword,
-        didModifyPasswordConfimation,
-      };
-    });
+    const { target } = e;
+    this.setState(onInputChange(target));
   }
 
   handleSubmit(e) {
     e.preventDefault();
-    this.setState({ submitted: true });
-    const { password, resetToken, email } = this.state;
-    const {
-      createNewAdmin, resetPassword, onSuccess, isReset,
-    } = this.props;
-    if (password && resetToken && email) {
-      if (isReset) {
-        resetPassword({ password, resetToken, email }, onSuccess);
-      } else {
-        createNewAdmin({
-          email, password, token: resetToken, passwordConfirm: password,
-        }, onSuccess);
-      }
+    this.setState(onSubmit());
+    const { email } = this.state;
+    const { resetPassword, onSuccess } = this.props;
+    if (email) {
+      resetPassword({ email, url: formatEmailLink(UPDATE_PASSWORD) }, onSuccess);
     }
   }
 
   render() {
-    const {
-      loading, translate, history, submitText, title,
-    } = this.props;
-    const { password, passwordConfirmation, email } = this.state;
+    const { loading, translate, history } = this.props;
+    const { email } = this.state;
     return (
       <div className="omg-form">
         <h2 className="omg-form__title">
-          {title}
+          {translate('reset-password.reset_password')}
         </h2>
         <h3 className="omg-form__subtitle">
-          {translate('reset-password.email')}
-        </h3>
-        <h3 className="omg-form__subtitle">
-          {email}
+          {translate('reset-password.enter_your_email')}
         </h3>
         <form autoComplete="off" onSubmit={this.handleSubmit}>
           <OMGFieldGroup
-            help={translate('reset-password.password.help')}
-            id="password"
-            label={translate('reset-password.password.label')}
+            help={translate('reset-password.email.help')}
+            id="email"
+            label={translate('reset-password.email.label')}
             onChange={this.handleChange}
-            type="password"
-            validationState={this.getPasswordValidationState()}
-            value={password}
-          />
-          <OMGFieldGroup
-            help={translate('reset-password.password_confirmation.help')}
-            id="passwordConfirmation"
-            label={translate('reset-password.password_confirmation.label')}
-            onChange={this.handleChange}
-            type="password"
-            validationState={this.getPasswordConfirmationValidationState()}
-            value={passwordConfirmation}
+            type="text"
+            validationState={getEmailValidationState(this.state)}
+            value={email}
           />
           <div>
             <span>
               <OMGLoadingButton
-                disabled={!this.isFormValid()}
+                disabled={!isFormValid(this.state)}
                 loading={loading}
                 type="submit"
               >
-                {submitText}
+                {translate('reset-password.reset_your_password')}
               </OMGLoadingButton>
+              <span className="ml-1">
+                {translate('reset-password.or')}
+              </span>
               <Button
                 bsStyle="link"
                 className="link-omg-blue"
                 disabled={loading}
                 onClick={() => { history.push('/signin'); }}
               >
-                {translate('reset-password.cancel')}
+                {translate('reset-password.sign_in')}
               </Button>
             </span>
           </div>
@@ -153,36 +97,25 @@ class ResetPasswordForm extends Component {
 }
 
 ResetPasswordForm.propTypes = {
-  createNewAdmin: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  isReset: PropTypes.bool,
   loading: PropTypes.bool.isRequired,
   onSuccess: PropTypes.func.isRequired,
   resetPassword: PropTypes.func.isRequired,
-  submitText: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
   translate: PropTypes.func.isRequired,
-};
-
-ResetPasswordForm.defaultProps = {
-  isReset: false,
 };
 
 function mapStateToProps(state) {
   const { loading } = state.global;
   const translate = getTranslate(state.locale);
-  const isReset = state.router.location.pathname === '/reset_password';
   return {
     loading,
     translate,
-    isReset,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return {
     resetPassword: (params, onSuccess) => dispatch(Actions.resetPassword(params, onSuccess)),
-    createNewAdmin: (params, onSuccess) => dispatch(Actions.createNewAdmin(params, onSuccess)),
   };
 }
 
