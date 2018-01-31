@@ -1235,14 +1235,18 @@ components:
                     format: uuid
                   role_name:
                     type: string
+                  redirect_url:
+                    type: string
                 required:
                   - user_id
                   - account_id
                   - role_name
+                  - redirect_url
                 example:
                   user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
                   account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                   role_name: "admin"
+                  redirect_url: "https://domain/redirect_path?email={email}&token={token}"
               - properties:
                   email:
                     type: string
@@ -1255,14 +1259,17 @@ components:
                   - email
                   - account_id
                   - role_name
+                  - redirect_url
                 example:
                   email: "user@example.com"
                   account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                   role_name: "admin"
+                  redirect_url: "https://domain/redirect_path?email={email}&token={token}"
             example:
               account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
               role_name: "admin"
+              redirect_url: "https://domain/redirect_path?email={email}&token={token}"
     # Request body for updating an account
     AccountUnassignUserBody:
       description: The parameters to use for unassigning a user from an account
