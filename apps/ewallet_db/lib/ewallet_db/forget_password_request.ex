@@ -4,7 +4,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias Ecto.{Multi, UUID}
+  alias Ecto.UUID
   alias EWalletDB.{Repo, ForgetPasswordRequest, User}
   alias EWalletDB.Helpers.Crypto
 
@@ -27,10 +27,21 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Retrieves a specific invite by its token.
   """
-  def get(token) do
-    ForgetPasswordRequest
-    |> Repo.get_by(token: token)
-    |> Repo.preload(:user)
+  def get(user, token) do
+    request =
+      ForgetPasswordRequest
+      |> where([c], c.user_id == ^user.id)
+      |> order_by([c], desc: c.inserted_at)
+      |> limit(1)
+      |> Repo.one()
+      |> Repo.preload(:user)
+
+    check_token(request, token)
+  end
+
+  defp check_token(nil, _token), do: nil
+  defp check_token(request, token) do
+    if Crypto.secure_compare(request.token, token), do: request, else: nil
   end
 
   @doc """
@@ -50,10 +61,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   def generate(user) do
     token = Crypto.generate_key(@token_length)
     {:ok, _} = insert(%{token: token, user_id: user.id})
-
-    token
-    |> ForgetPasswordRequest.get()
-    |> Repo.preload(:user)
+    ForgetPasswordRequest.get(user, token)
   end
 
   defp insert(attrs) do
