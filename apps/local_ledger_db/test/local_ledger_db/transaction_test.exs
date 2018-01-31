@@ -52,6 +52,18 @@ defmodule LocalLedgerDB.TransactionTest do
     {token, balance}
   end
 
+  defp transfer(balance, token, amount, type) do
+    {:ok, entry} = :entry |> build |> Repo.insert
+
+    attrs = %{
+      amount: amount, type: Transaction.credit_type, entry_id: entry.id,
+      balance_address: balance.address, minted_token_friendly_id: token.friendly_id
+    }
+
+    insert_transaction(%{attrs | amount: amount, type: type},
+                       :empty_transaction)
+  end
+
   describe "initialization" do
     test "generates a UUID in place of a regular ID" do
       transaction = insert_valid_transaction()
@@ -65,18 +77,6 @@ defmodule LocalLedgerDB.TransactionTest do
       assert transaction.inserted_at != nil
       assert transaction.updated_at != nil
     end
-  end
-
-  defp transfer(balance, token, amount, type) do
-    {:ok, entry} = :entry |> build |> Repo.insert
-
-    attrs = %{
-      amount: amount, type: Transaction.credit_type, entry_id: entry.id,
-      balance_address: balance.address, minted_token_friendly_id: token.friendly_id
-    }
-
-    insert_transaction(%{attrs | amount: amount, type: type},
-                       :empty_transaction)
   end
 
   describe "validations" do
@@ -148,7 +148,7 @@ defmodule LocalLedgerDB.TransactionTest do
     end
   end
 
-  describe "#check_balance" do
+  describe "check_balance/1" do
     test "returns :ok if the balance has enough funds" do
       {token, balance} = insert_transactions_with_amounts(200, 100)
       res = Transaction.check_balance(%{amount: 80,
@@ -185,14 +185,14 @@ defmodule LocalLedgerDB.TransactionTest do
       transfer(balance, btc, 200, Transaction.credit_type)
 
       balances = Transaction.calculate_all_balances(balance.address)
-      assert balances == %{"BTC:209d3f5b-eab4-4906-9697-c482009fc865" => 300, "KNC:310-d3f5b-eab4-4906-9697-c482009fc865" => 100, "OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 700}
+      assert balances == %{
+        "BTC:209d3f5b-eab4-4906-9697-c482009fc865" => 300,
+        "KNC:310-d3f5b-eab4-4906-9697-c482009fc865" => 100,
+        "OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 700}
     end
-  end
 
-  describe "calculate_all_balances/3" do
     test "returns the correct balance for the specified token" do
       {:ok, balance} = :balance |> build |> Repo.insert
-
       {:ok, omg} = :minted_token |> build(friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865") |> Repo.insert
       {:ok, knc} = :minted_token |> build(friendly_id: "KNC:310-d3f5b-eab4-4906-9697-c482009fc865") |> Repo.insert
 
@@ -201,8 +201,75 @@ defmodule LocalLedgerDB.TransactionTest do
       transfer(balance, omg, 500, Transaction.credit_type)
       transfer(balance, knc, 100, Transaction.credit_type)
 
-      balances = Transaction.calculate_all_balances(balance.address, "OMG:209d3f5b-eab4-4906-9697-c482009fc865")
-      assert balances == %{"OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 700}
+      balances = Transaction.calculate_all_balances(balance.address, %{
+        friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865"
+      })
+      assert balances == %{"OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 300 + 500 - 100}
+    end
+
+    test "calculates all balances since specified date" do
+      {:ok, balance} = :balance |> build |> Repo.insert
+      {:ok, omg} = :minted_token |> build(friendly_id: "OMG:123") |> Repo.insert
+      {:ok, knc} = :minted_token |> build(friendly_id: "KNC:456") |> Repo.insert
+
+      transfer(balance, omg, 100, Transaction.debit_type)
+      transfer(balance, omg, 300, Transaction.credit_type)
+      transfer(balance, omg, 500, Transaction.credit_type)
+      transfer(balance, knc, 100, Transaction.credit_type)
+
+      transactions = Repo.all(Transaction)
+      transaction = Enum.at(transactions, 1)
+
+      all_balances = Transaction.calculate_all_balances(balance.address)
+      balances = Transaction.calculate_all_balances(balance.address, %{
+        since: transaction.inserted_at
+      })
+      assert all_balances == %{"KNC:456" => 100, "OMG:123" => 300 + 500 - 100}
+      assert balances == %{"KNC:456" => 100, "OMG:123" => 500}
+    end
+
+    test "calculates all balances up to the specified date" do
+      {:ok, balance} = :balance |> build |> Repo.insert
+      {:ok, omg} = :minted_token |> build(friendly_id: "OMG:123") |> Repo.insert
+      {:ok, knc} = :minted_token |> build(friendly_id: "KNC:456") |> Repo.insert
+
+      transfer(balance, omg, 100, Transaction.debit_type)
+      transfer(balance, omg, 300, Transaction.credit_type)
+      transfer(balance, omg, 500, Transaction.credit_type)
+      transfer(balance, knc, 100, Transaction.credit_type)
+
+      transactions = Repo.all(Transaction)
+      transaction = Enum.at(transactions, 1)
+
+      all_balances = Transaction.calculate_all_balances(balance.address)
+      balances = Transaction.calculate_all_balances(balance.address, %{
+        upto: transaction.inserted_at
+      })
+      assert all_balances == %{"KNC:456" => 100, "OMG:123" => 300 + 500 - 100}
+      assert balances == %{"OMG:123" => 300 - 100}
+    end
+
+    test "calculates all balances between the specified 'since' date and 'upto' date" do
+      {:ok, balance} = :balance |> build |> Repo.insert
+      {:ok, omg} = :minted_token |> build(friendly_id: "OMG:123") |> Repo.insert
+
+      transfer(balance, omg, 300, Transaction.credit_type)
+      transfer(balance, omg, 500, Transaction.credit_type)
+      transfer(balance, omg, 100, Transaction.credit_type)
+      transfer(balance, omg, 1200, Transaction.credit_type)
+      transfer(balance, omg, 250, Transaction.credit_type)
+
+      transactions = Repo.all(Transaction)
+      transaction_1 = Enum.at(transactions, 1)
+      transaction_2 = Enum.at(transactions, 3)
+
+      all_balances = Transaction.calculate_all_balances(balance.address)
+      balances = Transaction.calculate_all_balances(balance.address, %{
+        since: transaction_1.inserted_at,
+        upto: transaction_2.inserted_at
+      })
+      assert all_balances == %{"OMG:123" => 300 + 500 + 100 + 1200 + 250}
+      assert balances == %{"OMG:123" => 100 + 1200}
     end
   end
 

@@ -6,6 +6,7 @@ defmodule LocalLedgerDB.Balance do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias LocalLedgerDB.{Repo, Balance, Transaction}
+  alias LocalLedger.{EctoBatchStream}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
@@ -26,6 +27,15 @@ defmodule LocalLedgerDB.Balance do
     |> validate_required([:address])
     |> unique_constraint(:address)
     |> put_change(:encryption_version, Cloak.version)
+  end
+
+  @doc """
+  Batch load balances and run the callback for each balance.
+  """
+  def stream_all(callback) do
+    Repo
+    |> EctoBatchStream.stream(Balance)
+    |> Enum.each(callback)
   end
 
   @doc """
