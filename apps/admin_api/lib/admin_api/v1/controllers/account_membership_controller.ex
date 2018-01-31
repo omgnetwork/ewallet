@@ -21,12 +21,13 @@ defmodule AdminAPI.V1.AccountMembershipController do
   """
   def assign_user(conn, %{
     "account_id" => account_id,
-    "role_name" => role_name
+    "role_name" => role_name,
+    "redirect_url" => redirect_url
   } = attrs) do
     with user when not is_atom(user) <- get_user_or_email(attrs) || :user_id_not_found,
          %Account{} = account <- Account.get(account_id) || :account_id_not_found,
          %Role{} = role <- Role.get_by_name(role_name) || :role_name_not_found,
-         {:ok, _} <- assign_or_invite(user, account, role) do
+         {:ok, _} <- assign_or_invite(user, account, role, redirect_url) do
       render(conn, :empty, %{success: true})
     else
       error when is_atom(error) ->
@@ -62,11 +63,11 @@ defmodule AdminAPI.V1.AccountMembershipController do
     end
   end
 
-  defp assign_or_invite(%User{} = user, account, role) do
+  defp assign_or_invite(%User{} = user, account, role, _redirect_url) do
     Membership.assign(user, account, role)
   end
-  defp assign_or_invite(email, account, role) when is_binary(email) do
-    {:ok, invite} = Inviter.invite(email, account, role)
+  defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
+    {:ok, invite} = Inviter.invite(email, account, role, redirect_url)
     {:ok, invite.user}
   end
 

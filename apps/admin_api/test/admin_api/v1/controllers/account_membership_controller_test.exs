@@ -82,7 +82,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       response = user_request("/account.assign_user", %{
         user_id: insert(:user).id,
         account_id: insert(:account).id,
-        role_name: insert(:role).name
+        role_name: insert(:role).name,
+        redirect_url: "https://invite_url/?email={email}&token={token}"
       })
 
       assert response["success"] == true
@@ -93,7 +94,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       response = user_request("/account.assign_user", %{
         email: insert(:admin).email,
         account_id: insert(:account).id,
-        role_name: insert(:role).name
+        role_name: insert(:role).name,
+        redirect_url: "https://invite_url/?email={email}&token={token}"
       })
 
       assert response["success"] == true
@@ -104,7 +106,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       response = user_request("/account.assign_user", %{
         user_id: UUID.generate(),
         account_id: insert(:account).id,
-        role_name: insert(:role).name
+        role_name: insert(:role).name,
+        redirect_url: "https://invite_url/?email={email}&token={token}"
       })
 
       assert response["success"] == false
@@ -117,7 +120,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       response = user_request("/account.assign_user", %{
         user_id: insert(:user).id,
         account_id: UUID.generate(),
-        role_name: insert(:role).name
+        role_name: insert(:role).name,
+        redirect_url: "https://invite_url/?email={email}&token={token}"
       })
 
       assert response["success"] == false
@@ -130,7 +134,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       response = user_request("/account.assign_user", %{
         user_id: insert(:user).id,
         account_id: insert(:account).id,
-        role_name: "invalid_role"
+        role_name: "invalid_role",
+        redirect_url: "https://invite_url/?email={email}&token={token}"
       })
 
       assert response["success"] == false

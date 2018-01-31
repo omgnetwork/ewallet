@@ -10,7 +10,7 @@ defmodule AdminAPI.Inviter do
   @doc """
   Creates the user if not exists, then sends the invite email out.
   """
-  def invite(email, account, role) do
+  def invite(email, account, role, redirect_url) do
     {:ok, invite} =
       email
       |> validate_email()
@@ -19,7 +19,7 @@ defmodule AdminAPI.Inviter do
 
     {:ok, _membership} = Membership.assign(invite.user, account, role)
 
-    send(invite)
+    send_email(invite, redirect_url)
     {:ok, invite}
   catch
     error when is_atom(error) -> {:error, error}
@@ -54,9 +54,9 @@ defmodule AdminAPI.Inviter do
     Invite.generate(user, preload: :user)
   end
 
-  defp send(invite) do
+  defp send_email(invite, redirect_url) do
     invite
-    |> InviteEmail.create()
+    |> InviteEmail.create(redirect_url)
     |> Mailer.deliver_now()
   end
 end

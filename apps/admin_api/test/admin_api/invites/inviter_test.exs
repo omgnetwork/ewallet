@@ -1,37 +1,39 @@
 defmodule AdminAPI.InviterTest do
   use AdminAPI.ConnCase
   use Bamboo.Test
-  alias AdminAPI.Inviter
+  alias AdminAPI.{Inviter, InviteEmail}
   alias EWalletDB.{Invite, Membership}
+
+  @redirect_url "https://invite_url/?email={email}&token={token}"
 
   describe "Inviter.invite/3" do
     test "sends email and returns the invite if successful" do
       account = insert(:account)
       role    = insert(:role)
 
-      {res, invite} = Inviter.invite("test@example.com", account, role)
+      {res, invite} = Inviter.invite("test@example.com", account, role, @redirect_url)
 
       assert res       == :ok
-      assert %Invite{}  = invite
-      assert_delivered_email AdminAPI.InviteEmail.create(invite)
+      assert %Invite{} =  invite
+      assert_delivered_email InviteEmail.create(invite, @redirect_url)
     end
 
     test "sends a new invite if this email has been invited before" do
       account = insert(:account)
       role    = insert(:role)
 
-      {:ok, invite1} = Inviter.invite("test@example.com", account, role)
-      {:ok, invite2} = Inviter.invite("test@example.com", account, role)
+      {:ok, invite1} = Inviter.invite("test@example.com", account, role, @redirect_url)
+      {:ok, invite2} = Inviter.invite("test@example.com", account, role, @redirect_url)
 
-      assert_delivered_email AdminAPI.InviteEmail.create(invite1)
-      assert_delivered_email AdminAPI.InviteEmail.create(invite2)
+      assert_delivered_email InviteEmail.create(invite1, @redirect_url)
+      assert_delivered_email InviteEmail.create(invite2, @redirect_url)
     end
 
     test "assigns the user to account and role" do
       account = insert(:account)
       role    = insert(:role)
 
-      {:ok, invite} = Inviter.invite("test@example.com", account, role)
+      {:ok, invite} = Inviter.invite("test@example.com", account, role, @redirect_url)
       memberships   = Membership.all_by_user(invite.user)
 
       assert Enum.any?(memberships, fn(m) ->
@@ -44,7 +46,7 @@ defmodule AdminAPI.InviterTest do
       account = insert(:account)
       role    = insert(:role)
 
-      {res, error} = Inviter.invite(email, account, role)
+      {res, error} = Inviter.invite(email, account, role, @redirect_url)
 
       assert res   == :error
       assert error == :invalid_email
@@ -55,7 +57,7 @@ defmodule AdminAPI.InviterTest do
       account = insert(:account)
       role    = insert(:role)
 
-      {res, error} = Inviter.invite("activeuser@example.com", account, role)
+      {res, error} = Inviter.invite("activeuser@example.com", account, role, @redirect_url)
 
       assert res   == :error
       assert error == :user_already_active
