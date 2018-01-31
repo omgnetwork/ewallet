@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.InviteController do
   catch
     {:error, error_code} when is_atom(error_code) -> handle_error(conn, error_code)
   end
+  def accept(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp get_invite(email, token) do
     case Invite.get(email, token) do

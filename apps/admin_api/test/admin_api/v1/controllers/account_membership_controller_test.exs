@@ -78,9 +78,20 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   end
 
   describe "/account.assign_user" do
-    test "returns empty success if assigned successfully" do
+    test "returns empty success if assigned with user_id successfully" do
       response = user_request("/account.assign_user", %{
         user_id: insert(:user).id,
+        account_id: insert(:account).id,
+        role_name: insert(:role).name
+      })
+
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test "returns empty success if assigned with email successfully" do
+      response = user_request("/account.assign_user", %{
+        email: insert(:admin).email,
         account_id: insert(:account).id,
         role_name: insert(:role).name
       })

@@ -78,7 +78,7 @@ defmodule AdminAPI.V1.ErrorHandler do
       description: "The user is not assigned to the provided account"
     },
     invite_not_found: %{
-      code: "invite:not_found",
+      code: "user:invite_not_found",
       description: "There is no invite corresponding to the provided email and token"
     },
     passwords_mismatch: %{
