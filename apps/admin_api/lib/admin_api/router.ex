@@ -3,6 +3,6 @@ defmodule AdminAPI.Router do
   alias AdminAPI.StatusController
   alias AdminAPI.VersionedRouter
 
-  get "/", StatusController, :status
-  forward "/", VersionedRouter
+  get "/admin/api/", StatusController, :status
+  forward "/admin/api/", VersionedRouter
 end
