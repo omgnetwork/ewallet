@@ -5,7 +5,7 @@ defmodule EWalletDB.Invite do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Invite, Membership, User}
+  alias EWalletDB.{Repo, Invite, User}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
@@ -86,8 +86,8 @@ defmodule EWalletDB.Invite do
   Accepts an invitation and sets the given password to the user.
   """
   def accept(invite, password) do
-    invite      = Repo.preload(invite, :user)
-    {:ok, user} = User.update(invite.user, %{invite_id: nil, password: password})
+    invite       = Repo.preload(invite, :user)
+    {:ok, _user} = User.update(invite.user, %{invite_id: nil, password: password})
     delete(invite)
   end
 
