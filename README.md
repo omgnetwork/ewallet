@@ -163,15 +163,24 @@ The eWallet only supports Sentry for now. You can specify the DSN for it with th
 
 ### Balance Caching
 
-The local ledger offers a caching mechanism for balances in order to boost the calculation speed (in case you have millions of transactions). To enable this feature, set the following environment variable and pass it a valid CRON schedule. Note that this is totally optional and the application will work fine without it.
+The local ledger offers a caching mechanism for balances in order to boost the calculation speed (in case you have millions of transactions). To enable this feature, set the `BALANCE_CACHING_FREQUENCY` environment variable and pass it a valid CRON schedule. Note that this is totally optional and the application will work fine without it.
 
-- `CACHE_BALANCES_FREQUENCY`: A valid CRON schedule.
+- `BALANCE_CACHING_FREQUENCY`: A valid CRON schedule.
 
 Examples:
 
 - Every minute:         `"* * * * *"`
 - Every day at 2 am:    `"0 2 * * *"`
 - Every Friday at 5 am: `"0 5 * * 5"`
+
+If this feature is enabled, you can also specify a caching strategy.
+
+- `BALANCE_CACHING_STRATEGY`: Specify if new cached balances should be computed using a previous cache or by recalculating everything from scratch.
+
+Strategies available:
+
+- `since_beginning`: Recalculate the balance since the beginning of time.
+- `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
 
 ### File Upload
 

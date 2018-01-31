@@ -7,7 +7,7 @@ defmodule LocalLedger.Application do
     import Supervisor.Spec
 
     children =
-      case System.get_env("CACHE_BALANCES_FREQUENCY") do
+      case System.get_env("BALANCE_CACHING_FREQUENCY") do
         nil -> []
         _ -> [supervisor(LocalLedger.Scheduler, [])]
       end

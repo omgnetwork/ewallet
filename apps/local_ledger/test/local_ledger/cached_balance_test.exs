@@ -53,9 +53,12 @@ defmodule LocalLedger.CachedBalanceTest do
       }
     end
 
-    test "reuses the previous cached balance to calculate the new one",
+    test "reuses the previous cached balance to calculate the new one when
+          strategy = 'since_last_cached'",
       %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
     do
+      Application.put_env(:local_ledger, :balance_caching_strategy, "since_last_cached")
+
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
@@ -64,16 +67,95 @@ defmodule LocalLedger.CachedBalanceTest do
         minted_token_2.friendly_id => 85_563
       }
 
+      # Then we manually add one to hijack the process - this value should be used to
+      # calculate the next cached balance (even if it's incorrect in that case...)
+      LocalLedgerDB.CachedBalance.insert(%{
+        amounts:         %{minted_token_1.friendly_id => 3_000},
+        balance_address: balance.address,
+        computed_at:     NaiveDateTime.utc_now()
+      })
+
       insert_list(2, :credit, minted_token: minted_token_1,
                               balance: balance,
                               amount: 500)
 
       CachedBalance.cache_all()
-      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 2
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
+      assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
+        minted_token_1.friendly_id => 3_000 + 1_000
+      }
+    end
+
+    test "reuses the previous cached balance to calculate the new one when
+          strategy = 'since_beginning'",
+      %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
+    do
+      Application.put_env(:local_ledger, :balance_caching_strategy, "since_beginning")
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
+
+      assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
+        minted_token_1.friendly_id => 58_953,
+        minted_token_2.friendly_id => 85_563
+      }
+
+      # Then we manually add one to hijack the process - this value should NOT be used.
+      LocalLedgerDB.CachedBalance.insert(%{
+        amounts:         %{minted_token_1.friendly_id => 3_000},
+        balance_address: balance.address,
+        computed_at:     NaiveDateTime.utc_now()
+      })
+
+      insert_list(2, :credit, minted_token: minted_token_1,
+                              balance: balance,
+                              amount: 500)
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
       assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
         minted_token_1.friendly_id => 58_953 + 1_000,
         minted_token_2.friendly_id => 85_563
       }
+    end
+
+    test "reuses the previous cached balance to calculate the new one if no strategy is given",
+      %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
+    do
+      Application.put_env(:local_ledger, :balance_caching_strategy, nil)
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
+
+      assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
+        minted_token_1.friendly_id => 58_953,
+        minted_token_2.friendly_id => 85_563
+      }
+
+      # Then we manually add one to hijack the process - this value should NOT be used.
+      LocalLedgerDB.CachedBalance.insert(%{
+        amounts:         %{minted_token_1.friendly_id => 3_000},
+        balance_address: balance.address,
+        computed_at:     NaiveDateTime.utc_now()
+      })
+
+      insert_list(2, :credit, minted_token: minted_token_1,
+                              balance: balance,
+                              amount: 500)
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
+      assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
+        minted_token_1.friendly_id => 58_953 + 1_000,
+        minted_token_2.friendly_id => 85_563
+      }
+    end
+
+    test "does not store a cached balance if all the amounts are equal to 0" do
+      insert(:balance, address: "1234")
+
+      CachedBalance.cache_all()
+      assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
     end
   end
 
@@ -138,76 +220,6 @@ defmodule LocalLedger.CachedBalanceTest do
         minted_token_1.friendly_id => 58_953,
         minted_token_2.friendly_id => 85_563
       }
-    end
-
-    test "uses the cached balance and adds the transactions that happened after when strategy is
-         'since_last_cached'",
-      %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
-    do
-      Application.put_env(:local_ledger, :balance_caching_strategy, "since_last_cached")
-
-      {:ok, _amounts} = CachedBalance.get(balance, minted_token_1.friendly_id)
-
-      insert_list(1, :credit, minted_token: minted_token_1, balance: balance, amount: 1_337)
-      insert_list(1, :debit, minted_token: minted_token_1, balance: balance, amount: 789)
-
-      {:ok, amounts} = CachedBalance.get(balance, minted_token_1.friendly_id)
-
-      cached_count   = LocalLedgerDB.CachedBalance |> Repo.all() |> length()
-      cached_balance = LocalLedgerDB.CachedBalance.get(balance.address)
-
-      assert cached_count == 1
-      assert cached_balance.amounts == %{
-        minted_token_1.friendly_id => 58_953,
-        minted_token_2.friendly_id => 85_563
-      }
-      assert amounts == %{minted_token_1.friendly_id => 58_953 + 1_337 - 789}
-    end
-
-    test "recalculates the cache since the beginning when strategy is 'since_beginning'",
-      %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
-    do
-      Application.put_env(:local_ledger, :balance_caching_strategy, "since_beginning")
-
-      {:ok, _amounts} = CachedBalance.get(balance, minted_token_1.friendly_id)
-
-      insert_list(1, :credit, minted_token: minted_token_1, balance: balance, amount: 1_337)
-      insert_list(1, :debit, minted_token: minted_token_1, balance: balance, amount: 789)
-
-      {:ok, amounts} = CachedBalance.get(balance, minted_token_1.friendly_id)
-
-      cached_count   = LocalLedgerDB.CachedBalance |> Repo.all() |> length()
-      cached_balance = LocalLedgerDB.CachedBalance.get(balance.address)
-
-      assert cached_count == 1
-      assert cached_balance.amounts == %{
-        minted_token_1.friendly_id => 58_953,
-        minted_token_2.friendly_id => 85_563
-      }
-      assert amounts == %{minted_token_1.friendly_id => 58_953 + 1_337 - 789}
-    end
-
-    test "recalculates everything without saving a cache if no strategy is given",
-      %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, balance: balance}
-    do
-      Application.put_env(:local_ledger, :balance_caching_strategy, nil)
-
-      {:ok, _amounts} = CachedBalance.get(balance, minted_token_1.friendly_id)
-
-      insert_list(1, :credit, minted_token: minted_token_1, balance: balance, amount: 1_337)
-      insert_list(1, :debit, minted_token: minted_token_1, balance: balance, amount: 789)
-
-      {:ok, amounts} = CachedBalance.get(balance, minted_token_1.friendly_id)
-
-      cached_count   = LocalLedgerDB.CachedBalance |> Repo.all() |> length()
-      cached_balance = LocalLedgerDB.CachedBalance.get(balance.address)
-
-      assert cached_count == 1
-      assert cached_balance.amounts == %{
-        minted_token_1.friendly_id => 58_953,
-        minted_token_2.friendly_id => 85_563
-      }
-      assert amounts == %{minted_token_1.friendly_id => 58_953 + 1_337 - 789}
     end
   end
 end

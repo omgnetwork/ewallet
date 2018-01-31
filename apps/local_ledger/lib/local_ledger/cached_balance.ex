@@ -13,10 +13,7 @@ defmodule LocalLedger.CachedBalance do
   @spec cache_all() :: {}
   def cache_all do
     Balance.stream_all(fn balance ->
-      case CachedBalance.get(balance.address) do
-        nil            -> {:ok, calculate_and_insert(balance)}
-        cached_balance -> {:ok, calculate_from_cached_and_insert(balance, cached_balance)}
-      end
+      {:ok, calculate_with_strategy(balance)}
     end)
   end
 
@@ -44,9 +41,7 @@ defmodule LocalLedger.CachedBalance do
     |> calculate_amounts(balance)
   end
 
-  defp calculate_amounts(nil, balance) do
-    Transaction.calculate_all_balances(balance.address)
-  end
+  defp calculate_amounts(nil, balance), do: calculate_from_beginning_and_insert(balance)
   defp calculate_amounts(cached_balance, balance) do
     balance.address
     |> Transaction.calculate_all_balances(%{
@@ -63,6 +58,35 @@ defmodule LocalLedger.CachedBalance do
     |> Enum.into(%{})
   end
 
+  defp calculate_with_strategy(balance) do
+    :local_ledger
+    |> Application.get_env(:balance_caching_strategy)
+    |> calculate_with_strategy(balance)
+  end
+
+  defp calculate_with_strategy("since_last_cached", balance) do
+    case CachedBalance.get(balance.address) do
+      nil            -> calculate_from_beginning_and_insert(balance)
+      cached_balance -> calculate_from_cached_and_insert(balance, cached_balance)
+    end
+  end
+
+  defp calculate_with_strategy("since_beginning", balance) do
+    calculate_from_beginning_and_insert(balance)
+  end
+
+  defp calculate_with_strategy(_, balance) do
+    calculate_with_strategy("since_beginning", balance)
+  end
+
+  defp calculate_from_beginning_and_insert(balance) do
+    computed_at = NaiveDateTime.utc_now()
+
+    balance.address
+    |> Transaction.calculate_all_balances(%{upto: computed_at})
+    |> insert(balance, computed_at)
+  end
+
   defp calculate_from_cached_and_insert(balance, cached_balance) do
     computed_at = NaiveDateTime.utc_now()
 
@@ -75,20 +99,14 @@ defmodule LocalLedger.CachedBalance do
     |> insert(balance, computed_at)
   end
 
-  defp calculate_and_insert(balance) do
-    computed_at = NaiveDateTime.utc_now()
-
-    balance.address
-    |> Transaction.calculate_all_balances(%{upto: computed_at})
-    |> insert(balance, computed_at)
-  end
-
   defp insert(amounts, balance, computed_at) do
-    {:ok, _} = CachedBalance.insert(%{
-      amounts:         amounts,
-      balance_address: balance.address,
-      computed_at:     computed_at
-    })
+    if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
+      {:ok, _} = CachedBalance.insert(%{
+        amounts:         amounts,
+        balance_address: balance.address,
+        computed_at:     computed_at
+      })
+    end
 
     amounts
   end
