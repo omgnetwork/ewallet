@@ -44,10 +44,14 @@ defmodule LocalLedger.CachedBalance do
     |> calculate_amounts(balance)
   end
 
-  defp calculate_amounts(nil, balance), do: calculate_and_insert(balance)
+  defp calculate_amounts(nil, balance) do
+    Transaction.calculate_all_balances(balance.address)
+  end
   defp calculate_amounts(cached_balance, balance) do
-    balance
-    |> calculate_since(cached_balance.computed_at)
+    balance.address
+    |> Transaction.calculate_all_balances(%{
+      since: cached_balance.computed_at
+    })
     |> add_amounts(cached_balance.amounts)
   end
 
@@ -57,10 +61,6 @@ defmodule LocalLedger.CachedBalance do
       {friendly_id, (amounts_1[friendly_id] || 0) + (amounts_2[friendly_id] || 0)}
     end)
     |> Enum.into(%{})
-  end
-
-  defp calculate_since(balance, datetime) do
-    Transaction.calculate_all_balances(balance.address, %{since: datetime})
   end
 
   defp calculate_from_cached_and_insert(balance, cached_balance) do
