@@ -4,8 +4,8 @@ defmodule EWalletDB.Factory do
   """
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
-  alias EWalletDB.{Account, APIKey, AuthToken, Balance, Key, Membership, Mint,
-    MintedToken, Role, User, Transfer}
+  alias EWalletDB.{Account, APIKey, AuthToken, Balance, Invite, Key,
+    Membership, Mint, MintedToken, Role, User, Transfer}
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
 
@@ -56,8 +56,6 @@ defmodule EWalletDB.Factory do
     %User{
       username: sequence("johndoe"),
       provider_user_id: sequence("provider_id"),
-      email: nil,
-      password_hash: nil,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
@@ -68,15 +66,20 @@ defmodule EWalletDB.Factory do
   def admin_factory do
     password = sequence("password")
     %User{
-      username: nil,
-      provider_user_id: nil,
       email: sequence("johndoe") <> "@example.com",
       password: password,
       password_hash: Crypto.hash_password(password),
+      invite: nil,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
       }
+    }
+  end
+
+  def invite_factory do
+    %Invite{
+      token: Crypto.generate_key(32)
     }
   end
 

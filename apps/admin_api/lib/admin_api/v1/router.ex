@@ -25,6 +25,7 @@ defmodule AdminAPI.V1.Router do
     post "/minted_token.all", MintedTokenController, :all
     post "/minted_token.get", MintedTokenController, :get
 
+    # Transaction endpoints
     post "/transaction.all", TransactionController, :all
     post "/transaction.get", TransactionController, :get
 
@@ -33,10 +34,12 @@ defmodule AdminAPI.V1.Router do
     post "/account.get", AccountController, :get
     post "/account.create", AccountController, :create
     post "/account.update", AccountController, :update
-    post "/account.list_users", AccountController, :list_users
-    post "/account.assign_user", AccountController, :assign_user
-    post "/account.unassign_user", AccountController, :unassign_user
     post "/account.upload_avatar", AccountController, :upload_avatar
+
+    # Account membership endpoints
+    post "/account.list_users", AccountMembershipController, :list_users
+    post "/account.assign_user", AccountMembershipController, :assign_user
+    post "/account.unassign_user", AccountMembershipController, :unassign_user
 
     # User endpoints
     post "/user.all", UserController, :all
@@ -59,6 +62,7 @@ defmodule AdminAPI.V1.Router do
     pipe_through [:api, :client_api]
 
     post "/login", AuthController, :login
+    post "/invite.accept", InviteController, :accept
 
     post "/status", StatusController, :index
     post "/status.server_error", StatusController, :server_error

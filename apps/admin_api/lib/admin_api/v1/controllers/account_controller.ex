@@ -1,9 +1,8 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.MembershipView
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{Account, Membership, Role, User}
+  alias EWalletDB.Account
 
   @search_fields [{:id, :uuid}, :name, :description]
   @sort_fields [:id, :name, :description]
@@ -90,62 +89,4 @@ defmodule AdminAPI.V1.AccountController do
   defp respond_single(nil, conn) do
     handle_error(conn, :account_id_not_found)
   end
-
-  @doc """
-  Lists the users that are assigned to the given account.
-  """
-  def list_users(conn, %{"account_id" => account_id}) do
-    list_users(conn, Account.get(account_id, preload: [memberships: [:user, :role]]))
-  end
-  def list_users(conn, %Account{} = account) do
-    render(conn, MembershipView, :memberships, %{memberships: account.memberships})
-  end
-  def list_users(conn, nil), do: handle_error(conn, :account_id_not_found)
-  def list_users(conn, _), do: handle_error(conn, :invalid_parameter)
-
-  @doc """
-  Assigns the user to the given account and role.
-  """
-  def assign_user(conn, %{
-    "user_id" => user_id,
-    "account_id" => account_id,
-    "role_name" => role_name
-  }) do
-    with %User{} = user <- User.get(user_id) || :user_not_found,
-         %Account{} = account <- Account.get(account_id) || :account_not_found,
-         %Role{} = role <- Role.get_by_name(role_name) || :role_not_found,
-         {:ok, _} <- Membership.assign(user, account, role) do
-      render(conn, :empty, %{success: true})
-    else
-      :user_not_found ->
-        handle_error(conn, :invalid_parameter, "The given user id could not be found.")
-      :account_not_found ->
-        handle_error(conn, :invalid_parameter, "The given account id could not be found.")
-      :role_not_found ->
-        handle_error(conn, :invalid_parameter, "The given role name could not be found.")
-    end
-  end
-  def assign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
-
-  @doc """
-  Unassigns the user from the given account.
-  """
-  def unassign_user(conn, %{
-    "user_id" => user_id,
-    "account_id" => account_id
-  }) do
-    with %User{} = user <- User.get(user_id) || :user_not_found,
-         %Account{} = account <- Account.get(account_id) || :account_not_found,
-         {:ok, _} <- Membership.unassign(user, account) do
-      render(conn, :empty, %{success: true})
-    else
-      :user_not_found ->
-        handle_error(conn, :invalid_parameter, "The given user id could not be found.")
-      :account_not_found ->
-        handle_error(conn, :invalid_parameter, "The given account id could not be found.")
-      {:error, :membership_not_found} ->
-        handle_error(conn, :invalid_parameter, "The user was not assigned to this account.")
-    end
-  end
-  def unassign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 end
