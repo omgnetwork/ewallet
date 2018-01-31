@@ -13,15 +13,15 @@ defmodule EWalletDB.Uploaders.Avatar do
   end
 
   def transform(:large, _) do
-    {:convert, "-strip -thumbnail 400x400^ -gravity center -extent 400x400"}
+    {:convert, "-strip -thumbnail 400x400^ -gravity center -extent 400x400 -format png", :png}
   end
 
   def transform(:small, _) do
-    {:convert, "-strip -thumbnail 150x150^ -gravity center -extent 150x150"}
+    {:convert, "-strip -thumbnail 150x150^ -gravity center -extent 150x150 -format png", :png}
   end
 
   def transform(:thumb, _) do
-    {:convert, "-strip -thumbnail 50x50^ -gravity center -extent 50x50"}
+    {:convert, "-strip -thumbnail 50x50^ -gravity center -extent 50x50 -format png", :png}
   end
 
   def filename(version, _) do
