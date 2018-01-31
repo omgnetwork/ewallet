@@ -6,7 +6,7 @@ defmodule AdminAPI.InviteEmail do
   import Bamboo.Phoenix
 
   def create(invite, redirect_url) do
-    config = Application.get_env(:admin_api, :email)
+    sender = Application.get_env(:admin_api, :sender_email)
     link   =
       redirect_url
       |> String.replace("{email}", invite.user.email)
@@ -14,7 +14,7 @@ defmodule AdminAPI.InviteEmail do
 
     new_email()
     |> to(invite.user.email)
-    |> from(config[:sender])
+    |> from(sender)
     |> subject("OmiseGO eWallet: Invitation")
     |> html_body(link)
     |> text_body(link)

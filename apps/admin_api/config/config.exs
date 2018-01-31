@@ -8,7 +8,8 @@ use Mix.Config
 # General application configuration
 config :admin_api,
   namespace: AdminAPI,
-  ecto_repos: []
+  ecto_repos: [],
+  sender_email: System.get_env("SENDER_EMAIL") || "admin@localhost"
 
 # Configs for the endpoint
 config :admin_api,
@@ -29,10 +30,6 @@ config :logger, :console,
 # Config for Phoenix's generators
 config :admin_api, :generators,
   context_app: false
-
-# Configs for emailing
-config :admin_api, :email,
-  sender: "admin@example.com"
 
 # Configs for Bamboo emailing library
 config :admin_api, AdminAPI.Mailer,
