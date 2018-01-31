@@ -20,14 +20,17 @@ defmodule AdminAPI.V1.ResetPasswordController do
 
   def update(conn, %{
     "token" => token,
-    "password" => _,
-    "password_confirmation" => _
-  } = attrs) do
+    "password" => password,
+    "password_confirmation" => password_confirmation
+  }) do
     case ForgetPasswordRequest.get(token) do
       nil -> handle_error(conn, :invalid_reset_token)
       request ->
         request.user
-        |> User.update(attrs)
+        |> User.update(%{
+          password: password,
+          password_confirmation: password_confirmation
+        })
         |> respond_single(conn)
     end
   end
