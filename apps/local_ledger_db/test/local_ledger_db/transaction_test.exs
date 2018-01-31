@@ -185,7 +185,10 @@ defmodule LocalLedgerDB.TransactionTest do
       transfer(balance, btc, 200, Transaction.credit_type)
 
       balances = Transaction.calculate_all_balances(balance.address)
-      assert balances == %{"BTC:209d3f5b-eab4-4906-9697-c482009fc865" => 300, "KNC:310-d3f5b-eab4-4906-9697-c482009fc865" => 100, "OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 700}
+      assert balances == %{
+        "BTC:209d3f5b-eab4-4906-9697-c482009fc865" => 300,
+        "KNC:310-d3f5b-eab4-4906-9697-c482009fc865" => 100,
+        "OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 700}
     end
 
     test "returns the correct balance for the specified token" do
@@ -201,7 +204,7 @@ defmodule LocalLedgerDB.TransactionTest do
       balances = Transaction.calculate_all_balances(balance.address, %{
         friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865"
       })
-      assert balances == %{"OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 700}
+      assert balances == %{"OMG:209d3f5b-eab4-4906-9697-c482009fc865" => 300 + 500 - 100}
     end
 
     test "calculates all balances since specified date" do
@@ -221,7 +224,7 @@ defmodule LocalLedgerDB.TransactionTest do
       balances = Transaction.calculate_all_balances(balance.address, %{
         since: transaction.inserted_at
       })
-      assert all_balances == %{"KNC:456" => 100, "OMG:123" => 700}
+      assert all_balances == %{"KNC:456" => 100, "OMG:123" => 300 + 500 - 100}
       assert balances == %{"KNC:456" => 100, "OMG:123" => 500}
     end
 
@@ -242,8 +245,8 @@ defmodule LocalLedgerDB.TransactionTest do
       balances = Transaction.calculate_all_balances(balance.address, %{
         upto: transaction.inserted_at
       })
-      assert all_balances == %{"KNC:456" => 100, "OMG:123" => 700}
-      assert balances == %{"OMG:123" => 200}
+      assert all_balances == %{"KNC:456" => 100, "OMG:123" => 300 + 500 - 100}
+      assert balances == %{"OMG:123" => 300 - 100}
     end
 
     test "calculates all balances between the specified 'since' date and 'upto' date" do
@@ -265,8 +268,8 @@ defmodule LocalLedgerDB.TransactionTest do
         since: transaction_1.inserted_at,
         upto: transaction_2.inserted_at
       })
-      assert all_balances == %{"OMG:123" => 2350}
-      assert balances == %{"OMG:123" => 1300}
+      assert all_balances == %{"OMG:123" => 300 + 500 + 100 + 1200 + 250}
+      assert balances == %{"OMG:123" => 100 + 1200}
     end
   end
 
