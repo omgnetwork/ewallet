@@ -1,5 +1,5 @@
 import ErrorHandler from '../../../helpers/errorHandler';
-import { assignMember, inviteMember, unassignMember, listMembers, updateMember, updateAccountInfo } from '../../../omisego/services/setting_api';
+import { assignMember, inviteMember, unassignMember, listMembers, updateMember, updateAccountInfo, uploadAvatar } from '../../../omisego/services/setting_api';
 import LoadingActions from '../../../actions/loading.actions';
 import { getAll } from '../../../omisego/services/admin_api';
 import SessionActions from '../../../actions/session.actions';
@@ -112,6 +112,58 @@ export default class Actions {
         } else {
           onSuccess(result.data);
         }
+      });
+    };
+  }
+
+  static uploadAvatar(params, onSuccess) {
+    return (dispatch) => {
+      dispatch(LoadingActions.showLoading());
+      uploadAvatar(params, (err, result) => {
+        dispatch(LoadingActions.hideLoading());
+        if (err) {
+          ErrorHandler.handleAPIError(dispatch, err);
+        } else {
+          onSuccess(result.data);
+        }
+      });
+    };
+  }
+
+  static updateAccountAndAvatar(params, onSuccess) {
+    // 2nd means second-ordered function
+    const handler2nd = (resolve, reject) => (dispatch, error, result) => {
+      if (error) {
+        ErrorHandler.handleAPIError(dispatch, error);
+        reject(error);
+      } else {
+        resolve(result);
+      }
+    };
+
+    return (dispatch) => {
+      dispatch(LoadingActions.showLoading());
+      Promise.all([
+        new Promise((resolve, reject) => {
+          const handler = handler2nd(resolve, reject);
+          uploadAvatar(params.uploadAvatar, (err, result) => handler(dispatch, err, result));
+        }),
+        new Promise((resolve, reject) => {
+          const handler = handler2nd(resolve, reject);
+          updateAccountInfo(params.updateAccount, (err, result) => handler(dispatch, err, result));
+        }),
+      ]).then(([resultUploadAvatar, resultUpdateAccountInfo]) => {
+        dispatch(LoadingActions.hideLoading());
+        dispatch(SessionActions.saveCurrentAccount({
+          ...resultUploadAvatar,
+          avatar: resultUploadAvatar.avatar,
+          name: resultUpdateAccountInfo.name,
+        }));
+        const result = {
+          uploadAvatar: resultUploadAvatar,
+          updateAccount: resultUpdateAccountInfo,
+        };
+        onSuccess(result);
       });
     };
   }

@@ -24,7 +24,7 @@ class Profile extends Component {
       loading: {
         submit: false,
       },
-      avatar: `${currentUser.avatar.original}` || PlaceHolder,
+      avatar: `${currentUser.avatar.small}` || PlaceHolder,
       avatarFile: null,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
@@ -43,7 +43,7 @@ class Profile extends Component {
       avatar: avatarFile,
     }, (result) => {
       this.setState({
-        avatar: `${OMISEGO_BASE_URL}${result.avatar.original.substr(1)}`,
+        avatar: `${OMISEGO_BASE_URL}${result.avatar.small.substr(1)}`,
         avatarFile: null,
         loading: {
           submit: false,
