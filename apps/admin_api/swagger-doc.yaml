@@ -1359,18 +1359,18 @@ components:
                 type: string
               password:
                 type: string
-              password_confirm:
+              password_confirmation:
                 type: string
             required:
               - email
               - token
               - password
-              - password_confirm
+              - password_confirmation
             example:
               email: "example@omise.co"
               token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
               password: "user_provided_password"
-              password_confirm: "user_provided_password"
+              password_confirmation: "user_provided_password"
     # Request body for listing transactions
     TransactionAllBody:
       description: The parameters to use for listing the transactions

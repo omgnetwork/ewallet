@@ -8,14 +8,14 @@ defmodule AdminAPI.V1.InviteController do
   Validates the user's invite token and activates the user.
   """
   def accept(conn, %{
-    "email"            => email,
-    "token"            => token,
-    "password"         => password,
-    "password_confirm" => password_confirm,
+    "email"                 => email,
+    "token"                 => token,
+    "password"              => password,
+    "password_confirmation" => password_confirmation,
   }) do
     email
     |> get_invite(token)
-    |> validate_passwords(password, password_confirm)
+    |> validate_passwords(password, password_confirmation)
     |> Invite.accept(password)
     |> respond(conn)
   catch
@@ -30,8 +30,8 @@ defmodule AdminAPI.V1.InviteController do
     end
   end
 
-  defp validate_passwords(invite, password, password_confirm) do
-    if password == password_confirm do
+  defp validate_passwords(invite, password, password_confirmation) do
+    if password == password_confirmation do
       invite
     else
       throw {:error, :passwords_mismatch}

@@ -2,12 +2,12 @@ defmodule AdminAPI.V1.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
 
-  defp request(email, token, password, password_confirm) do
+  defp request(email, token, password, password_confirmation) do
     client_request("/invite.accept", %{
-      "email"            => email,
-      "token"            => token,
-      "password"         => password,
-      "password_confirm" => password_confirm
+      "email"                 => email,
+      "token"                 => token,
+      "password"              => password,
+      "password_confirmation" => password_confirmation
     })
   end
 
