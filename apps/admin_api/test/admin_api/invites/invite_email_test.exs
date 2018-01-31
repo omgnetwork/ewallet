@@ -32,15 +32,15 @@ defmodule AdminAPI.InviteEmailTest do
     test "creates an email with email and token in the html body" do
       email = create_email("test@omise.co", "the_token")
 
-      assert String.contains?(email.html_body, "test@omise.co")
-      assert String.contains?(email.html_body, "the_token")
+      assert email.html_body =~ "test@omise.co"
+      assert email.html_body =~ "the_token"
     end
 
     test "creates an email with email and token in the text body" do
       email = create_email("test@omise.co", "the_token")
 
-      assert String.contains?(email.text_body, "test@omise.co")
-      assert String.contains?(email.text_body, "the_token")
+      assert email.text_body =~ "test@omise.co"
+      assert email.text_body =~ "the_token"
     end
   end
 end
