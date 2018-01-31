@@ -14,7 +14,7 @@ const Sidebar = ({ translate, history, session }) => {
     <div className="sidebar fh">
       <div className="sidebar__content">
         <div className="col-xs-10 col-xs-offset-1">
-          <Image className="sidebar__logo" src={logo} />
+          <Image className="sidebar__logo" src={session.currentAccount.avatar.large || logo} />
           <h2 className="sidebar__title">
             {session.currentAccount.name}
           </h2>

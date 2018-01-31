@@ -88,10 +88,22 @@ export function listMembers(params, callback) {
   return request(requestParams);
 }
 
-export function updateMember(params, callback) {
-  // return request('member.update', JSON.stringify(params), callback);
-  const mock = params;
-  callback(null, {
-    data: mock,
-  });
+export function uploadAvatar(params, callback) {
+  const {
+    accountId, avatar,
+  } = params;
+
+  const formData = new FormData();
+  formData.append('id', accountId);
+  formData.append('avatar', avatar);
+
+  const requestParams = {
+    path: 'account.upload_avatar',
+    params: formData,
+    authenticated: true,
+    callback,
+    isMultipart: true,
+  };
+
+  return request(requestParams);
 }

@@ -9,7 +9,7 @@ import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGPhotoPreviewer from '../../../components/OMGPhotoPreviewer';
 import OMGAddMemberForm from '../../../components/OMGAddMemberForm';
 import OMGMemberItem from '../../../components/OMGMemberItem';
-import PlaceHolder from '../../../../public/images/user_icon_placeholder.png';
+import placeholder from '../../../../public/images/user_icon_placeholder.png';
 import Actions from './actions';
 import { formatEmailLink } from '../../../helpers/urlFormatter';
 
@@ -26,12 +26,12 @@ class Setting extends Component {
   constructor(props) {
     super(props);
     const { currentAccount } = props;
-    const { name, photoUrl } = currentAccount;
+    const { name, avatar } = currentAccount;
     this.state = {
       editId: 0,
       accountName: name,
-      photoUrl: photoUrl || PlaceHolder,
-      photoFile: null,
+      avatar: avatar.small || placeholder,
+      avatarFile: null,
       memberList: [],
       loading: {
         saveAccount: false,
@@ -61,7 +61,7 @@ class Setting extends Component {
   // Invoke when the user browse and select a new photo.
   handleFileChanged(file) {
     this.setState({
-      photoFile: file,
+      avatarFile: file,
     });
   }
 
@@ -170,14 +170,40 @@ class Setting extends Component {
     });
   }
 
-  handleUpdateFormSuccess(account) {
+  handleUpdateAccount() {
+    const { currentAccount, updateAccountAndAvatar } = this.props;
+    const { accountName, avatarFile, loading } = this.state;
+    const params = {
+      updateAccount: {
+        ...currentAccount,
+        name: accountName,
+      },
+      uploadAvatar: {
+        accountId: currentAccount.id,
+        avatar: avatarFile,
+      },
+    };
+
+    this.setState({
+      loading: {
+        ...loading,
+        saveAccount: true,
+      },
+    });
+
+    updateAccountAndAvatar(params, this.handleUpdateFormSuccess);
+  }
+
+  handleUpdateFormSuccess(result) {
     const { showSuccessAlert, translate } = this.props;
-    showSuccessAlert(translate('setting.form.notification.success.update_account', { name: account.name }));
+    showSuccessAlert(translate('setting.form.notification.success.update_account', { name: result.updateAccount.name }));
     this.setState(prevState => ({
       loading: {
         ...prevState.loading,
         saveAccount: false,
       },
+      avatarFile: null,
+      avatar: result.uploadAvatar.avatar.small,
     }));
 
     // Go to the top of the page to see the notification
@@ -189,22 +215,6 @@ class Setting extends Component {
     showSuccessAlert(translate('setting.form.notification.success.resend_invitation', { email: member.email }));
     // Go to the top of the page to see the notification
     window.scrollTo(0, 0);
-  }
-
-  handleUpdateAccount() {
-    const { currentAccount, updateAccount } = this.props;
-    const { accountName } = this.state;
-    const params = {
-      ...currentAccount,
-      name: accountName,
-    };
-    updateAccount(params, this.handleUpdateFormSuccess);
-    this.setState(prevState => ({
-      loading: {
-        ...prevState.loading,
-        saveAccount: true,
-      },
-    }));
   }
 
   handleCancelClick() {
@@ -233,7 +243,7 @@ class Setting extends Component {
     const { translate, currentPath } = this.props;
     const {
       accountName,
-      photoUrl,
+      avatar,
       memberList,
       editId,
       loading,
@@ -294,10 +304,10 @@ class Setting extends Component {
                 {translate('setting.header.edit_account')}
               </h4>
               <OMGPhotoPreviewer
-                img={photoUrl}
+                img={avatar}
                 onFileChanged={this.handleFileChanged}
-                showCloseBtn={photoUrl !== PlaceHolder}
-                showUploadBtn={photoUrl === PlaceHolder}
+                showCloseBtn={avatar !== placeholder}
+                showUploadBtn={avatar === placeholder}
               />
             </div>
             <div className="mt-1">
@@ -354,7 +364,7 @@ Setting.propTypes = {
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
   unassignMember: PropTypes.func.isRequired,
-  updateAccount: PropTypes.func.isRequired,
+  updateAccountAndAvatar: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -392,6 +402,12 @@ function mapDispatchToProps(dispatch) {
     },
     showSuccessAlert: (message) => {
       dispatch(AlertActions.success(message));
+    },
+    uploadAvatar: (params, onSuccess) => {
+      dispatch(Actions.uploadAvatar(params, onSuccess));
+    },
+    updateAccountAndAvatar: (params, onSuccess) => {
+      dispatch(Actions.updateAccountAndAvatar(params, onSuccess));
     },
   };
 }
