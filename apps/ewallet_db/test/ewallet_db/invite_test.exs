@@ -1,6 +1,7 @@
 defmodule EWalletDB.InviteTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.{Invite, User}
+  alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
 
   describe "Invite.get/1" do
@@ -80,6 +81,39 @@ defmodule EWalletDB.InviteTest do
       {:ok, invite} = Invite.generate(user, preload: :user)
 
       assert invite.user.id == user.id
+    end
+  end
+
+  describe "Invite.accept/2" do
+    test "sets user to :active status" do
+      invite = insert(:invite)
+      user   = insert(:admin, %{invite: invite})
+
+      :pending_confirmation = User.get_status(user)
+      {:ok, _invite}        = Invite.accept(invite, "some_password")
+      status                = user.id |> User.get() |> User.get_status()
+
+      assert status  == :active
+    end
+
+    test "sets user with the given password" do
+      invite         = insert(:invite)
+      user           = insert(:admin, %{invite: invite})
+      {res, _invite} = Invite.accept(invite, "some_password")
+      user           = User.get(user.id)
+
+      assert res == :ok
+      assert Crypto.verify_password("some_password", user.password_hash)
+    end
+
+    test "deletes the invite" do
+      invite = insert(:invite)
+      _user  = insert(:admin, %{invite: invite})
+
+      {res, _invite} = Invite.accept(invite, "some_password")
+
+      assert res == :ok
+      assert Invite.get(invite.id) == nil
     end
   end
 end
