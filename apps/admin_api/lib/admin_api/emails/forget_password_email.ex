@@ -5,17 +5,15 @@ defmodule AdminAPI.ForgetPasswordEmail do
   import Bamboo.Email
 
   def create(request, redirect_url) do
-    config = Application.get_env(:admin_api, :email)
-    email  = request.user.email
-    token  = request.token
+    sender = Application.get_env(:admin_api, :sender_email)
     link   =
       redirect_url
-      |> String.replace("{email}", email)
-      |> String.replace("{token}", token)
+      |> String.replace("{email}", request.user.email)
+      |> String.replace("{token}", request.token)
 
     new_email()
-    |> to(email)
-    |> from(config[:sender])
+    |> to(request.user.email)
+    |> from(sender)
     |> subject("OmiseGO eWallet: Password Reset Request")
     |> html_body(html(link))
     |> text_body(text(link))
