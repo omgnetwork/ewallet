@@ -11,6 +11,7 @@ import OMGAddMemberForm from '../../../components/OMGAddMemberForm';
 import OMGMemberItem from '../../../components/OMGMemberItem';
 import placeholder from '../../../../public/images/user_icon_placeholder.png';
 import Actions from './actions';
+import { moveToTop } from '../../../helpers/scrollHelper';
 import { formatEmailLink } from '../../../helpers/urlFormatter';
 
 // When we need to customize the invitation params (add, rename, remove), we can config it here.
@@ -207,14 +208,14 @@ class Setting extends Component {
     }));
 
     // Go to the top of the page to see the notification
-    window.scrollTo(0, 0);
+    moveToTop();
   }
 
   handleResendInvitationSuccess(member) {
     const { showSuccessAlert, translate } = this.props;
     showSuccessAlert(translate('setting.form.notification.success.resend_invitation', { email: member.email }));
     // Go to the top of the page to see the notification
-    window.scrollTo(0, 0);
+    moveToTop();
   }
 
   handleCancelClick() {

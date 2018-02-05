@@ -4,11 +4,13 @@ import { getTranslate } from 'react-localize-redux';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import Actions from './actions';
+import AlertActions from '../../../actions/alert.actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGLoadingButton from '../../../components/OMGLoadingButton';
 import OMGPhotoPreviewer from '../../../components/OMGPhotoPreviewer';
-import PlaceHolder from '../../../../public/images/user_icon_placeholder.png';
+import placeholder from '../../../../public/images/user_icon_placeholder.png';
 import { OMISEGO_BASE_URL } from '../../../omisego/config';
+import { moveToTop } from '../../../helpers/scrollHelper';
 
 class Profile extends Component {
   constructor(props) {
@@ -24,12 +26,13 @@ class Profile extends Component {
       loading: {
         submit: false,
       },
-      avatar: `${currentUser.avatar.small}` || PlaceHolder,
+      avatar: currentUser.avatar.small || placeholder,
       avatarFile: null,
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleFileChanged = this.handleFileChanged.bind(this);
     this.handleFormChanged = this.handleFormChanged.bind(this);
+    this.handleUploadAvatarSuccess = this.handleUploadAvatarSuccess.bind(this);
   }
 
   handleSubmit(e) {
@@ -41,14 +44,20 @@ class Profile extends Component {
     uploadAvatar({
       id: currentUser.id,
       avatar: avatarFile,
-    }, (result) => {
-      this.setState({
-        avatar: `${OMISEGO_BASE_URL}${result.avatar.small.substr(1)}`,
-        avatarFile: null,
-        loading: {
-          submit: false,
-        },
-      });
+    }, this.handleUploadAvatarSuccess);
+  }
+
+  handleUploadAvatarSuccess(result) {
+    this.setState({
+      avatar: `${OMISEGO_BASE_URL}${result.avatar.original.substr(1)}`,
+      avatarFile: null,
+      loading: {
+        submit: false,
+      },
+    }, () => {
+      const { translate, showSuccessAlert } = this.props;
+      showSuccessAlert(translate('profile.form.success.upload_avatar'));
+      moveToTop();
     });
   }
 
@@ -85,8 +94,8 @@ class Profile extends Component {
                 <OMGPhotoPreviewer
                   img={avatar}
                   onFileChanged={this.handleFileChanged}
-                  showCloseBtn={avatar !== PlaceHolder}
-                  showUploadBtn={avatar === PlaceHolder}
+                  showCloseBtn={avatar !== placeholder}
+                  showUploadBtn={avatar === placeholder}
                 />
               </div>
               <OMGFieldGroup
@@ -154,8 +163,8 @@ class Profile extends Component {
 }
 
 Profile.propTypes = {
-  history: PropTypes.object.isRequired,
   session: PropTypes.object.isRequired,
+  showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
   uploadAvatar: PropTypes.func.isRequired,
 };
@@ -175,6 +184,9 @@ function mapDispatchToProps(dispatch) {
   return {
     uploadAvatar: (params, onSuccess) => {
       dispatch(Actions.uploadAvatar(params, onSuccess));
+    },
+    showSuccessAlert: (message) => {
+      dispatch(AlertActions.success(message));
     },
   };
 }

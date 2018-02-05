@@ -268,7 +268,9 @@
         "help": ""
       },
       "submit": "Submit",
-      "success": "Successfully updated ${ name }"
+      "success": {
+        "upload_avatar": "The avatar has been uploaded successfully"
+      }
     }
   },
   "admins": {
