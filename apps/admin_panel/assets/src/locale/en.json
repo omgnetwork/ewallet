@@ -146,7 +146,7 @@
     "tokens": "Tokens",
     "reports": "Reports",
     "api_management": "API Management",
-    "setting": "Setting"
+    "account_setting": "Account Settings"
   },
   "transactions": {
     "header": {
@@ -288,7 +288,7 @@
   },
   "setting": {
     "header": {
-      "setting": "Setting",
+      "title": "Account Settings",
       "edit_account": "Edit an account"
     },
     "form": {

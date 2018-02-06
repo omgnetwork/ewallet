@@ -78,7 +78,7 @@ const Sidebar = ({ translate, history, session }) => {
             <li className="sidebar__li">
               <SidebarLink
                 currentPath={history.location.pathname}
-                title={translate('sidebar.setting')}
+                title={translate('sidebar.account_setting')}
                 to={`${accountPath}/setting`}
               />
             </li>
