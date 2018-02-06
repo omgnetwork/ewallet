@@ -50,7 +50,6 @@
   "rabbitmq_rpc": {:git, "ssh://git@github.com/omisego/rabbitmq-rpc.git", "d5d918bfd453eae6747509acd46b857512410137", [tag: "0.3.0"]},
   "ranch": {:hex, :ranch, "1.3.2", "e4965a144dc9fbe70e5c077c65e73c57165416a901bd02ea899cfd95aa890986", [:rebar3], [], "hexpm"},
   "recon": {:hex, :recon, "2.3.4", "b406c2fccdeaa0d94e23b5e30ae3d635a2d461e363a5c9c6316897037cf050d2", [:rebar3], [], "hexpm"},
-  "reverse_proxy": {:hex, :reverse_proxy, "0.3.1", "8aef287c5ea321c4af4a87945129a3278d4dee43b238e2497a45115b9254810c", [:mix], [{:cowboy, "~> 1.0", [hex: :cowboy, repo: "hexpm", optional: false]}, {:httpoison, "~> 0.9", [hex: :httpoison, repo: "hexpm", optional: false]}, {:plug, "~> 1.2", [hex: :plug, repo: "hexpm", optional: false]}], "hexpm"},
   "salty": {:git, "ssh://git@github.com/omisego/salty.git", "6f53855a44e1b31b1fc208df52e971454c85f33b", []},
   "sentry": {:hex, :sentry, "6.0.3", "e83f21901008a6c76ff81cc696a053fbd1d6a12600050d3e61928c7945b3621e", [:mix], [{:hackney, "~> 1.8 or 1.6.5", [hex: :hackney, repo: "hexpm", optional: false]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: true]}, {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0", [hex: :poison, repo: "hexpm", optional: false]}, {:uuid, "~> 1.0", [hex: :uuid, repo: "hexpm", optional: false]}], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], [], "hexpm"},
