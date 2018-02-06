@@ -9,7 +9,7 @@ defmodule UrlDispatcher.Application do
     children = [
       # Starts a worker by calling: UrlDispatcher.Worker.start_link(arg)
       # {UrlDispatcher.Worker, arg},
-      Cowboy.child_spec(:http, UrlDispatcher.Plug, [], [port: 8080])
+      Cowboy.child_spec(:http, UrlDispatcher.Plug, [], [port: 3000])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
