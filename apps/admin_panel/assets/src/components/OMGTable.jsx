@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { Table } from 'react-bootstrap';
 import OMGTableHeader from './OMGTableHeader';
 import OMGTableContentRow from './OMGTableContentRow';
+import { formatHeader, defaultHeaderAlignment } from '../helpers/tableFormatter';
 
 class OMGTable extends Component {
   constructor(props) {
@@ -29,10 +30,15 @@ class OMGTable extends Component {
   render() {
     const { by, dir } = this.state;
     const { headers, content } = this.props;
-    const tableHeaders = Object.keys(headers).map((key) => {
+    const firstRow = content[0];
+    const alignments = firstRow
+      ? Object.keys(firstRow).map(key => formatHeader(firstRow, key))
+      : [];
+    const tableHeaders = Object.keys(headers).map((key, index) => {
       const header = headers[key];
       return (<OMGTableHeader
         key={key}
+        alignment={alignments[index] || defaultHeaderAlignment}
         handleClick={this.onSort}
         id={key}
         sortable={header.sortable}
