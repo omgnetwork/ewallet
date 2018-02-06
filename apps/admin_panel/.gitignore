@@ -1,0 +1,25 @@
+# App artifacts
+/_build
+/db
+/deps
+/*.ez
+
+# Ignore all files in `/priv/dist` but keep the folder.
+/priv/dist/*
+!/priv/dist/.gitkeep
+
+# Temporily ignoring `/assets` which is a symlink of `admin-panel` repo.
+# Once the admin-panel has been moved into this eWallet repo,
+# the following `/assets` should be removed from `.gitignore`.
+/assets
+
+# Generated on crash by the VM
+erl_crash.dump
+
+# Files matching config/*.secret.exs pattern contain sensitive
+# data and you should not commit them into version control.
+#
+# Alternatively, you may comment the line below and commit the
+# secrets files as long as you replace their contents by environment
+# variables.
+/config/*.secret.exs
