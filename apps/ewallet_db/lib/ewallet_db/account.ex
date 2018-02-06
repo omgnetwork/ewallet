@@ -41,7 +41,6 @@ defmodule EWalletDB.Account do
   defp avatar_changeset(changeset, attrs) do
     changeset
     |> cast_attachments(attrs, [:avatar])
-    |> validate_required([:avatar])
   end
 
   @doc """
