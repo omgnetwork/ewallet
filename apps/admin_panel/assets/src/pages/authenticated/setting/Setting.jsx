@@ -298,7 +298,7 @@ class Setting extends Component {
         <div className="col-xs-12 col-sm-6">
           <div className="omg-form">
             <h1>
-              {translate('setting.header.setting')}
+              {translate('setting.header.title')}
             </h1>
             <div className="mt-2">
               <h4>
