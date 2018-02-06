@@ -8,7 +8,7 @@ defmodule AdminAPI.VersionedRouterTest do
       response = build_conn()
       |> put_req_header("accept", "application/vnd.omisego.v1+json")
       |> put_auth_header("OMGAdmin", [@api_key_id, @api_key])
-      |> post("/status")
+      |> post(@base_dir <> "/status")
       |> json_response(:ok)
 
       assert response == %{"success" => :true}
@@ -28,7 +28,7 @@ defmodule AdminAPI.VersionedRouterTest do
 
       response = build_conn()
       |> put_req_header("accept", "application/vnd.omisego.invalid_ver+json")
-      |> post("/status")
+      |> post(@base_dir <> "/status")
       |> json_response(:ok)
 
       assert response == expected

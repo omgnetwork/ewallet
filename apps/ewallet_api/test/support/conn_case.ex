@@ -12,7 +12,6 @@ defmodule EWalletAPI.ConnCase do
   inside a transaction which is reset at the beginning
   of the test unless the test case is marked as async.
   """
-
   use ExUnit.CaseTemplate
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
@@ -38,6 +37,8 @@ defmodule EWalletAPI.ConnCase do
   @username "test_username"
   @provider_user_id "test_provider_user_id"
 
+  @base_dir "api/"
+
   using do
     quote do
       # Import conveniences for testing with connections
@@ -56,6 +57,7 @@ defmodule EWalletAPI.ConnCase do
       @auth_token unquote(@auth_token)
       @username unquote(@username)
       @provider_user_id unquote(@provider_user_id)
+      @base_dir unquote(@base_dir)
     end
   end
 
@@ -128,7 +130,7 @@ defmodule EWalletAPI.ConnCase do
   def public_request(path, data \\ %{}, status \\ :ok) when is_binary(path) and byte_size(path) > 0 do
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 
@@ -140,7 +142,7 @@ defmodule EWalletAPI.ConnCase do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGServer", @access_key, @secret_key)
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 
@@ -156,7 +158,7 @@ defmodule EWalletAPI.ConnCase do
     |> put_req_header("idempotency-token", idempotency_token)
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGServer", @access_key, @secret_key)
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 
@@ -168,7 +170,7 @@ defmodule EWalletAPI.ConnCase do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGClient", @api_key, @auth_token)
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 
