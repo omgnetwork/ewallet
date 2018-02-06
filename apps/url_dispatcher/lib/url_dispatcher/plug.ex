@@ -16,7 +16,9 @@ defmodule UrlDispatcher.Plug do
       conn.request_path =~ ~r{^/public} ->
         serve_static(conn)
       true ->
-        resp(conn, 404, "The url could not be resolved.") |> halt()
+        conn
+        |> resp(404, "The url could not be resolved.")
+        |> halt()
     end
   end
 
