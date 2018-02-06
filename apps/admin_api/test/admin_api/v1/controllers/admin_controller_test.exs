@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
+  alias EWalletDB.User
 
   describe "/admin.all" do
     test "returns a list of admins and pagination data" do
@@ -118,6 +119,32 @@ defmodule AdminAPI.V1.AdminControllerTest do
              "http://example.com/public/uploads/test/user/avatars/#{uuid}/small.png?v="
       assert response["data"]["avatar"]["thumb"] =~
              "http://example.com/public/uploads/test/user/avatars/#{uuid}/thumb.png?v="
+    end
+
+    test "removes the avatar from a user" do
+      account     = insert(:account)
+      role        = insert(:role, %{name: "some_role"})
+      admin       = insert(:admin, %{email: "admin@omise.co"})
+      uuid        = admin.id
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response = user_request("/admin.upload_avatar", %{
+        "id" => uuid,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+      assert response["success"]
+
+      response = user_request("/admin.upload_avatar", %{
+        "id" => uuid,
+        "avatar" => nil
+      })
+      assert response["success"]
+
+      admin = User.get(admin.id)
+      assert admin.avatar == nil
     end
 
     test "returns 'user:id_not_found' if the given ID is not an admin" do
