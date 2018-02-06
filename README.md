@@ -108,7 +108,7 @@ We can now start the application:
 mix run --no-halt
 ```
 
-Navigate to  `http://localhost:8080/api` in your browser and you should see the following JSON representation popping up:
+Navigate to  `http://localhost:3000/api` in your browser and you should see the following JSON representation popping up:
 
 ```
 {
@@ -132,6 +132,7 @@ All set! Start playing around with the API using the Swagger docs below to learn
 Below are the general environment variables needed for the eWallet to run smoothly.
 
 - `MIX_ENV`: Environment in which the application is being ran. `prod` for production.
+- `EWALLET_PORT`: The port associated with the entire umbrella app.
 - `API_HOST`: The domain name where the eWallet API should be accessible.
 - `API_PORT`: The port associated with the domain name above.
 - `ADMIN_API_HOST`: The domain name where the Admin API should be accessible.
