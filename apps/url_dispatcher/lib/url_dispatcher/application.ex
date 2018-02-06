@@ -5,11 +5,12 @@ defmodule UrlDispatcher.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
+
+    port = Application.get_env(:url_dispatcher, :port)
+
     # List all child processes to be supervised
     children = [
-      # Starts a worker by calling: UrlDispatcher.Worker.start_link(arg)
-      # {UrlDispatcher.Worker, arg},
-      Cowboy.child_spec(:http, UrlDispatcher.Plug, [], [port: 3000])
+      Cowboy.child_spec(:http, UrlDispatcher.Plug, [], [port: port])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
