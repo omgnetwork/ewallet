@@ -7,12 +7,13 @@ import { Image, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootst
 
 import Actions from './actions';
 import logo from '../../../public/images/omisego_logo_white.png';
-import avatar from '../../../public/images/user.svg';
+import defaultAvatar from '../../../public/images/user.svg';
 
 const Header = ({
   session, history, logout, translate,
 }) => {
   const accountPath = `/a/${session.currentAccount.id}`;
+  const { currentUser } = session;
   return (
     <div>
       <div>
@@ -48,7 +49,7 @@ const Header = ({
                 </Nav>
                 <Nav className="omg-nav" pullRight>
                   <NavItem className="omg-nav__avatar" eventKey={3} href="#" id="avatar">
-                    <Image circle src={avatar} />
+                    <Image circle src={currentUser.avatar.small || defaultAvatar} />
                   </NavItem>
                   <NavDropdown
                     className="omg-dropdown__gray"
