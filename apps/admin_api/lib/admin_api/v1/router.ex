@@ -50,6 +50,8 @@ defmodule AdminAPI.V1.Router do
     post "/admin.get", AdminController, :get
     post "/admin.upload_avatar", AdminController, :upload_avatar
 
+    # API Access endpoints
+    post "/access_key.all", KeyController, :all
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get
     post "/me.get_account", SelfController, :get_account
