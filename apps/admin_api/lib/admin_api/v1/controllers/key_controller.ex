@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.KeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.Key
+  alias EWalletDB.{Account, Key}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -40,5 +40,27 @@ defmodule AdminAPI.V1.KeyController do
   end
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  @doc """
+  Creates a new key. Currently keys can be created for master account only.
+  """
+  def create(conn, _attrs) do
+    attrs = %{
+      account_id: Account.get_master_account().id
+    }
+
+    attrs
+    |> Key.insert()
+    |> respond_single(conn)
+  end
+
+  # Respond when the account is saved successfully
+  defp respond_single({:ok, key}, conn) do
+    render(conn, :key, %{key: key})
+  end
+  # Responds when the key is saved unsucessfully
+  defp respond_single({:error, changeset}, conn) do
+    handle_error(conn, :invalid_parameter, changeset)
   end
 end

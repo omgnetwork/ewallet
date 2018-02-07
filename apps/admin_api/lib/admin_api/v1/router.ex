@@ -52,6 +52,8 @@ defmodule AdminAPI.V1.Router do
 
     # API Access endpoints
     post "/access_key.all", KeyController, :all
+    post "/access_key.create", KeyController, :create
+
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get
     post "/me.get_account", SelfController, :get_account

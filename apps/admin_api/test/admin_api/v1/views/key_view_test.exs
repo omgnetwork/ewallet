@@ -4,6 +4,26 @@ defmodule AdminAPI.V1.KeyViewTest do
   alias AdminAPI.V1.KeyView
 
   describe "render/2" do
+    test "renders key.json with correct response format" do
+      key = insert(:key)
+
+      expected = %{
+        version: @expected_version,
+        success: true,
+        data: %{
+          object: "key",
+          id: key.id,
+          access_key: key.access_key,
+          secret_key: key.secret_key,
+          account_id: key.account_id,
+          created_at: Date.to_iso8601(key.inserted_at),
+          updated_at: Date.to_iso8601(key.updated_at)
+        }
+      }
+
+      assert KeyView.render("key.json", %{key: key}) == expected
+    end
+
     test "renders keys.json with correct response format" do
       key1 = insert(:key)
       key2 = insert(:key)

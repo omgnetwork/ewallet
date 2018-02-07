@@ -469,6 +469,21 @@ paths:
           $ref: "#/components/responses/AccessKeysResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /access_key.create:
+    post:
+      tags:
+        - API Access
+      summary: Create a pair of access and secret keys
+      operationId: access_key_create
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 
 # Components are objects that are reusable within this API spec.
 # They do not have any effect on the API unless they are
@@ -1588,7 +1603,6 @@ components:
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               avatar: "/path/to/file"
-    # Request body for listing transactions
     AccessKeyAllBody:
       description: The parameters to use for listing the access keys
       required: true

@@ -31,4 +31,29 @@ defmodule AdminAPI.V1.KeyControllerTest do
         }
     end
   end
+
+  describe "/access_key.create" do
+    test "responds with a key with the secret key and master account" do
+      master_account = insert(:account, %{master: true})
+      _account       = insert(:account, %{master: false})
+      response       = user_request("/access_key.create")
+
+      assert %{
+        "version" => "1",
+        "success" => true,
+        "data" => %{
+          "object"     => "key",
+          "id"         => _,
+          "access_key" => _,
+          "secret_key" => _,
+          "account_id" => _,
+          "created_at" => _,
+          "updated_at" => _
+        }
+      } = response
+
+      assert String.length(response["data"]["secret_key"]) > 0
+      assert response["data"]["account_id"] == master_account.id
+    end
+  end
 end
