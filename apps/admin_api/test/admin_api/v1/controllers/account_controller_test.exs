@@ -123,7 +123,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
   end
 
   describe "/account.upload_avatar" do
-    test "uploads an avatar for the specified user" do
+    test "uploads an avatar for the specified account" do
       account = insert(:account)
 
       response = user_request("/account.upload_avatar", %{
@@ -146,7 +146,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
              "http://example.com/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
     end
 
-    test "removes the avatar from a user" do
+    test "removes the avatar from an account" do
       account = insert(:account)
 
       response = user_request("/account.upload_avatar", %{
