@@ -147,6 +147,58 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert admin.avatar == nil
     end
 
+    test "removes the avatar from a user with empty string" do
+      account     = insert(:account)
+      role        = insert(:role, %{name: "some_role"})
+      admin       = insert(:admin, %{email: "admin@omise.co"})
+      uuid        = admin.id
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response = user_request("/admin.upload_avatar", %{
+        "id" => uuid,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+      assert response["success"]
+
+      response = user_request("/admin.upload_avatar", %{
+        "id" => uuid,
+        "avatar" => ""
+      })
+      assert response["success"]
+
+      admin = User.get(admin.id)
+      assert admin.avatar == nil
+    end
+
+    test "removes the avatar from a user with 'null' string" do
+      account     = insert(:account)
+      role        = insert(:role, %{name: "some_role"})
+      admin       = insert(:admin, %{email: "admin@omise.co"})
+      uuid        = admin.id
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response = user_request("/admin.upload_avatar", %{
+        "id" => uuid,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+      assert response["success"]
+
+      response = user_request("/admin.upload_avatar", %{
+        "id" => uuid,
+        "avatar" => "null"
+      })
+      assert response["success"]
+
+      admin = User.get(admin.id)
+      assert admin.avatar == nil
+    end
+
     test "returns 'user:id_not_found' if the given ID is not an admin" do
       user     = insert(:user)
       response = user_request("/admin.upload_avatar", %{

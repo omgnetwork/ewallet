@@ -169,6 +169,52 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert account.avatar == nil
     end
 
+    test "removes the avatar from an account with empty string" do
+      account = insert(:account)
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      assert response["success"]
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => ""
+      })
+      assert response["success"]
+
+      account = Account.get(account.id)
+      assert account.avatar == nil
+    end
+
+    test "removes the avatar from an account with 'null' string" do
+      account = insert(:account)
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      assert response["success"]
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => "null"
+      })
+      assert response["success"]
+
+      account = Account.get(account.id)
+      assert account.avatar == nil
+    end
+
     test "returns 'account:id_not_found' if the given ID was not found" do
       response = user_request("/account.upload_avatar", %{
         "id" => "fake",
