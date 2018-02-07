@@ -108,7 +108,7 @@ We can now start the application:
 mix run --no-halt
 ```
 
-Navigate to  `http://localhost:3000/api` in your browser and you should see the following JSON representation popping up:
+Navigate to  `http://localhost:4000/api` in your browser and you should see the following JSON representation popping up:
 
 ```
 {
