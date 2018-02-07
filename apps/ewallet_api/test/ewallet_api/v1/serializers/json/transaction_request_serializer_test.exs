@@ -14,7 +14,7 @@ defmodule EWalletAPI.V1.TransactionRequestSerializerTest do
         type: transaction_request.type,
         token_id: transaction_request.minted_token.friendly_id,
         amount: transaction_request.amount,
-        balance_address: transaction_request.balance_address,
+        address: transaction_request.balance_address,
         correlation_id: transaction_request.correlation_id
       }
 
