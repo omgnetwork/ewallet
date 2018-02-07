@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import FA from 'react-fontawesome';
 import { Button } from 'react-bootstrap';
 import { localize } from 'react-localize-redux';
 import copyToClipboard from '../helpers/copier';
@@ -16,7 +17,7 @@ class OMGTruncatedCell extends Component {
       <span>
         {OMGTruncatedCell.shortenedString(content)}
         <Button bsStyle="link" onClick={() => copyToClipboard(content)}>
-          {translate('global.copy')}
+          <FA name="copy" />
         </Button>
       </span>
     );
