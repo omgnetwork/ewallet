@@ -69,4 +69,35 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert String.length(response["data"]["secret_key"]) > 0
     end
   end
+
+  describe "/access_key.delete" do
+    test "responds with an empty success if provided a key id" do
+      key      = insert(:key)
+      response = user_request("/access_key.delete", %{id: key.id})
+
+      assert response == %{"version" => "1", "success" => true, "data" => %{}}
+    end
+
+    test "responds with an empty success if provided an access_key" do
+      key      = insert(:key)
+      response = user_request("/access_key.delete", %{access_key: key.access_key})
+
+      assert response == %{"version" => "1", "success" => true, "data" => %{}}
+    end
+
+    test "responds with an error if the provided id is not found" do
+      response = user_request("/access_key.delete", %{id: "wrong_id"})
+
+      assert response == %{
+        "version" => "1",
+        "success" => false,
+        "data" => %{
+          "code" => "key:not_found",
+          "description" => "The key could not be found",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+  end
 end

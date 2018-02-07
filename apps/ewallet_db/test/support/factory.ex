@@ -123,6 +123,7 @@ defmodule EWalletDB.Factory do
       secret_key: secret_key,
       secret_key_hash: Crypto.hash_password(secret_key),
       account: insert(:account),
+      deleted_at: nil
     }
   end
 
