@@ -3,11 +3,10 @@ defmodule EWalletDB.Key do
   Ecto Schema representing key.
   """
   use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query
+  use EWalletDB.SoftDelete
+  import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Key}
-  alias EWalletDB.Helpers.Crypto
+  alias EWalletDB.{Repo, Account, Key, Helpers.Crypto}
 
   @primary_key {:id, UUID, autogenerate: true}
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
@@ -20,6 +19,7 @@ defmodule EWalletDB.Key do
                                   references: :id,
                                   type: UUID
     timestamps()
+    soft_delete()
   end
 
   defp changeset(%Key{} = key, attrs) do
@@ -29,6 +29,39 @@ defmodule EWalletDB.Key do
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_password(attrs[:secret_key]))
     |> assoc_constraint(:account)
+  end
+
+  @doc """
+  Get all keys, exclude soft-deleted.
+  """
+  def all do
+    Key
+    |> exclude_deleted()
+    |> Repo.all()
+  end
+
+  @doc """
+  Get key by id, exclude soft-deleted.
+  """
+  def get(nil), do: nil
+  def get(id) do
+    case UUID.dump(id) do
+      {:ok, _binary} ->
+        Key
+        |> exclude_deleted()
+        |> Repo.get(id)
+      :error ->
+        nil
+    end
+  end
+
+  @doc """
+  Get key by its `:access_key`, exclude soft-deleted.
+  """
+  def get(:access_key, access_key) do
+    Key
+    |> exclude_deleted()
+    |> Repo.get_by(access_key: access_key)
   end
 
   @doc """
@@ -89,4 +122,19 @@ defmodule EWalletDB.Key do
   def authenticate(_, _) do
     Crypto.fake_verify
   end
+
+  @doc """
+  Checks whether the given key is soft-deleted.
+  """
+  def deleted?(key), do: SoftDelete.deleted?(key)
+
+  @doc """
+  Soft-deletes the given key.
+  """
+  def delete(key), do: SoftDelete.delete(key)
+
+  @doc """
+  Restores the given key from soft-delete.
+  """
+  def restore(key), do: SoftDelete.restore(key)
 end

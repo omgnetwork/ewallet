@@ -484,6 +484,23 @@ paths:
           $ref: "#/components/responses/AccessKeyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /access_key.delete:
+    post:
+      tags:
+        - API Access
+      summary: Delete a pair of access and secret keys by its id or access key
+      operationId: access_key_delete
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyDeleteBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 
 # Components are objects that are reusable within this API spec.
 # They do not have any effect on the API unless they are
@@ -1629,6 +1646,30 @@ components:
               search_term: "text to search for"
               sort_by: "created_at"
               sort_dir: "desc"
+    AccessKeyDeleteBody:
+      description: The parameters to use for deleting an access key
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            oneOf:
+              - properties:
+                  id:
+                    type: string
+                    format: uuid
+                required:
+                  - id
+                example:
+                  id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+              - properties:
+                  access_key:
+                    type: string
+                required:
+                  - access_key
+                example:
+                  access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+            example:
+              id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
 
   parameters:
     # Headers

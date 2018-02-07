@@ -53,6 +53,7 @@ defmodule AdminAPI.V1.Router do
     # API Access endpoints
     post "/access_key.all", KeyController, :all
     post "/access_key.create", KeyController, :create
+    post "/access_key.delete", KeyController, :delete
 
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get

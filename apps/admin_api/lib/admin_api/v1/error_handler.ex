@@ -92,6 +92,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     passwords_mismatch: %{
       code: "user:passwords_mismatch",
       description: "The provided passwords do not match"
+    },
+    key_not_found: %{
+      code: "key:not_found",
+      description: "The key could not be found"
     }
   }
 
