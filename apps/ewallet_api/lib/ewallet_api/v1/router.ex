@@ -49,6 +49,8 @@ defmodule EWalletAPI.V1.Router do
     post "/me.get_settings", SelfController, :get_settings
     post "/me.list_balances", SelfController, :get_balances
 
+    post "/transaction_request.create", TransactionRequestController, :create
+
     post "/logout", AuthController, :logout
   end
 
