@@ -61,6 +61,10 @@ podTemplate(
         }
 
         stage('Test') {
+            container('postgresql') {
+                sh("pg_isready -t 60 -h localhost -p 5432")
+            }
+
             sh(
                 """
                 docker run --rm \
