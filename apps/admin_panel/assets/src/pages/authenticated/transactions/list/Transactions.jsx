@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import OMGTable from '../../../../components/OMGTable';
 import OMGPaginatorFactory from '../../../../components/OMGPaginatorHOC';
 import Actions from './actions';
-import TransactionsHeader from './TransactionsHeader';
+import OMGHeader from '../../../../components/OMGHeader';
 import dateFormatter from '../../../../helpers/dateFormatter';
 import tableConstants from '../../../../constants/table.constants';
 import { accountURL } from '../../../../helpers/urlFormatter';
@@ -15,6 +15,12 @@ class Transactions extends Component {
   constructor(props) {
     super(props);
     this.onNewTransaction = this.onNewTransaction.bind(this);
+    this.localizedText = {
+      title: 'transactions.header.transactions',
+      advancedFilters: 'transactions.header.advanced_filters',
+      export: 'transactions.header.export',
+      add: 'transactions.header.new_transaction',
+    };
   }
 
   onNewTransaction() {
@@ -59,9 +65,10 @@ class Transactions extends Component {
 
     return (
       <div>
-        <TransactionsHeader
-          handleNewTransaction={this.onNewTransaction}
+        <OMGHeader
+          handleAdd={this.onNewTransaction}
           handleSearchChange={updateQuery}
+          localizedText={this.localizedText}
           query={query}
         />
         <OMGTable

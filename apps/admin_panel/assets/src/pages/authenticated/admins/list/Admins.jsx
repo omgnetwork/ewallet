@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import OMGTable from '../../../../components/OMGTable';
 import OMGPaginatorFactory from '../../../../components/OMGPaginatorHOC';
 import Actions from './actions';
-import AdminsHeader from './AdminsHeader';
+import OMGHeader from '../../../../components/OMGHeader';
 import tableConstants from '../../../../constants/table.constants';
 import dateFormatter from '../../../../helpers/dateFormatter';
 
@@ -33,11 +33,19 @@ const Admins = ({
     updated_at: { title: translate('admins.table.updated_at'), sortable: true },
   };
 
+  const localizedText = {
+    title: 'admins.header.admins',
+    advancedFilters: 'admins.header.advanced_filters',
+    export: 'admins.header.export',
+  };
+
   return (
     <div>
-      <AdminsHeader
+      <OMGHeader
         handleSearchChange={updateQuery}
+        localizedText={localizedText}
         query={query}
+        visible={{ addBtn: false }}
       />
       <OMGTable
         content={content}

@@ -2,26 +2,26 @@ import React from 'react';
 import { localize } from 'react-localize-redux';
 import { Button, Glyphicon, Dropdown, MenuItem } from 'react-bootstrap';
 import PropTypes from 'prop-types';
-import OMGSearchField from '../../../../components/OMGSearchField';
+import OMGSearchField from './OMGSearchField';
 
-const AccountsHeader = ({
-  translate, query, handleSearchChange, handleNewAccount,
+const OMGHeader = ({
+  translate, query, handleAdd, handleSearchChange, localizedText, visible,
 }) => (
   <div className="search-header">
     <div className="row mb-3">
       <div className="col-md-6">
         <h1 className="search-header__title pull-left">
-          {translate('accounts.header.accounts')}
+          {translate(localizedText.title)}
         </h1>
       </div>
-      <div className="col-md-6">
+      <div className={`col-md-6 ${visible.addBtn ? '' : 'omg-hide'}`}>
         <Button
           bsClass="search-header__new_button btn btn-omg-blue pull-right"
           bsStyle="primary"
-          onClick={handleNewAccount}
+          onClick={handleAdd}
         >
           <Glyphicon glyph="plus" />
-          {translate('accounts.header.new_account')}
+          {localizedText.add && translate(localizedText.add)}
         </Button>
       </div>
     </div>
@@ -31,7 +31,7 @@ const AccountsHeader = ({
       </div>
       <div className="col-md-3">
         <Button bsClass="search-header__adv_filter_btn btn" bsStyle="link">
-          {translate('accounts.header.advanced_filters')}
+          {translate(localizedText.advancedFilters)}
         </Button>
       </div>
       <div className="col-md-6">
@@ -41,7 +41,7 @@ const AccountsHeader = ({
         >
           <Dropdown.Toggle className="search-header__dropdown-toggle">
             <Glyphicon glyph="share" />
-            {translate('accounts.header.export')}
+            {translate(localizedText.export)}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <MenuItem eventKey="1">
@@ -54,11 +54,33 @@ const AccountsHeader = ({
   </div>
 );
 
-AccountsHeader.propTypes = {
-  handleNewAccount: PropTypes.func.isRequired,
+OMGHeader.propTypes = {
+  handleAdd: PropTypes.func,
   handleSearchChange: PropTypes.func.isRequired,
+  localizedText: PropTypes.shape({
+    title: PropTypes.string,
+    advancedFilters: PropTypes.string,
+    export: PropTypes.string,
+    add: PropTypes.string,
+  }),
   query: PropTypes.string.isRequired,
   translate: PropTypes.func.isRequired,
+  visible: PropTypes.shape({
+    addBtn: PropTypes.bool,
+  }),
 };
 
-export default localize(AccountsHeader, 'locale');
+OMGHeader.defaultProps = {
+  handleAdd: () => { },
+  localizedText: {
+    title: '',
+    advancedFilters: '',
+    export: '',
+    add: '',
+  },
+  visible: {
+    addBtn: true,
+  },
+};
+
+export default localize(OMGHeader, 'locale');
