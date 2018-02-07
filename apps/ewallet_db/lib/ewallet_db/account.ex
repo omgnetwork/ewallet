@@ -104,6 +104,13 @@ defmodule EWalletDB.Account do
   Stores an avatar for the given account.
   """
   def store_avatar(%Account{} = account, attrs) do
+    attrs =
+      case attrs["avatar"] do
+        ""     -> %{avatar: nil}
+        "null" -> %{avatar: nil}
+        avatar -> %{avatar: avatar}
+      end
+
     changeset = avatar_changeset(account, attrs)
 
     case Repo.update(changeset) do
