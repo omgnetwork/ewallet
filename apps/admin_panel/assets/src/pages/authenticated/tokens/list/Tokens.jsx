@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import OMGTable from '../../../../components/OMGTable';
 import OMGPaginatorFactory from '../../../../components/OMGPaginatorHOC';
 import Actions from './actions';
-import TokensHeader from './TokensHeader';
+import OMGHeader from '../../../../components/OMGHeader';
 import dateFormatter from '../../../../helpers/dateFormatter';
 import tableConstants from '../../../../constants/table.constants';
 import { accountURL } from '../../../../helpers/urlFormatter';
@@ -16,6 +16,12 @@ class Tokens extends Component {
   constructor(props) {
     super(props);
     this.onNewToken = this.onNewToken.bind(this);
+    this.localizedText = {
+      title: 'tokens.header.tokens',
+      advancedFilters: 'tokens.header.advanced_filters',
+      add: 'tokens.header.new_token',
+      export: 'tokens.header.export',
+    };
   }
 
   onNewToken() {
@@ -68,9 +74,10 @@ class Tokens extends Component {
 
     return (
       <div>
-        <TokensHeader
-          handleNewToken={this.onNewToken}
+        <OMGHeader
+          handleAdd={this.onNewToken}
           handleSearchChange={updateQuery}
+          localizedText={this.localizedText}
           query={query}
         />
         <OMGTable

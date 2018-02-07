@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
-import UsersHeader from './UsersHeader';
+import OMGHeader from '../../../../components/OMGHeader';
 import Actions from './actions';
 import OMGPaginatorHOC from '../../../../components/OMGPaginatorHOC';
 import OMGTable from '../../../../components/OMGTable';
@@ -15,6 +15,12 @@ class Users extends Component {
   constructor() {
     super();
     this.onNewUser = this.onNewUser.bind(this);
+    this.localizedText = {
+      title: 'users.header.users',
+      add: 'users.header.new_user',
+      advancedFilters: 'users.header.advanced_filters',
+      export: 'users.header.export',
+    };
   }
 
   onNewUser() {
@@ -57,9 +63,10 @@ class Users extends Component {
 
     return (
       <div>
-        <UsersHeader
-          handleNewUser={this.onNewUser}
+        <OMGHeader
+          handleAdd={this.onNewUser}
           handleSearchChange={updateQuery}
+          localizedText={this.localizedText}
           query={query}
         />
         <OMGTable

@@ -3,10 +3,10 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
-import AccountsHeader from './AccountsHeader';
 import Actions from './actions';
 import OMGPaginatorHOC from '../../../../components/OMGPaginatorHOC';
 import OMGTable from '../../../../components/OMGTable';
+import OMGHeader from '../../../../components/OMGHeader';
 import dateFormatter from '../../../../helpers/dateFormatter';
 import tableConstants from '../../../../constants/table.constants';
 import { accountURL } from '../../../../helpers/urlFormatter';
@@ -15,6 +15,12 @@ class Accounts extends Component {
   constructor(props) {
     super(props);
     this.onNewAccount = this.onNewAccount.bind(this);
+    this.localizedText = {
+      title: 'accounts.header.accounts',
+      advancedFilters: 'accounts.header.advanced_filters',
+      export: 'accounts.header.export',
+      add: 'accounts.header.new_account',
+    };
   }
 
   onNewAccount() {
@@ -64,9 +70,10 @@ class Accounts extends Component {
 
     return (
       <div>
-        <AccountsHeader
-          handleNewAccount={this.onNewAccount}
+        <OMGHeader
+          handleAdd={this.onNewAccount}
           handleSearchChange={updateQuery}
+          localizedText={this.localizedText}
           query={query}
         />
         <OMGTable
