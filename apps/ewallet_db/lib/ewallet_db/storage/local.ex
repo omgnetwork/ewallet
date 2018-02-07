@@ -28,7 +28,7 @@ defmodule EWallet.Storage.Local do
   end
 
   def url(definition, version, file_and_scope, _options \\ []) do
-    base_url = Application.get_env(:ewallet_db, :host)
+    base_url = Application.get_env(:ewallet_db, :base_url)
     local_path = build_local_path(definition, version, file_and_scope)
 
     url = if String.starts_with?(local_path, "/") do
