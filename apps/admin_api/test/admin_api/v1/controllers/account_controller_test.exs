@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.Account
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -122,7 +123,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
   end
 
   describe "/account.upload_avatar" do
-    test "uploads an avatar for the specified user" do
+    test "uploads an avatar for the specified account" do
       account = insert(:account)
 
       response = user_request("/account.upload_avatar", %{
@@ -143,6 +144,29 @@ defmodule AdminAPI.V1.AccountControllerTest do
              "http://example.com/public/uploads/test/account/avatars/#{account.id}/small.png?v="
       assert response["data"]["avatar"]["thumb"] =~
              "http://example.com/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
+    end
+
+    test "removes the avatar from an account" do
+      account = insert(:account)
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      assert response["success"]
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => nil
+      })
+      assert response["success"]
+
+      account = Account.get(account.id)
+      assert account.avatar == nil
     end
 
     test "returns 'account:id_not_found' if the given ID was not found" do

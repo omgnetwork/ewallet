@@ -49,7 +49,6 @@ defmodule EWalletDB.User do
   defp avatar_changeset(changeset, attrs) do
     changeset
     |> cast_attachments(attrs, [:avatar])
-    |> validate_required([:avatar])
   end
 
   # Two cases to validate for loginable:
