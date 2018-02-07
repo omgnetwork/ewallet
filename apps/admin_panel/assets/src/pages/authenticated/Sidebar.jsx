@@ -61,12 +61,8 @@ const Sidebar = ({ translate, history, session }) => {
                 to={`${accountPath}/tokens`}
               />
             </li>
-            <li className="sidebar__li">
-              <SidebarLink
-                currentPath={history.location.pathname}
-                title={translate('sidebar.reports')}
-                to={`${accountPath}/report`}
-              />
+            <li className="sidebar__li sidebar__disabled">
+              {`${translate('sidebar.reports')} (${translate('global.coming_soon')})`}
             </li>
             <li className="sidebar__li">
               <SidebarLink

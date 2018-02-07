@@ -1,7 +1,8 @@
 {
   "global": {
     "loading": "Loading...",
-    "copy": "Copy"
+    "copy": "Copy",
+    "coming_soon": "Coming soon"
   },
   "components": {
     "omg_member_item": {
