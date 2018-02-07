@@ -23,7 +23,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "data" => %{
           "object" => "transaction_request",
           "amount" => 1_000,
-          "balance_address" => "1234",
+          "address" => "1234",
           "correlation_id" => "123",
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
@@ -51,7 +51,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "data" => %{
           "object" => "transaction_request",
           "amount" => nil,
-          "balance_address" => nil,
+          "address" => nil,
           "correlation_id" => nil,
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
