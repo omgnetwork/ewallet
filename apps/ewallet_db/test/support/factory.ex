@@ -5,7 +5,7 @@ defmodule EWalletDB.Factory do
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
   alias EWalletDB.{Account, APIKey, AuthToken, Balance, Invite, Key,
-    Membership, Mint, MintedToken, Role, User, Transfer}
+    Membership, Mint, MintedToken, Role, User, Transfer, ForgetPasswordRequest}
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
 
@@ -149,6 +149,12 @@ defmodule EWalletDB.Factory do
       minted_token: insert(:minted_token),
       from_balance: insert(:balance),
       to_balance: insert(:balance)
+    }
+  end
+
+  def forget_password_request_factory do
+    %ForgetPasswordRequest{
+      token: sequence("123"),
     }
   end
 end

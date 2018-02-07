@@ -16,6 +16,7 @@ defmodule EWalletDB.User do
     field :username, :string
     field :email, :string
     field :password, :string, virtual: true
+    field :password_confirmation, :string, virtual: true
     field :password_hash, :string
     field :provider_user_id, :string
     field :metadata, Cloak.EncryptedMapField
@@ -34,8 +35,10 @@ defmodule EWalletDB.User do
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:username, :provider_user_id, :email, :password, :metadata, :invite_id])
+    |> cast(attrs, [:username, :provider_user_id, :email, :password,
+                    :password_confirmation, :metadata, :invite_id])
     |> validate_required([:metadata])
+    |> validate_confirmation(:password, message: "does not match password!")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)

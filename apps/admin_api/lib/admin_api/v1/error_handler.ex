@@ -57,6 +57,14 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:id_not_found",
       description: "There is no user corresponding to the provided id"
     },
+    invalid_reset_token: %{
+      code: "forget_password:token_not_found",
+      description: "There are no password reset requests corresponding to the provided token"
+    },
+    user_email_not_found: %{
+      code: "user:email_not_found",
+      description: "There is no user corresponding to the provided email"
+    },
     account_id_not_found: %{
       code: "account:id_not_found",
       description: "There is no account corresponding to the provided id"
