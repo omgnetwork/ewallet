@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
@@ -80,14 +80,14 @@ class ResetPasswordForm extends Component {
               <span className="ml-1">
                 {translate('reset-password.or')}
               </span>
-              <Button
-                bsStyle="link"
-                className="link-omg-blue"
+              <Link
+                className="link-omg-blue btn btn-link"
                 disabled={loading}
-                onClick={() => { history.push('/signin'); }}
+                href="/signin"
+                to="/signin"
               >
                 {translate('reset-password.sign_in')}
-              </Button>
+              </Link>
             </span>
           </div>
         </form>

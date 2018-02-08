@@ -1,9 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 
 import Actions from './actions';
 import OMGFieldGroup from '../../../components/OMGFieldGroup';
@@ -101,7 +100,7 @@ class UpdatePasswordForm extends Component {
 
   render() {
     const {
-      loading, translate, history, submitText, title,
+      loading, translate, submitText, title,
     } = this.props;
     const { password, passwordConfirmation, email } = this.state;
     return (
@@ -143,14 +142,14 @@ class UpdatePasswordForm extends Component {
               >
                 {submitText}
               </OMGLoadingButton>
-              <Button
-                bsStyle="link"
-                className="link-omg-blue"
+              <Link
+                className="link-omg-blue btn btn-link"
                 disabled={loading}
-                onClick={() => { history.push('/signin'); }}
+                href="/signin"
+                to="/signin"
               >
                 {translate('update-password.cancel')}
-              </Button>
+              </Link>
             </span>
           </div>
         </form>

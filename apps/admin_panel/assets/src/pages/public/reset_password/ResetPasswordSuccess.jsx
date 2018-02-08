@@ -1,11 +1,10 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+import { withRouter, Link } from 'react-router-dom';
 
-const ResetPasswordSuccess = ({ translate, history }) => (
+const ResetPasswordSuccess = ({ translate }) => (
   <div className="omg-form">
     <h2 className="omg-form__title">
       {translate('reset-password-success.update_password_complete')}
@@ -13,19 +12,18 @@ const ResetPasswordSuccess = ({ translate, history }) => (
     <h3 className="omg-form__subtitle">
       {translate('reset-password-success.please_check_your_email')}
     </h3>
-    <Button
-      bsClass="btn btn-omg-blue"
-      bsStyle="primary"
-      onClick={() => { history.push('/signin'); }}
+    <Link
+      className="link-omg-blue btn btn-link"
+      href="/signin"
+      to="/signin"
     >
       {translate('reset-password-success.back_to_sign_in')}
-    </Button>
+    </Link>
   </div>
 );
 
 
 ResetPasswordSuccess.propTypes = {
-  history: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,
 };
 
