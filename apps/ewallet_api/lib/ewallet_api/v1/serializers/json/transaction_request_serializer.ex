@@ -12,7 +12,8 @@ defmodule EWalletAPI.V1.JSON.TransactionRequestSerializer do
       token_id: transaction_request.minted_token.friendly_id,
       amount: transaction_request.amount,
       address: transaction_request.balance_address,
-      correlation_id: transaction_request.correlation_id
+      correlation_id: transaction_request.correlation_id,
+      status: transaction_request.status
     }
   end
 end
