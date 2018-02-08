@@ -2,6 +2,7 @@
   "global": {
     "loading": "Loading...",
     "copy": "Copy",
+    "loading_gif_quote": "Loading...",
     "coming_soon": "Coming soon"
   },
   "components": {
