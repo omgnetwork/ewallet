@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
-import { withRouter } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 
@@ -85,14 +84,14 @@ class SignIn extends Component {
               <span className="ml-1">
                 {translate('sign-in.or')}
               </span>
-              <Button
-                bsStyle="link"
-                className="link-omg-blue"
+              <Link
+                className="link-omg-blue btn btn-link"
                 disabled={loading}
-                onClick={() => { history.push('/reset_password'); }}
+                href="/reset_password"
+                to="/reset_password"
               >
                 {translate('sign-in.reset_password')}
-              </Button>
+              </Link>
             </span>
           </div>
         </form>
