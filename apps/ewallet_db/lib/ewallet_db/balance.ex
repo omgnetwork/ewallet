@@ -60,6 +60,7 @@ defmodule EWalletDB.Balance do
   @doc """
   Retrieve a balance using the specified address.
   """
+  def get(nil), do: nil
   def get(address) do
     Repo.get_by(Balance, address: address)
   end
