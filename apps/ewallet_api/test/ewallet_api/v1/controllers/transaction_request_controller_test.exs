@@ -27,7 +27,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => "123",
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
-          "type" => "send"
+          "type" => "send",
+          "status" => "pending"
         }
       }
     end
@@ -55,7 +56,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => nil,
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
-          "type" => "send"
+          "type" => "send",
+          "status" => "pending"
         }
       }
     end
