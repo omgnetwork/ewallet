@@ -76,7 +76,7 @@ podTemplate(
             )
         }
 
-        if (env.BRANCH_NAME == 'master') {
+        if (env.BRANCH_NAME == 'development') {
             stage('Push') {
                 sh("gcloud docker -- push ${imageName}:${gitCommit}")
                 sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:latest")
@@ -86,7 +86,7 @@ podTemplate(
                 dir("${tmpDir}/deploy") {
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: '*/master']],
+                        branches: [[name: '*/development']],
                         userRemoteConfigs: [
                             [
                                 url: 'ssh://git@github.com/omisego/kube.git',
@@ -102,6 +102,11 @@ podTemplate(
                     def podID = getPodID('--namespace=staging -l app=ewallet')
                     sh("kubectl exec ${podID} --namespace=staging mix ecto.migrate")
                 }
+            }
+        } else if (env.BRANCH_NAME == 'master') {
+            stage('Push') {
+                sh("gcloud docker -- push ${imageName}:${gitCommit}")
+                sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:stable")
             }
         }
     }
