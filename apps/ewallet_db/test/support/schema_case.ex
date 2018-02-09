@@ -37,6 +37,7 @@ defmodule EWalletDB.SchemaCase do
   """
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL
+  alias EWalletDB.Account
 
   defmacro __using__(_opts) do
     quote do
@@ -64,6 +65,15 @@ defmodule EWalletDB.SchemaCase do
     _membership = insert(:membership, %{user: user, account: account, role: role})
 
     {user, account}
+  end
+
+  def get_or_insert_master_account do
+    case Account.get_master_account() do
+      %{} = account ->
+        account
+      _ ->
+        insert(:account, %{master: true})
+    end
   end
 
   @doc """

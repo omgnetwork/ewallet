@@ -4,6 +4,27 @@ defmodule AdminAPI.V1.APIKeyViewTest do
   alias AdminAPI.V1.APIKeyView
 
   describe "render/2" do
+    test "renders api_key.json with correct response format" do
+      api_key = insert(:api_key)
+
+      expected = %{
+        version: @expected_version,
+        success: true,
+        data: %{
+          object: "api_key",
+          id: api_key.id,
+          key: api_key.key,
+          account_id: api_key.account_id,
+          owner_app: api_key.owner_app,
+          created_at: Date.to_iso8601(api_key.inserted_at),
+          updated_at: Date.to_iso8601(api_key.updated_at),
+          deleted_at: Date.to_iso8601(api_key.deleted_at)
+        }
+      }
+
+      assert APIKeyView.render("api_key.json", %{api_key: api_key}) == expected
+    end
+
     test "renders api_keys.json with correct response format" do
       api_key1 = insert(:api_key)
       api_key2 = insert(:api_key)

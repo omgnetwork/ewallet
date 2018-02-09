@@ -12,11 +12,18 @@ defmodule EWalletDB.APIKeyTest do
   describe "APIKey.insert/1" do
     test_insert_generate_uuid APIKey, :id
     test_insert_generate_timestamps APIKey
-    test_insert_generate_length APIKey, :key, 43
+    test_insert_generate_length APIKey, :key, 43 # 32 bytes = ceil(32 / 3 * 4)
 
     test_insert_allow_duplicate APIKey, :account, insert(:account)
     test_insert_prevent_blank_assoc APIKey, :account
     test_insert_prevent_duplicate APIKey, :key
+
+    test "defaults to master account if not provided" do
+      master_account = get_or_insert_master_account()
+      {:ok, api_key} = :api_key |> params_for(%{account: nil}) |> APIKey.insert()
+
+      assert api_key.account_id == master_account.id
+    end
   end
 
   describe "APIKey.authenticate/2" do

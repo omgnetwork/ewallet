@@ -45,4 +45,45 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         }
     end
   end
+
+  describe "/api_key.create" do
+    test "responds with an API key on success" do
+      master_account = insert(:account, %{master: true})
+      response       = user_request("/api_key.create", %{owner_app: "some_app"})
+      api_key        = get_last_inserted(APIKey)
+
+      assert response == %{
+        "version" => "1",
+        "success" => true,
+        "data" => %{
+          "object"     => "api_key",
+          "id"         => api_key.id,
+          "key"        => api_key.key,
+          "account_id" => master_account.id,
+          "owner_app"  => "some_app",
+          "created_at" => Date.to_iso8601(api_key.inserted_at),
+          "updated_at" => Date.to_iso8601(api_key.updated_at),
+          "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+        }
+      }
+    end
+
+    test "returns error if owner_app is not provided" do
+      _master  = insert(:account, %{master: true})
+      response = user_request("/api_key.create", %{owner_app: nil})
+
+      assert response == %{
+        "version" => "1",
+        "success" => false,
+        "data" => %{
+          "object" => "error",
+          "code" => "client:invalid_parameter",
+          "description" => "Invalid parameter provided. `owner_app` can't be blank.",
+          "messages" => %{
+            "owner_app" => ["required"]
+          }
+        }
+      }
+    end
+  end
 end

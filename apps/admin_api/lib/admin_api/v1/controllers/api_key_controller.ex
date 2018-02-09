@@ -41,4 +41,25 @@ defmodule AdminAPI.V1.APIKeyController do
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
+
+  @doc """
+  Creates a new API key. Currently API keys are assigned to the master account only.
+  """
+  def create(conn, %{"owner_app" => owner_app}) do
+    # Convert the owner_app to atom key to be consistent with other attrs
+    # that are processed inside `APIKey.insert/1`
+    %{owner_app: owner_app}
+    |> APIKey.insert()
+    |> respond_single(conn)
+  end
+  def create(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  # Respond when the API key is saved successfully
+  defp respond_single({:ok, api_key}, conn) do
+    render(conn, :api_key, %{api_key: api_key})
+  end
+  # Responds when the API key is saved unsucessfully
+  defp respond_single({:error, changeset}, conn) do
+    handle_error(conn, :invalid_parameter, changeset)
+  end
 end

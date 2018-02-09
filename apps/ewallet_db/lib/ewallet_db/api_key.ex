@@ -34,13 +34,21 @@ defmodule EWalletDB.APIKey do
   The key is automatically generated if not specified.
   """
   def insert(attrs) do
-    attrs = Map.put_new_lazy(attrs, :key,
-      fn -> Crypto.generate_key(@key_bytes) end
-    )
+    attrs =
+      attrs
+      |> Map.put_new_lazy(:account_id, fn -> get_master_account_id() end)
+      |> Map.put_new_lazy(:key, fn -> Crypto.generate_key(@key_bytes) end)
 
     %APIKey{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp get_master_account_id do
+    case Account.get_master_account() do
+      %{id: id} -> id
+      _ -> nil
+    end
   end
 
   @doc """
