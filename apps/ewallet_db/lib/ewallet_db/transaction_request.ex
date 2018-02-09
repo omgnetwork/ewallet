@@ -5,7 +5,8 @@ defmodule EWalletDB.TransactionRequest do
   use Ecto.Schema
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{TransactionRequest, Repo, MintedToken, User, Balance, Helpers}
+  alias EWalletDB.{TransactionRequest, TransactionRequestConsumption,
+                   Repo, MintedToken, User, Balance, Helpers}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -23,6 +24,7 @@ defmodule EWalletDB.TransactionRequest do
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @pending # pending -> confirmed
     field :correlation_id, :string
+    has_many :consumptions, TransactionRequestConsumption
     belongs_to :user, User, foreign_key: :user_id,
                                          references: :id,
                                          type: UUID
@@ -41,14 +43,14 @@ defmodule EWalletDB.TransactionRequest do
       :type, :amount, :correlation_id, :user_id, :minted_token_id, :balance_address
     ])
     |> validate_required([
-      :type, :status, :user_id, :minted_token_id
+      :type, :status, :user_id, :minted_token_id, :balance_address
     ])
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:correlation_id)
     |> assoc_constraint(:minted_token)
     |> assoc_constraint(:user)
-    |> foreign_key_constraint(:balance_address)
+    |> assoc_constraint(:balance)
   end
 
   @doc """
