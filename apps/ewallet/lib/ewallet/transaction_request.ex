@@ -18,10 +18,10 @@ defmodule EWallet.TransactionRequest do
   end
 
   def get(id) do
-    TransactionRequest.get(id, preload: [:minted_token])
+    TransactionRequest.get(id, preload: [:minted_token, :user, :balance])
   end
 
-  def insert(attrs, user, minted_token, balance) do
+  def insert(user, minted_token, balance, attrs) do
     TransactionRequest.insert(%{
       type: attrs["type"],
       correlation_id: attrs["correlation_id"],

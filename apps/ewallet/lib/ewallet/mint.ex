@@ -81,16 +81,16 @@ defmodule EWallet.Mint do
     |> confirm_and_return(mint)
   end
   defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, mint) do
-    confirm_and_return({:ok, transfer.ledger_response}, mint)
+    confirm_and_return(transfer, mint)
   end
   defp process_with_transfer(%Transfer{status: "failed"} = transfer, mint) do
     resp = transfer.ledger_response
     confirm_and_return({:error, resp["code"], resp["description"]}, mint)
   end
 
-  defp confirm_and_return({:ok, ledger_response}, mint) do
-    mint = Mint.confirm(mint)
-    {:ok, mint, ledger_response}
-  end
   defp confirm_and_return({:error, code, description}, mint), do: {:error, code, description, mint}
+  defp confirm_and_return(transfer, mint) do
+    mint = Mint.confirm(mint)
+    {:ok, mint, transfer}
+  end
 end

@@ -88,18 +88,14 @@ defmodule EWallet.Transactions.Transfer do
   end
 
   defp update_transfer({:ok, entry}, transfer) do
-    transfer = Transfer.confirm(transfer, %{
+    Transfer.confirm(transfer, %{
       entry_id: entry.id
     })
-
-    {:ok, transfer}
   end
   defp update_transfer({:error, code, description}, transfer) do
     Transfer.fail(transfer, %{
       code: code,
       description: description
     })
-
-    {:error, code, description}
   end
 end

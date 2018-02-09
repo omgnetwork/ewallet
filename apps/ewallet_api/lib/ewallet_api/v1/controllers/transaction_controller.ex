@@ -60,7 +60,7 @@ defmodule EWalletAPI.V1.TransactionController do
     end
   end
   defp respond_with_balances({:error, code}, conn), do: handle_error(conn, code)
-  defp respond_with_balances({:error, code, description}, conn) do
+  defp respond_with_balances({:error, _transfer, code, description}, conn) do
     handle_error(conn, code, description)
   end
 
