@@ -77,5 +77,15 @@ defmodule AdminAPI.V1.APIKeyViewTest do
 
       assert APIKeyView.render("api_keys.json", %{api_keys: paginator}) == expected
     end
+
+    test "renders empty_response.json with correct structure" do
+      expected = %{
+        version: @expected_version,
+        success: true,
+        data: %{}
+      }
+
+      assert APIKeyView.render("empty_response.json") == expected
+    end
   end
 end

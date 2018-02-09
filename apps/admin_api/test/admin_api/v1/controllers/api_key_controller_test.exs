@@ -86,4 +86,32 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
       }
     end
   end
+
+  describe "/api_key.delete" do
+    test "responds with an empty success if provided a valid id" do
+      api_key  = insert(:api_key)
+      response = user_request("/api_key.delete", %{id: api_key.id})
+
+      assert response == %{
+        "version" => "1",
+        "success" => true,
+        "data" => %{}
+      }
+    end
+
+    test "responds with an error if the provided id is not found" do
+      response = user_request("/api_key.delete", %{id: "wrong_id"})
+
+      assert response == %{
+        "version" => "1",
+        "success" => false,
+        "data" => %{
+          "code" => "api_key:not_found",
+          "description" => "The API key could not be found",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+  end
 end

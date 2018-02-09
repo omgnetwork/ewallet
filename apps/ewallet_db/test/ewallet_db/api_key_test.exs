@@ -9,6 +9,27 @@ defmodule EWalletDB.APIKeyTest do
     test_has_valid_factory APIKey
   end
 
+  describe "get/1" do
+    test "accepts a uuid" do
+      api_key = insert(:api_key)
+      result = APIKey.get(api_key.id)
+      assert result.id == api_key.id
+    end
+
+    test "does not return a soft-deleted API key" do
+      {:ok, api_key} = :api_key |> insert() |> APIKey.delete()
+      assert APIKey.get(api_key.id) == nil
+    end
+
+    test "returns nil if the given uuid is invalid" do
+      assert APIKey.get("not_a_uuid") == nil
+    end
+
+    test "returns nil if the key with the given uuid is not found" do
+      assert APIKey.get(UUID.generate()) == nil
+    end
+  end
+
   describe "APIKey.insert/1" do
     test_insert_generate_uuid APIKey, :id
     test_insert_generate_timestamps APIKey
@@ -123,5 +144,17 @@ defmodule EWalletDB.APIKeyTest do
 
       assert APIKey.authenticate(key_id, nil, @owner_app) == false
     end
+  end
+
+  describe "deleted?/1" do
+    test_deleted_checks_nil_deleted_at APIKey
+  end
+
+  describe "delete/1" do
+    test_delete_causes_record_deleted APIKey
+  end
+
+  describe "restore/1" do
+    test_restore_causes_record_undeleted APIKey
   end
 end

@@ -62,4 +62,23 @@ defmodule AdminAPI.V1.APIKeyController do
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
+
+  @doc """
+  Soft-deletes an existing API key by its id.
+  """
+  def delete(conn, %{"id" => id}) do
+    key = APIKey.get(id)
+    do_delete(conn, key)
+  end
+  def delete(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp do_delete(conn, %APIKey{} = key) do
+    case APIKey.delete(key) do
+      {:ok, _key} ->
+        render(conn, :empty_response)
+      {:error, changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+    end
+  end
+  defp do_delete(conn, nil), do: handle_error(conn, :api_key_not_found)
 end

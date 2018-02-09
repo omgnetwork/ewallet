@@ -3,6 +3,7 @@ defmodule EWalletDB.APIKey do
   Ecto Schema representing API key.
   """
   use Ecto.Schema
+  use EWalletDB.SoftDelete
   import Ecto.Changeset
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, APIKey}
@@ -19,6 +20,7 @@ defmodule EWalletDB.APIKey do
                                   type: UUID
     field :expired, :boolean
     timestamps()
+    soft_delete()
   end
 
   defp changeset(%APIKey{} = key, attrs) do
@@ -27,6 +29,21 @@ defmodule EWalletDB.APIKey do
     |> validate_required([:key, :owner_app, :account_id])
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
+  end
+
+  @doc """
+  Get API key by id, exclude soft-deleted.
+  """
+  def get(nil), do: nil
+  def get(id) do
+    case UUID.dump(id) do
+      {:ok, _binary} ->
+        APIKey
+        |> exclude_deleted()
+        |> Repo.get(id)
+      :error ->
+        nil
+    end
   end
 
   @doc """
@@ -104,4 +121,19 @@ defmodule EWalletDB.APIKey do
     })
     |> Repo.preload(:account)
   end
+
+  @doc """
+  Checks whether the given API key is soft-deleted.
+  """
+  def deleted?(api_key), do: SoftDelete.deleted?(api_key)
+
+  @doc """
+  Soft-deletes the given API key.
+  """
+  def delete(api_key), do: SoftDelete.delete(api_key)
+
+  @doc """
+  Restores the given API key from soft-delete.
+  """
+  def restore(api_key), do: SoftDelete.restore(api_key)
 end
