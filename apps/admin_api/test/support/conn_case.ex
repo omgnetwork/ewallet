@@ -39,6 +39,8 @@ defmodule AdminAPI.ConnCase do
   @provider_user_id "test_provider_user_id"
   @auth_token "test_auth_token"
 
+  @base_dir "admin/api/"
+
   using do
     quote do
       # Import conveniences for testing with connections
@@ -62,6 +64,8 @@ defmodule AdminAPI.ConnCase do
       @user_email unquote(@user_email)
       @provider_user_id unquote(@provider_user_id)
       @auth_token unquote(@auth_token)
+
+      @base_dir unquote(@base_dir)
     end
   end
 
@@ -99,7 +103,7 @@ defmodule AdminAPI.ConnCase do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGAdmin", [@api_key_id, @api_key])
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 
@@ -112,7 +116,7 @@ defmodule AdminAPI.ConnCase do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGAdmin", [@api_key_id, @api_key, @user_id, @auth_token])
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 

@@ -13,7 +13,6 @@ config :ewallet_api,
 # Configures the endpoint
 config :ewallet_api,
   EWalletAPI.Endpoint,
-  url: [host: "localhost"],
   render_errors: [
     view: EWalletAPI.ErrorView,
     accepts: ~w(json),

@@ -14,7 +14,6 @@ config :admin_api,
 # Configs for the endpoint
 config :admin_api,
   AdminAPI.Endpoint,
-  url: [host: "localhost"],
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   render_errors: [
     view: AdminAPI.ErrorView,

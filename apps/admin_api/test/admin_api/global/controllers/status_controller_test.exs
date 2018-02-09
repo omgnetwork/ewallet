@@ -5,7 +5,7 @@ defmodule AdminAPI.StatusControllerTest do
     test "returns status ok" do
 
       response = build_conn()
-        |> get("/")
+        |> get(@base_dir <> "/")
         |> json_response(:ok)
 
       assert response == %{"success" => true}
