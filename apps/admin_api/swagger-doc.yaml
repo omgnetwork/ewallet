@@ -37,6 +37,8 @@ tags:
     description: These are the endpoints related to admins.
   - name: Transaction
     description: These are the endpoints related to transactions.
+  - name: API Access
+    description: These are the endpoints related to API access.
 paths:
   ############################
   #         SESSION          #
@@ -445,6 +447,41 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/TransactionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  ############################
+  #        API Access        #
+  ############################
+  /access_key.all:
+    post:
+      tags:
+        - API Access
+      summary: Get the list of access and secret keys
+      operationId: access_key_all
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeysResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /access_key.create:
+    post:
+      tags:
+        - API Access
+      summary: Create a pair of access and secret keys
+      operationId: access_key_create
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -1014,6 +1051,90 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+    AccessKeySchema:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+          format: uuid
+        access_key:
+          type: string
+        secret_key:
+          type: string
+        account_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - access_key
+        - account_id
+        - created_at
+        - updated_at
+    AccessKeyResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/AccessKeySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "key"
+            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+            secret_key: "the_secret_key_or_null"
+            account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+    AccessKeysResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccessKeySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "key"
+                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+                secret_key: "the_secret_key_or_null"
+                account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
     # Schema for an error object
     ErrorSchema:
       type: object
@@ -1482,6 +1603,33 @@ components:
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               avatar: "/path/to/file"
+    AccessKeyAllBody:
+      description: The parameters to use for listing the access keys
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              sort_by: "created_at"
+              sort_dir: "desc"
+
   parameters:
     # Headers
     ClientAuthorizationHeader:
@@ -1583,6 +1731,20 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AdminsResponseSchema'
+    # Access key response
+    AccessKeyResponse:
+      description: Access key response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AccessKeyResponseSchema'
+    # Access key response
+    AccessKeysResponse:
+      description: Access keys response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AccessKeysResponseSchema'
     # Empty
     EmptyResponse:
       description: Empty response
