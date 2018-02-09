@@ -6,11 +6,9 @@ defmodule UrlDispatcher.Application do
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
 
-    port = Application.get_env(:url_dispatcher, :port)
-
     # List all child processes to be supervised
     children = [
-      Cowboy.child_spec(:http, UrlDispatcher.Plug, [], [port: port])
+      {Cowboy, scheme: :http, plug: UrlDispatcher.Plug, options: [port: dispatcher_port()]}
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
@@ -18,4 +16,13 @@ defmodule UrlDispatcher.Application do
     opts = [strategy: :one_for_one, name: UrlDispatcher.Supervisor]
     Supervisor.start_link(children, opts)
   end
+
+  defp dispatcher_port do
+    :url_dispatcher
+    |> Application.get_env(:port)
+    |> port_to_integer()
+  end
+
+  defp port_to_integer(port) when is_binary(port), do: String.to_integer(port)
+  defp port_to_integer(port) when is_integer(port), do: port
 end
