@@ -46,8 +46,8 @@ defmodule EWalletDB.TransactionRequest do
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:correlation_id)
-    |> foreign_key_constraint(:minted_token_id)
-    |> foreign_key_constraint(:user_id)
+    |> assoc_constraint(:minted_token)
+    |> assoc_constraint(:user)
     |> foreign_key_constraint(:balance_address)
   end
 

@@ -1,18 +1,19 @@
 defmodule EWalletAPI.V1.TransactionRequestControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest}
+  alias EWalletDB.{Repo, TransactionRequest, User}
 
   describe "create/2" do
     test "creates a transaction request with all the params" do
+      user         = get_test_user()
       minted_token = insert(:minted_token)
-      _balance     = insert(:balance, address: "1234")
+      balance      = User.get_primary_balance(user)
 
-      response = client_request("/transaction_request.create", %{
+      response = client_request("/me.create_transaction_request", %{
         type: "send",
         token_id: minted_token.friendly_id,
         correlation_id: "123",
         amount: 1_000,
-        address: "1234",
+        address: balance.address,
       })
 
       request = TransactionRequest |> Repo.all() |> Enum.at(0)
@@ -23,7 +24,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "data" => %{
           "object" => "transaction_request",
           "amount" => 1_000,
-          "address" => "1234",
+          "address" => balance.address,
           "correlation_id" => "123",
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
@@ -34,9 +35,11 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     end
 
     test "creates a transaction request with the minimum params" do
+      user         = get_test_user()
       minted_token = insert(:minted_token)
+      balance      = User.get_primary_balance(user)
 
-      response = client_request("/transaction_request.create", %{
+      response = client_request("/me.create_transaction_request", %{
         type: "send",
         token_id: minted_token.friendly_id,
         correlation_id: nil,
@@ -52,7 +55,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "data" => %{
           "object" => "transaction_request",
           "amount" => nil,
-          "address" => nil,
+          "address" => balance.address,
           "correlation_id" => nil,
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
@@ -65,7 +68,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "receives an error when the type is invalid" do
       minted_token = insert(:minted_token)
 
-      response = client_request("/transaction_request.create", %{
+      response = client_request("/me.create_transaction_request", %{
         type: "fake",
         token_id: minted_token.friendly_id,
         correlation_id: nil,
@@ -85,8 +88,55 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
       }
     end
 
+    test "receives an error when the address is invalid" do
+      minted_token = insert(:minted_token)
+
+      response = client_request("/me.create_transaction_request", %{
+        type: "send",
+        token_id: minted_token.friendly_id,
+        correlation_id: nil,
+        amount: nil,
+        address: "fake",
+      })
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "user:balance_not_found",
+          "description" => "There is no balance corresponding to the provided address",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+
+    test "receives an error when the address does not belong to the user" do
+      minted_token = insert(:minted_token)
+      balance      = insert(:balance)
+
+      response = client_request("/me.create_transaction_request", %{
+        type: "send",
+        token_id: minted_token.friendly_id,
+        correlation_id: nil,
+        amount: nil,
+        address: balance.address,
+      })
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "user:user_balance_mismatch",
+          "description" => "The provided balance does not belong to the current user",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+
     test "receives an error when the token ID is not found" do
-      response = client_request("/transaction_request.create", %{
+      response = client_request("/me.create_transaction_request", %{
         type: "send",
         token_id: "123",
         correlation_id: nil,
