@@ -49,7 +49,7 @@ defmodule EWalletDB.Key do
     |> Repo.insert()
   end
 
-  defp get_master_account_id() do
+  defp get_master_account_id do
     case Account.get_master_account() do
       %{id: id} -> id
       _ -> nil
