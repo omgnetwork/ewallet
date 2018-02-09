@@ -31,7 +31,7 @@ defmodule EWalletDB.KeyTest do
       assert result.id == key.id
     end
 
-    test "doest not return a soft-deleted key" do
+    test "does not return a soft-deleted key" do
       {:ok, key} = :key |> insert() |> Key.delete()
       assert Key.get(key.id) == nil
     end
@@ -118,25 +118,15 @@ defmodule EWalletDB.KeyTest do
     end
   end
 
-  describe "delete/1" do
-    test "returns a key with deleted_at is not nil" do
-      key = insert(:key)
-      refute Key.deleted?(key)
+  describe "deleted?/1" do
+    test_deleted_checks_nil_deleted_at Key
+  end
 
-      {res, key} = Key.delete(key)
-      assert res == :ok
-      assert Key.deleted?(key)
-    end
+  describe "delete/1" do
+    test_delete_causes_record_deleted Key
   end
 
   describe "restore/1" do
-    test "returns a key with deleted_at is nil" do
-      key = insert(:key, %{deleted_at: DateTime.utc_now()})
-      assert Key.deleted?(key)
-
-      {res, key} = Key.restore(key)
-      assert res == :ok
-      refute Key.deleted?(key)
-    end
+    test_restore_causes_record_undeleted Key
   end
 end

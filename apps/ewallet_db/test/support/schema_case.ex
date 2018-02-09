@@ -366,4 +366,74 @@ defmodule EWalletDB.SchemaCase do
       end
     end
   end
+
+  defmacro test_deleted_checks_nil_deleted_at(schema) do
+    quote do
+      test "returns false if deleted_at is nil" do
+        schema = unquote(schema)
+
+        {:ok, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> schema.insert()
+
+        refute schema.deleted?(record)
+      end
+
+      test "returns true if deleted_at is not nil" do
+        schema = unquote(schema)
+
+        {:ok, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{deleted_at: nil})
+          |> schema.insert()
+
+        refute schema.deleted?(record)
+      end
+    end
+  end
+
+  defmacro test_delete_causes_record_deleted(schema) do
+    quote do
+      test "causes the record to become deleted" do
+        schema = unquote(schema)
+
+        {_, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{})
+          |> schema.insert()
+
+        # Makes sure the record is not already deleted before testing
+        refute schema.deleted?(record)
+
+        {res, record} = schema.delete(record)
+        assert res == :ok
+        assert schema.deleted?(record)
+      end
+    end
+  end
+
+  defmacro test_restore_causes_record_undeleted(schema) do
+    quote do
+      test "causes the record to become undeleted" do
+        schema = unquote(schema)
+
+        {_, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> schema.insert()
+
+        # Makes sure the record is already soft-deleted before testing
+        refute schema.deleted?(record)
+
+        {res, record} = schema.restore(record)
+        assert res == :ok
+        refute schema.deleted?(record)
+      end
+    end
+  end
 end
