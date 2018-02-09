@@ -19,7 +19,8 @@ defmodule AdminAPI.V1.KeyControllerTest do
               "secret_key" => nil, # Secret keys cannot be retrieved after creation
               "account_id" => key.account_id,
               "created_at" => Date.to_iso8601(key.inserted_at),
-              "updated_at" => Date.to_iso8601(key.updated_at)
+              "updated_at" => Date.to_iso8601(key.updated_at),
+              "deleted_at" => Date.to_iso8601(key.deleted_at)
             }],
             "pagination" => %{
               "current_page" => 1,
@@ -48,7 +49,8 @@ defmodule AdminAPI.V1.KeyControllerTest do
           "secret_key" => _,
           "account_id" => _,
           "created_at" => _,
-          "updated_at" => _
+          "updated_at" => _,
+          "deleted_at" => _
         }
       } = response
 

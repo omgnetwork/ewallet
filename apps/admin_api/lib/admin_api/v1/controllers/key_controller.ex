@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.KeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{Account, Key, SoftDelete}
+  alias EWalletDB.{Account, Key}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -24,11 +24,10 @@ defmodule AdminAPI.V1.KeyController do
   @sort_fields [:access_key, :inserted_at, :updated_at]
 
   @doc """
-  Retrieves a list of keys.
+  Retrieves a list of keys including soft-deleted.
   """
   def all(conn, attrs) do
     Key
-    |> SoftDelete.exclude_deleted()
     |> SearchParser.to_query(attrs, @search_fields)
     |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
     |> Paginator.paginate_attrs(attrs)
