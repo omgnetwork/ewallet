@@ -33,19 +33,27 @@ defmodule EWalletDB.Key do
 
   @doc """
   Creates a new key with the passed attributes.
-  Access and/or secret keys are automatically generated if not specified.
+
+  The `account_id` defaults to the master account if not provided.
+  The `access_key` and `secret_key` are automatically generated if not specified.
   """
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:access_key, fn ->
-        Crypto.generate_key(@key_bytes) end)
-      |> Map.put_new_lazy(:secret_key, fn ->
-        Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:account_id, fn -> get_master_account_id() end)
+      |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@key_bytes) end)
 
     %Key{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  defp get_master_account_id() do
+    case Account.get_master_account() do
+      %{id: id} -> id
+      _ -> nil
+    end
   end
 
   @doc """
