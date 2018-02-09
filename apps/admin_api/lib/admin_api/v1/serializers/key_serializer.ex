@@ -16,7 +16,8 @@ defmodule AdminAPI.V1.KeySerializer do
       secret_key: key.secret_key,
       account_id: key.account_id,
       created_at: Date.to_iso8601(key.inserted_at),
-      updated_at: Date.to_iso8601(key.updated_at)
+      updated_at: Date.to_iso8601(key.updated_at),
+      deleted_at: Date.to_iso8601(key.deleted_at)
     }
   end
 end
