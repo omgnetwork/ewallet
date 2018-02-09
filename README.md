@@ -105,10 +105,10 @@ mix run apps/ewallet/priv/repo/seeds.exs
 We can now start the application:
 
 ```
-mix phx.server
+mix run --no-halt
 ```
 
-Navigate to  `http://localhost:4000/` in your browser and you should see the following JSON representation popping up:
+Navigate to  `http://localhost:4000/api` in your browser and you should see the following JSON representation popping up:
 
 ```
 {
@@ -132,10 +132,8 @@ All set! Start playing around with the API using the Swagger docs below to learn
 Below are the general environment variables needed for the eWallet to run smoothly.
 
 - `MIX_ENV`: Environment in which the application is being ran. `prod` for production.
-- `API_HOST`: The domain name where the eWallet API should be accessible.
-- `API_PORT`: The port associated with the domain name above.
-- `ADMIN_API_HOST`: The domain name where the Admin API should be accessible.
-- `ADMIN_API_PORT`: The port associated with the domain name above.
+- `BASE_URL`: The base to use when building URLs.
+- `PORT`: The port that the application listens on.
 - `EWALLET_SECRET_KEY`: Encryption key used to encrypt some data in the database.
 - `LOCAL_LEDGER_SECRET_KEY`: Encryption key used to encrypt some data in the database.
 
@@ -188,9 +186,7 @@ Strategies available:
 
 In order to use the file upload feature (for profile pictures and account logos), environment variables need to be defined.
 
-#### Local Storage
-
-- `UPLOADS_BASE_URL`: The base URL used to retrieve the uploaded images. Example: `https//example.com`
+#### Local File Storage
 
 Nothing else to set, files will be stored at the root of the project in `public/uploads/`.
 

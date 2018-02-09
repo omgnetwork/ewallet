@@ -8,7 +8,6 @@ use Mix.Config
 # with brunch.io to recompile .js and .css sources.
 config :admin_api, AdminAPI.Endpoint,
   secret_key_base: "p+A/M31eF7pNXK7q6pWKfBZbubUTF5x2NSX3pGwIOywHiOIN6PCgoZjTcAS81Vlz",
-  http: [port: 5000],
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
