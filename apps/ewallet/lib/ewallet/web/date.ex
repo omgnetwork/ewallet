@@ -20,6 +20,14 @@ defmodule EWallet.Web.Date do
   def to_iso8601(%DateTime{} = date) do
     DateTime.to_iso8601(date)
   end
+
+  @doc """
+  Returns nil if parsing nil.
+  """
+  def to_iso8601(nil) do
+    nil
+  end
+
   @doc """
   Raise a InvalidDateFormatError if the type is invalid.
   """

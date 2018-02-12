@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.KeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.Key
+  alias EWalletDB.{Account, Key}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -24,7 +24,7 @@ defmodule AdminAPI.V1.KeyController do
   @sort_fields [:access_key, :inserted_at, :updated_at]
 
   @doc """
-  Retrieves a list of keys.
+  Retrieves a list of keys including soft-deleted.
   """
   def all(conn, attrs) do
     Key
@@ -59,4 +59,27 @@ defmodule AdminAPI.V1.KeyController do
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
+
+  @doc """
+  Soft-deletes an existing key.
+  """
+  def delete(conn, %{"access_key" => access_key}) do
+    key = Key.get(:access_key, access_key)
+    do_delete(conn, key)
+  end
+  def delete(conn, %{"id" => id}) do
+    key = Key.get(id)
+    do_delete(conn, key)
+  end
+  def delete(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp do_delete(conn, %Key{} = key) do
+    case Key.delete(key) do
+      {:ok, _key} ->
+        render(conn, :empty_response)
+      {:error, changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+    end
+  end
+  defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
 end

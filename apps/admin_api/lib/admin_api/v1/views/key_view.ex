@@ -12,4 +12,7 @@ defmodule AdminAPI.V1.KeyView do
     |> KeySerializer.to_json()
     |> ResponseSerializer.to_json(success: true)
   end
+  def render("empty_response.json", _attrs) do
+    ResponseSerializer.to_json(%{}, success: true)
+  end
 end

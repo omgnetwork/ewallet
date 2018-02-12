@@ -17,7 +17,8 @@ defmodule AdminAPI.V1.KeyViewTest do
           secret_key: key.secret_key,
           account_id: key.account_id,
           created_at: Date.to_iso8601(key.inserted_at),
-          updated_at: Date.to_iso8601(key.updated_at)
+          updated_at: Date.to_iso8601(key.updated_at),
+          deleted_at: Date.to_iso8601(key.deleted_at)
         }
       }
 
@@ -51,7 +52,8 @@ defmodule AdminAPI.V1.KeyViewTest do
               secret_key: key1.secret_key,
               account_id: key1.account_id,
               created_at: Date.to_iso8601(key1.inserted_at),
-              updated_at: Date.to_iso8601(key1.updated_at)
+              updated_at: Date.to_iso8601(key1.updated_at),
+              deleted_at: Date.to_iso8601(key1.deleted_at)
             },
             %{
               object: "key",
@@ -60,7 +62,8 @@ defmodule AdminAPI.V1.KeyViewTest do
               secret_key: key2.secret_key,
               account_id: key2.account_id,
               created_at: Date.to_iso8601(key2.inserted_at),
-              updated_at: Date.to_iso8601(key2.updated_at)
+              updated_at: Date.to_iso8601(key2.updated_at),
+              deleted_at: Date.to_iso8601(key2.deleted_at)
             }
           ],
           pagination: %{
@@ -73,6 +76,16 @@ defmodule AdminAPI.V1.KeyViewTest do
       }
 
       assert KeyView.render("keys.json", %{keys: paginator}) == expected
+    end
+
+    test "renders empty_response.json with correct structure" do
+      expected = %{
+        version: @expected_version,
+        success: true,
+        data: %{}
+      }
+
+      assert KeyView.render("empty_response.json") == expected
     end
   end
 end
