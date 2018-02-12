@@ -21,14 +21,14 @@ const propTypes = {
 const OMGCircleButton = ({
   faName, className, onClick, size, show,
 }) => (
-  <button
-    className={`omg_circle_button__${size} ${className}`}
-    onClick={onClick}
-    style={{ display: show ? 'inline' : 'none' }}
-    type="button"
-  >
-    <FA name={faName} />
-  </button>
+  show && (
+    <button
+      className={`omg_circle_button__${size} ${className}`}
+      onClick={onClick}
+      type="button"
+    >
+      <FA name={faName} />
+    </button>)
 );
 
 OMGCircleButton.propTypes = propTypes;

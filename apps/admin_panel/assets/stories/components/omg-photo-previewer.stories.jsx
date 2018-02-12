@@ -1,7 +1,7 @@
 import React from 'react';
 import { storiesOf } from '@storybook/react';
 import OMGPhotoPreviewer from '../../src/components/OMGPhotoPreviewer';
-import Omise from '../../public/images/user.svg';
+import User from '../../public/images/user_icon_placeholder.png';
 
 const containerStyle = {
   width: '300px',
@@ -25,5 +25,5 @@ storiesOf('OMGPhotoPreviewer', module)
     <OMGPhotoPreviewer onFileChanged={() => {}} showCloseBtn showUploadBtn={false} />
   ))
   .add('with different placeholder', () => (
-    <OMGPhotoPreviewer img={Omise} onFileChanged={() => {}} showUploadBtn={false} />
+    <OMGPhotoPreviewer img={User} onFileChanged={() => {}} showUploadBtn={false} />
   ));

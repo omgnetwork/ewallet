@@ -5,41 +5,75 @@ import placeholder from '../../public/images/user_icon_placeholder.png';
 
 const defaultProps = {
   img: placeholder,
-  containerClass: 'omg_photo_uploader',
-  imgClass: 'omg_photo_uploader__img',
   showUploadBtn: true,
   showCloseBtn: false,
 };
 
 const propTypes = {
-  containerClass: PropTypes.string,
   img: PropTypes.string,
-  imgClass: PropTypes.string,
   onFileChanged: PropTypes.func.isRequired,
   showCloseBtn: PropTypes.bool,
   showUploadBtn: PropTypes.bool,
 };
 
 class OMGPhotoPreviewer extends Component {
+  static handleBrowseImg() {
+    document.getElementById('file-input').click();
+  }
+
   constructor(props) {
     super(props);
     const { img, showCloseBtn, showUploadBtn } = this.props;
+    this.accept = 'image/jpeg, image/png, image/jpg, image/gif';
     this.state = {
       file: null,
       img,
       showUploadBtn,
       showCloseBtn,
+      imgClass: 'omg_photo_uploader__img',
     };
     this.handleChangeImg = this.handleChangeImg.bind(this);
-    this.handleBrowseImg = this.handleBrowseImg.bind(this);
     this.handleRemoveImg = this.handleRemoveImg.bind(this);
+    this.handleDragEnter = this.handleDragEnter.bind(this);
+    this.handleDragLeave = this.handleDragLeave.bind(this);
+    this.handleDrop = this.handleDrop.bind(this);
+    this.readFile = this.readFile.bind(this);
+    this.shouldImageBeUploaded = this.shouldImageBeUploaded.bind(this);
   }
 
-  handleChangeImg(e) {
-    const reader = new FileReader();
-    const file = e.target.files[0];
-    const { onFileChanged } = this.props;
+  handleDrop(e) {
+    e.preventDefault(); // prevent to open a new tab with the file.
+    this.setState({
+      imgClass: 'omg_photo_uploader__img',
+    });
+    const file = e.dataTransfer.files[0];
+    if (this.accept.indexOf(file.type) === -1) return;
+    this.readFile(file);
+  }
 
+  handleDragEnter() {
+    this.setState({
+      showUploadBtn: false,
+      imgClass: 'omg_photo_uploader__img-blue',
+    });
+  }
+
+  handleDragLeave() {
+    this.setState(prevState => ({
+      showUploadBtn: !prevState.showCloseBtn,
+      imgClass: 'omg_photo_uploader__img',
+    }));
+  }
+
+
+  handleChangeImg(e) {
+    const file = e.target.files[0];
+    this.readFile(file);
+  }
+
+  readFile(file) {
+    const reader = new FileReader();
+    const { onFileChanged } = this.props;
     reader.onloadend = () => {
       this.setState(
         {
@@ -55,12 +89,7 @@ class OMGPhotoPreviewer extends Component {
     reader.readAsDataURL(file);
   }
 
-  handleBrowseImg(e) {
-    document.getElementById('file-input').click();
-  }
-
-  handleRemoveImg(e) {
-    const { img } = this.props;
+  handleRemoveImg() {
     const { onFileChanged } = this.props;
     document.getElementById('file-input').value = null;
     this.setState(
@@ -74,13 +103,29 @@ class OMGPhotoPreviewer extends Component {
     );
   }
 
+  shouldImageBeUploaded() {
+    const { file, img } = this.state;
+    const add = !img && file !== null;
+    const update = img && img !== placeholder && file !== null;
+    const remove = !file && img === placeholder;
+    return add || update || remove;
+  }
+
   render() {
-    const { containerClass, imgClass } = this.props;
-    const { img, showUploadBtn, showCloseBtn } = this.state;
+    const {
+      img, imgClass, showUploadBtn, showCloseBtn,
+    } = this.state;
 
     return (
-      <div className={`${containerClass}`}>
-        <img alt="placeholder" className={`${imgClass}`} src={img} />
+      <div
+        className="omg_photo_uploader"
+        id="container"
+        onDragEnter={this.handleDragEnter}
+        onDragLeave={this.handleDragLeave}
+        onDragOver={e => e.preventDefault()}
+        onDrop={this.handleDrop}
+      >
+        <img alt="placeholder" className={imgClass} src={img} />
         <OMGCircleButton
           className="omg_photo_uploader__top-right-button"
           faName="close"
@@ -91,12 +136,12 @@ class OMGPhotoPreviewer extends Component {
         <OMGCircleButton
           className="omg_photo_uploader__center-button"
           faName="camera"
-          onClick={this.handleBrowseImg}
+          onClick={OMGPhotoPreviewer.handleBrowseImg}
           show={showUploadBtn}
           size="medium"
         />
         <input
-          accept="image/*"
+          accept={this.accept}
           id="file-input"
           onChange={this.handleChangeImg}
           style={{ display: 'none' }}

@@ -270,7 +270,8 @@
         "help": ""
       },
       "submit": "Submit",
-      "success": {
+      "notification": {
+        "upload_info": "Change your avatar before submit",
         "upload_avatar": "The avatar has been uploaded successfully"
       }
     }
