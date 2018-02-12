@@ -86,7 +86,7 @@ podTemplate(
                 dir("${tmpDir}/deploy") {
                     checkout([
                         $class: 'GitSCM',
-                        branches: [[name: '*/development']],
+                        branches: [[name: '*/master']],
                         userRemoteConfigs: [
                             [
                                 url: 'ssh://git@github.com/omisego/kube.git',
