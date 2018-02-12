@@ -54,7 +54,7 @@ defmodule EWalletAPI.V1.Router do
 
     scope "/" do
       pipe_through [:idempotency]
-      post "/me.consume_transaction_request", TransactionRequestController, :consume
+      post "/me.consume_transaction_request", TransactionRequestConsumptionController, :consume
     end
 
     post "/logout", AuthController, :logout
