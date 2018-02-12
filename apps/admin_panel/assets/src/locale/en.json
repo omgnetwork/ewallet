@@ -291,7 +291,7 @@
   "setting": {
     "header": {
       "title": "Account Settings",
-      "edit_account": "Edit an account"
+      "edit_account": "Edit account"
     },
     "form": {
       "account_name": {
