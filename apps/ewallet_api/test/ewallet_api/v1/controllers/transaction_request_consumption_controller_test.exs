@@ -3,18 +3,16 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
   alias EWalletDB.{Repo, TransactionRequestConsumption, User, Transfer}
 
   describe "consume/2" do
-    # No idempotency?
-    # with transaction request created through API
-    # with address / without address in request
-    # with amount / without amount in request
-    test "" do
+    test "consumes the request and transfers the appropriate amount of tokens" do
       minted_token        = insert(:minted_token)
+      # receiver
       {:ok, alice}        = User.insert(%{
         username: "alice",
         provider_user_id: "alice",
         metadata: %{}
-      })   # receiver
-      bob                 = get_test_user() # sender
+      })
+      # sender
+      bob                 = get_test_user()
       alice_balance       = User.get_primary_balance(alice)
       bob_balance         = User.get_primary_balance(bob)
 
@@ -65,6 +63,28 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
       assert inserted_transfer.to == alice_balance.address
       assert inserted_transfer.from == bob_balance.address
       assert %{} = inserted_transfer.ledger_response
+    end
+
+    test "returns idempotency error if header is not specified" do
+      response = client_request("/me.consume_transaction_request", %{
+        transaction_request_id: "123",
+        correlation_id: nil,
+        amount: nil,
+        address: nil,
+        metadata: nil
+      })
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "client:no_idempotency_token_provided",
+          "description" => "The call you made requires the " <>
+                           "Idempotency-Token header to prevent duplication.",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
     end
   end
 end
