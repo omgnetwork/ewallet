@@ -115,10 +115,15 @@ defmodule EWalletDB.Factory do
   end
 
   def key_factory do
+    access_key = sequence("access_key")
+    secret_key = sequence("secret_key")
+
     %Key{
-      access_key: sequence("access_key"),
-      secret_key: sequence("secret_key"),
+      access_key: access_key,
+      secret_key: secret_key,
+      secret_key_hash: Crypto.hash_password(secret_key),
       account: insert(:account),
+      deleted_at: nil
     }
   end
 

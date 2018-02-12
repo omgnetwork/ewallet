@@ -148,6 +148,16 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
+  Returns whether the account is the master account.
+  """
+  def is_master?(account) do
+    # Currently there is `master` field on the account so we use that value.
+    # We have this function because soon the field be removed and the master account
+    # will need to be determined by checking that the account's `parent_id` is nil.
+    account.master
+  end
+
+  @doc """
   Get the master account for the current wallet setup.
   """
   def get_master_account(true) do
