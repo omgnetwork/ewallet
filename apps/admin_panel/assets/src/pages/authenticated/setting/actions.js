@@ -13,7 +13,9 @@ export default class Actions {
         if (err) {
           ErrorHandler.handleAPIError(dispatch, err);
         } else {
-          onSuccess(result);
+          onSuccess({
+            updateAccount: result,
+          });
           dispatch(SessionActions.saveCurrentAccount(result));
         }
       });

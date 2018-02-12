@@ -34,34 +34,43 @@ class Profile extends Component {
     this.handleFormChanged = this.handleFormChanged.bind(this);
     this.handleUploadAvatarSuccess = this.handleUploadAvatarSuccess.bind(this);
     this.handleUploadAvatarFailed = this.handleUploadAvatarFailed.bind(this);
+    this.photoPreviewer = null;
   }
 
   handleSubmit(e) {
     e.preventDefault();
     const { avatarFile } = this.state;
-    const { uploadAvatar, session } = this.props;
+    const {
+      uploadAvatar, session, showInfoAlert, translate,
+    } = this.props;
     const { currentUser } = session;
-    this.setState({ loading: { submit: true } });
-    uploadAvatar(
-      {
-        id: currentUser.id,
-        avatar: avatarFile,
-      },
-      this.handleUploadAvatarSuccess,
-      this.handleUploadAvatarFailed,
-    );
+    const uploadable = this.photoPreviewer.shouldImageBeUploaded();
+    if (uploadable) {
+      this.setState({ loading: { submit: true } });
+      uploadAvatar(
+        {
+          id: currentUser.id,
+          avatar: avatarFile,
+        },
+        this.handleUploadAvatarSuccess,
+        this.handleUploadAvatarFailed,
+      );
+    } else {
+      showInfoAlert(translate('profile.form.notification.upload_info'));
+      moveToTop();
+    }
   }
 
   handleUploadAvatarSuccess(result) {
     this.setState({
-      avatar: `${OMISEGO_BASE_URL}${result.avatar.original.substr(1)}`,
+      avatar: (result.avatar.small && `${OMISEGO_BASE_URL}${result.avatar.small.substr(1)}`) || placeholder,
       avatarFile: null,
       loading: {
         submit: false,
       },
     }, () => {
       const { translate, showSuccessAlert } = this.props;
-      showSuccessAlert(translate('profile.form.success.upload_avatar'));
+      showSuccessAlert(translate('profile.form.notification.upload_avatar'));
       moveToTop();
     });
   }
@@ -106,6 +115,7 @@ class Profile extends Component {
                   Edit Profile
                 </h4>
                 <OMGPhotoPreviewer
+                  ref={(instance) => { this.photoPreviewer = instance; }}
                   img={avatar}
                   onFileChanged={this.handleFileChanged}
                   showCloseBtn={avatar !== placeholder}
@@ -178,6 +188,7 @@ class Profile extends Component {
 
 Profile.propTypes = {
   session: PropTypes.object.isRequired,
+  showInfoAlert: PropTypes.func.isRequired,
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
   uploadAvatar: PropTypes.func.isRequired,
@@ -201,6 +212,9 @@ function mapDispatchToProps(dispatch) {
     },
     showSuccessAlert: (message) => {
       dispatch(AlertActions.success(message));
+    },
+    showInfoAlert: (message) => {
+      dispatch(AlertActions.info(message));
     },
   };
 }

@@ -4,15 +4,28 @@
   height: 8rem;
   background-color: $sidebar-background;
 
-  &__img {
-    
+  @mixin img-size($size) {
     display: block;
-    max-width: 8rem;
-    max-height: 8rem;
-    border: 1px solid $light-gray;
+    max-width: $size;
+    max-height: $size;
     width: auto;
     height: auto;
     margin: auto;
+  }
+
+  @mixin img-size($size) {
+    width: $size;
+    height: $size;
+  }
+
+  &__img {
+    @include img-size(8rem);
+    border: 1px solid $light-gray;
+  }
+
+  &__img-blue {
+    @include img-size(8rem);
+    border: 2px solid $omise-dark-blue;
   }
 
   &__center-button {

@@ -53,6 +53,7 @@ class Setting extends Component {
     this.handleResendInvitationSuccess = this.handleResendInvitationSuccess.bind(this);
     this.handleSearchUsers = this.handleSearchUsers.bind(this);
     this.handleUpdateAccount = this.handleUpdateAccount.bind(this);
+    this.photoPreviewer = null;
   }
 
   componentDidMount() {
@@ -173,7 +174,7 @@ class Setting extends Component {
   }
 
   handleUpdateAccount() {
-    const { currentAccount, updateAccountAndAvatar } = this.props;
+    const { currentAccount, updateAccount, updateAccountAndAvatar } = this.props;
     const { accountName, avatarFile, loading } = this.state;
     const params = {
       updateAccount: {
@@ -193,7 +194,13 @@ class Setting extends Component {
       },
     });
 
-    updateAccountAndAvatar(params, this.handleUpdateFormSuccess, this.handleUpdateFormFailed);
+    const uploadable = this.photoPreviewer.shouldImageBeUploaded();
+
+    if (uploadable) {
+      updateAccountAndAvatar(params, this.handleUpdateFormSuccess, this.handleUpdateFormFailed);
+    } else {
+      updateAccount(params.updateAccount, this.handleUpdateFormSuccess);
+    }
   }
 
   handleUpdateFormSuccess(result) {
@@ -205,7 +212,7 @@ class Setting extends Component {
         saveAccount: false,
       },
       avatarFile: null,
-      avatar: result.uploadAvatar.avatar.small,
+      avatar: (result.uploadAvatar && result.uploadAvatar.avatar.small) || prevState.avatar,
     }));
 
     // Go to the top of the page to see the notification
@@ -317,6 +324,7 @@ class Setting extends Component {
                 {translate('setting.header.edit_account')}
               </h4>
               <OMGPhotoPreviewer
+                ref={(instance) => { this.photoPreviewer = instance; }}
                 img={avatar}
                 onFileChanged={this.handleFileChanged}
                 showCloseBtn={avatar !== placeholder}
@@ -377,6 +385,7 @@ Setting.propTypes = {
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
   unassignMember: PropTypes.func.isRequired,
+  updateAccount: PropTypes.func.isRequired,
   updateAccountAndAvatar: PropTypes.func.isRequired,
 };
 

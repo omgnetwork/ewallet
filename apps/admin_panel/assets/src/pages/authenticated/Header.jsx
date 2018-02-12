@@ -7,7 +7,7 @@ import { Image, Navbar, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootst
 
 import Actions from './actions';
 import logo from '../../../public/images/omisego_logo_white.png';
-import defaultAvatar from '../../../public/images/user.svg';
+import defaultAvatar from '../../../public/images/user_icon_placeholder.png';
 
 const Header = ({
   session, history, logout, translate,
