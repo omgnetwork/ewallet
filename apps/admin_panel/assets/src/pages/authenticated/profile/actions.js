@@ -4,13 +4,14 @@ import { getUser } from '../../../omisego/services/user_api';
 import LoadingActions from '../../../actions/loading.actions';
 
 export default class Actions {
-  static uploadAvatar(params, onSuccess) {
+  static uploadAvatar(params, onSuccess, onFailed) {
     return (dispatch) => {
       dispatch(LoadingActions.showLoading());
       uploadAvatar(params, (err, result) => {
         dispatch(LoadingActions.hideLoading());
         if (err) {
           ErrorHandler.handleAPIError(dispatch, err);
+          onFailed(err);
         } else {
           onSuccess(result);
         }
