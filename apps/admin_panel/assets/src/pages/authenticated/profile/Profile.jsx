@@ -33,6 +33,7 @@ class Profile extends Component {
     this.handleFileChanged = this.handleFileChanged.bind(this);
     this.handleFormChanged = this.handleFormChanged.bind(this);
     this.handleUploadAvatarSuccess = this.handleUploadAvatarSuccess.bind(this);
+    this.handleUploadAvatarFailed = this.handleUploadAvatarFailed.bind(this);
   }
 
   handleSubmit(e) {
@@ -41,10 +42,14 @@ class Profile extends Component {
     const { uploadAvatar, session } = this.props;
     const { currentUser } = session;
     this.setState({ loading: { submit: true } });
-    uploadAvatar({
-      id: currentUser.id,
-      avatar: avatarFile,
-    }, this.handleUploadAvatarSuccess);
+    uploadAvatar(
+      {
+        id: currentUser.id,
+        avatar: avatarFile,
+      },
+      this.handleUploadAvatarSuccess,
+      this.handleUploadAvatarFailed,
+    );
   }
 
   handleUploadAvatarSuccess(result) {
@@ -72,6 +77,15 @@ class Profile extends Component {
     this.setState({
       [id]: value,
     });
+  }
+
+  handleUploadAvatarFailed() {
+    this.setState({
+      loading: {
+        submit: false,
+      },
+    });
+    moveToTop();
   }
 
   render() {
@@ -182,8 +196,8 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    uploadAvatar: (params, onSuccess) => {
-      dispatch(Actions.uploadAvatar(params, onSuccess));
+    uploadAvatar: (params, onSuccess, onFailed) => {
+      dispatch(Actions.uploadAvatar(params, onSuccess, onFailed));
     },
     showSuccessAlert: (message) => {
       dispatch(AlertActions.success(message));

@@ -130,7 +130,7 @@ export default class Actions {
     };
   }
 
-  static updateAccountAndAvatar(params, onSuccess) {
+  static updateAccountAndAvatar(params, onSuccess, onFailed) {
     // 2nd means second-ordered function
     const handler2nd = (resolve, reject) => (dispatch, error, result) => {
       if (error) {
@@ -164,6 +164,8 @@ export default class Actions {
           updateAccount: resultUpdateAccountInfo,
         };
         onSuccess(result);
+      }).catch((e) => {
+        onFailed(e);
       });
     };
   }

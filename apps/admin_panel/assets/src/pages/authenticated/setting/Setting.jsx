@@ -49,6 +49,7 @@ class Setting extends Component {
     this.handleSyncMember = this.handleSyncMember.bind(this);
     this.reloadMembers = this.reloadMembers.bind(this);
     this.handleUpdateFormSuccess = this.handleUpdateFormSuccess.bind(this);
+    this.handleUpdateFormFailed = this.handleUpdateFormFailed.bind(this);
     this.handleResendInvitationSuccess = this.handleResendInvitationSuccess.bind(this);
     this.handleSearchUsers = this.handleSearchUsers.bind(this);
     this.handleUpdateAccount = this.handleUpdateAccount.bind(this);
@@ -192,7 +193,7 @@ class Setting extends Component {
       },
     });
 
-    updateAccountAndAvatar(params, this.handleUpdateFormSuccess);
+    updateAccountAndAvatar(params, this.handleUpdateFormSuccess, this.handleUpdateFormFailed);
   }
 
   handleUpdateFormSuccess(result) {
@@ -208,6 +209,17 @@ class Setting extends Component {
     }));
 
     // Go to the top of the page to see the notification
+    moveToTop();
+  }
+
+  handleUpdateFormFailed() {
+    this.setState(prevState => ({
+      loading: {
+        ...prevState.loading,
+        saveAccount: false,
+      },
+    }));
+
     moveToTop();
   }
 
@@ -407,8 +419,8 @@ function mapDispatchToProps(dispatch) {
     uploadAvatar: (params, onSuccess) => {
       dispatch(Actions.uploadAvatar(params, onSuccess));
     },
-    updateAccountAndAvatar: (params, onSuccess) => {
-      dispatch(Actions.updateAccountAndAvatar(params, onSuccess));
+    updateAccountAndAvatar: (params, onSuccess, onFailed) => {
+      dispatch(Actions.updateAccountAndAvatar(params, onSuccess, onFailed));
     },
   };
 }
