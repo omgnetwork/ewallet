@@ -1,8 +1,27 @@
-defmodule EWallet.TransactionRequest do
+defmodule EWallet.Transactions.Request do
   @moduledoc """
   Business logic to manage transaction requests.
   """
-  alias EWalletDB.{TransactionRequest, User, Balance}
+  alias EWalletDB.{TransactionRequest, User, Balance, MintedToken}
+
+  def create(user, %{
+    "type" => _,
+    "correlation_id" => _,
+    "amount" => _,
+    "token_id" => token_id,
+    "address" => address,
+  } = attrs) do
+    with %MintedToken{} = minted_token <- MintedToken.get(token_id) || :minted_token_not_found,
+         %Balance{} = balance <- get_balance(user, address),
+         {:ok, transaction_request} <- insert(user, minted_token, balance, attrs)
+    do
+      get(transaction_request.id)
+    else
+      error -> error
+    end
+  end
+  def create(nil, _attrs),   do: :invalid_parameter
+  def create(_user, _attrs), do: :invalid_parameter
 
   def get_balance(user, nil) do
     User.get_primary_balance(user)
