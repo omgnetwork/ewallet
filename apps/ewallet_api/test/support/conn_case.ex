@@ -107,6 +107,18 @@ defmodule EWalletAPI.ConnCase do
     |> Repo.one
   end
 
+  def set_initial_balance(%{
+    address: address,
+    minted_token: minted_token,
+    amount: amount
+  }) do
+    account        = Account.get_master_account()
+    master_balance = Account.get_primary_balance(account)
+
+    mint!(minted_token)
+    transfer!(master_balance.address, address, minted_token, amount * minted_token.subunit_to_unit)
+  end
+
   def mint!(minted_token, amount \\ 1_000_000) do
     {:ok, mint, _ledger_response} = Mint.insert(%{
       "idempotency_token" => UUID.generate(),
@@ -178,6 +190,21 @@ defmodule EWalletAPI.ConnCase do
   """
   def client_request(path, data \\ %{}, status \\ :ok) when is_binary(path) and byte_size(path) > 0 do
     build_conn()
+    |> put_req_header("accept", @header_accept)
+    |> put_auth_header("OMGClient", @api_key, @auth_token)
+    |> post(@base_dir <> path, data)
+    |> json_response(status)
+  end
+
+  @doc """
+  A helper function that generates a valid client request
+  with given path and data, and return the parsed JSON response.
+  """
+  def client_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
+  when is_binary(path) and byte_size(path) > 0
+  do
+    build_conn()
+    |> put_req_header("idempotency-token", idempotency_token)
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGClient", @api_key, @auth_token)
     |> post(@base_dir <> path, data)

@@ -11,6 +11,7 @@ defmodule EWalletDB.Repo.Migrations.CreateTransactionRequestConsumption do
       add :user_id, references(:user, type: :uuid)
       add :transfer_id, references(:transfer, type: :uuid)
       add :transaction_request_id, references(:transaction_request, type: :uuid)
+      add :minted_token_id, references(:minted_token, type: :uuid)
       add :balance_address, references(:balance, type: :string,  column: :address)
 
       timestamps()

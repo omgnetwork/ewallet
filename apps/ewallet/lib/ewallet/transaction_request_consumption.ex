@@ -2,8 +2,14 @@ defmodule EWallet.TransactionRequestConsumption do
   @moduledoc """
   Business logic to manage transaction request consumptions.
   """
-  alias EWallet.Transaction
+  alias EWallet.{Transaction, TransactionRequest}
   alias EWalletDB.TransactionRequestConsumption
+
+  def get(id) do
+    TransactionRequestConsumption.get(id, preload: [
+      :user, :balance, :minted_token, :transaction_request
+    ])
+  end
 
   def insert(%{
     user: user,
@@ -12,13 +18,14 @@ defmodule EWallet.TransactionRequestConsumption do
     balance: balance,
     attrs: attrs
   }) do
-    TransactionRequestConsumption.insert(%{
+    {:ok, _consumption} = TransactionRequestConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
       idempotency_token: idempotency_token,
       amount: attrs["amount"] || request.amount,
-      user: user,
-      transaction_request: request,
-      balance: balance
+      user_id: user.id,
+      minted_token_id: request.minted_token_id,
+      transaction_request_id: request.id,
+      balance_address: balance.address
     })
   end
 
@@ -26,8 +33,8 @@ defmodule EWallet.TransactionRequestConsumption do
     attrs = %{
       "idempotency_token" => consumption.idempotency_token,
       "from_address" => consumption.balance.address,
-      "to_address" => consumption.transaction_request.balance.address,
-      "token_id" => consumption.transaction_request.minted_token.friendly_id,
+      "to_address" => consumption.transaction_request.balance_address,
+      "token_id" => consumption.minted_token.friendly_id,
       "amount" => consumption.amount,
       "metadata" => metadata
     }
@@ -41,8 +48,4 @@ defmodule EWallet.TransactionRequestConsumption do
         {:error, code, description}
     end
   end
-
-  # def consume("send", _consumption, _metadata) do
-  #   # Coming Soon
-  # end
 end

@@ -52,7 +52,8 @@ defmodule EWalletAPI.V1.TransactionRequestController do
            request: request,
            balance: balance,
            attrs: attrs
-         })
+         }),
+         consumption <- TransactionRequestConsumption.get(consumption.id)
     do
       request.type
       |> TransactionRequestConsumption.consume(consumption, metadata)
