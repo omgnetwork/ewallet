@@ -3,8 +3,7 @@ defmodule EWalletAPI.V1.TransactionRequestView do
   use EWalletAPI.V1
   alias EWalletAPI.V1.JSON.{
     ResponseSerializer,
-    TransactionRequestSerializer,
-    TransactionRequestConsumptionSerializer
+    TransactionRequestSerializer
   }
 
   def render("transaction_request.json", %{
@@ -12,14 +11,6 @@ defmodule EWalletAPI.V1.TransactionRequestView do
   }) do
     transaction_request
     |> TransactionRequestSerializer.serialize()
-    |> ResponseSerializer.serialize(success: true)
-  end
-
-  def render("transaction_request_consumption.json", %{
-    transaction_request_consumption: consumption
-  }) do
-    consumption
-    |> TransactionRequestConsumptionSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 end
