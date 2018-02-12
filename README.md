@@ -15,7 +15,6 @@ The OmiseGO SDK provides various applications and tools that, once integrated, a
   - [Entities](#entities)
   - [Components](#components)
     - [eWallet](#ewallet)
-    - [Admin Panel](#admin-panel)
     - [Request Logger](#request-logger)
     - [Blockchain Gateway](#blockchain-gateway)
   - [Dependencies](#dependencies)
@@ -99,7 +98,7 @@ mix do ecto.create, ecto.migrate
 Everything is in place and we can now run the seeds to have some data to play with. The following command will insert some sample data in the eWallet database and initiate the genesis for the minted tokens.
 
 ```
-mix run apps/ewallet/priv/repo/seeds.exs
+mix seed
 ```
 
 We can now start the application:
@@ -241,7 +240,6 @@ In order to integrate the OmiseGO SDK in the best possible way, it can be useful
 Below is the list of components from the OmiseGO SDK that need to be run on one (or more) server(s):
 
 - [eWallet](#ewallet)
-- [Admin Panel](#admin-panel)
 - [Request Logger](#request-logger)
 - [Blockchain Gateway](#blockchain-gateway)
 
@@ -259,6 +257,8 @@ On a more technical note, the eWallet is an umbrella Elixir application containi
 
   - [ewallet_api](/apps/ewallet_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __interact with the eWallet__. Check the [Swagger spec](/apps/ewallet_api/swagger-doc.yaml) for more details.
 
+  - [admin_panel](/apps/admin_panel): Sub-application containing the front-end that allows provider’s admins such as staff at the headquarter, to perform system-wide actions such as managing tokens, accounts, API keys, users, and balances.
+
   - [admin_api](/apps/admin_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __manage__ the system. Check the [Swagger spec](/apps/admin_api/swagger-doc.yaml) for more details.
 
   - [ewallet_db](/apps/ewallet_db): Sub-application containing all the database schemas and migrations.
@@ -266,10 +266,6 @@ On a more technical note, the eWallet is an umbrella Elixir application containi
   - [local_ledger](/apps/local_ledger): Sub-application containing the business logic.
 
   - [local_ledger_db](/apps/local_ledger_db): Sub-application containing all the database schemas and migrations.
-
-### Admin Panel
-
-Admin Panel allows provider’s admin, i.e. staff at the headquarter, to perform system-wide actions such as managing tokens, accounts, API keys, users, and balances.
 
 ### Request Logger
 
@@ -290,6 +286,8 @@ The Blockchain Gateway will be the interface to the blockchain OmiseGO is buildi
 - [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used to format images in the admin panel.
 
 - [Libsodium](https://github.com/jedisct1/libsodium): Sodium is a new, easy-to-use software library for encryption, decryption, signatures, password hashing and more. It is used to hash and encrypt/decrypt sensitive data.
+
+- [Yarn](https://yarnpkg.com): Yarn is used to manage front-end dependencies for the admin panel.
 
 # Communicating with the server applications
 
