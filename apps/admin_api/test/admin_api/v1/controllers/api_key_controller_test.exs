@@ -113,5 +113,20 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         }
       }
     end
+
+    test "responds with an error if the given id is used for making the deletion request" do
+      response = user_request("/api_key.delete", %{id: @api_key_id})
+
+      assert response == %{
+        "version" => "1",
+        "success" => false,
+        "data" => %{
+          "code" => "client:invalid_parameter",
+          "description" => "The given API key is being used for this request",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
   end
 end
