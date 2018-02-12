@@ -2,11 +2,17 @@
   position: relative;
   width: 8rem;
   height: 8rem;
+  background-color: $sidebar-background;
 
   &__img {
-    width: 8rem;
-    height: 8rem;
+    
+    display: block;
+    max-width: 8rem;
+    max-height: 8rem;
     border: 1px solid $light-gray;
+    width: auto;
+    height: auto;
+    margin: auto;
   }
 
   &__center-button {
