@@ -5,7 +5,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   use Ecto.Schema
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{TransactionRequestConsumption, Repo, User,
+  alias EWalletDB.{TransactionRequestConsumption, Repo, User, MintedToken,
                    TransactionRequest, Balance, Helpers, Transfer}
 
   @pending "pending"
@@ -29,6 +29,9 @@ defmodule EWalletDB.TransactionRequestConsumption do
     belongs_to :transaction_request, TransactionRequest, foreign_key: :transaction_request_id,
                                      references: :id,
                                      type: UUID
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
+                                           references: :id,
+                                           type: UUID
     belongs_to :balance, Balance, foreign_key: :balance_address,
                                   references: :address,
                                   type: :string
@@ -39,10 +42,11 @@ defmodule EWalletDB.TransactionRequestConsumption do
     consumption
     |> cast(attrs, [
       :amount, :idempotency_token, :correlation_id, :user_id,
-      :transaction_request_id, :balance_address
+      :transaction_request_id, :balance_address, :minted_token_id
     ])
     |> validate_required([
-      :status, :amount, :idempotency_token, :user_id, :transaction_request_id, :balance_address
+      :status, :amount, :idempotency_token, :user_id, :transaction_request_id,
+      :balance_address, :minted_token_id
     ])
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)
@@ -90,7 +94,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   def confirm(consumption, transfer) do
     {:ok, consumption} =
       consumption
-      |> update_changeset(%{status: @confirmed, transfer: transfer})
+      |> update_changeset(%{status: @confirmed, transfer_id: transfer.id})
       |> Repo.update()
 
     consumption
@@ -102,7 +106,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   def fail(consumption, transfer) do
     {:ok, consumption} =
       consumption
-      |> update_changeset(%{status: @failed, transfer: transfer})
+      |> update_changeset(%{status: @failed, transfer_id: transfer.id})
       |> Repo.update()
 
     consumption
