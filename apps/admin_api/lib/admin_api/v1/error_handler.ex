@@ -9,6 +9,12 @@ defmodule AdminAPI.V1.ErrorHandler do
   alias AdminAPI.V1.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
+    # Errors related to the endpoint
+    endpoint_not_found: %{
+      code: "client:endpoint_not_found",
+      description: "Endpoint not found"
+    },
+    # Errors related to authentication
     invalid_auth_scheme: %{
       code: "client:invalid_auth_scheme",
       description: "The provided authentication scheme is not supported"
@@ -25,18 +31,6 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "client:invalid_version",
       description: "Invalid API version"
     },
-    endpoint_not_found: %{
-      code: "client:endpoint_not_found",
-      description: "Endpoint not found"
-    },
-    internal_server_error: %{
-      code: "server:internal_server_error",
-      description: "Something went wrong on the server"
-    },
-    unknown_error: %{
-      code: "server:unknown_error",
-      description: "An unknown error occured on the server"
-    },
     access_token_not_found: %{
       code: "user:access_token_not_found",
       description: "There is no user corresponding to the provided access_token"
@@ -49,6 +43,15 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
     },
+    key_not_found: %{
+      code: "key:not_found",
+      description: "The key could not be found"
+    },
+    api_key_not_found: %{
+      code: "api_key:not_found",
+      description: "The API key could not be found"
+    },
+    # Errors related to the user entity
     user_account_not_found: %{
       code: "user:account_not_found",
       description: "There is no account assigned to the provided user"
@@ -65,25 +68,9 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:email_not_found",
       description: "There is no user corresponding to the provided email"
     },
-    account_id_not_found: %{
-      code: "account:id_not_found",
-      description: "There is no account corresponding to the provided id"
-    },
-    minted_token_id_not_found: %{
-      code: "minted_token:id_not_found",
-      description: "There is no minted token corresponding to the provided id"
-    },
-    transaction_id_not_found: %{
-      code: "transaction:id_not_found",
-      description: "There is no transaction corresponding to the provided id"
-    },
     role_name_not_found: %{
       code: "role:name_not_found",
       description: "There is no role corresponding to the provided name"
-    },
-    membership_not_found: %{
-      code: "membership:not_found",
-      description: "The user is not assigned to the provided account"
     },
     invite_not_found: %{
       code: "user:invite_not_found",
@@ -93,9 +80,32 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:passwords_mismatch",
       description: "The provided passwords do not match"
     },
-    key_not_found: %{
-      code: "key:not_found",
-      description: "The key could not be found"
+    # Errors related to accounts and their memberships
+    account_id_not_found: %{
+      code: "account:id_not_found",
+      description: "There is no account corresponding to the provided id"
+    },
+    membership_not_found: %{
+      code: "membership:not_found",
+      description: "The user is not assigned to the provided account"
+    },
+    # Errors related to other entities
+    minted_token_id_not_found: %{
+      code: "minted_token:id_not_found",
+      description: "There is no minted token corresponding to the provided id"
+    },
+    transaction_id_not_found: %{
+      code: "transaction:id_not_found",
+      description: "There is no transaction corresponding to the provided id"
+    },
+    # Generic errors
+    internal_server_error: %{
+      code: "server:internal_server_error",
+      description: "Something went wrong on the server"
+    },
+    unknown_error: %{
+      code: "server:unknown_error",
+      description: "An unknown error occured on the server"
     }
   }
 
