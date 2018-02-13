@@ -252,6 +252,43 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Retrieves the user's role on the given account.
+
+  If the user does not have a membership on the given account, it inherits
+  the role from the closest parent account that has one.
+  """
+  def get_role(user, account) do
+    user
+    |> query_role(account)
+    |> Repo.one()
+  end
+
+  def query_role(user, account) do
+    # Traverses up the account tree to find the user's role in the closest parent.
+    from r in Role,
+      join: account_tree in fragment("""
+        WITH RECURSIVE account_tree AS (
+          SELECT a.*, m.role_id, m.user_id
+          FROM account a
+          LEFT JOIN membership AS m ON m.account_id = a.id
+          WHERE a.id = ?
+        UNION
+          SELECT parent.*, m.role_id, m.user_id
+          FROM account parent
+          LEFT JOIN membership AS m ON m.account_id = parent.id
+          JOIN account_tree ON account_tree.parent_id = parent.id
+        )
+        SELECT role_id FROM account_tree
+        JOIN role AS r ON r.id = role_id
+        WHERE account_tree.user_id = ? LIMIT 1
+      """,
+        type(^account.id, UUID),
+        type(^user.id, UUID)
+      ), on: r.id == account_tree.role_id,
+      select: r.name
+  end
+
+  @doc """
   Retrieves the upper-most account that the given user has membership in.
   """
   def get_account(user) do
@@ -280,6 +317,7 @@ defmodule EWalletDB.User do
       |> Membership.all_by_user()
       |> Enum.map(fn(m) -> Map.fetch!(m, :account_id) end)
 
+    # Traverses down the account tree
     from a in Account,
       join: child in fragment("""
         WITH RECURSIVE account_tree AS (
