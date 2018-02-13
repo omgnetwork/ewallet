@@ -257,13 +257,15 @@ defmodule EWalletDB.User do
   If the user does not have a membership on the given account, it inherits
   the role from the closest parent account that has one.
   """
-  def get_role(user, account) do
-    user
-    |> query_role(account)
+  def get_role(id, _) when not is_binary(id) or byte_size(id) == 0, do: nil
+  def get_role(_, id) when not is_binary(id) or byte_size(id) == 0, do: nil
+  def get_role(user_id, account_id) do
+    user_id
+    |> query_role(account_id)
     |> Repo.one()
   end
 
-  def query_role(user, account) do
+  defp query_role(user_id, account_id) do
     # Traverses up the account tree to find the user's role in the closest parent.
     from r in Role,
       join: account_tree in fragment("""
@@ -282,8 +284,8 @@ defmodule EWalletDB.User do
         JOIN role AS r ON r.id = role_id
         WHERE account_tree.user_id = ? LIMIT 1
       """,
-        type(^account.id, UUID),
-        type(^user.id, UUID)
+        type(^account_id, UUID),
+        type(^user_id, UUID)
       ), on: r.id == account_tree.role_id,
       select: r.name
   end
