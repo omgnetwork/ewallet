@@ -1,7 +1,7 @@
 defmodule EWallet.MintTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.Mint
-  alias EWalletDB.{MintedToken, Account}
+  alias EWalletDB.MintedToken
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 

@@ -3,7 +3,7 @@ defmodule EWallet.Transactions.Consumption do
   Business logic to manage transaction request consumptions.
   """
   alias EWallet.{Transaction, Transactions.Request}
-  alias EWalletDB.{Balance, TransactionRequestConsumption}
+  alias EWalletDB.{TransactionRequestConsumption}
 
   def consume(user, idempotency_token, %{
     "transaction_request_id" => request_id,
@@ -13,7 +13,7 @@ defmodule EWallet.Transactions.Consumption do
     "metadata" => metadata
   } = attrs) do
     with request <- Request.get(request_id) || :transaction_request_not_found,
-         %Balance{} = balance <- Request.get_balance(user, address),
+         {:ok, balance} <- Request.get_balance(user, address),
          {:ok, consumption} <- insert(%{
            user: user,
            idempotency_token: idempotency_token,
@@ -25,8 +25,8 @@ defmodule EWallet.Transactions.Consumption do
     do
       transfer(request.type, consumption, metadata)
     else
-      error -> error
-    end
+      error when is_atom(error) -> {:error, error}
+      error                     -> error    end
   end
   def consume(_user, _idempotency_token, _attrs), do: :invalid_parameter
 
@@ -36,7 +36,7 @@ defmodule EWallet.Transactions.Consumption do
     ])
   end
 
-  def insert(%{
+  defp insert(%{
     user: user,
     idempotency_token: idempotency_token,
     request: request,
@@ -54,7 +54,7 @@ defmodule EWallet.Transactions.Consumption do
     })
   end
 
-  def transfer("receive", consumption, metadata) do
+  defp transfer("receive", consumption, metadata) do
     attrs = %{
       "idempotency_token" => consumption.idempotency_token,
       "from_address" => consumption.balance.address,

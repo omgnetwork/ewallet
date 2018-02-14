@@ -1,9 +1,14 @@
 defmodule EWallet.Transactions.Request do
   @moduledoc """
-  Business logic to manage transaction requests.
+  Business logic to manage transaction requests. This module is responsible
+  for creating new requests, retrieving existing ones and handles the logic
+  of picking the right balance when inserting a new request.
+
+  It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
   alias EWalletDB.{TransactionRequest, User, Balance, MintedToken}
 
+  @spec create(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
   def create(user, %{
     "type" => _,
     "correlation_id" => _,
@@ -12,35 +17,38 @@ defmodule EWallet.Transactions.Request do
     "address" => address,
   } = attrs) do
     with %MintedToken{} = minted_token <- MintedToken.get(token_id) || :minted_token_not_found,
-         %Balance{} = balance <- get_balance(user, address),
+         {:ok, balance} <- get_balance(user, address),
          {:ok, transaction_request} <- insert(user, minted_token, balance, attrs)
     do
-      get(transaction_request.id)
+      {:ok, get(transaction_request.id)}
     else
-      error -> error
+      error when is_atom(error) -> {:error, error}
+      error                     -> error
     end
   end
-  def create(nil, _attrs),   do: :invalid_parameter
-  def create(_user, _attrs), do: :invalid_parameter
+  def create(nil, _attrs),   do: {:error, :invalid_parameter}
+  def create(_user, _attrs), do: {:error, :invalid_parameter}
 
+  @spec get_balance(User.t, String.t) :: {:ok, Balance.t} | {:error, Atom.t}
   def get_balance(user, nil) do
-    User.get_primary_balance(user)
+    {:ok, User.get_primary_balance(user)}
   end
   def get_balance(user, address) do
     with %Balance{} = balance <- Balance.get(address) || :balance_not_found,
          true <- balance.user_id == user.id || :user_balance_mismatch
     do
-      balance
+      {:ok, balance}
     else
-      error -> error
+      error -> {:error, error}
     end
   end
 
+  @spec get(UUID.t) :: TransactionRequest.t | nil
   def get(id) do
     TransactionRequest.get(id, preload: [:minted_token, :user, :balance])
   end
 
-  def insert(user, minted_token, balance, attrs) do
+  defp insert(user, minted_token, balance, attrs) do
     TransactionRequest.insert(%{
       type: attrs["type"],
       correlation_id: attrs["correlation_id"],
