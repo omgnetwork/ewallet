@@ -14,6 +14,7 @@ defmodule AdminAPI.ConnCase do
   """
   use ExUnit.CaseTemplate
   use Phoenix.ConnTest
+  import Ecto.Query
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
@@ -94,6 +95,15 @@ defmodule AdminAPI.ConnCase do
   Returns the user that has just been created from the test setup.
   """
   def get_test_user, do: User.get(@user_id)
+
+  @doc """
+  Returns the last inserted record of the given schema.
+  """
+  def get_last_inserted(schema) do
+    schema
+    |> last(:inserted_at)
+    |> Repo.one
+  end
 
   @doc """
   A helper function that generates a valid client request (client-authenticated)

@@ -1,8 +1,7 @@
 defmodule AdminAPI.V1.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
-  import Ecto.Query
   alias EWallet.Web.Date
-  alias EWalletDB.{Key, Repo}
+  alias EWalletDB.Key
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do
@@ -40,7 +39,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
       master_account = insert(:account, %{master: true})
       _account       = insert(:account, %{master: false})
       response       = user_request("/access_key.create")
-      key            = Key |> last(:inserted_at) |> Repo.one
+      key            = get_last_inserted(Key)
 
       # Cannot do `assert response == %{...}` because we don't know the value of `secret_key`.
       # So we assert by pattern matching to validate the response structure, then directly
@@ -65,6 +64,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
       assert response["data"]["account_id"] == master_account.id
       assert response["data"]["created_at"] == Date.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == Date.to_iso8601(key.updated_at)
+      assert response["data"]["deleted_at"] == Date.to_iso8601(key.deleted_at)
 
       # We cannot know the `secret_key` from the controller call,
       # so we can only check that it is a string with some length.

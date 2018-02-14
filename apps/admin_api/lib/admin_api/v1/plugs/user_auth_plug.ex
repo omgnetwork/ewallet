@@ -56,6 +56,11 @@ defmodule AdminAPI.V1.UserAuthPlug do
     auth_token = conn.private[:auth_auth_token]
 
     case AuthToken.authenticate(user_id, auth_token, :admin_api) do
+      %User{} = user ->
+        conn
+        |> assign(:authenticated, :user)
+        |> assign(:api_key_id, conn.private[:auth_api_key_id])
+        |> assign(:user, user)
       false ->
         conn
         |> assign(:authenticated, false)
@@ -64,10 +69,6 @@ defmodule AdminAPI.V1.UserAuthPlug do
         conn
         |> assign(:authenticated, false)
         |> handle_error(:access_token_expired)
-      user ->
-        conn
-        |> assign(:authenticated, :user)
-        |> assign(:user, user)
     end
   end
 
