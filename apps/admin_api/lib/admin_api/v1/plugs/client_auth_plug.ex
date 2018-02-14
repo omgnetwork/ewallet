@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.ClientAuthPlug do
   """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
-  alias EWalletDB.APIKey
+  alias EWalletDB.{Account, APIKey}
 
   def init(opts), do: opts
 
@@ -48,15 +48,15 @@ defmodule AdminAPI.V1.ClientAuthPlug do
     api_key    = conn.private[:auth_api_key]
 
     case APIKey.authenticate(api_key_id, api_key, :admin_api) do
-      false ->
-        conn
-        |> assign(:authenticated, false)
-        |> handle_error(:invalid_api_key)
-      account ->
+      %Account{} = account ->
         conn
         |> assign(:authenticated, :client)
         |> assign(:api_key_id, api_key_id)
         |> assign(:account, account)
+      false ->
+        conn
+        |> assign(:authenticated, false)
+        |> handle_error(:invalid_api_key)
     end
   end
 end

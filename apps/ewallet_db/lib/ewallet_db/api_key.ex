@@ -44,11 +44,11 @@ defmodule EWalletDB.APIKey do
   end
 
   @doc """
-  Authenticates using the specified access and secret keys.
+  Authenticates using the given API key id and its key.
   Returns the associated account if authenticated, false otherwise.
 
   Use this function instead of the usual get/2
-  to avoid passing the access/secret key information around.
+  to avoid passing the API key information around.
   """
   def authenticate(api_key_id, api_key, owner_app)
     when byte_size(api_key_id) > 0
@@ -57,25 +57,33 @@ defmodule EWalletDB.APIKey do
   do
     api_key_id
     |> get(owner_app)
-    |> authenticate(api_key)
+    |> do_authenticate(api_key)
   end
   def authenticate(_, _, _), do: Crypto.fake_verify
-  def authenticate(%{key: expected_key} = api_key, input_key) do
+
+  defp do_authenticate(%{key: expected_key} = api_key, input_key) do
     case Crypto.secure_compare(expected_key, input_key) do
       true -> Map.get(api_key, :account)
       _ -> false
     end
   end
-  def authenticate(nil, _input_key), do: Crypto.fake_verify
-  # Unsafe comparison used by EWalletAPI.ClientAuth
+  defp do_authenticate(nil, _input_key), do: Crypto.fake_verify
+
+  @doc """
+  Authenticates using the given API key (without API key id).
+  Returns the associated account if authenticated, false otherwise.
+
+  Note that this is not protected against timing attacks
+  and should only be used for non-sensitive requests, e.g. read-only requests.
+  """
   def authenticate(api_key, owner_app) when is_atom(owner_app) do
     case get_by_key(api_key, owner_app) do
+      %APIKey{} = api_key -> Map.get(api_key, :account)
       nil -> false
-      api_key -> Map.get(api_key, :account)
     end
   end
 
-  defp get(id, _) when is_nil(id), do: nil # Handles unsafe nil query
+  defp get(nil, _), do: nil # Handles unsafe nil query
   defp get(id, owner_app) when is_binary(id) and is_atom(owner_app) do
     APIKey
     |> Repo.get_by(%{
@@ -86,7 +94,7 @@ defmodule EWalletDB.APIKey do
     |> Repo.preload(:account)
   end
 
-  defp get_by_key(key, _) when is_nil(key), do: nil # Handles unsafe nil query
+  defp get_by_key(nil, _), do: nil # Handles unsafe nil query
   defp get_by_key(key, owner_app) when is_binary(key) and is_atom(owner_app) do
     APIKey
     |> Repo.get_by(%{
