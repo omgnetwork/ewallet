@@ -16,8 +16,8 @@ defmodule EWalletAPI.V1.AuthController do
   end
   def login(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp generate_token(nil), do: nil
-  defp generate_token(user), do: AuthToken.generate(user)
+  defp generate_token(nil), do: {:error, :provider_user_id_not_found}
+  defp generate_token(user), do: AuthToken.generate(user, :ewallet_api)
 
   @doc """
   Invalidates the authentication token used in this request.
@@ -28,7 +28,7 @@ defmodule EWalletAPI.V1.AuthController do
     |> respond()
   end
 
-  defp respond(nil, conn), do: handle_error(conn, :provider_user_id_not_found)
-  defp respond(token, conn), do: render(conn, :auth_token, %{auth_token: token})
+  defp respond({:ok, token}, conn), do: render(conn, :auth_token, %{auth_token: token})
+  defp respond({:error, code}, conn), do: handle_error(conn, code)
   defp respond(conn), do: render(conn, :empty_response, %{})
 end

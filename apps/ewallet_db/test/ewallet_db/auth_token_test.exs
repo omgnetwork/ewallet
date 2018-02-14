@@ -1,22 +1,32 @@
 defmodule EWalletDB.AuthTokenTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{AuthToken}
+  alias EWalletDB.AuthToken
 
   @owner_app :some_app
 
   describe "AuthToken.generate/1" do
     test "generates an auth token string with length == 43" do
       user = insert(:user)
-      auth_token = AuthToken.generate(user, @owner_app)
+      {res, auth_token} = AuthToken.generate(user, @owner_app)
 
+      assert res == :ok
       assert String.length(auth_token) == 43
+    end
+
+    test "returns error if user is invalid" do
+      account = insert(:account)
+      {res, reason} = AuthToken.generate(account, @owner_app)
+
+      assert res == :error
+      assert reason == :invalid_parameter
     end
 
     test "allows multiple auth tokens for each user" do
       user = insert(:user)
 
-      token1 = AuthToken.generate(user, @owner_app)
-      token2 = AuthToken.generate(user, @owner_app)
+      {:ok, token1} = AuthToken.generate(user, @owner_app)
+      {:ok, token2} = AuthToken.generate(user, @owner_app)
+
       token_count =
         user
         |> Ecto.assoc(:auth_tokens)
@@ -31,9 +41,9 @@ defmodule EWalletDB.AuthTokenTest do
   describe "AuthToken.authenticate/2" do
     test "returns an existing token if exists" do
       user = insert(:user)
-      auth_token_string = AuthToken.generate(user, @owner_app)
+      {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
-      auth_user = AuthToken.authenticate(auth_token_string, @owner_app)
+      auth_user = AuthToken.authenticate(auth_token, @owner_app)
       assert auth_user.id == user.id
     end
 
@@ -50,7 +60,7 @@ defmodule EWalletDB.AuthTokenTest do
         |> insert(%{owner_app: "wrong_app"})
         |> AuthToken.expire()
 
-      assert AuthToken.authenticate(token.token, @owner_app) == :false
+      assert AuthToken.authenticate(token.token, @owner_app) == false
     end
 
     test "returns false if token does not exists" do
@@ -65,16 +75,16 @@ defmodule EWalletDB.AuthTokenTest do
   describe "AuthToken.authenticate/3" do
     test "returns an existing token if user_id and token match" do
       user = insert(:admin)
-      auth_token_string = AuthToken.generate(user, @owner_app)
+      {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
-      auth_user = AuthToken.authenticate(user.id, auth_token_string, @owner_app)
+      auth_user = AuthToken.authenticate(user.id, auth_token, @owner_app)
       assert auth_user.id == user.id
     end
 
     test "returns an existing token if user_id and token match and user has multiple tokens" do
       user = insert(:admin)
-      token1 = AuthToken.generate(user, @owner_app)
-      token2 = AuthToken.generate(user, @owner_app)
+      {:ok, token1} = AuthToken.generate(user, @owner_app)
+      {:ok, token2} = AuthToken.generate(user, @owner_app)
 
       assert AuthToken.authenticate(user.id, token1, @owner_app)
       assert AuthToken.authenticate(user.id, token2, @owner_app)
@@ -89,29 +99,29 @@ defmodule EWalletDB.AuthTokenTest do
 
     test "returns false if auth token belongs to a different user" do
       user = insert(:admin)
-      auth_token_string = AuthToken.generate(user, @owner_app)
+      {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
       another_user = insert(:admin)
-      assert AuthToken.authenticate(another_user.id, auth_token_string, @owner_app) == false
+      assert AuthToken.authenticate(another_user.id, auth_token, @owner_app) == false
     end
 
     test "returns false if token exists but for a different owner app" do
       user = insert(:admin)
-      auth_token_string = AuthToken.generate(user, :different_app)
+      {:ok, auth_token} = AuthToken.generate(user, :different_app)
 
-      assert AuthToken.authenticate(user.id, auth_token_string, @owner_app) == :false
+      assert AuthToken.authenticate(user.id, auth_token, @owner_app) == false
     end
 
     test "returns false if token does not exists" do
       user = insert(:admin)
-      AuthToken.generate(user, @owner_app)
+      {:ok, _} = AuthToken.generate(user, @owner_app)
 
       assert AuthToken.authenticate(user.id, "unmatched", @owner_app) == false
     end
 
     test "returns false if auth token is nil" do
       user = insert(:admin)
-      AuthToken.generate(user, @owner_app)
+      {:ok, _} = AuthToken.generate(user, @owner_app)
 
       assert AuthToken.authenticate(user.id, nil, @owner_app) == false
     end

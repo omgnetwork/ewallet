@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.AuthController do
   def login(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   defp respond_with_token(%{assigns: %{authenticated: :user}} = conn) do
-    auth_token = AuthToken.generate(conn.assigns.user, :admin_api)
+    {:ok, auth_token} = AuthToken.generate(conn.assigns.user, :admin_api)
     render(conn, :auth_token, %{auth_token: auth_token, user: conn.assigns.user})
   end
   defp respond_with_token(conn) do

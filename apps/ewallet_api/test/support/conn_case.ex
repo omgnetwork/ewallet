@@ -14,8 +14,9 @@ defmodule EWalletAPI.ConnCase do
   """
   use ExUnit.CaseTemplate
   import EWalletDB.Factory
+  import Ecto.Query
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletDB.{Account, Key, User}
+  alias EWalletDB.{Account, Key, Repo, User}
   alias EWallet.{Mint, Transaction}
   alias Ecto.UUID
   use Phoenix.ConnTest
@@ -95,6 +96,15 @@ defmodule EWalletAPI.ConnCase do
 
   def get_test_user do
     User.get_by_provider_user_id(@provider_user_id)
+  end
+
+  @doc """
+  Returns the last inserted record of the given schema.
+  """
+  def get_last_inserted(schema) do
+    schema
+    |> last(:inserted_at)
+    |> Repo.one
   end
 
   def mint!(minted_token, amount \\ 1_000_000) do
