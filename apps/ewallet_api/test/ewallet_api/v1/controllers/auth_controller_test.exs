@@ -1,14 +1,23 @@
 defmodule EWalletAPI.V1.AuthControllerTest do
   use EWalletAPI.ConnCase, async: true
+  alias EWalletDB.AuthToken
 
   describe "/login" do
     test "responds with a new auth token if provider_user_id is valid" do
-      insert(:user, %{provider_user_id: "1234"})
-      response = provider_request("/login", %{provider_user_id: "1234"})
+      _user      = insert(:user, %{provider_user_id: "1234"})
+      response   = provider_request("/login", %{provider_user_id: "1234"})
+      auth_token = get_last_inserted(AuthToken)
 
-      assert response["success"] == :true
-      assert response["data"]["object"] == "authentication_token"
-      assert String.length(response["data"]["authentication_token"]) > 0
+      expected = %{
+        "version" => @expected_version,
+        "success" => true,
+        "data" => %{
+          "object" => "authentication_token",
+          "authentication_token" => auth_token.token
+        }
+      }
+
+      assert response == expected
     end
 
     test "returns an error if provider_user_id does not match a user" do
