@@ -29,6 +29,6 @@ defmodule EWalletAPI.V1.AuthController do
   end
 
   defp respond({:ok, token}, conn), do: render(conn, :auth_token, %{auth_token: token})
-  defp respond({:error, reason}, conn), do: handle_error(conn, reason)
+  defp respond({:error, code}, conn), do: handle_error(conn, code)
   defp respond(conn), do: render(conn, :empty_response, %{})
 end
