@@ -96,6 +96,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     key_not_found: %{
       code: "key:not_found",
       description: "The key could not be found"
+    },
+    api_key_not_found: %{
+      code: "api_key:not_found",
+      description: "The API key could not be found"
     }
   }
 
