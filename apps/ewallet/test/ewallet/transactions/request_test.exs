@@ -4,7 +4,7 @@ defmodule EWallet.Transactions.RequestTest do
  alias EWalletDB.{User, TransactionRequest, Balance}
 
   setup do
-    {:ok, user}  = params_for(:user) |> User.insert()
+    {:ok, user}  = :user |> params_for() |> User.insert()
     minted_token = insert(:minted_token)
     balance      = User.get_primary_balance(user)
 

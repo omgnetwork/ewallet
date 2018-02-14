@@ -5,8 +5,8 @@ defmodule EWallet.Transactions.ConsumptionTest do
 
   setup do
     minted_token            = insert(:minted_token)
-    {:ok, receiver}         = params_for(:user) |> User.insert()
-    {:ok, sender}           = params_for(:user) |> User.insert()
+    {:ok, receiver}         = :user |> params_for() |> User.insert()
+    {:ok, sender}           = :user |> params_for() |> User.insert()
     receiver_balance        = User.get_primary_balance(receiver)
     sender_balance          = User.get_primary_balance(sender)
 
@@ -68,7 +68,6 @@ defmodule EWallet.Transactions.ConsumptionTest do
       assert consumption.amount == 1_000
       assert consumption.balance_address == meta.sender_balance.address
     end
-
 
     test "returns 'balance_not_found' when address is invalid", meta do
       mint!(meta.minted_token)

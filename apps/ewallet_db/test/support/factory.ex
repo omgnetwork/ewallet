@@ -191,6 +191,7 @@ defmodule EWalletDB.Factory do
 
   def transaction_request_consumption_factory do
     %TransactionRequestConsumption{
+      idempotency_token: sequence("123"),
       minted_token_id: insert(:minted_token).id,
       user_id: insert(:user).id,
       balance: insert(:transaction_request)
