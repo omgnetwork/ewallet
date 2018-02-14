@@ -4,9 +4,23 @@ defmodule EWalletDB.Factory do
   """
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
-  alias EWalletDB.{Account, APIKey, AuthToken, Balance, Invite, Key,
-                   Membership, Mint, MintedToken, Role, User, Transfer,
-                   ForgetPasswordRequest, TransactionRequest}
+  alias EWalletDB.{
+    Account,
+    APIKey,
+    AuthToken,
+    Balance,
+    Invite,
+    Key,
+    Membership,
+    Mint,
+    MintedToken,
+    Role,
+    User,
+    Transfer,
+    ForgetPasswordRequest,
+    TransactionRequest,
+    TransactionRequestConsumption
+  }
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
 
@@ -172,6 +186,14 @@ defmodule EWalletDB.Factory do
       minted_token_id: insert(:minted_token).id,
       user_id: insert(:user).id,
       balance: insert(:balance)
+    }
+  end
+
+  def transaction_request_consumption_factory do
+    %TransactionRequestConsumption{
+      minted_token_id: insert(:minted_token).id,
+      user_id: insert(:user).id,
+      balance: insert(:transaction_request)
     }
   end
 end

@@ -1,4 +1,4 @@
- defmodule EWallet.TransferTest do
+ defmodule EWallet.Transactions.TransferTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.Transactions
   alias EWalletDB.{Repo, MintedToken, Account, Transfer}

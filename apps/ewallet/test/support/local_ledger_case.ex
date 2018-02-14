@@ -5,6 +5,7 @@ defmodule EWallet.LocalLedgerCase do
   use ExUnit.CaseTemplate
   alias Ecto.UUID
   alias EWallet.{Mint, Transaction}
+  alias EWalletDB.Account
 
   defmacro __using__(_opts) do
     quote do
@@ -44,6 +45,22 @@ defmodule EWallet.LocalLedgerCase do
       "to_address" => to,
       "token_id" => minted_token.friendly_id,
       "amount" => amount,
+      "metadata" => %{},
+      "idempotency_token" => UUID.generate()
+    })
+
+    transfer
+  end
+
+  def initialize_balance(balance, amount, minted_token) do
+    master_account = Account.get_master_account()
+    master_balance = Account.get_primary_balance(master_account)
+
+    {:ok, transfer, _balances, _minted_token} = Transaction.process_with_addresses(%{
+      "from_address" => master_balance.address,
+      "to_address" => balance.address,
+      "token_id" => minted_token.friendly_id,
+      "amount" => amount * minted_token.subunit_to_unit,
       "metadata" => %{},
       "idempotency_token" => UUID.generate()
     })
