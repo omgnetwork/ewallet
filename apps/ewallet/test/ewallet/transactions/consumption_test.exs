@@ -69,6 +69,27 @@ defmodule EWallet.Transactions.ConsumptionTest do
       assert consumption.balance_address == meta.sender_balance.address
     end
 
+    test "returns 'invalid_parameter' when amount is not set", meta do
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.receiver.id,
+        balance: meta.receiver_balance,
+        amount: nil
+      )
+
+      {error, changeset} = Consumption.consume(meta.sender, "123", %{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil
+      })
+
+      assert error == :error
+      assert changeset.errors ==  [amount: {"can't be blank", [validation: :required]}]
+    end
+
     test "returns 'balance_not_found' when address is invalid", meta do
       mint!(meta.minted_token)
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)

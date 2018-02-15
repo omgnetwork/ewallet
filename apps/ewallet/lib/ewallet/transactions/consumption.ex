@@ -59,7 +59,7 @@ defmodule EWallet.Transactions.Consumption do
     balance: balance,
     attrs: attrs
   }) do
-    {:ok, _consumption} = TransactionRequestConsumption.insert(%{
+    TransactionRequestConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
       idempotency_token: idempotency_token,
       amount: attrs["amount"] || request.amount,
