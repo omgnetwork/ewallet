@@ -282,13 +282,32 @@ paths:
   #   TRANSACTION REQUESTS   #
   ############################
   # Endpoint to create a transaction request
-  /transaction_request.create:
+  /me.create_transaction_request:
     post:
       tags:
         - TransactionRequest
       summary: Client - Create a new transaction request.
       description: This is a client call only.
-      operationId: transaction_request_create
+      operationId: create_transaction_request
+      security:
+        - ClientAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get a transaction request
+  /me.get_transaction_request:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Create a new transaction request.
+      description: This is a client call only.
+      operationId: get_transaction_request
       security:
         - ClientAuth: []
       parameters:
