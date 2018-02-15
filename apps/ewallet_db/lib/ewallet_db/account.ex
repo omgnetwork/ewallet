@@ -14,7 +14,6 @@ defmodule EWalletDB.Account do
   schema "account" do
     field :name, :string
     field :description, :string
-    field :master, :boolean, default: false
     field :relative_depth, :integer, virtual: true
     field :avatar, EWalletDB.Uploaders.Avatar.Type
 
@@ -32,7 +31,7 @@ defmodule EWalletDB.Account do
 
   defp changeset(%Account{} = account, attrs) do
     account
-    |> cast(attrs, [:name, :description, :master, :parent_id])
+    |> cast(attrs, [:name, :description, :parent_id])
     |> validate_required(:name)
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
@@ -150,11 +149,8 @@ defmodule EWalletDB.Account do
   @doc """
   Returns whether the account is the master account.
   """
-  def is_master?(account) do
-    # Currently there is `master` field on the account so we use that value.
-    # We have this function because soon the field be removed and the master account
-    # will need to be determined by checking that the account's `parent_id` is nil.
-    account.master
+  def master?(account) do
+    is_nil(account.parent_id)
   end
 
   @doc """
@@ -166,7 +162,7 @@ defmodule EWalletDB.Account do
   end
   def get_master_account do
     Account
-    |> where([a], a.master == true)
+    |> where([a], is_nil(a.parent_id))
     |> Repo.one()
   end
 

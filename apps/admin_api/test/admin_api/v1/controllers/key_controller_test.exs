@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.Key
+  alias EWalletDB.{Account, Key}
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do
@@ -36,8 +36,6 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
   describe "/access_key.create" do
     test "responds with a key with the secret key" do
-      master_account = insert(:account, %{master: true})
-      _account       = insert(:account, %{master: false})
       response       = user_request("/access_key.create")
       key            = get_last_inserted(Key)
 
@@ -61,7 +59,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
       assert response["data"]["id"] == key.id
       assert response["data"]["access_key"] == key.access_key
-      assert response["data"]["account_id"] == master_account.id
+      assert response["data"]["account_id"] == Account.get_master_account().id
       assert response["data"]["created_at"] == Date.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == Date.to_iso8601(key.updated_at)
       assert response["data"]["deleted_at"] == Date.to_iso8601(key.deleted_at)
