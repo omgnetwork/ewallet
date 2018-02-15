@@ -5,6 +5,7 @@ defmodule EWalletDB.Account do
   use Ecto.Schema
   use Arc.Ecto.Schema
   import Ecto.{Changeset, Query}
+  import EWalletDB.AccountValidator
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
   alias EWalletDB.Helpers
@@ -33,6 +34,7 @@ defmodule EWalletDB.Account do
     account
     |> cast(attrs, [:name, :description, :parent_id])
     |> validate_required(:name)
+    |> validate_parent_id()
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
   end

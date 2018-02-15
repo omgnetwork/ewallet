@@ -18,6 +18,17 @@ defmodule EWalletDB.AccountTest do
       refute Account.master?(account)
     end
 
+    test "prevents inserting an account without a parent" do
+      {res, changeset} =
+        :account
+        |> params_for(parent: nil)
+        |> Account.insert
+
+      assert res == :error
+      assert changeset.errors ==
+        [{:parent_id, {"can't be blank", [validation: :required]}}]
+    end
+
     test "inserts primary/burn balances for the account" do
       {:ok, account} = :account |> params_for() |> Account.insert
       primary = Account.get_primary_balance(account)
