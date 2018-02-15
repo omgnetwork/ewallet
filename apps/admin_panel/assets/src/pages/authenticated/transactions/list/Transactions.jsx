@@ -5,7 +5,7 @@ import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 import OMGTable from '../../../../components/OMGTable';
 import OMGPaginatorFactory from '../../../../components/OMGPaginatorHOC';
-import Actions from './actions';
+import loadTransactions from './actions';
 import OMGHeader from '../../../../components/OMGHeader';
 import dateFormatter from '../../../../helpers/dateFormatter';
 import tableConstants from '../../../../constants/table.constants';
@@ -110,7 +110,7 @@ function mapStateToProps(state) {
   };
 }
 
-const dataLoader = (query, callback) => Actions.loadTransactions(query, callback);
+const dataLoader = (query, callback) => loadTransactions(query, callback);
 
 const WrappedTransactions = connect(mapStateToProps)(OMGPaginatorFactory(localize(Transactions, 'locale'), dataLoader));
 

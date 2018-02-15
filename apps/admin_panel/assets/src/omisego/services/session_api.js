@@ -10,7 +10,7 @@ export function login(params, callback) {
   return request(requestParams);
 }
 
-export function logout(callback) {
+export function logout(params, callback) {
   const requestParams = {
     path: 'logout',
     params: null,

@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-import { Button } from 'react-bootstrap';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 import { Link, withRouter } from 'react-router-dom';
@@ -48,7 +47,7 @@ class ResetPasswordForm extends Component {
   }
 
   render() {
-    const { loading, translate, history } = this.props;
+    const { loading, translate } = this.props;
     const { email } = this.state;
     return (
       <div className="omg-form">
@@ -97,7 +96,6 @@ class ResetPasswordForm extends Component {
 }
 
 ResetPasswordForm.propTypes = {
-  history: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
   onSuccess: PropTypes.func.isRequired,
   resetPassword: PropTypes.func.isRequired,

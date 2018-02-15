@@ -46,7 +46,7 @@ class SignIn extends Component {
   }
 
   render() {
-    const { loading, translate, history } = this.props;
+    const { loading, translate } = this.props;
     const { email, password } = this.state;
     return (
       <div className="omg-form">
@@ -101,7 +101,6 @@ class SignIn extends Component {
 }
 
 SignIn.propTypes = {
-  history: PropTypes.object.isRequired,
   loading: PropTypes.bool.isRequired,
   login: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,

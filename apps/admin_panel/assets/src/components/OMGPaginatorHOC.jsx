@@ -44,7 +44,7 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
     onURLChange(params) {
       this.setState(params);
       const { loadData } = this.props;
-      loadData(params, (data, pagination) => {
+      loadData(params, ({ data, pagination }) => {
         this.setState({
           data,
           page: pagination.current_page,

@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
-import Actions from './actions';
+import { loadAccounts, viewAs } from './actions';
 import OMGPaginatorHOC from '../../../../components/OMGPaginatorHOC';
 import OMGTable from '../../../../components/OMGTable';
 import OMGHeader from '../../../../components/OMGHeader';
@@ -106,10 +106,10 @@ Accounts.propTypes = {
   updateSorting: PropTypes.func.isRequired,
 };
 
-const dataLoader = (query, callback) => Actions.loadAccounts(query, callback);
+const dataLoader = (query, callback) => loadAccounts(query, callback);
 function mapDispatchToProps(dispatch) {
   return {
-    handleViewAs: accountId => dispatch(Actions.viewAs(accountId)),
+    handleViewAs: accountId => dispatch(viewAs(accountId)),
   };
 }
 

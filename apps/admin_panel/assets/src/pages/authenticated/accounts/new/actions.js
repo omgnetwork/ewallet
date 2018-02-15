@@ -1,19 +1,13 @@
-import ErrorHandler from '../../../../helpers/errorHandler';
 import { create } from '../../../../omisego/services/account_api';
-import LoadingActions from '../../../../actions/loading.actions';
+import call from '../../../../actions/api.actions';
 
-class Actions {
-  static createAccount(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      create(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) { ErrorHandler.handleAPIError(dispatch, err); } else {
-          onSuccess(result);
-        }
-      });
-    };
-  }
-}
+const createAccount = (params, onSuccess) =>
+  call({
+    params,
+    service: create,
+    callback: {
+      onSuccess,
+    },
+  });
 
-export default Actions;
+export default createAccount;
