@@ -6,7 +6,7 @@ import { Image } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import SidebarLink from './SidebarLink';
 
-import logo from '../../../public/images/user_icon_placeholder.png';
+import logo from '../../../../public/images/user_icon_placeholder.png';
 
 const Sidebar = ({ translate, history, session }) => {
   const accountPath = `/a/${session.currentAccount.id}`;

@@ -1,7 +1,7 @@
 import { push } from 'react-router-redux';
-import { logout } from '../../omisego/services/session_api';
-import SessionActions from '../../actions/session.actions';
-import call from '../../actions/api.actions';
+import { logout } from '../../../omisego/services/session_api';
+import SessionActions from '../../../actions/session.actions';
+import call from '../../../actions/api.actions';
 
 class Actions {
   static logout() {

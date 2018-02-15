@@ -104,7 +104,7 @@ class Profile extends Component {
     } = this.state;
     return (
       <div className="row mb-3">
-        <div className="col-xs-12 col-sm-4">
+        <div className="col-xs-8">
           <div className="omg-form">
             <h1>
               {translate('profile.header.profile')}

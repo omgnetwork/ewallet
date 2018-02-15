@@ -37,21 +37,44 @@
     box-shadow: 0rem 0rem 0rem transparent;
   }
 
-  .dropdown-menu > li[role='presentation'] {
+  .dropdown-menu > li {
     min-width: 11.25rem; // dropdown width + border
   }
 
-  .dropdown-menu > li[role='presentation'] > a {
-    color: $white;
+  .omg-nav > &__gray > .dropdown-menu > li[role='presentation'] > a {
+    @media (max-width: 767px){
+      color: $light-gray;
+      padding-left: 0rem;
+      padding-right: 0rem;
+    }
+  }
+
+  .omg-nav > &__gray > .dropdown-menu > li[role='presentation'] > a:hover {
+    @media (max-width: 767px){
+      color: $white;
+    }
   }
 
   .dropdown-menu > li[role='presentation'] > a:hover {
     background-color: $dark-gray;
+    @media (max-width: 767px){
+      background-color: white;
+    }
   }
 
   &__gray.dropdown > .dropdown-menu {
     color: $light-gray;
-    margin-top: 1rem;
+    @media (min-width: 767px) {
+      margin-top: 1rem;
+    }
+  }
+
+  &__gray.dropdown {
+    @media (max-width: 767px){
+      padding-left: 1rem;
+      background-color: $omise-darker-blue;
+      width: 100%;
+    }
   }
 
   // To override bootstrap's NavDropdown style
@@ -60,5 +83,8 @@
     font-size: 1rem;
     padding: 1.25rem 0.5rem;
     background-color: transparent;
+    @media (max-width: 767px){
+      padding: 1.25rem 0rem;
+    }
   }
 }
