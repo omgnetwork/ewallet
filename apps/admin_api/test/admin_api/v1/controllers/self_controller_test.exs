@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.Account
   alias EWallet.Web.Date
+  alias EWalletDB.{Membership, Repo, User}
 
   describe "/me.get" do
     test "responds with user data" do
@@ -14,8 +15,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get_account" do
     test "responds with an account" do
-      account     = insert(:account)
-      _membership = insert(:membership, %{user: get_test_user(), account: account})
+      account = User.get_account(get_test_user())
 
       assert user_request("/me.get_account") ==
         %{
@@ -41,6 +41,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
     end
 
     test "responds with error if the user does not have an account" do
+      Repo.delete_all(Membership)
+
       assert user_request("/me.get_account") ==
         %{
           "version" => "1",
@@ -57,8 +59,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get_accounts" do
     test "responds with a list of accounts" do
-      account     = insert(:account)
-      _membership = insert(:membership, %{user: get_test_user(), account: account})
+      account = User.get_account(get_test_user())
 
       assert user_request("/me.get_accounts") ==
         %{

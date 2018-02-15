@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, User}
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -74,7 +74,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
   describe "/account.create" do
     test "creates a new account and returns it" do
-      request_data = params_for(:account)
+      parent       = User.get_account(get_test_user())
+      request_data = params_for(:account, %{parent_id: parent.id})
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == true
@@ -83,7 +84,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test "returns an error if account name is not provided" do
-      request_data = params_for(:account, %{name: ""})
+      parent       = User.get_account(get_test_user())
+      request_data = params_for(:account, %{name: "", parent_id: parent.id})
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == false
@@ -94,7 +96,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
   describe "/account.update" do
     test "updates the given account" do
-      account = insert(:account)
+      account = User.get_account(get_test_user())
 
       # Prepare the update data while keeping only id the same
       request_data = params_for(:account, %{
