@@ -182,7 +182,7 @@ defmodule EWalletDB.Factory do
     %TransactionRequest{
       type: "receive",
       amount: 100,
-      correlation_id: "123",
+      correlation_id: sequence("correlation"),
       minted_token_id: insert(:minted_token).id,
       user_id: insert(:user).id,
       balance: insert(:balance)
