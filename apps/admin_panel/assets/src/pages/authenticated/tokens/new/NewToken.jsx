@@ -29,6 +29,7 @@ class NewToken extends Component {
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
+    this.handleCheckChange = this.handleCheckChange.bind(this);
   }
 
   handleSubmit(e) {
@@ -81,15 +82,33 @@ class NewToken extends Component {
     });
   }
 
+  handleCheckChange(e) {
+    const { id, checked } = e.target;
+    this.setState({
+      [id]: checked,
+    });
+  }
+
   render() {
     const { translate } = this.props;
+    const { symbolFirst, locked } = this.state;
 
-    const fields = allFields.map((v) => {
+    const fields = allFields.map((v, index) => {
       const translated = translate(v.translateId);
+      const checkBox = {
+        checked: v.name === 'locked' ? locked : symbolFirst,
+        id: v.name === 'locked' ? 'locked' : 'symbolFirst',
+      };
       switch (v.type) {
         case 'boolean':
           return (
-            <Checkbox checked={v.name === 'symbolFirst'} className="omg-form__group">
+            <Checkbox
+              key={index}
+              checked={checkBox.checked}
+              className="omg-form__group"
+              id={checkBox.id}
+              onChange={this.handleCheckChange}
+            >
               <div className="omg-form__label">
                 {translated}
               </div>

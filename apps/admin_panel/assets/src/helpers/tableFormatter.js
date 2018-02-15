@@ -40,6 +40,6 @@ export function formatContent(value) {
   }
 }
 
-export const defaultHeaderAlignment = () => ({
+export const defaultHeaderAlignment = {
   className: 'omg-table-content-row__left', key: '',
-});
+};

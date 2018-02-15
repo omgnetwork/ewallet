@@ -5,7 +5,7 @@ import defaultPagination from '../constants/pagination.constants';
 import URLActions from '../actions/url.actions';
 import OMGPager from '../components/OMGPager';
 
-const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
+const OMGPaginatorFactory = (PaginatedComponent) => {
   class OMGPaginatorHOC extends Component {
     constructor(props) {
       super(props);
@@ -131,13 +131,7 @@ const OMGPaginatorFactory = (PaginatedComponent, dataLoader) => {
     location: PropTypes.object.isRequired,
   };
 
-  function mapDispatchToProps(dispatch) {
-    return {
-      loadData: (query, onSuccess) => dispatch(dataLoader(query, onSuccess)),
-    };
-  }
-
-  return connect(null, mapDispatchToProps)(OMGPaginatorHOC);
+  return OMGPaginatorHOC;
 };
 
 export default OMGPaginatorFactory;

@@ -5,13 +5,13 @@ import PropTypes from 'prop-types';
 import OMGSearchField from './OMGSearchField';
 
 const OMGHeader = ({
-  translate, query, handleAdd, handleSearchChange, localizedText, visible,
+  translate, query, handleAdd, handleSearchChange, headerText, visible,
 }) => (
   <div className="search-header">
     <div className="row mb-3">
       <div className="col-md-6">
         <h1 className="search-header__title pull-left">
-          {translate(localizedText.title)}
+          {translate(headerText.title)}
         </h1>
       </div>
       <div className={`col-md-6 ${visible.addBtn ? '' : 'omg-hide'}`}>
@@ -21,7 +21,7 @@ const OMGHeader = ({
           onClick={handleAdd}
         >
           <Glyphicon glyph="plus" />
-          {localizedText.add && translate(localizedText.add)}
+          {headerText.add && translate(headerText.add)}
         </Button>
       </div>
     </div>
@@ -31,7 +31,7 @@ const OMGHeader = ({
       </div>
       <div className="col-md-3">
         <Button bsClass="search-header__adv_filter_btn btn" bsStyle="link">
-          {translate(localizedText.advancedFilters)}
+          {translate(headerText.advancedFilters)}
         </Button>
       </div>
       <div className="col-md-6">
@@ -41,7 +41,7 @@ const OMGHeader = ({
         >
           <Dropdown.Toggle className="search-header__dropdown-toggle">
             <Glyphicon glyph="share" />
-            {translate(localizedText.export)}
+            {translate(headerText.export)}
           </Dropdown.Toggle>
           <Dropdown.Menu>
             <MenuItem eventKey="1">
@@ -57,7 +57,7 @@ const OMGHeader = ({
 OMGHeader.propTypes = {
   handleAdd: PropTypes.func,
   handleSearchChange: PropTypes.func.isRequired,
-  localizedText: PropTypes.shape({
+  headerText: PropTypes.shape({
     title: PropTypes.string,
     advancedFilters: PropTypes.string,
     export: PropTypes.string,
@@ -72,7 +72,7 @@ OMGHeader.propTypes = {
 
 OMGHeader.defaultProps = {
   handleAdd: () => { },
-  localizedText: {
+  headerText: {
     title: '',
     advancedFilters: '',
     export: '',

@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
 import { Image, Nav, NavItem, NavDropdown, MenuItem } from 'react-bootstrap';
-import defaultAvatar from '../../../../public/images/user.svg';
+import defaultAvatar from '../../../../public/images/user_icon_placeholder.png';
 import Actions from './actions';
 
 const defaultEmail = 'default@omisego.co';
