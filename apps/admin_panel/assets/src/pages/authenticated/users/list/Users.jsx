@@ -1,6 +1,6 @@
 import React from 'react';
 import { connect } from 'react-redux';
-import Actions from './actions';
+import loadUsers from './actions';
 import tables from './tables';
 import headerText from './header';
 import OMGCompleteTable from '../../../../components/OMGCompleteTable';
@@ -15,7 +15,7 @@ const Users = props => (
 );
 
 const mapDispatchToProps = dispatch => ({
-  loadData: (query, onSuccess) => dispatch(Actions.loadUsers(query, onSuccess)),
+  loadData: (query, onSuccess) => dispatch(loadUsers(query, onSuccess)),
 });
 
 export default connect(null, mapDispatchToProps)(Users);
