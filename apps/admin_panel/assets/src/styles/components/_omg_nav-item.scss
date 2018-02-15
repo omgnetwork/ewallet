@@ -1,24 +1,46 @@
 .omg-nav {
+  @media (min-width: 768px) {
     margin-right: 2.25rem;
+  }
+  @media (max-width: 767px) {
+    display: flex;
+    width: 100%;
+  }
+  margin: 0rem 0rem;
 
-    &__user-info[role="presentation"] > a[role="button"]{
-      color: $light-gray;
-      font-size: 1rem;
-      padding: 1.25rem 0.5rem;
-    }
+  &__user-info[role="presentation"] > a[role="button"]{
+    color: $light-gray;
+    font-size: 1rem;
+    padding: 1.25rem 0.5rem;
+  }
 
-    .navbar-text {
-      color: $light-gray;
-      margin: 1.25rem 0.5rem;
-    }
+  .navbar-text {
+    color: $light-gray;
+    margin: 1.25rem 0.5rem;
+  }
 
-    #avatar {
-      padding: 0.875rem 0.5rem;
-      max-height: 4rem;
-    }
-
-    #avatar > img {
-      width: 2.25rem;
-      height: 2.25rem;
+  &__avatar {
+    @media (max-width: 767px){
+      padding-left: 1rem;
     }
   }
+
+  & > &__avatar > a {
+    @media (min-width: 767px){
+      padding: 0.875rem 0.5rem;
+    }
+    padding: 1rem 0rem;
+    max-height: 4rem;
+  }
+
+  & > &__avatar {
+    @media (max-width: 767px) {
+      background-color: $omise-darker-blue;
+    }
+  }
+
+  &__avatar > a > img {
+    width: 2.25rem;
+    height: 2.25rem;
+  }
+}

@@ -38,7 +38,7 @@ class OMGTable extends Component {
       const header = headers[key];
       return (<OMGTableHeader
         key={key}
-        alignment={alignments[index] || defaultHeaderAlignment}
+        alignment={alignments[index] || defaultHeaderAlignment()}
         handleClick={this.onSort}
         id={key}
         sortable={header.sortable}

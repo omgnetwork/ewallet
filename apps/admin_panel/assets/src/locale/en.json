@@ -24,7 +24,8 @@
     "next": "Next"
   },
   "header": {
-    "edit_profile": "Edit Profile"
+    "edit_profile": "Edit Profile",
+    "logout": "Log Out"
   },
   "sign-in": {
     "sign-in": "Sign in",

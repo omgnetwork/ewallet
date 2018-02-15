@@ -7,9 +7,10 @@
     padding-right: 0rem;
   }
 
-  &__right {
+  &__right, &__right > .collapse {
     padding-left: 0rem;
     padding-right: 0rem;
+    border-top: 0px;
   }
 
   &__navbar {

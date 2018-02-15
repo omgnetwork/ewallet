@@ -1,12 +1,13 @@
 .authenticated-layout {
-  @media (min-width: 992px) {
-    &__sidebar {
-      padding-right: 0rem;
-      padding-left: 0rem;
+  
+  &__sidebar {
+    @media (min-width: 768px) {
       top: 64px;
       bottom: 0;
       position: fixed;
     }
+    padding-right: 0rem;
+    padding-left: 0rem;
   }
 
   &__sidebar {
