@@ -8,10 +8,9 @@ defmodule EWalletDB.TransactionRequest do
   alias EWalletDB.{TransactionRequest, TransactionRequestConsumption,
                    Repo, MintedToken, User, Balance, Helpers}
 
-  @pending "pending"
-  @confirmed "confirmed"
-  @cancelled "cancelled"
-  @statuses [@pending, @confirmed, @cancelled]
+  @valid "valid"
+  @expired "expired"
+  @statuses [@valid, @expired]
 
   @send    "send"
   @receive "receive"
@@ -22,7 +21,7 @@ defmodule EWalletDB.TransactionRequest do
   schema "transaction_request" do
     field :type, :string
     field :amount, EWalletDB.Types.Integer
-    field :status, :string, default: @pending # pending -> confirmed
+    field :status, :string, default: @valid # valid -> expired
     field :correlation_id, :string
     has_many :consumptions, TransactionRequestConsumption
     belongs_to :user, User, foreign_key: :user_id,
