@@ -43,7 +43,7 @@ defmodule EWallet.Transactions.Request do
     end
   end
 
-  @spec get(UUID.t) :: TransactionRequest.t | nil
+  @spec get(UUID.t) :: {:ok, TransactionRequest.t} | {:error, :transaction_request_not_found}
   def get(id) do
     request = TransactionRequest.get(id, preload: [:minted_token, :user, :balance])
 
