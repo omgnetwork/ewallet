@@ -1,13 +1,16 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  import Bodyguard
   alias EWallet.AccountPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.Account
 
   @search_fields [{:id, :uuid}, :name, :description]
   @sort_fields [:id, :name, :description]
+
+  defp permit(action, user_id, account_id) do
+    Bodyguard.permit(AccountPolicy, action, user_id, account_id)
+  end
 
   @doc """
   Retrieves a list of accounts.
@@ -35,18 +38,15 @@ defmodule AdminAPI.V1.AccountController do
   The requesting user must have write permission on the given parent account.
   """
   def create(conn, attrs) do
-    parent_id = Map.get(attrs, "parent_id")
-
-    case permit(AccountPolicy, :create, conn.assigns.user.id, parent_id) do
-      :ok -> do_create(conn, attrs)
-      {:error, _} -> handle_error(conn, :user_forbidden)
+    with parent_id <- Map.get(attrs, "parent_id"),
+         :ok       <- permit(:create, conn.assigns.user.id, parent_id)
+    do
+      attrs
+      |> Account.insert()
+      |> respond_single(conn)
+    else
+      {:error, code} -> handle_error(conn, code)
     end
-  end
-
-  defp do_create(conn, attrs) do
-    attrs
-    |> Account.insert()
-    |> respond_single(conn)
   end
 
   @doc """
@@ -54,26 +54,18 @@ defmodule AdminAPI.V1.AccountController do
 
   The requesting user must have write permission on the given account.
   """
-  def update(conn, %{"id" => account_id} = attrs) do
-    case permit(AccountPolicy, :update, conn.assigns.user.id, account_id) do
-      :ok -> do_update(conn, attrs)
-      {:error, :unauthorized} -> handle_error(conn, :user_forbidden)
-      {:error, error_code} -> handle_error(conn, error_code)
+  def update(conn, %{"id" => account_id} = attrs) when byte_size(account_id) > 0 do
+    with :ok <- permit(:update, conn.assigns.user.id, account_id),
+         %{} = account <- Account.get(account_id) || {:error, :account_id_not_found}
+    do
+      account
+      |> Account.update(attrs)
+      |> respond_single(conn)
+    else
+      {:error, code} -> handle_error(conn, code)
     end
   end
   def update(conn, _), do: handle_error(conn, :invalid_parameter)
-
-  defp do_update(conn, %{"id" => account_id} = attrs)  do
-    case Account.get(account_id) do
-      %{} = account ->
-        account
-        |> Account.update(attrs)
-        |> respond_single(conn)
-      _ ->
-        handle_error(conn, :account_id_not_found)
-    end
-  end
-  defp do_update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Uploads an image as avatar for a specific account.

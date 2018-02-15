@@ -6,10 +6,7 @@ defmodule EWallet.AccountPolicy do
   alias EWalletDB.User
 
   # Fetches the user role then authorize by role
-  def authorize(action, user_id, account_id)
-    when is_binary(user_id) and byte_size(user_id) > 0
-    and is_binary(account_id) and byte_size(account_id) > 0
-  do
+  def authorize(action, user_id, account_id) do
     user_id
     |> User.get_role(account_id)
     |> do_authorize(action)
