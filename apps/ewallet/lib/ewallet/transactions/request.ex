@@ -20,7 +20,7 @@ defmodule EWallet.Transactions.Request do
          {:ok, balance} <- get_balance(user, address),
          {:ok, transaction_request} <- insert(user, minted_token, balance, attrs)
     do
-      {:ok, get(transaction_request.id)}
+      get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error
@@ -45,7 +45,12 @@ defmodule EWallet.Transactions.Request do
 
   @spec get(UUID.t) :: TransactionRequest.t | nil
   def get(id) do
-    TransactionRequest.get(id, preload: [:minted_token, :user, :balance])
+    request = TransactionRequest.get(id, preload: [:minted_token, :user, :balance])
+
+    case request do
+      nil     -> {:error, :transaction_request_not_found}
+      request -> {:ok, request}
+    end
   end
 
   defp insert(user, minted_token, balance, attrs) do

@@ -128,15 +128,16 @@ defmodule EWallet.Transactions.ConsumptionTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = Consumption.get(consumption.id)
+      assert {:ok, consumption} = Consumption.get(consumption.id)
+      assert %TransactionRequestConsumption{} = consumption
     end
 
     test "returns nil when given nil" do
-      assert Consumption.get(nil) == nil
+      assert Consumption.get(nil) == {:error, :transaction_request_consumption_not_found}
     end
 
     test "returns nil when given invalid UUID" do
-      assert Consumption.get("123") == nil
+      assert Consumption.get("123") == {:error, :transaction_request_consumption_not_found}
     end
   end
 end

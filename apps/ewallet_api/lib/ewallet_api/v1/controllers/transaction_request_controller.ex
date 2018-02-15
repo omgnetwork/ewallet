@@ -9,8 +9,8 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     |> respond(conn)
   end
 
-  def get(conn, %{"transaction_request_id" => request_id}) do
-    request_id
+  def get(conn, %{"id" => id}) do
+    id
     |> Request.get()
     |> respond(conn)
   end

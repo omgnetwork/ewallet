@@ -3,7 +3,7 @@ defmodule EWallet.Transactions.Consumption do
   Business logic to manage transaction request consumptions.
   """
   alias EWallet.{Transaction, Transactions.Request}
-  alias EWalletDB.{TransactionRequest, TransactionRequestConsumption}
+  alias EWalletDB.{TransactionRequestConsumption}
 
   def consume(user, idempotency_token, %{
     "transaction_request_id" => request_id,
@@ -12,8 +12,7 @@ defmodule EWallet.Transactions.Consumption do
     "address" => address,
     "metadata" => metadata
   } = attrs) do
-    with %TransactionRequest{} = request <- Request.get(request_id)
-         || :transaction_request_not_found,
+    with {:ok, request} <- Request.get(request_id),
          {:ok, balance} <- Request.get_balance(user, address),
          {:ok, consumption} <- insert(%{
            user: user,
@@ -22,19 +21,26 @@ defmodule EWallet.Transactions.Consumption do
            balance: balance,
            attrs: attrs
          }),
-         consumption <- get(consumption.id)
+         {:ok, consumption} <- get(consumption.id)
     do
       transfer(request.type, consumption, metadata)
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error    end
   end
-  def consume(_user, _idempotency_token, _attrs), do: {:error, :invalid_parameter}
+  def consume(_user, _idempotency_token, attrs) do
+    {:error, :invalid_parameter}
+  end
 
   def get(id) do
-    TransactionRequestConsumption.get(id, preload: [
+    consumption = TransactionRequestConsumption.get(id, preload: [
       :user, :balance, :minted_token, :transaction_request
     ])
+
+    case consumption do
+      nil         -> {:error, :transaction_request_consumption_not_found}
+      consumption -> {:ok, consumption}
+    end
   end
 
   defp insert(%{
@@ -62,7 +68,7 @@ defmodule EWallet.Transactions.Consumption do
       "to_address" => consumption.transaction_request.balance_address,
       "token_id" => consumption.minted_token.friendly_id,
       "amount" => consumption.amount,
-      "metadata" => metadata
+      "metadata" => metadata || %{}
     }
 
     case Transaction.process_with_addresses(attrs) do
