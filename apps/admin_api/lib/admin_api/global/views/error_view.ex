@@ -29,7 +29,10 @@ defmodule AdminAPI.ErrorView do
     )
   end
 
-  defp render_error(code, message) do
+  @doc """
+  Renders the error code and message into actual json response.
+  """
+  def render_error(code, message) do
     code
     |> ErrorSerializer.to_json(message)
     |> ResponseSerializer.to_json(success: false)

@@ -1,6 +1,8 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  import Bodyguard
+  alias EWallet.AccountPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.Account
 
@@ -29,8 +31,19 @@ defmodule AdminAPI.V1.AccountController do
 
   @doc """
   Creates a new account.
+
+  The requesting user must have write permission on the given parent account.
   """
   def create(conn, attrs) do
+    parent_id = Map.get(attrs, "parent_id")
+
+    case permit(AccountPolicy, :create, conn.assigns.user.id, parent_id) do
+      :ok -> do_create(conn, attrs)
+      {:error, _} -> handle_error(conn, :user_forbidden)
+    end
+  end
+
+  defp do_create(conn, attrs) do
     attrs
     |> Account.insert()
     |> respond_single(conn)
@@ -38,19 +51,29 @@ defmodule AdminAPI.V1.AccountController do
 
   @doc """
   Updates the account if all required parameters are provided.
-  """
-  def update(conn, %{"id" => id} = attrs) when is_binary(id) and byte_size(id) > 0  do
-    id
-    |> Account.get()
-    |> update_account(attrs)
-    |> respond_single(conn)
-  end
-  def update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp update_account(%Account{} = account, attrs) do
-    Account.update(account, attrs)
+  The requesting user must have write permission on the given account.
+  """
+  def update(conn, %{"id" => account_id} = attrs) do
+    case permit(AccountPolicy, :update, conn.assigns.user.id, account_id) do
+      :ok -> do_update(conn, attrs)
+      {:error, :unauthorized} -> handle_error(conn, :user_forbidden)
+      {:error, error_code} -> handle_error(conn, error_code)
+    end
   end
-  defp update_account(_, _attrs), do: nil
+  def update(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp do_update(conn, %{"id" => account_id} = attrs)  do
+    case Account.get(account_id) do
+      %{} = account ->
+        account
+        |> Account.update(attrs)
+        |> respond_single(conn)
+      _ ->
+        handle_error(conn, :account_id_not_found)
+    end
+  end
+  defp do_update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Uploads an image as avatar for a specific account.
