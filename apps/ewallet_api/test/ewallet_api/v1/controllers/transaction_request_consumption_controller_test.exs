@@ -52,7 +52,13 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
-          "token_id" => minted_token.friendly_id,
+          "minted_token" => %{
+            "id" => minted_token.friendly_id,
+            "name" => minted_token.name,
+            "object" => "minted_token",
+            "subunit_to_unit" => minted_token.subunit_to_unit,
+            "symbol" => minted_token.symbol
+          },
           "transaction_request_id" => transaction_request.id,
           "transfer_id" => inserted_transfer.id,
           "user_id" => bob.id

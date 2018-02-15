@@ -16,7 +16,13 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionViewTest do
           id: consumption.id,
           status: consumption.status,
           amount: consumption.amount,
-          token_id: consumption.minted_token.friendly_id,
+          minted_token: %{
+            object: "minted_token",
+            id: consumption.minted_token.friendly_id,
+            name: consumption.minted_token.name,
+            subunit_to_unit: consumption.minted_token.subunit_to_unit,
+            symbol: consumption.minted_token.symbol
+          },
           correlation_id: consumption.correlation_id,
           idempotency_token: consumption.idempotency_token,
           transfer_id: consumption.transfer_id,

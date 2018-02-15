@@ -3,6 +3,7 @@ defmodule EWalletAPI.V1.JSON.TransactionRequestConsumptionSerializer do
   Serializes transaction request consumption data into V1 JSON response format.
   """
   use EWalletAPI.V1
+  alias EWalletAPI.V1.JSON.MintedTokenSerializer
 
   def serialize(consumption) do
     %{
@@ -10,7 +11,7 @@ defmodule EWalletAPI.V1.JSON.TransactionRequestConsumptionSerializer do
       id: consumption.id,
       status: consumption.status,
       amount: consumption.amount,
-      token_id: consumption.minted_token.friendly_id,
+      minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
       correlation_id: consumption.correlation_id,
       idempotency_token: consumption.idempotency_token,
       transfer_id: consumption.transfer_id,
