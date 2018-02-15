@@ -29,7 +29,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
           "type" => "send",
-          "status" => "pending"
+          "status" => "valid"
         }
       }
     end
@@ -60,7 +60,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "id" => request.id,
           "token_id" => minted_token.friendly_id,
           "type" => "send",
-          "status" => "pending"
+          "status" => "valid"
         }
       }
     end

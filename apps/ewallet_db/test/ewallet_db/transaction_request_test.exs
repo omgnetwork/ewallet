@@ -41,9 +41,9 @@ defmodule EWalletDB.TransactionRequestTest do
     test_insert_prevent_blank TransactionRequest, :minted_token_id
     test_insert_prevent_duplicate TransactionRequest, :correlation_id
 
-    test "sets the status to 'pending'" do
+    test "sets the status to 'valid'" do
       {:ok, inserted} = :transaction_request |> params_for() |> TransactionRequest.insert()
-      assert inserted.status == "pending"
+      assert inserted.status == "valid"
     end
 
     test "prevents creation with an invalid type" do
