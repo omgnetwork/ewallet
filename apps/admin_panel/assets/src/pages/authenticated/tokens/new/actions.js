@@ -1,20 +1,15 @@
-import ErrorHandler from '../../../../helpers/errorHandler';
 import { create } from '../../../../omisego/services/token_api';
-import LoadingActions from '../../../../actions/loading.actions';
+import call from '../../../../actions/api.actions';
 
 class Actions {
   static createToken(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      create(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess(result);
-        }
-      });
-    };
+    return call({
+      params,
+      service: create,
+      callback: {
+        onSuccess,
+      },
+    });
   }
 }
 

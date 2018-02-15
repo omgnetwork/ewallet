@@ -1,21 +1,12 @@
-import ErrorHandler from '../../../../helpers/errorHandler';
 import { getAll } from '../../../../omisego/services/token_api';
-import LoadingActions from '../../../../actions/loading.actions';
+import call from '../../../../actions/api.actions';
 
-class Actions {
-  static loadTokens(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      getAll(params, (err, results) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess(results.data, results.pagination);
-        }
-      });
-    };
-  }
-}
+const loadTokens = (params, onSuccess) => call({
+  params,
+  service: getAll,
+  callback: {
+    onSuccess,
+  },
+});
 
-export default Actions;
+export default loadTokens;

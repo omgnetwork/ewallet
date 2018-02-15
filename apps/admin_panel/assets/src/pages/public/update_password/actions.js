@@ -1,39 +1,31 @@
 import { updatePassword } from '../../../omisego/services/session_api';
 import { createAdmin } from '../../../omisego/services/admin_api';
 import { processURL } from '../../../helpers/urlFormatter';
-import ErrorHandler from '../../../helpers/errorHandler';
-import LoadingActions from '../../../actions/loading.actions';
+import call from '../../../actions/api.actions';
+import SERIALIZER from '../../../helpers/serializer';
 
 import { UPDATE_PASSWORD } from '../reset_password/ResetPasswordForm';
 import { INVITATION } from '../../authenticated/setting/Setting';
 
 class Actions {
   static updatePassword(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      updatePassword(params, (err) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess();
-        }
-      });
-    };
+    return call({
+      params,
+      service: updatePassword,
+      callback: {
+        onSuccess: SERIALIZER.NOTHING(onSuccess),
+      },
+    });
   }
 
   static createNewAdmin(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      createAdmin(params, (err) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess();
-        }
-      });
-    };
+    return call({
+      params,
+      service: createAdmin,
+      callback: {
+        onSuccess: SERIALIZER.NOTHING(onSuccess),
+      },
+    });
   }
 
   static processURLResetPWParams(location) {

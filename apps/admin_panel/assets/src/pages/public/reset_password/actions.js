@@ -1,20 +1,16 @@
 import { resetPassword } from '../../../omisego/services/session_api';
-import ErrorHandler from '../../../helpers/errorHandler';
-import LoadingActions from '../../../actions/loading.actions';
+import call from '../../../actions/api.actions';
+import SERIALIZER from '../../../helpers/serializer';
 
 class Actions {
   static resetPassword(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      resetPassword(params, (err) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess();
-        }
-      });
-    };
+    return call({
+      params,
+      service: resetPassword,
+      callback: {
+        onSuccess: SERIALIZER.NOTHING(onSuccess),
+      },
+    });
   }
 }
 

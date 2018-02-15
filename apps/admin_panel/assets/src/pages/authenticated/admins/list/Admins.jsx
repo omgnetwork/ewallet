@@ -4,7 +4,7 @@ import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
 import OMGTable from '../../../../components/OMGTable';
 import OMGPaginatorFactory from '../../../../components/OMGPaginatorHOC';
-import Actions from './actions';
+import loadAdmins from './actions';
 import OMGHeader from '../../../../components/OMGHeader';
 import tableConstants from '../../../../constants/table.constants';
 import dateFormatter from '../../../../helpers/dateFormatter';
@@ -74,7 +74,7 @@ Admins.propTypes = {
   updateSorting: PropTypes.func.isRequired,
 };
 
-const dataLoader = (query, callback) => Actions.loadAdmins(query, callback);
+const dataLoader = (query, callback) => loadAdmins(query, callback);
 
 const WrappedAdmins = OMGPaginatorFactory(localize(Admins, 'locale'), dataLoader);
 

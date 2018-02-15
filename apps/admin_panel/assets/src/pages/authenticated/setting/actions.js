@@ -3,37 +3,31 @@ import { assignMember, inviteMember, unassignMember, listMembers, updateMember, 
 import LoadingActions from '../../../actions/loading.actions';
 import { getAll } from '../../../omisego/services/admin_api';
 import SessionActions from '../../../actions/session.actions';
+import SERIALIZER from '../../../helpers/serializer';
+import call from '../../../actions/api.actions';
 
 export default class Actions {
   static updateAccount(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      updateAccountInfo(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess({
-            updateAccount: result,
-          });
-          dispatch(SessionActions.saveCurrentAccount(result));
-        }
-      });
-    };
+    return call({
+      params,
+      service: updateAccountInfo,
+      callback: {
+        onSuccess: SERIALIZER.UPDATE_ACCOUNT(onSuccess),
+      },
+      actions: [
+        result => SessionActions.saveCurrentAccount(result),
+      ],
+    });
   }
 
   static assignMember(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      assignMember(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess(result.data);
-        }
-      });
-    };
+    return call({
+      params,
+      service: assignMember,
+      callback: {
+        onSuccess: SERIALIZER.DATA(onSuccess),
+      },
+    });
   }
 
   static inviteMember(params, onSuccess) {
@@ -51,85 +45,53 @@ export default class Actions {
   }
 
   static updateMember(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      updateMember(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess(result.data);
-        }
-      });
-    };
+    return call({
+      params,
+      service: updateMember,
+      callback: {
+        onSuccess: SERIALIZER.DATA(onSuccess),
+      },
+    });
   }
 
   static searchUsers(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      getAll(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          const members = result.data.map(member => ({
-            id: member.id,
-            username: member.username,
-            email: member.email,
-          }));
-          onSuccess(members);
-        }
-      });
-    };
+    return call({
+      params,
+      service: getAll,
+      callback: {
+        onSuccess: SERIALIZER.SEARCH_USERS(onSuccess),
+      },
+    });
   }
 
   static listMembers(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      listMembers(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          const members = result.data.map(member => ({
-            id: member.id,
-            username: member.username,
-            email: member.email,
-            status: member.status,
-            accountRole: member.account_role,
-          }));
-          onSuccess(members);
-        }
-      });
-    };
+    return call({
+      params,
+      service: listMembers,
+      callback: {
+        onSuccess: SERIALIZER.LIST_MEMBER(onSuccess),
+      },
+    });
   }
 
   static unassignMember(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      unassignMember(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess(result.data);
-        }
-      });
-    };
+    return call({
+      params,
+      service: unassignMember,
+      callback: {
+        onSuccess: SERIALIZER.DATA(onSuccess),
+      },
+    });
   }
 
   static uploadAvatar(params, onSuccess) {
-    return (dispatch) => {
-      dispatch(LoadingActions.showLoading());
-      uploadAvatar(params, (err, result) => {
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess(result.data);
-        }
-      });
-    };
+    return call({
+      params,
+      service: uploadAvatar,
+      callback: {
+        onSuccess: SERIALIZER.DATA(onSuccess),
+      },
+    });
   }
 
   static updateAccountAndAvatar(params, onSuccess, onFailed) {

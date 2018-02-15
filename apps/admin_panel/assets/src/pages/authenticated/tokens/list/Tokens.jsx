@@ -6,7 +6,7 @@ import FA from 'react-fontawesome';
 import PropTypes from 'prop-types';
 import OMGTable from '../../../../components/OMGTable';
 import OMGPaginatorFactory from '../../../../components/OMGPaginatorHOC';
-import Actions from './actions';
+import loadTokens from './actions';
 import OMGHeader from '../../../../components/OMGHeader';
 import dateFormatter from '../../../../helpers/dateFormatter';
 import tableConstants from '../../../../constants/table.constants';
@@ -121,7 +121,7 @@ function mapStateToProps(state) {
   };
 }
 
-const dataLoader = (query, callback) => Actions.loadTokens(query, callback);
+const dataLoader = (query, callback) => loadTokens(query, callback);
 
 const WrappedTokens = connect(mapStateToProps)(OMGPaginatorFactory(localize(Tokens, 'locale'), dataLoader));
 
