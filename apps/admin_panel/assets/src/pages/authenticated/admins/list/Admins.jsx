@@ -1,7 +1,7 @@
 import React from 'react';
 import { connect } from 'react-redux';
 import OMGCompleteTable from '../../../../components/OMGCompleteTable';
-import Actions from './actions';
+import loadAdmins from './actions';
 import tables from './tables';
 import headerText from './header';
 
@@ -15,7 +15,7 @@ const Admins = props => (
 );
 
 const mapDispatchToProps = dispatch => ({
-  loadData: (query, onSuccess) => dispatch(Actions.loadAdmins(query, onSuccess)),
+  loadData: (query, onSuccess) => dispatch(loadAdmins(query, onSuccess)),
 });
 
 export default connect(null, mapDispatchToProps)(Admins);
