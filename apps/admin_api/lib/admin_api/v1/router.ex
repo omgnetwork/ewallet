@@ -25,6 +25,7 @@ defmodule AdminAPI.V1.Router do
     post "/minted_token.all", MintedTokenController, :all
     post "/minted_token.get", MintedTokenController, :get
 
+    # Transaction endpoints
     post "/transaction.all", TransactionController, :all
     post "/transaction.get", TransactionController, :get
 
@@ -33,9 +34,12 @@ defmodule AdminAPI.V1.Router do
     post "/account.get", AccountController, :get
     post "/account.create", AccountController, :create
     post "/account.update", AccountController, :update
-    post "/account.list_users", AccountController, :list_users
-    post "/account.assign_user", AccountController, :assign_user
-    post "/account.unassign_user", AccountController, :unassign_user
+    post "/account.upload_avatar", AccountController, :upload_avatar
+
+    # Account membership endpoints
+    post "/account.list_users", AccountMembershipController, :list_users
+    post "/account.assign_user", AccountMembershipController, :assign_user
+    post "/account.unassign_user", AccountMembershipController, :unassign_user
 
     # User endpoints
     post "/user.all", UserController, :all
@@ -45,6 +49,15 @@ defmodule AdminAPI.V1.Router do
     post "/admin.all", AdminController, :all
     post "/admin.get", AdminController, :get
     post "/admin.upload_avatar", AdminController, :upload_avatar
+
+    # API Access endpoints
+    post "/access_key.all", KeyController, :all
+    post "/access_key.create", KeyController, :create
+    post "/access_key.delete", KeyController, :delete
+
+    post "/api_key.all", APIKeyController, :all
+    post "/api_key.create", APIKeyController, :create
+    post "/api_key.delete", APIKeyController, :delete
 
     # Self endpoints (operations on the currently authenticated user)
     post "/me.get", SelfController, :get
@@ -58,10 +71,20 @@ defmodule AdminAPI.V1.Router do
     pipe_through [:api, :client_api]
 
     post "/login", AuthController, :login
+    post "/invite.accept", InviteController, :accept
+
+    # Forget Password endpoints
+    post "/password.reset", ResetPasswordController, :reset
+    post "/password.update", ResetPasswordController, :update
 
     post "/status", StatusController, :index
     post "/status.server_error", StatusController, :server_error
+  end
 
+  # Fallback endpoints. Handles all remaining routes
+  # that are not handled by the scopes above.
+  scope "/", AdminAPI.V1 do
+    pipe_through [:api]
     match :*, "/*path", FallbackController, :not_found
   end
 end

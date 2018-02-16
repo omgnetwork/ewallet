@@ -1,8 +1,9 @@
 defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
+  import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountView
   alias EWallet.Web.Paginator
-  alias EWalletDB.User
+  alias EWalletDB.{Account, User}
 
   @doc """
   Retrieves the currently authenticated user.
@@ -15,8 +16,12 @@ defmodule AdminAPI.V1.SelfController do
   Retrieves the upper-most account that the given user has membership in.
   """
   def get_account(conn, _attrs) do
-    account = User.get_account(conn.assigns.user)
-    render(conn, AccountView, :account, %{account: account})
+    case User.get_account(conn.assigns.user) do
+      %Account{} = account ->
+        render(conn, AccountView, :account, %{account: account})
+      nil ->
+        handle_error(conn, :user_account_not_found)
+    end
   end
 
   @doc """

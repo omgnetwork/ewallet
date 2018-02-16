@@ -1,9 +1,65 @@
 defmodule EWalletDB.KeyTest do
   use EWalletDB.SchemaCase
+  alias Ecto.UUID
   alias EWalletDB.Key
 
   describe "Key factory" do
     test_has_valid_factory Key
+  end
+
+  describe "all/0" do
+    test "returns all minted tokens" do
+      assert length(Key.all) == 0
+      insert_list(3, :key)
+
+      assert length(Key.all) == 3
+    end
+
+    test "returns all minted tokens excluding soft deleted" do
+      assert length(Key.all) == 0
+      keys = insert_list(5, :key)
+      {:ok, _key} = keys |> Enum.at(0) |> Key.delete() # Soft delete d key
+
+      assert length(Key.all) == 4
+    end
+  end
+
+  describe "get/1" do
+    test "accepts a uuid" do
+      key = insert(:key)
+      result = Key.get(key.id)
+      assert result.id == key.id
+    end
+
+    test "does not return a soft-deleted key" do
+      {:ok, key} = :key |> insert() |> Key.delete()
+      assert Key.get(key.id) == nil
+    end
+
+    test "returns nil if the given uuid is invalid" do
+      assert Key.get("not_a_uuid") == nil
+    end
+
+    test "returns nil if the key with the given uuid is not found" do
+      assert Key.get(UUID.generate()) == nil
+    end
+  end
+
+  describe "get/2" do
+    test "returns a key if provided an access_key" do
+      key = insert(:key)
+      result = Key.get(:access_key, key.access_key)
+      assert result.id == key.id
+    end
+
+    test "does not return a soft-deleted key" do
+      {:ok, key} = :key |> insert() |> Key.delete()
+      assert Key.get(:access_key, key.access_key) == nil
+    end
+
+    test "returns nil if the key with the given access_key is not found" do
+      assert Key.get(:access_key, "not_access_key") == nil
+    end
   end
 
   describe "insert/1" do
@@ -60,5 +116,17 @@ defmodule EWalletDB.KeyTest do
       assert Key.authenticate(nil, "secret_key") == false
       assert Key.authenticate(nil, nil) == false
     end
+  end
+
+  describe "deleted?/1" do
+    test_deleted_checks_nil_deleted_at Key
+  end
+
+  describe "delete/1" do
+    test_delete_causes_record_deleted Key
+  end
+
+  describe "restore/1" do
+    test_restore_causes_record_undeleted Key
   end
 end

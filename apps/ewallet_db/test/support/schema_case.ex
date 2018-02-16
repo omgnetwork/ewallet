@@ -37,6 +37,7 @@ defmodule EWalletDB.SchemaCase do
   """
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL
+  alias EWalletDB.Account
 
   defmacro __using__(_opts) do
     quote do
@@ -64,6 +65,15 @@ defmodule EWalletDB.SchemaCase do
     _membership = insert(:membership, %{user: user, account: account, role: role})
 
     {user, account}
+  end
+
+  def get_or_insert_master_account do
+    case Account.get_master_account() do
+      %{} = account ->
+        account
+      _ ->
+        insert(:account, %{master: true})
+    end
   end
 
   @doc """
@@ -363,6 +373,76 @@ defmodule EWalletDB.SchemaCase do
         row = Enum.at(results.rows, 0)
         assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
         assert Map.get(record, field) == %{"something" => "cool"}
+      end
+    end
+  end
+
+  defmacro test_deleted_checks_nil_deleted_at(schema) do
+    quote do
+      test "returns false if deleted_at is nil" do
+        schema = unquote(schema)
+
+        {:ok, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> schema.insert()
+
+        refute schema.deleted?(record)
+      end
+
+      test "returns true if deleted_at is not nil" do
+        schema = unquote(schema)
+
+        {:ok, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{deleted_at: nil})
+          |> schema.insert()
+
+        refute schema.deleted?(record)
+      end
+    end
+  end
+
+  defmacro test_delete_causes_record_deleted(schema) do
+    quote do
+      test "causes the record to become deleted" do
+        schema = unquote(schema)
+
+        {_, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{})
+          |> schema.insert()
+
+        # Makes sure the record is not already deleted before testing
+        refute schema.deleted?(record)
+
+        {res, record} = schema.delete(record)
+        assert res == :ok
+        assert schema.deleted?(record)
+      end
+    end
+  end
+
+  defmacro test_restore_causes_record_undeleted(schema) do
+    quote do
+      test "causes the record to become undeleted" do
+        schema = unquote(schema)
+
+        {_, record} =
+          schema
+          |> get_factory()
+          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> schema.insert()
+
+        # Makes sure the record is already soft-deleted before testing
+        refute schema.deleted?(record)
+
+        {res, record} = schema.restore(record)
+        assert res == :ok
+        refute schema.deleted?(record)
       end
     end
   end

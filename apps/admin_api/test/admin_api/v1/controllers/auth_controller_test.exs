@@ -1,13 +1,23 @@
 defmodule AdminAPI.V1.AuthControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.AuthToken
 
   describe "/login" do
     test "responds with a new auth token if the given email and password are valid" do
-      response = client_request("/login", %{email: @user_email, password: @password})
+      response   = client_request("/login", %{email: @user_email, password: @password})
+      auth_token = get_last_inserted(AuthToken)
 
-      assert response["success"] == true
-      assert response["data"]["object"] == "authentication_token"
-      assert String.length(response["data"]["authentication_token"]) > 0
+      expected = %{
+        "version" => @expected_version,
+        "success" => true,
+        "data" => %{
+          "object" => "authentication_token",
+          "authentication_token" => auth_token.token,
+          "user_id" => @user_id,
+        }
+      }
+
+      assert response == expected
     end
 
     test "returns an error if the given email does not exist" do

@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.MembershipView do
+defmodule AdminAPI.V1.AccountMembershipView do
   use AdminAPI, :view
   alias AdminAPI.V1.{MembershipSerializer, ResponseSerializer}
 
@@ -6,5 +6,9 @@ defmodule AdminAPI.V1.MembershipView do
     memberships
     |> MembershipSerializer.to_user_json()
     |> ResponseSerializer.to_json(success: true)
+  end
+  def render("empty.json", %{success: success}) do
+    %{}
+    |> ResponseSerializer.to_json(success: success)
   end
 end

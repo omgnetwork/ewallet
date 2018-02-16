@@ -49,9 +49,21 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
     },
+    user_account_not_found: %{
+      code: "user:account_not_found",
+      description: "There is no account assigned to the provided user"
+    },
     user_id_not_found: %{
       code: "user:id_not_found",
       description: "There is no user corresponding to the provided id"
+    },
+    invalid_reset_token: %{
+      code: "forget_password:token_not_found",
+      description: "There are no password reset requests corresponding to the provided token"
+    },
+    user_email_not_found: %{
+      code: "user:email_not_found",
+      description: "There is no user corresponding to the provided email"
     },
     account_id_not_found: %{
       code: "account:id_not_found",
@@ -65,6 +77,30 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "transaction:id_not_found",
       description: "There is no transaction corresponding to the provided id"
     },
+    role_name_not_found: %{
+      code: "role:name_not_found",
+      description: "There is no role corresponding to the provided name"
+    },
+    membership_not_found: %{
+      code: "membership:not_found",
+      description: "The user is not assigned to the provided account"
+    },
+    invite_not_found: %{
+      code: "user:invite_not_found",
+      description: "There is no invite corresponding to the provided email and token"
+    },
+    passwords_mismatch: %{
+      code: "user:passwords_mismatch",
+      description: "The provided passwords do not match"
+    },
+    key_not_found: %{
+      code: "key:not_found",
+      description: "The key could not be found"
+    },
+    api_key_not_found: %{
+      code: "api_key:not_found",
+      description: "The API key could not be found"
+    }
   }
 
   # Used for mapping any Ecto.changeset validation

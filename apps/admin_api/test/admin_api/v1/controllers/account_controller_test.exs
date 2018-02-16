@@ -1,8 +1,6 @@
 defmodule AdminAPI.V1.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias Ecto.UUID
-  alias EWallet.Web.Date
-  alias EWalletDB.User
+  alias EWalletDB.Account
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -124,182 +122,113 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
   end
 
-  describe "/account.list_users" do
-    test "returns a list of users with role and status" do
-      account = insert(:account)
-      user    = insert(:user)
-      role    = insert(:role)
-      _       = insert(:membership, %{account: account, user: user, role: role})
-
-      assert user_request("/account.list_users", %{account_id: account.id}) ==
-        %{
-          "version" => "1",
-          "success" => true,
-          "data" => %{
-            "object" => "list",
-            "data" => [%{
-              "object" => "user",
-              "id" => user.id,
-              "username" => user.username,
-              "provider_user_id" => user.provider_user_id,
-              "email" => user.email,
-              "metadata" => user.metadata,
-              "avatar" => %{
-                "original" => nil
-              },
-              "created_at" => Date.to_iso8601(user.inserted_at),
-              "updated_at" => Date.to_iso8601(user.updated_at),
-              "account_role" => role.name,
-              "status" => to_string(User.get_status(user))
-            }]
-          }
-        }
-    end
-
-    test "returns an empty list if account has no users" do
+  describe "/account.upload_avatar" do
+    test "uploads an avatar for the specified account" do
       account = insert(:account)
 
-      assert user_request("/account.list_users", %{account_id: account.id}) ==
-        %{
-          "version" => "1",
-          "success" => true,
-          "data" => %{
-            "object" => "list",
-            "data" => []
-          }
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
         }
-    end
-
-    test "returns account:id_not_found error if account id could not be found" do
-      assert user_request("/account.list_users", %{account_id: UUID.generate()}) ==
-        %{
-          "success" => false,
-          "version" => "1",
-          "data" => %{
-            "object" => "error",
-            "code" => "account:id_not_found",
-            "description" => "There is no account corresponding to the provided id",
-            "messages" => nil
-          }
-        }
-    end
-
-    test "returns invalid_parameter error if account id is not provided" do
-      assert user_request("/account.list_users", %{some_other_id: UUID.generate()}) ==
-        %{
-          "success" => false,
-          "version" => "1",
-          "data" => %{
-            "object" => "error",
-            "code" => "client:invalid_parameter",
-            "description" => "Invalid parameter provided",
-            "messages" => nil
-          }
-        }
-    end
-  end
-
-  describe "/account.assign_user" do
-    test "returns empty success if assigned successfully" do
-      response = user_request("/account.assign_user", %{
-        user_id: insert(:user).id,
-        account_id: insert(:account).id,
-        role_name: insert(:role).name
       })
 
-      assert response["success"] == true
-      assert response["data"] == %{}
+      assert response["success"]
+      assert response["data"]["object"] == "account"
+      assert response["data"]["avatar"]["large"] =~
+             "http://example.com/public/uploads/test/account/avatars/#{account.id}/large.png?v="
+      assert response["data"]["avatar"]["original"] =~
+             "http://example.com/public/uploads/test/account/avatars/#{account.id}/original.jpg?v="
+      assert response["data"]["avatar"]["small"] =~
+             "http://example.com/public/uploads/test/account/avatars/#{account.id}/small.png?v="
+      assert response["data"]["avatar"]["thumb"] =~
+             "http://example.com/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
     end
 
-    test "returns an error if the given user id does not exist" do
-      response = user_request("/account.assign_user", %{
-        user_id: UUID.generate(),
-        account_id: insert(:account).id,
-        role_name: insert(:role).name
-      })
-
-      assert response["success"] == false
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "The given user id could not be found."
-    end
-
-    test "returns an error if the given account id does not exist" do
-      response = user_request("/account.assign_user", %{
-        user_id: insert(:user).id,
-        account_id: UUID.generate(),
-        role_name: insert(:role).name
-      })
-
-      assert response["success"] == false
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "The given account id could not be found."
-    end
-
-    test "returns an error if the given role does not exist" do
-      response = user_request("/account.assign_user", %{
-        user_id: insert(:user).id,
-        account_id: insert(:account).id,
-        role_name: "invalid_role"
-      })
-
-      assert response["success"] == false
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "The given role name could not be found."
-    end
-  end
-
-  describe "/account.unassign_user" do
-    test "returns empty success if unassigned successfully" do
-      membership = insert(:membership)
-      response   = user_request("/account.unassign_user", %{
-        user_id: membership.user_id,
-        account_id: membership.account_id
-      })
-
-      assert response["success"] == true
-      assert response["data"] == %{}
-    end
-
-    test "returns an error if the user was not previously assigned to the account" do
-      user    = insert(:user)
+    test "removes the avatar from an account" do
       account = insert(:account)
 
-      response = user_request("/account.unassign_user", %{
-        user_id: user.id,
-        account_id: account.id
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
       })
 
-      assert response["success"] == false
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "The user was not assigned to this account."
+      assert response["success"]
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => nil
+      })
+      assert response["success"]
+
+      account = Account.get(account.id)
+      assert account.avatar == nil
     end
 
-    test "returns an error if the given user id does not exist" do
-      response = user_request("/account.unassign_user", %{
-        user_id: UUID.generate(),
-        account_id: insert(:account).id
+    test "removes the avatar from an account with empty string" do
+      account = insert(:account)
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
       })
 
-      assert response["success"] == false
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "The given user id could not be found."
+      assert response["success"]
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => ""
+      })
+      assert response["success"]
+
+      account = Account.get(account.id)
+      assert account.avatar == nil
     end
 
-    test "returns an error if the given account id does not exist" do
-      response = user_request("/account.unassign_user", %{
-        user_id: insert(:user).id,
-        account_id: UUID.generate()
+    test "removes the avatar from an account with 'null' string" do
+      account = insert(:account)
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
       })
 
-      assert response["success"] == false
+      assert response["success"]
+
+      response = user_request("/account.upload_avatar", %{
+        "id" => account.id,
+        "avatar" => "null"
+      })
+      assert response["success"]
+
+      account = Account.get(account.id)
+      assert account.avatar == nil
+    end
+
+    test "returns 'account:id_not_found' if the given ID was not found" do
+      response = user_request("/account.upload_avatar", %{
+        "id" => "fake",
+        "avatar" => %Plug.Upload{
+          path: "test/support/assets/test.jpg",
+          filename: "test.jpg"
+        }
+      })
+
+      refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "The given account id could not be found."
+      assert response["data"]["code"] == "account:id_not_found"
+      assert response["data"]["description"] ==
+             "There is no account corresponding to the provided id"
     end
   end
 end

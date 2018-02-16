@@ -4,29 +4,40 @@ defmodule EWalletDB.Uploaders.Avatar do
   """
   use Arc.Definition
   use Arc.Ecto.Definition
-  alias Ecto.UUID
 
   @acl      :public_read
-  @versions [:original]
+  @versions [:original, :large, :small, :thumb]
 
   def validate({file, _}) do
     ~w(.jpg .jpeg .gif .png) |> Enum.member?(Path.extname(file.file_name))
   end
 
-  # To add a thumbnail version:
-  # @versions [:original, :thumb]
+  def transform(:large, _) do
+    {:convert, "-strip -thumbnail 400x400^ -gravity center -extent 400x400 -format png", :png}
+  end
 
-  # Define a thumbnail transformation:
-  # def transform(:thumb, _) do
-  #   {:convert, "-strip -thumbnail 250x250^ -gravity center -extent 250x250 -format png", :png}
-  # end
+  def transform(:small, _) do
+    {:convert, "-strip -thumbnail 150x150^ -gravity center -extent 150x150 -format png", :png}
+  end
+
+  def transform(:thumb, _) do
+    {:convert, "-strip -thumbnail 50x50^ -gravity center -extent 50x50 -format png", :png}
+  end
 
   def filename(version, _) do
-    "#{UUID.generate()}-#{version}"
+    version
   end
 
   # Override the storage directory:
   def storage_dir(_version, {_file, scope}) do
-    "public/uploads/#{Mix.env}/user/avatars/#{scope.id}"
+    "public/uploads/#{Mix.env}/#{get_schema_name(scope)}/avatars/#{scope.id}"
+  end
+
+  defp get_schema_name(scope) do
+    scope.__struct__
+    |> Module.split()
+    |> Enum.take(-1)
+    |> Enum.at(0)
+    |> String.downcase()
   end
 end

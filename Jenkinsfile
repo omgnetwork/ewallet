@@ -61,6 +61,10 @@ podTemplate(
         }
 
         stage('Test') {
+            container('postgresql') {
+                sh("pg_isready -t 60 -h localhost -p 5432")
+            }
+
             sh(
                 """
                 docker run --rm \
@@ -72,7 +76,7 @@ podTemplate(
             )
         }
 
-        if (env.BRANCH_NAME == 'master') {
+        if (env.BRANCH_NAME == 'development') {
             stage('Push') {
                 sh("gcloud docker -- push ${imageName}:${gitCommit}")
                 sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:latest")
@@ -98,6 +102,11 @@ podTemplate(
                     def podID = getPodID('--namespace=staging -l app=ewallet')
                     sh("kubectl exec ${podID} --namespace=staging mix ecto.migrate")
                 }
+            }
+        } else if (env.BRANCH_NAME == 'master') {
+            stage('Push') {
+                sh("gcloud docker -- push ${imageName}:${gitCommit}")
+                sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:stable")
             }
         }
     }

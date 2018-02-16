@@ -37,6 +37,8 @@ tags:
     description: These are the endpoints related to admins.
   - name: Transaction
     description: These are the endpoints related to transactions.
+  - name: API Access
+    description: These are the endpoints related to API access.
 paths:
   ############################
   #         SESSION          #
@@ -187,6 +189,24 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  # Endpoint to upload an avatar for an account
+  /account.upload_avatar:
+    post:
+      tags:
+        - Account
+      summary: Uploads avatar for an account
+      operationId: account_upload_avatar
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AccountUploadBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AccountResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   # Endpoint to assign user to an account
   /account.list_users:
     post:
@@ -323,6 +343,21 @@ paths:
           $ref: "#/components/responses/AccountsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /invite.accept:
+    post:
+      tags:
+        - User
+      summary: Accepts an invite
+      operationId: invite_accept
+      security:
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/InviteAcceptBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   ############################
   #          ADMINS          #
   ############################
@@ -412,6 +447,109 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/TransactionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  ############################
+  #        API Access        #
+  ############################
+  /access_key.all:
+    post:
+      tags:
+        - API Access
+      summary: Get the list of access and secret keys
+      operationId: access_key_all
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeysResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /access_key.create:
+    post:
+      tags:
+        - API Access
+      summary: Create a pair of access and secret keys
+      operationId: access_key_create
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /access_key.delete:
+    post:
+      tags:
+        - API Access
+      summary: Delete a pair of access and secret keys by its id or access key
+      operationId: access_key_delete
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyDeleteBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /api_key.all:
+    post:
+      tags:
+        - API Access
+      summary: Get the list of API keys
+      operationId: api_key_all
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/APIKeysResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /api_key.create:
+    post:
+      tags:
+        - API Access
+      summary: Create an API key
+      operationId: api_key_create
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/UserAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/APIKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /api_key.delete:
+    post:
+      tags:
+        - API Access
+      summary: Delete an API key by its id
+      operationId: api_key_delete
+      security:
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyDeleteBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -625,6 +763,8 @@ components:
           type: string
         master:
           type: boolean
+        avatar:
+          type: object
         created_at:
           type: string
           format: date-time
@@ -637,6 +777,7 @@ components:
         - parent_id
         - name
         - master
+        - avatar
         - created_at
         - updated_at
     # Schema for account body response
@@ -660,6 +801,7 @@ components:
             name: "Account Name"
             description: "The account description"
             master: true
+            avatar: {"original": "file_url"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
     # Schema for accounts body response
@@ -692,6 +834,7 @@ components:
                 name: "Account name"
                 description: "The account description"
                 master: true
+                avatar: {"original": "file_url"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
             pagination:
@@ -976,6 +1119,190 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+    AccessKeySchema:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+          format: uuid
+        access_key:
+          type: string
+        secret_key:
+          type: string
+          nullable: true
+        account_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - object
+        - id
+        - access_key
+        - account_id
+        - created_at
+        - updated_at
+        - deleted_at
+    AccessKeyResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/AccessKeySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "key"
+            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+            secret_key: "the_secret_key_or_null"
+            account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+            deleted_at: null
+    AccessKeysResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccessKeySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "key"
+                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+                secret_key: "the_secret_key_or_null"
+                account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+                deleted_at: null
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
+    APIKeySchema:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        owner_app:
+          type: string
+        account_id:
+          type: string
+          format: uuid
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+      required:
+        - object
+        - id
+        - key
+        - owner_app
+        - account_id
+        - created_at
+        - updated_at
+        - deleted_at
+    APIKeyResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/APIKeySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "api_key"
+            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+            owner_app: "admin_api"
+            account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+            deleted_at: null
+    APIKeysResponseSchema:
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/APIKeySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "api_key"
+                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+                owner_app: "admin_api"
+                account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+                deleted_at: null
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
     # Schema for an error object
     ErrorSchema:
       type: object
@@ -1187,23 +1514,51 @@ components:
       content:
         application/vnd.omisego.v1+json:
           schema:
-            properties:
-              user_id:
-                type: string
-                format: uuid
-              account_id:
-                type: string
-                format: uuid
-              role_name:
-                type: string
-            required:
-              - user_id
-              - account_id
-              - role_name
+            oneOf:
+              - properties:
+                  user_id:
+                    type: string
+                    format: uuid
+                  account_id:
+                    type: string
+                    format: uuid
+                  role_name:
+                    type: string
+                  redirect_url:
+                    type: string
+                required:
+                  - user_id
+                  - account_id
+                  - role_name
+                  - redirect_url
+                example:
+                  user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+                  account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  role_name: "admin"
+                  redirect_url: "https://domain/redirect_path?email={email}&token={token}"
+              - properties:
+                  email:
+                    type: string
+                  account_id:
+                    type: string
+                    format: uuid
+                  role_name:
+                    type: string
+                required:
+                  - email
+                  - account_id
+                  - role_name
+                  - redirect_url
+                example:
+                  email: "user@example.com"
+                  account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  role_name: "admin"
+                  redirect_url: "https://domain/redirect_path?email={email}&token={token}"
             example:
               account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
               role_name: "admin"
+              redirect_url: "https://domain/redirect_path?email={email}&token={token}"
     # Request body for updating an account
     AccountUnassignUserBody:
       description: The parameters to use for unassigning a user from an account
@@ -1224,6 +1579,26 @@ components:
             example:
               account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+    # Request body for uploading an avatar for an account
+    AccountUploadBody:
+      description: The parameters to use for uploading an account's avatar. Only supports .jpg, .jpeg, .gif and .png.
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            properties:
+              id:
+                type: string
+                format: uuid
+              avatar:
+                type: string
+                format: binary
+            required:
+              - id
+              - avatar
+            example:
+              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              avatar: "/path/to/file"
     # Request body for listing users
     UserAllBody:
       description: The parameters to use for listing the users
@@ -1266,6 +1641,32 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+    # Request body for accepting an invite
+    InviteAcceptBody:
+      description: The parameters to use for accepting an invite
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+              token:
+                type: string
+              password:
+                type: string
+              password_confirmation:
+                type: string
+            required:
+              - email
+              - token
+              - password
+              - password_confirmation
+            example:
+              email: "example@omise.co"
+              token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
+              password: "user_provided_password"
+              password_confirmation: "user_provided_password"
     # Request body for listing transactions
     TransactionAllBody:
       description: The parameters to use for listing the transactions
@@ -1370,6 +1771,110 @@ components:
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               avatar: "/path/to/file"
+    AccessKeyAllBody:
+      description: The parameters to use for listing the access keys
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              sort_by: "created_at"
+              sort_dir: "desc"
+    AccessKeyDeleteBody:
+      description: The parameters to use for deleting an access key
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            oneOf:
+              - properties:
+                  id:
+                    type: string
+                    format: uuid
+                required:
+                  - id
+                example:
+                  id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+              - properties:
+                  access_key:
+                    type: string
+                required:
+                  - access_key
+                example:
+                  access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
+            example:
+              id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+    APIKeyAllBody:
+      description: The parameters to use for listing the API keys
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              sort_by: "created_at"
+              sort_dir: "asc"
+    APIKeyCreateBody:
+      description: The parameters to use for creating an API key
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              owner_app:
+                type: string
+            required:
+              - owner_app
+            example:
+              owner_app: "admin_api"
+    APIKeyDeleteBody:
+      description: The parameters to use for deleting an API key
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+                format: uuid
+            required:
+              - id
+            example:
+              id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+
   parameters:
     # Headers
     ClientAuthorizationHeader:
@@ -1471,6 +1976,34 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AdminsResponseSchema'
+    # Access key response
+    AccessKeyResponse:
+      description: Access key response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AccessKeyResponseSchema'
+    # Access key response
+    AccessKeysResponse:
+      description: Access keys response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AccessKeysResponseSchema'
+    # API key response
+    APIKeyResponse:
+      description: API key response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/APIKeyResponseSchema'
+    # API key response
+    APIKeysResponse:
+      description: API keys response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/APIKeysResponseSchema'
     # Empty
     EmptyResponse:
       description: Empty response

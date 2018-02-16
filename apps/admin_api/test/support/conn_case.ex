@@ -14,6 +14,7 @@ defmodule AdminAPI.ConnCase do
   """
   use ExUnit.CaseTemplate
   use Phoenix.ConnTest
+  import Ecto.Query
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
@@ -39,6 +40,8 @@ defmodule AdminAPI.ConnCase do
   @provider_user_id "test_provider_user_id"
   @auth_token "test_auth_token"
 
+  @base_dir "admin/api/"
+
   using do
     quote do
       # Import conveniences for testing with connections
@@ -62,6 +65,8 @@ defmodule AdminAPI.ConnCase do
       @user_email unquote(@user_email)
       @provider_user_id unquote(@provider_user_id)
       @auth_token unquote(@auth_token)
+
+      @base_dir unquote(@base_dir)
     end
   end
 
@@ -92,6 +97,15 @@ defmodule AdminAPI.ConnCase do
   def get_test_user, do: User.get(@user_id)
 
   @doc """
+  Returns the last inserted record of the given schema.
+  """
+  def get_last_inserted(schema) do
+    schema
+    |> last(:inserted_at)
+    |> Repo.one
+  end
+
+  @doc """
   A helper function that generates a valid client request (client-authenticated)
   with given path and data, and return the parsed JSON response.
   """
@@ -99,7 +113,7 @@ defmodule AdminAPI.ConnCase do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGAdmin", [@api_key_id, @api_key])
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 
@@ -112,7 +126,7 @@ defmodule AdminAPI.ConnCase do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGAdmin", [@api_key_id, @api_key, @user_id, @auth_token])
-    |> post(path, data)
+    |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 

@@ -27,8 +27,28 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "name" => account.name,
             "description" => account.description,
             "master" => account.master,
+            "avatar" => %{
+              "original" => nil,
+              "large" => nil,
+              "small" => nil,
+              "thumb" => nil
+            },
             "created_at" => Date.to_iso8601(account.inserted_at),
             "updated_at" => Date.to_iso8601(account.updated_at)
+          }
+        }
+    end
+
+    test "responds with error if the user does not have an account" do
+      assert user_request("/me.get_account") ==
+        %{
+          "version" => "1",
+          "success" => false,
+          "data"    => %{
+            "object"      => "error",
+            "code"        => "user:account_not_found",
+            "description" => "There is no account assigned to the provided user",
+            "messages"    => nil
           }
         }
     end
@@ -52,6 +72,12 @@ defmodule AdminAPI.V1.SelfControllerTest do
               "name" => account.name,
               "description" => account.description,
               "master" => account.master,
+              "avatar" => %{
+                "original" => nil,
+                "large" => nil,
+                "small" => nil,
+                "thumb" => nil
+              },
               "created_at" => Date.to_iso8601(account.inserted_at),
               "updated_at" => Date.to_iso8601(account.updated_at)
             }],

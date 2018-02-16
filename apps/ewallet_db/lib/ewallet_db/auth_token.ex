@@ -41,10 +41,10 @@ defmodule EWalletDB.AuthToken do
       token: Crypto.generate_key(@key_length)
     }
 
-    {:ok, auth_token} = insert(attrs)
-    Map.get(auth_token, :token)
+    {:ok, record} = insert(attrs)
+    {:ok, record.token}
   end
-  def generate(_), do: :error
+  def generate(_, _), do: {:error, :invalid_parameter}
 
   @doc """
   Retrieves an auth token using the specified token.

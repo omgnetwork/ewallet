@@ -20,7 +20,10 @@ defmodule AdminAPI.V1.UserViewTest do
           provider_user_id: user.provider_user_id,
           email: user.email,
           avatar: %{
-            original: nil
+            original: nil,
+            large: nil,
+            small: nil,
+            thumb: nil
           },
           metadata: %{
             "first_name" => user.metadata["first_name"],
@@ -61,7 +64,10 @@ defmodule AdminAPI.V1.UserViewTest do
               provider_user_id: user1.provider_user_id,
               email: user1.email,
               avatar: %{
-                original: nil
+                original: nil,
+                large: nil,
+                small: nil,
+                thumb: nil
               },
               metadata: %{
                 "first_name" => user1.metadata["first_name"],
@@ -77,7 +83,10 @@ defmodule AdminAPI.V1.UserViewTest do
               provider_user_id: user2.provider_user_id,
               email: user2.email,
               avatar: %{
-                original: nil
+                original: nil,
+                large: nil,
+                small: nil,
+                thumb: nil
               },
               metadata: %{
                 "first_name" => user2.metadata["first_name"],

@@ -3,6 +3,7 @@ defmodule EWalletDB.Account do
   Ecto Schema representing account.
   """
   use Ecto.Schema
+  use Arc.Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
@@ -15,6 +16,8 @@ defmodule EWalletDB.Account do
     field :description, :string
     field :master, :boolean, default: false
     field :relative_depth, :integer, virtual: true
+    field :avatar, EWalletDB.Uploaders.Avatar.Type
+
     belongs_to :parent, Account, foreign_key: :parent_id, # this column
                                  references: :id, # the parent's column
                                  type: UUID
@@ -33,6 +36,11 @@ defmodule EWalletDB.Account do
     |> validate_required(:name)
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
+  end
+
+  defp avatar_changeset(changeset, attrs) do
+    changeset
+    |> cast_attachments(attrs, [:avatar])
   end
 
   @doc """
@@ -93,6 +101,25 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
+  Stores an avatar for the given account.
+  """
+  def store_avatar(%Account{} = account, attrs) do
+    attrs =
+      case attrs["avatar"] do
+        ""     -> %{avatar: nil}
+        "null" -> %{avatar: nil}
+        avatar -> %{avatar: avatar}
+      end
+
+    changeset = avatar_changeset(account, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, account} -> get(account.id)
+      result         -> result
+    end
+  end
+
+  @doc """
   Retrieve the account with the given ID.
   """
   def get(nil), do: nil
@@ -118,6 +145,16 @@ defmodule EWalletDB.Account do
   def get_by_name(nil), do: nil
   def get_by_name(name) when is_binary(name) and byte_size(name) > 0 do
     Repo.get_by(Account, name: name)
+  end
+
+  @doc """
+  Returns whether the account is the master account.
+  """
+  def is_master?(account) do
+    # Currently there is `master` field on the account so we use that value.
+    # We have this function because soon the field be removed and the master account
+    # will need to be determined by checking that the account's `parent_id` is nil.
+    account.master
   end
 
   @doc """

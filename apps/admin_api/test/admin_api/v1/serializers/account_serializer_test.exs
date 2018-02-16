@@ -14,6 +14,12 @@ defmodule AdminAPI.V1.AccountSerializerTest do
         name: account.name,
         description: account.description,
         master: account.master,
+        avatar: %{
+          original: nil,
+          large: nil,
+          small: nil,
+          thumb: nil
+        },
         created_at: Date.to_iso8601(account.inserted_at),
         updated_at: Date.to_iso8601(account.updated_at)
       }
@@ -44,6 +50,12 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             name: account1.name,
             description: account1.description,
             master: account1.master,
+            avatar: %{
+              original: nil,
+              large: nil,
+              small: nil,
+              thumb: nil
+            },
             created_at: Date.to_iso8601(account1.inserted_at),
             updated_at: Date.to_iso8601(account1.updated_at)
           },
@@ -54,6 +66,12 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             name: account2.name,
             description: account2.description,
             master: account2.master,
+            avatar: %{
+              original: nil,
+              large: nil,
+              small: nil,
+              thumb: nil
+            },
             created_at: Date.to_iso8601(account2.inserted_at),
             updated_at: Date.to_iso8601(account2.updated_at)
           }
@@ -62,6 +80,35 @@ defmodule AdminAPI.V1.AccountSerializerTest do
           current_page: 9,
           per_page: 7,
           is_first_page: false,
+          is_last_page: true
+        }
+      }
+
+      assert AccountSerializer.to_json(paginator) == expected
+    end
+
+    test "serializes to nil if account is not given" do
+      assert AccountSerializer.to_json(nil) == nil
+    end
+
+    test "serializes an empty account paginator into a list object" do
+      paginator = %Paginator{
+        data: [],
+        pagination: %{
+          current_page: 1,
+          per_page: 10,
+          is_first_page: true,
+          is_last_page: true
+        }
+      }
+
+      expected = %{
+        object: "list",
+        data: [],
+        pagination: %{
+          current_page: 1,
+          per_page: 10,
+          is_first_page: true,
           is_last_page: true
         }
       }

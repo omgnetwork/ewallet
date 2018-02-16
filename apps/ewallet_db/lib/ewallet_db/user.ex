@@ -7,7 +7,7 @@ defmodule EWalletDB.User do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, AuthToken, Balance, Membership, Role, User}
+  alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite, Membership, Role, User}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
@@ -16,12 +16,14 @@ defmodule EWalletDB.User do
     field :username, :string
     field :email, :string
     field :password, :string, virtual: true
+    field :password_confirmation, :string, virtual: true
     field :password_hash, :string
     field :provider_user_id, :string
     field :metadata, Cloak.EncryptedMapField
     field :encryption_version, :binary
     field :avatar, EWalletDB.Uploaders.Avatar.Type
 
+    belongs_to :invite, Invite, type: UUID
     has_many :balances, Balance
     has_many :auth_tokens, AuthToken
     has_many :memberships, Membership
@@ -33,12 +35,15 @@ defmodule EWalletDB.User do
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:username, :provider_user_id, :email, :password, :metadata])
+    |> cast(attrs, [:username, :provider_user_id, :email, :password,
+                    :password_confirmation, :metadata, :invite_id])
     |> validate_required([:metadata])
+    |> validate_confirmation(:password, message: "does not match password!")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
     |> unique_constraint(:email)
+    |> assoc_constraint(:invite)
     |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
     |> put_change(:encryption_version, Cloak.version)
     |> validate_by_roles(attrs)
@@ -47,7 +52,6 @@ defmodule EWalletDB.User do
   defp avatar_changeset(changeset, attrs) do
     changeset
     |> cast_attachments(attrs, [:avatar])
-    |> validate_required([:avatar])
   end
 
   # Two cases to validate for loginable:
@@ -166,8 +170,14 @@ defmodule EWalletDB.User do
   Stores an avatar for the given user.
   """
   def store_avatar(%User{} = user, attrs) do
-    changeset = avatar_changeset(user, attrs)
+    attrs =
+      case attrs["avatar"] do
+        ""     -> %{avatar: nil}
+        "null" -> %{avatar: nil}
+        avatar -> %{avatar: avatar}
+      end
 
+    changeset = avatar_changeset(user, attrs)
     case Repo.update(changeset) do
       {:ok, user} -> get(user.id)
       result      -> result
@@ -194,8 +204,17 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the status of the given user.
   """
-  def get_status(_user) do
-    :active # Currently all users are active. This will become dynamic with the invitation feature.
+  def get_status(user) do
+    if user.invite_id == nil, do: :active, else: :pending_confirmation
+  end
+
+  @doc """
+  Retrieves the user's invite if any.
+  """
+  def get_invite(user) do
+    user
+    |> Repo.preload(:invite)
+    |> Map.fetch!(:invite)
   end
 
   @doc """

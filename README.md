@@ -105,10 +105,10 @@ mix run apps/ewallet/priv/repo/seeds.exs
 We can now start the application:
 
 ```
-mix phx.server
+mix run --no-halt
 ```
 
-Navigate to  `http://localhost:4000/` in your browser and you should see the following JSON representation popping up:
+Navigate to  `http://localhost:4000/api` in your browser and you should see the following JSON representation popping up:
 
 ```
 {
@@ -127,13 +127,66 @@ All set! Start playing around with the API using the Swagger docs below to learn
 
 ## Environment Variables
 
+### General
+
+Below are the general environment variables needed for the eWallet to run smoothly.
+
+- `MIX_ENV`: Environment in which the application is being ran. `prod` for production.
+- `BASE_URL`: The base to use when building URLs.
+- `PORT`: The port that the application listens on.
+- `EWALLET_SECRET_KEY`: Encryption key used to encrypt some data in the database.
+- `LOCAL_LEDGER_SECRET_KEY`: Encryption key used to encrypt some data in the database.
+
+Tip: How to generate a new secret key using Elixir:
+
+```
+$ mix run -e "IO.puts Salty.SecretBox.generate_key()"
+8I_xIED7p7ruxxM1vNiWzsud3DALk0cnpcAncC2YyMs
+```
+
+### Database
+
+The eWallet needs access to two different databases: one for the eWallet itself and one for the local ledger. The following environment variables needs to be set.
+
+- `DATABASE_URL`
+- `DATABASE_PASSWORD`
+- `LOCAL_LEDGER_DATABASE_URL`
+- `LOCAL_LEDGER_DATABASE_PASSWORD`
+
+### Error Reporting
+
+The eWallet only supports Sentry for now. You can specify the DSN for it with the following environment variable:
+
+- `SENTRY_DSN`
+
+### Balance Caching
+
+The local ledger offers a caching mechanism for balances in order to boost the calculation speed (in case you have millions of transactions). To enable this feature, set the `BALANCE_CACHING_FREQUENCY` environment variable and pass it a valid CRON schedule. Note that this is totally optional and the application will work fine without it.
+
+- `BALANCE_CACHING_FREQUENCY`: A valid CRON schedule.
+
+Examples:
+
+- Every minute:         `"* * * * *"`
+- Every day at 2 am:    `"0 2 * * *"`
+- Every Friday at 5 am: `"0 5 * * 5"`
+
+If this feature is enabled, you can also specify a caching strategy.
+
+- `BALANCE_CACHING_STRATEGY`: Specify if new cached balances should be computed using a previous cache or by recalculating everything from scratch.
+
+Strategies available:
+
+- `since_beginning`: Recalculate the balance since the beginning of time.
+- `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
+
 ### File Upload
 
 - `FILE_STORAGE_ADAPTER`: (`local`|`aws`|`gcs`, defaults to `local`)
 
 In order to use the file upload feature (for profile pictures and account logos), environment variables need to be defined.
 
-#### Local Storage
+#### Local File Storage
 
 Nothing else to set, files will be stored at the root of the project in `public/uploads/`.
 
@@ -233,6 +286,8 @@ The Blockchain Gateway will be the interface to the blockchain OmiseGO is buildi
 ## Dependencies
 
 - [PostgreSQL](https://www.postgresql.org/): PostgreSQL is used to store most of the data for the eWallet API and local ledger.
+
+- [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used to format images in the admin panel.
 
 - [Libsodium](https://github.com/jedisct1/libsodium): Sodium is a new, easy-to-use software library for encryption, decryption, signatures, password hashing and more. It is used to hash and encrypt/decrypt sensitive data.
 

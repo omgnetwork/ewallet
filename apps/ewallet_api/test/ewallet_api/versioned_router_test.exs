@@ -7,7 +7,7 @@ defmodule EWalletAPI.VersionedRouterTest do
     test "accepts v1+json requests" do
       response = build_conn()
       |> put_req_header("accept", "application/vnd.omisego.v1+json")
-      |> post("/status")
+      |> post(@base_dir <> "/status")
       |> json_response(:ok)
 
       assert response == %{"success" => :true}
@@ -27,7 +27,7 @@ defmodule EWalletAPI.VersionedRouterTest do
 
       response = build_conn()
       |> put_req_header("accept", "application/vnd.omisego.invalid_ver+json")
-      |> post("/status")
+      |> post(@base_dir <> "/status")
       |> json_response(:ok)
 
       assert response == expected

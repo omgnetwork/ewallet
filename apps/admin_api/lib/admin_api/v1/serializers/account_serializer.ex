@@ -4,6 +4,7 @@ defmodule AdminAPI.V1.AccountSerializer do
   """
   alias AdminAPI.V1.PaginatorSerializer
   alias EWallet.Web.{Paginator, Date}
+  alias EWalletDB.Uploaders.Avatar
 
   def to_json(%Paginator{} = paginator) do
     PaginatorSerializer.to_json(paginator, &to_json/1)
@@ -22,8 +23,12 @@ defmodule AdminAPI.V1.AccountSerializer do
       name: account.name,
       description: account.description,
       master: account.master,
+      avatar: Avatar.urls({account.avatar, account}),
       created_at: Date.to_iso8601(account.inserted_at),
       updated_at: Date.to_iso8601(account.updated_at)
     }
+  end
+  def to_json(nil) do
+    nil
   end
 end
