@@ -44,7 +44,7 @@ const OMGMemberItem = ({
 };
 
 OMGMemberItem.propTypes = {
-  currentPath: PropTypes.string.isRequired,
+  currentPath: PropTypes.string,
   member: PropTypes.shape({
     email: PropTypes.string,
     imageUrl: PropTypes.string,
@@ -58,6 +58,7 @@ OMGMemberItem.propTypes = {
 };
 
 OMGMemberItem.defaultProps = {
+  currentPath: '',
   member: {
     username: 'Null',
     imageUrl: DefaultUserImg,

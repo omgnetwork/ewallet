@@ -54,34 +54,32 @@ GithubMenuItem.propTypes = {
 function fetchGithubUsers(query, page = 1) {
   return fetch(`${SEARCH_URI}?q=${query}+in:login&page=${page}&per_page=50`)
     .then(resp => resp.json())
-    .then(({ items, total_count }) => {
+    .then(({ items }) => {
       if (!items) return;
       const options = items.map(i => ({
         avatar_url: i.avatar_url,
         id: i.id,
         login: i.login,
       }));
-      return { options, total_count };
+      return { options };
     });
 }
 
-const customMenuItem = (option, props, test) => {
-  return <GithubMenuItem key={option.id} user={option} />;
-};
+const customMenuItem = option => <GithubMenuItem key={option.id} user={option} />;
 
-const handleSearch = query => fetchGithubUsers(query).then(({ options }) => options);
+const handleSearch = (query, callback) =>
+  fetchGithubUsers(query).then(({ options }) => callback(options));
 
 storiesOf('OMGAddMemberForm', module)
   .addDecorator(smallContainer)
   .addDecorator(reduxDecorator)
-  .add('Normal state', () => <OMGAddMemberForm />)
-  .add('With default value', () => <OMGAddMemberForm defaultInputValue="OmiseGo" />)
+  .add('Normal state', () => <OMGAddMemberForm labelKey="" />)
+  .add('With default value', () => <OMGAddMemberForm defaultInputValue="OmiseGo" labelKey="" />)
   .add('With github users searching', () => (
     <OMGAddMemberForm
       customRenderMenuItem={customMenuItem}
-      defaultInputValue="T-Dnzt"
       labelKey="login"
+      member={{ email: 'DavidKnott' }}
       onSearch={handleSearch}
-      placeholder="Type a name"
     />
   ));

@@ -1,8 +1,8 @@
 .omg-select-box {
   &__input {
     @extend .omg-form__input;
-    -moz-appearance: none; /* Firefox */
-    -webkit-appearance: none; /* Safari and Chrome */
+    -moz-appearance: none;
+    -webkit-appearance: none;
     background: url('../../public/images/chevron_down.svg') white
       no-repeat calc(100% - 10px)/1rem;
   }

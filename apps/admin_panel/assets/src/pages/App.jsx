@@ -29,7 +29,6 @@ class App extends Component {
   }
 
   render() {
-    // const { alert } = this.props;
     return (
       <Startup>
         <ConnectedRouter history={history}>
@@ -52,7 +51,6 @@ class App extends Component {
 }
 
 App.propTypes = {
-  // alert: PropTypes.func.isRequired,
   dispatch: PropTypes.func.isRequired,
 };
 const connectApp = connect()(App);

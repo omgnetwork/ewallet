@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import defaultPagination from '../constants/pagination.constants';
 import URLActions from '../actions/url.actions';

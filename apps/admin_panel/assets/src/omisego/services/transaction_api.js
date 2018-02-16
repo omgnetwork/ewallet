@@ -17,13 +17,6 @@ export function getAll(params, callback) {
 
 export function create(params, callback) {
   callback(null, { id: 1234 });
-  // const requestParams = {
-  //   path: 'transaction.create',
-  //   params: JSON.stringify(params),
-  //   authenticated: true,
-  //   callback,
-  // };
-  // return request(requestParams);
 }
 
 export function get(id, callback) {
