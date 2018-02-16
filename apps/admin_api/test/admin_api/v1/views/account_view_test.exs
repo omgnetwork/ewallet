@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AccountViewTest do
   use AdminAPI.ViewCase, :v1
   alias EWallet.Web.{Paginator, Date}
+  alias EWalletDB.Account
   alias AdminAPI.V1.AccountView
 
   describe "AdminAPI.V1.AccountView.render/2" do
@@ -15,7 +16,7 @@ defmodule AdminAPI.V1.AccountViewTest do
           parent_id: account.parent_id,
           name: account.name,
           description: account.description,
-          master: account.master,
+          master: Account.master?(account),
           avatar: %{
             original: nil,
             large: nil,
@@ -56,7 +57,7 @@ defmodule AdminAPI.V1.AccountViewTest do
               parent_id: account1.parent_id,
               name: account1.name,
               description: account1.description,
-              master: account1.master,
+              master: Account.master?(account1),
               avatar: %{
                 original: nil,
                 large: nil,
@@ -72,7 +73,7 @@ defmodule AdminAPI.V1.AccountViewTest do
               parent_id: account2.parent_id,
               name: account2.name,
               description: account2.description,
-              master: account2.master,
+              master: Account.master?(account2),
               avatar: %{
                 original: nil,
                 large: nil,

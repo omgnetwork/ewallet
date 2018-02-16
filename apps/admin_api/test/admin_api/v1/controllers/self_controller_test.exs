@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.Account
   alias EWallet.Web.Date
 
   describe "/me.get" do
@@ -26,7 +27,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "parent_id" => account.parent_id,
             "name" => account.name,
             "description" => account.description,
-            "master" => account.master,
+            "master" => Account.master?(account),
             "avatar" => %{
               "original" => nil,
               "large" => nil,
@@ -71,7 +72,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
               "parent_id" => account.parent_id,
               "name" => account.name,
               "description" => account.description,
-              "master" => account.master,
+              "master" => Account.master?(account),
               "avatar" => %{
                 "original" => nil,
                 "large" => nil,
