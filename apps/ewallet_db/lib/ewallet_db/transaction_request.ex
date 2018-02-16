@@ -55,6 +55,8 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Gets a transaction request.
   """
+  @spec get(UUID.t) :: %TransactionRequest{} | nil
+  @spec get(UUID.t, List.t) :: %TransactionRequest{} | nil
   def get(nil), do: nil
   def get(id, opts \\ [preload: []])
   def get(nil, _), do: nil
@@ -71,6 +73,7 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Inserts a transaction request.
   """
+  @spec insert(Map.t) :: {:ok, %TransactionRequest{}} | {:error, Map.t}
   def insert(attrs) do
     %TransactionRequest{}
     |> create_changeset(attrs)
