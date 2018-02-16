@@ -18,7 +18,7 @@ defmodule EWallet.LocalLedgerCase do
         :ok = Sandbox.checkout(EWalletDB.Repo)
         :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
-        {:ok, account} = :account |> params_for(master: true) |> Account.insert()
+        {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
         :ok
       end

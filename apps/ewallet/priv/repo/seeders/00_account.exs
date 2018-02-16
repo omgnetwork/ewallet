@@ -12,17 +12,17 @@ seeds = [
   #      |- Branch 4
 
   # Company Master Account
-  %{name: "master_account", description: "Company Master Account", master: true, parent_name: nil},
+  %{name: "master_account", description: "Company Master Account", parent_name: nil},
 
   # Brand 1
-  %{name: "brand1", description: "Brand 1", master: false, parent_name: "master_account"},
-  %{name: "branch1", description: "Branch 1", master: false, parent_name: "brand1"},
+  %{name: "brand1", description: "Brand 1", parent_name: "master_account"},
+  %{name: "branch1", description: "Branch 1", parent_name: "brand1"},
   %{name: "branch2", description: "Branch 2", master: false, parent_name: "brand1"},
 
   # Region 2
-  %{name: "brand2", description: "Region 2", master: false, parent_name: "master_account"},
-  %{name: "branch3", description: "Branch 3", master: false, parent_name: "brand2"},
-  %{name: "branch4", description: "Branch 4", master: false, parent_name: "brand2"},
+  %{name: "brand2", description: "Region 2", parent_name: "master_account"},
+  %{name: "branch3", description: "Branch 3", parent_name: "brand2"},
+  %{name: "branch4", description: "Branch 4", parent_name: "brand2"},
 ]
 
 EWalletDB.CLI.info("\nSeeding Account...")
