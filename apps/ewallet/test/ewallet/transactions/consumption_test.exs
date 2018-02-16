@@ -69,6 +69,32 @@ defmodule EWallet.Transactions.ConsumptionTest do
       assert consumption.balance_address == meta.sender_balance.address
     end
 
+    test "returns the same consumption when idempency_token is the same", meta do
+      mint!(meta.minted_token)
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {res, consumption_1} = Consumption.consume(meta.sender, "123", %{
+        "transaction_request_id" => meta.request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil
+      })
+      assert res == :ok
+
+      {res, consumption_2} = Consumption.consume(meta.sender, "123", %{
+        "transaction_request_id" => meta.request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil
+      })
+
+      assert res == :ok
+      assert consumption_1.id == consumption_2.id
+      assert consumption_1.idempotency_token == consumption_2.idempotency_token
+    end
+
     test "returns 'invalid_parameter' when amount is not set", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",

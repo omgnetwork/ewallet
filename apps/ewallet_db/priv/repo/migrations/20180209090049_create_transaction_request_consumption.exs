@@ -18,5 +18,6 @@ defmodule EWalletDB.Repo.Migrations.CreateTransactionRequestConsumption do
     end
 
     create unique_index(:transaction_request_consumption, [:correlation_id])
+    create unique_index(:transaction_request_consumption, [:idempotency_token])
   end
 end

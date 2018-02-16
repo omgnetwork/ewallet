@@ -66,31 +66,51 @@ defmodule EWalletDB.TransactionRequestConsumption do
   @doc """
   Gets a transaction request consumption.
   """
+  @spec get(UUID.t) :: %TransactionRequestConsumption{} | nil
+  @spec get(UUID.t, List.t) :: %TransactionRequestConsumption{} | nil
   def get(nil), do: nil
-  def get(id, opts \\ [preload: []])
+  def get(id, opts \\ [])
   def get(nil, _), do: nil
   def get(id, opts) do
     case Helpers.UUID.valid?(id) do
-      true ->
-        TransactionRequestConsumption
-        |> Repo.get(id)
-        |> Repo.preload(opts[:preload])
+      true  -> get_by(%{id: id}, opts)
       false -> nil
+    end
+  end
+
+  @doc """
+  Get a consumption using one or more fields.
+  """
+  @spec get_by(Map.t, List.t) :: %TransactionRequestConsumption{} | nil
+  def get_by(map, opts \\ []) do
+    query = TransactionRequestConsumption |> Repo.get_by(map)
+
+    case opts[:preload] do
+      nil     -> query
+      preload -> Repo.preload(query, preload)
     end
   end
 
   @doc """
   Inserts a transaction request consumption.
   """
+  @spec insert(Map.t) :: {:ok, %TransactionRequestConsumption{}} | {:error, Map.t}
   def insert(attrs) do
-    %TransactionRequestConsumption{}
-    |> changeset(attrs)
-    |> Repo.insert()
+    changeset = changeset(%TransactionRequestConsumption{}, attrs)
+    opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
+
+    case Repo.insert(changeset, opts) do
+      {:ok, consumption} ->
+        {:ok, get_by(%{idempotency_token: consumption.idempotency_token})}
+      error ->
+        error
+    end
   end
 
   @doc """
   Confirms a consumption and saves the entry ID.
   """
+  @spec confirm(%TransactionRequestConsumption{}, %Transfer{}) :: %TransactionRequestConsumption{}
   def confirm(consumption, transfer) do
     {:ok, consumption} =
       consumption
@@ -103,6 +123,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   @doc """
   Fails a consumption.
   """
+  @spec fail(%TransactionRequestConsumption{}, %Transfer{}) :: %TransactionRequestConsumption{}
   def fail(consumption, transfer) do
     {:ok, consumption} =
       consumption
