@@ -181,7 +181,7 @@ class OMGAddMemberForm extends Component {
                 ref={component => this.setTypeaheadComponent(component)}
                 className="omg-add-member-form__input"
                 disabled={isDisabledTextInput}
-                filterBy={['email', 'id']}
+                filterBy={[labelKey] || ['email', 'id']}
                 isLoading={isLoading}
                 labelKey={labelKey}
                 minLength={minLength}

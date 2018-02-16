@@ -14,8 +14,6 @@
     }
   }
 
-  /* For input box */
-
   &__input > .rbt-input {
     height: 2.5rem;
     padding: 0.5625rem 0.75rem;
@@ -44,12 +42,10 @@
     @extend .omg-form__input:focus;
   }
 
-  /* Hide loading of typeahead because it's broken */
   &__input > .rbt-input > .rbt-aux > .rbt-loader {
     display: none;
   }
 
-  /* For dropdown button*/
   &__dropdown.btn,
   &__dropdown:hover.btn,
   &__dropdown:focus.btn,
@@ -63,7 +59,6 @@
   }
 
   .input-group-btn:last-child > &__dropdown.btn {
-    // Override the bootstrap's margin-left: -1px;
     margin-left: 0rem;
   }
 
@@ -71,7 +66,6 @@
     margin-left: 0.5rem;
   }
 
-  /* For button groups */
   &__button-group {
     display: inline;
   }

@@ -20,10 +20,16 @@ apt-get install yarn
 
 ### Development
 
-You will first need to update the `config.js` file located under `omisego/` with your
-own keys.
+You will first need to create the `.env` file located under the project's root directory with your own keys.
 `OMISEGO_BASE_URL` is your eWallet server url.
 `OMISEGO_API_KEY_ID` and `OMISEGO_API_KEY` are the access keys corresponding to your admin api.
+
+Example **.env** file
+```
+BASE_URL=YOUR_BASE_URL
+API_KEY_ID=YOUR_API_KEY_ID
+API_KEY=YOUR_API_KEY
+```
 
 If you are running the eWallet server in local, you will need to allow your domain in CORS headers.
 By default the react app runs on `http://localhost:8080` so you need to start the eWallet server specifying the CORS ORIGIN using:

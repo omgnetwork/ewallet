@@ -38,6 +38,7 @@
     "babel-preset-react": "^6.24.1",
     "clean-webpack-plugin": "^0.1.17",
     "css-loader": "^0.28.7",
+    "dotenv-webpack": "^1.5.4",
     "enzyme": "^3.3.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "eslint": "^4.14.0",
@@ -70,7 +71,7 @@
     "start:dev": "webpack-dev-server --open --config config/webpack.dev.js",
     "test": "jest --config config/jest.config.js",
     "test:watch": "yarn test -- --watch --config config/jest.config.js",
-    "lint": "./node_modules/.bin/eslint src --ext .jsx --ext .js",
+    "lint": "eslint src --ext .jsx --ext .js",
     "storybook": "start-storybook -p 6006",
     "build-storybook": "build-storybook"
   }

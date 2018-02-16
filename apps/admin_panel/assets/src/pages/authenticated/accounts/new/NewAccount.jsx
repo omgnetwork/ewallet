@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
 import PropTypes from 'prop-types';
-import createAccount from './actions';
+import Actions from './actions';
 import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
 import OMGLoadingButton from '../../../../components/OMGLoadingButton';
@@ -135,7 +135,7 @@ function mapDispatchToProps(dispatch) {
     showSuccessAlert: (message) => {
       dispatch(AlertActions.info(message));
     },
-    createAccount: (params, onSuccess) => dispatch(createAccount(params, onSuccess)),
+    createAccount: (params, onSuccess) => dispatch(Actions.createAccount(params, onSuccess)),
   };
 }
 

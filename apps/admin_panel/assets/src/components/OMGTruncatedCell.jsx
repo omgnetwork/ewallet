@@ -12,7 +12,7 @@ class OMGTruncatedCell extends Component {
   }
 
   render() {
-    const { content, translate } = this.props;
+    const { content } = this.props;
     return (
       <span>
         {OMGTruncatedCell.shortenedString(content)}
@@ -26,7 +26,6 @@ class OMGTruncatedCell extends Component {
 
 OMGTruncatedCell.propTypes = {
   content: PropTypes.string.isRequired,
-  translate: PropTypes.func.isRequired,
 };
 
 export default localize(OMGTruncatedCell, 'locale');

@@ -91,7 +91,6 @@ class SettingForm extends Component {
       avatar: (result.uploadAvatar && result.uploadAvatar.avatar.small) || prevState.avatar,
     }));
 
-    // Go to the top of the page to see the notification
     moveToTop();
   }
 
@@ -109,7 +108,6 @@ class SettingForm extends Component {
   handleResendInvitationSuccess(member) {
     const { showSuccessAlert, translate } = this.props;
     showSuccessAlert(translate('setting.form.notification.success.resend_invitation', { email: member.email }));
-    // Go to the top of the page to see the notification
     moveToTop();
   }
 
