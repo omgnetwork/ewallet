@@ -32,6 +32,33 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       }
     end
 
+    test "returns insufficient_funds when the user is too poor" do
+      balance1      = insert(:balance)
+      balance2      = insert(:balance)
+      minted_token   = insert(:minted_token)
+
+      response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
+         from_address: balance1.address,
+         to_address: balance2.address,
+         token_id: minted_token.friendly_id,
+         amount: 100_000 * minted_token.subunit_to_unit,
+         metadata: %{}
+       })
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "transaction:insufficient_funds",
+          "description" => "The specified balance (#{balance1.address}) does not " <>
+          "contain enough funds. Available: 0 #{minted_token.friendly_id} - " <>
+          "Attempted debit: 10000000 #{minted_token.friendly_id}",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+
     test "updates the user balance and returns the updated amount" do
       account        = Account.get_master_account()
       master_balance = Account.get_primary_balance(account)

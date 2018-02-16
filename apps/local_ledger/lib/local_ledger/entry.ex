@@ -4,7 +4,7 @@ defmodule LocalLedger.Entry do
   needed to insert valid entries and transactions.
   """
   alias LocalLedgerDB.{Repo, Entry, Errors.InsufficientFundsError}
-  alias LocalLedger.{Transaction, Balance}
+  alias LocalLedger.{Transaction, Balance, Errors.InvalidAmountError, Errors.AmountIsZeroError}
   alias LocalLedger.Entry.Validator
 
   @doc """
@@ -48,6 +48,7 @@ defmodule LocalLedger.Entry do
       from an address which does not have enough funds.
     - InvalidAmountError: This error will be raised if the sum of all debits
       and credits in this entry is not equal to 0.
+    - AmountIsZeroError: This error will be raised if any of the provided amount is equal to 0.
 
   ## Examples
 
@@ -80,7 +81,11 @@ defmodule LocalLedger.Entry do
     |> locked_insert(metadata, correlation_id, genesis, callback)
   rescue
     e in InsufficientFundsError ->
-      {:error, "client:insufficient_funds", e.message}
+      {:error, "transaction:insufficient_funds", e.message}
+    e in InvalidAmountError ->
+      {:error, "transaction:invalid_amount", e.message}
+    e in AmountIsZeroError ->
+      {:error, "transaction:amount_is_zero", e.message}
   end
 
   # Lock all the DEBIT addresses to ensure the truthness of the balances
