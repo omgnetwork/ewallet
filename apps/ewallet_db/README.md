@@ -1,12 +1,16 @@
 # eWalletDB
 
-eWalletDB (written in code as `EWalletDB` module) is the eWallet's sub-app that allows connectivity to eWallet's database by other sub-apps.
+eWalletDB (a.k.a the EWalletDB module in the code) is the eWallet's sub-app
+that allows connectivity to the eWallet's database by other sub-apps.
 
-This is a part of eWallet's umbrella app. Please start this app by starting the umbrella app rather than this specific app.
+This is a part of the eWallet umbrella app. You can start this sub-application
+by starting the global umbrella application rather that this one specifically.
 
 ## Naming conventions
 
-In order for any developers to start interfacing with eWalletDB quickly, easily and without ambiguity, it is important to follow a naming convention when naming functions. The recommendation is as follows:
+In order for any developers to start working with eWalletDB quickly, easily and without ambiguity,
+it is important to follow a naming convention when naming functions.
+The conventions used throughout the project are described below:
 
 ### Functions
 
@@ -50,8 +54,9 @@ User.all_by(%{email: "email@example.omc", status: "active"}, preload: :accounts)
 
 #### Build a base query
 
-A base query can be both for getting either one or multiple records.
-This is useful for building a query for sending into paginator or to scope down more before fetching the results.
+A base query can be used for retrieving either one or multiple records.
+This is useful for building a query that can be passed into a paginator
+or to scope down more before fetching the results.
 
 ```ex
 Struct.query()
@@ -60,9 +65,12 @@ User.query()
 
 ## Retrieving associations
 
-Fetching a record(s) does not automatically load its association. In order to access the record's association, one must preload it first.
+Fetching records does not automatically load their associations.
+In order to access the records' associations, one must preload them.
 
-To make this more convenient and not coupling `EWalletDB.Repo.preload/3` everywhere, the association(s) can be preloaded along with `get()`, `get_by()`, and `all()` functions by passing the option `:preload`.
+To make this more convenient and not having to use `EWalletDB.Repo.preload/3` everywhere,
+the associations can be preloaded through the `get()`, `get_by()`, and `all()` functions
+by passing the `:preload` option.
 
 Consider a typical `get/2` call:
 
@@ -76,7 +84,7 @@ iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c")
 }
 ```
 
-Versus `get/2` with `:preload` option:
+Versus `get/2` with the `:preload` option:
 
 ```ex
 iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [:accounts, :balances])
@@ -88,7 +96,7 @@ iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [:accou
 }
 ```
 
-It also allows deeply-nested preloading by providing nested keyword list into `:preload` option:
+It also allows deeply-nested preloading by providing nested keyword list into the `:preload` option:
 
 ```ex
 iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [accounts: :balances])
