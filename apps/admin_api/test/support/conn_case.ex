@@ -81,7 +81,7 @@ defmodule AdminAPI.ConnCase do
       email: @user_email,
       provider_user_id: @provider_user_id
     })
-    account     = insert(:account, %{master: true})
+    account     = insert(:account, %{parent: nil})
     role        = insert(:role, %{name: "admin"})
     _api_key    = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
     _auth_token = insert(:auth_token, %{user: user, token: @auth_token, owner_app: "admin_api"})

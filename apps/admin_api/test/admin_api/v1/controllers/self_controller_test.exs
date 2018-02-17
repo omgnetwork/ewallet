@@ -59,7 +59,27 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get_accounts" do
     test "responds with a list of accounts" do
-      account = User.get_account(get_test_user())
+      accounts =
+        get_test_user()
+        |> User.get_accounts()
+        |> Enum.map(fn(account) ->
+          %{
+            "object" => "account",
+            "id" => account.id,
+            "parent_id" => account.parent_id,
+            "name" => account.name,
+            "description" => account.description,
+            "master" => Account.master?(account),
+            "avatar" => %{
+              "original" => nil,
+              "large" => nil,
+              "small" => nil,
+              "thumb" => nil
+            },
+            "created_at" => Date.to_iso8601(account.inserted_at),
+            "updated_at" => Date.to_iso8601(account.updated_at)
+          }
+        end)
 
       assert user_request("/me.get_accounts") ==
         %{
@@ -67,22 +87,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
           "success" => true,
           "data" => %{
             "object" => "list",
-            "data" => [%{
-              "object" => "account",
-              "id" => account.id,
-              "parent_id" => account.parent_id,
-              "name" => account.name,
-              "description" => account.description,
-              "master" => Account.master?(account),
-              "avatar" => %{
-                "original" => nil,
-                "large" => nil,
-                "small" => nil,
-                "thumb" => nil
-              },
-              "created_at" => Date.to_iso8601(account.inserted_at),
-              "updated_at" => Date.to_iso8601(account.updated_at)
-            }],
+            "data" => accounts,
             "pagination" => %{
               "current_page" => 1,
               "per_page" => 10,
