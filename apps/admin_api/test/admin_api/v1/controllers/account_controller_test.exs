@@ -58,17 +58,18 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-      assert response["data"]["description"] == "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["description"] ==
+        "The user is not allowed to perform the requested operation"
     end
 
-    test "returns 'account:id_not_found' if the given ID is not UUID" do
+    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
       response  = user_request("/account.get", %{"id" => "not_uuid"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-      assert response["data"]["description"] == "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
     end
   end
 
@@ -113,7 +114,17 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["data"]["description"] == "updated_description"
     end
 
-    test "returns an error if id is not provided" do
+    test "returns a 'client:invalid_parameter' error if id is not provided" do
+      request_data = params_for(:account, %{id: nil})
+      response     = user_request("/account.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
+    end
+
+    test "returns a 'client:invalid_parameter' error if id is not a UUID" do
       request_data = params_for(:account, %{id: ""})
       response     = user_request("/account.update", request_data)
 
@@ -228,9 +239,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-      assert response["data"]["description"] ==
-             "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
     end
   end
 end

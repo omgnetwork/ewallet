@@ -16,20 +16,41 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a list of accounts.
   """
   def all(conn, attrs) do
-    Account
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
+    with :ok <- permit(:all, conn.assigns.user.id, nil) do
+      accounts =
+        Account
+        |> SearchParser.to_query(attrs, @search_fields)
+        |> SortParser.to_query(attrs, @sort_fields)
+        |> Paginator.paginate_attrs(attrs)
+
+      case accounts do
+        %Paginator{} = paginator ->
+          render(conn, :accounts, %{accounts: paginator})
+        {:error, code, description} ->
+          handle_error(conn, code, description)
+      end
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+      nil ->
+        handle_error(conn, :account_id_not_found)
+    end
   end
 
   @doc """
   Retrieves a specific account by its id.
   """
   def get(conn, %{"id" => id}) do
-    id
-    |> Account.get()
-    |> respond_single(conn)
+    with :ok           <- permit(:get, conn.assigns.user.id, id),
+         %{} = account <- Account.get(id)
+    do
+      render(conn, :account, %{account: account})
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+      nil ->
+        handle_error(conn, :account_id_not_found)
+    end
   end
 
   @doc """
@@ -37,15 +58,16 @@ defmodule AdminAPI.V1.AccountController do
 
   The requesting user must have write permission on the given parent account.
   """
-  def create(conn, attrs) do
-    with parent_id <- Map.get(attrs, "parent_id"),
-         :ok       <- permit(:create, conn.assigns.user.id, parent_id)
+  def create(conn, %{"parent_id" => parent_id} = attrs) do
+    with :ok            <- permit(:create, conn.assigns.user.id, parent_id),
+         {:ok, account} <- Account.insert(attrs)
     do
-      attrs
-      |> Account.insert()
-      |> respond_single(conn)
+      render(conn, :account, %{account: account})
     else
-      {:error, code} -> handle_error(conn, code)
+      {:error, %{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
 
@@ -54,15 +76,17 @@ defmodule AdminAPI.V1.AccountController do
 
   The requesting user must have write permission on the given account.
   """
-  def update(conn, %{"id" => account_id} = attrs) when byte_size(account_id) > 0 do
-    with :ok <- permit(:update, conn.assigns.user.id, account_id),
-         %{} = account <- Account.get(account_id) || {:error, :account_id_not_found}
+  def update(conn, %{"id" => account_id} = attrs) do
+    with :ok            <- permit(:update, conn.assigns.user.id, account_id),
+         %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
+         {:ok, updated} <- Account.update(original, attrs)
     do
-      account
-      |> Account.update(attrs)
-      |> respond_single(conn)
+      render(conn, :account, %{account: updated})
     else
-      {:error, code} -> handle_error(conn, code)
+      {:error, %{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
   def update(conn, _), do: handle_error(conn, :invalid_parameter)
@@ -71,37 +95,16 @@ defmodule AdminAPI.V1.AccountController do
   Uploads an image as avatar for a specific account.
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    case Account.get(id) do
-      nil -> respond_single(nil, conn)
-      account ->
-        account
-        |> Account.store_avatar(attrs)
-        |> respond_single(conn)
+    with :ok           <- permit(:update, conn.assigns.user.id, id),
+         %{} = account <- Account.get(id) || {:error, :account_id_not_found},
+         %{} = saved   <- Account.store_avatar(account, attrs)
+    do
+      render(conn, :account, %{account: saved})
+    else
+      {:error, %{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+      {:error, code} ->
+        handle_error(conn, code)
     end
-  end
-
-  # Respond with a list of accounts
-  defp respond_multiple(%Paginator{} = paged_accounts, conn) do
-    render(conn, :accounts, %{accounts: paged_accounts})
-  end
-  defp respond_multiple({:error, code, description}, conn) do
-    handle_error(conn, code, description)
-  end
-
-  # Respond with a single account
-  defp respond_single(%Account{} = account, conn) do
-    render(conn, :account, %{account: account})
-  end
-  # Respond when the account is saved successfully
-  defp respond_single({:ok, account}, conn) do
-    render(conn, :account, %{account: account})
-  end
-  # Responds when the account is saved unsucessfully
-  defp respond_single({:error, changeset}, conn) do
-    handle_error(conn, :invalid_parameter, changeset)
-  end
-  # Responds when the account is not found
-  defp respond_single(nil, conn) do
-    handle_error(conn, :account_id_not_found)
   end
 end

@@ -257,12 +257,16 @@ defmodule EWalletDB.User do
   If the user does not have a membership on the given account, it inherits
   the role from the closest parent account that has one.
   """
-  def get_role(id, _) when not is_binary(id) or byte_size(id) == 0, do: nil
-  def get_role(_, id) when not is_binary(id) or byte_size(id) == 0, do: nil
   def get_role(user_id, account_id) do
-    user_id
-    |> query_role(account_id)
-    |> Repo.one()
+    with {:ok, user_id} <- UUID.cast(user_id),
+         {:ok, account_id} <- UUID.cast(account_id),
+         query <- query_role(user_id, account_id)
+    do
+      Repo.one(query)
+    else
+      :error ->
+        {:error, :invalid_parameter}
+    end
   end
 
   defp query_role(user_id, account_id) do
