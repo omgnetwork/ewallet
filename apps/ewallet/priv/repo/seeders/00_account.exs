@@ -33,17 +33,12 @@ Enum.each(seeds, fn(data) ->
        data           <- Map.put(data, :parent_id, parent.id),
        {:ok, account} <- Account.insert(data)
   do
-    EWalletDB.CLI.success("Account inserted: #{data.name}")
-
-    case Account.get_by_name(data.parent_name) do
-      nil ->
-        EWalletDB.CLI.warn("Did not assign a parent for `#{data.name}`")
-      parent ->
-        Account.update(account, %{parent_id: parent.id})
-    end
+    EWalletDB.CLI.success("Account inserted: #{account.name}\n"
+      <> "  ID: #{account.id}\n"
+      <> "  Parent account: #{account.parent_id}")
   else
-    %Account{} ->
-      EWalletDB.CLI.warn("Account #{data.name} is already in DB")
+    %Account{} = account ->
+      EWalletDB.CLI.warn("Account #{account.name} is already in DB")
     {:error, _} ->
       EWalletDB.CLI.error("Account #{data.name}"
         <> " could not be inserted due to an error")
