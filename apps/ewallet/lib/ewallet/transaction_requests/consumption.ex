@@ -8,26 +8,75 @@ defmodule EWallet.TransactionRequests.Consumption do
   """
   alias EWallet.Transaction
   alias EWallet.TransactionRequests.{Request, BalanceLoader}
-  alias EWalletDB.{TransactionRequestConsumption}
+  alias EWalletDB.{Account, MintedToken, User, Balance, TransactionRequestConsumption}
 
-  @spec consume(User.t, String.t, Map.t) :: {:ok, TransactionRequestConsumption.t} |
-                                            {:error, Atom.t}
-  def consume(user, idempotency_token, %{
+  @spec consume(Map.t) :: {:ok, TransactionRequestConsumption.t} | {:error, Atom.t}
+  def consume(%{
+    "account_id" => account_id,
+    "address" => address
+  } = attrs) do
+    with account <- Account.get(account_id) || Account.get_master_account(),
+         {:ok, balance} <- BalanceLoader.get(account, address)
+    do
+      consume(balance, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error                     -> error
+    end
+  end
+
+  def consume(%{
+    "provider_user_id" => provider_user_id,
+    "address" => address
+  } = attrs) do
+    with %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
+                           :provider_user_id_not_found,
+         {:ok, balance} <- BalanceLoader.get(user, address)
+    do
+      consume(balance, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error                     -> error
+    end
+  end
+
+  def consume(%{
+    "address" => address
+  } = attrs) do
+    with {:ok, balance} <- BalanceLoader.get(nil, address)
+    do
+      consume(balance, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error                     -> error
+    end
+  end
+  def consume(_attrs), do: {:error, :invalid_parameter}
+
+  @spec consume(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+  def consume(%User{} = user, %{
+    "address" => address
+  } = attrs) do
+    with {:ok, balance} <- BalanceLoader.get(user, address)
+    do
+      consume(balance, attrs)
+    else
+      error -> error
+    end
+  end
+
+  @spec consume(Balance.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+  def consume(%Balance{} = balance, %{
     "transaction_request_id" => request_id,
     "correlation_id" => _,
     "amount" => _,
-    "address" => address,
-    "metadata" => metadata
+    "token_id" => token_id,
+    "metadata" => metadata,
+    "idempotency_token" => _
   } = attrs) do
     with {:ok, request} <- Request.get(request_id),
-         {:ok, balance} <- BalanceLoader.get(user, address),
-         {:ok, consumption} <- insert(%{
-           user: user,
-           idempotency_token: idempotency_token,
-           request: request,
-           balance: balance,
-           attrs: attrs
-         }),
+         {:ok, minted_token} <- get_minted_token(token_id),
+         {:ok, consumption} <- insert(balance, minted_token, request, attrs),
          {:ok, consumption} <- get(consumption.id)
     do
       transfer(request.type, consumption, metadata)
@@ -36,9 +85,16 @@ defmodule EWallet.TransactionRequests.Consumption do
       error                     -> error
     end
   end
-  def consume(_user, _idempotency_token, _attrs) do
-    {:error, :invalid_parameter}
-  end
+
+  def consume(_user, _attrs), do: {:error, :invalid_parameter}
+
+   defp get_minted_token(nil), do: {:ok, nil}
+   defp get_minted_token(token_id) do
+      case MintedToken.get(token_id) do
+        nil          -> :minted_token_not_found
+        minted_token -> minted_token
+      end
+   end
 
   @spec get(UUID.t) :: {:ok, TransactionRequestConsumption.t} |
                        {:error, :transaction_request_consumption_not_found}
@@ -53,19 +109,14 @@ defmodule EWallet.TransactionRequests.Consumption do
     end
   end
 
-  defp insert(%{
-    user: user,
-    idempotency_token: idempotency_token,
-    request: request,
-    balance: balance,
-    attrs: attrs
-  }) do
+  defp insert(balance, minted_token, request, attrs) do
     TransactionRequestConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
-      idempotency_token: idempotency_token,
+      idempotency_token: attrs["idempotency_token"],
       amount: attrs["amount"] || request.amount,
-      user_id: user.id,
-      minted_token_id: request.minted_token_id,
+      user_id: balance.user_id,
+      account_id: balance.account_id,
+      minted_token_id: if(minted_token, do: minted_token.id, else: request.minted_token_id),
       transaction_request_id: request.id,
       balance_address: balance.address
     })

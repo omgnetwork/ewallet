@@ -34,12 +34,14 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
       mint!(meta.minted_token)
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
-      {res, consumption} = Consumption.consume(meta.sender, "123", %{
+      {res, consumption} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => meta.request.id,
         "correlation_id" => nil,
         "amount" => nil,
         "address" => nil,
-        "metadata" => nil
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
 
       assert res == :ok
@@ -54,12 +56,14 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
       mint!(meta.minted_token)
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
-      {res, consumption} = Consumption.consume(meta.sender, "123", %{
+      {res, consumption} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => meta.request.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "address" => meta.sender_balance.address,
-        "metadata" => %{}
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
 
       assert res == :ok
@@ -73,21 +77,25 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
       mint!(meta.minted_token)
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
-      {res, consumption_1} = Consumption.consume(meta.sender, "123", %{
+      {res, consumption_1} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => meta.request.id,
         "correlation_id" => nil,
         "amount" => nil,
         "address" => nil,
-        "metadata" => nil
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
       assert res == :ok
 
-      {res, consumption_2} = Consumption.consume(meta.sender, "123", %{
+      {res, consumption_2} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => meta.request.id,
         "correlation_id" => nil,
         "amount" => nil,
         "address" => nil,
-        "metadata" => nil
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
 
       assert res == :ok
@@ -104,12 +112,14 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
         amount: nil
       )
 
-      {error, changeset} = Consumption.consume(meta.sender, "123", %{
+      {error, changeset} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => transaction_request.id,
         "correlation_id" => nil,
         "amount" => nil,
         "address" => nil,
-        "metadata" => nil
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
 
       assert error == :error
@@ -120,12 +130,14 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
       mint!(meta.minted_token)
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
-      {res, error} = Consumption.consume(meta.sender, "123", %{
+      {res, error} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => meta.request.id,
         "correlation_id" => nil,
         "amount" => nil,
         "address" => "fake",
-        "metadata" => nil
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
 
       assert res == :error
@@ -137,12 +149,14 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
       balance = insert(:balance)
 
-      {res, error} = Consumption.consume(meta.sender, "123", %{
+      {res, error} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => meta.request.id,
         "correlation_id" => nil,
         "amount" => nil,
         "address" => balance.address,
-        "metadata" => nil
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
 
       assert res == :error
@@ -150,7 +164,7 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
     end
 
     test "returns 'invalid parameter' when not all attributes are provided", meta do
-      {res, error} = Consumption.consume(meta.sender, "123", %{
+      {res, error} = Consumption.consume(meta.sender, %{
         "correlation_id" => nil,
         "amount" => nil,
         "metadata" => nil
@@ -166,12 +180,14 @@ defmodule EWallet.TransactionRequests.ConsumptionTest do
       mint!(meta.minted_token)
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
-      {res, consumption} = Consumption.consume(meta.sender, "123", %{
+      {res, consumption} = Consumption.consume(meta.sender, %{
         "transaction_request_id" => meta.request.id,
         "correlation_id" => nil,
         "amount" => nil,
         "address" => nil,
-        "metadata" => nil
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
       })
 
       assert res == :ok

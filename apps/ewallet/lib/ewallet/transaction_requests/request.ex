@@ -9,7 +9,7 @@ defmodule EWallet.TransactionRequests.Request do
   alias EWallet.TransactionRequests.BalanceLoader
   alias EWalletDB.{TransactionRequest, User, Balance, MintedToken, Account}
 
-  @spec create(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+  @spec create(Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
   def create(%{
     "account_id" => account_id,
     "address" => address
@@ -54,18 +54,17 @@ defmodule EWallet.TransactionRequests.Request do
     end
   end
 
+  @spec create(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
   def create(%User{} = user, %{
     "address" => address
   } = attrs) do
-    with {:ok, balance} <- BalanceLoader.get(user, address),
-         {:ok, transaction_request} <- create(balance, attrs)
-    do
-      get(transaction_request.id)
-    else
-      error when is_atom(error) -> {:error, error}
-      error                     -> error
+    with {:ok, balance} <- BalanceLoader.get(user, address)
+    do create(balance, attrs)
+    else error -> error
     end
   end
+
+  @spec create(Balance.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
   def create(%Balance{} = balance, %{
     "type" => _,
     "correlation_id" => _,
