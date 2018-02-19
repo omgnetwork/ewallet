@@ -23,6 +23,8 @@ tags:
     description: These are the endpoints related to the global settings of the wallet.
   - name: TransactionRequest
     description: Endpoints related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
+servers:
+  - url: /api
 paths:
   ############################
   #         SESSION          #
