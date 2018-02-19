@@ -1,4 +1,4 @@
-defmodule EWallet.Transactions.Consumption do
+defmodule EWallet.TransactionRequests.Consumption do
   @moduledoc """
   Business logic to manage transaction request consumptions. This module is responsible for
   creating new consumptions, generating transfers and transactions. It can also be used to
@@ -6,7 +6,8 @@ defmodule EWallet.Transactions.Consumption do
 
   It is basically an interface to the EWalletDB.TransactionRequestConsumption schema.
   """
-  alias EWallet.{Transaction, Transactions.Request}
+  alias EWallet.Transaction
+  alias EWallet.TransactionRequests.{Request, BalanceLoader}
   alias EWalletDB.{TransactionRequestConsumption}
 
   @spec consume(User.t, String.t, Map.t) :: {:ok, TransactionRequestConsumption.t} |
@@ -19,7 +20,7 @@ defmodule EWallet.Transactions.Consumption do
     "metadata" => metadata
   } = attrs) do
     with {:ok, request} <- Request.get(request_id),
-         {:ok, balance} <- Request.get_balance(user, address),
+         {:ok, balance} <- BalanceLoader.get(user, address),
          {:ok, consumption} <- insert(%{
            user: user,
            idempotency_token: idempotency_token,

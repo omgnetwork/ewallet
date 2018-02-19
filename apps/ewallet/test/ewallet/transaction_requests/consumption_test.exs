@@ -1,6 +1,6 @@
-defmodule EWallet.Transactions.ConsumptionTest do
+defmodule EWallet.TransactionRequests.ConsumptionTest do
  use EWallet.LocalLedgerCase, async: true
- alias EWallet.Transactions.Consumption
+ alias EWallet.TransactionRequests.Consumption
  alias EWalletDB.{User, TransactionRequestConsumption}
 
   setup do

@@ -1,7 +1,7 @@
-defmodule EWallet.Transactions.RequestTest do
+defmodule EWallet.TransactionRequests.RequestTest do
  use EWallet.LocalLedgerCase, async: true
- alias EWallet.Transactions.Request
- alias EWalletDB.{User, TransactionRequest, Balance}
+ alias EWallet.TransactionRequests.Request
+ alias EWalletDB.{User, TransactionRequest}
 
   setup do
     {:ok, user}  = :user |> params_for() |> User.insert()
@@ -82,7 +82,7 @@ defmodule EWallet.Transactions.RequestTest do
     end
 
     test "receives an 'invalid_parameter' error when the token ID is not found", meta  do
-     {:error, error} = Request.create(meta.user, %{
+     res = Request.create(meta.user, %{
        "type" => "receive",
        "token_id" => "fake",
        "correlation_id" => nil,
@@ -90,32 +90,7 @@ defmodule EWallet.Transactions.RequestTest do
        "address" => nil
      })
 
-     assert error == :minted_token_not_found
-    end
-  end
-
-  describe "get_balance/2" do
-    test "retrieves the user's primary balance if address is nil", meta do
-      {:ok, balance} = Request.get_balance(meta.user, nil)
-      assert balance == User.get_primary_balance(meta.user)
-    end
-
-    test "retrieves the balance if address is given and belonds to the user", meta do
-      inserted_balance = insert(:balance, identifier: Balance.secondary, user: meta.user)
-      {:ok, balance} = Request.get_balance(meta.user, inserted_balance.address)
-      assert balance.id == inserted_balance.id
-    end
-
-    test "returns 'balance_not_found' if the address is not found", meta do
-      {:error, error} = Request.get_balance(meta.user, "fake")
-      assert error == :balance_not_found
-    end
-
-    test "returns 'user_balance_mismatch' if the balance found does not belong to the user",
-    meta do
-      balance = insert(:balance)
-      {:error, error} = Request.get_balance(meta.user, balance.address)
-      assert error == :user_balance_mismatch
+     assert res == {:error, :minted_token_not_found}
     end
   end
 
