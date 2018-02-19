@@ -44,20 +44,25 @@ memberships = [
   %{email: "viewer_branch4@example.com", role_name: "viewer", account_name: "branch4"},
 ]
 
-EWalletDB.CLI.info("\nSeeding Admin & Viewer (email, password)...")
+EWalletDB.CLI.info("\nSeeding admin panel users (email, password, id)...")
 
 Enum.each(admin_seeds, fn(data) ->
   with nil <- EWalletDB.User.get_by_email(data.email),
-       {:ok, _} <- EWalletDB.User.insert(data)
+       {:ok, user} <- EWalletDB.User.insert(data)
   do
-    EWalletDB.CLI.success("User inserted: #{data.email}, #{data.password}")
+    EWalletDB.CLI.success("🔧 Admin Panel user inserted:\n"
+      <> "  Email: #{user.email}\n"
+      <> "  Password: #{data.password}\n"
+      <> "  ID: #{user.id}")
   else
     %EWalletDB.User{} ->
-      EWalletDB.CLI.warn("User #{data.email} is already in DB")
+      EWalletDB.CLI.warn("🔧 Admin Panel user #{data.email} is already in DB")
     {:error, _} ->
-      EWalletDB.CLI.error("User #{data.email}" <> " could not be inserted due to an error")
+      EWalletDB.CLI.error("🔧 Admin Panel user #{data.email}" <> " could not be inserted due to an error")
   end
 end)
+
+EWalletDB.CLI.info("\nSeeding admin panel user roles...")
 
 Enum.each(memberships, fn(membership) ->
   with %EWalletDB.User{} = user <- EWalletDB.User.get_by_email(membership.email),
@@ -65,9 +70,10 @@ Enum.each(memberships, fn(membership) ->
        %EWalletDB.Role{} = role <- EWalletDB.Role.get_by_name(membership.role_name),
        {:ok, _} <- EWalletDB.Membership.assign(user, account, role)
   do
-    EWalletDB.CLI.success("User assigned: #{user.email}, #{account.name}, #{role.name}")
+    EWalletDB.CLI.success("🔧 Admin Panel user assigned: #{user.email}, account: #{account.name}"
+      <> ", role: #{role.name}")
   else
     _ ->
-      EWalletDB.CLI.error("User #{membership.email} could not be assigned due to an error")
+      EWalletDB.CLI.error("🔧 Admin Panel user #{membership.email} could not be assigned due to an error")
   end
 end)

@@ -26,10 +26,18 @@ Enum.each(seeds, fn(data) ->
     |> EWalletDB.AuthToken.generate(data.owner_app)
 
   case token do
-    token when is_binary(token) and byte_size(token) > 0 ->
-      EWalletDB.CLI.success("AuthToken seeded for #{data.user.provider_user_id} (for #{data.owner_app})\n"
-        <> "  User ID : #{data.user.id}\n"
-        <> "  Auth tokens : #{token}")
+    {:ok, token} ->
+      icon =
+        case data.owner_app do
+          :ewallet_api -> "📱 "
+          :admin_api -> "🔧 "
+          _ -> ""
+        end
+
+      EWalletDB.CLI.success("#{icon}#{data.owner_app}: AuthToken seeded\n"
+        <> "  Provider user ID: #{data.user.provider_user_id}\n"
+        <> "  User ID: #{data.user.id}\n"
+        <> "  Auth tokens: #{token}")
     _ ->
       EWalletDB.CLI.error("AuthToken for #{data.user.provider_user_id} into #{data.owner_app}"
         <> " could not be inserted due to error")

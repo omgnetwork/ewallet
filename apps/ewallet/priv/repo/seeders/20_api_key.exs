@@ -25,7 +25,14 @@ EWalletDB.CLI.info("\nSeeding APIKey (always seed new ones)...")
 Enum.each(seeds, fn(data) ->
   case EWalletDB.APIKey.insert(%{account_id: data.account.id, owner_app: data.owner_app}) do
     {:ok, api_key} ->
-      EWalletDB.CLI.success("APIKey seeded for #{data.account.name} (for #{api_key.owner_app})\n"
+      icon =
+        case api_key.owner_app do
+          "ewallet_api" -> "📱 "
+          "admin_api" -> "🔧 "
+          _ -> ""
+        end
+
+      EWalletDB.CLI.success("#{icon}#{api_key.owner_app}: APIKey seeded for #{data.account.name}\n"
         <> "  API key ID: #{api_key.id} \n"
         <> "  API key: #{api_key.key}")
     _ ->

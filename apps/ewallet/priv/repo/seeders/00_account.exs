@@ -17,7 +17,7 @@ seeds = [
   # Brand 1
   %{name: "brand1", description: "Brand 1", parent_name: "master_account"},
   %{name: "branch1", description: "Branch 1", parent_name: "brand1"},
-  %{name: "branch2", description: "Branch 2", master: false, parent_name: "brand1"},
+  %{name: "branch2", description: "Branch 2", parent_name: "brand1"},
 
   # Region 2
   %{name: "brand2", description: "Region 2", parent_name: "master_account"},
@@ -28,20 +28,17 @@ seeds = [
 EWalletDB.CLI.info("\nSeeding Account...")
 
 Enum.each(seeds, fn(data) ->
-  with nil <- Account.get_by_name(data.name),
+  with nil            <- Account.get_by_name(data.name),
+       parent         <- Account.get_by_name(data.parent_name) || %{id: nil},
+       data           <- Map.put(data, :parent_id, parent.id),
        {:ok, account} <- Account.insert(data)
   do
-    EWalletDB.CLI.success("Account inserted: #{data.name}")
-
-    case Account.get_by_name(data.parent_name) do
-      nil ->
-        EWalletDB.CLI.warn("Did not assign a parent for `#{data.name}`")
-      parent ->
-        Account.update(account, %{parent_id: parent.id})
-    end
+    EWalletDB.CLI.success("Account inserted: #{account.name}\n"
+      <> "  ID: #{account.id}\n"
+      <> "  Parent account: #{account.parent_id}")
   else
-    %Account{} ->
-      EWalletDB.CLI.warn("Account #{data.name} is already in DB")
+    %Account{} = account ->
+      EWalletDB.CLI.warn("Account #{account.name} is already in DB")
     {:error, _} ->
       EWalletDB.CLI.error("Account #{data.name}"
         <> " could not be inserted due to an error")

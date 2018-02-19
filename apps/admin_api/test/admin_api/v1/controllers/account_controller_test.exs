@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, User}
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -58,23 +58,25 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-      assert response["data"]["description"] == "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["description"] ==
+        "The user is not allowed to perform the requested operation"
     end
 
-    test "returns 'account:id_not_found' if the given ID is not UUID" do
+    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
       response  = user_request("/account.get", %{"id" => "not_uuid"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-      assert response["data"]["description"] == "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
     end
   end
 
   describe "/account.create" do
     test "creates a new account and returns it" do
-      request_data = params_for(:account)
+      parent       = User.get_account(get_test_user())
+      request_data = params_for(:account, %{parent_id: parent.id})
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == true
@@ -83,7 +85,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test "returns an error if account name is not provided" do
-      request_data = params_for(:account, %{name: ""})
+      parent       = User.get_account(get_test_user())
+      request_data = params_for(:account, %{name: "", parent_id: parent.id})
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == false
@@ -94,7 +97,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
   describe "/account.update" do
     test "updates the given account" do
-      account = insert(:account)
+      account = User.get_account(get_test_user())
 
       # Prepare the update data while keeping only id the same
       request_data = params_for(:account, %{
@@ -111,7 +114,17 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["data"]["description"] == "updated_description"
     end
 
-    test "returns an error if id is not provided" do
+    test "returns a 'client:invalid_parameter' error if id is not provided" do
+      request_data = params_for(:account, %{id: nil})
+      response     = user_request("/account.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
+    end
+
+    test "returns a 'client:invalid_parameter' error if id is not a UUID" do
       request_data = params_for(:account, %{id: ""})
       response     = user_request("/account.update", request_data)
 
@@ -226,9 +239,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-      assert response["data"]["description"] ==
-             "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
     end
   end
 end

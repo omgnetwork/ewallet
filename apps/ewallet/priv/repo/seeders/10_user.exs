@@ -13,14 +13,16 @@ for n <- 1..user_seed.amount do
   }
 
   with nil <- EWalletDB.User.get_by_provider_user_id(insert_data.provider_user_id),
-       {:ok, _} <- EWalletDB.User.insert(insert_data)
+       {:ok, user} <- EWalletDB.User.insert(insert_data)
   do
-    EWalletDB.CLI.success("User inserted: #{insert_data.provider_user_id}, #{insert_data.username}")
+    EWalletDB.CLI.success("📱 eWallet User inserted:\n"
+      <> "  Username: #{user.username}\n"
+      <> "  ID: #{user.id}")
   else
     %EWalletDB.User{} ->
-      EWalletDB.CLI.warn("User #{insert_data.provider_user_id} is already in DB")
+      EWalletDB.CLI.warn("eWallet User #{insert_data.provider_user_id} is already in DB")
     {:error, _} ->
-      EWalletDB.CLI.error("User #{insert_data.provider_user_id}"
+      EWalletDB.CLI.error("eWallet User #{insert_data.provider_user_id}"
         <> " could not be inserted due to an error")
   end
 end

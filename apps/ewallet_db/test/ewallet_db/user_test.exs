@@ -209,6 +209,37 @@ defmodule EWalletDB.UserTest do
     end
   end
 
+  describe "get_role/2" do
+    test "returns the role that the user has for the given account" do
+      user    = insert(:user)
+      account = insert(:account)
+      role    = insert(:role, %{name: "role_one"})
+
+      insert(:membership, %{user: user, account: account, role: role})
+
+      assert User.get_role(user.id, account.id) == "role_one"
+    end
+
+    test "returns the role that the user has in the closest parent account" do
+      user    = insert(:user)
+      parent  = insert(:account)
+      account = insert(:account, parent: parent)
+      role    = insert(:role, %{name: "role_from_parent"})
+
+      insert(:membership, %{user: user, account: parent, role: role})
+
+      assert User.get_role(user.id, account.id) == "role_from_parent"
+    end
+
+    test "returns nil if the given user is not a member in the account or any of its parents" do
+      user    = insert(:user)
+      parent  = insert(:account)
+      account = insert(:account, parent: parent)
+
+      assert User.get_role(user.id, account.id) == nil
+    end
+  end
+
   describe "get_account/1" do
     test "returns an upper-most account that the given user has membership in" do
       user        = insert(:user)
