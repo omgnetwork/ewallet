@@ -39,6 +39,8 @@ tags:
     description: These are the endpoints related to transactions.
   - name: API Access
     description: These are the endpoints related to API access.
+servers:
+  - url: /admin/api
 paths:
   ############################
   #         SESSION          #
