@@ -23,10 +23,10 @@ seeds = [
     account_id: EWalletDB.Account.get_by_name("master_account").id
   },
   %{
-    symbol: "MNT",
-    name: "Mint",
+    symbol: "OEM",
+    name: "One EM",
     subunit_to_unit:        100,
-    genesis_amount: 100_000_000, # 1,000,000 MNT
+    genesis_amount: 100_000_000, # 1,000,000 OEM
     account_id: EWalletDB.Account.get_by_name("master_account").id
   },
   %{
