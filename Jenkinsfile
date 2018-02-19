@@ -76,7 +76,7 @@ podTemplate(
             )
         }
 
-        if (env.BRANCH_NAME == 'development') {
+        if (env.BRANCH_NAME == 'develop') {
             stage('Push') {
                 sh("gcloud docker -- push ${imageName}:${gitCommit}")
                 sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:latest")
