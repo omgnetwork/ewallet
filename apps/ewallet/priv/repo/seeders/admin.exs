@@ -4,7 +4,6 @@ import EWalletDB.Helpers.Crypto, only: [generate_key: 1]
 
 admin_seeds = [
   # Seed an admin user for each account
-  %{email: "admin_master@example.com", password: generate_key(16), metadata: %{}},
   %{email: "admin_brand1@example.com", password: generate_key(16), metadata: %{}},
   %{email: "admin_brand2@example.com", password: generate_key(16), metadata: %{}},
   %{email: "admin_branch1@example.com", password: generate_key(16), metadata: %{}},

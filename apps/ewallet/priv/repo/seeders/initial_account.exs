@@ -1,13 +1,13 @@
 # This is the seeding script for the master account.
 alias EWalletDB.Account
 
+EWallet.CLI.info("\nSeeding the master account...")
+
 master_account_data = %{
   name: "master_account",
   description: "Company Master Account",
   parent_name: nil
 }
-
-EWallet.CLI.info("\nSeeding the master account...")
 
 with nil            <- Account.get_master_account(),
      {:ok, account} <- Account.insert(master_account_data)

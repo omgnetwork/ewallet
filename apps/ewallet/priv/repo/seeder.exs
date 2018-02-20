@@ -45,8 +45,10 @@ defmodule EWallet.Seeder do
 
   # Seeds to intialize the system.
   @init_seeds [
-    "master_account.exs",
-    "admin_panel_api_key.exs"
+    "initial_account.exs",
+    "initial_api_key.exs",
+    "initial_role.exs",
+    "initial_user.exs"
   ]
 
   # Seeds to fully populate the system. This is useful for development
@@ -55,7 +57,6 @@ defmodule EWallet.Seeder do
   @full_seeds @init_seeds ++ [
     "account.exs",
     "minted_token.exs",
-    "role.exs",
     "user.exs",
     "admin.exs",
     "key.exs",

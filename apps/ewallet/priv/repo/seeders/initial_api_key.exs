@@ -1,6 +1,6 @@
 # This is the seeding script for the initial API key for setting up the admin panel.
 
-EWallet.CLI.info("\nSeeding Admin Panel's API key (always seed new ones)...")
+EWallet.CLI.info("\nSeeding the Admin Panel's initial API key (always seed new ones)...")
 
 master  = EWalletDB.Account.get_by_name("master_account")
 api_key = EWalletDB.APIKey.insert(%{
