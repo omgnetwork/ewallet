@@ -42,6 +42,7 @@ defmodule EWallet.Seeder do
   Direct repo insert, e.g. `EWalletDB.Repo.insert!` should be avoided because
   it does not preserve data integrity implemented in the schema.
   """
+  alias EWallet.CLI
 
   # Seeds to intialize the system.
   @init_seeds [
@@ -80,7 +81,7 @@ defmodule EWallet.Seeder do
   """
   def call(opts) do
     if full_seed?(opts) && production?(opts) do
-      EWallet.CLI.halt("The full seed cannot be run on :prod environment!")
+      CLI.halt("The full seed cannot be run on :prod environment!")
     end
 
     # Disable noisy debug messages. Seeders already have their own log messages.
