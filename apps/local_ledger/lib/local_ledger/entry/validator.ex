@@ -9,8 +9,7 @@ defmodule LocalLedger.Entry.Validator do
   Sum the incoming transactions and ensure debit - credit = 0. If not, raise
   an InvalidAmountError exception.
   """
-  def validate_amount({debits, credits} = attrs) do
-    any_zero?(debits ++ credits)
+  def validate_zero_sum({debits, credits} = attrs) do
     sum = total(debits) - total(credits)
 
     case sum do
@@ -19,10 +18,10 @@ defmodule LocalLedger.Entry.Validator do
     end
   end
 
-  defp any_zero?(list) do
-    case Enum.any?(list, fn(attrs) -> attrs["amount"] == 0 end) do
+  def validate_positive_amounts({debits, credits} = attrs) do
+    case Enum.any?(debits ++ credits, fn(attrs) -> attrs["amount"] == 0 end) do
       true  -> raise AmountIsZeroError
-      false -> :ok
+      false -> attrs
     end
   end
 

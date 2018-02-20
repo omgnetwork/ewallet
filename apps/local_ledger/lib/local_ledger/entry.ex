@@ -76,7 +76,8 @@ defmodule LocalLedger.Entry do
                "minted_token" => minted_token, "correlation_id" => correlation_id},
                %{genesis: genesis}, callback \\ nil) do
     {debits, credits}
-    |> Validator.validate_amount
+    |> Validator.validate_zero_sum()
+    |> Validator.validate_positive_amounts()
     |> Transaction.build_all(minted_token)
     |> locked_insert(metadata, correlation_id, genesis, callback)
   rescue
