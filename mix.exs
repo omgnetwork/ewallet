@@ -57,7 +57,7 @@ defmodule EWallet.Umbrella.Mixfile do
       ],
       seed: [
         "run apps/ewallet/priv/repo/seeder.exs"
-      ],
+      ]
     ]
   end
 end
