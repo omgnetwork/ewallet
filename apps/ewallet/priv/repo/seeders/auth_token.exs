@@ -17,7 +17,7 @@ seeds = [
   %{user: EWalletDB.User.get_by_email("viewer_branch1@example.com"), owner_app: :admin_api},
 ]
 
-EWalletDB.CLI.info("\nSeeding AuthToken (always seed new ones)...")
+EWallet.CLI.info("\nSeeding AuthToken (always seed new ones)...")
 
 Enum.each(seeds, fn(data) ->
   token =
@@ -34,12 +34,12 @@ Enum.each(seeds, fn(data) ->
           _ -> ""
         end
 
-      EWalletDB.CLI.success("#{icon}#{data.owner_app}: AuthToken seeded\n"
+      EWallet.CLI.success("#{icon}#{data.owner_app}: AuthToken seeded\n"
         <> "  Provider user ID: #{data.user.provider_user_id}\n"
         <> "  User ID: #{data.user.id}\n"
         <> "  Auth tokens: #{token}")
     _ ->
-      EWalletDB.CLI.error("AuthToken for #{data.user.provider_user_id} into #{data.owner_app}"
+      EWallet.CLI.error("AuthToken for #{data.user.provider_user_id} into #{data.owner_app}"
         <> " could not be inserted due to error")
   end
 end)
