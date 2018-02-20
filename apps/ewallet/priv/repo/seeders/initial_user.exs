@@ -16,9 +16,9 @@ with nil         <- EWalletDB.User.get_by_email(data.email),
      {:ok, user} <- EWalletDB.User.insert(data)
 do
   EWallet.CLI.success("🔧 Admin Panel user inserted:\n"
-    <> "  Email: #{user.email}\n"
-    <> "  Password: #{user.password}\n"
-    <> "  ID: #{user.id}")
+    <> "  ID       : #{user.id}\n"
+    <> "  Email    : #{user.email}\n"
+    <> "  Password : #{user.password}")
 else
   %EWalletDB.User{} ->
     EWallet.CLI.warn("🔧 Admin Panel user #{data.email} already exists")
@@ -32,8 +32,10 @@ with %EWalletDB.User{} = user <- EWalletDB.User.get_by_email(data.email),
      %EWalletDB.Role{} = role <- EWalletDB.Role.get_by_name(data.role_name),
      {:ok, _} <- EWalletDB.Membership.assign(user, account, role)
 do
-  EWallet.CLI.success("🔧 Admin Panel user assigned: #{user.email}, account: #{account.name}"
-    <> ", role: #{role.name}")
+  EWallet.CLI.success("🔧 Admin Panel user assigned:\n"
+    <> "  Email   : #{user.email}\n"
+    <> "  Account : #{account.name}\n"
+    <> "  Role    : #{role.name}")
 else
   _ ->
     EWallet.CLI.error("🔧 Admin Panel user #{data.email}"

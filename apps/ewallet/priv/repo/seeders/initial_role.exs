@@ -11,7 +11,9 @@ Enum.each(seeds, fn(data) ->
   with nil <- EWalletDB.Role.get_by_name(data.name),
        {:ok, _} <- EWalletDB.Role.insert(data)
   do
-    EWallet.CLI.success("🔧 Role inserted: #{data.name} (#{data.display_name})")
+    EWallet.CLI.success("🔧 Role inserted:\n"
+      <> "  Name         : #{data.name}\n"
+      <> "  Display name : #{data.display_name}")
   else
     %EWalletDB.Role{} ->
       EWallet.CLI.warn("Role #{data.name} is already in DB")
