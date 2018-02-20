@@ -3,13 +3,13 @@ defmodule EWallet.Web.SwaggerPlug do
   A plug that renders the Swagger UI.
   """
   use Plug.Router
-  alias Plug.Conn
+  import Plug.Conn
 
   plug :match
   plug :dispatch
 
-  get "/", do: Conn.send_file(conn, 200, conn.private.swagger_ui_path)
-  get "/swagger.yaml", do: Conn.send_file(conn, 200, conn.private.swagger_doc_path)
+  get "/", do: send_file(conn, 200, conn.private.swagger_ui_path)
+  get "/swagger.yaml", do: send_file(conn, 200, conn.private.swagger_doc_path)
 
   def init(opts), do: opts
 
@@ -19,8 +19,8 @@ defmodule EWallet.Web.SwaggerPlug do
     doc_path = Path.join([Application.app_dir(otp_app), "priv", "swagger.yaml"])
 
     conn
-    |> Conn.put_private(:swagger_ui_path, ui_path)
-    |> Conn.put_private(:swagger_doc_path, doc_path)
+    |> put_private(:swagger_ui_path, ui_path)
+    |> put_private(:swagger_doc_path, doc_path)
     |> super([])
   end
 end
