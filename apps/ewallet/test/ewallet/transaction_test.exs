@@ -92,12 +92,10 @@ defmodule EWallet.TransactionTest do
 
       assert inserted_transfer.status == Transfer.failed
 
-      {status, code, description} = Transaction.process_with_addresses(attrs)
+      {status, transfer, code, description} = Transaction.process_with_addresses(attrs)
       assert status == :error
       assert code == "code!"
       assert description == "description!"
-
-      transfer = Transfer.get(idempotency_token)
       assert inserted_transfer.id == transfer.id
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.failed
@@ -131,8 +129,9 @@ defmodule EWallet.TransactionTest do
       {balance1, balance2, token} = insert_addresses_records()
       attrs = build_addresses_attrs(idempotency_token, balance1, balance2, token)
 
-      {status, code, description} = Transaction.process_with_addresses(attrs)
+      {status, transfer, code, description} = Transaction.process_with_addresses(attrs)
       assert status == :error
+      assert transfer.status == "failed"
       assert code == "client:insufficient_funds"
       assert "The specified balance" <> _ = description
 
@@ -270,10 +269,8 @@ defmodule EWallet.TransactionTest do
 
       assert inserted_transfer.status == Transfer.failed
 
-      {status, _user, _minted_token} = Transaction.process_credit_or_debit(attrs)
+      {status, transfer, _code, _description} = Transaction.process_credit_or_debit(attrs)
       assert status == :error
-
-      transfer = Transfer.get(idempotency_token)
       assert inserted_transfer.id == transfer.id
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.failed
@@ -308,7 +305,8 @@ defmodule EWallet.TransactionTest do
       attrs = build_debit_credit_attrs(idempotency_token, inserted_account,
                                        inserted_user, inserted_token)
 
-      {status, code, description} = Transaction.process_credit_or_debit(attrs)
+      {status, transfer, code, description} = Transaction.process_credit_or_debit(attrs)
+      assert transfer.status == "failed"
       assert status == :error
       assert code == "client:insufficient_funds"
       assert "The specified balance" <> _ = description

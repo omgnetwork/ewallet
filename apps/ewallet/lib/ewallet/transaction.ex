@@ -24,9 +24,9 @@ defmodule EWallet.Transaction do
     })
 
     case res do
-      {:ok, changed_balances, minted_token} ->
+      {:ok, transfer, changed_balances, minted_token} ->
         # Everything went well, do something.
-      {:error, code, description} ->
+      {:error, transfer, code, description} ->
         # Something went wrong with the transfer processing.
     end
 
@@ -117,18 +117,13 @@ defmodule EWallet.Transaction do
   defp process_with_transfer(%Transfer{status: "pending"} = transfer, balances, minted_token) do
     transfer
     |> EWallet.Transactions.Transfer.process()
-    |> return(balances, minted_token)
+    |> process_with_transfer(balances, minted_token)
   end
   defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, balances, minted_token) do
-    return({:ok, transfer}, balances, minted_token)
-  end
-  defp process_with_transfer(%Transfer{status: "failed"} = transfer, balances, minted_token) do
-    resp = transfer.ledger_response
-    return({:error, resp["code"], resp["description"]}, balances, minted_token)
-  end
-
-  defp return({:ok, transfer}, balances, minted_token) do
     {:ok, transfer, balances, minted_token}
   end
-  defp return({:error, _code, _description} = res, _balances, _minted_token), do: res
+  defp process_with_transfer(%Transfer{status: "failed"} = transfer, _balances, _minted_token) do
+    resp = transfer.ledger_response
+    {:error, transfer, resp["code"], resp["description"]}
+  end
 end

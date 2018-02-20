@@ -1,4 +1,4 @@
- defmodule EWallet.TransferTest do
+ defmodule EWallet.Transactions.TransferTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.Transactions
   alias EWalletDB.{Repo, MintedToken, Account, Transfer}
@@ -57,10 +57,8 @@
   describe "process/1" do
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
       {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-      {res, transfer} = Transactions.Transfer.process(transfer)
-      transfer = Transfer.get(transfer.idempotency_token)
+      transfer = Transactions.Transfer.process(transfer)
 
-      assert res == :ok
       assert %{"entry_id" => _} = transfer.ledger_response
       assert transfer.status == Transfer.confirmed
     end
@@ -68,12 +66,11 @@
     test "does not insert an entry and fails the transfer when transaction failed", attrs do
       attrs = Map.put(attrs, :amount, 1_000_000)
       {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-      {res, code, description} = Transactions.Transfer.process(transfer)
-      transfer = Transfer.get(transfer.idempotency_token)
+      transfer = Transactions.Transfer.process(transfer)
 
-      assert res == :error
-      assert code == "client:insufficient_funds"
-      assert description == "The specified balance (#{attrs[:from]})" <>
+      assert transfer.status == "failed"
+      assert transfer.ledger_response["code"] == "client:insufficient_funds"
+      assert transfer.ledger_response["description"] == "The specified balance (#{attrs[:from]})" <>
                             " does not contain enough funds. Available: 100000 #{attrs[:minted_token_friendly_id]} - Attempted debit: 1000000 #{attrs[:minted_token_friendly_id]}"
       assert transfer.status == Transfer.failed
     end
@@ -82,12 +79,10 @@
   describe "genesis/1" do
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
       {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-      {res, transfer} = Transactions.Transfer.genesis(transfer)
-      transfer = Transfer.get(transfer.idempotency_token)
+      transfer = Transactions.Transfer.genesis(transfer)
 
-      assert res == :ok
-      assert %{"entry_id" => _} = transfer.ledger_response
       assert transfer.status == Transfer.confirmed
+      assert %{"entry_id" => _} = transfer.ledger_response
     end
   end
 end

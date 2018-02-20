@@ -21,6 +21,8 @@ tags:
     description: These are the endpoints related to the balances of a specific user. Balances are the representation of the amount of each token a user owns.
   - name: Setting
     description: These are the endpoints related to the global settings of the wallet.
+  - name: TransactionRequest
+    description: Endpoints related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
 paths:
   ############################
   #         SESSION          #
@@ -276,7 +278,67 @@ paths:
           $ref: "#/components/responses/SettingResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
+  ############################
+  #   TRANSACTION REQUESTS   #
+  ############################
+  # Endpoint to create a transaction request
+  /me.create_transaction_request:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Create a new transaction request.
+      description: This is a client call only.
+      operationId: create_transaction_request
+      security:
+        - ClientAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get a transaction request
+  /me.get_transaction_request:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Get a transaction request.
+      description: This is a client call only.
+      operationId: get_transaction_request
+      security:
+        - ClientAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+      requestBody:
+        $ref: '#/components/requestBodies/GetTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to consume a transaction request
+  /me.consume_transaction_request:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Consume a transaction request.
+      description: This is a client call only.
+      operationId: consume_transaction_request
+      security:
+        - ClientAuth: []
+      parameters:
+        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumeTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 components:
   schemas:
     # Schema for a user object
@@ -663,6 +725,99 @@ components:
                 symbol: "OMG"
                 name: "OmiseGO"
                 subunit_to_unit: 100000000000000000
+    # Schema for transaction request response body
+    TransactionRequestResponse:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - send
+            - receive
+        token_id:
+          type: string
+        amount:
+          type: string
+        address:
+          type: string
+        correlation_id:
+          type: string
+      required:
+        - object
+        - id
+        - type
+        - token_id
+        - amount
+        - address
+        - correlation_id
+      example:
+        data:
+          object: "transaction_request"
+          id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
+          type: "send"
+          token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+          amount: 100
+          address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
+          correlation_id: "123"
+    # Schema for transaction request consumption response body
+    TransactionRequestConsumptionResponse:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - failed
+        amount:
+          type: string
+        token_id:
+          type: string
+        correlation_id:
+          type: string
+        idempotency_token:
+          type: string
+        transfer_id:
+          type: string
+        user_id:
+          type: string
+        transaction_request_id:
+          type: string
+        address:
+          type: string
+      required:
+        - object
+        - id
+        - status
+        - amount
+        - token_id
+        - correlation_id
+        - idempotency_token
+        - transfer_id
+        - user_id
+        - transaction_request_id
+        - address
+      example:
+        data:
+          object: "transaction_request_consumption"
+          id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
+          status: "confirmed"
+          amount: 100
+          token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+          correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+          idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
+          transfer_id: "4567c0be5-15d1-4463-9ec2-02bc8ded7120"
+          user_id: "111c0be5-15d1-4463-9ec2-02bc8ded7120"
+          transaction_request_id: "1231c0be5-15d1-4463-9ec2-02bc8ded7120"
+          address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
   requestBodies:
     # Body for a create / update user request
     UserBody:
@@ -761,6 +916,71 @@ components:
               amount: 100
               account_id: "865ff420-899a-4eb3-8364-19edc5d51676"
               burn_balance_identifier: "burn"
+    CreateTransactionRequestBody:
+      description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint by a different client to create a transaction from that request.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              type:
+                type: string
+                enum:
+                  - send
+                  - receive
+              token_id:
+                type: string
+              amount:
+                type: integer
+              correlation_id:
+                type: string
+              address:
+                type: string
+            required:
+              - type
+              - token_id
+            example:
+              type: "send"
+              token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              amount: 100
+              correlation_id: "123"
+              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
+    GetTransactionRequestBody:
+      description: Get a transaction request using the specified ID.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            example:
+              id: "71822683-68d8-4af6-94d7-5ed4c34ecf1a"
+    ConsumeTransactionRequestBody:
+      description: Consume a transaction request using the specified values.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              transaction_request_id:
+                type: string
+              correlation_id:
+                type: string
+              amount:
+                type: integer
+              address:
+                type: string
+              metadata:
+                type: object
+            required:
+              - transaction_request_id
+            example:
+              transaction_request_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              correlation_id: "123"
+              amount: 100
+              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
+              metadata: nil
   parameters:
     # Headers
     ServerAuthorizationHeader:
@@ -852,3 +1072,17 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/SettingResponse'
+    # Schema for transaction request response body
+    TransactionRequestResponse:
+      description: Transaction request response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionRequestResponse'
+    # Schema for transaction request response body
+    TransactionRequestConsumptionResponse:
+      description: Transaction request consumption response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionRequestConsumptionResponse'

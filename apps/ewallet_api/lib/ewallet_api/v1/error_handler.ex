@@ -48,6 +48,18 @@ defmodule EWalletAPI.V1.ErrorHandler do
       code: "user:provider_user_id_not_found",
       description: "There is no user corresponding to the provided provider_user_id"
     },
+    balance_not_found: %{
+      code: "user:balance_not_found",
+      description: "There is no balance corresponding to the provided address"
+    },
+    transaction_request_not_found: %{
+      code: "user:transaction_request_not_found",
+      description: "There is no transaction request corresponding to the provided address"
+    },
+    user_balance_mismatch: %{
+      code: "user:user_balance_mismatch",
+      description: "The provided balance does not belong to the current user"
+    },
     burn_balance_not_found: %{
       code: "user:burn_balance_not_found",
       description: "There is no burn balance corresponding to the provided name"
