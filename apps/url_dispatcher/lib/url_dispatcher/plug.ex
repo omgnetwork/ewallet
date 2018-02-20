@@ -24,7 +24,7 @@ defmodule UrlDispatcher.Plug do
   defp handle_request("/public/" <> _, conn) do
     opts = Static.init([
       at: "/public",
-      from: Path.join(File.cwd!, "public"),
+      from: Path.join(Application.get_env(:ewallet, :root), "public"),
       only: ~w(uploads)
     ])
 
