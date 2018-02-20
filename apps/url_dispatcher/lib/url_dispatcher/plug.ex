@@ -4,6 +4,8 @@ defmodule UrlDispatcher.Plug do
   import Phoenix.Controller, only: [json: 2, redirect: 2]
   alias Plug.Static
 
+  @public_folders ~w(uploads swagger)
+
   def init(options), do: options
   def call(conn, _opts), do: handle_request(conn.request_path, conn)
 
@@ -25,7 +27,7 @@ defmodule UrlDispatcher.Plug do
     opts = Static.init([
       at: "/public",
       from: Path.join(Application.get_env(:ewallet, :root), "public"),
-      only: ~w(uploads)
+      only: @public_folders
     ])
 
     case Static.call(conn, opts) do
