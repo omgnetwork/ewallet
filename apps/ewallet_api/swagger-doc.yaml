@@ -424,9 +424,9 @@ components:
         object: "balance"
         minted_token:
           object: 'minted_token'
-          id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-          symbol: "MNT"
-          name: "Mint"
+          id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+          symbol: "BTC"
+          name: "Bitcoin"
           subunit_to_unit: 100000000000000000
         amount: 100
     # Schema for individual minted token object
@@ -450,9 +450,9 @@ components:
         - subunit_to_unit
       example:
         object: "minted_token"
-        id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-        symbol: "MNT"
-        name: "Mint"
+        id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+        symbol: "BTC"
+        name: "Bitcoin"
         subunit_to_unit: 100000000000000000
     # Schema for authentication token body response
     AuthenticationTokenResponse:
@@ -485,9 +485,9 @@ components:
             object: "balance"
             minted_token:
               object: 'minted_token'
-              id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-              symbol: "MNT"
-              name: "Mint"
+              id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+              symbol: "BTC"
+              name: "Bitcoin"
               subunit_to_unit: 100000000000000000
             amount: 100
     # Schema for a single addresses body response (for credit / debit responses)
@@ -520,9 +520,9 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
-                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-                  symbol: "MNT"
-                  name: "Mint"
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
     # Schema for multiple addresses with one balance (transfer)
     MultipleAddressesResponse:
@@ -554,9 +554,9 @@ components:
               - amount: 0
                 minted_token:
                   object: 'minted_token'
-                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-                  symbol: "MNT"
-                  name: "Mint"
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
             - object: "address"
               address: "XXX456"
@@ -564,9 +564,9 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
-                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-                  symbol: "MNT"
-                  name: "Mint"
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
     # Schema for addresses body response
     AddressesResponse:
@@ -598,9 +598,9 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
-                  id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-                  symbol: "MNT"
-                  name: "Mint"
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
               - amount: 100
                 minted_token:
@@ -654,9 +654,9 @@ components:
             object: "setting"
             minted_tokens:
               - object: "minted_token"
-                id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
-                symbol: "MNT"
-                name: "Mint"
+                id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+                symbol: "BTC"
+                name: "Bitcoin"
                 subunit_to_unit: 100000000000000000
               - object: "minted_token"
                 id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
@@ -727,7 +727,7 @@ components:
             example:
               from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
               to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
-              token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
               amount: 100
               metadata: {}
     # Body for a credit / debit of a user's balance
@@ -757,7 +757,7 @@ components:
               - metadata
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
-              token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
               amount: 100
               account_id: "865ff420-899a-4eb3-8364-19edc5d51676"
               burn_balance_identifier: "burn"
