@@ -133,11 +133,11 @@ defmodule EWallet.Transactions.RequestTest do
       assert %TransactionRequest{} = request
     end
 
-    test "returns nil when given nil" do
+    test "returns 'transaction_request_not_found' when given nil" do
       assert Request.get(nil) == {:error, :transaction_request_not_found}
     end
 
-    test "returns nil when given invalid UUID" do
+    test "returns 'transaction_request_not_found' when given invalid UUID" do
       assert Request.get("123") == {:error, :transaction_request_not_found}
     end
   end

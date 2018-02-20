@@ -81,9 +81,8 @@
       {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
       transfer = Transactions.Transfer.genesis(transfer)
 
-      assert transfer.status == "confirmed"
-      assert %{"entry_id" => _} = transfer.ledger_response
       assert transfer.status == Transfer.confirmed
+      assert %{"entry_id" => _} = transfer.ledger_response
     end
   end
 end
