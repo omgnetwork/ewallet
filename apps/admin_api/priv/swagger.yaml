@@ -3,49 +3,60 @@ info:
   version: "1.0.0"
   title: eWallet Admin API
   description: >
-    This is the API design for eWallet Admin.
+    This is the documentation for eWallet Admin API.
 
 
-    All calls must be user-authenticated. That is, the client must first authenticate with the API using the user's email and password. On successful authentication, the API returns an authentication token (i.e. `authentication_token`).
+    All calls must be user-authenticated. That is, the client must first
+    authenticate with the API using the user's email and password.
+    On successful authentication, the API returns an authentication token
+    (i.e. `authentication_token`).
 
 
-    Once a valid `authentication_token` is received, use the given auth token to make subsequent calls to the API via HTTP header
-    `Authorization=OMGAdmin Base64(api_key:authentication_token)`.
+    Once a valid `authentication_token` is received, use the given auth token
+    to make subsequent calls to the API via HTTP header:
 
 
-    Due to HTTP-RPC nature, the API will always return a `200` HTTP status, including on errors.
-    Only in case of an internal server error that `500` will be returned.
+    ```
+    Authorization=OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
+    ```
 
 
-    Error codes are defined in  [eWallet API Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
+    Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
+    including on errors. Only in case of an internal server error that `500`
+    will be returned.
+
+
+    Error codes are defined in [eWallet Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
   contact:
     name: OmiseGO
     email: unnawut@omise.co
   license:
     name: License to be defined
     url: 'https://omg.omise.co/'
+
 tags:
   - name: Session
-    description: These are the endpoints related to the session tokens.
+    description: Resources related to session tokens.
   - name: Minted Token
-    description: These are the endpoints related to minted tokens.
+    description: Resources related to minted tokens.
   - name: Account
-    description: These are the endpoints related to the account.
+    description: Resources related to account.
   - name: User
-    description: These are the endpoints related to users.
+    description: Resources related to users.
   - name: Admin
-    description: These are the endpoints related to admins.
+    description: Resources related to admins.
   - name: Transaction
-    description: These are the endpoints related to transactions.
+    description: Resources related to transactions.
   - name: API Access
-    description: These are the endpoints related to API access.
+    description: Resources related to API access.
+
 servers:
   - url: /admin/api
+
 paths:
-  ############################
-  #         SESSION          #
-  ############################
-  # Endpoint to login a user.
+  ######################################
+  #          SESSION ENDPOINTS         #
+  ######################################
   /login:
     post:
       tags:
@@ -53,9 +64,7 @@ paths:
       summary: Login an existing user using email and password.
       operationId: login
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+        - ClientAuth: []
       requestBody:
         $ref: '#/components/requestBodies/LoginBody'
       responses:
@@ -63,7 +72,6 @@ paths:
           $ref: "#/components/responses/AuthenticationTokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to logout a user. (invalidate its authentication_token)
   /logout:
     post:
       tags:
@@ -71,17 +79,16 @@ paths:
       summary: Expires a user's authentication_token.
       operationId: logout
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       responses:
         '200':
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  ############################
-  #      MINTED TOKENS       #
-  ############################
+
+  #####################################
+  #       MINTED TOKEN ENDPOINTS      #
+  #####################################
   /minted_token.all:
     post:
       tags:
@@ -89,9 +96,7 @@ paths:
       summary: Get the list of minted tokens
       operationId: token_all
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/MintedTokenAllBody'
       responses:
@@ -106,9 +111,7 @@ paths:
       summary: Get a specific minted token
       operationId: token_get
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/MintedTokenGetBody'
       responses:
@@ -116,10 +119,10 @@ paths:
           $ref: "#/components/responses/MintedTokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  ############################
-  #         ACCOUNTS         #
-  ############################
-  # Endpoint to get info about the accounts
+
+  #####################################
+  #         ACCOUNT ENDPOINTS         #
+  #####################################
   /account.all:
     post:
       tags:
@@ -127,9 +130,7 @@ paths:
       summary: Get the list of accounts
       operationId: account_all
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountAllBody'
       responses:
@@ -137,7 +138,6 @@ paths:
           $ref: "#/components/responses/AccountsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to get info about the accounts
   /account.get:
     post:
       tags:
@@ -145,9 +145,7 @@ paths:
       summary: Get a specific account
       operationId: account_get
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountGetBody'
       responses:
@@ -155,7 +153,6 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new account
   /account.create:
     post:
       tags:
@@ -163,9 +160,7 @@ paths:
       summary: Create a new account
       operationId: account_create
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountCreateBody'
       responses:
@@ -173,7 +168,6 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to update an account
   /account.update:
     post:
       tags:
@@ -181,9 +175,7 @@ paths:
       summary: Update an account
       operationId: account_update
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountUpdateBody'
       responses:
@@ -191,7 +183,6 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to upload an avatar for an account
   /account.upload_avatar:
     post:
       tags:
@@ -199,9 +190,7 @@ paths:
       summary: Uploads avatar for an account
       operationId: account_upload_avatar
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountUploadBody'
       responses:
@@ -209,7 +198,6 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to assign user to an account
   /account.list_users:
     post:
       tags:
@@ -217,9 +205,7 @@ paths:
       summary: List the users that are currently assigned to the given acount
       operationId: account_list_users
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountListUsersBody'
       responses:
@@ -227,7 +213,6 @@ paths:
           $ref: "#/components/responses/UsersResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to assign user to an account
   /account.assign_user:
     post:
       tags:
@@ -235,9 +220,7 @@ paths:
       summary: Assigns a user to an account with a role
       operationId: account_assign_user
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountAssignUserBody'
       responses:
@@ -245,7 +228,6 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to unassign user to an account
   /account.unassign_user:
     post:
       tags:
@@ -253,9 +235,7 @@ paths:
       summary: Unassigns a user from an account
       operationId: account_unassign_user
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountUnassignUserBody'
       responses:
@@ -263,9 +243,10 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  ############################
-  #           USERS          #
-  ############################
+
+  #####################################
+  #           USER ENDPOINTS          #
+  #####################################
   /user.all:
     post:
       tags:
@@ -273,9 +254,7 @@ paths:
       summary: Get the list of users
       operationId: user_all
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/UserAllBody'
       responses:
@@ -290,9 +269,7 @@ paths:
       summary: Get a specific user
       operationId: user_get
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/UserGetBody'
       responses:
@@ -307,9 +284,7 @@ paths:
       summary: Get the user corresponding to the provided authentication header.
       operationId: me_get
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
@@ -322,9 +297,7 @@ paths:
       summary: Get one upper-most account that the user has membership in.
       operationId: me_get_account
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       responses:
         '200':
           $ref: "#/components/responses/AccountResponse"
@@ -337,9 +310,7 @@ paths:
       summary: Get the list of account and sub-accounts that the user has membership in.
       operationId: me_get_accounts
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       responses:
         '200':
           $ref: "#/components/responses/AccountsResponse"
@@ -352,17 +323,16 @@ paths:
       summary: Accepts an invite
       operationId: invite_accept
       security:
-        - AdminAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/InviteAcceptBody'
+        - UserAuth: []
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  ############################
-  #          ADMINS          #
-  ############################
+
+  ##########################################
+  #          ADMIN USER ENDPOINTS          #
+  ##########################################
   /admin.all:
     post:
       tags:
@@ -370,9 +340,7 @@ paths:
       summary: Get the list of admins
       operationId: admin_all
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AdminAllBody'
       responses:
@@ -387,9 +355,7 @@ paths:
       summary: Get a specific admin
       operationId: admin_get
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AdminGetBody'
       responses:
@@ -404,9 +370,7 @@ paths:
       summary: Uploads avatar for an admin
       operationId: admin_upload_avatar
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AdminUploadBody'
       responses:
@@ -414,9 +378,10 @@ paths:
           $ref: "#/components/responses/AdminResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  ############################
-  #       TRANSACTIONS       #
-  ############################
+
+  #####################################
+  #       TRANSACTION ENDPOINTS       #
+  #####################################
   /transaction.all:
     post:
       tags:
@@ -424,9 +389,7 @@ paths:
       summary: Get the list of transactions
       operationId: transaction_all
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TransactionAllBody'
       responses:
@@ -441,9 +404,7 @@ paths:
       summary: Get the a specific transaction by its id
       operationId: transaction_get
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TransactionGetBody'
       responses:
@@ -451,9 +412,10 @@ paths:
           $ref: "#/components/responses/TransactionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  ############################
-  #        API Access        #
-  ############################
+
+  ######################################
+  #        API ACCESS ENDPOINTS        #
+  ######################################
   /access_key.all:
     post:
       tags:
@@ -461,9 +423,7 @@ paths:
       summary: Get the list of access and secret keys
       operationId: access_key_all
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccessKeyAllBody'
       responses:
@@ -478,9 +438,7 @@ paths:
       summary: Create a pair of access and secret keys
       operationId: access_key_create
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       responses:
         '200':
           $ref: "#/components/responses/AccessKeyResponse"
@@ -493,9 +451,7 @@ paths:
       summary: Delete a pair of access and secret keys by its id or access key
       operationId: access_key_delete
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccessKeyDeleteBody'
       responses:
@@ -510,9 +466,7 @@ paths:
       summary: Get the list of API keys
       operationId: api_key_all
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyAllBody'
       responses:
@@ -527,9 +481,7 @@ paths:
       summary: Create an API key
       operationId: api_key_create
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/UserAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyCreateBody'
       responses:
@@ -544,9 +496,7 @@ paths:
       summary: Delete an API key by its id
       operationId: api_key_delete
       security:
-        - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/ClientAuthorizationHeader"
+        - UserAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyDeleteBody'
       responses:
@@ -560,8 +510,11 @@ paths:
 # referenced from properties outside the component.
 components:
   schemas:
-    # Schema for success response body
+    ######################################
+    #             BASE SCHEMAS           #
+    ######################################
     BaseResponseSchema:
+      description: "The response schema for a successful operation"
       type: object
       properties:
         version:
@@ -578,39 +531,8 @@ components:
         version: "1"
         success: true
         data: {}
-    # Schema for authentication token object
-    AuthenticationTokenSchema:
-      type: object
-      properties:
-        object:
-          type: string
-        authentication_token:
-          type: string
-        user_id:
-          type: string
-          format: uuid
-      required:
-        - object
-        - authentication_token
-        - user_id
-    # Schema for authentication token body response
-    AuthenticationTokenResponseSchema:
-      allOf:
-      - $ref: '#/components/schemas/BaseResponseSchema'
-      - type: object
-        properties:
-          data:
-            type: object
-            $ref: '#/components/schemas/AuthenticationTokenSchema'
-        required:
-          - data
-        example:
-          data:
-            object: "authentication_token"
-            authentication_token: "azJRj09l7jvR8KhTqUs3"
-            user_id: "12345678-1234-1234-1234-123456789012"
-    # Schema for an unpaginated list object
     UnpaginatedListSchema:
+      description: "The object schema for an unpaginated list"
       type: object
       properties:
         object:
@@ -623,8 +545,8 @@ components:
       example:
         object: list
         data: []
-    # Schema for a paginated list object
     PaginatedListSchema:
+      description: "The object schema for a paginated list"
       type: object
       properties:
         object:
@@ -661,8 +583,90 @@ components:
           current_page: 1
           is_first_page: true
           is_last_page: true
-    # Schema for token object
+
+    ######################################
+    #            ERROR SCHEMAS           #
+    ######################################
+    ErrorSchema:
+      description: "The object schema for an error"
+      type: object
+      properties:
+        object:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        messages:
+          type: object
+      required:
+        - object
+        - code
+        - description
+        - messages
+      example:
+        object: "error"
+        code: "server:internal_server_error"
+        description: "Something went wrong on the server"
+        messages: {"error_key": "error_reason"}
+    ErrorResponseSchema:
+      description: "The response schema for an error"
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/ErrorSchema'
+          required:
+            - data
+          example:
+            success: false
+            data:
+              object: "error"
+              code: "server:internal_server_error"
+              description: "Something went wrong on the server"
+              messages: {"error_key":"error_reason"}
+
+    ######################################
+    #          AUTH TOKEN SCHEMAS        #
+    ######################################
+    AuthenticationTokenSchema:
+      description: "The object schema for an authentication token"
+      type: object
+      properties:
+        object:
+          type: string
+        authentication_token:
+          type: string
+        user_id:
+          type: string
+          format: uuid
+      required:
+        - object
+        - authentication_token
+        - user_id
+    AuthenticationTokenResponseSchema:
+      description: "The response schema for an authentication token"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/AuthenticationTokenSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "authentication_token"
+            authentication_token: "azJRj09l7jvR8KhTqUs3"
+            user_id: "12345678-1234-1234-1234-123456789012"
+
+    ######################################
+    #         MINTED TOKEN SCHEMAS       #
+    ######################################
     MintedTokenSchema:
+      description: "The object schema for a minted token"
       type: object
       properties:
         object:
@@ -689,66 +693,70 @@ components:
         - subunit_to_unit
         - created_at
         - updated_at
-    # Schema for token body response
     MintedTokenResponseSchema:
+      description: "The response schema for a minted token"
       allOf:
-      - $ref: '#/components/schemas/BaseResponseSchema'
-      - type: object
-        properties:
-          data:
-            type: object
-            $ref: '#/components/schemas/MintedTokenSchema'
-        required:
-          - data
-        example:
-          version: "1"
-          success: true
-          data:
-            object: "minted_token"
-            id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-            symbol: "ABC"
-            name: "ABC Point"
-            subunit_to_unit: 100
-            created_at: "2018-01-01T00:00:00Z"
-            updated_at: "2018-01-01T10:00:00Z"
-    # Schema for tokens body response
-    MintedTokensResponseSchema:
-      allOf:
-      - $ref: '#/components/schemas/BaseResponseSchema'
-      - type: object
-        properties:
-          data:
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/PaginatedListSchema'
-              - type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/MintedTokenSchema'
-        required:
-          - data
-        example:
-          version: "1"
-          success: true
-          data:
-            object: "list"
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
             data:
-              - object: "minted_token"
-                id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-                symbol: "ABC"
-                name: "ABC Point"
-                subunit_to_unit: 100
-                created_at: "2018-01-01T00:00:00Z"
-                updated_at: "2018-01-01T10:00:00Z"
-            pagination:
-              per_page: 10
-              current_page: 1
-              is_first_page: true
-              is_last_page: true
-    # Schema for account object
+              type: object
+              $ref: '#/components/schemas/MintedTokenSchema'
+          required:
+            - data
+          example:
+            version: "1"
+            success: true
+            data:
+              object: "minted_token"
+              id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              symbol: "ABC"
+              name: "ABC Point"
+              subunit_to_unit: 100
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T10:00:00Z"
+    MintedTokensResponseSchema:
+      description: "The response schema for a list of minted tokens"
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              allOf:
+                - $ref: '#/components/schemas/PaginatedListSchema'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/MintedTokenSchema'
+          required:
+            - data
+          example:
+            version: "1"
+            success: true
+            data:
+              object: "list"
+              data:
+                - object: "minted_token"
+                  id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  symbol: "ABC"
+                  name: "ABC Point"
+                  subunit_to_unit: 100
+                  created_at: "2018-01-01T00:00:00Z"
+                  updated_at: "2018-01-01T10:00:00Z"
+              pagination:
+                per_page: 10
+                current_page: 1
+                is_first_page: true
+                is_last_page: true
+
+    ######################################
+    #           ACCOUNT SCHEMAS          #
+    ######################################
     AccountSchema:
+      description: "The object schema for an account"
       type: object
       properties:
         object:
@@ -782,8 +790,8 @@ components:
         - avatar
         - created_at
         - updated_at
-    # Schema for account body response
     AccountResponseSchema:
+      description: "The response schema for an account"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -806,8 +814,8 @@ components:
             avatar: {"original": "file_url"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
-    # Schema for accounts body response
     AccountsResponseSchema:
+      description: "The response schema for a list of accounts"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -844,8 +852,12 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
-    # Schema for a user object
+
+    ######################################
+    #            USER SCHEMAS            #
+    ######################################
     UserSchema:
+      description: "The object schema for a user"
       type: object
       properties:
         object:
@@ -885,8 +897,8 @@ components:
         avatar: {"original": "file_url"}
         created_at: "2018-01-01T00:00:00Z"
         updated_at: "2018-01-01T10:00:00Z"
-    # Schema for user response body
     UserResponseSchema:
+      description: "The response schema for a user"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -906,8 +918,8 @@ components:
             metadata: {"first_name": "John", "last_name": "Doe"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
-    # Schema for users body response
     UsersResponseSchema:
+      description: "The response schema for a list of users"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -943,8 +955,12 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
-    # Schema for admin response body
+
+    ######################################
+    #         ADMIN USER SCHEMAS         #
+    ######################################
     AdminResponseSchema:
+      description: "The response schema for an admin user"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -965,8 +981,8 @@ components:
             avatar: {"original": "file_url"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
-    # Schema for admins body response
     AdminsResponseSchema:
+      description: "The response schema for a list of admin users"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -1003,8 +1019,12 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
-    # Schema for transaction object
+
+    ######################################
+    #         TRANSACTION SCHEMAS        #
+    ######################################
     TransactionSchema:
+      description: "The object schema for a transaction"
       type: object
       properties:
         object:
@@ -1044,8 +1064,8 @@ components:
         - status
         - created_at
         - updated_at
-    # Schema for transaction body response
     TransactionResponseSchema:
+      description: "The response schema for a transaction"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -1076,8 +1096,8 @@ components:
             status: "confirmed"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
-    # Schema for transactions body response
     TransactionsResponseSchema:
+      description: "The response schema for a list of transactions"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -1121,7 +1141,12 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+
+    ######################################
+    #         ACCESS KEY SCHEMAS         #
+    ######################################
     AccessKeySchema:
+      description: "The object schema for an access key"
       type: object
       properties:
         object:
@@ -1156,6 +1181,7 @@ components:
         - updated_at
         - deleted_at
     AccessKeyResponseSchema:
+      description: "The response schema for an access key"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -1178,6 +1204,7 @@ components:
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
     AccessKeysResponseSchema:
+      description: "The response schema for a list of access keys"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -1213,7 +1240,12 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+
+    ######################################
+    #           API KEY SCHEMAS          #
+    ######################################
     APIKeySchema:
+      description: "The object schema for an API key"
       type: object
       properties:
         object:
@@ -1248,6 +1280,7 @@ components:
         - updated_at
         - deleted_at
     APIKeyResponseSchema:
+      description: "The response schema for an API key"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -1270,6 +1303,7 @@ components:
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
     APIKeysResponseSchema:
+      description: "The response schema for a list of API keys"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -1305,48 +1339,13 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
-    # Schema for an error object
-    ErrorSchema:
-      type: object
-      properties:
-        object:
-          type: string
-        code:
-          type: string
-        description:
-          type: string
-        messages:
-          type: object
-      required:
-        - object
-        - code
-        - description
-        - messages
-      example:
-        object: "error"
-        code: "server:internal_server_error"
-        description: "Something went wrong on the server"
-        messages: {"error_key": "error_reason"}
-    # Schema for error response body
-    ErrorResponseSchema:
-      allOf:
-        - $ref: '#/components/schemas/BaseResponseSchema'
-        - type: object
-          properties:
-            data:
-              $ref: '#/components/schemas/ErrorSchema'
-          required:
-            - data
-          example:
-            success: false
-            data:
-              object: "error"
-              code: "server:internal_server_error"
-              description: "Something went wrong on the server"
-              messages: {"error_key":"error_reason"}
+
   requestBodies:
-    # Request body for logging in
+    ######################################
+    #       SESSION REQUEST BODIES       #
+    ######################################
     LoginBody:
+      description: The parameters to use for logging in a user
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1364,7 +1363,10 @@ components:
             example:
               email: "test@example.com"
               password: "the_password"
-    # Request body for listing minted tokens
+
+    ######################################
+    #     MINTED TOKEN REQUEST BODIES    #
+    ######################################
     MintedTokenAllBody:
       description: The parameters to use for listing the minted tokens
       required: true
@@ -1391,7 +1393,6 @@ components:
               search_term: "text to search for"
               sort_by: "field_name"
               sort_dir: "asc"
-    # Request body for getting a specific token
     MintedTokenGetBody:
       description: The parameters to use for retrieving a specific minted token by its id
       required: true
@@ -1405,7 +1406,10 @@ components:
               - id
             example:
               id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-    # Request body for listing accounts
+
+    ######################################
+    #       ACCOUNT REQUEST BODIES       #
+    ######################################
     AccountAllBody:
       description: The parameters to use for listing the accounts
       required: true
@@ -1432,7 +1436,6 @@ components:
               search_term: "text to search for"
               sort_by: "field_name"
               sort_dir: "asc"
-    # Request body for getting a specific account
     AccountGetBody:
       description: The parameters to use for retrieving a specific account by its id
       required: true
@@ -1447,7 +1450,6 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-    # Request body for creating a new account
     AccountCreateBody:
       description: The parameters to use for creating a new account
       required: true
@@ -1467,7 +1469,6 @@ components:
               name: "Account Name"
               description: "The account description"
               master: true
-    # Request body for updating an account
     AccountUpdateBody:
       description: The parameters to use for updating an account
       required: true
@@ -1494,7 +1495,6 @@ components:
               name: "Account Name"
               description: "The account description"
               master: true
-    # Request body for listing users in an account
     AccountListUsersBody:
       description: The parameters to use for assigning listing users in an account
       required: true
@@ -1509,7 +1509,6 @@ components:
               - account_id
             example:
               account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-    # Request body for updating an account
     AccountAssignUserBody:
       description: The parameters to use for assigning a user to an account
       required: true
@@ -1561,7 +1560,6 @@ components:
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
               role_name: "admin"
               redirect_url: "https://domain/redirect_path?email={email}&token={token}"
-    # Request body for updating an account
     AccountUnassignUserBody:
       description: The parameters to use for unassigning a user from an account
       required: true
@@ -1581,7 +1579,6 @@ components:
             example:
               account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
-    # Request body for uploading an avatar for an account
     AccountUploadBody:
       description: The parameters to use for uploading an account's avatar. Only supports .jpg, .jpeg, .gif and .png.
       required: true
@@ -1601,7 +1598,10 @@ components:
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               avatar: "/path/to/file"
-    # Request body for listing users
+
+    ######################################
+    #         USER REQUEST BODIES        #
+    ######################################
     UserAllBody:
       description: The parameters to use for listing the users
       required: true
@@ -1628,7 +1628,6 @@ components:
               search_term: "text to search for"
               sort_by: "field_name"
               sort_dir: "asc"
-    # Request body for getting a specific user
     UserGetBody:
       description: The parameters to use for retrieving a specific user by its id
       required: true
@@ -1643,7 +1642,6 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-    # Request body for accepting an invite
     InviteAcceptBody:
       description: The parameters to use for accepting an invite
       required: true
@@ -1669,7 +1667,10 @@ components:
               token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
               password: "user_provided_password"
               password_confirmation: "user_provided_password"
-    # Request body for listing transactions
+
+    ######################################
+    #     TRANSACTION REQUEST BODIES     #
+    ######################################
     TransactionAllBody:
       description: The parameters to use for listing the transactions
       required: true
@@ -1696,7 +1697,6 @@ components:
               search_term: "text to search for"
               sort_by: "created_at"
               sort_dir: "desc"
-    # Request body for getting a specific transaction
     TransactionGetBody:
       description: The parameters to use for retrieving a specific transaction by its id
       required: true
@@ -1711,7 +1711,10 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-    # Request body for listing admins
+
+    ######################################
+    #      ADMIN USER REQUEST BODIES     #
+    ######################################
     AdminAllBody:
       description: The parameters to use for listing the admins
       required: true
@@ -1738,7 +1741,6 @@ components:
               search_term: "text to search for"
               sort_by: "email"
               sort_dir: "asc"
-    # Request body for getting a specific admin
     AdminGetBody:
       description: The parameters to use for retrieving a specific admin by its id
       required: true
@@ -1753,7 +1755,6 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-    # Request body for uploading an avatar for an admin
     AdminUploadBody:
       description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
       required: true
@@ -1773,6 +1774,10 @@ components:
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               avatar: "/path/to/file"
+
+    ######################################
+    #      ACCESS KEY REQUEST BODIES     #
+    ######################################
     AccessKeyAllBody:
       description: The parameters to use for listing the access keys
       required: true
@@ -1823,6 +1828,10 @@ components:
                   access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             example:
               id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+
+    ######################################
+    #       API KEY REQUEST BODIES       #
+    ######################################
     APIKeyAllBody:
       description: The parameters to use for listing the API keys
       required: true
@@ -1877,145 +1886,138 @@ components:
             example:
               id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
 
-  parameters:
-    # Headers
-    ClientAuthorizationHeader:
-      in: header
-      name: Authorization
-      description: OMGAdmin Base64(api_key_id:api_key)
-      required: true
-      schema:
-        type: string
-        format: byte
-    UserAuthorizationHeader:
-      in: header
-      name: Authorization
-      description: OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
-      required: true
-      schema:
-        type: string
-        format: byte
+  ######################################
+  #          SECURITY SCHEMES          #
+  ######################################
   securitySchemes:
-    AdminAuth:
+    ClientAuth:
       type: apiKey
       in: header
       name: Authorization
+      description: OMGAdmin Base64(api_key_id:api_key)
+    UserAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
+
   responses:
-    # Authentication token response
+    ######################################
+    #          SESSION RESPONSES         #
+    ######################################
     AuthenticationTokenResponse:
-      description: Authentication token response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AuthenticationTokenResponseSchema'
-    # Minted Token response
+
+    ######################################
+    #        MINTED TOKEN RESPONSES      #
+    ######################################
     MintedTokenResponse:
-      description: Minted Token response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/MintedTokenResponseSchema'
-    # Minted Tokens response
     MintedTokensResponse:
-      description: Minted Tokens response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/MintedTokensResponseSchema'
-    # Account response
+
+    ######################################
+    #          ACCOUNT RESPONSES         #
+    ######################################
     AccountResponse:
-      description: Account response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AccountResponseSchema'
-    # Accounts response
     AccountsResponse:
-      description: Accounts response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AccountsResponseSchema'
-    # User response
+
+    ######################################
+    #            USER RESPONSES          #
+    ######################################
     UserResponse:
-      description: User response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/UserResponseSchema'
-    # Users response
     UsersResponse:
-      description: Users response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/UsersResponseSchema'
-    # Transaction response
+
+    ######################################
+    #        TRANSACTION RESPONSES       #
+    ######################################
     TransactionResponse:
-      description: Tranactions response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TransactionResponseSchema'
-    # Transactions response
     TransactionsResponse:
-      description: Tranactions response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TransactionsResponseSchema'
-    # Admin response
+
+    ######################################
+    #         ADMIN USER RESPONSES       #
+    ######################################
     AdminResponse:
-      description: Admin response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AdminResponseSchema'
-    # Admins response
     AdminsResponse:
-      description: Admins response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AdminsResponseSchema'
-    # Access key response
+
+    ######################################
+    #         ACCESS KEY RESPONSES       #
+    ######################################
     AccessKeyResponse:
-      description: Access key response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AccessKeyResponseSchema'
-    # Access key response
     AccessKeysResponse:
-      description: Access keys response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AccessKeysResponseSchema'
-    # API key response
+
+    ######################################
+    #          API KEY RESPONSES         #
+    ######################################
     APIKeyResponse:
-      description: API key response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/APIKeyResponseSchema'
-    # API key response
     APIKeysResponse:
-      description: API keys response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/APIKeysResponseSchema'
-    # Empty
+
+    ######################################
+    #       MISCELLANEOUS RESPONSES      #
+    ######################################
     EmptyResponse:
-      description: Empty response
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/BaseResponseSchema'
-    # Response when there was an internal server error (should never happen)
     InternalServerError:
-      description: Something went wrong on the server
       content:
         application/vnd.omisego.v1+json:
           schema:
