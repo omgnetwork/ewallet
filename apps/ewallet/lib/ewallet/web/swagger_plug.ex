@@ -10,6 +10,7 @@ defmodule EWallet.Web.SwaggerPlug do
 
   get "/", do: send_file(conn, 200, conn.private.swagger_ui_path)
   get "/swagger.yaml", do: send_file(conn, 200, conn.private.swagger_doc_path)
+  get "/*_", do: conn |> resp(404, "File not found.") |> halt()
 
   def init(opts), do: opts
 
