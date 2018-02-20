@@ -119,10 +119,26 @@ paths:
           $ref: "#/components/responses/MintedTokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
-  #####################################
-  #         ACCOUNT ENDPOINTS         #
-  #####################################
+  # Endpoint to create a new minted token
+  /minted_token.create:
+    post:
+      tags:
+        - Minted Token
+      summary: Create a new minted token
+      operationId: minted_token_create
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/MintedTokenCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MintedTokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  ############################
+  #         ACCOUNTS         #
+  ############################
+  # Endpoint to get info about the accounts
   /account.all:
     post:
       tags:
@@ -1406,10 +1422,49 @@ components:
               - id
             example:
               id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-
-    ######################################
-    #       ACCOUNT REQUEST BODIES       #
-    ######################################
+    # Request body for creating a minted token
+    MintedTokenCreateBody:
+        description: The parameters to create a minted token
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                symbol:
+                  type: string
+                description:
+                  type: string
+                subunit_to_unit:
+                  type: integer
+                iso_code:
+                  type: string
+                short_symbol:
+                  type: string
+                subunit:
+                  type: string
+                symbol_first:
+                  type: boolean
+                html_entity:
+                  type: string
+                iso_numeric:
+                  type: string
+                smallest_denomination:
+                  type: integer
+                metadata:
+                  type: object
+              required:
+                - name
+                - symbol
+                - description
+                - subunit_to_unit
+              example:
+                symbol: "BTC"
+                name: "Bitcoin"
+                description: "desc"
+                subunit_to_unit: 100
+    # Request body for listing accounts
     AccountAllBody:
       description: The parameters to use for listing the accounts
       required: true
