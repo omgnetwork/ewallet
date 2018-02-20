@@ -26,15 +26,11 @@ const call = requestOptions => (dispatch) => {
   dispatch(LoadingActions.showLoading());
 
   /* execute the omisego's service */
-  service(params, (err, result) => {
-    dispatch(LoadingActions.hideLoading());
-    if (err) {
-      /* Global error handler */
-      ErrorHandler.handleAPIError(dispatch, err);
+  return service(params)
+    .then((result) => {
+      /* Hide loading */
+      dispatch(LoadingActions.hideLoading());
 
-      /* Pass the failed result to the component */
-      callback.onFail(err);
-    } else {
       /* Pass the successful result to the component */
       callback.onSuccess(result);
 
@@ -42,8 +38,14 @@ const call = requestOptions => (dispatch) => {
       for (const action of actions) {
         dispatch(action(result));
       }
-    }
-  });
+    })
+    .catch((err) => {
+      dispatch(LoadingActions.hideLoading());
+      /* Global error handler */
+      ErrorHandler.handleAPIError(dispatch, err);
+      /* Pass the failed result to the component */
+      callback.onFail(err);
+    });
 };
 
 export default call;

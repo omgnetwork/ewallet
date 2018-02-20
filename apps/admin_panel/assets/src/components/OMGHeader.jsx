@@ -26,15 +26,15 @@ const OMGHeader = ({
       </div>
     </div>
     <div className="row mb-1">
-      <div className="col-md-3">
+      <div className="col-xs-4">
         <OMGSearchField handleSearchChange={handleSearchChange} query={query} />
       </div>
-      <div className="col-md-3">
+      <div className="col-md-3 omg-hide">
         <Button bsClass="search-header__adv_filter_btn btn" bsStyle="link">
           {translate(headerText.advancedFilters)}
         </Button>
       </div>
-      <div className="col-md-6">
+      <div className="col-md-6 omg-hide">
         <Dropdown
           className="search-header__dropdown-export pull-right"
           id="search-header__dropdown-export"

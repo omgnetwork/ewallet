@@ -16,6 +16,10 @@ class OMGAddMemberForm extends Component {
     };
   }
 
+  static checkValidEmail(text) {
+    return /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(text);
+  }
+
   constructor(props) {
     super(props);
     const {
@@ -67,9 +71,8 @@ class OMGAddMemberForm extends Component {
   }
 
   handleInputChanged(text) {
-    const isEmailValid = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,})+$/.test(text);
     this.setState({
-      enableAddMember: isEmailValid,
+      enableAddMember: OMGAddMemberForm.checkValidEmail(text),
       inputValue: text,
     });
   }
@@ -82,9 +85,11 @@ class OMGAddMemberForm extends Component {
 
   handleAddClick() {
     const { inputValue, dropdownSelectedItem, typeaheadOptions } = this.state;
+    const isEmailValid = OMGAddMemberForm.checkValidEmail(inputValue);
     const { onAdd } = this.props;
     const newMember = typeaheadOptions.filter(member => member.email === inputValue);
 
+    if (!isEmailValid) return;
     if (newMember[0]) {
       onAdd(
         { ...newMember[0], accountRole: dropdownSelectedItem },

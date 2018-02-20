@@ -6,13 +6,12 @@ import sessionConstants from '../../constants/session.constants';
 import { accountErrors } from '../../constants/error.constants';
 
 function loadCurrentUser(dispatch) {
-  return new Promise((resolve, reject) => {
-    getCurrentUser((err, result) => {
-      if (err) { reject(err); }
+  return new Promise((resolve, reject) => getCurrentUser()
+    .then((result) => {
       dispatch(SessionActions.saveCurrentUser(result));
       resolve();
-    });
-  });
+    })
+    .catch(error => reject(error)));
 }
 
 function loadCurrentAccount(dispatch) {
@@ -29,18 +28,25 @@ function loadCurrentAccount(dispatch) {
       resolve();
     }
     function loadFromToken() {
-      getCurrentAccount((err, account) => {
-        err ? reject(err) : saveAccount(account); // eslint-disable-line
-      });
+      getCurrentAccount()
+        .then((account) => {
+          saveAccount(account);
+          resolve();
+        })
+        .catch(err => reject(err));
     }
     function loadFromId(accountId) {
-      get(accountId, (err, account) => {
-        if (err) {
-          err.code === accountErrors.idNotFound ? loadFromToken() : reject(err); // eslint-disable-line
-        } else {
+      get(accountId)
+        .then((account) => {
           saveAccount(account);
-        }
-      });
+        })
+        .catch((err) => {
+          if (err.code === accountErrors.idNotFound) {
+            loadFromToken();
+          } else {
+            reject(err);
+          }
+        });
     }
     const accountId = processAccountId();
     accountId ? loadFromId(accountId) : loadFromToken(); // eslint-disable-line

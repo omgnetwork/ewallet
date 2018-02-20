@@ -33,14 +33,10 @@ export default class Actions {
   static inviteMember(params, onSuccess) {
     return (dispatch) => {
       dispatch(LoadingActions.showLoading());
-      inviteMember(params, (err, result) => { // eslint-disable-line no-unused-vars
-        dispatch(LoadingActions.hideLoading());
-        if (err) {
-          ErrorHandler.handleAPIError(dispatch, err);
-        } else {
-          onSuccess(params);
-        }
-      });
+      inviteMember(params)
+        .then(() => dispatch(LoadingActions.hideLoading()))
+        .then(() => onSuccess(params))
+        .catch(err => ErrorHandler.handleAPIError(dispatch, err));
     };
   }
 
@@ -95,27 +91,11 @@ export default class Actions {
   }
 
   static updateAccountAndAvatar(params, onSuccess, onFailed) {
-    // 2nd means second-ordered function
-    const handler2nd = (resolve, reject) => (dispatch, error, result) => {
-      if (error) {
-        ErrorHandler.handleAPIError(dispatch, error);
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    };
-
     return (dispatch) => {
       dispatch(LoadingActions.showLoading());
       Promise.all([
-        new Promise((resolve, reject) => {
-          const handler = handler2nd(resolve, reject);
-          uploadAvatar(params.uploadAvatar, (err, result) => handler(dispatch, err, result));
-        }),
-        new Promise((resolve, reject) => {
-          const handler = handler2nd(resolve, reject);
-          updateAccountInfo(params.updateAccount, (err, result) => handler(dispatch, err, result));
-        }),
+        uploadAvatar(params.uploadAvatar),
+        updateAccountInfo(params.updateAccount),
       ]).then(([resultUploadAvatar, resultUpdateAccountInfo]) => {
         dispatch(LoadingActions.hideLoading());
         dispatch(SessionActions.saveCurrentAccount({
