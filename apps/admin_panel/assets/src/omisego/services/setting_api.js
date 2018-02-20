@@ -1,6 +1,6 @@
 import request from './api_service';
 
-export function updateAccountInfo(params, callback) {
+export function updateAccountInfo(params) {
   const {
     id, name, description, master,
   } = params;
@@ -13,12 +13,11 @@ export function updateAccountInfo(params, callback) {
       master,
     }),
     authenticated: true,
-    callback,
   };
   return request(requestParams);
 }
 
-export function assignMember(params, callback) {
+export function assignMember(params) {
   const {
     userId,
     accountId,
@@ -34,12 +33,11 @@ export function assignMember(params, callback) {
       role_name: roleName,
     }),
     authenticated: true,
-    callback,
   };
   return request(requestParams);
 }
 
-export function inviteMember(params, callback) {
+export function inviteMember(params) {
   const {
     email,
     accountId,
@@ -56,12 +54,11 @@ export function inviteMember(params, callback) {
       role_name: roleName,
     }),
     authenticated: true,
-    callback,
   };
   return request(requestParams);
 }
 
-export function unassignMember(params, callback) {
+export function unassignMember(params) {
   const { userId, accountId } = params;
   const requestParams = {
     path: 'account.unassign_user',
@@ -70,12 +67,11 @@ export function unassignMember(params, callback) {
       account_id: accountId,
     }),
     authenticated: true,
-    callback,
   };
   return request(requestParams);
 }
 
-export function listMembers(params, callback) {
+export function listMembers(params) {
   const { accountId } = params;
   const requestParams = {
     path: 'account.list_users',
@@ -83,12 +79,11 @@ export function listMembers(params, callback) {
       account_id: accountId,
     }),
     authenticated: true,
-    callback,
   };
   return request(requestParams);
 }
 
-export function uploadAvatar(params, callback) {
+export function uploadAvatar(params) {
   const {
     accountId, avatar,
   } = params;
@@ -101,7 +96,6 @@ export function uploadAvatar(params, callback) {
     path: 'account.upload_avatar',
     params: formData,
     authenticated: true,
-    callback,
     isMultipart: true,
   };
 

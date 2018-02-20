@@ -5,17 +5,9 @@
   background-color: $sidebar-background;
 
   @mixin img-size($size) {
-    display: block;
-    max-width: $size;
-    max-height: $size;
-    width: auto;
-    height: auto;
-    margin: auto;
-  }
-
-  @mixin img-size($size) {
     width: $size;
     height: $size;
+    object-fit: cover;
   }
 
   &__img {

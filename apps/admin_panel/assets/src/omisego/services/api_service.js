@@ -62,7 +62,7 @@ function handleError(error) {
 }
 
 export default function request({
-  path, params, authenticated, callback, isMultipart = false,
+  path, params, authenticated, isMultipart = false,
 }) {
   const url = buildURL(path);
   const options = isMultipart
@@ -72,10 +72,5 @@ export default function request({
   return fetch(url, options)
     .then(handleResponse)
     .then(parseJson)
-    .catch(handleError)
-    .then((results) => {
-      callback(null, results);
-    }, (error) => {
-      callback(error, null);
-    });
+    .catch(handleError);
 }

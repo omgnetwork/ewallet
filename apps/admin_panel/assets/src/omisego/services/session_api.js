@@ -1,26 +1,24 @@
 import request from './api_service';
 
-export function login(params, callback) {
+export function login(params) {
   const requestParams = {
     path: 'login',
     params: JSON.stringify(params),
     authenticated: false,
-    callback,
   };
   return request(requestParams);
 }
 
-export function logout(params, callback) {
+export function logout() {
   const requestParams = {
     path: 'logout',
     params: null,
     authenticated: true,
-    callback,
   };
   return request(requestParams);
 }
 
-export function resetPassword(params, callback) {
+export function resetPassword(params) {
   const {
     email, url,
   } = params;
@@ -28,12 +26,11 @@ export function resetPassword(params, callback) {
     path: 'password.reset',
     params: JSON.stringify({ email, redirect_url: url }),
     authenticated: false,
-    callback,
   };
   return request(requestParams);
 }
 
-export function updatePassword(params, callback) {
+export function updatePassword(params) {
   const {
     resetToken, password, passwordConfirmation, email,
   } = params;
@@ -43,7 +40,6 @@ export function updatePassword(params, callback) {
       email, token: resetToken, password, password_confirmation: passwordConfirmation,
     }),
     authenticated: false,
-    callback,
   };
   return request(requestParams);
 }

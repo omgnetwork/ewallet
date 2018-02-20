@@ -1,6 +1,6 @@
 import dateFormatter from '../../helpers/dateFormatter';
 
-export function getAll(params, callback) {
+export function getAll() {
   const mock = {
     version: '1',
     success: true,
@@ -56,7 +56,7 @@ export function getAll(params, callback) {
       ],
     },
   };
-  callback(null, mock.data);
+  return new Promise(resolve => resolve(mock.data));
 }
 
 export function create(params, callback) {

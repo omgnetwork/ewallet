@@ -1,6 +1,6 @@
 import request from './api_service';
 
-export function getAll(params, callback) {
+export function getAll(params) {
   const {
     per, sort, query, ...rest
   } = params;
@@ -10,12 +10,11 @@ export function getAll(params, callback) {
       per_page: per, sort_by: sort.by, sort_dir: sort.dir, search_term: query, ...rest,
     }),
     authenticated: true,
-    callback,
   };
   return request(requestParams);
 }
 
-export function uploadAvatar(params, callback) {
+export function uploadAvatar(params) {
   const {
     id, avatar,
   } = params;
@@ -28,14 +27,13 @@ export function uploadAvatar(params, callback) {
     path: 'admin.upload_avatar',
     params: formData,
     authenticated: true,
-    callback,
     isMultipart: true,
   };
 
   return request(requestParams);
 }
 
-export function createAdmin(params, callback) {
+export function createAdmin(params) {
   const {
     resetToken, password, passwordConfirmation, email,
   } = params;
@@ -45,7 +43,6 @@ export function createAdmin(params, callback) {
       email, token: resetToken, password, password_confirmation: passwordConfirmation,
     }),
     authenticated: false,
-    callback,
   };
   return request(requestParams);
 }
