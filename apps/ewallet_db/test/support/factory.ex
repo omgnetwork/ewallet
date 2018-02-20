@@ -9,17 +9,17 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     Balance,
+    ForgetPasswordRequest,
     Invite,
     Key,
     Membership,
     Mint,
     MintedToken,
     Role,
-    User,
-    Transfer,
-    ForgetPasswordRequest,
     TransactionRequest,
-    TransactionRequestConsumption
+    TransactionRequestConsumption,
+    Transfer,
+    User
   }
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
