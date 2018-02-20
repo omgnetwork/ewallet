@@ -821,6 +821,7 @@ components:
     #          SESSION RESPONSES         #
     ######################################
     AuthenticationTokenResponse:
+      description: "Returns a single authentication token"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -830,6 +831,7 @@ components:
     #            USER RESPONSES          #
     ######################################
     UserResponse:
+      description: "Returns a single user"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -839,16 +841,19 @@ components:
     #          BALANCE RESPONSES         #
     ######################################
     SingleAddressesResponse:
+      description: "Returns a list of single addresses"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/SingleAddressesResponse'
     MultipleAddressesResponse:
+      description: "Returns a list of multiple addresses"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/MultipleAddressesResponse'
     AddressesResponse:
+      description: "Returns a list of addresses"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -858,6 +863,7 @@ components:
     #          SETTING RESPONSES         #
     ######################################
     SettingResponse:
+      description: "Returns a list of settings"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -867,13 +873,13 @@ components:
     #       MISCELLANEOUS RESPONSES      #
     ######################################
     EmptyResponse:
-      description: Empty response
+      description: "Returns an empty response"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/BaseResponseSchema'
     InternalServerError:
-      description: Something went wrong on the server
+      description: "Returns an internal server error"
       content:
         application/vnd.omisego.v1+json:
           schema:

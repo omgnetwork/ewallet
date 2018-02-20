@@ -1906,6 +1906,7 @@ components:
     #          SESSION RESPONSES         #
     ######################################
     AuthenticationTokenResponse:
+      description: "Authentication token response"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -1915,11 +1916,13 @@ components:
     #        MINTED TOKEN RESPONSES      #
     ######################################
     MintedTokenResponse:
+      description: "Returns a single minted tokens"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/MintedTokenResponseSchema'
     MintedTokensResponse:
+      description: "Returns a list of minted tokens"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -1929,11 +1932,13 @@ components:
     #          ACCOUNT RESPONSES         #
     ######################################
     AccountResponse:
+      description: "Returns a single account"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AccountResponseSchema'
     AccountsResponse:
+      description: "Returns a list of accounts"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -1943,11 +1948,13 @@ components:
     #            USER RESPONSES          #
     ######################################
     UserResponse:
+      description: "Returns a single user"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/UserResponseSchema'
     UsersResponse:
+      description: "Returns a list of users"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -1957,11 +1964,13 @@ components:
     #        TRANSACTION RESPONSES       #
     ######################################
     TransactionResponse:
+      description: "Returns a single transaction"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TransactionResponseSchema'
     TransactionsResponse:
+      description: "Returns a list of transactions"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -1971,11 +1980,13 @@ components:
     #         ADMIN USER RESPONSES       #
     ######################################
     AdminResponse:
+      description: "Returns a single admin panel user"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AdminResponseSchema'
     AdminsResponse:
+      description: "Returns a list of admin panel users"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -1985,11 +1996,13 @@ components:
     #         ACCESS KEY RESPONSES       #
     ######################################
     AccessKeyResponse:
+      description: "Returns a single access key"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/AccessKeyResponseSchema'
     AccessKeysResponse:
+      description: "Returns a list of access keys"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -1999,11 +2012,13 @@ components:
     #          API KEY RESPONSES         #
     ######################################
     APIKeyResponse:
+      description: "Returns a single API key"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/APIKeyResponseSchema'
     APIKeysResponse:
+      description: "Returns a list of API keys"
       content:
         application/vnd.omisego.v1+json:
           schema:
@@ -2013,11 +2028,13 @@ components:
     #       MISCELLANEOUS RESPONSES      #
     ######################################
     EmptyResponse:
+      description: "Returns an empty response"
       content:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/BaseResponseSchema'
     InternalServerError:
+      description: "Returns an internal server error"
       content:
         application/vnd.omisego.v1+json:
           schema:
