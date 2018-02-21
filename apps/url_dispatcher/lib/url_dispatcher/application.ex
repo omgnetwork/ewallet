@@ -28,10 +28,14 @@ defmodule UrlDispatcher.Application do
   defp port_to_integer(port) when is_integer(port), do: port
 
   defp prepare_children(children) when is_list(children) do
-    Enum.map(children, &prepare_children/1)
+    if server?(), do: Enum.map(children, &prepare_children/1), else: []
   end
   defp prepare_children({scheme, plug, port}) do
     Logger.info "Setting up #{inspect plug} with Cowboy running #{scheme} at port #{port}"
     {Cowboy, scheme: :http, plug: plug, options: [port: port]}
+  end
+
+  defp server? do
+    Application.get_env(:url_dispatcher, :serve_endpoints, false)
   end
 end
