@@ -94,6 +94,7 @@ defmodule EWalletDB.MintedToken do
   @doc """
   Retrieve a minted token by friendly_id.
   """
+  def get(nil), do: nil
   def get(friendly_id) do
     Repo.get_by(MintedToken, friendly_id: friendly_id)
   end
