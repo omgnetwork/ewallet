@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Omg.Server do
   # This file is an edited version of Phoenix's `Mix.Tasks.Phx.Server`
   use Mix.Task
+  alias Mix.Tasks.Run
 
   @shortdoc "Starts the eWallet applications and their servers"
 
@@ -23,7 +24,7 @@ defmodule Mix.Tasks.Omg.Server do
   @doc false
   def run(args) do
     Application.put_env(:url_dispatcher, :serve_endpoints, true)
-    Mix.Tasks.Run.run run_args() ++ args
+    Run.run run_args() ++ args
   end
 
   defp run_args do
