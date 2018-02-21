@@ -81,7 +81,7 @@ defmodule EWallet.Seeder do
   """
   def call(opts) do
     if sample_seed?(opts) && production?(opts) do
-      CLI.halt("The full seed cannot be run on :prod environment!")
+      CLI.halt("The sample seed cannot be run on :prod environment!")
     end
 
     # Disable noisy debug messages. Seeders already have their own log messages.
