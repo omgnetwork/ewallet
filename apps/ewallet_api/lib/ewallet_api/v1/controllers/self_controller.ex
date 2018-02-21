@@ -3,6 +3,7 @@ defmodule EWalletAPI.V1.SelfController do
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.Balance
   alias EWalletDB.MintedToken
+  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
 
   def get(conn, _attrs) do
     render(conn, :user, %{user: conn.assigns.user})
