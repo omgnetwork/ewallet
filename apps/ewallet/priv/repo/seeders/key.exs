@@ -1,25 +1,30 @@
 # This is the seeding script for access & secret keys.
+alias EWallet.{CLI, Seeder}
+alias EWalletDB.{Account, Key}
+
+CLI.info("Seeding Access/Secret keys (always seed new ones)...")
 
 seeds = [
-  %{account: EWalletDB.Account.get_by_name("master_account")},
-  %{account: EWalletDB.Account.get_by_name("brand1")},
-  %{account: EWalletDB.Account.get_by_name("brand2")},
-  %{account: EWalletDB.Account.get_by_name("branch1")},
-  %{account: EWalletDB.Account.get_by_name("branch2")},
-  %{account: EWalletDB.Account.get_by_name("branch3")},
-  %{account: EWalletDB.Account.get_by_name("branch4")},
+  %{account_name: "master_account"},
+  %{account_name: "brand1"},
+  %{account_name: "brand2"},
+  %{account_name: "branch1"},
+  %{account_name: "branch2"},
+  %{account_name: "branch3"},
+  %{account_name: "branch4"}
 ]
 
-EWallet.CLI.info("\nSeeding Access/Secret keys (always seed new ones)...")
-
 Enum.each(seeds, fn(data) ->
-  case EWalletDB.Key.insert(%{account_id: data.account.id}) do
+  case Key.insert(%{account_id: Account.get_by_name(data.account_name).id}) do
     {:ok, key} ->
-      EWallet.CLI.success("📱 Access/Secret keys seeded for #{data.account.name}\n"
+      CLI.success("📱 Access/Secret keys seeded for #{data.account_name}\n"
         <> "  Access key: #{key.access_key}\n"
-        <> "  Secret key: #{key.secret_key}")
+        <> "  Secret key: #{key.secret_key}\n")
+    {:error, changeset} ->
+      CLI.error("📱 Access/Secret for #{data.account_name} could not be inserted:")
+      Seeder.print_errors(changeset)
     _ ->
-      EWallet.CLI.error("Access/Secret Keys for #{data.account.name}"
-        <> " could not be inserted due to error")
+      CLI.error("Access/Secret Keys for #{data.account_name} could not be inserted")
+      CLI.error("  Unable to parse the provided error.\n")
   end
 end)

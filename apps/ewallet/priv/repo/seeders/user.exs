@@ -1,8 +1,14 @@
 # This is the seeding script for User (wallet users).
+alias EWallet.{CLI, Seeder}
+alias EWalletDB.User
 
-user_seed = %{amount: 20, provider_id_prefix: "provider_user_id", username_prefix: "user"}
+CLI.info("Seeding User...")
 
-EWallet.CLI.info("\nSeeding User (provider_user_id, username)...")
+user_seed = %{
+  amount: 20,
+  provider_id_prefix: "provider_user_id",
+  username_prefix: "user"
+}
 
 for n <- 1..user_seed.amount do
   running_string = n |> to_string() |> String.pad_leading(2, "0")
@@ -12,17 +18,24 @@ for n <- 1..user_seed.amount do
     metadata: %{}
   }
 
-  with nil <- EWalletDB.User.get_by_provider_user_id(insert_data.provider_user_id),
-       {:ok, user} <- EWalletDB.User.insert(insert_data)
+  with nil         <- User.get_by_provider_user_id(insert_data.provider_user_id),
+       {:ok, user} <- User.insert(insert_data)
   do
-    EWallet.CLI.success("📱 eWallet User inserted:\n"
-      <> "  Username: #{user.username}\n"
-      <> "  ID: #{user.id}")
+    CLI.success("📱 eWallet User inserted:\n"
+      <> "  User ID          : #{user.id}\n"
+      <> "  Provider user ID : #{user.provider_user_id}\n"
+      <> "  Username         : #{user.username}\n")
   else
-    %EWalletDB.User{} ->
-      EWallet.CLI.warn("eWallet User #{insert_data.provider_user_id} is already in DB")
-    {:error, _} ->
-      EWallet.CLI.error("eWallet User #{insert_data.provider_user_id}"
-        <> " could not be inserted due to an error")
+    %User{} = user ->
+      CLI.warn("📱 eWallet User already exists:\n"
+        <> "  User ID          : #{user.id}\n"
+        <> "  Provider user ID : #{user.provider_user_id}\n"
+        <> "  Username         : #{user.username}\n")
+    {:error, changeset} ->
+      CLI.error("📱 eWallet User #{insert_data.provider_user_id} could not be inserted:")
+      Seeder.print_errors(changeset)
+    _ ->
+      CLI.error("📱 eWallet User #{insert_data.provider_user_id} could not be inserted:")
+      CLI.error("  Unable to parse the provided error.\n")
   end
 end

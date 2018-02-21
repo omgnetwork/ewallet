@@ -1,42 +1,56 @@
-# This is the seeding script for APIKey.
+# This is the seeding script for API key.
+alias EWalletDB.{Account, APIKey}
+alias EWallet.{CLI, Seeder}
 
 seeds = [
   # Auth tokens for ewallet_api
-  %{account: EWalletDB.Account.get_by_name("master_account"), owner_app: "ewallet_api"},
-  %{account: EWalletDB.Account.get_by_name("brand1"), owner_app: "ewallet_api"},
-  %{account: EWalletDB.Account.get_by_name("brand2"), owner_app: "ewallet_api"},
-  %{account: EWalletDB.Account.get_by_name("branch1"), owner_app: "ewallet_api"},
-  %{account: EWalletDB.Account.get_by_name("branch2"), owner_app: "ewallet_api"},
-  %{account: EWalletDB.Account.get_by_name("branch3"), owner_app: "ewallet_api"},
-  %{account: EWalletDB.Account.get_by_name("branch4"), owner_app: "ewallet_api"},
+  %{account_name: "master_account", owner_app: "ewallet_api"},
+  %{account_name: "brand1"        , owner_app: "ewallet_api"},
+  %{account_name: "brand2"        , owner_app: "ewallet_api"},
+  %{account_name: "branch1"       , owner_app: "ewallet_api"},
+  %{account_name: "branch2"       , owner_app: "ewallet_api"},
+  %{account_name: "branch3"       , owner_app: "ewallet_api"},
+  %{account_name: "branch4"       , owner_app: "ewallet_api"},
 
   # Auth tokens for admin_api
-  %{account: EWalletDB.Account.get_by_name("master_account"), owner_app: "admin_api"},
-  %{account: EWalletDB.Account.get_by_name("brand1"), owner_app: "admin_api"},
-  %{account: EWalletDB.Account.get_by_name("brand2"), owner_app: "admin_api"},
-  %{account: EWalletDB.Account.get_by_name("branch1"), owner_app: "admin_api"},
-  %{account: EWalletDB.Account.get_by_name("branch2"), owner_app: "admin_api"},
-  %{account: EWalletDB.Account.get_by_name("branch3"), owner_app: "admin_api"},
-  %{account: EWalletDB.Account.get_by_name("branch4"), owner_app: "admin_api"},
+  # Not inserting for master account as it is already seeded in `initial_api_key.exs`
+  %{account_name: "brand1"        , owner_app: "admin_api"},
+  %{account_name: "brand2"        , owner_app: "admin_api"},
+  %{account_name: "branch1"       , owner_app: "admin_api"},
+  %{account_name: "branch2"       , owner_app: "admin_api"},
+  %{account_name: "branch3"       , owner_app: "admin_api"},
+  %{account_name: "branch4"       , owner_app: "admin_api"},
 ]
 
-EWallet.CLI.info("\nSeeding APIKey (always seed new ones)...")
+CLI.info("Seeding API key (always seed new ones)...")
 
 Enum.each(seeds, fn(data) ->
-  case EWalletDB.APIKey.insert(%{account_id: data.account.id, owner_app: data.owner_app}) do
-    {:ok, api_key} ->
-      icon =
-        case api_key.owner_app do
-          "ewallet_api" -> "📱 "
-          "admin_api" -> "🔧 "
-          _ -> ""
-        end
+  insert_data = %{
+    account_id: Account.get_by_name(data.account_name).id,
+    owner_app:  data.owner_app
+  }
 
-      EWallet.CLI.success("#{icon}#{api_key.owner_app}: APIKey seeded for #{data.account.name}\n"
-        <> "  API key ID: #{api_key.id} \n"
-        <> "  API key: #{api_key.key}")
+  icon =
+    case data.owner_app do
+      "ewallet_api" -> "📱 "
+      "admin_api"   -> "🔧 "
+      _             -> ""
+    end
+
+  case APIKey.insert(insert_data) do
+    {:ok, api_key} ->
+      CLI.success("#{icon} API key inserted:\n"
+        <> "  Owner app  : #{api_key.owner_app}\n"
+        <> "  Account    : #{data.account_name} (#{api_key.account_id})\n"
+        <> "  API key ID : #{api_key.id}\n"
+        <> "  API key    : #{api_key.key}\n")
+    {:error, changeset} ->
+      CLI.error("#{icon} API key could not be inserted:\n"
+        <> "  Owner app  : #{insert_data.owner_app}\n"
+        <> "  Account    : #{data.account.name} (#{insert_data.account_id})\n")
+      Seeder.print_errors(changeset)
     _ ->
-      EWallet.CLI.error("APIKey for #{data.account.name} (for #{data.owner_app})"
-        <> " could not be inserted due to error")
+      CLI.error("#{icon} API key could not be inserted:")
+      CLI.error("  Unable to parse the provided error.\n")
   end
 end)

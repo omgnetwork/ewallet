@@ -1,24 +1,31 @@
 # This is the seeding script for Role
+alias EWallet.{CLI, Seeder}
+alias EWalletDB.Role
+
+CLI.info("Seeding Role...")
 
 seeds = [
   %{name: "admin", display_name: "Admin"},
   %{name: "viewer", display_name: "Viewer"}
 ]
 
-EWallet.CLI.info("\nSeeding Role...")
-
 Enum.each(seeds, fn(data) ->
-  with nil <- EWalletDB.Role.get_by_name(data.name),
-       {:ok, _} <- EWalletDB.Role.insert(data)
+  with nil <- Role.get_by_name(data.name),
+       {:ok, _} <- Role.insert(data)
   do
-    EWallet.CLI.success("🔧 Role inserted:\n"
+    CLI.success("🔧 Role inserted:\n"
       <> "  Name         : #{data.name}\n"
-      <> "  Display name : #{data.display_name}")
+      <> "  Display name : #{data.display_name}\n")
   else
-    %EWalletDB.Role{} ->
-      EWallet.CLI.warn("Role #{data.name} is already in DB")
-    {:error, _} ->
-      EWallet.CLI.error("Role #{data.name}"
-        <> " could not be inserted due to an error")
+    %Role{} = role ->
+      CLI.warn("Role already exists:\n"
+        <> "  Name         : #{role.name}\n"
+        <> "  Display name : #{role.display_name}\n")
+    {:error, changeset} ->
+      CLI.warn("Role #{data.name} could not be inserted:")
+      Seeder.print_errors(changeset)
+    _ ->
+      CLI.error("Role #{data.name} could not be inserted:")
+      CLI.error("  Unable to parse the provided error.\n")
   end
 end)

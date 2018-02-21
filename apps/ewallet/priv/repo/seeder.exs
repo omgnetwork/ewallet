@@ -99,6 +99,12 @@ defmodule EWallet.Seeder do
       Code.load_file(file, @seed_folder)
     end)
   end
+
+  def print_errors(%{errors: errors}) do
+    Enum.each(errors, fn({field, {message, _}}) ->
+      CLI.error("  `#{field}` #{message}")
+    end)
+  end
 end
 
 opts = EWallet.Seeder.init(System.argv)

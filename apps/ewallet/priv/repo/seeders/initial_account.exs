@@ -1,25 +1,30 @@
 # This is the seeding script for the master account.
+alias EWallet.{CLI, Seeder}
 alias EWalletDB.Account
 
-EWallet.CLI.info("\nSeeding the master account...")
+CLI.info("Seeding the master account...")
 
-master_account_data = %{
+data = %{
   name: "master_account",
-  description: "Company Master Account",
-  parent_name: nil
+  description: "Master Account",
+  parent_id: nil
 }
 
 with nil            <- Account.get_master_account(),
-     {:ok, account} <- Account.insert(master_account_data)
+     {:ok, account} <- Account.insert(data)
 do
-  EWallet.CLI.success("Master account inserted:\n"
+  CLI.success("Master account inserted:\n"
     <> "  Name : #{account.name}\n"
-    <> "  ID   : #{account.id}")
+    <> "  ID   : #{account.id}\n")
 else
   %Account{} = account ->
-    EWallet.CLI.warn("The master account already exists:\n"
+    CLI.warn("The master account already exists:\n"
       <> "  Name : #{account.name}\n"
-      <> "  ID   : #{account.id}")
-  {:error, _} ->
-    EWallet.CLI.error("The master account could not be inserted due to an error")
+      <> "  ID   : #{account.id}\n")
+  {:error, changeset} ->
+    CLI.error("The master account could not be inserted:")
+    Seeder.print_errors(changeset)
+  _ ->
+    CLI.error("The master account could not be inserted:")
+    CLI.error("  Unable to parse the provided error.\n")
 end
