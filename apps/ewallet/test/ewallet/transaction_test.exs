@@ -131,6 +131,7 @@ defmodule EWallet.TransactionTest do
 
       {status, transfer, code, description} = Transaction.process_with_addresses(attrs)
       assert status == :error
+      assert transfer.status == Transfer.failed
       assert code == "transaction:insufficient_funds"
       assert "The specified balance" <> _ = description
 
@@ -181,7 +182,7 @@ defmodule EWallet.TransactionTest do
       idempotency_token = UUID.generate()
       {balance1, balance2, token} = insert_addresses_records()
 
-      {status, code, _desc} = Transaction.process_with_addresses(%{
+      {res, transfer, code, _description} = Transaction.process_with_addresses(%{
         "from_address" => balance1.address,
         "to_address" => balance2.address,
         "token_id" => token.friendly_id,
@@ -190,7 +191,8 @@ defmodule EWallet.TransactionTest do
         "idempotency_token" => idempotency_token
       })
 
-      assert status == :error
+      assert res == :error
+      assert transfer.status == Transfer.failed
       assert code == "transaction:amount_is_zero"
     end
 
