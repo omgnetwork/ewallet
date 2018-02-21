@@ -14,7 +14,7 @@ const PublicLayout = ({ alert, children }) => (
         <div className="public-container">
           <Alerter alert={alert} />
           <div className="row">
-            <div className="col-xs-12 col-sm-6 col-sm-offset-3">
+            <div className="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3">
               {children}
             </div>
           </div>
