@@ -27,7 +27,7 @@ defmodule EWalletAPI.V1.Router do
     post "/user.update", UserController, :update
 
     post "/user.list_balances", BalanceController, :all
-    post "/user.list_transactions", TransactionController, :all
+    post "/user.list_transactions", TransactionController, :all_for_user
 
     post "/transaction.all", TransactionController, :all
 

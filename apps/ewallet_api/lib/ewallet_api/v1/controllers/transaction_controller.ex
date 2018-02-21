@@ -8,8 +8,14 @@ defmodule EWalletAPI.V1.TransactionController do
 
   @preload_fields [:minted_token]
   @mapped_fields  %{"created_at" => "inserted_at"}
-  @search_fields  [{:id, :uuid}, :idempotency_token, :status, :from, :to, :user_id]
+  @search_fields  [{:id, :uuid}, :idempotency_token, :status, :from, :to]
   @sort_fields    [:id, :status, :from, :to, :inserted_at, :updated_at]
+
+  # Server endpoint
+  #
+  # Gets the list of ALL transactions.
+  # Allows sorting, filtering and pagination.
+  def all(conn, attrs), do: query_records_and_respond(attrs, conn)
 
   # Server endpoint
   #
@@ -18,7 +24,7 @@ defmodule EWalletAPI.V1.TransactionController do
   # Allows sorting, filtering and pagination.
   # This only retrieves the transactions related to the user's primary address. To get
   # the transactions for another address, use the `all` action.
-  def all(conn, %{"provider_user_id" => provider_user_id} = attrs) do
+  def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
                            :provider_user_id_not_found
     do
@@ -29,12 +35,7 @@ defmodule EWalletAPI.V1.TransactionController do
       error -> handle_error(conn, error)
     end
   end
-
-  # Server endpoint
-  #
-  # Gets the list of ALL transactions.
-  # Allows sorting, filtering and pagination.
-  def all(conn, attrs), do: query_records_and_respond(attrs, conn)
+  def all_for_user(conn, _), do: handle_error(conn, :invalid_parameter)
 
   # Client endpoint
   #
@@ -58,7 +59,11 @@ defmodule EWalletAPI.V1.TransactionController do
 
   defp user_transactions_search_terms(attrs, user) do
     balance = User.get_primary_balance(user)
-    Map.put(attrs, "search_terms", %{"from" => balance.address, "to" => balance.address})
+
+    attrs
+    |> Map.put_new("search_terms", %{})
+    |> put_in(["search_terms", "from"], balance.address)
+    |> put_in(["search_terms", "to"],   balance.address)
   end
 
   defp query_records_and_respond(attrs, conn) do
