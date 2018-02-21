@@ -15,7 +15,7 @@ const tables = (translate, datas) => ({
   contents: datas.map(({
     id, username, provider_user_id, created_at, updated_at,
   }) => ({
-    id: { type: PROPERTY, value: id, shortened: false },
+    id: { type: PROPERTY, value: id, shortened: true },
     username: { type: PROPERTY, value: username, shortened: false },
     provider_user_id: { type: PROPERTY, value: provider_user_id, shortened: false },
     created_at: { type: PROPERTY, value: dateFormatter.format(created_at), shortened: false },

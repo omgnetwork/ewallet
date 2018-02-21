@@ -25,6 +25,7 @@ class OMGCompleteTable extends Component {
       query,
       headerText,
       handleActions,
+      handleCallback,
       updateQuery,
       updateSorting,
       sort,
@@ -44,6 +45,7 @@ class OMGCompleteTable extends Component {
         />
         <OMGTable
           content={contents}
+          handleCallback={handleCallback}
           headers={headers}
           sort={sort}
           updateSorting={updateSorting}
@@ -57,6 +59,7 @@ OMGCompleteTable.propTypes = {
   createRecordUrl: PropTypes.string,
   data: PropTypes.arrayOf(PropTypes.object).isRequired,
   handleActions: PropTypes.object,
+  handleCallback: PropTypes.object,
   headerText: PropTypes.object.isRequired,
   history: PropTypes.object.isRequired,
   query: PropTypes.string.isRequired,
@@ -74,6 +77,10 @@ OMGCompleteTable.propTypes = {
 OMGCompleteTable.defaultProps = {
   createRecordUrl: '',
   handleActions: { },
+  handleCallback: {
+    onSuccess: () => {},
+    onFailed: () => {},
+  },
   visible: {
     addBtn: true,
   },

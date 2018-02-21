@@ -35,7 +35,7 @@ const tables = (translate, datas, handleActions) => ({
       type: tableConstants.ACTIONS,
       value: [{
         title: translate('accounts.table.view_as'),
-        callback: handleActions.viewAs,
+        click: () => handleActions.viewAs(id),
       }],
       shortened: false,
     },

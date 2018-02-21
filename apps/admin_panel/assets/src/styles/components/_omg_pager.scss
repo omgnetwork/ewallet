@@ -1,5 +1,6 @@
 .omg_pager {
   float: right;
+  margin-bottom: 1rem;
 
   &__item, &__item:focus, &__item:active:focus {
     color: $omise-blue;

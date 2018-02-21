@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Button } from 'react-bootstrap';
 import { localize } from 'react-localize-redux';
 import PropTypes from 'prop-types';
@@ -22,19 +23,19 @@ class OMGPager extends Component {
 
   render() {
     const {
-      isFirstPage, isLastPage, page,
+      isFirstPage, isLastPage, loading, page,
     } = this.props;
     return (
       <div className="omg_pager">
         {!isFirstPage &&
-        <Button className="omg_pager__item" href="#" onClick={this.handlePrevious}>
+        <Button className="omg_pager__item" disabled={loading} href="#" onClick={this.handlePrevious}>
           &lt;
         </Button>}
         <span className="ml-1 mr-1">
           {page}
         </span>
         {!isLastPage &&
-        <Button className="omg_pager__item" href="#" onClick={this.handleNext}>
+        <Button className="omg_pager__item" disabled={loading} href="#" onClick={this.handleNext}>
           &gt;
         </Button>}
       </div>
@@ -42,11 +43,19 @@ class OMGPager extends Component {
   }
 }
 
+const mapStateToProps = (state) => {
+  const { global } = state;
+  return {
+    loading: global.loading,
+  };
+};
+
 OMGPager.propTypes = {
   isFirstPage: PropTypes.bool.isRequired,
   isLastPage: PropTypes.bool.isRequired,
+  loading: PropTypes.bool.isRequired,
   onPageChange: PropTypes.func.isRequired,
   page: PropTypes.number.isRequired,
 };
 
-export default localize(OMGPager, 'locale');
+export default connect(mapStateToProps, null)(localize(OMGPager, 'locale'));
