@@ -52,10 +52,10 @@ defmodule EWallet.Seeder do
     "initial_user.exs"
   ]
 
-  # Seeds to fully populate the system. This is useful for development
+  # Seeds to populate the database with sample data. This is useful for development
   # and testing environments, but not recommended for production environment.
-  # The seeds will be executed according to order in this list.
-  @full_seeds @init_seeds ++ [
+  # The seeds will be executed in the order of this list.
+  @sample_seeds @init_seeds ++ [
     "account.exs",
     "minted_token.exs",
     "user.exs",
@@ -80,7 +80,7 @@ defmodule EWallet.Seeder do
   Executes the seeders.
   """
   def call(opts) do
-    if full_seed?(opts) && production?(opts) do
+    if sample_seed?(opts) && production?(opts) do
       CLI.halt("The full seed cannot be run on :prod environment!")
     end
 
@@ -88,10 +88,10 @@ defmodule EWallet.Seeder do
     Logger.configure(level: :warn)
 
     # Run the seed
-    if full_seed?(opts), do: load(@full_seeds), else: load(@init_seeds)
+    if sample_seed?(opts), do: load(@sample_seeds), else: load(@init_seeds)
   end
 
-  defp full_seed?(opts), do: Keyword.get(opts, :full, false)
+  defp sample_seed?(opts), do: Keyword.get(opts, :sample, false)
   defp production?(opts), do: Keyword.get(opts, :env) == :prod
 
   defp load(files) do
