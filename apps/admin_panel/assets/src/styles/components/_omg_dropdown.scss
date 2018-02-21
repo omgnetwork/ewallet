@@ -43,13 +43,20 @@
 
   .omg-nav > &__gray > .dropdown-menu > li[role='presentation'] > a {
     @media (max-width: 767px){
+      width: fit-content;
       color: $light-gray;
-      padding-left: 0rem;
-      padding-right: 0rem;
+      padding-left: 0.5rem;
+      padding-right: 0.5rem;
     }
   }
 
   .omg-nav > &__gray > .dropdown-menu > li[role='presentation'] > a:hover {
+    @media (max-width: 767px){
+      color: $white;
+    }
+  }
+
+  .omg-nav > &__gray > .dropdown-menu > li[role='presentation'] > a:focus {
     @media (max-width: 767px){
       color: $white;
     }
