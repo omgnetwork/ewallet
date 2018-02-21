@@ -6,7 +6,7 @@ defmodule EWalletAPI.V1.JSON.TransactionSerializerTest do
 
   describe "serialize/1 for single transaction" do
     test "serializes into correct V1 transaction format" do
-      transaction = insert(:transfer) |> Repo.preload(:minted_token)
+      transaction = :transfer |> insert() |> Repo.preload(:minted_token)
 
       expected = %{
         object: "transaction",

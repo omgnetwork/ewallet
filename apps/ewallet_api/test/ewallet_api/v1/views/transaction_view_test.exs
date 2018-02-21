@@ -6,7 +6,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
 
   describe "EWalletAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct structure" do
-      transaction = insert(:transfer) |> Repo.preload(:minted_token)
+      transaction = :transfer |> insert() |> Repo.preload(:minted_token)
 
       expected = %{
         version: @expected_version,
