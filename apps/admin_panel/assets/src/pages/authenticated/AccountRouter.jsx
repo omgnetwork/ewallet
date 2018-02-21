@@ -9,7 +9,8 @@ import Accounts from '../authenticated/accounts/list/Accounts';
 import NewAccount from '../authenticated/accounts/new/NewAccount';
 import Users from '../authenticated/users/list/Users';
 import NewUser from '../authenticated/users/new/NewUser';
-import APIManagement from '../authenticated/api_management/APIManagement';
+import APIManagement from '../authenticated/api_management/list/APIManagement';
+import NewAPI from '../authenticated/api_management/new/NewAPI';
 import Report from '../authenticated/report/Report';
 import Transactions from '../authenticated/transactions/list/Transactions';
 import NewTransaction from '../authenticated/transactions/new/NewTransaction';
@@ -39,6 +40,7 @@ const AccountRouter =
       <AuthenticatedRoute component={Accounts} exact path={`${accountPath}/accounts`} />
       <AuthenticatedRoute component={NewAccount} exact path={`${accountPath}/accounts/new`} />
       <AuthenticatedRoute component={APIManagement} exact path={`${accountPath}/api_management`} />
+      <AuthenticatedRoute component={NewAPI} exact path={`${accountPath}/api_management/new`} />
       <AuthenticatedRoute component={Report} exact path={`${accountPath}/report`} />
       <AuthenticatedRoute component={Transactions} exact path={`${accountPath}/transactions`} />
       <AuthenticatedRoute component={NewTransaction} exact path={`${accountPath}/transactions/new`} />

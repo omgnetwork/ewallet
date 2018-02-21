@@ -29,14 +29,15 @@ export function formatHeader(row, key) {
   }
 }
 
-export function formatContent(value) {
+export function formatContent(content) {
+  const { value } = content;
   switch (typeof value) {
     case 'object':
-      return { content: value, className: 'omg-table-content-row__center' };
+      return { content: value, className: `omg-table-content-row__center ${content.className || ''}` };
     case 'number':
-      return { content: numberWithCommas(value), className: 'omg-table-content-row__right' };
+      return { content: numberWithCommas(value), className: `omg-table-content-row__right ${content.className || ''}` };
     default:
-      return { content: `${value}`, className: 'omg-table-content-row__left' };
+      return { content: `${value}`, className: `omg-table-content-row__left ${content.className || ''}` };
   }
 }
 

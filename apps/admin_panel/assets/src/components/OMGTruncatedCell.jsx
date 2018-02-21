@@ -7,16 +7,16 @@ import copyToClipboard from '../helpers/copier';
 
 class OMGTruncatedCell extends Component {
   static shortenedString(string) {
-    const shorteningLength = 5;
+    const shorteningLength = 7;
     return (string.length > shorteningLength) ? `${string.substr(0, shorteningLength)}...` : string;
   }
 
   render() {
-    const { content } = this.props;
+    const { content, className } = this.props;
     return (
       <span>
         {OMGTruncatedCell.shortenedString(content)}
-        <Button bsStyle="link" onClick={() => copyToClipboard(content)}>
+        <Button bsStyle="link" className={className} onClick={() => copyToClipboard(content)}>
           <FA name="copy" />
         </Button>
       </span>
@@ -25,7 +25,12 @@ class OMGTruncatedCell extends Component {
 }
 
 OMGTruncatedCell.propTypes = {
+  className: PropTypes.string,
   content: PropTypes.string.isRequired,
+};
+
+OMGTruncatedCell.defaultProps = {
+  className: '',
 };
 
 export default localize(OMGTruncatedCell, 'locale');

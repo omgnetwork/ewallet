@@ -148,7 +148,7 @@
     "transactions": "Transactions",
     "tokens": "Tokens",
     "reports": "Reports",
-    "api_management": "API Management",
+    "api_management": "API Keys",
     "account_setting": "Account Settings"
   },
   "transactions": {
@@ -164,9 +164,9 @@
       "token": "Token",
       "from": "From",
       "to": "To",
-      "created_at": "Created at",
+      "created_at": "Created At",
       "status": "Status",
-      "idempotency_token": "Idempotency Token"
+      "idempotency_token": "Idem Token"
     },
     "new": {
       "create_a_transaction": "Create a Transaction",
@@ -288,6 +288,45 @@
       "email": "Email",
       "created_at": "Created At",
       "updated_at": "Updated At"
+    }
+  },
+  "api-management": {
+    "header": {
+      "api_management": "API Keys",
+      "advanced_filters": "Advanced Filters",
+      "export": "Export",
+      "new_api": "New API"
+    },
+    "table": {
+      "id": "Id",
+      "key": "Key",
+      "owner_app": "Owner",
+      "account_id": "Account Id",
+      "created_at": "Created At",
+      "updated_at": "Updated At",
+      "active": "Active",
+      "actions": "Actions",
+      "disable": "Disable",
+      "disabled": "Disabled",
+      "dialog": {
+        "delete": {
+          "title": "Are you sure?",
+          "body": "The API Key <b>${ api_key }</b> will be disabled",
+          "ok": "Confirm",
+          "cancel": "Cancel"
+        }
+      },
+      "notification": {
+        "delete": "Successfully deleted"
+      }
+    },
+    "new": {
+      "create_an_api": "Create an API",
+      "owner": "Owner",
+      "create": "Create",
+      "notification": {
+        "create": "Successfully created ${ api_id }"
+      }
     }
   },
   "setting": {

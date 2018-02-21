@@ -29,7 +29,7 @@ class OMGTable extends Component {
 
   render() {
     const { by, dir } = this.state;
-    const { headers, content } = this.props;
+    const { headers, content, handleCallback } = this.props;
     const firstRow = content[0];
     const alignments = firstRow
       ? Object.keys(firstRow).map(key => formatHeader(firstRow, key))
@@ -50,6 +50,7 @@ class OMGTable extends Component {
       <OMGTableContentRow
         key={row.id.value}
         data={row}
+        handleCallback={handleCallback}
       />
     ));
     return (
@@ -69,9 +70,17 @@ class OMGTable extends Component {
 
 OMGTable.propTypes = {
   content: PropTypes.array.isRequired,
+  handleCallback: PropTypes.object,
   headers: PropTypes.object.isRequired,
   sort: PropTypes.object.isRequired,
   updateSorting: PropTypes.func.isRequired,
+};
+
+OMGTable.defaultProps = {
+  handleCallback: {
+    onSuccess: () => {},
+    onFailed: () => {},
+  },
 };
 
 export default OMGTable;

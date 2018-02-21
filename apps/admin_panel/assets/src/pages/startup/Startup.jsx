@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { getTranslate } from 'react-localize-redux';
 import Actions from './action';
+import OMGDialog from '../../components/OMGDialog';
 import { LOADING_GIF } from '../../../src/config';
 
 class Startup extends Component {
@@ -34,8 +35,21 @@ class Startup extends Component {
   }
 
   render() {
-    const { session, children, translate } = this.props;
-    if (session.isSynced) { return children; }
+    const {
+      dialog, session, children, translate,
+    } = this.props;
+    if (session.isSynced) {
+      return (
+        <div>
+          <OMGDialog
+            handleClickOk={dialog.actions.ok}
+            isShow={dialog.isShow}
+            text={dialog.text}
+          />
+          {children}
+        </div>
+      );
+    }
     return (
       <div className="fh omg-center">
         <div>
@@ -51,8 +65,9 @@ class Startup extends Component {
 
 function mapStateToProps(state) {
   const { session } = state;
+  const { dialog } = state;
   const translate = getTranslate(state.locale);
-  return { session, translate };
+  return { dialog, session, translate };
 }
 
 function mapDispatchToProps(dispatch) {
@@ -67,6 +82,7 @@ Startup.defaultProps = {
 
 Startup.propTypes = {
   children: PropTypes.object,
+  dialog: PropTypes.object.isRequired,
   loadSession: PropTypes.func.isRequired,
   session: PropTypes.object.isRequired,
   translate: PropTypes.func.isRequired,
