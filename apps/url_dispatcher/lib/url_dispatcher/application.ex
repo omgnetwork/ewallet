@@ -31,7 +31,7 @@ defmodule UrlDispatcher.Application do
     if server?(), do: Enum.map(children, &prepare_children/1), else: []
   end
   defp prepare_children({scheme, plug, port}) do
-    Logger.info "Setting up #{inspect plug} with Cowboy running #{scheme} at port #{port}"
+    Logger.info "Running #{inspect plug} with Cowboy #{scheme} on port #{port}"
     {Cowboy, scheme: :http, plug: plug, options: [port: port]}
   end
 
