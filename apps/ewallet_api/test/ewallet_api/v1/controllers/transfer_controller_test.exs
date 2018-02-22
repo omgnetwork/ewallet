@@ -113,7 +113,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "client:insufficient_funds",
+          "code" => "transaction:insufficient_funds",
           "description" => "The specified balance (#{balance1.address}) does not " <>
           "contain enough funds. Available: 0 #{minted_token.friendly_id} - " <>
           "Attempted debit: 10000000 #{minted_token.friendly_id}",
@@ -398,7 +398,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "client:insufficient_funds",
+          "code" => "transaction:insufficient_funds",
           "description" => "The specified balance (#{user_balance.address})" <>
           " does not contain enough funds. Available: 0 " <>
           "#{minted_token.friendly_id} - Attempted debit: 100000 " <>
