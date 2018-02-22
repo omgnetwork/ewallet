@@ -8,7 +8,8 @@ import { formatHeader, defaultHeaderAlignment } from '../helpers/tableFormatter'
 class OMGTable extends Component {
   constructor(props) {
     super(props);
-    const sort = { by: 'id', dir: 'asc' };
+    const { by, dir } = props.sort;
+    const sort = { by, dir };
     this.state = (sort);
     this.onSort = this.onSort.bind(this);
   }

@@ -9,7 +9,7 @@ const tables = (translate, datas) => ({
     token: { title: translate('transactions.table.token'), sortable: false },
     from: { title: translate('transactions.table.from'), sortable: true },
     to: { title: translate('transactions.table.to'), sortable: true },
-    idempotency_token: { title: translate('transactions.table.idempotency_token'), sortable: true },
+    idempotency_token: { title: translate('transactions.table.idempotency_token'), sortable: false },
     status: { title: translate('transactions.table.status'), sortable: true },
     created_at: { title: translate('transactions.table.created_at'), sortable: true },
   },
