@@ -5,10 +5,9 @@ defmodule EWalletDB.Account do
   use Ecto.Schema
   use Arc.Ecto.Schema
   import Ecto.{Changeset, Query}
-  import EWalletDB.AccountValidator
+  import EWalletDB.{AccountValidator, Helpers.InputGuard}
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
-  alias EWalletDB.Helpers
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -84,8 +83,11 @@ defmodule EWalletDB.Account do
   @doc """
   Get all accounts.
   """
-  def all do
-    Repo.all(Account)
+  def all(opts \\ [])
+  def all(opts) do
+    Account
+    |> Repo.all()
+    |> Repo.preload(opts[:preload] || [])
   end
 
   @doc """
@@ -121,32 +123,30 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
-  Retrieve the account with the given ID.
+  Retrieves the account with the given ID and preloads.
   """
-  def get(nil), do: nil
-  def get(id) do
-    case Helpers.UUID.valid?(id) do
-      true -> Repo.get(Account, id)
-      false -> nil
+  def get(id, opts \\ [])
+  def get(id, opts) do
+    with {:ok, id} <- UUID.cast(id) do
+      Account
+      |> Repo.get(id)
+      |> Repo.preload(opts[:preload] || [])
+    else
+      :error ->
+        {:error, :invalid_parameter, "Expected a UUID, given #{inspect id}"}
     end
   end
 
   @doc """
-  Retrieve the account with the given ID and preloads balances.
+  Retrieves the account with the given name.
   """
-  def get(id, preload: preloads) do
-    id
-    |> get()
-    |> Repo.preload(preloads)
+  def get_by(field, name, opts \\ [])
+  def get_by(:name, name, opts) when is_non_empty_string(name) do
+    Account
+    |> Repo.get_by(name: name)
+    |> Repo.preload(opts[:preload] || [])
   end
-
-  @doc """
-  Retrieve the account with the given name.
-  """
-  def get_by_name(nil), do: nil
-  def get_by_name(name) when is_binary(name) and byte_size(name) > 0 do
-    Repo.get_by(Account, name: name)
-  end
+  def get_by(:name, _name, _opts), do: {:error, :invalid_parameter}
 
   @doc """
   Returns whether the account is the master account.

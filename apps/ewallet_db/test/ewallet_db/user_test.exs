@@ -204,8 +204,11 @@ defmodule EWalletDB.UserTest do
       insert(:membership, %{user: user, account: account1, role: role1})
       insert(:membership, %{user: user, account: account2, role: role2})
       insert(:membership, %{user: user, account: account3, role: role2})
+      roles = User.get_roles(user)
 
-      assert User.get_roles(user) == ["role_one", "role_two"]
+      assert Enum.count(roles) == 2
+      assert Enum.member?(roles, "role_one")
+      assert Enum.member?(roles, "role_two")
     end
   end
 
