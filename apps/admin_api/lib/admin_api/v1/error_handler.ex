@@ -57,6 +57,10 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:id_not_found",
       description: "There is no user corresponding to the provided id"
     },
+    unauthorized: %{
+      code: "user:unauthorized",
+      description: "The user is not allowed to perform the requested operation"
+    },
     invalid_reset_token: %{
       code: "forget_password:token_not_found",
       description: "There are no password reset requests corresponding to the provided token"

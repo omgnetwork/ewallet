@@ -1,0 +1,1452 @@
+openapi: 3.0.0
+info:
+  version: "1.0.0"
+  title: eWallet API
+  description: >
+    This is the documentation for eWallet API.
+
+
+    Two kinds of endpoints can be found in this document: the server endpoints
+    and the client (mobile wallet) endpoints.
+
+
+    All API calls that modify the database need to be done from the server
+    for security purposes, while retrieval calls can be made from the client
+    (considered unsafe, 'never trust the client').
+
+
+    Both server and client calls are authorized using the 'Authorization'
+    HTTP header with the following format:
+
+
+    - Server: `Authorization=OMGServer Base64(access_key:secret_key)`
+
+    - Client: `Authorization=OMGClient Base64(api_key:authentication_token)`
+
+
+    Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
+    including on errors. Only in case of an internal server error that `500`
+    will be returned.
+
+
+    Error codes are defined in [eWallet Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
+  contact:
+    name: OmiseGO
+    email: mederic@omise.co
+  license:
+    name: License To define
+    url: 'https://omg.omise.co/'
+
+tags:
+  - name: Session
+    description: Resources related to session tokens.
+  - name: User
+    description: Resources related to users. A user is an entity uniquely identified by its provider_user_id which is the user id in the provider database.
+  - name: Balance
+    description: Resources related to balances of a specific user. Balances are the representation of the amount of each token a user owns.
+  - name: Setting
+    description: Resources related to global settings of the wallet.
+  - name: Transaction
+    description: Resources related to the creation of transactions.
+  - name: TransactionRequest
+    description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
+
+servers:
+  - url: /api
+
+paths:
+  ######################################
+  #          SESSION ENDPOINTS         #
+  ######################################
+  /login:
+    post:
+      tags:
+        - Session
+      summary: Server - Login an existing user. The provider can call this to get an authentication token for a specific user.
+      operationId: login
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ProviderIdBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AuthenticationTokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /logout:
+    post:
+      tags:
+        - Session
+      summary: Client - Expires a user's authentication_token.
+      operationId: logout
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  ######################################
+  #            USER ENDPOINTS          #
+  ######################################
+  /user.create:
+    post:
+      tags:
+        - User
+      summary: Server - Create a new user
+      operationId: user_create
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserBody'
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.update:
+    post:
+      tags:
+        - User
+      summary: Server - Update an existing user
+      operationId: user_update
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/UserBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.get:
+    post:
+      tags:
+        - User
+      summary: Server - Get an existing user. The provider can call this to get any user from its id.
+      operationId: user_get
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ProviderIdBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.get:
+    post:
+      tags:
+        - User
+      summary: Client - Get the user corresponding to the provided authentication token.
+      operationId: me_get
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  ######################################
+  #          BALANCE ENDPOINTS         #
+  ######################################
+  /user.list_balances:
+    post:
+      tags:
+        - Balance
+      summary: Server - Get the balances of a user. The provider can call this to get the balances of any user from its id.
+      operationId: user_list_balances
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ProviderIdBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AddressesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.list_balances:
+    post:
+      tags:
+        - Balance
+      summary: Client - Get the balances of a specific user. The client can call this to get the balances of the user corresponding to the authentication_token provided.
+      operationId: me_list_balances
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/AddressesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.credit_balance:
+    post:
+      tags:
+        - Balance
+      summary: Server - Credit the balance of a user. The provider can call this to credit the balance of an existing user corresponding to the provider_user_id provided.
+      operationId: user_credit_balance
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/BalanceAdjustmentBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/SingleAddressesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.debit_balance:
+    post:
+      tags:
+        - Balance
+      summary: Server - Debit the balance of a user. The provider can call this to debit the balance of an existing user corresponding to the provider_user_id provided.
+      operationId: user_debit_balance
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/BalanceAdjustmentBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/SingleAddressesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /transfer:
+    post:
+      tags:
+        - Balance
+      summary: Server - Transfer the specified amount between two balances.
+      operationId: transfer
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/TransferBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MultipleAddressesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  ######################################
+  #          SETTINGS ENDPOINTS        #
+  ######################################
+  /get_settings:
+    post:
+      tags:
+        - Setting
+      summary: Server - Get the global settings.
+      operationId: get_settings
+      security:
+        - ServerAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/SettingResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.get_settings:
+    post:
+      tags:
+        - Setting
+      summary: Client - Get the global settings.
+      operationId: me_get_settings
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/SettingResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  ############################
+  #      TRANSACTIONS        #
+  ############################
+  /transaction.all:
+    post:
+      tags:
+        - Transaction
+      summary: Server - Get the list of transactions.
+      operationId: get_all_transactions
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionsBody'
+      security:
+        - ServerAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.list_transactions:
+    post:
+      tags:
+        - Transaction
+      summary: Server - Get the list of transactions for a specific provider_user_id.
+      operationId: get_all_transactions_for_user
+      requestBody:
+        $ref: '#/components/requestBodies/UserTransactionsBody'
+      security:
+        - ServerAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.list_transactions:
+    post:
+      tags:
+        - Transaction
+      summary: Client - Get the list of transactions for the current user.
+      operationId: get_current_user_transactions
+      requestBody:
+        $ref: '#/components/requestBodies/CurrentUserTransactionsBody'
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  ############################
+  #   TRANSACTION REQUESTS   #
+  ############################
+  # Endpoint to create a transaction request
+  /me.create_transaction_request:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Create a new transaction request.
+      description: This is a client call only.
+      operationId: create_transaction_request
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get a transaction request
+  /me.get_transaction_request:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Get a transaction request.
+      description: This is a client call only.
+      operationId: get_transaction_request
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/GetTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to consume a transaction request
+  /me.consume_transaction_request:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Consume a transaction request.
+      description: This is a client call only.
+      operationId: consume_transaction_request
+      security:
+        - ClientAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumeTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+# Components are objects that are reusable within this API spec.
+# They do not have any effect on the API unless they are
+# referenced from properties outside the component.
+components:
+  schemas:
+    ######################################
+    #             BASE SCHEMAS           #
+    ######################################
+    BaseResponseSchema:
+      description: "The response schema for a successful operation"
+      type: object
+      properties:
+        version:
+          type: string
+        success:
+          type: boolean
+        data:
+          type: object
+      required:
+        - version
+        - success
+        - data
+      example:
+        version: "1"
+        success: true
+        data: {}
+    UnpaginatedListSchema:
+      description: "The object schema for an unpaginated list"
+      type: object
+      properties:
+        object:
+          type: string
+        data:
+          type: array
+      required:
+        - object
+        - data
+      example:
+        object: list
+    PaginatedListSchema:
+      description: "The object schema for a paginated list"
+      type: object
+      properties:
+        object:
+          type: string
+        data:
+          type: array
+        pagination:
+          type: object
+          properties:
+            per_page:
+              type: integer
+              minimum: 1
+            current_page:
+              type: integer
+              minimum: 1
+            is_first_page:
+              type: boolean
+            is_last_page:
+              type: boolean
+          required:
+            - per_page
+            - current_page
+            - is_first_page
+            - is_last_page
+      required:
+        - object
+        - data
+        - pagination
+      example:
+        object: list
+        data: []
+        pagination:
+          per_page: 10
+          current_page: 1
+          is_first_page: true
+          is_last_page: true
+
+    ######################################
+    #            ERROR SCHEMAS           #
+    ######################################
+    ErrorSchema:
+      description: "The object schema for an error"
+      type: object
+      properties:
+        object:
+          type: string
+        code:
+          type: string
+        description:
+          type: string
+        messages:
+          type: object
+      required:
+        - object
+        - code
+        - description
+        - messages
+      example:
+        object: "error"
+        code: "server:internal_server_error"
+        description: "Something went wrong on the server"
+        messages: {"error_key": "error_reason"}
+    ErrorResponseSchema:
+      description: "The response schema for an error"
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              $ref: '#/components/schemas/ErrorSchema'
+          required:
+            - data
+          example:
+            success: false
+            data:
+              object: "error"
+              code: "server:internal_server_error"
+              description: "Something went wrong on the server"
+              messages: {"error_key":"error_reason"}
+
+    ######################################
+    #          AUTH TOKEN SCHEMAS        #
+    ######################################
+    AuthenticationTokenSchema:
+      description: "The object schema for an authentication token"
+      type: object
+      properties:
+        object:
+          type: string
+        authentication_token:
+          type: string
+      required:
+        - object
+        - authentication_token
+    AuthenticationTokenResponse:
+      description: "The response schema for an authentication token"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/AuthenticationTokenSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "authentication_token"
+            authentication_token: "azJRj09l7jvR8KhTqUs3"
+
+    ######################################
+    #             USER SCHEMAS           #
+    ######################################
+    UserSchema:
+      description: "The object schema for a user"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        username:
+          type: string
+        provider_user_id:
+          type: string
+        metadata:
+          type: object
+      required:
+        - object
+        - id
+        - username
+        - provider_user_id
+        - metadata
+      example:
+        object: "user"
+        id: "cec34607-0761-4a59-8357-18963e42a1aa"
+        provider_user_id: "wijf-fbancomw-dqwjudb"
+        username: "thibault@omise.co"
+        metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+    UserResponseSchema:
+      description: "The response schema for a user"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/UserSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "user"
+            id: "cec34607-0761-4a59-8357-18963e42a1aa"
+            provider_user_id: "wijf-fbancomw-dqwjudb"
+            username: "thibault@omise.co"
+            metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+
+    ######################################
+    #            BALANCE SCHEMAS         #
+    ######################################
+    BalanceSchema:
+      description: "The object schema for a balance"
+      type: object
+      properties:
+        object:
+          type: string
+        minted_token:
+          type: object
+          $ref: '#/components/schemas/MintedTokenSchema'
+        amount:
+          type: number
+      required:
+        - object
+        - minted_token
+        - address
+        - amount
+      example:
+        object: "balance"
+        minted_token:
+          object: 'minted_token'
+          id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+          symbol: "BTC"
+          name: "Bitcoin"
+          subunit_to_unit: 100000000000000000
+        amount: 100
+    BalanceResponse:
+      description: "The response schema for a balance"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/BalanceSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "balance"
+            minted_token:
+              object: 'minted_token'
+              id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+              symbol: "BTC"
+              name: "Bitcoin"
+              subunit_to_unit: 100000000000000000
+            amount: 100
+    AddressResponse:
+      description: "The object schema for an address"
+      type: object
+      properties:
+        object:
+          type: string
+        balances:
+          type: array
+          $ref: '#/components/schemas/BalanceSchema'
+        address:
+          type: string
+      required:
+        - balances
+        - address
+      example:
+        data:
+          object: "address"
+          balances: []
+          address: "XXXXXXXXXXXXXXXXXXXXX"
+    SingleAddressesResponse:
+      description: "The response schema for a list with a single address"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/UnpaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AddressResponse'
+        required:
+          - object
+          - balances
+          - address
+        example:
+          data:
+            object: list
+            data:
+            - object: "address"
+              address: "XXX123"
+              balances:
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
+                  subunit_to_unit: 100000000000000000
+    MultipleAddressesResponse:
+      description: "The response schema for a list of multiple addresses (i.e. transfers)"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/UnpaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AddressResponse'
+        required:
+          - object
+          - balances
+          - address
+        example:
+          data:
+            object: list
+            data:
+            - object: "address"
+              address: "XXX123"
+              balances:
+              - amount: 0
+                minted_token:
+                  object: 'minted_token'
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
+                  subunit_to_unit: 100000000000000000
+            - object: "address"
+              address: "XXX456"
+              balances:
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
+                  subunit_to_unit: 100000000000000000
+    AddressesResponse:
+      description: "The response schema for a list of addresses"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/UnpaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AddressResponse'
+        required:
+          - object
+          - balances
+          - address
+        example:
+          data:
+            object: list
+            data:
+            - object: "address"
+              address: "XXX123"
+              balances:
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  symbol: "BTC"
+                  name: "Bitcoin"
+                  subunit_to_unit: 100000000000000000
+              - amount: 100
+                minted_token:
+                  object: 'minted_token'
+                  id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+                  symbol: "OMG"
+                  name: "OmiseGO"
+                  subunit_to_unit: 100000000000000000
+            - object: "address"
+              address: "XXX456"
+              balances: []
+
+    ######################################
+    #         MINTED TOKEN SCHEMAS       #
+    ######################################
+    MintedTokenSchema:
+      description: "The object schema for a minted token"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        symbol:
+          type: string
+        name:
+          type: string
+        subunit_to_unit:
+          type: number
+      required:
+        - object
+        - symbol
+        - name
+        - subunit_to_unit
+      example:
+        object: "minted_token"
+        id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+        symbol: "MNT"
+        name: "Mint"
+        subunit_to_unit: 100000000000000000
+
+    ######################################
+    #         TRANSACTION SCHEMAS        #
+    ######################################
+    TransactionSchema:
+      description: "The object schema for a transaction"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+          format: uuid
+        amount:
+          type: number
+        minted_token:
+          type: object
+          $ref: '#/components/schemas/MintedTokenSchema'
+        from:
+          type: string
+        to:
+          type: string
+        status:
+          type: string
+          enum:
+            - comfirmed
+            - pending
+            - failed
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - idempotency_token
+        - amount
+        - minted_token
+        - from
+        - to
+        - status
+        - created_at
+        - updated_at
+    TransactionResponseSchema:
+      description: "The response schema for a transaction"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/TransactionSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "transaction"
+            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            idempotency_token: "123982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            amount: 1000
+            minted_token:
+              object: "minted_token"
+              id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              symbol: "ABC"
+              name: "ABC Point"
+              subunit_to_unit: 100
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T10:00:00Z"
+            from: "XXX123"
+            to: "XXX124"
+            status: "confirmed"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+    TransactionsResponseSchema:
+      description: "The response schema for a list of transactions"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransactionSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "transaction"
+                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                amount: 1000
+                from: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                to: "2e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                minted_token:
+                  object: "minted_token"
+                  id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  symbol: "ABC"
+                  name: "ABC Point"
+                  subunit_to_unit: 100
+                  created_at: "2018-01-01T00:00:00Z"
+                  updated_at: "2018-01-01T10:00:00Z"
+                status: "confirmed"
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
+
+    ######################################
+    #           SETTING SCHEMAS          #
+    ######################################
+    SettingResponse:
+      description: "The response schema for settings"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              object:
+                type: string
+              minted_tokens:
+                type: array
+                items:
+                 $ref: '#/components/schemas/MintedTokenSchema'
+            required:
+              - object
+              - minted_tokens
+        example:
+          data:
+            object: "setting"
+            minted_tokens:
+              - object: "minted_token"
+                id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+                symbol: "BTC"
+                name: "Bitcoin"
+                subunit_to_unit: 100000000000000000
+              - object: "minted_token"
+                id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+                symbol: "OMG"
+                name: "OmiseGO"
+                subunit_to_unit: 100000000000000000
+
+    ######################################
+    #        TRANSACTION SCHEMAS         #
+    ######################################
+    # Schema for transaction request response body
+    TransactionRequestResponse:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - send
+            - receive
+        token_id:
+          type: string
+        amount:
+          type: string
+        address:
+          type: string
+        correlation_id:
+          type: string
+      required:
+        - object
+        - id
+        - type
+        - token_id
+        - amount
+        - address
+        - correlation_id
+      example:
+        data:
+          object: "transaction_request"
+          id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
+          type: "send"
+          token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+          amount: 100
+          address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
+          correlation_id: "123"
+    # Schema for transaction request consumption response body
+    TransactionRequestConsumptionResponse:
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+            - pending
+            - confirmed
+            - failed
+        amount:
+          type: string
+        token_id:
+          type: string
+        correlation_id:
+          type: string
+        idempotency_token:
+          type: string
+        transfer_id:
+          type: string
+        user_id:
+          type: string
+        transaction_request_id:
+          type: string
+        address:
+          type: string
+      required:
+        - object
+        - id
+        - status
+        - amount
+        - token_id
+        - correlation_id
+        - idempotency_token
+        - transfer_id
+        - user_id
+        - transaction_request_id
+        - address
+      example:
+        data:
+          object: "transaction_request_consumption"
+          id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
+          status: "confirmed"
+          amount: 100
+          token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+          correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+          idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
+          transfer_id: "4567c0be5-15d1-4463-9ec2-02bc8ded7120"
+          user_id: "111c0be5-15d1-4463-9ec2-02bc8ded7120"
+          transaction_request_id: "1231c0be5-15d1-4463-9ec2-02bc8ded7120"
+          address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
+
+  requestBodies:
+    ######################################
+    #         USER REQUEST BODIES        #
+    ######################################
+    UserBody:
+      description: The parameters to use for creating or updating a user
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              provider_user_id:
+                type: string
+              username:
+                type: string
+              metadata:
+                type: object
+            required:
+              - provider_user_id
+              - username
+              - metadata
+            example:
+              provider_user_id: "wijf-fbancomw-dqwjudb"
+              username: "thibault@omise.co"
+              metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+    ProviderIdBody:
+      description: The parameters to use for providing a provider user id
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              provider_user_id:
+                type: string
+            required:
+              - provider_user_id
+            example:
+              provider_user_id: "wijf-fbancomw-dqwjudb"
+
+    ######################################
+    #            TRANSACTIONS            #
+    ######################################
+    TransactionsBody:
+      description: The parameters to use to customize the returned list of transactions.
+      required: false
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              seatch_terms: {"name": "some_name"}
+              sort_by: "field_name"
+              sort_dir: "asc"
+    UserTransactionsBody:
+      description: The parameters to use to customize the returned list of transactions.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              provider_user_id:
+                type: string
+              address:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            required:
+              - provider_user_id
+            example:
+              provider_user_id: "sample_provider_id"
+              address: "address_owned_by_user (optional)"
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              seatch_terms: {"name": "some_name"}
+              sort_by: "field_name"
+              sort_dir: "asc"
+    CurrentUserTransactionsBody:
+      description: The parameters to use to customize the returned list of transactions.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              address:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            required:
+              - provider_user_id
+            example:
+              address: "address_owned_by_current_user (optional)"
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              seatch_terms: {"name": "some_name"}
+              sort_by: "field_name"
+              sort_dir: "asc"
+    ######################################
+    #       TRANSFER REQUEST BODIES      #
+    ######################################
+    TransferBody:
+      description: The parameters for making a transfer from an address to another.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              from_address:
+                type: string
+              to_address:
+                type: string
+              token_id:
+                type: string
+              amount:
+                type: integer
+              metadata:
+                type: object
+            required:
+              - from_address
+              - to_address
+              - token_id
+              - amount
+              - metadata
+            example:
+              from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
+              to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
+              token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              amount: 100
+              metadata: {}
+    BalanceAdjustmentBody:
+      description: |
+        The parameters for crediting or debiting the balance of the specified user
+        by taking/giving back the given amount from/to the account_id.
+
+        If not specified, the account owning the minted token will be used as the source.
+        If no burn_balance_identifier is specified, the tokens won't be burned
+        and will instead be returned to the primary balance of the selected account.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              provider_user_id:
+                type: string
+              token_id:
+                type: string
+              amount:
+                type: integer
+              account_id:
+                type: string
+              burn_balance_identifier:
+                type: string
+              metadata:
+                type: object
+            required:
+              - provider_user_id
+              - token_id
+              - amount
+              - metadata
+            example:
+              provider_user_id: "wijf-fbancomw-dqwjudb"
+              token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              amount: 100
+              account_id: "865ff420-899a-4eb3-8364-19edc5d51676"
+              burn_balance_identifier: "burn"
+    CreateTransactionRequestBody:
+      description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint by a different client to create a transaction from that request.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              type:
+                type: string
+                enum:
+                  - send
+                  - receive
+              token_id:
+                type: string
+              amount:
+                type: integer
+              correlation_id:
+                type: string
+              address:
+                type: string
+            required:
+              - type
+              - token_id
+            example:
+              type: "send"
+              token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              amount: 100
+              correlation_id: "123"
+              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
+    GetTransactionRequestBody:
+      description: Get a transaction request using the specified ID.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            example:
+              id: "71822683-68d8-4af6-94d7-5ed4c34ecf1a"
+    ConsumeTransactionRequestBody:
+      description: Consume a transaction request using the specified values.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              transaction_request_id:
+                type: string
+              correlation_id:
+                type: string
+              amount:
+                type: integer
+              address:
+                type: string
+              metadata:
+                type: object
+            required:
+              - transaction_request_id
+            example:
+              transaction_request_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              correlation_id: "123"
+              amount: 100
+              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
+              metadata: nil
+
+  ######################################
+  #           REQUEST HEADERS          #
+  ######################################
+  parameters:
+    IdempotencyToken:
+      in: header
+      name: Idempotency-Token
+      description: The idempotency token for the request
+      required: true
+      schema:
+        type: string
+
+  ######################################
+  #          SECURITY SCHEMES          #
+  ######################################
+  securitySchemes:
+    ServerAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: OMGServer Base64(access_key:secret_key)
+    ClientAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: OMGClient Base64(api_key:authentication_token)
+
+  responses:
+    ######################################
+    #          SESSION RESPONSES         #
+    ######################################
+    AuthenticationTokenResponse:
+      description: "Returns a single authentication token"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AuthenticationTokenResponse'
+
+    ######################################
+    #            USER RESPONSES          #
+    ######################################
+    UserResponse:
+      description: "Returns a single user"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/UserResponseSchema'
+
+    ######################################
+    #        TRANSACTION RESPONSES       #
+    ######################################
+    TransactionResponse:
+      description: "Returns a single transaction"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionResponseSchema'
+    TransactionsResponse:
+      description: "Returns a list of transactions"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionsResponseSchema'
+
+    ######################################
+    #          BALANCE RESPONSES         #
+    ######################################
+    SingleAddressesResponse:
+      description: "Returns a list of single addresses"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/SingleAddressesResponse'
+    MultipleAddressesResponse:
+      description: "Returns a list of multiple addresses"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/MultipleAddressesResponse'
+    AddressesResponse:
+      description: "Returns a list of addresses"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/AddressesResponse'
+
+    ######################################
+    #       TRANSACTION RESPONSES        #
+    ######################################
+    # Schema for transaction request response body
+    TransactionRequestResponse:
+      description: Transaction request response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionRequestResponse'
+    # Schema for transaction request response body
+    TransactionRequestConsumptionResponse:
+      description: Transaction request consumption response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionRequestConsumptionResponse'
+
+    ######################################
+    #          SETTING RESPONSES         #
+    ######################################
+    SettingResponse:
+      description: "Returns a list of settings"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/SettingResponse'
+
+    ######################################
+    #       MISCELLANEOUS RESPONSES      #
+    ######################################
+    EmptyResponse:
+      description: "Returns an empty response"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/BaseResponseSchema'
+    InternalServerError:
+      description: "Returns an internal server error"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponseSchema'

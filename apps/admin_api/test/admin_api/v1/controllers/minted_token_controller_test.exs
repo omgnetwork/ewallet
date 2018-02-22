@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.MintedTokenControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.{Repo, MintedToken}
 
   describe "/minted_token.all" do
     test "returns a list of minted tokens and pagination data" do
@@ -69,6 +70,37 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided"
+    end
+  end
+
+  describe "/minted_token.create" do
+    test "inserts a new minted token" do
+      response = user_request("/minted_token.create", %{
+        symbol: "BTC",
+        name: "Bitcoin",
+        description: "desc",
+        subunit_to_unit: 100
+      })
+
+      assert response["success"]
+      assert response["data"]["object"] == "minted_token"
+      assert MintedToken.get(response["data"]["id"]) != nil
+    end
+
+    test "returns insert error when attrs are invalid" do
+      response = user_request("/minted_token.create", %{
+        name: "Bitcoin",
+        description: "desc",
+        subunit_to_unit: 100
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] ==
+             "Invalid parameter provided. `symbol` can't be blank."
+      inserted = MintedToken |> Repo.all() |> Enum.at(0)
+      assert inserted == nil
     end
   end
 end

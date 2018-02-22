@@ -1,4 +1,4 @@
-defmodule EWalletDB.CLI do
+defmodule EWallet.CLI do
   @moduledoc """
   Helper module for working with the command line interface.
   """

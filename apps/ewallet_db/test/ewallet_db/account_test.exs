@@ -15,7 +15,18 @@ defmodule EWalletDB.AccountTest do
 
     test "inserts a non-master account by default" do
       {:ok, account} = :account |> params_for() |> Account.insert
-      assert account.master == false
+      refute Account.master?(account)
+    end
+
+    test "prevents inserting an account without a parent" do
+      {res, changeset} =
+        :account
+        |> params_for(parent: nil)
+        |> Account.insert
+
+      assert res == :error
+      assert changeset.errors ==
+        [{:parent_id, {"can't be blank", [validation: :required]}}]
     end
 
     test "inserts primary/burn balances for the account" do
@@ -80,25 +91,20 @@ defmodule EWalletDB.AccountTest do
 
   describe "get_master_account/1" do
     test "returns the master account" do
-      {:ok, inserted1} = :account |> params_for(master: true) |> Account.insert
-      {:ok, _} = :account |> params_for() |> Account.insert
-      account = Account.get_master_account(true)
+      result = Account.get_master_account(true)
 
-      assert account == inserted1
-      assert account.master == true
+      assert result.id == get_or_insert_master_account().id
+      assert Account.master?(result)
     end
   end
 
   describe "get_master_account/0" do
     test "returns the master account without balances" do
-      {:ok, inserted1} = :account |> params_for(master: true) |> Account.insert
-      {:ok, _} = :account |> params_for() |> Account.insert
-      account = Account.get_master_account()
-      balances = account.balances
+      result  = Account.get_master_account()
 
-      assert account.id == inserted1.id
-      assert %Ecto.Association.NotLoaded{} = balances
-      assert account.master == true
+      assert result.id == get_or_insert_master_account().id
+      assert %Ecto.Association.NotLoaded{} = result.balances
+      assert Account.master?(result)
     end
   end
 

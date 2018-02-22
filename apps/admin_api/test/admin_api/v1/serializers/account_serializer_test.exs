@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
   use AdminAPI.SerializerCase, :v1
   alias AdminAPI.V1.AccountSerializer
   alias EWallet.Web.{Paginator, Date}
+  alias EWalletDB.Account
 
   describe "AccountSerializer.to_json/1" do
     test "serializes an account into V1 response format" do
@@ -13,7 +14,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
         parent_id: account.parent_id,
         name: account.name,
         description: account.description,
-        master: account.master,
+        master: Account.master?(account),
         avatar: %{
           original: nil,
           large: nil,
@@ -49,7 +50,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             parent_id: account1.parent_id,
             name: account1.name,
             description: account1.description,
-            master: account1.master,
+            master: Account.master?(account1),
             avatar: %{
               original: nil,
               large: nil,
@@ -65,7 +66,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             parent_id: account2.parent_id,
             name: account2.name,
             description: account2.description,
-            master: account2.master,
+            master: Account.master?(account2),
             avatar: %{
               original: nil,
               large: nil,

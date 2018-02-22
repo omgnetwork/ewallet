@@ -15,11 +15,11 @@ defmodule EWalletDB.Factory do
     Mint,
     MintedToken,
     Role,
-    User,
-    Transfer,
     ForgetPasswordRequest,
     TransactionRequest,
-    TransactionRequestConsumption
+    TransactionRequestConsumption,
+    Transfer,
+    User
   }
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
@@ -125,7 +125,7 @@ defmodule EWalletDB.Factory do
     %Account{
       name: sequence("account"),
       description: sequence("description for account"),
-      parent_id: nil
+      parent: Account.get_master_account()
     }
   end
 

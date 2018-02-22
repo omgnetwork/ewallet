@@ -49,6 +49,8 @@ defmodule EWalletDB.SchemaCase do
 
       setup do
         :ok = Sandbox.checkout(Repo)
+        %{} = get_or_insert_master_account()
+        :ok
       end
     end
   end
@@ -72,7 +74,7 @@ defmodule EWalletDB.SchemaCase do
       %{} = account ->
         account
       _ ->
-        insert(:account, %{master: true})
+        insert(:account, %{parent: nil})
     end
   end
 

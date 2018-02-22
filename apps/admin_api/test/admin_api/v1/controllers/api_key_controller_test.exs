@@ -1,10 +1,10 @@
 defmodule AdminAPI.V1.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.APIKey
+  alias EWalletDB.{Account, APIKey}
 
   describe "/api_key.all" do
-    test "responds with a list of api keys" do
+    test "responds with a list of api keys when no params are given" do
       [api_key1, api_key2] = ensure_num_records(APIKey, 2)
 
       assert user_request("/api_key.all") ==
@@ -44,11 +44,48 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           }
         }
     end
+
+    test "responds with a list of api keys when given params" do
+      [api_key, _] = ensure_num_records(APIKey, 2)
+      attrs = %{
+        search_term: "",
+        page: 1,
+        per_page: 1,
+        sort_by: "created_at",
+        sort_dir: "asc"
+      }
+
+      assert user_request("/api_key.all", attrs) ==
+        %{
+          "version" => "1",
+          "success" => true,
+          "data" => %{
+            "object" => "list",
+            "data" => [
+              %{
+                "object"     => "api_key",
+                "id"         => api_key.id,
+                "key"        => api_key.key,
+                "account_id" => api_key.account_id,
+                "owner_app"  => api_key.owner_app,
+                "created_at" => Date.to_iso8601(api_key.inserted_at),
+                "updated_at" => Date.to_iso8601(api_key.updated_at),
+                "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+              }
+            ],
+            "pagination" => %{
+              "current_page"  => 1,
+              "per_page"      => 1,
+              "is_first_page" => true,
+              "is_last_page"  => false
+            }
+          }
+        }
+    end
   end
 
   describe "/api_key.create" do
     test "responds with an API key on success" do
-      master_account = insert(:account, %{master: true})
       response       = user_request("/api_key.create", %{owner_app: "some_app"})
       api_key        = get_last_inserted(APIKey)
 
@@ -59,7 +96,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
           "object"     => "api_key",
           "id"         => api_key.id,
           "key"        => api_key.key,
-          "account_id" => master_account.id,
+          "account_id" => Account.get_master_account().id,
           "owner_app"  => "some_app",
           "created_at" => Date.to_iso8601(api_key.inserted_at),
           "updated_at" => Date.to_iso8601(api_key.updated_at),
@@ -69,7 +106,6 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "returns error if owner_app is not provided" do
-      _master  = insert(:account, %{master: true})
       response = user_request("/api_key.create", %{owner_app: nil})
 
       assert response == %{

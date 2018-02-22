@@ -12,6 +12,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   # any operations are done on the field names. For example:
   # `"request_field_name" => "db_column_name"`
   @mapped_fields %{
+    "id" => "friendly_id",
     "created_at" => "inserted_at"
   }
 
@@ -24,7 +25,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:friendly_id, :symbol, :name, :inserted_at, :updated_at]
+  @sort_fields [:friendly_id, :symbol, :name, :subunit_to_unit, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of minted tokens.
@@ -50,6 +51,17 @@ defmodule AdminAPI.V1.MintedTokenController do
   end
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  @doc """
+  Creates a new Minted Token.
+  """
+  def create(%{assigns: %{account: account}} = conn, attrs) do
+    attrs
+    |> Map.put("account_id", account.id)
+    |> MintedToken.insert()
+    |> respond_single(conn)
+  end
+  def create(conn, _), do: handle_error(conn, :invalid_parameter)
+
   # Respond with a list of minted tokens
   defp respond_multiple(%Paginator{} = paged_minted_tokens, conn) do
     render(conn, :minted_tokens, %{minted_tokens: paged_minted_tokens})
@@ -59,6 +71,12 @@ defmodule AdminAPI.V1.MintedTokenController do
   end
 
   # Respond with a single minted token
+  defp respond_single({:error, changeset}, conn) do
+    handle_error(conn, :invalid_parameter, changeset)
+  end
+  defp respond_single({:ok, minted_token}, conn) do
+    render(conn, :minted_token, %{minted_token: minted_token})
+  end
   defp respond_single(%MintedToken{} = minted_token, conn) do
     render(conn, :minted_token, %{minted_token: minted_token})
   end

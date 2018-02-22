@@ -12,11 +12,11 @@ defmodule EWallet.BalanceTest do
       user_balance   = User.get_primary_balance(user)
       {:ok, btc}     = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
       {:ok, omg}     = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
-      {:ok, mnt}     = :minted_token |> params_for(symbol: "MNT") |> MintedToken.insert()
+      {:ok, knc}     = :minted_token |> params_for(symbol: "KNC") |> MintedToken.insert()
 
       mint!(btc)
       mint!(omg)
-      mint!(mnt)
+      mint!(knc)
 
       transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
@@ -28,7 +28,7 @@ defmodule EWallet.BalanceTest do
       assert address.balances == [
         %{minted_token: btc, amount: 150_000 * btc.subunit_to_unit},
         %{minted_token: omg, amount: 12_000 * omg.subunit_to_unit},
-        %{minted_token: mnt, amount: 0}
+        %{minted_token: knc, amount: 0}
       ]
     end
   end
@@ -41,11 +41,11 @@ defmodule EWallet.BalanceTest do
       user_balance   = User.get_primary_balance(user)
       {:ok, omg}     = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
       {:ok, btc}     = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
-      {:ok, mnt}     = :minted_token |> params_for(symbol: "MNT") |> MintedToken.insert()
+      {:ok, knc}     = :minted_token |> params_for(symbol: "KNC") |> MintedToken.insert()
 
       mint!(btc)
       mint!(omg)
-      mint!(mnt)
+      mint!(knc)
 
       transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)

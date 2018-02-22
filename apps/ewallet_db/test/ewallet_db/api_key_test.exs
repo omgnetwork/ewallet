@@ -36,7 +36,6 @@ defmodule EWalletDB.APIKeyTest do
     test_insert_generate_length APIKey, :key, 43 # 32 bytes = ceil(32 / 3 * 4)
 
     test_insert_allow_duplicate APIKey, :account, insert(:account)
-    test_insert_prevent_blank_assoc APIKey, :account
     test_insert_prevent_duplicate APIKey, :key
 
     test "defaults to master account if not provided" do
@@ -59,7 +58,7 @@ defmodule EWalletDB.APIKeyTest do
       })
       |> APIKey.insert
 
-      assert APIKey.authenticate("apikey123", @owner_app) == account
+      assert APIKey.authenticate("apikey123", @owner_app).id == account.id
     end
 
     test "returns false if API key does not exists" do
@@ -96,7 +95,7 @@ defmodule EWalletDB.APIKeyTest do
         })
         |> APIKey.insert
 
-      assert APIKey.authenticate(api_key.id, api_key.key, @owner_app) == account
+      assert APIKey.authenticate(api_key.id, api_key.key, @owner_app).id == account.id
     end
 
     test "returns false if API key does not exists" do

@@ -84,6 +84,15 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Retrieves all the addresses for the given user.
+  """
+  def addresses(user) do
+    Enum.map(user.balances, fn balance ->
+      balance.address
+    end)
+  end
+
+  @doc """
   Retrieves a specific user.
   """
   def get(id, queryable \\ User) do
@@ -252,6 +261,49 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Retrieves the user's role on the given account.
+
+  If the user does not have a membership on the given account, it inherits
+  the role from the closest parent account that has one.
+  """
+  def get_role(user_id, account_id) do
+    with {:ok, user_id} <- UUID.cast(user_id),
+         {:ok, account_id} <- UUID.cast(account_id),
+         query <- query_role(user_id, account_id)
+    do
+      Repo.one(query)
+    else
+      :error ->
+        {:error, :invalid_parameter}
+    end
+  end
+
+  defp query_role(user_id, account_id) do
+    # Traverses up the account tree to find the user's role in the closest parent.
+    from r in Role,
+      join: account_tree in fragment("""
+        WITH RECURSIVE account_tree AS (
+          SELECT a.*, m.role_id, m.user_id
+          FROM account a
+          LEFT JOIN membership AS m ON m.account_id = a.id
+          WHERE a.id = ?
+        UNION
+          SELECT parent.*, m.role_id, m.user_id
+          FROM account parent
+          LEFT JOIN membership AS m ON m.account_id = parent.id
+          JOIN account_tree ON account_tree.parent_id = parent.id
+        )
+        SELECT role_id FROM account_tree
+        JOIN role AS r ON r.id = role_id
+        WHERE account_tree.user_id = ? LIMIT 1
+      """,
+        type(^account_id, UUID),
+        type(^user_id, UUID)
+      ), on: r.id == account_tree.role_id,
+      select: r.name
+  end
+
+  @doc """
   Retrieves the upper-most account that the given user has membership in.
   """
   def get_account(user) do
@@ -280,6 +332,7 @@ defmodule EWalletDB.User do
       |> Membership.all_by_user()
       |> Enum.map(fn(m) -> Map.fetch!(m, :account_id) end)
 
+    # Traverses down the account tree
     from a in Account,
       join: child in fragment("""
         WITH RECURSIVE account_tree AS (

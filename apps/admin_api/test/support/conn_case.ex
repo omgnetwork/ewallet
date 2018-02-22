@@ -81,8 +81,11 @@ defmodule AdminAPI.ConnCase do
       email: @user_email,
       provider_user_id: @provider_user_id
     })
+    account     = insert(:account, %{parent: nil})
+    role        = insert(:role, %{name: "admin"})
     _api_key    = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
     _auth_token = insert(:auth_token, %{user: user, token: @auth_token, owner_app: "admin_api"})
+    _membership = insert(:membership, %{user: user, role: role, account: account})
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code

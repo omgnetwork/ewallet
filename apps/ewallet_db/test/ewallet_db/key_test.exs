@@ -67,8 +67,6 @@ defmodule EWalletDB.KeyTest do
     test_insert_generate_timestamps Key
     test_insert_generate_length Key, :access_key, 43
     test_insert_generate_length Key, :secret_key, 43
-
-    test_insert_prevent_blank_assoc Key, :account
     test_insert_prevent_duplicate Key, :access_key
 
     test "hashes secret_key with bcrypt before saving" do

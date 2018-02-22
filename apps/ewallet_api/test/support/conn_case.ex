@@ -67,7 +67,7 @@ defmodule EWalletAPI.ConnCase do
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize balances, etc.
-    {:ok, account} = :account |> params_for(master: true) |> Account.insert()
+    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
     {:ok, user} =
       :user

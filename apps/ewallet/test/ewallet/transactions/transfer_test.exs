@@ -36,7 +36,7 @@
 
       {:ok, inserted_transfer} = Transactions.Transfer.get_or_insert(attrs)
 
-      transfer = Transfer.get(attrs.idempotency_token)
+      transfer = Transfer.get_by_idempotency_token(attrs.idempotency_token)
       assert transfer.id == inserted_transfer.id
       assert transfer.type == Transfer.internal
     end
@@ -81,9 +81,8 @@
       {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
       transfer = Transactions.Transfer.genesis(transfer)
 
-      assert transfer.status == "confirmed"
-      assert %{"entry_id" => _} = transfer.ledger_response
       assert transfer.status == Transfer.confirmed
+      assert %{"entry_id" => _} = transfer.ledger_response
     end
   end
 end
