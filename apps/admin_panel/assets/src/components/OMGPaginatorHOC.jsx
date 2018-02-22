@@ -16,8 +16,8 @@ const OMGPaginatorFactory = (PaginatedComponent) => {
         data: [],
         query: '',
         sort: {
-          by: 'id',
-          dir: 'asc',
+          by: defaultPagination.SORT_BY,
+          dir: defaultPagination.SORT_DIR,
         },
       };
       this.handlePageChange = this.handlePageChange.bind(this);

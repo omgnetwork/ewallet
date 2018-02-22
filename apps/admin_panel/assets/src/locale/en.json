@@ -166,7 +166,7 @@
       "to": "To",
       "created_at": "Created At",
       "status": "Status",
-      "idempotency_token": "Idem Token"
+      "idempotency_token": "Idempotency Token"
     },
     "new": {
       "create_a_transaction": "Create a Transaction",

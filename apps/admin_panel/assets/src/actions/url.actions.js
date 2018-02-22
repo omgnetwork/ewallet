@@ -13,8 +13,8 @@ class URLActions {
     const per = params.per
       ? Math.min(parseInt(params.per, 10), defaultPagination.PER)
       : defaultPagination.PER;
-    const sortBy = params.sort_by ? params.sort_by : 'id';
-    const sortDir = params.sort_dir ? params.sort_dir : 'asc';
+    const sortBy = params.sort_by ? params.sort_by : defaultPagination.SORT_BY;
+    const sortDir = params.sort_dir ? params.sort_dir : defaultPagination.SORT_DIR;
 
     const sort = {
       by: sortBy,
