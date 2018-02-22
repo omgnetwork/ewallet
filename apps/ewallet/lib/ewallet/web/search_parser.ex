@@ -17,36 +17,55 @@ defmodule EWallet.Web.SearchParser do
 
   Where "field_name" is in the list of available search fields.
   """
-  @spec to_query(Ecto.Query.t, map, list) :: {Ecto.Query.t}
-  def to_query(queryable, %{"search_term" => term}, fields) do
-    Enum.reduce(fields, queryable, fn(field, query) ->
-      build_search_query(query, field, term)
+  def to_query(queryable, %{"search_terms" => terms}, fields) when terms != nil do
+    {_i, query} = Enum.reduce(terms, {0, queryable}, fn({field, value}, {index, query}) ->
+      fields
+      |> is_allowed_field?(field)
+      |> build_search_query(index, query, value)
     end)
+
+    query
   end
-  def to_query(queryable, %{"search_terms" => terms}, fields) do
-    Enum.reduce(terms, queryable, fn({field, value}, query) ->
-      case is_allowed_field?(fields, field) do
-        nil    -> query
-        field  -> build_search_query(query, field, value)
-      end
+  def to_query(queryable, %{"search_term" => term}, fields) when term != nil do
+    {_i, query} = Enum.reduce(fields, {0, queryable}, fn(field, {index, query}) ->
+      build_search_query(field, index, query, term)
     end)
+
+    query
   end
   def to_query(queryable, _, _), do: queryable
 
   defp is_allowed_field?(fields, field) do
-    atom_field = String.to_atom(field)
+    atom_field = String.to_existing_atom(field)
 
     cond do
       Enum.member?(fields, {atom_field, :uuid}) -> {atom_field, :uuid}
       Enum.member?(fields, atom_field)          -> atom_field
       true                                      -> nil
     end
+  rescue
+    _ in ArgumentError -> nil
   end
 
-  defp build_search_query(query, {field, :uuid}, term) do
+  defp build_search_query(nil, index, query, value), do: {index, query}
+  defp build_search_query(field, index, query, value) do
+    case index do
+      0 -> {index + 1, build_and_search_query(query, field, value)}
+      _ -> {index, build_or_search_query(query, field, value)}
+    end
+  end
+
+  defp build_or_search_query(query, {field, :uuid}, term) do
     from q in query, or_where: ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%")
   end
-  defp build_search_query(query, field, term) do
+  defp build_or_search_query(query, field, term) do
     from q in query, or_where: ilike(field(q, ^field), ^"%#{term}%")
+  end
+
+  defp build_and_search_query(query, {field, :uuid}, term) do
+    from q in query, where: ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%")
+  end
+  defp build_and_search_query(query, field, term) do
+    from q in query, where: ilike(field(q, ^field), ^"%#{term}%")
   end
 end
