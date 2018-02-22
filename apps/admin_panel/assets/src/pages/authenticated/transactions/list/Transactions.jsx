@@ -10,6 +10,7 @@ const Transactions = props => (
     createRecordUrl="/transactions/new"
     headerText={headerText}
     tables={tables}
+    visible={{ addBtn: false }}
     {...props}
   />
 );
