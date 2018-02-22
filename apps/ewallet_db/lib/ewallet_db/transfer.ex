@@ -3,10 +3,10 @@ defmodule EWalletDB.Transfer do
   Ecto Schema representing transfers.
   """
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Transfer, Balance, MintedToken}
+  alias EWalletDB.{Repo, Transfer, Balance, MintedToken, Helpers}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -66,10 +66,17 @@ defmodule EWalletDB.Transfer do
   end
 
   @doc """
+  Gets all transfers for the given address.
+  """
+  def all_for_address(address) do
+    from t in Transfer, where: (t.from == ^address) or (t.to == ^address)
+  end
+
+  @doc """
   Gets a transfer with the given idempotency token, inserts a new one if not found.
   """
   def get_or_insert(%{idempotency_token: idempotency_token} = attrs) do
-    case get(idempotency_token, %{preload: true}) do
+    case get_by_idempotency_token(idempotency_token) do
       nil ->
         insert(attrs)
       transfer ->
@@ -78,21 +85,42 @@ defmodule EWalletDB.Transfer do
   end
 
   @doc """
-  Gets a transfer with the given idempotency token.
+  Gets a transfer.
   """
-  def get(idempotency_token) do
-    Transfer
-    |> Repo.get_by(idempotency_token: idempotency_token)
+  @spec get(UUID.t) :: %Transfer{} | nil
+  @spec get(UUID.t, List.t) :: %Transfer{} | nil
+  def get(nil), do: nil
+  def get(id, opts \\ [])
+  def get(nil, _), do: nil
+  def get(id, opts) do
+    case Helpers.UUID.valid?(id) do
+      true  -> get_by(%{id: id}, opts)
+      false -> nil
+    end
   end
 
   @doc """
-  Gets a transfer with the given idempotency token and preloads the from, to and minted token
+  Get a transfer using one or more fields.
+  """
+  @spec get_by(Map.t, List.t) :: %Transfer{} | nil
+  def get_by(map, opts \\ []) do
+    query = Transfer |> Repo.get_by(map)
+
+    case opts[:preload] do
+      nil     -> query
+      preload -> Repo.preload(query, preload)
+    end
+  end
+
+  @doc """
+  Helper function to get a transfer with an idempotency token and loads all the required
   associations.
   """
-  def get(idempotency_token, %{preload: true}) do
-    idempotency_token
-    |> get()
-    |> Repo.preload([:from_balance, :to_balance, :minted_token])
+  @spec get_by_idempotency_token(String.t) :: %Transfer{} | nil
+  def get_by_idempotency_token(idempotency_token) do
+    get_by(%{
+      idempotency_token: idempotency_token
+    }, preload: [:from_balance, :to_balance, :minted_token])
   end
 
   @doc """
@@ -104,7 +132,7 @@ defmodule EWalletDB.Transfer do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
     case Repo.insert(changeset, opts) do
       {:ok, transfer} ->
-        {:ok, get(transfer.idempotency_token, %{preload: true})}
+        {:ok, get_by_idempotency_token(transfer.idempotency_token)}
       changeset ->
         changeset
     end
@@ -118,7 +146,7 @@ defmodule EWalletDB.Transfer do
     |> changeset(%{status: @confirmed, ledger_response: ledger_response})
     |> Repo.update()
 
-    get(transfer.idempotency_token)
+    get_by_idempotency_token(transfer.idempotency_token)
   end
 
   @doc """
@@ -129,6 +157,6 @@ defmodule EWalletDB.Transfer do
     |> changeset(%{status: @failed, ledger_response: ledger_response})
     |> Repo.update()
 
-    get(transfer.idempotency_token)
+    get_by_idempotency_token(transfer.idempotency_token)
   end
 end

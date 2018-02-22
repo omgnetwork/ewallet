@@ -1,458 +1,320 @@
 defmodule EWalletAPI.V1.TransactionControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{User, MintedToken, Account}
-  alias Ecto.UUID
+  alias EWalletDB.User
 
-  describe "/transfer" do
-    test "returns idempotency error if header is not specified" do
-      balance1 = insert(:balance)
-      balance2 = insert(:balance)
-      minted_token = insert(:minted_token)
+  setup do
+    user = get_test_user()
+    balance_1 = User.get_primary_balance(user)
+    balance_2 = insert(:balance)
+    balance_3 = insert(:balance)
+    balance_4 = insert(:balance, user: user, identifier: "secondary")
 
-      request_data = %{
-        from_address: balance1.address,
-        to_address: balance2.address,
-        token_id: minted_token.friendly_id,
-        amount: 1_000 * minted_token.subunit_to_unit,
-        metadata: %{}
-      }
+    %{
+      user:       user,
+      balance_1:  balance_1,
+      balance_2:  balance_2,
+      balance_3:  balance_3,
+      balance_4:  balance_4,
+      transfer_1: insert(:transfer, %{
+        from_balance: balance_1, to_balance: balance_2, status: "confirmed"
+      }),
+      transfer_2: insert(:transfer, %{
+        from_balance: balance_2, to_balance: balance_1, status: "confirmed"
+      }),
+      transfer_3: insert(:transfer, %{
+        from_balance: balance_1, to_balance: balance_3, status: "confirmed"
+      }),
+      transfer_4: insert(:transfer, %{
+        from_balance: balance_1, to_balance: balance_2, status: "pending"
+      }),
+      transfer_5: insert(:transfer, %{status: "confirmed"}),
+      transfer_6: insert(:transfer, %{status: "pending"}),
+      transfer_7: insert(:transfer, %{
+        from_balance: balance_4, to_balance: balance_2, status: "confirmed"
+      }),
+      transfer_8: insert(:transfer, %{
+        from_balance: balance_4, to_balance: balance_3, status: "pending"
+      }),
+    }
+  end
 
-      response = provider_request("/transfer", request_data)
+  describe "/transactions.all" do
+    test "returns all the transactions", meta do
+      response = provider_request("/transaction.all", %{})
+      assert response["data"]["data"] |> length() == 8
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_1.id,
+        meta.transfer_2.id,
+        meta.transfer_3.id,
+        meta.transfer_4.id,
+        meta.transfer_5.id,
+        meta.transfer_6.id,
+        meta.transfer_7.id,
+        meta.transfer_8.id
+      ]
+    end
 
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:no_idempotency_token_provided",
-          "description" =>
-            "The call you made requires the Idempotency-Token header to prevent duplication.",
-          "messages" => nil,
-          "object" => "error"
+    test "returns all the transactions for a specific address", meta do
+      response = provider_request("/transaction.all", %{
+        "search_terms" => %{
+          "from" => meta.balance_1.address,
+          "to"   => meta.balance_2.address
         }
-      }
-    end
-
-    test "updates the user balance and returns the updated amount" do
-      account        = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
-      balance1      = insert(:balance)
-      balance2      = insert(:balance)
-      minted_token   = insert(:minted_token)
-      _mint          = mint!(minted_token)
-
-      transfer!(master_balance.address, balance1.address,
-                minted_token, 200_000 * minted_token.subunit_to_unit)
-
-      response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
-        from_address: balance1.address,
-        to_address: balance2.address,
-        token_id: minted_token.friendly_id,
-        amount: 100_000 * minted_token.subunit_to_unit,
-        metadata: %{}
       })
-
-      assert response == %{
-        "success" => true,
-        "version" => "1",
-        "data" => %{
-          "object" => "list",
-          "data" => [
-            %{
-              "object" => "address",
-              "address" => balance1.address,
-              "balances" => [
-                %{
-                  "object" => "balance",
-                  "amount" => 100_000 * minted_token.subunit_to_unit,
-                  "minted_token" => %{
-                    "name" => minted_token.name,
-                    "object" => "minted_token",
-                    "subunit_to_unit" => 100,
-                    "id" => minted_token.friendly_id,
-                    "symbol" => minted_token.symbol
-                  }
-                }
-              ]
-            },
-            %{
-              "object" => "address",
-              "address" => balance2.address,
-              "balances" => [
-                %{
-                  "object" => "balance",
-                  "amount" => 100_000 * minted_token.subunit_to_unit,
-                  "minted_token" => %{
-                    "id" => minted_token.friendly_id,
-                    "name" => minted_token.name,
-                    "object" => "minted_token",
-                    "subunit_to_unit" => 100,
-                    "symbol" => minted_token.symbol
-                  },
-                }
-              ]
-            }
-          ]
-        }
-      }
+      assert response["data"]["data"] |> length() == 4
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_1.id,
+        meta.transfer_3.id,
+        meta.transfer_4.id,
+        meta.transfer_7.id
+      ]
     end
 
-    test "returns insufficient_funds when the user is too poor" do
-      balance1      = insert(:balance)
-      balance2      = insert(:balance)
-      minted_token   = insert(:minted_token)
-
-      response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
-         from_address: balance1.address,
-         to_address: balance2.address,
-         token_id: minted_token.friendly_id,
-         amount: 100_000 * minted_token.subunit_to_unit,
-         metadata: %{}
-       })
-
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:insufficient_funds",
-          "description" => "The specified balance (#{balance1.address}) does not " <>
-          "contain enough funds. Available: 0 #{minted_token.friendly_id} - " <>
-          "Attempted debit: 10000000 #{minted_token.friendly_id}",
-          "messages" => nil,
-          "object" => "error"
-        }
-      }
-    end
-
-    test "returns from_address_not_found when the from balance is not found" do
-      balance = insert(:balance)
-      minted_token = insert(:minted_token)
-
-      response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
-        from_address: "123",
-        to_address: balance.address,
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        metadata: %{}
+    test "returns all transactions filtered", meta do
+      response = provider_request("/transaction.all", %{
+        "sort_by" => "created_at",
+        "sort_dir" => "asc",
+        "search_term" => "pending"
       })
-
-      assert response == %{
-       "success" => false,
-       "version" => "1",
-       "data" => %{
-         "code" => "user:from_address_not_found",
-         "description" =>
-           "No balance found for the provided from_address.",
-         "messages" => nil,
-         "object" => "error"
-       }}
+      assert response["data"]["data"] |> length() == 3
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_4.id,
+        meta.transfer_6.id,
+        meta.transfer_8.id
+      ]
     end
 
-    test "returns to_address_not_found when the to balance is not found" do
-      balance = insert(:balance)
-      minted_token = insert(:minted_token)
-
-      response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
-        from_address: balance.address,
-        to_address: "123",
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        metadata: %{}
+    test "returns all transactions sorted and paginated", meta do
+      response = provider_request("/transaction.all", %{
+        "sort_by" => "created_at",
+        "sort_dir" => "asc",
+        "per_page" => 2,
+        "page" => 1
       })
-
-      assert response == %{
-       "success" => false,
-       "version" => "1",
-       "data" => %{
-         "code" => "user:to_address_not_found",
-         "description" =>
-           "No balance found for the provided to_address.",
-         "messages" => nil,
-         "object" => "error"
-       }}
-    end
-
-    test "returns minted_token_not_found when the minted token is not found" do
-      balance1 = insert(:balance)
-      balance2 = insert(:balance)
-
-      response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
-        from_address: balance1.address,
-        to_address: balance2.address,
-        token_id: "BTC:456",
-        amount: 100_000,
-        metadata: %{}
-      })
-
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "user:minted_token_not_found",
-          "description" =>
-            "There is no minted token matching the provided token_id.",
-          "messages" => nil,
-          "object" => "error"
-        }}
+      assert response["data"]["data"] |> length() == 2
+      transaction_1 = Enum.at(response["data"]["data"], 0)
+      transaction_2 = Enum.at(response["data"]["data"], 1)
+      assert transaction_2["created_at"] > transaction_1["created_at"]
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_1.id,
+        meta.transfer_2.id
+      ]
     end
   end
 
-  describe "/user.credit_balance" do
-    test "returns idempotency error if header is not specified" do
-      {:ok, user} = :user |> params_for() |> User.insert()
-      {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert()
-
-      response = provider_request("/user.credit_balance", %{
-        provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        metadata: %{}
+  describe "/user.list_transactions" do
+    test "returns all the transactions for a specific provider_user_id", meta do
+      response = provider_request("/user.list_transactions", %{
+        "provider_user_id" => meta.user.provider_user_id
       })
+      assert response["data"]["data"] |> length() == 4
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_1.id,
+        meta.transfer_2.id,
+        meta.transfer_3.id,
+        meta.transfer_4.id
+      ]
+    end
 
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:no_idempotency_token_provided",
-          "description" =>
-            "The call you made requires the Idempotency-Token header to prevent duplication.",
-          "messages" => nil,
-          "object" => "error"
+    test "returns all the transactions for a specific provider_user_id and valid address", meta do
+      response = provider_request("/user.list_transactions", %{
+        "provider_user_id" => meta.user.provider_user_id,
+        "address" => meta.balance_4.address
+      })
+      assert response["data"]["data"] |> length() == 2
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_7.id,
+        meta.transfer_8.id,
+      ]
+    end
+
+    test "returns an 'user:user_balance_mismatch' error with provider_user_id and invalid address", meta do
+
+      response = provider_request("/user.list_transactions", %{
+        "provider_user_id" => meta.user.provider_user_id,
+        "address" => meta.balance_2.address
+      })
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:user_balance_mismatch"
+      assert response["data"]["description"] ==
+             "The provided balance does not belong to the current user"
+    end
+
+    test "returns the user's transactions even when different search terms are provided", meta do
+      response = provider_request("/user.list_transactions", %{
+        "provider_user_id" => meta.user.provider_user_id,
+        "sort_by" => "created_at",
+        "sort_dir" => "desc",
+        "search_terms" => %{
+          "from" => meta.balance_2.address,
+          "to"   => meta.balance_2.address
         }
-      }
+      })
+      assert response["data"]["data"] |> length() == 4
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_4.id,
+        meta.transfer_3.id,
+        meta.transfer_2.id,
+        meta.transfer_1.id
+      ]
     end
 
-    test "updates the user balance and returns the updated amount" do
-      {:ok, user}    = :user |> params_for() |> User.insert()
-      user_balance   = User.get_primary_balance(user)
-      account        = Account.get_master_account()
-      minted_token   = insert(:minted_token, account: account)
-      _mint          = mint!(minted_token)
-
-      response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
-        provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
-        amount: 1_000 * minted_token.subunit_to_unit,
-        metadata: %{}
+    test "returns all transactions filtered", meta do
+      response = provider_request("/user.list_transactions", %{
+        "provider_user_id" => meta.user.provider_user_id,
+        "search_terms" => %{"status" => "pending"}
       })
-
-      assert response == %{
-        "success" => true,
-        "version" => "1",
-        "data" => %{
-          "object" => "list",
-          "data" => [
-            %{
-              "object" => "address",
-              "address" => user_balance.address,
-              "balances" => [
-                %{
-                  "object" => "balance",
-                  "amount" => 1_000 * minted_token.subunit_to_unit,
-                  "minted_token" => %{
-                    "name" => minted_token.name,
-                    "object" => "minted_token",
-                    "subunit_to_unit" => 100,
-                    "id" => minted_token.friendly_id,
-                    "symbol" => minted_token.symbol
-                  }
-                }
-              ]
-            }
-          ]
-        }
-      }
+      assert response["data"]["data"] |> length() == 1
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_4.id
+      ]
     end
 
-    test "returns invalid_parameter when the provider_user_id is missing" do
-      {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert()
-
-      response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        metadata: %{}
+    test "returns all transactions sorted and paginated", meta do
+      response = provider_request("/user.list_transactions", %{
+        "provider_user_id" => meta.user.provider_user_id,
+        "sort_by" => "created_at",
+        "sort_dir" => "asc",
+        "per_page" => 2,
+        "page" => 1
       })
-
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided",
-          "messages" => nil,
-          "object" => "error"
-        }}
-    end
-
-    test "returns user_not_found when the user is not found" do
-      {:ok, account} = :account |> params_for() |> Account.insert()
-      {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
-
-      response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
-        provider_user_id: "fake",
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        metadata: %{}
-      })
-
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "user:provider_user_id_not_found",
-          "description" =>
-            "There is no user corresponding to the provided " <>
-            "provider_user_id",
-          "messages" => nil,
-          "object" => "error"
-        }}
-    end
-
-    test "returns account_id when the account is not found" do
-      {:ok, user} = :user |> params_for() |> User.insert()
-      {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert()
-
-      response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
-        provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        account_id: "123",
-        metadata: %{}
-      })
-
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "user:account_id_not_found",
-          "description" => "There is no account corresponding to the provided account_id",
-          "messages" => nil, "object" => "error"
-        }
-      }
-    end
-
-    test "returns minted_token_not_found when the minted token is not found" do
-      {:ok, user} = :user |> params_for() |> User.insert()
-      {:ok, account} = :account |> params_for() |> Account.insert()
-
-      response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
-        provider_user_id: user.provider_user_id,
-        token_id: "BTC:456",
-        amount: 100_000,
-        metadata: %{},
-        account_id: account.id
-      })
-
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "user:minted_token_not_found",
-          "description" =>
-            "There is no minted token matching the provided token_id.",
-          "messages" => nil,
-          "object" => "error"
-        }}
+      assert response["data"]["data"] |> length() == 2
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_1.id,
+        meta.transfer_2.id
+      ]
     end
   end
 
-  describe "/user.debit_balance" do
-    test "returns idempotency error if header is not specified" do
-      {:ok, user} = :user |> params_for() |> User.insert()
-      {:ok, account} = :account |> params_for() |> Account.insert()
-      {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
-
-       response = provider_request("/user.debit_balance", %{
-        provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        metadata: %{}
+  describe "/me.list_transactions" do
+    test "returns all the transactions for the current user", meta do
+      response = client_request("/me.list_transactions", %{
+        "sort_by" => "created_at"
       })
-
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:no_idempotency_token_provided",
-          "description" =>
-            "The call you made requires the Idempotency-Token header to prevent duplication.",
-          "messages" => nil,
-          "object" => "error"
-        }
-      }
+      assert response["data"]["data"] |> length() == 4
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_1.id,
+        meta.transfer_2.id,
+        meta.transfer_3.id,
+        meta.transfer_4.id
+      ]
     end
 
-    test "returns insufficient_funds when the user is too poor" do
-      {:ok, account} = :account |> params_for() |> Account.insert()
-      {:ok, user} = :user |> params_for() |> User.insert()
-      user_balance   = User.get_primary_balance(user)
-      {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
-
-      response = provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
-        provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
-        amount: 100_000,
-        metadata: %{}
+    test "ignores search terms if both from and to are provided and
+          address does not belong to user", meta do
+      response = client_request("/me.list_transactions", %{
+        "sort_by" => "created_at",
+        "search_terms" => %{
+          "from" => meta.balance_2.address,
+          "to" => meta.balance_2.address
+        }
       })
 
-      assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:insufficient_funds",
-          "description" => "The specified balance (#{user_balance.address})" <>
-          " does not contain enough funds. Available: 0 " <>
-          "#{minted_token.friendly_id} - Attempted debit: 100000 " <>
-          "#{minted_token.friendly_id}",
-          "messages" => nil,
-          "object" => "error"
-        }
-      }
+      assert response["data"]["data"] |> length() == 4
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_1.id,
+        meta.transfer_2.id,
+        meta.transfer_3.id,
+        meta.transfer_4.id
+      ]
     end
 
-    test "returns the updated balances when the user has enough funds" do
-      account = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
-      {:ok, user} = :user |> params_for() |> User.insert()
-      user_balance   = User.get_primary_balance(user)
-      {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
-      mint!(minted_token)
-
-      transfer!(master_balance.address, user_balance.address,
-                minted_token, 200_000 * minted_token.subunit_to_unit)
-
-      response = provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
-        provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
-        amount: 150_000 * minted_token.subunit_to_unit,
-        metadata: %{}
+    test "returns only the transactions sent to a specific balance with nil from", meta do
+      response = client_request("/me.list_transactions", %{
+        "search_terms" => %{
+          "from" => nil,
+          "to" => meta.balance_3.address
+        }
       })
 
-      assert response == %{
-        "version" => "1",
-        "success" => true,
-        "data" => %{
-          "object" => "list",
-          "data" => [
-            %{
-              "object" => "address",
-              "address" => User.get_primary_balance(user).address,
-              "balances" => [
-                %{
-                  "object" => "balance",
-                  "amount" => 50_000 * minted_token.subunit_to_unit,
-                  "minted_token" => %{
-                    "name" => minted_token.name,
-                    "object" => "minted_token",
-                    "subunit_to_unit" => 100,
-                    "symbol" => minted_token.symbol,
-                    "id" => minted_token.friendly_id,
-                  }
-                }
-              ]
-            }
-          ]
+      assert response["data"]["data"] |> length() == 1
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_3.id,
+      ]
+    end
+
+    test "returns only the transactions sent to a specific balance", meta do
+      response = client_request("/me.list_transactions", %{
+        "search_terms" => %{
+          "to" => meta.balance_3.address
         }
-      }
+      })
+
+      assert response["data"]["data"] |> length() == 1
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_3.id,
+      ]
+    end
+
+    test "returns all transactions for the current user sorted", meta do
+      response = client_request("/me.list_transactions", %{
+        "sort_by"  => "created_at",
+        "sort_dir" => "desc"
+      })
+
+      assert response["data"]["data"] |> length() == 4
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_4.id,
+        meta.transfer_3.id,
+        meta.transfer_2.id,
+        meta.transfer_1.id
+      ]
+    end
+
+    test "returns all transactions for the current user filtered", meta do
+      response = client_request("/me.list_transactions", %{
+        "search_terms" => %{"status" => "pending"}
+      })
+
+      assert response["data"]["data"] |> length() == 1
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_4.id
+      ]
+    end
+
+    test "returns all transactions for the current user paginated", meta do
+      response = client_request("/me.list_transactions", %{
+        "page"  => 2,
+        "per_page" => 1,
+        "sort_by"  => "created_at",
+        "sort_dir" => "desc"
+      })
+
+      assert Enum.map(response["data"]["data"], fn t ->
+        t["id"]
+      end) == [
+        meta.transfer_3.id
+      ]
     end
   end
 end

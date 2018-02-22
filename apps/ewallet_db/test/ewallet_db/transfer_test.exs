@@ -29,7 +29,7 @@ defmodule EWalletDB.TransferTest do
   describe "get/1" do
     test "retrieves a transfer by idempotency token" do
       {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
-      transfer = Transfer.get(inserted_transfer.idempotency_token)
+      transfer = Transfer.get_by_idempotency_token(inserted_transfer.idempotency_token)
 
       assert transfer.id == inserted_transfer.id
     end

@@ -135,7 +135,7 @@ defmodule EWallet.TransactionTest do
       assert code == "client:insufficient_funds"
       assert "The specified balance" <> _ = description
 
-      transfer = Transfer.get(idempotency_token)
+      transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.failed
       assert transfer.payload == %{
@@ -163,7 +163,7 @@ defmodule EWallet.TransactionTest do
       {status, _transfer, _balances, _minted_token} = Transaction.process_with_addresses(attrs)
       assert status == :ok
 
-      transfer = Transfer.get(idempotency_token)
+      transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.confirmed
       assert transfer.payload == %{
@@ -311,7 +311,7 @@ defmodule EWallet.TransactionTest do
       assert code == "client:insufficient_funds"
       assert "The specified balance" <> _ = description
 
-      transfer = Transfer.get(idempotency_token)
+      transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.failed
       assert transfer.payload == %{
@@ -341,7 +341,7 @@ defmodule EWallet.TransactionTest do
       {status, _transfer, _balances, _minted_token} = Transaction.process_credit_or_debit(attrs)
       assert status == :ok
 
-      transfer = Transfer.get(idempotency_token)
+      transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.confirmed
       assert transfer.payload == %{
