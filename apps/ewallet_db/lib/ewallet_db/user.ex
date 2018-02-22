@@ -84,6 +84,15 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Retrieves all the addresses for the given user.
+  """
+  def addresses(user) do
+    Enum.map(user.balances, fn balance ->
+      balance.address
+    end)
+  end
+
+  @doc """
   Retrieves a specific user.
   """
   def get(id, queryable \\ User) do

@@ -47,6 +47,7 @@ defmodule EWallet.Web.SearchParser do
     _ in ArgumentError -> nil
   end
 
+  defp build_search_query(field, index, query, nil), do: {index, query}
   defp build_search_query(nil, index, query, value), do: {index, query}
   defp build_search_query(field, index, query, value) do
     case index do

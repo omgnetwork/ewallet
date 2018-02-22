@@ -305,7 +305,7 @@ paths:
       summary: Client - Get the list of transactions for the current user.
       operationId: get_current_user_transactions
       requestBody:
-        $ref: '#/components/requestBodies/TransactionsBody'
+        $ref: '#/components/requestBodies/CurrentUserTransactionsBody'
       security:
         - ClientAuth: []
       responses:
@@ -1125,6 +1125,8 @@ components:
             properties:
               provider_user_id:
                 type: string
+              address:
+                type: string
               page:
                 type: integer
                 minimum: 1
@@ -1144,6 +1146,41 @@ components:
               - provider_user_id
             example:
               provider_user_id: "sample_provider_id"
+              address: "address_owned_by_user (optional)"
+              page: 1
+              per_page: 10
+              search_term: "text to search for"
+              seatch_terms: {"name": "some_name"}
+              sort_by: "field_name"
+              sort_dir: "asc"
+    CurrentUserTransactionsBody:
+      description: The parameters to use to customize the returned list of transactions.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              address:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            required:
+              - provider_user_id
+            example:
+              address: "address_owned_by_current_user (optional)"
               page: 1
               per_page: 10
               search_term: "text to search for"

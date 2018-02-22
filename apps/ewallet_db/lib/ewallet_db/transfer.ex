@@ -3,7 +3,7 @@ defmodule EWalletDB.Transfer do
   Ecto Schema representing transfers.
   """
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Transfer, Balance, MintedToken, Helpers}
@@ -63,6 +63,13 @@ defmodule EWalletDB.Transfer do
     |> assoc_constraint(:to_balance)
     |> assoc_constraint(:from_balance)
     |> put_change(:encryption_version, Cloak.version)
+  end
+
+  @doc """
+  Gets all transfers for the given address.
+  """
+  def all_for_address(address) do
+    from t in Transfer, where: (t.from == ^address) or (t.to == ^address)
   end
 
   @doc """
