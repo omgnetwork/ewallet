@@ -10,6 +10,7 @@ const Accounts = props => (
     createRecordUrl="/accounts/new"
     headerText={headerText}
     tables={tables}
+    visible={{ addBtn: false }}
     {...props}
   />
 );

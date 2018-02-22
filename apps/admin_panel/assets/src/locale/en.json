@@ -295,7 +295,7 @@
       "api_management": "API Keys",
       "advanced_filters": "Advanced Filters",
       "export": "Export",
-      "new_api": "New API"
+      "new_api_key": "New API key"
     },
     "table": {
       "id": "Id",

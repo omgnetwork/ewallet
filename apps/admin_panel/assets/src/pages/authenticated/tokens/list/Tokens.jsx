@@ -10,6 +10,7 @@ const Tokens = props => (
     createRecordUrl="/tokens/new"
     headerText={headerText}
     tables={tables}
+    visible={{ addBtn: false }}
     {...props}
   />
 );
