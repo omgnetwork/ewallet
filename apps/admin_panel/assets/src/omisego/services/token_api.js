@@ -14,6 +14,33 @@ export function getAll(params) {
   return request(requestParams);
 }
 
-export function create(params, callback) {
-  callback(null, { id: 1234 });
+export function create(params) {
+  const {
+    isoCode,
+    shortSymbol,
+    subUnit,
+    subUnitToUnit,
+    symbolFirst,
+    htmlEntity,
+    isoNumeric,
+    smallestDenomination,
+    ...rest
+  } = params;
+  const requestParams = {
+    path: 'minted_token.create',
+    params: JSON.stringify({
+      iso_code: isoCode,
+      short_symbol: shortSymbol,
+      subunit: subUnit,
+      subunit_to_unit: parseInt(subUnitToUnit, 0),
+      symbol_first: symbolFirst,
+      html_entity: htmlEntity,
+      iso_numeric: isoNumeric,
+      smallest_denomination: smallestDenomination,
+      ...rest
+      ,
+    }),
+    authenticated: true,
+  };
+  return request(requestParams);
 }
