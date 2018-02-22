@@ -107,7 +107,7 @@ _Note: The command above seeds the minimum amount of data to get the environment
 We can now start the application:
 
 ```
-mix run --no-halt
+mix omg.server
 ```
 
 Navigate to  `http://localhost:4000/api` in your browser and you should see the following JSON representation popping up:
