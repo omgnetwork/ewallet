@@ -1,6 +1,8 @@
 use Mix.Config
 
-config :ewallet_db, ecto_repos: [EWalletDB.Repo]
+config :ewallet_db,
+  ecto_repos: [EWalletDB.Repo],
+  env: Mix.env
 
 import_config "#{Mix.env}.exs"
 
