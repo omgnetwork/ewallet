@@ -8,18 +8,16 @@ const tables = (translate, datas, handleActions) => ({
   headers: {
     id: { title: translate('users.table.id'), sortable: true },
     name: { title: translate('accounts.table.name'), sortable: true },
-    master: { title: translate('accounts.table.master'), sortable: true },
     description: { title: translate('accounts.table.description'), sortable: true },
     created_at: { title: translate('accounts.table.created_at'), sortable: true },
     updated_at: { title: translate('accounts.table.updated_at'), sortable: true },
     actions: { title: translate('accounts.table.actions'), sortable: false },
   },
   contents: datas.map(({
-    id, name, master, description, created_at, updated_at,
+    id, name, description, created_at, updated_at,
   }) => ({
     id: { type: PROPERTY, value: id, shortened: true },
     name: { type: PROPERTY, value: name, shortened: false },
-    master: { type: PROPERTY, value: master, shortened: false },
     description: { type: PROPERTY, value: description, shortened: false },
     created_at: {
       type: PROPERTY,
