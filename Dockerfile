@@ -45,4 +45,4 @@ RUN set -xe && \
 ENV PORT 4000
 EXPOSE 4000
 
-CMD ["mix", "run", "--no-halt"]
+CMD ["mix", "omg.server"]
