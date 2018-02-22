@@ -207,42 +207,52 @@
       "create_a_token": "Create a Token",
       "create": "Create",
       "symbol": {
-        "label": "Symbol"
+        "label": "Symbol",
+        "help": "Symbol should be at least 3 characters long"
       },
       "iso_code": {
-        "label": "ISO Code"
+        "label": "ISO Code",
+        "help": ""
       },
       "name": {
-        "label": "Name"
+        "label": "Name",
+        "help": "Name should be at least 3 characters long"
       },
       "description": {
-        "label": "Description"
+        "label": "Description",
+        "help": ""
       },
       "short_symbol": {
-        "label": "Short symbol"
+        "label": "Short symbol",
+        "help": ""
       },
       "subunit": {
-        "label": "Subunit"
+        "label": "Subunit",
+        "help": ""
       },
       "subunit_to_unit": {
-        "label": "Subunit to Unit"
+        "label": "Subunit to Unit",
+        "help": "Subunit to unit is required"
       },
       "symbol_first": {
         "label": "Symbol First"
       },
       "html_entity": {
-        "label": "Html Entity"
+        "label": "Html Entity",
+        "help": ""
       },
       "iso_numeric": {
-        "label": "ISO Numeric"
+        "label": "ISO Numeric",
+        "help": ""
       },
       "smallest_denomination": {
-        "label": "Smallest Denomination"
+        "label": "Smallest Denomination",
+        "help": ""
       },
       "locked": {
         "label": "Locked"
       },
-      "success": "Successfully created ${ token_id }"
+      "success": "Successfully created ${ token_symbol }"
     }
   },
   "profile": {

@@ -2,13 +2,21 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { getTranslate } from 'react-localize-redux';
-import { Button, Checkbox } from 'react-bootstrap';
+import { Checkbox } from 'react-bootstrap';
 import PropTypes from 'prop-types';
 import Actions from './actions';
 import allFields from './fields';
 import AlertActions from '../../../../actions/alert.actions';
 import OMGFieldGroup from '../../../../components/OMGFieldGroup';
 import { accountURL } from '../../../../helpers/urlFormatter';
+import OMGLoadingButton from '../../../../components/OMGLoadingButton';
+import {
+  getValidationState,
+  isFormValid,
+  onInputChange,
+  onCheckChange,
+  onSubmit,
+} from './stateFunctions';
 
 class NewToken extends Component {
   constructor(props) {
@@ -22,10 +30,14 @@ class NewToken extends Component {
       subUnit: '',
       subUnitToUnit: '',
       symbolFirst: true,
+      locked: false,
       htmlEntity: '',
       isoNumeric: '',
       smallestDenomination: '',
-      locked: false,
+      submitted: false, //eslint-disable-line
+      didModifySymbol: false, //eslint-disable-line
+      didModifyName: false, //eslint-disable-line
+      didModifySubunitToUnit: false, //eslint-disable-line
     };
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleChange = this.handleChange.bind(this);
@@ -34,6 +46,7 @@ class NewToken extends Component {
 
   handleSubmit(e) {
     e.preventDefault();
+    this.setState(onSubmit());
     const {
       symbol,
       isoCode,
@@ -52,7 +65,9 @@ class NewToken extends Component {
     const {
       history, translate, createToken, showSuccessAlert, session,
     } = this.props;
-
+    if (!(symbol && name && subUnitToUnit)) {
+      return;
+    }
     createToken(
       {
         symbol,
@@ -70,31 +85,25 @@ class NewToken extends Component {
       },
       (token) => {
         history.push(accountURL(session, '/tokens'));
-        showSuccessAlert(translate('tokens.new.success', { token_id: token.id }));
+        showSuccessAlert(translate('tokens.new.success', { token_symbol: token.symbol }));
       },
     );
   }
 
   handleChange(e) {
-    const { id, value } = e.target;
-    this.setState({
-      [id]: value,
-    });
+    const { target } = e;
+    this.setState(prevState => (onInputChange(target, prevState)));
   }
 
   handleCheckChange(e) {
-    const { id, checked } = e.target;
-    this.setState({
-      [id]: checked,
-    });
+    const { target } = e;
+    this.setState(onCheckChange(target));
   }
 
   render() {
-    const { translate } = this.props;
+    const { translate, loading } = this.props;
     const { symbolFirst, locked } = this.state;
-
     const fields = allFields.map((v, index) => {
-      const translated = translate(v.translateId);
       const checkBox = {
         checked: v.name === 'locked' ? locked : symbolFirst,
         id: v.name === 'locked' ? 'locked' : 'symbolFirst',
@@ -110,7 +119,7 @@ class NewToken extends Component {
               onChange={this.handleCheckChange}
             >
               <div className="omg-form__label">
-                {translated}
+                {translate(v.translateLabelId)}
               </div>
             </Checkbox>
           );
@@ -118,12 +127,12 @@ class NewToken extends Component {
           return (
             <OMGFieldGroup
               key={v.name}
-              help=""
+              help={translate(v.translateHelpId)}
               id={v.name}
-              label={translate(v.translateId)}
+              label={translate(v.translateLabelId)}
               onChange={this.handleChange}
               type="text"
-              validationState={null}
+              validationState={getValidationState(v.name, this.state)}
             />
           );
       }
@@ -136,16 +145,15 @@ class NewToken extends Component {
             <h1>
               {translate('tokens.new.create_a_token')}
             </h1>
-            <form autoComplete="off">
+            <form autoComplete="off" onSubmit={this.handleSubmit}>
               {fields}
-              <Button
-                bsClass="btn btn-omg-blue"
-                bsStyle="primary"
-                onClick={this.handleSubmit}
+              <OMGLoadingButton
+                disabled={!isFormValid(this.state)}
+                loading={loading}
                 type="submit"
               >
-                Create
-              </Button>
+                {translate('tokens.new.create')}
+              </OMGLoadingButton>
             </form>
           </div>
         </div>
@@ -177,6 +185,7 @@ function mapDispatchToProps(dispatch) {
 NewToken.propTypes = {
   createToken: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  loading: PropTypes.bool.isRequired,
   session: PropTypes.object.isRequired,
   showSuccessAlert: PropTypes.func.isRequired,
   translate: PropTypes.func.isRequired,
