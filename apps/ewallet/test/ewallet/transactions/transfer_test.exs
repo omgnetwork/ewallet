@@ -68,8 +68,8 @@
       {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
       transfer = Transactions.Transfer.process(transfer)
 
-      assert transfer.status == "failed"
-      assert transfer.ledger_response["code"] == "client:insufficient_funds"
+      assert transfer.status == Transfer.failed
+      assert transfer.ledger_response["code"] == "transaction:insufficient_funds"
       assert transfer.ledger_response["description"] == "The specified balance (#{attrs[:from]})" <>
                             " does not contain enough funds. Available: 100000 #{attrs[:minted_token_friendly_id]} - Attempted debit: 1000000 #{attrs[:minted_token_friendly_id]}"
       assert transfer.status == Transfer.failed
