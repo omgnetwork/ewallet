@@ -32,7 +32,7 @@ class App extends Component {
     return (
       <Startup>
         <ConnectedRouter history={history}>
-          <div className="container">
+          <div>
             <Switch>
               <PublicRoute component={SignIn} path="/signin" />
               <PublicRoute component={ResetPassword} path="/reset_password" />
