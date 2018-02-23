@@ -131,8 +131,8 @@ defmodule EWallet.TransactionTest do
 
       {status, transfer, code, description} = TransactionGate.process_with_addresses(attrs)
       assert status == :error
-      assert transfer.status == "failed"
-      assert code == "client:insufficient_funds"
+      assert transfer.status == Transfer.failed
+      assert code == "transaction:insufficient_funds"
       assert "The specified balance" <> _ = description
 
       transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
@@ -148,7 +148,7 @@ defmodule EWallet.TransactionTest do
       }
 
       assert %{
-        "code" => "client:insufficient_funds",
+        "code" => "transaction:insufficient_funds",
         "description" => "The specified balance" <> _
       } = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
@@ -176,6 +176,24 @@ defmodule EWallet.TransactionTest do
       }
       assert %{"entry_id" => _} = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
+    end
+
+    test "gets back an 'amount_is_zero' error when amount sent is 0" do
+      idempotency_token = UUID.generate()
+      {balance1, balance2, token} = insert_addresses_records()
+
+      {res, transfer, code, _description} = Transaction.process_with_addresses(%{
+        "from_address" => balance1.address,
+        "to_address" => balance2.address,
+        "token_id" => token.friendly_id,
+        "amount" => 0,
+        "metadata" => %{some: "data"},
+        "idempotency_token" => idempotency_token
+      })
+
+      assert res == :error
+      assert transfer.status == Transfer.failed
+      assert code == "transaction:amount_is_zero"
     end
 
     test "build, format and send the transaction to the local ledger" do
@@ -308,7 +326,7 @@ defmodule EWallet.TransactionTest do
       {status, transfer, code, description} = TransactionGate.process_credit_or_debit(attrs)
       assert transfer.status == "failed"
       assert status == :error
-      assert code == "client:insufficient_funds"
+      assert code == "transaction:insufficient_funds"
       assert "The specified balance" <> _ = description
 
       transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
@@ -324,7 +342,7 @@ defmodule EWallet.TransactionTest do
         "account_id" => inserted_account.id
       }
       assert %{
-        "code" => "client:insufficient_funds",
+        "code" => "transaction:insufficient_funds",
         "description" => "The specified balance" <> _
       } = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}

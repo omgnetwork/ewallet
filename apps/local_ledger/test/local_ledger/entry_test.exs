@@ -1,7 +1,7 @@
 defmodule LocalLedger.EntryTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
-  alias LocalLedger.{Entry, Errors.InvalidAmountError}
+  alias LocalLedger.Entry
   alias LocalLedgerDB.{Repo, Transaction}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
@@ -138,11 +138,10 @@ defmodule LocalLedger.EntryTest do
       assert error.errors == [correlation_id: {"has already been taken", []}]
     end
 
-    test "raises an InsufficientFundsError when the debit balances don't have
-          enough funds" do
+    test "returns an 'insufficient_funds' error when the debit balances don't have enough funds" do
       genesis()
 
-      {:error, "client:insufficient_funds", _} = Entry.insert(%{
+      {:error, "transaction:insufficient_funds", _} = Entry.insert(%{
         "metadata" => %{},
         "debits" => [%{
           "address" => "mederic",
@@ -154,32 +153,55 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "amount" => 200
         }],
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{
+          "friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          "metadata" => %{}
+        },
         "correlation_id" => UUID.generate
       }, %{genesis: false})
     end
 
-    test "raises an InvalidAmountError when amount is invalid
-          (debit != credit)" do
+    test "returns an 'invalid_amount' error when amount is invalid (debit != credit)" do
       genesis()
 
-      assert_raise InvalidAmountError, fn ->
-        Entry.insert(%{
+      {:error, "transaction:invalid_amount", _} = Entry.insert(%{
+        "metadata" => %{},
+        "debits" => [%{
+          "address" => "mederic",
           "metadata" => %{},
-          "debits" => [%{
-            "address" => "mederic",
-            "metadata" => %{},
-            "amount" => 200
-          }],
-          "credits" => [%{
-            "address" => "thibault",
-            "metadata" => %{},
-            "amount" => 100
-          }],
-          "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
-          "correlation_id" => UUID.generate
+          "amount" => 200
+        }],
+        "credits" => [%{
+          "address" => "thibault",
+          "metadata" => %{},
+          "amount" => 100
+        }],
+        "minted_token" => %{
+          "friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          "metadata" => %{}
+        },
+        "correlation_id" => UUID.generate
+      }, %{genesis: false})
+    end
+
+    test "returns an 'amount_is_zero' error when amount is 0" do
+      genesis()
+
+      {:error, "transaction:amount_is_zero", _} = Entry.insert(%{
+        "metadata" => %{},
+        "debits" => [%{
+          "address" => "mederic",
+          "metadata" => %{},
+          "amount" => 0
+        }],
+        "credits" => [%{
+          "address" => "thibault",
+          "metadata" => %{},
+          "amount" => 0
+        }],
+        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "correlation_id" => UUID.generate
         }, %{genesis: false})
-      end
     end
 
     test "updates the balances one after the other with two inserts happening
@@ -258,7 +280,7 @@ defmodule LocalLedger.EntryTest do
         }, %{genesis: false})
 
         assert res == :error
-        assert error == "client:insufficient_funds"
+        assert error == "transaction:insufficient_funds"
         send pid, :updated
       end
 
