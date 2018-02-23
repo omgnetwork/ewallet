@@ -49,8 +49,7 @@ defmodule EWalletDB.AccountTest do
     end
 
     test "returns :invalid_parameter error if the given id is not a uuid" do
-      assert Account.get("not_a_uuid") ==
-        {:error, :invalid_parameter, ~s/Expected a UUID, given "not_a_uuid"/}
+      assert Account.get("not_a_uuid") == nil
     end
 
     test "returns nil if the account with the given uuid is not found" do
