@@ -175,7 +175,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "user:minted_token_not_found",
+          "code" => "minted_token:minted_token_not_found",
           "description" => "There is no minted token matching the provided token_id.",
           "messages" => nil,
           "object" => "error"
@@ -350,7 +350,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "user:minted_token_not_found",
+          "code" => "minted_token:minted_token_not_found",
           "description" => "There is no minted token matching the provided token_id.",
           "messages" => nil,
           "object" => "error"
@@ -380,7 +380,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "user:transaction_request_not_found",
+          "code" => "transaction_request:transaction_request_not_found",
           "description" => "There is no transaction request corresponding to the provided address",
           "messages" => nil,
           "object" => "error"
@@ -410,7 +410,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "user:transaction_request_not_found",
+          "code" => "transaction_request:transaction_request_not_found",
           "description" => "There is no transaction request corresponding to the provided address",
           "messages" => nil,
           "object" => "error"

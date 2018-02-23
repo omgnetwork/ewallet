@@ -59,6 +59,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
     |> assoc_constraint(:user)
     |> assoc_constraint(:transaction_request)
     |> assoc_constraint(:balance)
+    |> assoc_constraint(:account)
   end
 
   defp update_changeset(%TransactionRequestConsumption{} = consumption, attrs) do

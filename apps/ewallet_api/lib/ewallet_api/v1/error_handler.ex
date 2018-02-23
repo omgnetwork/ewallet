@@ -53,7 +53,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
       description: "There is no balance corresponding to the provided address"
     },
     transaction_request_not_found: %{
-      code: "user:transaction_request_not_found",
+      code: "transaction_request:transaction_request_not_found",
       description: "There is no transaction request corresponding to the provided address"
     },
     user_balance_mismatch: %{
@@ -73,7 +73,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
       description: "There is no account corresponding to the provided account_id"
     },
     minted_token_not_found: %{
-      code: "user:minted_token_not_found",
+      code: "minted_token:minted_token_not_found",
       description: "There is no minted token matching the provided token_id."
     },
     from_address_not_found: %{

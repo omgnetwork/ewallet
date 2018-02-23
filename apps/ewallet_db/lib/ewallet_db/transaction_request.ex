@@ -56,6 +56,7 @@ defmodule EWalletDB.TransactionRequest do
     |> assoc_constraint(:minted_token)
     |> assoc_constraint(:user)
     |> assoc_constraint(:balance)
+    |> assoc_constraint(:account)
   end
 
   @doc """
