@@ -227,6 +227,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
           address does not belong to user", meta do
       response = client_request("/me.list_transactions", %{
         "sort_by" => "created_at",
+        "sort_dir" => "asc",
         "search_terms" => %{
           "from" => meta.balance_2.address,
           "to" => meta.balance_2.address
