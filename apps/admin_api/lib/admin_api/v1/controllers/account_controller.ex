@@ -5,8 +5,23 @@ defmodule AdminAPI.V1.AccountController do
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.Account
 
+  # The field names to be mapped into DB column names.
+  # The keys and values must be strings as this is mapped early before
+  # any operations are done on the field names. For example:
+  # `"request_field_name" => "db_column_name"`
+  @mapped_fields %{
+    "created_at" => "inserted_at"
+  }
+
+  # The fields that are allowed to be searched.
+  # Note that these values here *must be the DB column names*
+  # Because requests cannot customize which fields to search (yet!),
+  # `@mapped_fields` don't affect them.
   @search_fields [{:id, :uuid}, :name, :description]
-  @sort_fields [:id, :name, :description]
+  # The fields that are allowed to be sorted.
+  # Note that the values here *must be the DB column names*.
+  # If the request provides different names, map it via `@mapped_fields` first.
+  @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   defp permit(action, user_id, account_id) do
     Bodyguard.permit(AccountPolicy, action, user_id, account_id)
@@ -20,7 +35,7 @@ defmodule AdminAPI.V1.AccountController do
       accounts =
         Account
         |> SearchParser.to_query(attrs, @search_fields)
-        |> SortParser.to_query(attrs, @sort_fields)
+        |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
         |> Paginator.paginate_attrs(attrs)
 
       case accounts do
