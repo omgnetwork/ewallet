@@ -130,7 +130,7 @@ defmodule EWalletDB.Account do
       {:ok, uuid} ->
         get_by([id: uuid], opts)
       :error ->
-        {:error, :invalid_parameter, "Expected a UUID, given #{inspect id}"}
+        {:error, :invalid_parameter, "Expected a UUID, given #{inspect(id)}"}
     end
   end
 
