@@ -128,7 +128,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       minted_token = insert(:minted_token)
 
       response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
-        from_address: "123",
+        from_address: "00000000-0000-0000-0000-000000000000",
         to_address: balance.address,
         token_id: minted_token.friendly_id,
         amount: 100_000,
@@ -153,7 +153,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
         from_address: balance.address,
-        to_address: "123",
+        to_address: "00000000-0000-0000-0000-000000000000",
         token_id: minted_token.friendly_id,
         amount: 100_000,
         metadata: %{}
@@ -315,7 +315,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         provider_user_id: user.provider_user_id,
         token_id: minted_token.friendly_id,
         amount: 100_000,
-        account_id: "123",
+        account_id: "00000000-0000-0000-0000-000000000000",
         metadata: %{}
       })
 

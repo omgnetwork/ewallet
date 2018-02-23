@@ -26,8 +26,8 @@ seeds = [
 ]
 
 Enum.each(seeds, fn(data) ->
-  with nil            <- Account.get_by_name(data.name),
-       parent         <- Account.get_by_name(data.parent_name) || %{id: nil},
+  with nil            <- Account.get_by(name: data.name),
+       parent         <- Account.get_by(name: data.parent_name) || %{id: nil},
        data           <- Map.put(data, :parent_id, parent.id),
        {:ok, account} <- Account.insert(data)
   do

@@ -5,10 +5,9 @@ defmodule EWalletDB.Account do
   use Ecto.Schema
   use Arc.Ecto.Schema
   import Ecto.{Changeset, Query}
-  import EWalletDB.AccountValidator
+  import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
-  alias EWalletDB.Helpers
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -82,13 +81,6 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
-  Get all accounts.
-  """
-  def all do
-    Repo.all(Account)
-  end
-
-  @doc """
   Inserts a balance for the given account.
   """
   def insert_balance(%Account{} = account, identifier) do
@@ -121,31 +113,34 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
-  Retrieve the account with the given ID.
+  Get all accounts.
   """
-  def get(nil), do: nil
-  def get(id) do
-    case Helpers.UUID.valid?(id) do
-      true -> Repo.get(Account, id)
-      false -> nil
+  def all(opts \\ [])
+  def all(opts) do
+    Account
+    |> Repo.all()
+    |> Repo.preload(opts[:preload] || [])
+  end
+
+  @doc """
+  Retrieves an account with the given ID.
+  """
+  def get(id, opts \\ []) do
+    case UUID.cast(id) do
+      {:ok, uuid} ->
+        get_by([id: uuid], opts)
+      :error ->
+        {:error, :invalid_parameter, "Expected a UUID, given #{inspect(id)}"}
     end
   end
 
   @doc """
-  Retrieve the account with the given ID and preloads balances.
+  Retrieves an account using one or more fields.
   """
-  def get(id, preload: preloads) do
-    id
-    |> get()
-    |> Repo.preload(preloads)
-  end
-
-  @doc """
-  Retrieve the account with the given name.
-  """
-  def get_by_name(nil), do: nil
-  def get_by_name(name) when is_binary(name) and byte_size(name) > 0 do
-    Repo.get_by(Account, name: name)
+  def get_by(fields, opts \\ []) do
+    Account
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 
   @doc """
@@ -158,14 +153,11 @@ defmodule EWalletDB.Account do
   @doc """
   Get the master account for the current wallet setup.
   """
-  def get_master_account(true) do
-    get_master_account()
-    |> Repo.preload([:balances])
-  end
-  def get_master_account do
+  def get_master_account(opts \\ []) do
     Account
     |> where([a], is_nil(a.parent_id))
     |> Repo.one()
+    |> preload_option(opts)
   end
 
   @doc """
