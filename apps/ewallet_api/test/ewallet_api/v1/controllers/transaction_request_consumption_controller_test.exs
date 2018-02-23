@@ -29,7 +29,8 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         correlation_id: nil,
         amount: nil,
         address: nil,
-        metadata: nil
+        metadata: nil,
+        token_id: nil
       })
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
@@ -91,7 +92,8 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         correlation_id: nil,
         amount: nil,
         address: nil,
-        metadata: nil
+        metadata: nil,
+        token_id: nil
       })
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
@@ -105,7 +107,8 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         correlation_id: nil,
         amount: nil,
         address: nil,
-        metadata: nil
+        metadata: nil,
+        token_id: nil
       })
 
       inserted_consumption_2 = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
@@ -123,7 +126,8 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         correlation_id: nil,
         amount: nil,
         address: nil,
-        metadata: nil
+        metadata: nil,
+        token_id: nil
       })
 
       assert response == %{

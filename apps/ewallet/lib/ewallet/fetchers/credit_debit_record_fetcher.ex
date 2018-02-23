@@ -1,4 +1,4 @@
-defmodule EWallet.Transactions.CreditDebitRecordFetcher do
+defmodule EWallet.CreditDebitRecordFetcher do
   @moduledoc """
   Handles the logic for fetching the user and minted_token.
   """
