@@ -41,4 +41,6 @@ defmodule EWallet.BalanceFetcher do
       error -> {:error, error}
     end
   end
+
+  def get(_, _), do: {:error, :invalid_parameter}
 end
