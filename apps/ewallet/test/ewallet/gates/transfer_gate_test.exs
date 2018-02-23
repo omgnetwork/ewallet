@@ -1,6 +1,6 @@
- defmodule EWallet.Transactions.TransferTest do
+ defmodule EWallet.TransferTest do
   use EWallet.LocalLedgerCase, async: true
-  alias EWallet.Transactions
+  alias EWallet.TransferGate
   alias EWalletDB.{Repo, MintedToken, Account, Transfer}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
@@ -34,7 +34,7 @@
       transfer = Transfer.get(attrs.idempotency_token)
       assert transfer == nil
 
-      {:ok, inserted_transfer} = Transactions.Transfer.get_or_insert(attrs)
+      {:ok, inserted_transfer} = TransferGate.get_or_insert(attrs)
 
       transfer = Transfer.get_by_idempotency_token(attrs.idempotency_token)
       assert transfer.id == inserted_transfer.id
@@ -46,8 +46,8 @@
       assert transfer == nil
       assert Transfer |> Repo.all() |> length() == 2
 
-      {:ok, inserted_transfer1} = Transactions.Transfer.get_or_insert(attrs)
-      {:ok, inserted_transfer2} = Transactions.Transfer.get_or_insert(attrs)
+      {:ok, inserted_transfer1} = TransferGate.get_or_insert(attrs)
+      {:ok, inserted_transfer2} = TransferGate.get_or_insert(attrs)
 
       assert inserted_transfer1.id == inserted_transfer2.id
       assert Transfer |> Repo.all() |> length() == 3
@@ -56,8 +56,8 @@
 
   describe "process/1" do
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
-      {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-      transfer = Transactions.Transfer.process(transfer)
+      {:ok, transfer} = TransferGate.get_or_insert(attrs)
+      transfer = TransferGate.process(transfer)
 
       assert %{"entry_id" => _} = transfer.ledger_response
       assert transfer.status == Transfer.confirmed
@@ -65,8 +65,8 @@
 
     test "does not insert an entry and fails the transfer when transaction failed", attrs do
       attrs = Map.put(attrs, :amount, 1_000_000)
-      {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-      transfer = Transactions.Transfer.process(transfer)
+      {:ok, transfer} = TransferGate.get_or_insert(attrs)
+      transfer = TransferGate.process(transfer)
 
       assert transfer.status == Transfer.failed
       assert transfer.ledger_response["code"] == "transaction:insufficient_funds"
@@ -78,8 +78,8 @@
 
   describe "genesis/1" do
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
-      {:ok, transfer} = Transactions.Transfer.get_or_insert(attrs)
-      transfer = Transactions.Transfer.genesis(transfer)
+      {:ok, transfer} = TransferGate.get_or_insert(attrs)
+      transfer = TransferGate.genesis(transfer)
 
       assert transfer.status == Transfer.confirmed
       assert %{"entry_id" => _} = transfer.ledger_response

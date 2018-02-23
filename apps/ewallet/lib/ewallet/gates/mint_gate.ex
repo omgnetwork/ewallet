@@ -1,9 +1,10 @@
-defmodule EWallet.Mint do
+defmodule EWallet.MintGate do
   @moduledoc """
   Handles the mint creation logic. Since it relies on external applications to
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
   examples on how to add value to a minted token.
   """
+  alias EWallet.TransferGate
   alias EWalletDB.{Repo, Account, Mint, Balance, Transfer, MintedToken}
   alias Ecto.Multi
 
@@ -47,7 +48,7 @@ defmodule EWallet.Mint do
     multi =
       Multi.new
       |> Multi.run(:transfer, fn _ ->
-        EWallet.Transactions.Transfer.get_or_insert(%{
+        TransferGate.get_or_insert(%{
           idempotency_token: idempotency_token,
           from: Balance.get_genesis().address,
           to: Account.get_primary_balance(account).address,
@@ -77,7 +78,7 @@ defmodule EWallet.Mint do
 
   defp process_with_transfer(%Transfer{status: "pending"} = transfer, mint) do
     transfer
-    |> EWallet.Transactions.Transfer.genesis()
+    |> TransferGate.genesis()
     |> confirm_and_return(mint)
   end
   defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, mint) do

@@ -1,4 +1,4 @@
-defmodule EWallet.Balance do
+defmodule EWallet.ComputedBalanceFetcher do
   @moduledoc """
   Handles the retrieval and formatting of balances from the local ledger.
   """

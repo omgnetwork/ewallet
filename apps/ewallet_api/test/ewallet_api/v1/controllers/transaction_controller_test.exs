@@ -40,7 +40,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
   describe "/transactions.all" do
     test "returns all the transactions", meta do
-      response = provider_request("/transaction.all", %{})
+      response = provider_request("/transaction.all", %{
+        "sort_by" => "created",
+        "sort_dir" => "asc"
+      })
       assert response["data"]["data"] |> length() == 8
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
