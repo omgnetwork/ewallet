@@ -1,7 +1,7 @@
-defmodule EWallet.Transactions.AddressRecordFetcherTest do
+defmodule EWallet.AddressRecordFetcherTest do
   use ExUnit.Case
   import EWalletDB.Factory
-  alias EWallet.Transactions.AddressRecordFetcher
+  alias EWallet.AddressRecordFetcher
   alias EWalletDB.{Repo, MintedToken, User}
   alias Ecto.Adapters.SQL.Sandbox
 

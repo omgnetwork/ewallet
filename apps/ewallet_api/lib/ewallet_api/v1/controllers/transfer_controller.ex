@@ -1,9 +1,9 @@
 defmodule EWalletAPI.V1.TransferController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.{Balance, Transaction}
+  alias EWallet.{ComputedBalanceFetcher, TransactionGate}
 
-  plug :put_view, EWalletAPI.V1.BalanceView
+  plug :put_view, EWalletAPI.V1.ComputedBalanceView
 
   def transfer(conn, %{
     "from_address" => from_address,
@@ -20,13 +20,13 @@ defmodule EWalletAPI.V1.TransferController do
   do
     attrs
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
-    |> Transaction.process_with_addresses()
+    |> TransactionGate.process_with_addresses()
     |> respond_with_balances(conn)
   end
   def transfer(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  def credit(conn, attrs), do: credit_or_debit(conn, Transaction.credit_type, attrs)
-  def debit(conn, attrs), do: credit_or_debit(conn, Transaction.debit_type, attrs)
+  def credit(conn, attrs), do: credit_or_debit(conn, TransactionGate.credit_type, attrs)
+  def debit(conn, attrs), do: credit_or_debit(conn, TransactionGate.debit_type, attrs)
 
   defp credit_or_debit(conn, type, %{
     "provider_user_id" => provider_user_id,
@@ -42,14 +42,14 @@ defmodule EWalletAPI.V1.TransferController do
     attrs
     |> Map.put("type", type)
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
-    |> Transaction.process_credit_or_debit()
+    |> TransactionGate.process_credit_or_debit()
     |> respond_with_balances(conn)
   end
   defp credit_or_debit(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
   defp respond_with_balances({:ok, _transfer, balances, minted_token}, conn) do
     addresses = Enum.map(balances, fn balance ->
-      case Balance.get(minted_token.friendly_id, balance.address) do
+      case ComputedBalanceFetcher.get(minted_token.friendly_id, balance.address) do
         {:ok, address} -> address
         error -> error
       end

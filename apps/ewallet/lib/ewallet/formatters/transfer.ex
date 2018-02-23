@@ -1,4 +1,4 @@
-defmodule EWallet.Formatters.Transfer do
+defmodule EWallet.TransferFormatter do
   @moduledoc """
   Format a transfer the way LocalLedger expects it.
   """

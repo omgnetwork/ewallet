@@ -25,11 +25,12 @@ defmodule EWalletAPI.V1.Router do
     post "/user.create", UserController, :create
     post "/user.get", UserController, :get
     post "/user.update", UserController, :update
-
-    post "/user.list_balances", BalanceController, :all
+    post "/user.list_balances", ComputedBalanceController, :all
     post "/user.list_transactions", TransactionController, :all_for_user
 
     post "/transaction.all", TransactionController, :all
+    post "/transaction_request.create", TransactionRequestController, :create
+    post "/transaction_request.get", TransactionRequestController, :get
 
     # Idempotent requests
     scope "/" do
@@ -38,6 +39,7 @@ defmodule EWalletAPI.V1.Router do
       post "/user.credit_balance", TransferController, :credit
       post "/user.debit_balance", TransferController, :debit
       post "/transfer", TransferController, :transfer
+      post "/transaction_request.consume", TransactionRequestConsumptionController, :consume
     end
 
     post "/login", AuthController, :login
@@ -52,7 +54,6 @@ defmodule EWalletAPI.V1.Router do
     post "/me.get_settings", SelfController, :get_settings
     post "/me.list_balances", SelfController, :get_balances
     post "/me.list_transactions", TransactionController, :get_transactions
-
     post "/me.create_transaction_request", TransactionRequestController, :create
     post "/me.get_transaction_request", TransactionRequestController, :get
 
