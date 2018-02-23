@@ -26,7 +26,7 @@ CLI.info("Seeding API key (always seed new ones)...")
 
 Enum.each(seeds, fn(data) ->
   insert_data = %{
-    account_id: Account.get_by(:name, data.account_name).id,
+    account_id: Account.get_by(name: data.account_name).id,
     owner_app:  data.owner_app
   }
 

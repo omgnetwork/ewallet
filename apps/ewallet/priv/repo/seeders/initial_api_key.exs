@@ -4,7 +4,7 @@ alias EWalletDB.{Account, APIKey}
 
 CLI.info("Seeding the Admin Panel's initial API key (always seed new ones)...")
 
-master  = Account.get_by(:name, "master_account")
+master  = Account.get_by(name: "master_account")
 api_key = APIKey.insert(%{
   account_id: master.id,
   owner_app: "admin_api"

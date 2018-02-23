@@ -70,7 +70,7 @@ CLI.info("Seeding admin panel user roles...")
 
 Enum.each(memberships, fn(membership) ->
   with %User{} = user       <- User.get_by_email(membership.email),
-       %Account{} = account <- Account.get_by(:name, membership.account_name),
+       %Account{} = account <- Account.get_by(name: membership.account_name),
        %Role{} = role       <- Role.get_by_name(membership.role_name),
        {:ok, _}             <- Membership.assign(user, account, role)
   do

@@ -15,7 +15,7 @@ seeds = [
 ]
 
 Enum.each(seeds, fn(data) ->
-  case Key.insert(%{account_id: Account.get_by(:name, data.account_name).id}) do
+  case Key.insert(%{account_id: Account.get_by(name: data.account_name).id}) do
     {:ok, key} ->
       CLI.success("📱 Access/Secret keys seeded for #{data.account_name}\n"
         <> "  Access key: #{key.access_key}\n"

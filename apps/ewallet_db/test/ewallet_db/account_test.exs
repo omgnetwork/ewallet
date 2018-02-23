@@ -71,40 +71,30 @@ defmodule EWalletDB.AccountTest do
   describe "get_by_name/1" do
     test "accepts a non-empty string" do
       {:ok, account} = :account |> params_for() |> Account.insert
-      result = Account.get_by(:name, account.name)
+      result = Account.get_by(name: account.name)
 
       assert result.id == account.id
       assert result.name == account.name
     end
 
-    test "returns :invalid_parameter error if the given name is nil" do
-      assert Account.get_by(:name, nil) == {:error, :invalid_parameter}
-    end
-
-    test "returns :invalid_parameter if the given name is empty" do
-      assert Account.get_by(:name, "") == {:error, :invalid_parameter}
-    end
-
     test "returns nil if the account with the given name is not found" do
-      assert Account.get_by(:name, "not_an_account") == nil
+      assert Account.get_by(name: "not_an_account") == nil
     end
   end
 
   describe "get_master_account/1" do
     test "returns the master account" do
-      result = Account.get_master_account(true)
-
-      assert result.id == get_or_insert_master_account().id
-      assert Account.master?(result)
-    end
-  end
-
-  describe "get_master_account/0" do
-    test "returns the master account without balances" do
       result  = Account.get_master_account()
 
       assert result.id == get_or_insert_master_account().id
       assert %Ecto.Association.NotLoaded{} = result.balances
+      assert Account.master?(result)
+    end
+
+    test "returns the master account with balances if preload is given" do
+      result = Account.get_master_account(preload: :balances)
+
+      assert result.id == get_or_insert_master_account().id
       assert Account.master?(result)
     end
   end
@@ -114,8 +104,8 @@ defmodule EWalletDB.AccountTest do
       {:ok, inserted} = :account |> params_for() |> Account.insert
       balance = Account.get_primary_balance(inserted)
 
-      :name
-      |> Account.get_by(inserted.name)
+      [name: inserted.name]
+      |> Account.get_by()
       |> Repo.preload([:balances])
 
       assert balance != nil
@@ -129,8 +119,8 @@ defmodule EWalletDB.AccountTest do
       {:ok, inserted} = :account |> params_for() |> Account.insert
       balance = Account.get_default_burn_balance(inserted)
 
-      :name
-      |> Account.get_by(inserted.name)
+      [name: inserted.name]
+      |> Account.get_by()
       |> Repo.preload([:balances])
 
       assert balance != nil
