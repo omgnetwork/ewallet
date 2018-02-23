@@ -2,6 +2,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionSerializerTest do
   use EWalletAPI.SerializerCase, :v1
   alias EWalletDB.TransactionRequestConsumption
   alias EWalletAPI.V1.JSON.TransactionRequestConsumptionSerializer
+  alias EWallet.Web.Date
 
   describe "serialize/1 for single transaction request consumption" do
     test "serializes into correct V1 transaction_request consumption format" do
@@ -24,8 +25,11 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionSerializerTest do
         idempotency_token: consumption.idempotency_token,
         transfer_id: consumption.transfer_id,
         user_id: consumption.user_id,
+        account_id: nil,
         transaction_request_id: consumption.transaction_request_id,
-        address: consumption.balance_address
+        address: consumption.balance_address,
+        created_at: Date.to_iso8601(consumption.inserted_at),
+        updated_at: Date.to_iso8601(consumption.updated_at)
       }
 
       assert TransactionRequestConsumptionSerializer.serialize(consumption) == expected
