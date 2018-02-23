@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.BalanceControllerTest do
+defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{User, MintedToken, Account}
 

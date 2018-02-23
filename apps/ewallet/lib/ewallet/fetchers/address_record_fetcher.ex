@@ -1,4 +1,4 @@
-defmodule EWallet.Transactions.AddressRecordFetcher do
+defmodule EWallet.AddressRecordFetcher do
   @moduledoc """
   Handles the logic for fetching the minted token and the from and to balances.
   """

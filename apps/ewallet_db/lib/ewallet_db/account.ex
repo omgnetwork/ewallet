@@ -127,10 +127,8 @@ defmodule EWalletDB.Account do
   """
   def get(id, opts \\ []) do
     case UUID.cast(id) do
-      {:ok, uuid} ->
-        get_by([id: uuid], opts)
-      :error ->
-        {:error, :invalid_parameter, "Expected a UUID, given #{inspect(id)}"}
+      {:ok, uuid} -> get_by([id: uuid], opts)
+      :error      -> nil
     end
   end
 

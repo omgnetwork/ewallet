@@ -1,6 +1,6 @@
-defmodule EWallet.BalanceTest do
+defmodule EWallet.ComputedBalanceFetcherTest do
   use EWallet.LocalLedgerCase, async: true
-  alias EWallet.Balance
+  alias EWallet.ComputedBalanceFetcher
   alias EWalletDB.{User, MintedToken, Account}
   alias Ecto.Adapters.SQL.Sandbox
 
@@ -21,7 +21,7 @@ defmodule EWallet.BalanceTest do
       transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
 
-      {status, address} = Balance.all(%{"provider_user_id" => user.provider_user_id})
+      {status, address} = ComputedBalanceFetcher.all(%{"provider_user_id" => user.provider_user_id})
 
       assert status == :ok
       assert address.address == User.get_primary_balance(user).address
@@ -50,7 +50,7 @@ defmodule EWallet.BalanceTest do
       transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
 
-      {status, address} = Balance.get(omg.friendly_id, user_balance.address)
+      {status, address} = ComputedBalanceFetcher.get(omg.friendly_id, user_balance.address)
       assert status == :ok
       assert address.address ==
         User.get_primary_balance(user).address

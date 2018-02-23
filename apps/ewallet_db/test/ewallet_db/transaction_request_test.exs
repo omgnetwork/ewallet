@@ -37,7 +37,7 @@ defmodule EWalletDB.TransactionRequestTest do
     test_insert_generate_uuid TransactionRequest, :id
     test_insert_generate_timestamps TransactionRequest
     test_insert_prevent_blank TransactionRequest, :type
-    test_insert_prevent_blank TransactionRequest, :user_id
+    test_insert_prevent_all_blank TransactionRequest, [:user_id, :account_id]
     test_insert_prevent_blank TransactionRequest, :minted_token_id
     test_insert_prevent_duplicate TransactionRequest, :correlation_id
 

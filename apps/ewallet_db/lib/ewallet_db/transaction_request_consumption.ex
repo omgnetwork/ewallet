@@ -4,9 +4,10 @@ defmodule EWalletDB.TransactionRequestConsumption do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{TransactionRequestConsumption, Repo, User, MintedToken,
-                   TransactionRequest, Balance, Helpers, Transfer}
+                   TransactionRequest, Balance, Helpers, Transfer, Account}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -26,6 +27,9 @@ defmodule EWalletDB.TransactionRequestConsumption do
     belongs_to :user, User, foreign_key: :user_id,
                                          references: :id,
                                          type: UUID
+    belongs_to :account, Account, foreign_key: :account_id,
+                                  references: :id,
+                                  type: UUID
     belongs_to :transaction_request, TransactionRequest, foreign_key: :transaction_request_id,
                                      references: :id,
                                      type: UUID
@@ -41,19 +45,21 @@ defmodule EWalletDB.TransactionRequestConsumption do
   defp changeset(%TransactionRequestConsumption{} = consumption, attrs) do
     consumption
     |> cast(attrs, [
-      :amount, :idempotency_token, :correlation_id, :user_id,
+      :amount, :idempotency_token, :correlation_id, :user_id, :account_id,
       :transaction_request_id, :balance_address, :minted_token_id
     ])
     |> validate_required([
-      :status, :amount, :idempotency_token, :user_id, :transaction_request_id,
+      :status, :amount, :idempotency_token, :transaction_request_id,
       :balance_address, :minted_token_id
     ])
+    |> validate_required_exclusive([:account_id, :user_id])
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)
     |> unique_constraint(:correlation_id)
     |> assoc_constraint(:user)
     |> assoc_constraint(:transaction_request)
     |> assoc_constraint(:balance)
+    |> assoc_constraint(:account)
   end
 
   defp update_changeset(%TransactionRequestConsumption{} = consumption, attrs) do

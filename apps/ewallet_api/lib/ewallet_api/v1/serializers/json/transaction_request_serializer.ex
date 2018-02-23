@@ -3,17 +3,23 @@ defmodule EWalletAPI.V1.JSON.TransactionRequestSerializer do
   Serializes transaction request data into V1 JSON response format.
   """
   use EWalletAPI.V1
+  alias EWalletAPI.V1.JSON.MintedTokenSerializer
+  alias EWallet.Web.Date
 
   def serialize(transaction_request) do
     %{
       object: "transaction_request",
       id: transaction_request.id,
       type: transaction_request.type,
-      token_id: transaction_request.minted_token.friendly_id,
+      minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
       amount: transaction_request.amount,
       address: transaction_request.balance_address,
+      user_id: transaction_request.user_id,
+      account_id: transaction_request.account_id,
       correlation_id: transaction_request.correlation_id,
-      status: transaction_request.status
+      status: transaction_request.status,
+      created_at: Date.to_iso8601(transaction_request.inserted_at),
+      updated_at: Date.to_iso8601(transaction_request.updated_at)
     }
   end
 end

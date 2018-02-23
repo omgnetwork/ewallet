@@ -187,7 +187,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "user:minted_token_not_found",
+          "code" => "minted_token:minted_token_not_found",
           "description" =>
             "There is no minted token matching the provided token_id.",
           "messages" => nil,
@@ -346,7 +346,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         "success" => false,
         "version" => "1",
         "data" => %{
-          "code" => "user:minted_token_not_found",
+          "code" => "minted_token:minted_token_not_found",
           "description" =>
             "There is no minted token matching the provided token_id.",
           "messages" => nil,

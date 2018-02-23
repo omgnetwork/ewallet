@@ -1,9 +1,9 @@
-defmodule EWallet.Transactions.BalanceAssigner do
+defmodule EWallet.BalanceAssigner do
   @moduledoc """
   Handles the load of the balances of the user and minted_token
   """
   alias EWalletDB.{User, Account}
-  alias EWallet.Transaction
+  alias EWallet.TransactionGate
 
   def assign(%{
     account: account,
@@ -11,8 +11,8 @@ defmodule EWallet.Transactions.BalanceAssigner do
     type: type,
     burn_balance_identifier: burn_balance_identifier
   }) do
-    credit = Transaction.credit_type()
-    debit = Transaction.debit_type()
+    credit = TransactionGate.credit_type()
+    debit = TransactionGate.debit_type()
     user_balance = User.get_preloaded_primary_balance(user)
 
     case type do

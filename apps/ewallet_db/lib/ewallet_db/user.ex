@@ -104,6 +104,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific user from its provider_user_id.
   """
+  def get_by_provider_user_id(nil), do: nil
   def get_by_provider_user_id(provider_user_id) do
     User
     |> Repo.get_by(provider_user_id: provider_user_id)

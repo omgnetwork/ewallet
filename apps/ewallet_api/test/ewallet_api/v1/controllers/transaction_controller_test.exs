@@ -40,7 +40,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
   describe "/transactions.all" do
     test "returns all the transactions", meta do
-      response = provider_request("/transaction.all", %{})
+      response = provider_request("/transaction.all", %{
+        "sort_by" => "created",
+        "sort_dir" => "asc"
+      })
       assert response["data"]["data"] |> length() == 8
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
@@ -224,6 +227,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
           address does not belong to user", meta do
       response = client_request("/me.list_transactions", %{
         "sort_by" => "created_at",
+        "sort_dir" => "asc",
         "search_terms" => %{
           "from" => meta.balance_2.address,
           "to" => meta.balance_2.address

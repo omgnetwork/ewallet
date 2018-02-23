@@ -17,7 +17,7 @@ defmodule EWalletAPI.ConnCase do
   import Ecto.Query
   alias Ecto.Adapters.SQL.Sandbox
   alias EWalletDB.{Account, Key, Repo, User}
-  alias EWallet.{Mint, Transaction}
+  alias EWallet.{MintGate, TransactionGate}
   alias Ecto.UUID
   use Phoenix.ConnTest
 
@@ -120,7 +120,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def mint!(minted_token, amount \\ 1_000_000) do
-    {:ok, mint, _ledger_response} = Mint.insert(%{
+    {:ok, mint, _ledger_response} = MintGate.insert(%{
       "idempotency_token" => UUID.generate(),
       "token_id" => minted_token.friendly_id,
       "amount" => amount * minted_token.subunit_to_unit,
@@ -133,7 +133,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def transfer!(from, to, minted_token, amount) do
-    {:ok, transfer, _balances, _minted_token} = Transaction.process_with_addresses(%{
+    {:ok, transfer, _balances, _minted_token} = TransactionGate.process_with_addresses(%{
       "from_address" => from,
       "to_address" => to,
       "token_id" => minted_token.friendly_id,

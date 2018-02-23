@@ -1,7 +1,7 @@
-defmodule EWallet.Transactions.BalanceAssignerTest do
+defmodule EWallet.BalanceAssignerTest do
   use ExUnit.Case
   import EWalletDB.Factory
-  alias EWallet.{Transaction, Transactions.BalanceAssigner}
+  alias EWallet.{TransactionGate, BalanceAssigner}
   alias EWalletDB.{Repo, User, Account}
   alias Ecto.Adapters.SQL.Sandbox
 
@@ -18,7 +18,7 @@ defmodule EWallet.Transactions.BalanceAssignerTest do
       {:ok, from, to} = BalanceAssigner.assign(%{
         account: meta.account,
         user: meta.user,
-        type: Transaction.credit_type,
+        type: TransactionGate.credit_type,
         burn_balance_identifier: nil
       })
 
@@ -30,7 +30,7 @@ defmodule EWallet.Transactions.BalanceAssignerTest do
       {:ok, from, to} = BalanceAssigner.assign(%{
         account: meta.account,
         user: meta.user,
-        type: Transaction.debit_type,
+        type: TransactionGate.debit_type,
         burn_balance_identifier: nil
       })
 
@@ -42,7 +42,7 @@ defmodule EWallet.Transactions.BalanceAssignerTest do
       {:ok, from, to} = BalanceAssigner.assign(%{
         account: meta.account,
         user: meta.user,
-        type: Transaction.debit_type,
+        type: TransactionGate.debit_type,
         burn_balance_identifier: "burn"
       })
 
@@ -54,7 +54,7 @@ defmodule EWallet.Transactions.BalanceAssignerTest do
       {res, code} = BalanceAssigner.assign(%{
         account: meta.account,
         user: meta.user,
-        type: Transaction.debit_type,
+        type: TransactionGate.debit_type,
         burn_balance_identifier: "burnz"
       })
 

@@ -1,11 +1,20 @@
 defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.Transactions.Consumption
+  alias EWallet.TransactionConsumptionGate
 
-  def consume(conn, attrs) do
+  def consume(%{assigns: %{user: _}} = conn, attrs) do
+    attrs = Map.put(attrs, "idempotency_token", conn.assigns.idempotency_token)
+
     conn.assigns.user
-    |> Consumption.consume(conn.assigns.idempotency_token, attrs)
+    |> TransactionConsumptionGate.consume(attrs)
+    |> respond(conn)
+  end
+
+  def consume(%{assigns: %{account: _}} = conn, attrs) do
+    attrs
+    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
+    |> TransactionConsumptionGate.consume()
     |> respond(conn)
   end
 
