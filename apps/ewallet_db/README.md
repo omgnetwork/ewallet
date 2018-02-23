@@ -22,34 +22,26 @@ Struct.get(uuid, opts \\ [])
 User.get("9858570e-0a1f-4e4a-a630-4752aa04021c")
 User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: :accounts)
 
-# Get by another field
-Struct.get_by(atom, value :: any(), opts \\ [])
-User.get_by(:email, "email@example.com")
-User.get_by(:email, "email@example.com", preload: :accounts)
-
-# Get by multiple fields
-Struct.get_by(map, opts \\ [])
-User.get_by(%{email: "email@example.omc", status: "active"})
-User.get_by(%{email: "email@example.omc", status: "active"}, preload: :accounts)
+# Get by one or more fields
+Struct.get_by(keyword_or_map, opts \\[])
+User.get_by(username: "user01")
+User.get_by([username: "user01", provider_user_id: "puid01"], preload: :accounts)
+User.get_by(%{username: "user01", provider_user_id: "puid01"}, preload: :accounts)
 ```
 
 #### Get multiple records
 
 ```ex
-# Get by id
-Struct.all(uuid, opts \\ [])
-User.all("9858570e-0a1f-4e4a-a630-4752aa04021c")
-User.all("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: :accounts)
+# Get all records
+Struct.all(opts \\ [])
+User.all()
+User.all(preload: :accounts)
 
-# Get by another field
-Struct.all_by(atom, value :: any(), opts \\ [])
-User.all_by(:email, "email@example.com")
-User.all_by(:email, "email@example.com", preload: :accounts)
-
-# Get by multiple fields
-Struct.all_by(map, opts \\ [])
-User.all_by(%{email: "email@example.omc", status: "active"})
-User.all_by(%{email: "email@example.omc", status: "active"}, preload: :accounts)
+# Get records by one or more fields
+Struct.all_by(keyword_or_map, opts \\ [])
+User.all_by(username: "user01")
+User.all_by([username: "user01", provider_user_id: "puid01"], preload: :accounts)
+User.all_by(%{username: "user01", provider_user_id: "puid01"}, preload: :accounts)
 ```
 
 #### Build a base query
