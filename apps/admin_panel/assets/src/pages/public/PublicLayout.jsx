@@ -7,14 +7,14 @@ import PublicFooter from './PublicFooter';
 import Alerter from '../../components/Alerter';
 
 const PublicLayout = ({ alert, children }) => (
-  <div className="row">
-    <div className="col-xs-12 col-sm-8 col-sm-offset-2 col-lg-6 col-lg-offset-3">
-      <div className="public-layout">
+  <div>
+    <div className="public-layout">
+      <div>
         <PublicHeader />
-        <div className="public-container">
+        <div className="public-layout__content">
           <Alerter alert={alert} />
-          <div className="row">
-            <div className="col-xs-8 col-xs-offset-2 col-sm-6 col-sm-offset-3">
+          <div>
+            <div>
               {children}
             </div>
           </div>

@@ -1,6 +1,9 @@
 .public-footer {
   text-align: center;
-  margin-top: 8rem;
+  margin-top: 6rem;
+  @media (min-width: 768px){
+    margin-top: 8rem;
+  }
 
   &__link {
     color: $light-gray;
