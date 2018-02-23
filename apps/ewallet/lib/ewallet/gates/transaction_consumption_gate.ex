@@ -14,7 +14,7 @@ defmodule EWallet.TransactionConsumptionGate do
     "account_id" => account_id,
     "address" => address
   } = attrs) do
-    with account <- Account.get(account_id) || Account.get_master_account(),
+    with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
          {:ok, balance} <- BalanceFetcher.get(account, address)
     do
       consume(balance, attrs)
@@ -22,6 +22,12 @@ defmodule EWallet.TransactionConsumptionGate do
       error when is_atom(error) -> {:error, error}
       error                     -> error
     end
+  end
+
+  def consume(%{"account_id" => _} = attrs) do
+    attrs
+    |> Map.put("address", nil)
+    |> consume()
   end
 
   def consume(%{
@@ -39,6 +45,12 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
+  def consume(%{"provider_user_id" => _} = attrs) do
+    attrs
+    |> Map.put("address", nil)
+    |> consume()
+  end
+
   def consume(%{
     "address" => address
   } = attrs) do
@@ -50,6 +62,7 @@ defmodule EWallet.TransactionConsumptionGate do
       error                     -> error
     end
   end
+
   def consume(_attrs), do: {:error, :invalid_parameter}
 
   @spec consume(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
@@ -85,7 +98,7 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  def consume(_user, _attrs), do: {:error, :invalid_parameter}
+  def consume(_, _attrs), do: {:error, :invalid_parameter}
 
    defp get_minted_token(nil), do: {:ok, nil}
    defp get_minted_token(token_id) do

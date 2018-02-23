@@ -10,11 +10,12 @@ defmodule EWallet.TransactionRequestGate do
   alias EWalletDB.{TransactionRequest, User, Balance, MintedToken, Account}
 
   @spec create(Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+
   def create(%{
     "account_id" => account_id,
     "address" => address
   } = attrs) do
-    with account <- Account.get(account_id) || Account.get_master_account(),
+    with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
          {:ok, balance} <- BalanceFetcher.get(account, address),
          {:ok, transaction_request} <- create(balance, attrs)
     do
@@ -23,6 +24,11 @@ defmodule EWallet.TransactionRequestGate do
       error when is_atom(error) -> {:error, error}
       error                     -> error
     end
+  end
+  def create(%{"account_id" => _} = attrs) do
+    attrs
+    |> Map.put("address", nil)
+    |> create()
   end
 
   def create(%{
@@ -40,6 +46,11 @@ defmodule EWallet.TransactionRequestGate do
       error                     -> error
     end
   end
+  def create(%{"provider_user_id" => _} = attrs) do
+    attrs
+    |> Map.put("address", nil)
+    |> create()
+  end
 
   def create(%{
     "address" => address
@@ -53,6 +64,8 @@ defmodule EWallet.TransactionRequestGate do
       error                     -> error
     end
   end
+
+  def create(_), do: {:error, :invalid_parameter}
 
   @spec create(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
   def create(%User{} = user, %{
