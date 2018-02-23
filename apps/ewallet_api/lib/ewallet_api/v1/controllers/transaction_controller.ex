@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.TransactionRequests.BalanceLoader
+  alias EWallet.BalanceFetcher
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.{Transfer, User, Repo}
 
@@ -33,7 +33,7 @@ defmodule EWalletAPI.V1.TransactionController do
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
                            :provider_user_id_not_found,
-         {:ok, balance} <- BalanceLoader.get(user, attrs["address"])
+         {:ok, balance} <- BalanceFetcher.get(user, attrs["address"])
     do
       attrs = clean_address_search_terms(user, attrs)
 
@@ -57,7 +57,7 @@ defmodule EWalletAPI.V1.TransactionController do
   time in the 'search_terms' param.
   """
   def get_transactions(%{assigns: %{user: user}} = conn, attrs) do
-    with  {:ok, balance} <- BalanceLoader.get(user, attrs["address"])
+    with  {:ok, balance} <- BalanceFetcher.get(user, attrs["address"])
     do
       attrs =
         user

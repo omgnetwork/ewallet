@@ -1,9 +1,9 @@
-defmodule EWallet.Transaction do
+defmodule EWallet.TransactionGate do
   @moduledoc """
   Handles the logic for a transfer of value from an account to a user. Delegates the
-  actual transfer to EWallet.Transactions.Transfer once the balances have been loaded.
+  actual transfer to EWallet.TransferGate once the balances have been loaded.
   """
-  alias EWallet.Transactions.{CreditDebitRecordFetcher, AddressRecordFetcher, BalanceAssigner}
+  alias EWallet.{TransferGate, CreditDebitRecordFetcher, AddressRecordFetcher, BalanceAssigner}
   alias EWalletDB.{Transfer, User}
 
   def credit_type, do: "credit"
@@ -103,7 +103,7 @@ defmodule EWallet.Transaction do
     "metadata" => metadata,
     "idempotency_token" => idempotency_token
   } = attrs) do
-    EWallet.Transactions.Transfer.get_or_insert(%{
+    TransferGate.get_or_insert(%{
       idempotency_token: idempotency_token,
       from: from.address,
       to: to.address,
@@ -116,7 +116,7 @@ defmodule EWallet.Transaction do
 
   defp process_with_transfer(%Transfer{status: "pending"} = transfer, balances, minted_token) do
     transfer
-    |> EWallet.Transactions.Transfer.process()
+    |> TransferGate.process()
     |> process_with_transfer(balances, minted_token)
   end
   defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, balances, minted_token) do

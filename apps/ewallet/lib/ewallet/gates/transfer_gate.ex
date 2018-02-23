@@ -1,8 +1,8 @@
-defmodule EWallet.Transactions.Transfer do
+defmodule EWallet.TransferGate do
   @moduledoc """
   Handles the logic for a transfer of value between two addresses.
   """
-  alias EWallet.Formatters
+  alias EWallet.TransferFormatter
   alias LocalLedger.Entry
   alias EWalletDB.Transfer
 
@@ -60,7 +60,7 @@ defmodule EWallet.Transactions.Transfer do
   """
   def process(transfer) do
     transfer
-    |> Formatters.Transfer.format()
+    |> TransferFormatter.format()
     |> Entry.insert(%{genesis: false})
     |> update_transfer(transfer)
   end
@@ -82,7 +82,7 @@ defmodule EWallet.Transactions.Transfer do
   """
   def genesis(transfer) do
     transfer
-    |> Formatters.Transfer.format()
+    |> TransferFormatter.format()
     |> Entry.insert(%{genesis: true})
     |> update_transfer(transfer)
   end

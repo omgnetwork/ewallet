@@ -1,6 +1,6 @@
-defmodule EWallet.TransactionRequests.RequestTest do
+defmodule EWallet.TransactionRequestTest do
  use EWallet.LocalLedgerCase, async: true
- alias EWallet.TransactionRequests.Request
+ alias EWallet.TransactionRequestGate
  alias EWalletDB.{User, TransactionRequest}
 
   setup do
@@ -13,7 +13,7 @@ defmodule EWallet.TransactionRequests.RequestTest do
 
   describe "create/2" do
     test "creates a transaction request with all the params", meta do
-      {:ok, request} = Request.create(meta.user, %{
+      {:ok, request} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => "123",
@@ -31,7 +31,7 @@ defmodule EWallet.TransactionRequests.RequestTest do
     end
 
     test "creates a transaction request with only type and token_id", meta do
-      {:ok, request} = Request.create(meta.user, %{
+      {:ok, request} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => nil,
@@ -43,7 +43,7 @@ defmodule EWallet.TransactionRequests.RequestTest do
     end
 
     test "receives an invalid changeset error when the type is invalid", meta do
-     {:error, changeset} = Request.create(meta.user, %{
+     {:error, changeset} = TransactionRequestGate.create(meta.user, %{
        "type" => "fake",
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => nil,
@@ -55,7 +55,7 @@ defmodule EWallet.TransactionRequests.RequestTest do
     end
 
     test "receives a 'balance_not_found' error when the address is invalid", meta do
-     {:error, error} = Request.create(meta.user, %{
+     {:error, error} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => nil,
@@ -70,7 +70,7 @@ defmodule EWallet.TransactionRequests.RequestTest do
     meta do
      balance = insert(:balance)
 
-     {:error, error} = Request.create(meta.user, %{
+     {:error, error} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => nil,
@@ -82,7 +82,7 @@ defmodule EWallet.TransactionRequests.RequestTest do
     end
 
     test "receives an 'invalid_parameter' error when the token ID is not found", meta  do
-     res = Request.create(meta.user, %{
+     res = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
        "token_id" => "fake",
        "correlation_id" => nil,
@@ -96,7 +96,7 @@ defmodule EWallet.TransactionRequests.RequestTest do
 
   describe "get/1" do
     test "returns the request do when given valid ID", meta do
-      {:ok, request} = Request.create(meta.user, %{
+      {:ok, request} = TransactionRequestGate.create(meta.user, %{
         "type" => "receive",
         "token_id" => meta.minted_token.friendly_id,
         "correlation_id" => "123",
@@ -104,16 +104,16 @@ defmodule EWallet.TransactionRequests.RequestTest do
         "address" => meta.balance.address,
       })
 
-      assert {:ok, request} = Request.get(request.id)
+      assert {:ok, request} = TransactionRequestGate.get(request.id)
       assert %TransactionRequest{} = request
     end
 
     test "returns nil when given nil" do
-      assert Request.get(nil) == {:error, :transaction_request_not_found}
+      assert TransactionRequestGate.get(nil) == {:error, :transaction_request_not_found}
     end
 
     test "returns nil when given invalid UUID" do
-      assert Request.get("123") == {:error, :transaction_request_not_found}
+      assert TransactionRequestGate.get("123") == {:error, :transaction_request_not_found}
     end
   end
 end

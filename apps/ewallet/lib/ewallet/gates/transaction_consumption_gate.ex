@@ -1,4 +1,4 @@
-defmodule EWallet.TransactionRequests.Consumption do
+defmodule EWallet.TransactionConsumptionGate do
   @moduledoc """
   Business logic to manage transaction request consumptions. This module is responsible for
   creating new consumptions, generating transfers and transactions. It can also be used to
@@ -6,8 +6,7 @@ defmodule EWallet.TransactionRequests.Consumption do
 
   It is basically an interface to the EWalletDB.TransactionRequestConsumption schema.
   """
-  alias EWallet.Transaction
-  alias EWallet.TransactionRequests.{Request, BalanceLoader}
+  alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher}
   alias EWalletDB.{Account, MintedToken, User, Balance, TransactionRequestConsumption}
 
   @spec consume(Map.t) :: {:ok, TransactionRequestConsumption.t} | {:error, Atom.t}
@@ -16,7 +15,7 @@ defmodule EWallet.TransactionRequests.Consumption do
     "address" => address
   } = attrs) do
     with account <- Account.get(account_id) || Account.get_master_account(),
-         {:ok, balance} <- BalanceLoader.get(account, address)
+         {:ok, balance} <- BalanceFetcher.get(account, address)
     do
       consume(balance, attrs)
     else
@@ -31,7 +30,7 @@ defmodule EWallet.TransactionRequests.Consumption do
   } = attrs) do
     with %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
                            :provider_user_id_not_found,
-         {:ok, balance} <- BalanceLoader.get(user, address)
+         {:ok, balance} <- BalanceFetcher.get(user, address)
     do
       consume(balance, attrs)
     else
@@ -43,7 +42,7 @@ defmodule EWallet.TransactionRequests.Consumption do
   def consume(%{
     "address" => address
   } = attrs) do
-    with {:ok, balance} <- BalanceLoader.get(nil, address)
+    with {:ok, balance} <- BalanceFetcher.get(nil, address)
     do
       consume(balance, attrs)
     else
@@ -57,7 +56,7 @@ defmodule EWallet.TransactionRequests.Consumption do
   def consume(%User{} = user, %{
     "address" => address
   } = attrs) do
-    with {:ok, balance} <- BalanceLoader.get(user, address)
+    with {:ok, balance} <- BalanceFetcher.get(user, address)
     do
       consume(balance, attrs)
     else
@@ -74,7 +73,7 @@ defmodule EWallet.TransactionRequests.Consumption do
     "metadata" => metadata,
     "idempotency_token" => _
   } = attrs) do
-    with {:ok, request} <- Request.get(request_id),
+    with {:ok, request} <- TransactionRequestGate.get(request_id),
          {:ok, minted_token} <- get_minted_token(token_id),
          {:ok, consumption} <- insert(balance, minted_token, request, attrs),
          {:ok, consumption} <- get(consumption.id)
@@ -132,7 +131,7 @@ defmodule EWallet.TransactionRequests.Consumption do
       "metadata" => metadata || %{}
     }
 
-    case Transaction.process_with_addresses(attrs) do
+    case TransactionGate.process_with_addresses(attrs) do
       {:ok, transfer, _, _} ->
         consumption = TransactionRequestConsumption.confirm(consumption, transfer)
         {:ok, consumption}

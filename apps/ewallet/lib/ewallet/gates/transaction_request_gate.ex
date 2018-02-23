@@ -1,4 +1,4 @@
-defmodule EWallet.TransactionRequests.Request do
+defmodule EWallet.TransactionRequestGate do
   @moduledoc """
   Business logic to manage transaction requests. This module is responsible
   for creating new requests, retrieving existing ones and handles the logic
@@ -6,7 +6,7 @@ defmodule EWallet.TransactionRequests.Request do
 
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
-  alias EWallet.TransactionRequests.BalanceLoader
+  alias EWallet.BalanceFetcher
   alias EWalletDB.{TransactionRequest, User, Balance, MintedToken, Account}
 
   @spec create(Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
@@ -15,7 +15,7 @@ defmodule EWallet.TransactionRequests.Request do
     "address" => address
   } = attrs) do
     with account <- Account.get(account_id) || Account.get_master_account(),
-         {:ok, balance} <- BalanceLoader.get(account, address),
+         {:ok, balance} <- BalanceFetcher.get(account, address),
          {:ok, transaction_request} <- create(balance, attrs)
     do
       get(transaction_request.id)
@@ -31,7 +31,7 @@ defmodule EWallet.TransactionRequests.Request do
   } = attrs) do
     with %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
                            :provider_user_id_not_found,
-         {:ok, balance} <- BalanceLoader.get(user, address),
+         {:ok, balance} <- BalanceFetcher.get(user, address),
          {:ok, transaction_request} <- create(balance, attrs)
     do
       get(transaction_request.id)
@@ -44,7 +44,7 @@ defmodule EWallet.TransactionRequests.Request do
   def create(%{
     "address" => address
   } = attrs) do
-    with {:ok, balance} <- BalanceLoader.get(nil, address),
+    with {:ok, balance} <- BalanceFetcher.get(nil, address),
          {:ok, transaction_request} <- create(balance, attrs)
     do
       get(transaction_request.id)
@@ -58,7 +58,7 @@ defmodule EWallet.TransactionRequests.Request do
   def create(%User{} = user, %{
     "address" => address
   } = attrs) do
-    with {:ok, balance} <- BalanceLoader.get(user, address)
+    with {:ok, balance} <- BalanceFetcher.get(user, address)
     do create(balance, attrs)
     else error -> error
     end

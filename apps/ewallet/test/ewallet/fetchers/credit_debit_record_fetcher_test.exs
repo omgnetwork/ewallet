@@ -1,7 +1,7 @@
-defmodule EWallet.Transactions.CreditDebitRecordFetcherTest do
+defmodule EWallet.CreditDebitRecordFetcherTest do
   use ExUnit.Case
   import EWalletDB.Factory
-  alias EWallet.Transactions.CreditDebitRecordFetcher
+  alias EWallet.CreditDebitRecordFetcher
   alias EWalletDB.{Repo, MintedToken, User, Account}
   alias Ecto.Adapters.SQL.Sandbox
 
