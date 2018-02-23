@@ -1,6 +1,6 @@
 defmodule EWallet.BalanceFetcher do
   @moduledoc """
-
+  Handles the retrieval of balances from the eWallet database.
   """
   alias EWalletDB.{User, Balance, Account}
 
