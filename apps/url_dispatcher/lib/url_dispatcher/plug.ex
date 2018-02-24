@@ -19,10 +19,12 @@ defmodule UrlDispatcher.Plug do
   # Redirect all endpoints without trailing slash to one with trailing slash.
   defp handle_request("/api", conn), do: redirect(conn, to: "/api/")
   defp handle_request("/admin/api", conn), do: redirect(conn, to: "/admin/api/")
+  defp handle_request("/admin", conn), do: redirect(conn, to: "/admin/")
   defp handle_request("/public", conn), do: redirect(conn, to: "/public/")
 
   defp handle_request("/api/" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
   defp handle_request("/admin/api/" <> _, conn), do: AdminAPI.Endpoint.call(conn, [])
+  defp handle_request("/admin/" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
   defp handle_request("/public/" <> _, conn) do
     opts = Static.init([
       at: "/public",
