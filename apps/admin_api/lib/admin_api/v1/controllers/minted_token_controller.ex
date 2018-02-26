@@ -4,6 +4,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias EWallet.MintGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.MintedToken
 
@@ -58,9 +59,33 @@ defmodule AdminAPI.V1.MintedTokenController do
     attrs
     |> Map.put("account_id", account.id)
     |> MintedToken.insert()
+    |> mint(attrs)
     |> respond_single(conn)
   end
   def create(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp mint({:ok, minted_token}, %{
+    "amount" => amount
+  })
+    when not is_nil(amount)
+    and is_integer(amount)
+    and amount > 0
+  do
+    res = MintGate.insert(%{
+      "idempotency_token" => minted_token.id,
+      "token_id" => minted_token.friendly_id,
+      "amount" => amount,
+      "description" => "",
+      "metadata" => %{}
+    })
+
+    case res do
+      {:ok, _mint, _ledger_response} -> {:ok, minted_token}
+      {:error, code, description}    -> {:error, code, description}
+      {:error, changeset}            -> {:error, changeset}
+    end
+  end
+  defp mint(res, _attrs), do: res
 
   # Respond with a list of minted tokens
   defp respond_multiple(%Paginator{} = paged_minted_tokens, conn) do
