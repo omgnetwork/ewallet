@@ -59,7 +59,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
             "symbol" => minted_token.symbol
           },
           "transaction_request_id" => transaction_request.id,
-          "transfer_id" => inserted_transfer.id,
+          "transaction_id" => inserted_transfer.id,
           "user_id" => nil,
           "account_id" => account.id,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
@@ -206,7 +206,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
             "symbol" => minted_token.symbol
           },
           "transaction_request_id" => transaction_request.id,
-          "transfer_id" => inserted_transfer.id,
+          "transaction_id" => inserted_transfer.id,
           "user_id" => bob.id,
           "account_id" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),

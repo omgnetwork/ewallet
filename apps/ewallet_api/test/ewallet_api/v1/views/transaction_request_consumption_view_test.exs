@@ -26,7 +26,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionViewTest do
           },
           correlation_id: consumption.correlation_id,
           idempotency_token: consumption.idempotency_token,
-          transfer_id: consumption.transfer_id,
+          transaction_id: consumption.transfer_id,
           user_id: consumption.user_id,
           account_id: consumption.account_id,
           transaction_request_id: consumption.transaction_request_id,
