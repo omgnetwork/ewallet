@@ -4,6 +4,7 @@ import { get } from '../../omisego/services/account_api';
 import SessionActions from '../../actions/session.actions';
 import sessionConstants from '../../constants/session.constants';
 import { accountErrors } from '../../constants/error.constants';
+import { ADMIN_PANEL_BASENAME } from '../../omisego/config';
 
 function loadCurrentUser(dispatch) {
   return new Promise((resolve, reject) => getCurrentUser()
@@ -16,9 +17,9 @@ function loadCurrentUser(dispatch) {
 
 function loadCurrentAccount(dispatch) {
   function processAccountId() {
-    const path = document.location.pathname;
-    if (/\/a\/.*(?=\/)/.test(path)) {
-      return path.split('/')[2];
+    var parsed_url = /\/a\/([^/]+)(?=\/)/.exec(document.location.pathname);
+    if (!!parsed_url && parsed_url[1] !== undefined) {
+      return parsed_url[1];
     }
     return Cookies.get(sessionConstants.ACCOUNT_COOKIE);
   }
