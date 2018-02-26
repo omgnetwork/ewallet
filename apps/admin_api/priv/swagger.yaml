@@ -1048,15 +1048,26 @@ components:
         id:
           type: string
           format: uuid
-        amount:
-          type: number
-        minted_token:
-          type: object
-          $ref: '#/components/schemas/MintedTokenSchema'
         from:
-          type: string
+          type: object
+          properties:
+            address:
+              type: string
+            amount:
+              type: number
+            minted_token:
+              type: object
+              $ref: '#/components/schemas/MintedTokenSchema'
         to:
-          type: string
+          type: object
+          properties:
+            address:
+              type: string
+            amount:
+              type: number
+            minted_token:
+              type: object
+              $ref: '#/components/schemas/MintedTokenSchema'
         status:
           type: string
           enum:
@@ -1073,8 +1084,6 @@ components:
         - object
         - id
         - idempotency_token
-        - amount
-        - minted_token
         - from
         - to
         - status
@@ -1098,17 +1107,28 @@ components:
             object: "transaction"
             id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             idempotency_token: "123982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-            amount: 1000
-            minted_token:
-              object: "minted_token"
-              id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-              symbol: "ABC"
-              name: "ABC Point"
-              subunit_to_unit: 100
-              created_at: "2018-01-01T00:00:00Z"
-              updated_at: "2018-01-01T10:00:00Z"
-            from: "XXX123"
-            to: "XXX124"
+            from:
+              address: "XXX123"
+              amount: 1000
+              minted_token:
+                object: "minted_token"
+                id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                symbol: "ABC"
+                name: "ABC Point"
+                subunit_to_unit: 100
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+            to:
+              address: "XXX123"
+              amount: 1000
+              minted_token:
+                object: "minted_token"
+                id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                symbol: "ABC"
+                name: "ABC Point"
+                subunit_to_unit: 100
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
             status: "confirmed"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -1138,17 +1158,28 @@ components:
             data:
               - object: "transaction"
                 id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-                amount: 1000
-                from: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-                to: "2e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-                minted_token:
-                  object: "minted_token"
-                  id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-                  symbol: "ABC"
-                  name: "ABC Point"
-                  subunit_to_unit: 100
-                  created_at: "2018-01-01T00:00:00Z"
-                  updated_at: "2018-01-01T10:00:00Z"
+                from:
+                  address: "XXX123"
+                  amount: 1000
+                  minted_token:
+                    object: "minted_token"
+                    id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                    symbol: "ABC"
+                    name: "ABC Point"
+                    subunit_to_unit: 100
+                    created_at: "2018-01-01T00:00:00Z"
+                    updated_at: "2018-01-01T10:00:00Z"
+                to:
+                  address: "XXX123"
+                  amount: 1000
+                  minted_token:
+                    object: "minted_token"
+                    id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                    symbol: "ABC"
+                    name: "ABC Point"
+                    subunit_to_unit: 100
+                    created_at: "2018-01-01T00:00:00Z"
+                    updated_at: "2018-01-01T10:00:00Z"
                 status: "confirmed"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
