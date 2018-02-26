@@ -4,7 +4,6 @@ import { get } from '../../omisego/services/account_api';
 import SessionActions from '../../actions/session.actions';
 import sessionConstants from '../../constants/session.constants';
 import { accountErrors } from '../../constants/error.constants';
-import { ADMIN_PANEL_BASENAME } from '../../omisego/config';
 
 function loadCurrentUser(dispatch) {
   return new Promise((resolve, reject) => getCurrentUser()
