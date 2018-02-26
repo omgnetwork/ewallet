@@ -1,19 +1,19 @@
-### Subject of the issue
+# Subject of the issue
 
 Describe your issue here.
 
-### Your environment
+# Your environment
 
 Tell us where this issue occurred.
 
-### Steps to reproduce
+# Steps to reproduce
 
 Tell us how to reproduce this issue.
 
-### Expected behavior
+# Expected behavior
 
 Tell us what should happen.
 
-### Actual behavior
+# Actual behavior
 
 Tell us what happens instead.
