@@ -12,7 +12,8 @@ You will first need to create the `.env` file located under the project's root d
 
 Example **.env** file
 ```
-BASE_URL=YOUR_BASE_URL
+ADMIN_PANEL_BASE_DIR=ADMIN_PANEL_BASE_DIR
+API_BASE_URL=API_BASE_URL
 API_KEY_ID=YOUR_API_KEY_ID
 API_KEY=YOUR_API_KEY
 ```
