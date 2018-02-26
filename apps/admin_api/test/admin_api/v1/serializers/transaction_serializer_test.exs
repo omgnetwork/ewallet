@@ -13,6 +13,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
         id: transaction.id,
         idempotency_token: transaction.idempotency_token,
         from: %{
+          object: "transaction_source",
           address: transaction.from,
           amount: transaction.amount,
           minted_token: %{
@@ -26,6 +27,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
           },
         },
         to: %{
+          object: "transaction_source",
           address: transaction.to,
           amount: transaction.amount,
           minted_token: %{
@@ -39,6 +41,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
           },
         },
         exchange: %{
+          object: "exchange",
           rate: 1,
         },
         status: transaction.status,
@@ -73,6 +76,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
             id: transaction1.id,
             idempotency_token: transaction1.idempotency_token,
             from: %{
+              object: "transaction_source",
               address: transaction1.from,
               amount: transaction1.amount,
               minted_token: %{
@@ -86,6 +90,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
               },
             },
             to: %{
+              object: "transaction_source",
               address: transaction1.to,
               amount: transaction1.amount,
               minted_token: %{
@@ -99,6 +104,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
               },
             },
             exchange: %{
+              object: "exchange",
               rate: 1,
             },
             status: transaction1.status,
@@ -110,6 +116,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
             id: transaction2.id,
             idempotency_token: transaction2.idempotency_token,
             from: %{
+              object: "transaction_source",
               address: transaction2.from,
               amount: transaction2.amount,
               minted_token: %{
@@ -123,6 +130,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
               },
             },
             to: %{
+              object: "transaction_source",
               address: transaction2.to,
               amount: transaction2.amount,
               minted_token: %{
@@ -136,6 +144,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
               },
             },
             exchange: %{
+              object: "exchange",
               rate: 1,
             },
             status: transaction2.status,

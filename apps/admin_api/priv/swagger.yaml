@@ -1051,6 +1051,8 @@ components:
         from:
           type: object
           properties:
+            object:
+              type: string
             address:
               type: string
             amount:
@@ -1061,6 +1063,8 @@ components:
         to:
           type: object
           properties:
+            object:
+              type: string
             address:
               type: string
             amount:
@@ -1071,6 +1075,8 @@ components:
         exchange:
           type: object
           properties:
+            object:
+              type: string
             rate:
               type: number
         status:
@@ -1114,6 +1120,7 @@ components:
             id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             idempotency_token: "123982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             from:
+              object: "transaction_source"
               address: "XXX123"
               amount: 1000
               minted_token:
@@ -1125,6 +1132,7 @@ components:
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
             to:
+              object: "transaction_source"
               address: "XXX123"
               amount: 1000
               minted_token:
@@ -1136,6 +1144,7 @@ components:
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
             exchange:
+              object: "exchange"
               rate: 1
             status: "confirmed"
             created_at: "2018-01-01T00:00:00Z"
@@ -1167,6 +1176,7 @@ components:
               - object: "transaction"
                 id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                 from:
+                  object: "transaction_source"
                   address: "XXX123"
                   amount: 1000
                   minted_token:
@@ -1178,6 +1188,7 @@ components:
                     created_at: "2018-01-01T00:00:00Z"
                     updated_at: "2018-01-01T10:00:00Z"
                 to:
+                  object: "transaction_source"
                   address: "XXX123"
                   amount: 1000
                   minted_token:
@@ -1189,6 +1200,7 @@ components:
                     created_at: "2018-01-01T00:00:00Z"
                     updated_at: "2018-01-01T10:00:00Z"
                 exchange:
+                  object: "exchange"
                   rate: 1
                 status: "confirmed"
                 created_at: "2018-01-01T00:00:00Z"

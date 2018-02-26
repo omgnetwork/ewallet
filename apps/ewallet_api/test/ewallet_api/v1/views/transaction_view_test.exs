@@ -16,6 +16,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
           id: transaction.id,
           idempotency_token: transaction.idempotency_token,
           from: %{
+            object: "transaction_source",
             address: transaction.from,
             amount: transaction.amount,
             minted_token: %{
@@ -27,6 +28,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             }
           },
           to: %{
+            object: "transaction_source",
             address: transaction.to,
             amount: transaction.amount,
             minted_token: %{
@@ -38,6 +40,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             }
           },
           exchange: %{
+            object: "exchange",
             rate: 1,
           },
           status: transaction.status,
