@@ -68,8 +68,8 @@ defmodule AdminAPI.V1.MintedTokenController do
     "amount" => amount
   })
     when not is_nil(amount)
-    when is_integer(amount)
-    when amount > 0
+    and is_integer(amount)
+    and amount > 0
   do
     res = MintGate.insert(%{
       "idempotency_token" => minted_token.id,
