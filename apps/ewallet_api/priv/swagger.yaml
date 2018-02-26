@@ -822,6 +822,10 @@ components:
             minted_token:
               type: object
               $ref: '#/components/schemas/MintedTokenSchema'
+        exchange:
+          type: object
+          properties:
+            rate: number
         status:
           type: string
           enum:
@@ -840,6 +844,7 @@ components:
         - idempotency_token
         - from
         - to
+        - exchange
         - status
         - created_at
         - updated_at
@@ -879,6 +884,8 @@ components:
                 symbol: "ABC"
                 name: "ABC Point"
                 subunit_to_unit: 100
+            exchange:
+              rate: 1
             status: "confirmed"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -930,6 +937,8 @@ components:
                     subunit_to_unit: 100
                     created_at: "2018-01-01T00:00:00Z"
                     updated_at: "2018-01-01T10:00:00Z"
+                exchange:
+                  rate: 1
                 status: "confirmed"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
