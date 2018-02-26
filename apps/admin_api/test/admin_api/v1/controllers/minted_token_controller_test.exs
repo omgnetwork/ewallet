@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.MintedTokenControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, MintedToken}
+  alias EWalletDB.{Repo, MintedToken, Mint}
 
   describe "/minted_token.all" do
     test "returns a list of minted tokens and pagination data" do
@@ -81,10 +81,29 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
         description: "desc",
         subunit_to_unit: 100
       })
+      mint = Mint |> Repo.all() |> Enum.at(0)
 
       assert response["success"]
       assert response["data"]["object"] == "minted_token"
       assert MintedToken.get(response["data"]["id"]) != nil
+      assert mint == nil
+    end
+
+    test "mints the given amount of tokens" do
+      response = user_request("/minted_token.create", %{
+        symbol: "BTC",
+        name: "Bitcoin",
+        description: "desc",
+        subunit_to_unit: 100,
+        amount: 1_000 * 100
+      })
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "minted_token"
+      assert MintedToken.get(response["data"]["id"]) != nil
+      assert mint != nil
+      assert mint.confirmed == true
     end
 
     test "returns insert error when attrs are invalid" do
