@@ -1,6 +1,6 @@
-## Environment Variables
+# Environment Variables
 
-### General
+## General
 
 Below are the general environment variables needed for the eWallet to run smoothly.
 
@@ -17,22 +17,20 @@ $ mix run -e "IO.puts Salty.SecretBox.generate_key()"
 8I_xIED7p7ruxxM1vNiWzsud3DALk0cnpcAncC2YyMs
 ```
 
-### Database
+## Database
 
 The eWallet needs access to two different databases: one for the eWallet itself and one for the local ledger. The following environment variables needs to be set.
 
 - `DATABASE_URL`
-- `DATABASE_PASSWORD`
 - `LOCAL_LEDGER_DATABASE_URL`
-- `LOCAL_LEDGER_DATABASE_PASSWORD`
 
-### Error Reporting
+## Error Reporting
 
 The eWallet only supports Sentry for now. You can specify the DSN for it with the following environment variable:
 
 - `SENTRY_DSN`
 
-### Balance Caching
+## Balance Caching
 
 The local ledger offers a caching mechanism for balances in order to boost the calculation speed (in case you have millions of transactions). To enable this feature, set the `BALANCE_CACHING_FREQUENCY` environment variable and pass it a valid CRON schedule. Note that this is totally optional and the application will work fine without it.
 
@@ -53,24 +51,24 @@ Strategies available:
 - `since_beginning`: Recalculate the balance since the beginning of time.
 - `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
 
-### File Upload
+## File Upload
 
 - `FILE_STORAGE_ADAPTER`: (`local`|`aws`|`gcs`, defaults to `local`)
 
 In order to use the file upload feature (for profile pictures and account logos), environment variables need to be defined.
 
-#### Local File Storage
+### Local File Storage
 
 Nothing else to set, files will be stored at the root of the project in `public/uploads/`.
 
-#### Amazon S3
+### Amazon S3
 
 - `AWS_BUCKET`: The name of your S3 bucket.
 - `AWS_REGION`: The region in which your bucket lives.
 - `AWS_ACCESS_KEY_ID`: Your AWS access key.
 - `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
 
-#### Google Cloud Storage
+### Google Cloud Storage
 
 - `GCS_BUCKET`: Your GCS bucket.
 - `GCS_CREDENTIALS`: A JSON containing your GCS credentials.

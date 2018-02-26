@@ -28,6 +28,7 @@ Do not expect to find anything related to blockchain integration __yet__. It wil
 - [Introduction](#introduction)
 - [Overview](#overview)
 - [Getting Started](#getting-started)
+- [Deploying the OmiseGO eWallet](#deploying-the-omisego-ewallet)
 - [Coming Soon](#coming-soon)
 - [Contributing](#contributing)
 - [F.A.Q](#faq)
@@ -246,13 +247,29 @@ For client-side applications (non-sensitive calls), the following SDKs are avail
 
 If none of the current SDKs matches your needs, you can create it! Get in touch with us [on Rocket](https://chat.omisego.network/channel/ewallet-sdk) and let us know. We'll be happy to help you implement it and, if your SDK meets our standards, support it as one of our official SDK.
 
+---
+
+# Deploying the OmiseGO eWallet
+
+OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](mailto:thibault@omise.co) if you're interested.
+
+Deploying the OmiseGO SDK can be done on any infrastructure. For security reasons, it is recommended to run the applications on one server and the databases on a different one.
+
+More information about deployment will be available soon.
+
+---
+
 # Coming Soon
 
-In this section, we will be sharing the next features the OmiseGO team will be working on.
+In this section, we will be sharing some of the next features the OmiseGO team will be working on.
 
-# Contributing
+- Integrate the Admin Panel in the eWallet.
+- Re-design and finalize the first version of the Admin Panel.
+- Implement the Request Logger sub-app for easy logging and debugging.
+- Refactor and split the factories files. Make smarter use of them throughout the tests.
+- Refactor and unify the test helpers for minting.
 
-See [how you can help](.github/CONTRIBUTING.md).
+---
 
 # F.A.Q
 
@@ -263,8 +280,26 @@ See [how you can help](.github/CONTRIBUTING.md).
 - Why going with HTTP-RPC vs RESTful?
 - Is the eWallet a centralized service?
 
+---
+
 # Going Further
 
 Here are some resources if you want to learn more about how the eWallet works.
 
-- [A closer look at balances](/docs/balances.md)
+- [All ENV needed to run the eWallet](/docs/setup/env.md)
+- [Integration Responsibilities](/docs/setup/integration.md)
+- [eWallet Entites](/docs/design/entities.md)
+- [eWallet Components](/docs/design/components.md)
+- [A closer look at balances](/docs/design/balances.md)
+
+---
+
+# Contributing
+
+See [how you can help](.github/CONTRIBUTING.md).
+
+---
+
+# License
+
+The OmiseGO eWallet is released under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
