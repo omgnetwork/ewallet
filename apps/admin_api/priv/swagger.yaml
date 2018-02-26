@@ -1071,7 +1071,8 @@ components:
         exchange:
           type: object
           properties:
-            rate: number
+            rate:
+              type: number
         status:
           type: string
           enum:
