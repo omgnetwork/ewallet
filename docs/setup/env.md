@@ -26,7 +26,7 @@ The eWallet needs access to two different databases: one for the eWallet itself 
 
 ## Error Reporting
 
-The eWallet only supports Sentry for now. You can specify the DSN for it with the following environment variable:
+The eWallet only supports [Sentry](https://sentry.io/welcome/) for now. You can specify the DSN for it with the following environment variable:
 
 - `SENTRY_DSN`
 
