@@ -2,8 +2,6 @@
 alias EWallet.{CLI, Seeder}
 alias EWalletDB.User
 
-CLI.info("Seeding User...")
-
 user_seed = %{
   amount: 20,
   provider_id_prefix: "provider_user_id",
@@ -19,18 +17,12 @@ for n <- 1..user_seed.amount do
   }
 
   with nil         <- User.get_by_provider_user_id(insert_data.provider_user_id),
-       {:ok, user} <- User.insert(insert_data)
+       {:ok, _user} <- User.insert(insert_data)
   do
-    CLI.success("📱 eWallet User inserted:\n"
-      <> "  User ID          : #{user.id}\n"
-      <> "  Provider user ID : #{user.provider_user_id}\n"
-      <> "  Username         : #{user.username}\n")
+    nil
   else
-    %User{} = user ->
-      CLI.warn("📱 eWallet User already exists:\n"
-        <> "  User ID          : #{user.id}\n"
-        <> "  Provider user ID : #{user.provider_user_id}\n"
-        <> "  Username         : #{user.username}\n")
+    %User{} ->
+      nil
     {:error, changeset} ->
       CLI.error("📱 eWallet User #{insert_data.provider_user_id} could not be inserted:")
       Seeder.print_errors(changeset)

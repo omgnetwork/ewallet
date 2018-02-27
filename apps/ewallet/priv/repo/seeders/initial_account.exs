@@ -2,8 +2,6 @@
 alias EWallet.{CLI, Seeder}
 alias EWalletDB.Account
 
-CLI.info("Seeding the master account...")
-
 data = %{
   name: "master_account",
   description: "Master Account",
@@ -11,16 +9,12 @@ data = %{
 }
 
 with nil            <- Account.get_master_account(),
-     {:ok, account} <- Account.insert(data)
+     {:ok, _account} <- Account.insert(data)
 do
-  CLI.success("Master account inserted:\n"
-    <> "  Name : #{account.name}\n"
-    <> "  ID   : #{account.id}\n")
+  nil
 else
-  %Account{} = account ->
-    CLI.warn("The master account already exists:\n"
-      <> "  Name : #{account.name}\n"
-      <> "  ID   : #{account.id}\n")
+  %Account{} ->
+    nil
   {:error, changeset} ->
     CLI.error("The master account could not be inserted:")
     Seeder.print_errors(changeset)

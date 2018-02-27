@@ -2,8 +2,6 @@
 alias EWallet.{CLI, Seeder}
 alias EWalletDB.{Account, Key}
 
-CLI.info("Seeding Access/Secret keys (always seed new ones)...")
-
 seeds = [
   %{account_name: "master_account"},
   %{account_name: "brand1"},
@@ -17,9 +15,7 @@ seeds = [
 Enum.each(seeds, fn(data) ->
   case Key.insert(%{account_id: Account.get_by(name: data.account_name).id}) do
     {:ok, key} ->
-      CLI.success("📱 Access/Secret keys seeded for #{data.account_name}\n"
-        <> "  Access key: #{key.access_key}\n"
-        <> "  Secret key: #{key.secret_key}\n")
+      Application.put_env(:ewallet, :seed_ewallet_key, key)
     {:error, changeset} ->
       CLI.error("📱 Access/Secret for #{data.account_name} could not be inserted:")
       Seeder.print_errors(changeset)

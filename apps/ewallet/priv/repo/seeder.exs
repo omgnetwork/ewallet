@@ -55,7 +55,7 @@ defmodule EWallet.Seeder do
   # Seeds to populate the database with sample data. This is useful for development
   # and testing environments, but not recommended for production environment.
   # The seeds will be executed in the order of this list.
-  @sample_seeds @init_seeds ++ [
+  @sample_seeds [
     "account.exs",
     "minted_token.exs",
     "user.exs",
@@ -88,7 +88,14 @@ defmodule EWallet.Seeder do
     Logger.configure(level: :warn)
 
     # Run the seed
-    if sample_seed?(opts), do: load(@sample_seeds), else: load(@init_seeds)
+    unless sample_seed?(opts) do
+      load(@init_seeds)
+      Code.load_file("report_minimum.exs", __DIR__)
+    else
+      load(@init_seeds)
+      load(@sample_seeds)
+      Code.load_file("report_sample.exs", __DIR__)
+    end
   end
 
   defp sample_seed?(opts), do: Keyword.get(opts, :sample, false)

@@ -3,8 +3,6 @@ import EWalletDB.Helpers.Crypto, only: [generate_key: 1]
 alias EWallet.{CLI, Seeder}
 alias EWalletDB.{Account, Membership, Role, User}
 
-CLI.info("Seeding admin panel users...")
-
 admin_seeds = [
   # Seed an admin user for each account
   %{email: "admin_brand1@example.com", password: generate_key(16), metadata: %{}},
@@ -48,25 +46,17 @@ memberships = [
 
 Enum.each(admin_seeds, fn(data) ->
   with nil <- User.get_by_email(data.email),
-       {:ok, user} <- User.insert(data)
+       {:ok, _user} <- User.insert(data)
   do
-    CLI.success("🔧 Admin Panel user inserted:\n"
-      <> "  Email    : #{user.email}\n"
-      <> "  Password : #{data.password || '<hashed>'}\n"
-      <> "  ID       : #{user.id}\n")
+    nil
   else
-    %User{} = user ->
-      CLI.warn("🔧 Admin Panel user already exists:\n"
-        <> "  Email    : #{user.email}\n"
-        <> "  Password : #{data.password || '<hashed>'}\n"
-        <> "  ID       : #{user.id}\n")
+    %User{} ->
+      nil
     {:error, changeset} ->
       CLI.error("🔧 Admin Panel user #{data.email} could not be inserted:")
       Seeder.print_errors(changeset)
   end
 end)
-
-CLI.info("Seeding admin panel user roles...")
 
 Enum.each(memberships, fn(membership) ->
   with %User{} = user       <- User.get_by_email(membership.email),
@@ -74,10 +64,7 @@ Enum.each(memberships, fn(membership) ->
        %Role{} = role       <- Role.get_by_name(membership.role_name),
        {:ok, _}             <- Membership.assign(user, account, role)
   do
-    CLI.success("🔧 Admin Panel user assigned:\n"
-      <> "  Email   : #{user.email}\n"
-      <> "  Account : #{account.name}\n"
-      <> "  Role    : #{role.name}\n")
+    nil
   else
     {:error, changeset} ->
       CLI.error("🔧 Admin Panel user #{membership.email} could not be assigned:")
