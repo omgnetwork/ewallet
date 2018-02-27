@@ -32,10 +32,10 @@ info:
     Error codes are defined in [eWallet Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
   contact:
     name: OmiseGO
-    email: mederic@omise.co
+    email: thibault@omisego.co
   license:
-    name: License To define
-    url: 'https://omg.omise.co/'
+    name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
+    url: 'https://omisego.network/'
 
 tags:
   - name: Session
