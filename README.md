@@ -130,7 +130,7 @@ The `ewallet_dev` and `local_ledger_dev` don't need to be created beforehand as 
 In some cases, you might also want to customize the following ones, depending on your development setup:
 
 - `BASE_URL`: The URL where the application can be accessed. Defaults to `http://localhost:4000`.
-- `PORT`: The port where the application can be accessed: Default to `4000`.
+- `PORT`: The internal listening port for the application. Default to `4000`.
 
 To learn more about all the environment variables available for production deployments (or if you want to get fancy in local), checkout [this doc](/docs/setup/env.md).
 
@@ -147,7 +147,29 @@ mix test
 ```
 
 ```
-OUTPUT
+==> local_ledger_db
+Finished in 0.5 seconds
+57 tests, 0 failures
+
+==> ewallet_db
+Finished in 2.3 seconds
+249 tests, 0 failures
+
+==> local_ledger
+Finished in 0.9 seconds
+24 tests, 0 failures
+
+==> ewallet
+Finished in 3.4 seconds
+141 tests, 0 failures
+
+==> admin_api
+Finished in 4.4 seconds
+184 tests, 0 failures
+
+==> ewallet_api
+Finished in 4.5 seconds
+134 tests, 0 failures
 ```
 
 All the tests should pass. If some tests are failing, double-check you have install all the dependencies. If you keep getting the failures, you can get in touch with us on [Rocket](https://chat.omisego.network/channel/ewallet-sdk)!
@@ -218,6 +240,8 @@ If you wish to use the HTTP-RPC web APIs directly, here are the Swagger specific
 - [eWallet API](https://ewallet.demo.omisego.io/api/swagger)
 - [Admin API](https://ewallet.demo.omisego.io/admin/api/swagger)
 
+__Note that to use the eWallet API, you need to call yourdomain.com/api
+
 ### Server SDKs
 
 To implement the sensitive calls in your server-side applications (such as crediting or debiting tokens from/to a user), the following SDKs are available:
@@ -255,23 +279,23 @@ In this section, we will be sharing some of the next features the OmiseGO team w
 
 # F.A.Q
 
-- Can I use the eWallet right now?
+##### Can I use the eWallet right now?
 
-Sure! You can deploy it on a server (or run it locally) and start using it as a ledger. Refer to the [Getting Started](#getting-started) section for more information.
+Sure! You can deploy it on a server (or run it locally) and start using it as a ledger. Refer to the [getting started](#getting-started) section for more information.
 
-- When will the eWallet be official released (out of Beta)?
+##### When will the eWallet be official released (out of Beta)?
 
 When it's ready :) Feel free to follow the progress through PRs, issues and our monthly updates for more information.
 
-- Can I help?
+##### Can I help?
 
 Of course! Check out our [contribution guidelines](.github/CONTRIBUTING.md) to get started.
 
-- Why going with HTTP-RPC vs RESTful?
+##### Why going with HTTP-RPC vs RESTful?
 
 We decided to stay as protocol-agnostic as possible and not follow HTTP conventions. Therefore, the web APIs only allows the `POST` method and returns `200` or `500` codes with custom representations and errors.
 
-- Is the eWallet a centralized service?
+##### Is the eWallet a centralized service?
 
 Each provider is responsible for running its own version of the eWallet. To get started, we offer hosting solutions but the long term goal is to have a federated network of eWallets running on top of a decentralized blockchain with no centralization.
 
