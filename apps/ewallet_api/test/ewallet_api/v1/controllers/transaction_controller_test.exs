@@ -61,6 +61,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
     test "returns all the transactions for a specific address", meta do
       response = provider_request("/transaction.all", %{
+        "sort_by" => "created_at",
+        "sort_dir" => "asc",
         "search_terms" => %{
           "from" => meta.balance_1.address,
           "to"   => meta.balance_2.address

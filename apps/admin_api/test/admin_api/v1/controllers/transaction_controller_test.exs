@@ -40,9 +40,9 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
       assert response["success"]
       assert Enum.count(transactions) == 3
-      assert Enum.at(transactions, 0)["from"] == "ABC3"
-      assert Enum.at(transactions, 1)["from"] == "ABC2"
-      assert Enum.at(transactions, 2)["from"] == "ABC1"
+      assert Enum.at(transactions, 0)["from"]["address"] == "ABC3"
+      assert Enum.at(transactions, 1)["from"]["address"] == "ABC2"
+      assert Enum.at(transactions, 2)["from"]["address"] == "ABC1"
     end
   end
 
