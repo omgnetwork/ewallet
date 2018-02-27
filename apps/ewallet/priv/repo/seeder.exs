@@ -65,13 +65,13 @@ defmodule EWallet.Seeder do
     Logger.configure(level: :warn)
 
     # Run the seed
-    unless sample_seed?(opts) do
-      load(@init_seeds)
-      Code.load_file("report_minimum.exs", __DIR__)
-    else
+    if sample_seed?(opts) do
       load(@init_seeds)
       load(@sample_seeds)
       Code.load_file("report_sample.exs", __DIR__)
+    else
+      load(@init_seeds)
+      Code.load_file("report_minimum.exs", __DIR__)
     end
   end
 
