@@ -2,30 +2,7 @@ defmodule EWallet.Seeder do
   @moduledoc """
   Script for populating the database.
 
-  # Usage
-
-  You can run the seed through mix alias on the root umbrella app folder:
-
-  ```
-  mix seed
-  ```
-
-  Or run the seed directly:
-
-  ```
-  mix run apps/ewallet/priv/repo/seeds.exs
-  ```
-
-  To do a full seed (useful for dev environment), pass the `--full` flag.
-
-  ```
-  mix seed --full
-  ```
-
-  The `--full` flag is useful when you are starting from scratch
-  and would like to have as much seed data populated as possible.
-
-  # Additional seeds
+  # Adding additional seeds
 
   To add more types of seeds, simply create a new seed file,
   then append the file name to either `@init_seeds` or `@full_seeds` below.
