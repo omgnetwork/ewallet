@@ -142,11 +142,13 @@ Before we start the application, let's try running the tests. Create the test da
 MIX_ENV=test mix do ecto.create, ecto.migrate
 ```
 
-Or if you're using specific database URLs (if you don't want to do that, you can always search & replace the default values in the config files):
+Or if you're using specific database URLs:
 
 ```
 MIX_ENV=test DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix do ecto.create, ecto.migrate
 ```
+
+**If you don't want to do that, you can always search & replace the default values in the config files, but only do that in development to give it a try - we really don't recommend changing the code that way for production setups.**
 
 Then, let's run the tests:
 
