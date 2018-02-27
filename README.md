@@ -116,7 +116,7 @@ We now need to pull the Elixir dependencies:
 mix deps.get
 ```
 
-You may need to set some environment variables before proceeding.
+You may need to set some environment variables before proceeding. You can use `export ENV=value` to set environment variables in the current session (or you can add them to whatever profile file you're using).
 
 __It is important to understand that the eWallet actually connects to two different databases. The first one, the local ledger database, is only used to store transactions, making it easier for audits. The second one contains, well, everything else.__
 
@@ -142,8 +142,20 @@ Before we start the application, let's try running the tests. Create the test da
 MIX_ENV=test mix do ecto.create, ecto.migrate
 ```
 
+Or if you're using specific database URLs (if you don't want to do that, you can always search & replace the default values in the config files):
+
+```
+MIX_ENV=test DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix do ecto.create, ecto.migrate
+```
+
+Then, let's run the tests:
+
 ```
 mix test
+```
+
+```
+DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix test
 ```
 
 ```
@@ -240,7 +252,7 @@ If you wish to use the HTTP-RPC web APIs directly, here are the Swagger specific
 - [eWallet API](https://ewallet.demo.omisego.io/api/swagger)
 - [Admin API](https://ewallet.demo.omisego.io/admin/api/swagger)
 
-__Note that to use the eWallet API, you need to call yourdomain.com/api
+When using the eWallet API, be sure to have `/api` at the end of your base URL (e.g. `https://yourdomain.com/api`). For the Admin API, it should include `/admin/api` (e.g. `https://yourdomain.com/admin/api`).
 
 ### Server SDKs
 
@@ -271,11 +283,14 @@ More information about deployment will be available soon.
 
 In this section, we will be sharing some of the next features the OmiseGO team will be working on.
 
+- Better environment variables management for `test` and `dev` environments.
 - Integrate the Admin Panel in the eWallet.
+- Finalize the transaction requests mechanism allowing QR code transfers.
 - Re-design and finalize the first version of the Admin Panel.
-- Implement the Request Logger sub-app for easy logging and debugging.
+- Implement the Request Logger sub-app for easier logging and debugging.
 - Refactor and split the factories files. Make smarter use of them throughout the tests.
 - Refactor and unify the test helpers for minting.
+- ...
 
 # F.A.Q
 
