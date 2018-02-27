@@ -7,8 +7,6 @@ The OmiseGO eWallet is an Elixir application freely available for anyone who wis
 
 __In the rest of this document, a person or company setting up this eWallet is called a provider.__
 
----
-
 # Disclaimer
 
 ## Beta
@@ -34,8 +32,6 @@ Do not expect to find anything related to blockchain integration __yet__. It wil
 - [F.A.Q](#faq)
 - [Going Further](#going-further)
 
----
-
 # TL;DR
 
 - eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/swagger) /  [current](https://ewallet.staging.omisego.io/api/swagger)
@@ -52,8 +48,6 @@ Do not expect to find anything related to blockchain integration __yet__. It wil
   - [Mobile integration (iOS)](https://github.com/omisego/sample-ios)
   - [Mobile integration (Android)](https://github.com/omisego/sample-android)
 
----
-
 # Introduction
 
 What is commonly called as the OmiseGO SDK is actually composed of a few different applications.
@@ -63,15 +57,11 @@ What is commonly called as the OmiseGO SDK is actually composed of a few differe
 
 Currently, the easiest use-case to understand what the eWallet can do is to see it as a loyalty point ledger. Once the blockchain is plugged, those points will become actual tradable cryptocurrencies.
 
----
-
 # OmiseGO SDK Integration Diagram
 
 Here’s an overview of all the components and what needs to be integrated by a provider (and how):
 
 ![A provider's Sample Setup](docs/images/provider_setup.jpg)
-
----
 
 # Sample Setup
 
@@ -89,8 +79,6 @@ The demo server applications have been deployed and are available at the followi
 
 - [OMGShop - Ruby on Rails](https://sample-shop.demo.omisego.io/)
 - [OMGShop - eWallet](https://ewallet.demo.omisego.io/)
-
----
 
 # Quick Start
 
@@ -221,7 +209,7 @@ Here are some steps to get you started with the fun, they can all be performed b
 
 ## Communicating with the eWallet
 
-If Swagger is not enough, you can start communicating with the web APIs using any programming language of your choice, either by using the HTTP-RPC endpoints directly or by using one of the available SDKs.
+If Swagger UI is not enough, you can start communicating with the web APIs using any programming language of your choice, either by using the HTTP-RPC endpoints directly or by using one of the available SDKs.
 
 ### HTTP-RPC WEB APIs
 
@@ -247,8 +235,6 @@ For client-side applications (non-sensitive calls), the following SDKs are avail
 
 If none of the current SDKs matches your needs, you can create it! Get in touch with us [on Rocket](https://chat.omisego.network/channel/ewallet-sdk) and let us know. We'll be happy to help you implement it and, if your SDK meets our standards, support it as one of our official SDK.
 
----
-
 # Deploying the OmiseGO eWallet
 
 OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](mailto:thibault@omisego.co) if you're interested.
@@ -256,8 +242,6 @@ OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](mailto:thib
 Deploying the OmiseGO SDK can be done on any infrastructure. For security reasons, it is recommended to run the applications on one server and the databases on a different one.
 
 More information about deployment will be available soon.
-
----
 
 # Coming Soon
 
@@ -269,18 +253,29 @@ In this section, we will be sharing some of the next features the OmiseGO team w
 - Refactor and split the factories files. Make smarter use of them throughout the tests.
 - Refactor and unify the test helpers for minting.
 
----
-
 # F.A.Q
 
 - Can I use the eWallet right now?
+
+Sure! You can deploy it on a server (or run it locally) and start using it as a ledger. Refer to the [Getting Started](#getting-started) section for more information.
+
 - When will the eWallet be official released (out of Beta)?
-- When will the eWallet be plugged on the blockchain?
+
+When it's ready :) Feel free to follow the progress through PRs, issues and our monthly updates for more information.
+
 - Can I help?
+
+Of course! Check out our [contribution guidelines](.github/CONTRIBUTING.md) to get started.
+
 - Why going with HTTP-RPC vs RESTful?
+
+We decided to stay as protocol-agnostic as possible and not follow HTTP conventions. Therefore, the web APIs only allows the `POST` method and returns `200` or `500` codes with custom representations and errors.
+
 - Is the eWallet a centralized service?
 
----
+Each provider is responsible for running its own version of the eWallet. To get started, we offer hosting solutions but the long term goal is to have a federated network of eWallets running on top of a decentralized blockchain with no centralization.
+
+More questions? Get in touch with us on [Rocket Chat](https://chat.omisego.network/channel/ewallet-sdk)!
 
 # Going Further
 
@@ -292,13 +287,9 @@ Here are some resources if you want to learn more about how the eWallet works.
 - [eWallet Components](/docs/design/components.md)
 - [A closer look at balances](/docs/design/balances.md)
 
----
-
 # Contributing
 
 See [how you can help](.github/CONTRIBUTING.md).
-
----
 
 # License
 
