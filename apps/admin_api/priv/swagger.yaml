@@ -29,10 +29,10 @@ info:
     Error codes are defined in [eWallet Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
   contact:
     name: OmiseGO
-    email: unnawut@omise.co
+    email: thibault@omisego.co
   license:
-    name: License to be defined
-    url: 'https://omg.omise.co/'
+    name: 'Apache 2.0: https://www.apache.org/licenses/LICENSE-2.0'
+    url: 'https://omisego.network/'
 
 tags:
   - name: Session
@@ -80,6 +80,38 @@ paths:
       operationId: logout
       security:
         - UserAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /password.reset:
+    post:
+      tags:
+        - Session
+      summary: Sends an email containing a link to reset the password.
+      operationId: password_reset
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ResetPasswordBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /password.update:
+    post:
+      tags:
+        - Session
+      summary: Reset the password for a specific token with the provided new password.
+      operationId: password_update
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UpdatePasswordBody'
       responses:
         '200':
           $ref: "#/components/responses/EmptyResponse"
@@ -1432,6 +1464,52 @@ components:
             example:
               email: "test@example.com"
               password: "the_password"
+    ResetPasswordBody:
+      description: The parameters to use for requesting a reset password
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+                format: email
+              redirect_url:
+                type: string
+            required:
+              - email
+              - redirect_url
+            example:
+              email: "test@example.com"
+              redirect_url: "https://example.com/admin/update_password?email={email}&token={token}"
+    UpdatePasswordBody:
+      description: The parameters to use for reseting a password
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+                format: email
+              token:
+                type: string
+              password:
+                type: string
+                format: password
+              password_confirmation:
+                type: string
+                format: password
+            required:
+              - email
+              - redirect_url
+              - password
+              - password_confirmation
+            example:
+              email: "test@example.com"
+              token: "26736ca1-43a0-442b-803e-76220cd3cb1d"
+              password: "nZi9Enc5$l#"
+              password_confirmation: "nZi9Enc5$l#"
 
     ######################################
     #     MINTED TOKEN REQUEST BODIES    #
@@ -1477,7 +1555,7 @@ components:
               id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
     # Request body for creating a minted token
     MintedTokenCreateBody:
-        description: The parameters to create a minted token
+        description: The parameters to create a minted token. Note that if amount is specified, the token will be minted automatically.
         required: true
         content:
           application/vnd.omisego.v1+json:
@@ -1490,6 +1568,8 @@ components:
                 description:
                   type: string
                 subunit_to_unit:
+                  type: integer
+                amount:
                   type: integer
                 iso_code:
                   type: string
