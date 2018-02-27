@@ -1,56 +1,71 @@
 OmiseGO eWallet
 ===============
 
-The OmiseGO SDK provides various applications and tools that, once integrated, allow any person or company to set up an eWallet with a node of the OmiseGO blockchain. A person or company setting up the OmiseGO SDK in such a way is called a **provider**.
+The OmiseGO eWallet is an Elixir application freely available for anyone who wishes to run a (local) ledger through a web interface.
+
+**The eWallet will later be plugged to a blockchain and connected to a decentralized exchange. All the eWallets will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.**
+
+__In the rest of this document, a person or company setting up this eWallet is called a provider.__
+
+# Disclaimer
+
+## Beta
+
+The OmiseGO eWallet and SDKs are still under heavy development, and therefore, in "beta". This means things might break or change suddenly. We are moving fast, and until the official release, we'd like to keep it that way.
+
+__Use at your own risk.__
+
+(Still, we will do our best to keep breaking changes to the minimum and notify when such events happen)
+
+## Blockchain
+
+Do not expect to find anything related to blockchain integration __yet__. It will come, when it's ready.
 
 # Table of Contents
 
-- [OmiseGO SDK Overview](#omisego-sdk-overview)
-- [OmiseGO SDK Integration Diagram](#omisego-sdk-integration-diagram)
-- [Quick Start](#quick-start)
-  - [Sample Setup](#sample-setup)
-  - [Setting Up the OmiseGO SDK in local](#setting-up-the-omisego-sdk-in-local)
-  - [Deploying the OmiseGO SDK](#deploying-the-omisego-sdk)
-- [Understanding the server-side applications](#understanding-the-server-side-applications)
-  - [Entities](#entities)
-  - [Components](#components)
-    - [eWallet](#ewallet)
-    - [Admin Panel](#admin-panel)
-    - [Request Logger](#request-logger)
-    - [Blockchain Gateway](#blockchain-gateway)
-  - [Dependencies](#dependencies)
-- [Communicating with the server applications](#communicating-with-the-server-applications)
-  - [HTTP](#http)
-  - [Server SDKs](#server-sdks)
-  - [Client SDKs](#client-sdks)
-- [Integrating the OmiseGO SDK](#integrating-the-omisego-sdk)
-  - [Responsibilities](#responsibilities)
-- [Diving further](#diving-further)
+- [Introduction](#introduction)
+- [Overview](#overview)
+- [Getting Started](#getting-started)
+- [Deploying the OmiseGO eWallet](#deploying-the-omisego-ewallet)
+- [Coming Soon](#coming-soon)
 - [Contributing](#contributing)
+- [F.A.Q](#faq)
+- [Going Further](#going-further)
 
-# OmiseGO SDK Overview
+# TL;DR
 
-The OmiseGO SDK is composed of different components that can be grouped in the three following categories:
+- eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/swagger) /  [current](https://ewallet.staging.omisego.io/api/swagger)
 
-- __Server Applications__: A set of Elixir applications allowing a provider to store users and their balances, as well as initiating transactions between them and the provider’s balances. Those applications need to be deployed on a server and integrated by the provider through the provided HTTP API.
-- __Server and client SDKs__: To facilitate the communication with the server applications, OmiseGO provides language-specific SDKs to integrate both on the server side (for sensitive requests) and on the client side (for non-sensitive requests).
-- __Blockchain__: Once the server applications are plugged on the blockchain, the setup will become a node of the decentralized OmiseGO network and allow inter-wallet transactions to happen.
+- Admin Web API Docs: [stable](https://ewallet.demo.omisego.io/admin/api/swagger) / [current](https://ewallet.staging.omisego.io/admin/api/swagger)
 
-While all of these are being developed simultaneously, they have not all reach the same stage of advancement, which is why the OmiseGO SDK is not actually plugged to the blockchain yet. For now, it acts as a silo-ed eWallet handling loyalty points. Once the blockchain is plugged, those loyalty points will become actual tradable cryptocurrencies.
+- SDKs:
+  - [Ruby](https://github.com/omisego/ruby-sdk)
+  - [iOS](https://github.com/omisego/ios-sdk)
+  - [Android](https://github.com/omisego/android-sdk)
 
-__The sections below describe the server applications and server/client SDKs provided as part of the OmiseGO SDK.__
+- Sample Apps:
+  - [Server integration (Ruby)](https://github.com/omisego/sample-server)
+  - [Mobile integration (iOS)](https://github.com/omisego/sample-ios)
+  - [Mobile integration (Android)](https://github.com/omisego/sample-android)
+
+# Introduction
+
+What is commonly called as the OmiseGO SDK is actually composed of a few different applications.
+
+- __eWallet__: Currently only acting as local ledger (as opposed to a decentralized one), it will later on be plugged on a blockchain with minimal changes required for providers. The eWallet needs to be deployed on a server.
+- __Server and client SDKs__: To simplify the communication with the eWallet, OmiseGO provides language-specific SDKs.
+
+Currently, the easiest use-case to understand what the eWallet can do is to see it as a loyalty point ledger. Once the blockchain is plugged, those points will become actual tradable cryptocurrencies.
 
 # OmiseGO SDK Integration Diagram
 
-Here’s an overview of all the components and what needs to be integrated  by a provider (and how):
+Here’s an overview of all the components and what needs to be integrated by a provider (and how):
 
-![A provider's setup](docs/images/provider_setup.png)
+![A provider's Sample Setup](docs/images/provider_setup.jpg)
 
-# Quick Start
+# Sample Setup
 
-## Sample Setup
-
-OmiseGO has built a sample setup to show how the OmiseGO SDK can be integrated. It is a simple t-shirt store allowing users to receive loyalty points when buying something. They can then use those loyalty points to get a discount.
+OmiseGO has built a sample setup to demonstrate how the OmiseGO eWallet and the SDKs can be used. It is a simple t-shirt store allowing users to receive loyalty points when buying something. They can then use those loyalty points to get a discount.
 
 ![OMGShop](docs/images/omgshop.png)
 
@@ -60,57 +75,146 @@ The code and documentation are available in the following repositories:
 - [Mobile Server integration (iOS)](https://github.com/omisego/sample-ios)
 - [Mobile Server integration (Android)](https://github.com/omisego/sample-android)
 
-## Setting up the OmiseGO SDK in local
+The demo server applications have been deployed and are available at the following URLs:
 
-To set up the OmiseGO SDK in local, follow the steps below:
+- [OMGShop - Ruby on Rails](https://sample-shop.demo.omisego.io/)
+- [OMGShop - eWallet](https://ewallet.demo.omisego.io/)
 
-1. Install the [dependencies](#dependencies)
+# Quick Start
 
-2. Install [Elixir](http://elixir-lang.github.io/install.html)
+The following section will get you up to speed on the eWallet and show you how to deploy it in local.
 
-3. Once you have installed the [dependencies](#dependencies) and they are running, it's time to pull the code for the eWallet.
+## Installing the dependencies
 
-Let's start by cloning the eWallet, getting the dependencies and migrating the database:
+Be sure to have the following applications installed and running on your machine.
+
+- [PostgreSQL](https://www.postgresql.org/): PostgreSQL is used to store most of the data for the eWallet API and local ledger.
+
+- [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used to format images in the admin panel. Tested with version `> 7.0.7-22`.
+
+- [Libsodium](https://github.com/jedisct1/libsodium): Sodium is a new, easy-to-use software library for encryption, decryption, signatures, password hashing and more. It is used to hash and encrypt/decrypt sensitive data.
+
+- [Elixir](http://elixir-lang.github.io/install.html): Elixir is a dynamic, functional language designed for building scalable and maintainable applications.
+
+- [Git](https://git-scm.com/): Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
+
+## Getting the code
+
+Once you have installed the all the dependencies and they are running, it's time to pull the eWallet code. To do so, let's use `git`:
 
 ```
 git clone git@github.com:omisego/ewallet.git && cd ./ewallet
 ```
 
+Feel free to look around!
+
+## Setting up
+
+We now need to pull the Elixir dependencies:
+
 ```
 mix deps.get
 ```
 
-Before we start the application, let's try running the tests:
+You may need to set some environment variables before proceeding. You can use `export ENV=value` to set environment variables in the current session (or you can add them to whatever profile file you're using).
+
+__It is important to understand that the eWallet actually connects to two different databases. The first one, the local ledger database, is only used to store transactions, making it easier for audits. The second one contains, well, everything else.__
+
+In development, you should only have to set the `DATABASE_URL` and `LOCAL_LEDGER_DATABASE_URL` if your local PostgreSQL installation requires authentication.
+
+- `DATABASE_URL`: The URL where the main database can be accessed. Defaults to `postgres://localhost/ewallet_dev` in `dev`, `postgres://localhost/ewallet_test` in `test`.
+- `LOCAL_LEDGER_DATABASE_URL`: The URL where the ledger database can be accessed. Defaults to `postgres://localhost/local_ledger_dev` in `dev`, `postgres://localhost/local_ledger_test` in `test`.
+
+The `ewallet_dev` and `local_ledger_dev` don't need to be created beforehand as long as the database URLs contain credentials allowing this kind of operations.
+
+In some cases, you might also want to customize the following ones, depending on your development setup:
+
+- `BASE_URL`: The URL where the application can be accessed. Defaults to `http://localhost:4000`.
+- `PORT`: The internal listening port for the application. Default to `4000`.
+
+To learn more about all the environment variables available for production deployments (or if you want to get fancy in local), checkout [this doc](/docs/setup/env.md).
+
+## Running the tests
+
+Before we start the application, let's try running the tests. Create the test databases:
 
 ```
 MIX_ENV=test mix do ecto.create, ecto.migrate
 ```
 
+Or if you're using specific database URLs:
+
+```
+MIX_ENV=test DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix do ecto.create, ecto.migrate
+```
+
+**If you don't want to do that, you can always search & replace the default values in the config files, but only do that in development to give it a try - we really don't recommend changing the code that way for production setups.**
+
+Then, let's run the tests:
+
 ```
 mix test
 ```
 
-If everything looks fine, we can create the development database:
+```
+DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix test
+```
+
+```
+==> local_ledger_db
+Finished in 0.5 seconds
+57 tests, 0 failures
+
+==> ewallet_db
+Finished in 2.3 seconds
+249 tests, 0 failures
+
+==> local_ledger
+Finished in 0.9 seconds
+24 tests, 0 failures
+
+==> ewallet
+Finished in 3.4 seconds
+141 tests, 0 failures
+
+==> admin_api
+Finished in 4.4 seconds
+184 tests, 0 failures
+
+==> ewallet_api
+Finished in 4.5 seconds
+134 tests, 0 failures
+```
+
+All the tests should pass. If some tests are failing, double-check you have install all the dependencies. If you keep getting the failures, you can get in touch with us on [Rocket](https://chat.omisego.network/channel/ewallet-sdk)!
+
+## Migrating the development database
+
+If all the tests passed, we can create the development databases:
 
 ```
 mix do ecto.create, ecto.migrate
 ```
 
-Everything is in place and we can now run the seeds to populate the eWallet database with initial data:
+## Inserting some data
+
+Everything is in place and we can now run the seeds to populate the eWallet database with some initial data:
 
 ```
 mix seed
 ```
 
-_Note: The command above seeds the minimum amount of data to get the environment up and running. To play in development environment with some sample data, run `mix seed --sample` instead._
+__Note: The command above seeds the minimum amount of data to get the environment up and running. To play in development environment with some sample data, run `mix seed --sample` instead.__
 
-We can now start the application:
+## Booting up
+
+Time to start the application!
 
 ```
 mix omg.server
 ```
 
-Navigate to  `http://localhost:4000/api` in your browser and you should see the following JSON representation popping up:
+Navigate to `http://localhost:4000/api` in your browser and you should see the following `JSON` representation popping up:
 
 ```
 {
@@ -124,234 +228,110 @@ Navigate to  `http://localhost:4000/api` in your browser and you should see the 
 
 All set! Start playing around with the API using the Swagger docs below to learn more about the available endpoints. Enjoy!
 
-- [eWallet API](/apps/ewallet_api/swagger-doc.yaml)
-- [Admin API](/apps/admin_api/swagger-doc.yaml)
+## Web APIs Interactive Documentation
 
-## Environment Variables
+- Admin API: [http://localhost:4000/admin/api/swagger](http://localhost:4000/admin/api/swagger)
+- eWallet API: [http://localhost:4000/api/swagger](http://localhost:4000/api/swagger)
 
-### General
+## Making your first requests
 
-Below are the general environment variables needed for the eWallet to run smoothly.
+Here are some steps to get you started with the fun, they can all be performed by accessing the Swagger linked above:
 
-- `MIX_ENV`: Environment in which the application is being ran. `prod` for production.
-- `BASE_URL`: The base to use when building URLs.
-- `PORT`: The port that the application listens on.
-- `EWALLET_SECRET_KEY`: Encryption key used to encrypt some data in the database.
-- `LOCAL_LEDGER_SECRET_KEY`: Encryption key used to encrypt some data in the database.
+1. In the Admin API, configure the authentication at the top using the keys generated in the seeding step.
+2. Log yourself in and get the returned authentication token. In case you're getting an invalid auth scheme, double check that you're using `OMGAdmin` with the base64 encoded version of `API_KEY_ID:API_KEY` (with no `\n`, some programming languages add them).
+3. Configure the user authentication using the authentication token you've received in the previous step.
+4. Create a minted token using `/minted_token.create`. You can specify the optional `amount` parameter to do an initial minting.
+5. After that you're ready to start messing around with the eWallet API. You can create yourself a user using one of the server calls and credit/debit tokens!
 
-Tip: How to generate a new secret key using Elixir:
+## Communicating with the eWallet
 
-```
-$ mix run -e "IO.puts Salty.SecretBox.generate_key()"
-8I_xIED7p7ruxxM1vNiWzsud3DALk0cnpcAncC2YyMs
-```
+If Swagger UI is not enough, you can start communicating with the web APIs using any programming language of your choice, either by using the HTTP-RPC endpoints directly or by using one of the available SDKs.
 
-### Database
+### HTTP-RPC WEB APIs
 
-The eWallet needs access to two different databases: one for the eWallet itself and one for the local ledger. The following environment variables needs to be set.
+If you wish to use the HTTP-RPC web APIs directly, here are the Swagger specifications containing all the available endpoints and how to interact with them. You can access those interactive documentations on any running eWallet application, including the ones you deploy yourself! The eWallet API docs live under `/api/swagger` and the Admin API ones under `/admin/api/swagger`.
 
-- `DATABASE_URL`
-- `DATABASE_PASSWORD`
-- `LOCAL_LEDGER_DATABASE_URL`
-- `LOCAL_LEDGER_DATABASE_PASSWORD`
+- [eWallet API](https://ewallet.demo.omisego.io/api/swagger)
+- [Admin API](https://ewallet.demo.omisego.io/admin/api/swagger)
 
-### Error Reporting
-
-The eWallet only supports Sentry for now. You can specify the DSN for it with the following environment variable:
-
-- `SENTRY_DSN`
-
-### Balance Caching
-
-The local ledger offers a caching mechanism for balances in order to boost the calculation speed (in case you have millions of transactions). To enable this feature, set the `BALANCE_CACHING_FREQUENCY` environment variable and pass it a valid CRON schedule. Note that this is totally optional and the application will work fine without it.
-
-- `BALANCE_CACHING_FREQUENCY`: A valid CRON schedule.
-
-Examples:
-
-- Every minute:         `"* * * * *"`
-- Every day at 2 am:    `"0 2 * * *"`
-- Every Friday at 5 am: `"0 5 * * 5"`
-
-If this feature is enabled, you can also specify a caching strategy.
-
-- `BALANCE_CACHING_STRATEGY`: Specify if new cached balances should be computed using a previous cache or by recalculating everything from scratch.
-
-Strategies available:
-
-- `since_beginning`: Recalculate the balance since the beginning of time.
-- `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
-
-### File Upload
-
-- `FILE_STORAGE_ADAPTER`: (`local`|`aws`|`gcs`, defaults to `local`)
-
-In order to use the file upload feature (for profile pictures and account logos), environment variables need to be defined.
-
-#### Local File Storage
-
-Nothing else to set, files will be stored at the root of the project in `public/uploads/`.
-
-#### Amazon S3
-
-- `AWS_BUCKET`: The name of your S3 bucket.
-- `AWS_REGION`: The region in which your bucket lives.
-- `AWS_ACCESS_KEY_ID`: Your AWS access key.
-- `AWS_SECRET_ACCESS_KEY`: Your AWS secret key.
-
-#### Google Cloud Storage
-
-- `GCS_BUCKET`: Your GCS bucket.
-- `GCS_CREDENTIALS`: A JSON containing your GCS credentials.
-
-## Deploying the OmiseGO SDK
-
-OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](mailto:thibault@omise.co) if you're interested.
-
-Deploying the OmiseGO SDK can be done on any infrastructure. For security reasons, it is recommended to run the applications on one server and the databases on a different one.
-
-More information about deployment will be available soon.
-
-# Understanding the server-side applications
-
-In order to integrate the OmiseGO SDK in the best possible way, it can be useful to know how it works. In this section, we'll explore the different entities that make up the OmiseGO server-side applications, then go through the applications themselves and how they interact together. We'll also go over the dependencies needed to run those applications before talking about the deployment steps.
-
-## Entities
-
-- __Minted Tokens__: A currency (loyalty points, cryptocurrency, tokenized fiat). Identified by a symbol (OMG, BTC, USDT). By default, a token is not backed by the blockchain, which means a provider can only make internal transfers: between the provider's balances and the users balances (back and forth) or between accounts. If a provider wishes to have one of its token backed, the address of the smart contract on the blockchain needs to be defined in the token details to uniquely identify it.
-
-- __Mints__: A record of each occurrence when more tokens were put into circulation.
-
-- __Accounts__: A grouping of users and balances. It can be used by a provider admin to define logical groupings according to its business needs, e.g. an account for each product branding, each store branch, each sales team or each operating region, etc.
-
-- __Users__: A user can either be a regular user or a staff user (a.k.a admin) In the first case, it would be someone using the end-user applications created by providers (mobile applications for example), who was added to the eWallet database by the provider. In the second case, it's a user able to access the OmiseGO admin panel.
-
-- __Balances__: A balance identified by an address which is used to group transactions and holds a value. A user can have more than one balance if needed, and a balance can contain different currencies. You can learn more about balances [there](/docs/balances.md).
-
-- __Transactions__: A transaction is an exchange of value between two balances. Transactions are stored in the local ledger using a DEB approach. DEB (Double Entry Bookkeeping) is a system where an entry is created and DEBIT/CREDIT transactions are linked to it. The sum of all debits minus the sum of all credits for a specific entry has to be equal to 0. Summing up all credit transactions minus all debit transactions for a specific balance address and token symbol gives the balance of that address.
-
-- __Access Key__: An identifying pair of keys (access/secret) used by a provider's server application to communicate with eWallet. A combination is used here instead of a single key to prevent timing- based attacks.
-
-- __Secret Key__: A secret key acting as a password and sent from a provider's backend application to authenticate requests.
-
-- __API Key__: A perishable key sent from a mobile applications to make authenticated non-sensitive API calls to eWallet.
-
-- __Access Token__: A temporary token generated by the eWallet API and returned through a provider's backend application to the client. It can then be used with an API key to make non-sensitive calls to eWallet.
-
-## Components
-
-Below is the list of components from the OmiseGO SDK that need to be run on one (or more) server(s):
-
-- [eWallet](#ewallet)
-- [Admin Panel](#admin-panel)
-- [Request Logger](#request-logger)
-- [Blockchain Gateway](#blockchain-gateway)
-
-### eWallet
-
-The eWallet is the centerpiece of the OmiseGO SDK. Through the web APIs it offers, the eWallet can be used to create users and balances, and exchange values between them. The eWallet also contains entities that can be used to configure, organize and manage the eWallet (accounts, minted tokens, etc.). The web APIs offered by the eWallet follow an HTTP-RPC approach. They do not follow the REST recommendations to stay as protocol-agnostic as possible.
-
-The eWallet contains the Local Ledger which is an internal ledger used by the eWallet application to record transactions. No integration is needed from the provider for this tool, but it can be useful to know that the transactions are stored in a different database.
-
-**Note that the exchange of value (the transactions) is delegated to the local ledger.**
-
-On a more technical note, the eWallet is an umbrella Elixir application containing the following sub-applications:
-
-  - [ewallet](/apps/ewallet): Sub-application containing the business logic (minting process, transfer of value, etc.).
-
-  - [ewallet_api](/apps/ewallet_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __interact with the eWallet__. Check the [Swagger spec](/apps/ewallet_api/swagger-doc.yaml) for more details.
-
-  - [admin_api](/apps/admin_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __manage__ the system. Check the [Swagger spec](/apps/admin_api/swagger-doc.yaml) for more details.
-
-  - [ewallet_db](/apps/ewallet_db): Sub-application containing all the database schemas and migrations.
-
-  - [local_ledger](/apps/local_ledger): Sub-application containing the business logic.
-
-  - [local_ledger_db](/apps/local_ledger_db): Sub-application containing all the database schemas and migrations.
-
-### Admin Panel
-
-Admin Panel allows provider’s admin, i.e. staff at the headquarter, to perform system-wide actions such as managing tokens, accounts, API keys, users, and balances.
-
-### Request Logger
-
-**Final name still to be defined - Coming Soon.**
-
-The Request Logger will offer details about each request made to the system, its current state and any error that occurred. It will be a powerful debugging tool for developers. Those logs will be available through the eWallet Admin API and shown in the admin panel.
-
-### Blockchain Gateway
-
-**Final name still to be defined - Coming Soon.**
-
-The Blockchain Gateway will be the interface to the blockchain OmiseGO is building. It will push transactions to the blockchain as well as listen to events happening there before forwarding them to the eWallet to keep it in sync.
-
-## Dependencies
-
-- [PostgreSQL](https://www.postgresql.org/): PostgreSQL is used to store most of the data for the eWallet API and local ledger.
-
-- [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used to format images in the admin panel.
-
-- [Libsodium](https://github.com/jedisct1/libsodium): Sodium is a new, easy-to-use software library for encryption, decryption, signatures, password hashing and more. It is used to hash and encrypt/decrypt sensitive data.
-
-# Communicating with the server applications
-
-The OmiseGO offers HTTP-RPC web APIs for communication. To make things easier to integrate, we've also created server-side and client-side SDKs wrapping those HTTP requests.
-
-### HTTP
-
-If you wish to use the HTTP-RPC web APIs directly, here are the Swagger specifications containing all the available endpoints and how to interact with them.
-
-- [eWallet API](/apps/ewallet_api/swagger-doc.yaml)
-- [Admin API](/apps/admin_api/swagger-doc.yaml)
+When using the eWallet API, be sure to have `/api` at the end of your base URL (e.g. `https://yourdomain.com/api`). For the Admin API, it should include `/admin/api` (e.g. `https://yourdomain.com/admin/api`).
 
 ### Server SDKs
 
-To implement the sensitive calls on your side (such as crediting or debiting tokens from/to a user), we currently have the following server-side SDKs available:
+To implement the sensitive calls in your server-side applications (such as crediting or debiting tokens from/to a user), the following SDKs are available:
 
 - [Ruby SDK](https://github.com/omisego/ruby-sdk)
 
 ### Client SDKs
 
-For the client side (non-sensitive calls), we currently have the following mobile SDKs available:
+For client-side applications (non-sensitive calls), the following SDKs are available:
 
 - [iOS SDK](https://github.com/omisego/ios-sdk)
 - [Android SDK](https://github.com/omisego/android-sdk)
 
-# Integrating the OmiseGO SDK
+### Not seeing what you need?
 
-Integrating the OmiseGO SDK requires a new setup to be deployed. Feel free to [get in touch](mailto:thibault@omise.co) for that step as we offer hosted solutions. Before starting any integration, it is important to understand which responsibilities OmiseGO is taking care of and which ones you will need to implement.
+If none of the current SDKs matches your needs, you can create it! Get in touch with us [on Rocket](https://chat.omisego.network/channel/ewallet-sdk) and let us know. We'll be happy to help you implement it and, if your SDK meets our standards, support it as one of our official SDK.
 
-## Responsibilities
+# Deploying the OmiseGO eWallet
 
-### Features provided by the SDK
+OmiseGO offers hosting solutions for the OmiseGO SDK. [Get in touch](mailto:thibault@omisego.co) if you're interested.
 
-|Area of responsibilities|Tasks|
-|------------------------|-----|
-|Token management   | - Create loyalty tokens <br> - Put more loyalty tokens in circulation <br> - Remove loyalty tokens from circulation <br> - Provide user interface for creating new loyalty tokens <br> - Provide user interface for add/remove of loyalty tokens from circulation|
-|Secondary user store|- Create users along with their token balances. The user stored in the Wallet API is solely for identifying and transacting with the user’s token balances.|
-|Token transactions|- Perform credit/debit of loyalty tokens to/from users|
-|Entity management|- Create, update and list accounts<br>- Create, update and list users with their balances<br>- Assign and unassign roles to users in an account<br>- Assign and unassign permissions to roles|
-|API management|- Generate and invalidate access and secret keys (for server application)<br>- Generate and invalidate API keys (for mobile application)|
-|Transactions|- List all transactions and their credit/debit entries|
-|Payment request|- Generate payment requests with QR code|
-|Payment inquiry|- List pending payments<br>- List successful payments|
-|Notifications|- Notify merchant panel user of new successful payments|
+Deploying the OmiseGO SDK can be done on any infrastructure. For security reasons, it is recommended to run the applications on one server and the databases on a different one.
 
-### Provider's side
+More information about deployment will be available soon.
 
-|Side|Area of responsibilities|Tasks|
-|----|------------------------|-----|
-|Server|User management|- Create and safely store end-user data<br>- Send user creation requests to eWallet API (only to interact with their balances)<br>- Maintain the immutable user identifier (provider_user_id) to identify a user in eWallet API|
-|Server|Mobile app authentication|- Authenticate mobile application user<br>- Request authentication tokens from eWallet API and send to the client application|
-|Server|Transactions (read/write)|- Perform credit and debit calls to eWallet API<br>- Perform all other data-changing operations with eWallet API|
-|Mobile   |User management   |  - Register new user with the server application<br>- Send user data updates to the server application|
-|Mobile   |User authentication   | - Authenticate user with the server application<br>- Retrieve and store eWallet API’s authentication token from the server application|
-|Mobile   |Transactions (read-only)  | - Retrieve user balances from the eWallet API<br>- Retrieve the list of settings including supported tokens.<br>- All data-changing operations cannot be performed by the mobile application|
+# Coming Soon
 
-# Diving further
+In this section, we will be sharing some of the next features the OmiseGO team will be working on.
 
-- [A closer look at balances](/docs/balances.md)
+- Better environment variables management for `test` and `dev` environments.
+- Integrate the Admin Panel in the eWallet.
+- Finalize the transaction requests mechanism allowing QR code transfers.
+- Re-design and finalize the first version of the Admin Panel.
+- Implement the Request Logger sub-app for easier logging and debugging.
+- Refactor and split the factories files. Make smarter use of them throughout the tests.
+- Refactor and unify the test helpers for minting.
+- ...
+
+# F.A.Q
+
+##### Can I use the eWallet right now?
+
+Sure! You can deploy it on a server (or run it locally) and start using it as a ledger. Refer to the [getting started](#getting-started) section for more information.
+
+##### When will the eWallet be official released (out of Beta)?
+
+When it's ready :) Feel free to follow the progress through PRs, issues and our monthly updates for more information.
+
+##### Can I help?
+
+Of course! Check out our [contribution guidelines](.github/CONTRIBUTING.md) to get started.
+
+##### Why going with HTTP-RPC vs RESTful?
+
+We decided to stay as protocol-agnostic as possible and not follow HTTP conventions. Therefore, the web APIs only allows the `POST` method and returns `200` or `500` codes with custom representations and errors.
+
+##### Is the eWallet a centralized service?
+
+Each provider is responsible for running its own version of the eWallet. To get started, we offer hosting solutions but the long term goal is to have a federated network of eWallets running on top of a decentralized blockchain with no centralization.
+
+More questions? Get in touch with us on [Rocket Chat](https://chat.omisego.network/channel/ewallet-sdk)!
+
+# Going Further
+
+Here are some resources if you want to learn more about how the eWallet works.
+
+- [All ENV needed to run the eWallet](/docs/setup/env.md)
+- [Integration Responsibilities](/docs/setup/integration.md)
+- [eWallet Entites](/docs/design/entities.md)
+- [eWallet Components](/docs/design/components.md)
+- [A closer look at balances](/docs/design/balances.md)
 
 # Contributing
 
-Coming soon.
+See [how you can help](.github/CONTRIBUTING.md).
+
+# License
+
+The OmiseGO eWallet is released under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
