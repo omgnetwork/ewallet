@@ -51,6 +51,15 @@ Strategies available:
 - `since_beginning`: Recalculate the balance since the beginning of time.
 - `since_last_cached`: Use the last cached balance, adds the transactions that happened since and saves the result in a new cached balance.
 
+## Emails
+
+To enable emails in the eWallet (for forget password or inviting admins), you'll need to set the following environment variables:
+
+- `SMTP_HOST`: Your email server domain name.
+- `SMTP_PORT`: The port used to connect to your email server.
+- `SMTP_USER`: Identifier to use your email server.
+- `SMTP_PASSWORD`: Password for email server.
+
 ## File Upload
 
 - `FILE_STORAGE_ADAPTER`: (`local`|`aws`|`gcs`, defaults to `local`)
