@@ -92,6 +92,12 @@ The demo server applications have been deployed and are available at the followi
 
 The following section will get you up to speed on the eWallet and show you how to deploy it in local.
 
+## Quick installation with Goban
+
+If you don't want to set up everything from scratch with the instructions below, you can use [Goban](https://github.com/omisego/goban) instead. Goban will generate a consistent development environment within a virtual machine for you without having to install the dependencies manually.
+
+Once Goban is set up successfully, you can access your development environment by running the command `vagrant ssh`, then skip directly to [Running the tests](#running-the-tests).
+
 ## Installing the dependencies
 
 Be sure to have the following applications installed and running on your machine.
