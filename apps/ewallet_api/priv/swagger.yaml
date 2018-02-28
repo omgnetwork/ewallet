@@ -1304,6 +1304,7 @@ components:
               amount: 100
               account_id: "865ff420-899a-4eb3-8364-19edc5d51676"
               burn_balance_identifier: "burn"
+              metadata: {}
     CreateTransactionRequestBody:
       description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint by a different client to create a transaction from that request.
       required: true

@@ -1,6 +1,6 @@
 # This is the seeding script for MintedToken.
 alias Ecto.UUID
-alias EWallet.{CLI, Mint, Seeder}
+alias EWallet.{CLI, MintGate, Seeder}
 alias EWalletDB.{Account, MintedToken, Repo}
 
 EWallet.CLI.info("Seeding MintedToken...")
@@ -81,7 +81,7 @@ Enum.each(seeds, fn(data) ->
     "metadata" => %{}
   }
 
-  case Mint.insert(mint_data) do
+  case MintGate.insert(mint_data) do
     {:ok, mint, transfer} ->
       CLI.success("#{minted_token.symbol} minted:\n"
         <> "  Minted Token ID  : #{minted_token.friendly_id}\n"
