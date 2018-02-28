@@ -41,7 +41,7 @@ defmodule EWalletDB.Mixfile do
       {:ex_machina, "~> 2.0", only: :test},
       {:poison, "~> 3.1"},
       {:bcrypt_elixir, "~> 1.0"},
-      {:salty, git: "ssh://git@github.com/omisego/salty.git"},
+      {:salty, github: "omisego/salty"},
       {:cloak, "~> 0.3.3"},
       {:plug, "~> 1.0"},
       {:arc, "~> 0.8.0"},

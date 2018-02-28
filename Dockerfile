@@ -30,17 +30,9 @@ RUN set -xe && \
 COPY . /app
 WORKDIR /app
 
-ARG habitus_host
-ARG habitus_port
-
 RUN set -xe && \
-    mkdir -p ~/.ssh/ && \
-    curl -sL -o ~/.ssh/key http://$habitus_host:$habitus_port/v1/secrets/file/ssh_key && \
-    curl -sL -o ~/.ssh/config http://$habitus_host:$habitus_port/v1/secrets/file/ssh_config && \
-    chmod 600 ~/.ssh/key && \
     mix deps.get && \
-    MIX_ENV=prod mix compile && \
-    rm -rf ~/.ssh
+    MIX_ENV=prod mix compile
 
 ENV PORT 4000
 EXPOSE 4000
