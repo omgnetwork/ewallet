@@ -24,13 +24,15 @@ Do not expect to find anything related to blockchain integration __yet__. It wil
 # Table of Contents
 
 - [Introduction](#introduction)
-- [Overview](#overview)
+- [OmiseGO SDK Integration Diagram](#omisego-sdk-integration-diagram)
+- [Sample Setup](#sample-setup)
 - [Getting Started](#getting-started)
 - [Deploying the OmiseGO eWallet](#deploying-the-omisego-ewallet)
 - [Coming Soon](#coming-soon)
-- [Contributing](#contributing)
 - [F.A.Q](#faq)
 - [Going Further](#going-further)
+- [Contributing](#contributing)
+- [License](#license)
 
 # TL;DR
 
@@ -80,7 +82,7 @@ The demo server applications have been deployed and are available at the followi
 - [OMGShop - Ruby on Rails](https://sample-shop.demo.omisego.io/)
 - [OMGShop - eWallet](https://ewallet.demo.omisego.io/)
 
-# Quick Start
+# Getting Started
 
 The following section will get you up to speed on the eWallet and show you how to deploy it in local.
 
