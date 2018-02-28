@@ -111,7 +111,7 @@ Be sure to have the following applications installed and running on your machine
 Once you have installed the all the dependencies and they are running, it's time to pull the eWallet code. To do so, let's use `git`:
 
 ```
-git clone git@github.com:omisego/ewallet.git && cd ./ewallet
+git clone https://github.com/omisego/ewallet && cd ./ewallet
 ```
 
 Feel free to look around!
