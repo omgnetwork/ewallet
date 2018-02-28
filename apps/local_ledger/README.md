@@ -1,6 +1,6 @@
 # LocalLedger
 
-**TODO: Add description**
+Business Logic for Local Ledger.
 
 ## Installation
 
@@ -10,7 +10,7 @@ by adding `local_ledger` to your list of dependencies in `mix.exs`:
 ```elixir
 def deps do
   [
-    {:local_ledger, "~> 0.1.0"}
+    {:local_ledger, "~> 0.1.0-beta"}
   ]
 end
 ```
@@ -18,4 +18,3 @@ end
 Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
 and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
 be found at [https://hexdocs.pm/local_ledger](https://hexdocs.pm/local_ledger).
-

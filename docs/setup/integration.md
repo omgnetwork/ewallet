@@ -15,7 +15,6 @@ Integrating the OmiseGO eWallet requires a new setup to be deployed. Feel free t
 |API management|- Generate and invalidate access and secret keys (for server application)<br>- Generate and invalidate API keys (for mobile application)|
 |Transactions|- List all transactions and their credit/debit entries|
 |Payment request|- Generate payment requests with QR code|
-|Payment inquiry|- List pending payments<br>- List successful payments|
 |Notifications|- Notify merchant panel user of new successful payments|
 
 ### Provider's side
