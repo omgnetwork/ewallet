@@ -17,9 +17,9 @@ defmodule EWallet.CLI do
 
   def color(messages), do: messages |> format |> puts
 
-  def heading(message), do: Docs.print_heading(message)
+  def heading(message), do: Docs.print_heading(message, [width: 100])
 
-  def print(message), do: Docs.print(message)
+  def print(message), do: Docs.print(message, [width: 100])
 
   def halt(message) do
     error(message)
