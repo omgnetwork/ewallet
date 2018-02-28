@@ -785,8 +785,8 @@ components:
         - subunit_to_unit
       example:
         object: "minted_token"
-        id: "MNT:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
-        symbol: "MNT"
+        id: "OMG:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+        symbol: "OMG"
         name: "Mint"
         subunit_to_unit: 100000000000000000
 
@@ -1330,7 +1330,7 @@ components:
               - token_id
             example:
               type: "send"
-              token_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
               amount: 100
               correlation_id: "123"
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
@@ -1358,6 +1358,8 @@ components:
                 type: string
               amount:
                 type: integer
+              token_id:
+                type: string
               address:
                 type: string
               metadata:
@@ -1365,11 +1367,12 @@ components:
             required:
               - transaction_request_id
             example:
-              transaction_request_id: "MNT:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              transaction_request_id: "13324324-68d8-4af6-94d7-5ed4c34ecf1a"
               correlation_id: "123"
+              token_id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
               amount: 100
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
-              metadata: nil
+              metadata: {}
 
   ######################################
   #           REQUEST HEADERS          #
