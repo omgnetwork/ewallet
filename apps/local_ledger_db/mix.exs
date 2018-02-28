@@ -29,7 +29,7 @@ defmodule LocalLedgerDB.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1.6"},
-      {:salty, git: "ssh://git@github.com/omisego/salty.git"},
+        {:salty, github: "omisego/salty"},
       {:cloak, "~> 0.3.3"},
       {:ex_machina, "~> 2.0", only: :test}
     ]
