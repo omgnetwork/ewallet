@@ -27,13 +27,13 @@ CLI.print("""
     2. Use the value below for `ClientAuth` and click `Authorize`:
 
       ```
-      OMGServer #{Base.encode64(api_key_id <> ":" <> api_key)}
+      OMGAdmin #{Base.encode64(api_key_id <> ":" <> api_key)}
       ```
 
       Note: You can also make requests from your favorite API client
       by building your own Authorization header:
 
-        - Authorization header : OMGServer base64(api_key_id:api_key)
+        - Authorization header : OMGAdmin base64(api_key_id:api_key)
         - API key ID           : #{api_key_id}
         - API key              : #{api_key}
 
@@ -55,14 +55,14 @@ CLI.print("""
       again and click Authorize. This time, use the value below for UserAuth:
 
       ```
-      OMGServer #{Base.encode64(api_key_id <> ":" <> api_key
+      OMGAdmin #{Base.encode64(api_key_id <> ":" <> api_key
         <> ":" <> admin.id <> ":" <> admin_auth_token)}
       ```
 
       The above header is for you to get started quickly. To integrate the eWallet SDK
       to your application, you must build your own Authorization header using the information below:
 
-        - Authorization header : `OMGServer base64(api_key_id:api_key:user_id:auth_token)`
+        - Authorization header : `OMGAdmin base64(api_key_id:api_key:user_id:auth_token)`
         - API key ID           : `#{api_key_id}`
         - API key              : `#{api_key}`
         - User ID              : `<the returned user_id in step 3>`
