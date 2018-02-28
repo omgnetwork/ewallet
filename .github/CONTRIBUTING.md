@@ -4,7 +4,7 @@ Welcome to one of OmiseGO's open source projects! We welcome contributions in al
 
 #### **Did you find a bug?**
 
-* __Do not create issues for security vulnerabilities__. We are currently setting up a bounty program for those. In the meantime, you can get in touch with us via [email](thibault@omisego.co).
+* __Do not create issues for security vulnerabilities__. We are currently setting up a bounty program for those. In the meantime, you can get in touch with us via [email](mailto:thibault@omisego.co).
 * For other bugs, first, ensure that the bug you found has not been reported yet. To do so, you can [search under issues](https://github.com/omisego/ewallet/issues).
 * Open a new issue if you didn't find an existing one. Follow the issue template and be as specific as possible.
 
