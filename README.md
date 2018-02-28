@@ -37,9 +37,10 @@ Do not expect to find anything related to blockchain integration __yet__. It wil
 # TL;DR
 
 Stable: The latest stable release of the eWallet.
+
 Current (a.k.a staging): The most up-to-date version of the eWallet. We work with this version every day, so things might break.
 
-The URLs below are OmiseGO testing and sample eWallets. The eWallet is not a centralized service and no one should actually use those in production.__
+__The URLs below are OmiseGO testing and sample eWallets. The eWallet is not a centralized service and no one should actually use those in production.__
 
 - eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/swagger) /  [current](https://ewallet.staging.omisego.io/api/swagger)
 
