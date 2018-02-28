@@ -163,6 +163,8 @@ Then, let's run the tests:
 mix test
 ```
 
+Or:
+
 ```
 DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix test
 ```
