@@ -22,8 +22,6 @@ seeds = [
   %{account_name: "branch4"       , owner_app: "admin_api"},
 ]
 
-CLI.info("Seeding API key (always seed new ones)...")
-
 Enum.each(seeds, fn(data) ->
   insert_data = %{
     account_id: Account.get_by(name: data.account_name).id,
@@ -39,11 +37,9 @@ Enum.each(seeds, fn(data) ->
 
   case APIKey.insert(insert_data) do
     {:ok, api_key} ->
-      CLI.success("#{icon} API key inserted:\n"
-        <> "  Owner app  : #{api_key.owner_app}\n"
-        <> "  Account    : #{data.account_name} (#{api_key.account_id})\n"
-        <> "  API key ID : #{api_key.id}\n"
-        <> "  API key    : #{api_key.key}\n")
+      if data.account_name == "master_account" && data.owner_app == "ewallet_api" do
+        Application.put_env(:ewallet, :seed_ewallet_api_key, api_key)
+      end
     {:error, changeset} ->
       CLI.error("#{icon} API key could not be inserted:\n"
         <> "  Owner app  : #{insert_data.owner_app}\n"

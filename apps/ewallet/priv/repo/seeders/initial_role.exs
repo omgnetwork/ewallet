@@ -2,8 +2,6 @@
 alias EWallet.{CLI, Seeder}
 alias EWalletDB.Role
 
-CLI.info("Seeding Role...")
-
 seeds = [
   %{name: "admin", display_name: "Admin"},
   %{name: "viewer", display_name: "Viewer"}
@@ -13,14 +11,10 @@ Enum.each(seeds, fn(data) ->
   with nil <- Role.get_by_name(data.name),
        {:ok, _} <- Role.insert(data)
   do
-    CLI.success("🔧 Role inserted:\n"
-      <> "  Name         : #{data.name}\n"
-      <> "  Display name : #{data.display_name}\n")
+    nil
   else
-    %Role{} = role ->
-      CLI.warn("Role already exists:\n"
-        <> "  Name         : #{role.name}\n"
-        <> "  Display name : #{role.display_name}\n")
+    %Role{} ->
+      nil
     {:error, changeset} ->
       CLI.warn("Role #{data.name} could not be inserted:")
       Seeder.print_errors(changeset)

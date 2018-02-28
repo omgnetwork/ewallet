@@ -3,8 +3,6 @@ alias Ecto.UUID
 alias EWallet.{CLI, MintGate, Seeder}
 alias EWalletDB.{Account, MintedToken, Repo}
 
-EWallet.CLI.info("Seeding MintedToken...")
-
 seeds = [
   %{
     symbol: "OMG",
@@ -45,20 +43,12 @@ seeds = [
 
 Enum.each(seeds, fn(data) ->
   with nil                 <- Repo.get_by(MintedToken, symbol: data.symbol),
-       {:ok, minted_token} <- MintedToken.insert(data)
+       {:ok, _minted_token} <- MintedToken.insert(data)
   do
-    CLI.success("MintedToken inserted:\n"
-      <> "  Symbol          : #{minted_token.symbol}\n"
-      <> "  Name            : #{minted_token.name}\n"
-      <> "  Subunit to unit : #{minted_token.subunit_to_unit}\n"
-      <> "  Account         : #{minted_token.account_id}\n")
+    nil
   else
-    %MintedToken{} = minted_token ->
-      CLI.warn("MintedToken #{data.symbol} already exists:\n"
-        <> "  Symbol          : #{minted_token.symbol}\n"
-        <> "  Name            : #{minted_token.name}\n"
-        <> "  Subunit to unit : #{minted_token.subunit_to_unit}\n"
-        <> "  Account         : #{minted_token.account_id}\n")
+    %MintedToken{} ->
+      nil
     {:error, changeset} ->
       CLI.error("MintedToken #{data.symbol} could not be inserted:")
       Seeder.print_errors(changeset)
@@ -67,8 +57,6 @@ Enum.each(seeds, fn(data) ->
       CLI.error("  Unable to parse the provided error.\n")
   end
 end)
-
-EWallet.CLI.info("Seeding Mint...")
 
 Enum.each(seeds, fn(data) ->
   minted_token = Repo.get_by(MintedToken, symbol: data.symbol)
@@ -82,13 +70,8 @@ Enum.each(seeds, fn(data) ->
   }
 
   case MintGate.insert(mint_data) do
-    {:ok, mint, transfer} ->
-      CLI.success("#{minted_token.symbol} minted:\n"
-        <> "  Minted Token ID  : #{minted_token.friendly_id}\n"
-        <> "  Amount (subunit) : #{mint.amount}\n"
-        <> "  Confirmed?       : #{mint.confirmed}\n"
-        <> "  From address     : #{transfer.from || '<nil>'}\n"
-        <> "  To address       : #{transfer.to || '<nil>'}\n")
+    {:ok, _mint, _transfer} ->
+      nil
     {:error, changeset} ->
       CLI.error("#{minted_token.symbol} could not be minted:")
       Seeder.print_errors(changeset)

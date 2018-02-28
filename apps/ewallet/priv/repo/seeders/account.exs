@@ -2,8 +2,6 @@
 alias EWallet.{CLI, Seeder}
 alias EWalletDB.Account
 
-CLI.info("Seeding Account...")
-
 seeds = [
   # Hierarchical accounts:
   # - Company Master Account (top level)
@@ -29,18 +27,12 @@ Enum.each(seeds, fn(data) ->
   with nil            <- Account.get_by(name: data.name),
        parent         <- Account.get_by(name: data.parent_name) || %{id: nil},
        data           <- Map.put(data, :parent_id, parent.id),
-       {:ok, account} <- Account.insert(data)
+       {:ok, _account} <- Account.insert(data)
   do
-    CLI.success("Account inserted:\n"
-      <> "  Name   : #{account.name}\n"
-      <> "  ID     : #{account.id}\n"
-      <> "  Parent : #{account.parent_id}\n")
+    nil
   else
-    %Account{} = account ->
-      CLI.warn("Account already exists:\n"
-        <> "  Name   : #{account.name}\n"
-        <> "  ID     : #{account.id}\n"
-        <> "  Parent : #{account.parent_id}\n")
+    %Account{} ->
+      nil
     {:error, changeset} ->
       CLI.error("Account #{data.name} could not be inserted due to an error:")
       Seeder.print_errors(changeset)
