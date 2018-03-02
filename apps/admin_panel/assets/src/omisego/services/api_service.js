@@ -1,6 +1,6 @@
 import OmiseGOError from '../models/error';
 import mergeHash from '../helpers/helper';
-import { OMISEGO_BASE_URL } from '../config';
+import { ADMIN_API_BASE_URL } from '../config';
 import buildURL from '../helpers/urlHelper';
 import headers from '../helpers/headers';
 
@@ -55,7 +55,7 @@ function handleError(error) {
   if (error.code == null || error.description == null) {
     throw new OmiseGOError({
       code: 'unknown',
-      description: `Could not connect to Admin API (${OMISEGO_BASE_URL})`,
+      description: `Could not connect to Admin API (${ADMIN_API_BASE_URL})`,
     });
   } else {
     throw error;
