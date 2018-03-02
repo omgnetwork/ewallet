@@ -42,9 +42,7 @@ class App extends Component {
               <AccountRouter path="/" />
               <Redirect to="/signin" />
             </Switch>
-            {process.env.NODE_ENV !== 'production'}
-            &&
-            <DevTools />
+            {process.env.NODE_ENV !== 'production' && <DevTools />}
           </div>
         </ConnectedRouter>
       </Startup>
