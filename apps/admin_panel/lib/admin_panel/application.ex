@@ -16,7 +16,7 @@ defmodule AdminPanel.Application do
     ]
 
     # Start `webpack watch` only if the config is set
-    children = unless webpack_watch?(), do: children ++ [webpack_watch()], else: children
+    children = if webpack_watch?(), do: children ++ [webpack_watch()], else: children
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
