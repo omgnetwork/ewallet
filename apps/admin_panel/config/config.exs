@@ -7,7 +7,8 @@ use Mix.Config
 
 # General application configuration
 config :admin_panel,
-  namespace: AdminPanel
+  namespace: AdminPanel,
+  webpack_watch: false
 
 # Configures the endpoint
 config :admin_panel, AdminPanel.Endpoint,
