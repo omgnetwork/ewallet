@@ -9,7 +9,7 @@ import OMGFieldGroup from '../../../components/OMGFieldGroup';
 import OMGLoadingButton from '../../../components/OMGLoadingButton';
 import OMGPhotoPreviewer from '../../../components/OMGPhotoPreviewer';
 import placeholder from '../../../../public/images/user_icon_placeholder.png';
-import { OMISEGO_BASE_URL } from '../../../omisego/config';
+import { ADMIN_API_BASE_URL } from '../../../omisego/config';
 import { moveToTop } from '../../../helpers/scrollHelper';
 
 class Profile extends Component {
@@ -63,7 +63,7 @@ class Profile extends Component {
 
   handleUploadAvatarSuccess(result) {
     this.setState({
-      avatar: (result.avatar.small && `${OMISEGO_BASE_URL}${result.avatar.small.substr(1)}`) || placeholder,
+      avatar: (result.avatar.small && `${ADMIN_API_BASE_URL}${result.avatar.small.substr(1)}`) || placeholder,
       avatarFile: null,
       loading: {
         submit: false,
