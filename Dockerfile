@@ -34,6 +34,10 @@ RUN set -xe && \
     mix deps.get && \
     MIX_ENV=prod mix compile
 
+RUN set -xe && \
+    cd apps/admin_panel/assets && \
+    yarn build
+
 ENV PORT 4000
 EXPOSE 4000
 
