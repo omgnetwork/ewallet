@@ -96,7 +96,7 @@ The following section will get you up to speed on the eWallet and show you how t
 
 If you don't want to set up everything from scratch with the instructions below, you can use [Goban](https://github.com/omisego/goban) instead. Goban will generate a consistent development environment within a virtual machine for you without having to install the dependencies manually.
 
-Once Goban is set up successfully, you can access your development environment by running the command `vagrant ssh`, then skip directly to [Running the tests](#running-the-tests).
+Once Goban is set up successfully, you can access your development environment by running the command `vagrant ssh`, then skip directly to [Setting up](#setting-up).
 
 ## Installing the dependencies
 
@@ -130,7 +130,13 @@ We now need to pull the Elixir dependencies:
 mix deps.get
 ```
 
-You may need to set some environment variables before proceeding. You can use `export ENV=value` to set environment variables in the current session (or you can add them to whatever profile file you're using).
+Then get the front-end dependencies:
+
+```
+(cd apps/admin_panel/assets/ && yarn install)
+```
+
+If you are setting up without Goban, you may need to set some environment variables before proceeding. You can use `export ENV=value` to set environment variables in the current session (or you can add them to whatever profile file you're using).
 
 __It is important to understand that the eWallet actually connects to two different databases. The first one, the local ledger database, is only used to store transactions, making it easier for audits. The second one contains, well, everything else.__
 
@@ -144,6 +150,7 @@ The `ewallet_dev` and `local_ledger_dev` don't need to be created beforehand as 
 In some cases, you might also want to customize the following ones, depending on your development setup:
 
 - `BASE_URL`: The URL where the application can be accessed. Defaults to `http://localhost:4000`.
+- `ADMIN_PANEL_BASE_DIR`: The directory under `BASE_URL` that the admin panel resides in. Defaults to `/admin`
 - `PORT`: The internal listening port for the application. Default to `4000`.
 
 To learn more about all the environment variables available for production deployments (or if you want to get fancy in local), checkout [this doc](/docs/setup/env.md).
@@ -241,6 +248,9 @@ Navigate to `http://localhost:4000/api` in your browser and you should see the f
   }
 }
 ```
+
+You can also access the Admin Panel web interface via `http://localhost:4000/admin` using
+the credentials provided during the seed.
 
 All set! Start playing around with the API using the Swagger docs below to learn more about the available endpoints. Enjoy!
 
