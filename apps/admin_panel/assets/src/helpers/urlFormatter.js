@@ -1,4 +1,5 @@
 import queryString from 'query-string';
+import { ADMIN_PANEL_BASE_DIR } from '../omisego/config';
 
 export function formatURL(path, query = {}) {
   if (!query || query === {}) { return path; }
@@ -15,7 +16,7 @@ export function processURL(location) {
 }
 
 export function accountURL(session, path) {
-  return `/a/${session.currentAccount.id}${path}`;
+  return `${ADMIN_PANEL_BASE_DIR}/a/${session.currentAccount.id}${path}`;
 }
 
 export function formatEmailLink(struct) {
@@ -24,5 +25,5 @@ export function formatEmailLink(struct) {
     .reduce((previousValue, currentValue) => `${previousValue}${currentValue}={${currentValue}}&`, '');
   // Remove last '&'
   params = params.substr(0, params.length - 1);
-  return `${window.location.origin}/${struct.pathname}?${params}`;
+  return `${window.location.origin}${ADMIN_PANEL_BASE_DIR}/${struct.pathname}?${params}`;
 }
