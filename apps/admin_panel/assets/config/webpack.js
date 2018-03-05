@@ -40,7 +40,9 @@ module.exports = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin(['priv/dist'], {
+      root: __dirname + '/../../',
+    }),
     new HtmlWebpackPlugin({
       title: 'Admin Panel',
       template: './src/index.ejs',
@@ -49,7 +51,7 @@ module.exports = {
   ],
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, '../dist'),
-    publicPath: '/',
+    path: path.resolve(__dirname, '../../priv/dist'),
+    publicPath: '/admin/',
   },
 };
