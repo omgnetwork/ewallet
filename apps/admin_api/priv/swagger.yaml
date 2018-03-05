@@ -1111,6 +1111,8 @@ components:
               type: string
             rate:
               type: number
+        metadata:
+          type: object
         status:
           type: string
           enum:
@@ -1130,6 +1132,7 @@ components:
         - from
         - to
         - exchange
+        - metadata
         - status
         - created_at
         - updated_at
@@ -1175,6 +1178,7 @@ components:
                 subunit_to_unit: 100
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
+            metadata: {}
             exchange:
               object: "exchange"
               rate: 1
@@ -1234,6 +1238,7 @@ components:
                 exchange:
                   object: "exchange"
                   rate: 1
+                metadata: {}
                 status: "confirmed"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"

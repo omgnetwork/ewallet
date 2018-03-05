@@ -43,6 +43,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             object: "exchange",
             rate: 1,
           },
+          metadata: %{some: "metadata"},
           status: transaction.status,
           created_at: Date.to_iso8601(transaction.inserted_at),
           updated_at: Date.to_iso8601(transaction.updated_at)
