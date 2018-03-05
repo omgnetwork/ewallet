@@ -1,7 +1,9 @@
 FROM elixir:1.5
 
-ENV LIBSODIUM_VERSION="1.0.15"
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
+ENV LIBSODIUM_VERSION="1.0.15"
+ENV YARN_VERSION="1.5.1-1"
+ENV NODEJS_VERSION="8.x"
 
 RUN set -xe && \
     LIBSODIUM_DOWNLOAD_URL="https://download.libsodium.org/libsodium/releases/libsodium-${LIBSODIUM_VERSION}.tar.gz" && \
@@ -21,6 +23,17 @@ RUN set -xe && \
     make install && \
     apt-get remove -y autoconf autogen build-essential && \
     rm -rf /usr/local/src/libsodium
+
+RUN set -xe && \
+    NODEJS_SETUP_URL="https://deb.nodesource.com/setup_${NODEJS_VERSION}" && \
+    curl -sL $NODEJS_SETUP_URL | bash - && \
+    apt-get install -y nodejs
+
+RUN set -xe && \
+    curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && \
+    apt-get install -y yarn=$YARN_VERSION
 
 RUN set -xe && \
     mix local.hex --force && \
