@@ -49,6 +49,7 @@ RUN set -xe && \
 
 RUN set -xe && \
     cd apps/admin_panel/assets && \
+    yarn install && \
     yarn build
 
 ENV PORT 4000
