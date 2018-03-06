@@ -5,6 +5,7 @@ ENV LIBSODIUM_VERSION="1.0.15"
 ENV YARN_VERSION="1.5.1-1"
 ENV NODEJS_VERSION="8.x"
 
+# Setup libsodium
 RUN set -xe && \
     LIBSODIUM_DOWNLOAD_URL="https://download.libsodium.org/libsodium/releases/libsodium-${LIBSODIUM_VERSION}.tar.gz" && \
     LIBSODIUM_DOWNLOAD_SHA256="fb6a9e879a2f674592e4328c5d9f79f082405ee4bb05cb6e679b90afe9e178f4" && \
@@ -24,17 +25,22 @@ RUN set -xe && \
     apt-get remove -y autoconf autogen build-essential && \
     rm -rf /usr/local/src/libsodium
 
+# Setup Node.js
 RUN set -xe && \
-    NODEJS_SETUP_URL="https://deb.nodesource.com/setup_${NODEJS_VERSION}" && \
-    curl -sL $NODEJS_SETUP_URL | bash - && \
+    curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
+    echo "deb https://deb.nodesource.com/node_${NODEJS_VERSION} stretch main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    echo "deb-src https://deb.nodesource.com/node_${NODEJS_VERSION} stretch main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    apt-get update && \
     apt-get install -y nodejs
 
+# Setup Yarn
 RUN set -xe && \
     curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list && \
     apt-get update && \
     apt-get install -y yarn=$YARN_VERSION
 
+# Install hex and rebar locally
 RUN set -xe && \
     mix local.hex --force && \
     mix local.rebar --force && \
