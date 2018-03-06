@@ -1,25 +1,25 @@
-defmodule EWallet.Web.SwaggerPlugTest do
+defmodule EWallet.Web.SwaggerUIPlugTest do
   use ExUnit.Case
   use Plug.Test
-  alias EWallet.Web.SwaggerPlug
+  alias EWallet.Web.SwaggerUIPlug
 
   describe "call/2" do
     test "returns the Swagger UI page when calling /" do
       conn =
         :get
         |> conn("/")
-        |> SwaggerPlug.call([otp_app: :ewallet])
+        |> SwaggerUIPlug.call([otp_app: :ewallet])
 
       refute conn.halted
       assert conn.status == 200
       assert conn.resp_body =~ "<title>Swagger UI</title>"
     end
 
-    test "returns the Swagger spec when calling /swagger.yaml" do
+    test "returns the Swagger spec when calling /openapi.yaml" do
       conn =
         :get
-        |> conn("/swagger.yaml")
-        |> SwaggerPlug.call([otp_app: :admin_api])
+        |> conn("/openapi.yaml")
+        |> SwaggerUIPlug.call([otp_app: :admin_api])
 
       refute conn.halted
       assert conn.status == 200
@@ -30,7 +30,7 @@ defmodule EWallet.Web.SwaggerPlugTest do
       conn =
         :get
         |> conn("/not_exists")
-        |> SwaggerPlug.call([otp_app: :ewallet])
+        |> SwaggerUIPlug.call([otp_app: :ewallet])
 
       assert conn.halted
       assert conn.status == 404

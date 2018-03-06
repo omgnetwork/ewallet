@@ -251,7 +251,7 @@ Navigate to `http://localhost:4000/api` in your browser and you should see the f
 You can also access the Admin Panel web interface via `http://localhost:4000/admin` using
 the credentials provided during the seed.
 
-All set! Start playing around with the API using the Swagger docs below to learn more about the available endpoints. Enjoy!
+All set! Start playing around with the API using the Swagger UI below to learn more about the available endpoints. Enjoy!
 
 ## Web APIs Interactive Documentation
 
@@ -260,7 +260,7 @@ All set! Start playing around with the API using the Swagger docs below to learn
 
 ## Making your first requests
 
-Here are some steps to get you started with the fun, they can all be performed by accessing the Swagger linked above:
+Here are some steps to get you started with the fun, they can all be performed by accessing the Swagger UI linked above:
 
 1. In the Admin API, configure the authentication at the top using the keys generated in the seeding step.
 2. Log yourself in and get the returned authentication token. In case you're getting an invalid auth scheme, double check that you're using `OMGAdmin` with the base64 encoded version of `API_KEY_ID:API_KEY` (with no `\n`, some programming languages add them).
@@ -274,7 +274,7 @@ If Swagger UI is not enough, you can start communicating with the web APIs using
 
 ### HTTP-RPC WEB APIs
 
-If you wish to use the HTTP-RPC web APIs directly, here are the Swagger specifications containing all the available endpoints and how to interact with them. You can access those interactive documentations on any running eWallet application, including the ones you deploy yourself! The eWallet API docs live under `/api/swagger` and the Admin API ones under `/admin/api/swagger`.
+If you wish to use the HTTP-RPC web APIs directly, here are the OpenAPI specifications containing all the available endpoints and how to interact with them. You can access those interactive documentations on any running eWallet application, including the ones you deploy yourself! The eWallet API docs live under `/api/swagger` and the Admin API ones under `/admin/api/swagger`.
 
 - [eWallet API](https://ewallet.demo.omisego.io/api/swagger)
 - [Admin API](https://ewallet.demo.omisego.io/admin/api/swagger)

@@ -3,13 +3,13 @@ alias EWallet.CLI
 base_url            = Application.get_env(:ewallet_db, :base_url)
 
 # eWallet API
-ewallet_swagger_url = base_url <> "/api/swagger"
+ewallet_swagger_ui_url = base_url <> "/api/swagger"
 ewallet_key         = Application.get_env(:ewallet, :seed_ewallet_key)
 ewallet_api_key     = Application.get_env(:ewallet, :seed_ewallet_api_key)
 ewallet_auth_token  = Application.get_env(:ewallet, :seed_ewallet_auth_token)
 
 # Admin API
-admin_api_swagger_url = base_url <> "/admin/api/swagger"
+admin_api_swagger_ui_url = base_url <> "/admin/api/swagger"
 admin_api_key         = Application.get_env(:ewallet, :seed_admin_api_key)
 admin_user            = Application.get_env(:ewallet, :seed_admin_user)
 admin_auth_token      = Application.get_env(:ewallet, :seed_admin_auth_token)
@@ -31,7 +31,7 @@ CLI.print("""
 
   ## Try eWallet API's Server endpoints
 
-  1. Browse to `#{ewallet_swagger_url}`
+  1. Browse to `#{ewallet_swagger_ui_url}`
   2. Click the `Authorize` button
   3. Use the value below for `ServerAuth`:
 
@@ -43,7 +43,7 @@ CLI.print("""
 
   ## Try eWallet API's Client endpoints
 
-  1. Browse to `#{ewallet_swagger_url}`
+  1. Browse to `#{ewallet_swagger_ui_url}`
   2. Click the `Authorize` button
   3. Use the value below for `ClientAuth`:
 
@@ -55,7 +55,7 @@ CLI.print("""
 
   ## Try Admin API's Client endpoints
 
-  1. Browse to `#{admin_api_swagger_url}`
+  1. Browse to `#{admin_api_swagger_ui_url}`
   2. Click the `Authorize` button
   3. Use the value below for `ClientAuth`:
 
@@ -67,7 +67,7 @@ CLI.print("""
 
   ## Try Admin API's User endpoints
 
-  1. Browse to `#{admin_api_swagger_url}`
+  1. Browse to `#{admin_api_swagger_ui_url}`
   2. Click the `Authorize` button
   3. Use the value below for `UserAuth`:
 
