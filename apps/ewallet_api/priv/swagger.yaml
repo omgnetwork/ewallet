@@ -1166,8 +1166,8 @@ components:
             example:
               page: 1
               per_page: 10
-              search_term: "text to search for"
-              seatch_terms: {"name": "some_name"}
+              search_term: ""
+              seatch_terms: {}
               sort_by: "field_name"
               sort_dir: "asc"
     UserTransactionsBody:
@@ -1203,8 +1203,8 @@ components:
               address: "address_owned_by_user (optional)"
               page: 1
               per_page: 10
-              search_term: "text to search for"
-              seatch_terms: {"name": "some_name"}
+              search_term: ""
+              seatch_terms: {}
               sort_by: "field_name"
               sort_dir: "asc"
     CurrentUserTransactionsBody:
@@ -1237,8 +1237,8 @@ components:
               address: "address_owned_by_current_user (optional)"
               page: 1
               per_page: 10
-              search_term: "text to search for"
-              seatch_terms: {"name": "some_name"}
+              search_term: ""
+              seatch_terms: {}
               sort_by: "field_name"
               sort_dir: "asc"
     ######################################
