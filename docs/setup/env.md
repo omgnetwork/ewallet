@@ -24,6 +24,13 @@ The eWallet needs access to two different databases: one for the eWallet itself 
 - `DATABASE_URL`
 - `LOCAL_LEDGER_DATABASE_URL`
 
+## Incoming Requests
+
+The eWallet allows you to configure different aspects of the incoming requests.
+We try to provide sane default values, but if needed, the following environment variables are configurable:
+
+- `REQUEST_MAX_PER_PAGE`: The maximum value of `per_page` a request can make. This helps prevent requests from overloading the system by sending a very high `per_page` value.
+
 ## Error Reporting
 
 The eWallet only supports [Sentry](https://sentry.io/welcome/) for now. You can specify the DSN for it with the following environment variable:

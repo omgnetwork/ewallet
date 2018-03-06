@@ -7,6 +7,7 @@ defmodule EWallet.Web.Paginator do
   alias EWalletDB.Repo
 
   @default_per_page 10
+  @default_max_per_page 100
 
   defstruct [
     data: [],
@@ -31,13 +32,24 @@ defmodule EWallet.Web.Paginator do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
   def paginate_attrs(_, %{"per_page" => per_page}) when not is_integer(per_page) or per_page < 1 do
-    {:error, :invalid_parameter, "`per_page` must be a non-native, non-zero integer"}
+    {:error, :invalid_parameter, "`per_page` must be a non-negative, non-zero integer"}
   end
   def paginate_attrs(queryable, attrs) do
-    page = Map.get(attrs, "page", 1)
-    per_page = Map.get(attrs, "per_page", @default_per_page)
+    page     = Map.get(attrs, "page", 1)
+    per_page = get_per_page(attrs)
 
     paginate(queryable, page, per_page)
+  end
+
+  # Returns the per_page number or default, but never greater than the system's defined limit
+  defp get_per_page(attrs) do
+    per_page     = Map.get(attrs, "per_page", @default_per_page)
+    max_per_page = Application.get_env(:ewallet, :max_per_page, @default_max_per_page)
+
+    case per_page do
+      n when n > max_per_page -> max_per_page
+      _                       -> per_page
+    end
   end
 
   @doc """
