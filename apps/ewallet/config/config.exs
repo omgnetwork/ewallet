@@ -2,7 +2,9 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :ewallet, ecto_repos: []
+config :ewallet,
+  ecto_repos: [],
+  max_per_page: System.get_env("REQUEST_MAX_PER_PAGE") || 100
 
 # This configuration is loaded before any dependency and is restricted
 # to this project. If another project depends on this project, this
