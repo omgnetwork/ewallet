@@ -10,6 +10,15 @@ api_key                 = Application.get_env(:ewallet, :seed_admin_api_key).key
 admin                   = Application.get_env(:ewallet, :seed_admin_user)
 {:ok, admin_auth_token} = AuthToken.generate(admin, :admin_api)
 
+# Prepare admin_panel's `.env` file
+dotenv_path = "apps/admin_panel/assets/.env"
+File.cwd!
+|> Path.join(dotenv_path)
+|> File.write!("""
+  API_KEY_ID=#{api_key_id}
+  API_KEY=#{api_key}
+  """)
+
 CLI.heading("Setting up the OmiseGO eWallet Server")
 
 CLI.print("""
