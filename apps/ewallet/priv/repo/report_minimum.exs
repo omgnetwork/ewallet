@@ -18,8 +18,8 @@ dotenv_path = "apps/admin_panel/assets/.env"
 File.cwd!
 |> Path.join(dotenv_path)
 |> File.write!("""
-  API_KEY_ID=#{api_key_id}
-  API_KEY=#{api_key}
+  ADMIN_API_KEY_ID=#{api_key_id}
+  ADMIN_API_KEY=#{api_key}
   """)
 
 # Output the seeding result
