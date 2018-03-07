@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.AccountMembershipViewTest do
                 "first_name" => membership1.user.metadata["first_name"],
                 "last_name" => membership1.user.metadata["last_name"]
               },
+              encrypted_metadata: %{},
               created_at: Date.to_iso8601(membership1.user.inserted_at),
               updated_at: Date.to_iso8601(membership1.user.updated_at)
             },
@@ -44,6 +45,7 @@ defmodule AdminAPI.V1.AccountMembershipViewTest do
                 "first_name" => membership2.user.metadata["first_name"],
                 "last_name" => membership2.user.metadata["last_name"]
               },
+              encrypted_metadata: %{},
               created_at: Date.to_iso8601(membership2.user.inserted_at),
               updated_at: Date.to_iso8601(membership2.user.updated_at)
             }

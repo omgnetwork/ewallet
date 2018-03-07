@@ -10,13 +10,11 @@ defmodule EWalletAPI.V1.TransferController do
     "to_address" => to_address,
     "token_id" => token_id,
     "amount" => amount,
-    "metadata" => metadata
   } = attrs)
   when from_address != nil
   when to_address != nil
   and token_id != nil
   and is_integer(amount)
-  and metadata != nil
   do
     attrs
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
@@ -31,13 +29,11 @@ defmodule EWalletAPI.V1.TransferController do
   defp credit_or_debit(conn, type, %{
     "provider_user_id" => provider_user_id,
     "token_id" => token_id,
-    "amount" => amount,
-    "metadata" => metadata} = attrs
+    "amount" => amount} = attrs
   )
   when provider_user_id != nil
   and token_id != nil
   and is_integer(amount)
-  and metadata != nil
   do
     attrs
     |> Map.put("type", type)

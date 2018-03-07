@@ -23,6 +23,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
         },
+        encrypted_metadata: %{},
         created_at: Date.to_iso8601(user.inserted_at),
         updated_at: Date.to_iso8601(user.updated_at)
       }
@@ -63,6 +64,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
               "first_name" => user1.metadata["first_name"],
               "last_name" => user1.metadata["last_name"]
             },
+            encrypted_metadata: %{},
             created_at: Date.to_iso8601(user1.inserted_at),
             updated_at: Date.to_iso8601(user1.updated_at)
           },
@@ -82,6 +84,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
               "first_name" => user2.metadata["first_name"],
               "last_name" => user2.metadata["last_name"]
             },
+            encrypted_metadata: %{},
             created_at: Date.to_iso8601(user2.inserted_at),
             updated_at: Date.to_iso8601(user2.updated_at)
           }

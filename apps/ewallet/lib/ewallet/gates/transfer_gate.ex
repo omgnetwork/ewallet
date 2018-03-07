@@ -18,6 +18,7 @@ defmodule EWallet.TransferGate do
       minted_token_id: "f7ef021b-95bf-45c8-990f-743ca99d742a",
       amount: 10,
       metadata: %{},
+      encrypted_metadata: %{},
       payload: %{}
     })
 
@@ -35,7 +36,6 @@ defmodule EWallet.TransferGate do
     to: _,
     minted_token_id: _,
     amount: _,
-    metadata: _,
     payload: _
   } = attrs) do
     attrs

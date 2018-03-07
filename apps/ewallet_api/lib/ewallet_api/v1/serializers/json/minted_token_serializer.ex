@@ -13,7 +13,9 @@ defmodule EWalletAPI.V1.JSON.MintedTokenSerializer do
       id: minted_token.friendly_id,
       symbol: minted_token.symbol,
       name: minted_token.name,
-      subunit_to_unit: minted_token.subunit_to_unit
+      subunit_to_unit: minted_token.subunit_to_unit,
+      metadata: minted_token.metadata,
+      encrypted_metadata: minted_token.encrypted_metadata
     }
   end
 end

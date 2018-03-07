@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.InviteControllerTest do
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
         },
+        "encrypted_metadata" => %{},
         "created_at" => Date.to_iso8601(user.inserted_at),
         "updated_at" => Date.to_iso8601(user.updated_at)
       }

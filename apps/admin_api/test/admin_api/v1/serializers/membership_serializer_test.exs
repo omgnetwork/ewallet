@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
         },
+        encrypted_metadata: %{},
         avatar: %{
           original: nil,
           large: nil,
@@ -52,6 +53,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
         },
+        encrypted_metadata: %{},
         avatar: %{
           original: nil,
           large: nil,

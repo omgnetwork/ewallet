@@ -20,6 +20,7 @@ defmodule EWallet.TransactionGate do
       "token_id" => "OMG:a5f64c8c-9f3b-4247-b01c-098a7e204142",
       "amount" => 100_000,
       "metadata" => %{some: "data"},
+      "encrypted_metadata" => %{some: "secret"},
       "idempotency_token" => idempotency_token
     })
 
@@ -36,7 +37,6 @@ defmodule EWallet.TransactionGate do
     "to_address" => _,
     "token_id" => _,
     "amount" => _,
-    "metadata" => _,
     "idempotency_token" => _
   } = attrs) do
     with {:ok, from, to, minted_token} <- AddressRecordFetcher.fetch(attrs),
@@ -63,6 +63,7 @@ defmodule EWallet.TransactionGate do
       "amount" => 100_000,
       "type" => Transaction.debit_type,
       "metadata" => %{some: "data"},
+      "encrypted_metadata" => %{some: "secret"},
       "idempotency_token" => idempotency_token
     })
 
@@ -78,7 +79,6 @@ defmodule EWallet.TransactionGate do
     "provider_user_id" => _,
     "token_id" => _,
     "amount" => _,
-    "metadata" => _,
     "idempotency_token" => _,
     "type" => type
   } = attrs) do
@@ -100,7 +100,6 @@ defmodule EWallet.TransactionGate do
 
   defp get_or_insert_transfer(from, to, minted_token, %{
     "amount" => amount,
-    "metadata" => metadata,
     "idempotency_token" => idempotency_token
   } = attrs) do
     TransferGate.get_or_insert(%{
@@ -109,7 +108,8 @@ defmodule EWallet.TransactionGate do
       to: to.address,
       minted_token_id: minted_token.id,
       amount: amount,
-      metadata: metadata,
+      metadata: attrs["metadata"] || %{},
+      encrypted_metadata: attrs["encrypted_metadata"] || %{},
       payload: attrs
     })
   end

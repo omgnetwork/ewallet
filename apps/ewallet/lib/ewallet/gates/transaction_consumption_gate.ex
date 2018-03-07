@@ -83,7 +83,6 @@ defmodule EWallet.TransactionConsumptionGate do
     "correlation_id" => _,
     "amount" => _,
     "token_id" => token_id,
-    "metadata" => metadata,
     "idempotency_token" => _
   } = attrs) do
     with {:ok, request} <- TransactionRequestGate.get(request_id),
@@ -91,7 +90,7 @@ defmodule EWallet.TransactionConsumptionGate do
          {:ok, consumption} <- insert(balance, minted_token, request, attrs),
          {:ok, consumption} <- get(consumption.id)
     do
-      transfer(request.type, consumption, metadata)
+      transfer(request.type, consumption, attrs["metadata"], attrs["encrypted_metadata"])
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error
@@ -134,14 +133,15 @@ defmodule EWallet.TransactionConsumptionGate do
     })
   end
 
-  defp transfer("receive", consumption, metadata) do
+  defp transfer("receive", consumption, metadata, encrypted_metadata) do
     attrs = %{
       "idempotency_token" => consumption.idempotency_token,
       "from_address" => consumption.balance.address,
       "to_address" => consumption.transaction_request.balance_address,
       "token_id" => consumption.minted_token.friendly_id,
       "amount" => consumption.amount,
-      "metadata" => metadata || %{}
+      "metadata" => metadata,
+      "encrypted_metadata" => encrypted_metadata
     }
 
     case TransactionGate.process_with_addresses(attrs) do

@@ -115,24 +115,6 @@ defmodule EWalletAPI.V1.UserControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided"
     end
-
-    test "returns an error if metadata is not provided" do
-      user = insert(:user)
-
-      # ExMachine will remove the param if set to nil.
-      request_data = params_for(:user, %{
-        provider_user_id: user.provider_user_id,
-        metadata: nil
-      })
-
-      response = provider_request("/user.update", request_data)
-
-      assert response["version"] == @expected_version
-      assert response["success"] == false
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
-    end
   end
 
   describe "/user.get" do
@@ -152,7 +134,8 @@ defmodule EWalletAPI.V1.UserControllerTest do
           "metadata" => %{
             "first_name" => inserted_user.metadata["first_name"],
             "last_name" => inserted_user.metadata["last_name"]
-          }
+          },
+          "encrypted_metadata" => %{}
         }
       }
 

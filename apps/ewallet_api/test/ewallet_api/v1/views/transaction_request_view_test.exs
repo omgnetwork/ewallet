@@ -21,7 +21,9 @@ defmodule EWalletAPI.V1.TransactionRequestViewTest do
             id: transaction_request.minted_token.friendly_id,
             name: transaction_request.minted_token.name,
             subunit_to_unit: transaction_request.minted_token.subunit_to_unit,
-            symbol: transaction_request.minted_token.symbol
+            symbol: transaction_request.minted_token.symbol,
+            metadata: %{},
+            encrypted_metadata: %{}
           },
           amount: transaction_request.amount,
           address: transaction_request.balance_address,

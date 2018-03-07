@@ -27,8 +27,7 @@ defmodule EWalletAPI.V1.UserController do
   # missing param as not need to update.
   def update(conn, %{
     "provider_user_id" => id,
-    "username" => _,
-    "metadata" => %{}
+    "username" => _
   } = attrs) when is_binary(id) and byte_size(id) > 0  do
     id
     |> User.get_by_provider_user_id()

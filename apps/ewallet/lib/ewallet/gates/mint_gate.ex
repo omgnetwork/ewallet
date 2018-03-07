@@ -19,7 +19,8 @@ defmodule EWallet.MintGate do
       "token_id" => minted_token_id,
       "amount" => 100_000,
       "description" => "Another mint bites the dust.",
-      "metadata" => %{probably: "something useful. Or not."}
+      "metadata" => %{probably: "something useful. Or not."},
+      "encrypted_metadata" => %{something: "secret."},
     })
 
     case res do
@@ -39,8 +40,7 @@ defmodule EWallet.MintGate do
     "idempotency_token" => idempotency_token,
     "token_id" => token_id,
     "amount" => amount,
-    "description" => description,
-    "metadata" => metadata
+    "description" => description
   } = attrs) do
     minted_token = MintedToken.get(token_id)
     account = Account.get_master_account()
@@ -54,7 +54,8 @@ defmodule EWallet.MintGate do
           to: Account.get_primary_balance(account).address,
           minted_token_id: minted_token.id,
           amount: amount,
-          metadata: metadata,
+          metadata: attrs["metadata"] || %{},
+          encrypted_metadata: attrs["encrypted_metadata"],
           payload: attrs
         })
       end)

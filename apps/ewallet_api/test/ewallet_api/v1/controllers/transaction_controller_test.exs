@@ -118,6 +118,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
   describe "/user.list_transactions" do
     test "returns all the transactions for a specific provider_user_id", meta do
       response = provider_request("/user.list_transactions", %{
+        "sort_by" => "created_at",
+        "sort_dir" => "asc",
         "provider_user_id" => meta.user.provider_user_id
       })
       assert response["data"]["data"] |> length() == 4

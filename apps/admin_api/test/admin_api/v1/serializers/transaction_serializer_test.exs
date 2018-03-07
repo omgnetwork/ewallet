@@ -22,6 +22,8 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
             symbol: minted_token.symbol,
             name: minted_token.name,
             subunit_to_unit: minted_token.subunit_to_unit,
+            metadata: %{},
+            encrypted_metadata: %{},
             created_at: Date.to_iso8601(minted_token.inserted_at),
             updated_at: Date.to_iso8601(minted_token.updated_at)
           },
@@ -35,6 +37,8 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
             id: minted_token.friendly_id,
             symbol: minted_token.symbol,
             name: minted_token.name,
+            metadata: %{},
+            encrypted_metadata: %{},
             subunit_to_unit: minted_token.subunit_to_unit,
             created_at: Date.to_iso8601(minted_token.inserted_at),
             updated_at: Date.to_iso8601(minted_token.updated_at)
@@ -45,6 +49,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
           rate: 1,
         },
         metadata: %{some: "metadata"},
+        encrypted_metadata: %{},
         status: transaction.status,
         created_at: Date.to_iso8601(transaction.inserted_at),
         updated_at: Date.to_iso8601(transaction.updated_at)
@@ -85,6 +90,8 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
                 id: minted_token1.friendly_id,
                 symbol: minted_token1.symbol,
                 name: minted_token1.name,
+                metadata: %{},
+                encrypted_metadata: %{},
                 subunit_to_unit: minted_token1.subunit_to_unit,
                 created_at: Date.to_iso8601(minted_token1.inserted_at),
                 updated_at: Date.to_iso8601(minted_token1.updated_at)
@@ -99,6 +106,8 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
                 id: minted_token1.friendly_id,
                 symbol: minted_token1.symbol,
                 name: minted_token1.name,
+                metadata: %{},
+                encrypted_metadata: %{},
                 subunit_to_unit: minted_token1.subunit_to_unit,
                 created_at: Date.to_iso8601(minted_token1.inserted_at),
                 updated_at: Date.to_iso8601(minted_token1.updated_at)
@@ -109,6 +118,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
               rate: 1,
             },
             metadata: %{some: "metadata"},
+            encrypted_metadata: %{},
             status: transaction1.status,
             created_at: Date.to_iso8601(transaction1.inserted_at),
             updated_at: Date.to_iso8601(transaction1.updated_at)
@@ -126,6 +136,8 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
                 id: minted_token2.friendly_id,
                 symbol: minted_token2.symbol,
                 name: minted_token2.name,
+                metadata: %{},
+                encrypted_metadata: %{},
                 subunit_to_unit: minted_token2.subunit_to_unit,
                 created_at: Date.to_iso8601(minted_token2.inserted_at),
                 updated_at: Date.to_iso8601(minted_token2.updated_at)
@@ -140,6 +152,8 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
                 id: minted_token2.friendly_id,
                 symbol: minted_token2.symbol,
                 name: minted_token2.name,
+                metadata: %{},
+                encrypted_metadata: %{},
                 subunit_to_unit: minted_token2.subunit_to_unit,
                 created_at: Date.to_iso8601(minted_token2.inserted_at),
                 updated_at: Date.to_iso8601(minted_token2.updated_at)
@@ -150,6 +164,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
               rate: 1,
             },
             metadata: %{some: "metadata"},
+            encrypted_metadata: %{},
             status: transaction2.status,
             created_at: Date.to_iso8601(transaction2.inserted_at),
             updated_at: Date.to_iso8601(transaction2.updated_at)

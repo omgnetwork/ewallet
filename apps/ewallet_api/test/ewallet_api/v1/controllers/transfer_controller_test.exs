@@ -69,7 +69,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "object" => "minted_token",
                     "subunit_to_unit" => 100,
                     "id" => minted_token.friendly_id,
-                    "symbol" => minted_token.symbol
+                    "symbol" => minted_token.symbol,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   }
                 }
               ]
@@ -86,7 +88,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "name" => minted_token.name,
                     "object" => "minted_token",
                     "subunit_to_unit" => 100,
-                    "symbol" => minted_token.symbol
+                    "symbol" => minted_token.symbol,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   },
                 }
               ]
@@ -253,7 +257,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "object" => "minted_token",
                     "subunit_to_unit" => 100,
                     "id" => minted_token.friendly_id,
-                    "symbol" => minted_token.symbol
+                    "symbol" => minted_token.symbol,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   }
                 }
               ]
@@ -423,8 +429,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response = provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
         provider_user_id: user.provider_user_id,
         token_id: minted_token.friendly_id,
-        amount: 150_000 * minted_token.subunit_to_unit,
-        metadata: %{}
+        amount: 150_000 * minted_token.subunit_to_unit
       })
 
       assert response == %{
@@ -446,6 +451,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "subunit_to_unit" => 100,
                     "symbol" => minted_token.symbol,
                     "id" => minted_token.friendly_id,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   }
                 }
               ]

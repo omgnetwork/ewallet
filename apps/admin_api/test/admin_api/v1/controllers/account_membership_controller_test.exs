@@ -24,6 +24,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
               "provider_user_id" => user.provider_user_id,
               "email" => user.email,
               "metadata" => user.metadata,
+              "encrypted_metadata" => %{},
               "created_at" => Date.to_iso8601(user.inserted_at),
               "updated_at" => Date.to_iso8601(user.updated_at),
               "account_role" => role.name,

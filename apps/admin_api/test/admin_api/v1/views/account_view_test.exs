@@ -23,6 +23,8 @@ defmodule AdminAPI.V1.AccountViewTest do
             small: nil,
             thumb: nil
           },
+          metadata: %{},
+          encrypted_metadata: %{},
           created_at: Date.to_iso8601(account.inserted_at),
           updated_at: Date.to_iso8601(account.updated_at)
         }
@@ -64,6 +66,8 @@ defmodule AdminAPI.V1.AccountViewTest do
                 small: nil,
                 thumb: nil
               },
+              metadata: %{},
+              encrypted_metadata: %{},
               created_at: Date.to_iso8601(account1.inserted_at),
               updated_at: Date.to_iso8601(account1.updated_at)
             },
@@ -80,6 +84,8 @@ defmodule AdminAPI.V1.AccountViewTest do
                 small: nil,
                 thumb: nil
               },
+              metadata: %{},
+              encrypted_metadata: %{},
               created_at: Date.to_iso8601(account2.inserted_at),
               updated_at: Date.to_iso8601(account2.updated_at)
             }

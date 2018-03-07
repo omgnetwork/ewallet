@@ -40,6 +40,8 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "subunit_to_unit" => btc.subunit_to_unit,
                     "symbol" => btc.symbol,
                     "id" => btc.friendly_id,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   }
                 },
                 %{
@@ -51,6 +53,8 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "subunit_to_unit" => omg.subunit_to_unit,
                     "symbol" => omg.symbol,
                     "id" => omg.friendly_id,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   }
                 }
               ]
@@ -96,7 +100,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "object" => "minted_token",
                     "subunit_to_unit" => btc.subunit_to_unit,
                     "symbol" => btc.symbol,
-                    "id" => btc.friendly_id
+                    "id" => btc.friendly_id,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   }
                 },
                 %{
@@ -107,7 +113,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "object" => "minted_token",
                     "subunit_to_unit" => omg.subunit_to_unit,
                     "symbol" => omg.symbol,
-                    "id" => omg.friendly_id
+                    "id" => omg.friendly_id,
+                    "metadata" => %{},
+                    "encrypted_metadata" => %{}
                   }
                 }
               ]

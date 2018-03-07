@@ -18,7 +18,9 @@ defmodule EWalletAPI.V1.TransactionRequestSerializerTest do
           id: transaction_request.minted_token.friendly_id,
           name: transaction_request.minted_token.name,
           subunit_to_unit: transaction_request.minted_token.subunit_to_unit,
-          symbol: transaction_request.minted_token.symbol
+          symbol: transaction_request.minted_token.symbol,
+          metadata: transaction_request.minted_token.metadata,
+          encrypted_metadata: transaction_request.minted_token.encrypted_metadata
         },
         amount: transaction_request.amount,
         user_id: transaction_request.user_id,
