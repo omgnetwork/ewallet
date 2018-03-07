@@ -356,6 +356,30 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
+  Test schema's metadata and encrypted metadata
+  """
+  defmacro test_default_metadata_fields(schema, table) do
+    quote do
+      test "sets the metadata and encrypted metadata to default values" do
+        schema = unquote(schema)
+        table = unquote(table)
+
+        {_, record} =
+          schema
+          |> get_factory()
+          |> params_for(metadata: nil, encrypted_metadata: nil)
+          |> schema.insert()
+
+        {:ok, results} = SQL.query(EWalletDB.Repo,
+                                   "SELECT metadata, encrypted_metadata FROM \"#{table}\"", [])
+
+        assert record.metadata == %{}
+        assert record.encrypted_metadata == %{}
+      end
+    end
+  end
+
+  @doc """
   Test schema's field encryption for the given field
   """
   defmacro test_encrypted_map_field(schema, table, field) do

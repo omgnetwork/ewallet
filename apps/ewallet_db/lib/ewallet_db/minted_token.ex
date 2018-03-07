@@ -23,7 +23,8 @@ defmodule EWalletDB.MintedToken do
     field :iso_numeric, :string # "978"
     field :smallest_denomination, :integer # 1
     field :locked, :boolean # false
-    field :metadata, Cloak.EncryptedMapField
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     belongs_to :account, Account, foreign_key: :account_id,
                                            references: :id,
@@ -37,7 +38,7 @@ defmodule EWalletDB.MintedToken do
       :symbol, :iso_code, :name, :description, :short_symbol,
       :subunit, :subunit_to_unit, :symbol_first, :html_entity,
       :iso_numeric, :smallest_denomination, :locked, :account_id,
-      :metadata, :friendly_id
+      :metadata, :encrypted_metadata, :friendly_id
     ])
     |> validate_required([
       :symbol, :name, :subunit_to_unit, :account_id

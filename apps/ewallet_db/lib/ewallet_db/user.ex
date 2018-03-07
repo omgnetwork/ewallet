@@ -19,7 +19,8 @@ defmodule EWalletDB.User do
     field :password_confirmation, :string, virtual: true
     field :password_hash, :string
     field :provider_user_id, :string
-    field :metadata, Cloak.EncryptedMapField
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     field :avatar, EWalletDB.Uploaders.Avatar.Type
 
@@ -36,8 +37,8 @@ defmodule EWalletDB.User do
   defp changeset(changeset, attrs) do
     changeset
     |> cast(attrs, [:username, :provider_user_id, :email, :password,
-                    :password_confirmation, :metadata, :invite_id])
-    |> validate_required([:metadata])
+                    :password_confirmation, :metadata, :encrypted_metadata,
+                    :invite_id])
     |> validate_confirmation(:password, message: "does not match password!")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
@@ -156,8 +157,7 @@ defmodule EWalletDB.User do
     %{
       user_id: user.id,
       name: identifier,
-      identifier: identifier,
-      metadata: %{}
+      identifier: identifier
     }
     |> Balance.insert()
   end

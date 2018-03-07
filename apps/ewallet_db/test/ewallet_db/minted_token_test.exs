@@ -4,7 +4,7 @@ defmodule EWalletDB.MintedTokenTest do
 
   describe "MintedToken factory" do
     test_has_valid_factory MintedToken
-    test_encrypted_map_field MintedToken, "minted_token", :metadata
+    test_encrypted_map_field MintedToken, "minted_token", :encrypted_metadata
   end
 
   describe "insert/1" do
@@ -16,6 +16,7 @@ defmodule EWalletDB.MintedTokenTest do
     test_insert_prevent_duplicate MintedToken, :symbol
     test_insert_prevent_duplicate MintedToken, :iso_code
     test_insert_prevent_duplicate MintedToken, :name
+    test_default_metadata_fields MintedToken, "minted_token"
 
     test "generates a friendly_id" do
       {:ok, minted_token} =

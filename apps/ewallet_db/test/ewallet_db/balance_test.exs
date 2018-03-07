@@ -4,7 +4,7 @@ defmodule EWalletDB.BalanceTest do
 
   describe "Balance factory" do
     test_has_valid_factory Balance
-    test_encrypted_map_field Balance, "balance", :metadata
+    test_encrypted_map_field Balance, "balance", :encrypted_metadata
   end
 
   describe "Balance.insert/1" do
@@ -17,6 +17,7 @@ defmodule EWalletDB.BalanceTest do
     test_insert_prevent_blank Balance, :address
     test_insert_prevent_all_blank Balance, [:account, :user]
     test_insert_prevent_duplicate Balance, :address
+    test_default_metadata_fields Balance, "balance"
 
     test "allows insert if provided a user without account_id" do
       {res, _balance} =

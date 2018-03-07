@@ -4,7 +4,7 @@ defmodule EWalletDB.UserTest do
 
   describe "User factory" do
     test_has_valid_factory User
-    test_encrypted_map_field User, "user", :metadata
+    test_encrypted_map_field User, "user", :encrypted_metadata
   end
 
   describe "insert/1" do
@@ -21,9 +21,9 @@ defmodule EWalletDB.UserTest do
 
     test_insert_generate_uuid User, :id
     test_insert_generate_timestamps User
-    test_insert_prevent_blank User, :metadata
     test_insert_prevent_duplicate User, :username
     test_insert_prevent_duplicate User, :provider_user_id
+    test_default_metadata_fields User, "user"
 
     # The test below can't use `test_insert_prevent_duplicate/3` with :email
     # because we need to use :admin factory to get proper data for admin user.
