@@ -138,6 +138,35 @@ defmodule LocalLedger.EntryTest do
       assert error.errors == [correlation_id: {"has already been taken", []}]
     end
 
+    test "returns a 'same address' error when the from/to addresses are identical" do
+      genesis()
+
+      res = Entry.insert(%{
+        "metadata" => %{},
+        "debits" => [%{
+          "address" => "mederic",
+          "metadata" => %{},
+          "amount" => 200
+        }],
+        "credits" => [%{
+          "address" => "mederic",
+          "metadata" => %{},
+          "amount" => 200
+        }],
+        "minted_token" => %{
+          "friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          "metadata" => %{}
+        },
+        "correlation_id" => UUID.generate
+      }, %{genesis: false})
+
+      assert res == {
+        :error,
+        "transaction:same_address",
+        "Found identical addresses in senders and receivers: mederic."
+      }
+    end
+
     test "returns an 'insufficient_funds' error when the debit balances don't have enough funds" do
       genesis()
 

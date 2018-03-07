@@ -3,7 +3,19 @@ defmodule LocalLedger.Entry.Validator do
   This module is used to validate that the total of debits minus the total of
   credits for an entry is equal to 0.
   """
-  alias LocalLedger.Errors.{InvalidAmountError, AmountIsZeroError}
+  alias LocalLedger.Errors.{InvalidAmountError, AmountIsZeroError, SameAddressError}
+
+  def validate_different_addresses({debits, credits} = attrs) do
+    debit_addresses = extract_addresses(debits)
+    credit_addresses = extract_addresses(credits)
+    identical_addresses = intersect(debit_addresses, credit_addresses)
+
+    case length(identical_addresses) do
+      0 -> attrs
+      _ -> raise SameAddressError,
+                 message: SameAddressError.error_message(identical_addresses)
+    end
+  end
 
   @doc """
   Sum the incoming transactions and ensure debit - credit = 0. If not, raise
@@ -28,4 +40,6 @@ defmodule LocalLedger.Entry.Validator do
   defp total(list) do
     Enum.reduce(list, 0, fn(attrs, acc) -> attrs["amount"] + acc end)
   end
+  defp extract_addresses(list), do: Enum.map(list, fn e -> e["address"] end)
+  defp intersect(a, b), do: a -- (a -- b)
 end
