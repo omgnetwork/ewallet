@@ -18,11 +18,16 @@ defmodule EWalletDB.Repo.Migrations.AddEncryptedMetadata do
         remove :metadata
         add :metadata, :map, null: false, default: "{}"
       end
+
+      create index(table_name, [:metadata], using: "gin")
     end)
   end
 
   def down do
     Enum.each(@tables, fn table_name ->
+      name = Atom.to_string(table_name)
+      drop index(table_name, [:metadata])
+
       alter table(table_name) do
         remove :metadata
         add :metadata, :binary
