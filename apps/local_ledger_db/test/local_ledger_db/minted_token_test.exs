@@ -65,7 +65,7 @@ defmodule LocalLedgerDB.MintedTokenTest do
     |> build(%{metadata: %{e_id: "123"}})
     |> Repo.insert
 
-    {:ok, results} = SQL.query(Repo, "SELECT metadata FROM minted_token", [])
+    {:ok, results} = SQL.query(Repo, "SELECT encrypted_metadata FROM minted_token", [])
 
     row = Enum.at(results.rows, 0)
     assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)

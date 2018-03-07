@@ -1,10 +1,10 @@
 # credo:disable-for-this-file
-defmodule EWalletDB.Repo.Migrations.AddEncryptedMetadata do
+defmodule LocalLedgerDB.Repo.Migrations.AddEncryptedMetadata do
   use Ecto.Migration
   import Ecto.Query
-  alias EWalletDB.Repo
+  alias LocalLedgerDB.Repo
 
-  @tables [:balance, :minted_token, :transfer, :user]
+  @tables [:balance, :entry, :minted_token]
 
   def up do
     Enum.each(@tables, fn table_name ->

@@ -51,9 +51,9 @@ defmodule LocalLedgerDB.EntryTest do
   test "saves the encrypted metadata" do
     :entry |> build(%{metadata: %{e_id: "123"}}) |> Repo.insert
 
-    {:ok, results} = SQL.query(Repo, "SELECT * FROM entry", [])
+    {:ok, results} = SQL.query(Repo, "SELECT encrypted_metadata FROM entry", [])
 
     row = Enum.at(results.rows, 0)
-    assert <<"SBX", 1, _::binary>> = Enum.at(row, 1)
+    assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
   end
 end

@@ -11,7 +11,8 @@ defmodule LocalLedgerDB.MintedToken do
 
   schema "minted_token" do
     field :friendly_id, :string
-    field :metadata, Cloak.EncryptedMapField
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     has_many :transactions, Transaction
     timestamps()
@@ -22,7 +23,7 @@ defmodule LocalLedgerDB.MintedToken do
   """
   def changeset(%MintedToken{} = minted_token, attrs) do
     minted_token
-    |> cast(attrs, [:friendly_id, :metadata, :encryption_version])
+    |> cast(attrs, [:friendly_id, :metadata, :encrypted_metadata, :encryption_version])
     |> validate_required([:friendly_id])
     |> unique_constraint(:friendly_id)
     |> put_change(:encryption_version, Cloak.version)
@@ -32,7 +33,7 @@ defmodule LocalLedgerDB.MintedToken do
   Retrieve a minted token from the database using the specified friendly_id
   or insert a new one before returning it.
   """
-  def get_or_insert(%{"friendly_id" => friendly_id, "metadata" => _} = attrs) do
+  def get_or_insert(%{"friendly_id" => friendly_id} = attrs) do
     case get(friendly_id) do
       nil ->
         insert(attrs)
@@ -54,7 +55,7 @@ defmodule LocalLedgerDB.MintedToken do
   query is made to get the current database record, be it the one inserted right
   before or one inserted by another concurrent process.
   """
-  def insert(%{"friendly_id" => friendly_id, "metadata" => _} = attrs) do
+  def insert(%{"friendly_id" => friendly_id} = attrs) do
     changeset = MintedToken.changeset(%MintedToken{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :friendly_id]
 
