@@ -1,5 +1,5 @@
 defmodule EWalletAPI.V1.TransactionControllerTest do
-  use EWalletAPI.ConnCase, async: true
+  use EWalletAPI.ConnCase, async: false
   alias EWalletDB.User
 
   setup do
