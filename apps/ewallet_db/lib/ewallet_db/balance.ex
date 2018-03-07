@@ -24,6 +24,10 @@ defmodule EWalletDB.Balance do
     field :address, :string
     field :name, :string
     field :identifier, :string
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
+    field :encryption_version, :binary
+
     belongs_to :user, User, foreign_key: :user_id,
                             references: :id,
                             type: UUID
@@ -33,9 +37,6 @@ defmodule EWalletDB.Balance do
     belongs_to :account, Account, foreign_key: :account_id,
                                   references: :id,
                                   type: UUID
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
     timestamps()
   end
 
