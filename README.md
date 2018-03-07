@@ -150,7 +150,6 @@ The `ewallet_dev` and `local_ledger_dev` don't need to be created beforehand as 
 In some cases, you might also want to customize the following ones, depending on your development setup:
 
 - `BASE_URL`: The URL where the application can be accessed. Defaults to `http://localhost:4000`.
-- `ADMIN_PANEL_BASE_DIR`: The directory under `BASE_URL` that the admin panel resides in. Defaults to `/admin`
 - `PORT`: The internal listening port for the application. Default to `4000`.
 
 To learn more about all the environment variables available for production deployments (or if you want to get fancy in local), checkout [this doc](/docs/setup/env.md).
