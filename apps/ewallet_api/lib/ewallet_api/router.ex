@@ -1,12 +1,10 @@
 defmodule EWalletAPI.Router do
   use EWalletAPI, :router
-  alias EWalletAPI.StatusController
-  alias EWalletAPI.VersionedRouter
-  alias EWallet.Web.SwaggerUIPlug
+  use EWallet.Web.APIDocs, scope: "/api"
+  alias EWalletAPI.{StatusController, VersionedRouter}
 
-  get "/api/", StatusController, :status
-
-  forward "/api/docs", SwaggerUIPlug, otp_app: :ewallet_api
-  forward "/api/swagger", SwaggerUIPlug, otp_app: :ewallet_api # Deprecated since Mar 7, 2018
-  forward "/api/", VersionedRouter
+  scope "/api" do
+    get "/", StatusController, :status
+    forward "/", VersionedRouter
+  end
 end

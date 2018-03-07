@@ -16,4 +16,17 @@ defmodule EWallet do
   @moduledoc """
   Documentation for EWallet.
   """
+  def controller do
+    quote do
+      use Phoenix.Controller, namespace: EWallet
+      import Plug.Conn
+    end
+  end
+
+  @doc """
+  When used, dispatch to the appropriate controller/view/etc.
+  """
+  defmacro __using__(which) when is_atom(which) do
+    apply(__MODULE__, which, [])
+  end
 end
