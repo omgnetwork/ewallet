@@ -1,10 +1,13 @@
 alias EWallet.CLI
 alias EWalletDB.AuthToken
 
+# Prepare URLs
 base_url              = Application.get_env(:ewallet_db, :base_url)
+admin_panel_url       = base_url <> "/admin"
 ewallet_swagger_url   = base_url <> "/api/swagger"
 admin_api_swagger_url = base_url <> "/admin/api/swagger"
 
+# Prepare the seeded data
 api_key_id              = Application.get_env(:ewallet, :seed_admin_api_key).id
 api_key                 = Application.get_env(:ewallet, :seed_admin_api_key).key
 admin                   = Application.get_env(:ewallet, :seed_admin_user)
@@ -19,6 +22,7 @@ File.cwd!
   API_KEY=#{api_key}
   """)
 
+# Output the seeding result
 CLI.heading("Setting up the OmiseGO eWallet Server")
 
 CLI.print("""
@@ -27,7 +31,31 @@ CLI.print("""
   If you would like to seed the database with sample data so that you can
   play around with the system, we recommend running `mix seed --sample` instead.
 
-  ## Authenticate with the Admin API
+  ## Manage your eWallet system via the Admin Panel
+
+  We have just seeded your eWallet system with an API key and an Admin Panel user.
+  To save your time, we have also configured the Admin Panel with the seeded API key.
+  If you want to, you can look up the configuration file at `#{dotenv_path}`.
+
+  Now it's your turn to login to your Admin Panel with the following credentials:
+
+    - Login URL : `#{admin_panel_url}`
+    - Email     : `#{admin.email}`
+    - Password  : `#{admin.password || "<password obscured>"}`
+
+  _Please take note of the above password._ We won't be able to retrieve it again
+  after the initial seed, as it will be one-way encrypted for your security.
+
+  Now that you are logged in to the Admin Panel, you can:
+
+    - Change your password immediately! The password will show in the seed only once.
+    - Create other Admin Panel users
+    - Manage access and secret keys for your application servers to connect to OmiseGO eWallet API
+    - Manage API keys for your mobile apps and the Admin Panel
+    - Always come back and access your Admin Panel at #{admin_panel_url}
+    - etc.
+
+  ## Manage your eWallet system via the Admin API
 
   The Admin API is the entry point to manage the entire OmiseGO eWallet system.
   Follow the steps below to authenticate your Swagger UI requests:
@@ -57,7 +85,7 @@ CLI.print("""
       ```
 
       _Please take note of the above password._ We won't be able to retrieve it again
-      after the initial seed, as it will be one-way encrypted for security reasons.
+      after the initial seed, as it will be one-way encrypted for your security.
 
     4. To get started quickly, we have seeded the user's authentication token
       and generated the Authorization header for you. Browse to #{admin_api_swagger_url}
