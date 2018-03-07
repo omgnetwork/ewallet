@@ -25,16 +25,17 @@ RUN set -xe && \
     apt-get remove -y autoconf autogen build-essential && \
     rm -rf /usr/local/src/libsodium
 
-# Setup apt-transport-https & lsb-release for Node.js installation
+# Setup apt-transport-https for Node.js installation
 RUN set -xe && \
     apt-get update && \
-    apt-get install -y apt-transport-https lsb-release
+    apt-get install -y apt-transport-https
 
 # Setup Node.js
 RUN set -xe && \
+    rm -f /etc/apt/sources.list.d/chris-lea-node_js-stretch.list && \
     curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     echo "deb https://deb.nodesource.com/node_${NODEJS_VERSION} stretch main" | tee /etc/apt/sources.list.d/nodesource.list && \
-    echo "deb-src https://deb.nodesource.com/node_${NODEJS_VERSION} stretch main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    echo "deb-src https://deb.nodesource.com/node_${NODEJS_VERSION} stretch main" | tee -a /etc/apt/sources.list.d/nodesource.list && \
     apt-get update && \
     apt-get install -y nodejs
 
