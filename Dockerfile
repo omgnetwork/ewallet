@@ -25,6 +25,11 @@ RUN set -xe && \
     apt-get remove -y autoconf autogen build-essential && \
     rm -rf /usr/local/src/libsodium
 
+# Setup apt-transport-https & lsb-release for Node.js installation
+RUN set -xe && \
+    apt-get update && \
+    apt-get install -y apt-transport-https lsb-release
+
 # Setup Node.js
 RUN set -xe && \
     curl -sS https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
