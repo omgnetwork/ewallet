@@ -39,7 +39,7 @@ defmodule UrlDispatcher.PlugTest do
     end
 
     test "returns a 200 response when requesting a file in /public folder" do
-      conn = request("/public/uploads/robots.txt")
+      conn = request("/public/uploads/test.txt")
 
       assert conn.halted # Plug.Static returns `%Plug.Conn{halted: true}` on success
       assert conn.status == 200
