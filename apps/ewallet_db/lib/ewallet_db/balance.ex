@@ -46,7 +46,7 @@ defmodule EWalletDB.Balance do
       :address, :account_id, :minted_token_id, :user_id, :metadata,
       :encrypted_metadata, :name, :identifier
     ])
-    |> validate_required([:address, :name, :identifier])
+    |> validate_required([:address, :name, :identifier, :metadata, :encrypted_metadata])
     |> validate_format(:identifier, ~r/#{@genesis}|#{@burn}|#{@primary}|#{@secondary}:.*/)
     |> validate_required_exclusive(%{account_id: nil, user_id: nil, identifier: @genesis})
     |> unique_constraint(:address)

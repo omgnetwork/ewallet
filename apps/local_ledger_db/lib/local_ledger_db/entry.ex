@@ -26,7 +26,7 @@ defmodule LocalLedgerDB.Entry do
   def changeset(%Entry{} = entry, attrs) do
     entry
     |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :correlation_id])
-    |> validate_required([:correlation_id])
+    |> validate_required([:correlation_id, :metadata, :encrypted_metadata])
     |> cast_assoc(:transactions, required: true)
     |> unique_constraint(:correlation_id)
     |> put_change(:encryption_version, Cloak.version)

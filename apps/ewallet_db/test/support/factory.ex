@@ -74,7 +74,8 @@ defmodule EWalletDB.Factory do
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
-      }
+      },
+      encrypted_metadata: %{}
     }
   end
 

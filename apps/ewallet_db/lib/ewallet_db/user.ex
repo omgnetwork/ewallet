@@ -39,6 +39,7 @@ defmodule EWalletDB.User do
     |> cast(attrs, [:username, :provider_user_id, :email, :password,
                     :password_confirmation, :metadata, :encrypted_metadata,
                     :invite_id])
+    |> validate_required([:metadata, :encrypted_metadata])
     |> validate_confirmation(:password, message: "does not match password!")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)

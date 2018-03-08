@@ -1,6 +1,6 @@
 defmodule EWalletAPI.V1.TransferControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{User, MintedToken, Account}
+  alias EWalletDB.{User, MintedToken, Account, Transfer}
   alias Ecto.UUID
 
   describe "/transfer" do
@@ -48,8 +48,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         to_address: balance2.address,
         token_id: minted_token.friendly_id,
         amount: 100_000 * minted_token.subunit_to_unit,
-        metadata: %{}
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
       })
+
+      transfer = get_last_inserted(Transfer)
+      assert transfer.metadata == %{"something" => "interesting"}
+      assert transfer.encrypted_metadata == %{"something" => "secret"}
 
       assert response == %{
         "success" => true,
@@ -236,8 +241,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         provider_user_id: user.provider_user_id,
         token_id: minted_token.friendly_id,
         amount: 1_000 * minted_token.subunit_to_unit,
-        metadata: %{}
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
       })
+
+      transfer = get_last_inserted(Transfer)
+      assert transfer.metadata == %{"something" => "interesting"}
+      assert transfer.encrypted_metadata == %{"something" => "secret"}
 
       assert response == %{
         "success" => true,
@@ -429,8 +439,14 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response = provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
         provider_user_id: user.provider_user_id,
         token_id: minted_token.friendly_id,
-        amount: 150_000 * minted_token.subunit_to_unit
+        amount: 150_000 * minted_token.subunit_to_unit,
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
       })
+
+      transfer = get_last_inserted(Transfer)
+      assert transfer.metadata == %{"something" => "interesting"}
+      assert transfer.encrypted_metadata == %{"something" => "secret"}
 
       assert response == %{
         "version" => "1",

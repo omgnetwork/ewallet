@@ -54,7 +54,7 @@ defmodule EWalletDB.Transfer do
     ])
     |> validate_required([
       :idempotency_token, :status, :type, :payload, :amount,
-      :minted_token_id, :to, :from
+      :minted_token_id, :to, :from, :metadata, :encrypted_metadata
     ])
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)

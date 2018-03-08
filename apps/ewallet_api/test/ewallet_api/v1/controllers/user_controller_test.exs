@@ -3,7 +3,10 @@ defmodule EWalletAPI.V1.UserControllerTest do
 
   describe "/user.create" do
     test "creates and responds with a newly created user if attributes are valid" do
-      request_data = params_for(:user)
+      request_data = params_for(:user,
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
+      )
       response     = provider_request("/user.create", request_data)
 
       assert response["version"] == @expected_version
@@ -14,6 +17,8 @@ defmodule EWalletAPI.V1.UserControllerTest do
       assert data["object"] == "user"
       assert data["provider_user_id"] == request_data.provider_user_id
       assert data["username"] == request_data.username
+      assert data["metadata"] == %{"something" => "interesting"}
+      assert data["encrypted_metadata"] == %{"something" => "secret"}
 
       metadata = data["metadata"]
       assert metadata["first_name"] == request_data.metadata["first_name"]
@@ -48,7 +53,7 @@ defmodule EWalletAPI.V1.UserControllerTest do
   end
 
   describe "/user.update" do
-    test "Updates the user if attributes are valid" do
+    test "updates the user if attributes are valid" do
       user = insert(:user)
 
       # Prepare the update data while keeping only provider_user_id the same
@@ -74,6 +79,96 @@ defmodule EWalletAPI.V1.UserControllerTest do
       metadata = data["metadata"]
       assert metadata["first_name"] == request_data.metadata.first_name
       assert metadata["last_name"] == request_data.metadata.last_name
+    end
+
+    test "updates the metadata and encrypted metadata" do
+      user = insert(:user)
+
+      request_data = params_for(:user, %{
+        provider_user_id: user.provider_user_id,
+        metadata: %{first_name: "updated_first_name"},
+        encrypted_metadata: %{my_secret_stuff: "123"}
+      })
+
+      response = provider_request("/user.update", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["metadata"] == %{"first_name" => "updated_first_name"}
+      assert response["data"]["encrypted_metadata"] == %{"my_secret_stuff" => "123"}
+    end
+
+    test "does not change the metadata/encrypted_metadata if not sent" do
+      user = insert(:user, %{
+        metadata: %{first_name: "updated_first_name"},
+        encrypted_metadata: %{my_secret_stuff: "123"}
+      })
+
+      response = provider_request("/user.update", %{
+        provider_user_id: user.provider_user_id,
+        username: "new_username"
+      })
+
+      assert response["success"] == true
+      assert response["data"]["username"] == "new_username"
+      assert response["data"]["metadata"] == %{"first_name" => "updated_first_name"}
+      assert response["data"]["encrypted_metadata"] == %{"my_secret_stuff" => "123"}
+    end
+
+    test "resets the metadata/encrypted_metadata when sending empty hashes" do
+      user = insert(:user, %{
+        metadata: %{first_name: "updated_first_name"},
+        encrypted_metadata: %{my_secret_stuff: "123"}
+      })
+
+      response = provider_request("/user.update", %{
+        provider_user_id: user.provider_user_id,
+        username: "new_username",
+        metadata: %{},
+        encrypted_metadata: %{}
+      })
+
+      assert response["success"] == true
+      assert response["data"]["metadata"] == %{}
+      assert response["data"]["encrypted_metadata"] == %{}
+    end
+
+    test "" do
+      user = insert(:user, %{
+        metadata: %{first_name: "updated_first_name"},
+        encrypted_metadata: %{my_secret_stuff: "123"}
+      })
+
+      response = provider_request("/user.update", %{
+        provider_user_id: user.provider_user_id,
+        username: "new_username",
+        metadata: %{},
+        encrypted_metadata: %{}
+      })
+
+      assert response["success"] == true
+      assert response["data"]["metadata"] == %{}
+      assert response["data"]["encrypted_metadata"] == %{}
+    end
+
+    test "does not change the metadata/encrypted_metadata if nil is sent" do
+      user = insert(:user, %{
+        metadata: %{first_name: "updated_first_name"},
+        encrypted_metadata: %{my_secret_stuff: "123"}
+      })
+
+      response = provider_request("/user.update", %{
+        provider_user_id: user.provider_user_id,
+        username: "new_username",
+        metadata: nil,
+        encrypted_metadata: nil
+      })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["messages"] == %{
+        "metadata" => ["required"],
+        "encrypted_metadata" => ["required"]
+      }
     end
 
     test "returns an error if provider_user_id is not provided" do
@@ -119,7 +214,11 @@ defmodule EWalletAPI.V1.UserControllerTest do
 
   describe "/user.get" do
     test "responds with user data if the user is found by its provider_user_id" do
-      inserted_user = insert(:user, %{provider_user_id: "provider_id_1"})
+      inserted_user =
+        :user
+        |> build(provider_user_id: "provider_id_1")
+        |> insert()
+
       request_data  = %{provider_user_id: inserted_user.provider_user_id}
       response      = provider_request("/user.get", request_data)
 

@@ -24,7 +24,7 @@ defmodule LocalLedgerDB.MintedToken do
   def changeset(%MintedToken{} = minted_token, attrs) do
     minted_token
     |> cast(attrs, [:friendly_id, :metadata, :encrypted_metadata, :encryption_version])
-    |> validate_required([:friendly_id])
+    |> validate_required([:friendly_id, :metadata, :encrypted_metadata])
     |> unique_constraint(:friendly_id)
     |> put_change(:encryption_version, Cloak.version)
   end

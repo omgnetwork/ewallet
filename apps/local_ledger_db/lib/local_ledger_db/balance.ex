@@ -25,7 +25,7 @@ defmodule LocalLedgerDB.Balance do
   def changeset(%Balance{} = balance, attrs) do
     balance
     |> cast(attrs, [:address, :metadata, :encrypted_metadata, :encryption_version])
-    |> validate_required([:address])
+    |> validate_required([:address, :metadata, :encrypted_metadata])
     |> unique_constraint(:address)
     |> put_change(:encryption_version, Cloak.version)
   end

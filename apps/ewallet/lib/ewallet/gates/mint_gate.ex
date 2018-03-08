@@ -55,7 +55,7 @@ defmodule EWallet.MintGate do
           minted_token_id: minted_token.id,
           amount: amount,
           metadata: attrs["metadata"] || %{},
-          encrypted_metadata: attrs["encrypted_metadata"],
+          encrypted_metadata: attrs["encrypted_metadata"] || %{},
           payload: attrs
         })
       end)

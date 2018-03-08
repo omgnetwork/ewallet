@@ -79,12 +79,16 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
         symbol: "BTC",
         name: "Bitcoin",
         description: "desc",
-        subunit_to_unit: 100
+        subunit_to_unit: 100,
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
       })
       mint = Mint |> Repo.all() |> Enum.at(0)
 
       assert response["success"]
       assert response["data"]["object"] == "minted_token"
+      assert response["data"]["metadata"] == %{"something" => "interesting"}
+      assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
       assert MintedToken.get(response["data"]["id"]) != nil
       assert mint == nil
     end
