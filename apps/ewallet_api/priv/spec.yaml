@@ -27,9 +27,6 @@ info:
     Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
     including on errors. Only in case of an internal server error that `500`
     will be returned.
-
-
-    Error codes are defined in [eWallet Error Codes](https://docs.google.com/a/omise.co/spreadsheets/d/1yq5IIoXQYV_ZlUVejAnhB8lVra2rxm56EnyjfMqFcU8/edit?usp=sharing).
   contact:
     name: OmiseGO
     email: thibault@omisego.co

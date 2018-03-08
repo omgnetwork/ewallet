@@ -2,10 +2,10 @@ alias EWallet.CLI
 alias EWalletDB.AuthToken
 
 # Prepare URLs
-base_url              = Application.get_env(:ewallet_db, :base_url)
-admin_panel_url       = base_url <> "/admin"
-ewallet_swagger_url   = base_url <> "/api/swagger"
-admin_api_swagger_url = base_url <> "/admin/api/swagger"
+base_url                 = Application.get_env(:ewallet_db, :base_url)
+admin_panel_url          = base_url <> "/admin"
+ewallet_swagger_ui_url   = base_url <> "/api/swagger"
+admin_api_swagger_ui_url = base_url <> "/admin/api/swagger"
 
 # Prepare the seeded data
 api_key_id              = Application.get_env(:ewallet, :seed_admin_api_key).id
@@ -60,7 +60,7 @@ CLI.print("""
   The Admin API is the entry point to manage the entire OmiseGO eWallet system.
   Follow the steps below to authenticate your Swagger UI requests:
 
-    1. Browse to `#{admin_api_swagger_url}` and click `Authorize`
+    1. Browse to `#{admin_api_swagger_ui_url}` and click `Authorize`
     2. Use the value below for `ClientAuth` and click `Authorize`:
 
       ```
@@ -88,7 +88,7 @@ CLI.print("""
       after the initial seed, as it will be one-way encrypted for your security.
 
     4. To get started quickly, we have seeded the user's authentication token
-      and generated the Authorization header for you. Browse to #{admin_api_swagger_url}
+      and generated the Authorization header for you. Browse to #{admin_api_swagger_ui_url}
       again and click Authorize. This time, use the value below for UserAuth:
 
       ```
@@ -111,12 +111,12 @@ CLI.print("""
 
   Now that you are authenticated, you have the full access to the eWallet system via the Admin API.
   You can now use the Authorization header above with the rest of the Swagger specification at
-  `#{admin_api_swagger_url}` to:
+  `#{admin_api_swagger_ui_url}` to:
 
   - Generate a pair of access/secret key for your application servers via `/access_key.create`
   - Generate a pair of API key for your clients such as your mobile app, via `/api_key.create`
   - Use the API key generated above to make requests to the eWallet API.
-    Learn more at `#{ewallet_swagger_url}`
+    Learn more at `#{ewallet_swagger_ui_url}`
   - etc.
 
   *Database seeding completed. Enjoy!*
