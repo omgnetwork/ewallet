@@ -24,16 +24,15 @@ defmodule AdminAPI.V1.AccountMembershipController do
     "role_name" => role_name,
     "redirect_url" => redirect_url
   } = attrs) do
-    with user when not is_atom(user) <- get_user_or_email(attrs) || :user_id_not_found,
-         %Account{} = account <- Account.get(account_id) || :account_id_not_found,
-         %Role{} = role <- Role.get_by_name(role_name) || :role_name_not_found,
+    with user when not is_tuple(user) <- get_user_or_email(attrs) || {:error, :user_id_not_found},
+         %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
+         %Role{} = role <- Role.get_by_name(role_name) || {:error, :role_name_not_found},
          {:ok, _} <- assign_or_invite(user, account, role, redirect_url) do
       render(conn, :empty, %{success: true})
     else
-      error when is_atom(error) ->
+      {:error, error} when is_atom(error) ->
         handle_error(conn, error)
-      # Matches a different error format
-      # returned by Membership.assign_user/2
+      # Matches a different error format returned by Membership.assign_user/2
       {:error, changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
     end
@@ -53,13 +52,13 @@ defmodule AdminAPI.V1.AccountMembershipController do
   defp get_user_or_email(%{"user_id" => user_id}) do
     case User.get(user_id) do
       %User{} = user -> user
-      _ -> :user_id_not_found
+      _              -> {:error, :user_id_not_found}
     end
   end
   defp get_user_or_email(%{"email" => email}) do
     case User.get_by_email(email) do
       %User{} = user -> user
-      nil -> email
+      nil            -> email
     end
   end
 
@@ -77,8 +76,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
     end
   end
   defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
-    {:ok, invite} = Inviter.invite(email, account, role, redirect_url)
-    {:ok, invite.user}
+    case Inviter.invite(email, account, role, redirect_url) do
+      {:ok, invite}       -> {:ok, invite.user}
+      {:error, _} = error -> error
+    end
   end
 
   @doc """
@@ -88,17 +89,12 @@ defmodule AdminAPI.V1.AccountMembershipController do
     "user_id" => user_id,
     "account_id" => account_id
   }) do
-    with %User{} = user <- User.get(user_id) || :user_id_not_found,
-         %Account{} = account <- Account.get(account_id) || :account_id_not_found,
+    with %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
+         %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
          {:ok, _} <- Membership.unassign(user, account) do
       render(conn, :empty, %{success: true})
     else
-      error when is_atom(error) ->
-        handle_error(conn, error)
-      # Matches a different error format
-      # returned by Membership.unassign_user/2
-      {:error, :membership_not_found} ->
-        handle_error(conn, :membership_not_found)
+      {:error, error} -> handle_error(conn, error)
     end
   end
   def unassign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)

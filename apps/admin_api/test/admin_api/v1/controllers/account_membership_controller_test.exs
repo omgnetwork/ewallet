@@ -103,6 +103,20 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       assert response["data"] == %{}
     end
 
+    test "returns an error if the email format is invalid" do
+      response = user_request("/account.assign_user", %{
+        email: "invalid_format",
+        account_id: insert(:account).id,
+        role_name: insert(:role).name,
+        redirect_url: "https://invite_url/?email={email}&token={token}"
+      })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:invalid_email"
+      assert response["data"]["description"] == "The format of the provided email is invalid"
+    end
+
     test "returns an error if the given user id does not exist" do
       response = user_request("/account.assign_user", %{
         user_id: UUID.generate(),
