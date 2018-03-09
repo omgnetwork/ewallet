@@ -31,7 +31,8 @@ defmodule EWalletDB.Transfer do
     field :type, :string, default: @internal # internal / external
     field :payload, Cloak.EncryptedMapField # Payload received from client
     field :ledger_response, Cloak.EncryptedMapField # Response returned by ledger
-    field :metadata, Cloak.EncryptedMapField
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
                                            references: :id,
@@ -49,11 +50,11 @@ defmodule EWalletDB.Transfer do
     transfer
     |> cast(attrs, [
       :idempotency_token, :status, :type, :payload, :ledger_response, :metadata,
-      :amount, :minted_token_id, :to, :from
+      :encrypted_metadata, :amount, :minted_token_id, :to, :from
     ])
     |> validate_required([
       :idempotency_token, :status, :type, :payload, :amount,
-      :minted_token_id, :to, :from
+      :minted_token_id, :to, :from, :metadata, :encrypted_metadata
     ])
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)

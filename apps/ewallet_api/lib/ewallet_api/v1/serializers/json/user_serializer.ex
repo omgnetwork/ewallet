@@ -10,7 +10,8 @@ defmodule EWalletAPI.V1.JSON.UserSerializer do
       id: user.id,
       username: user.username,
       provider_user_id: user.provider_user_id,
-      metadata: user.metadata
+      metadata: user.metadata,
+      encrypted_metadata: user.encrypted_metadata
     }
   end
 end

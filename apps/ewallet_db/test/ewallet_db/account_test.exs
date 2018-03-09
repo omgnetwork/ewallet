@@ -5,6 +5,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "Account factory" do
     test_has_valid_factory Account
+    test_encrypted_map_field Account, "account", :encrypted_metadata
   end
 
   describe "Account.insert/1" do
@@ -12,6 +13,7 @@ defmodule EWalletDB.AccountTest do
     test_insert_generate_timestamps Account
     test_insert_prevent_blank Account, :name
     test_insert_prevent_duplicate Account, :name
+    test_default_metadata_fields Account, "account"
 
     test "inserts a non-master account by default" do
       {:ok, account} = :account |> params_for() |> Account.insert

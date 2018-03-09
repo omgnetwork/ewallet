@@ -28,6 +28,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "name" => account.name,
             "description" => account.description,
             "master" => Account.master?(account),
+            "metadata" => %{},
+            "encrypted_metadata" => %{},
             "avatar" => %{
               "original" => nil,
               "large" => nil,
@@ -70,6 +72,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "name" => account.name,
             "description" => account.description,
             "master" => Account.master?(account),
+            "metadata" => %{},
+            "encrypted_metadata" => %{},
             "avatar" => %{
               "original" => nil,
               "large" => nil,

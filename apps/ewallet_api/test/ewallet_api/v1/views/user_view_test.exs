@@ -27,7 +27,8 @@ defmodule EWalletAPI.V1.UserViewTest do
           metadata: %{
             first_name: user.metadata.first_name,
             last_name: user.metadata.last_name
-          }
+          },
+          encrypted_metadata: %{}
         }
       }
 

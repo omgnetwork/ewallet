@@ -4,7 +4,7 @@ defmodule EWalletDB.TransferTest do
 
   describe "Transfer factory" do
     test_has_valid_factory Transfer
-    test_encrypted_map_field Transfer, "transfer", :metadata
+    test_encrypted_map_field Transfer, "transfer", :encrypted_metadata
     test_encrypted_map_field Transfer, "transfer", :payload
     test_encrypted_map_field Transfer, "transfer", :ledger_response
   end
@@ -40,6 +40,7 @@ defmodule EWalletDB.TransferTest do
     test_insert_generate_timestamps Transfer
     test_insert_prevent_blank Transfer, :payload
     test_insert_prevent_blank Transfer, :idempotency_token
+    test_default_metadata_fields Transfer, "transfer"
 
     test "inserts a transfer if it does not existing" do
       assert Repo.all(Transfer) == []

@@ -36,8 +36,7 @@ defmodule AdminAPI.Inviter do
       nil ->
         {:ok, user} = User.insert(%{
           email: email,
-          password: Crypto.generate_key(32),
-          metadata: %{}
+          password: Crypto.generate_key(32)
         })
         user
     end

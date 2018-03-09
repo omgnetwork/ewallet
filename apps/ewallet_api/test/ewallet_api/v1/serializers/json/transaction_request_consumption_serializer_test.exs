@@ -19,7 +19,9 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionSerializerTest do
           id: consumption.minted_token.friendly_id,
           name: consumption.minted_token.name,
           subunit_to_unit: consumption.minted_token.subunit_to_unit,
-          symbol: consumption.minted_token.symbol
+          symbol: consumption.minted_token.symbol,
+          metadata: consumption.minted_token.metadata,
+          encrypted_metadata: consumption.minted_token.encrypted_metadata
         },
         correlation_id: consumption.correlation_id,
         idempotency_token: consumption.idempotency_token,

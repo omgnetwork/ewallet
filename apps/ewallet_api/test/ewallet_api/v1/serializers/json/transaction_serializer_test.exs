@@ -21,7 +21,9 @@ defmodule EWalletAPI.V1.JSON.TransactionSerializerTest do
             id: transaction.minted_token.friendly_id,
             symbol: transaction.minted_token.symbol,
             name: transaction.minted_token.name,
-            subunit_to_unit: transaction.minted_token.subunit_to_unit
+            subunit_to_unit: transaction.minted_token.subunit_to_unit,
+            metadata: transaction.minted_token.metadata,
+            encrypted_metadata: transaction.minted_token.encrypted_metadata
           },
         },
         to: %{
@@ -33,7 +35,9 @@ defmodule EWalletAPI.V1.JSON.TransactionSerializerTest do
             id: transaction.minted_token.friendly_id,
             symbol: transaction.minted_token.symbol,
             name: transaction.minted_token.name,
-            subunit_to_unit: transaction.minted_token.subunit_to_unit
+            subunit_to_unit: transaction.minted_token.subunit_to_unit,
+            metadata: transaction.minted_token.metadata,
+            encrypted_metadata: transaction.minted_token.encrypted_metadata
           },
         },
         exchange: %{
@@ -41,6 +45,7 @@ defmodule EWalletAPI.V1.JSON.TransactionSerializerTest do
           rate: 1,
         },
         metadata: %{some: "metadata"},
+        encrypted_metadata: %{},
         status: transaction.status,
         created_at: Date.to_iso8601(transaction.inserted_at),
         updated_at: Date.to_iso8601(transaction.updated_at)

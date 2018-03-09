@@ -24,6 +24,10 @@ defmodule EWalletDB.Balance do
     field :address, :string
     field :name, :string
     field :identifier, :string
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
+    field :encryption_version, :binary
+
     belongs_to :user, User, foreign_key: :user_id,
                             references: :id,
                             type: UUID
@@ -33,17 +37,16 @@ defmodule EWalletDB.Balance do
     belongs_to :account, Account, foreign_key: :account_id,
                                   references: :id,
                                   type: UUID
-    field :metadata, Cloak.EncryptedMapField
-    field :encryption_version, :binary
     timestamps()
   end
 
   defp changeset(%Balance{} = balance, attrs) do
     balance
     |> cast(attrs, [
-      :address, :account_id, :minted_token_id, :user_id, :metadata, :name, :identifier
+      :address, :account_id, :minted_token_id, :user_id, :metadata,
+      :encrypted_metadata, :name, :identifier
     ])
-    |> validate_required([:address, :name, :identifier])
+    |> validate_required([:address, :name, :identifier, :metadata, :encrypted_metadata])
     |> validate_format(:identifier, ~r/#{@genesis}|#{@burn}|#{@primary}|#{@secondary}:.*/)
     |> validate_required_exclusive(%{account_id: nil, user_id: nil, identifier: @genesis})
     |> unique_constraint(:address)

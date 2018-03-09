@@ -17,7 +17,8 @@ defmodule EWalletAPI.V1.SelfViewTest do
           metadata: %{
             "first_name" => user.metadata["first_name"],
             "last_name" => user.metadata["last_name"]
-          }
+          },
+          encrypted_metadata: %{}
         }
       }
 
@@ -39,14 +40,18 @@ defmodule EWalletAPI.V1.SelfViewTest do
               id: token1.friendly_id,
               symbol: token1.symbol,
               name: token1.name,
-              subunit_to_unit: token1.subunit_to_unit
+              subunit_to_unit: token1.subunit_to_unit,
+              metadata: %{},
+              encrypted_metadata: %{}
             },
             %{
               object: "minted_token",
               id: token2.friendly_id,
               symbol: token2.symbol,
               name: token2.name,
-              subunit_to_unit: token2.subunit_to_unit
+              subunit_to_unit: token2.subunit_to_unit,
+              metadata: %{},
+              encrypted_metadata: %{}
             }]
         }
       }

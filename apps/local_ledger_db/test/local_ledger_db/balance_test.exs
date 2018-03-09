@@ -30,10 +30,10 @@ defmodule LocalLedgerDB.BalanceTest do
     test "saves the encrypted metadata" do
       :balance |> build(%{metadata: %{e_id: "123"}}) |> Repo.insert
 
-      {:ok, results} = SQL.query(Repo, "SELECT * FROM balance", [])
+      {:ok, results} = SQL.query(Repo, "SELECT encrypted_metadata FROM balance", [])
 
       row = Enum.at(results.rows, 0)
-      assert <<"SBX", 1, _::binary>> = Enum.at(row, 2)
+      assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
     end
   end
 

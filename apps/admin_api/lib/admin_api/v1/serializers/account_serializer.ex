@@ -25,6 +25,8 @@ defmodule AdminAPI.V1.AccountSerializer do
       description: account.description,
       master: Account.master?(account),
       avatar: Avatar.urls({account.avatar, account}),
+      metadata: account.metadata,
+      encrypted_metadata: account.encrypted_metadata,
       created_at: Date.to_iso8601(account.inserted_at),
       updated_at: Date.to_iso8601(account.updated_at)
     }

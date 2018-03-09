@@ -10,7 +10,8 @@ defmodule LocalLedgerDB.Entry do
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "entry" do
-    field :metadata, Cloak.EncryptedMapField
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     field :correlation_id, :string
     has_many :transactions, Transaction
@@ -24,8 +25,8 @@ defmodule LocalLedgerDB.Entry do
   """
   def changeset(%Entry{} = entry, attrs) do
     entry
-    |> cast(attrs, [:metadata, :encryption_version, :correlation_id])
-    |> validate_required([:correlation_id])
+    |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :correlation_id])
+    |> validate_required([:correlation_id, :metadata, :encrypted_metadata])
     |> cast_assoc(:transactions, required: true)
     |> unique_constraint(:correlation_id)
     |> put_change(:encryption_version, Cloak.version)

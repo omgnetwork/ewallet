@@ -75,8 +75,7 @@ defmodule AdminAPI.V1.MintedTokenController do
       "idempotency_token" => minted_token.id,
       "token_id" => minted_token.friendly_id,
       "amount" => amount,
-      "description" => "",
-      "metadata" => %{}
+      "description" => ""
     })
 
     case res do

@@ -24,7 +24,9 @@ defmodule EWalletAPI.V1.TransactionViewTest do
               id: transaction.minted_token.friendly_id,
               symbol: transaction.minted_token.symbol,
               name: transaction.minted_token.name,
-              subunit_to_unit: transaction.minted_token.subunit_to_unit
+              subunit_to_unit: transaction.minted_token.subunit_to_unit,
+              metadata: %{},
+              encrypted_metadata: %{}
             }
           },
           to: %{
@@ -36,7 +38,9 @@ defmodule EWalletAPI.V1.TransactionViewTest do
               id: transaction.minted_token.friendly_id,
               symbol: transaction.minted_token.symbol,
               name: transaction.minted_token.name,
-              subunit_to_unit: transaction.minted_token.subunit_to_unit
+              subunit_to_unit: transaction.minted_token.subunit_to_unit,
+              metadata: %{},
+              encrypted_metadata: %{}
             }
           },
           exchange: %{
@@ -44,6 +48,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             rate: 1,
           },
           metadata: %{some: "metadata"},
+          encrypted_metadata: %{},
           status: transaction.status,
           created_at: Date.to_iso8601(transaction.inserted_at),
           updated_at: Date.to_iso8601(transaction.updated_at)

@@ -12,7 +12,8 @@ defmodule EWalletAPI.V1.UserSerializerTest do
         metadata: %{
           first_name: "John",
           last_name: "Doe"
-        }
+        },
+        encrypted_metadata: %{}
       }
 
       expected = %{
@@ -23,7 +24,8 @@ defmodule EWalletAPI.V1.UserSerializerTest do
         metadata: %{
           first_name: "John",
           last_name: "Doe"
-        }
+        },
+        encrypted_metadata: %{}
       }
 
       assert UserSerializer.serialize(user) == expected

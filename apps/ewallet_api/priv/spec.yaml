@@ -536,18 +536,20 @@ components:
           type: string
         metadata:
           type: object
+        encrypted_metadata:
+          type: object
       required:
         - object
         - id
         - username
         - provider_user_id
-        - metadata
       example:
         object: "user"
         id: "cec34607-0761-4a59-8357-18963e42a1aa"
         provider_user_id: "wijf-fbancomw-dqwjudb"
         username: "thibault@omise.co"
         metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+        encrypted_metadata: {}
     UserResponseSchema:
       description: "The response schema for a user"
       allOf:
@@ -566,6 +568,7 @@ components:
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "thibault@omise.co"
             metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+            encrypted_metadata: {}
 
     ######################################
     #            BALANCE SCHEMAS         #
@@ -775,6 +778,10 @@ components:
           type: string
         subunit_to_unit:
           type: number
+        metadata:
+          type: object
+        encrypted_metadata:
+          type: object
       required:
         - object
         - symbol
@@ -786,6 +793,8 @@ components:
         symbol: "OMG"
         name: "Mint"
         subunit_to_unit: 100000000000000000
+        metadata: {}
+        encrypted_metadata: {}
 
     ######################################
     #         TRANSACTION SCHEMAS        #
@@ -832,6 +841,8 @@ components:
               type: number
         metadata:
           type: object
+        encrypted_metadata:
+          type: object
         status:
           type: string
           enum:
@@ -851,7 +862,6 @@ components:
         - from
         - to
         - exchange
-        - metadata
         - status
         - created_at
         - updated_at
@@ -897,6 +907,7 @@ components:
               object: "exchange"
               rate: 1
             metadata: {}
+            encrypted_metadata: {}
             status: "confirmed"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -954,6 +965,7 @@ components:
                   object: "exchange"
                   rate: 1
                 metadata: {}
+                encrypted_metadata: {}
                 status: "confirmed"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -1113,14 +1125,16 @@ components:
                 type: string
               metadata:
                 type: object
+              encrypted_metadata:
+                type: object
             required:
               - provider_user_id
               - username
-              - metadata
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
               username: "thibault@omise.co"
               metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+              encrypted_metadata: {}
     ProviderIdBody:
       description: The parameters to use for providing a provider user id
       required: true
@@ -1258,18 +1272,20 @@ components:
                 type: integer
               metadata:
                 type: object
+              encrypted_metadata:
+                type: object
             required:
               - from_address
               - to_address
               - token_id
               - amount
-              - metadata
             example:
               from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
               to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
               token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
               amount: 100
               metadata: {}
+              encrypted_metadata: {}
     BalanceAdjustmentBody:
       description: |
         The parameters for crediting or debiting the balance of the specified user
@@ -1295,11 +1311,12 @@ components:
                 type: string
               metadata:
                 type: object
+              encrypted_metadata:
+                type: object
             required:
               - provider_user_id
               - token_id
               - amount
-              - metadata
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
               token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
@@ -1307,6 +1324,7 @@ components:
               account_id: "865ff420-899a-4eb3-8364-19edc5d51676"
               burn_balance_identifier: "burn"
               metadata: {}
+              encrypted_metadata: {}
     CreateTransactionRequestBody:
       description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint by a different client to create a transaction from that request.
       required: true
@@ -1366,6 +1384,8 @@ components:
                 type: string
               metadata:
                 type: object
+              encrypted_metadata:
+                type: object
             required:
               - transaction_request_id
             example:
@@ -1375,6 +1395,7 @@ components:
               amount: 100
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
               metadata: {}
+              encrypted_metadata: {}
 
   ######################################
   #           REQUEST HEADERS          #

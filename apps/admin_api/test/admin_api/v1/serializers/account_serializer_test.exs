@@ -15,6 +15,8 @@ defmodule AdminAPI.V1.AccountSerializerTest do
         name: account.name,
         description: account.description,
         master: Account.master?(account),
+        metadata: %{},
+        encrypted_metadata: %{},
         avatar: %{
           original: nil,
           large: nil,
@@ -51,6 +53,8 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             name: account1.name,
             description: account1.description,
             master: Account.master?(account1),
+            metadata: %{},
+            encrypted_metadata: %{},
             avatar: %{
               original: nil,
               large: nil,
@@ -67,6 +71,8 @@ defmodule AdminAPI.V1.AccountSerializerTest do
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),
+            metadata: %{},
+            encrypted_metadata: %{},
             avatar: %{
               original: nil,
               large: nil,

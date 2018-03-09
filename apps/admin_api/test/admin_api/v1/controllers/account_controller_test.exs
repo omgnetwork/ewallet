@@ -76,12 +76,18 @@ defmodule AdminAPI.V1.AccountControllerTest do
   describe "/account.create" do
     test "creates a new account and returns it" do
       parent       = User.get_account(get_test_user())
-      request_data = params_for(:account, %{parent_id: parent.id})
+      request_data = params_for(:account, %{
+        parent_id: parent.id,
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
+      })
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "account"
       assert response["data"]["name"] == request_data.name
+      assert response["data"]["metadata"] == %{"something" => "interesting"}
+      assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
 
     test "returns an error if account name is not provided" do

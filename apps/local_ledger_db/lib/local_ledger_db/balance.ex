@@ -12,7 +12,8 @@ defmodule LocalLedgerDB.Balance do
 
   schema "balance" do
     field :address, :string
-    field :metadata, Cloak.EncryptedMapField
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     has_many :transactions, Transaction
     timestamps()
@@ -23,8 +24,8 @@ defmodule LocalLedgerDB.Balance do
   """
   def changeset(%Balance{} = balance, attrs) do
     balance
-    |> cast(attrs, [:address, :metadata, :encryption_version])
-    |> validate_required([:address])
+    |> cast(attrs, [:address, :metadata, :encrypted_metadata, :encryption_version])
+    |> validate_required([:address, :metadata, :encrypted_metadata])
     |> unique_constraint(:address)
     |> put_change(:encryption_version, Cloak.version)
   end
@@ -62,7 +63,7 @@ defmodule LocalLedgerDB.Balance do
   Retrieve a balance from the database using the specified address
   or insert a new one before returning it.
   """
-  def get_or_insert(%{"address" => address, "metadata" => _} = attrs) do
+  def get_or_insert(%{"address" => address} = attrs) do
     case get(address) do
       nil ->
         insert(attrs)
@@ -84,7 +85,7 @@ defmodule LocalLedgerDB.Balance do
   query is made to get the current database record, be it the one inserted right
   before or one inserted by another concurrent process.
   """
-  def insert(%{"address" => address, "metadata" => _} = attrs) do
+  def insert(%{"address" => address} = attrs) do
     changeset = Balance.changeset(%Balance{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :address]
 
