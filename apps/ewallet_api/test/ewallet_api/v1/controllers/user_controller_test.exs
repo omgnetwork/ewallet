@@ -132,25 +132,7 @@ defmodule EWalletAPI.V1.UserControllerTest do
       assert response["data"]["encrypted_metadata"] == %{}
     end
 
-    test "" do
-      user = insert(:user, %{
-        metadata: %{first_name: "updated_first_name"},
-        encrypted_metadata: %{my_secret_stuff: "123"}
-      })
-
-      response = provider_request("/user.update", %{
-        provider_user_id: user.provider_user_id,
-        username: "new_username",
-        metadata: %{},
-        encrypted_metadata: %{}
-      })
-
-      assert response["success"] == true
-      assert response["data"]["metadata"] == %{}
-      assert response["data"]["encrypted_metadata"] == %{}
-    end
-
-    test "does not change the metadata/encrypted_metadata if nil is sent" do
+    test "returns an 'invalid parameter' error when sending nil for metadata/encrypted_metadata" do
       user = insert(:user, %{
         metadata: %{first_name: "updated_first_name"},
         encrypted_metadata: %{my_secret_stuff: "123"}
