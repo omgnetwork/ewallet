@@ -185,8 +185,8 @@ defmodule AdminAPI.V1.ErrorHandler do
   defp respond(conn, code, description, messages \\ nil) do
     content =
       code
-      |> ErrorSerializer.to_json(description, messages)
-      |> ResponseSerializer.to_json(success: false)
+      |> ErrorSerializer.serialize(description, messages)
+      |> ResponseSerializer.serialize(success: false)
 
     conn |> json(content) |> halt()
   end

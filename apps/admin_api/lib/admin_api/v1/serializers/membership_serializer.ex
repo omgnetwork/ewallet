@@ -13,7 +13,7 @@ defmodule AdminAPI.V1.MembershipSerializer do
   end
   def to_user_json(membership) when is_map(membership) do
     membership.user
-    |> UserSerializer.to_json()
+    |> UserSerializer.serialize()
     |> Map.put(:account_role, membership.role.name)
     |> Map.put(:status, User.get_status(membership.user))
   end

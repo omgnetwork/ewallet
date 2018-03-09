@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
   alias AdminAPI.V1.UserSerializer
   alias EWallet.Web.{Date, Paginator}
 
-  describe "to_json/1" do
+  describe "serialize/1" do
     test "serializes a user into correct JSON format" do
       user = insert(:user)
 
@@ -28,7 +28,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
         updated_at: Date.to_iso8601(user.updated_at)
       }
 
-      assert UserSerializer.to_json(user) == expected
+      assert UserSerializer.serialize(user) == expected
     end
 
     test "serializes a user paginator into a list object" do
@@ -97,7 +97,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
         }
       }
 
-      assert UserSerializer.to_json(paginator) == expected
+      assert UserSerializer.serialize(paginator) == expected
     end
   end
 end

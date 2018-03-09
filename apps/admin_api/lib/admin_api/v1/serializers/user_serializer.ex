@@ -6,10 +6,10 @@ defmodule AdminAPI.V1.UserSerializer do
   alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Uploaders.Avatar
 
-  def to_json(%Paginator{} = paginator) do
-    PaginatorSerializer.to_json(paginator, &to_json/1)
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
   end
-  def to_json(user) when is_map(user) do
+  def serialize(user) when is_map(user) do
     %{
       object: "user",
       id: user.id,

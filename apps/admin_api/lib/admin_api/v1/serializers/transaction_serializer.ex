@@ -5,11 +5,11 @@ defmodule AdminAPI.V1.TransactionSerializer do
   alias AdminAPI.V1.{PaginatorSerializer, MintedTokenSerializer}
   alias EWallet.Web.{Date, Paginator}
 
-  def to_json(%Paginator{} = paginator) do
-    PaginatorSerializer.to_json(paginator, &to_json/1)
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
   end
-  def to_json(transaction) when is_map(transaction) do
-    serialized_minted_token = MintedTokenSerializer.to_json(transaction.minted_token)
+  def serialize(transaction) when is_map(transaction) do
+    serialized_minted_token = MintedTokenSerializer.serialize(transaction.minted_token)
 
     # credo:disable-for-next-line
     %{

@@ -4,6 +4,6 @@ defmodule AdminAPI.V1.ResetPasswordView do
 
   def render("empty.json", %{success: success}) do
     %{}
-    |> ResponseSerializer.to_json(success: success)
+    |> ResponseSerializer.serialize(success: success)
   end
 end

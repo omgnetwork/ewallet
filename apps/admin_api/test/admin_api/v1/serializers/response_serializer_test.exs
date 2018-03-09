@@ -2,9 +2,9 @@ defmodule AdminAPI.V1.ResponseSerializerTest do
   use AdminAPI.SerializerCase, :v1
   alias AdminAPI.V1.ResponseSerializer
 
-  describe "ResponseSerializer.to_json/2" do
+  describe "ResponseSerializer.serialize/2" do
     test "serializes into correct V1 response format when successful" do
-      result = ResponseSerializer.to_json("dummy_data", success: true)
+      result = ResponseSerializer.serialize("dummy_data", success: true)
 
       expected = %{
         success: true,

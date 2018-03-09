@@ -5,10 +5,10 @@ defmodule AdminAPI.V1.APIKeySerializer do
   alias AdminAPI.V1.PaginatorSerializer
   alias EWallet.Web.{Date, Paginator}
 
-  def to_json(%Paginator{} = paginator) do
-    PaginatorSerializer.to_json(paginator, &to_json/1)
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
   end
-  def to_json(api_key) when is_map(api_key) do
+  def serialize(api_key) when is_map(api_key) do
     %{
       object: "api_key",
       id: api_key.id,
