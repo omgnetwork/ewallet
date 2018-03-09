@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionRequestSerializerTest do
   use EWalletAPI.SerializerCase, :v1
   alias EWalletDB.TransactionRequest
-  alias EWalletAPI.V1.JSON.TransactionRequestSerializer
+  alias EWalletAPI.V1.TransactionRequestSerializer
   alias EWallet.Web.Date
 
   describe "serialize/1 for single transaction request" do

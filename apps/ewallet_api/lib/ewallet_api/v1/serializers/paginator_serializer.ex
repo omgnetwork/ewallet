@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.JSON.PaginatorSerializer do
+defmodule EWalletAPI.V1.PaginatorSerializer do
   @moduledoc """
   Serializes a paginator into V1 response format.
   """

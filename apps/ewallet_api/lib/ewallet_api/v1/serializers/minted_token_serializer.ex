@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.JSON.MintedTokenSerializer do
+defmodule EWalletAPI.V1.MintedTokenSerializer do
   @moduledoc """
   Serializes minted token data into V1 JSON response format.
   """

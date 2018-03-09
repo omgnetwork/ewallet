@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.JSON.ErrorSerializer do
+defmodule EWalletAPI.V1.ErrorSerializer do
   @moduledoc """
   Serializes data into V1 JSON response format.
   """

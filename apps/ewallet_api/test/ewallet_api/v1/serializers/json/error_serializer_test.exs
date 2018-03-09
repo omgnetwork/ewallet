@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.ErrorSerializerTest do
   use EWalletAPI.SerializerCase, :v1
-  alias EWalletAPI.V1.JSON.ErrorSerializer
+  alias EWalletAPI.V1.ErrorSerializer
 
-  describe "V1.JSON.ErrorSerializer.serialize" do
+  describe "V1.ErrorSerializer.serialize" do
     test "data contains the code, description and messages" do
       code        = "error_code"
       description = "This is the description"

@@ -1,8 +1,8 @@
-defmodule EWalletAPI.V1.JSON.TransactionSerializer do
+defmodule EWalletAPI.V1.TransactionSerializer do
   @moduledoc """
   Serializes minted token(s) into V1 JSON response format.
   """
-  alias EWalletAPI.V1.JSON.{PaginatorSerializer, MintedTokenSerializer}
+  alias EWalletAPI.V1.{PaginatorSerializer, MintedTokenSerializer}
   alias EWallet.Web.{Date, Paginator}
 
   def serialize(%Paginator{} = paginator) do

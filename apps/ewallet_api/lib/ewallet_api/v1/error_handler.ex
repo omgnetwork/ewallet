@@ -5,7 +5,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   import Ecto.Changeset, only: [traverse_errors: 2]
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
-  alias EWalletAPI.V1.JSON.{ErrorSerializer, ResponseSerializer}
+  alias EWalletAPI.V1.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
     invalid_auth_scheme: %{

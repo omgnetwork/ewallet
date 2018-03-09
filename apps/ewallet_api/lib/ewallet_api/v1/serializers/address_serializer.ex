@@ -1,9 +1,9 @@
-defmodule EWalletAPI.V1.JSON.AddressSerializer do
+defmodule EWalletAPI.V1.AddressSerializer do
   @moduledoc """
   Serializes address data into V1 JSON response format.
   """
   use EWalletAPI.V1
-  alias EWalletAPI.V1.JSON.BalanceSerializer
+  alias EWalletAPI.V1.BalanceSerializer
 
   def serialize(address) do
     %{

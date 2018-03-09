@@ -1,6 +1,6 @@
-defmodule EWalletAPI.V1.JSON.TransactionSerializerTest do
+defmodule EWalletAPI.V1.TransactionSerializerTest do
   use EWalletAPI.SerializerCase, :v1
-  alias EWalletAPI.V1.JSON.TransactionSerializer
+  alias EWalletAPI.V1.TransactionSerializer
   alias EWallet.Web.Date
   alias EWalletDB.Repo
 

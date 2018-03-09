@@ -1,6 +1,6 @@
 defmodule EWalletAPI.V1.MintedTokenSerializerTest do
   use EWalletAPI.SerializerCase, :v1
-  alias EWalletAPI.V1.JSON.MintedTokenSerializer
+  alias EWalletAPI.V1.MintedTokenSerializer
 
   describe "serialize/1 for single minted_token" do
     test "serializes into correct V1 minted_token format" do
