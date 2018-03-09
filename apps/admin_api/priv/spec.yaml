@@ -730,6 +730,10 @@ components:
         updated_at:
           type: string
           format: date-time
+        metadata:
+          type: object
+        encrypted_metadata:
+          type: object
       required:
         - object
         - id
@@ -820,6 +824,10 @@ components:
           type: boolean
         avatar:
           type: object
+        metadata:
+          type: object
+        encrypted_metadata:
+          type: object
         created_at:
           type: string
           format: date-time
@@ -856,6 +864,8 @@ components:
             name: "Account Name"
             description: "The account description"
             master: true
+            metadata: {}
+            encrypted_metadata: {}
             avatar: {"original": "file_url"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -918,6 +928,8 @@ components:
           format: email
         metadata:
           type: object
+        encrypted_metadata:
+          type: object
         avatar:
           type: object
         created_at:
@@ -929,7 +941,6 @@ components:
       required:
         - object
         - id
-        - metadata
         - created_at
         - updated_at
       example:
@@ -939,6 +950,7 @@ components:
         username: "johndoe"
         email: "johndoe@omise.co"
         metadata: {"first_name": "John", "last_name": "Doe"}
+        encrypted_metadata: {"something": "secret"}
         avatar: {"original": "file_url"}
         created_at: "2018-01-01T00:00:00Z"
         updated_at: "2018-01-01T10:00:00Z"
@@ -961,6 +973,7 @@ components:
             username: "johndoe"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
+            encrypted_metadata: {"something": "secret"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
     UsersResponseSchema:
@@ -993,6 +1006,7 @@ components:
                 username: "johndoe"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
+                encrypted_metadata: {"something": "secret"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
             pagination:
@@ -1023,6 +1037,7 @@ components:
             username: "johndoe"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
+            encrypted_metadata: {"something": "secret"}
             avatar: {"original": "file_url"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -1056,6 +1071,7 @@ components:
                 username: "johndoe"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
+                encrypted_metadata: {"something": "secret"}
                 avatar: {"original": "file_url"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -1110,6 +1126,8 @@ components:
               type: number
         metadata:
           type: object
+        encrypted_metadata:
+          type: object
         status:
           type: string
           enum:
@@ -1129,7 +1147,6 @@ components:
         - from
         - to
         - exchange
-        - metadata
         - status
         - created_at
         - updated_at
@@ -1176,6 +1193,7 @@ components:
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
             metadata: {}
+            encrypted_metadata: {}
             exchange:
               object: "exchange"
               rate: 1
@@ -1236,6 +1254,7 @@ components:
                   object: "exchange"
                   rate: 1
                 metadata: {}
+                encrypted_metadata: {}
                 status: "confirmed"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -1589,6 +1608,8 @@ components:
                   type: integer
                 metadata:
                   type: object
+                encrypted_metadata:
+                  type: object
               required:
                 - name
                 - symbol
@@ -1653,12 +1674,18 @@ components:
                 type: string
               master:
                 type: string
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
             required:
               - name
             example:
               name: "Account Name"
               description: "The account description"
               master: true
+              metadata: {}
+              encrypted_metadata: {}
     AccountUpdateBody:
       description: The parameters to use for updating an account
       required: true
@@ -1675,6 +1702,10 @@ components:
                 type: string
               master:
                 type: string
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
             required:
               - id
               - name
@@ -1685,6 +1716,8 @@ components:
               name: "Account Name"
               description: "The account description"
               master: true
+              metadata: {}
+              encrypted_metadata: {}
     AccountListUsersBody:
       description: The parameters to use for assigning listing users in an account
       required: true
