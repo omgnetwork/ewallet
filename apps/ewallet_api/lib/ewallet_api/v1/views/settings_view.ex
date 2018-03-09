@@ -1,7 +1,6 @@
 defmodule EWalletAPI.V1.SettingsView do
   use EWalletAPI, :view
-  use EWalletAPI.V1
-  alias EWalletAPI.V1.{SettingsSerializer, ResponseSerializer}
+  alias EWallet.Web.V1.{ResponseSerializer, SettingsSerializer}
 
   def render("settings.json", settings) do
     settings

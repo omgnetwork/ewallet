@@ -1,5 +1,5 @@
 defmodule AdminAPI.V1.AuthTokenSerializerTest do
-  use AdminAPI.SerializerCase, :v1
+  use EWallet.Web.SerializerCase, :v1
   alias AdminAPI.V1.AuthTokenSerializer
 
   describe "AuthTokenSerializer.serialize/1" do

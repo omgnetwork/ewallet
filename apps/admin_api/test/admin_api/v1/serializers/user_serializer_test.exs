@@ -1,5 +1,5 @@
 defmodule AdminAPI.V1.UserSerializerTest do
-  use AdminAPI.SerializerCase, :v1
+  use EWallet.Web.SerializerCase, :v1
   alias AdminAPI.V1.UserSerializer
   alias EWallet.Web.{Date, Paginator}
 

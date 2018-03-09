@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.TransactionView do
   use AdminAPI, :view
-  alias AdminAPI.V1.{ResponseSerializer, TransactionSerializer}
+  alias EWallet.Web.V1.{ResponseSerializer, TransactionSerializer}
 
   def render("transaction.json", %{transaction: transaction}) do
     transaction

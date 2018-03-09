@@ -1,5 +1,6 @@
 defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
   use EWalletAPI.ConnCase, async: true
+  alias EWallet.Web.Date
   alias EWalletDB.{User, MintedToken, Account}
 
   describe "/all" do
@@ -41,7 +42,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "symbol" => btc.symbol,
                     "id" => btc.friendly_id,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(btc.inserted_at),
+                    "updated_at" => Date.to_iso8601(btc.updated_at)
                   }
                 },
                 %{
@@ -54,7 +57,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "symbol" => omg.symbol,
                     "id" => omg.friendly_id,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(omg.inserted_at),
+                    "updated_at" => Date.to_iso8601(omg.updated_at)
                   }
                 }
               ]
@@ -102,7 +107,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "symbol" => btc.symbol,
                     "id" => btc.friendly_id,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(btc.inserted_at),
+                    "updated_at" => Date.to_iso8601(btc.updated_at)
                   }
                 },
                 %{
@@ -115,7 +122,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                     "symbol" => omg.symbol,
                     "id" => omg.friendly_id,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(omg.inserted_at),
+                    "updated_at" => Date.to_iso8601(omg.updated_at)
                   }
                 }
               ]

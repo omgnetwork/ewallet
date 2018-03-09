@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.TransactionView
-  alias EWallet.Web.Date
+  alias EWallet.Web.{Date, V1.MintedTokenSerializer}
   alias EWalletDB.Repo
 
   describe "EWalletAPI.V1.TransactionView.render/2" do
@@ -19,29 +19,13 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.from,
             amount: transaction.amount,
-            minted_token: %{
-              object: "minted_token",
-              id: transaction.minted_token.friendly_id,
-              symbol: transaction.minted_token.symbol,
-              name: transaction.minted_token.name,
-              subunit_to_unit: transaction.minted_token.subunit_to_unit,
-              metadata: %{},
-              encrypted_metadata: %{}
-            }
+            minted_token: MintedTokenSerializer.serialize(transaction.minted_token)
           },
           to: %{
             object: "transaction_source",
             address: transaction.to,
             amount: transaction.amount,
-            minted_token: %{
-              object: "minted_token",
-              id: transaction.minted_token.friendly_id,
-              symbol: transaction.minted_token.symbol,
-              name: transaction.minted_token.name,
-              subunit_to_unit: transaction.minted_token.subunit_to_unit,
-              metadata: %{},
-              encrypted_metadata: %{}
-            }
+            minted_token: MintedTokenSerializer.serialize(transaction.minted_token)
           },
           exchange: %{
             object: "exchange",

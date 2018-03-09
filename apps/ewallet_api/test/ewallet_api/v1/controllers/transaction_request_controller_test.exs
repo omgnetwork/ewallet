@@ -35,7 +35,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
             "subunit_to_unit" => minted_token.subunit_to_unit,
             "symbol" => minted_token.symbol,
             "metadata" => %{},
-            "encrypted_metadata" => %{}
+            "encrypted_metadata" => %{},
+            "created_at" => Date.to_iso8601(minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "type" => "send",
           "status" => "valid",
@@ -78,7 +80,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
             "subunit_to_unit" => minted_token.subunit_to_unit,
             "symbol" => minted_token.symbol,
             "metadata" => %{},
-            "encrypted_metadata" => %{}
+            "encrypted_metadata" => %{},
+            "created_at" => Date.to_iso8601(minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "type" => "send",
           "status" => "valid",
@@ -220,7 +224,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
             "subunit_to_unit" => minted_token.subunit_to_unit,
             "symbol" => minted_token.symbol,
             "metadata" => %{},
-            "encrypted_metadata" => %{}
+            "encrypted_metadata" => %{},
+            "created_at" => Date.to_iso8601(minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "type" => "send",
           "status" => "valid",
@@ -263,7 +269,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
             "subunit_to_unit" => minted_token.subunit_to_unit,
             "symbol" => minted_token.symbol,
             "metadata" => %{},
-            "encrypted_metadata" => %{}
+            "encrypted_metadata" => %{},
+            "created_at" => Date.to_iso8601(minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "type" => "send",
           "status" => "valid",

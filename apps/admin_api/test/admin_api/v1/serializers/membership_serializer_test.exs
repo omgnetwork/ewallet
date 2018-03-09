@@ -1,5 +1,5 @@
 defmodule AdminAPI.V1.MembershipSerializerTest do
-  use AdminAPI.SerializerCase, :v1
+  use EWallet.Web.SerializerCase, :v1
   alias AdminAPI.V1.MembershipSerializer
   alias EWallet.Web.Date
   alias EWalletDB.User

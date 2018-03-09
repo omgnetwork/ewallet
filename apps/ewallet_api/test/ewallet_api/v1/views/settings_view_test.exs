@@ -1,6 +1,7 @@
 defmodule EWalletAPI.V1.SettingsViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.SettingsView
+  alias EWallet.Web.V1.MintedTokenSerializer
 
   describe "EWalletAPI.V1.SettingsView.render/2" do
 
@@ -14,24 +15,9 @@ defmodule EWalletAPI.V1.SettingsViewTest do
         data: %{
           object: "setting",
           minted_tokens: [
-            %{
-              object: "minted_token",
-              id: token1.friendly_id,
-              symbol: token1.symbol,
-              name: token1.name,
-              subunit_to_unit: token1.subunit_to_unit,
-              metadata: %{},
-              encrypted_metadata: %{}
-            },
-            %{
-              object: "minted_token",
-              id: token2.friendly_id,
-              symbol: token2.symbol,
-              name: token2.name,
-              subunit_to_unit: token2.subunit_to_unit,
-              metadata: %{},
-              encrypted_metadata: %{}
-            }]
+            MintedTokenSerializer.serialize(token1),
+            MintedTokenSerializer.serialize(token2)
+          ]
         }
       }
 

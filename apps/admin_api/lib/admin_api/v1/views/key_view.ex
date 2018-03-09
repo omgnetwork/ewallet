@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.KeyView do
   use AdminAPI, :view
-  alias AdminAPI.V1.{KeySerializer, ResponseSerializer}
+  alias EWallet.Web.V1.{ResponseSerializer, KeySerializer}
 
   def render("key.json", %{key: key}) do
     key
