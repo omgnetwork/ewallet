@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionRequestConsumptionView do
   use EWalletAPI, :view
   use EWalletAPI.V1
-  alias EWalletAPI.V1.JSON.{
+  alias EWalletAPI.V1.{
     ResponseSerializer,
     TransactionRequestConsumptionSerializer
   }

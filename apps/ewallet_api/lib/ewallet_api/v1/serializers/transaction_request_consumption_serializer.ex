@@ -1,9 +1,9 @@
-defmodule EWalletAPI.V1.JSON.TransactionRequestConsumptionSerializer do
+defmodule EWalletAPI.V1.TransactionRequestConsumptionSerializer do
   @moduledoc """
   Serializes transaction request consumption data into V1 JSON response format.
   """
   use EWalletAPI.V1
-  alias EWalletAPI.V1.JSON.MintedTokenSerializer
+  alias EWalletAPI.V1.MintedTokenSerializer
   alias EWallet.Web.Date
 
   def serialize(consumption) do

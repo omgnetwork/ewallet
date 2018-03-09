@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.UserSettingsSerializerTest do
   use EWalletAPI.SerializerCase, :v1
-  alias EWalletAPI.V1.JSON.UserSettingsSerializer
+  alias EWalletAPI.V1.UserSettingsSerializer
 
-  describe "V1.JSON.UserSettingsSerializer" do
+  describe "V1.UserSettingsSerializer" do
     test "serialized data contains a list of minted_tokens" do
       settings = %{minted_tokens: build_list(3, :minted_token)}
       serialized = UserSettingsSerializer.serialize(settings)

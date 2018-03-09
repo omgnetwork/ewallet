@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.AuthTokenSerializerTest do
   use EWalletAPI.SerializerCase, :v1
-  alias EWalletAPI.V1.JSON.AuthTokenSerializer
+  alias EWalletAPI.V1.AuthTokenSerializer
 
-  describe "V1.JSON.AuthTokenSerializer" do
+  describe "V1.AuthTokenSerializer" do
     test "data contains the authentication token" do
       serialized = AuthTokenSerializer.serialize("the_auth_token")
 

@@ -1,9 +1,9 @@
 defmodule EWalletAPI.V1.UserSerializerTest do
   use EWalletAPI.SerializerCase, :v1
-  alias EWalletAPI.V1.JSON.UserSerializer
+  alias EWalletAPI.V1.UserSerializer
   alias Ecto.UUID
 
-  describe "V1.JSON.UserSerializer" do
+  describe "V1.UserSerializer" do
     test "serializes into correct V1 user format" do
       user = %{
         id: UUID.generate(),

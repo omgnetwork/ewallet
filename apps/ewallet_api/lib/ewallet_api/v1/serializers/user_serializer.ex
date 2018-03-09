@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.JSON.UserSerializer do
+defmodule EWalletAPI.V1.UserSerializer do
   @moduledoc """
   Serializes user data into V1 JSON response format.
   """

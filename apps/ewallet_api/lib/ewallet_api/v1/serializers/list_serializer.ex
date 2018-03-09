@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.JSON.ListSerializer do
+defmodule EWalletAPI.V1.ListSerializer do
   @moduledoc """
   List serializer used for formatting.
   """
