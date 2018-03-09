@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.MintedTokenSerializerTest do
   alias AdminAPI.V1.MintedTokenSerializer
   alias EWallet.Web.{Date, Paginator}
 
-  describe "MintedToken.to_json/1" do
+  describe "MintedToken.serialize/1" do
     test "serializes a minted token into V1 response format" do
       minted_token = insert(:minted_token)
 
@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.MintedTokenSerializerTest do
         updated_at: Date.to_iso8601(minted_token.updated_at)
       }
 
-      assert MintedTokenSerializer.to_json(minted_token) == expected
+      assert MintedTokenSerializer.serialize(minted_token) == expected
     end
 
     test "serializes a minted token paginator into a list object" do
@@ -69,7 +69,7 @@ defmodule AdminAPI.V1.MintedTokenSerializerTest do
         }
       }
 
-      assert MintedTokenSerializer.to_json(paginator) == expected
+      assert MintedTokenSerializer.serialize(paginator) == expected
     end
   end
 end

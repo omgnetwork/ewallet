@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.ResponseSerializer do
   @doc """
   Renders the given `data` into a V1 response format as JSON.
   """
-  def to_json(data, success: success) do
+  def serialize(data, success: success) do
     %{
       success: success,
       version: "1",

@@ -34,7 +34,7 @@ defmodule AdminAPI.ErrorView do
   """
   def render_error(code, message) do
     code
-    |> ErrorSerializer.to_json(message)
-    |> ResponseSerializer.to_json(success: false)
+    |> ErrorSerializer.serialize(message)
+    |> ResponseSerializer.serialize(success: false)
   end
 end

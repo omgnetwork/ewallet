@@ -4,15 +4,15 @@ defmodule AdminAPI.V1.KeyView do
 
   def render("key.json", %{key: key}) do
     key
-    |> KeySerializer.to_json()
-    |> ResponseSerializer.to_json(success: true)
+    |> KeySerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
   def render("keys.json", %{keys: keys}) do
     keys
-    |> KeySerializer.to_json()
-    |> ResponseSerializer.to_json(success: true)
+    |> KeySerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
   def render("empty_response.json", _attrs) do
-    ResponseSerializer.to_json(%{}, success: true)
+    ResponseSerializer.serialize(%{}, success: true)
   end
 end

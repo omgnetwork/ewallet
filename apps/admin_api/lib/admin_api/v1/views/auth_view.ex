@@ -4,11 +4,11 @@ defmodule AdminAPI.V1.AuthView do
 
   def render("auth_token.json", attrs) do
     attrs
-    |> AuthTokenSerializer.to_json()
-    |> ResponseSerializer.to_json(success: true)
+    |> AuthTokenSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
 
   def render("empty_response.json", _attrs) do
-    ResponseSerializer.to_json(%{}, success: true)
+    ResponseSerializer.serialize(%{}, success: true)
   end
 end

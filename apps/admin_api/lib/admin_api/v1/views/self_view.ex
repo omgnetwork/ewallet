@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.SelfView do
   """
   def render("user.json", %{user: user}) do
     user
-    |> UserSerializer.to_json()
-    |> ResponseSerializer.to_json(success: true)
+    |> UserSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
 end

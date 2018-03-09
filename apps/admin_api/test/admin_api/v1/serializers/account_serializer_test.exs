@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
   alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.Account
 
-  describe "AccountSerializer.to_json/1" do
+  describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
       account = insert(:account)
 
@@ -27,7 +27,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
         updated_at: Date.to_iso8601(account.updated_at)
       }
 
-      assert AccountSerializer.to_json(account) == expected
+      assert AccountSerializer.serialize(account) == expected
     end
 
     test "serializes an account paginator into a list object" do
@@ -91,11 +91,11 @@ defmodule AdminAPI.V1.AccountSerializerTest do
         }
       }
 
-      assert AccountSerializer.to_json(paginator) == expected
+      assert AccountSerializer.serialize(paginator) == expected
     end
 
     test "serializes to nil if account is not given" do
-      assert AccountSerializer.to_json(nil) == nil
+      assert AccountSerializer.serialize(nil) == nil
     end
 
     test "serializes an empty account paginator into a list object" do
@@ -120,7 +120,7 @@ defmodule AdminAPI.V1.AccountSerializerTest do
         }
       }
 
-      assert AccountSerializer.to_json(paginator) == expected
+      assert AccountSerializer.serialize(paginator) == expected
     end
   end
 end

@@ -4,12 +4,12 @@ defmodule AdminAPI.V1.TransactionView do
 
   def render("transaction.json", %{transaction: transaction}) do
     transaction
-    |> TransactionSerializer.to_json()
-    |> ResponseSerializer.to_json(success: true)
+    |> TransactionSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
   def render("transactions.json", %{transactions: transactions}) do
     transactions
-    |> TransactionSerializer.to_json()
-    |> ResponseSerializer.to_json(success: true)
+    |> TransactionSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
   end
 end

@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
   alias AdminAPI.V1.TransactionSerializer
   alias EWallet.Web.{Date, Paginator}
 
-  describe "Transaction.to_json/1" do
+  describe "Transaction.serialize/1" do
     test "serializes a transaction into V1 response format" do
       transaction = insert(:transfer)
       minted_token = transaction.minted_token
@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
         updated_at: Date.to_iso8601(transaction.updated_at)
       }
 
-      assert TransactionSerializer.to_json(transaction) == expected
+      assert TransactionSerializer.serialize(transaction) == expected
     end
 
     test "serializes a transaction paginator into a list object" do
@@ -178,7 +178,7 @@ defmodule AdminAPI.V1.TransactionSerializerTest do
         }
       }
 
-      assert TransactionSerializer.to_json(paginator) == expected
+      assert TransactionSerializer.serialize(paginator) == expected
     end
   end
 end

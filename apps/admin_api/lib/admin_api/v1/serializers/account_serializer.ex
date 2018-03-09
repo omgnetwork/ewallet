@@ -7,16 +7,16 @@ defmodule AdminAPI.V1.AccountSerializer do
   alias EWalletDB.Account
   alias EWalletDB.Uploaders.Avatar
 
-  def to_json(%Paginator{} = paginator) do
-    PaginatorSerializer.to_json(paginator, &to_json/1)
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
   end
-  def to_json(accounts) when is_list(accounts) do
+  def serialize(accounts) when is_list(accounts) do
     %{
       object: "list",
-      data: Enum.map(accounts, &to_json/1)
+      data: Enum.map(accounts, &serialize/1)
     }
   end
-  def to_json(account) when is_map(account) do
+  def serialize(account) when is_map(account) do
     %{
       object: "account",
       id: account.id,
@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.AccountSerializer do
       updated_at: Date.to_iso8601(account.updated_at)
     }
   end
-  def to_json(nil) do
+  def serialize(nil) do
     nil
   end
 end

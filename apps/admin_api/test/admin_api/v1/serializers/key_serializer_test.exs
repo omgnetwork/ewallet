@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.KeySerializerTest do
   alias AdminAPI.V1.KeySerializer
   alias EWallet.Web.{Date, Paginator}
 
-  describe "to_json/1" do
+  describe "serialize/1" do
     test "serializes a key into the correct response format" do
       key = insert(:key)
 
@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.KeySerializerTest do
         deleted_at: Date.to_iso8601(key.deleted_at)
       }
 
-      assert KeySerializer.to_json(key) == expected
+      assert KeySerializer.serialize(key) == expected
     end
 
     test "serializes a key paginator into a list object" do
@@ -67,7 +67,7 @@ defmodule AdminAPI.V1.KeySerializerTest do
         }
       }
 
-      assert KeySerializer.to_json(paginator) == expected
+      assert KeySerializer.serialize(paginator) == expected
     end
   end
 end
