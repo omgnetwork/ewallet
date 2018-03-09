@@ -2,7 +2,6 @@ defmodule EWalletAPI.V1.UserSerializer do
   @moduledoc """
   Serializes user data into V1 JSON response format.
   """
-  use EWalletAPI.V1
 
   def serialize(user) do
     %{

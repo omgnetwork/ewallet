@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AccountMembershipView do
   use AdminAPI, :view
-  alias AdminAPI.V1.{MembershipSerializer, ResponseSerializer}
+  alias AdminAPI.V1.MembershipSerializer
+  alias EWallet.Web.V1.ResponseSerializer
 
   def render("memberships.json", %{memberships: memberships}) do
     memberships

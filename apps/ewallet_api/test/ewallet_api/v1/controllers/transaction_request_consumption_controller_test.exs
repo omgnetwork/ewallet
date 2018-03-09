@@ -58,7 +58,9 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
             "subunit_to_unit" => minted_token.subunit_to_unit,
             "symbol" => minted_token.symbol,
             "metadata" => %{},
-            "encrypted_metadata" => %{}
+            "encrypted_metadata" => %{},
+            "created_at" => Date.to_iso8601(minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "transaction_request_id" => transaction_request.id,
           "transaction_id" => inserted_transfer.id,
@@ -207,7 +209,9 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
             "subunit_to_unit" => minted_token.subunit_to_unit,
             "symbol" => minted_token.symbol,
             "metadata" => %{},
-            "encrypted_metadata" => %{}
+            "encrypted_metadata" => %{},
+            "created_at" => Date.to_iso8601(minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "transaction_request_id" => transaction_request.id,
           "transaction_id" => inserted_transfer.id,

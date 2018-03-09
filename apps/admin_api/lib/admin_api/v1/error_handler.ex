@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
   alias Ecto.Changeset
-  alias AdminAPI.V1.{ErrorSerializer, ResponseSerializer}
+  alias EWallet.Web.V1.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
     invalid_auth_scheme: %{

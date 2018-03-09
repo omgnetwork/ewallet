@@ -2,8 +2,7 @@ defmodule AdminAPI.V1.UserSerializer do
   @moduledoc """
   Serializes user(s) into V1 JSON response format.
   """
-  alias AdminAPI.V1.PaginatorSerializer
-  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.{Date, Paginator, V1.PaginatorSerializer}
   alias EWalletDB.Uploaders.Avatar
 
   def serialize(%Paginator{} = paginator) do

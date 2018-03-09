@@ -3,7 +3,7 @@ defmodule EWalletAPI.ErrorView do
   Global error view used by non-versioned errors.
   """
   use EWalletAPI, :view
-  alias EWalletAPI.V1.{ErrorSerializer, ResponseSerializer}
+  alias EWallet.Web.V1.{ErrorSerializer, ResponseSerializer}
 
   @doc """
   Supports internal server error thrown by Phoenix.

@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.MintedTokenView do
   use AdminAPI, :view
-  alias AdminAPI.V1.{ResponseSerializer, MintedTokenSerializer}
+  alias EWallet.Web.V1.{ResponseSerializer, MintedTokenSerializer}
 
   def render("minted_token.json", %{minted_token: minted_token}) do
     minted_token
