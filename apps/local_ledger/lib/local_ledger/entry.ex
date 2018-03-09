@@ -4,7 +4,13 @@ defmodule LocalLedger.Entry do
   needed to insert valid entries and transactions.
   """
   alias LocalLedgerDB.{Repo, Entry, Errors.InsufficientFundsError}
-  alias LocalLedger.{Transaction, Balance, Errors.InvalidAmountError, Errors.AmountIsZeroError}
+  alias LocalLedger.{
+    Transaction,
+    Balance,
+    Errors.InvalidAmountError,
+    Errors.AmountIsZeroError,
+    Errors.SameAddressError,
+  }
   alias LocalLedger.Entry.Validator
 
   @doc """
@@ -76,6 +82,7 @@ defmodule LocalLedger.Entry do
                "minted_token" => minted_token, "correlation_id" => correlation_id},
                %{genesis: genesis}, callback \\ nil) do
     {debits, credits}
+    |> Validator.validate_different_addresses()
     |> Validator.validate_zero_sum()
     |> Validator.validate_positive_amounts()
     |> Transaction.build_all(minted_token)
@@ -87,6 +94,8 @@ defmodule LocalLedger.Entry do
       {:error, "transaction:invalid_amount", e.message}
     e in AmountIsZeroError ->
       {:error, "transaction:amount_is_zero", e.message}
+    e in SameAddressError ->
+      {:error, "transaction:same_address", e.message}
   end
 
   # Lock all the DEBIT addresses to ensure the truthness of the balances

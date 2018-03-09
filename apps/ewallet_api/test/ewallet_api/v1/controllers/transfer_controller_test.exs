@@ -105,6 +105,30 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       }
     end
 
+    test "returns a 'same_address' error when the addresses are the same" do
+      balance      = insert(:balance)
+      minted_token   = insert(:minted_token)
+
+      response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
+         from_address: balance.address,
+         to_address: balance.address,
+         token_id: minted_token.friendly_id,
+         amount: 100_000 * minted_token.subunit_to_unit,
+         metadata: %{}
+       })
+
+      assert response == %{
+        "success" => false,
+        "version" => "1",
+        "data" => %{
+          "code" => "transaction:same_address",
+          "description" => "Found identical addresses in senders and receivers: #{balance.address}.",
+          "messages" => nil,
+          "object" => "error"
+        }
+      }
+    end
+
     test "returns insufficient_funds when the user is too poor" do
       balance1      = insert(:balance)
       balance2      = insert(:balance)
