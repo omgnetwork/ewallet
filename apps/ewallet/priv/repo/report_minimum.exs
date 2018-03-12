@@ -1,8 +1,11 @@
 alias EWallet.CLI
 alias EWalletDB.AuthToken
 
+# :prod environment does not have a default :base_url value and should not have one.
+# But we have a fallback value here so we can generate a friendly output message for seeding.
+base_url = Application.get_env(:ewallet_db, :base_url) || "https://example.com"
+
 # Prepare URLs
-base_url                 = Application.get_env(:ewallet_db, :base_url)
 admin_panel_url          = base_url <> "/admin"
 ewallet_swagger_ui_url   = base_url <> "/api/swagger"
 admin_api_swagger_ui_url = base_url <> "/admin/api/swagger"
