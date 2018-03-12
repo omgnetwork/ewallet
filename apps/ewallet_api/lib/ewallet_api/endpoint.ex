@@ -1,6 +1,8 @@
 defmodule EWalletAPI.Endpoint do
   use Phoenix.Endpoint, otp_app: :ewallet_api
 
+  socket "/socket", EWalletAPI.V1.Socket
+
   # Code reloading can be explicitly enabled under the
   # :code_reloader configuration of your endpoint.
   if code_reloading? do
