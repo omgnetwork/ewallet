@@ -89,7 +89,7 @@ defmodule EWallet.Web.SearchParserTest do
         |> SearchParser.to_query(attrs, [:name])
         |> Repo.all()
 
-      assert Enum.count(result) == 0
+      assert Enum.empty?(result)
     end
 
     test "returns original query if search_term is missing" do
@@ -177,7 +177,7 @@ defmodule EWallet.Web.SearchParserTest do
         |> SearchParser.to_query(attrs, [:name])
         |> Repo.all()
 
-      assert Enum.count(result) == 0
+      assert Enum.empty?(result)
     end
 
     test "returns original query if search_term is missing" do

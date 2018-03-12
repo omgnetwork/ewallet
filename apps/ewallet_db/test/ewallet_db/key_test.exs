@@ -9,14 +9,14 @@ defmodule EWalletDB.KeyTest do
 
   describe "all/0" do
     test "returns all minted tokens" do
-      assert length(Key.all) == 0
+      assert Enum.empty?(Key.all)
       insert_list(3, :key)
 
       assert length(Key.all) == 3
     end
 
     test "returns all minted tokens excluding soft deleted" do
-      assert length(Key.all) == 0
+      assert Enum.empty?(Key.all)
       keys = insert_list(5, :key)
       {:ok, _key} = keys |> Enum.at(0) |> Key.delete() # Soft delete d key
 
