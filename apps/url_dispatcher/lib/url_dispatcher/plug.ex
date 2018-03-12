@@ -1,7 +1,7 @@
 defmodule UrlDispatcher.Plug do
   @moduledoc false
   import Plug.Conn, only: [resp: 3, halt: 1, put_status: 2]
-  import Phoenix.Controller, only: [json: 2, redirect: 2]
+  import Phoenix.Controller, only: [json: 2]
   alias Plug.Static
 
   @public_folders ~w(uploads swagger)
@@ -13,19 +13,12 @@ defmodule UrlDispatcher.Plug do
     conn
     |> put_status(200)
     |> json(%{status: true})
-    |> halt()
   end
 
-  # Redirect all endpoints without trailing slash to one with trailing slash.
-  defp handle_request("/api", conn), do: redirect(conn, to: "/api/")
-  defp handle_request("/admin/api", conn), do: redirect(conn, to: "/admin/api/")
-  defp handle_request("/admin", conn), do: redirect(conn, to: "/admin/")
-  defp handle_request("/public", conn), do: redirect(conn, to: "/public/")
-
-  defp handle_request("/api/" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
-  defp handle_request("/admin/api/" <> _, conn), do: AdminAPI.Endpoint.call(conn, [])
-  defp handle_request("/admin/" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
-  defp handle_request("/public/" <> _, conn) do
+  defp handle_request("/api" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
+  defp handle_request("/admin/api" <> _, conn), do: AdminAPI.Endpoint.call(conn, [])
+  defp handle_request("/admin" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
+  defp handle_request("/public" <> _, conn) do
     opts = Static.init([
       at: "/public",
       from: Path.join(Application.get_env(:ewallet, :root), "public"),
