@@ -24,6 +24,14 @@ defmodule EWalletDB.TransactionRequest do
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @valid # valid -> expired
     field :correlation_id, :string
+
+    field :confirmable, :boolean, default: false
+    field :max_consumptions, :integer # nil -> unlimited
+    field :expiration_date, :naive_datetime
+    field :expired_at, :naive_datetime
+    field :metadata, :map
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
+
     has_many :consumptions, TransactionRequestConsumption
     belongs_to :user, User, foreign_key: :user_id,
                                          references: :id,
@@ -57,6 +65,7 @@ defmodule EWalletDB.TransactionRequest do
     |> assoc_constraint(:user)
     |> assoc_constraint(:balance)
     |> assoc_constraint(:account)
+    |> put_change(:encryption_version, Cloak.version)
   end
 
   @doc """

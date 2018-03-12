@@ -18,6 +18,8 @@ defmodule EWalletDB.Account do
     field :avatar, EWalletDB.Uploaders.Avatar.Type
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
+    field :encryption_version, :binary
+
     belongs_to :parent, Account, foreign_key: :parent_id, # this column
                                  references: :id, # the parent's column
                                  type: UUID
@@ -37,6 +39,7 @@ defmodule EWalletDB.Account do
     |> validate_parent_id()
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
+    |> put_change(:encryption_version, Cloak.version)
   end
 
   defp avatar_changeset(changeset, attrs) do
