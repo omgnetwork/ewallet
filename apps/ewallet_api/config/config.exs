@@ -10,14 +10,10 @@ config :ewallet_api,
   namespace: EWalletAPI,
   ecto_repos: []
 
-# Configures the endpoint
-config :ewallet_api,
-  EWalletAPI.Endpoint,
-  render_errors: [
-    view: EWalletAPI.ErrorView,
-    accepts: ~w(json),
-    default_format: "json"
-  ]
+# Configures the endpoint for websockets
+config :ewallet_api, EWalletAPI.Endpoint,
+pubsub: [name: EWalletAPI.PubSub,
+         adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,
