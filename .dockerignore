@@ -14,7 +14,8 @@ erl_crash.dump
 !/public/uploads/test.txt
 
 # Dev
+/.git
+/.github
 .env
 .DS_Store
 Thumbs.db
-.elixir_ls
