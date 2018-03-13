@@ -1,7 +1,6 @@
 defmodule EWalletAPI.V1.BalanceView do
   use EWalletAPI, :view
-  use EWalletAPI.V1
-  alias EWalletAPI.V1.JSON.{AddressSerializer, ListSerializer,
+  alias EWallet.Web.V1.{AddressSerializer, ListSerializer,
                            ResponseSerializer}
 
   def render("balances.json", %{addresses: addresses}) do

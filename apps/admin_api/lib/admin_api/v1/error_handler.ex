@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
   alias Ecto.Changeset
-  alias AdminAPI.V1.{ErrorSerializer, ResponseSerializer}
+  alias EWallet.Web.V1.{ErrorSerializer, ResponseSerializer}
 
   @errors %{
     invalid_auth_scheme: %{
@@ -185,8 +185,8 @@ defmodule AdminAPI.V1.ErrorHandler do
   defp respond(conn, code, description, messages \\ nil) do
     content =
       code
-      |> ErrorSerializer.to_json(description, messages)
-      |> ResponseSerializer.to_json(success: false)
+      |> ErrorSerializer.serialize(description, messages)
+      |> ResponseSerializer.serialize(success: false)
 
     conn |> json(content) |> halt()
   end

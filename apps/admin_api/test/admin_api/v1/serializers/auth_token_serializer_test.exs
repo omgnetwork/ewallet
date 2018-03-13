@@ -1,11 +1,11 @@
 defmodule AdminAPI.V1.AuthTokenSerializerTest do
-  use AdminAPI.SerializerCase, :v1
+  use EWallet.Web.SerializerCase, :v1
   alias AdminAPI.V1.AuthTokenSerializer
 
-  describe "AuthTokenSerializer.to_json/1" do
+  describe "AuthTokenSerializer.serialize/1" do
     test "data contains the session token" do
       attrs = %{auth_token: "the_auth_token", user: %{id: "the_user_id"}}
-      serialized = AuthTokenSerializer.to_json(attrs)
+      serialized = AuthTokenSerializer.serialize(attrs)
 
       assert serialized.object == "authentication_token"
       assert serialized.authentication_token == "the_auth_token"

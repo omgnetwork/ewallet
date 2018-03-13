@@ -2,6 +2,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{User, MintedToken, Account, Transfer}
   alias Ecto.UUID
+  alias EWallet.Web.Date
 
   describe "/transfer" do
     test "returns idempotency error if header is not specified" do
@@ -76,7 +77,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "id" => minted_token.friendly_id,
                     "symbol" => minted_token.symbol,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(minted_token.inserted_at),
+                    "updated_at" => Date.to_iso8601(minted_token.updated_at)
                   }
                 }
               ]
@@ -95,7 +98,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "subunit_to_unit" => 100,
                     "symbol" => minted_token.symbol,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(minted_token.inserted_at),
+                    "updated_at" => Date.to_iso8601(minted_token.updated_at)
                   },
                 }
               ]
@@ -293,7 +298,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "id" => minted_token.friendly_id,
                     "symbol" => minted_token.symbol,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(minted_token.inserted_at),
+                    "updated_at" => Date.to_iso8601(minted_token.updated_at)
                   }
                 }
               ]
@@ -492,7 +499,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "symbol" => minted_token.symbol,
                     "id" => minted_token.friendly_id,
                     "metadata" => %{},
-                    "encrypted_metadata" => %{}
+                    "encrypted_metadata" => %{},
+                    "created_at" => Date.to_iso8601(minted_token.inserted_at),
+                    "updated_at" => Date.to_iso8601(minted_token.updated_at)
                   }
                 }
               ]

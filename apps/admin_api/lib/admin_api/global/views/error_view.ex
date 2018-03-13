@@ -3,7 +3,7 @@ defmodule AdminAPI.ErrorView do
   Global error view used by non-versioned errors.
   """
   use AdminAPI, :view
-  alias AdminAPI.V1.{ErrorSerializer, ResponseSerializer}
+  alias EWallet.Web.V1.{ErrorSerializer, ResponseSerializer}
 
   @doc """
   Supports internal server error thrown by Phoenix.
@@ -34,7 +34,7 @@ defmodule AdminAPI.ErrorView do
   """
   def render_error(code, message) do
     code
-    |> ErrorSerializer.to_json(message)
-    |> ResponseSerializer.to_json(success: false)
+    |> ErrorSerializer.serialize(message)
+    |> ResponseSerializer.serialize(success: false)
   end
 end
