@@ -2,20 +2,34 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.TransactionConsumptionGate
+  alias EWallet.Web.V1.{
+    ResponseSerializer,
+    TransactionRequestConsumptionSerializer
+  }
 
-  def consume(%{assigns: %{user: _}} = conn, attrs) do
-    attrs = Map.put(attrs, "idempotency_token", conn.assigns.idempotency_token)
-
-    conn.assigns.user
-    |> TransactionConsumptionGate.consume(attrs)
+  def consume(conn, attrs) do
+    attrs
+    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
+    |> TransactionConsumptionGate.consume(&broadcast/1)
     |> respond(conn)
   end
 
-  def consume(%{assigns: %{account: _}} = conn, attrs) do
-    attrs
-    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
-    |> TransactionConsumptionGate.consume()
+  def consume_for_user(conn, attrs) do
+    attrs = Map.put(attrs, "idempotency_token", conn.assigns.idempotency_token)
+
+    conn.assigns.user
+    |> TransactionConsumptionGate.consume(attrs, &broadcast/1)
     |> respond(conn)
+  end
+
+  defp broadcast(consumption) do
+    EWalletAPI.Endpoint.broadcast(
+      "transaction_request:#{consumption.transaction_request.id}",
+      "transaction_request_confirmation",
+      consumption
+      |> TransactionRequestConsumptionSerializer.serialize()
+      |> ResponseSerializer.serialize(success: true)
+    )
   end
 
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)

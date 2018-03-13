@@ -12,8 +12,8 @@ config :ewallet_api,
 
 # Configures the endpoint for websockets
 config :ewallet_api, EWalletAPI.Endpoint,
-pubsub: [name: EWalletAPI.PubSub,
-         adapter: Phoenix.PubSub.PG2]
+  pubsub: [name: EWalletAPI.PubSub,
+           adapter: Phoenix.PubSub.PG2]
 
 # Configures Elixir's Logger
 config :logger, :console,

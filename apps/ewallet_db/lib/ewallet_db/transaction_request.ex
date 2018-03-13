@@ -52,7 +52,8 @@ defmodule EWalletDB.TransactionRequest do
     transaction_request
     |> cast(attrs, [
       :type, :amount, :correlation_id, :user_id, :account_id,
-      :minted_token_id, :balance_address
+      :minted_token_id, :balance_address, :confirmable, :max_consumptions,
+      :expiration_date
     ])
     |> validate_required([
       :type, :status, :minted_token_id, :balance_address

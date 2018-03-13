@@ -15,6 +15,7 @@ defmodule EWalletAPI.V1.TransactionRequestViewTest do
         data: %{
           object: "transaction_request",
           id: transaction_request.id,
+          socket_topic: "transaction_request:#{transaction_request.id}",
           type: transaction_request.type,
           minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
           amount: transaction_request.amount,
