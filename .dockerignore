@@ -5,6 +5,7 @@
 /docs/
 /.fetch
 *.ez
+node_modules
 
 # Erlang
 erl_crash.dump
