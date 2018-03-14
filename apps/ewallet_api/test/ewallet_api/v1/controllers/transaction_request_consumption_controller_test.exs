@@ -1,29 +1,37 @@
-defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
+  defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequestConsumption, User, Transfer, Account}
-  alias EWallet.Web.Date
+  alias EWallet.Web.{V1.MintedTokenSerializer, Date}
+
+  setup do
+    account = Account.get_master_account()
+    {:ok, alice}   = :user |> params_for() |> User.insert()
+    bob     = get_test_user()
+
+    %{
+      account: account,
+      minted_token: insert(:minted_token),
+      alice: alice,
+      bob: bob,
+      account_balance: Account.get_primary_balance(account),
+      alice_balance: User.get_primary_balance(alice),
+      bob_balance: User.get_primary_balance(bob)
+    }
+  end
 
   describe "/transaction_request.consume" do
-    test "consumes the request and transfers the appropriate amount of tokens" do
-      account             = Account.get_master_account()
-      minted_token        = insert(:minted_token)
-      {:ok, alice}        = :user |> params_for() |> User.insert()
-      bob                 = get_test_user()
-      account_balance     = Account.get_primary_balance(account)
-      alice_balance       = User.get_primary_balance(alice)
-      bob_balance         = User.get_primary_balance(bob)
-
+    test "consumes the request and transfers the appropriate amount of tokens", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: minted_token.id,
-        user_id: alice.id,
-        balance: alice_balance,
-        amount: 100_000 * minted_token.subunit_to_unit
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.alice.id,
+        balance: meta.alice_balance,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
       set_initial_balance(%{
-        address: bob_balance.address,
-        minted_token: minted_token,
+        address: meta.bob_balance.address,
+        minted_token: meta.minted_token,
         amount: 150_000
       })
 
@@ -34,7 +42,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         address: nil,
         metadata: nil,
         token_id: nil,
-        account_id: account.id
+        account_id: meta.account.id
       })
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
@@ -44,58 +52,51 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         "success" => true,
         "version" => "1",
         "data" => %{
-          "address" => account_balance.address,
-          "amount" => 100_000 * minted_token.subunit_to_unit,
+          "address" => meta.account_balance.address,
+          "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
           "id" => inserted_consumption.id,
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
           "minted_token" => %{
-            "id" => minted_token.friendly_id,
-            "name" => minted_token.name,
+            "id" => meta.minted_token.friendly_id,
+            "name" => meta.minted_token.name,
             "object" => "minted_token",
-            "subunit_to_unit" => minted_token.subunit_to_unit,
-            "symbol" => minted_token.symbol,
+            "subunit_to_unit" => meta.minted_token.subunit_to_unit,
+            "symbol" => meta.minted_token.symbol,
             "metadata" => %{},
             "encrypted_metadata" => %{},
-            "created_at" => Date.to_iso8601(minted_token.inserted_at),
-            "updated_at" => Date.to_iso8601(minted_token.updated_at)
+            "created_at" => Date.to_iso8601(meta.minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(meta.minted_token.updated_at)
           },
           "transaction_request_id" => transaction_request.id,
           "transaction_id" => inserted_transfer.id,
           "user_id" => nil,
-          "account_id" => account.id,
+          "account_id" => meta.account.id,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at)
         }
       }
 
-      assert inserted_transfer.amount == 100_000 * minted_token.subunit_to_unit
-      assert inserted_transfer.to == alice_balance.address
-      assert inserted_transfer.from == account_balance.address
+      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.to == meta.alice_balance.address
+      assert inserted_transfer.from == meta.account_balance.address
       assert %{} = inserted_transfer.ledger_response
     end
 
-    test "returns same transaction request consumption when idempotency token is the same" do
-      account             = Account.get_master_account()
-      minted_token        = insert(:minted_token)
-      {:ok, alice}        = :user |> params_for() |> User.insert()
-      bob                 = get_test_user()
-      alice_balance       = User.get_primary_balance(alice)
-      bob_balance         = User.get_primary_balance(bob)
-
+    test "returns same transaction request consumption when idempotency token is the same", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: minted_token.id,
-        user_id: alice.id,
-        balance: alice_balance,
-        amount: 100_000 * minted_token.subunit_to_unit
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.alice.id,
+        balance: meta.alice_balance,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
       set_initial_balance(%{
-        address: bob_balance.address,
-        minted_token: minted_token,
+        address: meta.bob_balance.address,
+        minted_token: meta.minted_token,
         amount: 150_000
       })
 
@@ -106,7 +107,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         address: nil,
         metadata: nil,
         token_id: nil,
-        account_id: account.id
+        account_id: meta.account.id
       })
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
@@ -155,27 +156,123 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         }
       }
     end
+
+    test "sends socket confirmation when confirmable", meta do
+      # Create a confirmable transaction request that will be consumed soon
+      transaction_request = insert(:transaction_request,
+        type: "send",
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.alice.id,
+        balance: meta.alice_balance,
+        amount: nil,
+        confirmable: true
+      )
+
+      # Start listening to the channels for the transaction request created above
+      EWalletAPI.Endpoint.subscribe("transaction_request:#{transaction_request.id}")
+
+      # The sender (Alice) needs some tokens, let's fix that
+      set_initial_balance(%{
+        address: meta.alice_balance.address,
+        minted_token: meta.minted_token,
+        amount: 150_000
+      })
+
+      # Making the consumption, since we made the request confirmable, it will
+      # create a pending consumption that will need to be confirmed
+      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        transaction_request_id: transaction_request.id,
+        correlation_id: nil,
+        amount: 100_000 * meta.minted_token.subunit_to_unit,
+        metadata: nil,
+        token_id: nil,
+        provider_user_id: meta.bob.provider_user_id
+      })
+
+      consumption_id = response["data"]["id"]
+      IO.inspect(response)
+      assert response["success"] == true
+      # assert response["data"]["status"] == "pending"
+
+      # Retrieve what just got inserted, the transfer should not have been created yet
+      # since the consumption hasn't been finalized yet
+      inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      assert inserted_transfer == nil
+
+      broadcast = %Phoenix.Socket.Broadcast{
+        event: "transaction_request_confirmation",
+        topic: "transaction_request:#{transaction_request.id}",
+        payload: %{
+          success: true,
+          version: "1",
+          data: %{
+            user_id: meta.bob.id,
+            account_id: nil,
+            address: meta.bob_balance.address,
+            amount: 10000000,
+            correlation_id: nil,
+            id: inserted_consumption.id,
+            idempotency_token: "123",
+            minted_token: MintedTokenSerializer.serialize(meta.minted_token),
+            object: "transaction_request_consumption",
+            status: "pending",
+            transaction_id: nil,
+            transaction_request_id: transaction_request.id,
+            created_at: Date.to_iso8601(inserted_consumption.inserted_at),
+            updated_at: Date.to_iso8601(inserted_consumption.updated_at),
+          }
+        }
+      }
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive broadcast
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      EWalletAPI.Endpoint.subscribe("transaction_request_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response = provider_request("/transaction_request_consumption.confirm", %{
+        id: consumption_id
+      })
+
+      assert response["success"] == true
+      assert response["data"]["status"] == "confirmed"
+      assert inserted_transfer == nil
+
+      # Check that a transfer was inserted
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_id)
+      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.to == meta.alice_balance.address
+      assert inserted_transfer.from == meta.bob_balance.address
+      assert %{} = inserted_transfer.ledger_response
+
+
+      # Receive the broadcast from the consumption channel
+      # The consumption is now validated
+
+
+      # Unsubscribe from all channels
+      EWalletAPI.Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      EWalletAPI.Endpoint.unsubscribe("transaction_request_consumption:#{consumption_id}")
+    end
   end
 
   describe "/me.consume_transaction_request" do
-    test "consumes the request and transfers the appropriate amount of tokens" do
-      minted_token        = insert(:minted_token)
-      {:ok, alice}        = :user |> params_for() |> User.insert()
-      bob                 = get_test_user()
-      alice_balance       = User.get_primary_balance(alice)
-      bob_balance         = User.get_primary_balance(bob)
-
+    test "consumes the request and transfers the appropriate amount of tokens", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: minted_token.id,
-        user_id: alice.id,
-        balance: alice_balance,
-        amount: 100_000 * minted_token.subunit_to_unit
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.alice.id,
+        balance: meta.alice_balance,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
       set_initial_balance(%{
-        address: bob_balance.address,
-        minted_token: minted_token,
+        address: meta.bob_balance.address,
+        minted_token: meta.minted_token,
         amount: 150_000
       })
 
@@ -195,57 +292,51 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
         "success" => true,
         "version" => "1",
         "data" => %{
-          "address" => bob_balance.address,
-          "amount" => 100_000 * minted_token.subunit_to_unit,
+          "address" => meta.bob_balance.address,
+          "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
           "id" => inserted_consumption.id,
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
           "minted_token" => %{
-            "id" => minted_token.friendly_id,
-            "name" => minted_token.name,
+            "id" => meta.minted_token.friendly_id,
+            "name" => meta.minted_token.name,
             "object" => "minted_token",
-            "subunit_to_unit" => minted_token.subunit_to_unit,
-            "symbol" => minted_token.symbol,
+            "subunit_to_unit" => meta.minted_token.subunit_to_unit,
+            "symbol" => meta.minted_token.symbol,
             "metadata" => %{},
             "encrypted_metadata" => %{},
-            "created_at" => Date.to_iso8601(minted_token.inserted_at),
-            "updated_at" => Date.to_iso8601(minted_token.updated_at)
+            "created_at" => Date.to_iso8601(meta.minted_token.inserted_at),
+            "updated_at" => Date.to_iso8601(meta.minted_token.updated_at)
           },
           "transaction_request_id" => transaction_request.id,
           "transaction_id" => inserted_transfer.id,
-          "user_id" => bob.id,
+          "user_id" => meta.bob.id,
           "account_id" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at),
         }
       }
 
-      assert inserted_transfer.amount == 100_000 * minted_token.subunit_to_unit
-      assert inserted_transfer.to == alice_balance.address
-      assert inserted_transfer.from == bob_balance.address
+      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.to == meta.alice_balance.address
+      assert inserted_transfer.from == meta.bob_balance.address
       assert %{} = inserted_transfer.ledger_response
     end
 
-    test "returns same transaction request consumption when idempotency token is the same" do
-      minted_token        = insert(:minted_token)
-      {:ok, alice}        = :user |> params_for() |> User.insert()
-      bob                 = get_test_user()
-      alice_balance       = User.get_primary_balance(alice)
-      bob_balance         = User.get_primary_balance(bob)
-
+    test "returns same transaction request consumption when idempotency token is the same", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: minted_token.id,
-        user_id: alice.id,
-        balance: alice_balance,
-        amount: 100_000 * minted_token.subunit_to_unit
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.alice.id,
+        balance: meta.alice_balance,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
       set_initial_balance(%{
-        address: bob_balance.address,
-        minted_token: minted_token,
+        address: meta.bob_balance.address,
+        minted_token: meta.minted_token,
         amount: 150_000
       })
 

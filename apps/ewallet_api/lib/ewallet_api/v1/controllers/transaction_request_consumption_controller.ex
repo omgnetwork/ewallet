@@ -22,6 +22,12 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
     |> respond(conn)
   end
 
+  def confirm(conn, %{"id" => id}) do
+    id
+    |> TransactionConsumptionGate.confirm()
+    |> respond(conn)
+  end
+
   defp broadcast(consumption) do
     EWalletAPI.Endpoint.broadcast(
       "transaction_request:#{consumption.transaction_request.id}",

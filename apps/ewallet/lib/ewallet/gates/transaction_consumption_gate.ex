@@ -91,13 +91,14 @@ defmodule EWallet.TransactionConsumptionGate do
     # it's not? -> create
     # max consumption ? -> increment
     # unlock table
-
     with {:ok, request} <- TransactionRequestGate.get(request_id),
          {:ok, minted_token} <- get_minted_token(token_id),
          {:ok, consumption} <- insert(balance, minted_token, request, attrs),
          {:ok, consumption} <- get(consumption.id)
     do
-      transfer(request.type, consumption, attrs["metadata"], attrs["encrypted_metadata"])
+      if broadcast, do: broadcast.(consumption)
+
+      transfer(request.type, consumption)
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error
@@ -127,6 +128,15 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
+  def confirm(id) do
+    with {:ok, consumption} <- get(id)
+    do
+      transfer(consumption.request.type, consumption)
+    else
+      error -> error
+    end
+  end
+
   defp insert(balance, minted_token, request, attrs) do
     TransactionRequestConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
@@ -136,19 +146,21 @@ defmodule EWallet.TransactionConsumptionGate do
       account_id: balance.account_id,
       minted_token_id: if(minted_token, do: minted_token.id, else: request.minted_token_id),
       transaction_request_id: request.id,
-      balance_address: balance.address
+      balance_address: balance.address,
+      metadata: attrs["metadata"] || %{},
+      encrypted_metadata: attrs["encrypted_metadata"] || %{}
     })
   end
 
-  defp transfer("receive", consumption, metadata, encrypted_metadata) do
+  defp transfer("receive", consumption) do
     attrs = %{
       "idempotency_token" => consumption.idempotency_token,
       "from_address" => consumption.balance.address,
       "to_address" => consumption.transaction_request.balance_address,
       "token_id" => consumption.minted_token.friendly_id,
       "amount" => consumption.amount,
-      "metadata" => metadata,
-      "encrypted_metadata" => encrypted_metadata
+      "metadata" => consumption.metadata,
+      "encrypted_metadata" => consumption.encrypted_metadata
     }
 
     case TransactionGate.process_with_addresses(attrs) do

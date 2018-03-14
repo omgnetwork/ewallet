@@ -21,6 +21,10 @@ defmodule EWalletDB.TransactionRequestConsumption do
     field :status, :string, default: @pending # pending -> confirmed
     field :correlation_id, :string
     field :idempotency_token, :string
+    field :approved, :boolean, default: false
+    field :finalized_at, :naive_datetime
+    field :metadata, :map
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     belongs_to :transfer, Transfer, foreign_key: :transfer_id,
                                     references: :id,
                                     type: UUID
@@ -46,7 +50,8 @@ defmodule EWalletDB.TransactionRequestConsumption do
     consumption
     |> cast(attrs, [
       :amount, :idempotency_token, :correlation_id, :user_id, :account_id,
-      :transaction_request_id, :balance_address, :minted_token_id
+      :transaction_request_id, :balance_address, :minted_token_id,
+      :metadata, :encrypted_metadata
     ])
     |> validate_required([
       :status, :amount, :idempotency_token, :transaction_request_id,
@@ -60,12 +65,20 @@ defmodule EWalletDB.TransactionRequestConsumption do
     |> assoc_constraint(:transaction_request)
     |> assoc_constraint(:balance)
     |> assoc_constraint(:account)
+    |> put_change(:encryption_version, Cloak.version)
   end
 
   defp update_changeset(%TransactionRequestConsumption{} = consumption, attrs) do
     consumption
     |> cast(attrs, [:status, :transfer_id])
     |> validate_required([:status, :transfer_id])
+    |> assoc_constraint(:transfer)
+  end
+
+  defp approve_changeset(%TransactionRequestConsumption{} = consumption, attrs) do
+    consumption
+    |> cast(attrs, [:approved, :finalized_at])
+    |> validate_required([:approved, :finalized_at])
     |> assoc_constraint(:transfer)
   end
 
@@ -114,13 +127,43 @@ defmodule EWalletDB.TransactionRequestConsumption do
   end
 
   @doc """
+  Approves a consumption.
+  """
+  @spec approve(%TransactionRequestConsumption{}) :: %TransactionRequestConsumption{}
+  def approve(consumption) do
+    {:ok, consumption} =
+      consumption
+      |> approve_changeset(%{approved: true, finalized_at: Ecto.DateTime.utc(:usec)})
+      |> Repo.update()
+
+    consumption
+  end
+
+  @doc """
+  Rejects a consumption.
+  """
+  @spec reject(%TransactionRequestConsumption{}) :: %TransactionRequestConsumption{}
+  def reject(consumption) do
+    {:ok, consumption} =
+      consumption
+      |> approve_changeset(%{approved: false, finalized_at: Ecto.DateTime.utc(:usec)})
+      |> Repo.update()
+
+    consumption
+  end
+
+  @doc """
   Confirms a consumption and saves the entry ID.
   """
   @spec confirm(%TransactionRequestConsumption{}, %Transfer{}) :: %TransactionRequestConsumption{}
   def confirm(consumption, transfer) do
     {:ok, consumption} =
       consumption
-      |> update_changeset(%{status: @confirmed, transfer_id: transfer.id})
+      |> update_changeset(%{
+        status: @confirmed,
+        transfer_id: transfer.id,
+        confirmed_at: Ecto.DateTime.utc(:usec)
+      })
       |> Repo.update()
 
     consumption
