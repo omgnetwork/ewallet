@@ -15,6 +15,17 @@ config :ewallet_api, EWalletAPI.Endpoint,
   pubsub: [name: EWalletAPI.PubSub,
            adapter: Phoenix.PubSub.PG2]
 
+config :ewallet_api, EWalletAPI.Endpoint,
+  render_errors: [
+    view: EWalletAPI.ErrorView,
+    accepts: ~w(json),
+    default_format: "json"
+  ],
+  pubsub: [
+    name: EWalletAPI.PubSub,
+    adapter: Phoenix.PubSub.PG2
+  ]
+
 # Configures Elixir's Logger
 config :logger, :console,
   format: "$time $metadata[$level] $message\n",
