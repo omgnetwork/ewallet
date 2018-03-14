@@ -34,8 +34,8 @@ RUN set -xe && \
     apt-get clean && \
     rm -rf /usr/local/src/libsodium
 
-ENV YARN_VERSION="1.5.1-1"
 ENV NODEJS_VERSION="9.8.0"
+ENV YARN_VERSION="1.5.1-1"
 
 RUN set -xe && \
     NODEJS_DOWNLOAD_URL="https://github.com/nodejs/node/archive/v${NODEJS_VERSION}.tar.gz" && \
@@ -47,7 +47,7 @@ RUN set -xe && \
     mkdir -p /usr/local/src/nodejs && \
     tar -xzC /usr/local/src/nodejs --strip-components=1 -f nodejs-src.tar.gz && \
     rm nodejs-src.tar.gz && \
-    cd /usr/local/src/node && \
+    cd /usr/local/src/nodejs && \
     ./configure && \
     make && \
     make install && \
@@ -70,7 +70,8 @@ RUN set -xe && \
     mix compile && \
     cd apps/admin_panel/assets && \
     yarn install && \
-    yarn build
+    yarn build && \
+    rm -rf apps/admin_panel/assets/node_modules
 
 ENV PORT 4000
 EXPOSE 4000
