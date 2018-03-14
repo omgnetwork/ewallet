@@ -26,38 +26,7 @@ podTemplate(
 
         stage('Build') {
             gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-
-            dir(tmpDir) {
-                writeFile(
-                    file: "ssh_config",
-                    text: """
-                    Host github.com
-                        User git
-                        IdentityFile ~/.ssh/key
-                        PreferredAuthentications publickey
-                        StrictHostKeyChecking no
-                        UserKnownHostsFile /dev/null
-                    """.stripIndent()
-                )
-            }
-
-            withCredentials([[$class: 'SSHUserPrivateKeyBinding', credentialsId: 'github', keyFileVariable: 'GIT_SSH_KEY']]) {
-                withEnv(["GIT_SSH_CONFIG=${tmpDir}/ssh_config", "IMAGE=${imageName}", "TAG=${gitCommit}"]) {
-                    def habitusPort = random.nextInt(1024) + 8080
-
-                    sh(
-                        """
-                        habitus \
-                            --pretty=false \
-                            --secrets=true \
-                            --binding="${nodeIP}" \
-                            --port="${habitusPort}" \
-                            --build habitus_port="${habitusPort}" \
-                            --build habitus_host="${nodeIP}"
-                        """.stripIndent()
-                    )
-                }
-            }
+            sh("gcloud docker -- build . -t ${imageName}:${gitCommit}")
         }
 
         stage('Test') {
