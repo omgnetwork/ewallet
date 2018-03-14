@@ -27,6 +27,7 @@ defmodule EWalletDB.TransactionRequest do
 
     field :confirmable, :boolean, default: false
     field :max_consumptions, :integer # nil -> unlimited
+    field :consumption_lifetime, :integer
     field :expiration_date, :naive_datetime
     field :expired_at, :naive_datetime
     field :metadata, :map

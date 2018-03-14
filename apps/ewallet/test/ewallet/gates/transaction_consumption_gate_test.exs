@@ -44,7 +44,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "account_id" => nil
-      }, nil)
+      })
 
       assert res == {:error, :account_id_not_found}
     end
@@ -58,7 +58,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "account_id" => "fake"
-      }, nil)
+      })
 
       assert res == {:error, :account_id_not_found}
     end
@@ -73,7 +73,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "token_id" => nil,
         "account_id" => meta.account.id,
         "address" => nil
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = consumption
@@ -88,7 +88,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "account_id" => meta.account.id
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = request
@@ -104,7 +104,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "token_id" => nil,
         "account_id" => meta.account.id,
         "address" => meta.account_balance.address
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = request
@@ -121,7 +121,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "token_id" => nil,
         "account_id" => meta.account.id,
         "address" => "fake"
-      }, nil)
+      })
 
       assert res == {:error, :balance_not_found}
     end
@@ -136,7 +136,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "token_id" => nil,
         "account_id" => meta.account.id,
         "address" => meta.sender_balance.address
-      }, nil)
+      })
 
       assert res == {:error, :account_balance_mismatch}
     end
@@ -150,7 +150,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => nil
-      }, nil)
+      })
 
       assert res == {:error, :provider_user_id_not_found}
     end
@@ -164,7 +164,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "provider_user_id" => "fake"
-      }, nil)
+      })
 
       assert res == {:error, :provider_user_id_not_found}
     end
@@ -180,7 +180,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "provider_user_id" => meta.sender.provider_user_id
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = request
@@ -198,7 +198,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "token_id" => nil,
         "provider_user_id" => meta.sender.provider_user_id,
         "address" => meta.sender_balance.address
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = request
@@ -214,7 +214,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "token_id" => nil,
         "provider_user_id" => meta.sender.provider_user_id,
         "address" => "fake"
-      }, nil)
+      })
 
       assert res == {:error, :balance_not_found}
     end
@@ -229,7 +229,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "token_id" => nil,
         "provider_user_id" => meta.sender.provider_user_id,
         "address" => meta.receiver_balance.address
-      }, nil)
+      })
 
       assert res == {:error, :user_balance_mismatch}
     end
@@ -245,7 +245,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "address" => nil
-      }, nil)
+      })
 
       assert res == {:error, :balance_not_found}
     end
@@ -259,7 +259,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "address" => meta.account_balance.address
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = request
@@ -274,7 +274,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "idempotency_token" => "123",
         "token_id" => nil,
         "address" => "fake"
-      }, nil)
+      })
 
       assert res == {:error, :balance_not_found}
     end
@@ -289,7 +289,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == {:error, :invalid_parameter}
     end
@@ -308,7 +308,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = consumption
@@ -337,7 +337,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = consumption
@@ -358,7 +358,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => %{},
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == :ok
       assert %TransactionRequestConsumption{} = consumption
@@ -378,7 +378,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
       assert res == :ok
 
       {res, consumption_2} = TransactionConsumptionGate.consume(meta.sender, %{
@@ -389,7 +389,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == :ok
       assert consumption_1.id == consumption_2.id
@@ -413,7 +413,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert error == :error
       assert changeset.errors ==  [amount: {"can't be blank", [validation: :required]}]
@@ -430,7 +430,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == :error
       assert error == :balance_not_found
@@ -448,7 +448,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == :error
       assert error == :user_balance_mismatch
@@ -459,7 +459,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "correlation_id" => nil,
         "amount" => nil,
         "metadata" => nil
-      }, nil)
+      })
 
       assert res == :error
       assert error == :invalid_parameter
@@ -478,7 +478,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         "metadata" => nil,
         "idempotency_token" => "123",
         "token_id" => nil
-      }, nil)
+      })
 
       assert res == :ok
       assert {:ok, consumption} = TransactionConsumptionGate.get(consumption.id)

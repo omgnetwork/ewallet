@@ -70,6 +70,9 @@
             "created_at" => Date.to_iso8601(meta.minted_token.inserted_at),
             "updated_at" => Date.to_iso8601(meta.minted_token.updated_at)
           },
+          "approved" => true,
+          "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
+          "transfer_id" => inserted_consumption.transfer_id,
           "transaction_request_id" => transaction_request.id,
           "transaction_id" => inserted_transfer.id,
           "user_id" => nil,
@@ -304,6 +307,9 @@
           "transaction_id" => inserted_transfer.id,
           "user_id" => meta.bob.id,
           "account_id" => nil,
+          "approved" => true,
+          "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
+          "transfer_id" => inserted_consumption.transfer_id,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at),
         }
