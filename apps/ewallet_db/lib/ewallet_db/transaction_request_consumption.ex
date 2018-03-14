@@ -133,7 +133,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   def approve(consumption) do
     {:ok, consumption} =
       consumption
-      |> approve_changeset(%{approved: true, finalized_at: Ecto.DateTime.utc(:usec)})
+      |> approve_changeset(%{approved: true, finalized_at: NaiveDateTime.utc_now()})
       |> Repo.update()
 
     consumption
@@ -146,7 +146,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   def reject(consumption) do
     {:ok, consumption} =
       consumption
-      |> approve_changeset(%{approved: false, finalized_at: Ecto.DateTime.utc(:usec)})
+      |> approve_changeset(%{approved: false, finalized_at: NaiveDateTime.utc_now()})
       |> Repo.update()
 
     consumption
@@ -162,7 +162,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
       |> update_changeset(%{
         status: @confirmed,
         transfer_id: transfer.id,
-        confirmed_at: Ecto.DateTime.utc(:usec)
+        confirmed_at: NaiveDateTime.utc_now()
       })
       |> Repo.update()
 

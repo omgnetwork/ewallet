@@ -31,6 +31,8 @@ defmodule EWalletAPI.V1.Router do
 
     post "/transaction_request.create", TransactionRequestController, :create
     post "/transaction_request.get", TransactionRequestController, :get
+    post "/transaction_request_consumption.confirm",
+         TransactionRequestConsumptionController, :confirm
 
     post "/transaction.all", TransactionController, :all
 
@@ -42,9 +44,6 @@ defmodule EWalletAPI.V1.Router do
       post "/user.debit_balance", TransferController, :debit
       post "/transfer", TransferController, :transfer
       post "/transaction_request.consume", TransactionRequestConsumptionController, :consume
-      post "/transaction_request_consumption.confirm",
-           TransactionRequestConsumptionController,
-           :confirm
     end
 
     post "/login", AuthController, :login

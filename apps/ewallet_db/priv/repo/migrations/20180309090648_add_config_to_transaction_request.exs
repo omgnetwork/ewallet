@@ -5,6 +5,7 @@ defmodule EWalletDB.Repo.Migrations.AddConfigToTransactionRequest do
     alter table(:transaction_request) do
       add :confirmable, :boolean, null: false, default: false
       add :max_consumptions, :integer
+      add :consumption_lifetime, :integer # milliseconds
       add :expiration_date, :naive_datetime
       add :expired_at, :naive_datetime
       add :metadata, :map

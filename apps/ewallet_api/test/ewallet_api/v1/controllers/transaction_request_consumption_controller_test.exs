@@ -167,6 +167,7 @@
         amount: nil,
         confirmable: true
       )
+      request_topic = "transaction_request:#{transaction_request.id}"
 
       # Start listening to the channels for the transaction request created above
       EWalletAPI.Endpoint.subscribe("transaction_request:#{transaction_request.id}")
@@ -190,44 +191,26 @@
       })
 
       consumption_id = response["data"]["id"]
-      IO.inspect(response)
       assert response["success"] == true
-      # assert response["data"]["status"] == "pending"
+      assert response["data"]["status"] == "pending"
+      assert response["data"]["transfer_id"] == nil
 
-      # Retrieve what just got inserted, the transfer should not have been created yet
-      # since the consumption hasn't been finalized yet
-      inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
-      assert inserted_transfer == nil
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionRequestConsumption.get(response["data"]["id"])
 
-      broadcast = %Phoenix.Socket.Broadcast{
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_request_confirmation",
-        topic: "transaction_request:#{transaction_request.id}",
+        topic: request_topic,
         payload: %{
           success: true,
           version: "1",
           data: %{
-            user_id: meta.bob.id,
-            account_id: nil,
-            address: meta.bob_balance.address,
-            amount: 10000000,
-            correlation_id: nil,
-            id: inserted_consumption.id,
-            idempotency_token: "123",
-            minted_token: MintedTokenSerializer.serialize(meta.minted_token),
-            object: "transaction_request_consumption",
-            status: "pending",
-            transaction_id: nil,
-            transaction_request_id: transaction_request.id,
-            created_at: Date.to_iso8601(inserted_consumption.inserted_at),
-            updated_at: Date.to_iso8601(inserted_consumption.updated_at),
+            # Ignore content
           }
         }
       }
-
-      # We check that we receive the confirmation request above in the
-      # transaction request channel
-      assert_receive broadcast
 
       # We need to know once the consumption has been approved, so let's
       # listen to the channel for it
@@ -237,22 +220,29 @@
       response = provider_request("/transaction_request_consumption.confirm", %{
         id: consumption_id
       })
-
       assert response["success"] == true
       assert response["data"]["status"] == "confirmed"
-      assert inserted_transfer == nil
+      inserted_transfer = Repo.get(Transfer, response["data"]["transfer_id"])
 
       # Check that a transfer was inserted
-      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_id)
+      inserted_transfer = Repo.get(Transfer, response["data"]["transfer_id"])
       assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
-      assert inserted_transfer.to == meta.alice_balance.address
-      assert inserted_transfer.from == meta.bob_balance.address
+      assert inserted_transfer.to == meta.bob_balance.address
+      assert inserted_transfer.from == meta.alice_balance.address
       assert %{} = inserted_transfer.ledger_response
 
-
-      # Receive the broadcast from the consumption channel
-      # The consumption is now validated
-
+      topic = "transaction_request_consumption:#{consumption_id}"
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_request_consumption_change",
+        topic: topic,
+        payload: %{
+          success: true,
+          version: "1",
+          data: %{
+            # Ignore content
+          }
+        }
+      }
 
       # Unsubscribe from all channels
       EWalletAPI.Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
