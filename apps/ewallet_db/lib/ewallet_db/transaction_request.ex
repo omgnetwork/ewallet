@@ -4,6 +4,7 @@ defmodule EWalletDB.TransactionRequest do
   """
   use Ecto.Schema
   import Ecto.Changeset
+  import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{TransactionRequest, TransactionRequestConsumption,
@@ -72,7 +73,7 @@ defmodule EWalletDB.TransactionRequest do
       true ->
         TransactionRequest
         |> Repo.get(id)
-        |> Repo.preload(opts[:preload])
+        |> preload_option(opts)
       false -> nil
     end
   end
