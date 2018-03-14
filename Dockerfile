@@ -34,27 +34,6 @@ RUN set -xe && \
     apt-get clean && \
     rm -rf /usr/local/src/libsodium
 
-ENV NODEJS_VERSION="9.8.0"
-ENV YARN_VERSION="1.5.1-1"
-
-RUN set -xe && \
-    NODEJS_DOWNLOAD_URL="https://github.com/nodejs/node/archive/v${NODEJS_VERSION}.tar.gz" && \
-    NODEJS_DOWNLOAD_SHA256="cc002619114b214353e9b80d0cde498e37c053a10bd7f89c52156048c0ee2475" && \
-    apt-get update && \
-    apt-get install -y build-essential && \
-    curl -fsL -o nodejs-src.tar.gz "${NODEJS_DOWNLOAD_URL}" && \
-    echo "${NODEJS_DOWNLOAD_SHA256}  nodejs-src.tar.gz" | sha256sum -c - && \
-    mkdir -p /usr/local/src/nodejs && \
-    tar -xzC /usr/local/src/nodejs --strip-components=1 -f nodejs-src.tar.gz && \
-    rm nodejs-src.tar.gz && \
-    cd /usr/local/src/nodejs && \
-    ./configure && \
-    make && \
-    make install && \
-    apt-get remove -y build-essential && \
-    apt-get clean && \
-    rm -rf /usr/local/src/nodejs
-
 RUN set -xe && \
     SERVICE_PATH=/etc/services.d/ewallet && \
     mkdir -p $(dirname "$SERVICE_PATH") && \
@@ -65,13 +44,30 @@ COPY . /app
 WORKDIR /app
 
 RUN set -xe && \
-    MIX_ENV=prod && \
-    mix deps.get && \
-    mix compile && \
-    cd apps/admin_panel/assets && \
+    apt-get update && \
+    apt-get install -y apt-transport-https && \
+    rm -f /etc/apt/sources.list.d/chris-lea-node_js-stretch.list && \
+    curl -fsL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
+    curl -fsL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
+    echo "deb https://deb.nodesource.com/node_8.x stretch main" > /etc/apt/sources.list.d/nodesource.list && \
+    echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
+    apt-get update && \
+    apt-get install -y nodejs yarn && \
+    cd /app/apps/admin_panel/assets && \
     yarn install && \
     yarn build && \
-    rm -rf apps/admin_panel/assets/node_modules
+    rm -rf /app/apps/admin_panel/node_modules && \
+    apt-get remove -y apt-transport-https nodejs yarn && \
+    apt-get clean && \
+    rm -rf /etc/apt/sources.list.d/nodesource.list && \
+    rm -rf /etc/apt/sources.list.d/yarn.list
+
+RUN set -xe && \
+    MIX_ENV=prod && \
+    mix local.hex --force && \
+    mix local.rebar --force && \
+    mix deps.get && \
+    mix compile
 
 ENV PORT 4000
 EXPOSE 4000
