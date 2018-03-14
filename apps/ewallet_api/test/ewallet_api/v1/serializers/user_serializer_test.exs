@@ -1,20 +1,11 @@
 defmodule EWalletAPI.V1.UserSerializerTest do
   use EWallet.Web.SerializerCase, :v1
+  alias Ecto.Association.NotLoaded
   alias EWalletAPI.V1.UserSerializer
-  alias Ecto.UUID
 
-  describe "V1.UserSerializer" do
+  describe "serialize/1" do
     test "serializes into correct V1 user format" do
-      user = %{
-        id: UUID.generate(),
-        username: "johndoe",
-        provider_user_id: "provider_id_1234",
-        metadata: %{
-          first_name: "John",
-          last_name: "Doe"
-        },
-        encrypted_metadata: %{}
-      }
+      user = insert(:user)
 
       expected = %{
         object: "user",
@@ -22,13 +13,21 @@ defmodule EWalletAPI.V1.UserSerializerTest do
         username: user.username,
         provider_user_id: user.provider_user_id,
         metadata: %{
-          first_name: "John",
-          last_name: "Doe"
+          "first_name" => user.metadata["first_name"],
+          "last_name" => user.metadata["last_name"]
         },
         encrypted_metadata: %{}
       }
 
       assert UserSerializer.serialize(user) == expected
+    end
+
+    test "serializes to nil if user is not given" do
+      assert UserSerializer.serialize(nil) == nil
+    end
+
+    test "serializes to nil if user is not loaded" do
+      assert UserSerializer.serialize(%NotLoaded{}) == nil
     end
   end
 end

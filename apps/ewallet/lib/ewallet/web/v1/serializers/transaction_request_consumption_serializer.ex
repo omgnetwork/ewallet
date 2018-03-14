@@ -2,10 +2,11 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
   @moduledoc """
   Serializes transaction request consumption data into V1 JSON response format.
   """
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.MintedTokenSerializer
   alias EWallet.Web.Date
 
-  def serialize(consumption) do
+  def serialize(consumption) when is_map(consumption) do
     %{
       object: "transaction_request_consumption",
       id: consumption.id,
@@ -23,4 +24,5 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
       updated_at: Date.to_iso8601(consumption.updated_at)
     }
   end
+  def serialize(%NotLoaded{}), do: nil
 end

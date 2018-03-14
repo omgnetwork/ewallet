@@ -2,13 +2,15 @@ defmodule AdminAPI.V1.UserSerializer do
   @moduledoc """
   Serializes user(s) into V1 JSON response format.
   """
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator, V1.PaginatorSerializer}
   alias EWalletDB.Uploaders.Avatar
+  alias EWalletDB.User
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
-  def serialize(user) when is_map(user) do
+  def serialize(%User{} = user) do
     %{
       object: "user",
       id: user.id,
@@ -22,4 +24,6 @@ defmodule AdminAPI.V1.UserSerializer do
       updated_at: Date.to_iso8601(user.updated_at)
     }
   end
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
 end

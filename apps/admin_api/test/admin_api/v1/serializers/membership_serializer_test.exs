@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.MembershipSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias AdminAPI.V1.MembershipSerializer
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.Date
   alias EWalletDB.User
 
@@ -35,6 +36,14 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
       }
 
       assert MembershipSerializer.to_user_json(membership) == expected
+    end
+
+    test "serializes to nil if membership is not given" do
+      assert MembershipSerializer.serialize(nil) == nil
+    end
+
+    test "serializes to nil if membership is not loaded" do
+      assert MembershipSerializer.serialize(%NotLoaded{}) == nil
     end
 
     test "serializes a list of memberships into a list of users json" do

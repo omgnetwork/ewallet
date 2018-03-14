@@ -2,12 +2,14 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   @moduledoc """
   Serializes minted token(s) into V1 JSON response format.
   """
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{PaginatorSerializer, MintedTokenSerializer}
   alias EWallet.Web.{Date, Paginator}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
+  def serialize(%NotLoaded{}), do: nil
   def serialize(transaction) when is_map(transaction) do
     serialized_minted_token = MintedTokenSerializer.serialize(transaction.minted_token)
 

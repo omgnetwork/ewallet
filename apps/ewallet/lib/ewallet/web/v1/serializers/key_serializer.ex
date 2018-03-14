@@ -2,12 +2,14 @@ defmodule EWallet.Web.V1.KeySerializer do
   @moduledoc """
   Serializes key(s) into V1 JSON response format.
   """
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWallet.Web.{Date, Paginator}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
+  def serialize(%NotLoaded{}), do: nil
   def serialize(key) when is_map(key) do
     %{
       object: "key",

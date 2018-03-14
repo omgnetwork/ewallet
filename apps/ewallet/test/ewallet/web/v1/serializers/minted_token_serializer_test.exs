@@ -1,5 +1,6 @@
 defmodule EWallet.Web.V1.MintedTokenSerializerTest do
   use EWallet.Web.SerializerCase, :v1
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.MintedTokenSerializer
 
   describe "serialize/1 for single minted_token" do
@@ -19,6 +20,10 @@ defmodule EWallet.Web.V1.MintedTokenSerializerTest do
       }
 
       assert MintedTokenSerializer.serialize(minted_token) == expected
+    end
+
+    test "serializes to nil if the minted_token is not loaded" do
+      assert MintedTokenSerializer.serialize(%NotLoaded{}) == nil
     end
   end
 
