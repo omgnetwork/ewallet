@@ -37,7 +37,7 @@ defmodule EWalletDB.MintedTokenTest do
 
   describe "all/0" do
     test "returns all existing minted tokens" do
-      assert length(MintedToken.all) == 0
+      assert Enum.empty?(MintedToken.all)
 
       :minted_token |> params_for() |> MintedToken.insert
       :minted_token |> params_for() |> MintedToken.insert

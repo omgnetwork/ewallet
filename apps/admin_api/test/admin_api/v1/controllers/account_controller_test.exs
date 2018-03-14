@@ -156,13 +156,13 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "account"
       assert response["data"]["avatar"]["large"] =~
-             "http://example.com/public/uploads/test/account/avatars/#{account.id}/large.png?v="
+             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/large.png?v="
       assert response["data"]["avatar"]["original"] =~
-             "http://example.com/public/uploads/test/account/avatars/#{account.id}/original.jpg?v="
+             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/original.jpg?v="
       assert response["data"]["avatar"]["small"] =~
-             "http://example.com/public/uploads/test/account/avatars/#{account.id}/small.png?v="
+             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/small.png?v="
       assert response["data"]["avatar"]["thumb"] =~
-             "http://example.com/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
+             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
     end
 
     test "removes the avatar from an account" do

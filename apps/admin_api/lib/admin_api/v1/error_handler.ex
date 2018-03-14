@@ -89,6 +89,10 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "membership:not_found",
       description: "The user is not assigned to the provided account"
     },
+    invalid_email: %{
+      code: "user:invalid_email",
+      description: "The format of the provided email is invalid"
+    },
     invite_not_found: %{
       code: "user:invite_not_found",
       description: "There is no invite corresponding to the provided email and token"

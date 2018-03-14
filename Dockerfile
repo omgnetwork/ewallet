@@ -1,4 +1,4 @@
-FROM elixir:1.5
+FROM elixir:1.6
 
 ENV LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH
 ENV LIBSODIUM_VERSION="1.0.15"
