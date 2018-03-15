@@ -4,7 +4,7 @@ alias EWallet.{CLI, Seeder}
 alias EWalletDB.{Account, Membership, Role, User}
 
 data = %{
-  email: "admin_master@example.com",
+  email: Application.get_env(:ewallet, :seed_admin_email),
   password: generate_key(16),
   metadata: %{},
   role_name: "admin"
