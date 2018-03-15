@@ -39,6 +39,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      transaction_request  = Repo.preload(transaction_request, :minted_token)
 
       assert response == %{
         "success" => true,
@@ -51,6 +52,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
+          "minted_token_id" => minted_token.friendly_id,
           "minted_token" => %{
             "id" => minted_token.friendly_id,
             "name" => minted_token.name,
@@ -63,9 +65,37 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
             "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "transaction_request_id" => transaction_request.id,
+          "transaction_request" => %{
+            "object" => "transaction_request",
+            "id" => transaction_request.id,
+            "correlation_id" => transaction_request.correlation_id,
+            "type" => transaction_request.type,
+            "status" => transaction_request.status,
+            "user_id" => transaction_request.user_id,
+            "account_id" => transaction_request.account_id,
+            "address" => transaction_request.balance.address,
+            "amount" => transaction_request.amount,
+            "minted_token_id" => transaction_request.minted_token.friendly_id,
+            "minted_token" => %{
+              "object" => "minted_token",
+              "id" => transaction_request.minted_token.friendly_id,
+              "symbol" => transaction_request.minted_token.symbol,
+              "name" => transaction_request.minted_token.name,
+              "subunit_to_unit" => transaction_request.minted_token.subunit_to_unit,
+              "metadata" => transaction_request.minted_token.metadata,
+              "encrypted_metadata" => transaction_request.minted_token.encrypted_metadata,
+              "created_at" => Date.to_iso8601(transaction_request.minted_token.inserted_at),
+              "updated_at" => Date.to_iso8601(transaction_request.minted_token.updated_at)
+            },
+            "created_at" => Date.to_iso8601(transaction_request.inserted_at),
+            "updated_at" => Date.to_iso8601(transaction_request.updated_at),
+          },
           "transaction_id" => inserted_transfer.id,
+          "transaction" => nil, # not preloaded
           "user_id" => nil,
+          "user" => nil,
           "account_id" => account.id,
+          "account" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at)
         }
@@ -75,6 +105,42 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
       assert inserted_transfer.to == alice_balance.address
       assert inserted_transfer.from == account_balance.address
       assert %{} = inserted_transfer.ledger_response
+    end
+
+    test "returns with preload if `embed` attribute is given" do
+      account             = Account.get_master_account()
+      minted_token        = insert(:minted_token)
+      {:ok, alice}        = :user |> params_for() |> User.insert()
+      bob                 = get_test_user()
+      alice_balance       = User.get_primary_balance(alice)
+      bob_balance         = User.get_primary_balance(bob)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        minted_token_id: minted_token.id,
+        user_id: alice.id,
+        balance: alice_balance,
+        amount: 100_000 * minted_token.subunit_to_unit
+      )
+
+      set_initial_balance(%{
+        address: bob_balance.address,
+        minted_token: minted_token,
+        amount: 150_000
+      })
+
+      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        transaction_request_id: transaction_request.id,
+        correlation_id: nil,
+        amount: nil,
+        address: nil,
+        metadata: nil,
+        token_id: nil,
+        account_id: account.id,
+        embed: ["account"]
+      })
+
+      assert response["data"]["account"] != nil
     end
 
     test "returns same transaction request consumption when idempotency token is the same" do
@@ -190,6 +256,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      transaction_request  = Repo.preload(transaction_request, :minted_token)
 
       assert response == %{
         "success" => true,
@@ -202,6 +269,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
+          "minted_token_id" => minted_token.friendly_id,
           "minted_token" => %{
             "id" => minted_token.friendly_id,
             "name" => minted_token.name,
@@ -214,9 +282,47 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
             "updated_at" => Date.to_iso8601(minted_token.updated_at)
           },
           "transaction_request_id" => transaction_request.id,
+          "transaction_request" => %{
+            "object" => "transaction_request",
+            "id" => transaction_request.id,
+            "correlation_id" => transaction_request.correlation_id,
+            "type" => transaction_request.type,
+            "status" => transaction_request.status,
+            "user_id" => transaction_request.user_id,
+            "account_id" => transaction_request.account_id,
+            "address" => transaction_request.balance_address,
+            "amount" => transaction_request.amount,
+            "minted_token_id" => transaction_request.minted_token.friendly_id,
+            "minted_token" => %{
+              "object" => "minted_token",
+              "id" => transaction_request.minted_token.friendly_id,
+              "symbol" => transaction_request.minted_token.symbol,
+              "name" => transaction_request.minted_token.name,
+              "subunit_to_unit" => transaction_request.minted_token.subunit_to_unit,
+              "metadata" => transaction_request.minted_token.metadata,
+              "encrypted_metadata" => transaction_request.minted_token.encrypted_metadata,
+              "created_at" => Date.to_iso8601(transaction_request.minted_token.inserted_at),
+              "updated_at" => Date.to_iso8601(transaction_request.minted_token.updated_at)
+            },
+            "created_at" => Date.to_iso8601(transaction_request.inserted_at),
+            "updated_at" => Date.to_iso8601(transaction_request.updated_at),
+          },
           "transaction_id" => inserted_transfer.id,
+          "transaction" => nil, # not preloaded
           "user_id" => bob.id,
+          "user" => %{
+            "object" => "user",
+            "id" => bob.id,
+            "provider_user_id" => bob.provider_user_id,
+            "username" => bob.username,
+            "metadata" => %{
+              "first_name" => bob.metadata["first_name"],
+              "last_name" => bob.metadata["last_name"]
+            },
+            "encrypted_metadata" => %{}
+          },
           "account_id" => nil,
+          "account" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at),
         }

@@ -16,6 +16,7 @@ defmodule EWalletAPI.V1.TransactionRequestViewTest do
           object: "transaction_request",
           id: transaction_request.id,
           type: transaction_request.type,
+          minted_token_id: transaction_request.minted_token.friendly_id,
           minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
           amount: transaction_request.amount,
           address: transaction_request.balance_address,
