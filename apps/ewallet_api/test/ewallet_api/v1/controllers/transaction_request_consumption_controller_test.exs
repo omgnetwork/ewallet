@@ -1,7 +1,7 @@
   defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequestConsumption, User, Transfer, Account}
-  alias EWallet.Web.{V1.MintedTokenSerializer, Date}
+  alias EWallet.Web.Date
 
   setup do
     account = Account.get_master_account()
@@ -72,7 +72,6 @@
           },
           "approved" => true,
           "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
-          "transfer_id" => inserted_consumption.transfer_id,
           "transaction_request_id" => transaction_request.id,
           "transaction_id" => inserted_transfer.id,
           "user_id" => nil,
@@ -173,7 +172,7 @@
       request_topic = "transaction_request:#{transaction_request.id}"
 
       # Start listening to the channels for the transaction request created above
-      EWalletAPI.Endpoint.subscribe("transaction_request:#{transaction_request.id}")
+      EWalletAPI.Endpoint.subscribe(request_topic)
 
       # The sender (Alice) needs some tokens, let's fix that
       set_initial_balance(%{
@@ -196,7 +195,7 @@
       consumption_id = response["data"]["id"]
       assert response["success"] == true
       assert response["data"]["status"] == "pending"
-      assert response["data"]["transfer_id"] == nil
+      assert response["data"]["transaction_id"] == nil
 
       # Retrieve what just got inserted
       inserted_consumption = TransactionRequestConsumption.get(response["data"]["id"])
@@ -205,7 +204,7 @@
       # transaction request channel
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_request_confirmation",
-        topic: request_topic,
+        topic: "transaction_request:" <> _,
         payload: %{
           success: true,
           version: "1",
@@ -224,20 +223,19 @@
         id: consumption_id
       })
       assert response["success"] == true
+      assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "confirmed"
-      inserted_transfer = Repo.get(Transfer, response["data"]["transfer_id"])
 
       # Check that a transfer was inserted
-      inserted_transfer = Repo.get(Transfer, response["data"]["transfer_id"])
+      inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
       assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
       assert inserted_transfer.to == meta.bob_balance.address
       assert inserted_transfer.from == meta.alice_balance.address
       assert %{} = inserted_transfer.ledger_response
 
-      topic = "transaction_request_consumption:#{consumption_id}"
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_request_consumption_change",
-        topic: topic,
+        topic:  "transaction_request_consumption:" <> _,
         payload: %{
           success: true,
           version: "1",
@@ -309,7 +307,6 @@
           "account_id" => nil,
           "approved" => true,
           "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
-          "transfer_id" => inserted_consumption.transfer_id,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at),
         }

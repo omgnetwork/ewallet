@@ -8,6 +8,7 @@ defmodule EWalletDB.Repo.Migrations.AddConfigToTransactionRequest do
       add :consumption_lifetime, :integer # milliseconds
       add :expiration_date, :naive_datetime
       add :expired_at, :naive_datetime
+      add :allow_amount_override, :boolean, default: false
       add :metadata, :map
       add :encrypted_metadata, :binary
       add :encryption_version, :binary

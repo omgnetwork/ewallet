@@ -1,34 +1,34 @@
 defmodule EWallet.TransactionRequestConfirmationEvent do
   def broadcast(consumption) do
     consumption
-    |> channels()
-    |> Enum.each(fn channel ->
+    |> topics()
+    |> Enum.each(fn topic ->
       EWallet.Event.broadcast(
-        channel: channel,
-        topic: topic(consumption),
+        topic: topic,
+        event: event(consumption),
         payload: payload(consumption)
       )
     end)
   end
 
-  defp topic(consumption) do
+  defp event(consumption) do
     "transaction_request_confirmation"
   end
 
-  defp channels(consumption) do
-    channels = [
+  defp topics(consumption) do
+    topics = [
       "address:#{consumption.transaction_request.balance_address}",
       "transaction_request:#{consumption.transaction_request.id}"
     ]
 
-    channels
-    |> put_in_channel_if_present("account", consumption.transaction_request.account_id)
-    |> put_in_channel_if_present("user", consumption.transaction_request.user_id)
+    topics
+    |> put_in_topic_if_present("account", consumption.transaction_request.account_id)
+    |> put_in_topic_if_present("user", consumption.transaction_request.user_id)
   end
 
-  defp put_in_channel_if_present(channels, _key, nil), do: channels
-  defp put_in_channel_if_present(channels, field, value) do
-    channels ++ ["#{field}:#{value}"]
+  defp put_in_topic_if_present(topics, _key, nil), do: topics
+  defp put_in_topic_if_present(topics, field, value) do
+    topics ++ ["#{field}:#{value}"]
   end
 
   defp payload(consumption) do

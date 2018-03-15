@@ -8,7 +8,7 @@ defmodule EWalletAPI.V1.Socket do
   transport :websocket, Phoenix.Transports.WebSocket
 
   def connect(params, socket) do
-    # Check Auth
+    # TODO: Check Auth
     {:ok, socket}
   end
 

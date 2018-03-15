@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletDB.TransactionRequestConsumption
   alias EWalletAPI.V1.TransactionRequestConsumptionView
-  alias EWallet.Web.{Date, V1.TransactionRequestConsumptionSerializer}
+  alias EWallet.Web.V1.TransactionRequestConsumptionSerializer
 
   describe "EWalletAPI.V1.TransactionRequestConsumptionView.render/2" do
     test "renders transaction_request_consumption.json with correct structure" do

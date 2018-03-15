@@ -30,6 +30,7 @@ defmodule EWalletDB.TransactionRequest do
     field :consumption_lifetime, :integer
     field :expiration_date, :naive_datetime
     field :expired_at, :naive_datetime
+    field :allow_amount_override, :boolean, default: false
     field :metadata, :map
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
 
@@ -54,7 +55,8 @@ defmodule EWalletDB.TransactionRequest do
     |> cast(attrs, [
       :type, :amount, :correlation_id, :user_id, :account_id,
       :minted_token_id, :balance_address, :confirmable, :max_consumptions,
-      :consumption_lifetime, :expiration_date, :metadata, :encrypted_metadata
+      :consumption_lifetime, :expiration_date, :metadata, :encrypted_metadata,
+      :allow_amount_override
     ])
     |> validate_required([
       :type, :status, :minted_token_id, :balance_address

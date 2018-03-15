@@ -19,7 +19,6 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
       user_id: consumption.user_id,
       account_id: consumption.account_id,
       transaction_request_id: consumption.transaction_request_id,
-      transfer_id: consumption.transfer_id,
       address: consumption.balance_address,
       created_at: Date.to_iso8601(consumption.inserted_at),
       updated_at: Date.to_iso8601(consumption.updated_at),

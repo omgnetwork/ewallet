@@ -17,14 +17,13 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializerTest do
         minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
         correlation_id: consumption.correlation_id,
         idempotency_token: consumption.idempotency_token,
-        transaction_id: consumption.transfer_id,
+        transaction_id: nil,
         user_id: consumption.user_id,
         account_id: nil,
         transaction_request_id: consumption.transaction_request_id,
         address: consumption.balance_address,
         approved: false,
         finalized_at: nil,
-        transfer_id: nil,
         created_at: Date.to_iso8601(consumption.inserted_at),
         updated_at: Date.to_iso8601(consumption.updated_at)
       }

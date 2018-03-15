@@ -88,7 +88,8 @@ defmodule EWallet.TransactionConsumptionGate do
     # is it expired? -> {:error, expired}
     # is there a number of max consumption? -> lock table
     # is it confirmable? -> return a pending request, call  to websocket
-    # is there a lifetime?
+    # is there a consumption lifetime?
+    # is the amount overridable?
     # it's not? -> create
     # max consumption ? -> increment
     # unlock table

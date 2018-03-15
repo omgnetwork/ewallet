@@ -13,14 +13,14 @@ defmodule EWallet.Event do
   end
 
   def broadcast(
-    channel: channel,
     topic: topic,
+    event: event,
     payload: payload
   ) do
     Enum.each(endpoints(), fn endpoint ->
       endpoint.broadcast(
-        channel,
         topic,
+        event,
         payload
       )
     end)
