@@ -14,11 +14,9 @@ defmodule EWallet.Helper do
     |> Enum.reverse()
   end
   def to_existing_atoms(string, atom_list) do
-    try do
-      atom = String.to_existing_atom(string)
-      [atom | atom_list]
-    rescue
-      ArgumentError -> atom_list
-    end
+    atom = String.to_existing_atom(string)
+    [atom | atom_list]
+  rescue
+    ArgumentError -> atom_list
   end
 end

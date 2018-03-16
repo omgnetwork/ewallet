@@ -13,6 +13,8 @@ defmodule EWallet.Web.Embedder do
 
   defmacro embed(record, embeds) do
     quote do
+      alias EWallet.Web.Embedder
+
       if is_nil(@embeddable) do
         raise(ArgumentError, message: "#{unquote(__MODULE__)} requires @embeddable to work")
       end
@@ -21,7 +23,7 @@ defmodule EWallet.Web.Embedder do
         raise(ArgumentError, message: "#{unquote(__MODULE__)} requires @always_embed to work")
       end
 
-      EWallet.Web.Embedder.embed(unquote(record), unquote(embeds), @embeddable, @always_embed)
+      Embedder.embed(unquote(record), unquote(embeds), @embeddable, @always_embed)
     end
   end
 

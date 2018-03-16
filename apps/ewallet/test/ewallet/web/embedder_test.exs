@@ -15,9 +15,18 @@ defmodule EWallet.Web.EmbedderTest do
     end
   end
 
+  # A `Factory.insert/1` may contain preloaded associations. So we need to insert,
+  # then do a clean `get/1` to make sure no associations are preloaded.
+  defp insert_and_get_account do
+    :account
+    |> insert()
+    |> Map.get(:id)
+    |> Account.get()
+  end
+
   describe "EWallet.Web.Embedder.embed/2" do
     test "returns the embed defined in @always_embed by default" do
-      account = insert(:account) |> Map.get(:id) |> Account.get()
+      account = insert_and_get_account()
       assert %NotLoaded{} = account.balances
 
       embedded = TestModule.call_embed(account, [])
@@ -25,7 +34,7 @@ defmodule EWallet.Web.EmbedderTest do
     end
 
     test "returns the embed and @always_embed if the given field is in @embeddable" do
-      account = insert(:account) |> Map.get(:id) |> Account.get()
+      account = insert_and_get_account()
       assert %NotLoaded{} = account.minted_tokens
 
       embedded = TestModule.call_embed(account, ["minted_tokens"])
@@ -34,7 +43,7 @@ defmodule EWallet.Web.EmbedderTest do
     end
 
     test "returns without embed if the given field is not in @embeddable" do
-      account = insert(:account) |> Map.get(:id) |> Account.get()
+      account = insert_and_get_account()
       assert %NotLoaded{} = account.keys
 
       embedded = TestModule.call_embed(account, ["keys"])
@@ -42,7 +51,7 @@ defmodule EWallet.Web.EmbedderTest do
     end
 
     test "ignores unknown embed fields" do
-      account = insert(:account) |> Map.get(:id) |> Account.get()
+      account = insert_and_get_account()
       assert %NotLoaded{} = account.keys
 
       embedded = TestModule.call_embed(account, ["does_not_exist", "also_does_not_exist"])
