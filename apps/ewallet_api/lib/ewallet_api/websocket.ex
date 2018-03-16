@@ -17,10 +17,7 @@ defmodule EWalletAPI.WebSocket do
   @behaviour Phoenix.Socket.Transport
 
   def default_config() do
-    [serializer: [{Phoenix.Transports.WebSocketSerializer, "~> 1.0.0"},
-                  {Phoenix.Transports.V2.WebSocketSerializer, "~> 2.0.0"}],
-
-     timeout: 60_000,
+    [timeout: 60_000,
      transport_log: false]
   end
 
@@ -29,6 +26,9 @@ defmodule EWalletAPI.WebSocket do
   import Plug.Conn, only: [fetch_query_params: 1, send_resp: 3, assign: 3]
   import EWalletAPI.V1.ErrorHandler
 
+  require Logger
+
+  alias Phoenix.Socket
   alias Phoenix.Socket.Broadcast
   alias Phoenix.Socket.Transport
 
@@ -45,8 +45,7 @@ defmodule EWalletAPI.WebSocket do
          conn <- Transport.check_origin(conn, handler, endpoint, opts),
          %{halted: false} = conn <- conn,
          params <- conn.params |> Map.put_new(:http_headers, conn.req_headers),
-         serializer <- Keyword.fetch!(opts, :serializer),
-         {:ok, socket} <- Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params)
+         {:ok, socket} <- connect(endpoint, handler, transport, __MODULE__, serializer, params)
     do
       IO.inspect(conn)
       {:ok, conn, {__MODULE__, {socket, opts}}}
@@ -89,39 +88,38 @@ defmodule EWalletAPI.WebSocket do
     Map.fetch(api_version, accept)
   end
 
-  # def connect(endpoint, handler, transport_name, transport, serializer, params, pid \\ self()) do
-  #   IO.inspect(serializer)
-  #   vsn = params["vsn"] || "1.0.0"
-  #
-  #   socket = %Socket{endpoint: endpoint,
-  #                    transport: transport,
-  #                    transport_pid: pid,
-  #                    transport_name: transport_name,
-  #                    handler: handler,
-  #                    vsn: vsn,
-  #                    pubsub_server: endpoint.__pubsub_server__,
-  #                    serializer: serializer}
-  #
-  #   case handler.connect(params, socket) do
-  #     {:ok, socket} ->
-  #       case handler.id(socket) do
-  #         nil                   -> {:ok, socket}
-  #         id when is_binary(id) -> {:ok, %Socket{socket | id: id}}
-  #         invalid               ->
-  #           Logger.error "#{inspect handler}.id/1 returned invalid identifier #{inspect invalid}. " <>
-  #                        "Expected nil or a string."
-  #           :error
-  #       end
-  #
-  #     :error ->
-  #       :error
-  #
-  #     invalid ->
-  #       Logger.error "#{inspect handler}.connect/2 returned invalid value #{inspect invalid}. " <>
-  #                    "Expected {:ok, socket} or :error"
-  #       :error
-  #   end
-  # end
+  def connect(endpoint, handler, transport_name, transport, serializer, params, pid \\ self()) do
+    vsn = params["vsn"] || "1.0.0"
+
+    socket = %Socket{endpoint: endpoint,
+                     transport: transport,
+                     transport_pid: pid,
+                     transport_name: transport_name,
+                     handler: handler,
+                     vsn: vsn,
+                     pubsub_server: endpoint.__pubsub_server__,
+                     serializer: serializer}
+
+    case handler.connect(params, socket) do
+      {:ok, socket} ->
+        case handler.id(socket) do
+          nil                   -> {:ok, socket}
+          id when is_binary(id) -> {:ok, %Socket{socket | id: id}}
+          invalid               ->
+            Logger.error "#{inspect handler}.id/1 returned invalid identifier #{inspect invalid}. " <>
+                         "Expected nil or a string."
+            :error
+        end
+
+      :error ->
+        :error
+
+      invalid ->
+        Logger.error "#{inspect handler}.connect/2 returned invalid value #{inspect invalid}. " <>
+                     "Expected {:ok, socket} or :error"
+        :error
+    end
+  end
 
   @doc false
   def ws_init({socket, config}) do
