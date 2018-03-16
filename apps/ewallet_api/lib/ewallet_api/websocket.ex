@@ -19,42 +19,42 @@ defmodule EWalletAPI.WebSocket do
   def default_config() do
     [serializer: [{Phoenix.Transports.WebSocketSerializer, "~> 1.0.0"},
                   {Phoenix.Transports.V2.WebSocketSerializer, "~> 2.0.0"}],
+
      timeout: 60_000,
      transport_log: false]
   end
 
   ## Callbacks
 
-  import Plug.Conn, only: [fetch_query_params: 1, send_resp: 3]
+  import Plug.Conn, only: [fetch_query_params: 1, send_resp: 3, assign: 3]
+  import EWalletAPI.V1.ErrorHandler
 
   alias Phoenix.Socket.Broadcast
   alias Phoenix.Socket.Transport
 
   @doc false
-  def init(%Plug.Conn{method: "GET"} = conn, {endpoint, handler, transport}) do
+  def init(%Plug.Conn{method: "GET"} = conn, {global_endpoint, handler, transport}) do
     {_, opts} = handler.__transport__(transport)
-
-    conn =
-      conn
-      |> code_reload(opts, endpoint)
-      |> fetch_query_params()
-      |> Transport.transport_log(opts[:transport_log])
-      |> Transport.force_ssl(handler, endpoint, opts)
-      |> Transport.check_origin(handler, endpoint, opts)
-
-    case conn do
-      %{halted: false} = conn ->
-        params     = conn.params |> Map.put_new(:http_headers, conn.req_headers)
-        serializer = Keyword.fetch!(opts, :serializer)
-
-        case Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params) do
-          {:ok, socket} ->
-            {:ok, conn, {__MODULE__, {socket, opts}}}
-          :error ->
-            conn = send_resp(conn, 200, "")
-            {:error, conn}
-        end
-      %{halted: true} = conn ->
+    IO.inspect(conn.req_headers)
+    with accept <- Enum.at(Plug.Conn.get_req_header(conn, "accept"), 0),
+         {:ok, endpoint, serializer} <- get_endpoint(conn, accept),
+         conn <- code_reload(conn, opts, endpoint),
+         conn <- fetch_query_params(conn),
+         conn <- Transport.transport_log(conn, opts[:transport_log]),
+         conn <- Transport.force_ssl(conn, handler, endpoint, opts),
+         conn <- Transport.check_origin(conn, handler, endpoint, opts),
+         %{halted: false} = conn <- conn,
+         params <- conn.params |> Map.put_new(:http_headers, conn.req_headers),
+         serializer <- Keyword.fetch!(opts, :serializer),
+         {:ok, socket} <- Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params)
+    do
+      IO.inspect(conn)
+      {:ok, conn, {__MODULE__, {socket, opts}}}
+    else
+      error when is_atom(error) ->
+        conn = send_resp(conn, 200, "")
+        {:error, conn}
+      {:error, conn} ->
         {:error, conn}
     end
   end
@@ -63,6 +63,65 @@ defmodule EWalletAPI.WebSocket do
     conn = send_resp(conn, :bad_request, "")
     {:error, conn}
   end
+
+  defp get_endpoint(conn, accept) when is_binary(accept) do
+    case get_accept_version(accept) do
+      nil            -> invalid_version(conn, accept)
+      {:ok, version} -> {:ok, version[:endpoint], version[:websocket_serializer]}
+    end
+  end
+
+  defp get_endpoint(conn, accept) do
+    invalid_version(conn, accept)
+  end
+
+  defp invalid_version(conn, accept) do
+    conn =
+      conn
+      |> assign(:accept, inspect(accept))
+      |> handle_error(:invalid_version)
+
+    {:error, conn}
+  end
+
+  defp get_accept_version(accept) do
+    api_version = Application.get_env(:ewallet_api, :api_versions)
+    Map.fetch(api_version, accept)
+  end
+
+  # def connect(endpoint, handler, transport_name, transport, serializer, params, pid \\ self()) do
+  #   IO.inspect(serializer)
+  #   vsn = params["vsn"] || "1.0.0"
+  #
+  #   socket = %Socket{endpoint: endpoint,
+  #                    transport: transport,
+  #                    transport_pid: pid,
+  #                    transport_name: transport_name,
+  #                    handler: handler,
+  #                    vsn: vsn,
+  #                    pubsub_server: endpoint.__pubsub_server__,
+  #                    serializer: serializer}
+  #
+  #   case handler.connect(params, socket) do
+  #     {:ok, socket} ->
+  #       case handler.id(socket) do
+  #         nil                   -> {:ok, socket}
+  #         id when is_binary(id) -> {:ok, %Socket{socket | id: id}}
+  #         invalid               ->
+  #           Logger.error "#{inspect handler}.id/1 returned invalid identifier #{inspect invalid}. " <>
+  #                        "Expected nil or a string."
+  #           :error
+  #       end
+  #
+  #     :error ->
+  #       :error
+  #
+  #     invalid ->
+  #       Logger.error "#{inspect handler}.connect/2 returned invalid value #{inspect invalid}. " <>
+  #                    "Expected {:ok, socket} or :error"
+  #       :error
+  #   end
+  # end
 
   @doc false
   def ws_init({socket, config}) do
