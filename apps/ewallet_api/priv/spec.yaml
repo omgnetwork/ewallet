@@ -1016,97 +1016,103 @@ components:
     ######################################
     # Schema for transaction request response body
     TransactionRequestResponse:
-      type: object
-      properties:
-        object:
-          type: string
-        id:
-          type: string
-        type:
-          type: string
-          enum:
-            - send
-            - receive
-        token_id:
-          type: string
-        amount:
-          type: string
-        address:
-          type: string
-        correlation_id:
-          type: string
-      required:
-        - object
-        - id
-        - type
-        - token_id
-        - amount
-        - address
-        - correlation_id
-      example:
-        data:
-          object: "transaction_request"
-          id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
-          type: "send"
-          token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
-          amount: 100
-          address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
-          correlation_id: "123"
+      description: "The response schema for a transaction request"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          object:
+            type: string
+          id:
+            type: string
+          type:
+            type: string
+            enum:
+              - send
+              - receive
+          token_id:
+            type: string
+          amount:
+            type: string
+          address:
+            type: string
+          correlation_id:
+            type: string
+        required:
+          - object
+          - id
+          - type
+          - token_id
+          - amount
+          - address
+          - correlation_id
+        example:
+          data:
+            object: "transaction_request"
+            id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
+            type: "send"
+            token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+            amount: 100
+            address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
+            correlation_id: "123"
     # Schema for transaction request consumption response body
     TransactionRequestConsumptionResponse:
-      type: object
-      properties:
-        object:
-          type: string
-        id:
-          type: string
-        status:
-          type: string
-          enum:
-            - pending
-            - confirmed
-            - failed
-        amount:
-          type: string
-        token_id:
-          type: string
-        correlation_id:
-          type: string
-        idempotency_token:
-          type: string
-        transaction_id:
-          type: string
-        user_id:
-          type: string
-        transaction_request_id:
-          type: string
-        address:
-          type: string
-      required:
-        - object
-        - id
-        - status
-        - amount
-        - token_id
-        - correlation_id
-        - idempotency_token
-        - transaction_id
-        - user_id
-        - transaction_request_id
-        - address
-      example:
-        data:
-          object: "transaction_request_consumption"
-          id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
-          status: "confirmed"
-          amount: 100
-          token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
-          correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
-          idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
-          transaction_id: "4567c0be5-15d1-4463-9ec2-02bc8ded7120"
-          user_id: "111c0be5-15d1-4463-9ec2-02bc8ded7120"
-          transaction_request_id: "1231c0be5-15d1-4463-9ec2-02bc8ded7120"
-          address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
+      description: "The response schema for a transaction request consumption"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          object:
+            type: string
+          id:
+            type: string
+          status:
+            type: string
+            enum:
+              - pending
+              - confirmed
+              - failed
+          amount:
+            type: string
+          token_id:
+            type: string
+          correlation_id:
+            type: string
+          idempotency_token:
+            type: string
+          transaction_id:
+            type: string
+          user_id:
+            type: string
+          transaction_request_id:
+            type: string
+          address:
+            type: string
+        required:
+          - object
+          - id
+          - status
+          - amount
+          - token_id
+          - correlation_id
+          - idempotency_token
+          - transaction_id
+          - user_id
+          - transaction_request_id
+          - address
+        example:
+          data:
+            object: "transaction_request_consumption"
+            id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
+            status: "confirmed"
+            amount: 100
+            token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+            correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+            idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
+            transaction_id: "4567c0be5-15d1-4463-9ec2-02bc8ded7120"
+            user_id: "111c0be5-15d1-4463-9ec2-02bc8ded7120"
+            transaction_request_id: "1231c0be5-15d1-4463-9ec2-02bc8ded7120"
+            address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
 
   requestBodies:
     ######################################
