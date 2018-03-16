@@ -6,10 +6,13 @@ alias EWalletDB.{Account, Membership, Role, User}
 
 admin_seeds = [
   # Seed an admin user for each account
-  # Not inserting an admin user as it is already seeded in `initial_user.exs`
+  %{email: "admin_brand1@example.com", password: generate_key(16), metadata: %{}},
+  %{email: "admin_branch1@example.com", password: generate_key(16), metadata: %{}},
 
   # Seed a viewer user for each account
   %{email: "viewer_master@example.com", password: generate_key(16), metadata: %{}},
+  %{email: "viewer_brand1@example.com", password: generate_key(16), metadata: %{}},
+  %{email: "viewer_branch1@example.com", password: generate_key(16), metadata: %{}},
 ]
 
 # Note that we use `account_name` instead of the account's `id` because
