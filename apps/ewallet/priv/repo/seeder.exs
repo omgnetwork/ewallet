@@ -20,6 +20,18 @@ defmodule EWallet.Seeder do
   it does not preserve data integrity implemented in the schema.
   """
   alias EWallet.CLI
+  alias EWallet.EmailValidator
+
+  # The default email address to use for the first admin.
+  @admin_email_default "admin@example.com"
+  @admin_email_question """
+    What email address should we set for your first admin user?
+    This email is required for logging into the admin panel.
+    If a user with this email already exists, it will escalate the user to admin role.
+    """
+  @admin_email_invalid """
+    The given email address format is invalid. Please try seed again with a different email address.
+    """
 
   # Seeds to intialize the system.
   @init_seeds [
@@ -50,7 +62,28 @@ defmodule EWallet.Seeder do
   """
   def init(args) do
     {opts, _argv, _errors} = OptionParser.parse(args)
+
+    # Ask for email address.
+    # I really don't like to use `put_env` but it will do for now while we have not refactored
+    # the seeding scripts into a proper structure.
+    IO.puts(@admin_email_question)
+    Application.put_env(:ewallet, :seed_admin_email, ask_email())
+
+    # Set the :env value so the code can determine if we allow seed to be run on this env or not
     Keyword.put_new(opts, :env, Application.get_env(:ewallet_db, :env))
+  end
+
+  defp ask_email do
+    email =
+      "E-mail (#{@admin_email_default}): "
+      |> IO.gets()
+      |> String.trim()
+
+    cond do
+      byte_size(email) == 0          -> @admin_email_default # use default email if not provided
+      EmailValidator.validate(email) -> email # use given email if valid
+      true                           -> CLI.halt(@admin_email_invalid) # else halt with error
+    end
   end
 
   @doc """
