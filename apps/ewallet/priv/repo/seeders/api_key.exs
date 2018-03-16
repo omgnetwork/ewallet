@@ -6,21 +6,9 @@ alias EWallet.Seeder.CLI
 seeds = [
   # Auth tokens for ewallet_api
   %{account_name: "master_account", owner_app: "ewallet_api"},
-  %{account_name: "brand1"        , owner_app: "ewallet_api"},
-  %{account_name: "brand2"        , owner_app: "ewallet_api"},
-  %{account_name: "branch1"       , owner_app: "ewallet_api"},
-  %{account_name: "branch2"       , owner_app: "ewallet_api"},
-  %{account_name: "branch3"       , owner_app: "ewallet_api"},
-  %{account_name: "branch4"       , owner_app: "ewallet_api"},
 
   # Auth tokens for admin_api
   # Not inserting for master account as it is already seeded in `initial_api_key.exs`
-  %{account_name: "brand1"        , owner_app: "admin_api"},
-  %{account_name: "brand2"        , owner_app: "admin_api"},
-  %{account_name: "branch1"       , owner_app: "admin_api"},
-  %{account_name: "branch2"       , owner_app: "admin_api"},
-  %{account_name: "branch3"       , owner_app: "admin_api"},
-  %{account_name: "branch4"       , owner_app: "admin_api"},
 ]
 
 CLI.subheading("Seeding API Keys:\n")

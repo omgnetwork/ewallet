@@ -4,13 +4,7 @@ alias EWallet.Seeder.CLI
 alias EWalletDB.{Account, Key}
 
 seeds = [
-  %{account_name: "master_account"},
-  %{account_name: "brand1"},
-  %{account_name: "brand2"},
-  %{account_name: "branch1"},
-  %{account_name: "branch2"},
-  %{account_name: "branch3"},
-  %{account_name: "branch4"}
+  %{account_name: "master_account"}
 ]
 
 CLI.subheading("Seeding Access/Secret Keys:\n")
