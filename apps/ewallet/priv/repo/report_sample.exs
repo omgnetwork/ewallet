@@ -5,13 +5,13 @@ alias EWallet.CLI
 base_url = Application.get_env(:ewallet_db, :base_url) || "https://example.com"
 
 # eWallet API
-ewallet_swagger_ui_url = base_url <> "/api/swagger"
+ewallet_swagger_ui_url = base_url <> "/api/docs"
 ewallet_key         = Application.get_env(:ewallet, :seed_ewallet_key)
 ewallet_api_key     = Application.get_env(:ewallet, :seed_ewallet_api_key)
 ewallet_auth_token  = Application.get_env(:ewallet, :seed_ewallet_auth_token)
 
 # Admin API
-admin_api_swagger_ui_url = base_url <> "/admin/api/swagger"
+admin_api_swagger_ui_url = base_url <> "/admin/api/docs"
 admin_api_key         = Application.get_env(:ewallet, :seed_admin_api_key)
 admin_user            = Application.get_env(:ewallet, :seed_admin_user)
 admin_auth_token      = Application.get_env(:ewallet, :seed_admin_auth_token)
