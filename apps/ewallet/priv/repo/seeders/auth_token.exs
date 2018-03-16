@@ -3,12 +3,14 @@ alias EWallet.Seeder
 alias EWallet.Seeder.CLI
 alias EWalletDB.{AuthToken, User}
 
+admin = Application.get_env(:ewallet, :seed_admin_user)
+
 seeds = [
   # Auth tokens for ewallet_api. The users with the given provider_user_id must already be seeded.
   %{user: User.get_by_provider_user_id("provider_user_id01"), owner_app: :ewallet_api},
 
   # Auth tokens for admin_api. The users with the given email must already be seeded.
-  %{user: User.get_by_email("admin_master@example.com"), owner_app: :admin_api},
+  %{user: admin, owner_app: :admin_api},
 ]
 
 CLI.subheading("Seeding Auth Tokens:\n")
@@ -24,7 +26,7 @@ Enum.each(seeds, fn(data) ->
       cond do
         data.user.provider_user_id == "provider_user_id01" && data.owner_app == :ewallet_api ->
           Application.put_env(:ewallet, :seed_ewallet_auth_token, token)
-        data.user.email == "admin_master@example.com" && data.owner_app == :admin_api ->
+        data.user.email == admin.email && data.owner_app == :admin_api ->
           Application.put_env(:ewallet, :seed_admin_auth_token, token)
         true ->
           nil
