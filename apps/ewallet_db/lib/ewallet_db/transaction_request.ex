@@ -99,4 +99,13 @@ defmodule EWalletDB.TransactionRequest do
     |> create_changeset(attrs)
     |> Repo.insert()
   end
+
+  def expiration_from_lifetime(request) do
+    lifetime? = request.consumption_lifetime && request.consumption_lifetime > 0
+
+    case lifetime? do
+      true  -> nil
+      false -> nil
+    end
+  end
 end

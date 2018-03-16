@@ -23,6 +23,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
     field :idempotency_token, :string
     field :approved, :boolean, default: false
     field :finalized_at, :naive_datetime
+    field :expires_at, :naive_datetime
     field :metadata, :map
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     belongs_to :transfer, Transfer, foreign_key: :transfer_id,
@@ -51,7 +52,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
     |> cast(attrs, [
       :amount, :idempotency_token, :correlation_id, :user_id, :account_id,
       :transaction_request_id, :balance_address, :minted_token_id,
-      :metadata, :encrypted_metadata
+      :metadata, :encrypted_metadata, :expires_at
     ])
     |> validate_required([
       :status, :amount, :idempotency_token, :transaction_request_id,
