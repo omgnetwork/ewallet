@@ -97,15 +97,17 @@ defmodule EWallet.Seeder do
     # Disable noisy debug messages. Seeders already have their own log messages.
     Logger.configure(level: :warn)
 
-    # Run the seed
+    # Run the minimum seed
+    load(@init_seeds)
+    Code.load_file("report_minimum.exs", __DIR__)
+
+    # Run the sample seed if specified
     if sample_seed?(opts) do
-      load(@init_seeds)
       load(@sample_seeds)
       Code.load_file("report_sample.exs", __DIR__)
-    else
-      load(@init_seeds)
-      Code.load_file("report_minimum.exs", __DIR__)
     end
+
+    CLI.success("Database seeded completed. Enjoy!")
   end
 
   defp sample_seed?(opts), do: Keyword.get(opts, :sample, false)
