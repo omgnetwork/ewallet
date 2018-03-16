@@ -5,12 +5,12 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{PaginatorSerializer, MintedTokenSerializer}
   alias EWallet.Web.{Date, Paginator}
+  alias EWalletDB.Transfer
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
-  def serialize(%NotLoaded{}), do: nil
-  def serialize(transaction) when is_map(transaction) do
+  def serialize(%Transfer{} = transaction) do
     serialized_minted_token = MintedTokenSerializer.serialize(transaction.minted_token)
 
     # credo:disable-for-next-line
@@ -41,4 +41,6 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       updated_at: Date.to_iso8601(transaction.updated_at)
     }
   end
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
 end

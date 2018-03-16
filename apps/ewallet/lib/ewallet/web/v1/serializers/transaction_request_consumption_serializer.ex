@@ -37,4 +37,5 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
     }
   end
   def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
 end

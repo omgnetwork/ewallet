@@ -5,14 +5,15 @@ defmodule EWallet.Web.V1.AddressSerializer do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.BalanceSerializer
 
-  def serialize(address) when is_map(address) do
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
+  def serialize(address) do
     %{
       object: "address",
       balances: serialize_balances(address.balances),
       address: address.address,
     }
   end
-  def serialize(%NotLoaded{}), do: nil
 
   defp serialize_balances(balances) do
     Enum.map(balances, &BalanceSerializer.serialize/1)
