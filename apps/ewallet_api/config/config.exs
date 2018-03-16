@@ -12,10 +12,13 @@ config :ewallet_api,
 
 # Configures the endpoint for websockets
 config :ewallet_api, EWalletAPI.Endpoint,
-  pubsub: [name: EWalletAPI.PubSub,
-           adapter: Phoenix.PubSub.PG2]
+  render_errors: [
+    view: EWalletAPI.ErrorView,
+    accepts: ~w(json),
+    default_format: "json"
+  ]
 
-config :ewallet_api, EWalletAPI.Endpoint,
+config :ewallet_api, EWalletAPI.V1.Endpoint,
   render_errors: [
     view: EWalletAPI.ErrorView,
     accepts: ~w(json),
@@ -43,7 +46,11 @@ config :ewallet_api, :generators,
 
 # Maps an accept header to the respective router version.
 config :ewallet_api, :api_versions, %{
-  "application/vnd.omisego.v1+json" => EWalletAPI.V1.Router
+  "application/vnd.omisego.v1+json" => %{
+    router: EWalletAPI.V1.Router,
+    endpoint: EWalletAPI.V1.Endpoint,
+    websocket_serializer: EWallet.Web.V1.WebsocketResponseSerializer
+  }
 }
 
 # Maps accept header to an extension type so Phoenix knows

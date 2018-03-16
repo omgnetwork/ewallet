@@ -4,9 +4,9 @@ defmodule UrlDispatcher.SocketDispatcher do
   end
 
   def ewallet_api do
-    EWalletAPI.Endpoint.__sockets__
+    EWalletAPI.V1.Endpoint.__sockets__
     |> Enum.map(fn {path, socket} ->
-      {path, EWalletAPI.Endpoint, socket} |> build_websocket_config("/api")
+      {path, EWalletAPI.V1.Endpoint, socket} |> build_websocket_config("/api")
     end)
   end
 

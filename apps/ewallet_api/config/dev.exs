@@ -11,3 +11,9 @@ config :ewallet_api, EWalletAPI.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: []
+
+config :ewallet_api, EWalletAPI.V1.Endpoint,
+  debug_errors: true,
+  code_reloader: true,
+  check_origin: false,
+  watchers: []

@@ -12,6 +12,7 @@ defmodule EWalletAPI.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(EWalletAPI.Endpoint, []),
+      supervisor(EWalletAPI.V1.Endpoint, []),
       # Start your own worker by calling:
       #   EWalletAPI.Worker.start_link(arg1, arg2, arg3)
       # worker(EWalletAPI.Worker, [arg1, arg2, arg3]),
