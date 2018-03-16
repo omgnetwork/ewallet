@@ -27,20 +27,14 @@ defmodule EWallet.Web.Embedder do
     end
   end
 
+  @doc """
+  Embed association data.
+  """
   def embed(record, nil, embeddable, always_embed), do: embed(record, [], embeddable, always_embed)
   def embed(record, requested, embeddable, always_embed) do
-    requested = Helper.to_existing_atoms(requested)
+    requested = Helper.to_existing_atoms(requested) ++ always_embed
+    allowed   = embeddable -- (embeddable -- requested)
 
-    # We could use `embeds -- (embeds -- embeddable)` but the complexity is O(N^3)
-    # and we're dealing with user inputs here, so it's better to convert to `MapSet`
-    # before operating on the lists.
-    embeds     = MapSet.new(requested ++ always_embed)
-    embeddable = MapSet.new(embeddable)
-    filtered   = MapSet.intersection(embeds, embeddable)
-
-    case MapSet.size(filtered) do
-      n when n > 0 -> Repo.preload(record, MapSet.to_list(filtered))
-      _            -> record
-    end
+    Repo.preload(record, allowed)
   end
 end
