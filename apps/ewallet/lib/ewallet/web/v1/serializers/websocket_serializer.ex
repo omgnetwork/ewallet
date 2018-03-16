@@ -14,15 +14,16 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   def serialize(data, %{
     success: success,
     topic: topic,
-    event: event
-  } = attrs) do
+    event: event,
+    ref: ref
+  }) do
     %{
       success: success,
       version: "1",
       data: data,
       topic: topic,
       event: event,
-      ref: attrs["ref"]
+      ref: ref
     }
   end
 
@@ -62,7 +63,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
 
   defp encode_fields(%Message{} = msg) do
     msg.payload
-    |> serialize(%{success: true, topic: msg.topic, event: msg.event, payload: msg.payload})
+    |> serialize(%{success: true, ref: msg.ref, topic: msg.topic, event: msg.event, payload: msg.payload})
     |> Poison.encode_to_iodata!()
   end
 end
