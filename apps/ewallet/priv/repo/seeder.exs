@@ -97,12 +97,20 @@ defmodule EWallet.Seeder do
     # Disable noisy debug messages. Seeders already have their own log messages.
     Logger.configure(level: :warn)
 
+    if verbose?(opts) do
+      CLI.heading("Verbose mode: Displaying seeded data")
+    end
+
     # Run the minimum seed
     load(@init_seeds)
     Code.load_file("report_minimum.exs", __DIR__)
 
     # Run the sample seed if specified
     if sample_seed?(opts) do
+      if verbose?(opts) do
+        CLI.heading("Verbose mode: Displaying seeded sample data")
+      end
+
       load(@sample_seeds)
       Code.load_file("report_sample.exs", __DIR__)
     end
@@ -112,6 +120,7 @@ defmodule EWallet.Seeder do
 
   defp sample_seed?(opts), do: Keyword.get(opts, :sample, false)
   defp production?(opts), do: Keyword.get(opts, :env) == :prod
+  defp verbose?(opts), do: Keyword.get(opts, :verbose, false)
 
   defp load(files) do
     Enum.each(files, fn(file) ->
@@ -123,6 +132,28 @@ defmodule EWallet.Seeder do
     Enum.each(errors, fn({field, {message, _}}) ->
       CLI.error("  `#{field}` #{message}")
     end)
+  end
+
+  defmodule CLI do
+    alias EWallet.CLI, as: EWalletCLI
+
+    def subheading(message) do
+      if Enum.member?(System.argv, "--verbose"), do: EWalletCLI.color([:light_black, message])
+    end
+
+    def info(message) do
+      if Enum.member?(System.argv, "--verbose"), do: EWalletCLI.debug(message)
+    end
+
+    def success(message) do
+      if Enum.member?(System.argv, "--verbose"), do: EWalletCLI.debug(message)
+    end
+
+    def warn(message) do
+      if Enum.member?(System.argv, "--verbose"), do: EWalletCLI.debug(message)
+    end
+
+    def error(message), do: EWalletCLI.error(message)
   end
 end
 

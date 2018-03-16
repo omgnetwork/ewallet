@@ -1,6 +1,7 @@
 # This is the seeding script for MintedToken.
 alias Ecto.UUID
-alias EWallet.{CLI, MintGate, Seeder}
+alias EWallet.{MintGate, Seeder}
+alias EWallet.Seeder.CLI
 alias EWalletDB.{Account, MintedToken, Repo}
 
 seeds = [
@@ -41,22 +42,34 @@ seeds = [
   },
 ]
 
+CLI.subheading("Seeding the minted tokens:\n")
+
 Enum.each(seeds, fn(data) ->
   with nil                 <- Repo.get_by(MintedToken, symbol: data.symbol),
-       {:ok, _minted_token} <- MintedToken.insert(data)
+       {:ok, minted_token} <- MintedToken.insert(data)
   do
-    nil
+    CLI.success("""
+        Friendly ID     : #{minted_token.friendly_id}
+        Subunit to unit : #{minted_token.subunit_to_unit}
+        Account         : #{minted_token.account_id}
+      """)
   else
-    %MintedToken{} ->
-      nil
+    %MintedToken{} = minted_token ->
+      CLI.warn("""
+          Friendly ID     : #{minted_token.friendly_id}
+          Subunit to unit : #{minted_token.subunit_to_unit}
+          Account         : #{minted_token.account_id}
+        """)
     {:error, changeset} ->
-      CLI.error("MintedToken #{data.symbol} could not be inserted:")
+      CLI.error("  MintedToken #{data.symbol} could not be inserted:")
       Seeder.print_errors(changeset)
     _ ->
-      CLI.error("MintedToken #{data.symbol} could not be inserted:")
+      CLI.error("  MintedToken #{data.symbol} could not be inserted:")
       CLI.error("  Unable to parse the provided error.\n")
   end
 end)
+
+CLI.subheading("Minting the seeded minted tokens:\n")
 
 Enum.each(seeds, fn(data) ->
   minted_token = Repo.get_by(MintedToken, symbol: data.symbol)
@@ -70,13 +83,19 @@ Enum.each(seeds, fn(data) ->
   }
 
   case MintGate.insert(mint_data) do
-    {:ok, _mint, _transfer} ->
-      nil
+    {:ok, mint, transfer} ->
+      CLI.success("""
+          Minted Token ID  : #{minted_token.friendly_id}
+          Amount (subunit) : #{mint.amount}
+          Confirmed?       : #{mint.confirmed}
+          From address     : #{transfer.from || '<nil>'}
+          To address       : #{transfer.to || '<nil>'}
+        """)
     {:error, changeset} ->
-      CLI.error("#{minted_token.symbol} could not be minted:")
+      CLI.error("  #{minted_token.symbol} could not be minted:")
       Seeder.print_errors(changeset)
     _ ->
-      CLI.error("#{minted_token.symbol} could not be minted:")
+      CLI.error("  #{minted_token.symbol} could not be minted:")
       CLI.error("  Unable to parse the provided error.\n")
   end
 end)

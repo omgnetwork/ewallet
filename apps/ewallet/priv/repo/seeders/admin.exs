@@ -44,19 +44,31 @@ memberships = [
   %{email: "viewer_branch4@example.com", role_name: "viewer", account_name: "branch4"},
 ]
 
+CLI.subheading("Seeding admin panel users:\n")
+
 Enum.each(admin_seeds, fn(data) ->
   with nil <- User.get_by_email(data.email),
-       {:ok, _user} <- User.insert(data)
+       {:ok, user} <- User.insert(data)
   do
-    nil
+    CLI.success("""
+      Email    : #{user.email}
+      Password : #{data.password || '<hashed>'}
+      ID       : #{user.id}
+    """)
   else
-    %User{} ->
-      nil
+    %User{} = user ->
+      CLI.warn("""
+        Email    : #{user.email}
+        Password : #{data.password || '<hashed>'}
+        ID       : #{user.id}
+      """)
     {:error, changeset} ->
-      CLI.error("🔧 Admin Panel user #{data.email} could not be inserted:")
+      CLI.error("  Admin Panel user #{data.email} could not be inserted:")
       Seeder.print_errors(changeset)
   end
 end)
+
+CLI.subheading("Assigning roles to admin panel users:\n")
 
 Enum.each(memberships, fn(membership) ->
   with %User{} = user       <- User.get_by_email(membership.email),
@@ -64,13 +76,16 @@ Enum.each(memberships, fn(membership) ->
        %Role{} = role       <- Role.get_by_name(membership.role_name),
        {:ok, _}             <- Membership.assign(user, account, role)
   do
-    nil
+    CLI.success("""
+        Email : #{user.email}
+        Role  : #{role.name} at #{account.name}
+      """)
   else
     {:error, changeset} ->
-      CLI.error("🔧 Admin Panel user #{membership.email} could not be assigned:")
+      CLI.error("  Admin Panel user #{membership.email} could not be assigned:")
       Seeder.print_errors(changeset)
     _ ->
-      CLI.error("🔧 Admin Panel user #{membership.email} could not be assigned:")
+      CLI.error("  Admin Panel user #{membership.email} could not be assigned:")
       CLI.error("  Unable to parse the provided error.\n")
   end
 end)

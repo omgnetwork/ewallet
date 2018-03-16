@@ -9,6 +9,8 @@ defmodule EWallet.CLI do
 
   def info(message), do: [:normal, message] |> format |> puts
 
+  def debug(message), do: [:faint, message] |> format |> puts
+
   def success(message), do: [:green, message] |> format |> puts
 
   def warn(message), do: [:yellow, message] |> format |> puts

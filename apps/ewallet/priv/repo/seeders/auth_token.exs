@@ -1,5 +1,6 @@
 # This is the seeding script for AuthToken.
-alias EWallet.{CLI, Seeder}
+alias EWallet.Seeder
+alias EWallet.Seeder.CLI
 alias EWalletDB.{AuthToken, User}
 
 seeds = [
@@ -19,18 +20,13 @@ seeds = [
   %{user: User.get_by_email("viewer_branch1@example.com"), owner_app: :admin_api},
 ]
 
+CLI.subheading("Seeding Auth Tokens:\n")
+
 Enum.each(seeds, fn(data) ->
   token =
     data
     |> Map.fetch!(:user)
     |> AuthToken.generate(data.owner_app)
-
-  icon =
-    case data.owner_app do
-      :ewallet_api -> "📱 "
-      :admin_api   -> "🔧 "
-      _            -> ""
-    end
 
   case token do
     {:ok, token} ->
@@ -42,14 +38,23 @@ Enum.each(seeds, fn(data) ->
         true ->
           nil
       end
+      CLI.success("""
+        Owner app        : #{data.owner_app}
+        User ID          : #{data.user.id}
+        Provider user ID : #{data.user.provider_user_id || '<nil>'}
+        User email       : #{data.user.email || '<nil>'}
+        Auth token       : #{token}
+      """)
     {:error, changeset} ->
-      CLI.error("#{icon} AuthToken could not be inserted:"
-        <> "  Owner app        : #{data.owner_app}\n"
-        <> "  Provider user ID : #{data.user.provider_user_id || '<nil>'}\n"
-        <> "  User email       : #{data.user.email || '<nil>'}\n")
+      CLI.error("""
+        AuthToken could not be inserted:
+        Owner app        : #{data.owner_app}
+        Provider user ID : #{data.user.provider_user_id || '<nil>'}
+        User email       : #{data.user.email || '<nil>'}
+      """)
       Seeder.print_errors(changeset)
     _ ->
-      CLI.error("#{icon} AuthToken could not be inserted:")
+      CLI.error("  AuthToken could not be inserted:")
       CLI.error("  Unable to parse the provided error.\n")
   end
 end)
