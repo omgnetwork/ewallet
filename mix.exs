@@ -61,7 +61,11 @@ defmodule EWallet.Umbrella.Mixfile do
       reset: [
         "ecto.drop",
         "init",
-        "seed",
+      ],
+      wipe: [
+        "ecto.drop",
+        "ecto.create",
+        "ecto.migrate"
       ],
       seed: [
         "run apps/ewallet/priv/repo/seeder.exs"
