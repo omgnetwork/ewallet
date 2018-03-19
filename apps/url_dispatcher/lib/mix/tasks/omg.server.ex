@@ -19,16 +19,38 @@ defmodule Mix.Tasks.Omg.Server do
       mix omg.server --no-deps-check
 
   The `--no-halt` flag is automatically added.
+
+  ## OmiseGO-specific options
+
+  This task can also be run with the following flags:
+
+  - `--no-watch` - disables watching and building when frontend assets change
   """
 
   @doc false
   def run(args) do
-    Application.put_env(:url_dispatcher, :serve_endpoints, true)
-    Run.run run_args() ++ args
+    args
+    |> configure_endpoints()
+    |> configure_no_watch()
+    |> configure_no_halt()
+    |> Run.run()
   end
 
-  defp run_args do
-    if iex_running?(), do: [], else: ["--no-halt"]
+  # Let the UrlDispatcher know that the application is started as a server,
+  # so that it can prepare the endpoints to be served.
+  defp configure_endpoints(args) do
+    Application.put_env(:url_dispatcher, :serve_endpoints, true)
+    args # Doesn't touch the arguments, so send it back for further processing
+  end
+
+  defp configure_no_watch(args) do
+    {parsed, args, _invalids} = OptionParser.parse(args, [no_watch: :boolean])
+    if parsed[:no_watch], do: Application.put_env(:admin_panel, :start_with_no_watch, true)
+    args # This is the arguments with `--no-watch` flag removed by `OptionParser.parse/2` above
+  end
+
+  defp configure_no_halt(args) do
+    if iex_running?(), do: args, else: ["--no-halt" | args]
   end
 
   defp iex_running? do
