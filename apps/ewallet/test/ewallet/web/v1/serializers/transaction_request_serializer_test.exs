@@ -13,6 +13,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         object: "transaction_request",
         id: transaction_request.id,
         type: transaction_request.type,
+        minted_token_id: transaction_request.minted_token.friendly_id,
         minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
         amount: transaction_request.amount,
         user_id: transaction_request.user_id,

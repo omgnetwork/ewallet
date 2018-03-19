@@ -1,5 +1,6 @@
 defmodule EWallet.Web.V1.KeySerializerTest do
   use EWallet.Web.SerializerCase, :v1
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.KeySerializer
   alias EWallet.Web.{Date, Paginator}
 
@@ -19,6 +20,10 @@ defmodule EWallet.Web.V1.KeySerializerTest do
       }
 
       assert KeySerializer.serialize(key) == expected
+    end
+
+    test "serializes to nil if the key is not loaded" do
+      assert KeySerializer.serialize(%NotLoaded{}) == nil
     end
 
     test "serializes a key paginator into a list object" do

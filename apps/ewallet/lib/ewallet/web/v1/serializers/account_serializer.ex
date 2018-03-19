@@ -2,6 +2,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   @moduledoc """
   Serializes account(s) into V1 response format.
   """
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.Account
@@ -16,7 +17,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
       data: Enum.map(accounts, &serialize/1)
     }
   end
-  def serialize(account) when is_map(account) do
+  def serialize(%Account{} = account)do
     %{
       object: "account",
       id: account.id,
@@ -31,7 +32,6 @@ defmodule EWallet.Web.V1.AccountSerializer do
       updated_at: Date.to_iso8601(account.updated_at)
     }
   end
-  def serialize(nil) do
-    nil
-  end
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
 end

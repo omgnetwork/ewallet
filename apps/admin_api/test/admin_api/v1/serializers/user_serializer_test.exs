@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.UserSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias AdminAPI.V1.UserSerializer
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
 
   describe "serialize/1" do
@@ -29,6 +30,14 @@ defmodule AdminAPI.V1.UserSerializerTest do
       }
 
       assert UserSerializer.serialize(user) == expected
+    end
+
+    test "serializes to nil if user is not given" do
+      assert UserSerializer.serialize(nil) == nil
+    end
+
+    test "serializes to nil if user is not loaded" do
+      assert UserSerializer.serialize(%NotLoaded{}) == nil
     end
 
     test "serializes a user paginator into a list object" do
