@@ -45,7 +45,7 @@ defmodule EWalletDB.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1.6"},
-      {:ex_machina, github: "thoughtbot/ex_machina", ref: "037d826", only: :test},
+      {:ex_machina, "~> 2.2", only: :test},
       {:poison, "~> 3.1"},
       {:bcrypt_elixir, "~> 1.0"},
       {:salty, github: "omisego/salty"},
