@@ -1,0 +1,38 @@
+defmodule EWallet.Web.V1.ClientAuth do
+  alias EWalletDB.{APIKey, AuthToken}
+
+  def parse_header(header) do
+    with header when not is_nil(header) <- header,
+        [scheme, content] <- String.split(header, " ", parts: 2),
+        true <- scheme in ["Basic", "OMGClient"],
+        {:ok, decoded} <- Base.decode64(content),
+        [key, token] <- String.split(decoded, ":", parts: 2)
+    do
+      {:ok, key, token}
+    else
+      _ ->
+        {:error, :invalid_auth_scheme}
+    end
+  end
+
+  def authenticate_client(api_key) do
+    case APIKey.authenticate(api_key, :ewallet_api) do
+      false ->
+        {:error, :invalid_api_key}
+      account ->
+        {:ok, account}
+    end
+  end
+
+  def authenticate_token(auth_token, app) do
+    case AuthToken.authenticate(auth_token, app) do
+      false -> {:error, :access_token_not_found}
+      :token_expired -> {:error, :access_token_expired}
+      user -> {:ok, user}
+    end
+  end
+
+  def expire_token(token_string, app) do
+    AuthToken.expire(token_string, app)
+  end
+end

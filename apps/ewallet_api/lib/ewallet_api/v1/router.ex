@@ -61,6 +61,8 @@ defmodule EWalletAPI.V1.Router do
 
     post "/me.create_transaction_request", TransactionRequestController, :create_for_user
     post "/me.get_transaction_request", TransactionRequestController, :get
+    post "/me.confirm_transaction_request_consumption",
+         TransactionRequestConsumptionController, :confirm
 
     scope "/" do
       pipe_through [:idempotency]

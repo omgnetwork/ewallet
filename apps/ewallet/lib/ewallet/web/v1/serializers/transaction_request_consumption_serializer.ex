@@ -9,6 +9,7 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
     %{
       object: "transaction_request_consumption",
       id: consumption.id,
+      socket_topic: "transaction_request_consumption:#{consumption.id}",
       status: consumption.status,
       approved: consumption.approved,
       amount: consumption.amount,

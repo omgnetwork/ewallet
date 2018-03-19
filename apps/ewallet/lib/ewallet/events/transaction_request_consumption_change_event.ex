@@ -35,6 +35,5 @@ defmodule EWallet.TransactionRequestConsumptionChangeEvent do
   defp payload(consumption) do
     consumption
     |> EWallet.Web.V1.TransactionRequestConsumptionSerializer.serialize()
-    |> EWallet.Web.V1.ResponseSerializer.serialize(success: true)
   end
 end

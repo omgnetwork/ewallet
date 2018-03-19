@@ -23,7 +23,7 @@ defmodule EWalletAPI.WebSocket do
 
   ## Callbacks
 
-  import Plug.Conn, only: [fetch_query_params: 1, send_resp: 3, assign: 3]
+  import Plug.Conn, only: [fetch_query_params: 1, get_req_header: 2, send_resp: 3, assign: 3]
   import EWalletAPI.V1.ErrorHandler
 
   require Logger
@@ -33,10 +33,10 @@ defmodule EWalletAPI.WebSocket do
   alias Phoenix.Socket.Transport
 
   @doc false
-  def init(%Plug.Conn{method: "GET"} = conn, {global_endpoint, handler, transport}) do
+  def init(%Plug.Conn{method: "GET"} = conn, {_global_endpoint, handler, transport}) do
     {_, opts} = handler.__transport__(transport)
-    IO.inspect(conn.req_headers)
-    with accept <- Enum.at(Plug.Conn.get_req_header(conn, "accept"), 0),
+
+    with accept <- Enum.at(get_req_header(conn, "accept"), 0),
          {:ok, endpoint, serializer} <- get_endpoint(conn, accept),
          conn <- code_reload(conn, opts, endpoint),
          conn <- fetch_query_params(conn),
@@ -47,14 +47,20 @@ defmodule EWalletAPI.WebSocket do
          params <- conn.params |> Map.put_new(:http_headers, conn.req_headers),
          {:ok, socket} <- connect(endpoint, handler, transport, __MODULE__, serializer, params)
     do
-      IO.inspect(conn)
       {:ok, conn, {__MODULE__, {socket, opts}}}
     else
-      error when is_atom(error) ->
-        conn = send_resp(conn, 200, "")
+      _error ->
+        conn = send_resp(conn, 403, "abccc")
         {:error, conn}
-      {:error, conn} ->
-        {:error, conn}
+      # error when is_atom(error) ->
+      #   conn = send_resp(conn, 403, "abccc")
+      #   {:error, conn}
+      # {:error, %Plug.Conn{} = conn} ->
+      #   conn = send_resp(conn, 403, "def")
+      #   {:error, conn}
+      # {:error, _code} ->
+      #   conn = send_resp(conn, 403, "zyx")
+      #   {:error, conn}
     end
   end
 
@@ -65,8 +71,8 @@ defmodule EWalletAPI.WebSocket do
 
   defp get_endpoint(conn, accept) when is_binary(accept) do
     case get_accept_version(accept) do
-      nil            -> invalid_version(conn, accept)
       {:ok, version} -> {:ok, version[:endpoint], version[:websocket_serializer]}
+      _              -> invalid_version(conn, accept)
     end
   end
 
@@ -110,6 +116,9 @@ defmodule EWalletAPI.WebSocket do
                          "Expected nil or a string."
             :error
         end
+
+      {:error, code} ->
+        {:error, code}
 
       :error ->
         :error
