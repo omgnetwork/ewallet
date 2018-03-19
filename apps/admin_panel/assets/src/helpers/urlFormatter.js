@@ -16,7 +16,7 @@ export function processURL(location) {
 }
 
 export function accountURL(session, path) {
-  return `${ADMIN_PANEL_BASE_DIR}/a/${session.currentAccount.id}${path}`;
+  return `/a/${session.currentAccount.id}${path}`;
 }
 
 export function formatEmailLink(struct) {
