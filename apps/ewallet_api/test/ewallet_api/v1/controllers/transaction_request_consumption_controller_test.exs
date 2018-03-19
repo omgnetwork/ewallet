@@ -2,6 +2,7 @@
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequestConsumption, User, Transfer, Account}
   alias EWallet.Web.Date
+  alias EWalletAPI.V1.Endpoint
 
   setup do
     account = Account.get_master_account()
@@ -56,6 +57,7 @@
           "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
           "id" => inserted_consumption.id,
+          "socket_topic" => "transaction_request_consumption:#{inserted_consumption.id}",
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
@@ -172,7 +174,7 @@
       request_topic = "transaction_request:#{transaction_request.id}"
 
       # Start listening to the channels for the transaction request created above
-      EWalletAPI.V1.Endpoint.subscribe(request_topic)
+      Endpoint.subscribe(request_topic)
 
       # The sender (Alice) needs some tokens, let's fix that
       set_initial_balance(%{
@@ -206,17 +208,13 @@
         event: "transaction_request_confirmation",
         topic: "transaction_request:" <> _,
         payload: %{
-          success: true,
-          version: "1",
-          data: %{
-            # Ignore content
-          }
+          # Ignore content
         }
       }
 
       # We need to know once the consumption has been approved, so let's
       # listen to the channel for it
-      EWalletAPI.V1.Endpoint.subscribe("transaction_request_consumption:#{consumption_id}")
+      Endpoint.subscribe("transaction_request_consumption:#{consumption_id}")
 
       # Confirm the consumption
       response = provider_request("/transaction_request_consumption.confirm", %{
@@ -237,17 +235,13 @@
         event: "transaction_request_consumption_change",
         topic:  "transaction_request_consumption:" <> _,
         payload: %{
-          success: true,
-          version: "1",
-          data: %{
-            # Ignore content
-          }
+          # Ignore content
         }
       }
 
       # Unsubscribe from all channels
-      EWalletAPI.V1.Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
-      EWalletAPI.V1.Endpoint.unsubscribe("transaction_request_consumption:#{consumption_id}")
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_request_consumption:#{consumption_id}")
     end
   end
 
@@ -287,6 +281,7 @@
           "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
           "id" => inserted_consumption.id,
+          "socket_topic" => "transaction_request_consumption:#{inserted_consumption.id}",
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",

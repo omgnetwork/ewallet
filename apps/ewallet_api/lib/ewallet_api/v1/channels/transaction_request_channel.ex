@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionRequestChannel do
   use Phoenix.Channel
 
-  def join("transaction_request:" <> request_id, params, socket) do
+  def join("transaction_request:" <> _request_id, _params, socket) do
     {:ok, socket}
   end
 

@@ -12,6 +12,7 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializerTest do
       expected = %{
         object: "transaction_request_consumption",
         id: consumption.id,
+        socket_topic: "transaction_request_consumption:#{consumption.id}",
         status: consumption.status,
         amount: consumption.amount,
         minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
