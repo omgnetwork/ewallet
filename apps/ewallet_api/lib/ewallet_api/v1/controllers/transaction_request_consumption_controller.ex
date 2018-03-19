@@ -2,10 +2,6 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.TransactionConsumptionGate
-  alias EWallet.Web.V1.{
-    ResponseSerializer,
-    TransactionRequestConsumptionSerializer
-  }
 
   def consume(conn, attrs) do
     attrs

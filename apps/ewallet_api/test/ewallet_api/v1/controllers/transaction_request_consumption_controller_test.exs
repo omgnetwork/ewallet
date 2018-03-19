@@ -172,7 +172,7 @@
       request_topic = "transaction_request:#{transaction_request.id}"
 
       # Start listening to the channels for the transaction request created above
-      EWalletAPI.Endpoint.subscribe(request_topic)
+      EWalletAPI.V1.Endpoint.subscribe(request_topic)
 
       # The sender (Alice) needs some tokens, let's fix that
       set_initial_balance(%{
@@ -216,7 +216,7 @@
 
       # We need to know once the consumption has been approved, so let's
       # listen to the channel for it
-      EWalletAPI.Endpoint.subscribe("transaction_request_consumption:#{consumption_id}")
+      EWalletAPI.V1.Endpoint.subscribe("transaction_request_consumption:#{consumption_id}")
 
       # Confirm the consumption
       response = provider_request("/transaction_request_consumption.confirm", %{
@@ -246,8 +246,8 @@
       }
 
       # Unsubscribe from all channels
-      EWalletAPI.Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
-      EWalletAPI.Endpoint.unsubscribe("transaction_request_consumption:#{consumption_id}")
+      EWalletAPI.V1.Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      EWalletAPI.V1.Endpoint.unsubscribe("transaction_request_consumption:#{consumption_id}")
     end
   end
 
