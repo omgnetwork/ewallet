@@ -21,6 +21,8 @@ defmodule EWallet.Seeder do
   """
   alias EWallet.CLI
   alias EWallet.EmailValidator
+  alias EWalletDB.Helpers.Crypto
+  alias EWalletDB.Validator
 
   # The default email address to use for the first admin.
   @admin_email_default "admin@example.com"
@@ -68,6 +70,7 @@ defmodule EWallet.Seeder do
     # the seeding scripts into a proper structure.
     IO.puts(@admin_email_question)
     Application.put_env(:ewallet, :seed_admin_email, ask_email())
+    Application.put_env(:ewallet, :seed_admin_password, ask_password())
 
     # Set the :env value so the code can determine if we allow seed to be run on this env or not
     Keyword.put_new(opts, :env, Application.get_env(:ewallet_db, :env))
@@ -80,9 +83,31 @@ defmodule EWallet.Seeder do
       |> String.trim()
 
     cond do
-      byte_size(email) == 0          -> @admin_email_default # use default email if not provided
-      EmailValidator.validate(email) -> email # use given email if valid
+      byte_size(email) == 0          -> @admin_email_default # use the default email if not provided
+      EmailValidator.validate(email) -> email # use the given email if valid
       true                           -> CLI.halt(@admin_email_invalid) # else halt with error
+    end
+  end
+
+  # Ask for a password and processes it
+  defp ask_password do
+    "Password (autogenerate if not given):"
+    |> CLI.gets_sensitive()
+    |> String.trim()
+    |> process_password()
+  end
+
+  # Generate a password if not provided
+  defp process_password(password) when byte_size(password) == 0 do
+    Crypto.generate_key(16)
+  end
+  # Validate the password if provided. Halts if the format is invalid
+  defp process_password(password) do
+    case Validator.validate_password(password) do
+      {:ok, password} ->
+        password
+      {:error, :too_short, data} ->
+        CLI.halt("The password must be #{data[:min_length]} characters or more.")
     end
   end
 

@@ -4,6 +4,8 @@ defmodule EWalletDB.Validator do
   """
   alias Ecto.Changeset
 
+  @min_password_length Application.get_env(:ewallet_db, :min_password_length, 8)
+
   @doc """
   Validates that only one out of the provided fields can have value.
   """
@@ -63,6 +65,34 @@ defmodule EWalletDB.Validator do
       nil -> changeset
       ^changed -> changeset
       _ -> Changeset.add_error(changeset, key, "can't be changed")
+    end
+  end
+
+  @doc """
+  Validates the given string with the password requirements.
+  """
+  def validate_password(nil), do: {:error, :too_short, [min_length: @min_password_length]}
+  def validate_password(password) do
+    with len when len >= @min_password_length <- String.length(password) do
+      {:ok, password}
+    else
+      _ -> {:error, :too_short, [min_length: @min_password_length]}
+    end
+  end
+
+  @doc """
+  Validates password requirements on the given changeset and key.
+  """
+  def validate_password(changeset, key) do
+    password = Changeset.get_field(changeset, key)
+
+    case validate_password(password) do
+      {:ok, _} ->
+        changeset
+      {:error, :too_short, data} ->
+        Changeset.add_error(changeset, key, "must be #{data[:min_length]} characters or more")
+      {:error, _} ->
+        Changeset.add_error(changeset, key, "does not meet the password requirements")
     end
   end
 end

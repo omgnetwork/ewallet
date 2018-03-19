@@ -78,7 +78,9 @@ defmodule EWalletDB.User do
   end
 
   defp do_validate_loginable(changeset, _attrs) do
-    validate_required(changeset, [:email, :password])
+    changeset
+    |> validate_required([:email, :password])
+    |> validate_password(:password)
   end
 
   defp do_validate_provider_user(changeset, _attrs) do
