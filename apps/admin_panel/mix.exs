@@ -44,7 +44,8 @@ defmodule AdminPanel.Mixfile do
   defp deps do
     [
       {:phoenix, "~> 1.3.0"},
-      {:cowboy, "~> 1.0"}
+      {:cowboy, "~> 1.0"},
+      {:ewallet_db, in_umbrella: true}
     ]
   end
 end

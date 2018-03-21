@@ -16,15 +16,6 @@ api_key                 = Application.get_env(:ewallet, :seed_admin_api_key).key
 admin                   = Application.get_env(:ewallet, :seed_admin_user)
 {:ok, admin_auth_token} = AuthToken.generate(admin, :admin_api)
 
-# Prepare admin_panel's `.env` file
-dotenv_path = "apps/admin_panel/assets/.env"
-File.cwd!
-|> Path.join(dotenv_path)
-|> File.write!("""
-  ADMIN_API_KEY_ID=#{api_key_id}
-  ADMIN_API_KEY=#{api_key}
-  """)
-
 # Output the seeding result
 CLI.heading("Setting up the OmiseGO eWallet Server")
 
@@ -37,9 +28,6 @@ CLI.print("""
   ## Manage your eWallet system via the Admin Panel
 
   We have just seeded your eWallet system with an API key and an Admin Panel user.
-  To save your time, we have also configured the Admin Panel with the seeded API key.
-  If you want to, you can look up the configuration file at `#{dotenv_path}`.
-
   Now it's your turn to login to your Admin Panel with the following credentials:
 
     - Login URL : `#{admin_panel_url}`
