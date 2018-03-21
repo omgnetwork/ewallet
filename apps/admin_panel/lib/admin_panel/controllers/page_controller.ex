@@ -60,5 +60,5 @@ defmodule AdminPanel.PageController do
     </script>
     """
   end
-  defp api_key_script(_not_api_key), do: ""
+  defp api_key_script(_), do: "<!-- No API key found -->" # For troubleshooting purposes
 end

@@ -46,6 +46,7 @@ defmodule AdminPanel.PageControllerTest do
         |> html_response(:ok)
 
       assert response =~ "<title>Admin Panel</title>"
+      assert response =~ "<!-- No API key found -->"
       refute response =~ "var admin_api_conf"
     end
 
