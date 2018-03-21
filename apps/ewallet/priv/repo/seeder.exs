@@ -83,9 +83,13 @@ defmodule EWallet.Seeder do
       |> String.trim()
 
     cond do
-      byte_size(email) == 0          -> @admin_email_default # use the default email if not provided
-      EmailValidator.validate(email) -> email # use the given email if valid
-      true                           -> CLI.halt(@admin_email_invalid) # else halt with error
+      byte_size(email) == 0 -> # use the default email if not provided
+        @admin_email_default
+      EmailValidator.validate(email) -> # use the given email if valid
+        email
+      true -> # else show the error message and ask for input again
+        CLI.error(@admin_email_invalid)
+        ask_email()
     end
   end
 
@@ -107,7 +111,8 @@ defmodule EWallet.Seeder do
       {:ok, password} ->
         password
       {:error, :too_short, data} ->
-        CLI.halt("The password must be #{data[:min_length]} characters or more.")
+        CLI.error("The password must be #{data[:min_length]} characters or more.")
+        ask_password()
     end
   end
 
