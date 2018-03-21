@@ -105,6 +105,46 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
+  def get_with_lock(id) do
+    request = TransactionRequest.get_with_lock(id)
+
+    case request do
+      nil     -> {:error, :transaction_request_not_found}
+      request -> {:ok, request}
+    end
+  end
+
+  def allow_amount_override?(request, amount) do
+    case request.allow_amount_override do
+      true  ->
+        {:ok, request}
+      false ->
+        case amount do
+          nil    -> {:ok, request}
+          amount -> {:error, :unauthorized_amount_override}
+        end
+    end
+  end
+
+  def expiration_from_lifetime(request) do
+    TransactionRequest.expiration_from_lifetime(request)
+  end
+
+  def limited_consumptions?(request) do
+    TransactionRequest.limited_consumptions?(request)
+  end
+
+  def expire_if_max_consumption(request) do
+    TransactionRequest.expire_if_max_consumption(request)
+  end
+
+  def valid?(request) do
+    case TransactionRequest.valid?(request) do
+      true  -> {:ok, request}
+      false -> {:error, String.to_existing_atom(request.expiration_reason)}
+    end
+  end
+
   defp insert(minted_token, balance, attrs) do
     TransactionRequest.insert(%{
       type: attrs["type"],

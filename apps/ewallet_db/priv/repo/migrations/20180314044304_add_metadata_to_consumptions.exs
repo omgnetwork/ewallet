@@ -5,7 +5,8 @@ defmodule EWalletDB.Repo.Migrations.AddMetadataToConsumptions do
     alter table(:transaction_request_consumption) do
       add :approved, :boolean, default: false
       add :finalized_at, :naive_datetime
-      add :expires_at, :naive_datetime
+      add :expiration_date, :naive_datetime
+      add :expired_at, :naive_datetime
       add :metadata, :map
       add :encrypted_metadata, :binary
       add :encryption_version, :binary

@@ -87,6 +87,15 @@ defmodule EWalletAPI.V1.ErrorHandler do
     no_idempotency_token_provided: %{
       code: "client:no_idempotency_token_provided",
       description: "The call you made requires the Idempotency-Token header to prevent duplication."
+    },
+    expired_request: %{
+      code: "request:expired",
+      description: "The specified transaction request has expired."
+    },
+    max_consumptions_reached: %{
+      code: "request:max_consumptions_reached",
+      description: "The specified transaction request has reached the allowed amount of
+                    consumptions."
     }
   }
 

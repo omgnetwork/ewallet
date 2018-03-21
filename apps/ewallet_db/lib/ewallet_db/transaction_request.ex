@@ -3,7 +3,7 @@ defmodule EWalletDB.TransactionRequest do
   Ecto Schema representing transaction requests.
   """
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{TransactionRequest, TransactionRequestConsumption,
@@ -27,10 +27,11 @@ defmodule EWalletDB.TransactionRequest do
 
     field :confirmable, :boolean, default: false
     field :max_consumptions, :integer # nil -> unlimited
-    field :consumption_lifetime, :integer
+    field :consumption_lifetime, :integer # milliseconds
     field :expiration_date, :naive_datetime
     field :expired_at, :naive_datetime
-    field :allow_amount_override, :boolean, default: false
+    field :expiration_reason, :string
+    field :allow_amount_override, :boolean, default: true
     field :metadata, :map
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
 
@@ -50,7 +51,7 @@ defmodule EWalletDB.TransactionRequest do
     timestamps()
   end
 
-  defp create_changeset(%TransactionRequest{} = transaction_request, attrs) do
+  defp changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
     |> cast(attrs, [
       :type, :amount, :correlation_id, :user_id, :account_id,
@@ -72,6 +73,19 @@ defmodule EWalletDB.TransactionRequest do
     |> put_change(:encryption_version, Cloak.version)
   end
 
+  defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do
+    transaction_request
+    |> cast(attrs, [:status, :expired_at, :expiration_reason])
+    |> validate_required([:status, :expired_at, :expiration_reason])
+    |> validate_inclusion(:status, @statuses)
+  end
+
+  defp touch_changeset(%TransactionRequest{} = transaction_request, attrs) do
+    transaction_request
+    |> cast(attrs, [:updated_at])
+    |> validate_required([:updated_at])
+  end
+
   @doc """
   Gets a transaction request.
   """
@@ -80,6 +94,7 @@ defmodule EWalletDB.TransactionRequest do
   def get(nil), do: nil
   def get(id, opts \\ [preload: []])
   def get(nil, _), do: nil
+  def get(id, nil), do: get(id, [preload: []])
   def get(id, opts) do
     case Helpers.UUID.valid?(id) do
       true ->
@@ -90,22 +105,86 @@ defmodule EWalletDB.TransactionRequest do
     end
   end
 
+  def get_with_lock(id) do
+    TransactionRequest
+    |> where([t], t.id == ^id)
+    |> lock("FOR UPDATE")
+    |> Repo.one()
+  end
+
+  def touch(request) do
+    request
+    |> touch_changeset(%{updated_at: NaiveDateTime.utc_now()})
+    |> Repo.update()
+  end
+
   @doc """
   Inserts a transaction request.
   """
   @spec insert(Map.t) :: {:ok, %TransactionRequest{}} | {:error, Map.t}
   def insert(attrs) do
     %TransactionRequest{}
-    |> create_changeset(attrs)
+    |> changeset(attrs)
     |> Repo.insert()
   end
 
+  @doc """
+  Updates a transaction request.
+  """
+  @spec insert(Map.t) :: {:ok, %TransactionRequest{}} | {:error, Map.t}
+  def update(%TransactionRequest{} = request, attrs) do
+    request
+    |> changeset(attrs)
+    |> Repo.update()
+  end
+
+  def expire(request, reason \\ "expired_request") do
+    request
+    |> expire_changeset(%{
+      status: @expired,
+      expired_at: NaiveDateTime.utc_now(),
+      expiration_reason: reason
+    })
+    |> Repo.update()
+  end
+
+  def expire_if_max_consumption(request) do
+    consumptions = TransactionRequestConsumption.all_active_for_request(request.id)
+
+    case max_consumptions_reached?(request, consumptions) do
+      true  -> expire(request, "max_consumptions_reached")
+      false -> touch(request)
+    end
+  end
+
+  def max_consumptions_reached?(request, consumptions) do
+    limited_consumptions?(request) &&
+    length(consumptions) >= request.max_consumptions
+  end
+
+  def limited_consumptions?(request) do
+    !is_nil(request.max_consumptions) && request.max_consumptions > 0
+  end
+
+  def valid?(request) do
+    request.status == @valid
+  end
+
+  def expired?(request) do
+    request.status == @expired
+  end
+
   def expiration_from_lifetime(request) do
-    lifetime? = request.consumption_lifetime && request.consumption_lifetime > 0
+    lifetime? =
+      request.confirmable &&
+      request.consumption_lifetime &&
+      request.consumption_lifetime > 0
 
     case lifetime? do
-      true  -> nil
-      false -> nil
+      true  ->
+        NaiveDateTime.utc_now()
+        |> NaiveDateTime.add(request.consumption_lifetime, :millisecond)
+      _ -> nil
     end
   end
 end

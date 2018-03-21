@@ -1,16 +1,16 @@
 defmodule EWallet.TransactionConsumptionGateTest do
  use EWallet.LocalLedgerCase, async: true
  alias EWallet.TransactionConsumptionGate
- alias EWalletDB.{User, TransactionRequestConsumption}
+ alias EWalletDB.{User, TransactionRequestConsumption, TransactionRequest}
 
   setup do
-    minted_token            = insert(:minted_token)
-    {:ok, receiver}         = :user |> params_for() |> User.insert()
-    {:ok, sender}           = :user |> params_for() |> User.insert()
-    account                 = Account.get_master_account()
-    receiver_balance        = User.get_primary_balance(receiver)
-    sender_balance          = User.get_primary_balance(sender)
-    account_balance = Account.get_primary_balance(account)
+    minted_token     = insert(:minted_token)
+    {:ok, receiver}  = :user |> params_for() |> User.insert()
+    {:ok, sender}    = :user |> params_for() |> User.insert()
+    account          = Account.get_master_account()
+    receiver_balance = User.get_primary_balance(receiver)
+    sender_balance   = User.get_primary_balance(sender)
+    account_balance  = Account.get_primary_balance(account)
 
     mint!(minted_token)
 
@@ -295,7 +295,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
     end
   end
 
-  describe "consume/2" do
+  describe "consume/2 with balance" do
     test "consumes the receive request and transfer the appropriate amount of token with min
     params", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
@@ -365,6 +365,265 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.transaction_request_id == meta.request.id
       assert consumption.amount == 1_000
       assert consumption.balance_address == meta.sender_balance.address
+    end
+
+    test "returns an 'expired_request' error when the request is expired", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      {:ok, request} = TransactionRequest.expire(meta.request)
+
+      {res, error} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => "123",
+        "amount" => 1_000,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :error
+      assert error == :expired_request
+    end
+
+    test "returns a 'max_consumptions_reached' error if the maximum number of
+          consumptions has been reached", meta
+    do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+
+      {res, error} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "1234",
+        "token_id" => nil
+      })
+
+      assert res == :error
+      assert error == :max_consumptions_reached
+    end
+
+    test "proceeds if the maximum number of consumptions hasn't been reached and
+          increment it", meta
+    do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 2})
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "1234",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+
+      request = TransactionRequest.get(request.id)
+      assert request.status == "expired"
+      assert request.expiration_reason == "max_consumptions_reached"
+    end
+
+    # confirmable + max consumptions?
+    test "prevents consumptions when max consumption has been reached with pending ones", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {:ok, request} = TransactionRequest.update(meta.request, %{
+        confirmable: true,
+        max_consumptions: 1
+      })
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => "123",
+        "amount" => 1_000,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "pending"
+
+      {res, error} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "address" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "1234",
+        "token_id" => nil
+      })
+
+      assert res == :error
+      assert error == :max_consumptions_reached
+    end
+
+    test "returns a pending request with no transfer is the request is confirmable", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {:ok, request} = TransactionRequest.update(meta.request, %{
+        confirmable: true
+      })
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => "123",
+        "amount" => 1_000,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "pending"
+    end
+
+    test "sets an expiration date for consumptions if there is a consumption lifetime provided",
+    meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {:ok, request} = TransactionRequest.update(meta.request, %{
+        confirmable: true,
+        consumption_lifetime: 60_000 # 60 seconds
+      })
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => "123",
+        "amount" => 1_000,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "pending"
+      assert consumption.expiration_date != nil
+      assert NaiveDateTime.compare(consumption.expiration_date, NaiveDateTime.utc_now()) == :gt
+    end
+
+    test "does notset an expiration date for consumptions if the request is not confirmable",
+    meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {:ok, request} = TransactionRequest.update(meta.request, %{
+        consumption_lifetime: 60_000 # 60 seconds
+      })
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => "123",
+        "amount" => 1_000,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+      assert consumption.expiration_date == nil
+    end
+
+    test "overrides the amount if the request amount is overridable", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {:ok, request} = TransactionRequest.update(meta.request, %{
+        allow_amount_override: true
+      })
+
+      {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => "123",
+        "amount" => 1_123,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+      assert consumption.amount == 1_123
+    end
+
+    test "returns an 'unauthorized_amount_override' error if the consumption tries to
+          illegally override the amount", meta
+    do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {:ok, request} = TransactionRequest.update(meta.request, %{
+        allow_amount_override: false
+      })
+
+      {res, error} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => request.id,
+        "correlation_id" => "123",
+        "amount" => 1_123,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :error
+      assert error == :unauthorized_amount_override
+    end
+
+    test "returns an error if the consumption tries to set an amount equal to 0", meta
+    do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      {res, changeset} = TransactionConsumptionGate.consume(meta.sender, %{
+        "transaction_request_id" => meta.request.id,
+        "correlation_id" => "123",
+        "amount" => 0,
+        "address" => meta.sender_balance.address,
+        "metadata" => %{},
+        "idempotency_token" => "123",
+        "token_id" => nil
+      })
+
+      assert res == :error
+      assert changeset.errors == [
+        amount: {"must be greater than %{number}",
+         [validation: :number, number: 0]}
+      ]
     end
 
     test "returns the same consumption when idempency_token is the same", meta do

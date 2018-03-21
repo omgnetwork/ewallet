@@ -3,7 +3,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   Ecto Schema representing transaction request consumptions.
   """
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{TransactionRequestConsumption, Repo, User, MintedToken,
@@ -23,7 +23,8 @@ defmodule EWalletDB.TransactionRequestConsumption do
     field :idempotency_token, :string
     field :approved, :boolean, default: false
     field :finalized_at, :naive_datetime
-    field :expires_at, :naive_datetime
+    field :expired_at, :naive_datetime
+    field :expiration_date, :naive_datetime
     field :metadata, :map
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     belongs_to :transfer, Transfer, foreign_key: :transfer_id,
@@ -52,13 +53,14 @@ defmodule EWalletDB.TransactionRequestConsumption do
     |> cast(attrs, [
       :amount, :idempotency_token, :correlation_id, :user_id, :account_id,
       :transaction_request_id, :balance_address, :minted_token_id,
-      :metadata, :encrypted_metadata, :expires_at
+      :metadata, :encrypted_metadata, :expiration_date
     ])
     |> validate_required([
       :status, :amount, :idempotency_token, :transaction_request_id,
       :balance_address, :minted_token_id
     ])
     |> validate_required_exclusive([:account_id, :user_id])
+    |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)
     |> unique_constraint(:correlation_id)
@@ -81,6 +83,16 @@ defmodule EWalletDB.TransactionRequestConsumption do
     |> cast(attrs, [:approved, :finalized_at])
     |> validate_required([:approved, :finalized_at])
     |> assoc_constraint(:transfer)
+  end
+
+  @doc """
+  Get all confirmed and pending transaction consumptions.
+  """
+  def all_active_for_request(request_id) do
+    TransactionRequestConsumption
+    |> where([t], t.status != @failed)
+    |> where([t], t.transaction_request_id == ^request_id)
+    |> Repo.all()
   end
 
   @doc """
