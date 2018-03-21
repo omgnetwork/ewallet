@@ -24,15 +24,30 @@ defmodule EWallet.Seeder do
   alias EWalletDB.Helpers.Crypto
   alias EWalletDB.Validator
 
-  # The default email address to use for the first admin.
+  @welcome_header "OmiseGO Server Seeder"
+  @welcome_message """
+    Hello! I am the OmiseGO server seeder. You can use me to seed the initial data
+    required to setup the system.
+
+    I will ask you a few questions that I need before I can begin seeding.
+    If you wish to exit before I start seeding, please press `Ctrl + C` twice.
+
+    -----
+    """
+
   @admin_email_default "admin@example.com"
   @admin_email_question """
-    What email address should we set for your first admin user?
-    This email is required for logging into the admin panel.
-    If a user with this email already exists, it will escalate the user to admin role.
+    ## What email and password should I set for your first admin user?
+
+    This email and password combination is required for logging into the admin panel.
+    If a user with this email already exists, it will escalate the user to admin role,
+    but the password will not be changed.
     """
-  @admin_email_invalid """
-    The given email address format is invalid. Please try seed again with a different email address.
+  @admin_email_invalid "The given email address format is invalid."
+    <> " Please recheck your email address and input again."
+
+  @confirm_message """
+    All set! Press Enter to start seeding, or `Ctrl+C` twice to exit without seeding.
     """
 
   # Seeds to intialize the system.
@@ -65,12 +80,19 @@ defmodule EWallet.Seeder do
   def init(args) do
     {opts, _argv, _errors} = OptionParser.parse(args)
 
+    CLI.heading(@welcome_header)
+    CLI.print(@welcome_message)
+
     # Ask for email address.
     # I really don't like to use `put_env` but it will do for now while we have not refactored
     # the seeding scripts into a proper structure.
-    IO.puts(@admin_email_question)
+    CLI.print(@admin_email_question)
     Application.put_env(:ewallet, :seed_admin_email, ask_email())
     Application.put_env(:ewallet, :seed_admin_password, ask_password())
+
+    IO.puts("\n-----\n")
+    CLI.print(@confirm_message)
+    IO.gets("")
 
     # Set the :env value so the code can determine if we allow seed to be run on this env or not
     Keyword.put_new(opts, :env, Application.get_env(:ewallet_db, :env))
@@ -123,6 +145,8 @@ defmodule EWallet.Seeder do
     if sample_seed?(opts) && production?(opts) do
       CLI.halt("The sample seed cannot be run on :prod environment!")
     end
+
+    CLI.info("Starting the seed...")
 
     # Disable noisy debug messages. Seeders already have their own log messages.
     Logger.configure(level: :warn)
