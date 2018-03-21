@@ -22,6 +22,15 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         address: transaction_request.balance_address,
         correlation_id: transaction_request.correlation_id,
         status: "valid",
+        allow_amount_override: true,
+        confirmable: false,
+        consumption_lifetime: nil,
+        metadata: nil,
+        encrypted_metadata: %{},
+        expiration_date: nil,
+        expiration_reason: nil,
+        expired_at: nil,
+        max_consumptions: nil,
         created_at: Date.to_iso8601(transaction_request.inserted_at),
         updated_at: Date.to_iso8601(transaction_request.updated_at)
       }

@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionRequestControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, User, Account}
-  alias EWallet.Web.Date
+  alias EWallet.Web.{Date, V1.MintedTokenSerializer}
 
   describe "/transaction_request.create" do
     test "creates a transaction request with all the params" do
@@ -30,21 +30,20 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
           "minted_token_id" => minted_token.friendly_id,
-          "minted_token" => %{
-            "id" => minted_token.friendly_id,
-            "name" => minted_token.name,
-            "object" => "minted_token",
-            "subunit_to_unit" => minted_token.subunit_to_unit,
-            "symbol" => minted_token.symbol,
-            "metadata" => %{},
-            "encrypted_metadata" => %{},
-            "created_at" => Date.to_iso8601(minted_token.inserted_at),
-            "updated_at" => Date.to_iso8601(minted_token.updated_at)
-          },
+          "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
           "account_id" => nil,
+          "allow_amount_override" => true,
+          "confirmable" => false,
+          "consumption_lifetime" => nil,
+          "encrypted_metadata" => %{},
+          "expiration_date" => nil,
+          "expiration_reason" => nil,
+          "expired_at" => nil,
+          "max_consumptions" => nil,
+          "metadata" => nil,
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
         }
@@ -77,21 +76,20 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
           "minted_token_id" => minted_token.friendly_id,
-          "minted_token" => %{
-            "id" => minted_token.friendly_id,
-            "name" => minted_token.name,
-            "object" => "minted_token",
-            "subunit_to_unit" => minted_token.subunit_to_unit,
-            "symbol" => minted_token.symbol,
-            "metadata" => %{},
-            "encrypted_metadata" => %{},
-            "created_at" => Date.to_iso8601(minted_token.inserted_at),
-            "updated_at" => Date.to_iso8601(minted_token.updated_at)
-          },
+          "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
           "account_id" => nil,
+          "allow_amount_override" => true,
+          "confirmable" => false,
+          "consumption_lifetime" => nil,
+          "metadata" => nil,
+          "encrypted_metadata" => %{},
+          "expiration_date" => nil,
+          "expiration_reason" => nil,
+          "expired_at" => nil,
+          "max_consumptions" => nil,
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
         }
@@ -223,21 +221,20 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
           "minted_token_id" => minted_token.friendly_id,
-          "minted_token" => %{
-            "id" => minted_token.friendly_id,
-            "name" => minted_token.name,
-            "object" => "minted_token",
-            "subunit_to_unit" => minted_token.subunit_to_unit,
-            "symbol" => minted_token.symbol,
-            "metadata" => %{},
-            "encrypted_metadata" => %{},
-            "created_at" => Date.to_iso8601(minted_token.inserted_at),
-            "updated_at" => Date.to_iso8601(minted_token.updated_at)
-          },
+          "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
           "account_id" => nil,
+          "allow_amount_override" => true,
+          "confirmable" => false,
+          "consumption_lifetime" => nil,
+          "metadata" => nil,
+          "encrypted_metadata" => %{},
+          "expiration_date" => nil,
+          "expiration_reason" => nil,
+          "expired_at" => nil,
+          "max_consumptions" => nil,
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
         }
@@ -270,17 +267,16 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
           "minted_token_id" => minted_token.friendly_id,
-          "minted_token" => %{
-            "id" => minted_token.friendly_id,
-            "name" => minted_token.name,
-            "object" => "minted_token",
-            "subunit_to_unit" => minted_token.subunit_to_unit,
-            "symbol" => minted_token.symbol,
-            "metadata" => %{},
-            "encrypted_metadata" => %{},
-            "created_at" => Date.to_iso8601(minted_token.inserted_at),
-            "updated_at" => Date.to_iso8601(minted_token.updated_at)
-          },
+          "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
+          "allow_amount_override" => true,
+          "confirmable" => false,
+          "consumption_lifetime" => nil,
+          "metadata" => nil,
+          "encrypted_metadata" => %{},
+          "expiration_date" => nil,
+          "expiration_reason" => nil,
+          "expired_at" => nil,
+          "max_consumptions" => nil,
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,

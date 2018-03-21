@@ -37,6 +37,10 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializerTest do
           TransactionRequestSerializer.serialize(consumption.transaction_request),
         address: consumption.balance_address,
         approved: false,
+        metadata: nil,
+        encrypted_metadata: %{},
+        expiration_date: nil,
+        expired_at: nil,
         finalized_at: nil,
         created_at: Date.to_iso8601(consumption.inserted_at),
         updated_at: Date.to_iso8601(consumption.updated_at)
