@@ -51,12 +51,12 @@ defmodule AdminPanel.PageController do
   defp api_key_script(%APIKey{} = api_key) do
     """
     <script>
-      var admin_api_conf = {};
+      var adminConfig = {};
 
-      admin_api_conf.api_key_id = "#{api_key.id}";
-      admin_api_conf.api_key = "#{api_key.key}";
+      adminConfig.apiKeyId = "#{api_key.id}";
+      adminConfig.apiKey = "#{api_key.key}";
 
-      window.admin_api_conf = admin_api_conf;
+      window.adminConfig = adminConfig;
     </script>
     """
   end
