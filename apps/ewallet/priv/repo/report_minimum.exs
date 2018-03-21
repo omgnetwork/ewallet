@@ -7,8 +7,8 @@ base_url = Application.get_env(:ewallet_db, :base_url) || "https://example.com"
 
 # Prepare URLs
 admin_panel_url          = base_url <> "/admin"
-ewallet_swagger_ui_url   = base_url <> "/api/swagger"
-admin_api_swagger_ui_url = base_url <> "/admin/api/swagger"
+ewallet_swagger_ui_url   = base_url <> "/api/docs"
+admin_api_swagger_ui_url = base_url <> "/admin/api/docs"
 
 # Prepare the seeded data
 api_key_id              = Application.get_env(:ewallet, :seed_admin_api_key).id

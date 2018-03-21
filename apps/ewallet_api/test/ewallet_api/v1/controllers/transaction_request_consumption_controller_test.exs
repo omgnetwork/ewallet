@@ -48,6 +48,7 @@
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      transaction_request  = Repo.preload(transaction_request, :minted_token)
 
       assert response == %{
         "success" => true,
@@ -61,6 +62,7 @@
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
+          "minted_token_id" => meta.minted_token.friendly_id,
           "minted_token" => %{
             "id" => meta.minted_token.friendly_id,
             "name" => meta.minted_token.name,
@@ -75,9 +77,37 @@
           "approved" => true,
           "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
           "transaction_request_id" => transaction_request.id,
+          "transaction_request" => %{
+            "object" => "transaction_request",
+            "id" => transaction_request.id,
+            "correlation_id" => transaction_request.correlation_id,
+            "type" => transaction_request.type,
+            "status" => transaction_request.status,
+            "user_id" => transaction_request.user_id,
+            "account_id" => transaction_request.account_id,
+            "address" => transaction_request.balance.address,
+            "amount" => transaction_request.amount,
+            "minted_token_id" => transaction_request.minted_token.friendly_id,
+            "minted_token" => %{
+              "object" => "minted_token",
+              "id" => transaction_request.minted_token.friendly_id,
+              "symbol" => transaction_request.minted_token.symbol,
+              "name" => transaction_request.minted_token.name,
+              "subunit_to_unit" => transaction_request.minted_token.subunit_to_unit,
+              "metadata" => transaction_request.minted_token.metadata,
+              "encrypted_metadata" => transaction_request.minted_token.encrypted_metadata,
+              "created_at" => Date.to_iso8601(transaction_request.minted_token.inserted_at),
+              "updated_at" => Date.to_iso8601(transaction_request.minted_token.updated_at)
+            },
+            "created_at" => Date.to_iso8601(transaction_request.inserted_at),
+            "updated_at" => Date.to_iso8601(transaction_request.updated_at),
+          },
           "transaction_id" => inserted_transfer.id,
+          "transaction" => nil, # not preloaded
           "user_id" => nil,
+          "user" => nil,
           "account_id" => meta.account.id,
+          "account" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at)
         }
@@ -87,6 +117,35 @@
       assert inserted_transfer.to == meta.alice_balance.address
       assert inserted_transfer.from == meta.account_balance.address
       assert %{} = inserted_transfer.ledger_response
+    end
+
+    test "returns with preload if `embed` attribute is given", meta do
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.alice.id,
+        balance: meta.alice_balance,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      set_initial_balance(%{
+        address: meta.bob_balance.address,
+        minted_token: meta.minted_token,
+        amount: 150_000
+      })
+
+      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        transaction_request_id: transaction_request.id,
+        correlation_id: nil,
+        amount: nil,
+        address: nil,
+        metadata: nil,
+        token_id: nil,
+        account_id: meta.account.id,
+        embed: ["account"]
+      })
+
+      assert response["data"]["account"] != nil
     end
 
     test "returns same transaction request consumption when idempotency token is the same", meta do
@@ -272,6 +331,7 @@
 
       inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      transaction_request  = Repo.preload(transaction_request, :minted_token)
 
       assert response == %{
         "success" => true,
@@ -285,6 +345,7 @@
           "idempotency_token" => "123",
           "object" => "transaction_request_consumption",
           "status" => "confirmed",
+          "minted_token_id" => meta.minted_token.friendly_id,
           "minted_token" => %{
             "id" => meta.minted_token.friendly_id,
             "name" => meta.minted_token.name,
@@ -297,11 +358,49 @@
             "updated_at" => Date.to_iso8601(meta.minted_token.updated_at)
           },
           "transaction_request_id" => transaction_request.id,
+          "transaction_request" => %{
+            "object" => "transaction_request",
+            "id" => transaction_request.id,
+            "correlation_id" => transaction_request.correlation_id,
+            "type" => transaction_request.type,
+            "status" => transaction_request.status,
+            "user_id" => transaction_request.user_id,
+            "account_id" => transaction_request.account_id,
+            "address" => transaction_request.balance_address,
+            "amount" => transaction_request.amount,
+            "minted_token_id" => transaction_request.minted_token.friendly_id,
+            "minted_token" => %{
+              "object" => "minted_token",
+              "id" => transaction_request.minted_token.friendly_id,
+              "symbol" => transaction_request.minted_token.symbol,
+              "name" => transaction_request.minted_token.name,
+              "subunit_to_unit" => transaction_request.minted_token.subunit_to_unit,
+              "metadata" => transaction_request.minted_token.metadata,
+              "encrypted_metadata" => transaction_request.minted_token.encrypted_metadata,
+              "created_at" => Date.to_iso8601(transaction_request.minted_token.inserted_at),
+              "updated_at" => Date.to_iso8601(transaction_request.minted_token.updated_at)
+            },
+            "created_at" => Date.to_iso8601(transaction_request.inserted_at),
+            "updated_at" => Date.to_iso8601(transaction_request.updated_at),
+          },
           "transaction_id" => inserted_transfer.id,
-          "user_id" => meta.bob.id,
-          "account_id" => nil,
           "approved" => true,
           "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
+          "transaction" => nil, # not preloaded
+          "user_id" => meta.bob.id,
+          "user" => %{
+            "object" => "user",
+            "id" => meta.bob.id,
+            "provider_user_id" => meta.bob.provider_user_id,
+            "username" => meta.bob.username,
+            "metadata" => %{
+              "first_name" => meta.bob.metadata["first_name"],
+              "last_name" => meta.bob.metadata["last_name"]
+            },
+            "encrypted_metadata" => %{}
+          },
+          "account_id" => nil,
+          "account" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_consumption.updated_at),
         }

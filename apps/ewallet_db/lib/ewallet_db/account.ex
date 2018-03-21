@@ -123,7 +123,7 @@ defmodule EWalletDB.Account do
   def all(opts) do
     Account
     |> Repo.all()
-    |> Repo.preload(opts[:preload] || [])
+    |> preload_option(opts)
   end
 
   @doc """

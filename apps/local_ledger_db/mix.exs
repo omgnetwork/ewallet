@@ -38,7 +38,7 @@ defmodule LocalLedgerDB.Mixfile do
       {:ecto, "~> 2.1.6"},
       {:salty, github: "omisego/salty"},
       {:cloak, "~> 0.3.3"},
-      {:ex_machina, github: "thoughtbot/ex_machina", ref: "037d826", only: :test}
+      {:ex_machina, "~> 2.2", only: :test}
     ]
   end
 

@@ -1,22 +1,26 @@
 defmodule EWalletAPI.V1.TransactionRequestConsumptionViewTest do
   use EWalletAPI.ViewCase, :v1
-  alias EWalletDB.TransactionRequestConsumption
   alias EWalletAPI.V1.TransactionRequestConsumptionView
-  alias EWallet.Web.V1.TransactionRequestConsumptionSerializer
+  alias EWalletDB.TransactionRequestConsumption
 
   describe "EWalletAPI.V1.TransactionRequestConsumptionView.render/2" do
     test "renders transaction_request_consumption.json with correct structure" do
       request = insert(:transaction_request_consumption)
       consumption = TransactionRequestConsumption.get(request.id, preload: [:minted_token])
 
-      expected = %{
-        version: @expected_version,
-        success: true,
-        data: TransactionRequestConsumptionSerializer.serialize(consumption)
-      }
+      result = render(TransactionRequestConsumptionView,
+                      "transaction_request_consumption.json",
+                      transaction_request_consumption: consumption)
 
-      assert render(TransactionRequestConsumptionView, "transaction_request_consumption.json",
-                    transaction_request_consumption: consumption) == expected
+      # The serializer tests should cover data transformation already, so we only test that
+      # the view builds the expected object and wraps the data into the expected response format.
+      assert %{
+          version: _,
+          success: _,
+          data: %{
+            object: "transaction_request_consumption",
+          }
+        } = result
     end
   end
 end

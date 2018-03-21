@@ -1,5 +1,6 @@
 defmodule EWallet.Web.V1.TransactionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{TransactionSerializer, MintedTokenSerializer}
   alias EWallet.Web.Date
   alias EWalletDB.Repo
@@ -36,6 +37,10 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
       }
 
       assert TransactionSerializer.serialize(transaction) == expected
+    end
+
+    test "serializes to nil if the tranasction is not loaded" do
+      assert TransactionSerializer.serialize(%NotLoaded{}) == nil
     end
   end
 end

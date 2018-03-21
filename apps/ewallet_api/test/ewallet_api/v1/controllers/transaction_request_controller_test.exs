@@ -29,6 +29,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => "123",
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
+          "minted_token_id" => minted_token.friendly_id,
           "minted_token" => %{
             "id" => minted_token.friendly_id,
             "name" => minted_token.name,
@@ -75,6 +76,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => nil,
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
+          "minted_token_id" => minted_token.friendly_id,
           "minted_token" => %{
             "id" => minted_token.friendly_id,
             "name" => minted_token.name,
@@ -220,6 +222,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => "123",
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
+          "minted_token_id" => minted_token.friendly_id,
           "minted_token" => %{
             "id" => minted_token.friendly_id,
             "name" => minted_token.name,
@@ -266,6 +269,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => nil,
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
+          "minted_token_id" => minted_token.friendly_id,
           "minted_token" => %{
             "id" => minted_token.friendly_id,
             "name" => minted_token.name,

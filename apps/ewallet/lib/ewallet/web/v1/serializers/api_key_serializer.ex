@@ -2,13 +2,15 @@ defmodule EWallet.Web.V1.APIKeySerializer do
   @moduledoc """
   Serializes API key(s) into V1 JSON response format.
   """
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWallet.Web.{Date, Paginator}
+  alias EWalletDB.APIKey
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
-  def serialize(api_key) when is_map(api_key) do
+  def serialize(%APIKey{} = api_key) do
     %{
       object: "api_key",
       id: api_key.id,
@@ -20,4 +22,6 @@ defmodule EWallet.Web.V1.APIKeySerializer do
       deleted_at: Date.to_iso8601(api_key.deleted_at)
     }
   end
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
 end

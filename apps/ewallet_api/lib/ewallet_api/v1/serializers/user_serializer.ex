@@ -2,8 +2,10 @@ defmodule EWalletAPI.V1.UserSerializer do
   @moduledoc """
   Serializes user data into V1 JSON response format.
   """
+  alias Ecto.Association.NotLoaded
+  alias EWalletDB.User
 
-  def serialize(user) do
+  def serialize(%User{} = user) do
     %{
       object: "user",
       id: user.id,
@@ -13,4 +15,6 @@ defmodule EWalletAPI.V1.UserSerializer do
       encrypted_metadata: user.encrypted_metadata
     }
   end
+  def serialize(%NotLoaded{}), do: nil
+  def serialize(nil), do: nil
 end

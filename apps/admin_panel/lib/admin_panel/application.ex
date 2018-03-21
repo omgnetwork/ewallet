@@ -7,16 +7,11 @@ defmodule AdminPanel.Application do
   # See https://hexdocs.pm/elixir/Application.html
   # for more information on OTP Applications
   def start(_type, _args) do
-    import Supervisor.Spec
-
     # Define workers and child supervisors to be supervised
-    children = [
-      # Start the endpoint when the application starts
-      supervisor(Endpoint, [])
-    ]
-
-    # Start `webpack watch` only if the config is set
-    children = if webpack_watch?() && server?(), do: children ++ [webpack_watch()], else: children
+    children =
+      []
+      |> supervise_endpoint()
+      |> supervise_webpack_watch()
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -24,14 +19,35 @@ defmodule AdminPanel.Application do
     Supervisor.start_link(children, opts)
   end
 
-  # Tell Phoenix to update the endpoint configuration
-  # whenever the application is updated.
-  def config_change(changed, _new, removed) do
-    Endpoint.config_change(changed, removed)
-    :ok
+  # Start the endpoint when the application starts
+  defp supervise_endpoint(children) do
+    import Supervisor.Spec
+
+    [supervisor(Endpoint, []) | children]
   end
 
-  defp webpack_watch?, do: Application.get_env(:admin_panel, :webpack_watch, false)
+  # Add webpack watch supervisor only if webpack watch is enabled,
+  # and the application is being started as a server.
+  defp supervise_webpack_watch(children) do
+    if webpack_watch?() && server?() do
+      [webpack_watch() | children]
+    else
+      children
+    end
+  end
+
+  # Returns true when the config `:webpack_watch` is set to true,
+  # and the command is not flagged with `--no-watch`.
+  defp webpack_watch? do
+    webpack_watch = Application.get_env(:admin_panel, :webpack_watch, true)
+    start_with_no_watch = Application.get_env(:admin_panel, :start_with_no_watch, false)
+
+    webpack_watch && !start_with_no_watch
+  end
+
+  defp server? do
+    Application.get_env(:url_dispatcher, :serve_endpoints, false)
+  end
 
   defp webpack_watch do
     import Supervisor.Spec
@@ -50,7 +66,10 @@ defmodule AdminPanel.Application do
     restart: :transient)
   end
 
-  defp server? do
-    Application.get_env(:url_dispatcher, :serve_endpoints, false)
+  # Tell Phoenix to update the endpoint configuration
+  # whenever the application is updated.
+  def config_change(changed, _new, removed) do
+    Endpoint.config_change(changed, removed)
+    :ok
   end
 end

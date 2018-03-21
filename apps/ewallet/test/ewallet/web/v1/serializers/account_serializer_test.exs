@@ -1,5 +1,6 @@
 defmodule EWallet.Web.V1.AccountSerializerTest do
   use EWallet.Web.SerializerCase, :v1
+  alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.AccountSerializer
   alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.Account
@@ -96,6 +97,10 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
 
     test "serializes to nil if account is not given" do
       assert AccountSerializer.serialize(nil) == nil
+    end
+
+    test "serializes to nil if account is not loaded" do
+      assert AccountSerializer.serialize(%NotLoaded{}) == nil
     end
 
     test "serializes an empty account paginator into a list object" do
