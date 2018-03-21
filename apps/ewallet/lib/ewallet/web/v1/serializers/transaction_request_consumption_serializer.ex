@@ -21,9 +21,13 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
       account_id: consumption.account_id,
       transaction_request_id: consumption.transaction_request_id,
       address: consumption.balance_address,
+      expiration_date: consumption.expiration_date,
+      metadata: consumption.metadata,
+      encrypted_metadata: consumption.encrypted_metadata,
       created_at: Date.to_iso8601(consumption.inserted_at),
       updated_at: Date.to_iso8601(consumption.updated_at),
-      finalized_at: Date.to_iso8601(consumption.finalized_at)
+      finalized_at: Date.to_iso8601(consumption.finalized_at),
+      expired_at: Date.to_iso8601(consumption.expired_at)
     }
   end
 end
