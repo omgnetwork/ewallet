@@ -19,14 +19,8 @@ admin_auth_token      = Application.get_env(:ewallet, :seed_admin_auth_token)
 CLI.heading("Trying out OmiseGO eWallet Server with sample data")
 
 CLI.print("""
-  This seeder seeds numerous sample data so that after the seed,
-  you can use our Swagger UI to freely play around with the complete
-  set of OmiseGO eWallet applications:
-
-  - `eWallet API`'s Server endpoints
-  - `eWallet API`'s Client endpoints
-  - `Admin API`'s Client endpoints
-  - `Admin API`'s User endpoints
+  As you have just run the seed with `--sample` option, we have generated some credentails below
+  for you to try the endpoints easily.
 
   If you would like to seed the database with the minimum amount needed to start
   a production environment, we recommend running `mix seed` instead.
@@ -79,6 +73,4 @@ CLI.print("""
   ```
 
   4. Try out User endpoints such as /account.create, /account.assign_user, /access_key.create, etc.
-
-  *Database seeded with sample data. Enjoy!*
   """)

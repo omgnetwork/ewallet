@@ -109,6 +109,4 @@ CLI.print("""
   - Use the API key generated above to make requests to the eWallet API.
     Learn more at `#{ewallet_swagger_ui_url}`
   - etc.
-
-  *Database seeding completed. Enjoy!*
   """)

@@ -64,6 +64,14 @@ defmodule EWalletDB.UserTest do
       assert res == :error
       refute changeset.valid?
     end
+
+    test "prevents updating an admin password that does not pass requirements" do
+      user = prepare_admin_user()
+      {res, changeset} = User.update(user, %{password: "short"})
+
+      assert res == :error
+      refute changeset.valid?
+    end
   end
 
   describe "get/1" do
