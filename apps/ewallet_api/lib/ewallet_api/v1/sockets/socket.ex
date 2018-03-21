@@ -1,6 +1,6 @@
 defmodule EWalletAPI.V1.Socket do
   use Phoenix.Socket
-  alias EWallet.Web.V1.SocketClientAuth
+  alias EWallet.Web.V1.{SocketClientAuth, SocketProviderAuth}
 
   channel "user:*", EWalletAPI.V1.UserChannel
   channel "transaction_request:*", EWalletAPI.V1.TransactionRequestChannel
@@ -9,11 +9,16 @@ defmodule EWalletAPI.V1.Socket do
   transport :websocket, Phoenix.Transports.WebSocket
 
   def connect(params, socket) do
-    case SocketClientAuth.authenticate(params) do
-      %{authenticated: :client} = auth ->
-        {:ok, assign(socket, :auth, auth)}
-      auth ->
-        {:error, auth.auth_error}
+    provider_auth = SocketProviderAuth.authenticate(params)
+    client_auth   = SocketClientAuth.authenticate(params)
+
+    case {provider_auth, client_auth} do
+      {%{authenticated: :provider} = provider_auth, _} ->
+        {:ok, assign(socket, :provider_auth, provider_auth)}
+      {_, %{authenticated: :client} = client_auth} ->
+        {:ok, assign(socket, :client_auth, client_auth)}
+      _ ->
+        {:error, :auth_error}
     end
   end
 

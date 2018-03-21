@@ -8,7 +8,7 @@ defmodule EWalletAPI.V1.Plug.ProviderAuth do
   """
   import Plug.Conn
   import EWalletAPI.V1.ErrorHandler
-  alias EWalletDB.Key
+  alias EWallet.Web.V1.ProviderAuth
 
   def init(opts), do: opts
 
@@ -24,16 +24,12 @@ defmodule EWalletAPI.V1.Plug.ProviderAuth do
       |> get_req_header("authorization")
       |> List.first()
 
-    with header when not is_nil(header) <- header,
-         [scheme, content] <- String.split(header, " ", parts: 2),
-         true <- scheme in ["Basic", "OMGServer"],
-         {:ok, decoded} <- Base.decode64(content),
-         [access, secret] <- String.split(decoded, ":", parts: 2) do
-      conn
-      |> put_private(:auth_access_key, access)
-      |> put_private(:auth_secret_key, secret)
-    else
-      _ ->
+    case ProviderAuth.parse_header(header) do
+      {:ok, access, secret} ->
+        conn
+        |> put_private(:auth_access_key, access)
+        |> put_private(:auth_secret_key, secret)
+      {:error, :invalid_auth_scheme} ->
         conn
         |> assign(:authenticated, false)
         |> handle_error(:invalid_auth_scheme)
@@ -46,15 +42,15 @@ defmodule EWalletAPI.V1.Plug.ProviderAuth do
     access_key = conn.private[:auth_access_key]
     secret_key = conn.private[:auth_secret_key]
 
-    case Key.authenticate(access_key, secret_key) do
-      false ->
-        conn
-        |> assign(:authenticated, false)
-        |> handle_error(:invalid_access_secret_key)
-      account ->
+    case ProviderAuth.authenticate(access_key, secret_key) do
+       {:ok, account} ->
         conn
         |> assign(:authenticated, :provider)
         |> assign(:account, account)
+      {:error, :invalid_access_secret_key} ->
+        conn
+        |> assign(:authenticated, false)
+        |> handle_error(:invalid_access_secret_key)
     end
   end
 end
