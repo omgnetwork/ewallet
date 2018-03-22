@@ -63,13 +63,17 @@ RUN set -xe && \
     MIX_ENV=prod mix compile
 
 RUN set -xe && \
-    SERVICE_PATH=/etc/services.d/ewallet/run && \
-    mkdir -p $(dirname "$SERVICE_PATH") && \
-    echo '#!/bin/execlineb -P' > $SERVICE_PATH && \
-    echo 'with-contenv' >> $SERVICE_PATH && \
-    echo 'cd /app' >> $SERVICE_PATH && \
-    echo 's6-env MIX_ENV=prod' >> $SERVICE_PATH && \
-    echo 'mix omg.server --no-watch' >> $SERVICE_PATH
+    SERVICE_DIR=/etc/services.d/ewallet/ && \
+    mkdir -p "$SERVICE_DIR" && \
+    echo '#!/bin/execlineb -P' > $SERVICE_DIR/run && \
+    echo 'with-contenv' >> $SERVICE_DIR/run && \
+    echo 'cd /app' >> $SERVICE_DIR/run && \
+    echo 's6-env MIX_ENV=prod' >> $SERVICE_DIR/run && \
+    echo 'mix omg.server --no-watch' >> $SERVICE_DIR/run && \
+    echo '#!/bin/execlineb -S1' > $SERVICE_DIR/finish && \
+    echo 'if { s6-test ${1} -ne 0 }' >> $SERVICE_DIR/finish && \
+    echo 'if { s6-test ${1} -ne 256 }' >> $SERVICE_DIR/finish && \
+    echo 's6-svscanctl -t /var/run/s6/services' >> $SERVICE_DIR/finish
 
 ENV PORT 4000
 EXPOSE 4000
