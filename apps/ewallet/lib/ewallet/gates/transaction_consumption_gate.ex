@@ -133,7 +133,7 @@ defmodule EWallet.TransactionConsumptionGate do
                        {:error, :transaction_consumption_not_found}
   def get(id) do
     consumption = TransactionConsumption.get(id, preload: [
-      :user, :balance, :minted_token, :transaction_request
+      :account, :user, :balance, :minted_token, :transaction_request
     ])
 
     case consumption do

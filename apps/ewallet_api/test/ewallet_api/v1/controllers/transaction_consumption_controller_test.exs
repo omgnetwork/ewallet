@@ -1,7 +1,8 @@
   defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
-  alias EWallet.Web.{Date, V1.MintedTokenSerializer, V1.TransactionRequestSerializer}
+  alias EWallet.Web.{Date, V1.MintedTokenSerializer, V1.TransactionRequestSerializer,
+                     V1.AccountSerializer}
   alias EWalletAPI.V1.Endpoint
 
   setup do
@@ -75,7 +76,7 @@
           "user_id" => nil,
           "user" => nil,
           "account_id" => meta.account.id,
-          "account" => nil,
+          "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
           "metadata" => %{},
           "encrypted_metadata" => %{},
           "expiration_date" => nil,
