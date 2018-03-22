@@ -34,12 +34,6 @@ RUN set -xe && \
     apt-get clean && \
     rm -rf /usr/local/src/libsodium
 
-RUN set -xe && \
-    SERVICE_PATH=/etc/services.d/ewallet/run && \
-    mkdir -p $(dirname "$SERVICE_PATH") && \
-    echo '#!/bin/execlineb -P' > $SERVICE_PATH && \
-    echo 's6-env MIX_ENV=prod cd /app mix omg.server --no-watch' >> $SERVICE_PATH
-
 COPY . /app
 WORKDIR /app
 
@@ -68,6 +62,15 @@ RUN set -xe && \
     mix local.rebar --force && \
     mix deps.get && \
     mix compile
+
+RUN set -xe && \
+    SERVICE_PATH=/etc/services.d/ewallet/run && \
+    mkdir -p $(dirname "$SERVICE_PATH") && \
+    echo '#!/bin/execlineb -P' > $SERVICE_PATH && \
+    echo 'with-contenv' >> $SERVICE_PATH && \
+    echo 'cd /app' >> $SERVICE_PATH && \
+    echo 's6-env MIX_ENV=prod' >> $SERVICE_PATH && \
+    echo 'mix omg.server --no-watch' >> $SERVICE_PATH
 
 ENV PORT 4000
 EXPOSE 4000
