@@ -35,10 +35,10 @@ RUN set -xe && \
     rm -rf /usr/local/src/libsodium
 
 RUN set -xe && \
-    SERVICE_PATH=/etc/services.d/ewallet && \
+    SERVICE_PATH=/etc/services.d/ewallet/run && \
     mkdir -p $(dirname "$SERVICE_PATH") && \
     echo '#!/bin/execlineb -P' > $SERVICE_PATH && \
-    echo 's6-env MIX_ENV prod cd /app mix omg.server --no-watch' >> $SERVICE_PATH
+    echo 's6-env MIX_ENV=prod cd /app mix omg.server --no-watch' >> $SERVICE_PATH
 
 COPY . /app
 WORKDIR /app
