@@ -36,11 +36,13 @@ podTemplate(
 
             sh(
                 """
-                docker run --rm \
+                docker run \
+                    --rm \
+                    --entrypoint /bin/sh \
                     -e DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_ewallet" \
                     -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_local_ledger" \
                     ${imageName}:${gitCommit} \
-                    sh -c "cd /app && MIX_ENV=test mix do credo, ecto.create, ecto.migrate, test"
+                    -c "cd /app && MIX_ENV=test mix do credo, ecto.create, ecto.migrate, test"
                 """.stripIndent()
             )
         }
@@ -74,15 +76,6 @@ podTemplate(
 
                     def podID = getPodID('--namespace=staging -l app=ewallet')
                     sh("kubectl exec ${podID} --namespace=staging mix ecto.migrate")
-                }
-            }
-        } else if (env.BRANCH_NAME == 'dockerfile-s6') {
-            stage('Push') {
-                withCredentials([file(credentialsId: 'docker', variable: 'DOCKER_CONFIG')]) {
-                    def configDir = sh(script: "dirname ${DOCKER_CONFIG}", returnStdout: true).trim()
-                    sh("docker --config=${configDir} tag ${imageName}:${gitCommit} ${imageName}:dev")
-                    sh("docker --config=${configDir} push ${imageName}:${gitCommit}")
-                    sh("docker --config=${configDir} push ${imageName}:dev")
                 }
             }
         } else if (env.BRANCH_NAME == 'master') {

@@ -57,11 +57,10 @@ RUN set -xe && \
     rm -rf /etc/apt/sources.list.d/yarn.list
 
 RUN set -xe && \
-    MIX_ENV=prod && \
     mix local.hex --force && \
     mix local.rebar --force && \
     mix deps.get && \
-    mix compile
+    MIX_ENV=prod mix compile
 
 RUN set -xe && \
     SERVICE_PATH=/etc/services.d/ewallet/run && \
