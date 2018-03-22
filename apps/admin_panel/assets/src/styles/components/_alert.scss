@@ -2,10 +2,15 @@
   text-align: center;
   margin-top: 1rem;
   margin-bottom: 2rem;
+  display: inline-block;
 }
 
 .alert-danger {
   border: 1px solid $red-alert;
+}
+
+.alert-center {
+  text-align: center;
 }
 
 .alert-success {

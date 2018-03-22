@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 
 const Alerter = ({ alert }) => (
-  <div>
+  <div className="alert-center">
     {alert.message ? (
       <div className={`alert ${alert.type}`}>
         {alert.message}
