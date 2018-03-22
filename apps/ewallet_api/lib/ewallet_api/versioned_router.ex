@@ -28,7 +28,7 @@ defmodule EWalletAPI.VersionedRouter do
 
   defp get_accept_version(accept) do
     api_version = Application.get_env(:ewallet_api, :api_versions)
-    
+
     case Map.fetch(api_version, accept) do
       {:ok, version} ->
         {:ok, version[:router]}

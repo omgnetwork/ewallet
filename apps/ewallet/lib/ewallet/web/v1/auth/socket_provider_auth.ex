@@ -1,4 +1,7 @@
 defmodule EWallet.Web.V1.SocketProviderAuth do
+  @moduledoc """
+  This module takes care of authenticating a provider for websocket connections.
+  """
   alias EWallet.Web.V1.ProviderAuth
 
   def authenticate(params) do

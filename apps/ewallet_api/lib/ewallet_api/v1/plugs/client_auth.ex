@@ -25,7 +25,6 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
       |> get_req_header("authorization")
       |> List.first()
 
-
     case ClientAuth.parse_header(header) do
       {:ok, key, token} ->
         conn

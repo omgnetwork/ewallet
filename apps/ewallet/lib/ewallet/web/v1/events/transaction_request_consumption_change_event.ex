@@ -1,17 +1,22 @@
-defmodule EWallet.TransactionRequestConsumptionChangeEvent do
+defmodule EWallet.Web.V1.TransactionRequestConsumptionChangeEvent do
+  @moduledoc """
+  This module represents the transaction_request_consumption_change event and how to build it.
+  """
+  alias  EWallet.Web.V1.{Event, TransactionRequestConsumptionSerializer}
+
   def broadcast(consumption) do
     consumption
     |> topics()
     |> Enum.each(fn topic ->
-      EWallet.Event.broadcast(
+      Event.broadcast(
         topic: topic,
-        event: event(consumption),
+        event: event(),
         payload: payload(consumption)
       )
     end)
   end
 
-  defp event(consumption) do
+  defp event do
     "transaction_request_consumption_change"
   end
 
@@ -34,6 +39,6 @@ defmodule EWallet.TransactionRequestConsumptionChangeEvent do
 
   defp payload(consumption) do
     consumption
-    |> EWallet.Web.V1.TransactionRequestConsumptionSerializer.serialize()
+    |> TransactionRequestConsumptionSerializer.serialize()
   end
 end

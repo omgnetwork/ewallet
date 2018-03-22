@@ -1,5 +1,8 @@
-defmodule EWallet.Event do
-  alias EWallet.{
+defmodule EWallet.Web.V1.Event do
+  @moduledoc """
+  This module translates a symbol defining a supported event into the actual event and broadcasts it.
+  """
+  alias EWallet.Web.V1.{
     TransactionRequestConfirmationEvent,
     TransactionRequestConsumptionChangeEvent
   }

@@ -1,4 +1,7 @@
 defmodule EWallet.Web.V1.ClientAuth do
+  @moduledoc """
+  This module takes care of authenticating a client for HTTP or Websocket connections.
+  """
   alias EWalletDB.{APIKey, AuthToken}
 
   def parse_header(header) do

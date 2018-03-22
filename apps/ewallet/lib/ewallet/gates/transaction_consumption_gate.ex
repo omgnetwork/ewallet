@@ -6,7 +6,7 @@ defmodule EWallet.TransactionConsumptionGate do
 
   It is basically an interface to the EWalletDB.TransactionRequestConsumption schema.
   """
-  alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher, Event}
+  alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher, Web.V1.Event}
   alias EWalletDB.{Repo, Account, MintedToken, User, Balance, TransactionRequestConsumption}
 
   @spec consume(Map.t) :: {:ok, TransactionRequestConsumption.t} | {:error, Atom.t}

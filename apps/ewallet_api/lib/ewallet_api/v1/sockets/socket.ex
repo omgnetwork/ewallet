@@ -1,4 +1,8 @@
 defmodule EWalletAPI.V1.Socket do
+  @moduledoc """
+  This module is the entry points for websocket connections to the eWallet API. It contains the
+  channels to which providers/clients can connect to listen and receive events.
+  """
   use Phoenix.Socket
   alias EWallet.Web.V1.{SocketClientAuth, SocketProviderAuth}
 

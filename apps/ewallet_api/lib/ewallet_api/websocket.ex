@@ -1,3 +1,22 @@
+# MIT License
+# Copyright (c) 2014 Chris McCord
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+# and associated documentation files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom
+# the Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or
+# substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 defmodule EWalletAPI.WebSocket do
   @moduledoc """
   Heavily inspired by https://hexdocs.pm/phoenix/Phoenix.Transports.WebSocket.html
@@ -5,18 +24,9 @@ defmodule EWalletAPI.WebSocket do
   Socket transport for websocket clients.
   """
 
-  # MIT License
-  # Copyright (c) 2014 Chris McCord
-  #
-  # Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-  #
-  # The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-  #
-  # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
   @behaviour Phoenix.Socket.Transport
 
-  def default_config() do
+  def default_config do
     [timeout: 60_000,
      transport_log: false]
   end
@@ -31,6 +41,8 @@ defmodule EWalletAPI.WebSocket do
   alias Phoenix.Socket
   alias Phoenix.Socket.Broadcast
   alias Phoenix.Socket.Transport
+  alias Phoenix.CodeReloader
+  alias Phoenix.Channel.Server
 
   @doc false
   def init(%Plug.Conn{method: "GET"} = conn, {_global_endpoint, handler, transport}) do
@@ -112,8 +124,8 @@ defmodule EWalletAPI.WebSocket do
           nil                   -> {:ok, socket}
           id when is_binary(id) -> {:ok, %Socket{socket | id: id}}
           invalid               ->
-            Logger.error "#{inspect handler}.id/1 returned invalid identifier #{inspect invalid}. " <>
-                         "Expected nil or a string."
+            Logger.error "#{inspect handler}.id/1 returned invalid identifier " <>
+                         "#{inspect invalid}. Expected nil or a string."
             :error
         end
 
@@ -201,7 +213,7 @@ defmodule EWalletAPI.WebSocket do
   @doc false
   def ws_close(state) do
     for {pid, _} <- state.channels_inverse do
-      Phoenix.Channel.Server.close(pid)
+      Server.close(pid)
     end
   end
 
@@ -230,7 +242,7 @@ defmodule EWalletAPI.WebSocket do
 
   defp code_reload(conn, opts, endpoint) do
     reload? = Keyword.get(opts, :code_reloader, endpoint.config(:code_reloader))
-    if reload?, do: Phoenix.CodeReloader.reload!(endpoint)
+    if reload?, do: CodeReloader.reload!(endpoint)
 
     conn
   end

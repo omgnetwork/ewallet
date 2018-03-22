@@ -1,12 +1,18 @@
 defmodule UrlDispatcher.SocketDispatcher do
+  @moduledoc """
+  Dispatches websocket connections and payloads to the appropriate sub-application.
+  """
+  alias EWalletAPI.{WebSocket, V1.Endpoint}
+  alias Phoenix.Endpoint.CowboyWebSocket
+
   def websockets do
     ewallet_api() ++ admin_api()
   end
 
   def ewallet_api do
-    EWalletAPI.V1.Endpoint.__sockets__
+    Endpoint.__sockets__
     |> Enum.map(fn {path, socket} ->
-      {path, EWalletAPI.V1.Endpoint, socket} |> build_websocket_config("/api")
+      {path, Endpoint, socket} |> build_websocket_config("/api")
     end)
   end
 
@@ -16,9 +22,9 @@ defmodule UrlDispatcher.SocketDispatcher do
 
   defp build_websocket_config({path, endpoint, socket}, prefix) do
     {"#{prefix}#{path}",
-       Phoenix.Endpoint.CowboyWebSocket,
+       CowboyWebSocket,
        {
-         EWalletAPI.WebSocket, {endpoint, socket, :websocket}
+         WebSocket, {endpoint, socket, :websocket}
       }
      }
   end

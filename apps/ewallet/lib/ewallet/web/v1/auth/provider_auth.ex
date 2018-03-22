@@ -1,4 +1,7 @@
 defmodule EWallet.Web.V1.ProviderAuth do
+  @moduledoc """
+  This module takes care of authenticating a provider for HTTP or Websocket connections.
+  """
   alias EWalletDB.Key
 
   def parse_header(header) do

@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   use EWalletAPI, :controller
   use EWallet.Web.Embedder
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.TransactionConsumptionGate
+  alias EWallet.{Web.V1.Event, TransactionConsumptionGate}
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
@@ -52,7 +52,7 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   end
 
   defp dispatch_change_event(consumption) do
-    EWallet.Event.dispatch(:transaction_request_consumption_change, %{
+    Event.dispatch(:transaction_request_consumption_change, %{
       consumption: consumption
     })
   end
