@@ -1,6 +1,6 @@
-  defmodule EWalletAPI.V1.TransactionRequestConsumptionControllerTest do
+  defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, TransactionRequestConsumption, User, Transfer, Account}
+  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
   alias EWallet.Web.{Date, V1.MintedTokenSerializer, V1.TransactionRequestSerializer}
   alias EWalletAPI.V1.Endpoint
 
@@ -46,7 +46,7 @@
         account_id: meta.account.id
       })
 
-      inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
       request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
 
@@ -58,9 +58,9 @@
           "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
           "id" => inserted_consumption.id,
-          "socket_topic" => "transaction_request_consumption:#{inserted_consumption.id}",
+          "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
           "idempotency_token" => "123",
-          "object" => "transaction_request_consumption",
+          "object" => "transaction_consumption",
           "status" => "confirmed",
           "minted_token_id" => meta.minted_token.friendly_id,
           "minted_token" =>
@@ -145,7 +145,7 @@
         account_id: meta.account.id
       })
 
-      inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true
@@ -160,7 +160,7 @@
         token_id: nil
       })
 
-      inserted_consumption_2 = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
+      inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true
@@ -231,7 +231,7 @@
       assert response["data"]["transaction_id"] == nil
 
       # Retrieve what just got inserted
-      inserted_consumption = TransactionRequestConsumption.get(response["data"]["id"])
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
 
       # We check that we receive the confirmation request above in the
       # transaction request channel
@@ -245,10 +245,10 @@
 
       # We need to know once the consumption has been approved, so let's
       # listen to the channel for it
-      Endpoint.subscribe("transaction_request_consumption:#{consumption_id}")
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
 
       # Confirm the consumption
-      response = provider_request("/transaction_request_consumption.confirm", %{
+      response = provider_request("/transaction_consumption.confirm", %{
         id: consumption_id
       })
       assert response["success"] == true
@@ -263,8 +263,8 @@
       assert %{} = inserted_transfer.ledger_response
 
       assert_receive %Phoenix.Socket.Broadcast{
-        event: "transaction_request_consumption_change",
-        topic:  "transaction_request_consumption:" <> _,
+        event: "transaction_consumption_change",
+        topic:  "transaction_consumption:" <> _,
         payload: %{
           # Ignore content
         }
@@ -272,7 +272,7 @@
 
       # Unsubscribe from all channels
       Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
-      Endpoint.unsubscribe("transaction_request_consumption:#{consumption_id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
   end
 
@@ -301,7 +301,7 @@
         token_id: nil
       })
 
-      inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
       request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
 
@@ -313,9 +313,9 @@
           "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
           "id" => inserted_consumption.id,
-          "socket_topic" => "transaction_request_consumption:#{inserted_consumption.id}",
+          "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
           "idempotency_token" => "123",
-          "object" => "transaction_request_consumption",
+          "object" => "transaction_consumption",
           "status" => "confirmed",
           "minted_token_id" => meta.minted_token.friendly_id,
           "minted_token" =>
@@ -380,7 +380,7 @@
         token_id: nil
       })
 
-      inserted_consumption = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true
@@ -395,7 +395,7 @@
         token_id: nil
       })
 
-      inserted_consumption_2 = TransactionRequestConsumption |> Repo.all() |> Enum.at(0)
+      inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true

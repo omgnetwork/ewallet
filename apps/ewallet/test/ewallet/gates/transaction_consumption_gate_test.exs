@@ -1,7 +1,7 @@
 defmodule EWallet.TransactionConsumptionGateTest do
  use EWallet.LocalLedgerCase, async: true
  alias EWallet.TransactionConsumptionGate
- alias EWalletDB.{User, TransactionRequestConsumption, TransactionRequest}
+ alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
 
   setup do
     minted_token     = insert(:minted_token)
@@ -76,7 +76,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = consumption
+      assert %TransactionConsumption{} = consumption
     end
 
     test "with valid account_id and no address", meta do
@@ -91,7 +91,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = request
+      assert %TransactionConsumption{} = request
     end
 
     test "with valid account_id and a valid address", meta do
@@ -107,7 +107,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = request
+      assert %TransactionConsumption{} = request
       assert request.status == "confirmed"
     end
 
@@ -183,7 +183,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = request
+      assert %TransactionConsumption{} = request
     end
 
     test "with valid provider_user_id and a valid address", meta do
@@ -201,7 +201,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = request
+      assert %TransactionConsumption{} = request
     end
 
     test "with valid provider_user_id and an invalid address", meta do
@@ -262,7 +262,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = request
+      assert %TransactionConsumption{} = request
     end
 
     test "with an invalid address", meta do
@@ -311,7 +311,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = consumption
+      assert %TransactionConsumption{} = consumption
       assert consumption.transaction_request_id == meta.request.id
       assert consumption.amount == meta.request.amount
       assert consumption.balance_address == meta.sender_balance.address
@@ -340,7 +340,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = consumption
+      assert %TransactionConsumption{} = consumption
       assert consumption.transaction_request_id == transaction_request.id
       assert consumption.amount == meta.request.amount
       assert consumption.balance_address == meta.sender_balance.address
@@ -361,7 +361,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert %TransactionRequestConsumption{} = consumption
+      assert %TransactionConsumption{} = consumption
       assert consumption.transaction_request_id == meta.request.id
       assert consumption.amount == 1_000
       assert consumption.balance_address == meta.sender_balance.address
@@ -741,17 +741,17 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       assert res == :ok
       assert {:ok, consumption} = TransactionConsumptionGate.get(consumption.id)
-      assert %TransactionRequestConsumption{} = consumption
+      assert %TransactionConsumption{} = consumption
     end
 
     test "returns nil when given nil" do
       assert TransactionConsumptionGate.get(nil) ==
-             {:error, :transaction_request_consumption_not_found}
+             {:error, :transaction_consumption_not_found}
     end
 
     test "returns nil when given invalid UUID" do
       assert TransactionConsumptionGate.get("123") ==
-             {:error, :transaction_request_consumption_not_found}
+             {:error, :transaction_consumption_not_found}
     end
   end
 end

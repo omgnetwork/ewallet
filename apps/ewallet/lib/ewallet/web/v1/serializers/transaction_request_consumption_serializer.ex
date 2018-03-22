@@ -1,4 +1,4 @@
-defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
+defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
   @moduledoc """
   Serializes transaction request consumption data into V1 JSON response format.
   """
@@ -11,13 +11,13 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
     TransactionRequestSerializer
   }
   alias EWalletAPI.V1.UserSerializer
-  alias EWalletDB.TransactionRequestConsumption
+  alias EWalletDB.TransactionConsumption
 
-  def serialize(%TransactionRequestConsumption{} = consumption) do
+  def serialize(%TransactionConsumption{} = consumption) do
     %{
-      object: "transaction_request_consumption",
+      object: "transaction_consumption",
       id: consumption.id,
-      socket_topic: "transaction_request_consumption:#{consumption.id}",
+      socket_topic: "transaction_consumption:#{consumption.id}",
       status: consumption.status,
       approved: consumption.approved,
       amount: consumption.amount,

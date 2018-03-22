@@ -4,15 +4,15 @@ defmodule EWallet.Web.V1.Event do
   """
   alias EWallet.Web.V1.{
     TransactionRequestConfirmationEvent,
-    TransactionRequestConsumptionChangeEvent
+    TransactionConsumptionChangeEvent
   }
 
   def dispatch(:transaction_request_confirmation, %{consumption: consumption}) do
     TransactionRequestConfirmationEvent.broadcast(consumption)
   end
 
-  def dispatch(:transaction_request_consumption_change, %{consumption: consumption}) do
-    TransactionRequestConsumptionChangeEvent.broadcast(consumption)
+  def dispatch(:transaction_consumption_change, %{consumption: consumption}) do
+    TransactionConsumptionChangeEvent.broadcast(consumption)
   end
 
   def broadcast(

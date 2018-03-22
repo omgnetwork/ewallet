@@ -8,7 +8,7 @@ defmodule EWalletAPI.V1.Socket do
 
   channel "user:*", EWalletAPI.V1.UserChannel
   channel "transaction_request:*", EWalletAPI.V1.TransactionRequestChannel
-  channel "transaction_request_consumption:*", EWalletAPI.V1.TransactionConsumptionChannel
+  channel "transaction_consumption:*", EWalletAPI.V1.TransactionConsumptionChannel
 
   transport :websocket, Phoenix.Transports.WebSocket
 

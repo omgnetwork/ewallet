@@ -4,12 +4,12 @@ defmodule EWallet.TransactionConsumptionGate do
   creating new consumptions, generating transfers and transactions. It can also be used to
   retrieve a specific consumption.
 
-  It is basically an interface to the EWalletDB.TransactionRequestConsumption schema.
+  It is basically an interface to the EWalletDB.TransactionConsumption schema.
   """
   alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher, Web.V1.Event}
-  alias EWalletDB.{Repo, Account, MintedToken, User, Balance, TransactionRequestConsumption}
+  alias EWalletDB.{Repo, Account, MintedToken, User, Balance, TransactionConsumption}
 
-  @spec consume(Map.t) :: {:ok, TransactionRequestConsumption.t} | {:error, Atom.t}
+  @spec consume(Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
   def consume(%{
     "account_id" => account_id,
     "address" => address
@@ -112,7 +112,7 @@ defmodule EWallet.TransactionConsumptionGate do
           {:ok, consumption}
         false ->
           consumption
-          |> TransactionRequestConsumption.approve()
+          |> TransactionConsumption.approve()
           |> transfer(request.type)
       end
     else
@@ -129,15 +129,15 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  @spec get(UUID.t) :: {:ok, TransactionRequestConsumption.t} |
-                       {:error, :transaction_request_consumption_not_found}
+  @spec get(UUID.t) :: {:ok, TransactionConsumption.t} |
+                       {:error, :transaction_consumption_not_found}
   def get(id) do
-    consumption = TransactionRequestConsumption.get(id, preload: [
+    consumption = TransactionConsumption.get(id, preload: [
       :user, :balance, :minted_token, :transaction_request
     ])
 
     case consumption do
-      nil         -> {:error, :transaction_request_consumption_not_found}
+      nil         -> {:error, :transaction_consumption_not_found}
       consumption -> {:ok, consumption}
     end
   end
@@ -146,7 +146,7 @@ defmodule EWallet.TransactionConsumptionGate do
     with {:ok, consumption} <- get(id)
     do
       consumption
-      |> TransactionRequestConsumption.approve()
+      |> TransactionConsumption.approve()
       |> transfer(consumption.transaction_request.type)
     else
       error -> error
@@ -154,7 +154,7 @@ defmodule EWallet.TransactionConsumptionGate do
   end
 
   defp insert(balance, minted_token, request, attrs) do
-    TransactionRequestConsumption.insert(%{
+    TransactionConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
       idempotency_token: attrs["idempotency_token"],
       amount: attrs["amount"] || request.amount,
@@ -194,10 +194,10 @@ defmodule EWallet.TransactionConsumptionGate do
 
     case TransactionGate.process_with_addresses(attrs) do
       {:ok, transfer, _, _} ->
-        consumption = TransactionRequestConsumption.confirm(consumption, transfer)
+        consumption = TransactionConsumption.confirm(consumption, transfer)
         {:ok, consumption}
       {:error, transfer, code, description} ->
-        consumption = TransactionRequestConsumption.fail(consumption, transfer)
+        consumption = TransactionConsumption.fail(consumption, transfer)
         {:error, consumption, code, description}
     end
   end

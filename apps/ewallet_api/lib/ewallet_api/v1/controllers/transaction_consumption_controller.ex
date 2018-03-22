@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
+defmodule EWalletAPI.V1.TransactionConsumptionController do
   use EWalletAPI, :controller
   use EWallet.Web.Embedder
   import EWalletAPI.V1.ErrorHandler
@@ -46,13 +46,13 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   end
   defp respond({:ok, consumption}, conn) do
     dispatch_change_event(consumption)
-    render(conn, :transaction_request_consumption, %{
-      transaction_request_consumption: embed(consumption, conn.body_params["embed"])
+    render(conn, :transaction_consumption, %{
+      transaction_consumption: embed(consumption, conn.body_params["embed"])
     })
   end
 
   defp dispatch_change_event(consumption) do
-    Event.dispatch(:transaction_request_consumption_change, %{
+    Event.dispatch(:transaction_consumption_change, %{
       consumption: consumption
     })
   end

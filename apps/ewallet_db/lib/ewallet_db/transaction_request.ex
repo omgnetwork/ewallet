@@ -7,7 +7,7 @@ defmodule EWalletDB.TransactionRequest do
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{TransactionRequest, TransactionRequestConsumption,
+  alias EWalletDB.{TransactionRequest, TransactionConsumption,
                    Repo, MintedToken, User, Balance, Helpers}
 
   @valid "valid"
@@ -36,7 +36,7 @@ defmodule EWalletDB.TransactionRequest do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
 
-    has_many :consumptions, TransactionRequestConsumption
+    has_many :consumptions, TransactionConsumption
     belongs_to :user, User, foreign_key: :user_id,
                                          references: :id,
                                          type: UUID
@@ -150,7 +150,7 @@ defmodule EWalletDB.TransactionRequest do
   end
 
   def expire_if_max_consumption(request) do
-    consumptions = TransactionRequestConsumption.all_active_for_request(request.id)
+    consumptions = TransactionConsumption.all_active_for_request(request.id)
 
     case max_consumptions_reached?(request, consumptions) do
       true  -> expire(request, "max_consumptions_reached")

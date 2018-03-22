@@ -2,7 +2,7 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
   @moduledoc """
   This module represents the transaction_request_confirmation event and how to build it.
   """
-  alias EWallet.Web.V1.{Event, TransactionRequestConsumptionSerializer}
+  alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
 
   def broadcast(consumption) do
     consumption
@@ -10,13 +10,13 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
     |> Enum.each(fn topic ->
       Event.broadcast(
         topic: topic,
-        event: event(consumption),
+        event: event(),
         payload: payload(consumption)
       )
     end)
   end
 
-  defp event(consumption) do
+  defp event do
     "transaction_request_confirmation"
   end
 
@@ -38,6 +38,6 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
 
   defp payload(consumption) do
     consumption
-    |> TransactionRequestConsumptionSerializer.serialize()
+    |> TransactionConsumptionSerializer.serialize()
   end
 end
