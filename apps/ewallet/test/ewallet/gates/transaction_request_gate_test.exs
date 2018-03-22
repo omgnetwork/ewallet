@@ -329,11 +329,23 @@ defmodule EWallet.TransactionRequestTest do
 
   describe "create/2 with %Balance{}" do
     test "creates a transaction request with all the params", meta do
+      t0 = NaiveDateTime.utc_now()
+      expiration = t0 |> NaiveDateTime.add(60_000, :millisecond)
+
       {:ok, request} = TransactionRequestGate.create(meta.user_balance, %{
        "type" => "receive",
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => "123",
-       "amount" => 1_000
+       "amount" => 1_000,
+       "allow_amount_override" => false,
+       "confirmable" => true,
+       "consumption_lifetime" => 60_000,
+       "metadata" => %{two: "two"},
+       "encrypted_metadata" => %{one: "one"},
+       "expiration_date" => expiration,
+       "expiration_reason" => "test",
+       "expired_at" => "something",
+       "max_consumptions" => 3,
       })
 
       assert %TransactionRequest{} = request
@@ -343,6 +355,16 @@ defmodule EWallet.TransactionRequestTest do
       assert request.correlation_id == "123"
       assert request.amount == 1_000
       assert request.balance_address == meta.user_balance.address
+
+      assert request.allow_amount_override == false
+      assert request.confirmable == true
+      assert request.consumption_lifetime == 60_000
+      assert request.metadata == %{"two" => "two"}
+      assert request.encrypted_metadata == %{"one" => "one"}
+      assert request.expiration_date == expiration
+      assert request.expiration_reason == nil
+      assert request.expired_at == nil
+      assert request.max_consumptions == 3
     end
 
     test "creates a transaction request with only type and token_id", meta do

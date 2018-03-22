@@ -25,7 +25,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
     field :finalized_at, :naive_datetime
     field :expired_at, :naive_datetime
     field :expiration_date, :naive_datetime
-    field :metadata, :map
+    field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     belongs_to :transfer, Transfer, foreign_key: :transfer_id,
                                     references: :id,

@@ -33,7 +33,7 @@ defmodule EWalletDB.TransactionRequest do
     field :expired_at, :naive_datetime
     field :expiration_reason, :string
     field :allow_amount_override, :boolean, default: true
-    field :metadata, :map
+    field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
 
     has_many :consumptions, TransactionRequestConsumption

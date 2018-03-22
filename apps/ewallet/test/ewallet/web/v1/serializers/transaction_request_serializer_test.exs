@@ -25,7 +25,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         allow_amount_override: true,
         confirmable: false,
         consumption_lifetime: nil,
-        metadata: nil,
+        metadata: %{},
         encrypted_metadata: %{},
         expiration_date: nil,
         expiration_reason: nil,
