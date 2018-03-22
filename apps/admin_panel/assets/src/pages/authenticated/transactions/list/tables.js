@@ -14,17 +14,17 @@ const tables = (translate, datas) => ({
     created_at: { title: translate('transactions.table.created_at'), sortable: true },
   },
   contents: datas.map(({
-    id, amount, minted_token, from, to, idempotency_token, status, created_at,
+    id, from, to, idempotency_token, status, created_at,
   }) => ({
     id: { type: tableConstants.PROPERTY, value: id, shortened: true },
     amount: {
       type: tableConstants.PROPERTY,
-      value: amount / minted_token.subunit_to_unit,
+      value: from.amount / from.minted_token.subunit_to_unit,
       shortened: false,
     },
-    token: { type: tableConstants.PROPERTY, value: minted_token.id, shortened: true },
-    from: { type: tableConstants.PROPERTY, value: from, shortened: true },
-    to: { type: tableConstants.PROPERTY, value: to, shortened: true },
+    token: { type: tableConstants.PROPERTY, value: from.minted_token.id, shortened: true },
+    from: { type: tableConstants.PROPERTY, value: from.address, shortened: true },
+    to: { type: tableConstants.PROPERTY, value: to.address, shortened: true },
     idempotency_token: {
       type: tableConstants.PROPERTY,
       value: idempotency_token,
