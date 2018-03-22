@@ -51,6 +51,7 @@ podTemplate(
                     def configDir = sh(script: "dirname ${DOCKER_CONFIG}", returnStdout: true).trim()
                     sh("docker --config=${configDir} tag ${imageName}:${gitCommit} ${imageName}:latest")
                     sh("docker --config=${configDir} push ${imageName}:${gitCommit}")
+                    sh("docker --config=${configDir} push ${imageName}:latest")
                 }
             }
 
@@ -81,6 +82,7 @@ podTemplate(
                     def configDir = sh(script: "dirname ${DOCKER_CONFIG}", returnStdout: true).trim()
                     sh("docker --config=${configDir} tag ${imageName}:${gitCommit} ${imageName}:dev")
                     sh("docker --config=${configDir} push ${imageName}:${gitCommit}")
+                    sh("docker --config=${configDir} push ${imageName}:dev")
                 }
             }
         } else if (env.BRANCH_NAME == 'master') {
@@ -89,6 +91,7 @@ podTemplate(
                     def configDir = sh(script: "dirname ${DOCKER_CONFIG}", returnStdout: true).trim()
                     sh("docker --config=${configDir} tag ${imageName}:${gitCommit} ${imageName}:stable")
                     sh("docker --config=${configDir} push ${imageName}:${gitCommit}")
+                    sh("docker --config=${configDir} push ${imageName}:stable")
                 }
             }
         }
