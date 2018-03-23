@@ -11,6 +11,13 @@ defmodule EWalletDB.Account do
 
   @primary_key {:id, UUID, autogenerate: true}
 
+  # The number of child levels allowed in the system.
+  #   0 = no child levels allowed
+  #   1 = one master account and its immediate children
+  #   2 = one master account and 2 child levels below it
+  #   3 = ...
+  @child_level_limit 1
+
   schema "account" do
     field :name, :string
     field :description, :string
@@ -35,6 +42,7 @@ defmodule EWalletDB.Account do
     |> cast(attrs, [:name, :description, :parent_id, :metadata, :encrypted_metadata])
     |> validate_required([:name, :metadata, :encrypted_metadata])
     |> validate_parent_id()
+    |> validate_account_level(@child_level_limit)
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
   end
@@ -188,5 +196,43 @@ defmodule EWalletDB.Account do
     |> where([b], b.identifier == ^identifier)
     |> where([b], b.account_id == ^account.id)
     |> Repo.one()
+  end
+
+  @doc """
+  Determine the relative depth to the master account.
+
+  The master account has a relative depth of 0.
+  """
+  def get_depth(%Account{} = account), do: get_depth(account.id)
+  def get_depth(account_id) do
+    case Account.get_master_account() do
+      nil ->
+        0 # No master account means that this account is at level 0.
+      master_account ->
+        account_id
+        |> query_depth(master_account.id)
+        |> Repo.one()
+    end
+  end
+
+  defp query_depth(account_id, parent_account_id) do
+    # Traverses up the account tree and count each step up until it reaches the master account.
+    from a in Account,
+      join: account_tree in fragment("""
+        WITH RECURSIVE account_tree AS (
+          SELECT id, parent_id, 0 AS depth
+          FROM account a
+          WHERE a.id = ?
+        UNION
+          SELECT parent.id, parent.parent_id, account_tree.depth + 1 as depth
+          FROM account parent
+          JOIN account_tree ON account_tree.parent_id = parent.id
+        )
+        SELECT id, depth FROM account_tree
+        WHERE account_tree.id = ?
+        """,
+        type(^account_id, UUID), type(^parent_account_id, UUID)
+      ), on: a.id == account_tree.id,
+      select: account_tree.depth
   end
 end
