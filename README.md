@@ -92,6 +92,25 @@ The demo server applications have been deployed and are available at the followi
 
 The following section will get you up to speed on the eWallet and show you how to deploy it in local.
 
+## Using Docker image
+
+We provides a Docker image for quick installation at the [omisego/ewallet](https://hub.docker.com/r/omisego/ewallet/) repository on Docker Hub with the following tags:
+
+* `latest` tracks current (i.e. develop branch)
+* `stable` tracks stable (i.e. master branch)
+
+Additionally, all commits in develop and master branches are also built. It is highly recommend to pin the version to certain commit in anything that resembles production environment. An easiest way to get the Docker image running would be (assuming [PostgreSQL]() is already setup):
+
+```
+$ docker run \
+    -e DATABASE_URL="postgresql://postgres@127.0.0.1:5432/ewallet" \
+    -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@127.0.0.1:5432/local_ledger" \
+    -p 4000:4000 \
+    omisego/ewallet:latest
+```
+
+Then run `docker exec <container-id> mix ecto.create, ecto.migrate` to setup the database.
+
 ## Quick installation with Goban
 
 If you don't want to set up everything from scratch with the instructions below, you can use [Goban](https://github.com/omisego/goban) instead. Goban will generate a consistent development environment within a virtual machine for you without having to install the dependencies manually.
