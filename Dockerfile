@@ -34,12 +34,13 @@ RUN set -xe && \
     apt-get clean && \
     rm -rf /usr/local/src/libsodium
 
+COPY . /app
+WORKDIR /app
+
 RUN set -xe && \
     groupadd -r ewallet && \
-    useradd -r -g ewallet ewallet
-
-COPY --chown=ewallet . /app
-WORKDIR /app
+    useradd -r -g ewallet ewallet && \
+    chown -R ewallet /app
 
 RUN set -xe && \
     apt-get update && \
