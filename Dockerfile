@@ -34,7 +34,11 @@ RUN set -xe && \
     apt-get clean && \
     rm -rf /usr/local/src/libsodium
 
-COPY . /app
+RUN set -xe && \
+    groupadd -r ewallet && \
+    useradd -r -g ewallet ewallet
+
+COPY --chown=ewallet . /app
 WORKDIR /app
 
 RUN set -xe && \
@@ -47,16 +51,31 @@ RUN set -xe && \
     echo "deb https://dl.yarnpkg.com/debian/ stable main" > /etc/apt/sources.list.d/yarn.list && \
     apt-get update && \
     apt-get install -y nodejs yarn && \
-    cd /app/apps/admin_panel/assets && \
-    yarn install && \
-    yarn build && \
-    rm -rf /app/apps/admin_panel/node_modules && \
+    execlineb -P -c " \
+        s6-setuidgid ewallet \
+        s6-env HOME=/tmp/ewallet \
+        cd /app/apps/admin_panel/assets \
+        if { yarn install } \
+        if { yarn build } \
+        rm -rf node_modules \
+        rm -rf /tmp/ewallet \
+    " && \
     apt-get remove -y apt-transport-https nodejs yarn && \
     apt-get clean && \
     rm -rf /etc/apt/sources.list.d/nodesource.list && \
     rm -rf /etc/apt/sources.list.d/yarn.list
 
 RUN set -xe && \
+    execlineb -P -c " \
+        s6-setuidgid ewallet \
+        s6-env HOME=/tmp/ewallet \
+        s6-env MIX_ENV=prod \
+        if { mix local.hex --force } \
+        if { mix local.rebar --force } \
+        if { mix deps.get } \
+        mix compile \
+        rm -rf /tmp/ewallet \
+    " && \
     mix local.hex --force && \
     mix local.rebar --force && \
     mix deps.get && \
@@ -68,6 +87,7 @@ RUN set -xe && \
     echo '#!/bin/execlineb -P' > $SERVICE_DIR/run && \
     echo 'with-contenv' >> $SERVICE_DIR/run && \
     echo 'cd /app' >> $SERVICE_DIR/run && \
+    echo 's6-setuidgid ewallet' >> $SERVICE_DIR/run && \
     echo 's6-env MIX_ENV=prod' >> $SERVICE_DIR/run && \
     echo 'mix omg.server --no-watch' >> $SERVICE_DIR/run && \
     echo '#!/bin/execlineb -S1' > $SERVICE_DIR/finish && \
