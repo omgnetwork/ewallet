@@ -38,11 +38,17 @@ podTemplate(
                 """
                 docker run \
                     --rm \
-                    --entrypoint /bin/sh \
+                    --entrypoint /bin/execlineb \
                     -e DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_ewallet" \
                     -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_local_ledger" \
                     ${imageName}:${gitCommit} \
-                    -c "cd /app && MIX_ENV=test mix do credo, ecto.create, ecto.migrate, test"
+                    -P -c " \
+                        s6-setuidgid ewallet \
+                        s6-env HOME=/tmp/ewallet \
+                        s6-env MIX_ENV=test \
+                        cd /app \
+                        mix do credo, ecto.create, ecto.migrate, test \
+                    " \
                 """.stripIndent()
             )
         }
@@ -75,7 +81,7 @@ podTemplate(
                     sh("kubectl rollout status --namespace=staging deployment/ewallet")
 
                     def podID = getPodID('--namespace=staging -l app=ewallet')
-                    sh("kubectl exec ${podID} --namespace=staging mix ecto.migrate")
+                    sh("kubectl exec ${podID} --namespace=staging s6-setuidgid ewallet mix ecto.migrate")
                 }
             }
         } else if (env.BRANCH_NAME == 'master') {
