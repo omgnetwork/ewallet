@@ -434,4 +434,158 @@ defmodule EWallet.TransactionRequestTest do
       assert TransactionRequestGate.get("123") == {:error, :transaction_request_not_found}
     end
   end
+
+  describe "get_with_lock/1" do
+    test "returns the request do when given valid ID" do
+      request = insert(:transaction_request)
+      assert {:ok, request} = TransactionRequestGate.get_with_lock(request.id)
+      assert %TransactionRequest{} = request
+    end
+
+    test "returns nil when given nil" do
+      assert TransactionRequestGate.get_with_lock(nil) == {:error, :transaction_request_not_found}
+    end
+
+    test "returns nil when given invalid UUID" do
+      assert TransactionRequestGate.get_with_lock("123") == {:error, :transaction_request_not_found}
+    end
+  end
+
+  describe "allow_amount_override/2" do
+    test "returns {:ok, request} when allowed" do
+      request = insert(:transaction_request, allow_amount_override: true)
+      {res, request} = TransactionRequestGate.allow_amount_override?(request, 1_000)
+
+      assert res == :ok
+      assert %TransactionRequest{} = request
+    end
+
+    test "returns {:ok, request} when no allowed but given amount is nil" do
+      request = insert(:transaction_request, allow_amount_override: false)
+      {res, request} = TransactionRequestGate.allow_amount_override?(request, nil)
+
+      assert res == :ok
+      assert %TransactionRequest{} = request
+    end
+
+    test "returns {:error, :unauthorized_amount_override} when not allowed" do
+      request = insert(:transaction_request, allow_amount_override: false)
+      {res, error} = TransactionRequestGate.allow_amount_override?(request, 1_000)
+
+      assert res == :error
+      assert error == :unauthorized_amount_override
+    end
+  end
+
+  describe "expiration_from_lifetime/1" do
+    test "returns nil if not confirmable" do
+      request = insert(:transaction_request, confirmable: false)
+      date = TransactionRequestGate.expiration_from_lifetime(request)
+      assert date == nil
+    end
+
+    test "returns nil if no consumption lifetime" do
+      request = insert(:transaction_request, confirmable: true, consumption_lifetime: nil)
+      date = TransactionRequestGate.expiration_from_lifetime(request)
+      assert date == nil
+    end
+
+    test "returns nil if consumption lifetime is equal to 0" do
+      request = insert(:transaction_request, confirmable: true, consumption_lifetime: 0)
+      date = TransactionRequestGate.expiration_from_lifetime(request)
+      assert date == nil
+    end
+
+    test "returns the expiration date based on consumption_lifetime" do
+      now = NaiveDateTime.utc_now()
+      request = insert(:transaction_request, confirmable: true, consumption_lifetime: 1_000)
+      date = TransactionRequestGate.expiration_from_lifetime(request)
+      assert date > now
+    end
+  end
+
+  describe "expire_if_past_expiration_date/1" do
+    test "does nothing if expiration date is not set" do
+      request = insert(:transaction_request, expiration_date: nil)
+      {res, request} = TransactionRequestGate.expire_if_past_expiration_date(request)
+      assert res == :ok
+      assert %TransactionRequest{} = request
+      assert TransactionRequest.valid?(request) == true
+    end
+
+    test "does nothing if expiration date is not past" do
+      future_date = NaiveDateTime.add(NaiveDateTime.utc_now(), 60, :second)
+      request = insert(:transaction_request, expiration_date: future_date)
+      {res, request} = TransactionRequestGate.expire_if_past_expiration_date(request)
+      assert res == :ok
+      assert %TransactionRequest{} = request
+      assert TransactionRequest.valid?(request) == true
+    end
+
+    test "expires the request if expiration date is past" do
+      past_date = NaiveDateTime.add(NaiveDateTime.utc_now(), -60, :second)
+      request = insert(:transaction_request, expiration_date: past_date)
+      {res, error} = TransactionRequestGate.expire_if_past_expiration_date(request)
+      request = TransactionRequest.get(request.id)
+      assert res == :error
+      assert error == :expired_request
+      assert TransactionRequest.valid?(request) == false
+      assert TransactionRequest.expired?(request) == true
+    end
+  end
+
+  describe "expire_if_max_consumption/1" do
+    test "touches the request if max_consumptions is equal to nil" do
+      request = insert(:transaction_request, max_consumptions: nil)
+      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert TransactionRequest.valid?(updated_request) == true
+      assert updated_request.updated_at > request.updated_at
+    end
+
+    test "touches the request if max_consumptions is equal to 0" do
+      request = insert(:transaction_request, max_consumptions: 0)
+      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert TransactionRequest.valid?(updated_request) == true
+      assert updated_request.updated_at > request.updated_at
+    end
+
+    test "touches the request if max_consumptions has not been reached" do
+      request = insert(:transaction_request, max_consumptions: 3)
+      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert TransactionRequest.valid?(updated_request) == true
+      assert updated_request.updated_at > request.updated_at
+    end
+
+    test "expires the request if max_consumptions has been reached" do
+      request = insert(:transaction_request, max_consumptions: 2)
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
+
+      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert updated_request.expired_at != nil
+      assert updated_request.expiration_reason == "max_consumptions_reached"
+      assert TransactionRequest.valid?(updated_request) == false
+      assert TransactionRequest.expired?(updated_request) == true
+    end
+  end
+
+  describe "valid?/1" do
+    test "returns {:ok, request} if valid" do
+      request = insert(:transaction_request)
+      assert TransactionRequestGate.valid?(request) == {:ok, request}
+    end
+
+    test "returns {:error, expiration_reason} if expired" do
+      request = insert(:transaction_request, status: "expired", expiration_reason: "something")
+      assert TransactionRequestGate.valid?(request) == {:error, :something}
+    end
+  end
 end

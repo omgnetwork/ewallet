@@ -33,6 +33,8 @@ defmodule UrlDispatcher.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:quantum, "~> 2.2.6"},
+      {:timex, "~> 3.0"},
       {:plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
       {:admin_api, in_umbrella: true},

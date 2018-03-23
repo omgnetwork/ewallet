@@ -106,13 +106,45 @@ defmodule EWalletDB.TransactionRequest do
     end
   end
 
-  def get_with_lock(id) do
+  @doc """
+  Expires all transactions that are past their expiration_date.
+  """
+  @spec expire_all() :: {integer(), nil | [term()]} | no_return()
+  def expire_all do
+    now = NaiveDateTime.utc_now()
+
     TransactionRequest
-    |> where([t], t.id == ^id)
-    |> lock("FOR UPDATE")
-    |> Repo.one()
+    |> where([t], t.status == @valid)
+    |> where([t], not is_nil(t.expiration_date))
+    |> where([t], t.expiration_date <= ^now)
+    |> Repo.update_all(set: [
+      status: @expired,
+      expired_at: NaiveDateTime.utc_now(),
+      expiration_reason: "expired_request"
+    ])
   end
 
+  @doc """
+  Gets a request with a "FOR UPDATE" lock on it. Should be called inside a transaction.
+  """
+  @spec get_with_lock(UUID.t) :: %TransactionRequest{} | nil
+  def get_with_lock(nil), do: nil
+  def get_with_lock(id) do
+    case Helpers.UUID.valid?(id) do
+      true ->
+        TransactionRequest
+        |> where([t], t.id == ^id)
+        |> lock("FOR UPDATE")
+        |> Repo.one()
+      false -> nil
+    end
+  end
+
+  @doc """
+  Touches a request by updating the `updated_at` field.
+  """
+  @spec get_with_lock(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
+                                                {:error, Map.t}
   def touch(request) do
     request
     |> touch_changeset(%{updated_at: NaiveDateTime.utc_now()})
@@ -139,42 +171,17 @@ defmodule EWalletDB.TransactionRequest do
     |> Repo.update()
   end
 
-  def expire(request, reason \\ "expired_request") do
-    request
-    |> expire_changeset(%{
-      status: @expired,
-      expired_at: NaiveDateTime.utc_now(),
-      expiration_reason: reason
-    })
-    |> Repo.update()
-  end
-
-  def expire_if_max_consumption(request) do
-    consumptions = TransactionConsumption.all_active_for_request(request.id)
-
-    case max_consumptions_reached?(request, consumptions) do
-      true  -> expire(request, "max_consumptions_reached")
-      false -> touch(request)
-    end
-  end
-
-  def max_consumptions_reached?(request, consumptions) do
-    limited_consumptions?(request) &&
-    length(consumptions) >= request.max_consumptions
-  end
-
-  def limited_consumptions?(request) do
-    !is_nil(request.max_consumptions) && request.max_consumptions > 0
-  end
-
+  @spec valid?(%TransactionRequest{}) :: true | false
   def valid?(request) do
     request.status == @valid
   end
 
+  @spec expired?(%TransactionRequest{}) :: true | false
   def expired?(request) do
     request.status == @expired
   end
 
+  @spec expired?(%TransactionRequest{}) :: NaiveDateTime.t | nil
   def expiration_from_lifetime(request) do
     lifetime? =
       request.confirmable &&
@@ -187,5 +194,63 @@ defmodule EWalletDB.TransactionRequest do
         |> NaiveDateTime.add(request.consumption_lifetime, :millisecond)
       _ -> nil
     end
+  end
+
+  @doc """
+  Expires the given request with the specified reason.
+  """
+  @spec expire(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, Map.t}
+  def expire(request, reason \\ "expired_request") do
+    request
+    |> expire_changeset(%{
+      status: @expired,
+      expired_at: NaiveDateTime.utc_now(),
+      expiration_reason: reason
+    })
+    |> Repo.update()
+  end
+
+  @doc """
+  Expires the given request if the expiration date is past.
+  """
+  @spec expire_if_past_expiration_date(%TransactionRequest{}) ::
+                                       {:ok, %TransactionRequest{}} | {:error, Map.t}
+  def expire_if_past_expiration_date(request) do
+    expired? = request.expiration_date &&
+               NaiveDateTime.compare(request.expiration_date, NaiveDateTime.utc_now()) == :lt
+
+    case expired? do
+      true  -> expire(request)
+      _ -> touch(request)
+    end
+  end
+
+  @doc """
+  Expires the given request if the maximum number of consumptions has been reached.
+  """
+  @spec expire_if_max_consumption(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
+                                                            {:error, Map.t}
+  def expire_if_max_consumption(request) do
+    consumptions = TransactionConsumption.all_active_for_request(request.id)
+
+    case max_consumptions_reached?(request, consumptions) do
+      true  -> expire(request, "max_consumptions_reached")
+      false -> touch(request)
+    end
+  end
+
+  @doc """
+  Expires the given request if the maximum number of consumptions has been reached.
+  """
+  @spec expire_if_max_consumption(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
+                                                            {:error, Map.t}
+  defp max_consumptions_reached?(request, consumptions) do
+    limited_consumptions?(request) &&
+    length(consumptions) >= request.max_consumptions
+  end
+
+  @spec expire_if_max_consumption(%TransactionRequest{}) :: true | false
+  defp limited_consumptions?(request) do
+    !is_nil(request.max_consumptions) && request.max_consumptions > 0
   end
 end

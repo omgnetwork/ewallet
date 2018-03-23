@@ -99,6 +99,7 @@ defmodule EWallet.TransactionConsumptionGate do
     "token_id" => token_id,
   } = attrs) do
     with {:ok, request} <- TransactionRequestGate.get_with_lock(request_id),
+         {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
          {:ok, request} <- TransactionRequestGate.valid?(request),
          {:ok, request} <- TransactionRequestGate.allow_amount_override?(request, attrs["amount"]),
          {:ok, minted_token} <- get_minted_token(token_id),

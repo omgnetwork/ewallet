@@ -6,13 +6,15 @@ defmodule EWalletDB.TransactionConsumption do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
+  alias LocalLedger.EctoBatchStream
   alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,
                    TransactionRequest, Balance, Helpers, Transfer, Account}
 
   @pending "pending"
   @confirmed "confirmed"
   @failed "failed"
-  @statuses [@pending, @confirmed, @failed]
+  @expired "expired"
+  @statuses [@pending, @confirmed, @failed, @expired]
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
@@ -85,12 +87,25 @@ defmodule EWalletDB.TransactionConsumption do
     |> assoc_constraint(:transfer)
   end
 
+  def expire_all do
+    now = NaiveDateTime.utc_now()
+
+    TransactionConsumption
+    |> where([t], t.status == @pending)
+    |> where([t], not is_nil(t.expiration_date))
+    |> where([t], t.expiration_date <= ^now)
+    |> Repo.update_all(set: [
+      status: @expired,
+      expired_at: NaiveDateTime.utc_now()
+    ])
+  end
+
   @doc """
   Get all confirmed and pending transaction consumptions.
   """
   def all_active_for_request(request_id) do
     TransactionConsumption
-    |> where([t], t.status != @failed)
+    |> where([t], t.status in [@pending, @confirmed])
     |> where([t], t.transaction_request_id == ^request_id)
     |> Repo.all()
   end

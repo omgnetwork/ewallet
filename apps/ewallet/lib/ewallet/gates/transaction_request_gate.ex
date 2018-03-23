@@ -105,6 +105,8 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
+  @spec get_with_lock(UUID.t) :: {:ok, TransactionRequest.t} |
+                                 {:error, :transaction_request_not_found}
   def get_with_lock(id) do
     request = TransactionRequest.get_with_lock(id)
 
@@ -114,6 +116,8 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
+  @spec allow_amount_override?(TransactionRequest.t, Integer.t) ::
+        {:ok, TransactionRequest.t} | {:error, :unauthorized_amount_override}
   def allow_amount_override?(request, amount) do
     case request.allow_amount_override do
       true  ->
@@ -126,18 +130,35 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
+  @spec expiration_from_lifetime(TransactionRequest.t) :: NaiveDateTime.t | nil
   def expiration_from_lifetime(request) do
     TransactionRequest.expiration_from_lifetime(request)
   end
 
-  def limited_consumptions?(request) do
-    TransactionRequest.limited_consumptions?(request)
+  @spec expire_if_past_expiration_date(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                          {:error, Atom.t} |
+                                                          {:error, Map.t}
+  def expire_if_past_expiration_date(request) do
+    res = TransactionRequest.expire_if_past_expiration_date(request)
+
+    case res do
+      {:ok, %TransactionRequest{status: "expired"} = request} ->
+        {:error, String.to_existing_atom(request.expiration_reason)}
+      {:ok, request} ->
+        {:ok, request}
+      {:error, error} ->
+        {:error, error}
+    end
   end
 
+  @spec expire_if_max_consumption(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                          {:error, Map.t}
   def expire_if_max_consumption(request) do
     TransactionRequest.expire_if_max_consumption(request)
   end
 
+  @spec valid?(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                          {:error, Atom.t}
   def valid?(request) do
     case TransactionRequest.valid?(request) do
       true  -> {:ok, request}

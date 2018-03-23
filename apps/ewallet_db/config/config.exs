@@ -3,7 +3,11 @@ use Mix.Config
 config :ewallet_db,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env,
-  base_url: System.get_env("BASE_URL") || "http://localhost:4000"
+  base_url: System.get_env("BASE_URL") || "http://localhost:4000",
+  jobs: [
+    {"* * * * *",      {EWalletDB.TransactionRequest, :expire_all, []}},
+    {"* * * * *",      {EWalletDB.TransactionConsumption, :expire_all, []}},
+  ]
 
 import_config "#{Mix.env}.exs"
 
