@@ -6,7 +6,6 @@ defmodule EWalletDB.TransactionConsumption do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias LocalLedger.EctoBatchStream
   alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,
                    TransactionRequest, Balance, Helpers, Transfer, Account}
 
@@ -87,29 +86,6 @@ defmodule EWalletDB.TransactionConsumption do
     |> assoc_constraint(:transfer)
   end
 
-  def expire_all do
-    now = NaiveDateTime.utc_now()
-
-    TransactionConsumption
-    |> where([t], t.status == @pending)
-    |> where([t], not is_nil(t.expiration_date))
-    |> where([t], t.expiration_date <= ^now)
-    |> Repo.update_all(set: [
-      status: @expired,
-      expired_at: NaiveDateTime.utc_now()
-    ])
-  end
-
-  @doc """
-  Get all confirmed and pending transaction consumptions.
-  """
-  def all_active_for_request(request_id) do
-    TransactionConsumption
-    |> where([t], t.status in [@pending, @confirmed])
-    |> where([t], t.transaction_request_id == ^request_id)
-    |> Repo.all()
-  end
-
   @doc """
   Gets a transaction request consumption.
   """
@@ -136,6 +112,31 @@ defmodule EWalletDB.TransactionConsumption do
       nil     -> query
       preload -> Repo.preload(query, preload)
     end
+  end
+
+  @spec expire_all() :: {integer(), nil | [term()]} | no_return()
+  def expire_all do
+    now = NaiveDateTime.utc_now()
+
+    TransactionConsumption
+    |> where([t], t.status == @pending)
+    |> where([t], not is_nil(t.expiration_date))
+    |> where([t], t.expiration_date <= ^now)
+    |> Repo.update_all(set: [
+      status: @expired,
+      expired_at: NaiveDateTime.utc_now()
+    ])
+  end
+
+  @doc """
+  Get all confirmed and pending transaction consumptions.
+  """
+  @spec all_active_for_request(UUID.t) :: List.t
+  def all_active_for_request(request_id) do
+    TransactionConsumption
+    |> where([t], t.status in [@pending, @confirmed])
+    |> where([t], t.transaction_request_id == ^request_id)
+    |> Repo.all()
   end
 
   @doc """
@@ -208,5 +209,10 @@ defmodule EWalletDB.TransactionConsumption do
       |> Repo.update()
 
     consumption
+  end
+
+  @spec expired?(%TransactionConsumption{}) :: true | false
+  def expired?(request) do
+    request.status == @expired
   end
 end

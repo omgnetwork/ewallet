@@ -195,7 +195,9 @@ defmodule EWalletDB.Factory do
       idempotency_token: sequence("123"),
       minted_token_id: insert(:minted_token).id,
       user_id: insert(:user).id,
-      balance: insert(:transaction_request)
+      balance_address: insert(:balance).address,
+      amount: 100,
+      transaction_request_id: insert(:transaction_request).id
     }
   end
 end

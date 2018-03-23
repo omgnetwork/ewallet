@@ -181,7 +181,7 @@ defmodule EWalletDB.TransactionRequest do
     request.status == @expired
   end
 
-  @spec expired?(%TransactionRequest{}) :: NaiveDateTime.t | nil
+  @spec expiration_from_lifetime(%TransactionRequest{}) :: NaiveDateTime.t | nil
   def expiration_from_lifetime(request) do
     lifetime? =
       request.confirmable &&
