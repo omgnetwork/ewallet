@@ -89,6 +89,7 @@ RUN set -xe && \
     echo 'with-contenv' >> $SERVICE_DIR/run && \
     echo 'cd /app' >> $SERVICE_DIR/run && \
     echo 's6-setuidgid ewallet' >> $SERVICE_DIR/run && \
+    echo 's6-env HOME=/tmp/ewallet' >> ${SERVICE_DIR}/run && \
     echo 's6-env MIX_ENV=prod' >> $SERVICE_DIR/run && \
     echo 'mix omg.server --no-watch' >> $SERVICE_DIR/run && \
     echo '#!/bin/execlineb -S1' > $SERVICE_DIR/finish && \
