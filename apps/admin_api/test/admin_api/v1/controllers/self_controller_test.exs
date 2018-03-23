@@ -1,8 +1,8 @@
 defmodule AdminAPI.V1.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.Account
+  alias EWallet.Helper
   alias EWallet.Web.Date
-  alias EWalletDB.{Membership, Repo, User}
+  alias EWalletDB.{Account, Membership, Repo, User}
 
   describe "/me.get" do
     test "responds with user data" do
@@ -61,7 +61,23 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get_accounts" do
     test "responds with a list of accounts" do
-      accounts =
+      assert \
+        %{
+          "version" => "1",
+          "success" => true,
+          "data" => %{
+            "object" => "list",
+            "data" => returned_accounts,
+            "pagination" => %{
+              "current_page" => 1,
+              "per_page" => 10,
+              "is_first_page" => true,
+              "is_last_page" => true
+            }
+          }
+        } = user_request("/me.get_accounts")
+
+      db_accounts =
         get_test_user()
         |> User.get_accounts()
         |> Enum.map(fn(account) ->
@@ -85,21 +101,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
           }
         end)
 
-      assert user_request("/me.get_accounts") ==
-        %{
-          "version" => "1",
-          "success" => true,
-          "data" => %{
-            "object" => "list",
-            "data" => accounts,
-            "pagination" => %{
-              "current_page" => 1,
-              "per_page" => 10,
-              "is_first_page" => true,
-              "is_last_page" => true
-            }
-          }
-        }
+      assert Helper.members?(db_accounts, returned_accounts)
+      assert Enum.count(db_accounts) == Enum.count(returned_accounts)
     end
   end
 end
