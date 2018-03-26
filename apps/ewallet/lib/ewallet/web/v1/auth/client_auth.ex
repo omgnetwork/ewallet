@@ -18,8 +18,8 @@ defmodule EWallet.Web.V1.ClientAuth do
     end
   end
 
-  def authenticate_client(api_key) do
-    case APIKey.authenticate(api_key, :ewallet_api) do
+  def authenticate_client(api_key, owner_app) do
+    case APIKey.authenticate(api_key, owner_app) do
       false ->
         {:error, :invalid_api_key}
       account ->
@@ -27,8 +27,8 @@ defmodule EWallet.Web.V1.ClientAuth do
     end
   end
 
-  def authenticate_token(auth_token, app) do
-    case AuthToken.authenticate(auth_token, app) do
+  def authenticate_token(auth_token, owner_app) do
+    case AuthToken.authenticate(auth_token, owner_app) do
       false -> {:error, :access_token_not_found}
       :token_expired -> {:error, :access_token_expired}
       user -> {:ok, user}

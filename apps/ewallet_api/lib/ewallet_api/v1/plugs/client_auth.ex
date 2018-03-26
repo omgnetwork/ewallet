@@ -42,7 +42,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
   defp authenticate_client(conn) do
     api_key = conn.private[:auth_api_key]
 
-    case ClientAuth.authenticate_client(api_key) do
+    case ClientAuth.authenticate_client(api_key, :ewallet_api) do
       {:ok, account} ->
         conn
         |> assign(:account, account)

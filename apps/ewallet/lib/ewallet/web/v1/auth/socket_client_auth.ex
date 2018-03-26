@@ -32,7 +32,7 @@ defmodule EWallet.Web.V1.SocketClientAuth do
   defp authenticate_client(auth) do
     api_key = auth[:auth_api_key]
 
-    case ClientAuth.authenticate_client(api_key) do
+    case ClientAuth.authenticate_client(api_key, :ewallet_api) do
       {:ok, account} ->
         Map.put(auth, :account, account)
       {:error, :invalid_api_key} ->
