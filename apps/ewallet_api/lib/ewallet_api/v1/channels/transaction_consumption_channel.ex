@@ -4,7 +4,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   """
   use Phoenix.Channel
 
-  def join("transaction_consumption:" <> _request_id, _params, socket) do
+  def join("transaction_consumption:" <> _consumption_id, _params, socket) do
     {:ok, socket}
   end
 end

@@ -11,13 +11,13 @@ defmodule EWallet.Web.V1.TransactionConsumptionChangeEventTest do
       consumption =
         :transaction_consumption
         |> insert()
-        |> Repo.preload([:transaction_request, :minted_token])
+        |> Repo.preload([:user, :transaction_request, :minted_token])
 
       res = TransactionConsumptionChangeEvent.broadcast(consumption)
       events = TestEndpoint.get_events()
 
       assert res == :ok
-      assert length(events) == 4
+      assert length(events) == 5
 
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
 
@@ -25,7 +25,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionChangeEventTest do
         "transaction_request:#{consumption.transaction_request.id}",
         "address:#{consumption.balance_address}",
         "transaction_consumption:#{consumption.id}",
-        "user:#{consumption.user_id}"
+        "user:#{consumption.user_id}",
+        "user:#{consumption.user.provider_user_id}"
       ]
       |> Enum.each(fn topic ->
         assert Enum.member?(mapped, {"transaction_consumption_change", topic})

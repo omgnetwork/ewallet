@@ -3,6 +3,7 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
   This module represents the transaction_request_confirmation event and how to build it.
   """
   alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
+  alias EWalletDB.User
 
   @spec broadcast(TransactionConsumption.t) :: :ok
   def broadcast(consumption) do
@@ -26,6 +27,14 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
       "address:#{consumption.transaction_request.balance_address}",
       "transaction_request:#{consumption.transaction_request.id}"
     ]
+
+    topics =
+      case consumption.user_id do
+        nil -> topics
+        id ->
+          user = User.get(id)
+          topics ++ ["user:#{user.provider_user_id}"]
+      end
 
     topics
     |> put_in_topic_if_present("account", consumption.transaction_request.account_id)

@@ -11,20 +11,22 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEventTest do
       consumption =
         :transaction_consumption
         |> insert()
-        |> Repo.preload([:transaction_request, :minted_token])
+        |> Repo.preload([:user, :transaction_request, :minted_token])
 
       res = TransactionRequestConfirmationEvent.broadcast(consumption)
       events = TestEndpoint.get_events()
 
       assert res == :ok
-      assert length(events) == 3
+      assert length(events) == 4
 
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
 
       [
         "transaction_request:#{consumption.transaction_request.id}",
         "address:#{consumption.transaction_request.balance_address}",
-        "user:#{consumption.transaction_request.user_id}"
+        "user:#{consumption.transaction_request.user_id}",
+        "user:#{consumption.user.provider_user_id}"
+
       ]
       |> Enum.each(fn topic ->
         assert Enum.member?(mapped, {"transaction_request_confirmation", topic})
