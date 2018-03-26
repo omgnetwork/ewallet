@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.SelfView do
   use AdminAPI, :view
-  alias AdminAPI.V1.UserSerializer
+  alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.V1.ResponseSerializer
 
   @doc """

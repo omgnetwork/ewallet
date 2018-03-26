@@ -1,6 +1,6 @@
 defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias EWalletAPI.V1.UserSerializer
+  alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.TransactionConsumption
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{

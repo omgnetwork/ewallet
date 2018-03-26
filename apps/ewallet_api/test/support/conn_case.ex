@@ -95,9 +95,11 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def stringify_keys(map) when is_map(map) do
-    for {key, val} <- map, into: %{}, do: {Atom.to_string(key), stringify_keys(val)}
+    for {key, val} <- map, into: %{}, do: {convert_key(key), stringify_keys(val)}
   end
   def stringify_keys(value), do: value
+  def convert_key(key) when is_atom(key), do: Atom.to_string(key)
+  def convert_key(key), do: key
 
   def get_test_user do
     User.get_by_provider_user_id(@provider_user_id)

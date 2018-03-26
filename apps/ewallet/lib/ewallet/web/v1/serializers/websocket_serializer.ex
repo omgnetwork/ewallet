@@ -18,7 +18,6 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     event: event,
     ref: ref
   }) do
-
     %{
       success: success,
       version: "1",

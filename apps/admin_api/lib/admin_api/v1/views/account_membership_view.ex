@@ -5,7 +5,7 @@ defmodule AdminAPI.V1.AccountMembershipView do
 
   def render("memberships.json", %{memberships: memberships}) do
     memberships
-    |> MembershipSerializer.to_user_json()
+    |> MembershipSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
   def render("empty.json", %{success: success}) do

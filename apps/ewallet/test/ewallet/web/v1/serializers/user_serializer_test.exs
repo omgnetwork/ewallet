@@ -1,6 +1,6 @@
-defmodule AdminAPI.V1.UserSerializerTest do
+defmodule EWallet.Web.V1.UserSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias AdminAPI.V1.UserSerializer
+  alias EWallet.Web.V1.UserSerializer
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
 
@@ -11,6 +11,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
       expected = %{
         object: "user",
         id: user.id,
+        socket_topic: "user:#{user.id}",
         username: user.username,
         provider_user_id: user.provider_user_id,
         email: user.email,
@@ -60,6 +61,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
           %{
             object: "user",
             id: user1.id,
+            socket_topic: "user:#{user1.id}",
             username: user1.username,
             provider_user_id: user1.provider_user_id,
             email: user1.email,
@@ -80,6 +82,7 @@ defmodule AdminAPI.V1.UserSerializerTest do
           %{
             object: "user",
             id: user2.id,
+            socket_topic: "user:#{user2.id}",
             username: user2.username,
             provider_user_id: user2.provider_user_id,
             email: user2.email,

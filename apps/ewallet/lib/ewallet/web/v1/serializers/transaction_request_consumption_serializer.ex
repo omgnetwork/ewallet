@@ -8,9 +8,9 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
     AccountSerializer,
     MintedTokenSerializer,
     TransactionSerializer,
-    TransactionRequestSerializer
+    TransactionRequestSerializer,
+    UserSerializer
   }
-  alias EWalletAPI.V1.UserSerializer
   alias EWalletDB.TransactionConsumption
 
   def serialize(%TransactionConsumption{} = consumption) do

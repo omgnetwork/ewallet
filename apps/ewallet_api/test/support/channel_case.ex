@@ -15,11 +15,13 @@ defmodule EWalletAPI.ChannelCase do
   """
 
   use ExUnit.CaseTemplate
+  alias Ecto.Adapters.SQL.Sandbox
 
   using do
     quote do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
+      alias Ecto.Adapters.SQL.Sandbox
 
       # The default endpoint for testing
       @endpoint EWalletAPI.V1.Endpoint
@@ -27,12 +29,12 @@ defmodule EWalletAPI.ChannelCase do
   end
 
   setup tags do
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(EWalletDB.Repo)
-    :ok = Ecto.Adapters.SQL.Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(EWalletDB.Repo)
+    :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(EWalletDB.Repo, {:shared, self()})
-      Ecto.Adapters.SQL.Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+      Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+      Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
     end
 
     :ok

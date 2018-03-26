@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.UserSerializer do
+defmodule EWallet.Web.V1.UserSerializer do
   @moduledoc """
   Serializes user(s) into V1 JSON response format.
   """
@@ -14,6 +14,7 @@ defmodule AdminAPI.V1.UserSerializer do
     %{
       object: "user",
       id: user.id,
+      socket_topic: "user:#{user.id}",
       username: user.username,
       provider_user_id: user.provider_user_id,
       email: user.email,

@@ -239,9 +239,6 @@ defmodule EWalletDB.TransactionRequest do
     end
   end
 
-  @doc """
-  Expires the given request if the maximum number of consumptions has been reached.
-  """
   @spec expire_if_max_consumption(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
                                                             {:error, Map.t}
   defp max_consumptions_reached?(request, consumptions) do

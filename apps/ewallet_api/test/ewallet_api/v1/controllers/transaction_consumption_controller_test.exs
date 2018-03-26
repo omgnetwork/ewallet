@@ -3,7 +3,7 @@
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
   alias EWallet.TestEndpoint
   alias EWallet.Web.{Date, V1.MintedTokenSerializer, V1.TransactionRequestSerializer,
-                     V1.AccountSerializer}
+                     V1.AccountSerializer, V1.UserSerializer}
   alias EWalletAPI.V1.Endpoint
 
   setup do
@@ -332,17 +332,7 @@
           "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
           "transaction" => nil, # not preloaded
           "user_id" => meta.bob.id,
-          "user" => %{
-            "object" => "user",
-            "id" => meta.bob.id,
-            "provider_user_id" => meta.bob.provider_user_id,
-            "username" => meta.bob.username,
-            "metadata" => %{
-              "first_name" => meta.bob.metadata["first_name"],
-              "last_name" => meta.bob.metadata["last_name"]
-            },
-            "encrypted_metadata" => %{}
-          },
+          "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
           "encrypted_metadata" => %{},
           "expiration_date" => nil,
           "expired_at" => nil,
