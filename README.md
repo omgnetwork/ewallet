@@ -99,7 +99,7 @@ We provides a Docker image for quick installation at the [omisego/ewallet](https
 * `latest` tracks current (i.e. develop branch)
 * `stable` tracks stable (i.e. master branch)
 
-Additionally, all commits in develop and master branches are also built. It is highly recommend to pin the version to certain commit in anything that resembles production environment. An easiest way to get the Docker image running would be (assuming [PostgreSQL]() is already setup):
+Additionally, all commits in develop and master branches are also built. It is highly recommended to pin the version to specific commit in anything that resembles production environment. An easiest way to get the Docker image running would be (assuming [PostgreSQL](https://hub.docker.com/_/postgres/) is already setup):
 
 ```
 $ docker run \
