@@ -1,11 +1,14 @@
   defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
+  alias EWallet.TestEndpoint
   alias EWallet.Web.{Date, V1.MintedTokenSerializer, V1.TransactionRequestSerializer,
                      V1.AccountSerializer}
   alias EWalletAPI.V1.Endpoint
 
   setup do
+    {:ok, _} = TestEndpoint.start_link()
+
     account = Account.get_master_account()
     {:ok, alice}   = :user |> params_for() |> User.insert()
     bob     = get_test_user()

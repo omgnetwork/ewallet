@@ -1,9 +1,11 @@
 defmodule EWallet.TransactionConsumptionGateTest do
  use EWallet.LocalLedgerCase, async: true
- alias EWallet.TransactionConsumptionGate
+ alias EWallet.{TestEndpoint, TransactionConsumptionGate}
  alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
 
   setup do
+    {:ok, _} = TestEndpoint.start_link()
+
     minted_token     = insert(:minted_token)
     {:ok, receiver}  = :user |> params_for() |> User.insert()
     {:ok, sender}    = :user |> params_for() |> User.insert()

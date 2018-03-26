@@ -3,7 +3,9 @@ defmodule EWallet.Web.V1.TransactionConsumptionChangeEvent do
   This module represents the transaction_consumption_change event and how to build it.
   """
   alias  EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
+  alias EWalletDB.TransactionConsumption
 
+  @spec broadcast(TransactionConsumption.t) :: :ok
   def broadcast(consumption) do
     consumption
     |> topics()

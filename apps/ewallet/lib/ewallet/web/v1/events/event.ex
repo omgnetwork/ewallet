@@ -7,14 +7,17 @@ defmodule EWallet.Web.V1.Event do
     TransactionConsumptionChangeEvent
   }
 
+  @spec dispatch(Atom.t, Map.t) :: :ok
   def dispatch(:transaction_request_confirmation, %{consumption: consumption}) do
     TransactionRequestConfirmationEvent.broadcast(consumption)
   end
 
+  @spec dispatch(Atom.t, Map.t) :: :ok
   def dispatch(:transaction_consumption_change, %{consumption: consumption}) do
     TransactionConsumptionChangeEvent.broadcast(consumption)
   end
 
+  @spec broadcast(Keyword.t) :: :ok
   def broadcast(
     topic: topic,
     event: event,

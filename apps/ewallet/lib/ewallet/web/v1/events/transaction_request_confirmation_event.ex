@@ -4,6 +4,7 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
   """
   alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
 
+  @spec broadcast(TransactionConsumption.t) :: :ok
   def broadcast(consumption) do
     consumption
     |> topics()
