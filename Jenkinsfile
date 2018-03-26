@@ -13,9 +13,9 @@ podTemplate(
         Random random = new Random()
         def tmpDir = pwd(tmp: true)
 
-        def project = 'omise-go'
+        def project = 'omisego'
         def appName = 'ewallet'
-        def imageName = "gcr.io/${project}/${appName}"
+        def imageName = "${project}/${appName}"
 
         def nodeIP = getNodeIP()
         def gitCommit
@@ -26,38 +26,7 @@ podTemplate(
 
         stage('Build') {
             gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-
-            dir(tmpDir) {
-                writeFile(
-                    file: "ssh_config",
-                    text: """
-                    Host github.com
-                        User git
-                        IdentityFile ~/.ssh/key
-                        PreferredAuthentications publickey
-                        StrictHostKeyChecking no
-                        UserKnownHostsFile /dev/null
-                    """.stripIndent()
-                )
-            }
-
-            withCredentials([[$class: 'SSHUserPrivateKeyBinding', credentialsId: 'github', keyFileVariable: 'GIT_SSH_KEY']]) {
-                withEnv(["GIT_SSH_CONFIG=${tmpDir}/ssh_config", "IMAGE=${imageName}", "TAG=${gitCommit}"]) {
-                    def habitusPort = random.nextInt(1024) + 8080
-
-                    sh(
-                        """
-                        habitus \
-                            --pretty=false \
-                            --secrets=true \
-                            --binding="${nodeIP}" \
-                            --port="${habitusPort}" \
-                            --build habitus_port="${habitusPort}" \
-                            --build habitus_host="${nodeIP}"
-                        """.stripIndent()
-                    )
-                }
-            }
+            sh("docker build . -t ${imageName}:${gitCommit}")
         }
 
         stage('Test') {
@@ -67,19 +36,31 @@ podTemplate(
 
             sh(
                 """
-                docker run --rm \
+                docker run \
+                    --rm \
+                    --entrypoint /bin/execlineb \
                     -e DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_ewallet" \
                     -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@${nodeIP}:5432/ewallet_${gitCommit}_local_ledger" \
                     ${imageName}:${gitCommit} \
-                    sh -c "cd /app && MIX_ENV=test mix do credo, ecto.create, ecto.migrate, test"
+                    -P -c " \
+                        s6-setuidgid ewallet \
+                        s6-env HOME=/tmp/ewallet \
+                        s6-env MIX_ENV=test \
+                        cd /app \
+                        mix do credo, ecto.create, ecto.migrate, test \
+                    " \
                 """.stripIndent()
             )
         }
 
         if (env.BRANCH_NAME == 'develop') {
             stage('Push') {
-                sh("gcloud docker -- push ${imageName}:${gitCommit}")
-                sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:latest")
+                withCredentials([file(credentialsId: 'docker', variable: 'DOCKER_CONFIG')]) {
+                    def configDir = sh(script: "dirname ${DOCKER_CONFIG}", returnStdout: true).trim()
+                    sh("docker --config=${configDir} tag ${imageName}:${gitCommit} ${imageName}:latest")
+                    sh("docker --config=${configDir} push ${imageName}:${gitCommit}")
+                    sh("docker --config=${configDir} push ${imageName}:latest")
+                }
             }
 
             stage('Deploy') {
@@ -100,13 +81,17 @@ podTemplate(
                     sh("kubectl rollout status --namespace=staging deployment/ewallet")
 
                     def podID = getPodID('--namespace=staging -l app=ewallet')
-                    sh("kubectl exec ${podID} --namespace=staging mix ecto.migrate")
+                    sh("kubectl exec ${podID} --namespace=staging s6-setuidgid ewallet mix ecto.migrate")
                 }
             }
         } else if (env.BRANCH_NAME == 'master') {
             stage('Push') {
-                sh("gcloud docker -- push ${imageName}:${gitCommit}")
-                sh("gcloud container images add-tag ${imageName}:${gitCommit} ${imageName}:stable")
+                withCredentials([file(credentialsId: 'docker', variable: 'DOCKER_CONFIG')]) {
+                    def configDir = sh(script: "dirname ${DOCKER_CONFIG}", returnStdout: true).trim()
+                    sh("docker --config=${configDir} tag ${imageName}:${gitCommit} ${imageName}:stable")
+                    sh("docker --config=${configDir} push ${imageName}:${gitCommit}")
+                    sh("docker --config=${configDir} push ${imageName}:stable")
+                }
             }
         }
     }
