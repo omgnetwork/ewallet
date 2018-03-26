@@ -41,19 +41,21 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     handle_error(conn, code, description)
   end
   defp respond({:error, consumption, code, description}, conn) do
-    dispatch_change_event(consumption)
+    dispatch_confirm_event(consumption)
     handle_error(conn, code, description)
   end
   defp respond({:ok, consumption}, conn) do
-    dispatch_change_event(consumption)
+    dispatch_confirm_event(consumption)
     render(conn, :transaction_consumption, %{
       transaction_consumption: embed(consumption, conn.body_params["embed"])
     })
   end
 
-  defp dispatch_change_event(consumption) do
-    Event.dispatch(:transaction_consumption_change, %{
-      consumption: consumption
-    })
+  defp dispatch_confirm_event(consumption) do
+    if consumption.approved do
+      Event.dispatch(:transaction_consumption_confirmation, %{
+        consumption: consumption
+      })
+    end
   end
 end

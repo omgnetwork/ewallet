@@ -240,7 +240,7 @@
       # We check that we receive the confirmation request above in the
       # transaction request channel
       assert_receive %Phoenix.Socket.Broadcast{
-        event: "transaction_request_confirmation",
+        event: "transaction_consumption_request",
         topic: "transaction_request:" <> _,
         payload: %{
           # Ignore content
@@ -267,7 +267,7 @@
       assert %{} = inserted_transfer.ledger_response
 
       assert_receive %Phoenix.Socket.Broadcast{
-        event: "transaction_consumption_change",
+        event: "transaction_consumption_confirmation",
         topic:  "transaction_consumption:" <> _,
         payload: %{
           # Ignore content

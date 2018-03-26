@@ -1,9 +1,9 @@
-defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
+defmodule EWallet.Web.V1.TransactionConsumptionConfirmationEvent do
   @moduledoc """
-  This module represents the transaction_request_confirmation event and how to build it.
+  This module represents the transaction_consumption_confirmation event and how to build it.
   """
-  alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
-  alias EWalletDB.User
+  alias  EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
+  alias EWalletDB.{User, TransactionConsumption}
 
   @spec broadcast(TransactionConsumption.t) :: :ok
   def broadcast(consumption) do
@@ -19,13 +19,14 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
   end
 
   defp event do
-    "transaction_request_confirmation"
+    "transaction_consumption_confirmation"
   end
 
   defp topics(consumption) do
     topics = [
-      "address:#{consumption.transaction_request.balance_address}",
-      "transaction_request:#{consumption.transaction_request.id}"
+      "address:#{consumption.balance_address}",
+      "transaction_request:#{consumption.transaction_request.id}",
+      "transaction_consumption:#{consumption.id}"
     ]
 
     topics =
@@ -37,8 +38,8 @@ defmodule EWallet.Web.V1.TransactionRequestConfirmationEvent do
       end
 
     topics
-    |> put_in_topic_if_present("account", consumption.transaction_request.account_id)
-    |> put_in_topic_if_present("user", consumption.transaction_request.user_id)
+    |> put_in_topic_if_present("account", consumption.account_id)
+    |> put_in_topic_if_present("user", consumption.user_id)
   end
 
   defp put_in_topic_if_present(topics, _key, nil), do: topics

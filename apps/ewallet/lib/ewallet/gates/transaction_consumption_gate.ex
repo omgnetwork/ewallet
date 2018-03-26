@@ -109,7 +109,7 @@ defmodule EWallet.TransactionConsumptionGate do
     do
       case request.confirmable do
         true ->
-          Event.dispatch(:transaction_request_confirmation, %{consumption: consumption})
+          Event.dispatch(:transaction_consumption_request, %{consumption: consumption})
           {:ok, consumption}
         false ->
           consumption

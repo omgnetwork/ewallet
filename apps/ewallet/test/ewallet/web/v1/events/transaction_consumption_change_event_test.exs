@@ -1,6 +1,6 @@
-defmodule EWallet.Web.V1.TransactionConsumptionChangeEventTest do
+defmodule EWallet.Web.V1.TransactionConsumptionConfirmationEventTest do
   use EWallet.LocalLedgerCase, async: true
-  alias EWallet.Web.V1.TransactionConsumptionChangeEvent
+  alias EWallet.Web.V1.TransactionConsumptionConfirmationEvent
   alias EWallet.TestEndpoint
   alias EWalletDB.Repo
 
@@ -13,7 +13,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionChangeEventTest do
         |> insert()
         |> Repo.preload([:user, :transaction_request, :minted_token])
 
-      res = TransactionConsumptionChangeEvent.broadcast(consumption)
+      res = TransactionConsumptionConfirmationEvent.broadcast(consumption)
       events = TestEndpoint.get_events()
 
       assert res == :ok
@@ -29,7 +29,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionChangeEventTest do
         "user:#{consumption.user.provider_user_id}"
       ]
       |> Enum.each(fn topic ->
-        assert Enum.member?(mapped, {"transaction_consumption_change", topic})
+        assert Enum.member?(mapped, {"transaction_consumption_confirmation", topic})
       end)
 
       :ok = TestEndpoint.stop()
