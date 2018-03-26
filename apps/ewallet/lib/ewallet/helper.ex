@@ -19,4 +19,15 @@ defmodule EWallet.Helper do
   rescue
     ArgumentError -> atom_list
   end
+
+  @doc """
+  Checks if all `elements` exist within the `enumerable`.
+
+  Membership is tested with the match (`===`) operator.
+  """
+  def members?(enumerable, elements) do
+    Enum.all?(elements, fn(element) ->
+      Enum.member?(enumerable, element)
+    end)
+  end
 end

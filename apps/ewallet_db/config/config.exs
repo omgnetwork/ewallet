@@ -4,6 +4,7 @@ config :ewallet_db,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env,
   base_url: System.get_env("BASE_URL") || "http://localhost:4000",
+  min_password_length: 8,
   jobs: [
     {"* * * * *",      {EWalletDB.TransactionRequest, :expire_all, []}},
     {"* * * * *",      {EWalletDB.TransactionConsumption, :expire_all, []}},

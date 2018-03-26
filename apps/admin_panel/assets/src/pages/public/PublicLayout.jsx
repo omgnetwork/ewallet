@@ -11,8 +11,8 @@ const PublicLayout = ({ alert, children }) => (
     <div className="public-layout">
       <div>
         <PublicHeader />
+        <Alerter alert={alert} />
         <div className="public-layout__content">
-          <Alerter alert={alert} />
           <div>
             <div>
               {children}

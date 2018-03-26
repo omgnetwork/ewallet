@@ -13,4 +13,14 @@ defmodule EWallet.HelperTest do
       assert Helper.to_existing_atoms(["exists", "doesnt_exist_anywhere_z93Gh4g0f"]) == [:exists]
     end
   end
+
+  describe "members?/2" do
+    test "returns true if all elements exist in the enumerable" do
+      assert Helper.members?([1, 2, 3, 4, 5], [3, 4])
+    end
+
+    test "returns false if not all elements exist in the enumerable" do
+      refute Helper.members?([3, 4], [1, 2, 3, 4, 5])
+    end
+  end
 end

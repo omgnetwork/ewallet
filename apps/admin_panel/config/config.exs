@@ -8,6 +8,8 @@ use Mix.Config
 # General application configuration
 config :admin_panel,
   namespace: AdminPanel,
+  ecto_repos: [],
+  dist_path: Path.expand("../priv/dist/", __DIR__),
   webpack_watch: false
 
 # Configures the endpoint

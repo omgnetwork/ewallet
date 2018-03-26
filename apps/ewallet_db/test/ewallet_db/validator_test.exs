@@ -211,4 +211,58 @@ defmodule EWalletDB.ValidatorTest do
       assert changeset.errors == [{:attr1, {"can't be changed", []}}]
     end
   end
+
+  describe "validate_password/1" do
+    test "returns {:ok, password} if the password meets requirements" do
+      assert validate_password("valid_password") == {:ok, "valid_password"}
+    end
+
+    test "returns {:error, :too_short, data} if the password is nil" do
+      assert validate_password(nil) == {:error, :too_short, [min_length: 8]}
+    end
+
+    test "returns {:error, :too_short, data} if the password is empty" do
+      assert validate_password("") == {:error, :too_short, [min_length: 8]}
+    end
+
+    test "returns {:error, :too_short, data} if the password is shorter than 8 chars" do
+      assert validate_password("short") == {:error, :too_short, [min_length: 8]}
+    end
+  end
+
+  describe "validate_password/2" do
+    test "returns valid if the password meets the requirements" do
+      struct =
+        %SampleStruct{
+          attr1: "valid_password"
+        }
+
+      changeset =
+        struct
+        |> cast(%{attr1: "valid_password"}, [:attr1])
+        |> validate_password(:attr1)
+
+      assert changeset.valid?
+    end
+
+    test "returns invalid if the password is empty" do
+      changeset =
+        %SampleStruct{}
+        |> cast(%{attr1: ""}, [:attr1])
+        |> validate_password(:attr1)
+
+      refute changeset.valid?
+      assert changeset.errors == [{:attr1, {"must be 8 characters or more", []}}]
+    end
+
+    test "returns invalid if the password is shorter than 8 chars" do
+      changeset =
+        %SampleStruct{}
+        |> cast(%{attr1: "short"}, [:attr1])
+        |> validate_password(:attr1)
+
+      refute changeset.valid?
+      assert changeset.errors == [{:attr1, {"must be 8 characters or more", []}}]
+    end
+  end
 end
