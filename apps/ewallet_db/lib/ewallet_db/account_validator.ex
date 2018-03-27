@@ -8,6 +8,7 @@ defmodule EWalletDB.AccountValidator do
   @doc """
   Validates that there can be only one master account in the system.
   """
+  @spec validate_parent_id(changeset :: Ecto.Changeset.t) :: Ecto.Changeset.t
   def validate_parent_id(changeset) do
     # Require a `parent_id` if:
     #   1. This changeset has `parent_id` == nil
@@ -35,6 +36,8 @@ defmodule EWalletDB.AccountValidator do
     - `2` : valid if the account is the master account, its direct children, or one more level down
     - ...
   """
+  @spec validate_account_level(changeset :: Ecto.Changeset.t,
+                               child_level_limit :: non_neg_integer()) :: Ecto.Changeset.t
   def validate_account_level(changeset, child_level_limit) do
     with {_, parent_id} <- fetch_field(changeset, :parent_id),
          depth          <- Account.get_depth(parent_id),
