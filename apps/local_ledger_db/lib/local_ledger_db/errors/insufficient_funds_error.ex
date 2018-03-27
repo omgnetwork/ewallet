@@ -7,8 +7,11 @@ defmodule LocalLedgerDB.Errors.InsufficientFundsError do
     friendly_id: friendly_id,
     address: address
   }) do
-    "The specified balance (#{address}) does not contain enough funds. " <>
-    "Available: #{current_amount} #{friendly_id} - Attempted debit: " <>
-    "#{amount_to_debit} #{friendly_id}"
+    %{
+      address: address,
+      current_amount: current_amount,
+      amount_to_debit: amount_to_debit,
+      friendly_id: friendly_id
+    }
   end
 end

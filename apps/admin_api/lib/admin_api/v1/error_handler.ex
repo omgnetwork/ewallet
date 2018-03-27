@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Plug.Conn, only: [halt: 1]
   alias Ecto.Changeset
   alias EWallet.Web.V1.{ErrorSerializer, ResponseSerializer}
+  alias EWalletDB.MintedToken
 
   @errors %{
     invalid_auth_scheme: %{
@@ -130,8 +131,35 @@ defmodule AdminAPI.V1.ErrorHandler do
 
     respond(conn, code, description, messages)
   end
+
   def handle_error(conn, :invalid_parameter, description) do
     respond(conn, @errors.invalid_parameter.code, description)
+  end
+
+  @doc """
+  Handles response of insufficient funds error.
+  Duplicate from eWalletAPI ErrorHandler, will be refactored in error merge.
+  """
+  def handle_error(conn, :insufficient_funds, d) do
+    handle_error(conn, "transaction:insufficient_funds", d)
+  end
+  def handle_error(conn, "transaction:insufficient_funds", %{
+    "address" => address,
+    "current_amount" => current_amount,
+    "amount_to_debit" => amount_to_debit,
+    "friendly_id" => friendly_id
+  }) do
+    minted_token = MintedToken.get(friendly_id)
+    current_amount = :erlang.float_to_binary(current_amount / minted_token.subunit_to_unit,
+                                             [:compact, {:decimals, 1}])
+    amount_to_debit = :erlang.float_to_binary(amount_to_debit / minted_token.subunit_to_unit,
+                                             [:compact, {:decimals, 18}])
+
+    description = "The specified balance (#{address}) does not contain enough funds. " <>
+                  "Available: #{current_amount} #{friendly_id} - Attempted debit: " <>
+                  "#{amount_to_debit} #{friendly_id}"
+
+    respond(conn, "transaction:insufficient_funds", description)
   end
 
   @doc """

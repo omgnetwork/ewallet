@@ -70,8 +70,13 @@
 
       assert transfer.status == Transfer.failed
       assert transfer.ledger_response["code"] == "transaction:insufficient_funds"
-      assert transfer.ledger_response["description"] == "The specified balance (#{attrs[:from]})" <>
-                            " does not contain enough funds. Available: 100000 #{attrs[:minted_token_friendly_id]} - Attempted debit: 1000000 #{attrs[:minted_token_friendly_id]}"
+      assert transfer.ledger_response["description"] == %{
+        "address" => attrs[:from],
+        "amount_to_debit" => 1_000_000,
+        "current_amount" => 100_000,
+        "friendly_id" => attrs[:minted_token_friendly_id]
+      }
+
       assert transfer.status == Transfer.failed
     end
   end
