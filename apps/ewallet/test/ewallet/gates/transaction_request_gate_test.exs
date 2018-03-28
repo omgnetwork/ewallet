@@ -436,7 +436,7 @@ defmodule EWallet.TransactionRequestTest do
   end
 
   describe "get_with_lock/1" do
-    test "returns the request do when given valid ID" do
+    test "returns the request when given a valid ID" do
       request = insert(:transaction_request)
       assert {:ok, request} = TransactionRequestGate.get_with_lock(request.id)
       assert %TransactionRequest{} = request
