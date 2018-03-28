@@ -62,6 +62,7 @@ Strategies available:
 
 To enable emails in the eWallet (for forget password or inviting admins), you'll need to set the following environment variables:
 
+- `SENDER_EMAIL`: The email address to appear as the sender.
 - `SMTP_HOST`: Your email server domain name.
 - `SMTP_PORT`: The port used to connect to your email server.
 - `SMTP_USER`: Identifier to use your email server.
