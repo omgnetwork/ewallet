@@ -369,7 +369,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.balance_address == meta.sender_balance.address
     end
 
-    test "returns an 'expired_request' error when the request is expired", meta do
+    test "returns an 'expired_transaction_request' error when the request is expired", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
       {:ok, request} = TransactionRequest.expire(meta.request)
 
@@ -384,7 +384,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :error
-      assert error == :expired_request
+      assert error == :expired_transaction_request
     end
 
     test "returns a 'max_consumptions_reached' error if the maximum number of

@@ -120,7 +120,7 @@ defmodule EWalletDB.TransactionRequest do
     |> Repo.update_all(set: [
       status: @expired,
       expired_at: NaiveDateTime.utc_now(),
-      expiration_reason: "expired_request"
+      expiration_reason: "expired_transaction_request"
     ])
   end
 
@@ -200,7 +200,7 @@ defmodule EWalletDB.TransactionRequest do
   Expires the given request with the specified reason.
   """
   @spec expire(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, Map.t}
-  def expire(request, reason \\ "expired_request") do
+  def expire(request, reason \\ "expired_transaction_request") do
     request
     |> expire_changeset(%{
       status: @expired,

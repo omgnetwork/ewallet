@@ -116,9 +116,9 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  @spec allow_amount_override?(TransactionRequest.t, Integer.t) ::
+  @spec validate_amount(TransactionRequest.t, Integer.t) ::
         {:ok, TransactionRequest.t} | {:error, :unauthorized_amount_override}
-  def allow_amount_override?(request, amount) do
+  def validate_amount(request, amount) do
     case request.allow_amount_override do
       true  ->
         {:ok, request}
@@ -157,9 +157,9 @@ defmodule EWallet.TransactionRequestGate do
     TransactionRequest.expire_if_max_consumption(request)
   end
 
-  @spec valid?(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
-                                                          {:error, Atom.t}
-  def valid?(request) do
+  @spec validate_request(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                  {:error, Atom.t}
+  def validate_request(request) do
     case TransactionRequest.valid?(request) do
       true  -> {:ok, request}
       false -> {:error, String.to_existing_atom(request.expiration_reason)}

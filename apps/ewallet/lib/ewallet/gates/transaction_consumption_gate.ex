@@ -80,8 +80,6 @@ defmodule EWallet.TransactionConsumptionGate do
   @spec consume(Balance.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
   def consume(%Balance{} = balance, %{
     "transaction_request_id" => _,
-    "correlation_id" => _,
-    "token_id" => _,
     "idempotency_token" => _
   } = attrs) do
     transaction = Repo.transaction(fn -> do_consume(balance, attrs) end)
@@ -96,13 +94,12 @@ defmodule EWallet.TransactionConsumptionGate do
 
   defp do_consume(balance, %{
     "transaction_request_id" => request_id,
-    "token_id" => token_id,
   } = attrs) do
     with {:ok, request} <- TransactionRequestGate.get_with_lock(request_id),
          {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
-         {:ok, request} <- TransactionRequestGate.valid?(request),
-         {:ok, request} <- TransactionRequestGate.allow_amount_override?(request, attrs["amount"]),
-         {:ok, minted_token} <- get_minted_token(token_id),
+         {:ok, request} <- TransactionRequestGate.validate_request(request),
+         {:ok, request} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
+         {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
          {:ok, consumption} <- insert(balance, minted_token, request, attrs),
          {:ok, request} <- TransactionRequestGate.expire_if_max_consumption(request),
          {:ok, consumption} <- get(consumption.id)
@@ -122,11 +119,22 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  defp get_minted_token(nil), do: {:ok, nil}
-  defp get_minted_token(token_id) do
+  defp get_and_validate_minted_token(request, nil) do
+    request = request |> Repo.preload(:minted_token)
+    {:ok, request.minted_token}
+  end
+
+  defp get_and_validate_minted_token(request, token_id) do
     case MintedToken.get(token_id) do
-      nil          -> :minted_token_not_found
-      minted_token -> minted_token
+      nil          -> {:error, :minted_token_not_found}
+      minted_token -> validate_minted_token(request, minted_token)
+    end
+  end
+
+  defp validate_minted_token(request, minted_token) do
+    case request.minted_token_id == minted_token.id do
+      true -> {:ok, minted_token}
+      false -> {:error, :invalid_minted_token_provided}
     end
   end
 
@@ -161,7 +169,7 @@ defmodule EWallet.TransactionConsumptionGate do
       amount: attrs["amount"] || request.amount,
       user_id: balance.user_id,
       account_id: balance.account_id,
-      minted_token_id: if(minted_token, do: minted_token.id, else: request.minted_token_id),
+      minted_token_id: minted_token.id,
       transaction_request_id: request.id,
       balance_address: balance.address,
       expiration_date: TransactionRequestGate.expiration_from_lifetime(request),

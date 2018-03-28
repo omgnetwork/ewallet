@@ -88,14 +88,18 @@ defmodule EWalletAPI.V1.ErrorHandler do
       code: "client:no_idempotency_token_provided",
       description: "The call you made requires the Idempotency-Token header to prevent duplication."
     },
-    expired_request: %{
-      code: "request:expired",
+    expired_transaction_request: %{
+      code: "transaction_request:expired",
       description: "The specified transaction request has expired."
     },
     max_consumptions_reached: %{
-      code: "request:max_consumptions_reached",
+      code: "transaction_request:max_consumptions_reached",
       description: "The specified transaction request has reached the allowed amount of
                     consumptions."
+    },
+    invalid_minted_token_provided: %{
+      code: "transaction_consumption:invalid_minted_token",
+      description: "The provided minted token does not match the transaction request minted token."
     }
   }
 

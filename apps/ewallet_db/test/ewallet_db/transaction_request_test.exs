@@ -72,7 +72,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
       assert TransactionRequest.expired?(t) == true
       assert t.expired_at != nil
-      assert t.expiration_reason == "expired_request"
+      assert t.expiration_reason == "expired_transaction_request"
     end
   end
 

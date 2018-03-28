@@ -454,7 +454,7 @@ defmodule EWallet.TransactionRequestTest do
   describe "allow_amount_override/2" do
     test "returns {:ok, request} when allowed" do
       request = insert(:transaction_request, allow_amount_override: true)
-      {res, request} = TransactionRequestGate.allow_amount_override?(request, 1_000)
+      {res, request} = TransactionRequestGate.validate_amount(request, 1_000)
 
       assert res == :ok
       assert %TransactionRequest{} = request
@@ -462,7 +462,7 @@ defmodule EWallet.TransactionRequestTest do
 
     test "returns {:ok, request} when no allowed but given amount is nil" do
       request = insert(:transaction_request, allow_amount_override: false)
-      {res, request} = TransactionRequestGate.allow_amount_override?(request, nil)
+      {res, request} = TransactionRequestGate.validate_amount(request, nil)
 
       assert res == :ok
       assert %TransactionRequest{} = request
@@ -470,7 +470,7 @@ defmodule EWallet.TransactionRequestTest do
 
     test "returns {:error, :unauthorized_amount_override} when not allowed" do
       request = insert(:transaction_request, allow_amount_override: false)
-      {res, error} = TransactionRequestGate.allow_amount_override?(request, 1_000)
+      {res, error} = TransactionRequestGate.validate_amount(request, 1_000)
 
       assert res == :error
       assert error == :unauthorized_amount_override
@@ -528,7 +528,7 @@ defmodule EWallet.TransactionRequestTest do
       {res, error} = TransactionRequestGate.expire_if_past_expiration_date(request)
       request = TransactionRequest.get(request.id)
       assert res == :error
-      assert error == :expired_request
+      assert error == :expired_transaction_request
       assert TransactionRequest.valid?(request) == false
       assert TransactionRequest.expired?(request) == true
     end
@@ -580,12 +580,12 @@ defmodule EWallet.TransactionRequestTest do
   describe "valid?/1" do
     test "returns {:ok, request} if valid" do
       request = insert(:transaction_request)
-      assert TransactionRequestGate.valid?(request) == {:ok, request}
+      assert TransactionRequestGate.validate_request(request) == {:ok, request}
     end
 
     test "returns {:error, expiration_reason} if expired" do
       request = insert(:transaction_request, status: "expired", expiration_reason: "something")
-      assert TransactionRequestGate.valid?(request) == {:error, :something}
+      assert TransactionRequestGate.validate_request(request) == {:error, :something}
     end
   end
 end
