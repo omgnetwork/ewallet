@@ -47,6 +47,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
           "data" => [
             %{
               "object" => "address",
+              "socket_topic" => "address:#{user_balance.address}",
               "address" => user_balance.address,
               "balances" => [
                 %{

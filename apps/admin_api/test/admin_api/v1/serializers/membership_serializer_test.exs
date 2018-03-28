@@ -5,7 +5,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
   alias EWallet.Web.Date
   alias EWalletDB.User
 
-  describe "to_user_json/1" do
+  describe "serialize/1" do
     test "serializes a membership into user json" do
       account    = insert(:account)
       user       = insert(:user)
@@ -15,6 +15,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
       expected = %{
         object: "user",
         id: user.id,
+        socket_topic: "user:#{user.id}",
         username: user.username,
         provider_user_id: user.provider_user_id,
         email: user.email,
@@ -35,7 +36,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         status: User.get_status(user)
       }
 
-      assert MembershipSerializer.to_user_json(membership) == expected
+      assert MembershipSerializer.serialize(membership) == expected
     end
 
     test "serializes to nil if membership is not given" do
@@ -56,6 +57,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         object: "user",
         id: user.id,
         username: user.username,
+        socket_topic: "user:#{user.id}",
         provider_user_id: user.provider_user_id,
         email: user.email,
         metadata: %{
@@ -75,7 +77,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         status: User.get_status(user)
       }
 
-      assert MembershipSerializer.to_user_json(membership) == expected
+      assert MembershipSerializer.serialize(membership) == expected
     end
   end
 end

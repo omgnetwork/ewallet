@@ -10,7 +10,10 @@ defmodule EWalletDB.Application do
     import Supervisor.Spec
 
     # List all child processes to be supervised
-    children = [supervisor(EWalletDB.Repo, [])]
+    children = [
+      supervisor(EWalletDB.Repo, []),
+      worker(EWalletDB.Scheduler, [])
+    ]
 
     children =
       case System.get_env("FILE_STORAGE_ADAPTER") do

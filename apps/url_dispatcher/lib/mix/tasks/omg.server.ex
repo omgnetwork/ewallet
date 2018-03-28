@@ -1,10 +1,23 @@
+# MIT License
+# Copyright (c) 2014 Chris McCord
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+# and associated documentation files (the "Software"), to deal in the Software without
+# restriction, including without limitation the rights to use, copy, modify, merge, publish,
+# distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom
+# the Software is furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all copies or
+# substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED,
+# INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR
+# PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR
+# ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+# ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
 defmodule Mix.Tasks.Omg.Server do
-  # This file is an edited version of Phoenix's `Mix.Tasks.Phx.Server`
-  use Mix.Task
-  alias Mix.Tasks.Run
-
-  @shortdoc "Starts the eWallet applications and their servers"
-
   @moduledoc """
   Starts the application by configuring all endpoints servers to run.
 
@@ -26,6 +39,11 @@ defmodule Mix.Tasks.Omg.Server do
 
   - `--no-watch` - disables watching and building when frontend assets change
   """
+
+  use Mix.Task
+  alias Mix.Tasks.Run
+
+  @shortdoc "Starts the eWallet applications and their servers"
 
   @doc false
   def run(args) do

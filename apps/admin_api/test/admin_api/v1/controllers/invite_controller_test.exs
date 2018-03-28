@@ -20,6 +20,7 @@ defmodule AdminAPI.V1.InviteControllerTest do
       expected = %{
         "object" => "user",
         "id" => user.id,
+        "socket_topic" => "user:#{user.id}",
         "provider_user_id" => nil,
         "username" => nil,
         "email" => user.email,

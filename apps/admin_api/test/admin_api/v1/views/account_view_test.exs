@@ -13,6 +13,7 @@ defmodule AdminAPI.V1.AccountViewTest do
         data: %{
           object: "account",
           id: account.id,
+          socket_topic: "account:#{account.id}",
           parent_id: account.parent_id,
           name: account.name,
           description: account.description,
@@ -56,6 +57,7 @@ defmodule AdminAPI.V1.AccountViewTest do
             %{
               object: "account",
               id: account1.id,
+              socket_topic: "account:#{account1.id}",
               parent_id: account1.parent_id,
               name: account1.name,
               description: account1.description,
@@ -74,6 +76,7 @@ defmodule AdminAPI.V1.AccountViewTest do
             %{
               object: "account",
               id: account2.id,
+              socket_topic: "account:#{account2.id}",
               parent_id: account2.parent_id,
               name: account2.name,
               description: account2.description,

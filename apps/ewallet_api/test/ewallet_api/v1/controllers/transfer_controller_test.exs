@@ -65,6 +65,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
           "data" => [
             %{
               "object" => "address",
+              "socket_topic" => "address:#{balance1.address}",
               "address" => balance1.address,
               "balances" => [
                 %{
@@ -86,6 +87,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
             },
             %{
               "object" => "address",
+              "socket_topic" => "address:#{balance2.address}",
               "address" => balance2.address,
               "balances" => [
                 %{
@@ -286,6 +288,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
           "data" => [
             %{
               "object" => "address",
+              "socket_topic" => "address:#{user_balance.address}",
               "address" => user_balance.address,
               "balances" => [
                 %{
@@ -479,6 +482,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       assert transfer.metadata == %{"something" => "interesting"}
       assert transfer.encrypted_metadata == %{"something" => "secret"}
 
+      address = User.get_primary_balance(user).address
       assert response == %{
         "version" => "1",
         "success" => true,
@@ -487,7 +491,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
           "data" => [
             %{
               "object" => "address",
-              "address" => User.get_primary_balance(user).address,
+              "socket_topic" => "address:#{address}",
+              "address" => address,
               "balances" => [
                 %{
                   "object" => "balance",

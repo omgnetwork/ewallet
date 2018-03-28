@@ -4,12 +4,12 @@ defmodule EWallet.TransactionConsumptionGate do
   creating new consumptions, generating transfers and transactions. It can also be used to
   retrieve a specific consumption.
 
-  It is basically an interface to the EWalletDB.TransactionRequestConsumption schema.
+  It is basically an interface to the EWalletDB.TransactionConsumption schema.
   """
-  alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher}
-  alias EWalletDB.{Account, MintedToken, User, Balance, TransactionRequestConsumption}
+  alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher, Web.V1.Event}
+  alias EWalletDB.{Repo, Account, MintedToken, User, Balance, TransactionConsumption}
 
-  @spec consume(Map.t) :: {:ok, TransactionRequestConsumption.t} | {:error, Atom.t}
+  @spec consume(Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
   def consume(%{
     "account_id" => account_id,
     "address" => address
@@ -65,7 +65,7 @@ defmodule EWallet.TransactionConsumptionGate do
 
   def consume(_attrs), do: {:error, :invalid_parameter}
 
-  @spec consume(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+  @spec consume(User.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
   def consume(%User{} = user, %{
     "address" => address
   } = attrs) do
@@ -77,80 +77,155 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  @spec consume(Balance.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+  @spec consume(Balance.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
   def consume(%Balance{} = balance, %{
-    "transaction_request_id" => request_id,
-    "correlation_id" => _,
-    "amount" => _,
-    "token_id" => token_id,
+    "transaction_request_id" => _,
     "idempotency_token" => _
   } = attrs) do
-    with {:ok, request} <- TransactionRequestGate.get(request_id),
-         {:ok, minted_token} <- get_minted_token(token_id),
-         {:ok, consumption} <- insert(balance, minted_token, request, attrs),
+    transaction = Repo.transaction(fn -> do_consume(balance, attrs) end)
+
+    case transaction do
+      {:ok, res}      -> res
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  def consume(_, _attrs), do: {:error, :invalid_parameter}
+
+  defp do_consume(balance, %{
+    "transaction_request_id" => request_id,
+  } = attrs) do
+    with {:ok, request} <- TransactionRequestGate.get_with_lock(request_id),
+         {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
+         {:ok, request} <- TransactionRequestGate.validate_request(request),
+         {:ok, amount} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
+         {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
+         {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
+         {:ok, request} <- TransactionRequestGate.expire_if_max_consumption(request),
          {:ok, consumption} <- get(consumption.id)
     do
-      transfer(request.type, consumption, attrs["metadata"], attrs["encrypted_metadata"])
+      case request.require_confirmation do
+        true ->
+          Event.dispatch(:transaction_consumption_request, %{consumption: consumption})
+          {:ok, consumption}
+        false ->
+          consumption
+          |> TransactionConsumption.approve()
+          |> transfer(request.type)
+      end
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error
     end
   end
 
-  def consume(_, _attrs), do: {:error, :invalid_parameter}
+  defp get_and_validate_minted_token(request, nil) do
+    request = request |> Repo.preload(:minted_token)
+    {:ok, request.minted_token}
+  end
 
-   defp get_minted_token(nil), do: {:ok, nil}
-   defp get_minted_token(token_id) do
-      case MintedToken.get(token_id) do
-        nil          -> :minted_token_not_found
-        minted_token -> minted_token
-      end
-   end
+  defp get_and_validate_minted_token(request, token_id) do
+    case MintedToken.get(token_id) do
+      nil          -> {:error, :minted_token_not_found}
+      minted_token -> validate_minted_token(request, minted_token)
+    end
+  end
 
-  @spec get(UUID.t) :: {:ok, TransactionRequestConsumption.t} |
-                       {:error, :transaction_request_consumption_not_found}
+  defp validate_minted_token(request, minted_token) do
+    case request.minted_token_id == minted_token.id do
+      true -> {:ok, minted_token}
+      false -> {:error, :invalid_minted_token_provided}
+    end
+  end
+
+  @spec get(UUID.t) :: {:ok, TransactionConsumption.t} |
+                       {:error, :transaction_consumption_not_found}
   def get(id) do
-    consumption = TransactionRequestConsumption.get(id, preload: [
-      :user, :balance, :minted_token, :transaction_request
+    consumption = TransactionConsumption.get(id, preload: [
+      :account, :user, :balance, :minted_token, :transaction_request
     ])
 
     case consumption do
-      nil         -> {:error, :transaction_request_consumption_not_found}
+      nil         -> {:error, :transaction_consumption_not_found}
       consumption -> {:ok, consumption}
     end
   end
 
-  defp insert(balance, minted_token, request, attrs) do
-    TransactionRequestConsumption.insert(%{
+  @spec consume(UUID.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
+  def confirm(id, %{account: account}) do
+    with {:ok, consumption} <- get(id),
+         true <- consumption.transaction_request.account_id == account.id ||
+                 {:error, :not_transaction_request_owner}
+    do
+      do_confirm(consumption)
+    else
+      error -> error
+    end
+  end
+
+  def confirm(id, %{user: user}) do
+    with {:ok, consumption} <- get(id),
+         true <- consumption.transaction_request.user_id == user.id ||
+                 {:error, :not_transaction_request_owner}
+    do
+      do_confirm(consumption)
+    else
+      error -> error
+    end
+  end
+
+  defp do_confirm(consumption) do
+    consumption
+    |> TransactionConsumption.approve()
+    |> transfer(consumption.transaction_request.type)
+  end
+
+  defp insert(balance, minted_token, request, amount, attrs) do
+    TransactionConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
       idempotency_token: attrs["idempotency_token"],
-      amount: attrs["amount"] || request.amount,
+      amount: amount,
       user_id: balance.user_id,
       account_id: balance.account_id,
-      minted_token_id: if(minted_token, do: minted_token.id, else: request.minted_token_id),
+      minted_token_id: minted_token.id,
       transaction_request_id: request.id,
-      balance_address: balance.address
+      balance_address: balance.address,
+      expiration_date: TransactionRequestGate.expiration_from_lifetime(request),
+      metadata: attrs["metadata"] || %{},
+      encrypted_metadata: attrs["encrypted_metadata"] || %{}
     })
   end
 
-  defp transfer("receive", consumption, metadata, encrypted_metadata) do
+  defp transfer(consumption, "send") do
+    from = consumption.transaction_request.balance_address
+    to = consumption.balance.address
+    transfer(consumption, from, to)
+  end
+
+  defp transfer(consumption, "receive") do
+    from = consumption.balance.address
+    to = consumption.transaction_request.balance_address
+    transfer(consumption, from, to)
+  end
+
+  defp transfer(consumption, from, to) do
     attrs = %{
       "idempotency_token" => consumption.idempotency_token,
-      "from_address" => consumption.balance.address,
-      "to_address" => consumption.transaction_request.balance_address,
+      "from_address" => from,
+      "to_address" => to,
       "token_id" => consumption.minted_token.friendly_id,
       "amount" => consumption.amount,
-      "metadata" => metadata,
-      "encrypted_metadata" => encrypted_metadata
+      "metadata" => consumption.metadata,
+      "encrypted_metadata" => consumption.encrypted_metadata
     }
 
     case TransactionGate.process_with_addresses(attrs) do
       {:ok, transfer, _, _} ->
-        consumption = TransactionRequestConsumption.confirm(consumption, transfer)
+        consumption = TransactionConsumption.confirm(consumption, transfer)
         {:ok, consumption}
       {:error, transfer, code, description} ->
-        TransactionRequestConsumption.fail(consumption, transfer)
-        {:error, code, description}
+        consumption = TransactionConsumption.fail(consumption, transfer)
+        {:error, consumption, code, description}
     end
   end
 end

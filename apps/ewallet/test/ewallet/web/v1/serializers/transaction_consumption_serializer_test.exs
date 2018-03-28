@@ -1,24 +1,25 @@
-defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializerTest do
+defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias EWalletAPI.V1.UserSerializer
-  alias EWalletDB.TransactionRequestConsumption
+  alias EWallet.Web.V1.UserSerializer
+  alias EWalletDB.TransactionConsumption
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{
     AccountSerializer,
     MintedTokenSerializer,
     TransactionSerializer,
-    TransactionRequestConsumptionSerializer,
+    TransactionConsumptionSerializer,
     TransactionRequestSerializer
   }
 
   describe "serialize/1 for single transaction request consumption" do
     test "serializes into correct V1 transaction_request consumption format" do
-      request = insert(:transaction_request_consumption)
-      consumption = TransactionRequestConsumption.get(request.id, preload: [:minted_token])
+      request = insert(:transaction_consumption)
+      consumption = TransactionConsumption.get(request.id, preload: [:minted_token])
 
       expected = %{
-        object: "transaction_request_consumption",
+        object: "transaction_consumption",
         id: consumption.id,
+        socket_topic: "transaction_consumption:#{consumption.id}",
         status: consumption.status,
         amount: consumption.amount,
         minted_token_id: consumption.minted_token.friendly_id,
@@ -35,11 +36,17 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializerTest do
         transaction_request:
           TransactionRequestSerializer.serialize(consumption.transaction_request),
         address: consumption.balance_address,
+        approved: false,
+        metadata: %{},
+        encrypted_metadata: %{},
+        expiration_date: nil,
+        expired_at: nil,
+        finalized_at: nil,
         created_at: Date.to_iso8601(consumption.inserted_at),
         updated_at: Date.to_iso8601(consumption.updated_at)
       }
 
-      assert TransactionRequestConsumptionSerializer.serialize(consumption) == expected
+      assert TransactionConsumptionSerializer.serialize(consumption) == expected
     end
   end
 end

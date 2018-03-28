@@ -14,6 +14,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
     %{
       object: "transaction_request",
       id: transaction_request.id,
+      socket_topic: "transaction_request:#{transaction_request.id}",
       type: transaction_request.type,
       minted_token_id: transaction_request.minted_token.friendly_id,
       minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
@@ -23,6 +24,15 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       account_id: transaction_request.account_id,
       correlation_id: transaction_request.correlation_id,
       status: transaction_request.status,
+      require_confirmation: transaction_request.require_confirmation,
+      max_consumptions: transaction_request.max_consumptions,
+      consumption_lifetime: transaction_request.consumption_lifetime,
+      expiration_date: transaction_request.expiration_date,
+      expired_at: transaction_request.expired_at,
+      expiration_reason: transaction_request.expiration_reason,
+      allow_amount_override: transaction_request.allow_amount_override,
+      metadata: transaction_request.metadata,
+      encrypted_metadata: transaction_request.encrypted_metadata,
       created_at: Date.to_iso8601(transaction_request.inserted_at),
       updated_at: Date.to_iso8601(transaction_request.updated_at)
     }

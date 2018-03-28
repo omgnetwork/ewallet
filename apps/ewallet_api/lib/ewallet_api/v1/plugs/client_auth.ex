@@ -8,7 +8,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
   """
   import Plug.Conn
   import EWalletAPI.V1.ErrorHandler
-  alias EWalletDB.{APIKey, AuthToken}
+  alias EWallet.Web.V1.ClientAuth
 
   def init(opts), do: opts
 
@@ -25,16 +25,12 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
       |> get_req_header("authorization")
       |> List.first()
 
-    with header when not is_nil(header) <- header,
-         [scheme, content] <- String.split(header, " ", parts: 2),
-         true <- scheme in ["Basic", "OMGClient"],
-         {:ok, decoded} <- Base.decode64(content),
-         [key, token] <- String.split(decoded, ":", parts: 2) do
-      conn
-      |> put_private(:auth_api_key, key)
-      |> put_private(:auth_auth_token, token)
-    else
-      _ ->
+    case ClientAuth.parse_header(header) do
+      {:ok, key, token} ->
+        conn
+        |> put_private(:auth_api_key, key)
+        |> put_private(:auth_auth_token, token)
+      {:error, :invalid_auth_scheme} ->
         conn
         |> assign(:authenticated, false)
         |> handle_error(:invalid_auth_scheme)
@@ -46,14 +42,14 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
   defp authenticate_client(conn) do
     api_key = conn.private[:auth_api_key]
 
-    case APIKey.authenticate(api_key, :ewallet_api) do
-      false ->
+    case ClientAuth.authenticate_client(api_key, :ewallet_api) do
+      {:ok, account} ->
+        conn
+        |> assign(:account, account)
+      {:error, :invalid_api_key} ->
         conn
         |> assign(:authenticated, false)
         |> handle_error(:invalid_api_key)
-      account ->
-        conn
-        |> assign(:account, account)
     end
   end
 
@@ -62,19 +58,15 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
   defp authenticate_token(conn) do
     auth_token = conn.private[:auth_auth_token]
 
-    case AuthToken.authenticate(auth_token, :ewallet_api) do
-      false ->
-        conn
-        |> assign(:authenticated, false)
-        |> handle_error(:access_token_not_found)
-      :token_expired ->
-        conn
-        |> assign(:authenticated, false)
-        |> handle_error(:access_token_expired)
-      user ->
+    case ClientAuth.authenticate_token(auth_token, :ewallet_api) do
+      {:ok, user} ->
         conn
         |> assign(:authenticated, :client)
         |> assign(:user, user)
+      {:error, code} ->
+        conn
+        |> assign(:authenticated, false)
+        |> handle_error(code)
     end
   end
 
@@ -83,7 +75,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
   """
   def expire_token(conn) do
     token_string = conn.private[:auth_auth_token]
-    AuthToken.expire(token_string, :ewallet_api)
+    ClientAuth.expire_token(token_string, :ewallet_api)
 
     conn
     |> assign(:authenticated, false)

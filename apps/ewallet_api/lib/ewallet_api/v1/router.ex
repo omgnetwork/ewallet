@@ -31,6 +31,8 @@ defmodule EWalletAPI.V1.Router do
 
     post "/transaction_request.create", TransactionRequestController, :create
     post "/transaction_request.get", TransactionRequestController, :get
+    post "/transaction_consumption.confirm",
+         TransactionConsumptionController, :confirm
 
     post "/transaction.all", TransactionController, :all
 
@@ -41,7 +43,7 @@ defmodule EWalletAPI.V1.Router do
       post "/user.credit_balance", TransferController, :credit
       post "/user.debit_balance", TransferController, :debit
       post "/transfer", TransferController, :transfer
-      post "/transaction_request.consume", TransactionRequestConsumptionController, :consume
+      post "/transaction_request.consume", TransactionConsumptionController, :consume
     end
 
     post "/login", AuthController, :login
@@ -57,12 +59,16 @@ defmodule EWalletAPI.V1.Router do
     post "/me.list_balances", SelfController, :get_balances
     post "/me.list_transactions", TransactionController, :get_transactions
 
-    post "/me.create_transaction_request", TransactionRequestController, :create
+    post "/me.create_transaction_request", TransactionRequestController, :create_for_user
     post "/me.get_transaction_request", TransactionRequestController, :get
+    post "/me.confirm_transaction_consumption",
+         TransactionConsumptionController, :confirm
 
     scope "/" do
       pipe_through [:idempotency]
-      post "/me.consume_transaction_request", TransactionRequestConsumptionController, :consume
+      post "/me.consume_transaction_request",
+           TransactionConsumptionController,
+           :consume_for_user
     end
 
     post "/logout", AuthController, :logout

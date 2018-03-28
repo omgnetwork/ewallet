@@ -16,6 +16,7 @@ defmodule AdminAPI.V1.SelfViewTest do
         data: %{
           object: "user",
           id: user.id,
+          socket_topic: "user:#{user.id}",
           username: user.username,
           provider_user_id: user.provider_user_id,
           email: user.email,

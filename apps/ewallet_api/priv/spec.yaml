@@ -364,7 +364,7 @@ paths:
         $ref: '#/components/requestBodies/ConsumeTransactionRequestBody'
       responses:
         '200':
-          $ref: "#/components/responses/TransactionRequestConsumptionResponse"
+          $ref: "#/components/responses/TransactionConsumptionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -1056,7 +1056,7 @@ components:
             address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
             correlation_id: "123"
     # Schema for transaction request consumption response body
-    TransactionRequestConsumptionResponse:
+    TransactionConsumptionResponse:
       description: "The response schema for a transaction request consumption"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
@@ -1102,7 +1102,7 @@ components:
           - address
         example:
           data:
-            object: "transaction_request_consumption"
+            object: "transaction_consumption"
             id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
             status: "confirmed"
             amount: 100
@@ -1500,12 +1500,12 @@ components:
           schema:
             $ref: '#/components/schemas/TransactionRequestResponse'
     # Schema for transaction request response body
-    TransactionRequestConsumptionResponse:
+    TransactionConsumptionResponse:
       description: Transaction request consumption response
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/TransactionRequestConsumptionResponse'
+            $ref: '#/components/schemas/TransactionConsumptionResponse'
 
     ######################################
     #          SETTING RESPONSES         #

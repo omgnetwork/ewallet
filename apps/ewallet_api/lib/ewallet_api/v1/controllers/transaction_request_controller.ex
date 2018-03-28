@@ -3,15 +3,15 @@ defmodule EWalletAPI.V1.TransactionRequestController do
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.TransactionRequestGate
 
-  def create(%{assigns: %{user: _}} = conn, attrs) do
-    conn.assigns.user
-    |> TransactionRequestGate.create(attrs)
+  def create(conn, attrs) do
+    attrs
+    |> TransactionRequestGate.create()
     |> respond(conn)
   end
 
-  def create(%{assigns: %{account: _}} = conn, attrs) do
-    attrs
-    |> TransactionRequestGate.create()
+  def create_for_user(conn, attrs) do
+    conn.assigns.user
+    |> TransactionRequestGate.create(attrs)
     |> respond(conn)
   end
 

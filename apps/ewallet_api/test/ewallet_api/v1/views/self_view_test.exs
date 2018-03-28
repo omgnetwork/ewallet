@@ -13,12 +13,22 @@ defmodule EWalletAPI.V1.SelfViewTest do
         data: %{
           object: "user",
           id: user.id,
+          socket_topic: "user:#{user.id}",
           provider_user_id: user.provider_user_id,
           username: user.username,
+          email: user.email,
+          avatar: %{
+            original: nil,
+            large: nil,
+            small: nil,
+            thumb: nil
+          },
           metadata: %{
             "first_name" => user.metadata["first_name"],
             "last_name" => user.metadata["last_name"]
           },
+          created_at: nil,
+          updated_at: nil,
           encrypted_metadata: %{}
         }
       }

@@ -1,4 +1,4 @@
-defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
+defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
   @moduledoc """
   Serializes transaction request consumption data into V1 JSON response format.
   """
@@ -8,16 +8,18 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
     AccountSerializer,
     MintedTokenSerializer,
     TransactionSerializer,
-    TransactionRequestSerializer
+    TransactionRequestSerializer,
+    UserSerializer
   }
-  alias EWalletAPI.V1.UserSerializer
-  alias EWalletDB.TransactionRequestConsumption
+  alias EWalletDB.TransactionConsumption
 
-  def serialize(%TransactionRequestConsumption{} = consumption) do
+  def serialize(%TransactionConsumption{} = consumption) do
     %{
-      object: "transaction_request_consumption",
+      object: "transaction_consumption",
       id: consumption.id,
+      socket_topic: "transaction_consumption:#{consumption.id}",
       status: consumption.status,
+      approved: consumption.approved,
       amount: consumption.amount,
       minted_token_id: consumption.minted_token.friendly_id,
       minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
@@ -32,8 +34,13 @@ defmodule EWallet.Web.V1.TransactionRequestConsumptionSerializer do
       transaction_request_id: consumption.transaction_request_id,
       transaction_request: TransactionRequestSerializer.serialize(consumption.transaction_request),
       address: consumption.balance_address,
+      expiration_date: consumption.expiration_date,
+      metadata: consumption.metadata,
+      encrypted_metadata: consumption.encrypted_metadata,
       created_at: Date.to_iso8601(consumption.inserted_at),
-      updated_at: Date.to_iso8601(consumption.updated_at)
+      updated_at: Date.to_iso8601(consumption.updated_at),
+      finalized_at: Date.to_iso8601(consumption.finalized_at),
+      expired_at: Date.to_iso8601(consumption.expired_at)
     }
   end
   def serialize(%NotLoaded{}), do: nil

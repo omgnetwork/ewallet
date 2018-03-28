@@ -22,6 +22,8 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
         provider_user_id: user.provider_user_id
       })
 
+      address = User.get_primary_balance(user).address
+
       assert response == %{
         "version" => "1",
         "success" => true,
@@ -30,7 +32,8 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
           "data" => [
             %{
               "object" => "address",
-              "address" => User.get_primary_balance(user).address,
+              "socket_topic" => "address:#{address}",
+              "address" => address,
               "balances" => [
                 %{
                   "object" => "balance",
@@ -95,6 +98,7 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
           "data" => [
             %{
               "object" => "address",
+              "socket_topic" => "address:#{user_balance.address}",
               "address" => user_balance.address,
               "balances" => [
                 %{

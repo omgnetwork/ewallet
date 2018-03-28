@@ -105,7 +105,71 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
+  @spec get_with_lock(UUID.t) :: {:ok, TransactionRequest.t} |
+                                 {:error, :transaction_request_not_found}
+  def get_with_lock(id) do
+    request = TransactionRequest.get_with_lock(id)
+
+    case request do
+      nil     -> {:error, :transaction_request_not_found}
+      request -> {:ok, request}
+    end
+  end
+
+  @spec validate_amount(TransactionRequest.t, Integer.t) ::
+        {:ok, TransactionRequest.t} | {:error, :unauthorized_amount_override}
+  def validate_amount(request, amount) do
+    case request.allow_amount_override do
+      true  ->
+        {:ok, amount || request.amount}
+      false ->
+        case amount do
+          nil     -> {:ok, request.amount}
+          _amount -> {:error, :unauthorized_amount_override}
+        end
+    end
+  end
+
+  @spec expiration_from_lifetime(TransactionRequest.t) :: NaiveDateTime.t | nil
+  def expiration_from_lifetime(request) do
+    TransactionRequest.expiration_from_lifetime(request)
+  end
+
+  @spec expire_if_past_expiration_date(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                          {:error, Atom.t} |
+                                                          {:error, Map.t}
+  def expire_if_past_expiration_date(request) do
+    res = TransactionRequest.expire_if_past_expiration_date(request)
+
+    case res do
+      {:ok, %TransactionRequest{status: "expired"} = request} ->
+        {:error, String.to_existing_atom(request.expiration_reason)}
+      {:ok, request} ->
+        {:ok, request}
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
+  @spec expire_if_max_consumption(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                          {:error, Map.t}
+  def expire_if_max_consumption(request) do
+    TransactionRequest.expire_if_max_consumption(request)
+  end
+
+  @spec validate_request(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                  {:error, Atom.t}
+  def validate_request(request) do
+    case TransactionRequest.valid?(request) do
+      true  -> {:ok, request}
+      false -> {:error, String.to_existing_atom(request.expiration_reason)}
+    end
+  end
+
   defp insert(minted_token, balance, attrs) do
+   require_confirmation = if(is_nil(attrs["require_confirmation"]), do: false, else: attrs["require_confirmation"])
+   allow_amount_override = if(is_nil(attrs["allow_amount_override"]),
+                              do: true, else: attrs["allow_amount_override"])
     TransactionRequest.insert(%{
       type: attrs["type"],
       correlation_id: attrs["correlation_id"],
@@ -113,7 +177,14 @@ defmodule EWallet.TransactionRequestGate do
       user_id: balance.user_id,
       account_id: balance.account_id,
       minted_token_id: minted_token.id,
-      balance_address: balance.address
+      balance_address: balance.address,
+      allow_amount_override: allow_amount_override,
+      require_confirmation: require_confirmation,
+      consumption_lifetime: attrs["consumption_lifetime"],
+      metadata: attrs["metadata"] || %{},
+      encrypted_metadata: attrs["encrypted_metadata"] || %{},
+      expiration_date: attrs["expiration_date"],
+      max_consumptions: attrs["max_consumptions"]
     })
   end
 end

@@ -1,26 +1,33 @@
-defmodule EWalletDB.TransactionRequestConsumption do
+defmodule EWalletDB.TransactionConsumption do
   @moduledoc """
   Ecto Schema representing transaction request consumptions.
   """
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{TransactionRequestConsumption, Repo, User, MintedToken,
+  alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,
                    TransactionRequest, Balance, Helpers, Transfer, Account}
 
   @pending "pending"
   @confirmed "confirmed"
   @failed "failed"
-  @statuses [@pending, @confirmed, @failed]
+  @expired "expired"
+  @statuses [@pending, @confirmed, @failed, @expired]
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
-  schema "transaction_request_consumption" do
+  schema "transaction_consumption" do
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @pending # pending -> confirmed
     field :correlation_id, :string
     field :idempotency_token, :string
+    field :approved, :boolean, default: false
+    field :finalized_at, :naive_datetime
+    field :expired_at, :naive_datetime
+    field :expiration_date, :naive_datetime
+    field :metadata, :map, default: %{}
+    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     belongs_to :transfer, Transfer, foreign_key: :transfer_id,
                                     references: :id,
                                     type: UUID
@@ -42,17 +49,19 @@ defmodule EWalletDB.TransactionRequestConsumption do
     timestamps()
   end
 
-  defp changeset(%TransactionRequestConsumption{} = consumption, attrs) do
+  defp changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
     |> cast(attrs, [
       :amount, :idempotency_token, :correlation_id, :user_id, :account_id,
-      :transaction_request_id, :balance_address, :minted_token_id
+      :transaction_request_id, :balance_address, :minted_token_id,
+      :metadata, :encrypted_metadata, :expiration_date
     ])
     |> validate_required([
       :status, :amount, :idempotency_token, :transaction_request_id,
       :balance_address, :minted_token_id
     ])
     |> validate_required_exclusive([:account_id, :user_id])
+    |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)
     |> unique_constraint(:correlation_id)
@@ -60,20 +69,28 @@ defmodule EWalletDB.TransactionRequestConsumption do
     |> assoc_constraint(:transaction_request)
     |> assoc_constraint(:balance)
     |> assoc_constraint(:account)
+    |> put_change(:encryption_version, Cloak.version)
   end
 
-  defp update_changeset(%TransactionRequestConsumption{} = consumption, attrs) do
+  defp update_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
     |> cast(attrs, [:status, :transfer_id])
     |> validate_required([:status, :transfer_id])
     |> assoc_constraint(:transfer)
   end
 
+  defp approve_changeset(%TransactionConsumption{} = consumption, attrs) do
+    consumption
+    |> cast(attrs, [:approved, :finalized_at])
+    |> validate_required([:approved, :finalized_at])
+    |> assoc_constraint(:transfer)
+  end
+
   @doc """
   Gets a transaction request consumption.
   """
-  @spec get(UUID.t) :: %TransactionRequestConsumption{} | nil
-  @spec get(UUID.t, List.t) :: %TransactionRequestConsumption{} | nil
+  @spec get(UUID.t) :: %TransactionConsumption{} | nil
+  @spec get(UUID.t, List.t) :: %TransactionConsumption{} | nil
   def get(nil), do: nil
   def get(id, opts \\ [])
   def get(nil, _), do: nil
@@ -87,9 +104,9 @@ defmodule EWalletDB.TransactionRequestConsumption do
   @doc """
   Get a consumption using one or more fields.
   """
-  @spec get_by(Map.t, List.t) :: %TransactionRequestConsumption{} | nil
+  @spec get_by(Map.t, List.t) :: %TransactionConsumption{} | nil
   def get_by(map, opts \\ []) do
-    query = TransactionRequestConsumption |> Repo.get_by(map)
+    query = TransactionConsumption |> Repo.get_by(map)
 
     case opts[:preload] do
       nil     -> query
@@ -97,12 +114,37 @@ defmodule EWalletDB.TransactionRequestConsumption do
     end
   end
 
+  @spec expire_all() :: {integer(), nil | [term()]} | no_return()
+  def expire_all do
+    now = NaiveDateTime.utc_now()
+
+    TransactionConsumption
+    |> where([t], t.status == @pending)
+    |> where([t], not is_nil(t.expiration_date))
+    |> where([t], t.expiration_date <= ^now)
+    |> Repo.update_all(set: [
+      status: @expired,
+      expired_at: NaiveDateTime.utc_now()
+    ])
+  end
+
+  @doc """
+  Get all confirmed and pending transaction consumptions.
+  """
+  @spec all_active_for_request(UUID.t) :: List.t
+  def all_active_for_request(request_id) do
+    TransactionConsumption
+    |> where([t], t.status in [@pending, @confirmed])
+    |> where([t], t.transaction_request_id == ^request_id)
+    |> Repo.all()
+  end
+
   @doc """
   Inserts a transaction request consumption.
   """
-  @spec insert(Map.t) :: {:ok, %TransactionRequestConsumption{}} | {:error, Map.t}
+  @spec insert(Map.t) :: {:ok, %TransactionConsumption{}} | {:error, Map.t}
   def insert(attrs) do
-    changeset = changeset(%TransactionRequestConsumption{}, attrs)
+    changeset = changeset(%TransactionConsumption{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
 
     case Repo.insert(changeset, opts) do
@@ -114,13 +156,43 @@ defmodule EWalletDB.TransactionRequestConsumption do
   end
 
   @doc """
+  Approves a consumption.
+  """
+  @spec approve(%TransactionConsumption{}) :: %TransactionConsumption{}
+  def approve(consumption) do
+    {:ok, consumption} =
+      consumption
+      |> approve_changeset(%{approved: true, finalized_at: NaiveDateTime.utc_now()})
+      |> Repo.update()
+
+    consumption
+  end
+
+  @doc """
+  Rejects a consumption.
+  """
+  @spec reject(%TransactionConsumption{}) :: %TransactionConsumption{}
+  def reject(consumption) do
+    {:ok, consumption} =
+      consumption
+      |> approve_changeset(%{approved: false, finalized_at: NaiveDateTime.utc_now()})
+      |> Repo.update()
+
+    consumption
+  end
+
+  @doc """
   Confirms a consumption and saves the entry ID.
   """
-  @spec confirm(%TransactionRequestConsumption{}, %Transfer{}) :: %TransactionRequestConsumption{}
+  @spec confirm(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def confirm(consumption, transfer) do
     {:ok, consumption} =
       consumption
-      |> update_changeset(%{status: @confirmed, transfer_id: transfer.id})
+      |> update_changeset(%{
+        status: @confirmed,
+        transfer_id: transfer.id,
+        confirmed_at: NaiveDateTime.utc_now()
+      })
       |> Repo.update()
 
     consumption
@@ -129,7 +201,7 @@ defmodule EWalletDB.TransactionRequestConsumption do
   @doc """
   Fails a consumption.
   """
-  @spec fail(%TransactionRequestConsumption{}, %Transfer{}) :: %TransactionRequestConsumption{}
+  @spec fail(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def fail(consumption, transfer) do
     {:ok, consumption} =
       consumption
@@ -137,5 +209,10 @@ defmodule EWalletDB.TransactionRequestConsumption do
       |> Repo.update()
 
     consumption
+  end
+
+  @spec expired?(%TransactionConsumption{}) :: true | false
+  def expired?(request) do
+    request.status == @expired
   end
 end

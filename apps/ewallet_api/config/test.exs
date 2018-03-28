@@ -4,3 +4,6 @@ use Mix.Config
 # you can enable the server option below.
 config :ewallet_api, EWalletAPI.Endpoint,
   server: false
+
+config :ewallet_api, EWalletAPI.V1.Endpoint,
+  server: false

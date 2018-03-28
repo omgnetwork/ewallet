@@ -33,7 +33,7 @@ defmodule LocalLedger.Mixfile do
   defp deps do
     [
       {:local_ledger_db, in_umbrella: true},
-      {:quantum, ">= 2.2.1"},
+      {:quantum, ">= 2.2.6"},
       {:timex, "~> 3.0"}
     ]
   end

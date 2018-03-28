@@ -1,5 +1,6 @@
 defmodule EWalletAPI.V1.UserControllerTest do
   use EWalletAPI.ConnCase, async: true
+  alias EWallet.Web.Date
 
   describe "/user.create" do
     test "creates and responds with a newly created user if attributes are valid" do
@@ -210,13 +211,23 @@ defmodule EWalletAPI.V1.UserControllerTest do
         "data" => %{
           "object" => "user",
           "id" => inserted_user.id,
+          "socket_topic" => "user:#{inserted_user.id}",
           "provider_user_id" => inserted_user.provider_user_id,
           "username" => inserted_user.username,
           "metadata" => %{
             "first_name" => inserted_user.metadata["first_name"],
             "last_name" => inserted_user.metadata["last_name"]
           },
-          "encrypted_metadata" => %{}
+          "encrypted_metadata" => %{},
+          "created_at" => Date.to_iso8601(inserted_user.inserted_at),
+          "updated_at" => Date.to_iso8601(inserted_user.updated_at),
+          "email" => nil,
+          "avatar" => %{
+            "large" => nil,
+            "original" => nil,
+            "small" => nil,
+            "thumb" => nil
+          },
         }
       }
 

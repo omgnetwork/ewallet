@@ -1,8 +1,8 @@
-defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
+defmodule EWalletAPI.V1.TransactionConsumptionController do
   use EWalletAPI, :controller
   use EWallet.Web.Embedder
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.TransactionConsumptionGate
+  alias EWallet.{Web.V1.Event, TransactionConsumptionGate}
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
@@ -12,7 +12,14 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   # These fields must be one of the schema's association names.
   @always_embed [:minted_token]
 
-  def consume(%{assigns: %{user: _}} = conn, attrs) do
+  def consume(conn, attrs) do
+    attrs
+    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
+    |> TransactionConsumptionGate.consume()
+    |> respond(conn)
+  end
+
+  def consume_for_user(conn, attrs) do
     attrs = Map.put(attrs, "idempotency_token", conn.assigns.idempotency_token)
 
     conn.assigns.user
@@ -20,10 +27,9 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
     |> respond(conn)
   end
 
-  def consume(%{assigns: %{account: _}} = conn, attrs) do
-    attrs
-    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
-    |> TransactionConsumptionGate.consume()
+  def confirm(conn, %{"id" => id}) do
+    id
+    |> TransactionConsumptionGate.confirm(conn.assigns)
     |> respond(conn)
   end
 
@@ -34,9 +40,22 @@ defmodule EWalletAPI.V1.TransactionRequestConsumptionController do
   defp respond({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
+  defp respond({:error, consumption, code, description}, conn) do
+    dispatch_confirm_event(consumption)
+    handle_error(conn, code, description)
+  end
   defp respond({:ok, consumption}, conn) do
-    render(conn, :transaction_request_consumption, %{
-      transaction_request_consumption: embed(consumption, conn.body_params["embed"])
+    dispatch_confirm_event(consumption)
+    render(conn, :transaction_consumption, %{
+      transaction_consumption: embed(consumption, conn.body_params["embed"])
     })
+  end
+
+  defp dispatch_confirm_event(consumption) do
+    if !is_nil(consumption.finalized_at) do
+      Event.dispatch(:transaction_consumption_confirmation, %{
+        consumption: consumption
+      })
+    end
   end
 end
