@@ -101,7 +101,7 @@ defmodule EWalletDB.TransactionRequestTest do
     test_insert_prevent_duplicate TransactionRequest, :correlation_id
 
     test "sets the status to 'valid'" do
-      inserted = insert(:transaction_request)
+      {:ok, inserted} = :transaction_request |> params_for() |> TransactionRequest.insert()
       assert inserted.status == "valid"
     end
 
