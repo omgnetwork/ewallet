@@ -97,6 +97,10 @@ defmodule EWalletAPI.V1.ErrorHandler do
       description: "The specified transaction request has reached the allowed amount of
                     consumptions."
     },
+    not_transaction_request_owner: %{
+      code: "transaction_consumption:not_owner",
+      description: "The given consumption can only be approved by the transaction request owner."
+    },
     invalid_minted_token_provided: %{
       code: "transaction_consumption:invalid_minted_token",
       description: "The provided minted token does not match the transaction request minted token."

@@ -29,7 +29,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
 
   def confirm(conn, %{"id" => id}) do
     id
-    |> TransactionConsumptionGate.confirm()
+    |> TransactionConsumptionGate.confirm(conn.assigns)
     |> respond(conn)
   end
 
@@ -52,7 +52,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   end
 
   defp dispatch_confirm_event(consumption) do
-    if consumption.approved do
+    if !is_nil(consumption.finalized_at) do
       Event.dispatch(:transaction_consumption_confirmation, %{
         consumption: consumption
       })

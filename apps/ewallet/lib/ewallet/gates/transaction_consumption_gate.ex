@@ -65,7 +65,7 @@ defmodule EWallet.TransactionConsumptionGate do
 
   def consume(_attrs), do: {:error, :invalid_parameter}
 
-  @spec consume(User.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+  @spec consume(User.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
   def consume(%User{} = user, %{
     "address" => address
   } = attrs) do
@@ -77,7 +77,7 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  @spec consume(Balance.t, Map.t) :: {:ok, TransactionRequest.t} | {:error, Atom.t}
+  @spec consume(Balance.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
   def consume(%Balance{} = balance, %{
     "transaction_request_id" => _,
     "idempotency_token" => _
@@ -151,15 +151,33 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  def confirm(id) do
-    with {:ok, consumption} <- get(id)
+  @spec consume(UUID.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
+  def confirm(id, %{account: account}) do
+    with {:ok, consumption} <- get(id),
+         true <- consumption.transaction_request.account_id == account.id ||
+                 {:error, :not_transaction_request_owner}
     do
-      consumption
-      |> TransactionConsumption.approve()
-      |> transfer(consumption.transaction_request.type)
+      do_confirm(consumption)
     else
       error -> error
     end
+  end
+
+  def confirm(id, %{user: user}) do
+    with {:ok, consumption} <- get(id),
+         true <- consumption.transaction_request.user_id == user.id ||
+                 {:error, :not_transaction_request_owner}
+    do
+      do_confirm(consumption)
+    else
+      error -> error
+    end
+  end
+
+  defp do_confirm(consumption) do
+    consumption
+    |> TransactionConsumption.approve()
+    |> transfer(consumption.transaction_request.type)
   end
 
   defp insert(balance, minted_token, request, amount, attrs) do

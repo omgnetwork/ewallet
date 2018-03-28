@@ -27,7 +27,7 @@ defmodule EWallet.Web.V1.SocketClientAuth do
     end
   end
 
-    # Skip client auth if it already failed since header parsing
+  # Skip client auth if it already failed since header parsing
   defp authenticate_client(%{authenticated: :false} = auth), do: auth
   defp authenticate_client(auth) do
     api_key = auth[:auth_api_key]

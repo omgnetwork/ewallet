@@ -17,7 +17,7 @@ defmodule EWalletDB.TransactionConsumption do
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
-  schema "transaction_request_consumption" do
+  schema "transaction_consumption" do
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @pending # pending -> confirmed
     field :correlation_id, :string

@@ -2,7 +2,9 @@ defmodule EWalletDB.Repo.Migrations.AddMetadataToConsumptions do
   use Ecto.Migration
 
   def change do
-    alter table(:transaction_request_consumption) do
+    rename table(:transaction_request_consumption), to: table(:transaction_consumption)
+
+    alter table(:transaction_consumption) do
       add :approved, :boolean, default: false
       add :finalized_at, :naive_datetime
       add :expiration_date, :naive_datetime
@@ -12,7 +14,7 @@ defmodule EWalletDB.Repo.Migrations.AddMetadataToConsumptions do
       add :encryption_version, :binary
     end
 
-    create index(:transaction_request_consumption, [:metadata], using: "gin")
-    create index(:transaction_request_consumption, [:encryption_version])
+    create index(:transaction_consumption, [:metadata], using: "gin")
+    create index(:transaction_consumption, [:encryption_version])
   end
 end

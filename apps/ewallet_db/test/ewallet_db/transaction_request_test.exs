@@ -215,6 +215,7 @@ defmodule EWalletDB.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
+      assert TransactionRequest.expired?(updated_request) == false
       assert updated_request.updated_at > request.updated_at
     end
 
