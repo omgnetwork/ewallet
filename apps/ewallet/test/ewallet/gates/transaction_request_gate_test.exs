@@ -338,7 +338,7 @@ defmodule EWallet.TransactionRequestTest do
        "correlation_id" => "123",
        "amount" => 1_000,
        "allow_amount_override" => false,
-       "confirmable" => true,
+       "require_confirmation" => true,
        "consumption_lifetime" => 60_000,
        "metadata" => %{two: "two"},
        "encrypted_metadata" => %{one: "one"},
@@ -357,7 +357,7 @@ defmodule EWallet.TransactionRequestTest do
       assert request.balance_address == meta.user_balance.address
 
       assert request.allow_amount_override == false
-      assert request.confirmable == true
+      assert request.require_confirmation == true
       assert request.consumption_lifetime == 60_000
       assert request.metadata == %{"two" => "two"}
       assert request.encrypted_metadata == %{"one" => "one"}
@@ -452,20 +452,20 @@ defmodule EWallet.TransactionRequestTest do
   end
 
   describe "allow_amount_override/2" do
-    test "returns {:ok, request} when allowed" do
+    test "returns {:ok, amount} when allowed" do
       request = insert(:transaction_request, allow_amount_override: true)
-      {res, request} = TransactionRequestGate.validate_amount(request, 1_000)
+      {res, amount} = TransactionRequestGate.validate_amount(request, 1_000)
 
       assert res == :ok
-      assert %TransactionRequest{} = request
+      assert amount == 1_000
     end
 
-    test "returns {:ok, request} when no allowed but given amount is nil" do
+    test "returns {:ok, request.amount} with nil amount when override not allowed" do
       request = insert(:transaction_request, allow_amount_override: false)
-      {res, request} = TransactionRequestGate.validate_amount(request, nil)
+      {res, amount} = TransactionRequestGate.validate_amount(request, nil)
 
       assert res == :ok
-      assert %TransactionRequest{} = request
+      assert amount == request.amount
     end
 
     test "returns {:error, :unauthorized_amount_override} when not allowed" do
@@ -478,27 +478,28 @@ defmodule EWallet.TransactionRequestTest do
   end
 
   describe "expiration_from_lifetime/1" do
-    test "returns nil if not confirmable" do
-      request = insert(:transaction_request, confirmable: false)
+    test "returns nil if not require_confirmation" do
+      request = insert(:transaction_request, require_confirmation: false)
       date = TransactionRequestGate.expiration_from_lifetime(request)
       assert date == nil
     end
 
     test "returns nil if no consumption lifetime" do
-      request = insert(:transaction_request, confirmable: true, consumption_lifetime: nil)
+      request = insert(:transaction_request, require_confirmation: true, consumption_lifetime: nil)
       date = TransactionRequestGate.expiration_from_lifetime(request)
       assert date == nil
     end
 
     test "returns nil if consumption lifetime is equal to 0" do
-      request = insert(:transaction_request, confirmable: true, consumption_lifetime: 0)
+      request = insert(:transaction_request, require_confirmation: true, consumption_lifetime: 0)
       date = TransactionRequestGate.expiration_from_lifetime(request)
       assert date == nil
     end
 
     test "returns the expiration date based on consumption_lifetime" do
       now = NaiveDateTime.utc_now()
-      request = insert(:transaction_request, confirmable: true, consumption_lifetime: 1_000)
+      request = insert(:transaction_request, require_confirmation: true,
+                                             consumption_lifetime: 1_000)
       date = TransactionRequestGate.expiration_from_lifetime(request)
       assert date > now
     end

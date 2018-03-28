@@ -121,10 +121,10 @@ defmodule EWallet.TransactionRequestGate do
   def validate_amount(request, amount) do
     case request.allow_amount_override do
       true  ->
-        {:ok, request}
+        {:ok, amount || request.amount}
       false ->
         case amount do
-          nil     -> {:ok, request}
+          nil     -> {:ok, request.amount}
           _amount -> {:error, :unauthorized_amount_override}
         end
     end
@@ -167,7 +167,7 @@ defmodule EWallet.TransactionRequestGate do
   end
 
   defp insert(minted_token, balance, attrs) do
-   confirmable = if(is_nil(attrs["confirmable"]), do: false, else: attrs["confirmable"])
+   require_confirmation = if(is_nil(attrs["require_confirmation"]), do: false, else: attrs["require_confirmation"])
    allow_amount_override = if(is_nil(attrs["allow_amount_override"]),
                               do: true, else: attrs["allow_amount_override"])
     TransactionRequest.insert(%{
@@ -179,7 +179,7 @@ defmodule EWallet.TransactionRequestGate do
       minted_token_id: minted_token.id,
       balance_address: balance.address,
       allow_amount_override: allow_amount_override,
-      confirmable: confirmable,
+      require_confirmation: require_confirmation,
       consumption_lifetime: attrs["consumption_lifetime"],
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},

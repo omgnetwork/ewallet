@@ -196,15 +196,15 @@
       }
     end
 
-    test "sends socket confirmation when confirmable", meta do
-      # Create a confirmable transaction request that will be consumed soon
+    test "sends socket confirmation when require_confirmation", meta do
+      # Create a require_confirmation transaction request that will be consumed soon
       transaction_request = insert(:transaction_request,
         type: "send",
         minted_token_id: meta.minted_token.id,
         user_id: meta.alice.id,
         balance: meta.alice_balance,
         amount: nil,
-        confirmable: true
+        require_confirmation: true
       )
       request_topic = "transaction_request:#{transaction_request.id}"
 
@@ -218,7 +218,7 @@
         amount: 150_000
       })
 
-      # Making the consumption, since we made the request confirmable, it will
+      # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
         transaction_request_id: transaction_request.id,

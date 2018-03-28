@@ -24,7 +24,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       account_id: transaction_request.account_id,
       correlation_id: transaction_request.correlation_id,
       status: transaction_request.status,
-      confirmable: transaction_request.confirmable,
+      require_confirmation: transaction_request.require_confirmation,
       max_consumptions: transaction_request.max_consumptions,
       consumption_lifetime: transaction_request.consumption_lifetime,
       expiration_date: transaction_request.expiration_date,

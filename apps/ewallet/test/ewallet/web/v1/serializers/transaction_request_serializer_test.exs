@@ -23,7 +23,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         correlation_id: transaction_request.correlation_id,
         status: "valid",
         allow_amount_override: true,
-        confirmable: false,
+        require_confirmation: false,
         consumption_lifetime: nil,
         metadata: %{},
         encrypted_metadata: %{},

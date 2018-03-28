@@ -139,27 +139,28 @@ defmodule EWalletDB.TransactionRequestTest do
   end
 
   describe "expiration_from_lifetime/1" do
-    test "returns nil if not confirmable" do
-      request = insert(:transaction_request, confirmable: false)
+    test "returns nil if not require_confirmation" do
+      request = insert(:transaction_request, require_confirmation: false)
       date = TransactionRequest.expiration_from_lifetime(request)
       assert date == nil
     end
 
     test "returns nil if no consumption lifetime" do
-      request = insert(:transaction_request, confirmable: true, consumption_lifetime: nil)
+      request = insert(:transaction_request, require_confirmation: true, consumption_lifetime: nil)
       date = TransactionRequest.expiration_from_lifetime(request)
       assert date == nil
     end
 
     test "returns nil if consumption lifetime is equal to 0" do
-      request = insert(:transaction_request, confirmable: true, consumption_lifetime: 0)
+      request = insert(:transaction_request, require_confirmation: true, consumption_lifetime: 0)
       date = TransactionRequest.expiration_from_lifetime(request)
       assert date == nil
     end
 
     test "returns the expiration date based on consumption_lifetime" do
       now = NaiveDateTime.utc_now()
-      request = insert(:transaction_request, confirmable: true, consumption_lifetime: 1_000)
+      request = insert(:transaction_request, require_confirmation: true,
+                                             consumption_lifetime: 1_000)
       date = TransactionRequest.expiration_from_lifetime(request)
       assert date > now
     end

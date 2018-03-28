@@ -98,13 +98,13 @@ defmodule EWallet.TransactionConsumptionGate do
     with {:ok, request} <- TransactionRequestGate.get_with_lock(request_id),
          {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
          {:ok, request} <- TransactionRequestGate.validate_request(request),
-         {:ok, request} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
+         {:ok, amount} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
          {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
-         {:ok, consumption} <- insert(balance, minted_token, request, attrs),
+         {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
          {:ok, request} <- TransactionRequestGate.expire_if_max_consumption(request),
          {:ok, consumption} <- get(consumption.id)
     do
-      case request.confirmable do
+      case request.require_confirmation do
         true ->
           Event.dispatch(:transaction_consumption_request, %{consumption: consumption})
           {:ok, consumption}
@@ -162,11 +162,11 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  defp insert(balance, minted_token, request, attrs) do
+  defp insert(balance, minted_token, request, amount, attrs) do
     TransactionConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
       idempotency_token: attrs["idempotency_token"],
-      amount: attrs["amount"] || request.amount,
+      amount: amount,
       user_id: balance.user_id,
       account_id: balance.account_id,
       minted_token_id: minted_token.id,

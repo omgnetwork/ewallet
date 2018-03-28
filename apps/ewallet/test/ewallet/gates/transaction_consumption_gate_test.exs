@@ -457,12 +457,12 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert request.expiration_reason == "max_consumptions_reached"
     end
 
-    # confirmable + max consumptions?
+    # require_confirmation + max consumptions?
     test "prevents consumptions when max consumption has been reached with pending ones", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {:ok, request} = TransactionRequest.update(meta.request, %{
-        confirmable: true,
+        require_confirmation: true,
         max_consumptions: 1
       })
 
@@ -493,11 +493,11 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :max_consumptions_reached
     end
 
-    test "returns a pending request with no transfer is the request is confirmable", meta do
+    test "returns a pending request with no transfer is the request is require_confirmation", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {:ok, request} = TransactionRequest.update(meta.request, %{
-        confirmable: true
+        require_confirmation: true
       })
 
       {res, consumption} = TransactionConsumptionGate.consume(meta.sender, %{
@@ -519,7 +519,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {:ok, request} = TransactionRequest.update(meta.request, %{
-        confirmable: true,
+        require_confirmation: true,
         consumption_lifetime: 60_000 # 60 seconds
       })
 
@@ -539,7 +539,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert NaiveDateTime.compare(consumption.expiration_date, NaiveDateTime.utc_now()) == :gt
     end
 
-    test "does notset an expiration date for consumptions if the request is not confirmable",
+    test "does notset an expiration date for consumptions if the request is not require_confirmation",
     meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 

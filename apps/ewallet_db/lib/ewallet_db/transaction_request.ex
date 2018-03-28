@@ -26,7 +26,7 @@ defmodule EWalletDB.TransactionRequest do
     field :status, :string, default: @valid # valid -> expired
     field :correlation_id, :string
 
-    field :confirmable, :boolean, default: false
+    field :require_confirmation, :boolean, default: false
     field :max_consumptions, :integer # nil -> unlimited
     field :consumption_lifetime, :integer # milliseconds
     field :expiration_date, :naive_datetime
@@ -56,7 +56,7 @@ defmodule EWalletDB.TransactionRequest do
     transaction_request
     |> cast(attrs, [
       :type, :amount, :correlation_id, :user_id, :account_id,
-      :minted_token_id, :balance_address, :confirmable, :max_consumptions,
+      :minted_token_id, :balance_address, :require_confirmation, :max_consumptions,
       :consumption_lifetime, :expiration_date, :metadata, :encrypted_metadata,
       :allow_amount_override
     ])
@@ -184,7 +184,7 @@ defmodule EWalletDB.TransactionRequest do
   @spec expiration_from_lifetime(%TransactionRequest{}) :: NaiveDateTime.t | nil
   def expiration_from_lifetime(request) do
     lifetime? =
-      request.confirmable &&
+      request.require_confirmation &&
       request.consumption_lifetime &&
       request.consumption_lifetime > 0
 

@@ -3,7 +3,7 @@ defmodule EWalletDB.Repo.Migrations.AddConfigToTransactionRequest do
 
   def change do
     alter table(:transaction_request) do
-      add :confirmable, :boolean, null: false, default: false
+      add :require_confirmation, :boolean, null: false, default: false
       add :max_consumptions, :integer
       add :consumption_lifetime, :integer # milliseconds
       add :expiration_date, :naive_datetime

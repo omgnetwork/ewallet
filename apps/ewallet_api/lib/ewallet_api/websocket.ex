@@ -55,7 +55,8 @@ defmodule EWalletAPI.WebSocket do
          conn <- Transport.check_origin(conn, handler, endpoint, opts),
          %{halted: false} = conn <- conn,
          params <- conn.params |> Map.put_new(:http_headers, conn.req_headers),
-         {:ok, socket} <- Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params)
+         {:ok, socket} <- Transport.connect(endpoint, handler, transport, __MODULE__,
+                                            serializer, params)
     do
       {:ok, conn, {__MODULE__, {socket, opts}}}
     else
