@@ -118,7 +118,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test_insert_prevent_blank TransactionConsumption, :minted_token_id
 
     test "sets the status to 'pending'" do
-      inserted = insert(:transaction_consumption)
+      {:ok, inserted} = :transaction_consumption |> params_for() |> TransactionConsumption.insert()
       assert inserted.status == "pending"
     end
   end
