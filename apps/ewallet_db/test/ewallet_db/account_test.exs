@@ -27,8 +27,8 @@ defmodule EWalletDB.AccountTest do
         |> Account.insert
 
       assert res == :error
-      assert changeset.errors ==
-        [{:parent_id, {"can't be blank", [validation: :required]}}]
+      assert Enum.member?(changeset.errors,
+                          {:parent_id, {"can't be blank", [validation: :required]}})
     end
 
     test "inserts primary/burn balances for the account" do
@@ -39,6 +39,23 @@ defmodule EWalletDB.AccountTest do
       assert primary != nil
       assert burn != nil
       assert length(account.balances) == 2
+    end
+
+    test "prevents inserting an account beyond 1 child level" do
+      account0 = Account.get_master_account()
+      {:ok, account1} =
+        :account
+        |> params_for(%{parent: account0})
+        |> Account.insert()
+
+      {res, changeset} =
+        :account
+        |> params_for(parent: account1)
+        |> Account.insert()
+
+      assert res == :error
+      assert changeset.errors ==
+        [{:parent_id, {"is at the maximum child level", [validation: :account_level_limit]}}]
     end
   end
 
@@ -127,6 +144,27 @@ defmodule EWalletDB.AccountTest do
       assert balance != nil
       assert balance.name == "burn"
       assert balance.identifier == "burn"
+    end
+  end
+
+  describe "get_depth/1" do
+    test "returns 0 if the given account is the master account" do
+      account = Account.get_master_account()
+      assert Account.get_depth(account) == 0
+    end
+
+    test "returns 1 if the given account is directly below the master account" do
+      account0 = Account.get_master_account()
+      account1 = insert(:account, %{parent: account0})
+      assert Account.get_depth(account1) == 1
+    end
+
+    test "returns 3 if the given account is 3 steps below the master account" do
+      account0 = Account.get_master_account()
+      account1 = insert(:account, %{parent: account0})
+      account2 = insert(:account, %{parent: account1})
+      account3 = insert(:account, %{parent: account2})
+      assert Account.get_depth(account3) == 3
     end
   end
 end

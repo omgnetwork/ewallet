@@ -5,6 +5,7 @@
 /docs/
 /.fetch
 *.ez
+node_modules
 
 # Erlang
 erl_crash.dump
@@ -14,6 +15,8 @@ erl_crash.dump
 !/public/uploads/test.txt
 
 # Dev
+/.git
+/.github
 .env
 .DS_Store
 Thumbs.db
