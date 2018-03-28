@@ -27,11 +27,16 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     |> respond(conn)
   end
 
-  def confirm(conn, %{"id" => id}) do
+  def approve(conn, attrs), do: confirm(conn, attrs, true)
+
+  def reject(conn, attrs), do: confirm(conn, attrs, false)
+
+  defp confirm(conn, %{"id" => id}, approved) do
     id
-    |> TransactionConsumptionGate.confirm(conn.assigns)
+    |> TransactionConsumptionGate.confirm(approved, conn.assigns)
     |> respond(conn)
   end
+  defp confirm(conn, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
 
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
   defp respond({:error, changeset}, conn) do
@@ -52,10 +57,13 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   end
 
   defp dispatch_confirm_event(consumption) do
-    if !is_nil(consumption.finalized_at) do
-      Event.dispatch(:transaction_consumption_confirmation, %{
-        consumption: consumption
-      })
+    if consumption.finalized_at do
+      case consumption.approved do
+        true ->
+          Event.dispatch(:transaction_consumption_approved, %{consumption: consumption})
+        false ->
+          Event.dispatch(:transaction_consumption_rejected, %{consumption: consumption})
+      end
     end
   end
 end
