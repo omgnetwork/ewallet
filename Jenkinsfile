@@ -81,7 +81,17 @@ podTemplate(
                     sh("kubectl rollout status --namespace=staging deployment/ewallet")
 
                     def podID = getPodID('--namespace=staging -l app=ewallet')
-                    sh("kubectl exec ${podID} --namespace=staging s6-setuidgid ewallet mix ecto.migrate")
+
+                    sh(
+                        """
+                        kubectl exec ${podID} --namespace=staging -- \
+                            /bin/execlineb -P -c " \
+                                s6-setuidgid ewallet \
+                                s6-env HOME=/tmp/ewallet \
+                                mix ecto.migrate \
+                            " \
+                        """.stripIndent()
+                    )
                 }
             }
         } else if (env.BRANCH_NAME == 'master') {
