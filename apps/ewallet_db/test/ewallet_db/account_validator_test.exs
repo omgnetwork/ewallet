@@ -40,4 +40,40 @@ defmodule EWalletDB.AccountValidatorTest do
       assert changeset.errors == [{:parent_id, {"can't be blank", [validation: :required]}}]
     end
   end
+
+  describe "validate_account_level/2" do
+    test "returns valid if the account's parent is not at the given max child level" do
+      account0 = Account.get_master_account()
+
+      {:ok, account1} =
+        :account
+        |> params_for(%{parent: account0})
+        |> Account.insert()
+
+      changeset =
+        %Account{}
+        |> cast(%{parent_id: account1.id}, [:parent_id])
+        |> validate_account_level(2) # account0 -> account1 so far, there's room for account2
+
+      assert changeset.valid?
+    end
+
+    test "returns error if the account's parent is already at the given max child level" do
+      account0 = Account.get_master_account()
+
+      {:ok, account1} =
+        :account
+        |> params_for(%{parent: account0})
+        |> Account.insert()
+
+      changeset =
+        %Account{}
+        |> cast(%{parent_id: account1.id}, [:parent_id])
+        |> validate_account_level(1)
+
+      refute changeset.valid?
+      assert changeset.errors ==
+        [{:parent_id, {"is at the maximum child level", [validation: :account_level_limit]}}]
+    end
+  end
 end

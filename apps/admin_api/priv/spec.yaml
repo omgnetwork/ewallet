@@ -1662,7 +1662,7 @@ components:
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
     AccountCreateBody:
-      description: The parameters to use for creating a new account
+      description: The parameters to use for creating a new account.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1672,7 +1672,7 @@ components:
                 type: string
               description:
                 type: string
-              master:
+              parent_id:
                 type: string
               metadata:
                 type: object
@@ -1683,7 +1683,7 @@ components:
             example:
               name: "Account Name"
               description: "The account description"
-              master: true
+              parent_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               metadata: {}
               encrypted_metadata: {}
     AccountUpdateBody:
@@ -1700,8 +1700,6 @@ components:
                 type: string
               description:
                 type: string
-              master:
-                type: string
               metadata:
                 type: object
               encrypted_metadata:
@@ -1710,12 +1708,10 @@ components:
               - id
               - name
               - description
-              - master
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               name: "Account Name"
               description: "The account description"
-              master: true
               metadata: {}
               encrypted_metadata: {}
     AccountListUsersBody:
