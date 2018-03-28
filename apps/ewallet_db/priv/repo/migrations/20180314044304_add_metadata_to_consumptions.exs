@@ -16,5 +16,6 @@ defmodule EWalletDB.Repo.Migrations.AddMetadataToConsumptions do
 
     create index(:transaction_consumption, [:metadata], using: "gin")
     create index(:transaction_consumption, [:encryption_version])
+    create index(:transaction_consumption, [:expiration_date])
   end
 end

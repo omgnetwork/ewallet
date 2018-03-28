@@ -17,5 +17,6 @@ defmodule EWalletDB.Repo.Migrations.AddConfigToTransactionRequest do
 
     create index(:transaction_request, [:metadata], using: "gin")
     create index(:transaction_request, [:encryption_version])
+    create index(:transaction_request, [:expiration_date])
   end
 end
