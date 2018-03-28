@@ -4,6 +4,7 @@ defmodule EWalletDB.MintedToken do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
+  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, MintedToken}
 
@@ -44,8 +45,10 @@ defmodule EWalletDB.MintedToken do
       :symbol, :name, :subunit_to_unit, :account_id,
       :metadata, :encrypted_metadata
     ])
+    |> validate_number(:subunit_to_unit, greater_than: 0, less_than: 1.0e81)
     |> set_friendly_id()
     |> validate_required([:friendly_id])
+    |> validate_immutable(:friendly_id)
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
