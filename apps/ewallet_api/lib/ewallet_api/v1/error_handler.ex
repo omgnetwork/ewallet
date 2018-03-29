@@ -132,8 +132,8 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Handles response of insufficient funds error.
   """
-  def handle_error(conn, :insufficient_funds, d) do
-    handle_error(conn, "transaction:insufficient_funds", d)
+  def handle_error(conn, :insufficient_funds, data) do
+    handle_error(conn, "transaction:insufficient_funds", data)
   end
   def handle_error(conn, "transaction:insufficient_funds", %{
     "address" => address,
