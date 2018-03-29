@@ -27,13 +27,14 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     |> respond(conn)
   end
 
-  def approve(conn, attrs), do: confirm(conn, attrs, true)
+  def approve(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, true)
+  def reject(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, false)
+  def approve_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, true)
+  def reject_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, false)
 
-  def reject(conn, attrs), do: confirm(conn, attrs, false)
-
-  defp confirm(conn, %{"id" => id}, approved) do
+  defp confirm(conn, entity, %{"id" => id}, approved) do
     id
-    |> TransactionConsumptionGate.confirm(approved, conn.assigns)
+    |> TransactionConsumptionGate.confirm(approved, entity)
     |> respond(conn)
   end
   defp confirm(conn, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
