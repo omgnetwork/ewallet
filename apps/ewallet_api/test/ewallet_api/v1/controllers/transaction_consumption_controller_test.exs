@@ -196,7 +196,7 @@
       }
     end
 
-    test "sends socket confirmation when require_confirmation", meta do
+    test "sends socket confirmation when require_confirmation and approved", meta do
       mint!(meta.minted_token)
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -212,13 +212,6 @@
 
       # Start listening to the channels for the transaction request created above
       Endpoint.subscribe(request_topic)
-
-      # The sender (Alice) needs some tokens, let's fix that
-      # set_initial_balance(%{
-      #   address: meta.account_balance.address,
-      #   minted_token: meta.minted_token,
-      #   amount: 150_000
-      # })
 
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
@@ -254,13 +247,15 @@
       Endpoint.subscribe("transaction_consumption:#{consumption_id}")
 
       # Confirm the consumption
-      response = provider_request("/transaction_consumption.confirm", %{
+      response = provider_request("/transaction_consumption.approve", %{
         id: consumption_id
       })
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "confirmed"
+      assert response["data"]["approved"] == true
+      assert response["data"]["finalized_at"] != nil
 
       # Check that a transfer was inserted
       inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
@@ -270,7 +265,88 @@
       assert %{} = inserted_transfer.ledger_response
 
       assert_receive %Phoenix.Socket.Broadcast{
-        event: "transaction_consumption_confirmation",
+        event: "transaction_consumption_approved",
+        topic:  "transaction_consumption:" <> _,
+        payload: %{
+          # Ignore content
+        }
+      }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    test "sends socket confirmation when require_confirmation and rejected", meta do
+      mint!(meta.minted_token)
+
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request = insert(:transaction_request,
+        type: "send",
+        minted_token_id: meta.minted_token.id,
+        account_id: meta.account.id,
+        balance: meta.account_balance,
+        amount: nil,
+        require_confirmation: true
+      )
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        transaction_request_id: transaction_request.id,
+        correlation_id: nil,
+        amount: 100_000 * meta.minted_token.subunit_to_unit,
+        metadata: nil,
+        token_id: nil,
+        provider_user_id: meta.bob.provider_user_id
+      })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"] == true
+      assert response["data"]["status"] == "pending"
+      assert response["data"]["transaction_id"] == nil
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload: %{
+          # Ignore content
+        }
+      }
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response = provider_request("/transaction_consumption.reject", %{
+        id: consumption_id
+      })
+
+      assert response["success"] == true
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == "confirmed"
+      assert response["data"]["approved"] == false
+      assert response["data"]["finalized_at"] != nil
+
+      # Check that a transfer was inserted
+      inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
+      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.to == meta.bob_balance.address
+      assert inserted_transfer.from == meta.account_balance.address
+      assert %{} = inserted_transfer.ledger_response
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_rejected",
         topic:  "transaction_consumption:" <> _,
         payload: %{
           # Ignore content

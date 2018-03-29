@@ -151,32 +151,37 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  @spec consume(UUID.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
-  def confirm(id, %{account: account}) do
+  @spec confirm(UUID.t, Boolean.t, Map.t) :: {:ok, TransactionConsumption.t} |
+                                             {:error, Atom.t} |
+                                             {:error, TransactionConsumption.t, Atom.t, String.t}
+  def confirm(id, approved, %{account: account}) do
     with {:ok, consumption} <- get(id),
          true <- consumption.transaction_request.account_id == account.id ||
                  {:error, :not_transaction_request_owner}
     do
-      do_confirm(consumption)
+      do_confirm(consumption, approved)
     else
       error -> error
     end
   end
 
-  def confirm(id, %{user: user}) do
+  def confirm(id, approved, %{user: user}) do
     with {:ok, consumption} <- get(id),
          true <- consumption.transaction_request.user_id == user.id ||
                  {:error, :not_transaction_request_owner}
     do
-      do_confirm(consumption)
+      do_confirm(consumption, approved)
     else
       error -> error
     end
   end
 
-  defp do_confirm(consumption) do
-    consumption
-    |> TransactionConsumption.approve()
+  defp do_confirm(consumption, approved) do
+    approved
+    |> case do
+      true -> TransactionConsumption.approve(consumption)
+      false -> TransactionConsumption.reject(consumption)
+    end
     |> transfer(consumption.transaction_request.type)
   end
 
