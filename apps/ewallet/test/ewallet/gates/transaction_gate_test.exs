@@ -129,11 +129,10 @@ defmodule EWallet.TransactionGateTest do
       {balance1, balance2, token} = insert_addresses_records()
       attrs = build_addresses_attrs(idempotency_token, balance1, balance2, token)
 
-      {status, transfer, code, description} = TransactionGate.process_with_addresses(attrs)
+      {status, transfer, code, _description} = TransactionGate.process_with_addresses(attrs)
       assert status == :error
       assert transfer.status == Transfer.failed
       assert code == "transaction:insufficient_funds"
-      assert "The specified balance" <> _ = description
 
       transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
@@ -149,7 +148,12 @@ defmodule EWallet.TransactionGateTest do
 
       assert %{
         "code" => "transaction:insufficient_funds",
-        "description" => "The specified balance" <> _
+        "description" => %{
+          "address" => _,
+          "current_amount" => _,
+          "amount_to_debit" => _,
+          "friendly_id" => _
+        }
       } = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
     end
@@ -323,11 +327,10 @@ defmodule EWallet.TransactionGateTest do
       attrs = build_debit_credit_attrs(idempotency_token, inserted_account,
                                        inserted_user, inserted_token)
 
-      {status, transfer, code, description} = TransactionGate.process_credit_or_debit(attrs)
+      {status, transfer, code, _description} = TransactionGate.process_credit_or_debit(attrs)
       assert transfer.status == "failed"
       assert status == :error
       assert code == "transaction:insufficient_funds"
-      assert "The specified balance" <> _ = description
 
       transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
@@ -343,7 +346,12 @@ defmodule EWallet.TransactionGateTest do
       }
       assert %{
         "code" => "transaction:insufficient_funds",
-        "description" => "The specified balance" <> _
+        "description" => %{
+          "address" => _,
+          "current_amount" => _,
+          "amount_to_debit" => _,
+          "friendly_id" => _
+        }
       } = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
     end
