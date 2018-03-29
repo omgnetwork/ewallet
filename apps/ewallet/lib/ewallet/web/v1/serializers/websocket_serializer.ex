@@ -7,24 +7,19 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   alias Phoenix.Socket.Reply
   alias Phoenix.Socket.Message
   alias Phoenix.Socket.Broadcast
-  alias EWallet.Web.V1.ErrorSerializer
+  alias EWalletAPI.V1.ErrorHandler
 
   @doc """
   Renders the given `data` into a V1 response format as JSON.
   """
-  def serialize(data, %{
-    success: success,
-    topic: topic,
-    event: event,
-    ref: ref
-  }) do
+  def serialize(data, %Message{} = msg, success) do
     %{
       success: success,
       version: "1",
       data: data,
-      topic: topic,
-      event: event,
-      ref: ref
+      ref: msg.ref,
+      topic: msg.topic,
+      event: msg.event
     }
   end
 
@@ -79,28 +74,27 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Message.from_map!()
   end
 
-  defp encode_fields(%Message{} = msg) do
-    case msg.payload.status do
-      :ok ->
-        msg.payload.data
-        |> serialize(%{
-          success: true,
-          ref: msg.ref,
-          topic: msg.topic,
-          event: msg.event
-        })
-        |> Poison.encode_to_iodata!()
-      :error ->
-        "websocket:connect_error"
-        |> ErrorSerializer.serialize(msg.payload.data.reason)
-        |> serialize(%{
-          success: false,
-          ref: msg.ref,
-          topic: msg.topic,
-          event: msg.event
-        })
-        |> Poison.encode_to_iodata!()
-    end
+  defp encode_fields(%Message{payload: %{status: :ok}} = msg) do
+    msg.payload.data
+    |> serialize(msg, true)
+    |> Poison.encode_to_iodata!()
+  end
 
+  defp encode_fields(%Message{payload: %{status: :error, data: %{reason: reason}}} = msg) do
+    "websocket:connect_error"
+    |> ErrorHandler.build_error(reason)
+    |> encode_error(msg)
+  end
+
+  defp encode_fields(%Message{payload: %{status: :error, data: %{code: code}}} = msg) do
+    code
+    |> ErrorHandler.build_predefined_error()
+    |> encode_error(msg)
+  end
+
+  defp encode_error(error, msg) do
+    error
+    |> serialize(msg, false)
+    |> Poison.encode_to_iodata!()
   end
 end

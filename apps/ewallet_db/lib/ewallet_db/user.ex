@@ -91,6 +91,7 @@ defmodule EWalletDB.User do
   Retrieves all the addresses for the given user.
   """
   def addresses(user) do
+    user = user |> Repo.preload(:balances)
     Enum.map(user.balances, fn balance ->
       balance.address
     end)

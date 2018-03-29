@@ -105,6 +105,14 @@ defmodule EWalletAPI.V1.ErrorHandler do
     invalid_minted_token_provided: %{
       code: "transaction_consumption:invalid_minted_token",
       description: "The provided minted token does not match the transaction request minted token."
+    },
+    forbidden_channel: %{
+      code: "websocket:forbidden_channel",
+      description: "You don't have access to this channel."
+    },
+    channel_not_found: %{
+      code: "websocket:channel_not_found",
+      description: "The given channel does not exist."
     }
   }
 
@@ -185,6 +193,25 @@ defmodule EWalletAPI.V1.ErrorHandler do
     end
   end
 
+  @doc """
+  Build an existing error or return an internal server error
+  """
+  def build_predefined_error(error_name) do
+    case Map.fetch(@errors, error_name) do
+      {:ok, error} ->
+        build_error(error.code, error.description)
+      _ ->
+        build_error(:internal_server_error, error_name)
+    end
+  end
+
+  @doc """
+  Build an error without the need for conn.
+  """
+  def build_error(code, description, messages \\ nil) do
+    ErrorSerializer.serialize(code, description, messages)
+  end
+
   defp stringify_errors(changeset, description) do
     Enum.reduce(changeset.errors, description,
       fn {field, {description, _values}}, acc ->
@@ -218,7 +245,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   defp respond(conn, code, description, messages \\ nil) do
     content =
       code
-      |> ErrorSerializer.serialize(description, messages)
+      |> build_error(description, messages)
       |> ResponseSerializer.serialize(success: false)
 
     conn |> json(content) |> halt()

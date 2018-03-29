@@ -179,10 +179,14 @@ defmodule EWallet.TransactionConsumptionGate do
   defp do_confirm(consumption, approved) do
     approved
     |> case do
-      true -> TransactionConsumption.approve(consumption)
-      false -> TransactionConsumption.reject(consumption)
+      true ->
+        consumption
+        |> TransactionConsumption.approve()
+        |> transfer(consumption.transaction_request.type)
+      false ->
+        consumption = TransactionConsumption.reject(consumption)
+        {:ok, consumption}
     end
-    |> transfer(consumption.transaction_request.type)
   end
 
   defp insert(balance, minted_token, request, amount, attrs) do
