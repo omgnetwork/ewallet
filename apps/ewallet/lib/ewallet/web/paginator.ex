@@ -28,17 +28,34 @@ defmodule EWallet.Web.Paginator do
   (so long as the attribute keys don't conflict). Therefore this function
   expects attribute keys to be strings, not atoms.
   """
-  def paginate_attrs(_, %{"page" => page}) when not is_integer(page) or page < 0 do
+  def paginate_attrs(queryable, %{"page" => page} = attrs) when not is_integer(page) do
+    parse_string_param(queryable, attrs, "page", page)
+  end
+  def paginate_attrs(_, %{"page" => page}) when is_integer(page) and page < 0 do
     {:error, :invalid_parameter, "`page` must be non-negative integer"}
   end
-  def paginate_attrs(_, %{"per_page" => per_page}) when not is_integer(per_page) or per_page < 1 do
-    {:error, :invalid_parameter, "`per_page` must be a non-negative, non-zero integer"}
+  def paginate_attrs(queryable, %{"per_page" => per_page} = attrs) when not is_integer(per_page) do
+    parse_string_param(queryable, attrs, "per_page", per_page)
+  end
+  def paginate_attrs(_, %{"per_page" => per_page}) when is_integer(per_page) and per_page < 1 do
+    {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
   def paginate_attrs(queryable, attrs) do
     page     = Map.get(attrs, "page", 1)
     per_page = get_per_page(attrs)
 
     paginate(queryable, page, per_page)
+  end
+
+  # Try to parse the given string pagination parameter.
+  defp parse_string_param(queryable, attrs, name, value) do
+    case Integer.parse(value, 10) do
+      {page, ""} ->
+        attrs = Map.put(attrs, name, page)
+        paginate_attrs(queryable, attrs)
+      :error ->
+        {:error, :invalid_parameter, "`#{name}` must be non-negative integer"}
+    end
   end
 
   # Returns the per_page number or default, but never greater than the system's defined limit

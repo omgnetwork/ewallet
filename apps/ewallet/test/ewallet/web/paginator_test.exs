@@ -26,6 +26,19 @@ defmodule EWallet.Web.PaginatorTest do
       assert paginator.pagination.per_page == 4
     end
 
+    test "returns a paginator with the given page and per_page as string parameters" do
+      ensure_num_records(Account, 10)
+
+      paginator = Paginator.paginate_attrs(Account, %{"page" => "2", "per_page" => "3"})
+      assert paginator.pagination.current_page == 2
+      assert paginator.pagination.per_page == 3
+
+      # Try with different values to make sure the attributes are respected
+      paginator = Paginator.paginate_attrs(Account, %{"page" => "3", "per_page" => "4"})
+      assert paginator.pagination.current_page == 3
+      assert paginator.pagination.per_page == 4
+    end
+
     test "returns per_page but never greater than the system's _default_ maximum (100)" do
       paginator = Paginator.paginate_attrs(Account, %{"per_page" => 999})
       assert paginator.pagination.per_page == 100
@@ -45,7 +58,7 @@ defmodule EWallet.Web.PaginatorTest do
       assert {:error, :invalid_parameter, _} = result
     end
 
-    test "returns :error if given attrs.page is a string" do
+    test "returns :error if given attrs.page is an invalid integer string" do
       result = Paginator.paginate_attrs(Account, %{"page" => "page what?"})
       assert {:error, :invalid_parameter, _} = result
     end
