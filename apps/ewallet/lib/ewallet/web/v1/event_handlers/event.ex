@@ -42,7 +42,7 @@ defmodule EWallet.Web.V1.Event do
     case account_id do
       nil -> topics
       id ->
-        account = Account.get(account_id)
+        account = Account.get(id)
         topics ++ ["account:#{account.id}"]
     end
   end
