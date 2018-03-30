@@ -12,6 +12,7 @@ defmodule EWalletDB.Types.ExternalID do
   that autogenerates the external ID.
   """
   @behaviour Ecto.Type
+  alias Ecto.Schema
   alias ExULID.ULID
 
   @doc """
@@ -66,7 +67,7 @@ defmodule EWalletDB.Types.ExternalID do
       autogen_fn = opts[:autogenerate] || {type, :autogenerate, [opts[:prefix]]}
 
       if field_name = Keyword.fetch!(opts, :field_name) do
-        Ecto.Schema.field(field_name, :string, [])
+        Schema.field(field_name, :string, [])
         Module.put_attribute(__MODULE__, :ecto_autogenerate, {field_name, autogen_fn})
       end
     end
