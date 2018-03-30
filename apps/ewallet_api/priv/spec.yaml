@@ -315,6 +315,97 @@ paths:
   #   TRANSACTION REQUESTS   #
   ############################
   # Endpoint to create a transaction request
+  /transaction_request.create:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Server - Create a new transaction request.
+      description: This is a client call only.
+      operationId: transaction_request_create
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionRequestCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get a transaction request
+  /transaction_request.get:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Server - Get a transaction request.
+      description: This is a client call only.
+      operationId: transaction_request_get
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/GetTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to consume a transaction request
+  /transaction_request.consume:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Server - Consume a transaction request.
+      description: This is a client call only.
+      operationId: transaction_request_consume
+      security:
+        - ServerAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumeTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to approve a consumption
+  /transaction_request.approve:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Server - Approve a consumption.
+      description: This is a client call only.
+      operationId: transaction_consumption_approve
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to reject a consumption
+  /transaction_request.reject:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Server - Reject a consumption.
+      description: This is a client call only.
+      operationId: transaction_consumption_reject
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+
+
+
+  # Endpoint to create a transaction request
   /me.create_transaction_request:
     post:
       tags:
@@ -362,6 +453,40 @@ paths:
         - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/ConsumeTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to approve a consumption
+  /me.approve_transaction_consumption:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Approve a consumption.
+      description: This is a client call only.
+      operationId: approve_transaction_consumption
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to reject a consumption
+  /me.reject_transaction_consumption:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Client - Reject a consumption.
+      description: This is a client call only.
+      operationId: reject_transaction_consumption
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
       responses:
         '200':
           $ref: "#/components/responses/TransactionConsumptionResponse"
@@ -1030,14 +1155,23 @@ components:
             enum:
               - send
               - receive
-          token_id:
-            type: string
           amount:
             type: string
-          address:
+          status:
             type: string
+            enum:
+              - valid
+              - expired
           correlation_id:
             type: string
+          require_confirmation:
+            type: boolean
+          token_id:
+            type: string
+
+          address:
+            type: string
+
         required:
           - object
           - id
@@ -1331,6 +1465,89 @@ components:
               burn_balance_identifier: "burn"
               metadata: {}
               encrypted_metadata: {}
+    TransactionRequestCreateBody:
+      description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint by a different client to create a transaction from that request.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              type:
+                type: string
+                enum:
+                  - send
+                  - receive
+              token_id:
+                type: string
+                description: "The minted token ID to use for the transaction."
+              amount:
+                type: integer
+                default: null
+                description:
+                  "The amount to transfer. If not specified, the consumption will need to set
+                   the amount."
+              correlation_id:
+                type: string
+                default: null
+                description: "Optional unique identifier to tie a request with your system."
+              account_id:
+                type: string
+                default: The owner of the given address.
+              provider_user_id:
+                type: string
+                default: The owner of the given address.
+              address:
+                type: string
+                description:
+                  "If not specified, the current user's primary balance will be used.
+                   If specified, it needs to be one of the account's or user's addresses."
+              require_confirmation:
+                type: boolean
+                default: false
+                description:
+                  "Indicates if a consumption of the created request needs to be approved before
+                  being processed."
+              max_consumptions:
+                type: integer
+                default: null
+                description:
+                  "The number of times this created request can be consumed."
+              consumption_lifetime:
+                type: integer
+                default: null
+                description:
+                  "The lifetime in milliseconds of how long a consumption can stay
+                   'pending' before being expired. If a consumption is not approved before its
+                   expiration date, it will become invalid and be cancelled. This property
+                   can be used to avoid stale consumptions blocking the 'max_consumptions' count."
+              expiration_date:
+                type: string
+                default: null
+                description:
+                  "The datetime at which the created request should expire (no one will be
+                   able to consume it anymore). The format is yyyy-MM-dd'T'HH:mm:ssZZZZZ."
+              allow_amount_override:
+                type: boolean
+                default: true
+                description:
+                  "Defines if the amount set in the created request can be overriden in a
+                   consumption. Cannot be set to true if the amount property is not set at
+                   creation"
+              metadata:
+                type: object
+                default: {}
+              encrypted_metadata:
+                type: object
+                default: {}
+            required:
+              - type
+              - token_id
+            example:
+              type: "send"
+              token_id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              amount: 100
+              correlation_id: "123"
+              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
     CreateTransactionRequestBody:
       description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint by a different client to create a transaction from that request.
       required: true
@@ -1345,12 +1562,60 @@ components:
                   - receive
               token_id:
                 type: string
+                description: "The minted token ID to use for the transaction."
               amount:
                 type: integer
+                default: null
+                description:
+                  "The amount to transfer. If not specified, the consumption will need to set
+                   the amount."
               correlation_id:
                 type: string
+                default: null
+                description: "Optional unique identifier to tie a request with your system."
               address:
                 type: string
+                description:
+                  "If not specified, the current user's primary balance will be used.
+                   If specified, it needs to be one of the current user's addresses."
+              require_confirmation:
+                type: boolean
+                default: false
+                description:
+                  "Indicates if a consumption of the created request needs to be approved before
+                  being processed."
+              max_consumptions:
+                type: integer
+                default: null
+                description:
+                  "The number of times this created request can be consumed."
+              consumption_lifetime:
+                type: integer
+                default: null
+                description:
+                  "The lifetime in milliseconds of how long a consumption can stay
+                   'pending' before being expired. If a consumption is not approved before its
+                   expiration date, it will become invalid and be cancelled. This property
+                   can be used to avoid stale consumptions blocking the 'max_consumptions' count."
+              expiration_date:
+                type: string
+                default: null
+                description:
+                  "The datetime at which the created request should expire (no one will be
+                   able to consume it anymore). The format is yyyy-MM-dd'T'HH:mm:ssZZZZZ."
+              allow_amount_override:
+                type: boolean
+                default: true
+                description:
+                  "Defines if the amount set in the created request can be overriden in a
+                   consumption. Cannot be set to true if the amount property is not set at
+                   creation"
+              metadata:
+                type: object
+                default: {}
+              encrypted_metadata:
+                type: object
+                default: {}
             required:
               - type
               - token_id
@@ -1402,6 +1667,19 @@ components:
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
               metadata: {}
               encrypted_metadata: {}
+    ConsumptionConfirmationRequestBody:
+      description: Approve or reject a consumption using the specified ID.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "13324324-68d8-4af6-94d7-5ed4c34ecf1a"
 
   ######################################
   #           REQUEST HEADERS          #
