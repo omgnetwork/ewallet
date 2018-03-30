@@ -143,6 +143,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   def handle_error(conn, :insufficient_funds, data) do
     handle_error(conn, "transaction:insufficient_funds", data)
   end
+  # credo:disable-for-next-line
   def handle_error(conn, "transaction:insufficient_funds", %{
     "address" => address,
     "current_amount" => current_amount,
