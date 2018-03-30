@@ -2,11 +2,9 @@ defmodule EWalletDB.MintedToken do
   @moduledoc """
   Ecto Schema representing minted tokens.
   """
-  use Ecto.Schema
-  import Ecto.{Changeset, Query}
+  use EWalletDB.Schema
   import EWalletDB.Validator
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, MintedToken}
+  alias EWalletDB.{Account, MintedToken}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
