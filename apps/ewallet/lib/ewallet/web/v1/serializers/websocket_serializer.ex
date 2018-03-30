@@ -86,7 +86,9 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> encode_error(msg)
   end
 
-  defp encode_fields(%Message{payload: %{status: :error, data: %{code: code}}} = msg) do
+  defp encode_fields(%Message{payload: %{status: :error, data: code}} = msg)
+    when is_atom(code)
+  do
     code
     |> ErrorHandler.build_predefined_error()
     |> encode_error(msg)

@@ -420,16 +420,12 @@
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
-      assert response["data"]["status"] == "confirmed"
+      assert response["data"]["status"] == "rejected"
       assert response["data"]["approved"] == false
       assert response["data"]["finalized_at"] != nil
 
-      # Check that a transfer was inserted
-      inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
-      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
-      assert inserted_transfer.to == meta.bob_balance.address
-      assert inserted_transfer.from == meta.account_balance.address
-      assert %{} = inserted_transfer.ledger_response
+      # Check that a transfer was not inserted
+      assert response["data"]["transaction_id"] == nil
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_rejected",

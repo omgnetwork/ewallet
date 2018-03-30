@@ -8,28 +8,25 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   def join("transaction_consumption:" <> consumption_id, _params, %{
     assigns: %{auth: auth}
   } = socket) do
-    join_as(auth, socket, consumption_id)
+    consumption_id
+    |> TransactionConsumption.get()
+    |> join_as(auth, socket)
   end
-  def join(_, _, _), do: {:error, %{code: :invalid_parameter}}
+  def join(_, _, _), do: {:error, :invalid_parameter}
 
-  defp join_as(%{authenticated: :provider}, socket, _) do
+  defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
+
+  defp join_as(_consumption, %{authenticated: :provider}, socket) do
     {:ok, socket}
   end
 
-  defp join_as(%{authenticated: :client, user: user}, socket, consumption_id) do
-    consumption_id
-    |> TransactionConsumption.get()
-    |> respond(socket, user)
-  end
-
-  defp respond(nil, socket, _), do: {:error, %{code: :channel_not_found}}
-  defp respond(consumption, socket, user) do
+  defp join_as(consumption, %{authenticated: :client, user: user}, socket) do
     user
     |> User.addresses()
     |> Enum.member?(consumption.balance_address)
     |> case do
       true  -> {:ok, socket}
-      false -> {:error, %{code: :forbidden_channel}}
+      false -> {:error, :forbidden_channel}
     end
   end
 end
