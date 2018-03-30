@@ -110,6 +110,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
   describe "insert/1" do
     test_insert_generate_uuid TransactionConsumption, :id
+    test_insert_generate_external_id TransactionConsumption, :external_id, "txc_"
     test_insert_generate_timestamps TransactionConsumption
     test_insert_prevent_blank TransactionConsumption, :amount
     test_insert_prevent_blank TransactionConsumption, :idempotency_token

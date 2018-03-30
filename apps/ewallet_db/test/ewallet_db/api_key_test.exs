@@ -32,6 +32,7 @@ defmodule EWalletDB.APIKeyTest do
 
   describe "APIKey.insert/1" do
     test_insert_generate_uuid APIKey, :id
+    test_insert_generate_external_id APIKey, :external_id, "api_"
     test_insert_generate_timestamps APIKey
     test_insert_generate_length APIKey, :key, 43 # 32 bytes = ceil(32 / 3 * 4)
 

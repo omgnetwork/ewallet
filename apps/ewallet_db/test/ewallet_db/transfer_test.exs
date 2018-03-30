@@ -37,6 +37,7 @@ defmodule EWalletDB.TransferTest do
 
   describe "insert/1" do
     test_insert_generate_uuid Transfer, :id
+    test_insert_generate_external_id Transfer, :external_id, "tfr_"
     test_insert_generate_timestamps Transfer
     test_insert_prevent_blank Transfer, :payload
     test_insert_prevent_blank Transfer, :idempotency_token
