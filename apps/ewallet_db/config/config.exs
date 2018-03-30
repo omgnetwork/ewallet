@@ -6,12 +6,6 @@ config :ewallet_db,
   base_url: System.get_env("BASE_URL") || "http://localhost:4000",
   min_password_length: 8
 
-config :ewallet_db, EWalletDB.Scheduler,
-  jobs: [
-    {"* * * * *", {EWalletDB.TransactionRequest, :expire_all, []}},
-    {"* * * * *", {EWalletDB.TransactionConsumption, :expire_all, []}}
-  ]
-
 import_config "#{Mix.env}.exs"
 
 storage_adapter = System.get_env("FILE_STORAGE_ADAPTER") || "local"
