@@ -10,6 +10,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   } = socket) do
     join_as(auth, socket, consumption_id)
   end
+  def join(_, _, _), do: {:error, %{code: :invalid_parameter}}
 
   defp join_as(%{authenticated: :provider}, socket, _) do
     {:ok, socket}

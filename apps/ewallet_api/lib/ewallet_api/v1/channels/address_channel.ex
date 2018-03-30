@@ -8,6 +8,7 @@ defmodule EWalletAPI.V1.AddressChannel do
   def join("address:" <> address, _params, %{assigns: %{auth: auth}} = socket) do
     join_as(auth, socket, address)
   end
+  def join(_, _, _), do: {:error, %{code: :invalid_parameter}}
 
   defp join_as(%{authenticated: :provider}, socket, _) do
     {:ok, socket}

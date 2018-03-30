@@ -22,4 +22,5 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
         end
     end
   end
+  def join(_, _, _), do: {:error, %{code: :invalid_parameter}}
 end

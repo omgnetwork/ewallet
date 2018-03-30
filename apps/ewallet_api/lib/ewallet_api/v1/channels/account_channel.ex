@@ -7,6 +7,7 @@ defmodule EWalletAPI.V1.AccountChannel do
   def join("account:" <> _account_id, _params, %{assigns: %{auth: auth}} = socket) do
     join_as(auth, socket)
   end
+  def join(_, _, _), do: {:error, %{code: :invalid_parameter}}
 
   defp join_as(%{authenticated: :provider}, socket) do
     {:ok, socket}
