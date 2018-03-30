@@ -2,11 +2,9 @@ defmodule EWalletDB.Balance do
   @moduledoc """
   Ecto Schema representing balance.
   """
-  use Ecto.Schema
-  import Ecto.Changeset
+  use EWalletDB.Schema
   import EWalletDB.Validator
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Balance, MintedToken, User}
+  alias EWalletDB.{Account, Balance, MintedToken, User}
 
   @genesis   "genesis"
   @burn      "burn"
