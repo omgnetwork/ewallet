@@ -4,7 +4,7 @@ defmodule EWalletDB.Transfer do
   """
   use EWalletDB.Schema
   import EWalletDB.Validator
-  alias EWalletDB.{Transfer, Balance, MintedToken, Helpers}
+  alias EWalletDB.{Transfer, Balance, MintedToken}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -94,9 +94,9 @@ defmodule EWalletDB.Transfer do
   def get(id, opts \\ [])
   def get(nil, _), do: nil
   def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true  -> get_by(%{id: id}, opts)
-      false -> nil
+    case UUID.cast(id) do
+      {:ok, uuid} -> get_by(%{id: uuid}, opts)
+      :error      -> nil
     end
   end
 
