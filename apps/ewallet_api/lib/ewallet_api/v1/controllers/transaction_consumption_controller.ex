@@ -37,7 +37,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     |> TransactionConsumptionGate.confirm(approved, entity)
     |> respond(conn)
   end
-  defp confirm(conn, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
+  defp confirm(conn, _entity, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
 
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
   defp respond({:error, changeset}, conn) do
