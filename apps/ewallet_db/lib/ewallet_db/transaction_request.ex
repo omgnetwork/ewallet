@@ -2,13 +2,11 @@ defmodule EWalletDB.TransactionRequest do
   @moduledoc """
   Ecto Schema representing transaction requests.
   """
-  use Ecto.Schema
-  import Ecto.{Changeset, Query}
+  use EWalletDB.Schema
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
-  alias Ecto.UUID
   alias EWalletDB.{TransactionRequest, TransactionConsumption,
-                   Repo, MintedToken, User, Balance, Helpers}
+                   MintedToken, User, Balance, Helpers}
 
   @valid "valid"
   @expired "expired"
@@ -21,6 +19,8 @@ defmodule EWalletDB.TransactionRequest do
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "transaction_request" do
+    external_id prefix: "txr_"
+
     field :type, :string
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @valid # valid -> expired

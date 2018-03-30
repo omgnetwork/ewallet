@@ -12,6 +12,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
       expected = %{
         object: "transaction_request",
         id: transaction_request.id,
+        external_id: transaction_request.external_id,
         socket_topic: "transaction_request:#{transaction_request.id}",
         type: transaction_request.type,
         minted_token_id: transaction_request.minted_token.friendly_id,
