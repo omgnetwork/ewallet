@@ -97,10 +97,4 @@ defmodule EWalletDB.Types.ExternalID do
   # Callback invoked by autogenerate fields.
   @doc false
   def autogenerate(prefix), do: generate(prefix)
-
-  defmacro __using__(_) do
-    quote do
-      import EWalletDB.Types.ExternalID, only: [external_id: 1]
-    end
-  end
 end
