@@ -16,6 +16,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
             "data" => [%{
               "object" => "key",
               "id" => key.id,
+              "external_id" => key.external_id,
               "access_key" => key.access_key,
               "secret_key" => nil, # Secret keys cannot be retrieved after creation
               "account_id" => key.account_id,
@@ -46,14 +47,15 @@ defmodule AdminAPI.V1.KeyControllerTest do
         "version" => "1",
         "success" => true,
         "data" => %{
-          "object"     => "key",
-          "id"         => _,
-          "access_key" => _,
-          "secret_key" => _,
-          "account_id" => _,
-          "created_at" => _,
-          "updated_at" => _,
-          "deleted_at" => _
+          "object"      => "key",
+          "id"          => _,
+          "external_id" => _,
+          "access_key"  => _,
+          "secret_key"  => _,
+          "account_id"  => _,
+          "created_at"  => _,
+          "updated_at"  => _,
+          "deleted_at"  => _
         }
       } = response
 

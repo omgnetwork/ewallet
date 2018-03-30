@@ -14,6 +14,7 @@ defmodule EWallet.Web.V1.KeySerializer do
     %{
       object: "key",
       id: key.id,
+      external_id: key.external_id,
       access_key: key.access_key,
       secret_key: key.secret_key,
       account_id: key.account_id,
