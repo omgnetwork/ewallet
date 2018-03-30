@@ -19,6 +19,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
       expected = %{
         object: "transaction_consumption",
         id: consumption.id,
+        external_id: consumption.external_id,
         socket_topic: "transaction_consumption:#{consumption.id}",
         status: consumption.status,
         amount: consumption.amount,
