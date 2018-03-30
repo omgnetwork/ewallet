@@ -15,6 +15,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
       expected = %{
         object: "user",
         id: user.id,
+        external_id: user.external_id,
         socket_topic: "user:#{user.id}",
         username: user.username,
         provider_user_id: user.provider_user_id,
@@ -56,6 +57,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
       expected = %{
         object: "user",
         id: user.id,
+        external_id: user.external_id,
         username: user.username,
         socket_topic: "user:#{user.id}",
         provider_user_id: user.provider_user_id,

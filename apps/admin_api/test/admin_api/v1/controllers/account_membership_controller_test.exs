@@ -20,6 +20,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
             "data" => [%{
               "object" => "user",
               "id" => user.id,
+              "external_id" => user.external_id,
               "socket_topic" => "user:#{user.id}",
               "username" => user.username,
               "provider_user_id" => user.provider_user_id,

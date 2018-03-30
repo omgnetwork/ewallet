@@ -11,6 +11,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
       expected = %{
         object: "user",
         id: user.id,
+        external_id: user.external_id,
         socket_topic: "user:#{user.id}",
         username: user.username,
         provider_user_id: user.provider_user_id,
@@ -61,6 +62,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
           %{
             object: "user",
             id: user1.id,
+            external_id: user1.external_id,
             socket_topic: "user:#{user1.id}",
             username: user1.username,
             provider_user_id: user1.provider_user_id,
@@ -82,6 +84,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
           %{
             object: "user",
             id: user2.id,
+            external_id: user2.external_id,
             socket_topic: "user:#{user2.id}",
             username: user2.username,
             provider_user_id: user2.provider_user_id,

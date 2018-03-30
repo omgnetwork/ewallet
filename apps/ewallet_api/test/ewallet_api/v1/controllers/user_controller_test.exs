@@ -211,6 +211,7 @@ defmodule EWalletAPI.V1.UserControllerTest do
         "data" => %{
           "object" => "user",
           "id" => inserted_user.id,
+          "external_id" => inserted_user.external_id,
           "socket_topic" => "user:#{inserted_user.id}",
           "provider_user_id" => inserted_user.provider_user_id,
           "username" => inserted_user.username,
