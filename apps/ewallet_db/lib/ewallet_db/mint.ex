@@ -2,14 +2,14 @@ defmodule EWalletDB.Mint do
   @moduledoc """
   Ecto Schema representing mints.
   """
-  use Ecto.Schema
-  import Ecto.Changeset
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, Mint, MintedToken, Transfer, Account}
+  use EWalletDB.Schema
+  alias EWalletDB.{Mint, MintedToken, Transfer, Account}
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "mint" do
+    external_id prefix: "mnt_"
+
     field :description, :string
     field :amount, EWalletDB.Types.Integer
     field :confirmed, :boolean, default: false
