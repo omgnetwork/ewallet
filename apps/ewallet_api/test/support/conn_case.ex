@@ -122,7 +122,7 @@ defmodule EWalletAPI.ConnCase do
     account        = Account.get_master_account()
     master_balance = Account.get_primary_balance(account)
 
-    mint!(minted_token)
+    mint!(minted_token, amount * 100)
     transfer!(master_balance.address, address, minted_token, amount * minted_token.subunit_to_unit)
   end
 

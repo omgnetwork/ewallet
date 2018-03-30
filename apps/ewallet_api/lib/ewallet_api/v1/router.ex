@@ -61,8 +61,8 @@ defmodule EWalletAPI.V1.Router do
 
     post "/me.create_transaction_request", TransactionRequestController, :create_for_user
     post "/me.get_transaction_request", TransactionRequestController, :get
-    post "/me.approve_transaction_consumption", TransactionConsumptionController, :approve
-    post "/me.reject_transaction_consumption", TransactionConsumptionController, :reject
+    post "/me.approve_transaction_consumption", TransactionConsumptionController, :approve_for_user
+    post "/me.reject_transaction_consumption", TransactionConsumptionController, :reject_for_user
 
     scope "/" do
       pipe_through [:idempotency]

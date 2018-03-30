@@ -18,11 +18,11 @@ defmodule EWalletAPI.V1.Socket do
 
     case {provider_auth, client_auth} do
       {%{authenticated: :provider} = provider_auth, _} ->
-        {:ok, assign(socket, :provider_auth, provider_auth)}
+        {:ok, assign(socket, :auth, provider_auth)}
       {_, %{authenticated: :client} = client_auth} ->
-        {:ok, assign(socket, :client_auth, client_auth)}
+        {:ok, assign(socket, :auth, client_auth)}
       _ ->
-        {:error, :auth_error}
+        :error
     end
   end
 

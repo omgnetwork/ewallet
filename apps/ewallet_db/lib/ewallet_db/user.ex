@@ -7,8 +7,8 @@ defmodule EWalletDB.User do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite, Membership, Role, User}
-  alias EWalletDB.Helpers.Crypto
+  alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite,
+                   Membership, Role, User, Helpers, Helpers.Crypto}
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -91,6 +91,7 @@ defmodule EWalletDB.User do
   Retrieves all the addresses for the given user.
   """
   def addresses(user) do
+    user = user |> Repo.preload(:balances)
     Enum.map(user.balances, fn balance ->
       balance.address
     end)
@@ -100,9 +101,13 @@ defmodule EWalletDB.User do
   Retrieves a specific user.
   """
   def get(id, queryable \\ User) do
-    queryable
-    |> Repo.get(id)
-    |> Repo.preload(:balances)
+    case Helpers.UUID.valid?(id) do
+      true ->
+        queryable
+        |> Repo.get(id)
+        |> Repo.preload(:balances)
+      false -> nil
+    end
   end
 
   @doc """

@@ -22,6 +22,7 @@ defmodule EWalletAPI.ChannelCase do
       # Import conveniences for testing with channels
       use Phoenix.ChannelTest
       alias Ecto.Adapters.SQL.Sandbox
+      import EWalletDB.Factory
 
       # The default endpoint for testing
       @endpoint EWalletAPI.V1.Endpoint

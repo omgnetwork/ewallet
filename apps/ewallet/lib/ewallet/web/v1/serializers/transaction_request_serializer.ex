@@ -27,12 +27,12 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       require_confirmation: transaction_request.require_confirmation,
       max_consumptions: transaction_request.max_consumptions,
       consumption_lifetime: transaction_request.consumption_lifetime,
-      expiration_date: transaction_request.expiration_date,
-      expired_at: transaction_request.expired_at,
       expiration_reason: transaction_request.expiration_reason,
       allow_amount_override: transaction_request.allow_amount_override,
       metadata: transaction_request.metadata,
       encrypted_metadata: transaction_request.encrypted_metadata,
+      expiration_date: Date.to_iso8601(transaction_request.expiration_date),
+      expired_at: Date.to_iso8601(transaction_request.expired_at),
       created_at: Date.to_iso8601(transaction_request.inserted_at),
       updated_at: Date.to_iso8601(transaction_request.updated_at)
     }

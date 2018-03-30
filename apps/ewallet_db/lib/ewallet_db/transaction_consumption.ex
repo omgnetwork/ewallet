@@ -13,7 +13,8 @@ defmodule EWalletDB.TransactionConsumption do
   @confirmed "confirmed"
   @failed "failed"
   @expired "expired"
-  @statuses [@pending, @confirmed, @failed, @expired]
+  @rejected "rejected"
+  @statuses [@pending, @confirmed, @failed, @expired, @rejected]
 
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
@@ -81,7 +82,7 @@ defmodule EWalletDB.TransactionConsumption do
 
   defp approve_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:approved, :finalized_at])
+    |> cast(attrs, [:approved, :finalized_at, :status])
     |> validate_required([:approved, :finalized_at])
     |> assoc_constraint(:transfer)
   end
@@ -175,7 +176,11 @@ defmodule EWalletDB.TransactionConsumption do
   def reject(consumption) do
     {:ok, consumption} =
       consumption
-      |> approve_changeset(%{approved: false, finalized_at: NaiveDateTime.utc_now()})
+      |> approve_changeset(%{
+        approved: false,
+        finalized_at: NaiveDateTime.utc_now(),
+        status: @rejected
+      })
       |> Repo.update()
 
     consumption
