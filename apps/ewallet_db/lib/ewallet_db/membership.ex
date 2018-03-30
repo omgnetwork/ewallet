@@ -2,11 +2,8 @@ defmodule EWalletDB.Membership do
   @moduledoc """
   Ecto Schema representing user memberships.
   """
-  use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query, except: [update: 2]
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Membership, Role, User}
+  use EWalletDB.Schema
+  alias EWalletDB.{Account, Membership, Role, User}
 
   @primary_key {:id, UUID, autogenerate: true}
 
@@ -56,13 +53,13 @@ defmodule EWalletDB.Membership do
   def assign(%User{} = user, %Account{} = account, %Role{} = role) do
     case get_by_user_and_account(user, account) do
       nil ->
-        insert(%{
+        do_insert(%{
           account_id: account.id,
           user_id: user.id,
           role_id: role.id
         })
       existing ->
-        update(existing, %{role_id: role.id})
+        do_update(existing, %{role_id: role.id})
     end
   end
 
@@ -74,23 +71,23 @@ defmodule EWalletDB.Membership do
       nil ->
         {:error, :membership_not_found}
       membership ->
-        delete(membership)
+        do_delete(membership)
     end
   end
 
-  defp insert(attrs) do
+  defp do_insert(attrs) do
     %Membership{}
     |> changeset(attrs)
     |> Repo.insert()
   end
 
-  defp update(%Membership{} = membership, attrs) do
+  defp do_update(%Membership{} = membership, attrs) do
     membership
     |> changeset(attrs)
     |> Repo.update()
   end
 
-  defp delete(%Membership{} = membership) do
+  defp do_delete(%Membership{} = membership) do
     Repo.delete(membership)
   end
 end

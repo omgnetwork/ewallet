@@ -2,10 +2,8 @@ defmodule EWalletDB.Invite do
   @moduledoc """
   Ecto Schema representing invite.
   """
-  use Ecto.Schema
-  import Ecto.{Changeset, Query}
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, Invite, User}
+  use EWalletDB.Schema
+  alias EWalletDB.{Invite, User}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
