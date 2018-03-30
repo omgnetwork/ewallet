@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
               %{
                 "object" => "api_key",
                 "id" => api_key1.id,
+                "external_id" => api_key1.external_id,
                 "key" => api_key1.key,
                 "account_id" => api_key1.account_id,
                 "owner_app" => api_key1.owner_app,
@@ -27,6 +28,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
               %{
                 "object" => "api_key",
                 "id" => api_key2.id,
+                "external_id" => api_key2.external_id,
                 "key" => api_key2.key,
                 "account_id" => api_key2.account_id,
                 "owner_app" => api_key2.owner_app,
@@ -63,14 +65,15 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
             "object" => "list",
             "data" => [
               %{
-                "object"     => "api_key",
-                "id"         => api_key.id,
-                "key"        => api_key.key,
-                "account_id" => api_key.account_id,
-                "owner_app"  => api_key.owner_app,
-                "created_at" => Date.to_iso8601(api_key.inserted_at),
-                "updated_at" => Date.to_iso8601(api_key.updated_at),
-                "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+                "object"      => "api_key",
+                "id"          => api_key.id,
+                "external_id" => api_key.external_id,
+                "key"         => api_key.key,
+                "account_id"  => api_key.account_id,
+                "owner_app"   => api_key.owner_app,
+                "created_at"  => Date.to_iso8601(api_key.inserted_at),
+                "updated_at"  => Date.to_iso8601(api_key.updated_at),
+                "deleted_at"  => Date.to_iso8601(api_key.deleted_at)
               }
             ],
             "pagination" => %{
@@ -93,14 +96,15 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         "version" => "1",
         "success" => true,
         "data" => %{
-          "object"     => "api_key",
-          "id"         => api_key.id,
-          "key"        => api_key.key,
-          "account_id" => Account.get_master_account().id,
-          "owner_app"  => "some_app",
-          "created_at" => Date.to_iso8601(api_key.inserted_at),
-          "updated_at" => Date.to_iso8601(api_key.updated_at),
-          "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+          "object"      => "api_key",
+          "id"          => api_key.id,
+          "external_id" => api_key.external_id,
+          "key"         => api_key.key,
+          "account_id"  => Account.get_master_account().id,
+          "owner_app"   => "some_app",
+          "created_at"  => Date.to_iso8601(api_key.inserted_at),
+          "updated_at"  => Date.to_iso8601(api_key.updated_at),
+          "deleted_at"  => Date.to_iso8601(api_key.deleted_at)
         }
       }
     end

@@ -2,17 +2,16 @@ defmodule EWalletDB.APIKey do
   @moduledoc """
   Ecto Schema representing API key.
   """
-  use Ecto.Schema
-  use EWalletDB.SoftDelete
-  import Ecto.Changeset
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, APIKey}
+  use EWalletDB.Schema
+  alias EWalletDB.{Account, APIKey}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "api_key" do
+    external_id prefix: "api_"
+
     field :key, :string
     field :owner_app, :string
     belongs_to :account, Account, foreign_key: :account_id,
