@@ -1,5 +1,9 @@
 use Mix.Config
 
+config :ewallet_api, EWalletAPI.V1.Endpoint,
+  debug_errors: true,
+  check_origin: false
+
 # For production, we often load configuration from external
 # sources, such as your system environment. For this reason,
 # you won't find the :http configuration below, but set inside
