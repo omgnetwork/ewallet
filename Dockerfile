@@ -10,7 +10,7 @@ RUN set -xe && \
 
 RUN set -xe && \
     apt-get update && \
-    apt-get install -y apt-transport-https && \
+    apt-get install -y apt-transport-https gnupg && \
     rm -f /etc/apt/sources.list.d/chris-lea-node_js-stretch.list && \
     curl -fsL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     curl -fsL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
@@ -27,7 +27,7 @@ RUN set -xe && \
         rm -rf node_modules \
         rm -rf /tmp/ewallet \
     " && \
-    apt-get remove -y apt-transport-https nodejs yarn && \
+    apt-get remove -y apt-transport-https nodejs yarn gnupg && \
     apt-get clean && \
     rm -rf /etc/apt/sources.list.d/nodesource.list && \
     rm -rf /etc/apt/sources.list.d/yarn.list
