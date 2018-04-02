@@ -43,18 +43,20 @@ defmodule AdminAPI.V1.AccountControllerTest do
   end
 
   describe "/account.get" do
-    test "returns an account by the given account's ID" do
+    test "returns an account by the given account's external ID" do
       accounts  = insert_list(3, :account)
       target    = Enum.at(accounts, 1) # Pick the 2nd inserted account
-      response  = user_request("/account.get", %{"id" => target.id})
+      response  = user_request("/account.get", %{"id" => target.external_id})
 
       assert response["success"]
       assert response["data"]["object"] == "account"
       assert response["data"]["name"] == target.name
     end
 
-    test "returns 'account:id_not_found' if the given ID was not found" do
-      response  = user_request("/account.get", %{"id" => "00000000-0000-0000-0000-000000000000"})
+    # The user should not know any information about the account it doesn't have access to.
+    # So even the account is not found, the user is unauthorized to know that.
+    test "returns 'user:unauthorized' if the given ID is in correct format but not found" do
+      response  = user_request("/account.get", %{"id" => "acc_00000000000000000000000000"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -63,8 +65,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "The user is not allowed to perform the requested operation"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
-      response  = user_request("/account.get", %{"id" => "not_uuid"})
+    test "returns 'client:invalid_parameter' if the given ID is not in the correct format" do
+      response  = user_request("/account.get", %{"id" => "invalid_format"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

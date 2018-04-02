@@ -57,7 +57,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def get(conn, %{"id" => id}) do
     with :ok           <- permit(:get, conn.assigns.user.id, id),
-         %{} = account <- Account.get(id)
+         %{} = account <- Account.get_by([external_id: id])
     do
       render(conn, :account, %{account: account})
     else

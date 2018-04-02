@@ -23,10 +23,12 @@ defmodule EWalletDB.Types.ExternalID do
   @doc """
   Casts the given input to the schema struct.
 
-  Returns `{:ok, value}` on successful casting, `:error` on failure.
+  Returns `{:ok, value}` on successful casting where `value` is a string of 3-character symbol,
+  an underscore and 26-character ULID string. Returns `:error` on failure.
   """
   @spec cast(String.t) :: {:ok, String.t} | :error
-  def cast(value), do: {:ok, value}
+  def cast(<<_::bytes-size(3), "_", _::bytes-size(26)>> = ulid_string), do: {:ok, ulid_string}
+  def cast(_), do: :error
 
   @doc """
   Transforms the value after loaded from the database.

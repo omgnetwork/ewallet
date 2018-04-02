@@ -276,18 +276,29 @@ defmodule EWalletDB.User do
   the role from the closest parent account that has one.
   """
   def get_role(user_id, account_id) do
-    with {:ok, user_id} <- UUID.cast(user_id),
-         {:ok, account_id} <- UUID.cast(account_id),
-         query <- query_role(user_id, account_id)
+    with {:ok, account_id, id_type} <- cast_account_id(account_id),
+         {:ok, user_id}             <- UUID.cast(user_id),
+         query                      <- query_role(user_id, account_id, id_type)
     do
       Repo.one(query)
     else
-      :error ->
-        {:error, :invalid_parameter}
+      :error -> {:error, :invalid_parameter}
     end
   end
 
-  defp query_role(user_id, account_id) do
+  def get_role(user_id, account_id, account_id_type)
+
+  defp cast_account_id(<<"acc_", _::bytes-size(26)>> = id) do
+    {:ok, id, :external_id}
+  end
+  defp cast_account_id(id) do
+    case UUID.cast(id) do
+      {:ok, uuid} -> {:ok, uuid, :id}
+      _ -> :error
+    end
+  end
+
+  defp query_role(user_id, id, :id) do
     # Traverses up the account tree to find the user's role in the closest parent.
     from r in Role,
       join: account_tree in fragment("""
@@ -306,7 +317,32 @@ defmodule EWalletDB.User do
         JOIN role AS r ON r.id = role_id
         WHERE account_tree.user_id = ? LIMIT 1
       """,
-        type(^account_id, UUID),
+        type(^id, UUID),
+        type(^user_id, UUID)
+      ), on: r.id == account_tree.role_id,
+      select: r.name
+  end
+
+  defp query_role(user_id, id, :external_id) do
+    # Traverses up the account tree to find the user's role in the closest parent.
+    from r in Role,
+      join: account_tree in fragment("""
+        WITH RECURSIVE account_tree AS (
+          SELECT a.*, m.role_id, m.user_id
+          FROM account a
+          LEFT JOIN membership AS m ON m.account_id = a.id
+          WHERE a.external_id = ?
+        UNION
+          SELECT parent.*, m.role_id, m.user_id
+          FROM account parent
+          LEFT JOIN membership AS m ON m.account_id = parent.id
+          JOIN account_tree ON account_tree.parent_id = parent.id
+        )
+        SELECT role_id FROM account_tree
+        JOIN role AS r ON r.id = role_id
+        WHERE account_tree.user_id = ? LIMIT 1
+      """,
+        type(^id, :string),
         type(^user_id, UUID)
       ), on: r.id == account_tree.role_id,
       select: r.name
