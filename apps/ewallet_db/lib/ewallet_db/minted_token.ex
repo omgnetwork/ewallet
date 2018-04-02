@@ -45,7 +45,7 @@ defmodule EWalletDB.MintedToken do
       :symbol, :name, :subunit_to_unit, :account_id,
       :metadata, :encrypted_metadata
     ])
-    |> validate_number(:subunit_to_unit, greater_than: 0, less_than: 1.0e81)
+    |> validate_number(:subunit_to_unit, greater_than: 0, less_than_or_equal_to: 1.0e18)
     |> set_friendly_id()
     |> validate_required([:friendly_id])
     |> validate_immutable(:friendly_id)

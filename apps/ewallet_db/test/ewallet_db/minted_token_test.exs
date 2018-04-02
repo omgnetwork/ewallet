@@ -36,9 +36,19 @@ defmodule EWalletDB.MintedTokenTest do
 
     test "allow subunit to be set between 0 and 1.0e81" do
       {:ok, minted_token} =
-        :minted_token |> params_for(subunit_to_unit: 100) |> MintedToken.insert
+        :minted_token |> params_for(subunit_to_unit: 1.0e18) |> MintedToken.insert
 
-      assert minted_token.subunit_to_unit == 100
+      assert minted_token.subunit_to_unit == 1_000_000_000_000_000_000
+    end
+
+    test "fails to insert when subunit is equal to 1.0e81" do
+      {:error, error} =
+        :minted_token |> params_for(subunit_to_unit: 1.0e19) |> MintedToken.insert
+
+      assert error.errors == [
+        subunit_to_unit: {"must be less than or equal to %{number}",
+                          [validation: :number, number: 1.0e18]}
+      ]
     end
 
     test "fails to insert when subunit is inferior to 0" do
@@ -47,7 +57,7 @@ defmodule EWalletDB.MintedTokenTest do
 
       assert error.errors == [
         subunit_to_unit: {"must be greater than %{number}",
-         [validation: :number, number: 0]}
+                          [validation: :number, number: 0]}
       ]
     end
 
@@ -56,8 +66,8 @@ defmodule EWalletDB.MintedTokenTest do
         :minted_token |> params_for(subunit_to_unit: 1.0e82) |> MintedToken.insert
 
       assert error.errors == [
-        subunit_to_unit: {"must be less than %{number}",
-         [validation: :number, number: 1.0e81]}
+        subunit_to_unit: {"must be less than or equal to %{number}",
+                          [validation: :number, number: 1.0e18]}
       ]
     end
   end
