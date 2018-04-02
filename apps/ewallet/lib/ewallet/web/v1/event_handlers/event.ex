@@ -2,6 +2,7 @@ defmodule EWallet.Web.V1.Event do
   @moduledoc """
   This module translates a symbol defining a supported event into the actual event and broadcasts it.
   """
+  require Logger
   alias EWallet.Web.V1.TransactionConsumptionEventHandler
   alias EWalletDB.{User, Account}
 
@@ -16,6 +17,8 @@ defmodule EWallet.Web.V1.Event do
     topics: topics,
     payload: payload
   ) do
+    log(event, topics)
+
     Enum.each(topics, fn topic ->
       Enum.each(endpoints(), fn endpoint ->
         endpoint.broadcast(
@@ -25,6 +28,21 @@ defmodule EWallet.Web.V1.Event do
         )
       end)
     end)
+  end
+
+  defp log(event, topics) do
+    Logger.info ""
+    Logger.info "WEBSOCKET EVENT: Dispatching event '#{event}' to:"
+    Logger.info("-- Endpoints:")
+    Enum.each(endpoints(), fn endpoint ->
+      Logger.info("---- #{endpoint}")
+    end)
+    Logger.info("-- Channels:")
+    Enum.each(topics, fn topic ->
+      Logger.info("---- #{topic}")
+    end)
+    Logger.info("Ending event dispatch...")
+    Logger.info ""
   end
 
   def address_topic(topics, address), do: topics ++ ["address:#{address}"]

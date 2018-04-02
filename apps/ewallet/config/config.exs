@@ -4,9 +4,6 @@ use Mix.Config
 
 config :ewallet,
   ecto_repos: [],
-  max_per_page: System.get_env("REQUEST_MAX_PER_PAGE") || 100,
-  websocket_endpoints: [
-    EWalletAPI.V1.Endpoint
-  ]
+  max_per_page: System.get_env("REQUEST_MAX_PER_PAGE") || 100
 
 import_config "#{Mix.env}.exs"

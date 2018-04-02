@@ -2,10 +2,6 @@
 # and its dependencies with the aid of the Mix.Config module.
 use Mix.Config
 
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
-
 config :local_ledger_db, ecto_repos: [LocalLedgerDB.Repo]
 
 # Import environment specific config. This must remain at the bottom
@@ -28,7 +24,6 @@ import_config "#{Mix.env}.exs"
 #
 # You can also configure a 3rd-party app:
 #
-#     config :logger, level: :info
 #
 
 # It is also possible to import configuration files, relative to this
