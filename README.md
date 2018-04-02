@@ -109,7 +109,7 @@ $ docker run \
     omisego/ewallet:latest
 ```
 
-Then run `docker exec <container-id> mix ecto.create, ecto.migrate` to setup the database.
+Then run `docker exec <container-id> mix do ecto.create, ecto.migrate` to setup the database.
 
 ## Quick installation with Goban
 
