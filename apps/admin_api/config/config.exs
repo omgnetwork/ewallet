@@ -21,11 +21,6 @@ config :admin_api,
     default_format: "json"
   ]
 
-# Config for Elixir's Logger
-config :logger, :console,
-  format: "$time $metadata[$level] $message\n",
-  metadata: [:request_id]
-
 # Config for Phoenix's generators
 config :admin_api, :generators,
   context_app: false

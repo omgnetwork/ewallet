@@ -1,4 +1,12 @@
 use Mix.Config
 
-# Do not print debug messages in production
-config :logger, level: :info
+level =
+  case System.get_env("LOGGER_LEVEL") do
+    "DEBUG" -> :debug
+    "WARN"  -> :warn
+    "ERROR" -> :error
+    _       -> :info
+  end
+
+config :logger,
+  level: level
