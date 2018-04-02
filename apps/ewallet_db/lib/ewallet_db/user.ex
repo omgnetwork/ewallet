@@ -286,8 +286,6 @@ defmodule EWalletDB.User do
     end
   end
 
-  def get_role(user_id, account_id, account_id_type)
-
   defp cast_account_id(<<"acc_", _::bytes-size(26)>> = id) do
     {:ok, id, :external_id}
   end

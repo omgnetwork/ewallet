@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Helper
+  import Ecto.Query
   alias EWallet.Web.Date
   alias EWalletDB.{Account, Membership, Repo, User}
 
@@ -23,8 +23,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
           "success" => true,
           "data" => %{
             "object" => "account",
-            "id" => account.id,
-            "external_id" => account.external_id,
+            "id" => account.external_id,
             "socket_topic" => "account:#{account.id}",
             "parent_id" => account.parent_id,
             "name" => account.name,
@@ -45,7 +44,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
     end
 
     test "responds with error if the user does not have an account" do
-      Repo.delete_all(Membership)
+      user = get_test_user()
+      Repo.delete_all(from m in Membership, where: m.user_id == ^user.id)
 
       assert user_request("/me.get_account") ==
         %{
@@ -63,13 +63,41 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get_accounts" do
     test "responds with a list of accounts" do
-      assert \
+      user = get_test_user()
+      parent = insert(:account)
+      account = insert(:account, %{parent: parent})
+
+      # Clear all memberships for this user then add just one for precision
+      Repo.delete_all(from m in Membership, where: m.user_id == ^user.id)
+      Membership.assign(user, account, "admin")
+
+      assert user_request("/me.get_accounts") ==
         %{
           "version" => "1",
           "success" => true,
           "data" => %{
             "object" => "list",
-            "data" => returned_accounts,
+            "data" => [
+              %{
+                "object" => "account",
+                "id" => account.external_id,
+                "socket_topic" => "account:#{account.id}",
+                "parent_id" => account.parent.external_id,
+                "name" => account.name,
+                "description" => account.description,
+                "master" => Account.master?(account),
+                "metadata" => %{},
+                "encrypted_metadata" => %{},
+                "avatar" => %{
+                  "original" => nil,
+                  "large" => nil,
+                  "small" => nil,
+                  "thumb" => nil
+                },
+                "created_at" => Date.to_iso8601(account.inserted_at),
+                "updated_at" => Date.to_iso8601(account.updated_at)
+              }
+            ],
             "pagination" => %{
               "current_page" => 1,
               "per_page" => 10,
@@ -77,36 +105,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
               "is_last_page" => true
             }
           }
-        } = user_request("/me.get_accounts")
-
-      db_accounts =
-        get_test_user()
-        |> User.get_accounts()
-        |> Enum.map(fn(account) ->
-          %{
-            "object" => "account",
-            "id" => account.id,
-            "external_id" => account.external_id,
-            "socket_topic" => "account:#{account.id}",
-            "parent_id" => account.parent_id,
-            "name" => account.name,
-            "description" => account.description,
-            "master" => Account.master?(account),
-            "metadata" => %{},
-            "encrypted_metadata" => %{},
-            "avatar" => %{
-              "original" => nil,
-              "large" => nil,
-              "small" => nil,
-              "thumb" => nil
-            },
-            "created_at" => Date.to_iso8601(account.inserted_at),
-            "updated_at" => Date.to_iso8601(account.updated_at)
-          }
-        end)
-
-      assert Helper.members?(db_accounts, returned_accounts)
-      assert Enum.count(db_accounts) == Enum.count(returned_accounts)
+        }
     end
   end
 end
