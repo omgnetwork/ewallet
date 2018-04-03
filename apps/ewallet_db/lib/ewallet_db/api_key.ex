@@ -31,24 +31,21 @@ defmodule EWalletDB.APIKey do
   end
 
   @doc """
-  Get API key by id, exclude soft-deleted.
+  Retrieves an API key by the given `external_id`. Excludes soft-deleted.
   """
+  @spec get(ExternalID.t() | nil) :: __MODULE__.t() | nil
   def get(nil), do: nil
-  def get(id) do
-    case UUID.dump(id) do
-      {:ok, _binary} ->
-        APIKey
-        |> exclude_deleted()
-        |> Repo.get(id)
-      :error ->
-        nil
-    end
+  def get(external_id) do
+    APIKey
+    |> exclude_deleted()
+    |> Repo.get_by(external_id: external_id)
   end
 
   @doc """
   Creates a new API key with the passed attributes.
   The key is automatically generated if not specified.
   """
+  @spec insert(map()) :: {:ok, __MODULE__.t()} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     attrs =
       attrs
@@ -74,6 +71,7 @@ defmodule EWalletDB.APIKey do
   Use this function instead of the usual get/2
   to avoid passing the API key information around.
   """
+  @spec authenticate(ExternalID.t(), String.t(), atom()) :: %Account{} | false
   def authenticate(api_key_id, api_key, owner_app)
     when byte_size(api_key_id) > 0
     and byte_size(api_key) > 0
@@ -100,6 +98,7 @@ defmodule EWalletDB.APIKey do
   Note that this is not protected against timing attacks
   and should only be used for non-sensitive requests, e.g. read-only requests.
   """
+  @spec authenticate(String.t(), atom()) :: Account.t() | false
   def authenticate(api_key, owner_app) when is_atom(owner_app) do
     case get_by_key(api_key, owner_app) do
       %APIKey{} = api_key -> Map.get(api_key, :account)
@@ -108,10 +107,10 @@ defmodule EWalletDB.APIKey do
   end
 
   defp get(nil, _), do: nil # Handles unsafe nil query
-  defp get(id, owner_app) when is_binary(id) and is_atom(owner_app) do
+  defp get(external_id, owner_app) when is_binary(external_id) and is_atom(owner_app) do
     APIKey
     |> Repo.get_by(%{
-      id: id,
+      external_id: external_id,
       owner_app: Atom.to_string(owner_app),
       expired: false
     })
@@ -132,15 +131,18 @@ defmodule EWalletDB.APIKey do
   @doc """
   Checks whether the given API key is soft-deleted.
   """
+  @spec deleted?(__MODULE__.t()) :: boolean()
   def deleted?(api_key), do: SoftDelete.deleted?(api_key)
 
   @doc """
   Soft-deletes the given API key.
   """
+  @spec delete(__MODULE__.t()) :: {:ok, __MODULE__.t()} | {:error, Ecto.Changeset.t()}
   def delete(api_key), do: SoftDelete.delete(api_key)
 
   @doc """
   Restores the given API key from soft-delete.
   """
+  @spec restore(__MODULE__.t()) :: {:ok, __MODULE__.t()} | {:error, Ecto.Changeset.t()}
   def restore(api_key), do: SoftDelete.restore(api_key)
 end

@@ -136,7 +136,7 @@ defmodule EWalletDB.Account do
   @doc """
   Get all accounts.
   """
-  @spec all(opts :: keyword()) :: list(%Account{})
+  @spec all(opts :: keyword()) :: list(__MODULE__.t())
   def all(opts \\ [])
   def all(opts) do
     Account
@@ -145,20 +145,19 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
-  Retrieves an account with the given ID.
+  Retrieves an account with the given external ID.
   """
-  @spec get(id :: String.t, opts :: keyword()) :: %Account{} | nil
-  def get(id, opts \\ []) do
-    case UUID.cast(id) do
-      {:ok, uuid} -> get_by([id: uuid], opts)
-      :error      -> nil
-    end
+  @spec get(ExternalID.t(), keyword()) :: __MODULE__.t() | nil
+  def get(external_id, opts \\ [])
+  def get(nil, _), do: nil
+  def get(external_id, opts) do
+    get_by([external_id: external_id], opts)
   end
 
   @doc """
   Retrieves an account using one or more fields.
   """
-  @spec get_by(fields :: map(), opts :: keyword()) :: %Account{}
+  @spec get_by(map() | keyword(), keyword()) :: %Account{}
   def get_by(fields, opts \\ []) do
     Account
     |> Repo.get_by(fields)

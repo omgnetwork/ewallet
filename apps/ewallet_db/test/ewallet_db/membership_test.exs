@@ -1,6 +1,6 @@
 defmodule EWalletDB.MembershipTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Membership, User, Repo}
+  alias EWalletDB.{Membership, User}
 
   describe "Membership factory" do
     # Not using `test_has_valid_factory/1` macro here because `Membership.insert/1` is private.

@@ -55,8 +55,8 @@ defmodule EWalletDB.AuthToken do
     |> get_by_token(owner_app)
     |> return_user()
   end
-  def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
-    user_id
+  def authenticate(user_external_id, token, owner_app) when token != nil and is_atom(owner_app) do
+    user_external_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
     |> return_user()
@@ -97,11 +97,15 @@ defmodule EWalletDB.AuthToken do
 
   # `get_by_user/2` is private to prohibit direct auth token access,
   # please use `authenticate/3` instead.
-  defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
+  defp get_by_user(user_external_id, owner_app)
+    when is_binary(user_external_id)
+    and is_atom(owner_app)
+  do
     Repo.all(
       from a in AuthToken,
-      where: a.user_id == ^user_id
-      and a.owner_app == ^Atom.to_string(owner_app)
+      join: u in User, on: u.id == a.user_id,
+      where: u.external_id == ^user_external_id,
+      where: a.owner_app == ^Atom.to_string(owner_app)
     )
   end
   defp get_by_user(_, _), do: nil

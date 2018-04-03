@@ -1,7 +1,6 @@
 defmodule AdminAPI.V1.AccountScopePlugTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.AccountScopePlug
-  alias Ecto.UUID
 
   # Lower-case header keys is enforced by `Plug.Conn` and only in test environments,
   # otherwise it will raise an `InvalidHeaderError`.
@@ -9,16 +8,16 @@ defmodule AdminAPI.V1.AccountScopePlugTest do
   @header_name "omgadmin-account-id"
 
   describe "AccountScopePlug.call/2" do
-    test "assigns scoped_account_id to the connection if the header value is a UUID" do
-      account_id = UUID.generate()
-      conn       = test_with(account_id)
+    test "assigns scoped_account_id to the connection if the header value is an external ID" do
+      account = insert(:account)
+      conn    = test_with(account.external_id)
 
       refute conn.halted
-      assert conn.assigns.scoped_account_id == account_id
+      assert conn.assigns.scoped_account_id == account.id
     end
 
-    test "halts with error if the header is provided but not a UUID" do
-      conn = test_with("not-a-uuid")
+    test "halts with error if the header is provided but not an external ID" do
+      conn = test_with("not-an-external-id")
 
       assert conn.halted
       refute Map.has_key?(conn.assigns, :scoped_account_id)
@@ -32,9 +31,9 @@ defmodule AdminAPI.V1.AccountScopePlugTest do
     end
   end
 
-  defp test_with(account_id) do
+  defp test_with(external_id) do
     build_conn()
-    |> put_req_header(@header_name, account_id)
+    |> put_req_header(@header_name, external_id)
     |> AccountScopePlug.call([])
   end
 end

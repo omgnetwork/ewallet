@@ -23,7 +23,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
     %{
       object: "account",
       id: account.external_id,
-      socket_topic: "account:#{account.id}",
+      socket_topic: "account:#{account.external_id}",
       parent_id: get_parent_external_id(account),
       name: account.name,
       description: account.description,

@@ -13,7 +13,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
         success: true,
         data: %{
           object: "transaction",
-          id: transaction.id,
+          id: transaction.external_id,
           idempotency_token: transaction.idempotency_token,
           from: %{
             object: "transaction_source",
@@ -86,7 +86,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
           data: [
             %{
               object: "transaction",
-              id: transaction1.id,
+              id: transaction1.external_id,
               idempotency_token: transaction1.idempotency_token,
               from: %{
                 object: "transaction_source",
@@ -132,7 +132,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
             },
             %{
               object: "transaction",
-              id: transaction2.id,
+              id: transaction2.external_id,
               idempotency_token: transaction2.idempotency_token,
               from: %{
                 object: "transaction_source",

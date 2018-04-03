@@ -224,7 +224,7 @@ defmodule EWallet.TransactionGateTest do
 
     defp build_debit_credit_attrs(idempotency_token, account, user, token) do
       %{
-        "account_id" => account.id,
+        "account_id" => account.external_id,
         "provider_user_id" => user.provider_user_id,
         "token_id" => token.friendly_id,
         "amount" => 100_000,
@@ -342,7 +342,7 @@ defmodule EWallet.TransactionGateTest do
         "type" => TransactionGate.debit_type,
         "metadata" => %{"some" => "data"},
         "idempotency_token" => idempotency_token,
-        "account_id" => inserted_account.id
+        "account_id" => inserted_account.external_id
       }
       assert %{
         "code" => "transaction:insufficient_funds",
@@ -377,7 +377,7 @@ defmodule EWallet.TransactionGateTest do
         "type" => TransactionGate.debit_type,
         "metadata" => %{"some" => "data"},
         "idempotency_token" => idempotency_token,
-        "account_id" => inserted_account.id
+        "account_id" => inserted_account.external_id
       }
       assert %{"entry_id" => _} = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}

@@ -1,6 +1,5 @@
 defmodule AdminAPI.V1.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias Ecto.UUID
   alias EWallet.Web.Date
   alias EWalletDB.User
 
@@ -19,9 +18,8 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
             "object" => "list",
             "data" => [%{
               "object" => "user",
-              "id" => user.id,
-              "external_id" => user.external_id,
-              "socket_topic" => "user:#{user.id}",
+              "id" => user.external_id,
+              "socket_topic" => "user:#{user.external_id}",
               "username" => user.username,
               "provider_user_id" => user.provider_user_id,
               "email" => user.email,
@@ -83,7 +81,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   describe "/account.assign_user" do
     test "returns empty success if assigned with user_id successfully" do
       response = user_request("/account.assign_user", %{
-        user_id: insert(:user).id,
+        user_id: insert(:user).external_id,
         account_id: insert(:account).external_id,
         role_name: insert(:role).name,
         redirect_url: "https://invite_url/?email={email}&token={token}"
@@ -121,7 +119,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given user id does not exist" do
       response = user_request("/account.assign_user", %{
-        user_id: UUID.generate(),
+        user_id: "usr_12345678901234567890123456",
         account_id: insert(:account).external_id,
         role_name: insert(:role).name,
         redirect_url: "https://invite_url/?email={email}&token={token}"
@@ -135,7 +133,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given account id does not exist" do
       response = user_request("/account.assign_user", %{
-        user_id: insert(:user).id,
+        user_id: insert(:user).external_id,
         account_id: "acc_12345678901234567890123456",
         role_name: insert(:role).name,
         redirect_url: "https://invite_url/?email={email}&token={token}"
@@ -149,7 +147,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given role does not exist" do
       response = user_request("/account.assign_user", %{
-        user_id: insert(:user).id,
+        user_id: insert(:user).external_id,
         account_id: insert(:account).external_id,
         role_name: "invalid_role",
         redirect_url: "https://invite_url/?email={email}&token={token}"
@@ -180,7 +178,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       account = insert(:account)
 
       response = user_request("/account.unassign_user", %{
-        user_id: user.id,
+        user_id: user.external_id,
         account_id: account.external_id
       })
 
@@ -192,7 +190,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given user id does not exist" do
       response = user_request("/account.unassign_user", %{
-        user_id: UUID.generate(),
+        user_id: "usr_12345678901234567890123456",
         account_id: insert(:account).external_id
       })
 
@@ -204,7 +202,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given account id does not exist" do
       response = user_request("/account.unassign_user", %{
-        user_id: insert(:user).id,
+        user_id: insert(:user).external_id,
         account_id: "acc_12345678901234567890123456"
       })
 

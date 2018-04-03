@@ -5,7 +5,8 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do
-      key = insert(:key, %{secret_key: "the_secret_key"})
+      account = insert(:account)
+      key = insert(:key, %{secret_key: "the_secret_key", account: account})
 
       assert user_request("/access_key.all") ==
         %{
@@ -15,11 +16,10 @@ defmodule AdminAPI.V1.KeyControllerTest do
             "object" => "list",
             "data" => [%{
               "object" => "key",
-              "id" => key.id,
-              "external_id" => key.external_id,
+              "id" => key.external_id,
               "access_key" => key.access_key,
               "secret_key" => nil, # Secret keys cannot be retrieved after creation
-              "account_id" => key.account_id,
+              "account_id" => account.external_id,
               "created_at" => Date.to_iso8601(key.inserted_at),
               "updated_at" => Date.to_iso8601(key.updated_at),
               "deleted_at" => Date.to_iso8601(key.deleted_at)
@@ -59,9 +59,9 @@ defmodule AdminAPI.V1.KeyControllerTest do
         }
       } = response
 
-      assert response["data"]["id"] == key.id
+      assert response["data"]["id"] == key.external_id
       assert response["data"]["access_key"] == key.access_key
-      assert response["data"]["account_id"] == Account.get_master_account().id
+      assert response["data"]["account_id"] == Account.get_master_account().external_id
       assert response["data"]["created_at"] == Date.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == Date.to_iso8601(key.updated_at)
       assert response["data"]["deleted_at"] == Date.to_iso8601(key.deleted_at)
@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
   describe "/access_key.delete" do
     test "responds with an empty success if provided a key id" do
       key      = insert(:key)
-      response = user_request("/access_key.delete", %{id: key.id})
+      response = user_request("/access_key.delete", %{id: key.external_id})
 
       assert response == %{"version" => "1", "success" => true, "data" => %{}}
     end

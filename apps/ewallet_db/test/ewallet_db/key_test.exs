@@ -1,7 +1,7 @@
 defmodule EWalletDB.KeyTest do
   use EWalletDB.SchemaCase
-  alias Ecto.UUID
   alias EWalletDB.Key
+  alias EWalletDB.Types.ExternalID
 
   describe "Key factory" do
     test_has_valid_factory Key
@@ -27,13 +27,13 @@ defmodule EWalletDB.KeyTest do
   describe "get/1" do
     test "accepts a uuid" do
       key = insert(:key)
-      result = Key.get(key.id)
+      result = Key.get(key.external_id)
       assert result.id == key.id
     end
 
     test "does not return a soft-deleted key" do
       {:ok, key} = :key |> insert() |> Key.delete()
-      assert Key.get(key.id) == nil
+      assert Key.get(key.external_id) == nil
     end
 
     test "returns nil if the given uuid is invalid" do
@@ -41,7 +41,7 @@ defmodule EWalletDB.KeyTest do
     end
 
     test "returns nil if the key with the given uuid is not found" do
-      assert Key.get(UUID.generate()) == nil
+      assert Key.get(ExternalID.generate("key_")) == nil
     end
   end
 

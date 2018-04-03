@@ -9,10 +9,10 @@ defmodule EWalletAPI.V1.AccountChannelTest do
       {res, _, socket} =
         "test"
         |> socket(%{auth: %{authenticated: :provider, account: account}})
-        |> subscribe_and_join(AccountChannel, "account:#{account.id}")
+        |> subscribe_and_join(AccountChannel, "account:#{account.external_id}")
 
       assert res == :ok
-      assert socket.topic == "account:#{account.id}"
+      assert socket.topic == "account:#{account.external_id}"
     end
 
     test "can't join a channel for an inexisting account" do

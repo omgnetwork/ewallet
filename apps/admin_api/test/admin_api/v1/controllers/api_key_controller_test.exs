@@ -16,8 +16,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
             "data" => [
               %{
                 "object" => "api_key",
-                "id" => api_key1.id,
-                "external_id" => api_key1.external_id,
+                "id" => api_key1.external_id,
                 "key" => api_key1.key,
                 "account_id" => api_key1.account_id,
                 "owner_app" => api_key1.owner_app,
@@ -27,8 +26,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
               },
               %{
                 "object" => "api_key",
-                "id" => api_key2.id,
-                "external_id" => api_key2.external_id,
+                "id" => api_key2.external_id,
                 "key" => api_key2.key,
                 "account_id" => api_key2.account_id,
                 "owner_app" => api_key2.owner_app,
@@ -49,6 +47,8 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
 
     test "responds with a list of api keys when given params" do
       [api_key, _] = ensure_num_records(APIKey, 2)
+      api_key = Repo.preload(api_key, :account)
+
       attrs = %{
         search_term: "",
         page: 1,
@@ -66,10 +66,9 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
             "data" => [
               %{
                 "object"      => "api_key",
-                "id"          => api_key.id,
-                "external_id" => api_key.external_id,
+                "id"          => api_key.external_id,
                 "key"         => api_key.key,
-                "account_id"  => api_key.account_id,
+                "account_id"  => api_key.account.external_id,
                 "owner_app"   => api_key.owner_app,
                 "created_at"  => Date.to_iso8601(api_key.inserted_at),
                 "updated_at"  => Date.to_iso8601(api_key.updated_at),
@@ -97,10 +96,9 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         "success" => true,
         "data" => %{
           "object"      => "api_key",
-          "id"          => api_key.id,
-          "external_id" => api_key.external_id,
+          "id"          => api_key.external_id,
           "key"         => api_key.key,
-          "account_id"  => Account.get_master_account().id,
+          "account_id"  => Account.get_master_account().external_id,
           "owner_app"   => "some_app",
           "created_at"  => Date.to_iso8601(api_key.inserted_at),
           "updated_at"  => Date.to_iso8601(api_key.updated_at),
@@ -130,7 +128,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
   describe "/api_key.delete" do
     test "responds with an empty success if provided a valid id" do
       api_key  = insert(:api_key)
-      response = user_request("/api_key.delete", %{id: api_key.id})
+      response = user_request("/api_key.delete", %{id: api_key.external_id})
 
       assert response == %{
         "version" => "1",

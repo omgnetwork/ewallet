@@ -48,14 +48,14 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_1.id,
-        meta.transfer_2.id,
-        meta.transfer_3.id,
-        meta.transfer_4.id,
-        meta.transfer_5.id,
-        meta.transfer_6.id,
-        meta.transfer_7.id,
-        meta.transfer_8.id
+        meta.transfer_1.external_id,
+        meta.transfer_2.external_id,
+        meta.transfer_3.external_id,
+        meta.transfer_4.external_id,
+        meta.transfer_5.external_id,
+        meta.transfer_6.external_id,
+        meta.transfer_7.external_id,
+        meta.transfer_8.external_id
       ]
     end
 
@@ -72,10 +72,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_1.id,
-        meta.transfer_3.id,
-        meta.transfer_4.id,
-        meta.transfer_7.id
+        meta.transfer_1.external_id,
+        meta.transfer_3.external_id,
+        meta.transfer_4.external_id,
+        meta.transfer_7.external_id
       ]
     end
 
@@ -89,9 +89,9 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_4.id,
-        meta.transfer_6.id,
-        meta.transfer_8.id
+        meta.transfer_4.external_id,
+        meta.transfer_6.external_id,
+        meta.transfer_8.external_id
       ]
     end
 
@@ -109,8 +109,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_1.id,
-        meta.transfer_2.id
+        meta.transfer_1.external_id,
+        meta.transfer_2.external_id
       ]
     end
   end
@@ -126,10 +126,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_1.id,
-        meta.transfer_2.id,
-        meta.transfer_3.id,
-        meta.transfer_4.id
+        meta.transfer_1.external_id,
+        meta.transfer_2.external_id,
+        meta.transfer_3.external_id,
+        meta.transfer_4.external_id
       ]
     end
 
@@ -142,8 +142,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_7.id,
-        meta.transfer_8.id,
+        meta.transfer_7.external_id,
+        meta.transfer_8.external_id,
       ]
     end
 
@@ -173,10 +173,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_4.id,
-        meta.transfer_3.id,
-        meta.transfer_2.id,
-        meta.transfer_1.id
+        meta.transfer_4.external_id,
+        meta.transfer_3.external_id,
+        meta.transfer_2.external_id,
+        meta.transfer_1.external_id
       ]
     end
 
@@ -189,7 +189,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_4.id
+        meta.transfer_4.external_id
       ]
     end
 
@@ -205,8 +205,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_1.id,
-        meta.transfer_2.id
+        meta.transfer_1.external_id,
+        meta.transfer_2.external_id
       ]
     end
   end
@@ -220,10 +220,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_1.id,
-        meta.transfer_2.id,
-        meta.transfer_3.id,
-        meta.transfer_4.id
+        meta.transfer_1.external_id,
+        meta.transfer_2.external_id,
+        meta.transfer_3.external_id,
+        meta.transfer_4.external_id
       ]
     end
 
@@ -242,10 +242,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_1.id,
-        meta.transfer_2.id,
-        meta.transfer_3.id,
-        meta.transfer_4.id
+        meta.transfer_1.external_id,
+        meta.transfer_2.external_id,
+        meta.transfer_3.external_id,
+        meta.transfer_4.external_id
       ]
     end
 
@@ -261,7 +261,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_3.id,
+        meta.transfer_3.external_id,
       ]
     end
 
@@ -276,7 +276,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_3.id,
+        meta.transfer_3.external_id,
       ]
     end
 
@@ -290,10 +290,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_4.id,
-        meta.transfer_3.id,
-        meta.transfer_2.id,
-        meta.transfer_1.id
+        meta.transfer_4.external_id,
+        meta.transfer_3.external_id,
+        meta.transfer_2.external_id,
+        meta.transfer_1.external_id
       ]
     end
 
@@ -306,7 +306,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_4.id
+        meta.transfer_4.external_id
       ]
     end
 
@@ -321,7 +321,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
         t["id"]
       end) == [
-        meta.transfer_3.id
+        meta.transfer_3.external_id
       ]
     end
   end

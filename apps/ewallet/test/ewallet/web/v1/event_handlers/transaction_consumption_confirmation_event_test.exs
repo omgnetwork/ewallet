@@ -22,10 +22,10 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
 
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
       [
-        "transaction_request:#{consumption.transaction_request.id}",
+        "transaction_request:#{consumption.transaction_request.external_id}",
         "address:#{consumption.balance_address}",
-        "transaction_consumption:#{consumption.id}",
-        "user:#{consumption.user_id}",
+        "transaction_consumption:#{consumption.external_id}",
+        "user:#{consumption.user.external_id}",
         "user:#{consumption.user.provider_user_id}"
       ]
       |> Enum.each(fn topic ->
@@ -52,10 +52,10 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
 
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
       [
-        "transaction_request:#{consumption.transaction_request.id}",
+        "transaction_request:#{consumption.transaction_request.external_id}",
         "address:#{consumption.balance_address}",
-        "transaction_consumption:#{consumption.id}",
-        "user:#{consumption.user_id}",
+        "transaction_consumption:#{consumption.external_id}",
+        "user:#{consumption.user.external_id}",
         "user:#{consumption.user.provider_user_id}"
       ]
       |> Enum.each(fn topic ->
@@ -83,9 +83,9 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       request = consumption.transaction_request |> Repo.preload(:user)
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
       [
-        "transaction_request:#{request.id}",
+        "transaction_request:#{request.external_id}",
         "address:#{request.balance_address}",
-        "user:#{request.user_id}",
+        "user:#{request.user.external_id}",
         "user:#{request.user.provider_user_id}"
       ]
       |> Enum.each(fn topic ->

@@ -100,19 +100,17 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific user.
   """
-  def get(id, queryable \\ User) do
-    case Helpers.UUID.valid?(id) do
-      true ->
-        queryable
-        |> Repo.get(id)
-        |> Repo.preload(:balances)
-      false -> nil
-    end
+  @spec get(ExternalID.t(), Ecto.Queryable.t()) :: __MODULE__.t() | nil
+  def get(external_id, queryable \\ User) do
+    queryable
+    |> Repo.get_by(external_id: external_id)
+    |> Repo.preload(:balances)
   end
 
   @doc """
   Retrieves a specific user from its provider_user_id.
   """
+  @spec get_by_provider_user_id(String.t() | nil) :: __MODULE__.t() | nil
   def get_by_provider_user_id(nil), do: nil
   def get_by_provider_user_id(provider_user_id) do
     User
@@ -123,6 +121,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific user from its email.
   """
+  @spec get_by_email(String.t()) :: __MODULE__.t() | nil
   def get_by_email(email) when is_binary(email) do
     User
     |> Repo.get_by(email: email)
@@ -178,7 +177,7 @@ defmodule EWalletDB.User do
 
     case Repo.update(changeset) do
       {:ok, user} ->
-        {:ok, get(user.id)}
+        {:ok, get(user.external_id)}
       result ->
         result
     end
@@ -197,7 +196,7 @@ defmodule EWalletDB.User do
 
     changeset = avatar_changeset(user, attrs)
     case Repo.update(changeset) do
-      {:ok, user} -> get(user.id)
+      {:ok, user} -> get(user.external_id)
       result      -> result
     end
   end
@@ -275,53 +274,14 @@ defmodule EWalletDB.User do
   If the user does not have a membership on the given account, it inherits
   the role from the closest parent account that has one.
   """
-  def get_role(user_id, account_id) do
-    with {:ok, account_id, id_type} <- cast_account_id(account_id),
-         {:ok, user_id}             <- UUID.cast(user_id),
-         query                      <- query_role(user_id, account_id, id_type)
-    do
-      Repo.one(query)
-    else
-      :error -> {:error, :invalid_parameter}
-    end
+  @spec get_role(ExternalID.t(), ExternalID.t()) :: String.t() | nil
+  def get_role(user_external_id, account_external_id) do
+    user_external_id
+    |> query_role(account_external_id)
+    |> Repo.one()
   end
 
-  defp cast_account_id(<<"acc_", _::bytes-size(26)>> = id) do
-    {:ok, id, :external_id}
-  end
-  defp cast_account_id(id) do
-    case UUID.cast(id) do
-      {:ok, uuid} -> {:ok, uuid, :id}
-      _ -> :error
-    end
-  end
-
-  defp query_role(user_id, id, :id) do
-    # Traverses up the account tree to find the user's role in the closest parent.
-    from r in Role,
-      join: account_tree in fragment("""
-        WITH RECURSIVE account_tree AS (
-          SELECT a.*, m.role_id, m.user_id
-          FROM account a
-          LEFT JOIN membership AS m ON m.account_id = a.id
-          WHERE a.id = ?
-        UNION
-          SELECT parent.*, m.role_id, m.user_id
-          FROM account parent
-          LEFT JOIN membership AS m ON m.account_id = parent.id
-          JOIN account_tree ON account_tree.parent_id = parent.id
-        )
-        SELECT role_id FROM account_tree
-        JOIN role AS r ON r.id = role_id
-        WHERE account_tree.user_id = ? LIMIT 1
-      """,
-        type(^id, UUID),
-        type(^user_id, UUID)
-      ), on: r.id == account_tree.role_id,
-      select: r.name
-  end
-
-  defp query_role(user_id, id, :external_id) do
+  defp query_role(user_external_id, account_external_id) do
     # Traverses up the account tree to find the user's role in the closest parent.
     from r in Role,
       join: account_tree in fragment("""
@@ -337,11 +297,12 @@ defmodule EWalletDB.User do
           JOIN account_tree ON account_tree.parent_id = parent.id
         )
         SELECT role_id FROM account_tree
-        JOIN role AS r ON r.id = role_id
-        WHERE account_tree.user_id = ? LIMIT 1
+          JOIN "role" AS r ON r.id = role_id
+          JOIN "user" AS u ON u.id = user_id
+          WHERE u.external_id = ? LIMIT 1
       """,
-        type(^id, :string),
-        type(^user_id, UUID)
+        ^account_external_id,
+        ^user_external_id
       ), on: r.id == account_tree.role_id,
       select: r.name
   end

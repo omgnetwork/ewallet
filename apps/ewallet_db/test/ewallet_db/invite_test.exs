@@ -1,8 +1,8 @@
 defmodule EWalletDB.InviteTest do
   use EWalletDB.SchemaCase
+  alias Ecto.UUID
   alias EWalletDB.{Invite, User}
   alias EWalletDB.Helpers.Crypto
-  alias Ecto.UUID
 
   describe "Invite.get/1" do
     test "returns an Invite if the given id is found" do
@@ -72,7 +72,7 @@ defmodule EWalletDB.InviteTest do
       user          = insert(:admin)
       {:ok, invite} = Invite.generate(user)
 
-      user = User.get(user.id)
+      user = User.get(user.external_id)
       assert user.invite_id == invite.id
     end
 
@@ -91,7 +91,7 @@ defmodule EWalletDB.InviteTest do
 
       :pending_confirmation = User.get_status(user)
       {:ok, _invite}        = Invite.accept(invite, "some_password")
-      status                = user.id |> User.get() |> User.get_status()
+      status                = user.external_id |> User.get() |> User.get_status()
 
       assert status  == :active
     end
@@ -100,7 +100,7 @@ defmodule EWalletDB.InviteTest do
       invite         = insert(:invite)
       user           = insert(:admin, %{invite: invite})
       {res, _invite} = Invite.accept(invite, "some_password")
-      user           = User.get(user.id)
+      user           = User.get(user.external_id)
 
       assert res == :ok
       assert Crypto.verify_password("some_password", user.password_hash)

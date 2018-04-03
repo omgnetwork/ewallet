@@ -1,7 +1,6 @@
 defmodule AdminAPI.V1.ClientAuthPlugTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.ClientAuthPlug
-  alias Ecto.UUID
 
   describe "ClientAuthPlug.call/2" do
     test "assigns authenticated conn info if the api_key_id and api_key match the db record" do
@@ -10,7 +9,7 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
     end
 
     test "assigns unauthenticated conn info if the api_key_id is not found" do
-      conn = test_with("OMGAdmin", UUID.generate, @api_key)
+      conn = test_with("OMGAdmin", "api_1234567890123456", @api_key)
       assert_error(conn)
     end
 

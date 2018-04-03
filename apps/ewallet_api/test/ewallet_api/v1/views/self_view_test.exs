@@ -12,9 +12,8 @@ defmodule EWalletAPI.V1.SelfViewTest do
         success: true,
         data: %{
           object: "user",
-          id: user.id,
-          external_id: user.external_id,
-          socket_topic: "user:#{user.id}",
+          id: user.external_id,
+          socket_topic: "user:#{user.external_id}",
           provider_user_id: user.provider_user_id,
           username: user.username,
           email: user.email,

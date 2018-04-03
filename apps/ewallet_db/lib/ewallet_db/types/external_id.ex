@@ -17,6 +17,9 @@ defmodule EWalletDB.Types.ExternalID do
   alias Ecto.Schema
   alias ExULID.ULID
 
+  # 3-char symbols, 1-char underscore, 26-char ULID
+  @type t :: <<_::30>>
+
   @doc """
   Returns the underlying Ecto primitive type.
   """

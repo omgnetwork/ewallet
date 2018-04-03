@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.TransferControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{User, MintedToken, Account, Transfer}
   alias Ecto.UUID
   alias EWallet.Web.Date
+  alias EWalletDB.{User, MintedToken, Account, Transfer}
 
   describe "/transfer" do
     test "returns idempotency error if header is not specified" do
@@ -389,7 +389,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         token_id: "BTC:456",
         amount: 100_000,
         metadata: %{},
-        account_id: account.id
+        account_id: account.external_id
       })
 
       assert response == %{

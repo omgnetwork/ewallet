@@ -63,7 +63,7 @@ defmodule EWallet.TransactionRequestTest do
         "token_id" => meta.minted_token.friendly_id,
         "correlation_id" => "123",
         "amount" => 1_000,
-        "account_id" => meta.account.id
+        "account_id" => meta.account.external_id
       })
 
       assert res == :ok
@@ -76,7 +76,7 @@ defmodule EWallet.TransactionRequestTest do
         "token_id" => meta.minted_token.friendly_id,
         "correlation_id" => "123",
         "amount" => 1_000,
-        "account_id" => meta.account.id,
+        "account_id" => meta.account.external_id,
         "address" => meta.account_balance.address
       })
 
@@ -91,7 +91,7 @@ defmodule EWallet.TransactionRequestTest do
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => "123",
        "amount" => 1_000,
-       "account_id" => meta.account.id,
+       "account_id" => meta.account.external_id,
        "address" => "fake"
       })
 
@@ -104,7 +104,7 @@ defmodule EWallet.TransactionRequestTest do
        "token_id" => meta.minted_token.friendly_id,
        "correlation_id" => "123",
        "amount" => 1_000,
-       "account_id" => meta.account.id,
+       "account_id" => meta.account.external_id,
        "address" => meta.user_balance.address
       })
 
@@ -422,7 +422,7 @@ defmodule EWallet.TransactionRequestTest do
         "address" => meta.user_balance.address,
       })
 
-      assert {:ok, request} = TransactionRequestGate.get(request.id)
+      assert {:ok, request} = TransactionRequestGate.get(request.external_id)
       assert %TransactionRequest{} = request
     end
 
@@ -438,7 +438,7 @@ defmodule EWallet.TransactionRequestTest do
   describe "get_with_lock/1" do
     test "returns the request when given a valid ID" do
       request = insert(:transaction_request)
-      assert {:ok, request} = TransactionRequestGate.get_with_lock(request.id)
+      assert {:ok, request} = TransactionRequestGate.get_with_lock(request.external_id)
       assert %TransactionRequest{} = request
     end
 
@@ -446,7 +446,7 @@ defmodule EWallet.TransactionRequestTest do
       assert TransactionRequestGate.get_with_lock(nil) == {:error, :transaction_request_not_found}
     end
 
-    test "returns a 'transaction_request_not_found' error when given invalid UUID" do
+    test "returns a 'transaction_request_not_found' error when given invalid ID" do
       assert TransactionRequestGate.get_with_lock("123") == {:error, :transaction_request_not_found}
     end
   end
@@ -527,7 +527,7 @@ defmodule EWallet.TransactionRequestTest do
       past_date = NaiveDateTime.add(NaiveDateTime.utc_now(), -60, :second)
       request = insert(:transaction_request, expiration_date: past_date)
       {res, error} = TransactionRequestGate.expire_if_past_expiration_date(request)
-      request = TransactionRequest.get(request.id)
+      request = TransactionRequest.get(request.external_id)
       assert res == :error
       assert error == :expired_transaction_request
       assert TransactionRequest.valid?(request) == false

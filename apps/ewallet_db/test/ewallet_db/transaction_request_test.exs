@@ -9,7 +9,7 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "get/1" do
     test "returns an existing transaction request" do
       inserted = insert(:transaction_request)
-      request = TransactionRequest.get(inserted.id)
+      request = TransactionRequest.get(inserted.external_id)
       assert request.id == inserted.id
     end
 
@@ -27,7 +27,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
     test "preloads the specified association" do
       inserted = insert(:transaction_request)
-      request = TransactionRequest.get(inserted.id, preload: [:minted_token])
+      request = TransactionRequest.get(inserted.external_id, preload: [:minted_token])
       assert request.id == inserted.id
       assert request.minted_token.id != nil
     end
@@ -52,10 +52,10 @@ defmodule EWalletDB.TransactionRequestTest do
       TransactionRequest.expire_all()
 
       # Reload all the records
-      t1 = TransactionRequest.get(t1.id)
-      t2 = TransactionRequest.get(t2.id)
-      t3 = TransactionRequest.get(t3.id)
-      t4 = TransactionRequest.get(t4.id)
+      t1 = TransactionRequest.get(t1.external_id)
+      t2 = TransactionRequest.get(t2.external_id)
+      t3 = TransactionRequest.get(t3.external_id)
+      t4 = TransactionRequest.get(t4.external_id)
 
       # Now t1 and t2 are expired
       assert TransactionRequest.expired?(t1) == true
@@ -68,7 +68,7 @@ defmodule EWalletDB.TransactionRequestTest do
       now = NaiveDateTime.utc_now()
       t = insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :seconds))
       TransactionRequest.expire_all()
-      t = TransactionRequest.get(t.id)
+      t = TransactionRequest.get(t.external_id)
 
       assert TransactionRequest.expired?(t) == true
       assert t.expired_at != nil
@@ -79,7 +79,7 @@ defmodule EWalletDB.TransactionRequestTest do
   describe "get_with_lock/1" do
     test "gets a transaction request" do
       inserted = insert(:transaction_request)
-      request = TransactionRequest.get_with_lock(inserted.id)
+      request = TransactionRequest.get_with_lock(inserted.external_id)
       assert request.id == inserted.id
     end
   end
@@ -175,7 +175,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
       TransactionRequest.expire(t, "testing")
 
-      t = TransactionRequest.get(t.id)
+      t = TransactionRequest.get(t.external_id)
       assert TransactionRequest.expired?(t) == true
       assert t.expired_at != nil
       assert t.expiration_reason == "testing"
@@ -217,7 +217,7 @@ defmodule EWalletDB.TransactionRequestTest do
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
       assert TransactionRequest.expired?(updated_request) == false
-      assert updated_request.updated_at > request.updated_at
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
     end
 
     test "touches the request if max_consumptions is equal to 0" do
@@ -226,7 +226,7 @@ defmodule EWalletDB.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
-      assert updated_request.updated_at > request.updated_at
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
     end
 
     test "touches the request if max_consumptions has not been reached" do
@@ -235,7 +235,7 @@ defmodule EWalletDB.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
-      assert updated_request.updated_at > request.updated_at
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
     end
 
     test "expires the request if max_consumptions has been reached" do

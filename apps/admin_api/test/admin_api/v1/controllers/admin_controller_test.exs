@@ -1,6 +1,5 @@
 defmodule AdminAPI.V1.AdminControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias Ecto.UUID
   alias EWalletDB.User
 
   describe "/admin.all" do
@@ -56,7 +55,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
       admin       = insert(:admin, %{email: "admin@omise.co"})
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
-      response = user_request("/admin.get", %{"id" => admin.id})
+      response = user_request("/admin.get", %{"id" => admin.external_id})
 
       assert response["success"]
       assert response["data"]["object"] == "user"
@@ -65,7 +64,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
 
     test "returns 'user:id_not_found' if the given ID is not an admin" do
       user     = insert(:user)
-      response = user_request("/admin.get", %{"id" => user.id})
+      response = user_request("/admin.get", %{"id" => user.external_id})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -74,7 +73,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID was not found" do
-      response  = user_request("/admin.get", %{"id" => UUID.generate()})
+      response  = user_request("/admin.get", %{"id" => "usr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -82,13 +81,13 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
-      response  = user_request("/admin.get", %{"id" => "not_uuid"})
+    test "returns 'client:invalid_parameter' if the given ID is not an external ID" do
+      response  = user_request("/admin.get", %{"id" => "not_external_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Admin ID must be a UUID"
+      assert response["data"]["description"] == "The given ID is not in a valid format"
     end
   end
 
@@ -97,11 +96,10 @@ defmodule AdminAPI.V1.AdminControllerTest do
       account     = insert(:account)
       role        = insert(:role, %{name: "some_role"})
       admin       = insert(:admin, %{email: "admin@omise.co"})
-      uuid        = admin.id
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response = user_request("/admin.upload_avatar", %{
-        "id" => uuid,
+        "id" => admin.external_id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -112,24 +110,23 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["data"]["object"] == "user"
       assert response["data"]["email"] == admin.email
       assert response["data"]["avatar"]["large"] =~
-             "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/large.png?v="
+             "http://localhost:4000/public/uploads/test/user/avatars/#{admin.external_id}/large.png?v="
       assert response["data"]["avatar"]["original"] =~
-             "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/original.jpg?v="
+             "http://localhost:4000/public/uploads/test/user/avatars/#{admin.external_id}/original.jpg?v="
       assert response["data"]["avatar"]["small"] =~
-             "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/small.png?v="
+             "http://localhost:4000/public/uploads/test/user/avatars/#{admin.external_id}/small.png?v="
       assert response["data"]["avatar"]["thumb"] =~
-             "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/thumb.png?v="
+             "http://localhost:4000/public/uploads/test/user/avatars/#{admin.external_id}/thumb.png?v="
     end
 
     test "removes the avatar from a user" do
       account     = insert(:account)
       role        = insert(:role, %{name: "some_role"})
       admin       = insert(:admin, %{email: "admin@omise.co"})
-      uuid        = admin.id
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response = user_request("/admin.upload_avatar", %{
-        "id" => uuid,
+        "id" => admin.external_id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -138,7 +135,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["success"]
 
       response = user_request("/admin.upload_avatar", %{
-        "id" => uuid,
+        "id" => admin.external_id,
         "avatar" => nil
       })
       assert response["success"]
@@ -151,11 +148,10 @@ defmodule AdminAPI.V1.AdminControllerTest do
       account     = insert(:account)
       role        = insert(:role, %{name: "some_role"})
       admin       = insert(:admin, %{email: "admin@omise.co"})
-      uuid        = admin.id
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response = user_request("/admin.upload_avatar", %{
-        "id" => uuid,
+        "id" => admin.external_id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -164,7 +160,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["success"]
 
       response = user_request("/admin.upload_avatar", %{
-        "id" => uuid,
+        "id" => admin.external_id,
         "avatar" => ""
       })
       assert response["success"]
@@ -177,11 +173,10 @@ defmodule AdminAPI.V1.AdminControllerTest do
       account     = insert(:account)
       role        = insert(:role, %{name: "some_role"})
       admin       = insert(:admin, %{email: "admin@omise.co"})
-      uuid        = admin.id
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response = user_request("/admin.upload_avatar", %{
-        "id" => uuid,
+        "id" => admin.external_id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -190,7 +185,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["success"]
 
       response = user_request("/admin.upload_avatar", %{
-        "id" => uuid,
+        "id" => admin.external_id,
         "avatar" => "null"
       })
       assert response["success"]
@@ -202,7 +197,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
     test "returns 'user:id_not_found' if the given ID is not an admin" do
       user     = insert(:user)
       response = user_request("/admin.upload_avatar", %{
-        "id" => user.id,
+        "id" => user.external_id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -217,7 +212,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
 
     test "returns 'user:id_not_found' if the given ID was not found" do
       response  = user_request("/admin.upload_avatar", %{
-        "id" => UUID.generate(),
+        "id" => "usr_12345678901234567890123456",
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -230,9 +225,9 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
+    test "returns 'client:invalid_parameter' if the given ID is not in a valid format" do
       response  = user_request("/admin.upload_avatar", %{
-        "id" => "not_uuid",
+        "id" => "not_valid_external_id",
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -242,7 +237,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Admin ID must be a UUID"
+      assert response["data"]["description"] == "The given ID is not in a valid format"
     end
   end
 end

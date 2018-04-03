@@ -1,7 +1,6 @@
 defmodule AdminAPI.V1.UserAuthPlugTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.UserAuthPlug
-  alias Ecto.UUID
 
   describe "UserAuthPlug.call/2" do
     test "assigns authenticated conn info if the token is correct" do
@@ -19,7 +18,7 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
     end
 
     test "assigns unauthenticated conn info if the token doesn't belong to the user_id" do
-      conn = test_with("OMGAdmin", @api_key_id, @api_key, UUID.generate, @auth_token)
+      conn = test_with("OMGAdmin", @api_key_id, @api_key, "usr_12345678901234567890123456", @auth_token)
 
       assert conn.halted
       assert_error(conn)

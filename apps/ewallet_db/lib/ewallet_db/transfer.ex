@@ -88,24 +88,21 @@ defmodule EWalletDB.Transfer do
   @doc """
   Gets a transfer.
   """
-  @spec get(UUID.t) :: %Transfer{} | nil
-  @spec get(UUID.t, List.t) :: %Transfer{} | nil
+  @spec get(ExternalID.t()) :: %Transfer{} | nil
+  @spec get(ExternalID.t(), keyword()) :: %Transfer{} | nil
   def get(nil), do: nil
-  def get(id, opts \\ [])
+  def get(external_id, opts \\ [])
   def get(nil, _), do: nil
-  def get(id, opts) do
-    case UUID.cast(id) do
-      {:ok, uuid} -> get_by(%{id: uuid}, opts)
-      :error      -> nil
-    end
+  def get(external_id, opts) do
+    get_by([external_id: external_id], opts)
   end
 
   @doc """
   Get a transfer using one or more fields.
   """
-  @spec get_by(Map.t, List.t) :: %Transfer{} | nil
-  def get_by(map, opts \\ []) do
-    query = Transfer |> Repo.get_by(map)
+  @spec get_by(keyword() | map(), keyword()) :: %Transfer{} | nil
+  def get_by(clauses, opts \\ []) do
+    query = Repo.get_by(Transfer, clauses)
 
     case opts[:preload] do
       nil     -> query
@@ -128,6 +125,7 @@ defmodule EWalletDB.Transfer do
   Inserts a transfer and ignores the conflicts on idempotency token, then retrieves the transfer
   using the passed idempotency token.
   """
+  @spec insert(map()) :: {:ok, Transfer.t()} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     changeset = changeset(%Transfer{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]

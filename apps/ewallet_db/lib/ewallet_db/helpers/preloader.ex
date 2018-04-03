@@ -13,4 +13,16 @@ defmodule EWalletDB.Helpers.Preloader do
       preload -> Repo.preload(records, preload)
     end
   end
+
+  @doc """
+  Preloads the records with the given preloads.
+
+  This provides a simple facade to the Ecto's preloader so non-schema codes do not rely on
+  on `EWalletDB.Repo` functions directly.
+  """
+  @spec preload([Ecto.Schema.t()] | Ecto.Schema.t() | nil, [atom()]) ::
+    [Ecto.Schema.t()] | Ecto.Schema.t() | nil
+  def preload(records, preloads) do
+    Repo.preload(records, preloads)
+  end
 end

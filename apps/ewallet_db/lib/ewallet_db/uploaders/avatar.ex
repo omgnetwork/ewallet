@@ -28,7 +28,11 @@ defmodule EWalletDB.Uploaders.Avatar do
     version
   end
 
-  # Override the storage directory:
+  # Override the storage directory. Uses the scope's `external_id` if available,
+  # otherwise uses the scope's `id`.
+  def storage_dir(_version, {_file, %{external_id: _} = scope}) do
+    "public/uploads/#{Mix.env}/#{get_schema_name(scope)}/avatars/#{scope.external_id}"
+  end
   def storage_dir(_version, {_file, scope}) do
     "public/uploads/#{Mix.env}/#{get_schema_name(scope)}/avatars/#{scope.id}"
   end

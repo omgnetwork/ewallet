@@ -1,7 +1,7 @@
 defmodule EWalletDB.APIKeyTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.APIKey
-  alias Ecto.UUID
+  alias EWalletDB.Types.ExternalID
 
   @owner_app :some_app
 
@@ -10,23 +10,23 @@ defmodule EWalletDB.APIKeyTest do
   end
 
   describe "get/1" do
-    test "accepts a uuid" do
+    test "accepts an ID" do
       api_key = insert(:api_key)
-      result = APIKey.get(api_key.id)
+      result = APIKey.get(api_key.external_id)
       assert result.id == api_key.id
     end
 
     test "does not return a soft-deleted API key" do
       {:ok, api_key} = :api_key |> insert() |> APIKey.delete()
-      assert APIKey.get(api_key.id) == nil
+      assert APIKey.get(api_key.external_id) == nil
     end
 
-    test "returns nil if the given uuid is invalid" do
-      assert APIKey.get("not_a_uuid") == nil
+    test "returns nil if the given ID is invalid" do
+      assert APIKey.get("invalid_external_id") == nil
     end
 
-    test "returns nil if the key with the given uuid is not found" do
-      assert APIKey.get(UUID.generate()) == nil
+    test "returns nil if the key with the given id is not found" do
+      assert APIKey.get(ExternalID.generate("api_")) == nil
     end
   end
 
@@ -96,17 +96,17 @@ defmodule EWalletDB.APIKeyTest do
         })
         |> APIKey.insert
 
-      assert APIKey.authenticate(api_key.id, api_key.key, @owner_app).id == account.id
+      assert APIKey.authenticate(api_key.external_id, api_key.key, @owner_app).id == account.id
     end
 
     test "returns false if API key does not exists" do
-      key_id = UUID.generate
+      api_id = ExternalID.generate("api_")
 
       :api_key
-      |> params_for(%{id: key_id, key: "apikey123", owner_app: Atom.to_string(@owner_app)})
+      |> params_for(%{id: api_id, key: "apikey123", owner_app: Atom.to_string(@owner_app)})
       |> APIKey.insert
 
-      assert APIKey.authenticate(key_id, "unmatched", @owner_app) == false
+      assert APIKey.authenticate(api_id, "unmatched", @owner_app) == false
     end
 
     test "returns false if API key ID does not exists" do
@@ -114,11 +114,11 @@ defmodule EWalletDB.APIKeyTest do
       |> params_for(%{key: "apikey123", owner_app: Atom.to_string(@owner_app)})
       |> APIKey.insert
 
-      assert APIKey.authenticate(UUID.generate, "apikey123", @owner_app) == false
+      assert APIKey.authenticate(ExternalID.generate("api_"), "apikey123", @owner_app) == false
     end
 
     test "returns false if API key ID and its key exist but for a different owner app" do
-      key_id = UUID.generate
+      key_id = ExternalID.generate("api_")
 
       :api_key
       |> params_for(%{key: "apikey123", owner_app: "wrong_app"})
@@ -136,7 +136,7 @@ defmodule EWalletDB.APIKeyTest do
     end
 
     test "returns false if API key is not provided" do
-      key_id = UUID.generate
+      key_id = ExternalID.generate("api_")
 
       :api_key
       |> params_for(%{key: "apikey123", owner_app: Atom.to_string(@owner_app)})

@@ -16,7 +16,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
     # credo:disable-for-next-line
     %{
       object: "transaction",
-      id: transaction.id,
+      id: transaction.external_id,
       idempotency_token: transaction.idempotency_token,
       from: %{
         object: "transaction_source",

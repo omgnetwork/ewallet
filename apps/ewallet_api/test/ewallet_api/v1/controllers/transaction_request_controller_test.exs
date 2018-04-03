@@ -27,14 +27,13 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "amount" => 1_000,
           "address" => balance.address,
           "correlation_id" => "123",
-          "id" => request.id,
-          "external_id" => request.external_id,
-          "socket_topic" => "transaction_request:#{request.id}",
+          "id" => request.external_id,
+          "socket_topic" => "transaction_request:#{request.external_id}",
           "minted_token_id" => minted_token.friendly_id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
-          "user_id" => user.id,
+          "user_id" => user.external_id,
           "account_id" => nil,
           "allow_amount_override" => true,
           "require_confirmation" => false,
@@ -74,14 +73,13 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "amount" => nil,
           "address" => balance.address,
           "correlation_id" => nil,
-          "id" => request.id,
-          "external_id" => request.external_id,
-          "socket_topic" => "transaction_request:#{request.id}",
+          "id" => request.external_id,
+          "socket_topic" => "transaction_request:#{request.external_id}",
           "minted_token_id" => minted_token.friendly_id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
-          "user_id" => user.id,
+          "user_id" => user.external_id,
           "account_id" => nil,
           "allow_amount_override" => true,
           "require_confirmation" => false,
@@ -156,7 +154,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         token_id: minted_token.friendly_id,
         correlation_id: nil,
         amount: nil,
-        account_id: account.id,
+        account_id: account.external_id,
         address: balance.address,
       })
 
@@ -220,14 +218,13 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "amount" => 1_000,
           "address" => balance.address,
           "correlation_id" => "123",
-          "id" => request.id,
-          "external_id" => request.external_id,
-          "socket_topic" => "transaction_request:#{request.id}",
+          "id" => request.external_id,
+          "socket_topic" => "transaction_request:#{request.external_id}",
           "minted_token_id" => minted_token.friendly_id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
-          "user_id" => user.id,
+          "user_id" => user.external_id,
           "account_id" => nil,
           "allow_amount_override" => true,
           "require_confirmation" => false,
@@ -267,9 +264,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "amount" => nil,
           "address" => balance.address,
           "correlation_id" => nil,
-          "id" => request.id,
-          "external_id" => request.external_id,
-          "socket_topic" => "transaction_request:#{request.id}",
+          "id" => request.external_id,
+          "socket_topic" => "transaction_request:#{request.external_id}",
           "minted_token_id" => minted_token.friendly_id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "allow_amount_override" => true,
@@ -283,7 +279,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "max_consumptions" => nil,
           "type" => "send",
           "status" => "valid",
-          "user_id" => user.id,
+          "user_id" => user.external_id,
           "account_id" => nil,
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
@@ -388,11 +384,11 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
       transaction_request = insert(:transaction_request)
 
       response = provider_request("/transaction_request.get", %{
-        id: transaction_request.id
+        id: transaction_request.external_id
       })
 
       assert response["success"] == true
-      assert response["data"]["id"] == transaction_request.id
+      assert response["data"]["id"] == transaction_request.external_id
     end
 
     test "returns an error when the request ID is not found" do
@@ -418,11 +414,11 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
       transaction_request = insert(:transaction_request)
 
       response = client_request("/me.get_transaction_request", %{
-        id: transaction_request.id
+        id: transaction_request.external_id
       })
 
       assert response["success"] == true
-      assert response["data"]["id"] == transaction_request.id
+      assert response["data"]["id"] == transaction_request.external_id
     end
 
     test "returns an error when the request ID is not found" do

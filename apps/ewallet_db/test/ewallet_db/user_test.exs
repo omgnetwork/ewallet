@@ -1,6 +1,7 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.{Invite, User}
+  alias EWalletDB.Types.ExternalID
 
   describe "User factory" do
     test_has_valid_factory User
@@ -10,7 +11,7 @@ defmodule EWalletDB.UserTest do
   describe "insert/1" do
     test "inserts a user if it does not exist" do
       {:ok, inserted_user} = :user |> params_for |> User.insert
-      user = User.get(inserted_user.id)
+      user = User.get(inserted_user.external_id)
 
       assert user.id == inserted_user.id
       assert user.username == inserted_user.username
@@ -41,7 +42,7 @@ defmodule EWalletDB.UserTest do
     test "automatically creates a balance when user is created" do
       {_result, user} = :user |> params_for |> User.insert
       User.get_primary_balance(user)
-      assert length(User.get(user.id).balances) == 1
+      assert length(User.get(user.external_id).balances) == 1
     end
   end
 
@@ -77,17 +78,19 @@ defmodule EWalletDB.UserTest do
 
   describe "get/1" do
     test "returns the existing user" do
+      external_id = ExternalID.generate("usr_")
+
       {_, inserted_user} =
         :user
-        |> build(%{id: "06ba7634-109e-42e6-8f40-52fc5bc08a9c"})
+        |> build(%{external_id: external_id})
         |> Repo.insert
 
-      user = User.get("06ba7634-109e-42e6-8f40-52fc5bc08a9c")
+      user = User.get(external_id)
       assert user.id == inserted_user.id
     end
 
     test "returns nil if user does not exist" do
-      user = User.get("00000000-0000-0000-0000-000000000000")
+      user = User.get("usr_12345678901234567890123456")
       assert user == nil
     end
   end
@@ -132,7 +135,7 @@ defmodule EWalletDB.UserTest do
       balance = User.get_primary_balance(inserted)
 
       user =
-        inserted.id
+        inserted.external_id
         |> User.get()
         |> Repo.preload([:balances])
 
@@ -229,7 +232,7 @@ defmodule EWalletDB.UserTest do
 
       insert(:membership, %{user: user, account: account, role: role})
 
-      assert User.get_role(user.id, account.id) == "role_one"
+      assert User.get_role(user.external_id, account.external_id) == "role_one"
     end
 
     test "returns the role that the user has for the given account's external_id" do
@@ -239,7 +242,7 @@ defmodule EWalletDB.UserTest do
 
       insert(:membership, %{user: user, account: account, role: role})
 
-      assert User.get_role(user.id, account.external_id) == "role_one"
+      assert User.get_role(user.external_id, account.external_id) == "role_one"
     end
 
     test "returns the role that the user has in the closest parent account" do
@@ -250,7 +253,7 @@ defmodule EWalletDB.UserTest do
 
       insert(:membership, %{user: user, account: parent, role: role})
 
-      assert User.get_role(user.id, account.id) == "role_from_parent"
+      assert User.get_role(user.external_id, account.external_id) == "role_from_parent"
     end
 
     test "returns nil if the given user is not a member in the account or any of its parents" do
@@ -258,7 +261,7 @@ defmodule EWalletDB.UserTest do
       parent  = insert(:account)
       account = insert(:account, parent: parent)
 
-      assert User.get_role(user.id, account.id) == nil
+      assert User.get_role(user.external_id, account.external_id) == nil
     end
   end
 

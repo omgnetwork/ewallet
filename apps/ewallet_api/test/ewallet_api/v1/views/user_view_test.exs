@@ -2,12 +2,11 @@ defmodule EWalletAPI.V1.UserViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.UserView
   alias EWalletDB.User
-  alias Ecto.UUID
 
   describe "EWalletAPI.V1.UserView.render/2" do
     test "renders user.json with correct structure" do
       user = %User{
-        id: UUID.generate,
+        id: "usr_12345678901234567890123456",
         username: "johndoe",
         provider_user_id: "provider_id_9999",
         metadata: %{
@@ -21,9 +20,8 @@ defmodule EWalletAPI.V1.UserViewTest do
         success: true,
         data: %{
           object: "user",
-          id: user.id,
-          external_id: user.external_id,
-          socket_topic: "user:#{user.id}",
+          id: user.external_id,
+          socket_topic: "user:#{user.external_id}",
           provider_user_id: user.provider_user_id,
           username: user.username,
           email: user.email,

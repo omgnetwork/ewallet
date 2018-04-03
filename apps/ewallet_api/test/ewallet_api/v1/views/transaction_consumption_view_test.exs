@@ -6,7 +6,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionViewTest do
   describe "EWalletAPI.V1.TransactionConsumptionView.render/2" do
     test "renders transaction_consumption.json with correct structure" do
       request = insert(:transaction_consumption)
-      consumption = TransactionConsumption.get(request.id, preload: [:minted_token])
+      consumption = TransactionConsumption.get(request.external_id, preload: [:minted_token])
 
       result = render(TransactionConsumptionView,
                       "transaction_consumption.json",

@@ -1,6 +1,6 @@
 defmodule EWalletDB.BalanceTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Balance, Account, User}
+  alias EWalletDB.{Account, Balance, User}
 
   describe "Balance factory" do
     test_has_valid_factory Balance

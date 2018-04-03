@@ -19,7 +19,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, balance} <- BalanceFetcher.get(account, address),
          {:ok, transaction_request} <- create(balance, attrs)
     do
-      get(transaction_request.id)
+      get(transaction_request.external_id)
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error
@@ -40,7 +40,7 @@ defmodule EWallet.TransactionRequestGate do
          {:ok, balance} <- BalanceFetcher.get(user, address),
          {:ok, transaction_request} <- create(balance, attrs)
     do
-      get(transaction_request.id)
+      get(transaction_request.external_id)
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error
@@ -58,7 +58,7 @@ defmodule EWallet.TransactionRequestGate do
     with {:ok, balance} <- BalanceFetcher.get(nil, address),
          {:ok, transaction_request} <- create(balance, attrs)
     do
-      get(transaction_request.id)
+      get(transaction_request.external_id)
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error
@@ -87,7 +87,7 @@ defmodule EWallet.TransactionRequestGate do
     with %MintedToken{} = minted_token <- MintedToken.get(token_id) || :minted_token_not_found,
          {:ok, transaction_request} <- insert(minted_token, balance, attrs)
     do
-      get(transaction_request.id)
+      get(transaction_request.external_id)
     else
       error when is_atom(error) -> {:error, error}
       error                     -> error

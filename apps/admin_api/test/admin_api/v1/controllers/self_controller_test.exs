@@ -15,7 +15,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get_account" do
     test "responds with an account" do
-      account = User.get_account(get_test_user())
+      account = get_test_user() |> User.get_account() |> Repo.preload(:parent)
 
       assert user_request("/me.get_account") ==
         %{
@@ -24,8 +24,8 @@ defmodule AdminAPI.V1.SelfControllerTest do
           "data" => %{
             "object" => "account",
             "id" => account.external_id,
-            "socket_topic" => "account:#{account.id}",
-            "parent_id" => account.parent_id,
+            "socket_topic" => "account:#{account.external_id}",
+            "parent_id" => account.parent.external_id,
             "name" => account.name,
             "description" => account.description,
             "master" => Account.master?(account),
@@ -81,7 +81,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
               %{
                 "object" => "account",
                 "id" => account.external_id,
-                "socket_topic" => "account:#{account.id}",
+                "socket_topic" => "account:#{account.external_id}",
                 "parent_id" => account.parent.external_id,
                 "name" => account.name,
                 "description" => account.description,

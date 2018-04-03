@@ -9,7 +9,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "get/1" do
     test "returns an existing transaction consumption" do
       inserted = insert(:transaction_consumption)
-      consumption = TransactionConsumption.get(inserted.id)
+      consumption = TransactionConsumption.get(inserted.external_id)
       assert consumption.id == inserted.id
     end
 
@@ -27,7 +27,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
     test "preloads the specified association" do
       inserted = insert(:transaction_consumption)
-      consumption = TransactionConsumption.get(inserted.id, preload: [:minted_token])
+      consumption = TransactionConsumption.get(inserted.external_id, preload: [:minted_token])
       assert consumption.id == inserted.id
       assert consumption.minted_token != nil
     end
@@ -52,10 +52,10 @@ defmodule EWalletDB.TransactionConsumptionTest do
       TransactionConsumption.expire_all()
 
       # Reload all the records
-      t1 = TransactionConsumption.get(t1.id)
-      t2 = TransactionConsumption.get(t2.id)
-      t3 = TransactionConsumption.get(t3.id)
-      t4 = TransactionConsumption.get(t4.id)
+      t1 = TransactionConsumption.get(t1.external_id)
+      t2 = TransactionConsumption.get(t2.external_id)
+      t3 = TransactionConsumption.get(t3.external_id)
+      t4 = TransactionConsumption.get(t4.external_id)
 
       # Now t1 and t2 are expired
       assert TransactionConsumption.expired?(t1) == true
@@ -68,7 +68,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
       now = NaiveDateTime.utc_now()
       t = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :seconds))
       TransactionConsumption.expire_all()
-      t = TransactionConsumption.get(t.id)
+      t = TransactionConsumption.get(t.external_id)
 
       assert TransactionConsumption.expired?(t) == true
       assert t.expired_at != nil
@@ -99,7 +99,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
         status: "confirmed"
       )
 
-      consumptions = TransactionConsumption.all_active_for_request(request.id)
+      consumptions = TransactionConsumption.all_active_for_request(request.external_id)
 
       assert length(consumptions) == 3
       assert consumption_1 in consumptions == true

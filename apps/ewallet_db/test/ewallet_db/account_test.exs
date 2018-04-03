@@ -61,9 +61,9 @@ defmodule EWalletDB.AccountTest do
   end
 
   describe "get/1" do
-    test "accepts a uuid" do
-      {:ok, account} = :account |> params_for() |> Account.insert
-      result = Account.get(account.id)
+    test "accepts an external ID" do
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      result = Account.get(account.external_id)
 
       assert result.id == account.id
     end
@@ -79,8 +79,8 @@ defmodule EWalletDB.AccountTest do
 
   describe "get/2" do
     test "accepts a uuid and preload" do
-      {:ok, account} = :account |> params_for() |> Account.insert
-      result = Account.get(account.id, preload: :balances)
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      result = Account.get(account.external_id, preload: :balances)
 
       assert result.id == account.id
       assert Ecto.assoc_loaded?(result.balances)

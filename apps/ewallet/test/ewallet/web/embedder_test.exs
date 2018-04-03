@@ -20,7 +20,7 @@ defmodule EWallet.Web.EmbedderTest do
   defp insert_and_get_account do
     :account
     |> insert()
-    |> Map.get(:id)
+    |> Map.get(:external_id)
     |> Account.get()
   end
 

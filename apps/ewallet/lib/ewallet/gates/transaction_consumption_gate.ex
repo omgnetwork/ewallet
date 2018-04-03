@@ -102,7 +102,7 @@ defmodule EWallet.TransactionConsumptionGate do
          {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
          {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
          {:ok, request} <- TransactionRequestGate.expire_if_max_consumption(request),
-         {:ok, consumption} <- get(consumption.id)
+         {:ok, consumption} <- get(consumption.external_id)
     do
       case request.require_confirmation do
         true ->
@@ -138,10 +138,10 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  @spec get(UUID.t) :: {:ok, TransactionConsumption.t} |
+  @spec get(ExternalID.t()) :: {:ok, TransactionConsumption.t()} |
                        {:error, :transaction_consumption_not_found}
-  def get(id) do
-    consumption = TransactionConsumption.get(id, preload: [
+  def get(external_id) do
+    consumption = TransactionConsumption.get(external_id, preload: [
       :account, :user, :balance, :minted_token, :transaction_request
     ])
 
@@ -151,11 +151,11 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  @spec confirm(UUID.t, Boolean.t, Map.t) :: {:ok, TransactionConsumption.t} |
+  @spec confirm(ExternalID.t, Boolean.t, Map.t) :: {:ok, TransactionConsumption.t} |
                                              {:error, Atom.t} |
                                              {:error, TransactionConsumption.t, Atom.t, String.t}
-  def confirm(id, approved, %User{} = user) do
-    with {:ok, consumption} <- get(id),
+  def confirm(external_id, approved, %User{} = user) do
+    with {:ok, consumption} <- get(external_id),
          true <- consumption.transaction_request.user_id == user.id ||
                  {:error, :not_transaction_request_owner}
     do

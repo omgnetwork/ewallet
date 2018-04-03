@@ -3,16 +3,18 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   This module represents the transaction_consumption_confirmation event and how to build it.
   """
   alias  EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
-  alias EWalletDB.TransactionConsumption
+  alias EWalletDB.{Repo, TransactionConsumption}
 
   @spec broadcast(Atom.t, TransactionConsumption.t) :: :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do
+    consumption = Repo.preload(consumption, transaction_request: [:user, :account])
+
     topics =
       []
-      |> Event.address_topic(consumption.transaction_request.balance_address)
-      |> Event.transaction_request_topic(consumption.transaction_request_id)
-      |> Event.user_topic(consumption.transaction_request.user_id)
-      |> Event.account_topic(consumption.transaction_request.account_id)
+      |> Event.address_topic(consumption[:transaction_request][:balance_address])
+      |> Event.transaction_request_topic(consumption[:transaction_request][:external_id])
+      |> Event.user_topic(consumption[:transaction_request][:user][:external_id])
+      |> Event.account_topic(consumption[:transaction_request][:account][:external_id])
 
     Event.broadcast(
       event: "transaction_consumption_request",
@@ -32,13 +34,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   def broadcast(_, _), do: {:error, :unhandled_event}
 
   defp broadcast_change(event, consumption) do
+    consumption = Repo.preload(consumption, [:transaction_request, :user, :account])
+
     topics =
       []
       |> Event.address_topic(consumption.balance_address)
-      |> Event.transaction_request_topic(consumption.transaction_request_id)
-      |> Event.transaction_consumption_topic(consumption.id)
-      |> Event.user_topic(consumption.user_id)
-      |> Event.account_topic(consumption.account_id)
+      |> Event.transaction_request_topic(consumption.transaction_request.external_id)
+      |> Event.transaction_consumption_topic(consumption.external_id)
+      |> Event.user_topic(consumption[:user][:external_id])
+      |> Event.account_topic(consumption[:account][:external_id])
 
     Event.broadcast(
       event: event,

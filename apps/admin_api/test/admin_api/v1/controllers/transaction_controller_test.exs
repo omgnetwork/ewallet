@@ -48,17 +48,17 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
   describe "/transaction.get" do
     test "returns an transaction by the given transaction's ID" do
-      transactions    = insert_list(3, :transfer)
+      transactions = insert_list(3, :transfer)
       target   = Enum.at(transactions, 1) # Pick the 2nd inserted transaction
-      response = user_request("/transaction.get", %{"id" => target.id})
+      response = user_request("/transaction.get", %{"id" => target.external_id})
 
       assert response["success"]
       assert response["data"]["object"] == "transaction"
-      assert response["data"]["id"] == target.id
+      assert response["data"]["id"] == target.external_id
     end
 
     test "returns 'transaction:id_not_found' if the given ID was not found" do
-      response  = user_request("/transaction.get", %{"id" => "00000000-0000-0000-0000-000000000000"})
+      response  = user_request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -66,13 +66,13 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["data"]["description"] == "There is no transaction corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
-      response  = user_request("/transaction.get", %{"id" => "not_uuid"})
+    test "returns 'client:invalid_parameter' if the given ID is not in a valid format" do
+      response  = user_request("/transaction.get", %{"id" => "not_valid_external_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Transaction ID must be a UUID"
+      assert response["data"]["description"] == "The given transaction id is not in a valid format"
     end
   end
 end

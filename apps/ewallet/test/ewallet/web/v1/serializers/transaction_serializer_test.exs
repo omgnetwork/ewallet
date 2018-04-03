@@ -11,7 +11,7 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
 
       expected = %{
         object: "transaction",
-        id: transaction.id,
+        id: transaction.external_id,
         idempotency_token: transaction.idempotency_token,
         from: %{
           object: "transaction_source",

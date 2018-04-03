@@ -12,10 +12,10 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
         "test"
         |> socket(%{auth: %{authenticated: :provider, account: account}})
         |> subscribe_and_join(TransactionRequestChannel,
-                              "transaction_request:#{request.id}")
+                              "transaction_request:#{request.external_id}")
 
       assert res == :ok
-      assert socket.topic == "transaction_request:#{request.id}"
+      assert socket.topic == "transaction_request:#{request.external_id}"
     end
 
     test "can't join a channel for an inexisting request" do
@@ -41,10 +41,10 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user}})
         |> subscribe_and_join(TransactionRequestChannel,
-                              "transaction_request:#{request.id}")
+                              "transaction_request:#{request.external_id}")
 
       assert res == :ok
-      assert socket.topic == "transaction_request:#{request.id}"
+      assert socket.topic == "transaction_request:#{request.external_id}"
     end
 
     test "can't join channel with existing not owned address" do
@@ -55,7 +55,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user}})
         |> subscribe_and_join(TransactionRequestChannel,
-                              "transaction_request:#{request.id}")
+                              "transaction_request:#{request.external_id}")
 
       assert res == :error
       assert code == :forbidden_channel

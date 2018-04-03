@@ -36,7 +36,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
         CreditDebitRecordFetcher.fetch(%{
           "provider_user_id" => inserted_user.provider_user_id,
           "token_id" => inserted_token.friendly_id,
-          "account_id" => inserted_account.id
+          "account_id" => inserted_account.external_id
         })
 
       assert account.id == inserted_account.id

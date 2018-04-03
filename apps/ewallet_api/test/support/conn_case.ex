@@ -13,13 +13,14 @@ defmodule EWalletAPI.ConnCase do
   of the test unless the test case is marked as async.
   """
   use ExUnit.CaseTemplate
-  import EWalletDB.Factory
-  import Ecto.Query
-  alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletDB.{Account, Key, Repo, User}
-  alias EWallet.{MintGate, TransactionGate}
-  alias Ecto.UUID
   use Phoenix.ConnTest
+  import Ecto.Query
+  import EWalletDB.Factory
+  alias Ecto.Adapters.SQL.Sandbox
+  alias Ecto.UUID
+  alias EWallet.{MintGate, TransactionGate}
+  alias EWalletDB.{Account, Key, Repo, User}
+  alias EWalletDB.Types.ExternalID
 
   # Attributes required by Phoenix.ConnTest
   @endpoint EWalletAPI.Endpoint
@@ -29,11 +30,11 @@ defmodule EWalletAPI.ConnCase do
   @header_accept "application/vnd.omisego.v1+json" # The expected response version
 
   # Attributes for provider calls
-  @access_key "test_access_key"
+  @access_key ExternalID.generate("key_")
   @secret_key "test_secret_key"
 
   # Attributes for client calls
-  @api_key "test_api_key"
+  @api_key ExternalID.generate("api_")
   @auth_token "test_auth_token"
   @username "test_username"
   @provider_user_id "test_provider_user_id"

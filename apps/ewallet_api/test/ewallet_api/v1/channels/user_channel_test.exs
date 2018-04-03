@@ -11,10 +11,10 @@ defmodule EWalletAPI.V1.UserChannelTest do
       {res, _, socket} =
         "test"
         |> socket(%{auth: %{authenticated: :provider, account: account}})
-        |> subscribe_and_join(UserChannel, "user:#{user.id}")
+        |> subscribe_and_join(UserChannel, "user:#{user.external_id}")
 
       assert res == :ok
-      assert socket.topic == "user:#{user.id}"
+      assert socket.topic == "user:#{user.external_id}"
     end
 
     test "joins the channel with authenticated account and valid provider user ID" do
@@ -50,10 +50,10 @@ defmodule EWalletAPI.V1.UserChannelTest do
       {res, _, socket} =
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user}})
-        |> subscribe_and_join(UserChannel, "user:#{user.id}")
+        |> subscribe_and_join(UserChannel, "user:#{user.external_id}")
 
       assert res == :ok
-      assert socket.topic == "user:#{user.id}"
+      assert socket.topic == "user:#{user.external_id}"
     end
 
     test "joins the channel with authenticated user and same user (using provider_user_id)" do
@@ -75,7 +75,7 @@ defmodule EWalletAPI.V1.UserChannelTest do
       {res, code} =
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user1}})
-        |> subscribe_and_join(UserChannel, "user:#{user2.id}")
+        |> subscribe_and_join(UserChannel, "user:#{user2.external_id}")
 
       assert res == :error
       assert code == :forbidden_channel

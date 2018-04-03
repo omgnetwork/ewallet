@@ -29,7 +29,7 @@
       transaction_request = insert(:transaction_request,
         type: "receive",
         minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        user_id: meta.alice.external_id,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -41,18 +41,18 @@
       })
 
       response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: nil,
         address: nil,
         metadata: nil,
         token_id: nil,
-        account_id: meta.account.id
+        account_id: meta.account.external_id
       })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
-      request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
+      request  = TransactionRequest.get(transaction_request.external_id, preload: [:minted_token])
 
       assert response == %{
         "success" => true,
@@ -61,9 +61,8 @@
           "address" => meta.account_balance.address,
           "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
-          "id" => inserted_consumption.id,
-          "external_id" => inserted_consumption.external_id,
-          "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+          "id" => inserted_consumption.external_id,
+          "socket_topic" => "transaction_consumption:#{inserted_consumption.external_id}",
           "idempotency_token" => "123",
           "object" => "transaction_consumption",
           "status" => "confirmed",
@@ -72,14 +71,14 @@
             meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "approved" => true,
           "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
-          "transaction_request_id" => transaction_request.id,
+          "transaction_request_id" => transaction_request.external_id,
           "transaction_request" =>
             request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-          "transaction_id" => inserted_transfer.id,
+          "transaction_id" => inserted_transfer.external_id,
           "transaction" => nil, # not preloaded
           "user_id" => nil,
           "user" => nil,
-          "account_id" => meta.account.id,
+          "account_id" => meta.account.external_id,
           "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
           "metadata" => %{},
           "encrypted_metadata" => %{},
@@ -100,7 +99,7 @@
       transaction_request = insert(:transaction_request,
         type: "receive",
         minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        user_id: meta.alice.external_id,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -112,13 +111,13 @@
       })
 
       response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: nil,
         address: nil,
         metadata: nil,
         token_id: nil,
-        account_id: meta.account.id,
+        account_id: meta.account.external_id,
         embed: ["account"]
       })
 
@@ -129,7 +128,7 @@
       transaction_request = insert(:transaction_request,
         type: "receive",
         minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        user_id: meta.alice.external_id,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -141,23 +140,23 @@
       })
 
       response = provider_request_with_idempotency("/transaction_request.consume", "1234", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: nil,
         address: nil,
         metadata: nil,
         token_id: nil,
-        account_id: meta.account.id
+        account_id: meta.account.external_id
       })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true
-      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["id"] == inserted_consumption.external_id
 
       response = client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: nil,
         address: nil,
@@ -169,9 +168,9 @@
       inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true
-      assert response["data"]["id"] == inserted_consumption_2.id
-      assert inserted_consumption.id == inserted_consumption_2.id
-      assert inserted_transfer.id == inserted_transfer_2.id
+      assert response["data"]["id"] == inserted_consumption_2.external_id
+      assert inserted_consumption.external_id == inserted_consumption_2.external_id
+      assert inserted_transfer.external_id == inserted_transfer_2.external_id
     end
 
     test "returns idempotency error if header is not specified" do
@@ -204,12 +203,12 @@
       transaction_request = insert(:transaction_request,
         type: "send",
         minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        account_id: meta.account.external_id,
         balance: meta.account_balance,
         amount: nil,
         require_confirmation: true
       )
-      request_topic = "transaction_request:#{transaction_request.id}"
+      request_topic = "transaction_request:#{transaction_request.external_id}"
 
       # Start listening to the channels for the transaction request created above
       Endpoint.subscribe(request_topic)
@@ -217,7 +216,7 @@
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: 100_000 * meta.minted_token.subunit_to_unit,
         metadata: nil,
@@ -253,7 +252,7 @@
       })
 
       assert response["success"] == true
-      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["id"] == inserted_consumption.external_id
       assert response["data"]["status"] == "confirmed"
       assert response["data"]["approved"] == true
       assert response["data"]["finalized_at"] != nil
@@ -274,7 +273,7 @@
       }
 
       # Unsubscribe from all channels
-      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.external_id}")
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
@@ -290,12 +289,12 @@
       transaction_request = insert(:transaction_request,
         type: "send",
         minted_token_id: meta.minted_token.id,
-        user_id: meta.bob.id,
+        user_id: meta.bob.external_id,
         balance: meta.bob_balance,
         amount: nil,
         require_confirmation: true
       )
-      request_topic = "transaction_request:#{transaction_request.id}"
+      request_topic = "transaction_request:#{transaction_request.external_id}"
 
       # Start listening to the channels for the transaction request created above
       Endpoint.subscribe(request_topic)
@@ -303,7 +302,7 @@
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: 100_000 * meta.minted_token.subunit_to_unit,
         metadata: nil,
@@ -339,7 +338,7 @@
       })
 
       assert response["success"] == true
-      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["id"] == inserted_consumption.external_id
       assert response["data"]["status"] == "confirmed"
       assert response["data"]["approved"] == true
       assert response["data"]["finalized_at"] != nil
@@ -360,7 +359,7 @@
       }
 
       # Unsubscribe from all channels
-      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.external_id}")
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
@@ -371,12 +370,12 @@
       transaction_request = insert(:transaction_request,
         type: "send",
         minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        account_id: meta.account.external_id,
         balance: meta.account_balance,
         amount: nil,
         require_confirmation: true
       )
-      request_topic = "transaction_request:#{transaction_request.id}"
+      request_topic = "transaction_request:#{transaction_request.external_id}"
 
       # Start listening to the channels for the transaction request created above
       Endpoint.subscribe(request_topic)
@@ -384,7 +383,7 @@
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: 100_000 * meta.minted_token.subunit_to_unit,
         metadata: nil,
@@ -420,7 +419,7 @@
       })
 
       assert response["success"] == true
-      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["id"] == inserted_consumption.external_id
       assert response["data"]["status"] == "rejected"
       assert response["data"]["approved"] == false
       assert response["data"]["finalized_at"] != nil
@@ -437,7 +436,7 @@
       }
 
       # Unsubscribe from all channels
-      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.external_id}")
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
   end
@@ -447,7 +446,7 @@
       transaction_request = insert(:transaction_request,
         type: "receive",
         minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        user_id: meta.alice.external_id,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -459,7 +458,7 @@
       })
 
       response = client_request_with_idempotency("/me.consume_transaction_request", "123", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: nil,
         address: nil,
@@ -469,7 +468,7 @@
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
-      request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
+      request  = TransactionRequest.get(transaction_request.external_id, preload: [:minted_token])
 
       assert response == %{
         "success" => true,
@@ -478,23 +477,22 @@
           "address" => meta.bob_balance.address,
           "amount" => 100_000 * meta.minted_token.subunit_to_unit,
           "correlation_id" => nil,
-          "id" => inserted_consumption.id,
-          "external_id" => inserted_consumption.external_id,
-          "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+          "id" => inserted_consumption.external_id,
+          "socket_topic" => "transaction_consumption:#{inserted_consumption.external_id}",
           "idempotency_token" => "123",
           "object" => "transaction_consumption",
           "status" => "confirmed",
           "minted_token_id" => meta.minted_token.friendly_id,
           "minted_token" =>
             meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
-          "transaction_request_id" => transaction_request.id,
+          "transaction_request_id" => transaction_request.external_id,
           "transaction_request" =>
             request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-          "transaction_id" => inserted_transfer.id,
+          "transaction_id" => inserted_transfer.external_id,
           "approved" => true,
           "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
           "transaction" => nil, # not preloaded
-          "user_id" => meta.bob.id,
+          "user_id" => meta.bob.external_id,
           "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
           "encrypted_metadata" => %{},
           "expiration_date" => nil,
@@ -517,7 +515,7 @@
       transaction_request = insert(:transaction_request,
         type: "receive",
         minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        user_id: meta.alice.external_id,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -529,7 +527,7 @@
       })
 
       response = client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: nil,
         address: nil,
@@ -541,10 +539,10 @@
       inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true
-      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["id"] == inserted_consumption.external_id
 
       response = client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-        transaction_request_id: transaction_request.id,
+        transaction_request_id: transaction_request.external_id,
         correlation_id: nil,
         amount: nil,
         address: nil,
@@ -556,9 +554,9 @@
       inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_id)
 
       assert response["success"] == true
-      assert response["data"]["id"] == inserted_consumption_2.id
-      assert inserted_consumption.id == inserted_consumption_2.id
-      assert inserted_transfer.id == inserted_transfer_2.id
+      assert response["data"]["id"] == inserted_consumption_2.external_id
+      assert inserted_consumption.external_id == inserted_consumption_2.external_id
+      assert inserted_transfer.external_id == inserted_transfer_2.external_id
     end
 
     test "returns idempotency error if header is not specified" do

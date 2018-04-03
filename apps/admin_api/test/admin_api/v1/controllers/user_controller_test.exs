@@ -45,7 +45,7 @@ defmodule AdminAPI.V1.UserControllerTest do
     test "returns an user by the given user's ID" do
       users    = insert_list(3, :user)
       target   = Enum.at(users, 1) # Pick the 2nd inserted user
-      response = user_request("/user.get", %{"id" => target.id})
+      response = user_request("/user.get", %{"id" => target.external_id})
 
       assert response["success"]
       assert response["data"]["object"] == "user"
@@ -53,7 +53,7 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID was not found" do
-      response  = user_request("/user.get", %{"id" => "00000000-0000-0000-0000-000000000000"})
+      response  = user_request("/user.get", %{"id" => "usr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -61,13 +61,13 @@ defmodule AdminAPI.V1.UserControllerTest do
       assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
-      response  = user_request("/user.get", %{"id" => "not_uuid"})
+    test "returns 'client:invalid_parameter' if the given ID is not in a valid format" do
+      response  = user_request("/user.get", %{"id" => "not_valid_external_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "User ID must be a UUID"
+      assert response["data"]["description"] == "The given user id is not in a valid format"
     end
   end
 end

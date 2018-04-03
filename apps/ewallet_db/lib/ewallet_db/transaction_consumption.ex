@@ -5,7 +5,7 @@ defmodule EWalletDB.TransactionConsumption do
   use EWalletDB.Schema
   import EWalletDB.Validator
   alias EWalletDB.{TransactionConsumption, User, MintedToken,
-                   TransactionRequest, Balance, Helpers, Transfer, Account}
+                   TransactionRequest, Balance, Transfer, Account}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -90,22 +90,19 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Gets a transaction request consumption.
   """
-  @spec get(UUID.t) :: %TransactionConsumption{} | nil
-  @spec get(UUID.t, List.t) :: %TransactionConsumption{} | nil
+  @spec get(ExternalID.t()) :: %TransactionConsumption{} | nil
+  @spec get(ExternalID.t(), List.t()) :: %TransactionConsumption{} | nil
   def get(nil), do: nil
-  def get(id, opts \\ [])
+  def get(external_id, opts \\ [])
   def get(nil, _), do: nil
-  def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true  -> get_by(%{id: id}, opts)
-      false -> nil
-    end
+  def get(external_id, opts) do
+    get_by([external_id: external_id], opts)
   end
 
   @doc """
   Get a consumption using one or more fields.
   """
-  @spec get_by(Map.t, List.t) :: %TransactionConsumption{} | nil
+  @spec get_by(map() | keyword(), list()) :: %TransactionConsumption{} | nil
   def get_by(map, opts \\ []) do
     query = TransactionConsumption |> Repo.get_by(map)
 
@@ -132,11 +129,13 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Get all confirmed and pending transaction consumptions.
   """
-  @spec all_active_for_request(UUID.t) :: List.t
-  def all_active_for_request(request_id) do
+  @spec all_active_for_request(ExternalID.t) :: list(__MODULE__.t())
+  def all_active_for_request(request_external_id) do
     TransactionConsumption
-    |> where([t], t.status in [@pending, @confirmed])
-    |> where([t], t.transaction_request_id == ^request_id)
+    |> join(:inner, [c], r in TransactionRequest, c.transaction_request_id == r.id)
+    |> where([c, r], c.status in [@pending, @confirmed])
+    |> where([c, r], r.external_id == ^request_external_id)
+    |> select([c], c)
     |> Repo.all()
   end
 

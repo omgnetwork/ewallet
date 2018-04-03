@@ -77,7 +77,7 @@ defmodule EWalletDB.AuthTokenTest do
       user = insert(:admin)
       {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
-      auth_user = AuthToken.authenticate(user.id, auth_token, @owner_app)
+      auth_user = AuthToken.authenticate(user.external_id, auth_token, @owner_app)
       assert auth_user.id == user.id
     end
 
@@ -86,15 +86,15 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, token1} = AuthToken.generate(user, @owner_app)
       {:ok, token2} = AuthToken.generate(user, @owner_app)
 
-      assert AuthToken.authenticate(user.id, token1, @owner_app)
-      assert AuthToken.authenticate(user.id, token2, @owner_app)
+      assert AuthToken.authenticate(user.external_id, token1, @owner_app)
+      assert AuthToken.authenticate(user.external_id, token2, @owner_app)
     end
 
     test "returns :token_expired if token exists but expired" do
       token = insert(:auth_token, %{owner_app: Atom.to_string(@owner_app)})
       AuthToken.expire(token)
 
-      assert AuthToken.authenticate(token.user.id, token.token, @owner_app) == :token_expired
+      assert AuthToken.authenticate(token.user.external_id, token.token, @owner_app) == :token_expired
     end
 
     test "returns false if auth token belongs to a different user" do
@@ -102,28 +102,28 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
       another_user = insert(:admin)
-      assert AuthToken.authenticate(another_user.id, auth_token, @owner_app) == false
+      assert AuthToken.authenticate(another_user.external_id, auth_token, @owner_app) == false
     end
 
     test "returns false if token exists but for a different owner app" do
       user = insert(:admin)
       {:ok, auth_token} = AuthToken.generate(user, :different_app)
 
-      assert AuthToken.authenticate(user.id, auth_token, @owner_app) == false
+      assert AuthToken.authenticate(user.external_id, auth_token, @owner_app) == false
     end
 
     test "returns false if token does not exists" do
       user = insert(:admin)
       {:ok, _} = AuthToken.generate(user, @owner_app)
 
-      assert AuthToken.authenticate(user.id, "unmatched", @owner_app) == false
+      assert AuthToken.authenticate(user.external_id, "unmatched", @owner_app) == false
     end
 
     test "returns false if auth token is nil" do
       user = insert(:admin)
       {:ok, _} = AuthToken.generate(user, @owner_app)
 
-      assert AuthToken.authenticate(user.id, nil, @owner_app) == false
+      assert AuthToken.authenticate(user.external_id, nil, @owner_app) == false
     end
   end
 

@@ -5,18 +5,18 @@ defmodule EWallet.Web.V1.APIKeySerializer do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWallet.Web.{Date, Paginator}
-  alias EWalletDB.APIKey
+  alias EWalletDB.{APIKey, Repo}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
   def serialize(%APIKey{} = api_key) do
+    api_key = Repo.preload(api_key, :account)
     %{
       object: "api_key",
-      id: api_key.id,
-      external_id: api_key.external_id,
+      id: api_key.external_id,
       key: api_key.key,
-      account_id: api_key.account_id,
+      account_id: api_key.account.external_id,
       owner_app: api_key.owner_app,
       created_at: Date.to_iso8601(api_key.inserted_at),
       updated_at: Date.to_iso8601(api_key.updated_at),
