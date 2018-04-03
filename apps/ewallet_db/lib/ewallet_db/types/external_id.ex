@@ -4,7 +4,9 @@ defmodule EWalletDB.Types.ExternalID do
   that consists of a ULID prefixed with a 3-letter symbol representing the schema
   that the external ID belongs to.
 
-  Although the this custom type is a straightforward string primitive, it validates
+  The external ID is always in lower case.
+
+  Although this custom type is a straight-forward string primitive, it validates
   the given external ID before allowing the value to be casted. Hence it gives a
   better assurance that the value stored by this type follows a consistent format.
 
@@ -27,7 +29,9 @@ defmodule EWalletDB.Types.ExternalID do
   an underscore and 26-character ULID string. Returns `:error` on failure.
   """
   @spec cast(String.t) :: {:ok, String.t} | :error
-  def cast(<<_::bytes-size(3), "_", _::bytes-size(26)>> = ulid_string), do: {:ok, ulid_string}
+  def cast(<<_::bytes-size(3), "_", _::bytes-size(26)>> = ulid_string) do
+    {:ok, String.downcase(ulid_string)}
+  end
   def cast(_), do: :error
 
   @doc """
@@ -80,8 +84,15 @@ defmodule EWalletDB.Types.ExternalID do
 
   Returns a ULID if the prefix is not given, otherwise prepends the ULID with the given prefix.
   """
-  def generate(nil), do: ULID.generate()
-  def generate(prefix), do: prefix <> ULID.generate()
+  @spec generate(String.t) :: String.t
+  def generate(<<symbol::bytes-size(3), "_" >> = prefix) do
+    if String.match?(symbol, ~r/^[0-9a-z]{3}$/) do
+      String.downcase(prefix <> ULID.generate())
+    else
+      :error
+    end
+  end
+  def generate(_), do: :error
 
   # Callback invoked by autogenerate fields.
   @doc false
