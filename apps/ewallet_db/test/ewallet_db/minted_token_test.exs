@@ -34,14 +34,14 @@ defmodule EWalletDB.MintedTokenTest do
       assert minted_token.friendly_id == "OMG:123"
     end
 
-    test "allow subunit to be set between 0 and 1.0e81" do
+    test "allow subunit to be set between 0 and 1.0e18" do
       {:ok, minted_token} =
         :minted_token |> params_for(subunit_to_unit: 1.0e18) |> MintedToken.insert
 
       assert minted_token.subunit_to_unit == 1_000_000_000_000_000_000
     end
 
-    test "fails to insert when subunit is equal to 1.0e81" do
+    test "fails to insert when subunit is equal to 1.0e19" do
       {:error, error} =
         :minted_token |> params_for(subunit_to_unit: 1.0e19) |> MintedToken.insert
 
@@ -61,7 +61,7 @@ defmodule EWalletDB.MintedTokenTest do
       ]
     end
 
-    test "fails to insert when subunit is superior to 1.0e81" do
+    test "fails to insert when subunit is superior to 1.0e18" do
       {:error, error} =
         :minted_token |> params_for(subunit_to_unit: 1.0e82) |> MintedToken.insert
 
