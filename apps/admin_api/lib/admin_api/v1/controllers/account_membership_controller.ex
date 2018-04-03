@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
     "redirect_url" => redirect_url
   } = attrs) do
     with user when not is_tuple(user) <- get_user_or_email(attrs) || {:error, :user_id_not_found},
-         %Account{} = account <- Account.get_by([external_id: account_id]) ||
+         %Account{} = account <- Account.get_by(external_id: account_id) ||
                                  {:error, :account_id_not_found},
          %Role{} = role <- Role.get_by_name(role_name) || {:error, :role_name_not_found},
          {:ok, _} <- assign_or_invite(user, account, role, redirect_url) do
@@ -92,7 +92,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
     "account_id" => account_id
   }) do
     with %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
-         %Account{} = account <- Account.get_by([external_id: account_id]) ||
+         %Account{} = account <- Account.get_by(external_id: account_id) ||
                                  {:error, :account_id_not_found},
          {:ok, _} <- Membership.unassign(user, account) do
       render(conn, :empty, %{success: true})

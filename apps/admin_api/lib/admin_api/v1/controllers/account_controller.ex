@@ -94,7 +94,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def update(conn, %{"id" => account_id} = attrs) do
     with :ok            <- permit(:update, conn.assigns.user.id, account_id),
-         %{} = original <- Account.get_by([external_id: account_id]) ||
+         %{} = original <- Account.get_by(external_id: account_id) ||
                            {:error, :account_id_not_found},
          {:ok, updated} <- Account.update(original, attrs)
     do
@@ -113,7 +113,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with :ok           <- permit(:update, conn.assigns.user.id, id),
-         %{} = account <- Account.get_by([external_id: id]) || {:error, :account_id_not_found},
+         %{} = account <- Account.get_by(external_id: id) || {:error, :account_id_not_found},
          %{} = saved   <- Account.store_avatar(account, attrs)
     do
       render(conn, :account, %{account: saved})
