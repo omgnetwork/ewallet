@@ -15,6 +15,7 @@ config :admin_api,
 config :admin_api,
   AdminAPI.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
+  error_handler: AdminAPI.V1.ErrorHandler,
   render_errors: [
     view: AdminAPI.ErrorView,
     accepts: ~w(json),
