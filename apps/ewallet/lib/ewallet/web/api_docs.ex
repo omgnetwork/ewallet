@@ -24,47 +24,32 @@ defmodule EWallet.Web.APIDocs do
 
   ```
   defmodule SomeApp.Router do
-    # ...
     scope "/scope" do
       get "/docs", EWallet.Web.APIDocs.Controller, :index, private: %{redirect_to: "/scope/docs.ui"}
-      get "/docs.ui", EWallet.Web.APIDocs.Controller, :ui
-      get "/docs.yaml", EWallet.Web.APIDocs.Controller, :yaml
+      # ...
+
+      get "/errors", Controller, :forward, private: %{redirect_to: api_scope <> "/errors.ui"}
+      # ...
     end
-    # ...
   end
   ```
 
+  The endpoints are then accessible at `/scope/docs`, `/scope/errors`, etc.
   """
-  defmodule Controller do
-    @moduledoc false
-    use EWallet, :controller
-
-    @doc false
-    def index(%{private: %{redirect_to: destination}} = conn, _attrs) do
-      redirect conn, to: destination
-    end
-
-    @doc false
-    def ui(conn, _attrs) do
-      ui_path = Path.join([Application.app_dir(:ewallet), "priv", "swagger.html"])
-      send_file(conn, 200, ui_path)
-    end
-
-    @doc false
-    def yaml(conn, _attrs) do
-      otp_app   = endpoint_module(conn).config(:otp_app)
-      spec_path = Path.join([Application.app_dir(otp_app), "priv", "spec.yaml"])
-      send_file(conn, 200, spec_path)
-    end
-  end
+  alias EWallet.Web.APIDocs.Controller
 
   @doc false
   defmacro __using__(scope: api_scope) do
-    quote do
-      scope unquote(api_scope) do
-        get "/docs", Controller, :index, private: %{redirect_to: unquote(api_scope) <> "/docs.ui"}
+    quote bind_quoted: binding() do
+      scope api_scope do
+        get "/docs", Controller, :forward, private: %{redirect_to: api_scope <> "/docs.ui"}
         get "/docs.ui", Controller, :ui
         get "/docs.yaml", Controller, :yaml
+
+        get "/errors", Controller, :forward, private: %{redirect_to: api_scope <> "/errors.ui"}
+        get "/errors.ui", Controller, :errors_ui
+        get "/errors.yaml", Controller, :errors_yaml
+        get "/errors.json", Controller, :errors_json
       end
     end
   end
