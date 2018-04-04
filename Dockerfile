@@ -10,7 +10,7 @@ RUN set -xe && \
 
 RUN set -xe && \
     apt-get update && \
-    apt-get install -y apt-transport-https gnupg && \
+    apt-get install -y --no-install-recommends apt-transport-https gnupg && \
     rm -f /etc/apt/sources.list.d/chris-lea-node_js-stretch.list && \
     curl -fsL https://deb.nodesource.com/gpgkey/nodesource.gpg.key | apt-key add - && \
     curl -fsL https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add - && \
