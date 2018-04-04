@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   alias EWallet.MintGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.MintedToken
+  alias Ecto.UUID
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -56,35 +57,57 @@ defmodule AdminAPI.V1.MintedTokenController do
   Creates a new Minted Token.
   """
   def create(%{assigns: %{account: account}} = conn, attrs) do
-    attrs
-    |> Map.put("account_id", account.id)
-    |> MintedToken.insert()
-    |> mint(attrs)
-    |> respond_single(conn)
+    inserted_minted_token =
+      attrs
+      |> Map.put("account_id", account.id)
+      |> MintedToken.insert()
+
+    case attrs["amount"] do
+      amount when is_number(amount) and amount > 0 ->
+        inserted_minted_token
+        |> mint_token(%{"amount" => amount})
+        |> respond_single(conn)
+      _ ->
+        respond_single(inserted_minted_token, conn)
+    end
   end
   def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  defp mint({:ok, minted_token}, %{
-    "amount" => amount
-  })
-    when not is_nil(amount)
-    and is_integer(amount)
-    and amount > 0
+  @doc """
+  Mint a minted token.
+  """
+  def mint(conn, %{
+    "id" => friendly_id,
+    "amount" => _
+  } = attrs)
   do
-    res = MintGate.insert(%{
-      "idempotency_token" => minted_token.id,
+    with %MintedToken{} = minted_token <- MintedToken.get(friendly_id) do
+      mint_token({:ok, minted_token}, attrs)
+    else
+      error -> error
+    end
+    |> respond_single(conn)
+  end
+  def mint(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp mint_token({:ok, minted_token}, %{"amount" => amount} = attrs)
+  when is_number(amount)
+  do
+    %{
+      "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
       "token_id" => minted_token.friendly_id,
       "amount" => amount,
-      "description" => ""
-    })
-
-    case res do
+      "description" => attrs["description"]
+    }
+    |> MintGate.insert()
+    |> case do
       {:ok, _mint, _ledger_response} -> {:ok, minted_token}
       {:error, code, description}    -> {:error, code, description}
       {:error, changeset}            -> {:error, changeset}
     end
   end
-  defp mint(res, _attrs), do: res
+  defp mint_token({:error, changeset}, _attrs), do: {:error, changeset}
+  defp mint_token(_, _attrs), do: {:error, :invalid_parameter}
 
   # Respond with a list of minted tokens
   defp respond_multiple(%Paginator{} = paged_minted_tokens, conn) do

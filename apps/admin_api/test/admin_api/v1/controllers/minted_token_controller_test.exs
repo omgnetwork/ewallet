@@ -125,7 +125,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       assert mint == nil
     end
 
-    test "inserts a new minted token with no minting if amount is 0" do
+    test "fails a new minted token with no minting if amount is 0" do
       response = user_request("/minted_token.create", %{
         symbol: "BTC",
         name: "Bitcoin",
@@ -172,6 +172,79 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
              "Invalid parameter provided `symbol` can't be blank."
       inserted = MintedToken |> Repo.all() |> Enum.at(0)
       assert inserted == nil
+    end
+  end
+
+  describe "/minted_token.mint" do
+    test "mints an existing minted token" do
+      minted_token = insert(:minted_token)
+      response = user_request("/minted_token.mint", %{
+        id: minted_token.friendly_id,
+        amount: 1_000_000 * minted_token.subunit_to_unit
+      })
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "minted_token"
+      assert MintedToken.get(response["data"]["id"]) != nil
+      assert mint != nil
+      assert mint.amount == 1_000_000 * minted_token.subunit_to_unit
+      assert mint.minted_token_id == minted_token.id
+    end
+
+    test "fails to mint a non existing token" do
+      response = user_request("/minted_token.mint", %{
+        id: "123",
+        amount: 1_000_000
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "minted_token:id_not_found"
+    end
+
+    test "fails to mint with mint amount sent as string" do
+      minted_token = insert(:minted_token)
+
+      response = user_request("/minted_token.mint", %{
+        id: minted_token.friendly_id,
+        amount: "abc"
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "invalid_parameter"
+    end
+
+    test "fails to mint with mint amount == 0" do
+      minted_token = insert(:minted_token)
+
+      response = user_request("/minted_token.mint", %{
+        id: minted_token.friendly_id,
+        amount: 0
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `amount` must be greater than %{number}."
+      assert response["data"]["messages"] == %{"amount" => ["number"]}
+    end
+
+    test "fails to mint with mint amount < 0" do
+      minted_token = insert(:minted_token)
+
+      response = user_request("/minted_token.mint", %{
+        id: minted_token.friendly_id,
+        amount: -1
+      })
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `amount` must be greater than %{number}."
+      assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
   end
 end
