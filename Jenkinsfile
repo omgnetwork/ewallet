@@ -26,7 +26,7 @@ podTemplate(
 
         stage('Build') {
             gitCommit = sh(script: 'git rev-parse --short HEAD', returnStdout: true).trim()
-            sh("docker build . -t ${imageName}:${gitCommit}")
+            sh("docker build --pull . -t ${imageName}:${gitCommit}")
         }
 
         stage('Test') {
