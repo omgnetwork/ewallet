@@ -27,6 +27,10 @@ info:
     Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
     including on errors. Only in case of an internal server error that `500`
     will be returned.
+
+
+    Error codes are available in [html](./errors), [json](./errors.json)
+    and [yaml](./errors.yaml) formats.
   contact:
     name: OmiseGO
     email: thibault@omisego.co

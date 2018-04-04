@@ -7,17 +7,17 @@ seeds = [
   # Hierarchical accounts:
   # - Company Master Account (top level) <- already created in `initial_account.exs`
   #   |- Brand 1
-  #      |- Branch 1
+  #   |- Branch 1
   #   |- Brand 2
-  #      |- Branch 2
+  #   |- Branch 2
 
   # Brand 1
   %{name: "brand1", description: "Brand 1", parent_name: "master_account"},
-  %{name: "branch1", description: "Branch 1", parent_name: "brand1"},
+  %{name: "branch1", description: "Branch 1", parent_name: "master_account"},
 
   # Region 2
   %{name: "brand2", description: "Brand 2", parent_name: "master_account"},
-  %{name: "branch2", description: "Branch 2", parent_name: "brand2"},
+  %{name: "branch2", description: "Branch 2", parent_name: "master_account"},
 ]
 
 CLI.subheading("Seeding Accounts:\n")

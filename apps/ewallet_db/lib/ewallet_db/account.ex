@@ -4,6 +4,7 @@ defmodule EWalletDB.Account do
   """
   use Ecto.Schema
   use Arc.Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
@@ -19,6 +20,8 @@ defmodule EWalletDB.Account do
   @child_level_limit 1
 
   schema "account" do
+    external_id prefix: "acc_"
+
     field :name, :string
     field :description, :string
     field :relative_depth, :integer, virtual: true

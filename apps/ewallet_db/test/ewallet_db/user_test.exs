@@ -221,7 +221,7 @@ defmodule EWalletDB.UserTest do
   end
 
   describe "get_role/2" do
-    test "returns the role that the user has for the given account" do
+    test "returns the role that the user has for the given account's id" do
       user    = insert(:user)
       account = insert(:account)
       role    = insert(:role, %{name: "role_one"})
@@ -229,6 +229,16 @@ defmodule EWalletDB.UserTest do
       insert(:membership, %{user: user, account: account, role: role})
 
       assert User.get_role(user.id, account.id) == "role_one"
+    end
+
+    test "returns the role that the user has for the given account's external_id" do
+      user    = insert(:user)
+      account = insert(:account)
+      role    = insert(:role, %{name: "role_one"})
+
+      insert(:membership, %{user: user, account: account, role: role})
+
+      assert User.get_role(user.id, account.external_id) == "role_one"
     end
 
     test "returns the role that the user has in the closest parent account" do

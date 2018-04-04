@@ -11,6 +11,7 @@ defmodule EWallet.Mixfile do
       lockfile: "../../mix.lock",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env),
+      compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
@@ -37,6 +38,8 @@ defmodule EWallet.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:phoenix, "~> 1.3.0"},
+      {:phoenix_html, "~> 2.11.0"},
       {:ewallet_db, in_umbrella: true},
       {:local_ledger, in_umbrella: true},
       {:local_ledger_db, in_umbrella: true, only: :test}

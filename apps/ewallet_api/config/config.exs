@@ -12,6 +12,7 @@ config :ewallet_api,
 
 # Configures the endpoint for websockets
 config :ewallet_api, EWalletAPI.Endpoint,
+  error_handler: EWalletAPI.V1.ErrorHandler,
   render_errors: [
     view: EWalletAPI.ErrorView,
     accepts: ~w(json),

@@ -119,8 +119,15 @@ defmodule AdminAPI.V1.ErrorHandler do
   }
 
   @doc """
+  Returns a map of all the error atoms along with their code and description.
+  """
+  @spec errors() :: %{required(atom()) => %{code: String.t, description: String.t}}
+  def errors, do: @errors
+
+  @doc """
   Handles response of invalid parameter error with error details provided.
   """
+  @spec handle_error(Plug.Conn.t, :invalid_parameter, Ecto.Changeset.t) :: Plug.Conn.t
   def handle_error(conn, :invalid_parameter, %Changeset{} = changeset) do
     code =
       @errors.invalid_parameter.code
@@ -140,9 +147,11 @@ defmodule AdminAPI.V1.ErrorHandler do
   Handles response of insufficient funds error.
   Duplicate from eWalletAPI ErrorHandler, will be refactored in error merge.
   """
+  @spec handle_error(Plug.Conn.t, :insufficient_funds, map()) :: Plug.Conn.t
   def handle_error(conn, :insufficient_funds, data) do
     handle_error(conn, "transaction:insufficient_funds", data)
   end
+  @spec handle_error(Plug.Conn.t, String.t, map()) :: Plug.Conn.t
   # credo:disable-for-next-line
   def handle_error(conn, "transaction:insufficient_funds", %{
     "address" => address,
@@ -166,6 +175,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   @doc """
   Handles response with custom error code and description.
   """
+  @spec handle_error(Plug.Conn.t, atom(), map()) :: Plug.Conn.t
   def handle_error(conn, code, description) do
     respond(conn, code, description)
   end
@@ -173,6 +183,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   @doc """
   Handles response of invalid version error with accept header provided.
   """
+  @spec handle_error(Plug.Conn.t, :invalid_version) :: Plug.Conn.t
   def handle_error(conn, :invalid_version) do
     code =
       @errors.invalid_version.code
@@ -185,6 +196,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   @doc """
   Handles response with default error code and description
   """
+  @spec handle_error(Plug.Conn.t, atom()) :: Plug.Conn.t
   def handle_error(conn, error_name) do
     case Map.fetch(@errors, error_name) do
       {:ok, error} ->

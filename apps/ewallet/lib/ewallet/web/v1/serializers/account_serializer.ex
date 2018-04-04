@@ -5,7 +5,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWallet.Web.{Paginator, Date}
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, Repo}
   alias EWalletDB.Uploaders.Avatar
 
   def serialize(%Paginator{} = paginator) do
@@ -17,12 +17,14 @@ defmodule EWallet.Web.V1.AccountSerializer do
       data: Enum.map(accounts, &serialize/1)
     }
   end
-  def serialize(%Account{} = account)do
+  def serialize(%Account{} = account) do
+    account = Repo.preload(account, :parent)
+
     %{
       object: "account",
-      id: account.id,
+      id: account.external_id,
       socket_topic: "account:#{account.id}",
-      parent_id: account.parent_id,
+      parent_id: get_parent_external_id(account),
       name: account.name,
       description: account.description,
       master: Account.master?(account),
@@ -35,4 +37,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   end
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
+  defp get_parent_external_id(%Account{parent: nil}), do: nil
+  defp get_parent_external_id(%Account{parent: parent}), do: parent.external_id
 end

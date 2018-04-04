@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>Error Codes for <%= assigns.app_name %></title>
+  </head>
+  <body>
+    <h1>Error Codes for <%= assigns.app_name %></h1>
+    <table>
+      <thead>
+        <tr>
+          <th>Code</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+      <%= for {_key, error} <- assigns.errors do %>
+        <tr>
+          <td><%= error.code %></td>
+          <td><%= error.description %></td>
+        </tr>
+      <% end %>
+      </tbody>
+  </body>
+</html>

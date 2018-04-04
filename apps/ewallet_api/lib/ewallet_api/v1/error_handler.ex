@@ -95,8 +95,8 @@ defmodule EWalletAPI.V1.ErrorHandler do
     },
     max_consumptions_reached: %{
       code: "transaction_request:max_consumptions_reached",
-      description: "The specified transaction request has reached the allowed amount of
-                    consumptions."
+      description: "The specified transaction request has reached the allowed amount " <>
+                   "of consumptions."
     },
     not_transaction_request_owner: %{
       code: "transaction_consumption:not_owner",
@@ -124,8 +124,15 @@ defmodule EWalletAPI.V1.ErrorHandler do
   }
 
   @doc """
+  Returns a map of all the error atoms along with their code and description.
+  """
+  @spec errors() :: %{required(atom()) => %{code: String.t, description: String.t}}
+  def errors, do: @errors
+
+  @doc """
   Handles response of invalid parameter error with error details provided.
   """
+  @spec handle_error(Plug.Conn.t, :invalid_parameter, Ecto.Changeset.t) :: Plug.Conn.t
   def handle_error(conn, :invalid_parameter, changeset) do
     code =
       @errors.invalid_parameter.code
@@ -140,9 +147,11 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Handles response of insufficient funds error.
   """
+  @spec handle_error(Plug.Conn.t, :insufficient_funds, map()) :: Plug.Conn.t
   def handle_error(conn, :insufficient_funds, data) do
     handle_error(conn, "transaction:insufficient_funds", data)
   end
+  @spec handle_error(Plug.Conn.t, String.t, map()) :: Plug.Conn.t
   # credo:disable-for-next-line
   def handle_error(conn, "transaction:insufficient_funds", %{
     "address" => address,
@@ -166,6 +175,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Handles response with custom error code and description.
   """
+  @spec handle_error(Plug.Conn.t, atom(), map()) :: Plug.Conn.t
   def handle_error(conn, code, description) do
     respond(conn, code, description)
   end
@@ -173,6 +183,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Handles response of invalid version error with accept header provided.
   """
+  @spec handle_error(Plug.Conn.t, :invalid_version) :: Plug.Conn.t
   def handle_error(conn, :invalid_version) do
     code =
       @errors.invalid_version.code
@@ -185,6 +196,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Handles response with default error code and description
   """
+  @spec handle_error(Plug.Conn.t, atom()) :: Plug.Conn.t
   def handle_error(conn, error_name) do
     case Map.fetch(@errors, error_name) do
       {:ok, error} ->
@@ -197,6 +209,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Build an existing error or return an internal server error
   """
+  @spec build_predefined_error(atom()) :: Plug.Conn.t
   def build_predefined_error(error_name) do
     case Map.fetch(@errors, error_name) do
       {:ok, error} ->
@@ -209,6 +222,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Build an error without the need for conn.
   """
+  @spec build_error(atom() | String.t, String.t, map() | nil) :: Plug.Conn.t
   def build_error(code, description, messages \\ nil) do
     ErrorSerializer.serialize(code, description, messages)
   end

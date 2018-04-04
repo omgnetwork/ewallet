@@ -24,6 +24,10 @@ info:
     Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
     including on errors. Only in case of an internal server error that `500`
     will be returned.
+
+
+    Error codes are available in [html](./errors), [json](./errors.json)
+    and [yaml](./errors.yaml) formats.
   contact:
     name: OmiseGO
     email: thibault@omisego.co
@@ -812,10 +816,8 @@ components:
           type: string
         id:
           type: string
-          format: uuid
         parent_id:
           type: string
-          format: uuid
         name:
           type: string
         description:
@@ -859,8 +861,8 @@ components:
           success: true
           data:
             object: "account"
-            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-            parent_id: "782da516-ec3a-453b-bbc7-4226a5f6fd66"
+            id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+            parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
             name: "Account Name"
             description: "The account description"
             master: true
@@ -894,8 +896,8 @@ components:
             object: "list"
             data:
               - object: "account"
-                id: "9bd32bec-082a-427e-8545-6922952cff35"
-                parent_id: "782da516-ec3a-453b-bbc7-4226a5f6fd66"
+                id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+                parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
                 name: "Account name"
                 description: "The account description"
                 master: true
@@ -1283,7 +1285,6 @@ components:
           nullable: true
         account_id:
           type: string
-          format: uuid
         created_at:
           type: string
           format: date-time
@@ -1321,7 +1322,7 @@ components:
             id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             secret_key: "the_secret_key_or_null"
-            account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
@@ -1353,7 +1354,7 @@ components:
                 id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                 access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 secret_key: "the_secret_key_or_null"
-                account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
                 deleted_at: null
@@ -1381,7 +1382,6 @@ components:
           type: string
         account_id:
           type: string
-          format: uuid
         created_at:
           type: string
           format: date-time
@@ -1420,7 +1420,7 @@ components:
             id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             owner_app: "admin_api"
-            account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
@@ -1452,7 +1452,7 @@ components:
                 id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                 key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 owner_app: "admin_api"
-                account_id: "1e3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
                 deleted_at: null
@@ -1656,11 +1656,10 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
             required:
               - id
             example:
-              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
     AccountCreateBody:
       description: The parameters to use for creating a new account.
       required: true
@@ -1683,7 +1682,7 @@ components:
             example:
               name: "Account Name"
               description: "The account description"
-              parent_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
               metadata: {}
               encrypted_metadata: {}
     AccountUpdateBody:
@@ -1695,7 +1694,6 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
               name:
                 type: string
               description:
@@ -1709,7 +1707,7 @@ components:
               - name
               - description
             example:
-              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
               name: "Account Name"
               description: "The account description"
               metadata: {}
@@ -1723,11 +1721,10 @@ components:
             properties:
               account_id:
                 type: string
-                format: uuid
             required:
               - account_id
             example:
-              account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
     AccountAssignUserBody:
       description: The parameters to use for assigning a user to an account
       required: true
@@ -1741,7 +1738,6 @@ components:
                     format: uuid
                   account_id:
                     type: string
-                    format: uuid
                   role_name:
                     type: string
                   redirect_url:
@@ -1753,7 +1749,7 @@ components:
                   - redirect_url
                 example:
                   user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
-                  account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
                   role_name: "admin"
                   redirect_url: "https://domain/redirect_path?email={email}&token={token}"
               - properties:
@@ -1761,7 +1757,6 @@ components:
                     type: string
                   account_id:
                     type: string
-                    format: uuid
                   role_name:
                     type: string
                 required:
@@ -1771,11 +1766,11 @@ components:
                   - redirect_url
                 example:
                   email: "user@example.com"
-                  account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
                   role_name: "admin"
                   redirect_url: "https://domain/redirect_path?email={email}&token={token}"
             example:
-              account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
               role_name: "admin"
               redirect_url: "https://domain/redirect_path?email={email}&token={token}"
@@ -1791,12 +1786,11 @@ components:
                 format: uuid
               account_id:
                 type: string
-                format: uuid
             required:
               - user_id
               - account_id
             example:
-              account_id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
     AccountUploadBody:
       description: The parameters to use for uploading an account's avatar. Only supports .jpg, .jpeg, .gif and .png.
@@ -1807,7 +1801,6 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
               avatar:
                 type: string
                 format: binary
@@ -1815,7 +1808,7 @@ components:
               - id
               - avatar
             example:
-              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
               avatar: "/path/to/file"
 
     ######################################

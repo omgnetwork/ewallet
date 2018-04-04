@@ -7,13 +7,14 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
 
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
-      account = insert(:account)
+      master  = :account |> insert()
+      account = :account |> insert() |> Repo.preload(:parent)
 
       expected = %{
         object: "account",
-        id: account.id,
+        id: account.external_id,
         socket_topic: "account:#{account.id}",
-        parent_id: account.parent_id,
+        parent_id: master.external_id,
         name: account.name,
         description: account.description,
         master: Account.master?(account),
@@ -33,8 +34,9 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
     end
 
     test "serializes an account paginator into a list object" do
-      account1 = insert(:account)
-      account2 = insert(:account)
+      account1 = :account |> insert() |> Repo.preload(:parent)
+      account2 = :account |> insert() |> Repo.preload(:parent)
+
       paginator = %Paginator{
         data: [account1, account2],
         pagination: %{
@@ -50,9 +52,9 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
         data: [
           %{
             object: "account",
-            id: account1.id,
+            id: account1.external_id,
             socket_topic: "account:#{account1.id}",
-            parent_id: account1.parent_id,
+            parent_id: nil,
             name: account1.name,
             description: account1.description,
             master: Account.master?(account1),
@@ -69,9 +71,9 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
           },
           %{
             object: "account",
-            id: account2.id,
+            id: account2.external_id,
             socket_topic: "account:#{account2.id}",
-            parent_id: account2.parent_id,
+            parent_id: account2.parent.external_id,
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),
