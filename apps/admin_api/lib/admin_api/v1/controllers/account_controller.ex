@@ -74,8 +74,11 @@ defmodule AdminAPI.V1.AccountController do
 
   The requesting user must have write permission on the given parent account.
   """
-  def create(conn, %{"parent_id" => parent_id} = attrs) do
+  def create(conn, attrs) do
+    parent_id = attrs["parent_id"] || Account.get_master_account().id
+
     with :ok            <- permit(:create, conn.assigns.user.id, parent_id),
+         attrs          <- Map.put(attrs, "parent_id", parent_id),
          {:ok, account} <- Account.insert(attrs)
     do
       render(conn, :account, %{account: account})
