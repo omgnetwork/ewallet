@@ -16,12 +16,12 @@ defmodule AdminAPI.V1.APIKeyController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [{:id, :uuid}, :key]
+  @search_fields [{:id, :uuid}, :external_id, :key]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :key, :owner_app, :inserted_at, :updated_at]
+  @sort_fields [:id, :external_id, :key, :owner_app, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of API keys including soft-deleted.

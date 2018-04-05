@@ -20,6 +20,7 @@ defmodule EWalletDB.UserTest do
     end
 
     test_insert_generate_uuid User, :id
+    test_insert_generate_external_id User, :external_id, "usr_"
     test_insert_generate_timestamps User
     test_insert_prevent_duplicate User, :username
     test_insert_prevent_duplicate User, :provider_user_id

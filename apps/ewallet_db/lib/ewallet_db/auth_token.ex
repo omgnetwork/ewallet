@@ -2,17 +2,16 @@ defmodule EWalletDB.AuthToken do
   @moduledoc """
   Ecto Schema representing an authentication token.
   """
-  use Ecto.Schema
-  import Ecto.Changeset
-  import Ecto.Query, only: [from: 2]
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, AuthToken, User}
+  use EWalletDB.Schema
+  alias EWalletDB.{AuthToken, User}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}
   @key_length 32
 
   schema "auth_token" do
+    external_id prefix: "atk_"
+
     field :token, :string
     field :owner_app, :string
     belongs_to :user, User, foreign_key: :user_id,
@@ -122,12 +121,12 @@ defmodule EWalletDB.AuthToken do
     |> expire()
   end
   def expire(%AuthToken{} = token) do
-    update(token, %{expired: true})
+    update_token(token, %{expired: true})
   end
 
   # `update/2` is private to prohibit direct auth token updates,
   # if expiring the token, please use `expire/2` instead.
-  defp update(%AuthToken{} = token, attrs) do
+  defp update_token(%AuthToken{} = token, attrs) do
     token
     |> changeset(attrs)
     |> Repo.update()

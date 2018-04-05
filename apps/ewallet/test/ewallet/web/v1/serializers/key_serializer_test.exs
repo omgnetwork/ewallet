@@ -11,6 +11,7 @@ defmodule EWallet.Web.V1.KeySerializerTest do
       expected = %{
         object: "key",
         id: key.id,
+        external_id: key.external_id,
         access_key: key.access_key,
         secret_key: key.secret_key,
         account_id: key.account_id,
@@ -46,6 +47,7 @@ defmodule EWallet.Web.V1.KeySerializerTest do
           %{
             object: "key",
             id: key1.id,
+            external_id: key1.external_id,
             access_key: key1.access_key,
             secret_key: key1.secret_key,
             account_id: key1.account_id,
@@ -56,6 +58,7 @@ defmodule EWallet.Web.V1.KeySerializerTest do
           %{
             object: "key",
             id: key2.id,
+            external_id: key2.external_id,
             access_key: key2.access_key,
             secret_key: key2.secret_key,
             account_id: key2.account_id,

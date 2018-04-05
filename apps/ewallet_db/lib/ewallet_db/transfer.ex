@@ -2,11 +2,9 @@ defmodule EWalletDB.Transfer do
   @moduledoc """
   Ecto Schema representing transfers.
   """
-  use Ecto.Schema
-  import Ecto.{Changeset, Query}
+  use EWalletDB.Schema
   import EWalletDB.Validator
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, Transfer, Balance, MintedToken, Helpers}
+  alias EWalletDB.{Transfer, Balance, MintedToken}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -25,6 +23,8 @@ defmodule EWalletDB.Transfer do
   @primary_key {:id, UUID, autogenerate: true}
 
   schema "transfer" do
+    external_id prefix: "tfr_"
+
     field :idempotency_token, :string
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @pending # pending -> confirmed
@@ -94,9 +94,9 @@ defmodule EWalletDB.Transfer do
   def get(id, opts \\ [])
   def get(nil, _), do: nil
   def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true  -> get_by(%{id: id}, opts)
-      false -> nil
+    case UUID.cast(id) do
+      {:ok, uuid} -> get_by(%{id: uuid}, opts)
+      :error      -> nil
     end
   end
 

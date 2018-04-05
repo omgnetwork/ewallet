@@ -2,17 +2,17 @@ defmodule EWalletDB.User do
   @moduledoc """
   Ecto Schema representing users.
   """
-  use Ecto.Schema
+  use EWalletDB.Schema
   use Arc.Ecto.Schema
-  import Ecto.{Changeset, Query}
   import EWalletDB.Validator
-  alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite,
-                   Membership, Role, User, Helpers, Helpers.Crypto}
+  alias Ecto.Multi
+  alias EWalletDB.{Account, AuthToken, Balance, Helpers, Helpers.Crypto, Invite, Membership, Role, User}
 
   @primary_key {:id, UUID, autogenerate: true}
 
   schema "user" do
+    external_id prefix: "usr_"
+
     field :username, :string
     field :email, :string
     field :password, :string, virtual: true

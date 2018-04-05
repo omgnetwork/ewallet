@@ -2,13 +2,11 @@ defmodule EWalletDB.Account do
   @moduledoc """
   Ecto Schema representing account.
   """
-  use Ecto.Schema
+  use EWalletDB.Schema
   use Arc.Ecto.Schema
-  use EWalletDB.Types.ExternalID
-  import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
-  alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
+  alias Ecto.Multi
+  alias EWalletDB.{Account, APIKey, Balance, Key, Membership, MintedToken}
 
   @primary_key {:id, UUID, autogenerate: true}
 

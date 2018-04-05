@@ -64,6 +64,7 @@ defmodule EWalletDB.KeyTest do
 
   describe "insert/1" do
     test_insert_generate_uuid Key, :id
+    test_insert_generate_external_id Key, :external_id, "key_"
     test_insert_generate_timestamps Key
     test_insert_generate_length Key, :access_key, 43
     test_insert_generate_length Key, :secret_key, 43

@@ -2,11 +2,9 @@ defmodule EWalletDB.TransactionConsumption do
   @moduledoc """
   Ecto Schema representing transaction request consumptions.
   """
-  use Ecto.Schema
-  import Ecto.{Changeset, Query}
+  use EWalletDB.Schema
   import EWalletDB.Validator
-  alias Ecto.UUID
-  alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,
+  alias EWalletDB.{TransactionConsumption, User, MintedToken,
                    TransactionRequest, Balance, Helpers, Transfer, Account}
 
   @pending "pending"
@@ -19,6 +17,8 @@ defmodule EWalletDB.TransactionConsumption do
   @primary_key {:id, Ecto.UUID, autogenerate: true}
 
   schema "transaction_consumption" do
+    external_id prefix: "txc_"
+
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @pending # pending -> confirmed
     field :correlation_id, :string

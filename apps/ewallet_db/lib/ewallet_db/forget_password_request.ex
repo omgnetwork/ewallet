@@ -2,10 +2,8 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @moduledoc """
   Ecto Schema representing a password reset request.
   """
-  use Ecto.Schema
-  import Ecto.{Changeset, Query}
-  alias Ecto.UUID
-  alias EWalletDB.{Repo, ForgetPasswordRequest, User}
+  use EWalletDB.Schema
+  alias EWalletDB.{ForgetPasswordRequest, User}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:id, UUID, autogenerate: true}

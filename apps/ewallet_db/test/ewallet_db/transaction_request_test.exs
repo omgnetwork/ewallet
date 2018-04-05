@@ -94,6 +94,7 @@ defmodule EWalletDB.TransactionRequestTest do
 
   describe "insert/1" do
     test_insert_generate_uuid TransactionRequest, :id
+    test_insert_generate_external_id TransactionRequest, :external_id, "txr_"
     test_insert_generate_timestamps TransactionRequest
     test_insert_prevent_blank TransactionRequest, :type
     test_insert_prevent_all_blank TransactionRequest, [:user_id, :account_id]
