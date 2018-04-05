@@ -8,6 +8,8 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
     test "serializes into correct V1 transaction_request format" do
       request = insert(:transaction_request)
       transaction_request = TransactionRequest.get(request.id, preload: [:minted_token])
+      insert(:transaction_consumption, transaction_request_id: request.id)
+      insert(:transaction_consumption, transaction_request_id: request.id)
 
       expected = %{
         object: "transaction_request",
@@ -31,6 +33,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         expiration_reason: nil,
         expired_at: nil,
         max_consumptions: nil,
+        current_consumptions_count: 2,
         created_at: Date.to_iso8601(transaction_request.inserted_at),
         updated_at: Date.to_iso8601(transaction_request.updated_at)
       }
