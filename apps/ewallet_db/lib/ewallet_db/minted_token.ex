@@ -8,7 +8,7 @@ defmodule EWalletDB.MintedToken do
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, MintedToken}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "minted_token" do
     field :friendly_id, :string # "EUR:123"
@@ -28,7 +28,7 @@ defmodule EWalletDB.MintedToken do
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     belongs_to :account, Account, foreign_key: :account_id,
-                                           references: :id,
+                                           references: :uuid,
                                            type: UUID
     timestamps()
   end

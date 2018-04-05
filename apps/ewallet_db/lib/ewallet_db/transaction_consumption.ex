@@ -16,7 +16,7 @@ defmodule EWalletDB.TransactionConsumption do
   @rejected "rejected"
   @statuses [@pending, @approved, @rejected, @confirmed, @failed, @expired]
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "transaction_consumption" do
     field :amount, EWalletDB.Types.Integer
@@ -35,19 +35,19 @@ defmodule EWalletDB.TransactionConsumption do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     belongs_to :transfer, Transfer, foreign_key: :transfer_id,
-                                    references: :id,
+                                    references: :uuid,
                                     type: UUID
     belongs_to :user, User, foreign_key: :user_id,
-                                         references: :id,
+                                         references: :uuid,
                                          type: UUID
     belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+                                  references: :uuid,
                                   type: UUID
     belongs_to :transaction_request, TransactionRequest, foreign_key: :transaction_request_id,
-                                     references: :id,
+                                     references: :uuid,
                                      type: UUID
     belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+                                           references: :uuid,
                                            type: UUID
     belongs_to :balance, Balance, foreign_key: :balance_address,
                                   references: :address,

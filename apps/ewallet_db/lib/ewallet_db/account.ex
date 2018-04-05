@@ -10,7 +10,7 @@ defmodule EWalletDB.Account do
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   # The number of child levels allowed in the system.
   #   0 = no child levels allowed
@@ -31,13 +31,23 @@ defmodule EWalletDB.Account do
     field :encryption_version, :binary
 
     belongs_to :parent, Account, foreign_key: :parent_id, # this column
-                                 references: :id, # the parent's column
+                                 references: :uuid, # the parent's column
                                  type: UUID
-    has_many :balances, Balance
-    has_many :minted_tokens, MintedToken
-    has_many :keys, Key
-    has_many :api_keys, APIKey
-    has_many :memberships, Membership
+
+    has_many :balances, Balance, foreign_key: :account_id,
+                                 references: :uuid
+
+    has_many :minted_tokens, MintedToken, foreign_key: :account_id,
+                                          references: :uuid
+
+    has_many :keys, Key, foreign_key: :account_id,
+                         references: :uuid
+
+    has_many :api_keys, APIKey, foreign_key: :account_id,
+                                references: :uuid
+
+    has_many :memberships, Membership, foreign_key: :account_id,
+                                       references: :uuid
 
     timestamps()
   end

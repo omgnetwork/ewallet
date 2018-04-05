@@ -9,14 +9,14 @@ defmodule EWalletDB.APIKey do
   alias EWalletDB.{Repo, Account, APIKey}
   alias EWalletDB.Helpers.Crypto
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "api_key" do
     field :key, :string
     field :owner_app, :string
     belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+                                  references: :uuid,
                                   type: UUID
     field :expired, :boolean
     timestamps()

@@ -8,12 +8,18 @@ defmodule EWalletDB.Membership do
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, Membership, Role, User}
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "membership" do
-    belongs_to :user, User, type: UUID
-    belongs_to :account, Account, type: UUID
-    belongs_to :role, Role, type: UUID
+    belongs_to :user, User, foreign_key: :user_id,
+                            references: :uuid,
+                            type: UUID
+    belongs_to :account, Account, foreign_key: :account_id,
+                            references: :uuid,
+                            type: UUID
+    belongs_to :role, Role, foreign_key: :role_id,
+                            references: :uuid,
+                            type: UUID
 
     timestamps()
   end

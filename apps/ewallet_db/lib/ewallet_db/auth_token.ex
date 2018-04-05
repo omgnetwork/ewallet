@@ -9,14 +9,14 @@ defmodule EWalletDB.AuthToken do
   alias EWalletDB.{Repo, AuthToken, User}
   alias EWalletDB.Helpers.Crypto
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @key_length 32
 
   schema "auth_token" do
     field :token, :string
     field :owner_app, :string
     belongs_to :user, User, foreign_key: :user_id,
-                            references: :id,
+                            references: :uuid,
                             type: UUID
     field :expired, :boolean
     timestamps()

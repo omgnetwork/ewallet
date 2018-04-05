@@ -8,7 +8,7 @@ defmodule EWalletDB.Key do
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, Key, Helpers.Crypto}
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "key" do
@@ -16,7 +16,7 @@ defmodule EWalletDB.Key do
     field :secret_key, :string, virtual: true
     field :secret_key_hash, :string
     belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+                                  references: :uuid,
                                   type: UUID
     timestamps()
     soft_delete()

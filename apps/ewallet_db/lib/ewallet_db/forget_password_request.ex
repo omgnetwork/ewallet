@@ -8,12 +8,14 @@ defmodule EWalletDB.ForgetPasswordRequest do
   alias EWalletDB.{Repo, ForgetPasswordRequest, User}
   alias EWalletDB.Helpers.Crypto
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
 
   schema "forget_password_request" do
     field :token, :string
-    belongs_to :user, User, type: UUID
+    belongs_to :user, User, foreign_key: :user_id,
+                            references: :uuid,
+                            type: UUID
     timestamps()
   end
 

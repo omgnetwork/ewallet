@@ -7,20 +7,20 @@ defmodule EWalletDB.Mint do
   alias Ecto.UUID
   alias EWalletDB.{Repo, Mint, MintedToken, Transfer, Account}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "mint" do
     field :description, :string
     field :amount, EWalletDB.Types.Integer
     field :confirmed, :boolean, default: false
     belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+                                           references: :uuid,
                                            type: UUID
     belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+                                  references: :uuid,
                                   type: UUID
     belongs_to :transfer, Transfer, foreign_key: :transfer_id,
-                                    references: :id,
+                                    references: :uuid,
                                     type: UUID
     timestamps()
   end

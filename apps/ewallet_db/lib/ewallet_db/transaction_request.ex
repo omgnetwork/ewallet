@@ -18,7 +18,7 @@ defmodule EWalletDB.TransactionRequest do
   @receive "receive"
   @types   [@send, @receive]
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "transaction_request" do
     field :type, :string
@@ -36,16 +36,21 @@ defmodule EWalletDB.TransactionRequest do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
 
-    has_many :consumptions, TransactionConsumption
+    has_many :consumptions, TransactionConsumption, foreign_key: :request_id,
+                                                    references: :uuid
+
     belongs_to :user, User, foreign_key: :user_id,
-                                         references: :id,
+                                         references: :uuid,
                                          type: UUID
+
     belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+                                  references: :uuid,
                                   type: UUID
+
     belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+                                           references: :uuid,
                                            type: UUID
+
     belongs_to :balance, Balance, foreign_key: :balance_address,
                                   references: :address,
                                   type: :string

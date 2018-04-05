@@ -7,12 +7,13 @@ defmodule EWalletDB.Role do
   alias Ecto.UUID
   alias EWalletDB.{Repo, Membership, Role, User}
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "role" do
     field :name, :string
     field :display_name, :string
-    many_to_many :users, User, join_through: Membership
+    many_to_many :users, User, join_through: Membership,
+                               join_keys: [role_id: :uuid, user_id: :uuid]
 
     timestamps()
   end

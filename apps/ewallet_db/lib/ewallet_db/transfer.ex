@@ -22,7 +22,7 @@ defmodule EWalletDB.Transfer do
   def internal, do: @internal
   def external, do: @external
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "transfer" do
     field :idempotency_token, :string
@@ -34,12 +34,15 @@ defmodule EWalletDB.Transfer do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
+
     belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+                                           references: :uuid,
                                            type: UUID
+
     belongs_to :to_balance, Balance, foreign_key: :to,
                                      references: :address,
                                      type: :string
+
     belongs_to :from_balance, Balance, foreign_key: :from,
                                        references: :address,
                                        type: :string

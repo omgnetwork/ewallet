@@ -10,7 +10,7 @@ defmodule EWalletDB.User do
   alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite,
                    Membership, Role, User, Helpers, Helpers.Crypto}
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "user" do
     field :username, :string
@@ -24,12 +24,21 @@ defmodule EWalletDB.User do
     field :encryption_version, :binary
     field :avatar, EWalletDB.Uploaders.Avatar.Type
 
-    belongs_to :invite, Invite, type: UUID
-    has_many :balances, Balance
-    has_many :auth_tokens, AuthToken
-    has_many :memberships, Membership
-    many_to_many :roles, Role, join_through: Membership
-    many_to_many :accounts, Account, join_through: Membership
+    belongs_to :invite, Invite, foreign_key: :invite_id,
+                                references: :uuid,
+                                type: UUID
+
+    has_many :balances, Balance, foreign_key: :user_id,
+                                 references: :uuid
+    has_many :auth_tokens, AuthToken, foreign_key: :user_id,
+                                      references: :uuid
+    has_many :memberships, Membership, foreign_key: :user_id,
+                                       references: :uuid
+
+    many_to_many :roles, Role, join_through: Membership,
+                               join_keys: [user_id: :uuid, role_id: :uuid]
+    many_to_many :accounts, Account, join_through: Membership,
+                                     join_keys: [user_id: :uuid, account_id: :uuid]
 
     timestamps()
   end

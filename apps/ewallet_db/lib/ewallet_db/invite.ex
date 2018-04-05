@@ -8,13 +8,14 @@ defmodule EWalletDB.Invite do
   alias EWalletDB.{Repo, Invite, User}
   alias EWalletDB.Helpers.Crypto
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
   @allowed_user_attrs [:email]
 
   schema "invite" do
     field :token, :string
-    has_one :user, User
+    has_one :user, User, foreign_key: :invite_id,
+                         references: :uuid
     timestamps()
   end
 

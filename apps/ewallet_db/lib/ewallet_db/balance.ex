@@ -18,7 +18,7 @@ defmodule EWalletDB.Balance do
   def primary, do: @primary
   def secondary, do: @secondary
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "balance" do
     field :address, :string
@@ -29,13 +29,13 @@ defmodule EWalletDB.Balance do
     field :encryption_version, :binary
 
     belongs_to :user, User, foreign_key: :user_id,
-                            references: :id,
+                            references: :uuid,
                             type: UUID
     belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+                                           references: :uuid,
                                            type: UUID
     belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+                                  references: :uuid,
                                   type: UUID
     timestamps()
   end
