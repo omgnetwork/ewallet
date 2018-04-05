@@ -15,7 +15,12 @@
       <%= for {_key, error} <- assigns.errors do %>
         <tr>
           <td><%= error.code %></td>
-          <td><%= error.description %></td>
+          <%= if error[:description] do %>
+            <td><%= error.description %></td>
+          <% end %>
+          <%= if error[:template] do %>
+            <td><%= error.template %></td>
+          <% end %>
         </tr>
       <% end %>
       </tbody>

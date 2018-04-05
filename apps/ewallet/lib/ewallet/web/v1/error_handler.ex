@@ -4,20 +4,101 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
-  alias EWallet.Web.V1.{ErrorSerializer, ResponseSerializer}
+  alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.MintedToken
 
   @errors %{
+    invalid_auth_scheme: %{
+      code: "client:invalid_auth_scheme",
+      description: "The provided authentication scheme is not supported"
+    },
     invalid_version: %{
       code: "client:invalid_version",
       description: "Invalid API version",
-      template: "Invalid API version. Given: {accept}."
+      template: "Invalid API version Given: '{accept}'."
+    },
+    invalid_parameter: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided"
+    },
+    invalid_api_key: %{
+      code: "client:invalid_api_key",
+      description: "The provided API key can't be found or is invalid"
+    },
+    endpoint_not_found: %{
+      code: "client:endpoint_not_found",
+      description: "Endpoint not found"
+    },
+    internal_server_error: %{
+      code: "server:internal_server_error",
+      description: "Something went wrong on the server"
+    },
+    unknown_error: %{
+      code: "server:unknown_error",
+      description: "An unknown error occured on the server"
+    },
+    access_token_not_found: %{
+      code: "user:access_token_not_found",
+      description: "There is no user corresponding to the provided access_token"
+    },
+    access_token_expired: %{
+      code: "user:access_token_expired",
+      description: "The provided token is expired or has been invalidated"
     },
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
       template: "The specified balance ({address}) does not contain enough funds. " <>
                 "Available: {current_amount} {friendly_id} - Attempted debit: " <>
                 "{amount_to_debit} {friendly_id}"
+    },
+    transaction_request_not_found: %{
+      code: "transaction_request:transaction_request_not_found",
+      description: "There is no transaction request corresponding to the provided address"
+    },
+    same_address: %{
+      code: "transaction:same_address",
+      description: "Found identical addresses in senders and receivers: {address}."
+    },
+    from_address_not_found: %{
+      code: "user:from_address_not_found",
+      description: "No balance found for the provided from_address."
+    },
+    to_address_not_found: %{
+      code: "user:to_address_not_found",
+      description: "No balance found for the provided to_address."
+    },
+    no_idempotency_token_provided: %{
+      code: "client:no_idempotency_token_provided",
+      description: "The call you made requires the Idempotency-Token header to prevent duplication."
+    },
+    expired_transaction_request: %{
+      code: "transaction_request:expired",
+      description: "The specified transaction request has expired."
+    },
+    max_consumptions_reached: %{
+      code: "transaction_request:max_consumptions_reached",
+      description: "The specified transaction request has reached the allowed amount " <>
+                   "of consumptions."
+    },
+    not_transaction_request_owner: %{
+      code: "transaction_consumption:not_owner",
+      description: "The given consumption can only be approved by the transaction request owner."
+    },
+    invalid_minted_token_provided: %{
+      code: "transaction_consumption:invalid_minted_token",
+      description: "The provided minted token does not match the transaction request minted token."
+    },
+    forbidden_channel: %{
+      code: "websocket:forbidden_channel",
+      description: "You don't have access to this channel."
+    },
+    channel_not_found: %{
+      code: "websocket:channel_not_found",
+      description: "The given channel does not exist."
+    },
+    websocket_connect_error: %{
+      code: "websocket:connect_error",
+      description: "Connection to websocket failed."
     }
   }
 
@@ -40,13 +121,13 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   @spec build_error(String.t, Ecto.Changeset.t, Map.t) :: Map.t
   def build_error(code, %Changeset{} = changeset, supported_errors) do
-    description = supported_errors[code].description <> "."
-
-    build(
-      code: supported_errors[code].code,
-      desc: stringify_errors(changeset, description),
-      msgs: error_fields(changeset)
-    )
+    run_if_valid_error(code, supported_errors, fn error ->
+      build(
+        code: error.code,
+        desc: stringify_errors(changeset, error.description),
+        msgs: error_fields(changeset)
+      )
+    end)
   end
 
   # ---- WITH CUSTOM CODE AND DESCRIPTION ----
@@ -58,12 +139,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
   when is_binary(description)
   when is_atom(description)
   do
-    case supported_errors[code] do
-      nil ->
-        build(code: code, desc: description)
-      error ->
-        build(code: error.code, desc: description)
-    end
+    run_if_valid_error(code, supported_errors, fn error ->
+      build(code: error.code, desc: description)
+    end)
   end
 
   # ---- WITH TEMPLATE DATA ----
@@ -71,22 +149,24 @@ defmodule EWallet.Web.V1.ErrorHandler do
   Handles response of insufficient_funds.
   """
   @spec build_error(Atom.t, Map.t, Map.t) :: Map.t
-  def build_error(:insufficient_funds = code, %{
+  def build_error(code, %{
     "address" => address,
     "current_amount" => current_amount,
     "amount_to_debit" => amount_to_debit,
     "friendly_id" => friendly_id
   }, supported_errors) do
-    minted_token = MintedToken.get(friendly_id)
+    run_if_valid_error(code, supported_errors, fn error ->
+      minted_token = MintedToken.get(friendly_id)
 
-    data = %{
-      "address" => address,
-      "current_amount" => float_to_binary(current_amount / minted_token.subunit_to_unit),
-      "amount_to_debit" => float_to_binary(amount_to_debit / minted_token.subunit_to_unit),
-      "friendly_id" => minted_token.friendly_id
-    }
+      data = %{
+        "address" => address,
+        "current_amount" => float_to_binary(current_amount / minted_token.subunit_to_unit),
+        "amount_to_debit" => float_to_binary(amount_to_debit / minted_token.subunit_to_unit),
+        "friendly_id" => minted_token.friendly_id
+      }
 
-    build(code: code, desc: build_template(data, supported_errors[code].template))
+      build(code: error.code, desc: build_template(data, error.template))
+    end)
   end
 
   @doc """
@@ -94,10 +174,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   @spec build_error(Atom.t, Map.t, Map.t) :: Map.t
   def build_error(code, data, supported_errors) when is_map(data) do
-    build(
-      code: supported_errors[code].code,
-      desc: build_template(data, supported_errors[code].template)
-    )
+    run_if_valid_error(code, supported_errors, fn error ->
+      build(code: error.code, desc: build_template(data, error.template))
+    end)
   end
 
   # ---- WITH SUPPORTED CODE ----
@@ -106,26 +185,40 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   @spec build_error(Atom.t, Map.t) :: Map.t
   def build_error(error_name, supported_errors) do
-    case Map.fetch(supported_errors, error_name) do
-      {:ok, error} ->
-        build_error(error.code, error.description, supported_errors)
-      _ ->
-        build_error(:internal_server_error, error_name, supported_errors)
+    run_if_valid_error(error_name, supported_errors, fn error ->
+      build(code: error.code, desc: error.description)
+    end)
+  end
+
+  defp run_if_valid_error(code, nil, func), do: run_if_valid_error(code, @errors, func)
+  defp run_if_valid_error(code, supported_errors, func) when is_binary(code) do
+    code
+    |> String.to_existing_atom()
+    |> run_if_valid_error(supported_errors, func)
+  rescue
+    ArgumentError -> internal_server_error(code)
+  end
+  defp run_if_valid_error(code, supported_errors, func) when is_atom(code) do
+    case Map.fetch(supported_errors, code) do
+      {:ok, error} -> func.(error)
+      _            -> internal_server_error(code)
     end
+  end
+
+  defp internal_server_error(description) do
+    build(code: :internal_server_error, desc: "#{description}")
   end
 
   defp build([code: code, desc: description]) do
     build([code: code, desc: description, msgs: nil])
   end
   defp build([code: code, desc: description, msgs: msgs]) do
-    code
-    |> ErrorSerializer.serialize(description, msgs)
-    |> ResponseSerializer.serialize(success: false)
+    ErrorSerializer.serialize(code, description, msgs)
   end
 
   defp build_template(data, template) do
     Enum.reduce(data, template, fn({k, v}, desc) ->
-      String.replace(desc, "{#{k}}", "'#{v}'")
+      String.replace(desc, "{#{k}}", "#{v}")
     end)
   end
 

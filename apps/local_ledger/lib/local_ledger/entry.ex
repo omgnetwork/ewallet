@@ -89,13 +89,13 @@ defmodule LocalLedger.Entry do
     |> locked_insert(metadata, correlation_id, genesis, callback)
   rescue
     e in InsufficientFundsError ->
-      {:error, "transaction:insufficient_funds", e.message}
+      {:error, :insufficient_funds, e.message}
     e in InvalidAmountError ->
-      {:error, "transaction:invalid_amount", e.message}
+      {:error, :invalid_amount, e.message}
     e in AmountIsZeroError ->
-      {:error, "transaction:amount_is_zero", e.message}
+      {:error, :amount_is_zero, e.message}
     e in SameAddressError ->
-      {:error, "transaction:same_address", e.message}
+      {:error, :same_address, e.message}
   end
 
   # Lock all the DEBIT addresses to ensure the truthness of the balances

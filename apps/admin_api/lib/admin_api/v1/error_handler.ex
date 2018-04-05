@@ -5,40 +5,9 @@ defmodule AdminAPI.V1.ErrorHandler do
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
   alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
+  alias EWallet.Web.V1.ResponseSerializer
 
   @errors %{
-    invalid_auth_scheme: %{
-      code: "client:invalid_auth_scheme",
-      description: "The provided authentication scheme is not supported"
-    },
-    invalid_api_key: %{
-      code: "client:invalid_api_key",
-      description: "The provided API key can't be found or is invalid"
-    },
-    invalid_parameter: %{
-      code: "client:invalid_parameter",
-      description: "Invalid parameter provided"
-    },
-    endpoint_not_found: %{
-      code: "client:endpoint_not_found",
-      description: "Endpoint not found"
-    },
-    internal_server_error: %{
-      code: "server:internal_server_error",
-      description: "Something went wrong on the server"
-    },
-    unknown_error: %{
-      code: "server:unknown_error",
-      description: "An unknown error occured on the server"
-    },
-    access_token_not_found: %{
-      code: "user:access_token_not_found",
-      description: "There is no user corresponding to the provided access_token"
-    },
-    access_token_expired: %{
-      code: "user:access_token_expired",
-      description: "The provided token is expired or has been invalidated"
-    },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
@@ -134,6 +103,7 @@ defmodule AdminAPI.V1.ErrorHandler do
   end
 
   defp respond(data, conn) do
+    data = ResponseSerializer.serialize(data, success: false)
     conn |> json(data) |> halt()
   end
 end

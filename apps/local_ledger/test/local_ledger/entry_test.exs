@@ -162,7 +162,7 @@ defmodule LocalLedger.EntryTest do
 
       assert res == {
         :error,
-        "transaction:same_address",
+        :same_address,
         "Found identical addresses in senders and receivers: mederic."
       }
     end
@@ -170,7 +170,7 @@ defmodule LocalLedger.EntryTest do
     test "returns an 'insufficient_funds' error when the debit balances don't have enough funds" do
       genesis()
 
-      {:error, "transaction:insufficient_funds", _} = Entry.insert(%{
+      {:error, :insufficient_funds, _} = Entry.insert(%{
         "metadata" => %{},
         "debits" => [%{
           "address" => "mederic",
@@ -193,7 +193,7 @@ defmodule LocalLedger.EntryTest do
     test "returns an 'invalid_amount' error when amount is invalid (debit != credit)" do
       genesis()
 
-      {:error, "transaction:invalid_amount", _} = Entry.insert(%{
+      {:error, :invalid_amount, _} = Entry.insert(%{
         "metadata" => %{},
         "debits" => [%{
           "address" => "mederic",
@@ -216,7 +216,7 @@ defmodule LocalLedger.EntryTest do
     test "returns an 'amount_is_zero' error when amount is 0" do
       genesis()
 
-      {:error, "transaction:amount_is_zero", _} = Entry.insert(%{
+      {:error, :amount_is_zero, _} = Entry.insert(%{
         "metadata" => %{},
         "debits" => [%{
           "address" => "mederic",
@@ -309,7 +309,7 @@ defmodule LocalLedger.EntryTest do
         }, %{genesis: false})
 
         assert res == :error
-        assert error == "transaction:insufficient_funds"
+        assert error == :insufficient_funds
         send pid, :updated
       end
 

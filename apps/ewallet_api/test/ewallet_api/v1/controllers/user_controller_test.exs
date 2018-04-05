@@ -34,7 +34,7 @@ defmodule EWalletAPI.V1.UserControllerTest do
       assert response["success"] == :false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. "
+      assert response["data"]["description"] == "Invalid parameter provided "
         <> "`provider_user_id` can't be blank."
       assert response["data"]["messages"] == %{"provider_user_id" => ["required"]}
     end
@@ -47,7 +47,7 @@ defmodule EWalletAPI.V1.UserControllerTest do
       assert response["success"] == :false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. "
+      assert response["data"]["description"] == "Invalid parameter provided "
         <> "`username` can't be blank."
       assert response["data"]["messages"] == %{"username" => ["required"]}
     end

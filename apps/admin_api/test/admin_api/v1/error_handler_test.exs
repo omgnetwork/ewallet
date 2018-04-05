@@ -47,7 +47,7 @@ defmodule AdminAPI.V1.ErrorHandlerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided."
+          "description" => "Invalid parameter provided"
             <> " `field2` can't be blank."
             <> " `field3` can't be blank.",
           "messages" => %{
@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.ErrorHandlerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_version",
-          "description" => "Invalid API version. Given: 'invalid_header'.",
+          "description" => "Invalid API version Given: 'invalid_header'.",
           "messages" => nil
         }
       }

@@ -169,7 +169,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] ==
-             "Invalid parameter provided. `symbol` can't be blank."
+             "Invalid parameter provided `symbol` can't be blank."
       inserted = MintedToken |> Repo.all() |> Enum.at(0)
       assert inserted == nil
     end
