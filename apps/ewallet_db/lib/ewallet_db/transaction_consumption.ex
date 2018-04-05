@@ -34,19 +34,19 @@ defmodule EWalletDB.TransactionConsumption do
     field :expiration_date, :naive_datetime
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    belongs_to :transfer, Transfer, foreign_key: :transfer_id,
+    belongs_to :transfer, Transfer, foreign_key: :transfer_uuid,
                                     references: :uuid,
                                     type: UUID
-    belongs_to :user, User, foreign_key: :user_id,
+    belongs_to :user, User, foreign_key: :user_uuid,
                                          references: :uuid,
                                          type: UUID
-    belongs_to :account, Account, foreign_key: :account_id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
                                   references: :uuid,
                                   type: UUID
-    belongs_to :transaction_request, TransactionRequest, foreign_key: :transaction_request_id,
+    belongs_to :transaction_request, TransactionRequest, foreign_key: :transaction_request_uuid,
                                      references: :uuid,
                                      type: UUID
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
                                            references: :uuid,
                                            type: UUID
     belongs_to :balance, Balance, foreign_key: :balance_address,

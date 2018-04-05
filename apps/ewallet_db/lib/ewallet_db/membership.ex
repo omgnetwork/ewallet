@@ -11,13 +11,13 @@ defmodule EWalletDB.Membership do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "membership" do
-    belongs_to :user, User, foreign_key: :user_id,
+    belongs_to :user, User, foreign_key: :user_uuid,
                             references: :uuid,
                             type: UUID
-    belongs_to :account, Account, foreign_key: :account_id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
                             references: :uuid,
                             type: UUID
-    belongs_to :role, Role, foreign_key: :role_id,
+    belongs_to :role, Role, foreign_key: :role_uuid,
                             references: :uuid,
                             type: UUID
 

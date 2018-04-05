@@ -14,7 +14,7 @@ defmodule EWalletDB.Invite do
 
   schema "invite" do
     field :token, :string
-    has_one :user, User, foreign_key: :invite_id,
+    has_one :user, User, foreign_key: :invite_uuid,
                          references: :uuid
     timestamps()
   end

@@ -13,7 +13,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
 
   schema "forget_password_request" do
     field :token, :string
-    belongs_to :user, User, foreign_key: :user_id,
+    belongs_to :user, User, foreign_key: :user_uuid,
                             references: :uuid,
                             type: UUID
     timestamps()

@@ -5,14 +5,14 @@ defmodule EWalletDB.AccountValidatorTest do
   import Ecto.Changeset
   import EWalletDB.AccountValidator
 
-  describe "validate_parent_id/1" do
+  describe "validate_parent_uuid/1" do
     test "returns valid if parent_id is not nil" do
       attrs = %{parent_id: UUID.generate()}
 
       changeset =
         %Account{}
         |> cast(attrs, [:parent_id])
-        |> validate_parent_id()
+        |> validate_parent_uuid()
 
       assert changeset.valid?
     end
@@ -23,7 +23,7 @@ defmodule EWalletDB.AccountValidatorTest do
       changeset =
         get_or_insert_master_account()
         |> cast(attrs, [:parent_id])
-        |> validate_parent_id()
+        |> validate_parent_uuid()
 
       assert changeset.valid?
     end
@@ -34,7 +34,7 @@ defmodule EWalletDB.AccountValidatorTest do
       changeset =
         %Account{}
         |> cast(attrs, [:parent_id])
-        |> validate_parent_id()
+        |> validate_parent_uuid()
 
       refute changeset.valid?
       assert changeset.errors == [{:parent_id, {"can't be blank", [validation: :required]}}]

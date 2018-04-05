@@ -15,7 +15,7 @@ defmodule EWalletDB.APIKey do
   schema "api_key" do
     field :key, :string
     field :owner_app, :string
-    belongs_to :account, Account, foreign_key: :account_id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
                                   references: :uuid,
                                   type: UUID
     field :expired, :boolean

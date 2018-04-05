@@ -27,7 +27,7 @@ defmodule EWalletDB.MintedToken do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
-    belongs_to :account, Account, foreign_key: :account_id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
                                            references: :uuid,
                                            type: UUID
     timestamps()

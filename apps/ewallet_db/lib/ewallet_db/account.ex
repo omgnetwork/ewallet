@@ -30,23 +30,23 @@ defmodule EWalletDB.Account do
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
 
-    belongs_to :parent, Account, foreign_key: :parent_id, # this column
-                                 references: :uuid, # the parent's column
+    belongs_to :parent, Account, foreign_key: :parent_uuid,
+                                 references: :uuid,
                                  type: UUID
 
-    has_many :balances, Balance, foreign_key: :account_id,
+    has_many :balances, Balance, foreign_key: :account_uuid,
                                  references: :uuid
 
-    has_many :minted_tokens, MintedToken, foreign_key: :account_id,
+    has_many :minted_tokens, MintedToken, foreign_key: :account_uuid,
                                           references: :uuid
 
-    has_many :keys, Key, foreign_key: :account_id,
+    has_many :keys, Key, foreign_key: :account_uuid,
                          references: :uuid
 
-    has_many :api_keys, APIKey, foreign_key: :account_id,
+    has_many :api_keys, APIKey, foreign_key: :account_uuid,
                                 references: :uuid
 
-    has_many :memberships, Membership, foreign_key: :account_id,
+    has_many :memberships, Membership, foreign_key: :account_uuid,
                                        references: :uuid
 
     timestamps()
@@ -55,9 +55,9 @@ defmodule EWalletDB.Account do
   @spec changeset(account :: %Account{}, attrs :: map()) :: Ecto.Changeset.t
   defp changeset(%Account{} = account, attrs) do
     account
-    |> cast(attrs, [:name, :description, :parent_id, :metadata, :encrypted_metadata])
+    |> cast(attrs, [:name, :description, :parent_uuid, :metadata, :encrypted_metadata])
     |> validate_required([:name, :metadata, :encrypted_metadata])
-    |> validate_parent_id()
+    |> validate_parent_uuid()
     |> validate_account_level(@child_level_limit)
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
@@ -117,7 +117,7 @@ defmodule EWalletDB.Account do
     {:ok, %Balance{}} | {:error, Ecto.Changeset.t}
   def insert_balance(%Account{} = account, identifier) do
     %{
-      account_id: account.id,
+      account_uuid: account.uuid,
       name: identifier,
       identifier: identifier,
       metadata: %{}
@@ -182,7 +182,7 @@ defmodule EWalletDB.Account do
   """
   @spec master?(account :: %Account{}) :: boolean()
   def master?(account) do
-    is_nil(account.parent_id)
+    is_nil(account.parent_uuid)
   end
 
   @doc """
@@ -191,7 +191,7 @@ defmodule EWalletDB.Account do
   @spec get_preloaded_primary_balance(opts :: keyword()) :: %Account{}
   def get_master_account(opts \\ []) do
     Account
-    |> where([a], is_nil(a.parent_id))
+    |> where([a], is_nil(a.parent_uuid))
     |> Repo.one()
     |> preload_option(opts)
   end
@@ -227,7 +227,7 @@ defmodule EWalletDB.Account do
   def get_balance_by_identifier(account, identifier) do
     Balance
     |> where([b], b.identifier == ^identifier)
-    |> where([b], b.account_id == ^account.id)
+    |> where([b], b.account_uuid == ^account.uuid)
     |> Repo.one()
   end
 
@@ -236,38 +236,38 @@ defmodule EWalletDB.Account do
 
   The master account has a relative depth of 0.
   """
-  @spec get_depth(account :: %Account{} | account_id :: String.t) :: non_neg_integer()
-  def get_depth(%Account{} = account), do: get_depth(account.id)
-  def get_depth(account_id) do
+  @spec get_depth(account :: %Account{} | account_uuid :: String.t) :: non_neg_integer()
+  def get_depth(%Account{} = account), do: get_depth(account.uuid)
+  def get_depth(account_uuid) do
     case Account.get_master_account() do
       nil ->
         0 # No master account means that this account is at level 0.
       master_account ->
-        account_id
-        |> query_depth(master_account.id)
+        account_uuid
+        |> query_depth(master_account.uuid)
         |> Repo.one()
     end
   end
 
-  @spec query_depth(account_id :: String.t, parent_account_id :: String.t) :: Ecto.Query.t
-  defp query_depth(account_id, parent_account_id) do
+  @spec query_depth(account_uuid :: String.t, parent_uuid :: String.t) :: Ecto.Query.t
+  defp query_depth(account_uuid, parent_uuid) do
     # Traverses up the account tree and count each step up until it reaches the master account.
     from a in Account,
       join: account_tree in fragment("""
         WITH RECURSIVE account_tree AS (
-          SELECT id, parent_id, 0 AS depth
+          SELECT uuid, parent_uuid, 0 AS depth
           FROM account a
-          WHERE a.id = ?
+          WHERE a.uuid = ?
         UNION
-          SELECT parent.id, parent.parent_id, account_tree.depth + 1 as depth
+          SELECT parent.uuid, parent.parent_uuid, account_tree.depth + 1 as depth
           FROM account parent
-          JOIN account_tree ON account_tree.parent_id = parent.id
+          JOIN account_tree ON account_tree.parent_uuid = parent.uuid
         )
-        SELECT id, depth FROM account_tree
-        WHERE account_tree.id = ?
+        SELECT uuid, depth FROM account_tree
+        WHERE account_tree.uuid = ?
         """,
-        type(^account_id, UUID), type(^parent_account_id, UUID)
-      ), on: a.id == account_tree.id,
+        type(^account_uuid, UUID), type(^parent_uuid, UUID)
+      ), on: a.uuid == account_tree.uuid,
       select: account_tree.depth
   end
 end

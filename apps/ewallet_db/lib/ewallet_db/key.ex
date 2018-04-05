@@ -15,7 +15,7 @@ defmodule EWalletDB.Key do
     field :access_key, :string
     field :secret_key, :string, virtual: true
     field :secret_key_hash, :string
-    belongs_to :account, Account, foreign_key: :account_id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
                                   references: :uuid,
                                   type: UUID
     timestamps()

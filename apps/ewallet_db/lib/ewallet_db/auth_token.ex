@@ -15,7 +15,7 @@ defmodule EWalletDB.AuthToken do
   schema "auth_token" do
     field :token, :string
     field :owner_app, :string
-    belongs_to :user, User, foreign_key: :user_id,
+    belongs_to :user, User, foreign_key: :user_uuid,
                             references: :uuid,
                             type: UUID
     field :expired, :boolean
