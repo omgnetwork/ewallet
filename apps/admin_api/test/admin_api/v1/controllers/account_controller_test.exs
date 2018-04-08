@@ -46,7 +46,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test "returns an account by the given account's external ID" do
       accounts  = insert_list(3, :account)
       target    = Enum.at(accounts, 1) # Pick the 2nd inserted account
-      response  = user_request("/account.get", %{"id" => target.external_id})
+      response  = user_request("/account.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "account"
@@ -79,7 +79,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test "creates a new account and returns it" do
       parent       = User.get_account(get_test_user())
       request_data = params_for(:account, %{
-        parent_id: parent.external_id,
+        parent_id: parent.id,
         metadata: %{something: "interesting"},
         encrypted_metadata: %{something: "secret"}
       })
@@ -112,7 +112,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     test "returns an error if account name is not provided" do
       parent       = User.get_account(get_test_user())
-      request_data = params_for(:account, %{name: "", parent_id: parent.external_id})
+      request_data = params_for(:account, %{name: "", parent_id: parent.id})
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == false
@@ -127,7 +127,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       # Prepare the update data while keeping only id the same
       request_data = params_for(:account, %{
-        id: account.external_id,
+        id: account.id,
         name: "updated_name",
         description: "updated_description"
       })
@@ -166,7 +166,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response = user_request("/account.upload_avatar", %{
-        "id" => account.external_id,
+        "id" => account.id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -189,7 +189,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response = user_request("/account.upload_avatar", %{
-        "id" => account.external_id,
+        "id" => account.id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -199,7 +199,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
 
       response = user_request("/account.upload_avatar", %{
-        "id" => account.external_id,
+        "id" => account.id,
         "avatar" => nil
       })
       assert response["success"]
@@ -212,7 +212,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response = user_request("/account.upload_avatar", %{
-        "id" => account.external_id,
+        "id" => account.id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -222,7 +222,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
 
       response = user_request("/account.upload_avatar", %{
-        "id" => account.external_id,
+        "id" => account.id,
         "avatar" => ""
       })
       assert response["success"]
@@ -235,7 +235,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response = user_request("/account.upload_avatar", %{
-        "id" => account.external_id,
+        "id" => account.id,
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -245,7 +245,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
 
       response = user_request("/account.upload_avatar", %{
-        "id" => account.external_id,
+        "id" => account.id,
         "avatar" => "null"
       })
       assert response["success"]

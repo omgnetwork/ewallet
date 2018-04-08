@@ -12,9 +12,9 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
 
       expected = %{
         object: "account",
-        id: account.external_id,
+        id: account.id,
         socket_topic: "account:#{account.id}",
-        parent_id: master.external_id,
+        parent_id: master.id,
         name: account.name,
         description: account.description,
         master: Account.master?(account),
@@ -52,7 +52,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
         data: [
           %{
             object: "account",
-            id: account1.external_id,
+            id: account1.id,
             socket_topic: "account:#{account1.id}",
             parent_id: nil,
             name: account1.name,
@@ -71,9 +71,9 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
           },
           %{
             object: "account",
-            id: account2.external_id,
+            id: account2.id,
             socket_topic: "account:#{account2.id}",
-            parent_id: account2.parent.external_id,
+            parent_id: account2.parent.id,
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),

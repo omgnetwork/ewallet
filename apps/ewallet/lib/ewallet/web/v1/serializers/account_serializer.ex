@@ -22,9 +22,9 @@ defmodule EWallet.Web.V1.AccountSerializer do
 
     %{
       object: "account",
-      id: account.external_id,
+      id: account.id,
       socket_topic: "account:#{account.id}",
-      parent_id: get_parent_external_id(account),
+      parent_id: account[:parent][:id],
       name: account.name,
       description: account.description,
       master: Account.master?(account),
@@ -38,6 +38,6 @@ defmodule EWallet.Web.V1.AccountSerializer do
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 
-  defp get_parent_external_id(%Account{parent: nil}), do: nil
-  defp get_parent_external_id(%Account{parent: parent}), do: parent.external_id
+  defp get_parent_id(%Account{parent: nil}), do: nil
+  defp get_parent_id(%Account{parent: parent}), do: parent.id
 end

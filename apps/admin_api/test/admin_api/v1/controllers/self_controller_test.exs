@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
           "success" => true,
           "data" => %{
             "object" => "account",
-            "id" => account.external_id,
+            "id" => account.id,
             "socket_topic" => "account:#{account.id}",
             "parent_id" => account.parent_id,
             "name" => account.name,
@@ -80,9 +80,9 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "data" => [
               %{
                 "object" => "account",
-                "id" => account.external_id,
+                "id" => account.id,
                 "socket_topic" => "account:#{account.id}",
-                "parent_id" => account.parent.external_id,
+                "parent_id" => account.parent.id,
                 "name" => account.name,
                 "description" => account.description,
                 "master" => Account.master?(account),

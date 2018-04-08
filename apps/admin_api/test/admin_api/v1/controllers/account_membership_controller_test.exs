@@ -11,7 +11,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       role    = insert(:role)
       _       = insert(:membership, %{account: account, user: user, role: role})
 
-      assert user_request("/account.list_users", %{account_id: account.external_id}) ==
+      assert user_request("/account.list_users", %{account_id: account.id}) ==
         %{
           "version" => "1",
           "success" => true,
@@ -39,7 +39,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns an empty list if account has no users" do
       account = insert(:account)
 
-      assert user_request("/account.list_users", %{account_id: account.external_id}) ==
+      assert user_request("/account.list_users", %{account_id: account.id}) ==
         %{
           "version" => "1",
           "success" => true,
@@ -83,7 +83,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns empty success if assigned with user_id successfully" do
       response = user_request("/account.assign_user", %{
         user_id: insert(:user).id,
-        account_id: insert(:account).external_id,
+        account_id: insert(:account).id,
         role_name: insert(:role).name,
         redirect_url: "https://invite_url/?email={email}&token={token}"
       })
@@ -95,7 +95,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns empty success if assigned with email successfully" do
       response = user_request("/account.assign_user", %{
         email: insert(:admin).email,
-        account_id: insert(:account).external_id,
+        account_id: insert(:account).id,
         role_name: insert(:role).name,
         redirect_url: "https://invite_url/?email={email}&token={token}"
       })
@@ -107,7 +107,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns an error if the email format is invalid" do
       response = user_request("/account.assign_user", %{
         email: "invalid_format",
-        account_id: insert(:account).external_id,
+        account_id: insert(:account).id,
         role_name: insert(:role).name,
         redirect_url: "https://invite_url/?email={email}&token={token}"
       })
@@ -121,7 +121,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns an error if the given user id does not exist" do
       response = user_request("/account.assign_user", %{
         user_id: UUID.generate(),
-        account_id: insert(:account).external_id,
+        account_id: insert(:account).id,
         role_name: insert(:role).name,
         redirect_url: "https://invite_url/?email={email}&token={token}"
       })
@@ -149,7 +149,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns an error if the given role does not exist" do
       response = user_request("/account.assign_user", %{
         user_id: insert(:user).id,
-        account_id: insert(:account).external_id,
+        account_id: insert(:account).id,
         role_name: "invalid_role",
         redirect_url: "https://invite_url/?email={email}&token={token}"
       })
@@ -167,7 +167,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       membership = insert(:membership, %{account: account})
       response   = user_request("/account.unassign_user", %{
         user_id: membership.user_id,
-        account_id: account.external_id
+        account_id: account.id
       })
 
       assert response["success"] == true
@@ -180,7 +180,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
       response = user_request("/account.unassign_user", %{
         user_id: user.id,
-        account_id: account.external_id
+        account_id: account.id
       })
 
       assert response["success"] == false
@@ -192,7 +192,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns an error if the given user id does not exist" do
       response = user_request("/account.unassign_user", %{
         user_id: UUID.generate(),
-        account_id: insert(:account).external_id
+        account_id: insert(:account).id
       })
 
       assert response["success"] == false
