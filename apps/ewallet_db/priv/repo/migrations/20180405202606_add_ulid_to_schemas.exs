@@ -11,7 +11,7 @@ defmodule EWalletDB.Repo.Migrations.AddUlidToSchemas do
     balance: "bal_",
     key: "key_",
     mint: "mnt_",
-    minted_token: "mtk_",
+    minted_token: "tkn_",
     transaction_request: "txr",
     transaction_consumption: "txc",
     transfer: "tfr",
