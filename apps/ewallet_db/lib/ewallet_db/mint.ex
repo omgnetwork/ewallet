@@ -3,6 +3,7 @@ defmodule EWalletDB.Mint do
   Ecto Schema representing mints.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   alias Ecto.UUID
   alias EWalletDB.{Repo, Mint, MintedToken, Transfer, Account}

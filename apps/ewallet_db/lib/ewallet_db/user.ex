@@ -2,8 +2,9 @@ defmodule EWalletDB.User do
   @moduledoc """
   Ecto Schema representing users.
   """
-  use Ecto.Schema
   use Arc.Ecto.Schema
+  use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}

@@ -4,6 +4,7 @@ defmodule EWalletDB.Key do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, Key, Helpers.Crypto}

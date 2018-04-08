@@ -3,6 +3,7 @@ defmodule EWalletDB.TransactionConsumption do
   Ecto Schema representing transaction request consumptions.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,

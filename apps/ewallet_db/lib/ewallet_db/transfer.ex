@@ -3,6 +3,7 @@ defmodule EWalletDB.Transfer do
   Ecto Schema representing transfers.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID

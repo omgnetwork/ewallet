@@ -3,6 +3,7 @@ defmodule EWalletDB.MintedToken do
   Ecto Schema representing minted tokens.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
