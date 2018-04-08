@@ -117,8 +117,8 @@ defmodule EWalletDB.Factory do
   def mint_factory do
     %Mint{
       amount: 100_000,
-      minted_token_id: insert(:minted_token).id,
-      transfer_id: insert(:transfer).id
+      minted_token_uuid: insert(:minted_token).uuid,
+      transfer_uuid: insert(:transfer).uuid
     }
   end
 
@@ -184,8 +184,8 @@ defmodule EWalletDB.Factory do
       type: "receive",
       amount: 100,
       correlation_id: sequence("correlation"),
-      minted_token_id: insert(:minted_token).id,
-      user_id: insert(:user).id,
+      minted_token_uuid: insert(:minted_token).uuid,
+      user_uuid: insert(:user).uuid,
       balance: insert(:balance)
     }
   end
@@ -193,11 +193,11 @@ defmodule EWalletDB.Factory do
   def transaction_consumption_factory do
     %TransactionConsumption{
       idempotency_token: sequence("123"),
-      minted_token_id: insert(:minted_token).id,
-      user_id: insert(:user).id,
+      minted_token_uuid: insert(:minted_token).uuid,
+      user_uuid: insert(:user).uuid,
       balance_address: insert(:balance).address,
       amount: 100,
-      transaction_request_id: insert(:transaction_request).id
+      transaction_request_uuid: insert(:transaction_request).uuid
     }
   end
 end
