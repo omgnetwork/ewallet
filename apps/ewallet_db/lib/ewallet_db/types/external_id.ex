@@ -48,7 +48,7 @@ defmodule EWalletDB.Types.ExternalID do
 
   # The defaults to use to define the External ID field.
   @external_id_defaults [
-    field_name: :external_id, # The field name
+    field_name: :id, # The field name
     prefix: "", # The prefix to prepend to the generated ULID
     autogenerate: nil # The function to use for autogenerating the value
   ]

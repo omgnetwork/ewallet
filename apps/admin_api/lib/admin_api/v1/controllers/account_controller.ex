@@ -10,7 +10,6 @@ defmodule AdminAPI.V1.AccountController do
   # any operations are done on the field names. For example:
   # `"request_field_name" => "db_column_name"`
   @mapped_fields %{
-    "id" => "external_id",
     "created_at" => "inserted_at"
   }
 
@@ -18,11 +17,11 @@ defmodule AdminAPI.V1.AccountController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [:external_id, :name, :description]
+  @search_fields [:id, :name, :description]
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:external_id, :name, :description, :inserted_at, :updated_at]
+  @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   defp permit(action, user_id, account_id) do
     Bodyguard.permit(AccountPolicy, action, user_id, account_id)
@@ -58,7 +57,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def get(conn, %{"id" => id}) do
     with :ok                  <- permit(:get, conn.assigns.user.id, id),
-         %Account{} = account <- Account.get_by(external_id: id)
+         %Account{} = account <- Account.get_by(id: id)
     do
       render(conn, :account, %{account: account})
     else
