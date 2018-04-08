@@ -10,6 +10,8 @@ defmodule EWalletDB.Mint do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "mint" do
+    external_id prefix: "mnt_"
+
     field :description, :string
     field :amount, EWalletDB.Types.Integer
     field :confirmed, :boolean, default: false

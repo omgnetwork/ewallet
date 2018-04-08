@@ -8,9 +8,11 @@ defmodule EWalletDB.MintedToken do
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, MintedToken}
 
-  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "minted_token" do
+    external_id prefix: "tkn_"
+
     field :friendly_id, :string # "EUR:123"
     field :symbol, :string # "eur"
     field :iso_code, :string # "EUR"

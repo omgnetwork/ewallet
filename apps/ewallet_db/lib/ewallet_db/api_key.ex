@@ -4,6 +4,7 @@ defmodule EWalletDB.APIKey do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
+  use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, APIKey}
@@ -13,6 +14,8 @@ defmodule EWalletDB.APIKey do
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "api_key" do
+    external_id prefix: "acc_"
+
     field :key, :string
     field :owner_app, :string
     belongs_to :account, Account, foreign_key: :account_uuid,

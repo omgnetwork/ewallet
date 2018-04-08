@@ -25,6 +25,8 @@ defmodule EWalletDB.Transfer do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "transfer" do
+    external_id prefix: "tfr_"
+
     field :idempotency_token, :string
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @pending # pending -> confirmed

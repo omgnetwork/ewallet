@@ -12,6 +12,8 @@ defmodule EWalletDB.Key do
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "key" do
+    external_id prefix: "key_"
+
     field :access_key, :string
     field :secret_key, :string, virtual: true
     field :secret_key_hash, :string

@@ -13,6 +13,8 @@ defmodule EWalletDB.AuthToken do
   @key_length 32
 
   schema "auth_token" do
+    external_id prefix: "atk_"
+
     field :token, :string
     field :owner_app, :string
     belongs_to :user, User, foreign_key: :user_uuid,

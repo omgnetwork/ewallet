@@ -21,6 +21,8 @@ defmodule EWalletDB.TransactionRequest do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "transaction_request" do
+    external_id prefix: "txr_"
+
     field :type, :string
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @valid # valid -> expired

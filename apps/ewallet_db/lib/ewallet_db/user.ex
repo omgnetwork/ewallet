@@ -13,6 +13,8 @@ defmodule EWalletDB.User do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "user" do
+    external_id prefix: "usr_"
+
     field :username, :string
     field :email, :string
     field :password, :string, virtual: true

@@ -21,6 +21,8 @@ defmodule EWalletDB.Balance do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "balance" do
+    # Balance does not have an external ID. Use `address` instead.
+
     field :address, :string
     field :name, :string
     field :identifier, :string

@@ -19,6 +19,8 @@ defmodule EWalletDB.TransactionConsumption do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "transaction_consumption" do
+    external_id prefix: "txc_"
+
     field :amount, EWalletDB.Types.Integer
     field :correlation_id, :string
     field :idempotency_token, :string
