@@ -24,8 +24,8 @@ defmodule EWalletDB.AuthToken do
 
   defp changeset(%AuthToken{} = token, attrs) do
     token
-    |> cast(attrs, [:token, :owner_app, :user_id, :expired])
-    |> validate_required([:token, :owner_app, :user_id])
+    |> cast(attrs, [:token, :owner_app, :user_uuid, :expired])
+    |> validate_required([:token, :owner_app, :user_uuid])
     |> unique_constraint(:token)
     |> assoc_constraint(:user)
   end
@@ -37,7 +37,7 @@ defmodule EWalletDB.AuthToken do
   def generate(%User{} = user, owner_app) when is_atom(owner_app) do
     attrs = %{
       owner_app: Atom.to_string(owner_app),
-      user_id: user.id,
+      user_uuid: user.uuid,
       token: Crypto.generate_key(@key_length)
     }
 

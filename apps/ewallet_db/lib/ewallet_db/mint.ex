@@ -27,16 +27,16 @@ defmodule EWalletDB.Mint do
 
   defp changeset(%Mint{} = minted_token, attrs) do
     minted_token
-    |> cast(attrs, [:description, :amount, :minted_token_id, :confirmed])
-    |> validate_required([:amount, :minted_token_id])
+    |> cast(attrs, [:description, :amount, :minted_token_uuid, :confirmed])
+    |> validate_required([:amount, :minted_token_uuid])
     |> validate_number(:amount, greater_than: 0)
     |> assoc_constraint(:minted_token)
   end
 
   defp update_changeset(%Mint{} = minted_token, attrs) do
     minted_token
-    |> cast(attrs, [:transfer_id])
-    |> validate_required([:transfer_id])
+    |> cast(attrs, [:transfer_uuid])
+    |> validate_required([:transfer_uuid])
     |> assoc_constraint(:transfer)
   end
 

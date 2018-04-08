@@ -25,8 +25,8 @@ defmodule EWalletDB.APIKey do
 
   defp changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:key, :owner_app, :account_id, :expired])
-    |> validate_required([:key, :owner_app, :account_id])
+    |> cast(attrs, [:key, :owner_app, :account_uuid, :expired])
+    |> validate_required([:key, :owner_app, :account_uuid])
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
   end
@@ -53,7 +53,7 @@ defmodule EWalletDB.APIKey do
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:account_id, fn -> get_master_account_id() end)
+      |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
       |> Map.put_new_lazy(:key, fn -> Crypto.generate_key(@key_bytes) end)
 
     %APIKey{}
@@ -61,9 +61,9 @@ defmodule EWalletDB.APIKey do
     |> Repo.insert()
   end
 
-  defp get_master_account_id do
+  defp get_master_account_uuid do
     case Account.get_master_account() do
-      %{id: id} -> id
+      %{uuid: uuid} -> uuid
       _ -> nil
     end
   end

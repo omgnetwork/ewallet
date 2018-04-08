@@ -38,11 +38,11 @@ defmodule EWalletDB.MintedToken do
     |> cast(attrs, [
       :symbol, :iso_code, :name, :description, :short_symbol,
       :subunit, :subunit_to_unit, :symbol_first, :html_entity,
-      :iso_numeric, :smallest_denomination, :locked, :account_id,
+      :iso_numeric, :smallest_denomination, :locked, :account_uuid,
       :metadata, :encrypted_metadata, :friendly_id
     ])
     |> validate_required([
-      :symbol, :name, :subunit_to_unit, :account_id,
+      :symbol, :name, :subunit_to_unit, :account_uuid,
       :metadata, :encrypted_metadata
     ])
     |> validate_number(:subunit_to_unit, greater_than: 0, less_than_or_equal_to: 1.0e18)
@@ -65,7 +65,7 @@ defmodule EWalletDB.MintedToken do
         uuid = UUID.generate()
 
         changeset
-        |> put_change(:id, uuid)
+        |> put_change(:uuid, uuid)
         |> put_change(:friendly_id, build_friendly_id(symbol, uuid))
       _ -> changeset
     end

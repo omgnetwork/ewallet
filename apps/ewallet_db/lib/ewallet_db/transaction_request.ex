@@ -36,18 +36,18 @@ defmodule EWalletDB.TransactionRequest do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
 
-    has_many :consumptions, TransactionConsumption, foreign_key: :request_id,
+    has_many :consumptions, TransactionConsumption, foreign_key: :request_uuid,
                                                     references: :uuid
 
-    belongs_to :user, User, foreign_key: :user_id,
+    belongs_to :user, User, foreign_key: :user_uuid,
                                          references: :uuid,
                                          type: UUID
 
-    belongs_to :account, Account, foreign_key: :account_id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
                                   references: :uuid,
                                   type: UUID
 
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
                                            references: :uuid,
                                            type: UUID
 
@@ -60,13 +60,13 @@ defmodule EWalletDB.TransactionRequest do
   defp changeset(%TransactionRequest{} = transaction_request, attrs) do
     transaction_request
     |> cast(attrs, [
-      :type, :amount, :correlation_id, :user_id, :account_id,
-      :minted_token_id, :balance_address, :require_confirmation, :max_consumptions,
+      :type, :amount, :correlation_id, :user_uuid, :account_uuid,
+      :minted_token_uuid, :balance_address, :require_confirmation, :max_consumptions,
       :consumption_lifetime, :expiration_date, :metadata, :encrypted_metadata,
       :allow_amount_override
     ])
     |> validate_required([
-      :type, :status, :minted_token_id, :balance_address
+      :type, :status, :minted_token_uuid, :balance_address
     ])
     |> validate_amount_if_disallow_override()
     |> validate_inclusion(:type, @types)

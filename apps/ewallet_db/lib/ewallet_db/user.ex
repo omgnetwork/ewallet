@@ -24,21 +24,21 @@ defmodule EWalletDB.User do
     field :encryption_version, :binary
     field :avatar, EWalletDB.Uploaders.Avatar.Type
 
-    belongs_to :invite, Invite, foreign_key: :invite_id,
+    belongs_to :invite, Invite, foreign_key: :invite_uuid,
                                 references: :uuid,
                                 type: UUID
 
-    has_many :balances, Balance, foreign_key: :user_id,
+    has_many :balances, Balance, foreign_key: :user_uuid,
                                  references: :uuid
-    has_many :auth_tokens, AuthToken, foreign_key: :user_id,
+    has_many :auth_tokens, AuthToken, foreign_key: :user_uuid,
                                       references: :uuid
-    has_many :memberships, Membership, foreign_key: :user_id,
+    has_many :memberships, Membership, foreign_key: :user_uuid,
                                        references: :uuid
 
     many_to_many :roles, Role, join_through: Membership,
-                               join_keys: [user_id: :uuid, role_id: :uuid]
+                               join_keys: [user_uuid: :uuid, role_uuid: :uuid]
     many_to_many :accounts, Account, join_through: Membership,
-                                     join_keys: [user_id: :uuid, account_id: :uuid]
+                                     join_keys: [user_uuid: :uuid, account_uuid: :uuid]
 
     timestamps()
   end
@@ -47,7 +47,7 @@ defmodule EWalletDB.User do
     changeset
     |> cast(attrs, [:username, :provider_user_id, :email, :password,
                     :password_confirmation, :metadata, :encrypted_metadata,
-                    :invite_id])
+                    :invite_uuid])
     |> validate_required([:metadata, :encrypted_metadata])
     |> validate_confirmation(:password, message: "does not match password!")
     |> validate_immutable(:provider_user_id)
@@ -172,7 +172,7 @@ defmodule EWalletDB.User do
   """
   def insert_balance(%User{} = user, identifier) do
     %{
-      user_id: user.id,
+      user_uuid: user.uuid,
       name: identifier,
       identifier: identifier
     }
@@ -216,7 +216,7 @@ defmodule EWalletDB.User do
   """
   def get_primary_balance(user) do
     Balance
-    |> where([b], b.user_id == ^user.id)
+    |> where([b], b.user_uuid == ^user.uuid)
     |> where([b], b.identifier == ^Balance.primary)
     |> Repo.one()
   end
@@ -232,7 +232,7 @@ defmodule EWalletDB.User do
   Retrieves the status of the given user.
   """
   def get_status(user) do
-    if user.invite_id == nil, do: :active, else: :pending_confirmation
+    if user.invite_uuid == nil, do: :active, else: :pending_confirmation
   end
 
   @doc """
@@ -249,10 +249,10 @@ defmodule EWalletDB.User do
   """
   # User does not have any membership if it has not been saved yet.
   # Without pattern matching for nil id, Ecto will return an unsafe nil comparison error.
-  def has_membership?(%{id: nil}), do: false
+  def has_membership?(%{uuid: nil}), do: false
   def has_membership?(user) do
-    query = from(m in Membership, where: m.user_id == ^user.id)
-    Repo.aggregate(query, :count, :id) > 0
+    query = from(m in Membership, where: m.user_uuid == ^user.uuid)
+    Repo.aggregate(query, :count, :uuid) > 0
   end
 
   @doc """
@@ -284,74 +284,36 @@ defmodule EWalletDB.User do
   If the user does not have a membership on the given account, it inherits
   the role from the closest parent account that has one.
   """
+  @spec get_role(ExternalID.t(), ExternalID.t()) :: String.t() | nil
   def get_role(user_id, account_id) do
-    with {:ok, account_id, id_type} <- cast_account_id(account_id),
-         {:ok, user_id}             <- UUID.cast(user_id),
-         query                      <- query_role(user_id, account_id, id_type)
-    do
-      Repo.one(query)
-    else
-      :error -> {:error, :invalid_parameter}
-    end
+    user_id
+    |> query_role(account_id)
+    |> Repo.one()
   end
 
-  defp cast_account_id(<<"acc_", _::bytes-size(26)>> = id) do
-    {:ok, id, :external_id}
-  end
-  defp cast_account_id(id) do
-    case UUID.cast(id) do
-      {:ok, uuid} -> {:ok, uuid, :id}
-      _ -> :error
-    end
-  end
-
-  defp query_role(user_id, id, :id) do
+  defp query_role(user_id, account_id) do
     # Traverses up the account tree to find the user's role in the closest parent.
     from r in Role,
       join: account_tree in fragment("""
         WITH RECURSIVE account_tree AS (
-          SELECT a.*, m.role_id, m.user_id
+          SELECT a.*, m.role_uuid, m.user_uuid
           FROM account a
-          LEFT JOIN membership AS m ON m.account_id = a.id
+          LEFT JOIN membership AS m ON m.account_uuid = a.uuid
           WHERE a.id = ?
         UNION
-          SELECT parent.*, m.role_id, m.user_id
+          SELECT parent.*, m.role_uuid, m.user_uuid
           FROM account parent
-          LEFT JOIN membership AS m ON m.account_id = parent.id
-          JOIN account_tree ON account_tree.parent_id = parent.id
+          LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
+          JOIN account_tree ON account_tree.parent_uuid = parent.uuid
         )
-        SELECT role_id FROM account_tree
-        JOIN role AS r ON r.id = role_id
-        WHERE account_tree.user_id = ? LIMIT 1
+        SELECT role_uuid FROM account_tree
+        JOIN "role" AS r ON r.uuid = role_uuid
+        JOIN "user" AS u ON u.uuid = user_uuid
+        WHERE u.id = ? LIMIT 1
       """,
-        type(^id, UUID),
-        type(^user_id, UUID)
-      ), on: r.id == account_tree.role_id,
-      select: r.name
-  end
-
-  defp query_role(user_id, id, :external_id) do
-    # Traverses up the account tree to find the user's role in the closest parent.
-    from r in Role,
-      join: account_tree in fragment("""
-        WITH RECURSIVE account_tree AS (
-          SELECT a.*, m.role_id, m.user_id
-          FROM account a
-          LEFT JOIN membership AS m ON m.account_id = a.id
-          WHERE a.external_id = ?
-        UNION
-          SELECT parent.*, m.role_id, m.user_id
-          FROM account parent
-          LEFT JOIN membership AS m ON m.account_id = parent.id
-          JOIN account_tree ON account_tree.parent_id = parent.id
-        )
-        SELECT role_id FROM account_tree
-        JOIN role AS r ON r.id = role_id
-        WHERE account_tree.user_id = ? LIMIT 1
-      """,
-        type(^id, :string),
-        type(^user_id, UUID)
-      ), on: r.id == account_tree.role_id,
+        ^account_id,
+        ^user_id
+      ), on: r.uuid == account_tree.role_uuid,
       select: r.name
   end
 
@@ -379,10 +341,10 @@ defmodule EWalletDB.User do
   Query the list of accounts that the given user has membership, including their child accounts.
   """
   def query_accounts(user) do
-    account_ids =
+    account_uuids =
       user
       |> Membership.all_by_user()
-      |> Enum.map(fn(m) -> Map.fetch!(m, :account_id) end)
+      |> Enum.map(fn(m) -> Map.fetch!(m, :account_uuid) end)
 
     # Traverses down the account tree
     from a in Account,
@@ -390,13 +352,15 @@ defmodule EWalletDB.User do
         WITH RECURSIVE account_tree AS (
           SELECT account.*, 0 AS depth
           FROM account
-          WHERE account.id = ANY(?)
+          WHERE account.uuid = ANY(?)
         UNION
           SELECT child.*, account_tree.depth + 1 as depth
           FROM account child
-          JOIN account_tree ON account_tree.id = child.parent_id
+          JOIN account_tree ON account_tree.uuid = child.parent_uuid
         ) SELECT * FROM account_tree
-      """, type(^account_ids, {:array, :binary_id})), on: a.id == child.id,
+      """,
+        type(^account_uuids, {:array, :string})
+      ), on: a.uuid == child.uuid,
       select: %{a | relative_depth: child.depth}
   end
 end

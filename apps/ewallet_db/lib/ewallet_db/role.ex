@@ -13,7 +13,7 @@ defmodule EWalletDB.Role do
     field :name, :string
     field :display_name, :string
     many_to_many :users, User, join_through: Membership,
-                               join_keys: [role_id: :uuid, user_id: :uuid]
+                               join_keys: [role_uuid: :uuid, user_uuid: :uuid]
 
     timestamps()
   end

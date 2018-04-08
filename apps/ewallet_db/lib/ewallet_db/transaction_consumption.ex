@@ -58,14 +58,15 @@ defmodule EWalletDB.TransactionConsumption do
   defp changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
     |> cast(attrs, [
-      :amount, :idempotency_token, :correlation_id, :user_id, :account_id,
-      :transaction_request_id, :balance_address, :minted_token_id,
+      :amount, :idempotency_token, :correlation_id, :user_uuid, :account_uuid,
+      :transaction_request_uuid, :balance_address, :minted_token_uuid,
       :metadata, :encrypted_metadata, :expiration_date
     ])
     |> validate_required([
-      :status, :amount, :idempotency_token, :transaction_request_id,
-      :balance_address, :minted_token_id
+      :status, :amount, :idempotency_token, :transaction_request_uuid,
+      :balance_address, :minted_token_uuid
     ])
+    |> validate_required_exclusive([:account_uuid, :user_uuid])
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)
@@ -91,15 +92,15 @@ defmodule EWalletDB.TransactionConsumption do
 
   def confirmed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :confirmed_at, :transfer_id])
-    |> validate_required([:status, :confirmed_at, :transfer_id])
+    |> cast(attrs, [:status, :confirmed_at, :transfer_uuid])
+    |> validate_required([:status, :confirmed_at, :transfer_uuid])
     |> assoc_constraint(:transfer)
   end
 
   def failed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :failed_at, :transfer_id])
-    |> validate_required([:status, :failed_at, :transfer_id])
+    |> cast(attrs, [:status, :failed_at, :transfer_uuid])
+    |> validate_required([:status, :failed_at, :transfer_uuid])
     |> assoc_constraint(:transfer)
   end
 
@@ -183,10 +184,10 @@ defmodule EWalletDB.TransactionConsumption do
   Get all confirmed and pending transaction consumptions.
   """
   @spec all_active_for_request(UUID.t) :: List.t
-  def all_active_for_request(request_id) do
+  def all_active_for_request(request_uuid) do
     TransactionConsumption
     |> where([t], t.status == @confirmed)
-    |> where([t], t.transaction_request_id == ^request_id)
+    |> where([t], t.transaction_request_uuid == ^request_uuid)
     |> Repo.all()
   end
 
@@ -225,7 +226,16 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec confirm(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def confirm(consumption, transfer) do
-    state_transition(consumption, @confirmed, transfer.id)
+    {:ok, consumption} =
+      consumption
+      |> update_changeset(%{
+        status: @confirmed,
+        transfer_uuid: transfer.uuid,
+        confirmed_at: NaiveDateTime.utc_now()
+      })
+      |> Repo.update()
+
+    consumption
   end
 
   @doc """
@@ -233,7 +243,12 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec fail(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def fail(consumption, transfer) do
-    state_transition(consumption, @failed, transfer.id)
+    {:ok, consumption} =
+      consumption
+      |> update_changeset(%{status: @failed, transfer_uuid: transfer.uuid})
+      |> Repo.update()
+
+    consumption
   end
 
   @spec expired?(%TransactionConsumption{}) :: true | false

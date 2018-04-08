@@ -24,8 +24,8 @@ defmodule EWalletDB.Key do
 
   defp changeset(%Key{} = key, attrs) do
     key
-    |> cast(attrs, [:access_key, :secret_key, :account_id])
-    |> validate_required([:access_key, :secret_key, :account_id])
+    |> cast(attrs, [:access_key, :secret_key, :account_uuid])
+    |> validate_required([:access_key, :secret_key, :account_uuid])
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_password(attrs[:secret_key]))
     |> assoc_constraint(:account)
@@ -67,13 +67,13 @@ defmodule EWalletDB.Key do
   @doc """
   Creates a new key with the passed attributes.
 
-  The `account_id` defaults to the master account if not provided.
+  The `account_uuid` defaults to the master account if not provided.
   The `access_key` and `secret_key` are automatically generated if not specified.
   """
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:account_id, fn -> get_master_account_id() end)
+      |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
       |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_key(@key_bytes) end)
       |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@key_bytes) end)
 
@@ -82,7 +82,7 @@ defmodule EWalletDB.Key do
     |> Repo.insert()
   end
 
-  defp get_master_account_id do
+  defp get_master_account_uuid do
     case Account.get_master_account() do
       %{id: id} -> id
       _ -> nil

@@ -53,7 +53,7 @@ defmodule EWalletDB.Invite do
     if Enum.member?(@allowed_user_attrs, user_attr) do
       query =
         from i in Invite,
-          join: u in User, on: u.invite_id == i.id,
+          join: u in User, on: u.invite_uuid == i.uuid,
           where: field(u, ^user_attr) == ^value
 
       Repo.one(query)
@@ -70,7 +70,7 @@ defmodule EWalletDB.Invite do
     {:ok, invite} = insert(%{token: Crypto.generate_key(@token_length)})
 
     # Assign the invite to the user
-    changeset     = change(user, invite_id: invite.id)
+    changeset     = change(user, invite_uuid: invite.uuid)
     {:ok, _user}  = Repo.update(changeset)
     invite        = Repo.preload(invite, opts[:preload])
 
@@ -88,7 +88,7 @@ defmodule EWalletDB.Invite do
   """
   def accept(invite, password) do
     invite       = Repo.preload(invite, :user)
-    {:ok, _user} = User.update(invite.user, %{invite_id: nil, password: password})
+    {:ok, _user} = User.update(invite.user, %{invite_uuid: nil, password: password})
     delete(invite)
   end
 

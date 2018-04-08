@@ -21,8 +21,8 @@ defmodule EWalletDB.ForgetPasswordRequest do
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token, :user_id])
-    |> validate_required([:token, :user_id])
+    |> cast(attrs, [:token, :user_uuid])
+    |> validate_required([:token, :user_uuid])
     |> assoc_constraint(:user)
   end
 
@@ -32,7 +32,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   def get(user, token) do
     request =
       ForgetPasswordRequest
-      |> where([c], c.user_id == ^user.id)
+      |> where([c], c.user_uuid == ^user.uuid)
       |> order_by([c], desc: c.inserted_at)
       |> limit(1)
       |> Repo.one()
@@ -51,7 +51,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   """
   def delete_all(user) do
     ForgetPasswordRequest
-    |> where([f], f.user_id == ^user.id)
+    |> where([f], f.user_uuid == ^user.uuid)
     |> Repo.delete_all()
 
     user
@@ -62,7 +62,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   """
   def generate(user) do
     token = Crypto.generate_key(@token_length)
-    {:ok, _} = insert(%{token: token, user_id: user.id})
+    {:ok, _} = insert(%{token: token, user_uuid: user.uuid})
     ForgetPasswordRequest.get(user, token)
   end
 
