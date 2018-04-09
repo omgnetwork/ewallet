@@ -77,8 +77,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     max_consumptions_reached: %{
       code: "transaction_request:max_consumptions_reached",
-      description: "The specified transaction request has reached the allowed amount " <>
-                   "of consumptions."
+      description:
+        "The specified transaction request has reached the allowed amount of consumptions."
     },
     not_transaction_request_owner: %{
       code: "transaction_consumption:not_owner",
