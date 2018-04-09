@@ -110,7 +110,36 @@ defmodule EWalletDB.TransactionRequestTest do
         :transaction_request
         |> params_for(type: "fake")
         |> TransactionRequest.insert()
+
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
+    end
+
+    test "allows creation with an amount equal to nil" do
+      {res, _inserted} =
+        :transaction_request
+        |> params_for(amount: nil)
+        |> TransactionRequest.insert()
+
+      assert res == :ok
+    end
+
+    test "allows creation with 'allow_amount_override=true' and nil amount" do
+      {res, _inserted} =
+        :transaction_request
+        |> params_for(allow_amount_override: true, amount: nil)
+        |> TransactionRequest.insert()
+
+      assert res == :ok
+    end
+
+    test "prevents creation with 'allow_amount_override=false' and nil amount" do
+      {:error, changeset} =
+        :transaction_request
+        |> params_for(allow_amount_override: false, amount: nil)
+        |> TransactionRequest.insert()
+
+      assert changeset.errors == [{:amount,
+                                  {"needs to be set if amount override is not allowed.", []}}]
     end
   end
 
