@@ -27,9 +27,16 @@ defmodule EWalletDB.Mint do
 
   defp changeset(%Mint{} = minted_token, attrs) do
     minted_token
-    |> cast(attrs, [:description, :amount, :minted_token_id, :confirmed, :transfer_id])
-    |> validate_required([:amount, :minted_token_id, :transfer_id])
+    |> cast(attrs, [:description, :amount, :minted_token_id, :confirmed])
+    |> validate_required([:amount, :minted_token_id])
+    |> validate_number(:amount, greater_than: 0)
     |> assoc_constraint(:minted_token)
+  end
+
+  defp update_changeset(%Mint{} = minted_token, attrs) do
+    minted_token
+    |> cast(attrs, [:transfer_id])
+    |> validate_required([:transfer_id])
     |> assoc_constraint(:transfer)
   end
 
@@ -40,6 +47,22 @@ defmodule EWalletDB.Mint do
     %Mint{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Updates a mint with the provided attributes.
+  """
+  @spec update(mint :: %Mint{}, attrs :: map()) ::
+    {:ok, %Mint{}} | {:error, Ecto.Changeset.t}
+  def update(%Mint{} = mint, attrs) do
+    changeset = update_changeset(mint, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, mint} ->
+        {:ok, mint}
+      result ->
+        result
+    end
   end
 
   @doc """

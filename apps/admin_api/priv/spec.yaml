@@ -168,6 +168,22 @@ paths:
           $ref: "#/components/responses/MintedTokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  # Endpoint to create a new minted token
+  /minted_token.mint:
+    post:
+      tags:
+        - Minted Token
+      summary: Mint an existing minted token
+      operationId: minted_token_mint
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/MintedTokenMintBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MintedTokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   ############################
   #         ACCOUNTS         #
   ############################
@@ -1620,6 +1636,24 @@ components:
                 name: "Bitcoin"
                 description: "desc"
                 subunit_to_unit: 100
+    # Request body for minting a minted token
+    MintedTokenMintBody:
+        description: The parameters to create a minted token. Note that if amount is specified, the token will be minted automatically.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                amount:
+                  type: integer
+              required:
+                - id
+                - amount
+              example:
+                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                amount: 1000
     # Request body for listing accounts
     AccountAllBody:
       description: The parameters to use for listing the accounts
