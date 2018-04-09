@@ -88,6 +88,24 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"] == true
       assert response["data"]["object"] == "account"
       assert response["data"]["name"] == request_data.name
+      assert response["data"]["parent_id"] == parent.external_id
+      assert response["data"]["metadata"] == %{"something" => "interesting"}
+      assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
+    end
+
+    test "creates a new account with no parent_id" do
+      parent       = Account.get_master_account()
+      request_data = params_for(:account, %{
+        parent_id: parent.external_id,
+        metadata: %{something: "interesting"},
+        encrypted_metadata: %{something: "secret"}
+      })
+      response     = user_request("/account.create", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "account"
+      assert response["data"]["name"] == request_data.name
+      assert response["data"]["parent_id"] == parent.external_id
       assert response["data"]["metadata"] == %{"something" => "interesting"}
       assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
