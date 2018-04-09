@@ -228,7 +228,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. `amount` must be greater than %{number}."
+      assert response["data"]["description"] == "Invalid parameter provided `amount` must be greater than %{number}."
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
 
@@ -243,7 +243,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. `amount` must be greater than %{number}."
+      assert response["data"]["description"] == "Invalid parameter provided `amount` must be greater than %{number}."
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
   end
