@@ -756,4 +756,266 @@ defmodule EWallet.TransactionConsumptionGateTest do
              {:error, :transaction_consumption_not_found}
     end
   end
+
+  describe "confirm/3 with Account" do
+    test "confirms the consumption if approved as account", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        account_id: meta.account.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
+      assert consumption.status == "confirmed"
+      assert consumption.approved == true
+    end
+
+    test "fails to confirm the consumption if not owner", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.sender.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
+      assert res == {:error, :not_transaction_request_owner}
+    end
+
+    test "fails to confirm the consumption if expired", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        account_id: meta.account.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
+      assert transaction_request.expired_at != nil
+
+      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
+      assert res == {:error, :expired_transaction_request}
+    end
+
+    test "rejects the consumption if not approved as account", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        account_id: meta.account.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, false, meta.account)
+      assert consumption.status == "rejected"
+      assert consumption.approved == false
+    end
+  end
+
+  describe "confirm/3 with User" do
+    test "confirms the consumption if approved as user", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.receiver.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.receiver)
+      assert consumption.status == "confirmed"
+      assert consumption.approved == true
+    end
+
+    test "fails to confirm the consumption if not owner", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.receiver.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.sender)
+      assert res == {:error, :not_transaction_request_owner}
+    end
+
+    test "fails to confirm the consumption if expired", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.receiver.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
+      assert transaction_request.expired_at != nil
+
+      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.receiver)
+      assert res == {:error, :expired_transaction_request}
+    end
+
+    test "rejects the consumption if not approved as account", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      transaction_request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        user_id: meta.receiver.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit
+      )
+
+      {res, consumption} = TransactionConsumptionGate.consume(%{
+        "transaction_request_id" => transaction_request.id,
+        "correlation_id" => nil,
+        "amount" => nil,
+        "metadata" => nil,
+        "idempotency_token" => "123",
+        "token_id" => nil,
+        "user_id" => meta.sender.id,
+        "address" => meta.sender_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved == false
+
+      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, false, meta.receiver)
+      assert consumption.status == "rejected"
+      assert consumption.approved == false
+    end
+  end
 end
