@@ -1644,7 +1644,7 @@ components:
           application/vnd.omisego.v1+json:
             schema:
               properties:
-                minted_token_id:
+                id:
                   type: string
                 amount:
                   type: integer
