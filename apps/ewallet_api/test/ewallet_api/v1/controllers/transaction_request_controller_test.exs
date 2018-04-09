@@ -43,6 +43,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "expiration_reason" => nil,
           "expired_at" => nil,
           "max_consumptions" => nil,
+          "current_consumptions_count" => 0,
           "metadata" => %{},
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
@@ -90,6 +91,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "expiration_reason" => nil,
           "expired_at" => nil,
           "max_consumptions" => nil,
+          "current_consumptions_count" => 0,
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
         }
@@ -235,6 +237,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "expiration_reason" => nil,
           "expired_at" => nil,
           "max_consumptions" => nil,
+          "current_consumptions_count" => 0,
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
         }
@@ -277,6 +280,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "expiration_reason" => nil,
           "expired_at" => nil,
           "max_consumptions" => nil,
+          "current_consumptions_count" => 0,
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
