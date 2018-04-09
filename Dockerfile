@@ -39,12 +39,7 @@ RUN set -xe && \
         if { mix local.rebar --force } \
         if { mix deps.get } \
         mix compile \
-        rm -rf /tmp/ewallet \
-    " && \
-    mix local.hex --force && \
-    mix local.rebar --force && \
-    mix deps.get && \
-    MIX_ENV=prod mix compile
+        rm -rf /tmp/ewallet"
 
 RUN set -xe && \
     SERVICE_DIR=/etc/services.d/ewallet/ && \
