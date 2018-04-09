@@ -47,6 +47,14 @@ defmodule EWallet.MintGate do
 
     multi =
       Multi.new
+      |> Multi.run(:mint, fn _ ->
+        Mint.insert(%{
+          minted_token_id: minted_token.id,
+          amount: amount,
+          account_id: account.id,
+          description: description
+        })
+      end)
       |> Multi.run(:transfer, fn _ ->
         TransferGate.get_or_insert(%{
           idempotency_token: idempotency_token,
@@ -59,19 +67,13 @@ defmodule EWallet.MintGate do
           payload: attrs
         })
       end)
-      |> Multi.run(:mint, fn %{transfer: transfer} ->
-        Mint.insert(%{
-          minted_token_id: minted_token.id,
-          amount: amount,
-          account_id: account.id,
-          transfer_id: transfer.id,
-          description: description
-        })
+      |> Multi.run(:mint_with_transfer, fn %{transfer: transfer, mint: mint} ->
+        Mint.update(mint, %{transfer_id: transfer.id})
       end)
 
       case Repo.transaction(multi) do
         {:ok, result} ->
-          process_with_transfer(result.transfer, result.mint)
+          process_with_transfer(result.transfer, result.mint_with_transfer)
         {:error, _failed_operation, changeset, _changes_so_far} ->
           {:error, changeset}
       end
