@@ -157,7 +157,8 @@ defmodule EWallet.TransactionConsumptionGate do
   def confirm(id, approved, %User{} = user) do
     with {:ok, consumption} <- get(id),
          true <- consumption.transaction_request.user_id == user.id ||
-                 {:error, :not_transaction_request_owner}
+                 {:error, :not_transaction_request_owner},
+         {:ok, _} <- TransactionRequestGate.validate_request(consumption.transaction_request)
     do
       do_confirm(consumption, approved)
     else
@@ -168,7 +169,8 @@ defmodule EWallet.TransactionConsumptionGate do
   def confirm(id, approved, %Account{} = account) do
     with {:ok, consumption} <- get(id),
          true <- consumption.transaction_request.account_id == account.id ||
-                 {:error, :not_transaction_request_owner}
+                 {:error, :not_transaction_request_owner},
+         {:ok, _} <- TransactionRequestGate.validate_request(consumption.transaction_request)
     do
       do_confirm(consumption, approved)
     else
