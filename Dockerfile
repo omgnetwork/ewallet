@@ -41,7 +41,6 @@ RUN set -xe && \
         mix compile \
         rm -rf /tmp/ewallet"
 
-ENV ERLANG_COOKIE default
 ENV PORT 4000
 EXPOSE 4000
 
@@ -54,13 +53,17 @@ RUN set -xe && \
     echo 's6-setuidgid ewallet' >> $SERVICE_DIR/run && \
     echo 's6-env HOME=/tmp/ewallet' >> ${SERVICE_DIR}/run && \
     echo 's6-env MIX_ENV=prod' >> $SERVICE_DIR/run && \
-    echo 'foreground {' >> $SERVICE_DIR/run && \
-    echo '  importas -i ERLANG_COOKIE ERLANG_COOKIE' >> $SERVICE_DIR/run && \
-    echo '  redirfd -w 1 /tmp/ewallet/.erlang.cookie' >> $SERVICE_DIR/run && \
-    echo '  s6-echo -n $ERLANG_COOKIE' >> $SERVICE_DIR/run && \
-    echo '}' >> $SERVICE_DIR/run && \
-    echo 's6-chmod 0400 /tmp/ewallet/.erlang.cookie' >> $SERVICE_DIR/run && \
-    echo 'mix omg.server --no-watch' >> $SERVICE_DIR/run && \
+    echo 'backtick -in default_host { s6-hostname }' >> $SERVICE_DIR/run && \
+    echo 'backtick -in default_cookie { openssl rand -hex 8 }' >> $SERVICE_DIR/run && \
+    echo 'importas -iu default_host default_host' >> $SERVICE_DIR/run && \
+    echo 'importas -iu default_cookie default_cookie' >> $SERVICE_DIR/run && \
+    echo 'importas -D $default_host NODE_HOST NODE_HOST' >> $SERVICE_DIR/run && \
+    echo 'importas -D $default_cookie ERLANG_COOKIE ERLANG_COOKIE' >> $SERVICE_DIR/run && \
+    echo 'importas -D ewallet NODE_NAME NODE_NAME' >> $SERVICE_DIR/run && \
+    echo 'elixir' >> $SERVICE_DIR/run && \
+    echo '  --name "${NODE_NAME}@${NODE_HOST}"' >> $SERVICE_DIR/run && \
+    echo '  --cookie $ERLANG_COOKIE' >> $SERVICE_DIR/run && \
+    echo '  -S mix omg.server --no-watch' >> $SERVICE_DIR/run && \
     echo '#!/bin/execlineb -S1' > $SERVICE_DIR/finish && \
     echo 'if { s6-test ${1} -ne 0 }' >> $SERVICE_DIR/finish && \
     echo 'if { s6-test ${1} -ne 256 }' >> $SERVICE_DIR/finish && \
