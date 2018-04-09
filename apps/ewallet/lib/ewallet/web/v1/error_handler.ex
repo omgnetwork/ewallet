@@ -80,6 +80,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       description:
         "The specified transaction request has reached the allowed amount of consumptions."
     },
+    unauthorized_amount_override: %{
+      code: "transaction_request:unauthorized_amount_override",
+      description: "The amount for this transaction request cannot be overridden."
+    },
     not_transaction_request_owner: %{
       code: "transaction_consumption:not_owner",
       description: "The given consumption can only be approved by the transaction request owner."
