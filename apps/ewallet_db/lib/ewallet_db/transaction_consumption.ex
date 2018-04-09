@@ -7,7 +7,7 @@ defmodule EWalletDB.TransactionConsumption do
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,
-                   TransactionRequest, Balance, Helpers, Transfer, Account}
+                   TransactionRequest, Balance, Transfer, Account}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -116,17 +116,13 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Gets a transaction request consumption.
   """
-  @spec get(UUID.t) :: %TransactionConsumption{} | nil
-  @spec get(UUID.t, List.t) :: %TransactionConsumption{} | nil
-  def get(nil), do: nil
+  @spec get(ExternalID.t) :: %TransactionConsumption{} | nil
+  @spec get(ExternalID.t, keyword()) :: %TransactionConsumption{} | nil
   def get(id, opts \\ [])
-  def get(nil, _), do: nil
-  def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true  -> get_by(%{id: id}, opts)
-      false -> nil
-    end
+  def get(id, opts) when is_external_id(id) do
+    get_by([id: id], opts)
   end
+  def get(_id, _opts), do: nil
 
   @doc """
   Get a consumption using one or more fields.

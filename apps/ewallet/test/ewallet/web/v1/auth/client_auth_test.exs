@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.ClientAuthTest do
       {res, account} = ClientAuth.authenticate_client(api_key.key, :ewallet_api)
 
       assert res == :ok
-      assert api_key.account_id == account.id
+      assert api_key.account.uuid == account.uuid
     end
   end
 

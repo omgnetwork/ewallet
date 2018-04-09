@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.APIKeyController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [{:id, :uuid}, :key]
+  @search_fields [:id, :key]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.

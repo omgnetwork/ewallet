@@ -5,6 +5,7 @@ defmodule EWalletDB.MintedToken do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
+  import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, MintedToken}
@@ -12,7 +13,7 @@ defmodule EWalletDB.MintedToken do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "minted_token" do
-    external_id prefix: "tkn_"
+    external_id prefix: "tok_"
 
     field :friendly_id, :string # "EUR:123"
     field :symbol, :string # "eur"
@@ -102,9 +103,21 @@ defmodule EWalletDB.MintedToken do
   @doc """
   Retrieve a minted token by friendly_id.
   """
-  def get(nil), do: nil
-  def get(friendly_id) do
-    Repo.get_by(MintedToken, friendly_id: friendly_id)
+  @spec get_by(String.t(), opts :: keyword()) :: %MintedToken{} | nil
+  def get(friendly, opts \\ [])
+  def get(nil, _), do: nil
+  def get(friendly_id, opts) do
+    get_by([friendly_id: friendly_id], opts)
+  end
+
+  @doc """
+  Retrieves a minted token using one or more fields.
+  """
+  @spec get_by(fields :: map(), opts :: keyword()) :: %MintedToken{} | nil
+  def get_by(fields, opts \\ []) do
+    MintedToken
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 
   @doc """

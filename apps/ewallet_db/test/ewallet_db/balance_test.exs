@@ -10,7 +10,7 @@ defmodule EWalletDB.BalanceTest do
   describe "Balance.insert/1" do
     test_insert_ok Balance, :address, "an_address"
 
-    test_insert_generate_uuid Balance, :id
+    test_insert_generate_uuid Balance, :uuid
     test_insert_generate_uuid Balance, :address
     test_insert_generate_timestamps Balance
 
@@ -19,10 +19,10 @@ defmodule EWalletDB.BalanceTest do
     test_insert_prevent_duplicate Balance, :address
     test_default_metadata_fields Balance, "balance"
 
-    test "allows insert if provided a user without account_id" do
+    test "allows insert if provided a user without account_uuid" do
       {res, _balance} =
         :balance
-        |> params_for(%{user: insert(:user), account_id: nil})
+        |> params_for(%{user: insert(:user), account_uuid: nil})
         |> Balance.insert
 
       assert res == :ok
@@ -52,7 +52,7 @@ defmodule EWalletDB.BalanceTest do
 
       assert result == :error
       assert changeset.errors ==
-        [{%{account_id: nil, identifier: "genesis", user_id: nil},
+        [{%{account_uuid: nil, identifier: "genesis", user_uuid: nil},
          {"only one must be present", []}}]
     end
 
@@ -62,7 +62,7 @@ defmodule EWalletDB.BalanceTest do
 
       assert result == :error
       assert changeset.errors ==
-        [{%{account_id: nil, identifier: "genesis", user_id: nil},
+        [{%{account_uuid: nil, identifier: "genesis", user_uuid: nil},
          {"can't all be blank", []}}]
     end
 

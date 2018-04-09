@@ -15,7 +15,7 @@ defmodule AdminAPI.V1.ResetPasswordControllerTest do
 
       request =
         ForgetPasswordRequest
-        |> Repo.get_by(user_id: user.id)
+        |> Repo.get_by(user_uuid: user.uuid)
         |> Repo.preload(:user)
 
       assert response["success"]
@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.ResetPasswordControllerTest do
 
       request =
         ForgetPasswordRequest
-        |> Repo.get_by(user_id: user.id)
+        |> Repo.get_by(user_uuid: user.uuid)
         |> Repo.preload(:user)
 
       assert response["success"] == false
@@ -60,7 +60,7 @@ defmodule AdminAPI.V1.ResetPasswordControllerTest do
 
       request =
         ForgetPasswordRequest
-        |> Repo.get_by(user_id: user.id)
+        |> Repo.get_by(user_uuid: user.uuid)
         |> Repo.preload(:user)
 
       assert response["success"] == false

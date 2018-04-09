@@ -110,21 +110,15 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Gets a transaction request.
   """
-  @spec get(UUID.t) :: %TransactionRequest{} | nil
-  @spec get(UUID.t, List.t) :: %TransactionRequest{} | nil
-  def get(nil), do: nil
-  def get(id, opts \\ [preload: []])
-  def get(nil, _), do: nil
-  def get(id, nil), do: get(id, [preload: []])
-  def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true ->
-        TransactionRequest
-        |> Repo.get(id)
-        |> preload_option(opts)
-      false -> nil
-    end
+  @spec get(ExternalID.t) :: %TransactionRequest{} | nil
+  @spec get(ExternalID.t, keyword()) :: %TransactionRequest{} | nil
+  def get(id, opts \\ [])
+  def get(id, opts) when is_external_id(id) do
+    TransactionRequest
+    |> Repo.get_by(id: id)
+    |> preload_option(opts)
   end
+  def get(_id, _opts), do: nil
 
   @doc """
   Expires all transactions that are past their expiration_date.
@@ -147,23 +141,19 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Gets a request with a "FOR UPDATE" lock on it. Should be called inside a transaction.
   """
-  @spec get_with_lock(UUID.t) :: %TransactionRequest{} | nil
-  def get_with_lock(nil), do: nil
-  def get_with_lock(id) do
-    case Helpers.UUID.valid?(id) do
-      true ->
-        TransactionRequest
-        |> where([t], t.id == ^id)
-        |> lock("FOR UPDATE")
-        |> Repo.one()
-      false -> nil
-    end
+  @spec get_with_lock(ExternalID.t()) :: %TransactionRequest{} | nil
+  def get_with_lock(id) when is_external_id(id) do
+    TransactionRequest
+    |> where([t], t.id == ^id)
+    |> lock("FOR UPDATE")
+    |> Repo.one()
   end
+  def get_with_lock(_), do: nil
 
   @doc """
   Touches a request by updating the `updated_at` field.
   """
-  @spec get_with_lock(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
+  @spec touch(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
                                                 {:error, Map.t}
   def touch(request) do
     request
@@ -251,7 +241,7 @@ defmodule EWalletDB.TransactionRequest do
   @spec expire_if_max_consumption(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
                                                             {:error, Map.t}
   def expire_if_max_consumption(request) do
-    consumptions = TransactionConsumption.all_active_for_request(request.id)
+    consumptions = TransactionConsumption.all_active_for_request(request.uuid)
 
     case max_consumptions_reached?(request, consumptions) do
       true  -> expire(request, "max_consumptions_reached")

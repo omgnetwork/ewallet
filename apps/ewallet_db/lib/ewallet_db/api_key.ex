@@ -14,7 +14,7 @@ defmodule EWalletDB.APIKey do
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "api_key" do
-    external_id prefix: "acc_"
+    external_id prefix: "api_"
 
     field :key, :string
     field :owner_app, :string
@@ -37,17 +37,14 @@ defmodule EWalletDB.APIKey do
   @doc """
   Get API key by id, exclude soft-deleted.
   """
-  def get(nil), do: nil
-  def get(id) do
-    case UUID.dump(id) do
-      {:ok, _binary} ->
-        APIKey
-        |> exclude_deleted()
-        |> Repo.get(id)
-      :error ->
-        nil
-    end
+  @spec get(ExternalID.t) :: %APIKey{} | nil
+  def get(id)
+  def get(id) when is_external_id(id) do
+    APIKey
+    |> exclude_deleted()
+    |> Repo.get_by(id: id)
   end
+  def get(_), do: nil
 
   @doc """
   Creates a new API key with the passed attributes.

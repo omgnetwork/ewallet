@@ -8,7 +8,8 @@ defmodule EWalletDB.MintedTokenTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid MintedToken, :id
+    test_insert_generate_uuid MintedToken, :uuid
+    test_insert_generate_external_id MintedToken, :id, "tok_"
     test_insert_generate_timestamps MintedToken
     test_insert_prevent_blank MintedToken, :symbol
     test_insert_prevent_blank MintedToken, :name
@@ -23,7 +24,7 @@ defmodule EWalletDB.MintedTokenTest do
         :minted_token |> params_for(friendly_id: nil, symbol: "OMG") |> MintedToken.insert
 
       assert "OMG:" <> uuid = minted_token.friendly_id
-      assert minted_token.id == uuid
+      assert minted_token.uuid == uuid
       assert String.match?(uuid, ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
     end
 

@@ -144,11 +144,12 @@ defmodule EWalletDB.SchemaCase do
   @doc """
   Test schema's insert/1 generates an external ID when given field is blank.
   """
-  defmacro test_insert_generate_external_id(schema, field) do
+  defmacro test_insert_generate_external_id(schema, field, prefix \\ "") do
     quote do
       test "generates an external ID" do
         schema = unquote(schema)
         field = unquote(field)
+        prefix = unquote(prefix)
 
         {res, record} =
           schema
@@ -157,8 +158,15 @@ defmodule EWalletDB.SchemaCase do
           |> schema.insert
 
         assert res == :ok
-        assert "acc_" <> ulid = record.unquote(field)
-        assert String.length(ulid) == 26
+        external_id = record.unquote(field)
+
+        case prefix do
+          "" ->
+            assert String.length(external_id) == 26
+          _ ->
+            assert String.starts_with?(external_id, prefix)
+            assert String.length(external_id) == String.length(prefix) + 26
+        end
       end
     end
   end

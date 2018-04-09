@@ -20,7 +20,7 @@ defmodule EWallet.Web.SearchParserTest do
       attrs = %{"search_term" => account.id}
       result =
         Account
-        |> SearchParser.to_query(attrs, [{:id, :uuid}, :name])
+        |> SearchParser.to_query(attrs, [:id, :name])
         |> Repo.all()
 
       assert Enum.count(result) == 1
@@ -108,7 +108,7 @@ defmodule EWallet.Web.SearchParserTest do
       attrs = %{"search_terms" => %{"id" => account.id}}
       result =
         Account
-        |> SearchParser.to_query(attrs, [{:id, :uuid}, :name])
+        |> SearchParser.to_query(attrs, [:id, :name])
         |> Repo.all()
 
       assert Enum.count(result) == 1

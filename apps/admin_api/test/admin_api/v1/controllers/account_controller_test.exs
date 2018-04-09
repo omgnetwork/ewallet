@@ -70,19 +70,21 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["description"] ==
+        "The user is not allowed to perform the requested operation"
     end
   end
 
   describe "/account.create" do
     test "creates a new account and returns it" do
       parent       = User.get_account(get_test_user())
-      request_data = params_for(:account, %{
+      request_data = %{
         parent_id: parent.id,
+        name: "A test account",
         metadata: %{something: "interesting"},
         encrypted_metadata: %{something: "secret"}
-      })
+      }
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == true
@@ -112,7 +114,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     test "returns an error if account name is not provided" do
       parent       = User.get_account(get_test_user())
-      request_data = params_for(:account, %{name: "", parent_id: parent.id})
+      request_data = %{name: "", parent_id: parent.id}
       response     = user_request("/account.create", request_data)
 
       assert response["success"] == false
@@ -150,14 +152,15 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided"
     end
 
-    test "returns a 'client:invalid_parameter' error if id is not in valid format" do
+    test "returns a 'user:unauthorized' error if id is invalid" do
       request_data = params_for(:account, %{id: "invalid_format"})
       response     = user_request("/account.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["description"] ==
+        "The user is not allowed to perform the requested operation"
     end
   end
 
@@ -254,7 +257,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert account.avatar == nil
     end
 
-    test "returns 'account:id_not_found' if the given ID was not found" do
+    test "returns 'user:unauthorized' if the given account ID was not found" do
       response = user_request("/account.upload_avatar", %{
         "id" => "fake",
         "avatar" => %Plug.Upload{
@@ -265,8 +268,9 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["description"] ==
+        "The user is not allowed to perform the requested operation"
     end
   end
 end

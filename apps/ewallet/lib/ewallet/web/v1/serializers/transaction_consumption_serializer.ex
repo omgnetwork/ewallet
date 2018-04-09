@@ -12,8 +12,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
     UserSerializer
   }
   alias EWalletDB.TransactionConsumption
+  alias EWalletDB.Helpers.{Assoc, Preloader}
 
   def serialize(%TransactionConsumption{} = consumption) do
+    consumption = Preloader.preload(consumption, [:account,
+                                                  :minted_token,
+                                                  :transaction_request,
+                                                  :transfer,
+                                                  :user])
+
     %{
       object: "transaction_consumption",
       id: consumption.id,
@@ -23,13 +30,13 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
       correlation_id: consumption.correlation_id,
       idempotency_token: consumption.idempotency_token,
-      transaction_id: consumption.transfer_id,
+      transaction_id: Assoc.get(consumption, [:transfer, :id]),
       transaction: TransactionSerializer.serialize(consumption.transfer),
-      user_id: consumption.user_id,
+      user_id: Assoc.get(consumption, [:user, :id]),
       user: UserSerializer.serialize(consumption.user),
-      account_id: consumption.account_id,
+      account_id: Assoc.get(consumption, [:account, :id]),
       account: AccountSerializer.serialize(consumption.account),
-      transaction_request_id: consumption.transaction_request_id,
+      transaction_request_id: consumption.transaction_request.id,
       transaction_request: TransactionRequestSerializer.serialize(consumption.transaction_request),
       address: consumption.balance_address,
       metadata: consumption.metadata,

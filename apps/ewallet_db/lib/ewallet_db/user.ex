@@ -9,7 +9,7 @@ defmodule EWalletDB.User do
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite,
-                   Membership, Role, User, Helpers, Helpers.Crypto}
+                   Membership, Role, User, Helpers.Crypto}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -112,15 +112,15 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific user.
   """
-  def get(id, queryable \\ User) do
-    case Helpers.UUID.valid?(id) do
-      true ->
-        queryable
-        |> Repo.get(id)
-        |> Repo.preload(:balances)
-      false -> nil
-    end
+  @spec get(ExternalID.t()) :: %User{} | nil
+  @spec get(ExternalID.t(), Ecto.Queryable.t()) :: %User{} | nil
+  def get(id, queryable \\ User)
+  def get(id, queryable) when is_external_id(id) do
+    queryable
+    |> Repo.get_by(id: id)
+    |> Repo.preload(:balances)
   end
+  def get(_, _), do: nil
 
   @doc """
   Retrieves a specific user from its provider_user_id.
@@ -362,7 +362,7 @@ defmodule EWalletDB.User do
           JOIN account_tree ON account_tree.uuid = child.parent_uuid
         ) SELECT * FROM account_tree
       """,
-        type(^account_uuids, {:array, :string})
+        type(^account_uuids, {:array, UUID})
       ), on: a.uuid == child.uuid,
       select: %{a | relative_depth: child.depth}
   end

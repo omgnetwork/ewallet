@@ -6,7 +6,6 @@ defmodule AdminAPI.V1.TransactionController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.{Repo, Transfer}
-  alias Ecto.UUID
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -24,7 +23,7 @@ defmodule AdminAPI.V1.TransactionController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [{:id, :uuid}, :idempotency_token, :status, :from, :to]
+  @search_fields [:id, :idempotency_token, :status, :from, :to]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
@@ -47,15 +46,10 @@ defmodule AdminAPI.V1.TransactionController do
   Retrieves a specific transaction by its id.
   """
   def get(conn, %{"id" => id}) do
-    case UUID.cast(id) do
-      {:ok, uuid} ->
-        Transfer
-        |> Preloader.to_query(@preload_fields)
-        |> Repo.get(uuid)
-        |> respond_single(conn)
-      _ ->
-        handle_error(conn, :invalid_parameter, "Transaction ID must be a UUID")
-    end
+    Transfer
+    |> Preloader.to_query(@preload_fields)
+    |> Repo.get_by(id: id)
+    |> respond_single(conn)
   end
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 

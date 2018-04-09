@@ -21,8 +21,8 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
           "token_id" => inserted_token.friendly_id
         })
 
-      assert account.id != inserted_account.id
-      assert account.id == inserted_token.account_id
+      assert account.uuid != inserted_account.uuid
+      assert account.uuid == inserted_token.account_uuid
       assert user == inserted_user
       assert minted_token == inserted_token
     end
@@ -39,7 +39,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
           "account_id" => inserted_account.id
         })
 
-      assert account.id == inserted_account.id
+      assert account.uuid == inserted_account.uuid
       assert user == inserted_user
       assert minted_token == inserted_token
     end
@@ -63,7 +63,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
       res = CreditDebitRecordFetcher.fetch(%{
         "provider_user_id" => inserted_user.provider_user_id,
         "token_id" =>  inserted_token.friendly_id,
-        "account_id" => "00000000-0000-0000-0000-000000000000"
+        "account_id" => "acc_12345678901234567890123456"
       })
 
       assert res == {:error, :account_id_not_found}

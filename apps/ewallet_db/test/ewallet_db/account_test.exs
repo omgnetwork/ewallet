@@ -10,7 +10,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "Account.insert/1" do
     test_insert_generate_uuid Account, :uuid
-    test_insert_generate_external_id Account, :id
+    test_insert_generate_external_id Account, :id, "acc_"
     test_insert_generate_timestamps Account
     test_insert_prevent_blank Account, :name
     test_insert_prevent_duplicate Account, :name
@@ -29,7 +29,7 @@ defmodule EWalletDB.AccountTest do
 
       assert res == :error
       assert Enum.member?(changeset.errors,
-                          {:parent_id, {"can't be blank", [validation: :required]}})
+                          {:parent_uuid, {"can't be blank", [validation: :required]}})
     end
 
     test "inserts primary/burn balances for the account" do
@@ -56,7 +56,7 @@ defmodule EWalletDB.AccountTest do
 
       assert res == :error
       assert changeset.errors ==
-        [{:parent_id, {"is at the maximum child level", [validation: :account_level_limit]}}]
+        [{:parent_uuid, {"is at the maximum child level", [validation: :account_level_limit]}}]
     end
   end
 

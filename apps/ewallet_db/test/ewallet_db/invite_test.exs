@@ -7,14 +7,14 @@ defmodule EWalletDB.InviteTest do
   describe "Invite.get/1" do
     test "returns an Invite if the given id is found" do
       invite = insert(:invite)
-      result = Invite.get(invite.id)
+      result = Invite.get(invite.uuid)
 
       assert result.token == invite.token
     end
 
     test "returns nil if the given id is not found" do
-      id = UUID.generate()
-      assert Invite.get(id) == nil
+      uuid = UUID.generate()
+      assert Invite.get(uuid) == nil
     end
   end
 
@@ -68,19 +68,19 @@ defmodule EWalletDB.InviteTest do
       assert %Invite{} = invite
     end
 
-    test "associates the invite_id to the user" do
+    test "associates the invite_uuid to the user" do
       user          = insert(:admin)
       {:ok, invite} = Invite.generate(user)
 
       user = User.get(user.id)
-      assert user.invite_id == invite.id
+      assert user.invite_uuid == invite.uuid
     end
 
     test "preloads the invite if the option is given" do
       user          = insert(:admin)
       {:ok, invite} = Invite.generate(user, preload: :user)
 
-      assert invite.user.id == user.id
+      assert invite.user.uuid == user.uuid
     end
   end
 
@@ -113,7 +113,7 @@ defmodule EWalletDB.InviteTest do
       {res, _invite} = Invite.accept(invite, "some_password")
 
       assert res == :ok
-      assert Invite.get(invite.id) == nil
+      assert Invite.get(invite.uuid) == nil
     end
   end
 end

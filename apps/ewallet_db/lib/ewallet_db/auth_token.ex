@@ -104,8 +104,9 @@ defmodule EWalletDB.AuthToken do
   defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
     Repo.all(
       from a in AuthToken,
-      where: a.user_id == ^user_id
-      and a.owner_app == ^Atom.to_string(owner_app)
+      join: u in User, on: u.uuid == a.user_uuid,
+      where: u.id == ^user_id
+        and a.owner_app == ^Atom.to_string(owner_app)
     )
   end
   defp get_by_user(_, _), do: nil

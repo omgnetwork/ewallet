@@ -59,7 +59,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   def create(%{assigns: %{account: account}} = conn, attrs) do
     inserted_minted_token =
       attrs
-      |> Map.put("account_id", account.id)
+      |> Map.put("account_uuid", account.uuid)
       |> MintedToken.insert()
 
     case attrs["amount"] do

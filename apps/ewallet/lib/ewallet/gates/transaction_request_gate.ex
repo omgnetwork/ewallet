@@ -196,16 +196,19 @@ defmodule EWallet.TransactionRequestGate do
   end
 
   defp insert(minted_token, balance, attrs) do
-   require_confirmation = if(is_nil(attrs["require_confirmation"]), do: false, else: attrs["require_confirmation"])
-   allow_amount_override = if(is_nil(attrs["allow_amount_override"]),
-                              do: true, else: attrs["allow_amount_override"])
+    require_confirmation  = if(is_nil(attrs["require_confirmation"]),
+                               do: false,
+                               else: attrs["require_confirmation"])
+    allow_amount_override = if(is_nil(attrs["allow_amount_override"]),
+                               do: true,
+                               else: attrs["allow_amount_override"])
     TransactionRequest.insert(%{
       type: attrs["type"],
       correlation_id: attrs["correlation_id"],
       amount: attrs["amount"],
-      user_id: balance.user_id,
-      account_id: balance.account_id,
-      minted_token_id: minted_token.id,
+      user_uuid: balance.user_uuid,
+      account_uuid: balance.account_uuid,
+      minted_token_uuid: minted_token.uuid,
       balance_address: balance.address,
       allow_amount_override: allow_amount_override,
       require_confirmation: require_confirmation,

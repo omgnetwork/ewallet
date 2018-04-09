@@ -5,7 +5,7 @@ defmodule AdminAPI.ForgetPasswordEmailTest do
 
   setup do
     user     = insert(:user, email: "example@mail.com")
-    _request = insert(:forget_password_request, token: "the_token", user_id: user.id)
+    _request = insert(:forget_password_request, token: "the_token", user_uuid: user.uuid)
     request  = ForgetPasswordRequest.get(user, "the_token")
     email    = ForgetPasswordEmail.create(request, "https://reset_url/?email={email}&token={token}")
 

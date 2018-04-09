@@ -163,10 +163,12 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
   describe "/account.unassign_user" do
     test "returns empty success if unassigned successfully" do
-      account    = insert(:account)
-      membership = insert(:membership, %{account: account})
-      response   = user_request("/account.unassign_user", %{
-        user_id: membership.user_id,
+      account     = insert(:account)
+      user        = insert(:user)
+      _membership = insert(:membership, %{account: account, user: user})
+
+      response    = user_request("/account.unassign_user", %{
+        user_id: user.id,
         account_id: account.id
       })
 

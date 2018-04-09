@@ -159,13 +159,12 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieves an account with the given ID.
   """
-  @spec get(id :: String.t, opts :: keyword()) :: %Account{} | nil
-  def get(id, opts \\ []) do
-    case UUID.cast(id) do
-      {:ok, uuid} -> get_by([id: uuid], opts)
-      :error      -> nil
-    end
+  @spec get(id :: ExternalID.t, opts :: keyword()) :: %Account{} | nil
+  def get(id, opts \\ [])
+  def get(id, opts) when is_external_id(id) do
+    get_by([id: id], opts)
   end
+  def get(_id, _opts), do: nil
 
   @doc """
   Retrieves an account using one or more fields.

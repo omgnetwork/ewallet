@@ -20,7 +20,7 @@ defmodule EWallet.BalanceFetcherTest do
     test "retrieves the balance if address is given and belonds to the user", meta do
       inserted_balance = insert(:balance, identifier: Balance.secondary, user: meta.user)
       {:ok, balance} = BalanceFetcher.get(meta.user, inserted_balance.address)
-      assert balance.id == inserted_balance.id
+      assert balance.uuid == inserted_balance.uuid
     end
 
     test "returns 'balance_not_found' if the address is not found", meta do

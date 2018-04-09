@@ -28,7 +28,7 @@ defmodule EWalletDB.KeyTest do
     test "accepts a uuid" do
       key = insert(:key)
       result = Key.get(key.id)
-      assert result.id == key.id
+      assert result.uuid == key.uuid
     end
 
     test "does not return a soft-deleted key" do
@@ -49,7 +49,7 @@ defmodule EWalletDB.KeyTest do
     test "returns a key if provided an access_key" do
       key = insert(:key)
       result = Key.get(:access_key, key.access_key)
-      assert result.id == key.id
+      assert result.uuid == key.uuid
     end
 
     test "does not return a soft-deleted key" do
@@ -63,7 +63,8 @@ defmodule EWalletDB.KeyTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid Key, :id
+    test_insert_generate_uuid Key, :uuid
+    test_insert_generate_external_id Key, :id, "key_"
     test_insert_generate_timestamps Key
     test_insert_generate_length Key, :access_key, 43
     test_insert_generate_length Key, :secret_key, 43
@@ -79,7 +80,7 @@ defmodule EWalletDB.KeyTest do
 
     test "does not save secret_key to database" do
       {:ok, key} = Key.insert(params_for(:key))
-      assert Repo.get(Key, key.id).secret_key == nil
+      assert Repo.get(Key, key.uuid).secret_key == nil
     end
   end
 
@@ -96,7 +97,7 @@ defmodule EWalletDB.KeyTest do
       |> Key.insert
 
       auth_account = Key.authenticate("access123", "secret321")
-      assert auth_account.id == account.id
+      assert auth_account.uuid == account.uuid
     end
 
     test "returns nil if access_key and/or secret_key do not match" do

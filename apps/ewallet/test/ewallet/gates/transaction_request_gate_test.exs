@@ -290,7 +290,7 @@ defmodule EWallet.TransactionRequestTest do
       assert %TransactionRequest{} = request
       assert request.id != nil
       assert request.type == "receive"
-      assert request.minted_token_id == meta.minted_token.id
+      assert request.minted_token_uuid == meta.minted_token.uuid
       assert request.correlation_id == "123"
       assert request.amount == 1_000
       assert request.balance_address == meta.user_balance.address
@@ -384,7 +384,7 @@ defmodule EWallet.TransactionRequestTest do
       assert %TransactionRequest{} = request
       assert request.id != nil
       assert request.type == "receive"
-      assert request.minted_token_id == meta.minted_token.id
+      assert request.minted_token_uuid == meta.minted_token.uuid
       assert request.correlation_id == "123"
       assert request.amount == 1_000
       assert request.balance_address == meta.user_balance.address
@@ -598,9 +598,9 @@ defmodule EWallet.TransactionRequestTest do
 
     test "expires the request if max_consumptions has been reached" do
       request = insert(:transaction_request, max_consumptions: 2)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+      _consumption = insert(:transaction_consumption, transaction_request_uuid: request.uuid,
                                                       status: "confirmed")
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+      _consumption = insert(:transaction_consumption, transaction_request_uuid: request.uuid,
                                                       status: "confirmed")
 
       {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)

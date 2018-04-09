@@ -46,17 +46,14 @@ defmodule EWalletDB.Key do
   @doc """
   Get key by id, exclude soft-deleted.
   """
-  def get(nil), do: nil
-  def get(id) do
-    case UUID.dump(id) do
-      {:ok, _binary} ->
-        Key
-        |> exclude_deleted()
-        |> Repo.get(id)
-      :error ->
-        nil
-    end
+  @spec get(ExternalID.t) :: %Key{} | nil
+  def get(id)
+  def get(id) when is_external_id(id) do
+    Key
+    |> exclude_deleted()
+    |> Repo.get_by(id: id)
   end
+  def get(_), do: nil
 
   @doc """
   Get key by its `:access_key`, exclude soft-deleted.
@@ -87,7 +84,7 @@ defmodule EWalletDB.Key do
 
   defp get_master_account_uuid do
     case Account.get_master_account() do
-      %{id: id} -> id
+      %{uuid: uuid} -> uuid
       _ -> nil
     end
   end

@@ -7,7 +7,7 @@ defmodule EWalletDB.Transfer do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Transfer, Balance, MintedToken, Helpers}
+  alias EWalletDB.{Repo, Transfer, Balance, MintedToken}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -94,22 +94,18 @@ defmodule EWalletDB.Transfer do
   @doc """
   Gets a transfer.
   """
-  @spec get(UUID.t) :: %Transfer{} | nil
-  @spec get(UUID.t, List.t) :: %Transfer{} | nil
-  def get(nil), do: nil
+  @spec get(ExternalID.t()) :: %Transfer{} | nil
+  @spec get(ExternalID.t(), keyword()) :: %Transfer{} | nil
   def get(id, opts \\ [])
-  def get(nil, _), do: nil
-  def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true  -> get_by(%{id: id}, opts)
-      false -> nil
-    end
+  def get(id, opts) when is_external_id(id) do
+    get_by([id: id], opts)
   end
+  def get(_id, _opts), do: nil
 
   @doc """
   Get a transfer using one or more fields.
   """
-  @spec get_by(Map.t, List.t) :: %Transfer{} | nil
+  @spec get_by(keyword() | map(), keyword()) :: %Transfer{} | nil
   def get_by(map, opts \\ []) do
     query = Transfer |> Repo.get_by(map)
 

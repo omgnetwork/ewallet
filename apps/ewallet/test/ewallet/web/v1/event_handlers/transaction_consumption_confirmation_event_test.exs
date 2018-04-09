@@ -55,7 +55,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       [
         "transaction_request:#{request.id}",
         "address:#{request.balance_address}",
-        "user:#{request.user_id}",
+        "user:#{request.user.id}",
         "user:#{request.user.provider_user_id}"
       ]
       |> Enum.each(fn topic ->

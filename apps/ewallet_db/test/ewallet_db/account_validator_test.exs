@@ -6,38 +6,38 @@ defmodule EWalletDB.AccountValidatorTest do
   import EWalletDB.AccountValidator
 
   describe "validate_parent_uuid/1" do
-    test "returns valid if parent_id is not nil" do
-      attrs = %{parent_id: UUID.generate()}
+    test "returns valid if parent_uuid is not nil" do
+      attrs = %{parent_uuid: UUID.generate()}
 
       changeset =
         %Account{}
-        |> cast(attrs, [:parent_id])
+        |> cast(attrs, [:parent_uuid])
         |> validate_parent_uuid()
 
       assert changeset.valid?
     end
 
-    test "returns valid if parent_id is nil for master account" do
-      attrs = %{parent_id: nil}
+    test "returns valid if parent_uuid is nil for master account" do
+      attrs = %{parent_uuid: nil}
 
       changeset =
         get_or_insert_master_account()
-        |> cast(attrs, [:parent_id])
+        |> cast(attrs, [:parent_uuid])
         |> validate_parent_uuid()
 
       assert changeset.valid?
     end
 
-    test "returns error if parent_id is nil" do
-      attrs = %{parent_id: nil}
+    test "returns error if parent_uuid is nil" do
+      attrs = %{parent_uuid: nil}
 
       changeset =
         %Account{}
-        |> cast(attrs, [:parent_id])
+        |> cast(attrs, [:parent_uuid])
         |> validate_parent_uuid()
 
       refute changeset.valid?
-      assert changeset.errors == [{:parent_id, {"can't be blank", [validation: :required]}}]
+      assert changeset.errors == [{:parent_uuid, {"can't be blank", [validation: :required]}}]
     end
   end
 
@@ -52,7 +52,7 @@ defmodule EWalletDB.AccountValidatorTest do
 
       changeset =
         %Account{}
-        |> cast(%{parent_id: account1.id}, [:parent_id])
+        |> cast(%{parent_uuid: account1.uuid}, [:parent_uuid])
         |> validate_account_level(2) # account0 -> account1 so far, there's room for account2
 
       assert changeset.valid?
@@ -68,12 +68,12 @@ defmodule EWalletDB.AccountValidatorTest do
 
       changeset =
         %Account{}
-        |> cast(%{parent_id: account1.id}, [:parent_id])
+        |> cast(%{parent_uuid: account1.uuid}, [:parent_uuid])
         |> validate_account_level(1)
 
       refute changeset.valid?
       assert changeset.errors ==
-        [{:parent_id, {"is at the maximum child level", [validation: :account_level_limit]}}]
+        [{:parent_uuid, {"is at the maximum child level", [validation: :account_level_limit]}}]
     end
   end
 end

@@ -38,7 +38,7 @@ defmodule AdminAPI.InviterTest do
       memberships   = Membership.all_by_user(invite.user)
 
       assert Enum.any?(memberships, fn(m) ->
-        m.account_id == account.id && m.role_id == role.id
+        m.account_uuid == account.uuid && m.role_uuid == role.uuid
       end)
     end
 

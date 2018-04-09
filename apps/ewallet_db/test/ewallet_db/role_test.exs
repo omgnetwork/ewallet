@@ -7,7 +7,7 @@ defmodule EWalletDB.RoleTest do
   end
 
   describe "Role.insert/1" do
-    test_insert_generate_uuid Role, :id
+    test_insert_generate_uuid Role, :uuid
     test_insert_generate_timestamps Role
     test_insert_prevent_blank Role, :name
     test_insert_prevent_duplicate Role, :name

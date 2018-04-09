@@ -17,6 +17,9 @@ defmodule EWalletDB.Types.ExternalID do
   alias Ecto.Schema
   alias ExULID.ULID
 
+  # 3-char symbols, 1-char underscore, 26-char ULID
+  @type t :: <<_::30>>
+
   @doc """
   Returns the underlying Ecto primitive type.
   """
@@ -98,9 +101,19 @@ defmodule EWalletDB.Types.ExternalID do
   @doc false
   def autogenerate(prefix), do: generate(prefix)
 
+  # A custom guard that validates the input for external ID
+  # Ref: https://stackoverflow.com/questions/21261696/create-new-guard-clause
+  defmacro is_external_id(id) do
+    quote do
+      is_binary(unquote(id)) # is a string
+      and binary_part(unquote(id), 3, 1) == "_" # 4th character is an underscore
+      and byte_size(unquote(id)) == 30 # 3-char symbol, 1-char underscore, 26-char ULID
+    end
+  end
+
   defmacro __using__(_) do
     quote do
-      import EWalletDB.Types.ExternalID, only: [external_id: 1]
+      import EWalletDB.Types.ExternalID, only: [external_id: 1, is_external_id: 1]
     end
   end
 end

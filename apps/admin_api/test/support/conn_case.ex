@@ -18,8 +18,9 @@ defmodule AdminAPI.ConnCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
-  alias EWalletDB.Helpers.Crypto
   alias EWalletDB.{Repo, User, Account}
+  alias EWalletDB.Helpers.Crypto
+  alias EWalletDB.Types.ExternalID
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminAPI.Endpoint
@@ -33,7 +34,7 @@ defmodule AdminAPI.ConnCase do
   @api_key "test_api_key"
 
   # Attributes for user calls
-  @user_id UUID.generate()
+  @user_id ExternalID.generate("usr_")
   @username "test_username"
   @password "test_password"
   @user_email "email@example.com"

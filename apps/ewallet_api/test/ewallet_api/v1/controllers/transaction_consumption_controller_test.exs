@@ -2,8 +2,12 @@
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
   alias EWallet.TestEndpoint
-  alias EWallet.Web.{Date, V1.MintedTokenSerializer, V1.TransactionRequestSerializer,
-                     V1.AccountSerializer, V1.UserSerializer}
+  alias EWallet.Web.Date
+  alias EWallet.Web.V1.{AccountSerializer,
+                        MintedTokenSerializer,
+                        TransactionRequestSerializer,
+                        TransactionSerializer,
+                        UserSerializer}
   alias EWalletAPI.V1.Endpoint
 
   setup do
@@ -28,8 +32,8 @@
     test "consumes the request and transfers the appropriate amount of tokens", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.alice.uuid,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -51,7 +55,7 @@
       })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
       request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
 
       assert response == %{
@@ -73,7 +77,8 @@
           "transaction_request" =>
             request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
           "transaction_id" => inserted_transfer.id,
-          "transaction" => nil, # not preloaded
+          "transaction" =>
+            inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
           "user_id" => nil,
           "user" => nil,
           "account_id" => meta.account.id,
@@ -99,8 +104,8 @@
     test "returns with preload if `embed` attribute is given", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.alice.uuid,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -128,8 +133,8 @@
     test "returns same transaction request consumption when idempotency token is the same", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.alice.uuid,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -151,7 +156,7 @@
       })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
@@ -166,12 +171,12 @@
       })
 
       inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption_2.id
-      assert inserted_consumption.id == inserted_consumption_2.id
-      assert inserted_transfer.id == inserted_transfer_2.id
+      assert inserted_consumption.uuid == inserted_consumption_2.uuid
+      assert inserted_transfer.uuid == inserted_transfer_2.uuid
     end
 
     test "returns idempotency error if header is not specified" do
@@ -203,8 +208,8 @@
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request = insert(:transaction_request,
         type: "send",
-        minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        account_uuid: meta.account.uuid,
         balance: meta.account_balance,
         amount: nil,
         require_confirmation: true
@@ -259,7 +264,7 @@
       assert response["data"]["confirmed_at"] != nil
 
       # Check that a transfer was inserted
-      inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
+      inserted_transfer = Repo.get_by(Transfer, id: response["data"]["transaction_id"])
       assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
       assert inserted_transfer.to == meta.bob_balance.address
       assert inserted_transfer.from == meta.account_balance.address
@@ -289,8 +294,8 @@
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request = insert(:transaction_request,
         type: "send",
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.bob.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.bob.uuid,
         balance: meta.bob_balance,
         amount: nil,
         require_confirmation: true
@@ -345,7 +350,7 @@
       assert response["data"]["confirmed_at"] != nil
 
       # Check that a transfer was inserted
-      inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
+      inserted_transfer = Repo.get_by(Transfer, id: response["data"]["transaction_id"])
       assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_balance.address
       assert inserted_transfer.from == meta.bob_balance.address
@@ -370,8 +375,8 @@
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request = insert(:transaction_request,
         type: "send",
-        minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        account_uuid: meta.account.uuid,
         balance: meta.account_balance,
         amount: nil,
         require_confirmation: true,
@@ -506,8 +511,8 @@
     test "consumes the request and transfers the appropriate amount of tokens", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.alice.uuid,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -528,7 +533,7 @@
       })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
       request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
 
       assert response == %{
@@ -550,7 +555,8 @@
           "transaction_request" =>
             request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
           "transaction_id" => inserted_transfer.id,
-          "transaction" => nil, # not preloaded
+          "transaction" =>
+            inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
           "user_id" => meta.bob.id,
           "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
           "encrypted_metadata" => %{},
@@ -576,8 +582,8 @@
     test "returns same transaction request consumption when idempotency token is the same", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.alice.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.alice.uuid,
         balance: meta.alice_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -598,7 +604,7 @@
       })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
@@ -613,12 +619,12 @@
       })
 
       inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_id)
+      inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption_2.id
-      assert inserted_consumption.id == inserted_consumption_2.id
-      assert inserted_transfer.id == inserted_transfer_2.id
+      assert inserted_consumption.uuid == inserted_consumption_2.uuid
+      assert inserted_transfer.uuid == inserted_transfer_2.uuid
     end
 
     test "returns idempotency error if header is not specified" do

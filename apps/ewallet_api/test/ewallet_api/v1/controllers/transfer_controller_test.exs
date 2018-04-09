@@ -365,7 +365,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         provider_user_id: user.provider_user_id,
         token_id: minted_token.friendly_id,
         amount: 100_000,
-        account_id: "00000000-0000-0000-0000-000000000000",
+        account_id: "acc_12345678901234567890123456",
         metadata: %{}
       })
 
