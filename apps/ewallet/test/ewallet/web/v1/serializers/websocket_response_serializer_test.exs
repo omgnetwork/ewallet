@@ -25,7 +25,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
       msg = %Message{ref: 1, topic: "topic", event: "event", payload: %{}}
       {:socket_push, :text, encoded} = WebsocketResponseSerializer.encode!(msg)
       decoded = Poison.decode!(encoded)
-      # refute true
+
       assert decoded == %{
         "data" => %{},
         "event" => "event",
