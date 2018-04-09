@@ -2,50 +2,12 @@ defmodule AdminAPI.V1.ErrorHandler do
   @moduledoc """
   Handles API errors by mapping the error to its response code and description.
   """
-  import Ecto.Changeset, only: [traverse_errors: 2]
   import Phoenix.Controller, only: [json: 2]
   import Plug.Conn, only: [halt: 1]
-  alias Ecto.Changeset
-  alias EWallet.Web.V1.{ErrorSerializer, ResponseSerializer}
-  alias EWalletDB.MintedToken
+  alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
+  alias EWallet.Web.V1.ResponseSerializer
 
   @errors %{
-    invalid_auth_scheme: %{
-      code: "client:invalid_auth_scheme",
-      description: "The provided authentication scheme is not supported"
-    },
-    invalid_api_key: %{
-      code: "client:invalid_api_key",
-      description: "The provided API key can't be found or is invalid"
-    },
-    invalid_parameter: %{
-      code: "client:invalid_parameter",
-      description: "Invalid parameter provided"
-    },
-    invalid_version: %{
-      code: "client:invalid_version",
-      description: "Invalid API version"
-    },
-    endpoint_not_found: %{
-      code: "client:endpoint_not_found",
-      description: "Endpoint not found"
-    },
-    internal_server_error: %{
-      code: "server:internal_server_error",
-      description: "Something went wrong on the server"
-    },
-    unknown_error: %{
-      code: "server:unknown_error",
-      description: "An unknown error occured on the server"
-    },
-    access_token_not_found: %{
-      code: "user:access_token_not_found",
-      description: "There is no user corresponding to the provided access_token"
-    },
-    access_token_expired: %{
-      code: "user:access_token_expired",
-      description: "The provided token is expired or has been invalidated"
-    },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
@@ -109,126 +71,39 @@ defmodule AdminAPI.V1.ErrorHandler do
     api_key_not_found: %{
       code: "api_key:not_found",
       description: "The API key could not be found"
+    },
+    invalid_account_id: %{
+      code: "client:invalid_account_id",
+      description: "Invalid Account ID provided."
     }
-  }
-
-  # Used for mapping any Ecto.changeset validation
-  # to make it more meaningful to send to the client.
-  @validation_mapping %{
-    unsafe_unique: "already_taken"
   }
 
   @doc """
   Returns a map of all the error atoms along with their code and description.
   """
   @spec errors() :: %{required(atom()) => %{code: String.t, description: String.t}}
-  def errors, do: @errors
-
-  @doc """
-  Handles response of invalid parameter error with error details provided.
-  """
-  @spec handle_error(Plug.Conn.t, :invalid_parameter, Ecto.Changeset.t) :: Plug.Conn.t
-  def handle_error(conn, :invalid_parameter, %Changeset{} = changeset) do
-    code =
-      @errors.invalid_parameter.code
-    description =
-      stringify_errors(changeset, @errors.invalid_parameter.description <> ".")
-    messages =
-      error_fields(changeset)
-
-    respond(conn, code, description, messages)
-  end
-
-  def handle_error(conn, :invalid_parameter, description) do
-    respond(conn, @errors.invalid_parameter.code, description)
-  end
-
-  @doc """
-  Handles response of insufficient funds error.
-  Duplicate from eWalletAPI ErrorHandler, will be refactored in error merge.
-  """
-  @spec handle_error(Plug.Conn.t, :insufficient_funds, map()) :: Plug.Conn.t
-  def handle_error(conn, :insufficient_funds, data) do
-    handle_error(conn, "transaction:insufficient_funds", data)
-  end
-  @spec handle_error(Plug.Conn.t, String.t, map()) :: Plug.Conn.t
-  # credo:disable-for-next-line
-  def handle_error(conn, "transaction:insufficient_funds", %{
-    "address" => address,
-    "current_amount" => current_amount,
-    "amount_to_debit" => amount_to_debit,
-    "friendly_id" => friendly_id
-  }) do
-    minted_token = MintedToken.get(friendly_id)
-    current_amount = :erlang.float_to_binary(current_amount / minted_token.subunit_to_unit,
-                                             [:compact, {:decimals, 1}])
-    amount_to_debit = :erlang.float_to_binary(amount_to_debit / minted_token.subunit_to_unit,
-                                             [:compact, {:decimals, 18}])
-
-    description = "The specified balance (#{address}) does not contain enough funds. " <>
-                  "Available: #{current_amount} #{friendly_id} - Attempted debit: " <>
-                  "#{amount_to_debit} #{friendly_id}"
-
-    respond(conn, "transaction:insufficient_funds", description)
-  end
-
-  @doc """
-  Handles response with custom error code and description.
-  """
-  @spec handle_error(Plug.Conn.t, atom(), map()) :: Plug.Conn.t
-  def handle_error(conn, code, description) do
-    respond(conn, code, description)
-  end
-
-  @doc """
-  Handles response of invalid version error with accept header provided.
-  """
-  @spec handle_error(Plug.Conn.t, :invalid_version) :: Plug.Conn.t
-  def handle_error(conn, :invalid_version) do
-    code =
-      @errors.invalid_version.code
-    description =
-      "Invalid API version. Given: \"" <> conn.assigns.accept <> "\"."
-
-    respond(conn, code, description)
-  end
-
-  @doc """
-  Handles response with default error code and description
-  """
-  @spec handle_error(Plug.Conn.t, atom()) :: Plug.Conn.t
-  def handle_error(conn, error_name) do
-    case Map.fetch(@errors, error_name) do
-      {:ok, error} ->
-        respond(conn, error.code, error.description)
-      _ ->
-        handle_error(conn, :internal_server_error)
-    end
-  end
-
-  defp stringify_errors(changeset, description) do
-    Enum.reduce(changeset.errors, description,
-      fn {field, {description, _values}}, acc ->
-        acc <> " `" <> to_string(field) <> "` " <> description <> "."
-      end)
-  end
-
-  defp error_fields(changeset) do
-    traverse_errors(changeset, fn {_message, opts} ->
-      validation = Keyword.get(opts, :validation)
-
-      # Maps Ecto.changeset validation to be more meaningful
-      # to send to the client.
-      Map.get(@validation_mapping, validation, validation)
+  def errors do
+    Map.merge(EWalletErrorHandler.errors, @errors, fn _k, _shared, current ->
+      current
     end)
   end
 
-  defp respond(conn, code, description, messages \\ nil) do
-    content =
-      code
-      |> ErrorSerializer.serialize(description, messages)
-      |> ResponseSerializer.serialize(success: false)
+  @doc """
+  Delegates calls to EWallet.Web.V1.ErrorHandler and pass the supported errors.
+  """
+  def handle_error(conn, code, attrs) do
+    code
+    |> EWalletErrorHandler.build_error(attrs, errors())
+    |> respond(conn)
+  end
+  def handle_error(conn, code) do
+    code
+    |> EWalletErrorHandler.build_error(errors())
+    |> respond(conn)
+  end
 
-    conn |> json(content) |> halt()
+  defp respond(data, conn) do
+    data = ResponseSerializer.serialize(data, success: false)
+    conn |> json(data) |> halt()
   end
 end

@@ -132,7 +132,7 @@ defmodule EWallet.TransactionGateTest do
       {status, transfer, code, _description} = TransactionGate.process_with_addresses(attrs)
       assert status == :error
       assert transfer.status == Transfer.failed
-      assert code == "transaction:insufficient_funds"
+      assert code == "insufficient_funds"
 
       transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
@@ -147,7 +147,7 @@ defmodule EWallet.TransactionGateTest do
       }
 
       assert %{
-        "code" => "transaction:insufficient_funds",
+        "code" => "insufficient_funds",
         "description" => %{
           "address" => _,
           "current_amount" => _,
@@ -197,7 +197,7 @@ defmodule EWallet.TransactionGateTest do
 
       assert res == :error
       assert transfer.status == Transfer.failed
-      assert code == "transaction:amount_is_zero"
+      assert code == "amount_is_zero"
     end
 
     test "build, format and send the transaction to the local ledger" do
@@ -330,7 +330,7 @@ defmodule EWallet.TransactionGateTest do
       {status, transfer, code, _description} = TransactionGate.process_credit_or_debit(attrs)
       assert transfer.status == "failed"
       assert status == :error
-      assert code == "transaction:insufficient_funds"
+      assert code == "insufficient_funds"
 
       transfer = Transfer.get_by(%{idempotency_token: idempotency_token})
       assert transfer.idempotency_token == idempotency_token
@@ -345,7 +345,7 @@ defmodule EWallet.TransactionGateTest do
         "account_id" => inserted_account.id
       }
       assert %{
-        "code" => "transaction:insufficient_funds",
+        "code" => "insufficient_funds",
         "description" => %{
           "address" => _,
           "current_amount" => _,

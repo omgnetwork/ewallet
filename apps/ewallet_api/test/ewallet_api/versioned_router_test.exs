@@ -20,7 +20,7 @@ defmodule EWalletAPI.VersionedRouterTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_version",
-          "description" => "Invalid API version. Given: \"application/vnd.omisego.invalid_ver+json\".",
+          "description" => "Invalid API version Given: 'application/vnd.omisego.invalid_ver+json'.",
           "messages" => nil
         }
       }

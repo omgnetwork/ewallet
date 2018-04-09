@@ -114,7 +114,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided. `owner_app` can't be blank.",
+          "description" => "Invalid parameter provided `owner_app` can't be blank.",
           "messages" => %{
             "owner_app" => ["required"]
           }

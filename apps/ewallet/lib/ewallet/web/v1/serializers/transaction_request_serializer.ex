@@ -9,7 +9,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
   alias EWalletDB.TransactionRequest
 
   def serialize(%TransactionRequest{} = transaction_request) do
-    transaction_request = Repo.preload(transaction_request, :minted_token)
+    transaction_request = Repo.preload(transaction_request, [:minted_token, :consumptions])
 
     %{
       object: "transaction_request",
@@ -25,6 +25,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       user_id: transaction_request.user_id,
       account_id: transaction_request.account_id,
       require_confirmation: transaction_request.require_confirmation,
+      current_consumptions_count: length(transaction_request.consumptions),
       max_consumptions: transaction_request.max_consumptions,
       consumption_lifetime: transaction_request.consumption_lifetime,
       expiration_reason: transaction_request.expiration_reason,
