@@ -114,7 +114,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "version" => "1",
         "data" => %{
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided. `type` is invalid.",
+          "description" => "Invalid parameter provided `type` is invalid.",
           "messages" => %{"type" => ["inclusion"]},
           "object" => "error"
         }
@@ -303,7 +303,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
         "version" => "1",
         "data" => %{
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided. `type` is invalid.",
+          "description" => "Invalid parameter provided `type` is invalid.",
           "messages" => %{"type" => ["inclusion"]},
           "object" => "error"
         }

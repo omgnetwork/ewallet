@@ -7,7 +7,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   alias Phoenix.Socket.Reply
   alias Phoenix.Socket.Message
   alias Phoenix.Socket.Broadcast
-  alias EWalletAPI.V1.ErrorHandler
+  alias EWallet.Web.V1.ErrorHandler
 
   @doc """
   Renders the given `data` into a V1 response format as JSON.
@@ -81,8 +81,8 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   end
 
   defp encode_fields(%Message{payload: %{status: :error, data: %{reason: reason}}} = msg) do
-    "websocket:connect_error"
-    |> ErrorHandler.build_error(reason)
+    :websocket_connect_error
+    |> ErrorHandler.build_error(reason, nil)
     |> encode_error(msg)
   end
 
@@ -90,7 +90,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     when is_atom(code)
   do
     code
-    |> ErrorHandler.build_predefined_error()
+    |> ErrorHandler.build_error(nil)
     |> encode_error(msg)
   end
 

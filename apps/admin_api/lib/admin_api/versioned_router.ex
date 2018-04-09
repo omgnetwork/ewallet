@@ -37,8 +37,6 @@ defmodule AdminAPI.VersionedRouter do
   end
 
   defp handle_invalid_version(conn, accept) do
-    conn
-    |> assign(:accept, accept)
-    |> handle_error(:invalid_version)
+    handle_error(conn, :invalid_version, %{"accept" => accept})
   end
 end

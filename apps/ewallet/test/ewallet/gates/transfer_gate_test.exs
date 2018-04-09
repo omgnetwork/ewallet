@@ -69,7 +69,7 @@
       transfer = TransferGate.process(transfer)
 
       assert transfer.status == Transfer.failed
-      assert transfer.ledger_response["code"] == "transaction:insufficient_funds"
+      assert transfer.ledger_response["code"] == "insufficient_funds"
       assert transfer.ledger_response["description"] == %{
         "address" => attrs[:from],
         "amount_to_debit" => 1_000_000,

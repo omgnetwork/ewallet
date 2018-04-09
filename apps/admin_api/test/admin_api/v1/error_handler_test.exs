@@ -47,7 +47,7 @@ defmodule AdminAPI.V1.ErrorHandlerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided."
+          "description" => "Invalid parameter provided"
             <> " `field2` can't be blank."
             <> " `field3` can't be blank.",
           "messages" => %{
@@ -72,15 +72,14 @@ defmodule AdminAPI.V1.ErrorHandlerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_version",
-          "description" => "Invalid API version. Given: \"invalid_header\".",
+          "description" => "Invalid API version Given: 'invalid_header'.",
           "messages" => nil
         }
       }
 
       {:ok, output} =
         build_conn()
-        |> assign(:accept, "invalid_header")
-        |> ErrorHandler.handle_error(:invalid_version)
+        |> ErrorHandler.handle_error(:invalid_version, %{"accept" => "invalid_header"})
         |> parse_body()
 
       assert output == expected
