@@ -4,6 +4,13 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
   alias Ecto.UUID
 
   describe "UserAuthPlug.call/2" do
+    test "assigns authenticated conn info if the token is correct without admin " do
+      conn = test_with("OMGAdmin", @user_id, @auth_token)
+
+      refute conn.halted
+      assert_success(conn)
+    end
+
     test "assigns authenticated conn info if the token is correct" do
       conn = test_with("OMGAdmin", @api_key_id, @api_key, @user_id, @auth_token)
 
@@ -67,6 +74,12 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
     build_conn()
     |> put_auth_header(type, [api_key_id, api_key, user_id, auth_token])
     |> UserAuthPlug.call([])
+  end
+
+  defp test_with(type, user_id, auth_token) do
+    build_conn()
+    |> put_auth_header(type, [user_id, auth_token])
+    |> UserAuthPlug.call([enable_client_auth: false])
   end
 
   defp assert_success(conn) do
