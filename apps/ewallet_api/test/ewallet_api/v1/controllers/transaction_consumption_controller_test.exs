@@ -374,7 +374,8 @@
         account_id: meta.account.id,
         balance: meta.account_balance,
         amount: nil,
-        require_confirmation: true
+        require_confirmation: true,
+        max_consumptions: 1
       )
       request_topic = "transaction_request:#{transaction_request.id}"
 
@@ -428,6 +429,64 @@
 
       # Check that a transfer was not inserted
       assert response["data"]["transaction_id"] == nil
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic:  "transaction_consumption:" <> _,
+        payload: %{
+          # Ignore content
+        }
+      }
+
+      # Check that we can consume for real now
+      #
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response = provider_request_with_idempotency("/transaction_request.consume", "1234", %{
+        transaction_request_id: transaction_request.id,
+        correlation_id: nil,
+        amount: 100_000 * meta.minted_token.subunit_to_unit,
+        metadata: nil,
+        token_id: nil,
+        provider_user_id: meta.bob.provider_user_id
+      })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"] == true
+      assert response["data"]["status"] == "pending"
+      assert response["data"]["transaction_id"] == nil
+
+      # Retrieve what just got inserted
+      inserted_consumption = TransactionConsumption.get(response["data"]["id"])
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload: %{
+          # Ignore content
+        }
+      }
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response = provider_request("/transaction_consumption.approve", %{
+        id: consumption_id
+      })
+
+      assert response["success"] == true
+      assert response["data"]["id"] == inserted_consumption.id
+      assert response["data"]["status"] == "confirmed"
+      assert response["data"]["confirmed_at"] != nil
+      assert response["data"]["approved_at"] != nil
+      assert response["data"]["rejected_at"] == nil
+
+      # Check that a transfer was not inserted
+      assert response["data"]["transaction_id"] != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",

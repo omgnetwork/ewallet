@@ -105,6 +105,12 @@ defmodule EWalletDB.TransactionConsumption do
     |> assoc_constraint(:transfer)
   end
 
+  def expired_changeset(%TransactionConsumption{} = consumption, attrs) do
+    consumption
+    |> cast(attrs, [:status, :expired_at])
+    |> validate_required([:status, :expired_at])
+  end
+
   @doc """
   Gets a transaction request consumption.
   """
@@ -148,12 +154,40 @@ defmodule EWalletDB.TransactionConsumption do
   end
 
   @doc """
+  Expires the given consumption.
+  """
+  @spec expire(%TransactionConsumption{}) :: {:ok, %TransactionConsumption{}} | {:error, Map.t}
+  def expire(consumption) do
+    consumption
+    |> expired_changeset(%{
+      status: @expired,
+      expired_at: NaiveDateTime.utc_now()
+    })
+    |> Repo.update()
+  end
+
+  @doc """
+  Expires the given consumption if the expiration date is past.
+  """
+  @spec expire_if_past_expiration_date(%TransactionConsumption{}) ::
+                                       {:ok, %TransactionConsumption{}} | {:error, Map.t}
+  def expire_if_past_expiration_date(consumption) do
+    expired? = consumption.expiration_date &&
+               NaiveDateTime.compare(consumption.expiration_date, NaiveDateTime.utc_now()) == :lt
+
+    case expired? do
+      true  -> expire(consumption)
+      _     -> consumption
+    end
+  end
+
+  @doc """
   Get all confirmed and pending transaction consumptions.
   """
   @spec all_active_for_request(UUID.t) :: List.t
   def all_active_for_request(request_id) do
     TransactionConsumption
-    |> where([t], t.status in [@pending, @confirmed])
+    |> where([t], t.status == @confirmed)
     |> where([t], t.transaction_request_id == ^request_id)
     |> Repo.all()
   end

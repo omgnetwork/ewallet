@@ -12,14 +12,20 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   @doc """
   Renders the given `data` into a V1 response format as JSON.
   """
-  def serialize(data, %Message{} = msg, success) do
+  def serialize(%{
+     data: data,
+     error: error,
+     msg: msg,
+     success: success
+  }) do
     %{
       success: success,
       version: "1",
       data: data,
-      ref: msg.ref,
+      error: error,
       topic: msg.topic,
-      event: msg.event
+      event: msg.event,
+      ref: msg.ref
     }
   end
 
@@ -27,13 +33,12 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   Translates a `Phoenix.Socket.Broadcast` into a `Phoenix.Socket.Message`.
   """
   def fastlane!(%Broadcast{} = msg) do
+    IO.inspect("Broadcast")
+    IO.inspect(msg)
     msg = %Message{
       topic: msg.topic,
       event: msg.event,
-      payload: %{
-        status: :ok,
-        data: msg.payload
-      }
+      payload: msg.payload
     }
 
     {:socket_push, :text, encode_fields(msg)}
@@ -47,7 +52,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
       topic: reply.topic,
       event: "phx_reply",
       ref: reply.ref,
-      payload: %{status: reply.status, data: reply.payload}
+      payload: reply.payload |> Map.put(:status, reply.status)
     }
 
     {:socket_push, :text, encode_fields(msg)}
@@ -75,8 +80,13 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   end
 
   defp encode_fields(%Message{payload: %{status: :ok, data: data}} = msg) do
-    data
-    |> serialize(msg, true)
+    %{
+      data: data,
+      error: nil,
+      msg: msg,
+      success: true
+    }
+    |> serialize()
     |> Poison.encode_to_iodata!()
   end
 
@@ -86,17 +96,23 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> encode_error(msg)
   end
 
-  defp encode_fields(%Message{payload: %{status: :error, data: code}} = msg)
-    when is_atom(code)
+  defp encode_fields(%Message{payload: %{status: :error, error_code: code, data: data}} = msg)
+  when is_atom(code)
+  when is_binary(code)
   do
     code
-    |> ErrorHandler.build_error(nil)
+    |> ErrorHandler.build_error(nil, data)
     |> encode_error(msg)
   end
 
-  defp encode_error(error, msg) do
-    error
-    |> serialize(msg, false)
+  defp encode_error(error, msg, data \\ nil) do
+    %{
+      data: data,
+      error: error,
+      msg: msg,
+      success: false
+    }
+    |> serialize()
     |> Poison.encode_to_iodata!()
   end
 end

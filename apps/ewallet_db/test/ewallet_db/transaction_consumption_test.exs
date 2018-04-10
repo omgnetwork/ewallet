@@ -78,7 +78,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "all_active_for_request" do
     test "it returns all pending and confirmed consumptions for the given request" do
       request = insert(:transaction_request)
-      consumption_1 = insert(:transaction_consumption,
+      _consumption_1 = insert(:transaction_consumption,
         transaction_request_id: request.id,
         status: "pending"
       )
@@ -101,8 +101,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
       consumptions = TransactionConsumption.all_active_for_request(request.id)
 
-      assert length(consumptions) == 3
-      assert consumption_1 in consumptions == true
+      assert length(consumptions) == 2
       assert consumption_2 in consumptions == true
       assert consumption_5 in consumptions == true
     end

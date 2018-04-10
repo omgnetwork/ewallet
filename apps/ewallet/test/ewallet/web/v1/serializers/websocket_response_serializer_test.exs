@@ -4,10 +4,15 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
   alias Phoenix.Socket.Reply
   alias Phoenix.Socket.Message
 
-  describe "serialize/3" do
+  describe "serialize/1" do
     test "serializes a websocket message" do
       msg = %Message{ref: 1, topic: "topic", event: "event"}
-      res = WebsocketResponseSerializer.serialize(%{something: "cool"}, msg, true)
+      res = WebsocketResponseSerializer.serialize(%{
+        data: %{something: "cool"},
+        error: nil,
+        msg: msg,
+        success: true
+      })
 
       assert res == %{
         event: "event",
@@ -15,7 +20,8 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
         success: true,
         topic: "topic",
         version: "1",
-        data: %{something: "cool"}
+        data: %{something: "cool"},
+        error: nil
       }
     end
   end
@@ -31,6 +37,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
 
       assert decoded == %{
         "data" => %{},
+        "error" => nil,
         "event" => "event",
         "ref" => 1,
         "success" => true,
@@ -47,9 +54,11 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
       decoded = Poison.decode!(encoded)
 
       assert decoded == %{
-        "data" => %{},
+        "data" => nil,
+        "error" => nil,
         "event" => "phx_reply",
         "ref" => 1,
+        "error" => nil,
         "success" => true,
         "topic" => "topic",
         "version" => "1"
@@ -62,7 +71,8 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
       decoded = Poison.decode!(encoded)
 
       assert decoded == %{
-        "data" => %{
+        "data" => nil,
+        "error" => %{
           "code" => "websocket:connect_error",
           "description" => "something",
           "messages" => nil,
@@ -77,12 +87,15 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
     end
 
     test "fails to encode phx_reply with code" do
-      reply = %Reply{ref: 1, topic: "topic", status: :error, payload: :forbidden_channel}
+      reply = %Reply{ref: 1, topic: "topic", status: :error, payload: %{
+        error_code: :forbidden_channel
+      }}
       {:socket_push, :text, encoded} = WebsocketResponseSerializer.encode!(reply)
       decoded = Poison.decode!(encoded)
 
       assert decoded == %{
-        "data" => %{
+        "data" => nil,
+        "error" => %{
           "code" => "websocket:forbidden_channel",
           "description" => "You don't have access to this channel.",
           "messages" => nil,

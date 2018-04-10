@@ -1,5 +1,6 @@
 defmodule EWallet.TransactionConsumptionGateTest do
  use EWallet.LocalLedgerCase, async: true
+ alias Ecto.Adapters.SQL.Sandbox
  alias EWallet.{TestEndpoint, TransactionConsumptionGate}
  alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
 
@@ -420,6 +421,110 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :max_consumptions_reached
     end
 
+    test "allows only one consume with two consume at the same time", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
+
+      pid = self()
+
+      {:ok, pid_1} = Task.start_link fn ->
+        Sandbox.allow(EWalletDB.Repo, pid, self())
+        Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+        assert_receive :start_consume, 5000
+
+        {res, response} = TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "1",
+          "token_id" => nil
+        })
+
+        send pid, {:updated_1, res, response}
+      end
+
+      {:ok, pid_2} = Task.start_link fn ->
+        Sandbox.allow(EWalletDB.Repo, pid, self())
+        Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+        assert_receive :start_consume, 5000
+
+        {res, response} = TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "2",
+          "token_id" => nil
+        })
+
+        send pid, {:updated_2, res, response}
+      end
+
+      {:ok, pid_3} = Task.start_link fn ->
+        Sandbox.allow(EWalletDB.Repo, pid, self())
+        Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+        assert_receive :start_consume, 5000
+
+        {res, response} = TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "3",
+          "token_id" => nil
+        })
+
+        send pid, {:updated_3, res, response}
+      end
+
+
+      {:ok, pid_4} = Task.start_link fn ->
+        Sandbox.allow(EWalletDB.Repo, pid, self())
+        Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+        assert_receive :start_consume, 5000
+
+        {res, response} = TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "4",
+          "token_id" => nil
+        })
+
+        send pid, {:updated_4, res, response}
+      end
+
+      send pid_2, :start_consume
+      send pid_1, :start_consume
+      send pid_3, :start_consume
+      send pid_4, :start_consume
+
+      assert_receive {:updated_1, res, _response}, 5000
+      assert res == :ok
+
+      assert_receive {:updated_2, res, _response}, 5000
+      assert res == :error
+
+      assert_receive {:updated_3, res, _response}, 5000
+      assert res == :error
+
+      assert_receive {:updated_4, res, _response}, 5000
+      assert res == :error
+
+      consumptions = TransactionConsumption |> EWalletDB.Repo.all()
+      assert length(consumptions) == 1
+    end
+
     test "proceeds if the maximum number of consumptions hasn't been reached and
           increment it", meta
     do
@@ -458,11 +563,10 @@ defmodule EWallet.TransactionConsumptionGateTest do
     end
 
     # require_confirmation + max consumptions?
-    test "prevents consumptions when max consumption has been reached with pending ones", meta do
+    test "prevents consumptions when max consumption has been reached with confirmed ones", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {:ok, request} = TransactionRequest.update(meta.request, %{
-        require_confirmation: true,
         max_consumptions: 1
       })
 
@@ -477,7 +581,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       })
 
       assert res == :ok
-      assert consumption.status == "pending"
+      assert consumption.status == "confirmed"
 
       {res, error} = TransactionConsumptionGate.consume(meta.sender, %{
         "transaction_request_id" => request.id,
@@ -493,7 +597,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :max_consumptions_reached
     end
 
-    test "returns a pending request with no transfer is the request is require_confirmation", meta do
+    test "returns a pending request with no transfer is the request requires confirmation", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {:ok, request} = TransactionRequest.update(meta.request, %{
@@ -783,11 +887,11 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
       assert consumption.status == "confirmed"
-      assert consumption.approved == true
+      assert consumption.approved_at != nil
     end
 
     test "fails to confirm the consumption if not owner", meta do
@@ -815,7 +919,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       res = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
       assert res == {:error, :not_transaction_request_owner}
@@ -846,7 +950,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
       assert transaction_request.expired_at != nil
@@ -880,11 +984,73 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, false, meta.account)
       assert consumption.status == "rejected"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
+    end
+
+    test "allows only one confirmation with two confirms at the same time", meta do
+      initialize_balance(meta.sender_balance, 1_000_000, meta.minted_token)
+
+      request = insert(:transaction_request,
+        type: "receive",
+        require_confirmation: true,
+        minted_token_id: meta.minted_token.id,
+        account_id: meta.account.id,
+        amount: 100_000 * meta.minted_token.subunit_to_unit,
+        max_consumptions: 1
+      )
+
+      params = fn ->
+        %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "metadata" => nil,
+          "idempotency_token" => Ecto.UUID.generate(),
+          "token_id" => nil,
+          "user_id" => meta.sender.id,
+          "address" => meta.sender_balance.address
+        }
+      end
+
+      max = 10
+      range = Enum.into 1..max, []
+
+      consumptions = Enum.map(range, fn _i ->
+        {:ok, consumption} = TransactionConsumptionGate.consume(params.())
+        consumption
+      end)
+
+      Enum.each(consumptions, fn c ->
+        assert c.status == "pending"
+      end)
+
+      pid = self()
+
+      consumptions
+      |> Enum.with_index
+      |> Enum.each(fn {c, i} ->
+        {:ok, _new_pid} = Task.start_link fn ->
+          Sandbox.allow(EWalletDB.Repo, pid, self())
+          Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+          {res, response} = TransactionConsumptionGate.confirm(c.id, true, meta.account)
+          send pid, {String.to_atom("updated_#{i + 1}"), res, response}
+        end
+      end)
+
+      Enum.each(range, fn i ->
+        update = String.to_atom("updated_#{i}")
+        assert_receive {^update, _res, _response}, 5000
+      end)
+
+      consumptions = TransactionConsumption |> EWalletDB.Repo.all()
+      assert length(consumptions) == max
+      assert Enum.count(consumptions, fn(c) -> c.status == "confirmed" end) == 1
+      assert Enum.count(consumptions, fn(c) -> c.status == "pending" end) == max - 1
     end
   end
 
@@ -914,11 +1080,11 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.receiver)
       assert consumption.status == "confirmed"
-      assert consumption.approved == true
+      assert consumption.approved_at != nil
     end
 
     test "fails to confirm the consumption if not owner", meta do
@@ -946,7 +1112,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       res = TransactionConsumptionGate.confirm(consumption.id, true, meta.sender)
       assert res == {:error, :not_transaction_request_owner}
@@ -977,7 +1143,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
       assert transaction_request.expired_at != nil
@@ -1011,11 +1177,11 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.status == "pending"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
 
       {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, false, meta.receiver)
       assert consumption.status == "rejected"
-      assert consumption.approved == false
+      assert consumption.approved_at == nil
     end
   end
 end

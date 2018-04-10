@@ -565,8 +565,10 @@ defmodule EWallet.TransactionRequestTest do
 
     test "expires the request if max_consumptions has been reached" do
       request = insert(:transaction_request, max_consumptions: 2)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+                                                      status: "confirmed")
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+                                                      status: "confirmed")
 
       {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
       assert res == :ok

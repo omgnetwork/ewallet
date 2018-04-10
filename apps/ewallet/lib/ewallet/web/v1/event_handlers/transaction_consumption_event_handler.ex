@@ -17,7 +17,10 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
     Event.broadcast(
       event: "transaction_consumption_request",
       topics: topics,
-      payload: payload(consumption)
+      payload: %{
+        status: :ok,
+        data: TransactionConsumptionSerializer.serialize(consumption)
+      }
     )
   end
 
@@ -53,14 +56,17 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
       false ->
         %{
           status: :error,
-          data: error_code(consumption)
+          error_code: error_code(consumption),
+          data: TransactionConsumptionSerializer.serialize(consumption)
         }
     end
   end
 
   defp error_code(consumption) do
+    consumption = EWalletDB.Repo.preload(consumption, :transfer)
+
     case consumption.status do
-      "failed" -> String.to_existing_atom(consumption.transfer.ledger_response.code)
+      "failed"  -> consumption.transfer.ledger_response["code"]
       "expired" -> :expired_transaction_consumption
       "pending" -> :unfinalized_transaction_consumption
     end

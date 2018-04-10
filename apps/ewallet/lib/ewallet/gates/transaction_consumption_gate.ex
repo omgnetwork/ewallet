@@ -101,7 +101,6 @@ defmodule EWallet.TransactionConsumptionGate do
          {:ok, amount} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
          {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
          {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
-         {:ok, request} <- TransactionRequestGate.expire_if_max_consumption(request),
          {:ok, consumption} <- get(consumption.id)
     do
       case request.require_confirmation do
@@ -138,6 +137,15 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
+  defp validate_consumption(consumption) do
+    consumption = TransactionConsumption.expire_if_past_expiration_date(consumption)
+
+    case TransactionConsumption.expired?(consumption) do
+      false -> {:ok, consumption}
+      true  -> {:error, :expired_transaction_consumption}
+    end
+  end
+
   @spec get(UUID.t) :: {:ok, TransactionConsumption.t} |
                        {:error, :transaction_consumption_not_found}
   def get(id) do
@@ -154,40 +162,34 @@ defmodule EWallet.TransactionConsumptionGate do
   @spec confirm(UUID.t, Boolean.t, Map.t) :: {:ok, TransactionConsumption.t} |
                                              {:error, Atom.t} |
                                              {:error, TransactionConsumption.t, Atom.t, String.t}
-  def confirm(id, approved, %User{} = user) do
-    with {:ok, consumption} <- get(id),
-         true <- consumption.transaction_request.user_id == user.id ||
-                 {:error, :not_transaction_request_owner},
-         {:ok, _} <- TransactionRequestGate.validate_request(consumption.transaction_request)
-    do
-      do_confirm(consumption, approved)
-    else
-      error -> error
+  def confirm(id, approved, owner) do
+    transaction = Repo.transaction(fn -> do_confirm(id, approved, owner) end)
+
+    case transaction do
+      {:ok, res}      -> res
+      {:error, error} -> {:error, error}
     end
   end
 
-  def confirm(id, approved, %Account{} = account) do
+  defp do_confirm(id, approved, owner) do
     with {:ok, consumption} <- get(id),
-         true <- consumption.transaction_request.account_id == account.id ||
+         {:ok, request} <- TransactionRequestGate.get_with_lock(consumption.transaction_request_id),
+         true <- TransactionRequestGate.is_owner?(request, owner) ||
                  {:error, :not_transaction_request_owner},
-         {:ok, _} <- TransactionRequestGate.validate_request(consumption.transaction_request)
+         {:ok, request} <- TransactionRequestGate.validate_request(request),
+         {:ok, consumption} <- validate_consumption(consumption)
     do
-      do_confirm(consumption, approved)
+      case approved do
+        true ->
+          consumption
+          |> TransactionConsumption.approve()
+          |> transfer(request.type)
+        false ->
+          consumption = TransactionConsumption.reject(consumption)
+          {:ok, consumption}
+      end
     else
       error -> error
-    end
-  end
-
-  defp do_confirm(consumption, approved) do
-    approved
-    |> case do
-      true ->
-        consumption
-        |> TransactionConsumption.approve()
-        |> transfer(consumption.transaction_request.type)
-      false ->
-        consumption = TransactionConsumption.reject(consumption)
-        {:ok, consumption}
     end
   end
 
@@ -232,7 +234,18 @@ defmodule EWallet.TransactionConsumptionGate do
 
     case TransactionGate.process_with_addresses(attrs) do
       {:ok, transfer, _, _} ->
+        # Expires the request if it has reached the max number of consumptions (only CONFIRMED
+        # SUCCESSFUL) consumptions are accounted for.
         consumption = TransactionConsumption.confirm(consumption, transfer)
+
+        request = consumption.transaction_request
+        {:ok, request} = TransactionRequestGate.expire_if_max_consumption(request)
+
+        consumption =
+          consumption
+          |> Map.put(:transaction_request_id, request.id)
+          |> Map.put(:transaction_request, request)
+
         {:ok, consumption}
       {:error, transfer, code, description} ->
         consumption = TransactionConsumption.fail(consumption, transfer)
