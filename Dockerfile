@@ -60,6 +60,7 @@ RUN set -xe && \
     echo 'importas -D $default_host NODE_HOST NODE_HOST' >> $SERVICE_DIR/run && \
     echo 'importas -D $default_cookie ERLANG_COOKIE ERLANG_COOKIE' >> $SERVICE_DIR/run && \
     echo 'importas -D ewallet NODE_NAME NODE_NAME' >> $SERVICE_DIR/run && \
+    echo 'importas -D localhost NODE_DNS NODE_DNS' >> $SERVICE_DIR/run && \
     echo 'elixir' >> $SERVICE_DIR/run && \
     echo '  --name "${NODE_NAME}@${NODE_HOST}"' >> $SERVICE_DIR/run && \
     echo '  --cookie $ERLANG_COOKIE' >> $SERVICE_DIR/run && \
