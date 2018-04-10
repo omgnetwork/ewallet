@@ -42,7 +42,10 @@ RUN set -xe && \
         rm -rf /tmp/ewallet"
 
 ENV PORT 4000
+
 EXPOSE 4000
+EXPOSE 4369
+EXPOSE 6900 6901 6902 6903 6904 6905 6906 6907 6908 6909
 
 RUN set -xe && \
     SERVICE_DIR=/etc/services.d/ewallet/ && \
@@ -62,6 +65,8 @@ RUN set -xe && \
     echo 'importas -D ewallet NODE_NAME NODE_NAME' >> $SERVICE_DIR/run && \
     echo 'importas -D localhost NODE_DNS NODE_DNS' >> $SERVICE_DIR/run && \
     echo 'elixir' >> $SERVICE_DIR/run && \
+    echo '  --erl "-kernel inet_dist_listen_min 6900"' >> $SERVICE_DIR/run && \
+    echo '  --erl "-kernel inet_dist_listen_max 6909"' >> $SERVICE_DIR/run && \
     echo '  --name "${NODE_NAME}@${NODE_HOST}"' >> $SERVICE_DIR/run && \
     echo '  --cookie $ERLANG_COOKIE' >> $SERVICE_DIR/run && \
     echo '  -S mix omg.server --no-watch' >> $SERVICE_DIR/run && \
