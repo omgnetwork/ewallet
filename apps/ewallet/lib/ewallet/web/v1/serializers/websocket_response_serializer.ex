@@ -57,7 +57,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
       topic: msg.topic,
       event: msg.event,
       ref: msg.ref,
-      payload: %{status: :ok, data: msg.payload}
+      payload: msg.payload
     }
 
     {:socket_push, :text, encode_fields(msg)}
@@ -74,8 +74,8 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Message.from_map!()
   end
 
-  defp encode_fields(%Message{payload: %{status: :ok}} = msg) do
-    msg.payload.data
+  defp encode_fields(%Message{payload: %{status: :ok, data: data}} = msg) do
+    data
     |> serialize(msg, true)
     |> Poison.encode_to_iodata!()
   end

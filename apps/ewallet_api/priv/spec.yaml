@@ -1269,11 +1269,11 @@ components:
             type: string
             enum:
               - pending
+              - approved
+              - rejected
               - confirmed
               - failed
               - expired
-          approved:
-            type: boolean
           amount:
             type: string
           minted_token_id:
@@ -1312,7 +1312,13 @@ components:
             type: string
           updated_at:
             type: string
-          finalized_at:
+          approved_at:
+            type: string
+          rejected_at:
+            type: string
+          confirmed_at:
+            type: string
+          failed_at:
             type: string
           expired_at:
             type: string
@@ -1321,7 +1327,6 @@ components:
           - id
           - socket_topic
           - status
-          - approved
           - amount
           - minted_token_id
           - minted_token
@@ -1341,7 +1346,10 @@ components:
           - expiration_date
           - created_at
           - updated_at
-          - finalized_at
+          - approved_at
+          - rejected_at
+          - confirmed_at
+          - failed_at
           - expired_at
         example:
           data:
@@ -1349,7 +1357,6 @@ components:
             id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
             socket_topic: "transaction_consumption:61230be5-15d1-4463-9ec2-02bc8ded7120"
             status: "confirmed"
-            approved: true
             amount: 100
             minted_token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
             minted_token: {}
@@ -1366,11 +1373,14 @@ components:
             address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
             metadata: {}
             encrypted_metadata: {}
-            expiration_date: "2018-01-01T00:00:00Z"
+            expiration_date: null
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T00:00:00Z"
-            finalized_at: "2018-01-01T00:00:00Z"
-            expired_at: "2018-01-01T00:00:00Z"
+            approved_at: "2018-01-01T00:00:00Z"
+            rejected_at: null
+            confirmed_at: "2018-01-01T00:00:00Z"
+            failed_at: null
+            expired_at: null
   requestBodies:
     ######################################
     #         USER REQUEST BODIES        #

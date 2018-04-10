@@ -88,6 +88,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "transaction_consumption:not_owner",
       description: "The given consumption can only be approved by the transaction request owner."
     },
+    expired_transaction_consumption: %{
+      code: "transaction_consumption:expired",
+      description: "The specified transaction consumption has expired."
+    },
+    unfinalized_transaction_consumption: %{
+      code: "transaction_consumption:unfinalized",
+      description: "The specified transaction consumption has not been finalized yet."
+    },
     invalid_minted_token_provided: %{
       code: "transaction_consumption:invalid_minted_token",
       description: "The provided minted token does not match the transaction request minted token."

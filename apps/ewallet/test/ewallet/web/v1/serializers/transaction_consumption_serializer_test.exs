@@ -36,14 +36,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         transaction_request:
           TransactionRequestSerializer.serialize(consumption.transaction_request),
         address: consumption.balance_address,
-        approved: false,
         metadata: %{},
         encrypted_metadata: %{},
         expiration_date: nil,
-        expired_at: nil,
-        finalized_at: nil,
+        approved_at: Date.to_iso8601(consumption.approved_at),
+        rejected_at: Date.to_iso8601(consumption.rejected_at),
+        confirmed_at: Date.to_iso8601(consumption.confirmed_at),
+        failed_at: Date.to_iso8601(consumption.failed_at),
+        expired_at: Date.to_iso8601(consumption.expired_at),
         created_at: Date.to_iso8601(consumption.inserted_at),
-        updated_at: Date.to_iso8601(consumption.updated_at)
       }
 
       assert TransactionConsumptionSerializer.serialize(consumption) == expected

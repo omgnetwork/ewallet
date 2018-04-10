@@ -126,18 +126,18 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "approve/1" do
     test "approves the consumption" do
       consumption = insert(:transaction_consumption)
-      assert consumption.approved == false
+      assert consumption.status == "pending"
       consumption = TransactionConsumption.approve(consumption)
-      assert consumption.approved == true
+      assert consumption.status == "approved"
     end
   end
 
   describe "reject/1" do
     test "rejects the consumption" do
       consumption = insert(:transaction_consumption)
-      assert consumption.approved == false
+      assert consumption.status == "pending"
       consumption = TransactionConsumption.reject(consumption)
-      assert consumption.approved == false
+      assert consumption.status == "rejected"
     end
   end
 

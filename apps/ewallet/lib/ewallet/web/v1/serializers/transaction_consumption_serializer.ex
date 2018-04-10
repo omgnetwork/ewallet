@@ -18,8 +18,6 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       object: "transaction_consumption",
       id: consumption.id,
       socket_topic: "transaction_consumption:#{consumption.id}",
-      status: consumption.status,
-      approved: consumption.approved,
       amount: consumption.amount,
       minted_token_id: consumption.minted_token.friendly_id,
       minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
@@ -37,10 +35,13 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       metadata: consumption.metadata,
       encrypted_metadata: consumption.encrypted_metadata,
       expiration_date: Date.to_iso8601(consumption.expiration_date),
-      created_at: Date.to_iso8601(consumption.inserted_at),
-      updated_at: Date.to_iso8601(consumption.updated_at),
-      finalized_at: Date.to_iso8601(consumption.finalized_at),
-      expired_at: Date.to_iso8601(consumption.expired_at)
+      status: consumption.status,
+      approved_at: Date.to_iso8601(consumption.approved_at),
+      rejected_at: Date.to_iso8601(consumption.rejected_at),
+      confirmed_at: Date.to_iso8601(consumption.confirmed_at),
+      failed_at: Date.to_iso8601(consumption.failed_at),
+      expired_at: Date.to_iso8601(consumption.expired_at),
+      created_at: Date.to_iso8601(consumption.inserted_at)
     }
   end
   def serialize(%NotLoaded{}), do: nil

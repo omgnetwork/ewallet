@@ -3,6 +3,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   use EWallet.Web.Embedder
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.{Web.V1.Event, TransactionConsumptionGate}
+  alias EWalletDB.TransactionConsumption
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
@@ -58,13 +59,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   end
 
   defp dispatch_confirm_event(consumption) do
-    if consumption.finalized_at do
-      case consumption.approved do
-        true ->
-          Event.dispatch(:transaction_consumption_approved, %{consumption: consumption})
-        false ->
-          Event.dispatch(:transaction_consumption_rejected, %{consumption: consumption})
-      end
+    if TransactionConsumption.finalized?(consumption) do
+      Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
     end
   end
 end

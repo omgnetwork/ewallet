@@ -21,12 +21,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
     )
   end
 
-  def broadcast(:transaction_consumption_approved, %{consumption: consumption}) do
-    broadcast_change("transaction_consumption_approved", consumption)
-  end
-
-  def broadcast(:transaction_consumption_rejected, %{consumption: consumption}) do
-    broadcast_change("transaction_consumption_rejected", consumption)
+  def broadcast(:transaction_consumption_finalized, %{consumption: consumption}) do
+    broadcast_change("transaction_consumption_finalized", consumption)
   end
 
   def broadcast(_, _), do: {:error, :unhandled_event}
@@ -48,7 +44,25 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   end
 
   defp payload(consumption) do
-    consumption
-    |> TransactionConsumptionSerializer.serialize()
+    case TransactionConsumption.success?(consumption) do
+      true ->
+        %{
+          status: :ok,
+          data: TransactionConsumptionSerializer.serialize(consumption)
+        }
+      false ->
+        %{
+          status: :error,
+          data: error_code(consumption)
+        }
+    end
+  end
+
+  defp error_code(consumption) do
+    case consumption.status do
+      "failed" -> String.to_existing_atom(consumption.transfer.ledger_response.code)
+      "expired" -> :expired_transaction_consumption
+      "pending" -> :unfinalized_transaction_consumption
+    end
   end
 end

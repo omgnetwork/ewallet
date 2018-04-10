@@ -69,8 +69,6 @@
           "minted_token_id" => meta.minted_token.friendly_id,
           "minted_token" =>
             meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
-          "approved" => true,
-          "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
           "transaction_request_id" => transaction_request.id,
           "transaction_request" =>
             request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
@@ -83,9 +81,12 @@
           "metadata" => %{},
           "encrypted_metadata" => %{},
           "expiration_date" => nil,
-          "expired_at" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-          "updated_at" => Date.to_iso8601(inserted_consumption.updated_at)
+          "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+          "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+          "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+          "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+          "expired_at" => nil
         }
       }
 
@@ -254,8 +255,8 @@
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "confirmed"
-      assert response["data"]["approved"] == true
-      assert response["data"]["finalized_at"] != nil
+      assert response["data"]["approved_at"] != nil
+      assert response["data"]["confirmed_at"] != nil
 
       # Check that a transfer was inserted
       inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
@@ -265,7 +266,7 @@
       assert %{} = inserted_transfer.ledger_response
 
       assert_receive %Phoenix.Socket.Broadcast{
-        event: "transaction_consumption_approved",
+        event: "transaction_consumption_finalized",
         topic:  "transaction_consumption:" <> _,
         payload: %{
           # Ignore content
@@ -340,8 +341,8 @@
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "confirmed"
-      assert response["data"]["approved"] == true
-      assert response["data"]["finalized_at"] != nil
+      assert response["data"]["approved_at"] != nil
+      assert response["data"]["confirmed_at"] != nil
 
       # Check that a transfer was inserted
       inserted_transfer = Repo.get(Transfer, response["data"]["transaction_id"])
@@ -351,7 +352,7 @@
       assert %{} = inserted_transfer.ledger_response
 
       assert_receive %Phoenix.Socket.Broadcast{
-        event: "transaction_consumption_approved",
+        event: "transaction_consumption_finalized",
         topic:  "transaction_consumption:" <> _,
         payload: %{
           # Ignore content
@@ -421,14 +422,15 @@
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
       assert response["data"]["status"] == "rejected"
-      assert response["data"]["approved"] == false
-      assert response["data"]["finalized_at"] != nil
+      assert response["data"]["rejected_at"] != nil
+      assert response["data"]["approved_at"] == nil
+      assert response["data"]["confirmed_at"] == nil
 
       # Check that a transfer was not inserted
       assert response["data"]["transaction_id"] == nil
 
       assert_receive %Phoenix.Socket.Broadcast{
-        event: "transaction_consumption_rejected",
+        event: "transaction_consumption_finalized",
         topic:  "transaction_consumption:" <> _,
         payload: %{
           # Ignore content
@@ -489,19 +491,20 @@
           "transaction_request" =>
             request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
           "transaction_id" => inserted_transfer.id,
-          "approved" => true,
-          "finalized_at" => Date.to_iso8601(inserted_consumption.finalized_at),
           "transaction" => nil, # not preloaded
           "user_id" => meta.bob.id,
           "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
           "encrypted_metadata" => %{},
           "expiration_date" => nil,
-          "expired_at" => nil,
           "metadata" => %{},
           "account_id" => nil,
           "account" => nil,
           "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-          "updated_at" => Date.to_iso8601(inserted_consumption.updated_at),
+          "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+          "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+          "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+          "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+          "expired_at" => nil
         }
       }
 
