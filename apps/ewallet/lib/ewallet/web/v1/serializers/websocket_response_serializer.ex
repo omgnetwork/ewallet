@@ -33,37 +33,16 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   Translates a `Phoenix.Socket.Broadcast` into a `Phoenix.Socket.Message`.
   """
   def fastlane!(%Broadcast{} = msg) do
-    msg = %Message{
-      topic: msg.topic,
-      event: msg.event,
-      payload: msg.payload
-    }
-
-    {:socket_push, :text, encode_fields(msg)}
+    msg = msg |> build_message() |> encode_fields()
+    {:socket_push, :text, msg}
   end
 
   @doc """
   Encodes a `Phoenix.Socket.Message` struct to JSON string.
   """
-  def encode!(%Reply{} = reply) do
-    msg = %Message{
-      topic: reply.topic,
-      event: "phx_reply",
-      ref: reply.ref,
-      payload: reply.payload |> Map.put(:status, reply.status)
-    }
-
-    {:socket_push, :text, encode_fields(msg)}
-  end
-  def encode!(%Message{} = msg) do
-    msg = %Message{
-      topic: msg.topic,
-      event: msg.event,
-      ref: msg.ref,
-      payload: msg.payload
-    }
-
-    {:socket_push, :text, encode_fields(msg)}
+  def encode!(msg) do
+    msg = msg |> build_message() |> encode_fields()
+    {:socket_push, :text, msg}
   end
 
   @doc """
@@ -77,48 +56,59 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Message.from_map!()
   end
 
-  defp encode_fields(%Message{payload: %{status: :ok, data: data}} = msg) do
+  defp build_message(%Message{} = msg) do
     %{
-      data: data,
-      error: nil,
+      topic: msg.topic,
+      event: msg.event,
+      ref: msg.ref,
+      status: msg.payload[:status],
+      data: msg.payload[:data],
+      error: msg.payload[:error],
+      reason: msg.payload[:reason]
+    }
+  end
+
+  defp build_message(%Reply{} = reply) do
+    case is_atom(reply.payload) do
+      true ->
+        %{
+         topic: reply.topic,
+         event: "phx_reply",
+         ref: reply.ref,
+         status: reply.status,
+         error: reply.payload,
+         data: nil,
+         reason: nil
+       }
+      false ->
+         %{
+          topic: reply.topic,
+          event: "phx_reply",
+          ref: reply.ref,
+          status: reply.status,
+          data: reply.payload[:data],
+          error: reply.payload[:error],
+          reason: reply.payload[:reason]
+        }
+    end
+  end
+
+  defp encode_fields(msg) do
+    %{
+      data: msg.data,
+      error: build_error(msg.error, msg.reason),
       msg: msg,
-      success: true
+      success: msg.status == :ok
     }
     |> serialize()
     |> Poison.encode_to_iodata!()
   end
 
-  defp encode_fields(%Message{payload: %{status: :error, reason: reason}} = msg) do
-    :websocket_connect_error
-    |> ErrorHandler.build_error(reason, nil)
-    |> encode_error(msg)
+  defp build_error(nil, nil), do: nil
+  defp build_error(nil, reason) do
+    ErrorHandler.build_error(:websocket_connect_error, reason, nil)
   end
-
-  defp encode_fields(%Message{payload: %{status: :error, error: code, data: data}} = msg) do
-    encode_fields(code, data, msg)
-  end
-
-  defp encode_fields(%Message{payload: %{status: :error, error: code}} = msg) do
-    encode_fields(code, nil, msg)
-  end
-
-  defp encode_fields(code, data, msg)
-  when is_atom(code)
-  when is_binary(code)
-  do
-    code
-    |> ErrorHandler.build_error(nil)
-    |> encode_error(msg, data)
-  end
-
-  defp encode_error(error, msg, data \\ nil) do
-    %{
-      data: data,
-      error: error,
-      msg: msg,
-      success: false
-    }
-    |> serialize()
-    |> Poison.encode_to_iodata!()
+  defp build_error(code, nil) when is_atom(code) when is_binary(code) do
+    ErrorHandler.build_error(code, nil)
   end
 end

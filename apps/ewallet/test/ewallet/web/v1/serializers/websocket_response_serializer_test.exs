@@ -86,9 +86,8 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
     end
 
     test "encodes phx_reply with code" do
-      reply = %Reply{ref: 1, topic: "topic", status: :error, payload: %{
-        error: :forbidden_channel
-      }}
+      reply = %Reply{ref: 1, topic: "topic", status: :error, payload: :forbidden_channel}
+
       {:socket_push, :text, encoded} = WebsocketResponseSerializer.encode!(reply)
       decoded = Poison.decode!(encoded)
 
@@ -103,6 +102,22 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
         "event" => "phx_reply",
         "ref" => 1,
         "success" => false,
+        "topic" => "topic",
+        "version" => "1"
+      }
+    end
+
+    test "encodes phx_reply with empty payload" do
+      reply = %Reply{ref: 1, topic: "topic", status: :ok, payload: %{}}
+      {:socket_push, :text, encoded} = WebsocketResponseSerializer.encode!(reply)
+      decoded = Poison.decode!(encoded)
+
+      assert decoded == %{
+        "data" => nil,
+        "error" => nil,
+        "event" => "phx_reply",
+        "ref" => 1,
+        "success" => true,
         "topic" => "topic",
         "version" => "1"
       }
