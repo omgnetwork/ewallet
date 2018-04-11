@@ -176,7 +176,6 @@ defmodule EWallet.TransactionRequestGate do
     TransactionRequest.expire_if_max_consumption(request)
   end
 
-
   defp insert(minted_token, balance, attrs) do
    require_confirmation = if(is_nil(attrs["require_confirmation"]), do: false, else: attrs["require_confirmation"])
    allow_amount_override = if(is_nil(attrs["allow_amount_override"]),

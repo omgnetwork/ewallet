@@ -1,6 +1,7 @@
 defmodule EWallet.TransactionConsumptionGateTest do
  use EWallet.LocalLedgerCase, async: true
  alias Ecto.Adapters.SQL.Sandbox
+ alias Ecto.UUID
  alias EWallet.{TestEndpoint, TransactionConsumptionGate}
  alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
 
@@ -483,7 +484,6 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
         send pid, {:updated_3, res, response}
       end
-
 
       {:ok, pid_4} = Task.start_link fn ->
         Sandbox.allow(EWalletDB.Repo, pid, self())
@@ -1009,7 +1009,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
-          "idempotency_token" => Ecto.UUID.generate(),
+          "idempotency_token" => UUID.generate(),
           "token_id" => nil,
           "user_id" => meta.sender.id,
           "address" => meta.sender_balance.address
