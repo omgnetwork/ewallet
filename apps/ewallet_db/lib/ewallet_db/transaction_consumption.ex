@@ -4,7 +4,6 @@ defmodule EWalletDB.TransactionConsumption do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,
                    TransactionRequest, Balance, Helpers, Transfer, Account}
@@ -67,7 +66,6 @@ defmodule EWalletDB.TransactionConsumption do
       :status, :amount, :idempotency_token, :transaction_request_id,
       :balance_address, :minted_token_id
     ])
-    |> validate_required_exclusive([:account_id, :user_id])
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)

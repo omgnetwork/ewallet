@@ -12,6 +12,24 @@ defmodule EWallet.TransactionConsumptionGate do
   @spec consume(Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
   def consume(%{
     "account_id" => account_id,
+    "provider_user_id" => provider_user_id,
+    "address" => address
+  } = attrs) do
+    with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
+         %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
+                           :provider_user_id_not_found,
+         {:ok, balance} <- BalanceFetcher.get(user, address),
+         balance <- Map.put(balance, :account_id, account.id)
+    do
+      consume(balance, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error                     -> error
+    end
+  end
+
+  def consume(%{
+    "account_id" => account_id,
     "address" => address
   } = attrs) do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,

@@ -5,7 +5,6 @@ defmodule EWalletDB.TransactionRequest do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletDB.Validator
   alias Ecto.{UUID, Changeset}
 
   alias EWalletDB.{TransactionRequest, TransactionConsumption,
@@ -64,7 +63,6 @@ defmodule EWalletDB.TransactionRequest do
     |> validate_required([
       :type, :status, :minted_token_id, :balance_address
     ])
-    |> validate_required_exclusive([:account_id, :user_id])
     |> validate_amount_if_disallow_override()
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
