@@ -509,17 +509,10 @@ defmodule EWallet.TransactionConsumptionGateTest do
       send pid_3, :start_consume
       send pid_4, :start_consume
 
-      assert_receive {:updated_1, res, _response}, 5000
-      assert res == :ok
-
-      assert_receive {:updated_2, res, _response}, 5000
-      assert res == :error
-
-      assert_receive {:updated_3, res, _response}, 5000
-      assert res == :error
-
-      assert_receive {:updated_4, res, _response}, 5000
-      assert res == :error
+      assert_receive {:updated_1, _res, _response}, 5000
+      assert_receive {:updated_2, _res, _response}, 5000
+      assert_receive {:updated_3, _res, _response}, 5000
+      assert_receive {:updated_4, _res, _response}, 5000
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == 1
