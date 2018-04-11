@@ -276,7 +276,7 @@ All set! Start playing around with the API using the Swagger UI below to learn m
 
 __Note: This is experimental and is subjected to change.__
 
-Some feature such as WebSockets require that Erlang nodes are connected. We support automatic clustering via DNS in `prod` environment using [Peerage](https://github.com/mrluc/peerage). To use automatic clustering, you must run the application in the following manner:
+Some feature such as WebSockets require that Erlang nodes are connected. We support automatic clustering via DNS in `prod` environment using [Peerage](https://github.com/mrluc/peerage). To use automatic clustering, you must run the application in the following manner (in additional to standard configuration):
 
 ```
 $ env MIX_ENV=prod NODE_NAME=ewallet NODE_DNS=ewallet.default.svc.cluster.local \
