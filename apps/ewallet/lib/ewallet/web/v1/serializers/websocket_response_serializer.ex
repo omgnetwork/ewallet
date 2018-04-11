@@ -33,8 +33,6 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   Translates a `Phoenix.Socket.Broadcast` into a `Phoenix.Socket.Message`.
   """
   def fastlane!(%Broadcast{} = msg) do
-    IO.inspect("Broadcast")
-    IO.inspect(msg)
     msg = %Message{
       topic: msg.topic,
       event: msg.event,
@@ -90,19 +88,27 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Poison.encode_to_iodata!()
   end
 
-  defp encode_fields(%Message{payload: %{status: :error, data: %{reason: reason}}} = msg) do
+  defp encode_fields(%Message{payload: %{status: :error, reason: reason}} = msg) do
     :websocket_connect_error
     |> ErrorHandler.build_error(reason, nil)
     |> encode_error(msg)
   end
 
-  defp encode_fields(%Message{payload: %{status: :error, error_code: code, data: data}} = msg)
+  defp encode_fields(%Message{payload: %{status: :error, error: code, data: data}} = msg) do
+    encode_fields(code, data, msg)
+  end
+
+  defp encode_fields(%Message{payload: %{status: :error, error: code}} = msg) do
+    encode_fields(code, nil, msg)
+  end
+
+  defp encode_fields(code, data, msg)
   when is_atom(code)
   when is_binary(code)
   do
     code
-    |> ErrorHandler.build_error(nil, data)
-    |> encode_error(msg)
+    |> ErrorHandler.build_error(nil)
+    |> encode_error(msg, data)
   end
 
   defp encode_error(error, msg, data \\ nil) do

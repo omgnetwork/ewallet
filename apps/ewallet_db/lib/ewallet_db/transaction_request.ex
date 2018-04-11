@@ -235,7 +235,7 @@ defmodule EWalletDB.TransactionRequest do
 
     case expired? do
       true  -> expire(request)
-      _ -> touch(request)
+      _     -> {:ok, request}
     end
   end
 

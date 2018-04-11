@@ -138,7 +138,7 @@ defmodule EWallet.TransactionConsumptionGate do
   end
 
   defp validate_consumption(consumption) do
-    consumption = TransactionConsumption.expire_if_past_expiration_date(consumption)
+    {:ok, consumption} = TransactionConsumption.expire_if_past_expiration_date(consumption)
 
     case TransactionConsumption.expired?(consumption) do
       false -> {:ok, consumption}

@@ -56,7 +56,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
       false ->
         %{
           status: :error,
-          error_code: error_code(consumption),
+          error: error_code(consumption),
           data: TransactionConsumptionSerializer.serialize(consumption)
         }
     end

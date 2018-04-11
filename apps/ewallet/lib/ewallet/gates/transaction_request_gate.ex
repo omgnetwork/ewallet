@@ -133,10 +133,10 @@ defmodule EWallet.TransactionRequestGate do
   @spec validate_request(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
                                                   {:error, Atom.t}
   def validate_request(request) do
+    {:ok, request} = TransactionRequest.expire_if_past_expiration_date(request)
+
     case TransactionRequest.valid?(request) do
-      true  ->
-        # double check
-        {:ok, request}
+      true  -> {:ok, request}
       false -> {:error, String.to_existing_atom(request.expiration_reason)}
     end
   end

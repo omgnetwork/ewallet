@@ -177,7 +177,7 @@ defmodule EWalletDB.TransactionConsumption do
 
     case expired? do
       true  -> expire(consumption)
-      _     -> consumption
+      _     -> {:ok, consumption}
     end
   end
 
