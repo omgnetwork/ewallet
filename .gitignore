@@ -2,7 +2,6 @@
 /_build/
 /cover/
 /deps/
-/docs/
 /.fetch
 *.ez
 
