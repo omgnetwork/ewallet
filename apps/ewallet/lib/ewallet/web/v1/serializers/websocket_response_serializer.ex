@@ -60,7 +60,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     %{
       topic: msg.topic,
       event: msg.event,
-      ref: msg.ref,
+      ref: nil,
       status: msg.payload[:status],
       data: msg.payload[:data],
       error: msg.payload[:error],
@@ -124,3 +124,4 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     ErrorHandler.build_error(code, nil)
   end
 end
+
