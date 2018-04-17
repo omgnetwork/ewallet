@@ -56,6 +56,18 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Message.from_map!()
   end
 
+  defp build_message(%Broadcast{} = msg) do
+    %{
+      topic: msg.topic,
+      event: msg.event,
+      ref: msg.ref,
+      status: msg.payload[:status],
+      data: msg.payload[:data],
+      error: msg.payload[:error],
+      reason: msg.payload[:reason]
+    }
+  end
+
   defp build_message(%Message{} = msg) do
     %{
       topic: msg.topic,
