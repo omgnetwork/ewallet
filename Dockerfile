@@ -41,6 +41,12 @@ RUN set -xe && \
         mix compile \
         rm -rf /tmp/ewallet"
 
+ENV PORT 4000
+
+EXPOSE 4000
+EXPOSE 4369
+EXPOSE 6900 6901 6902 6903 6904 6905 6906 6907 6908 6909
+
 RUN set -xe && \
     SERVICE_DIR=/etc/services.d/ewallet/ && \
     mkdir -p "$SERVICE_DIR" && \
@@ -50,13 +56,23 @@ RUN set -xe && \
     echo 's6-setuidgid ewallet' >> $SERVICE_DIR/run && \
     echo 's6-env HOME=/tmp/ewallet' >> ${SERVICE_DIR}/run && \
     echo 's6-env MIX_ENV=prod' >> $SERVICE_DIR/run && \
-    echo 'mix omg.server --no-watch' >> $SERVICE_DIR/run && \
+    echo 'backtick -in default_host { s6-hostname }' >> $SERVICE_DIR/run && \
+    echo 'backtick -in default_cookie { openssl rand -hex 8 }' >> $SERVICE_DIR/run && \
+    echo 'importas -iu default_host default_host' >> $SERVICE_DIR/run && \
+    echo 'importas -iu default_cookie default_cookie' >> $SERVICE_DIR/run && \
+    echo 'importas -D $default_host NODE_HOST NODE_HOST' >> $SERVICE_DIR/run && \
+    echo 'importas -D $default_cookie ERLANG_COOKIE ERLANG_COOKIE' >> $SERVICE_DIR/run && \
+    echo 'importas -D ewallet NODE_NAME NODE_NAME' >> $SERVICE_DIR/run && \
+    echo 'importas -D localhost NODE_DNS NODE_DNS' >> $SERVICE_DIR/run && \
+    echo 'elixir' >> $SERVICE_DIR/run && \
+    echo '  --erl "-kernel inet_dist_listen_min 6900"' >> $SERVICE_DIR/run && \
+    echo '  --erl "-kernel inet_dist_listen_max 6909"' >> $SERVICE_DIR/run && \
+    echo '  --name "${NODE_NAME}@${NODE_HOST}"' >> $SERVICE_DIR/run && \
+    echo '  --cookie $ERLANG_COOKIE' >> $SERVICE_DIR/run && \
+    echo '  -S mix omg.server --no-watch' >> $SERVICE_DIR/run && \
     echo '#!/bin/execlineb -S1' > $SERVICE_DIR/finish && \
     echo 'if { s6-test ${1} -ne 0 }' >> $SERVICE_DIR/finish && \
     echo 'if { s6-test ${1} -ne 256 }' >> $SERVICE_DIR/finish && \
     echo 's6-svscanctl -t /var/run/s6/services' >> $SERVICE_DIR/finish
-
-ENV PORT 4000
-EXPOSE 4000
 
 ENTRYPOINT ["/init"]

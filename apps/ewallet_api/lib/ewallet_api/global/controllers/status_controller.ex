@@ -5,6 +5,7 @@ defmodule EWalletAPI.StatusController do
   def status(conn, _attrs) do
     json conn, %{
       success: true,
+      nodes: node_count(),
       services: %{
         ewallet: true,
         local_ledger: local_ledger()
@@ -19,5 +20,9 @@ defmodule EWalletAPI.StatusController do
       _ ->
         false
     end
+  end
+
+  defp node_count do
+    length(Node.list() ++ [Node.self()])
   end
 end

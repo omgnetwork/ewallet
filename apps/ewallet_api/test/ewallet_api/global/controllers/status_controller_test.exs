@@ -10,6 +10,7 @@ defmodule EWalletAPI.StatusControllerTest do
 
       assert response == %{
         "success" => true,
+        "nodes" => 1,
         "services" => %{
           "ewallet" => true,
           "local_ledger" => true

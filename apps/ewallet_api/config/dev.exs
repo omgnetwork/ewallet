@@ -17,3 +17,8 @@ config :ewallet_api, EWalletAPI.V1.Endpoint,
   code_reloader: true,
   check_origin: false,
   watchers: []
+
+# We do not do node discovery during development.
+config :peerage,
+  via: Peerage.Via.Self,
+  log_results: false

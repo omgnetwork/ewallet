@@ -31,7 +31,12 @@ defmodule EWalletAPI.Mixfile do
   def application do
     [
       mod: {EWalletAPI.Application, []},
-      extra_applications: [:sentry, :logger, :runtime_tools]
+      extra_applications: [
+        :sentry,
+        :logger,
+        :runtime_tools,
+        :peerage
+      ]
     ]
   end
 
@@ -47,6 +52,7 @@ defmodule EWalletAPI.Mixfile do
       {:phoenix, "~> 1.3.0"},
       {:cowboy, "~> 1.0"},
       {:sentry, "~> 6.0.0"},
+      {:peerage, "~> 1.0.2"},
       {:ewallet_db, in_umbrella: true},
       {:ewallet, in_umbrella: true}
     ]

@@ -146,13 +146,13 @@ Feel free to look around!
 We now need to pull the Elixir dependencies:
 
 ```
-mix deps.get
+$ mix deps.get
 ```
 
 Then get the front-end dependencies:
 
 ```
-(cd apps/admin_panel/assets/ && yarn install)
+$ cd apps/admin_panel/assets/ && yarn install
 ```
 
 If you are setting up without Goban, you may need to set some environment variables before proceeding. You can use `export ENV=value` to set environment variables in the current session (or you can add them to whatever profile file you're using).
@@ -178,13 +178,13 @@ To learn more about all the environment variables available for production deplo
 Before we start the application, let's try running the tests. Create the test databases:
 
 ```
-MIX_ENV=test mix do ecto.create, ecto.migrate
+$ MIX_ENV=test mix do ecto.create, ecto.migrate
 ```
 
 Or if you're using specific database URLs:
 
 ```
-MIX_ENV=test DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix do ecto.create, ecto.migrate
+$ MIX_ENV=test DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix do ecto.create, ecto.migrate
 ```
 
 **If you don't want to do that, you can always search & replace the default values in the config files, but only do that in development to give it a try - we really don't recommend changing the code that way for production setups.**
@@ -192,13 +192,13 @@ MIX_ENV=test DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATA
 Then, let's run the tests:
 
 ```
-mix test
+$ mix test
 ```
 
 Or:
 
 ```
-DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix test
+$ DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix test
 ```
 
 ```
@@ -234,7 +234,7 @@ All the tests should pass. If some tests are failing, double-check you have inst
 If all the tests passed, we can create the development databases:
 
 ```
-mix do ecto.create, ecto.migrate
+$ mix do ecto.create, ecto.migrate
 ```
 
 ## Inserting some data
@@ -242,7 +242,7 @@ mix do ecto.create, ecto.migrate
 Everything is in place and we can now run the seeds to populate the eWallet database with some initial data:
 
 ```
-mix seed
+$ mix seed
 ```
 
 __Note: The command above seeds the minimum amount of data to get the environment up and running. To play in development environment with some sample data, run `mix seed --sample` instead.__
@@ -252,7 +252,7 @@ __Note: The command above seeds the minimum amount of data to get the environmen
 Time to start the application!
 
 ```
-mix omg.server
+$ mix omg.server
 ```
 
 Navigate to `http://localhost:4000/api` in your browser and you should see the following `JSON` representation popping up:
