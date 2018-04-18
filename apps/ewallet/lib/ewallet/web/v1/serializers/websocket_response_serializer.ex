@@ -73,6 +73,8 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   defp build_message(msg), do: format(msg)
 
   defp format(data) do
+    data = Map.from_struct(data)
+
     %{
        topic: data[:topic],
        event: data[:event] || "phx_reply",

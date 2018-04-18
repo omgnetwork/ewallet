@@ -1,8 +1,7 @@
 defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias EWallet.Web.V1.WebsocketResponseSerializer
-  alias Phoenix.Socket.Reply
-  alias Phoenix.Socket.Message
+  alias Phoenix.Socket.{Broadcast, Message, Reply}
 
   describe "serialize/1" do
     test "serializes a websocket message" do
@@ -22,6 +21,27 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializerTest do
         version: "1",
         data: %{something: "cool"},
         error: nil
+      }
+    end
+  end
+
+  describe "encode!/1 with %Broadcast{}" do
+    test "encodes fields" do
+      msg = %Broadcast{topic: "topic", event: "event", payload: %{
+        status: :ok,
+        data: %{}
+      }}
+      {:socket_push, :text, encoded} = WebsocketResponseSerializer.encode!(msg)
+      decoded = Poison.decode!(encoded)
+
+      assert decoded == %{
+        "data" => %{},
+        "error" => nil,
+        "event" => "event",
+        "ref" => nil,
+        "success" => true,
+        "topic" => "topic",
+        "version" => "1"
       }
     end
   end
