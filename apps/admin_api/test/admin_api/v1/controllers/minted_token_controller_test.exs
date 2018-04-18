@@ -20,13 +20,13 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
     end
 
     test "returns a list of minted tokens according to search_term, sort_by and sort_direction" do
-      insert(:minted_token, %{symbol: "ABC1"})
-      insert(:minted_token, %{symbol: "ABC3"})
-      insert(:minted_token, %{symbol: "ABC2"})
       insert(:minted_token, %{symbol: "XYZ1"})
+      insert(:minted_token, %{symbol: "XYZ3"})
+      insert(:minted_token, %{symbol: "XYZ2"})
+      insert(:minted_token, %{symbol: "ZZZ1"})
 
       attrs = %{
-        "search_term" => "aBc", # Search is case-insensitive
+        "search_term" => "xYz", # Search is case-insensitive
         "sort_by"     => "symbol",
         "sort_dir"    => "desc"
       }
@@ -36,9 +36,9 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
 
       assert response["success"]
       assert Enum.count(minted_tokens) == 3
-      assert Enum.at(minted_tokens, 0)["symbol"] == "ABC3"
-      assert Enum.at(minted_tokens, 1)["symbol"] == "ABC2"
-      assert Enum.at(minted_tokens, 2)["symbol"] == "ABC1"
+      assert Enum.at(minted_tokens, 0)["symbol"] == "XYZ3"
+      assert Enum.at(minted_tokens, 1)["symbol"] == "XYZ2"
+      assert Enum.at(minted_tokens, 2)["symbol"] == "XYZ1"
     end
   end
 

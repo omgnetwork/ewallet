@@ -53,19 +53,27 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
         "sort_by" => "created",
         "sort_dir" => "asc"
       })
-      assert response["data"]["data"] |> length() == 8
-      assert Enum.map(response["data"]["data"], fn t ->
-        t["id"]
-      end) == [
-        meta.transfer_1.id,
-        meta.transfer_2.id,
-        meta.transfer_3.id,
-        meta.transfer_4.id,
-        meta.transfer_5.id,
-        meta.transfer_6.id,
-        meta.transfer_7.id,
-        meta.transfer_8.id
-      ]
+
+      transfers =
+        [
+          meta.transfer_1,
+          meta.transfer_2,
+          meta.transfer_3,
+          meta.transfer_4,
+          meta.transfer_5,
+          meta.transfer_6,
+          meta.transfer_7,
+          meta.transfer_8
+        ]
+
+      assert length(response["data"]["data"]) == length(transfers)
+
+      # All transfers made during setup should exist in the response
+      assert Enum.all?(transfers, fn(transfer) ->
+        Enum.any?(response["data"]["data"], fn(data) ->
+          transfer.id == data["id"]
+        end)
+      end)
     end
 
     test "returns all the transactions for a specific address", meta do
