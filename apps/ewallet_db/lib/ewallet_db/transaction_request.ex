@@ -5,8 +5,8 @@ defmodule EWalletDB.TransactionRequest do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletDB.Validator
-  alias Ecto.UUID
+  alias Ecto.{UUID, Changeset}
+
   alias EWalletDB.{TransactionRequest, TransactionConsumption,
                    Repo, MintedToken, User, Balance, Helpers}
 
@@ -63,7 +63,7 @@ defmodule EWalletDB.TransactionRequest do
     |> validate_required([
       :type, :status, :minted_token_id, :balance_address
     ])
-    |> validate_required_exclusive([:account_id, :user_id])
+    |> validate_amount_if_disallow_override()
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:correlation_id)
@@ -86,6 +86,18 @@ defmodule EWalletDB.TransactionRequest do
     |> cast(attrs, [:updated_at])
     |> validate_required([:updated_at])
   end
+
+  defp validate_amount_if_disallow_override(changeset) do
+    amount                = Changeset.get_field(changeset, :amount)
+    allow_amount_override = Changeset.get_field(changeset, :allow_amount_override)
+
+    validate_amount_if_disallow_override(changeset, allow_amount_override, amount)
+  end
+  defp validate_amount_if_disallow_override(changeset, false, nil) do
+    Changeset.add_error(changeset,
+                        :amount, "needs to be set if amount override is not allowed.")
+  end
+  defp validate_amount_if_disallow_override(changeset, _, _amount), do: changeset
 
   @doc """
   Gets a transaction request.
@@ -221,7 +233,7 @@ defmodule EWalletDB.TransactionRequest do
 
     case expired? do
       true  -> expire(request)
-      _ -> touch(request)
+      _     -> {:ok, request}
     end
   end
 

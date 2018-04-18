@@ -3,7 +3,12 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
   Serializes transaction request data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.MintedTokenSerializer
+  alias EWallet.Web.V1.{
+    AccountSerializer,
+    MintedTokenSerializer,
+    TransactionRequestSerializer,
+    UserSerializer
+  }
   alias EWallet.Web.Date
   alias EWalletDB.Repo
   alias EWalletDB.TransactionRequest
@@ -23,7 +28,9 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
       address: transaction_request.balance_address,
       user_id: transaction_request.user_id,
+      user: UserSerializer.serialize(transaction_request.user),
       account_id: transaction_request.account_id,
+      account: AccountSerializer.serialize(transaction_request.account),
       require_confirmation: transaction_request.require_confirmation,
       current_consumptions_count: length(transaction_request.consumptions),
       max_consumptions: transaction_request.max_consumptions,

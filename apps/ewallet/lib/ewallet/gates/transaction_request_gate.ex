@@ -13,6 +13,25 @@ defmodule EWallet.TransactionRequestGate do
 
   def create(%{
     "account_id" => account_id,
+    "provider_user_id" => provider_user_id,
+    "address" => address
+  } = attrs) do
+    with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
+         %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
+                           :provider_user_id_not_found,
+         {:ok, balance} <- BalanceFetcher.get(user, address),
+         balance <- Map.put(balance, :account_id, account.id),
+         {:ok, transaction_request} <- create(balance, attrs)
+    do
+      get(transaction_request.id)
+    else
+      error when is_atom(error) -> {:error, error}
+      error                     -> error
+    end
+  end
+
+  def create(%{
+    "account_id" => account_id,
     "address" => address
   } = attrs) do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
@@ -130,6 +149,25 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
+  @spec validate_request(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
+                                                  {:error, Atom.t}
+  def validate_request(request) do
+    {:ok, request} = TransactionRequest.expire_if_past_expiration_date(request)
+
+    case TransactionRequest.valid?(request) do
+      true  -> {:ok, request}
+      false -> {:error, String.to_existing_atom(request.expiration_reason)}
+    end
+  end
+
+  def is_owner?(request, %Account{} = account) do
+    request.account_id == account.id
+  end
+
+  def is_owner?(request, %User{} = user) do
+    request.user_id == user.id
+  end
+
   @spec expiration_from_lifetime(TransactionRequest.t) :: NaiveDateTime.t | nil
   def expiration_from_lifetime(request) do
     TransactionRequest.expiration_from_lifetime(request)
@@ -155,15 +193,6 @@ defmodule EWallet.TransactionRequestGate do
                                                           {:error, Map.t}
   def expire_if_max_consumption(request) do
     TransactionRequest.expire_if_max_consumption(request)
-  end
-
-  @spec validate_request(TransactionRequest.t) :: {:ok, TransactionRequest.t} |
-                                                  {:error, Atom.t}
-  def validate_request(request) do
-    case TransactionRequest.valid?(request) do
-      true  -> {:ok, request}
-      false -> {:error, String.to_existing_atom(request.expiration_reason)}
-    end
   end
 
   defp insert(minted_token, balance, attrs) do

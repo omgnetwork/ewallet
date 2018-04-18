@@ -96,7 +96,6 @@ defmodule EWalletDB.TransactionRequestTest do
     test_insert_generate_uuid TransactionRequest, :id
     test_insert_generate_timestamps TransactionRequest
     test_insert_prevent_blank TransactionRequest, :type
-    test_insert_prevent_all_blank TransactionRequest, [:user_id, :account_id]
     test_insert_prevent_blank TransactionRequest, :minted_token_id
     test_insert_prevent_duplicate TransactionRequest, :correlation_id
 
@@ -110,7 +109,36 @@ defmodule EWalletDB.TransactionRequestTest do
         :transaction_request
         |> params_for(type: "fake")
         |> TransactionRequest.insert()
+
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
+    end
+
+    test "allows creation with an amount equal to nil" do
+      {res, _inserted} =
+        :transaction_request
+        |> params_for(amount: nil)
+        |> TransactionRequest.insert()
+
+      assert res == :ok
+    end
+
+    test "allows creation with 'allow_amount_override=true' and nil amount" do
+      {res, _inserted} =
+        :transaction_request
+        |> params_for(allow_amount_override: true, amount: nil)
+        |> TransactionRequest.insert()
+
+      assert res == :ok
+    end
+
+    test "prevents creation with 'allow_amount_override=false' and nil amount" do
+      {:error, changeset} =
+        :transaction_request
+        |> params_for(allow_amount_override: false, amount: nil)
+        |> TransactionRequest.insert()
+
+      assert changeset.errors == [{:amount,
+                                  {"needs to be set if amount override is not allowed.", []}}]
     end
   end
 
@@ -239,8 +267,10 @@ defmodule EWalletDB.TransactionRequestTest do
 
     test "expires the request if max_consumptions has been reached" do
       request = insert(:transaction_request, max_consumptions: 2)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+                                                      status: "confirmed")
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+                                                      status: "confirmed")
 
       {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
       assert res == :ok

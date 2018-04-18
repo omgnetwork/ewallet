@@ -2,8 +2,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   @moduledoc """
   This module represents the transaction_consumption_confirmation event and how to build it.
   """
-  alias  EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
-  alias EWalletDB.TransactionConsumption
+  alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
+  alias EWalletDB.{Repo, TransactionConsumption}
 
   @spec broadcast(Atom.t, TransactionConsumption.t) :: :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do
@@ -17,16 +17,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
     Event.broadcast(
       event: "transaction_consumption_request",
       topics: topics,
-      payload: payload(consumption)
+      payload: %{
+        status: :ok,
+        data: TransactionConsumptionSerializer.serialize(consumption)
+      }
     )
   end
 
-  def broadcast(:transaction_consumption_approved, %{consumption: consumption}) do
-    broadcast_change("transaction_consumption_approved", consumption)
-  end
-
-  def broadcast(:transaction_consumption_rejected, %{consumption: consumption}) do
-    broadcast_change("transaction_consumption_rejected", consumption)
+  def broadcast(:transaction_consumption_finalized, %{consumption: consumption}) do
+    broadcast_change("transaction_consumption_finalized", consumption)
   end
 
   def broadcast(_, _), do: {:error, :unhandled_event}
@@ -48,7 +47,28 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   end
 
   defp payload(consumption) do
-    consumption
-    |> TransactionConsumptionSerializer.serialize()
+    case TransactionConsumption.success?(consumption) do
+      true ->
+        %{
+          status: :ok,
+          data: TransactionConsumptionSerializer.serialize(consumption)
+        }
+      false ->
+        %{
+          status: :error,
+          error: error_code(consumption),
+          data: TransactionConsumptionSerializer.serialize(consumption)
+        }
+    end
+  end
+
+  defp error_code(consumption) do
+    consumption = Repo.preload(consumption, :transfer)
+
+    case consumption.status do
+      "failed"  -> consumption.transfer.ledger_response["code"]
+      "expired" -> :expired_transaction_consumption
+      "pending" -> :unfinalized_transaction_consumption
+    end
   end
 end

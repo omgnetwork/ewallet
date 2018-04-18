@@ -77,12 +77,24 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     max_consumptions_reached: %{
       code: "transaction_request:max_consumptions_reached",
-      description: "The specified transaction request has reached the allowed amount " <>
-                   "of consumptions."
+      description:
+        "The specified transaction request has reached the allowed amount of consumptions."
+    },
+    unauthorized_amount_override: %{
+      code: "transaction_request:unauthorized_amount_override",
+      description: "The amount for this transaction request cannot be overridden."
     },
     not_transaction_request_owner: %{
       code: "transaction_consumption:not_owner",
       description: "The given consumption can only be approved by the transaction request owner."
+    },
+    expired_transaction_consumption: %{
+      code: "transaction_consumption:expired",
+      description: "The specified transaction consumption has expired."
+    },
+    unfinalized_transaction_consumption: %{
+      code: "transaction_consumption:unfinalized",
+      description: "The specified transaction consumption has not been finalized yet."
     },
     invalid_minted_token_provided: %{
       code: "transaction_consumption:invalid_minted_token",

@@ -9,32 +9,41 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
     balance_3 = insert(:balance)
     balance_4 = insert(:balance, user: user, identifier: "secondary")
 
+    transfer_1 = insert(:transfer, %{
+      from_balance: balance_1, to_balance: balance_2, status: "confirmed"
+    })
+    transfer_2 = insert(:transfer, %{
+      from_balance: balance_2, to_balance: balance_1, status: "confirmed"
+    })
+    transfer_3 = insert(:transfer, %{
+      from_balance: balance_1, to_balance: balance_3, status: "confirmed"
+    })
+    transfer_4 = insert(:transfer, %{
+      from_balance: balance_1, to_balance: balance_2, status: "pending"
+    })
+    transfer_5 = insert(:transfer, %{status: "confirmed"})
+    transfer_6 = insert(:transfer, %{status: "pending"})
+    transfer_7 = insert(:transfer, %{
+      from_balance: balance_4, to_balance: balance_2, status: "confirmed"
+    })
+    transfer_8 = insert(:transfer, %{
+      from_balance: balance_4, to_balance: balance_3, status: "pending"
+    })
+
     %{
       user:       user,
       balance_1:  balance_1,
       balance_2:  balance_2,
       balance_3:  balance_3,
       balance_4:  balance_4,
-      transfer_1: insert(:transfer, %{
-        from_balance: balance_1, to_balance: balance_2, status: "confirmed"
-      }),
-      transfer_2: insert(:transfer, %{
-        from_balance: balance_2, to_balance: balance_1, status: "confirmed"
-      }),
-      transfer_3: insert(:transfer, %{
-        from_balance: balance_1, to_balance: balance_3, status: "confirmed"
-      }),
-      transfer_4: insert(:transfer, %{
-        from_balance: balance_1, to_balance: balance_2, status: "pending"
-      }),
-      transfer_5: insert(:transfer, %{status: "confirmed"}),
-      transfer_6: insert(:transfer, %{status: "pending"}),
-      transfer_7: insert(:transfer, %{
-        from_balance: balance_4, to_balance: balance_2, status: "confirmed"
-      }),
-      transfer_8: insert(:transfer, %{
-        from_balance: balance_4, to_balance: balance_3, status: "pending"
-      }),
+      transfer_1: transfer_1,
+      transfer_2: transfer_2,
+      transfer_3: transfer_3,
+      transfer_4: transfer_4,
+      transfer_5: transfer_5,
+      transfer_6: transfer_6,
+      transfer_7: transfer_7,
+      transfer_8: transfer_8
     }
   end
 

@@ -98,6 +98,39 @@ defmodule EWallet.TransactionRequestTest do
       assert res == {:error, :balance_not_found}
     end
 
+    test "with valid account_id, valid user and a valid address", meta do
+      {res, request} = TransactionRequestGate.create(%{
+        "type" => "receive",
+        "token_id" => meta.minted_token.friendly_id,
+        "correlation_id" => "123",
+        "amount" => 1_000,
+        "account_id" => meta.account.id,
+        "provider_user_id" => meta.user.provider_user_id,
+        "address" => meta.user_balance.address
+      })
+
+      assert res == :ok
+      assert %TransactionRequest{} = request
+      assert request.status == "valid"
+      assert request.account_id == meta.account.id
+      assert request.user_id == meta.user.id
+      assert request.balance_address == meta.user_balance.address
+    end
+
+    test "with valid account_id, valid user and an invalid address", meta do
+      res = TransactionRequestGate.create(%{
+        "type" => "receive",
+        "token_id" => meta.minted_token.friendly_id,
+        "correlation_id" => "123",
+        "amount" => 1_000,
+        "account_id" => meta.account.id,
+        "provider_user_id" => meta.user.provider_user_id,
+        "address" => meta.account_balance.address
+      })
+
+      assert res == {:error, :user_balance_mismatch}
+    end
+
     test "with valid account_id and an address that does not belong to the account", meta do
       res = TransactionRequestGate.create(%{
        "type" => "receive",
@@ -565,8 +598,10 @@ defmodule EWallet.TransactionRequestTest do
 
     test "expires the request if max_consumptions has been reached" do
       request = insert(:transaction_request, max_consumptions: 2)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id)
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+                                                      status: "confirmed")
+      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+                                                      status: "confirmed")
 
       {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
       assert res == :ok
