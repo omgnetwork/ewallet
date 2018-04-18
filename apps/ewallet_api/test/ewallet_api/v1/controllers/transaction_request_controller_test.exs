@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionRequestControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, User, Account}
-  alias EWallet.Web.{Date, V1.MintedTokenSerializer}
+  alias EWallet.Web.{Date, V1.MintedTokenSerializer, V1.UserSerializer}
 
   describe "/transaction_request.create" do
     test "creates a transaction request with all the params" do
@@ -34,7 +34,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
+          "user" => user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => nil,
+          "account" => nil,
           "allow_amount_override" => true,
           "require_confirmation" => false,
           "consumption_lifetime" => nil,
@@ -81,7 +83,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
+          "user" => user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => nil,
+          "account" => nil,
           "allow_amount_override" => true,
           "require_confirmation" => false,
           "consumption_lifetime" => nil,
@@ -227,7 +231,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
+          "user" => user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => nil,
+          "account" => nil,
           "allow_amount_override" => true,
           "require_confirmation" => false,
           "consumption_lifetime" => nil,
@@ -284,7 +290,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "type" => "send",
           "status" => "valid",
           "user_id" => user.id,
+          "user" => user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => nil,
+          "account" => nil,
           "created_at" => Date.to_iso8601(request.inserted_at),
           "updated_at" => Date.to_iso8601(request.updated_at)
         }

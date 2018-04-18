@@ -1,7 +1,12 @@
 defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias EWalletDB.TransactionRequest
-  alias EWallet.Web.V1.{TransactionRequestSerializer, MintedTokenSerializer}
+  alias EWallet.Web.V1.{
+    TransactionRequestSerializer,
+    MintedTokenSerializer,
+    UserSerializer,
+    AccountSerializer
+  }
   alias EWallet.Web.Date
 
   describe "serialize/1 for single transaction request" do
@@ -20,7 +25,9 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
         amount: transaction_request.amount,
         user_id: transaction_request.user_id,
+        user: UserSerializer.serialize(transaction_request.user),
         account_id: transaction_request.account_id,
+        account: AccountSerializer.serialize(transaction_request.account),
         address: transaction_request.balance_address,
         correlation_id: transaction_request.correlation_id,
         status: "valid",
