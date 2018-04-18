@@ -39,7 +39,7 @@ defmodule EWalletDB.TransactionRequest do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
 
-    has_many :consumptions, TransactionConsumption, foreign_key: :request_uuid,
+    has_many :consumptions, TransactionConsumption, foreign_key: :transaction_request_uuid,
                                                     references: :uuid
 
     belongs_to :user, User, foreign_key: :user_uuid,

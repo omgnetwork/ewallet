@@ -11,7 +11,6 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
   }
   alias EWallet.Web.Date
   alias EWalletDB.Helpers.{Assoc, Preloader}
-  alias EWalletDB.Repo
   alias EWalletDB.TransactionRequest
 
   def serialize(%TransactionRequest{} = transaction_request) do

@@ -69,7 +69,6 @@ defmodule EWalletDB.TransactionConsumption do
       :status, :amount, :idempotency_token, :transaction_request_uuid,
       :balance_address, :minted_token_uuid
     ])
-    |> validate_required_exclusive([:account_uuid, :user_uuid])
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)

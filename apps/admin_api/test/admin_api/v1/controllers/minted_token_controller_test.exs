@@ -189,7 +189,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       assert MintedToken.get(response["data"]["id"]) != nil
       assert mint != nil
       assert mint.amount == 1_000_000 * minted_token.subunit_to_unit
-      assert mint.minted_token_id == minted_token.id
+      assert mint.minted_token_uuid == minted_token.uuid
     end
 
     test "fails to mint a non existing token" do
