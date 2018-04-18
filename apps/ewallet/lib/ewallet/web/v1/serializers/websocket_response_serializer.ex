@@ -56,53 +56,32 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Message.from_map!()
   end
 
-  defp build_message(%Broadcast{} = msg) do
-    %{
-      topic: msg.topic,
-      event: msg.event,
-      ref: nil,
-      status: msg.payload[:status],
-      data: msg.payload[:data],
-      error: msg.payload[:error],
-      reason: msg.payload[:reason]
-    }
-  end
-
-  defp build_message(%Message{} = msg) do
-    %{
-      topic: msg.topic,
-      event: msg.event,
-      ref: msg.ref,
-      status: msg.payload[:status],
-      data: msg.payload[:data],
-      error: msg.payload[:error],
-      reason: msg.payload[:reason]
-    }
-  end
-
   defp build_message(%Reply{} = reply) do
     case is_atom(reply.payload) do
       true ->
-        %{
-         topic: reply.topic,
-         event: "phx_reply",
-         ref: reply.ref,
-         status: reply.status,
-         error: reply.payload,
-         data: nil,
-         reason: nil
-       }
+        reply
+        |> Map.put(:payload, %{
+          error: reply.payload,
+          data: nil,
+          reason: nil
+        })
+        |> format()
       false ->
-         %{
-          topic: reply.topic,
-          event: "phx_reply",
-          ref: reply.ref,
-          status: reply.status,
-          data: reply.payload[:data],
-          error: reply.payload[:error],
-          reason: reply.payload[:reason]
-        }
+        format(reply)
     end
+  end
+  defp build_message(msg), do: format(msg)
+
+  defp format(data) do
+    %{
+       topic: data[:topic],
+       event: data[:event] || "phx_reply",
+       ref: data[:ref] || nil,
+       status: data[:status] || data[:payload][:status],
+       data: data[:payload][:data],
+       error: data[:payload][:error],
+       reason: data[:payload][:reason]
+     }
   end
 
   defp encode_fields(msg) do
@@ -124,4 +103,3 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     ErrorHandler.build_error(code, nil)
   end
 end
-
