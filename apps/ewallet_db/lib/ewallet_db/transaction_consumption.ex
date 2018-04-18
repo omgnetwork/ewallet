@@ -174,8 +174,8 @@ defmodule EWalletDB.TransactionConsumption do
                NaiveDateTime.compare(consumption.expiration_date, NaiveDateTime.utc_now()) == :lt
 
     case expired? do
-      true  -> expire(consumption)
-      _     -> {:ok, consumption}
+      true -> expire(consumption)
+      _    -> {:ok, consumption}
     end
   end
 
