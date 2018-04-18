@@ -6,7 +6,6 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
   alias EWallet.Web.V1.{
     AccountSerializer,
     MintedTokenSerializer,
-    TransactionRequestSerializer,
     UserSerializer
   }
   alias EWallet.Web.Date

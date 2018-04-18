@@ -3,8 +3,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   This module represents the transaction_consumption_confirmation event and how to build it.
   """
   alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
-  alias EWalletDB.{Repo, TransactionConsumption}
   alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.TransactionConsumption
 
   @spec broadcast(Atom.t, TransactionConsumption.t) :: :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do

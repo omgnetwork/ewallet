@@ -35,7 +35,7 @@ defmodule EWalletDB.Repo.Migrations.AddUlidToSchemas do
   end
 
   def down do
-    Enum.each(@tables, fn({table_name, prefix}) ->
+    Enum.each(@tables, fn({table_name, _prefix}) ->
       alter table(table_name) do
         remove :id
       end

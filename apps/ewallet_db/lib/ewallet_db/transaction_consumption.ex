@@ -224,16 +224,7 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec confirm(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def confirm(consumption, transfer) do
-    {:ok, consumption} =
-      consumption
-      |> update_changeset(%{
-        status: @confirmed,
-        transfer_uuid: transfer.uuid,
-        confirmed_at: NaiveDateTime.utc_now()
-      })
-      |> Repo.update()
-
-    consumption
+    state_transition(consumption, @confirmed, transfer.uuid)
   end
 
   @doc """
@@ -241,12 +232,7 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec fail(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def fail(consumption, transfer) do
-    {:ok, consumption} =
-      consumption
-      |> update_changeset(%{status: @failed, transfer_uuid: transfer.uuid})
-      |> Repo.update()
-
-    consumption
+    state_transition(consumption, @failed, transfer.uuid)
   end
 
   @spec expired?(%TransactionConsumption{}) :: true | false
@@ -263,13 +249,13 @@ defmodule EWalletDB.TransactionConsumption do
     Enum.member?([@rejected, @confirmed, @failed, @expired], consumption.status)
   end
 
-  defp state_transition(consumption, status, transfer_id \\ nil) do
+  defp state_transition(consumption, status, transfer_uuid \\ nil) do
     fun              = String.to_existing_atom("#{status}_changeset")
     timestamp_column = String.to_existing_atom("#{status}_at")
 
     data = %{
       status: status,
-      transfer_id: transfer_id
+      transfer_uuid: transfer_uuid
     } |> Map.put(timestamp_column, NaiveDateTime.utc_now())
 
     {:ok, consumption} =

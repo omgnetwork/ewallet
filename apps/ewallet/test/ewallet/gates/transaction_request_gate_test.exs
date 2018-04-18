@@ -112,8 +112,8 @@ defmodule EWallet.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = request
       assert request.status == "valid"
-      assert request.account_id == meta.account.id
-      assert request.user_id == meta.user.id
+      assert request.account_uuid == meta.account.uuid
+      assert request.user_uuid == meta.user.uuid
       assert request.balance_address == meta.user_balance.address
     end
 

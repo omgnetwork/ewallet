@@ -8,8 +8,8 @@ defmodule EWalletDB.TransactionRequest do
   import EWalletDB.Helpers.Preloader
   alias Ecto.{UUID, Changeset}
 
-  alias EWalletDB.{TransactionRequest, TransactionConsumption,
-                   Repo, MintedToken, User, Balance, Helpers}
+  alias EWalletDB.{Account, Balance, MintedToken, TransactionRequest,
+                   TransactionConsumption, Repo, User}
 
   @valid "valid"
   @expired "expired"
@@ -249,14 +249,14 @@ defmodule EWalletDB.TransactionRequest do
     end
   end
 
-  @spec expire_if_max_consumption(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} |
-                                                            {:error, Map.t}
+  @spec max_consumptions_reached?(%TransactionRequest{}, list(%TransactionConsumption{})) ::
+    true | false
   defp max_consumptions_reached?(request, consumptions) do
     limited_consumptions?(request) &&
     length(consumptions) >= request.max_consumptions
   end
 
-  @spec expire_if_max_consumption(%TransactionRequest{}) :: true | false
+  @spec limited_consumptions?(%TransactionRequest{}) :: true | false
   defp limited_consumptions?(request) do
     !is_nil(request.max_consumptions) && request.max_consumptions > 0
   end

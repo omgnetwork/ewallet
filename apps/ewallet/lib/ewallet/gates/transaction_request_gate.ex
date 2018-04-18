@@ -20,7 +20,7 @@ defmodule EWallet.TransactionRequestGate do
          %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
                            :provider_user_id_not_found,
          {:ok, balance} <- BalanceFetcher.get(user, address),
-         balance <- Map.put(balance, :account_id, account.id),
+         balance <- Map.put(balance, :account_uuid, account.uuid),
          {:ok, transaction_request} <- create(balance, attrs)
     do
       get(transaction_request.id)
@@ -161,11 +161,11 @@ defmodule EWallet.TransactionRequestGate do
   end
 
   def is_owner?(request, %Account{} = account) do
-    request.account_id == account.id
+    request.account_uuid == account.uuid
   end
 
   def is_owner?(request, %User{} = user) do
-    request.user_id == user.id
+    request.user_uuid == user.uuid
   end
 
   @spec expiration_from_lifetime(TransactionRequest.t) :: NaiveDateTime.t | nil
