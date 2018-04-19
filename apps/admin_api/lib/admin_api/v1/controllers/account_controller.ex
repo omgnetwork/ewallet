@@ -15,9 +15,9 @@ defmodule AdminAPI.V1.AccountController do
 
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
-  # Because requests cannot customize which fields to search (yet!),
-  # `@mapped_fields` don't affect them.
+  # If the request provides different names, map it via `@mapped_fields` first.
   @search_fields [:id, :name, :description]
+
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
@@ -34,7 +34,7 @@ defmodule AdminAPI.V1.AccountController do
     with :ok <- permit(:all, conn.assigns.user.id, nil) do
       accounts =
         Account
-        |> SearchParser.to_query(attrs, @search_fields)
+        |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
         |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
         |> Paginator.paginate_attrs(attrs)
 
