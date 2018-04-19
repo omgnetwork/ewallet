@@ -11,10 +11,18 @@ defmodule AdminAPI.V1.ClientAuthPlug do
 
   def init(opts), do: opts
 
-  def call(conn, _opts) do
-    conn
-    |> parse_header()
-    |> authenticate()
+  def call(conn, opts) do
+    auth = Keyword.get(opts, :enable_client_auth,
+                       Application.get_env(:admin_api, :enable_client_auth))
+
+    case auth do
+      "true" ->
+        conn
+        |> parse_header()
+        |> authenticate()
+      _ ->
+        assign(conn, :authenticated, :client)
+    end
   end
 
   defp parse_header(conn) do

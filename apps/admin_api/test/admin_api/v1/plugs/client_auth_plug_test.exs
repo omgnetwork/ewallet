@@ -4,6 +4,12 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
   alias Ecto.UUID
 
   describe "ClientAuthPlug.call/2" do
+    test "assigns authenticated conn info when auth is not enabled" do
+      conn = test_with_no_auth()
+      refute conn.halted
+      assert conn.assigns.authenticated == :client
+    end
+
     test "assigns authenticated conn info if the api_key_id and api_key match the db record" do
       conn = test_with("OMGAdmin", @api_key_id, @api_key)
       assert_success(conn)
@@ -49,6 +55,11 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
     build_conn()
     |> put_auth_header(type, data)
     |> ClientAuthPlug.call([])
+  end
+
+  defp test_with_no_auth do
+    build_conn()
+    |> ClientAuthPlug.call([enable_client_auth: false])
   end
 
   defp assert_success(conn) do

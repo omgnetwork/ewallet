@@ -16,31 +16,50 @@ defmodule AdminAPI.V1.UserAuthPlug do
   alias EWalletDB.{AuthToken, User}
   alias AdminAPI.V1.ClientAuthPlug
 
-  def init(opts), do: opts
+  def init(opts) do
+    Keyword.put_new(opts, :enable_client_auth,
+                          Application.get_env(:admin_api, :enable_client_auth))
+  end
 
-  def call(conn, _opts) do
+  def call(conn, opts) do
+    case Keyword.get(opts, :enable_client_auth) do
+      "true" ->
+        conn
+        |> parse_header()
+        |> ClientAuthPlug.authenticate()
+        |> authenticate_token()
+      _ ->
+        conn
+        |> parse_header()
+        |> authenticate_token()
+    end
+  end
+
+  defp get_header(conn) do
     conn
-    |> parse_header()
-    |> ClientAuthPlug.authenticate()
-    |> authenticate_token()
+    |> get_req_header("authorization")
+    |> List.first()
   end
 
   defp parse_header(conn) do
-    header =
-      conn
-      |> get_req_header("authorization")
-      |> List.first()
-
-    with header when not is_nil(header) <- header,
+    with header when not is_nil(header) <- get_header(conn),
          [scheme, content] <- String.split(header, " ", parts: 2),
          true <- scheme in ["OMGAdmin"],
          {:ok, decoded} <- Base.decode64(content),
-         [key_id, key, user_id, token] <- String.split(decoded, ":", parts: 4) do
-      conn
-      |> put_private(:auth_api_key_id, key_id) # Used by ClientAuthPlug.authenticate/1
-      |> put_private(:auth_api_key, key) # Used by ClientAuthPlug.authenticate/1
-      |> put_private(:auth_user_id, user_id)
-      |> put_private(:auth_auth_token, token)
+         keys <- String.split(decoded, ":", parts: 4)
+    do
+      case keys do
+        [key_id, key, user_id, token] ->
+          conn
+          |> put_private(:auth_api_key_id, key_id)
+          |> put_private(:auth_api_key, key)
+          |> put_private(:auth_user_id, user_id)
+          |> put_private(:auth_auth_token, token)
+        [user_id, token] ->
+          conn
+          |> put_private(:auth_user_id, user_id)
+          |> put_private(:auth_auth_token, token)
+      end
     else
       _ ->
         conn
