@@ -15,6 +15,7 @@ config :cloak, Salty.SecretBox.Cloak,
        keys: [%{tag: <<1>>, key: key, default: true}]
 
 config :ewallet_db, EWalletDB.Scheduler,
+  global: true,
   jobs: [
     {"* * * * *", {EWalletDB.TransactionRequest, :expire_all, []}},
     {"* * * * *", {EWalletDB.TransactionConsumption, :expire_all, []}}
