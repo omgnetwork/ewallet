@@ -16,13 +16,13 @@ defmodule AdminAPI.V1.UserAuthPlug do
   alias EWalletDB.{AuthToken, User}
   alias AdminAPI.V1.ClientAuthPlug
 
-  def init(opts), do: opts
+  def init(opts) do
+    Keyword.put_new(opts, :enable_client_auth,
+                          Application.get_env(:admin_api, :enable_client_auth))
+  end
 
   def call(conn, opts) do
-    auth = Keyword.get(opts, :enable_client_auth,
-                       Application.get_env(:admin_api, :enable_client_auth))
-
-    case auth do
+    case Keyword.get(opts, :enable_client_auth) do
       "true" ->
         conn
         |> parse_header()
