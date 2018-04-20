@@ -72,12 +72,12 @@ defmodule EWalletDB.MintedToken do
     end
   end
 
-  defp build_id(symbol, uuid, opts) do
+  defp build_id(symbol, ulid, opts) do
     case opts[:prefix] do
       nil ->
-        "#{symbol}:#{uuid}"
+        "#{symbol}_#{ulid}"
       prefix ->
-        "#{prefix}#{symbol}_#{uuid}"
+        "#{prefix}#{symbol}_#{ulid}"
     end
   end
 
