@@ -23,6 +23,7 @@ defmodule EWalletDB.Factory do
   }
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
+  alias ExULID.ULID
 
   @doc """
   Get factory name (as atom) from schema.
@@ -49,9 +50,11 @@ defmodule EWalletDB.Factory do
   end
 
   def minted_token_factory do
+    symbol = sequence("jon")
+
     %MintedToken{
-      friendly_id: sequence("jon") <> ":" <> UUID.generate(),
-      symbol: sequence("jon"),
+      id: "tok_" <> symbol <> "_" <> ULID.generate(),
+      symbol: symbol,
       iso_code: sequence("JON"),
       name: sequence("John Currency"),
       description: sequence("Official currency of Johndoeland"),

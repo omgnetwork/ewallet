@@ -8,7 +8,7 @@ defmodule LocalLedgerDB.Factory do
 
   def minted_token_factory do
     %MintedToken{
-      friendly_id: "OMG:123",
+      id: "tok_OMG_123",
       metadata: %{
         external_id: %{
           app: "EWallet",
@@ -50,7 +50,7 @@ defmodule LocalLedgerDB.Factory do
     %Transaction{
       amount: 150,
       type: Transaction.credit_type,
-      entry_id: insert(:entry).id
+      entry_uuid: insert(:entry).uuid
     }
   end
 
@@ -58,7 +58,7 @@ defmodule LocalLedgerDB.Factory do
     %Transaction{
       amount: 150,
       type: Transaction.debit_type,
-      entry_id: insert(:entry).id
+      entry_uuid: insert(:entry).uuid
     }
   end
 
@@ -66,9 +66,9 @@ defmodule LocalLedgerDB.Factory do
     %Transaction{
       amount: 10_000,
       type: Transaction.credit_type,
-      minted_token_friendly_id: insert(:minted_token).friendly_id,
+      minted_token_id: insert(:minted_token).id,
       balance_address: insert(:balance).address,
-      entry_id: insert(:entry).id
+      entry_uuid: insert(:entry).uuid
     }
   end
 end
