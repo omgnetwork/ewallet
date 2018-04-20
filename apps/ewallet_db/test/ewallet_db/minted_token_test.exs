@@ -9,7 +9,6 @@ defmodule EWalletDB.MintedTokenTest do
 
   describe "insert/1" do
     test_insert_generate_uuid MintedToken, :uuid
-    test_insert_generate_external_id MintedToken, :id, "tok_"
     test_insert_generate_timestamps MintedToken
     test_insert_prevent_blank MintedToken, :symbol
     test_insert_prevent_blank MintedToken, :name
@@ -19,20 +18,12 @@ defmodule EWalletDB.MintedTokenTest do
     test_insert_prevent_duplicate MintedToken, :name
     test_default_metadata_fields MintedToken, "minted_token"
 
-    test "generates a friendly_id" do
+    test "generates an id" do
       {:ok, minted_token} =
-        :minted_token |> params_for(friendly_id: nil, symbol: "OMG") |> MintedToken.insert
+        :minted_token |> params_for(id: nil, symbol: "OMG") |> MintedToken.insert
 
-      assert "OMG:" <> uuid = minted_token.friendly_id
-      assert minted_token.uuid == uuid
-      assert String.match?(uuid, ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
-    end
-
-    test "does not regenerate a friendly_id if already there" do
-      {:ok, minted_token} =
-        :minted_token |> params_for(friendly_id: "OMG:123") |> MintedToken.insert
-
-      assert minted_token.friendly_id == "OMG:123"
+      assert "tok_OMG_" <> ulid = minted_token.id
+      assert String.length(ulid) == 26 # A ULID has 26 characters
     end
 
     test "allow subunit to be set between 0 and 1.0e18" do
@@ -88,10 +79,10 @@ defmodule EWalletDB.MintedTokenTest do
   describe "get/1" do
     test "returns an existing minted token using a symbol" do
       {:ok, inserted} =
-        :minted_token |> params_for(friendly_id: nil, symbol: "sym") |> MintedToken.insert
+        :minted_token |> params_for(id: nil, symbol: "sym") |> MintedToken.insert
 
-      token = MintedToken.get(inserted.friendly_id)
-      assert "sym:" <> _ = token.friendly_id
+      token = MintedToken.get(inserted.id)
+      assert "tok_sym_" <> _ = token.id
       assert token.symbol == "sym"
     end
 
