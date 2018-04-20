@@ -1,7 +1,16 @@
 defmodule Mix.Tasks.Omg.Deps do
+  @moduledoc """
+  Retrieve dependencies for back-end and front-end apps in one go.
+
+  ## Examples
+
+  Simply run the following command:
+
+      mix omg.deps
+  """
   use Mix.Task
 
-  @shortdoc "Retrieve dependencies for both back-end and front-end apps"
+  @shortdoc "Retrieve dependencies for back-end and front-end apps in one go"
 
   def run(args) do
     Mix.shell().info("Fetching backend depedencies...")
