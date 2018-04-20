@@ -14,7 +14,7 @@ defmodule EWalletDB.MintedToken do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "minted_token" do
-    field :id, :string # tok_EUR_01cbebcdjprhpbzp1pt7h0nzvt
+    field :id, :string # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
 
     field :symbol, :string # "eur"
     field :iso_code, :string # "EUR"
