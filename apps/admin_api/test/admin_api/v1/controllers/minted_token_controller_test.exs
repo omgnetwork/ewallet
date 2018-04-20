@@ -46,11 +46,11 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
     test "returns a minted token by the given ID" do
       minted_tokens = insert_list(3, :minted_token)
       target        = Enum.at(minted_tokens, 1) # Pick the 2nd inserted minted token
-      response      = user_request("/minted_token.get", %{"id" => target.friendly_id})
+      response      = user_request("/minted_token.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "minted_token"
-      assert response["data"]["id"] == target.friendly_id
+      assert response["data"]["id"] == target.id
     end
 
     test "returns 'minted_token:id_not_found' if the given ID was not found" do
@@ -179,7 +179,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
     test "mints an existing minted token" do
       minted_token = insert(:minted_token)
       response = user_request("/minted_token.mint", %{
-        id: minted_token.friendly_id,
+        id: minted_token.id,
         amount: 1_000_000 * minted_token.subunit_to_unit
       })
       mint = Mint |> Repo.all() |> Enum.at(0)
@@ -207,7 +207,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       minted_token = insert(:minted_token)
 
       response = user_request("/minted_token.mint", %{
-        id: minted_token.friendly_id,
+        id: minted_token.id,
         amount: "abc"
       })
 
@@ -221,7 +221,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       minted_token = insert(:minted_token)
 
       response = user_request("/minted_token.mint", %{
-        id: minted_token.friendly_id,
+        id: minted_token.id,
         amount: 0
       })
 
@@ -236,7 +236,7 @@ defmodule AdminAPI.V1.MintedTokenControllerTest do
       minted_token = insert(:minted_token)
 
       response = user_request("/minted_token.mint", %{
-        id: minted_token.friendly_id,
+        id: minted_token.id,
         amount: -1
       })
 

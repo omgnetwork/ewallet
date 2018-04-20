@@ -14,7 +14,6 @@ defmodule AdminAPI.V1.MintedTokenController do
   # any operations are done on the field names. For example:
   # `"request_field_name" => "db_column_name"`
   @mapped_fields %{
-    "id" => "friendly_id",
     "created_at" => "inserted_at"
   }
 
@@ -22,12 +21,12 @@ defmodule AdminAPI.V1.MintedTokenController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [:friendly_id, :symbol, :name]
+  @search_fields [:id, :symbol, :name]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:friendly_id, :symbol, :name, :subunit_to_unit, :inserted_at, :updated_at]
+  @sort_fields [:id, :symbol, :name, :subunit_to_unit, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of minted tokens.
@@ -41,13 +40,10 @@ defmodule AdminAPI.V1.MintedTokenController do
   end
 
   @doc """
-  Retrieves a specific minted token by its friendly_id.
-
-  Note that the parameter key is "id" because from the caller's point of view,
-  their `id` is our `friendly_id`, while our `id` is only used internally.
+  Retrieves a specific minted token by its id.
   """
-  def get(conn, %{"id" => friendly_id}) do
-    friendly_id
+  def get(conn, %{"id" => id}) do
+    id
     |> MintedToken.get()
     |> respond_single(conn)
   end
@@ -77,11 +73,11 @@ defmodule AdminAPI.V1.MintedTokenController do
   Mint a minted token.
   """
   def mint(conn, %{
-    "id" => friendly_id,
+    "id" => id,
     "amount" => _
   } = attrs)
   do
-    with %MintedToken{} = minted_token <- MintedToken.get(friendly_id) do
+    with %MintedToken{} = minted_token <- MintedToken.get(id) do
       mint_token({:ok, minted_token}, attrs)
     else
       error -> error
@@ -95,7 +91,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   do
     %{
       "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
-      "token_id" => minted_token.friendly_id,
+      "token_id" => minted_token.id,
       "amount" => amount,
       "description" => attrs["description"]
     }

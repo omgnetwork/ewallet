@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
             amount: transaction.amount,
             minted_token: %{
               object: "minted_token",
-              id: minted_token.friendly_id,
+              id: minted_token.id,
               symbol: minted_token.symbol,
               name: minted_token.name,
               metadata: %{},
@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
             amount: transaction.amount,
             minted_token: %{
               object: "minted_token",
-              id: minted_token.friendly_id,
+              id: minted_token.id,
               symbol: minted_token.symbol,
               name: minted_token.name,
               metadata: %{},
@@ -94,7 +94,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 amount: transaction1.amount,
                 minted_token: %{
                   object: "minted_token",
-                  id: minted_token1.friendly_id,
+                  id: minted_token1.id,
                   symbol: minted_token1.symbol,
                   name: minted_token1.name,
                   metadata: %{},
@@ -110,7 +110,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 amount: transaction1.amount,
                 minted_token: %{
                   object: "minted_token",
-                  id: minted_token1.friendly_id,
+                  id: minted_token1.id,
                   symbol: minted_token1.symbol,
                   name: minted_token1.name,
                   metadata: %{},
@@ -140,7 +140,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 amount: transaction2.amount,
                 minted_token: %{
                   object: "minted_token",
-                  id: minted_token2.friendly_id,
+                  id: minted_token2.id,
                   symbol: minted_token2.symbol,
                   name: minted_token2.name,
                   metadata: %{},
@@ -156,7 +156,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 amount: transaction2.amount,
                 minted_token: %{
                   object: "minted_token",
-                  id: minted_token2.friendly_id,
+                  id: minted_token2.id,
                   symbol: minted_token2.symbol,
                   name: minted_token2.name,
                   metadata: %{},
