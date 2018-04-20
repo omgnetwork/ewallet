@@ -45,7 +45,7 @@ defmodule EWalletAPI.V1.TransferController do
 
   defp respond_with_balances({:ok, _transfer, balances, minted_token}, conn) do
     addresses = Enum.map(balances, fn balance ->
-      case ComputedBalanceFetcher.get(minted_token.friendly_id, balance.address) do
+      case ComputedBalanceFetcher.get(minted_token.id, balance.address) do
         {:ok, address} -> address
         error -> error
       end

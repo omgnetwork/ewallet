@@ -11,7 +11,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = provider_request("/transaction_request.create", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: "123",
         amount: 1_000,
         address: balance.address,
@@ -29,7 +29,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => "123",
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
-          "minted_token_id" => minted_token.friendly_id,
+          "minted_token_id" => minted_token.id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
@@ -60,7 +60,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = provider_request("/transaction_request.create", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         address: balance.address,
@@ -78,7 +78,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => nil,
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
-          "minted_token_id" => minted_token.friendly_id,
+          "minted_token_id" => minted_token.id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
@@ -109,7 +109,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = provider_request("/transaction_request.create", %{
         type: "fake",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         address: balance.address,
@@ -132,7 +132,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = provider_request("/transaction_request.create", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         address: "fake",
@@ -157,7 +157,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = provider_request("/transaction_request.create", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         account_id: account.id,
@@ -208,7 +208,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = client_request("/me.create_transaction_request", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: "123",
         amount: 1_000,
         address: balance.address,
@@ -226,7 +226,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => "123",
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
-          "minted_token_id" => minted_token.friendly_id,
+          "minted_token_id" => minted_token.id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "type" => "send",
           "status" => "valid",
@@ -257,7 +257,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = client_request("/me.create_transaction_request", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         address: nil,
@@ -275,7 +275,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           "correlation_id" => nil,
           "id" => request.id,
           "socket_topic" => "transaction_request:#{request.id}",
-          "minted_token_id" => minted_token.friendly_id,
+          "minted_token_id" => minted_token.id,
           "minted_token" => minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "allow_amount_override" => true,
           "require_confirmation" => false,
@@ -304,7 +304,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = client_request("/me.create_transaction_request", %{
         type: "fake",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         address: nil,
@@ -327,7 +327,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = client_request("/me.create_transaction_request", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         address: "fake",
@@ -351,7 +351,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response = client_request("/me.create_transaction_request", %{
         type: "send",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         correlation_id: nil,
         amount: nil,
         address: balance.address,

@@ -70,7 +70,7 @@
           "idempotency_token" => "123",
           "object" => "transaction_consumption",
           "status" => "confirmed",
-          "minted_token_id" => meta.minted_token.friendly_id,
+          "minted_token_id" => meta.minted_token.id,
           "minted_token" =>
             meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "transaction_request_id" => transaction_request.id,
@@ -548,7 +548,7 @@
           "idempotency_token" => "123",
           "object" => "transaction_consumption",
           "status" => "confirmed",
-          "minted_token_id" => meta.minted_token.friendly_id,
+          "minted_token_id" => meta.minted_token.id,
           "minted_token" =>
             meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
           "transaction_request_id" => transaction_request.id,

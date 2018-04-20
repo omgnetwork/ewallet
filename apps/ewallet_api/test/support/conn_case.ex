@@ -129,7 +129,7 @@ defmodule EWalletAPI.ConnCase do
   def mint!(minted_token, amount \\ 1_000_000) do
     {:ok, mint, _ledger_response} = MintGate.insert(%{
       "idempotency_token" => UUID.generate(),
-      "token_id" => minted_token.friendly_id,
+      "token_id" => minted_token.id,
       "amount" => amount * minted_token.subunit_to_unit,
       "description" => "Minting #{amount} #{minted_token.symbol}",
       "metadata" => %{}
@@ -143,7 +143,7 @@ defmodule EWalletAPI.ConnCase do
     {:ok, transfer, _balances, _minted_token} = TransactionGate.process_with_addresses(%{
       "from_address" => from,
       "to_address" => to,
-      "token_id" => minted_token.friendly_id,
+      "token_id" => minted_token.id,
       "amount" => amount,
       "metadata" => %{},
       "idempotency_token" => UUID.generate()
