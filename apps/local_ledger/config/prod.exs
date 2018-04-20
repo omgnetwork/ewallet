@@ -7,5 +7,12 @@ case System.get_env("BALANCE_CACHING_FREQUENCY") do
   nil -> :ok
   frequency ->
     config :local_ledger, LocalLedger.Scheduler,
-      jobs: [{frequency, {LocalLedger.CachedBalance, :cache_all, []}}]
+      global: true,
+      jobs: [
+        cache_all_balances: [
+          schedule: frequency,
+          task: {LocalLedger.CachedBalance, :cache_all, []},
+          run_strategy: {Quantum.RunStrategy.Random, :cluster}
+        ]
+      ]
 end
