@@ -14,12 +14,12 @@ defmodule LocalLedger.EntryTest do
     test "returns all entries" do
       {:ok, inserted_entry} = :entry |> build |> Repo.insert
       {:ok, transaction} = :transaction
-                           |> build(entry_id: inserted_entry.id)
+                           |> build(entry_uuid: inserted_entry.uuid)
                            |> Repo.insert
 
       {:ok, entries} = Entry.all
       entry = Enum.at(entries, 0)
-      assert entry.id == inserted_entry.id
+      assert entry.uuid == inserted_entry.uuid
       assert entry.transactions == [transaction]
     end
   end
@@ -28,11 +28,11 @@ defmodule LocalLedger.EntryTest do
     test "returns the specified entry" do
       {:ok, inserted_entry} = :entry |> build |> Repo.insert
       {:ok, transaction} = :transaction
-                           |> build(entry_id: inserted_entry.id)
+                           |> build(entry_uuid: inserted_entry.uuid)
                            |> Repo.insert
 
-      {:ok, entry} = Entry.get(inserted_entry.id)
-      assert entry.id == inserted_entry.id
+      {:ok, entry} = Entry.get(inserted_entry.uuid)
+      assert entry.uuid == inserted_entry.uuid
       assert entry.transactions == [transaction]
     end
   end
@@ -67,7 +67,7 @@ defmodule LocalLedger.EntryTest do
         "metadata" => %{},
         "debits" => debits(),
         "credits" => credits(),
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
         "correlation_id" => UUID.generate
       }, %{genesis: true})
 
@@ -75,7 +75,7 @@ defmodule LocalLedger.EntryTest do
     end
 
     def get_current_balance(address) do
-      Transaction.calculate_current_amount(address, "OMG:209d3f5b-eab4-4906-9697-c482009fc865")
+      Transaction.calculate_current_amount(address, "tok_OMG_01cbepz0mhzb042vwgaqv17cjy")
     end
 
     test "inserts an entry and four transactions when genesis" do
@@ -105,7 +105,7 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "amount" => 100
         }],
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
         "correlation_id" => UUID.generate
       }, %{genesis: false})
 
@@ -130,7 +130,7 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "amount" => 100
         }],
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
         "correlation_id" => genesis_entry.correlation_id
       }, %{genesis: false})
 
@@ -154,7 +154,7 @@ defmodule LocalLedger.EntryTest do
           "amount" => 200
         }],
         "minted_token" => %{
-          "friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
           "metadata" => %{}
         },
         "correlation_id" => UUID.generate
@@ -183,7 +183,7 @@ defmodule LocalLedger.EntryTest do
           "amount" => 200
         }],
         "minted_token" => %{
-          "friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
           "metadata" => %{}
         },
         "correlation_id" => UUID.generate
@@ -206,7 +206,7 @@ defmodule LocalLedger.EntryTest do
           "amount" => 100
         }],
         "minted_token" => %{
-          "friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
           "metadata" => %{}
         },
         "correlation_id" => UUID.generate
@@ -228,7 +228,7 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "amount" => 0
         }],
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
         "correlation_id" => UUID.generate
         }, %{genesis: false})
     end
@@ -255,7 +255,7 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 50}],
           "credits" => [%{"address" => "sirn", "metadata" => %{}, "amount" => 50}],
-          "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+          "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
           "correlation_id" => UUID.generate
         }, %{genesis: false})
 
@@ -266,7 +266,7 @@ defmodule LocalLedger.EntryTest do
         "metadata" => %{},
         "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 100}],
         "credits" => [%{"address" => "thibault", "metadata" => %{}, "amount" => 100}],
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
         "correlation_id" => UUID.generate
       }, %{genesis: false}, fn ->
         send new_pid, :select_for_update
@@ -304,7 +304,7 @@ defmodule LocalLedger.EntryTest do
             "metadata" => %{},
             "amount" => 100
           }],
-          "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+          "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
           "correlation_id" => UUID.generate
         }, %{genesis: false})
 
@@ -326,7 +326,7 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "amount" => 100
         }],
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
         "correlation_id" => UUID.generate
       }, %{genesis: false})
 
@@ -349,7 +349,7 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "amount" => 1_000_000_000_000_000_000_000_000_000_000
         }],
-        "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+        "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
         "correlation_id" => UUID.generate
       }, %{genesis: true})
 
@@ -376,7 +376,7 @@ defmodule LocalLedger.EntryTest do
             "metadata" => %{},
             "amount" => round(1_000_000_000_000.0e82)
           }],
-          "minted_token" => %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}},
+          "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
           "correlation_id" => UUID.generate
         }, %{genesis: true})
       end

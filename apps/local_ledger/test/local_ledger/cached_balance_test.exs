@@ -8,8 +8,8 @@ defmodule LocalLedger.CachedBalanceTest do
   setup do
     :ok = Sandbox.checkout(Repo)
 
-    minted_token_1 = insert(:minted_token, friendly_id: "OMG:1234")
-    minted_token_2 = insert(:minted_token, friendly_id: "BTC:1234")
+    minted_token_1 = insert(:minted_token, id: "tok_OMG_1234")
+    minted_token_2 = insert(:minted_token, id: "tok_BTC_5678")
     balance        = insert(:balance)
 
     # Total: +120_000 OMG
@@ -52,11 +52,11 @@ defmodule LocalLedger.CachedBalanceTest do
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 2
       assert LocalLedgerDB.CachedBalance.get(balance_1.address).amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
       assert LocalLedgerDB.CachedBalance.get(balance_2.address).amounts == %{
-        "OMG:1234" => 39_924 - 35_028
+        "tok_OMG_1234" => 39_924 - 35_028
       }
     end
 
@@ -70,14 +70,14 @@ defmodule LocalLedger.CachedBalanceTest do
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
       assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
 
       # Then we manually add one to hijack the process - this value should be used to
       # calculate the next cached balance (even if it's incorrect in that case...)
       LocalLedgerDB.CachedBalance.insert(%{
-        amounts:         %{"OMG:1234" => 3_000},
+        amounts:         %{"tok_OMG_1234" => 3_000},
         balance_address: balance.address,
         computed_at:     NaiveDateTime.utc_now()
       })
@@ -90,7 +90,7 @@ defmodule LocalLedger.CachedBalanceTest do
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
       assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
-        "OMG:1234" => 3_000 + 1_000
+        "tok_OMG_1234" => 3_000 + 1_000
       }
     end
 
@@ -104,13 +104,13 @@ defmodule LocalLedger.CachedBalanceTest do
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
       assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
 
       # Then we manually add one to hijack the process - this value should NOT be used.
       LocalLedgerDB.CachedBalance.insert(%{
-        amounts:         %{"OMG:1234" => 3_000},
+        amounts:         %{"tok_OMG_1234" => 3_000},
         balance_address: balance.address,
         computed_at:     NaiveDateTime.utc_now()
       })
@@ -123,8 +123,8 @@ defmodule LocalLedger.CachedBalanceTest do
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
       assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
-        "OMG:1234" => 58_953 + 1_000,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 58_953 + 1_000,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
     end
 
@@ -137,13 +137,13 @@ defmodule LocalLedger.CachedBalanceTest do
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 1
 
       assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
 
       # Then we manually add one to hijack the process - this value should NOT be used.
       LocalLedgerDB.CachedBalance.insert(%{
-        amounts:         %{"OMG:1234" => 3_000},
+        amounts:         %{"tok_OMG_1234" => 3_000},
         balance_address: balance.address,
         computed_at:     NaiveDateTime.utc_now()
       })
@@ -156,8 +156,8 @@ defmodule LocalLedger.CachedBalanceTest do
       CachedBalance.cache_all()
       assert LocalLedgerDB.CachedBalance |> Repo.all() |> length() == 3
       assert LocalLedgerDB.CachedBalance.get(balance.address).amounts == %{
-        "OMG:1234" => 58_953 + 1_000,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 58_953 + 1_000,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
     end
 
@@ -176,15 +176,15 @@ defmodule LocalLedger.CachedBalanceTest do
       {res, amounts} = CachedBalance.all(balance)
       assert res == :ok
       assert amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
 
       cached_balance = LocalLedgerDB.CachedBalance.get(balance.address)
       assert cached_balance != nil
       assert cached_balance.amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
     end
 
@@ -205,13 +205,13 @@ defmodule LocalLedger.CachedBalanceTest do
 
       assert cached_count == 1
       assert cached_balance.amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
 
       assert amounts == %{
-        "OMG:1234" => 58_953 + 1_337 - 789,
-        "BTC:1234" => 160_524 - 74_961 + 1_232 - 234
+        "tok_OMG_1234" => 58_953 + 1_337 - 789,
+        "tok_BTC_5678" => 160_524 - 74_961 + 1_232 - 234
       }
     end
   end
@@ -220,15 +220,15 @@ defmodule LocalLedger.CachedBalanceTest do
     test "calculates the balance and inserts a new cached balance if not existing",
       %{balance: balance}
     do
-      {res, amounts} = CachedBalance.get(balance, "OMG:1234")
+      {res, amounts} = CachedBalance.get(balance, "tok_OMG_1234")
       assert res == :ok
-      assert amounts == %{"OMG:1234" => 120_000 - 61_047}
+      assert amounts == %{"tok_OMG_1234" => 120_000 - 61_047}
 
       cached_balance = LocalLedgerDB.CachedBalance.get(balance.address)
       assert cached_balance != nil
       assert cached_balance.amounts == %{
-        "OMG:1234" => 120_000 - 61_047,
-        "BTC:1234" => 160_524 - 74_961
+        "tok_OMG_1234" => 120_000 - 61_047,
+        "tok_BTC_5678" => 160_524 - 74_961
       }
     end
   end

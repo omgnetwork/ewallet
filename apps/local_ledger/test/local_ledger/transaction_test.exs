@@ -22,7 +22,7 @@ defmodule LocalLedger.TransactionTest do
         "metadata" => %{},
         "amount" => 100
       }]
-      token = %{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865", "metadata" => %{}}
+      token = %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
       incoming_transactions = {debits, credits}
 
       formatted_transactions = Transaction.build_all(incoming_transactions,
@@ -31,12 +31,12 @@ defmodule LocalLedger.TransactionTest do
          %{
            type: LocalLedgerDB.Transaction.debit_type,
            amount: 100,
-           minted_token_friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+           minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
            balance_address: "omisego.test.sender1",
          }, %{
            type: LocalLedgerDB.Transaction.credit_type,
            amount: 100,
-           minted_token_friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+           minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
            balance_address: "omisego.test.receiver1",
          }
        ]
@@ -49,12 +49,12 @@ defmodule LocalLedger.TransactionTest do
         %{
           type: LocalLedgerDB.Transaction.debit_type,
           amount: 100,
-          minted_token_friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
           balance_address: "omisego.test.sender1",
         }, %{
           type: LocalLedgerDB.Transaction.credit_type,
           amount: 100,
-          minted_token_friendly_id: "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+          minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
           balance_address: "omisego.test.receiver1",
         }
       ]
@@ -78,12 +78,12 @@ defmodule LocalLedger.TransactionTest do
           %{
             type: LocalLedgerDB.Transaction.credit_type,
             amount: amount_1,
-            minted_token_friendly_id: token.friendly_id,
+            minted_token_id: token.id,
             balance_address: balance_1.address
           }, %{
             type: LocalLedgerDB.Transaction.credit_type,
             amount: amount_2,
-            minted_token_friendly_id: token.friendly_id,
+            minted_token_id: token.id,
             balance_address: balance_2.address
           }
         ]
@@ -99,17 +99,17 @@ defmodule LocalLedger.TransactionTest do
       transactions = [%{
         type: LocalLedgerDB.Transaction.debit_type,
         amount: 100,
-        minted_token_friendly_id: token.friendly_id,
+        minted_token_id: token.id,
         balance_address: balance_1.address,
       }, %{
         type: LocalLedgerDB.Transaction.debit_type,
         amount: 100,
-        minted_token_friendly_id: token.friendly_id,
+        minted_token_id: token.id,
         balance_address: balance_2.address,
       }, %{
         type: LocalLedgerDB.Transaction.credit_type,
         amount: 200,
-        minted_token_friendly_id: token.friendly_id,
+        minted_token_id: token.id,
         balance_address: balance_3.address,
       }]
 
@@ -124,17 +124,17 @@ defmodule LocalLedger.TransactionTest do
       transactions = [%{
         type: LocalLedgerDB.Transaction.debit_type,
         amount: 100,
-        minted_token_friendly_id: token.friendly_id,
+        minted_token_id: token.id,
         balance_address: balance_1.address,
       }, %{
         type: LocalLedgerDB.Transaction.debit_type,
         amount: 100,
-        minted_token_friendly_id: token.friendly_id,
+        minted_token_id: token.id,
         balance_address: balance_2.address,
       }, %{
         type: LocalLedgerDB.Transaction.credit_type,
         amount: 100,
-        minted_token_friendly_id: token.friendly_id,
+        minted_token_id: token.id,
         balance_address: balance_3.address,
       }]
 

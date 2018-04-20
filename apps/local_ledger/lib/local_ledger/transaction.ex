@@ -36,7 +36,7 @@ defmodule LocalLedger.Transaction do
       %{
         type: type,
         amount: attrs["amount"],
-        minted_token_friendly_id: minted_token.friendly_id,
+        minted_token_id: minted_token.id,
         balance_address: balance.address,
       }
     end
@@ -64,7 +64,7 @@ defmodule LocalLedger.Transaction do
       if transaction[:type] == Transaction.debit_type do
         Transaction.check_balance(%{
           amount: transaction[:amount],
-          friendly_id: transaction[:minted_token_friendly_id],
+          minted_token_id: transaction[:minted_token_id],
           address: transaction[:balance_address]
         })
       end

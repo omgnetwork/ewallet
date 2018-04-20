@@ -21,10 +21,10 @@ defmodule LocalLedger.Balance do
   Calculate and returns the current balance for the specified minted token
   associated with the given address.
   """
-  def get(friendly_id, address) do
+  def get(token_id, address) do
     case Balance.get(address) do
       nil -> {:ok, %{}}
-      balance -> CachedBalance.get(balance, friendly_id)
+      balance -> CachedBalance.get(balance, token_id)
     end
   end
 
