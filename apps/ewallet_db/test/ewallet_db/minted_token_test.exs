@@ -18,7 +18,7 @@ defmodule EWalletDB.MintedTokenTest do
     test_insert_prevent_duplicate MintedToken, :name
     test_default_metadata_fields MintedToken, "minted_token"
 
-    test "generates an id" do
+    test "generates an id with the schema prefix and token symbol" do
       {:ok, minted_token} =
         :minted_token |> params_for(id: nil, symbol: "OMG") |> MintedToken.insert
 
