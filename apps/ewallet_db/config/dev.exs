@@ -14,6 +14,14 @@ config :cloak, Salty.SecretBox.Cloak,
 config :ewallet_db, EWalletDB.Scheduler,
   global: true,
   jobs: [
-    {"* * * * *", {EWalletDB.TransactionRequest, :expire_all, []}},
-    {"* * * * *", {EWalletDB.TransactionConsumption, :expire_all, []}}
+    expire_requests: [
+      schedule: "* * * * *",
+      task: {EWalletDB.TransactionRequest, :expire_all, []},
+      run_strategy: {Quantum.RunStrategy.Random, :cluster}
+    ],
+    expire_consumptions: [
+      schedule: "* * * * *",
+      task: {EWalletDB.TransactionConsumption, :expire_all, []},
+      run_strategy: {Quantum.RunStrategy.Random, :cluster} 
+    ]
   ]
