@@ -6,6 +6,6 @@ config :local_ledger, LocalLedger.Scheduler,
     cache_all_balances: [
       schedule: "0 2 * * *",
       task: {LocalLedger.CachedBalance, :cache_all, []},
-      run_strategy: {Quantum.RunStrategy.Random, :cluster} 
+      run_strategy: {Quantum.RunStrategy.Random, :cluster}
     ]
   ]

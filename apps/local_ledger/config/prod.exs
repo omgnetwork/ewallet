@@ -12,7 +12,7 @@ case System.get_env("BALANCE_CACHING_FREQUENCY") do
         cache_all_balances: [
           schedule: frequency,
           task: {LocalLedger.CachedBalance, :cache_all, []},
-          run_strategy: {Quantum.RunStrategy.Random, :cluster} 
+          run_strategy: {Quantum.RunStrategy.Random, :cluster}
         ]
       ]
 end

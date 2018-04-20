@@ -25,6 +25,6 @@ config :ewallet_db, EWalletDB.Scheduler,
     expire_consumptions: [
       schedule: "* * * * *",
       task: {EWalletDB.TransactionConsumption, :expire_all, []},
-      run_strategy: {Quantum.RunStrategy.Random, :cluster} 
+      run_strategy: {Quantum.RunStrategy.Random, :cluster}
     ]
   ]
