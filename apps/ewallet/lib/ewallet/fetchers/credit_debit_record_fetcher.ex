@@ -6,10 +6,10 @@ defmodule EWallet.CreditDebitRecordFetcher do
 
   def fetch(%{
     "provider_user_id" => provider_user_id,
-    "token_id" => token_friendly_id
+    "token_id" => token_id
   } = attrs) do
     user = User.get_by_provider_user_id(provider_user_id)
-    minted_token = MintedToken.get(token_friendly_id)
+    minted_token = MintedToken.get(token_id)
     account = load_account(attrs["account_id"], minted_token)
     handle_result(account, user, minted_token)
   end

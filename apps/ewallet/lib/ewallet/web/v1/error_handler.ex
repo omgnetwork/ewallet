@@ -48,8 +48,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
       template: "The specified balance ({address}) does not contain enough funds. " <>
-                "Available: {current_amount} {friendly_id} - Attempted debit: " <>
-                "{amount_to_debit} {friendly_id}"
+                "Available: {current_amount} {minted_token_id} - Attempted debit: " <>
+                "{amount_to_debit} {minted_token_id}"
     },
     transaction_request_not_found: %{
       code: "transaction_request:transaction_request_not_found",
@@ -165,16 +165,16 @@ defmodule EWallet.Web.V1.ErrorHandler do
     "address" => address,
     "current_amount" => current_amount,
     "amount_to_debit" => amount_to_debit,
-    "friendly_id" => friendly_id
+    "minted_token_id" => id
   }, supported_errors) do
     run_if_valid_error(code, supported_errors, fn error ->
-      minted_token = MintedToken.get(friendly_id)
+      minted_token = MintedToken.get(id)
 
       data = %{
         "address" => address,
         "current_amount" => float_to_binary(current_amount / minted_token.subunit_to_unit),
         "amount_to_debit" => float_to_binary(amount_to_debit / minted_token.subunit_to_unit),
-        "friendly_id" => minted_token.friendly_id
+        "minted_token_id" => minted_token.id
       }
 
       build(code: error.code, desc: build_template(data, error.template))

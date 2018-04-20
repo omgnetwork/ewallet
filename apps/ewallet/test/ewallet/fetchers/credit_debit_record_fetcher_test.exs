@@ -18,7 +18,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
       {:ok, account, user, minted_token} =
         CreditDebitRecordFetcher.fetch(%{
           "provider_user_id" => inserted_user.provider_user_id,
-          "token_id" => inserted_token.friendly_id
+          "token_id" => inserted_token.id
         })
 
       assert account.uuid != inserted_account.uuid
@@ -35,7 +35,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
       {:ok, account, user, minted_token} =
         CreditDebitRecordFetcher.fetch(%{
           "provider_user_id" => inserted_user.provider_user_id,
-          "token_id" => inserted_token.friendly_id,
+          "token_id" => inserted_token.id,
           "account_id" => inserted_account.id
         })
 
@@ -50,7 +50,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
 
       res = CreditDebitRecordFetcher.fetch(%{
         "provider_user_id" => provider_user_id,
-        "token_id" => inserted_token.friendly_id
+        "token_id" => inserted_token.id
       })
 
       assert res == {:error, :provider_user_id_not_found}
@@ -62,7 +62,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
 
       res = CreditDebitRecordFetcher.fetch(%{
         "provider_user_id" => inserted_user.provider_user_id,
-        "token_id" =>  inserted_token.friendly_id,
+        "token_id" =>  inserted_token.id,
         "account_id" => "acc_12345678901234567890123456"
       })
 
@@ -75,7 +75,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
 
       res = CreditDebitRecordFetcher.fetch(%{
         "provider_user_id" => inserted_user.provider_user_id,
-        "token_id" =>  "invalid_friendly_id",
+        "token_id" =>  "invalid_id",
         "account_id" => inserted_account.id
       })
 

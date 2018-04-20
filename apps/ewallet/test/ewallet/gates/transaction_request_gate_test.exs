@@ -23,7 +23,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with nil account_id and no address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => nil
@@ -35,7 +35,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with invalid account_id and no address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => "fake"
@@ -47,7 +47,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid account_id and nil address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => "fake",
@@ -60,7 +60,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid account_id and no address", meta do
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id
@@ -73,7 +73,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid account_id and a valid address", meta do
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id,
@@ -88,7 +88,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid account_id and an invalid address", meta do
       res = TransactionRequestGate.create(%{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => "123",
        "amount" => 1_000,
        "account_id" => meta.account.id,
@@ -101,7 +101,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid account_id, valid user and a valid address", meta do
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id,
@@ -120,7 +120,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid account_id, valid user and an invalid address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id,
@@ -134,7 +134,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid account_id and an address that does not belong to the account", meta do
       res = TransactionRequestGate.create(%{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => "123",
        "amount" => 1_000,
        "account_id" => meta.account.id,
@@ -149,7 +149,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with nil provider_user_id and no address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => nil
@@ -161,7 +161,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with invalid provider_user_id and no address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => "fake"
@@ -173,7 +173,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid provider_user_id and no address", meta do
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => meta.user.provider_user_id
@@ -186,7 +186,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid provider_user_id and a valid address", meta do
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => meta.user.provider_user_id,
@@ -200,7 +200,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid provider_user_id and an invalid address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => meta.user.provider_user_id,
@@ -213,7 +213,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with valid provider_user_id and an address that does not belong to the user", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => meta.user.provider_user_id,
@@ -228,7 +228,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with nil address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "address" => nil
@@ -240,7 +240,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with a valid address", meta do
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "address" => meta.user_balance.address
@@ -253,7 +253,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with an invalid address", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "address" => "fake"
@@ -268,7 +268,7 @@ defmodule EWallet.TransactionRequestTest do
     test "with invalid parameters", meta do
       res = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
       })
@@ -281,7 +281,7 @@ defmodule EWallet.TransactionRequestTest do
     test "creates a transaction request with all the params", meta do
       {:ok, request} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => "123",
        "amount" => 1_000,
        "address" => meta.user_balance.address,
@@ -299,7 +299,7 @@ defmodule EWallet.TransactionRequestTest do
     test "creates a transaction request with only type and token_id", meta do
       {:ok, request} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => nil,
        "amount" => nil,
        "address" => nil
@@ -311,7 +311,7 @@ defmodule EWallet.TransactionRequestTest do
     test "receives an invalid changeset error when the type is invalid", meta do
      {:error, changeset} = TransactionRequestGate.create(meta.user, %{
        "type" => "fake",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => nil,
        "amount" => nil,
        "address" => nil
@@ -323,7 +323,7 @@ defmodule EWallet.TransactionRequestTest do
     test "receives a 'balance_not_found' error when the address is invalid", meta do
      {:error, error} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => nil,
        "amount" => nil,
        "address" => "fake"
@@ -338,7 +338,7 @@ defmodule EWallet.TransactionRequestTest do
 
      {:error, error} = TransactionRequestGate.create(meta.user, %{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => nil,
        "amount" => nil,
        "address" => balance.address
@@ -367,7 +367,7 @@ defmodule EWallet.TransactionRequestTest do
 
       {:ok, request} = TransactionRequestGate.create(meta.user_balance, %{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => "123",
        "amount" => 1_000,
        "allow_amount_override" => false,
@@ -403,7 +403,7 @@ defmodule EWallet.TransactionRequestTest do
     test "creates a transaction request with only type and token_id", meta do
       {:ok, request} = TransactionRequestGate.create(meta.user_balance, %{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => nil,
        "amount" => nil
       })
@@ -414,7 +414,7 @@ defmodule EWallet.TransactionRequestTest do
     test "receives an invalid changeset error when the type is invalid", meta do
      {:error, changeset} = TransactionRequestGate.create(meta.user_balance, %{
        "type" => "fake",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => nil,
        "amount" => nil
      })
@@ -425,7 +425,7 @@ defmodule EWallet.TransactionRequestTest do
     test "receives a 'invalid_parameter' error when the balance is nil", meta do
      {:error, error} = TransactionRequestGate.create(nil, %{
        "type" => "receive",
-       "token_id" => meta.minted_token.friendly_id,
+       "token_id" => meta.minted_token.id,
        "correlation_id" => nil,
        "amount" => nil
      })
@@ -449,7 +449,7 @@ defmodule EWallet.TransactionRequestTest do
     test "returns the request do when given valid ID", meta do
       {:ok, request} = TransactionRequestGate.create(meta.user, %{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "address" => meta.user_balance.address,

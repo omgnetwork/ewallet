@@ -26,7 +26,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       id: consumption.id,
       socket_topic: "transaction_consumption:#{consumption.id}",
       amount: consumption.amount,
-      minted_token_id: consumption.minted_token.friendly_id,
+      minted_token_id: consumption.minted_token.id,
       minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
       correlation_id: consumption.correlation_id,
       idempotency_token: consumption.idempotency_token,

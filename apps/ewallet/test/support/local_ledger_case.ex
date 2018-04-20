@@ -29,7 +29,7 @@ defmodule EWallet.LocalLedgerCase do
   def mint!(minted_token, amount \\ 1_000_000) do
     {:ok, mint, _transfer} = MintGate.insert(%{
       "idempotency_token" => UUID.generate(),
-      "token_id" => minted_token.friendly_id,
+      "token_id" => minted_token.id,
       "amount" => amount * minted_token.subunit_to_unit,
       "description" => "Minting #{amount} #{minted_token.symbol}",
       "metadata" => %{}
@@ -43,7 +43,7 @@ defmodule EWallet.LocalLedgerCase do
     {:ok, transfer, _balances, _minted_token} = TransactionGate.process_with_addresses(%{
       "from_address" => from,
       "to_address" => to,
-      "token_id" => minted_token.friendly_id,
+      "token_id" => minted_token.id,
       "amount" => amount,
       "metadata" => %{},
       "idempotency_token" => UUID.generate()
@@ -59,7 +59,7 @@ defmodule EWallet.LocalLedgerCase do
     {:ok, transfer, _balances, _minted_token} = TransactionGate.process_with_addresses(%{
       "from_address" => master_balance.address,
       "to_address" => balance.address,
-      "token_id" => minted_token.friendly_id,
+      "token_id" => minted_token.id,
       "amount" => amount * minted_token.subunit_to_unit,
       "metadata" => %{},
       "idempotency_token" => UUID.generate()

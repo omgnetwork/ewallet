@@ -7,7 +7,7 @@ defmodule EWallet.TransferFormatter do
       "correlation_id" => transfer.idempotency_token,
       "metadata" => transfer.metadata,
       "minted_token" => %{
-        "friendly_id" => transfer.minted_token.friendly_id,
+        "id" => transfer.minted_token.id,
         "metadata" => transfer.minted_token.metadata
       },
       "debits" => [%{

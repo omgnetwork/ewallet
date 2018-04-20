@@ -26,7 +26,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       amount: transaction_request.amount,
       status: transaction_request.status,
       correlation_id: transaction_request.correlation_id,
-      minted_token_id: Assoc.get(transaction_request, [:minted_token, :friendly_id]),
+      minted_token_id: Assoc.get(transaction_request, [:minted_token, :id]),
       minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
       address: transaction_request.balance_address,
       user_id: Assoc.get(transaction_request, [:user, :id]),

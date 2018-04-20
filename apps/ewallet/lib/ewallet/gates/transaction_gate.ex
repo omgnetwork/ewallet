@@ -17,7 +17,7 @@ defmodule EWallet.TransactionGate do
     res = Transaction.process_with_addresses(%{
       "from_address" => "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c",
       "to_address" => "4aa07691-2f99-4cb1-b36c-50763e2d2ba8",
-      "token_id" => "OMG:a5f64c8c-9f3b-4247-b01c-098a7e204142",
+      "token_id" => "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
       "amount" => 100_000,
       "metadata" => %{some: "data"},
       "encrypted_metadata" => %{some: "secret"},
@@ -59,7 +59,7 @@ defmodule EWallet.TransactionGate do
       "account_id" => "510f32b5-17f4-4c5c-86f2-aad1396330f9", # Optional
       "burn_balance_identifier" => "burn", # Optional
       "provider_user_id" => "sample_provider_user_id",
-      "token_id" => "OMG:a5f64c8c-9f3b-4247-b01c-098a7e204142",
+      "token_id" => "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
       "amount" => 100_000,
       "type" => Transaction.debit_type,
       "metadata" => %{some: "data"},

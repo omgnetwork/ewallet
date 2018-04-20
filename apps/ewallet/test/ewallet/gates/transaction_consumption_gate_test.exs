@@ -186,7 +186,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
     test "with nil provider_user_id and no address", meta do
       res = TransactionConsumptionGate.consume(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => nil
@@ -928,7 +928,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id,
@@ -1157,7 +1157,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id,

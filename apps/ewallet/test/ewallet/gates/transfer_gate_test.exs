@@ -22,7 +22,6 @@
       from: from.address,
       to: to.address,
       minted_token_id: token.id,
-      minted_token_friendly_id: token.friendly_id,
       amount: 100  * token.subunit_to_unit,
       metadata: %{},
       payload: %{}
@@ -59,7 +58,7 @@
       {:ok, transfer} = TransferGate.get_or_insert(attrs)
       transfer = TransferGate.process(transfer)
 
-      assert %{"entry_id" => _} = transfer.ledger_response
+      assert %{"entry_uuid" => _} = transfer.ledger_response
       assert transfer.status == Transfer.confirmed
     end
 
@@ -74,7 +73,7 @@
         "address" => attrs[:from],
         "amount_to_debit" => 1_000_000,
         "current_amount" => 100_000,
-        "friendly_id" => attrs[:minted_token_friendly_id]
+        "minted_token_id" => attrs[:minted_token_id]
       }
 
       assert transfer.status == Transfer.failed
@@ -87,7 +86,7 @@
       transfer = TransferGate.genesis(transfer)
 
       assert transfer.status == Transfer.confirmed
-      assert %{"entry_id" => _} = transfer.ledger_response
+      assert %{"entry_uuid" => _} = transfer.ledger_response
     end
   end
 end

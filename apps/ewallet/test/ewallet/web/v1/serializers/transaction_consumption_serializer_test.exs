@@ -26,7 +26,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         socket_topic: "transaction_consumption:#{consumption.id}",
         status: consumption.status,
         amount: consumption.amount,
-        minted_token_id: Assoc.get(consumption, [:minted_token, :friendly_id]),
+        minted_token_id: Assoc.get(consumption, [:minted_token, :id]),
         minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
         correlation_id: consumption.correlation_id,
         idempotency_token: consumption.idempotency_token,

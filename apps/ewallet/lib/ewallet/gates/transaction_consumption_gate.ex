@@ -244,7 +244,7 @@ defmodule EWallet.TransactionConsumptionGate do
       "idempotency_token" => consumption.idempotency_token,
       "from_address" => from,
       "to_address" => to,
-      "token_id" => consumption.minted_token.friendly_id,
+      "token_id" => consumption.minted_token.id,
       "amount" => consumption.amount,
       "metadata" => consumption.metadata,
       "encrypted_metadata" => consumption.encrypted_metadata

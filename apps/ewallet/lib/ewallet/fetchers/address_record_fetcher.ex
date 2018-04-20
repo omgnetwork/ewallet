@@ -7,11 +7,11 @@ defmodule EWallet.AddressRecordFetcher do
   def fetch(%{
     "from_address" => from_address,
     "to_address" => to_address,
-    "token_id" => token_friendly_id
+    "token_id" => token_id
   }) do
     from_balance = Balance.get(from_address)
     to_balance = Balance.get(to_address)
-    minted_token = MintedToken.get(token_friendly_id)
+    minted_token = MintedToken.get(token_id)
 
     handle_result(from_balance, to_balance, minted_token)
   end

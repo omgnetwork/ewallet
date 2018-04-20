@@ -90,7 +90,7 @@ defmodule EWallet.TransferGate do
 
   defp update_transfer({:ok, entry}, transfer) do
     Transfer.confirm(transfer, %{
-      entry_id: entry.id
+      entry_uuid: entry.uuid
     })
   end
   defp update_transfer({:error, code, description}, transfer) do
