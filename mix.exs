@@ -60,10 +60,6 @@ defmodule EWallet.Umbrella.Mixfile do
       ],
       reset: [
         "ecto.drop",
-        "init",
-      ],
-      wipe: [
-        "ecto.drop",
         "ecto.create",
         "ecto.migrate"
       ],
