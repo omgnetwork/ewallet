@@ -71,7 +71,7 @@ defmodule LocalLedger.Entry do
           metadata: %{}
         }],
         minted_token: %{
-          friendly_id: "OMG:123",
+          id: "tok_OMG_01cbennsd8q4xddqfmewpwzxdy",
           metadata: %{}
         },
         correlation_id: "123"

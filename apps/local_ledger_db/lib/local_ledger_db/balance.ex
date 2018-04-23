@@ -8,14 +8,15 @@ defmodule LocalLedgerDB.Balance do
   alias LocalLedgerDB.{Repo, Balance, Transaction}
   alias LocalLedger.{EctoBatchStream}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "balance" do
     field :address, :string
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
-    has_many :transactions, Transaction
+    has_many :transactions, Transaction, foreign_key: :balance_address,
+                                         references: :address
     timestamps()
   end
 

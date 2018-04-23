@@ -1,7 +1,6 @@
 defmodule AdminAPI.V1.UserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias Ecto.UUID
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.User
 
@@ -17,7 +16,7 @@ defmodule AdminAPI.V1.UserController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [{:id, :uuid}, :username, :provider_user_id]
+  @search_fields [:id, :username, :provider_user_id]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
@@ -39,14 +38,9 @@ defmodule AdminAPI.V1.UserController do
   Retrieves a specific user by its id.
   """
   def get(conn, %{"id" => id}) do
-    case UUID.cast(id) do
-      {:ok, uuid} ->
-        uuid
-        |> User.get()
-        |> respond_single(conn)
-      _ ->
-        handle_error(conn, :invalid_parameter, "User ID must be a UUID")
-    end
+    id
+    |> User.get()
+    |> respond_single(conn)
   end
 
   # Respond with a list of users

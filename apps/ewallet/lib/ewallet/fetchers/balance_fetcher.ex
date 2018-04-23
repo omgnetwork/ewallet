@@ -24,7 +24,7 @@ defmodule EWallet.BalanceFetcher do
 
   def get(%User{} = user, address) do
     with %Balance{} = balance <- Balance.get(address) || :balance_not_found,
-         true <- balance.user_id == user.id || :user_balance_mismatch
+         true <- balance.user_uuid == user.uuid || :user_balance_mismatch
     do
       {:ok, balance}
     else
@@ -34,7 +34,7 @@ defmodule EWallet.BalanceFetcher do
 
   def get(%Account{} = account, address) do
     with %Balance{} = balance <- Balance.get(address) || :balance_not_found,
-         true <- balance.account_id == account.id || :account_balance_mismatch
+         true <- balance.account_uuid == account.uuid || :account_balance_mismatch
     do
       {:ok, balance}
     else

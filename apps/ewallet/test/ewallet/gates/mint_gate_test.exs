@@ -11,7 +11,7 @@ defmodule EWallet.MintGateTest do
 
       {res, mint, transfer} = MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
-        "token_id" => btc.friendly_id,
+        "token_id" => btc.id,
         "amount" => 10_000 * btc.subunit_to_unit,
         "description" => "Minting 10_000 #{btc.symbol}",
         "metadata" => %{}
@@ -28,7 +28,7 @@ defmodule EWallet.MintGateTest do
 
       {res, changeset} = MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
-        "token_id" => minted_token.friendly_id,
+        "token_id" => minted_token.id,
         "amount" => nil,
         "description" => "description",
         "metadata" => %{},

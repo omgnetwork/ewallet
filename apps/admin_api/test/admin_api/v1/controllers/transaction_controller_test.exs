@@ -58,21 +58,23 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     end
 
     test "returns 'transaction:id_not_found' if the given ID was not found" do
-      response  = user_request("/transaction.get", %{"id" => "00000000-0000-0000-0000-000000000000"})
+      response  = user_request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "transaction:id_not_found"
-      assert response["data"]["description"] == "There is no transaction corresponding to the provided id"
+      assert response["data"]["description"] ==
+        "There is no transaction corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
-      response  = user_request("/transaction.get", %{"id" => "not_uuid"})
+    test "returns 'transaction:id_not_found' if the given ID format is invalid" do
+      response  = user_request("/transaction.get", %{"id" => "not_valid_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Transaction ID must be a UUID"
+      assert response["data"]["code"] == "transaction:id_not_found"
+      assert response["data"]["description"] ==
+        "There is no transaction corresponding to the provided id"
     end
   end
 end

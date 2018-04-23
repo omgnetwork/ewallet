@@ -8,7 +8,7 @@ defmodule LocalLedgerDB.Transaction do
   alias LocalLedgerDB.{Entry, Repo, MintedToken, Balance, Transaction,
                    Errors.InsufficientFundsError}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @credit "credit"
   @debit "debit"
   @types [@credit, @debit]
@@ -19,13 +19,15 @@ defmodule LocalLedgerDB.Transaction do
   schema "transaction" do
     field :amount, LocalLedger.Types.Integer
     field :type, :string
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_friendly_id,
-                                           references: :friendly_id,
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
+                                           references: :id,
                                            type: :string
     belongs_to :balance, Balance, foreign_key: :balance_address,
                                   references: :address,
                                   type: :string
-    belongs_to :entry, Entry, type: Ecto.UUID
+    belongs_to :entry, Entry, foreign_key: :entry_uuid,
+                              references: :uuid,
+                              type: Ecto.UUID
     timestamps()
   end
 
@@ -35,23 +37,23 @@ defmodule LocalLedgerDB.Transaction do
   """
   def changeset(%Transaction{} = balance, attrs) do
     balance
-    |> cast(attrs, [:amount, :type, :minted_token_friendly_id, :balance_address,
-                    :entry_id])
-    |> validate_required([:amount, :type, :minted_token_friendly_id,
+    |> cast(attrs, [:amount, :type, :minted_token_id, :balance_address,
+                    :entry_uuid])
+    |> validate_required([:amount, :type, :minted_token_id,
                           :balance_address])
     |> validate_inclusion(:type, @types)
-    |> foreign_key_constraint(:minted_token_friendly_id)
+    |> foreign_key_constraint(:minted_token_id)
     |> foreign_key_constraint(:balance_address)
-    |> foreign_key_constraint(:entry_id)
+    |> foreign_key_constraint(:entry_uuid)
   end
 
   @doc """
   Ensure that the given address has enough funds, else raise an
   InsufficientFundsError exception.
   """
-  def check_balance(%{amount: amount_to_debit, friendly_id: friendly_id,
+  def check_balance(%{amount: amount_to_debit, minted_token_id: minted_token_id,
                        address: address} = attrs) do
-    current_amount = calculate_current_amount(address, friendly_id)
+    current_amount = calculate_current_amount(address, minted_token_id)
 
     unless current_amount - amount_to_debit >= 0 do
       raise InsufficientFundsError,
@@ -66,7 +68,7 @@ defmodule LocalLedgerDB.Transaction do
   with the given address.
   """
   def calculate_all_balances(address, options \\ %{}) do
-    options = Map.put_new(options, :friendly_id, :all)
+    options = Map.put_new(options, :minted_token_id, :all)
     credits = sum(address, Transaction.credit_type, options)
     debits = sum(address, Transaction.debit_type, options)
 
@@ -74,8 +76,8 @@ defmodule LocalLedgerDB.Transaction do
   end
 
   defp subtract(credits, debits) do
-    Enum.map(credits, fn {friendly_id, amount} ->
-      {friendly_id, amount - (debits[friendly_id] || 0)}
+    Enum.map(credits, fn {id, amount} ->
+      {id, amount - (debits[id] || 0)}
     end)
   end
 
@@ -88,49 +90,49 @@ defmodule LocalLedgerDB.Transaction do
     |> Enum.into(%{}, fn {k, v} -> {k, Decimal.to_integer(v)} end)
   end
 
-  defp build_sum_query(address, type, %{friendly_id: friendly_id, since: since, upto: upto}) do
+  defp build_sum_query(address, type, %{minted_token_id: id, since: since, upto: upto}) do
     address
-    |> build_sum_query(type, %{friendly_id: friendly_id})
+    |> build_sum_query(type, %{minted_token_id: id})
     |> where([t], t.inserted_at > ^since)
     |> where([t], t.inserted_at <= ^upto)
   end
-  defp build_sum_query(address, type, %{friendly_id: friendly_id, since: since}) do
+  defp build_sum_query(address, type, %{minted_token_id: id, since: since}) do
     address
-    |> build_sum_query(type, %{friendly_id: friendly_id})
+    |> build_sum_query(type, %{minted_token_id: id})
     |> where([t], t.inserted_at > ^since)
   end
-  defp build_sum_query(address, type, %{friendly_id: friendly_id, upto: upto}) do
+  defp build_sum_query(address, type, %{minted_token_id: id, upto: upto}) do
     address
-    |> build_sum_query(type, %{friendly_id: friendly_id})
+    |> build_sum_query(type, %{minted_token_id: id})
     |> where([t], t.inserted_at <= ^upto)
   end
-  defp build_sum_query(address, type, %{friendly_id: :all}) do
+  defp build_sum_query(address, type, %{minted_token_id: :all}) do
     Transaction
     |> where([t], t.balance_address == ^address and t.type == ^type)
-    |> group_by([t], t.minted_token_friendly_id)
-    |> select([t, _], {t.minted_token_friendly_id, sum(t.amount)})
+    |> group_by([t], t.minted_token_id)
+    |> select([t, _], {t.minted_token_id, sum(t.amount)})
   end
-  defp build_sum_query(address, type, %{friendly_id: friendly_id}) do
+  defp build_sum_query(address, type, %{minted_token_id: id}) do
     address
-    |> build_sum_query(type, %{friendly_id: :all})
-    |> where([t], t.minted_token_friendly_id == ^friendly_id)
+    |> build_sum_query(type, %{minted_token_id: :all})
+    |> where([t], t.minted_token_id == ^id)
   end
 
   @doc """
-  Sum up all debit and credits for the given address/token friendly_id combo before
+  Sum up all debit and credits for the given address/minted_token_id combo before
   substracting one from the other.
   """
-  def calculate_current_amount(address, friendly_id) do
-    credit = sum_transactions_amount(address, friendly_id, @credit) || Decimal.new(0)
-    debit = sum_transactions_amount(address, friendly_id, @debit) || Decimal.new(0)
+  def calculate_current_amount(address, minted_token_id) do
+    credit = sum_transactions_amount(address, minted_token_id, @credit) || Decimal.new(0)
+    debit = sum_transactions_amount(address, minted_token_id, @debit) || Decimal.new(0)
     Decimal.to_integer(credit) - Decimal.to_integer(debit)
   end
 
-  defp sum_transactions_amount(address, friendly_id, type) do
+  defp sum_transactions_amount(address, minted_token_id, type) do
     Repo.one from t in Transaction,
              where: t.balance_address == ^address
                     and t.type == ^type
-                    and t.minted_token_friendly_id == ^friendly_id,
+                    and t.minted_token_id == ^minted_token_id,
              select: sum(t.amount)
   end
 end

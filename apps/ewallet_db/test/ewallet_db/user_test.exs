@@ -19,7 +19,8 @@ defmodule EWalletDB.UserTest do
       assert user.metadata["last_name"] == inserted_user.metadata["last_name"]
     end
 
-    test_insert_generate_uuid User, :id
+    test_insert_generate_uuid User, :uuid
+    test_insert_generate_external_id User, :id, "usr_"
     test_insert_generate_timestamps User
     test_insert_prevent_duplicate User, :username
     test_insert_prevent_duplicate User, :provider_user_id
@@ -78,15 +79,15 @@ defmodule EWalletDB.UserTest do
     test "returns the existing user" do
       {_, inserted_user} =
         :user
-        |> build(%{id: "06ba7634-109e-42e6-8f40-52fc5bc08a9c"})
+        |> build(%{id: "usr_01caj9wth0vyestkmh7873qb9f"})
         |> Repo.insert
 
-      user = User.get("06ba7634-109e-42e6-8f40-52fc5bc08a9c")
-      assert user.id == inserted_user.id
+      user = User.get("usr_01caj9wth0vyestkmh7873qb9f")
+      assert user.uuid == inserted_user.uuid
     end
 
     test "returns nil if user does not exist" do
-      user = User.get("00000000-0000-0000-0000-000000000000")
+      user = User.get("usr_12345678901234567890123456")
       assert user == nil
     end
   end
@@ -231,16 +232,6 @@ defmodule EWalletDB.UserTest do
       assert User.get_role(user.id, account.id) == "role_one"
     end
 
-    test "returns the role that the user has for the given account's external_id" do
-      user    = insert(:user)
-      account = insert(:account)
-      role    = insert(:role, %{name: "role_one"})
-
-      insert(:membership, %{user: user, account: account, role: role})
-
-      assert User.get_role(user.id, account.external_id) == "role_one"
-    end
-
     test "returns the role that the user has in the closest parent account" do
       user    = insert(:user)
       parent  = insert(:account)
@@ -288,8 +279,8 @@ defmodule EWalletDB.UserTest do
       insert(:membership, %{user: user, account: mid_account, role: role})
       [account1, account2] = User.get_accounts(user)
 
-      assert account1.id == mid_account.id
-      assert account2.id == sub_account.id
+      assert account1.uuid == mid_account.uuid
+      assert account2.uuid == sub_account.uuid
     end
   end
 end

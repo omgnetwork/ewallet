@@ -3,40 +3,43 @@ defmodule EWalletDB.Mint do
   Ecto Schema representing mints.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   alias Ecto.UUID
   alias EWalletDB.{Repo, Mint, MintedToken, Transfer, Account}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "mint" do
+    external_id prefix: "mnt_"
+
     field :description, :string
     field :amount, EWalletDB.Types.Integer
     field :confirmed, :boolean, default: false
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
+                                           references: :uuid,
                                            type: UUID
-    belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
+                                  references: :uuid,
                                   type: UUID
-    belongs_to :transfer, Transfer, foreign_key: :transfer_id,
-                                    references: :id,
+    belongs_to :transfer, Transfer, foreign_key: :transfer_uuid,
+                                    references: :uuid,
                                     type: UUID
     timestamps()
   end
 
   defp changeset(%Mint{} = minted_token, attrs) do
     minted_token
-    |> cast(attrs, [:description, :amount, :minted_token_id, :confirmed])
-    |> validate_required([:amount, :minted_token_id])
+    |> cast(attrs, [:description, :amount, :minted_token_uuid, :confirmed])
+    |> validate_required([:amount, :minted_token_uuid])
     |> validate_number(:amount, greater_than: 0)
     |> assoc_constraint(:minted_token)
   end
 
   defp update_changeset(%Mint{} = minted_token, attrs) do
     minted_token
-    |> cast(attrs, [:transfer_id])
-    |> validate_required([:transfer_id])
+    |> cast(attrs, [:transfer_uuid])
+    |> validate_required([:transfer_uuid])
     |> assoc_constraint(:transfer)
   end
 

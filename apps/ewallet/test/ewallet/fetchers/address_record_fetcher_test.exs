@@ -22,7 +22,7 @@ defmodule EWallet.AddressRecordFetcherTest do
         AddressRecordFetcher.fetch(%{
           "from_address" => from.address,
           "to_address" => to.address,
-          "token_id" => inserted_token.friendly_id
+          "token_id" => inserted_token.id
         })
 
       assert from_balance == from
@@ -38,7 +38,7 @@ defmodule EWallet.AddressRecordFetcherTest do
         AddressRecordFetcher.fetch(%{
           "from_address" => "123",
           "to_address" => User.get_primary_balance(inserted_user).address,
-          "token_id" => inserted_token.friendly_id
+          "token_id" => inserted_token.id
         })
 
       assert res == {:error, :from_address_not_found}
@@ -52,7 +52,7 @@ defmodule EWallet.AddressRecordFetcherTest do
         AddressRecordFetcher.fetch(%{
           "from_address" => User.get_primary_balance(inserted_user).address,
           "to_address" => "123",
-          "token_id" => inserted_token.friendly_id
+          "token_id" => inserted_token.id
         })
 
       assert res == {:error, :to_address_not_found}

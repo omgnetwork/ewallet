@@ -49,9 +49,9 @@ defmodule EWallet.MintGate do
       Multi.new
       |> Multi.run(:mint, fn _ ->
         Mint.insert(%{
-          minted_token_id: minted_token.id,
+          minted_token_uuid: minted_token.uuid,
           amount: amount,
-          account_id: account.id,
+          account_uuid: account.uuid,
           description: description
         })
       end)
@@ -68,7 +68,7 @@ defmodule EWallet.MintGate do
         })
       end)
       |> Multi.run(:mint_with_transfer, fn %{transfer: transfer, mint: mint} ->
-        Mint.update(mint, %{transfer_id: transfer.id})
+        Mint.update(mint, %{transfer_uuid: transfer.uuid})
       end)
 
       case Repo.transaction(multi) do

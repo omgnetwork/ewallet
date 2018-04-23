@@ -18,9 +18,11 @@ defmodule EWalletDB.Balance do
   def primary, do: @primary
   def secondary, do: @secondary
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "balance" do
+    # Balance does not have an external ID. Use `address` instead.
+
     field :address, :string
     field :name, :string
     field :identifier, :string
@@ -28,14 +30,16 @@ defmodule EWalletDB.Balance do
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
 
-    belongs_to :user, User, foreign_key: :user_id,
-                            references: :id,
+    belongs_to :user, User, foreign_key: :user_uuid,
+                            references: :uuid,
                             type: UUID
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
+                                           references: :uuid,
                                            type: UUID
-    belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+
+    belongs_to :account, Account, foreign_key: :account_uuid,
+                                  references: :uuid,
                                   type: UUID
     timestamps()
   end
@@ -43,12 +47,12 @@ defmodule EWalletDB.Balance do
   defp changeset(%Balance{} = balance, attrs) do
     balance
     |> cast(attrs, [
-      :address, :account_id, :minted_token_id, :user_id, :metadata,
+      :address, :account_uuid, :minted_token_uuid, :user_uuid, :metadata,
       :encrypted_metadata, :name, :identifier
     ])
     |> validate_required([:address, :name, :identifier, :metadata, :encrypted_metadata])
     |> validate_format(:identifier, ~r/#{@genesis}|#{@burn}|#{@primary}|#{@secondary}:.*/)
-    |> validate_required_exclusive(%{account_id: nil, user_id: nil, identifier: @genesis})
+    |> validate_required_exclusive(%{account_uuid: nil, user_uuid: nil, identifier: @genesis})
     |> unique_constraint(:address)
     |> assoc_constraint(:account)
     |> assoc_constraint(:minted_token)

@@ -53,7 +53,7 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID was not found" do
-      response  = user_request("/user.get", %{"id" => "00000000-0000-0000-0000-000000000000"})
+      response  = user_request("/user.get", %{"id" => "usr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -61,13 +61,13 @@ defmodule AdminAPI.V1.UserControllerTest do
       assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
+    test "returns 'user:id_not_found' if the given ID format is invalid" do
       response  = user_request("/user.get", %{"id" => "not_uuid"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "User ID must be a UUID"
+      assert response["data"]["code"] == "user:id_not_found"
+      assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
   end
 end

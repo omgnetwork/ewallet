@@ -50,7 +50,7 @@ defmodule EWallet.ComputedBalanceFetcherTest do
       transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
 
-      {status, address} = ComputedBalanceFetcher.get(omg.friendly_id, user_balance.address)
+      {status, address} = ComputedBalanceFetcher.get(omg.id, user_balance.address)
       assert status == :ok
       assert address.address ==
         User.get_primary_balance(user).address

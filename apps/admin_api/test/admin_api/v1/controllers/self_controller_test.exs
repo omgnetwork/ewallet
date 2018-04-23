@@ -3,6 +3,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
   import Ecto.Query
   alias EWallet.Web.Date
   alias EWalletDB.{Account, Membership, Repo, User}
+  alias EWalletDB.Helpers.Assoc
 
   describe "/me.get" do
     test "responds with user data" do
@@ -23,9 +24,9 @@ defmodule AdminAPI.V1.SelfControllerTest do
           "success" => true,
           "data" => %{
             "object" => "account",
-            "id" => account.external_id,
+            "id" => account.id,
             "socket_topic" => "account:#{account.id}",
-            "parent_id" => account.parent_id,
+            "parent_id" => Assoc.get(account, [:parent, :id]),
             "name" => account.name,
             "description" => account.description,
             "master" => Account.master?(account),
@@ -45,7 +46,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
     test "responds with error if the user does not have an account" do
       user = get_test_user()
-      Repo.delete_all(from m in Membership, where: m.user_id == ^user.id)
+      Repo.delete_all(from m in Membership, where: m.user_uuid == ^user.uuid)
 
       assert user_request("/me.get_account") ==
         %{
@@ -68,7 +69,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       account = insert(:account, %{parent: parent})
 
       # Clear all memberships for this user then add just one for precision
-      Repo.delete_all(from m in Membership, where: m.user_id == ^user.id)
+      Repo.delete_all(from m in Membership, where: m.user_uuid == ^user.uuid)
       Membership.assign(user, account, "admin")
 
       assert user_request("/me.get_accounts") ==
@@ -80,9 +81,9 @@ defmodule AdminAPI.V1.SelfControllerTest do
             "data" => [
               %{
                 "object" => "account",
-                "id" => account.external_id,
+                "id" => account.id,
                 "socket_topic" => "account:#{account.id}",
-                "parent_id" => account.parent.external_id,
+                "parent_id" => Assoc.get(account, [:parent, :id]),
                 "name" => account.name,
                 "description" => account.description,
                 "master" => Account.master?(account),

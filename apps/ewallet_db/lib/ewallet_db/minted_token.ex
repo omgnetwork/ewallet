@@ -3,15 +3,19 @@ defmodule EWalletDB.MintedToken do
   Ecto Schema representing minted tokens.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
+  import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, MintedToken}
+  alias ExULID.ULID
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "minted_token" do
-    field :friendly_id, :string # "EUR:123"
+    field :id, :string # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
+
     field :symbol, :string # "eur"
     field :iso_code, :string # "EUR"
     field :name, :string # "Euro"
@@ -27,8 +31,8 @@ defmodule EWalletDB.MintedToken do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
-    belongs_to :account, Account, foreign_key: :account_id,
-                                           references: :id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
+                                           references: :uuid,
                                            type: UUID
     timestamps()
   end
@@ -38,17 +42,15 @@ defmodule EWalletDB.MintedToken do
     |> cast(attrs, [
       :symbol, :iso_code, :name, :description, :short_symbol,
       :subunit, :subunit_to_unit, :symbol_first, :html_entity,
-      :iso_numeric, :smallest_denomination, :locked, :account_id,
-      :metadata, :encrypted_metadata, :friendly_id
+      :iso_numeric, :smallest_denomination, :locked, :account_uuid,
+      :metadata, :encrypted_metadata
     ])
     |> validate_required([
-      :symbol, :name, :subunit_to_unit, :account_id,
+      :symbol, :name, :subunit_to_unit, :account_uuid,
       :metadata, :encrypted_metadata
     ])
     |> validate_number(:subunit_to_unit, greater_than: 0, less_than_or_equal_to: 1.0e18)
-    |> set_friendly_id()
-    |> validate_required([:friendly_id])
-    |> validate_immutable(:friendly_id)
+    |> validate_immutable(:symbol)
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)
     |> unique_constraint(:name)
@@ -56,23 +58,27 @@ defmodule EWalletDB.MintedToken do
     |> unique_constraint(:iso_numeric)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version)
+    |> set_id(prefix: "tok_")
   end
 
-  defp set_friendly_id(changeset) do
-    case get_field(changeset, :friendly_id) do
+  defp set_id(changeset, opts) do
+    case get_field(changeset, :id) do
       nil ->
         symbol = get_field(changeset, :symbol)
-        uuid = UUID.generate()
-
+        ulid = ULID.generate()
+        put_change(changeset, :id, build_id(symbol, ulid, opts))
+      _ ->
         changeset
-        |> put_change(:id, uuid)
-        |> put_change(:friendly_id, build_friendly_id(symbol, uuid))
-      _ -> changeset
     end
   end
 
-  def build_friendly_id(symbol, uuid) do
-    "#{symbol}:#{uuid}"
+  defp build_id(symbol, ulid, opts) do
+    case opts[:prefix] do
+      nil ->
+        "#{symbol}_#{ulid}"
+      prefix ->
+        "#{prefix}#{symbol}_#{ulid}"
+    end
   end
 
   @doc """
@@ -90,25 +96,37 @@ defmodule EWalletDB.MintedToken do
 
     case Repo.insert(changeset) do
       {:ok, minted_token} ->
-        {:ok, get(minted_token.friendly_id)}
+        {:ok, get(minted_token.id)}
       {:error, changeset} ->
         {:error, changeset}
     end
   end
 
   @doc """
-  Retrieve a minted token by friendly_id.
+  Retrieve a minted token by id.
   """
-  def get(nil), do: nil
-  def get(friendly_id) do
-    Repo.get_by(MintedToken, friendly_id: friendly_id)
+  @spec get_by(String.t(), opts :: keyword()) :: %MintedToken{} | nil
+  def get(id, opts \\ [])
+  def get(nil, _), do: nil
+  def get(id, opts) do
+    get_by([id: id], opts)
   end
 
   @doc """
-  Retrieve a list of minted tokens by supplying a list of friendly IDs.
+  Retrieves a minted token using one or more fields.
   """
-  def get_all(friendly_ids) do
+  @spec get_by(fields :: map(), opts :: keyword()) :: %MintedToken{} | nil
+  def get_by(fields, opts \\ []) do
+    MintedToken
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
+  end
+
+  @doc """
+  Retrieve a list of minted tokens by supplying a list of IDs.
+  """
+  def get_all(ids) do
     Repo.all(from m in MintedToken,
-                       where: m.friendly_id in ^friendly_ids)
+                       where: m.id in ^ids)
   end
 end

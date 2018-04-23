@@ -6,7 +6,7 @@ defmodule LocalLedgerDB.CachedBalance do
   import Ecto.{Changeset, Query}
   alias LocalLedgerDB.{Repo, Balance, CachedBalance}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "cached_balance" do
     field :amounts, :map

@@ -26,13 +26,13 @@ defmodule LocalLedger.CachedBalance do
   end
 
   @doc """
-  Get the balance amount for the specified minted token (friendly_id) and
+  Get the balance amount for the specified minted token (token_id) and
   the given balance.
   """
   @spec get(Balance.t, String.t) :: {:ok, Map.t}
-  def get(balance, friendly_id) do
+  def get(balance, token_id) do
     amounts = get_amounts(balance)
-    {:ok, %{friendly_id => amounts[friendly_id] || 0}}
+    {:ok, %{token_id => amounts[token_id] || 0}}
   end
 
   defp get_amounts(balance) do
@@ -52,8 +52,8 @@ defmodule LocalLedger.CachedBalance do
 
   defp add_amounts(amounts_1, amounts_2) do
     Map.keys(amounts_1) ++ Map.keys(amounts_2)
-    |> Enum.map(fn friendly_id ->
-      {friendly_id, (amounts_1[friendly_id] || 0) + (amounts_2[friendly_id] || 0)}
+    |> Enum.map(fn(token_id) ->
+      {token_id, (amounts_1[token_id] || 0) + (amounts_2[token_id] || 0)}
     end)
     |> Enum.into(%{})
   end

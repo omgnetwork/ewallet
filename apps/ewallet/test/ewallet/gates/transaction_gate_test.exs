@@ -29,7 +29,7 @@ defmodule EWallet.TransactionGateTest do
       %{
         "from_address" => balance1.address,
         "to_address" => balance2.address,
-        "token_id" => token.friendly_id,
+        "token_id" => token.id,
         "amount" => 100 * token.subunit_to_unit,
         "metadata" => %{some: "data"},
         "idempotency_token" => idempotency_token
@@ -49,7 +49,7 @@ defmodule EWallet.TransactionGateTest do
         idempotency_token: idempotency_token,
         from: balance1.address,
         to: balance2.address,
-        minted_token_id: token.id,
+        minted_token_uuid: token.uuid,
         amount: 100 * token.subunit_to_unit,
         metadata: metadata,
         payload: attrs,
@@ -140,7 +140,7 @@ defmodule EWallet.TransactionGateTest do
       assert transfer.payload == %{
         "from_address" => balance1.address,
         "to_address" => balance2.address,
-        "token_id" => token.friendly_id,
+        "token_id" => token.id,
         "amount" => 100 * token.subunit_to_unit,
         "metadata" => %{"some" => "data"},
         "idempotency_token" => idempotency_token
@@ -152,7 +152,7 @@ defmodule EWallet.TransactionGateTest do
           "address" => _,
           "current_amount" => _,
           "amount_to_debit" => _,
-          "friendly_id" => _
+          "minted_token_id" => _
         }
       } = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
@@ -173,12 +173,12 @@ defmodule EWallet.TransactionGateTest do
       assert transfer.payload == %{
         "from_address" => balance1.address,
         "to_address" => balance2.address,
-        "token_id" => token.friendly_id,
+        "token_id" => token.id,
         "amount" => 100 * token.subunit_to_unit,
         "metadata" => %{"some" => "data"},
         "idempotency_token" => idempotency_token
       }
-      assert %{"entry_id" => _} = transfer.ledger_response
+      assert %{"entry_uuid" => _} = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
     end
 
@@ -189,7 +189,7 @@ defmodule EWallet.TransactionGateTest do
       {res, transfer, code, _description} = TransactionGate.process_with_addresses(%{
         "from_address" => balance1.address,
         "to_address" => balance2.address,
-        "token_id" => token.friendly_id,
+        "token_id" => token.id,
         "amount" => 0,
         "metadata" => %{some: "data"},
         "idempotency_token" => idempotency_token
@@ -226,7 +226,7 @@ defmodule EWallet.TransactionGateTest do
       %{
         "account_id" => account.id,
         "provider_user_id" => user.provider_user_id,
-        "token_id" => token.friendly_id,
+        "token_id" => token.id,
         "amount" => 100_000,
         "type" => TransactionGate.debit_type,
         "metadata" => %{some: "data"},
@@ -248,7 +248,7 @@ defmodule EWallet.TransactionGateTest do
         idempotency_token: idempotency_token,
         from: User.get_primary_balance(inserted_user).address,
         to: Account.get_primary_balance(inserted_token.account).address,
-        minted_token_id: inserted_token.id,
+        minted_token_uuid: inserted_token.uuid,
         amount: 100_000,
         metadata: metadata,
         payload: attrs,
@@ -337,7 +337,7 @@ defmodule EWallet.TransactionGateTest do
       assert transfer.status == Transfer.failed
       assert transfer.payload == %{
         "provider_user_id" => inserted_user.provider_user_id,
-        "token_id" => inserted_token.friendly_id,
+        "token_id" => inserted_token.id,
         "amount" => 100_000,
         "type" => TransactionGate.debit_type,
         "metadata" => %{"some" => "data"},
@@ -350,7 +350,7 @@ defmodule EWallet.TransactionGateTest do
           "address" => _,
           "current_amount" => _,
           "amount_to_debit" => _,
-          "friendly_id" => _
+          "minted_token_id" => _
         }
       } = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
@@ -372,14 +372,14 @@ defmodule EWallet.TransactionGateTest do
       assert transfer.status == Transfer.confirmed
       assert transfer.payload == %{
         "provider_user_id" => inserted_user.provider_user_id,
-        "token_id" => inserted_token.friendly_id,
+        "token_id" => inserted_token.id,
         "amount" => 100_000,
         "type" => TransactionGate.debit_type,
         "metadata" => %{"some" => "data"},
         "idempotency_token" => idempotency_token,
         "account_id" => inserted_account.id
       }
-      assert %{"entry_id" => _} = transfer.ledger_response
+      assert %{"entry_uuid" => _} = transfer.ledger_response
       assert transfer.metadata == %{"some" => "data"}
     end
 

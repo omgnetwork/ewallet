@@ -7,21 +7,22 @@ defmodule LocalLedgerDB.Entry do
   import Ecto.{Changeset, Query}
   alias LocalLedgerDB.{Repo, Entry, Transaction}
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "entry" do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
     field :correlation_id, :string
-    has_many :transactions, Transaction
+    has_many :transactions, Transaction, foreign_key: :entry_uuid,
+                                         references: :uuid
 
     timestamps()
   end
 
   @doc """
   Validate the entry and associated transactions. cast_assoc will take care of
-  setting the entry_id on all the transactions.
+  setting the entry_uuid on all the transactions.
   """
   def changeset(%Entry{} = entry, attrs) do
     entry
@@ -51,10 +52,10 @@ defmodule LocalLedgerDB.Entry do
   @doc """
   Retrieve a specific entry and preload the associated transactions.
   """
-  def one(id) do
+  def one(uuid) do
     Repo.one! from e in Entry,
               join: t in assoc(e, :transactions),
-              where: e.id == ^id,
+              where: e.uuid == ^uuid,
               preload: [transactions: t]
   end
 

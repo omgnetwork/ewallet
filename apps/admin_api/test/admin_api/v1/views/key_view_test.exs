@@ -1,11 +1,12 @@
 defmodule AdminAPI.V1.KeyViewTest do
   use AdminAPI.ViewCase, :v1
-  alias EWallet.Web.{Date, Paginator}
   alias AdminAPI.V1.KeyView
+  alias EWallet.Web.{Date, Paginator}
+  alias EWalletDB.Helpers.Preloader
 
   describe "render/2" do
     test "renders key.json with correct response format" do
-      key = insert(:key)
+      key = :key |> insert() |> Preloader.preload(:account)
 
       expected = %{
         version: @expected_version,
@@ -15,7 +16,7 @@ defmodule AdminAPI.V1.KeyViewTest do
           id: key.id,
           access_key: key.access_key,
           secret_key: key.secret_key,
-          account_id: key.account_id,
+          account_id: key.account.id,
           created_at: Date.to_iso8601(key.inserted_at),
           updated_at: Date.to_iso8601(key.updated_at),
           deleted_at: Date.to_iso8601(key.deleted_at)
@@ -26,8 +27,8 @@ defmodule AdminAPI.V1.KeyViewTest do
     end
 
     test "renders keys.json with correct response format" do
-      key1 = insert(:key)
-      key2 = insert(:key)
+      key1 = :key |> insert() |> Preloader.preload(:account)
+      key2 = :key |> insert() |> Preloader.preload(:account)
 
       paginator = %Paginator{
         data: [key1, key2],
@@ -50,7 +51,7 @@ defmodule AdminAPI.V1.KeyViewTest do
               id: key1.id,
               access_key: key1.access_key,
               secret_key: key1.secret_key,
-              account_id: key1.account_id,
+              account_id: key1.account.id,
               created_at: Date.to_iso8601(key1.inserted_at),
               updated_at: Date.to_iso8601(key1.updated_at),
               deleted_at: Date.to_iso8601(key1.deleted_at)
@@ -60,7 +61,7 @@ defmodule AdminAPI.V1.KeyViewTest do
               id: key2.id,
               access_key: key2.access_key,
               secret_key: key2.secret_key,
-              account_id: key2.account_id,
+              account_id: key2.account.id,
               created_at: Date.to_iso8601(key2.inserted_at),
               updated_at: Date.to_iso8601(key2.updated_at),
               deleted_at: Date.to_iso8601(key2.deleted_at)

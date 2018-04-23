@@ -3,20 +3,23 @@ defmodule EWalletDB.AuthToken do
   Ecto Schema representing an authentication token.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
   alias EWalletDB.{Repo, AuthToken, User}
   alias EWalletDB.Helpers.Crypto
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @key_length 32
 
   schema "auth_token" do
+    external_id prefix: "atk_"
+
     field :token, :string
     field :owner_app, :string
-    belongs_to :user, User, foreign_key: :user_id,
-                            references: :id,
+    belongs_to :user, User, foreign_key: :user_uuid,
+                            references: :uuid,
                             type: UUID
     field :expired, :boolean
     timestamps()
@@ -24,8 +27,8 @@ defmodule EWalletDB.AuthToken do
 
   defp changeset(%AuthToken{} = token, attrs) do
     token
-    |> cast(attrs, [:token, :owner_app, :user_id, :expired])
-    |> validate_required([:token, :owner_app, :user_id])
+    |> cast(attrs, [:token, :owner_app, :user_uuid, :expired])
+    |> validate_required([:token, :owner_app, :user_uuid])
     |> unique_constraint(:token)
     |> assoc_constraint(:user)
   end
@@ -37,7 +40,7 @@ defmodule EWalletDB.AuthToken do
   def generate(%User{} = user, owner_app) when is_atom(owner_app) do
     attrs = %{
       owner_app: Atom.to_string(owner_app),
-      user_id: user.id,
+      user_uuid: user.uuid,
       token: Crypto.generate_key(@key_length)
     }
 
@@ -101,8 +104,9 @@ defmodule EWalletDB.AuthToken do
   defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
     Repo.all(
       from a in AuthToken,
-      where: a.user_id == ^user_id
-      and a.owner_app == ^Atom.to_string(owner_app)
+      join: u in User, on: u.uuid == a.user_uuid,
+      where: u.id == ^user_id
+        and a.owner_app == ^Atom.to_string(owner_app)
     )
   end
   defp get_by_user(_, _), do: nil

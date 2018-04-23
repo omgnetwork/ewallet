@@ -56,7 +56,7 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :access_token_not_found
-      assert auth[:account].id == meta.api_key.account_id
+      assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:user] == nil
     end
 
@@ -65,7 +65,7 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :access_token_not_found
-      assert auth[:account].id == meta.api_key.account_id
+      assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:user] == nil
     end
 
@@ -75,7 +75,7 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
 
       assert auth.authenticated == false
       assert auth[:auth_error] == :access_token_expired
-      assert auth[:account].id == meta.api_key.account_id
+      assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:user] == nil
     end
 

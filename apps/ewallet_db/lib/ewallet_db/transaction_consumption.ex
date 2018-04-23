@@ -3,10 +3,11 @@ defmodule EWalletDB.TransactionConsumption do
   Ecto Schema representing transaction request consumptions.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletDB.{TransactionConsumption, Repo, User, MintedToken,
-                   TransactionRequest, Balance, Helpers, Transfer, Account}
+                   TransactionRequest, Balance, Transfer, Account}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -16,9 +17,11 @@ defmodule EWalletDB.TransactionConsumption do
   @rejected "rejected"
   @statuses [@pending, @approved, @rejected, @confirmed, @failed, @expired]
 
-  @primary_key {:id, Ecto.UUID, autogenerate: true}
+  @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "transaction_consumption" do
+    external_id prefix: "txc_"
+
     field :amount, EWalletDB.Types.Integer
     field :correlation_id, :string
     field :idempotency_token, :string
@@ -34,20 +37,20 @@ defmodule EWalletDB.TransactionConsumption do
     field :expiration_date, :naive_datetime
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    belongs_to :transfer, Transfer, foreign_key: :transfer_id,
-                                    references: :id,
+    belongs_to :transfer, Transfer, foreign_key: :transfer_uuid,
+                                    references: :uuid,
                                     type: UUID
-    belongs_to :user, User, foreign_key: :user_id,
-                                         references: :id,
+    belongs_to :user, User, foreign_key: :user_uuid,
+                                         references: :uuid,
                                          type: UUID
-    belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
+                                  references: :uuid,
                                   type: UUID
-    belongs_to :transaction_request, TransactionRequest, foreign_key: :transaction_request_id,
-                                     references: :id,
+    belongs_to :transaction_request, TransactionRequest, foreign_key: :transaction_request_uuid,
+                                     references: :uuid,
                                      type: UUID
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
+                                           references: :uuid,
                                            type: UUID
     belongs_to :balance, Balance, foreign_key: :balance_address,
                                   references: :address,
@@ -58,13 +61,13 @@ defmodule EWalletDB.TransactionConsumption do
   defp changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
     |> cast(attrs, [
-      :amount, :idempotency_token, :correlation_id, :user_id, :account_id,
-      :transaction_request_id, :balance_address, :minted_token_id,
+      :amount, :idempotency_token, :correlation_id, :user_uuid, :account_uuid,
+      :transaction_request_uuid, :balance_address, :minted_token_uuid,
       :metadata, :encrypted_metadata, :expiration_date
     ])
     |> validate_required([
-      :status, :amount, :idempotency_token, :transaction_request_id,
-      :balance_address, :minted_token_id
+      :status, :amount, :idempotency_token, :transaction_request_uuid,
+      :balance_address, :minted_token_uuid
     ])
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
@@ -91,15 +94,15 @@ defmodule EWalletDB.TransactionConsumption do
 
   def confirmed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :confirmed_at, :transfer_id])
-    |> validate_required([:status, :confirmed_at, :transfer_id])
+    |> cast(attrs, [:status, :confirmed_at, :transfer_uuid])
+    |> validate_required([:status, :confirmed_at, :transfer_uuid])
     |> assoc_constraint(:transfer)
   end
 
   def failed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :failed_at, :transfer_id])
-    |> validate_required([:status, :failed_at, :transfer_id])
+    |> cast(attrs, [:status, :failed_at, :transfer_uuid])
+    |> validate_required([:status, :failed_at, :transfer_uuid])
     |> assoc_constraint(:transfer)
   end
 
@@ -112,17 +115,13 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Gets a transaction request consumption.
   """
-  @spec get(UUID.t) :: %TransactionConsumption{} | nil
-  @spec get(UUID.t, List.t) :: %TransactionConsumption{} | nil
-  def get(nil), do: nil
+  @spec get(ExternalID.t) :: %TransactionConsumption{} | nil
+  @spec get(ExternalID.t, keyword()) :: %TransactionConsumption{} | nil
   def get(id, opts \\ [])
-  def get(nil, _), do: nil
-  def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true  -> get_by(%{id: id}, opts)
-      false -> nil
-    end
+  def get(id, opts) when is_external_id(id) do
+    get_by([id: id], opts)
   end
+  def get(_id, _opts), do: nil
 
   @doc """
   Get a consumption using one or more fields.
@@ -183,10 +182,10 @@ defmodule EWalletDB.TransactionConsumption do
   Get all confirmed and pending transaction consumptions.
   """
   @spec all_active_for_request(UUID.t) :: List.t
-  def all_active_for_request(request_id) do
+  def all_active_for_request(request_uuid) do
     TransactionConsumption
     |> where([t], t.status == @confirmed)
-    |> where([t], t.transaction_request_id == ^request_id)
+    |> where([t], t.transaction_request_uuid == ^request_uuid)
     |> Repo.all()
   end
 
@@ -225,7 +224,7 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec confirm(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def confirm(consumption, transfer) do
-    state_transition(consumption, @confirmed, transfer.id)
+    state_transition(consumption, @confirmed, transfer.uuid)
   end
 
   @doc """
@@ -233,7 +232,7 @@ defmodule EWalletDB.TransactionConsumption do
   """
   @spec fail(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
   def fail(consumption, transfer) do
-    state_transition(consumption, @failed, transfer.id)
+    state_transition(consumption, @failed, transfer.uuid)
   end
 
   @spec expired?(%TransactionConsumption{}) :: true | false
@@ -250,13 +249,13 @@ defmodule EWalletDB.TransactionConsumption do
     Enum.member?([@rejected, @confirmed, @failed, @expired], consumption.status)
   end
 
-  defp state_transition(consumption, status, transfer_id \\ nil) do
+  defp state_transition(consumption, status, transfer_uuid \\ nil) do
     fun              = String.to_existing_atom("#{status}_changeset")
     timestamp_column = String.to_existing_atom("#{status}_at")
 
     data = %{
       status: status,
-      transfer_id: transfer_id
+      transfer_uuid: transfer_uuid
     } |> Map.put(timestamp_column, NaiveDateTime.utc_now())
 
     {:ok, consumption} =

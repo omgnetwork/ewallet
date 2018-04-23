@@ -671,7 +671,7 @@ components:
         - provider_user_id
       example:
         object: "user"
-        id: "cec34607-0761-4a59-8357-18963e42a1aa"
+        id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
         provider_user_id: "wijf-fbancomw-dqwjudb"
         username: "thibault@omise.co"
         metadata: {"first_name": "Thibault", "last_name": "Denizet"}
@@ -690,7 +690,7 @@ components:
         example:
           data:
             object: "user"
-            id: "cec34607-0761-4a59-8357-18963e42a1aa"
+            id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "thibault@omise.co"
             metadata: {"first_name": "Thibault", "last_name": "Denizet"}
@@ -719,7 +719,7 @@ components:
         object: "balance"
         minted_token:
           object: 'minted_token'
-          id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+          id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
           symbol: "BTC"
           name: "Bitcoin"
           subunit_to_unit: 100000000000000000
@@ -740,7 +740,7 @@ components:
             object: "balance"
             minted_token:
               object: 'minted_token'
-              id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+              id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
               symbol: "BTC"
               name: "Bitcoin"
               subunit_to_unit: 100000000000000000
@@ -794,7 +794,7 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
-                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                   symbol: "BTC"
                   name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
@@ -828,7 +828,7 @@ components:
               - amount: 0
                 minted_token:
                   object: 'minted_token'
-                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                   symbol: "BTC"
                   name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
@@ -838,7 +838,7 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
-                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                   symbol: "BTC"
                   name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
@@ -872,14 +872,14 @@ components:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
-                  id: "BTC:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+                  id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                   symbol: "BTC"
                   name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
               - amount: 100
                 minted_token:
                   object: 'minted_token'
-                  id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+                  id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
                   symbol: "OMG"
                   name: "OmiseGO"
                   subunit_to_unit: 100000000000000000
@@ -915,7 +915,7 @@ components:
         - subunit_to_unit
       example:
         object: "minted_token"
-        id: "OMG:bcb3d05f-00b2-4687-97b9-1b4c9484b641"
+        id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
         symbol: "OMG"
         name: "Mint"
         subunit_to_unit: 100000000000000000
@@ -1007,15 +1007,15 @@ components:
           success: true
           data:
             object: "transaction"
-            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
-            idempotency_token: "123982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            id: "txn_01cbfg7hq1v0v0fq1csn2w2n29"
+            idempotency_token: "12345"
             from:
               object: "transaction_source"
               address: "XXX123"
               amount: 1000
               minted_token:
                 object: "minted_token"
-                id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                 symbol: "ABC"
                 name: "ABC Point"
                 subunit_to_unit: 100
@@ -1025,7 +1025,7 @@ components:
               amount: 1000
               minted_token:
                 object: "minted_token"
-                id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                 symbol: "ABC"
                 name: "ABC Point"
                 subunit_to_unit: 100
@@ -1062,14 +1062,14 @@ components:
             object: "list"
             data:
               - object: "transaction"
-                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "txn_01cbfg835e82ywjtzb8qthdtnj"
                 from:
                   object: "transaction_source"
                   address: "XXX123"
                   amount: 1000
                   minted_token:
                     object: "minted_token"
-                    id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                    id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                     symbol: "ABC"
                     name: "ABC Point"
                     subunit_to_unit: 100
@@ -1081,7 +1081,7 @@ components:
                   amount: 1000
                   minted_token:
                     object: "minted_token"
-                    id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                    id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                     symbol: "ABC"
                     name: "ABC Point"
                     subunit_to_unit: 100
@@ -1127,12 +1127,12 @@ components:
             object: "setting"
             minted_tokens:
               - object: "minted_token"
-                id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+                id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                 symbol: "BTC"
                 name: "Bitcoin"
                 subunit_to_unit: 100000000000000000
               - object: "minted_token"
-                id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+                id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
                 symbol: "OMG"
                 name: "OmiseGO"
                 subunit_to_unit: 100000000000000000
@@ -1230,17 +1230,17 @@ components:
         example:
           data:
             object: "transaction_request"
-            id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
-            socket_topic: "transaction_request:61230be5-15d1-4463-9ec2-02bc8ded7120"
+            id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+            socket_topic: "transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9"
             type: "send"
             amount: 100
             status: "valid"
             correlation_id: "123"
-            minted_token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+            minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
             minted_token: null
             address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
-            user_id: "123c0be5-15d1-4463-9ec2-02bc8ded7120"
-            account_id: "124c0be5-15d1-4463-9ec2-02bc8ded7120"
+            user_id: "usr_01cbfg922kzmhvw04xvqn17qbd"
+            account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
             require_confirmation: true
             max_consumptions: 3
             consumption_lifetime: 1000
@@ -1354,21 +1354,21 @@ components:
         example:
           data:
             object: "transaction_consumption"
-            id: "61230be5-15d1-4463-9ec2-02bc8ded7120"
-            socket_topic: "transaction_consumption:61230be5-15d1-4463-9ec2-02bc8ded7120"
+            id: "txc_01cbfg9qtdken61agxhx6wvj9h"
+            socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h"
             status: "confirmed"
             amount: 100
-            minted_token_id: "OMG:5e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+            minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
             minted_token: {}
             correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
             idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
-            transaction_id: "4567c0be5-15d1-4463-9ec2-02bc8ded7120"
+            transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt"
             transaction: {}
-            user_id: "111c0be5-15d1-4463-9ec2-02bc8ded7120"
+            user_id: "usr_01cbfgak47ng6x72vbwjca6j4v"
             user: {}
-            account_id: "221c0be5-15d1-4463-9ec2-02bc8ded7120"
+            account_id: "acc_01cbfgatsanznvzffqsekta5f0"
             account: {}
-            transaction_request_id: "1231c0be5-15d1-4463-9ec2-02bc8ded7120"
+            transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h"
             transaction_request: {}
             address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
             metadata: {}
@@ -1555,7 +1555,7 @@ components:
             example:
               from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
               to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
-              token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
               amount: 100
               metadata: {}
               encrypted_metadata: {}
@@ -1592,9 +1592,9 @@ components:
               - amount
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
-              token_id: "BTC:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
               amount: 100
-              account_id: "865ff420-899a-4eb3-8364-19edc5d51676"
+              account_id: "acc_01cbfgbt9hezkbz8mphmwdfcj1"
               burn_balance_identifier: "burn"
               metadata: {}
               encrypted_metadata: {}
@@ -1677,7 +1677,7 @@ components:
               - token_id
             example:
               type: "send"
-              token_id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
               amount: 100
               correlation_id: "123"
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
@@ -1754,7 +1754,7 @@ components:
               - token_id
             example:
               type: "send"
-              token_id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
               amount: 100
               correlation_id: "123"
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
@@ -1768,7 +1768,7 @@ components:
               id:
                 type: string
             example:
-              id: "71822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              id: "txr_01cbfgc8cmmyzy1cfzpqwme3ey"
     ServerConsumeTransactionRequestBody:
       description: Consume a transaction request using the specified values.
       required: true
@@ -1802,9 +1802,9 @@ components:
             required:
               - transaction_request_id
             example:
-              transaction_request_id: "13324324-68d8-4af6-94d7-5ed4c34ecf1a"
+              transaction_request_id: "txr_01cbfgcts5kqfgpqxcxn71rnbs"
               correlation_id: "123"
-              token_id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
               amount: 100
               provider_user_id: "provider_user_id01"
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
@@ -1834,9 +1834,9 @@ components:
             required:
               - transaction_request_id
             example:
-              transaction_request_id: "13324324-68d8-4af6-94d7-5ed4c34ecf1a"
+              transaction_request_id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
               correlation_id: "123"
-              token_id: "OMG:61822683-68d8-4af6-94d7-5ed4c34ecf1a"
+              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
               amount: 100
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
               metadata: {}
@@ -1853,7 +1853,7 @@ components:
             required:
               - id
             example:
-              id: "13324324-68d8-4af6-94d7-5ed4c34ecf1a"
+              id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
 
   ######################################
   #           REQUEST HEADERS          #

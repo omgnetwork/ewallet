@@ -191,7 +191,7 @@ defmodule EWallet.TransactionConsumptionGate do
 
   defp do_confirm(id, approved, owner) do
     with {:ok, consumption} <- get(id),
-         {:ok, request} <- TransactionRequestGate.get_with_lock(consumption.transaction_request_id),
+         {:ok, request} <- TransactionRequestGate.get_with_lock(consumption.transaction_request.id),
          true <- TransactionRequestGate.is_owner?(request, owner) ||
                  {:error, :not_transaction_request_owner},
          {:ok, request} <- TransactionRequestGate.validate_request(request),
@@ -216,10 +216,10 @@ defmodule EWallet.TransactionConsumptionGate do
       correlation_id: attrs["correlation_id"],
       idempotency_token: attrs["idempotency_token"],
       amount: amount,
-      user_id: balance.user_id,
-      account_id: balance.account_id,
-      minted_token_id: minted_token.id,
-      transaction_request_id: request.id,
+      user_uuid: balance.user_uuid,
+      account_uuid: balance.account_uuid,
+      minted_token_uuid: minted_token.uuid,
+      transaction_request_uuid: request.uuid,
       balance_address: balance.address,
       expiration_date: TransactionRequestGate.expiration_from_lifetime(request),
       metadata: attrs["metadata"] || %{},
@@ -244,7 +244,7 @@ defmodule EWallet.TransactionConsumptionGate do
       "idempotency_token" => consumption.idempotency_token,
       "from_address" => from,
       "to_address" => to,
-      "token_id" => consumption.minted_token.friendly_id,
+      "token_id" => consumption.minted_token.id,
       "amount" => consumption.amount,
       "metadata" => consumption.metadata,
       "encrypted_metadata" => consumption.encrypted_metadata

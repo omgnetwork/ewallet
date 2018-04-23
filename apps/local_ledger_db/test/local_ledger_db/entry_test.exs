@@ -10,11 +10,11 @@ defmodule LocalLedgerDB.EntryTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "generates a UUID in place of a regular ID" do
+  test "generates a UUID" do
     {res, entry} = :entry |> build |> Repo.insert
 
     assert res == :ok
-    assert String.match?(entry.id,
+    assert String.match?(entry.uuid,
                          ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
   end
 

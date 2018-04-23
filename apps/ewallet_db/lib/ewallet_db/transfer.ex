@@ -3,10 +3,11 @@ defmodule EWalletDB.Transfer do
   Ecto Schema representing transfers.
   """
   use Ecto.Schema
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Transfer, Balance, MintedToken, Helpers}
+  alias EWalletDB.{Repo, Transfer, Balance, MintedToken}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -22,9 +23,11 @@ defmodule EWalletDB.Transfer do
   def internal, do: @internal
   def external, do: @external
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "transfer" do
+    external_id prefix: "tfr_"
+
     field :idempotency_token, :string
     field :amount, EWalletDB.Types.Integer
     field :status, :string, default: @pending # pending -> confirmed
@@ -34,12 +37,15 @@ defmodule EWalletDB.Transfer do
     field :metadata, :map, default: %{}
     field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
     field :encryption_version, :binary
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
+
+    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
+                                           references: :uuid,
                                            type: UUID
+
     belongs_to :to_balance, Balance, foreign_key: :to,
                                      references: :address,
                                      type: :string
+
     belongs_to :from_balance, Balance, foreign_key: :from,
                                        references: :address,
                                        type: :string
@@ -50,11 +56,11 @@ defmodule EWalletDB.Transfer do
     transfer
     |> cast(attrs, [
       :idempotency_token, :status, :type, :payload, :ledger_response, :metadata,
-      :encrypted_metadata, :amount, :minted_token_id, :to, :from
+      :encrypted_metadata, :amount, :minted_token_uuid, :to, :from
     ])
     |> validate_required([
       :idempotency_token, :status, :type, :payload, :amount,
-      :minted_token_id, :to, :from, :metadata, :encrypted_metadata
+      :minted_token_uuid, :to, :from, :metadata, :encrypted_metadata
     ])
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
@@ -88,22 +94,18 @@ defmodule EWalletDB.Transfer do
   @doc """
   Gets a transfer.
   """
-  @spec get(UUID.t) :: %Transfer{} | nil
-  @spec get(UUID.t, List.t) :: %Transfer{} | nil
-  def get(nil), do: nil
+  @spec get(ExternalID.t()) :: %Transfer{} | nil
+  @spec get(ExternalID.t(), keyword()) :: %Transfer{} | nil
   def get(id, opts \\ [])
-  def get(nil, _), do: nil
-  def get(id, opts) do
-    case Helpers.UUID.valid?(id) do
-      true  -> get_by(%{id: id}, opts)
-      false -> nil
-    end
+  def get(id, opts) when is_external_id(id) do
+    get_by([id: id], opts)
   end
+  def get(_id, _opts), do: nil
 
   @doc """
   Get a transfer using one or more fields.
   """
-  @spec get_by(Map.t, List.t) :: %Transfer{} | nil
+  @spec get_by(keyword() | map(), keyword()) :: %Transfer{} | nil
   def get_by(map, opts \\ []) do
     query = Transfer |> Repo.get_by(map)
 

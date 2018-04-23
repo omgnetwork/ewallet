@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
 
   defp assert_success(conn) do
     assert conn.assigns.authenticated == :user
-    assert conn.assigns.user.id == get_test_user().id
+    assert conn.assigns.user.uuid == get_test_user().uuid
   end
 
   defp assert_error(conn) do

@@ -44,7 +44,7 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
       auth_user = AuthToken.authenticate(auth_token, @owner_app)
-      assert auth_user.id == user.id
+      assert auth_user.uuid == user.uuid
     end
 
     test "returns :token_expired if token exists but expired" do
@@ -78,7 +78,7 @@ defmodule EWalletDB.AuthTokenTest do
       {:ok, auth_token} = AuthToken.generate(user, @owner_app)
 
       auth_user = AuthToken.authenticate(user.id, auth_token, @owner_app)
-      assert auth_user.id == user.id
+      assert auth_user.uuid == user.uuid
     end
 
     test "returns an existing token if user_id and token match and user has multiple tokens" do

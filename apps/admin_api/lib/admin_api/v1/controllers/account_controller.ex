@@ -10,7 +10,6 @@ defmodule AdminAPI.V1.AccountController do
   # any operations are done on the field names. For example:
   # `"request_field_name" => "db_column_name"`
   @mapped_fields %{
-    "id" => "external_id",
     "created_at" => "inserted_at"
   }
 
@@ -18,11 +17,11 @@ defmodule AdminAPI.V1.AccountController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [:external_id, :name, :description]
+  @search_fields [:id, :name, :description]
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:external_id, :name, :description, :inserted_at, :updated_at]
+  @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   defp permit(action, user_id, account_id) do
     Bodyguard.permit(AccountPolicy, action, user_id, account_id)
@@ -58,7 +57,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def get(conn, %{"id" => id}) do
     with :ok                  <- permit(:get, conn.assigns.user.id, id),
-         %Account{} = account <- Account.get_by(external_id: id)
+         %Account{} = account <- Account.get_by(id: id)
     do
       render(conn, :account, %{account: account})
     else
@@ -75,10 +74,15 @@ defmodule AdminAPI.V1.AccountController do
   The requesting user must have write permission on the given parent account.
   """
   def create(conn, attrs) do
-    parent_id = attrs["parent_id"] || Account.get_master_account().id
+    parent =
+      if attrs["parent_id"] do
+        Account.get_by(id: attrs["parent_id"])
+      else
+        Account.get_master_account()
+      end
 
-    with :ok            <- permit(:create, conn.assigns.user.id, parent_id),
-         attrs          <- Map.put(attrs, "parent_id", parent_id),
+    with :ok            <- permit(:create, conn.assigns.user.id, parent.id),
+         attrs          <- Map.put(attrs, "parent_uuid", parent.uuid),
          {:ok, account} <- Account.insert(attrs)
     do
       render(conn, :account, %{account: account})
@@ -97,8 +101,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def update(conn, %{"id" => account_id} = attrs) do
     with :ok            <- permit(:update, conn.assigns.user.id, account_id),
-         %{} = original <- Account.get_by(external_id: account_id) ||
-                           {:error, :account_id_not_found},
+         %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
          {:ok, updated} <- Account.update(original, attrs)
     do
       render(conn, :account, %{account: updated})
@@ -116,7 +119,7 @@ defmodule AdminAPI.V1.AccountController do
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with :ok           <- permit(:update, conn.assigns.user.id, id),
-         %{} = account <- Account.get_by(external_id: id) || {:error, :account_id_not_found},
+         %{} = account <- Account.get(id) || {:error, :account_id_not_found},
          %{} = saved   <- Account.store_avatar(account, attrs)
     do
       render(conn, :account, %{account: saved})

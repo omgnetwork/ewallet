@@ -11,11 +11,11 @@ defmodule LocalLedgerDB.BalanceTest do
   end
 
   describe "initialization" do
-    test "generates a UUID in place of a regular ID" do
+    test "generates a UUID" do
       {res, balance} = :balance |> build |> Repo.insert
 
       assert res == :ok
-      assert String.match?(balance.id,
+      assert String.match?(balance.uuid,
                            ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
     end
 
@@ -103,12 +103,12 @@ defmodule LocalLedgerDB.BalanceTest do
                               |> build(%{address: "456"})
                               |> Repo.insert
 
-      assert Enum.at(Repo.all(Balance), 0).id == inserted_balance.id
+      assert Enum.at(Repo.all(Balance), 0).uuid == inserted_balance.uuid
       {:ok, balance} = Balance.get_or_insert(%{
         "address" => "456",
         "metadata" => %{}
       })
-      assert inserted_balance.id == balance.id
+      assert inserted_balance.uuid == balance.uuid
     end
 
     defp start_task(pid, callback) do
@@ -153,7 +153,7 @@ defmodule LocalLedgerDB.BalanceTest do
                               |> build(%{address: "456"})
                               |> Repo.insert
       balance = Balance.get("456")
-      assert balance.id == inserted_balance.id
+      assert balance.uuid == inserted_balance.uuid
     end
 
     test "returns nil if balance does not exist" do

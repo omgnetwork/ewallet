@@ -13,7 +13,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       request_data = %{
         from_address: balance1.address,
         to_address: balance2.address,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 1_000 * minted_token.subunit_to_unit,
         metadata: %{}
       }
@@ -47,7 +47,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
         from_address: balance1.address,
         to_address: balance2.address,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000 * minted_token.subunit_to_unit,
         metadata: %{something: "interesting"},
         encrypted_metadata: %{something: "secret"}
@@ -75,7 +75,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "name" => minted_token.name,
                     "object" => "minted_token",
                     "subunit_to_unit" => 100,
-                    "id" => minted_token.friendly_id,
+                    "id" => minted_token.id,
                     "symbol" => minted_token.symbol,
                     "metadata" => %{},
                     "encrypted_metadata" => %{},
@@ -94,7 +94,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                   "object" => "balance",
                   "amount" => 100_000 * minted_token.subunit_to_unit,
                   "minted_token" => %{
-                    "id" => minted_token.friendly_id,
+                    "id" => minted_token.id,
                     "name" => minted_token.name,
                     "object" => "minted_token",
                     "subunit_to_unit" => 100,
@@ -119,7 +119,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
          from_address: balance.address,
          to_address: balance.address,
-         token_id: minted_token.friendly_id,
+         token_id: minted_token.id,
          amount: 100_000 * minted_token.subunit_to_unit,
          metadata: %{}
        })
@@ -144,7 +144,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
          from_address: balance1.address,
          to_address: balance2.address,
-         token_id: minted_token.friendly_id,
+         token_id: minted_token.id,
          amount: 100_000 * minted_token.subunit_to_unit,
          metadata: %{}
        })
@@ -155,8 +155,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         "data" => %{
           "code" => "transaction:insufficient_funds",
           "description" => "The specified balance (#{balance1.address}) does not " <>
-          "contain enough funds. Available: 0.0 #{minted_token.friendly_id} - " <>
-          "Attempted debit: 100000.0 #{minted_token.friendly_id}",
+          "contain enough funds. Available: 0.0 #{minted_token.id} - " <>
+          "Attempted debit: 100000.0 #{minted_token.id}",
           "messages" => nil,
           "object" => "error"
         }
@@ -170,7 +170,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
         from_address: "00000000-0000-0000-0000-000000000000",
         to_address: balance.address,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
         metadata: %{}
       })
@@ -194,7 +194,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response = provider_request_with_idempotency("/transfer", UUID.generate(), %{
         from_address: balance.address,
         to_address: "00000000-0000-0000-0000-000000000000",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
         metadata: %{}
       })
@@ -243,7 +243,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response = provider_request("/user.credit_balance", %{
         provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
         metadata: %{}
       })
@@ -270,7 +270,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
         provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 1_000 * minted_token.subunit_to_unit,
         metadata: %{something: "interesting"},
         encrypted_metadata: %{something: "secret"}
@@ -298,7 +298,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "name" => minted_token.name,
                     "object" => "minted_token",
                     "subunit_to_unit" => 100,
-                    "id" => minted_token.friendly_id,
+                    "id" => minted_token.id,
                     "symbol" => minted_token.symbol,
                     "metadata" => %{},
                     "encrypted_metadata" => %{},
@@ -317,7 +317,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert()
 
       response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
         metadata: %{}
       })
@@ -339,7 +339,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
         provider_user_id: "fake",
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
         metadata: %{}
       })
@@ -363,9 +363,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response = provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
         provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
-        account_id: "00000000-0000-0000-0000-000000000000",
+        account_id: "acc_12345678901234567890123456",
         metadata: %{}
       })
 
@@ -413,7 +413,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
        response = provider_request("/user.debit_balance", %{
         provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
         metadata: %{}
       })
@@ -439,7 +439,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response = provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
         provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 100_000,
         metadata: %{}
       })
@@ -451,8 +451,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
           "code" => "transaction:insufficient_funds",
           "description" => "The specified balance (#{user_balance.address})" <>
           " does not contain enough funds. Available: 0.0 " <>
-          "#{minted_token.friendly_id} - Attempted debit: 1000.0 " <>
-          "#{minted_token.friendly_id}",
+          "#{minted_token.id} - Attempted debit: 1000.0 " <>
+          "#{minted_token.id}",
           "messages" => nil,
           "object" => "error"
         }
@@ -472,7 +472,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response = provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
         provider_user_id: user.provider_user_id,
-        token_id: minted_token.friendly_id,
+        token_id: minted_token.id,
         amount: 150_000 * minted_token.subunit_to_unit,
         metadata: %{something: "interesting"},
         encrypted_metadata: %{something: "secret"}
@@ -502,7 +502,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                     "object" => "minted_token",
                     "subunit_to_unit" => 100,
                     "symbol" => minted_token.symbol,
-                    "id" => minted_token.friendly_id,
+                    "id" => minted_token.id,
                     "metadata" => %{},
                     "encrypted_metadata" => %{},
                     "created_at" => Date.to_iso8601(minted_token.inserted_at),

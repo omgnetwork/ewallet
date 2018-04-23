@@ -10,11 +10,11 @@ defmodule LocalLedgerDB.MintedTokenTest do
     :ok = Sandbox.checkout(Repo)
   end
 
-  test "generates a UUID in place of a regular ID" do
+  test "generates a UUID" do
     {res, minted_token} = :minted_token |> build |> Repo.insert
 
     assert res == :ok
-    assert String.match?(minted_token.id,
+    assert String.match?(minted_token.uuid,
                          ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
   end
 
@@ -32,15 +32,15 @@ defmodule LocalLedgerDB.MintedTokenTest do
     assert changeset.valid?
   end
 
-  test "prevents creation of a minted_token without a friendly_id" do
-    params = string_params_for(:minted_token, %{friendly_id: nil})
+  test "prevents creation of a minted_token without an id" do
+    params = string_params_for(:minted_token, %{id: nil})
     changeset = MintedToken.changeset(%MintedToken{}, params)
     refute changeset.valid?
-    assert changeset.errors == [friendly_id: {"can't be blank",
+    assert changeset.errors == [id: {"can't be blank",
                                         [validation: :required]}]
   end
 
-  test "prevents creation of a minted_token with a friendly_id already in DB" do
+  test "prevents creation of a minted_token with an id already in DB" do
     {:ok, _} = :minted_token |> build |> Repo.insert
 
     params = string_params_for(:minted_token)
@@ -48,7 +48,7 @@ defmodule LocalLedgerDB.MintedTokenTest do
                              |> MintedToken.changeset(params)
                              |> Repo.insert
 
-    assert minted_token.errors == [friendly_id: {"has already been taken", []}]
+    assert minted_token.errors == [id: {"has already been taken", []}]
   end
 
   test "allows creation of a minted_token with metadata" do
@@ -76,7 +76,7 @@ defmodule LocalLedgerDB.MintedTokenTest do
       minted_tokens = Repo.all(MintedToken)
       assert minted_tokens == []
 
-      {:ok, minted_token} = MintedToken.get_or_insert(%{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+      {:ok, minted_token} = MintedToken.get_or_insert(%{"id" => "tok_OMG_01cbepz8h0xp9c5dvexefez2f1",
                                                         "metadata" => %{}})
 
       minted_tokens = Repo.all(MintedToken)
@@ -86,11 +86,11 @@ defmodule LocalLedgerDB.MintedTokenTest do
     test "returns an existing minted_token when it is already in the database"
       do
       {_, inserted_minted_token} = :minted_token
-                              |> build(%{friendly_id: "BTC:209d3f5b-eab4-4906-9697-c482009fc865"})
+                              |> build(%{id: "tok_BTC_01cbepxbxqg0z8nqm3eb23qec2"})
                               |> Repo.insert
 
       assert Enum.at(Repo.all(MintedToken), 0).id == inserted_minted_token.id
-      {:ok, minted_token} = MintedToken.get_or_insert(%{"friendly_id" => "BTC:209d3f5b-eab4-4906-9697-c482009fc865",
+      {:ok, minted_token} = MintedToken.get_or_insert(%{"id" => "tok_BTC_01cbepxbxqg0z8nqm3eb23qec2",
                                                         "metadata" => %{}})
       assert inserted_minted_token.id == minted_token.id
     end
@@ -100,7 +100,7 @@ defmodule LocalLedgerDB.MintedTokenTest do
         Sandbox.allow(Repo, pid, self())
         assert_receive :select_for_update, 5000
         minted_token = callback.()
-        assert minted_token.friendly_id == "OMG:209d3f5b-eab4-4906-9697-c482009fc865"
+        assert minted_token.id == "tok_OMG_01cbepz8h0xp9c5dvexefez2f1"
         send pid, :updated
       end
 
@@ -111,33 +111,33 @@ defmodule LocalLedgerDB.MintedTokenTest do
       pid = self()
 
       callback = fn ->
-        {:ok, minted_token} = MintedToken.get_or_insert(%{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+        {:ok, minted_token} = MintedToken.get_or_insert(%{"id" => "tok_OMG_01cbepz8h0xp9c5dvexefez2f1",
                                                           "metadata" => %{}})
         minted_token
       end
 
       for _ <- 0..10, do: send(start_task(pid, callback), :select_for_update)
 
-      {:ok, minted_token} = MintedToken.get_or_insert(%{"friendly_id" => "OMG:209d3f5b-eab4-4906-9697-c482009fc865",
+      {:ok, minted_token} = MintedToken.get_or_insert(%{"id" => "tok_OMG_01cbepz8h0xp9c5dvexefez2f1",
                                                         "metadata" => %{}})
 
       assert_receive :updated, 5000
       assert length(Repo.all(MintedToken)) == 1
-      assert minted_token.friendly_id == "OMG:209d3f5b-eab4-4906-9697-c482009fc865"
+      assert minted_token.id == "tok_OMG_01cbepz8h0xp9c5dvexefez2f1"
     end
   end
 
   describe "#get" do
     test "returns the existing minted_token" do
       {_, inserted_minted_token} = :minted_token
-                              |> build(%{friendly_id: "BTC:209d3f5b-eab4-4906-9697-c482009fc865"})
+                              |> build(%{id: "tok_BTC_01cbepxbxqg0z8nqm3eb23qec2"})
                               |> Repo.insert
-      minted_token = MintedToken.get("BTC:209d3f5b-eab4-4906-9697-c482009fc865")
+      minted_token = MintedToken.get("tok_BTC_01cbepxbxqg0z8nqm3eb23qec2")
       assert minted_token.id == inserted_minted_token.id
     end
 
     test "returns nil if minted_token does not exist" do
-      minted_token = MintedToken.get("BTC:209d3f5b-eab4-4906-9697-c482009fc865")
+      minted_token = MintedToken.get("tok_BTC_00000000000000000000000000")
       assert minted_token == nil
     end
   end
@@ -165,10 +165,10 @@ defmodule LocalLedgerDB.MintedTokenTest do
 
     test "returns an error when passing invalid arguments" do
       assert Repo.all(MintedToken) == []
-      {res, changeset} = %{"friendly_id" => nil, "metadata" => %{}}
+      {res, changeset} = %{"id" => nil, "metadata" => %{}}
                          |> MintedToken.insert
       assert res == :error
-      assert changeset.errors == [friendly_id: {"can't be blank",
+      assert changeset.errors == [id: {"can't be blank",
                                             [validation: :required]}]
     end
   end

@@ -80,7 +80,7 @@ defmodule EWalletDB.TransactionRequestTest do
     test "gets a transaction request" do
       inserted = insert(:transaction_request)
       request = TransactionRequest.get_with_lock(inserted.id)
-      assert request.id == inserted.id
+      assert request.uuid == inserted.uuid
     end
   end
 
@@ -93,10 +93,11 @@ defmodule EWalletDB.TransactionRequestTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid TransactionRequest, :id
+    test_insert_generate_uuid TransactionRequest, :uuid
+    test_insert_generate_external_id TransactionRequest, :id, "txr_"
     test_insert_generate_timestamps TransactionRequest
     test_insert_prevent_blank TransactionRequest, :type
-    test_insert_prevent_blank TransactionRequest, :minted_token_id
+    test_insert_prevent_blank TransactionRequest, :minted_token_uuid
     test_insert_prevent_duplicate TransactionRequest, :correlation_id
 
     test "sets the status to 'valid'" do
@@ -267,9 +268,9 @@ defmodule EWalletDB.TransactionRequestTest do
 
     test "expires the request if max_consumptions has been reached" do
       request = insert(:transaction_request, max_consumptions: 2)
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+      _consumption = insert(:transaction_consumption, transaction_request_uuid: request.uuid,
                                                       status: "confirmed")
-      _consumption = insert(:transaction_consumption, transaction_request_id: request.id,
+      _consumption = insert(:transaction_consumption, transaction_request_uuid: request.uuid,
                                                       status: "confirmed")
 
       {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)

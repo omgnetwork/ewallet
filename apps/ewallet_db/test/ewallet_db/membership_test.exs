@@ -27,7 +27,7 @@ defmodule EWalletDB.MembershipTest do
       {membership, user, account, _} = prepare_membership()
       result = Membership.get_by_user_and_account(user, account)
 
-      assert result.id == membership.id
+      assert result.uuid == membership.uuid
     end
   end
 
@@ -36,7 +36,7 @@ defmodule EWalletDB.MembershipTest do
       {membership, user, _, _} = prepare_membership()
       result = Membership.all_by_user(user)
 
-      assert Enum.at(result, 0).id == membership.id
+      assert Enum.at(result, 0).uuid == membership.uuid
     end
   end
 
@@ -49,9 +49,9 @@ defmodule EWalletDB.MembershipTest do
       {res, membership} = Membership.assign(user, account, "some_role")
 
       assert res == :ok
-      assert membership.user_id == user.id
-      assert membership.account_id == account.id
-      assert membership.role_id == role.id
+      assert membership.user_uuid == user.uuid
+      assert membership.account_uuid == account.uuid
+      assert membership.role_uuid == role.uuid
     end
 
     test "re-assigns user to the new role if the user has an existing role on the account" do

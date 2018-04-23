@@ -20,8 +20,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     transaction_request = insert(:transaction_request,
       type: "receive",
-      minted_token_id: minted_token.id,
-      user_id: receiver.id,
+      minted_token_uuid: minted_token.uuid,
+      user_uuid: receiver.uuid,
       balance: receiver_balance,
       amount: 100_000 * minted_token.subunit_to_unit
     )
@@ -186,7 +186,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
     test "with nil provider_user_id and no address", meta do
       res = TransactionConsumptionGate.consume(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "provider_user_id" => nil
@@ -352,7 +352,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       assert res == :ok
       assert %TransactionConsumption{} = consumption
-      assert consumption.transaction_request_id == meta.request.id
+      assert consumption.transaction_request_uuid == meta.request.uuid
       assert consumption.amount == meta.request.amount
       assert consumption.balance_address == meta.sender_balance.address
     end
@@ -361,8 +361,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
     params", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        account_uuid: meta.account.uuid,
         balance: meta.account_balance,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
@@ -381,7 +381,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       assert res == :ok
       assert %TransactionConsumption{} = consumption
-      assert consumption.transaction_request_id == transaction_request.id
+      assert consumption.transaction_request_uuid == transaction_request.uuid
       assert consumption.amount == meta.request.amount
       assert consumption.balance_address == meta.sender_balance.address
     end
@@ -402,7 +402,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       assert res == :ok
       assert %TransactionConsumption{} = consumption
-      assert consumption.transaction_request_id == meta.request.id
+      assert consumption.transaction_request_uuid == meta.request.uuid
       assert consumption.amount == 1_000
       assert consumption.balance_address == meta.sender_balance.address
     end
@@ -793,8 +793,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
     test "returns 'invalid_parameter' when amount is not set", meta do
       transaction_request = insert(:transaction_request,
         type: "receive",
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.receiver.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.receiver.uuid,
         balance: meta.receiver_balance,
         amount: nil
       )
@@ -897,8 +897,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        account_uuid: meta.account.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
@@ -928,7 +928,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id,
@@ -965,8 +965,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.sender.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.sender.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
@@ -996,8 +996,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        account_uuid: meta.account.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
@@ -1030,8 +1030,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        account_uuid: meta.account.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
@@ -1062,8 +1062,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        account_id: meta.account.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        account_uuid: meta.account.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit,
         max_consumptions: 1
       )
@@ -1126,8 +1126,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.receiver.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.receiver.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
@@ -1157,7 +1157,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       {res, request} = TransactionRequestGate.create(%{
         "type" => "receive",
-        "token_id" => meta.minted_token.friendly_id,
+        "token_id" => meta.minted_token.id,
         "correlation_id" => "123",
         "amount" => 1_000,
         "account_id" => meta.account.id,
@@ -1194,8 +1194,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.receiver.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.receiver.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
@@ -1225,8 +1225,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.receiver.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.receiver.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 
@@ -1259,8 +1259,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       transaction_request = insert(:transaction_request,
         type: "receive",
         require_confirmation: true,
-        minted_token_id: meta.minted_token.id,
-        user_id: meta.receiver.id,
+        minted_token_uuid: meta.minted_token.uuid,
+        user_uuid: meta.receiver.uuid,
         amount: 100_000 * meta.minted_token.subunit_to_unit
       )
 

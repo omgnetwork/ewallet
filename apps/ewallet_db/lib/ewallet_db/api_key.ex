@@ -4,19 +4,22 @@ defmodule EWalletDB.APIKey do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
+  use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, APIKey}
   alias EWalletDB.Helpers.Crypto
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "api_key" do
+    external_id prefix: "api_"
+
     field :key, :string
     field :owner_app, :string
-    belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
+                                  references: :uuid,
                                   type: UUID
     field :expired, :boolean
     timestamps()
@@ -25,8 +28,8 @@ defmodule EWalletDB.APIKey do
 
   defp changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:key, :owner_app, :account_id, :expired])
-    |> validate_required([:key, :owner_app, :account_id])
+    |> cast(attrs, [:key, :owner_app, :account_uuid, :expired])
+    |> validate_required([:key, :owner_app, :account_uuid])
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
   end
@@ -34,17 +37,14 @@ defmodule EWalletDB.APIKey do
   @doc """
   Get API key by id, exclude soft-deleted.
   """
-  def get(nil), do: nil
-  def get(id) do
-    case UUID.dump(id) do
-      {:ok, _binary} ->
-        APIKey
-        |> exclude_deleted()
-        |> Repo.get(id)
-      :error ->
-        nil
-    end
+  @spec get(ExternalID.t) :: %APIKey{} | nil
+  def get(id)
+  def get(id) when is_external_id(id) do
+    APIKey
+    |> exclude_deleted()
+    |> Repo.get_by(id: id)
   end
+  def get(_), do: nil
 
   @doc """
   Creates a new API key with the passed attributes.
@@ -53,7 +53,7 @@ defmodule EWalletDB.APIKey do
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:account_id, fn -> get_master_account_id() end)
+      |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
       |> Map.put_new_lazy(:key, fn -> Crypto.generate_key(@key_bytes) end)
 
     %APIKey{}
@@ -61,9 +61,9 @@ defmodule EWalletDB.APIKey do
     |> Repo.insert()
   end
 
-  defp get_master_account_id do
+  defp get_master_account_uuid do
     case Account.get_master_account() do
-      %{id: id} -> id
+      %{uuid: uuid} -> uuid
       _ -> nil
     end
   end

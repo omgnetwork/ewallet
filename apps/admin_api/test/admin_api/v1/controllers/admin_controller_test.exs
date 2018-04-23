@@ -82,13 +82,13 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
-      response  = user_request("/admin.get", %{"id" => "not_uuid"})
+    test "returns 'user:id_not_found' if the given ID format is invalid" do
+      response  = user_request("/admin.get", %{"id" => "not_valid_id_format"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Admin ID must be a UUID"
+      assert response["data"]["code"] == "user:id_not_found"
+      assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
   end
 
@@ -217,7 +217,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
 
     test "returns 'user:id_not_found' if the given ID was not found" do
       response  = user_request("/admin.upload_avatar", %{
-        "id" => UUID.generate(),
+        "id" => "usr_12345678901234567890123456",
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -230,9 +230,9 @@ defmodule AdminAPI.V1.AdminControllerTest do
       assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not UUID" do
+    test "returns 'user:id_not_found' if the given ID format is invalid" do
       response  = user_request("/admin.upload_avatar", %{
-        "id" => "not_uuid",
+        "id" => "not_valid_id_format",
         "avatar" => %Plug.Upload{
           path: "test/support/assets/test.jpg",
           filename: "test.jpg"
@@ -241,8 +241,8 @@ defmodule AdminAPI.V1.AdminControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Admin ID must be a UUID"
+      assert response["data"]["code"] == "user:id_not_found"
+      assert response["data"]["description"] == "There is no user corresponding to the provided id"
     end
   end
 end

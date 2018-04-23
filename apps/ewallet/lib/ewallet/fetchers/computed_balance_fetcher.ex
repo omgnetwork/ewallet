@@ -61,11 +61,11 @@ defmodule EWallet.ComputedBalanceFetcher do
 
   @doc """
   Prepare the list of balances and turn them into a
-  suitable format for EWalletAPI using a user and a token_friendly_id
+  suitable format for EWalletAPI using a user and a token_id
 
   ## Examples
 
-    res = Balance.get(user, "OMG:e4222f72-46c5-4baa-98c0-680908fcdd84")
+    res = Balance.get(user, "tok_OMG_01cbennsd8q4xddqfmewpwzxdy")
 
     case res do
       {:ok, balances} ->
@@ -80,16 +80,16 @@ defmodule EWallet.ComputedBalanceFetcher do
   """
   def get(%User{} = user, %MintedToken{} = minted_token) do
     user_balance = User.get_primary_balance(user)
-    get(minted_token.friendly_id, user_balance.address)
+    get(minted_token.id, user_balance.address)
   end
 
   @doc """
   Prepare the list of balances and turn them into a
-  suitable format for EWalletAPI using a token_friendly_id and an address
+  suitable format for EWalletAPI using a token_id and an address
 
   ## Examples
 
-    res = Balance.get("OMG:e4222f72-46c5-4baa-98c0-680908fcdd84", "22a83591-d684-4bfd-9310-6bdecdec4f81")
+    res = Balance.get("tok_OMG_01cbennsd8q4xddqfmewpwzxdy", "22a83591-d684-4bfd-9310-6bdecdec4f81")
 
     case res do
       {:ok, balances} ->
@@ -102,8 +102,8 @@ defmodule EWallet.ComputedBalanceFetcher do
     end
 
   """
-  def get(friendly_id, address) do
-    friendly_id |> Balance.get(address) |> process_response(address, :one)
+  def get(id, address) do
+    id |> Balance.get(address) |> process_response(address, :one)
   end
 
   defp format_all(address) do
@@ -133,7 +133,7 @@ defmodule EWallet.ComputedBalanceFetcher do
     Enum.map(minted_tokens, fn minted_token ->
       %{
         minted_token: minted_token,
-        amount: amounts[minted_token.friendly_id] || 0
+        amount: amounts[minted_token.id] || 0
       }
     end)
   end

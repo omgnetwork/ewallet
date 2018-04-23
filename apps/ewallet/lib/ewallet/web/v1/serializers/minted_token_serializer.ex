@@ -16,7 +16,7 @@ defmodule EWallet.Web.V1.MintedTokenSerializer do
   def serialize(%MintedToken{} = minted_token) do
     %{
       object: "minted_token",
-      id: minted_token.friendly_id,
+      id: minted_token.id,
       symbol: minted_token.symbol,
       name: minted_token.name,
       subunit_to_unit: minted_token.subunit_to_unit,

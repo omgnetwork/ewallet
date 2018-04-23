@@ -49,14 +49,14 @@ Enum.each(seeds, fn(data) ->
        {:ok, minted_token} <- MintedToken.insert(data)
   do
     CLI.success("""
-        Friendly ID     : #{minted_token.friendly_id}
+        ID              : #{minted_token.id}
         Subunit to unit : #{minted_token.subunit_to_unit}
         Account         : #{minted_token.account_id}
       """)
   else
     %MintedToken{} = minted_token ->
       CLI.warn("""
-          Friendly ID     : #{minted_token.friendly_id}
+          ID              : #{minted_token.id}
           Subunit to unit : #{minted_token.subunit_to_unit}
           Account         : #{minted_token.account_id}
         """)
@@ -76,16 +76,16 @@ Enum.each(seeds, fn(data) ->
 
   mint_data = %{
     "idempotency_token" => UUID.generate(),
-    "token_id" => minted_token.friendly_id,
+    "token_id" => minted_token.id,
     "amount" => data.genesis_amount,
-    "description" => "Seeded #{data.genesis_amount} #{minted_token.friendly_id}.",
+    "description" => "Seeded #{data.genesis_amount} #{minted_token.id}.",
     "metadata" => %{}
   }
 
   case MintGate.insert(mint_data) do
     {:ok, mint, transfer} ->
       CLI.success("""
-          Minted Token ID  : #{minted_token.friendly_id}
+          Minted Token ID  : #{minted_token.id}
           Amount (subunit) : #{mint.amount}
           Confirmed?       : #{mint.confirmed}
           From address     : #{transfer.from || '<nil>'}

@@ -13,7 +13,7 @@ defmodule EWalletDB.APIKeyTest do
     test "accepts a uuid" do
       api_key = insert(:api_key)
       result = APIKey.get(api_key.id)
-      assert result.id == api_key.id
+      assert result.uuid == api_key.uuid
     end
 
     test "does not return a soft-deleted API key" do
@@ -31,7 +31,8 @@ defmodule EWalletDB.APIKeyTest do
   end
 
   describe "APIKey.insert/1" do
-    test_insert_generate_uuid APIKey, :id
+    test_insert_generate_uuid APIKey, :uuid
+    test_insert_generate_external_id APIKey, :id, "api_"
     test_insert_generate_timestamps APIKey
     test_insert_generate_length APIKey, :key, 43 # 32 bytes = ceil(32 / 3 * 4)
 
@@ -42,7 +43,7 @@ defmodule EWalletDB.APIKeyTest do
       master_account = get_or_insert_master_account()
       {:ok, api_key} = :api_key |> params_for(%{account: nil}) |> APIKey.insert()
 
-      assert api_key.account_id == master_account.id
+      assert api_key.account_uuid == master_account.uuid
     end
   end
 
@@ -58,7 +59,7 @@ defmodule EWalletDB.APIKeyTest do
       })
       |> APIKey.insert
 
-      assert APIKey.authenticate("apikey123", @owner_app).id == account.id
+      assert APIKey.authenticate("apikey123", @owner_app).uuid == account.uuid
     end
 
     test "returns false if API key does not exists" do
@@ -95,7 +96,7 @@ defmodule EWalletDB.APIKeyTest do
         })
         |> APIKey.insert
 
-      assert APIKey.authenticate(api_key.id, api_key.key, @owner_app).id == account.id
+      assert APIKey.authenticate(api_key.id, api_key.key, @owner_app).uuid == account.uuid
     end
 
     test "returns false if API key does not exists" do

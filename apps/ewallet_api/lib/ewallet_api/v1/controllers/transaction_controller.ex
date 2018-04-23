@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.TransactionController do
 
   @preload_fields      [:minted_token]
   @mapped_fields       %{"created_at" => "inserted_at"}
-  @search_fields       [{:id, :uuid}, :idempotency_token, :status, :from, :to]
+  @search_fields       [:id, :idempotency_token, :status, :from, :to]
   @sort_fields         [:id, :status, :from, :to, :inserted_at, :updated_at]
 
   @doc """

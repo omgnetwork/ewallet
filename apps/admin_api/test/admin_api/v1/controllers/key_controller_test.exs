@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Account, Key}
+  alias EWalletDB.Helpers.Assoc
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do
@@ -18,7 +19,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
               "id" => key.id,
               "access_key" => key.access_key,
               "secret_key" => nil, # Secret keys cannot be retrieved after creation
-              "account_id" => key.account_id,
+              "account_id" => Assoc.get(key, [:account, :id]),
               "created_at" => Date.to_iso8601(key.inserted_at),
               "updated_at" => Date.to_iso8601(key.updated_at),
               "deleted_at" => Date.to_iso8601(key.deleted_at)

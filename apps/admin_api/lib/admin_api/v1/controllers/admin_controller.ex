@@ -1,7 +1,6 @@
 defmodule AdminAPI.V1.AdminController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias Ecto.UUID
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias AdminAPI.V1.UserView
   alias EWalletDB.{User, UserQuery}
@@ -18,7 +17,7 @@ defmodule AdminAPI.V1.AdminController do
   # Note that these values here *must be the DB column names*
   # Because requests cannot customize which fields to search (yet!),
   # `@mapped_fields` don't affect them.
-  @search_fields [{:id, :uuid}, :email]
+  @search_fields [:id, :email]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
@@ -41,33 +40,24 @@ defmodule AdminAPI.V1.AdminController do
   Retrieves a specific admin by its id.
   """
   def get(conn, %{"id" => id}) do
-    case UUID.cast(id) do
-      {:ok, uuid} ->
-        query = UserQuery.where_has_membership()
+    query = UserQuery.where_has_membership()
 
-        uuid
-        |> User.get(query)
-        |> respond_single(conn)
-      _ ->
-        handle_error(conn, :invalid_parameter, "Admin ID must be a UUID")
-    end
+    id
+    |> User.get(query)
+    |> respond_single(conn)
   end
 
   @doc """
   Uploads an image as avatar for a specific user.
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    case UUID.cast(id) do
-      {:ok, uuid} ->
-        case User.get(uuid, UserQuery.where_has_membership()) do
-          nil -> respond_single(nil, conn)
-          user ->
-            user
-            |> User.store_avatar(attrs)
-            |> respond_single(conn)
-        end
-      _ ->
-        handle_error(conn, :invalid_parameter, "Admin ID must be a UUID")
+    case User.get(id, UserQuery.where_has_membership()) do
+      nil ->
+        respond_single(nil, conn)
+      user ->
+        user
+        |> User.store_avatar(attrs)
+        |> respond_single(conn)
     end
   end
 

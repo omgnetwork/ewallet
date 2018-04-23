@@ -3,16 +3,19 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   This module represents the transaction_consumption_confirmation event and how to build it.
   """
   alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
-  alias EWalletDB.{Repo, TransactionConsumption}
+  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.TransactionConsumption
 
   @spec broadcast(Atom.t, TransactionConsumption.t) :: :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do
+    consumption = Preloader.preload(consumption, transaction_request: [:account, :user])
+
     topics =
       []
-      |> Event.address_topic(consumption.transaction_request.balance_address)
-      |> Event.transaction_request_topic(consumption.transaction_request_id)
-      |> Event.user_topic(consumption.transaction_request.user_id)
-      |> Event.account_topic(consumption.transaction_request.account_id)
+      |> Event.address_topic(Assoc.get(consumption, [:transaction_request, :balance_address]))
+      |> Event.transaction_request_topic(Assoc.get(consumption, [:transaction_request, :id]))
+      |> Event.user_topic(Assoc.get(consumption, [:transaction_request, :user, :id]))
+      |> Event.account_topic(Assoc.get(consumption, [:transaction_request, :account, :id]))
 
     Event.broadcast(
       event: "transaction_consumption_request",
@@ -31,13 +34,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   def broadcast(_, _), do: {:error, :unhandled_event}
 
   defp broadcast_change(event, consumption) do
+    consumption = Preloader.preload(consumption, [:account, :transaction_request, :user])
+
     topics =
       []
       |> Event.address_topic(consumption.balance_address)
-      |> Event.transaction_request_topic(consumption.transaction_request_id)
+      |> Event.transaction_request_topic(Assoc.get(consumption, [:transaction_request, :id]))
       |> Event.transaction_consumption_topic(consumption.id)
-      |> Event.user_topic(consumption.user_id)
-      |> Event.account_topic(consumption.account_id)
+      |> Event.user_topic(Assoc.get(consumption, [:user, :id]))
+      |> Event.account_topic(Assoc.get(consumption, [:account, :id]))
 
     Event.broadcast(
       event: event,
@@ -63,7 +68,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   end
 
   defp error_code(consumption) do
-    consumption = Repo.preload(consumption, :transfer)
+    consumption = Preloader.preload(consumption, :transfer)
 
     case consumption.status do
       "failed"  -> consumption.transfer.ledger_response["code"]

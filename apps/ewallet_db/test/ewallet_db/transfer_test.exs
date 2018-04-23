@@ -36,7 +36,8 @@ defmodule EWalletDB.TransferTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid Transfer, :id
+    test_insert_generate_uuid Transfer, :uuid
+    test_insert_generate_external_id Transfer, :id, "tfr_"
     test_insert_generate_timestamps Transfer
     test_insert_prevent_blank Transfer, :payload
     test_insert_prevent_blank Transfer, :idempotency_token
@@ -69,7 +70,7 @@ defmodule EWalletDB.TransferTest do
       assert res == :error
       assert changeset.errors == [idempotency_token: {"can't be blank", [validation: :required]},
                                   amount: {"can't be blank", [validation: :required]},
-                                  minted_token_id: {"can't be blank",
+                                  minted_token_uuid: {"can't be blank",
                                                              [validation: :required]},
                                   to: {"can't be blank", [validation: :required]},
                                   from: {"can't be blank", [validation: :required]}]

@@ -4,19 +4,22 @@ defmodule EWalletDB.Key do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
+  use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, Key, Helpers.Crypto}
 
-  @primary_key {:id, UUID, autogenerate: true}
+  @primary_key {:uuid, UUID, autogenerate: true}
   @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
 
   schema "key" do
+    external_id prefix: "key_"
+
     field :access_key, :string
     field :secret_key, :string, virtual: true
     field :secret_key_hash, :string
-    belongs_to :account, Account, foreign_key: :account_id,
-                                  references: :id,
+    belongs_to :account, Account, foreign_key: :account_uuid,
+                                  references: :uuid,
                                   type: UUID
     timestamps()
     soft_delete()
@@ -24,8 +27,8 @@ defmodule EWalletDB.Key do
 
   defp changeset(%Key{} = key, attrs) do
     key
-    |> cast(attrs, [:access_key, :secret_key, :account_id])
-    |> validate_required([:access_key, :secret_key, :account_id])
+    |> cast(attrs, [:access_key, :secret_key, :account_uuid])
+    |> validate_required([:access_key, :secret_key, :account_uuid])
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_password(attrs[:secret_key]))
     |> assoc_constraint(:account)
@@ -43,17 +46,14 @@ defmodule EWalletDB.Key do
   @doc """
   Get key by id, exclude soft-deleted.
   """
-  def get(nil), do: nil
-  def get(id) do
-    case UUID.dump(id) do
-      {:ok, _binary} ->
-        Key
-        |> exclude_deleted()
-        |> Repo.get(id)
-      :error ->
-        nil
-    end
+  @spec get(ExternalID.t) :: %Key{} | nil
+  def get(id)
+  def get(id) when is_external_id(id) do
+    Key
+    |> exclude_deleted()
+    |> Repo.get_by(id: id)
   end
+  def get(_), do: nil
 
   @doc """
   Get key by its `:access_key`, exclude soft-deleted.
@@ -67,13 +67,13 @@ defmodule EWalletDB.Key do
   @doc """
   Creates a new key with the passed attributes.
 
-  The `account_id` defaults to the master account if not provided.
+  The `account_uuid` defaults to the master account if not provided.
   The `access_key` and `secret_key` are automatically generated if not specified.
   """
   def insert(attrs) do
     attrs =
       attrs
-      |> Map.put_new_lazy(:account_id, fn -> get_master_account_id() end)
+      |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
       |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_key(@key_bytes) end)
       |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@key_bytes) end)
 
@@ -82,9 +82,9 @@ defmodule EWalletDB.Key do
     |> Repo.insert()
   end
 
-  defp get_master_account_id do
+  defp get_master_account_uuid do
     case Account.get_master_account() do
-      %{id: id} -> id
+      %{uuid: uuid} -> uuid
       _ -> nil
     end
   end

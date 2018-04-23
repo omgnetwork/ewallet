@@ -778,7 +778,7 @@ components:
             success: true
             data:
               object: "minted_token"
-              id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
               symbol: "ABC"
               name: "ABC Point"
               subunit_to_unit: 100
@@ -809,7 +809,7 @@ components:
               object: "list"
               data:
                 - object: "minted_token"
-                  id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                  id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                   symbol: "ABC"
                   name: "ABC Point"
                   subunit_to_unit: 100
@@ -1192,7 +1192,7 @@ components:
               amount: 1000
               minted_token:
                 object: "minted_token"
-                id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                 symbol: "ABC"
                 name: "ABC Point"
                 subunit_to_unit: 100
@@ -1204,7 +1204,7 @@ components:
               amount: 1000
               minted_token:
                 object: "minted_token"
-                id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                 symbol: "ABC"
                 name: "ABC Point"
                 subunit_to_unit: 100
@@ -1250,7 +1250,7 @@ components:
                   amount: 1000
                   minted_token:
                     object: "minted_token"
-                    id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                    id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                     symbol: "ABC"
                     name: "ABC Point"
                     subunit_to_unit: 100
@@ -1262,7 +1262,7 @@ components:
                   amount: 1000
                   minted_token:
                     object: "minted_token"
-                    id: "ABC:xe3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                    id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                     symbol: "ABC"
                     name: "ABC Point"
                     subunit_to_unit: 100
@@ -1589,7 +1589,7 @@ components:
             required:
               - id
             example:
-              id: "ABC:ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
     # Request body for creating a minted token
     MintedTokenCreateBody:
         description: The parameters to create a minted token. Note that if amount is specified, the token will be minted automatically.
