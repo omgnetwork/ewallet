@@ -183,10 +183,10 @@ defmodule EWallet.Web.SearchParserTest do
     test "returns records mapped to a different field" do
       account = prepare_test_accounts() |> Enum.at(0)
 
-      attrs = %{"search_terms" => %{"id" => account.external_id}}
+      attrs = %{"search_terms" => %{"mapped_id" => account.id}}
       result =
         Account
-        |> SearchParser.to_query(attrs, [:external_id], %{"id" => "external_id"})
+        |> SearchParser.to_query(attrs, [:id], %{"mapped_id" => "id"})
         |> Repo.all()
 
       assert Enum.count(result) == 1
