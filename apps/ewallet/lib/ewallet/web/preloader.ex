@@ -19,9 +19,9 @@ defmodule EWallet.Web.Preloader do
   @doc """
   Preloads associations into the given record(s).
   """
-  @spec preload(Ecto.Schema.t() | Ecto.Schema.t(), list(atom)) ::
+  @spec preload(Ecto.Schema.t() | Ecto.Schema.t(), atom() | [atom()]) ::
           Ecto.Schema.t() | [Ecto.Schema.t()]
   def preload(record, preloads) do
-    Repo.preload(record, preloads)
+    Repo.preload(record, List.wrap(preloads))
   end
 end

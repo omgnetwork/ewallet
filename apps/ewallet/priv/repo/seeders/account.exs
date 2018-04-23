@@ -1,6 +1,7 @@
 # This is the seeding script for Account.
 alias EWallet.Seeder
 alias EWallet.Seeder.CLI
+alias EWallet.Web.Preloader
 alias EWalletDB.Account
 
 seeds = [
@@ -25,20 +26,22 @@ CLI.subheading("Seeding Accounts:\n")
 Enum.each(seeds, fn(data) ->
   with nil            <- Account.get_by(name: data.name),
        parent         <- Account.get_by(name: data.parent_name) || %{id: nil},
-       data           <- Map.put(data, :parent_id, parent.id),
-       {:ok, account} <- Account.insert(data)
+       data           <- Map.put(data, :parent_uuid, parent.uuid),
+       {:ok, account} <- Account.insert(data),
+       account        <- Preloader.preload(account, :parent)
   do
     CLI.success("""
-      Name   : #{account.name}
-      ID     : #{account.id}
-      Parent : #{account.parent_id}
+      Name      : #{account.name}
+      ID        : #{account.id}
+      Parent ID : #{account.parent.id}
     """)
   else
     %Account{} = account ->
+      account = Preloader.preload(account, :parent)
       CLI.warn("""
-        Name   : #{account.name}
-        ID     : #{account.id}
-        Parent : #{account.parent_id}
+        Name      : #{account.name}
+        ID        : #{account.id}
+        Parent ID : #{account.parent.id}
       """)
     {:error, changeset} ->
       CLI.error("  Account #{data.name} could not be inserted due to an error:")
