@@ -14,26 +14,7 @@ defmodule EWallet.Umbrella.Mixfile do
       ],
       deps: deps(),
       aliases: aliases(),
-      docs: [
-        main: "introduction",
-        extra_section: "Guides",
-        extras: [
-          {"README.md", [filename: "introduction", title: "Introduction"]},
-          "docs/balances.md"
-        ],
-        groups_for_extras: [
-          "Getting Started": ["README.md"],
-          Entities: ["docs/balances.md"]
-        ],
-        groups_for_modules: [
-          EWallet: ~r/EWallet(\..+)*$/,
-          "EWallet API": ~r/EWalletAPI(?!\.V\d+)(\..+)*$/,
-          "EWallet API V1": ~r/EWalletAPI.V1(\..+)*$/,
-          "EWallet DB": ~r/EWalletDB(\..+)*$/,
-          "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
-          "Admin API V1": ~r/AdminAPI.V1(\..+)*$/
-        ]
-      ]
+      docs: docs()
     ]
   end
 
@@ -65,6 +46,48 @@ defmodule EWallet.Umbrella.Mixfile do
       ],
       seed: [
         "run apps/ewallet/priv/repo/seeder.exs"
+      ]
+    ]
+  end
+
+  def docs do
+    [
+      main: "introduction",
+      extra_section: "Guides",
+      extras: [
+        {"README.md", [filename: "introduction", title: "Introduction"]},
+        "docs/design/balances.md",
+        "docs/design/components.md",
+        "docs/design/entities.md",
+        "docs/setup/clustering.md",
+        "docs/setup/env.md",
+        "docs/setup/integration.md"
+      ],
+      groups_for_extras: [
+        "Getting Started": [
+          "README.md"
+        ],
+        "Technical Design": [
+          "docs/design/balances.md",
+          "docs/design/components.md",
+          "docs/design/entities.md"
+        ],
+        "Setting Up": [
+          "docs/setup/clustering.md",
+          "docs/setup/env.md",
+          "docs/setup/integration.md"
+        ]
+      ],
+      groups_for_modules: [
+        eWallet: ~r/EWallet(\..+)*$/,
+        "eWallet API": ~r/EWalletAPI(?!\.V\d+)(\..+)*$/,
+        "eWallet API V1": ~r/EWalletAPI.V1(\..+)*$/,
+        "eWallet DB": ~r/EWalletDB(\..+)*$/,
+        "Local Ledger": ~r/LocalLedger(\..+)*$/,
+        "Local Ledger DB": ~r/LocalLedgerDB(\..+)*$/,
+        "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
+        "Admin API V1": ~r/AdminAPI.V1(\..+)*$/,
+        "URL Dispatcher": ~r/UrlDispatcher(\..+)*$/
       ]
     ]
   end
