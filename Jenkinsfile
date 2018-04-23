@@ -47,7 +47,7 @@ podTemplate(
                         s6-env HOME=/tmp/ewallet \
                         s6-env MIX_ENV=test \
                         cd /app \
-                        mix do credo, ecto.create, ecto.migrate, test \
+                        mix do format --check-formatted, credo, ecto.create, ecto.migrate, test \
                     " \
                 """.stripIndent()
             )
