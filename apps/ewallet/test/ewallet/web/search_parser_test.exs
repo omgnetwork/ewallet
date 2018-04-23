@@ -180,7 +180,20 @@ defmodule EWallet.Web.SearchParserTest do
       assert Enum.empty?(result)
     end
 
-    test "returns original query if search_term is missing" do
+    test "returns records mapped to a different field" do
+      account = prepare_test_accounts() |> Enum.at(0)
+
+      attrs = %{"search_terms" => %{"mapped_id" => account.id}}
+      result =
+        Account
+        |> SearchParser.to_query(attrs, [:id], %{"mapped_id" => "id"})
+        |> Repo.all()
+
+      assert Enum.count(result) == 1
+      assert Enum.at(result, 0).name == account.name
+    end
+
+    test "returns original query if search_terms is missing" do
       original = Account
       attrs    = %{"search_terms" => %{"wrong_attr" => "Name Match 1"}}
       result   = SearchParser.to_query(original, attrs, [:name])

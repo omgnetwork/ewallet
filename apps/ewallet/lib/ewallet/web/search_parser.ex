@@ -17,34 +17,48 @@ defmodule EWallet.Web.SearchParser do
 
   Where "field_name" is in the list of available search fields.
   """
-  def to_query(queryable, %{"search_terms" => terms}, fields) when terms != nil do
+  @spec to_query(Ecto.Queryable.t(), map(), [atom()]) :: Ecto.Queryable.t()
+  @spec to_query(Ecto.Queryable.t(), map(), [atom()], map()) :: Ecto.Queryable.t()
+  def to_query(queryable, terms, fields, mapping \\ %{})
+  def to_query(queryable, %{"search_terms" => terms}, fields, mapping) when terms != nil do
     {_i, query} = Enum.reduce(terms, {0, queryable}, fn({field, value}, {index, query}) ->
-      fields
-      |> is_allowed_field?(field)
+      field
+      |> map_field(mapping)
+      |> allowed?(fields)
       |> build_search_query(index, query, value)
     end)
 
     query
   end
-  def to_query(queryable, %{"search_term" => term}, fields) when term != nil do
+  def to_query(queryable, %{"search_term" => term}, fields, _mapping) when term != nil do
     {_i, query} = Enum.reduce(fields, {0, queryable}, fn(field, {index, query}) ->
       build_search_query(field, index, query, term)
     end)
 
     query
   end
-  def to_query(queryable, _, _), do: queryable
+  def to_query(queryable, _, _, _), do: queryable
 
-  defp is_allowed_field?(fields, field) do
-    atom_field = String.to_existing_atom(field)
-
-    cond do
-      Enum.member?(fields, {atom_field, :uuid}) -> {atom_field, :uuid}
-      Enum.member?(fields, atom_field)          -> atom_field
-      true                                      -> nil
+  defp map_field(original, mapping) do
+    case mapping[original] do
+      nil    -> original
+      mapped -> mapped
     end
+  end
+
+  defp allowed?(field, allowed_fields) when is_binary(field) do
+    field
+    |> String.to_existing_atom()
+    |> allowed?(allowed_fields)
   rescue
     _ in ArgumentError -> nil
+  end
+  defp allowed?(field, allowed_fields) do
+    cond do
+      Enum.member?(allowed_fields, {field, :uuid}) -> {field, :uuid}
+      Enum.member?(allowed_fields, field)          -> field
+      true                                         -> nil
+    end
   end
 
   defp build_search_query(_field, index, query, nil), do: {index, query}
