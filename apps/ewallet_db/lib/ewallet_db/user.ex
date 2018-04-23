@@ -354,7 +354,7 @@ defmodule EWalletDB.User do
       r in Role,
       join:
         account_tree in fragment(
-          """
+          ~s/
             WITH RECURSIVE account_tree AS (
               SELECT a.*, m.role_uuid, m.user_uuid
               FROM account a
@@ -370,7 +370,7 @@ defmodule EWalletDB.User do
             JOIN "role" AS r ON r.uuid = role_uuid
             JOIN "user" AS u ON u.uuid = user_uuid
             WHERE u.id = ? LIMIT 1
-          """,
+          /,
           ^account_id,
           ^user_id
         ),
