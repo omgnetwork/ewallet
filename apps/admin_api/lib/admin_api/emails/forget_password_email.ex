@@ -6,7 +6,8 @@ defmodule AdminAPI.ForgetPasswordEmail do
 
   def create(request, redirect_url) do
     sender = Application.get_env(:admin_api, :sender_email)
-    link   =
+
+    link =
       redirect_url
       |> String.replace("{email}", request.user.email)
       |> String.replace("{token}", request.token)

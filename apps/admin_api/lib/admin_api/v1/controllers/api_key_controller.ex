@@ -38,6 +38,7 @@ defmodule AdminAPI.V1.APIKeyController do
   defp respond_multiple(%Paginator{} = paginated, conn) do
     render(conn, :api_keys, %{api_keys: paginated})
   end
+
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
@@ -52,12 +53,14 @@ defmodule AdminAPI.V1.APIKeyController do
     |> APIKey.insert()
     |> respond_single(conn)
   end
+
   def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
   # Respond when the API key is saved successfully
   defp respond_single({:ok, api_key}, conn) do
     render(conn, :api_key, %{api_key: api_key})
   end
+
   # Responds when the API key is saved unsucessfully
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
@@ -67,16 +70,18 @@ defmodule AdminAPI.V1.APIKeyController do
   Soft-deletes an existing API key by its id.
   """
   def delete(conn, %{"id" => id}) do
-    with false           <- self_delete?(id, conn),
+    with false <- self_delete?(id, conn),
          %APIKey{} = key <- APIKey.get(id) do
       do_delete(conn, key)
     else
       true ->
         handle_error(conn, :invalid_parameter, "The given API key is being used for this request")
+
       nil ->
         handle_error(conn, :api_key_not_found)
     end
   end
+
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp self_delete?(id, conn) do
@@ -87,6 +92,7 @@ defmodule AdminAPI.V1.APIKeyController do
     case APIKey.delete(key) do
       {:ok, _key} ->
         render(conn, :empty_response)
+
       {:error, changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
     end

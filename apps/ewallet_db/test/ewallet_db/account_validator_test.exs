@@ -53,7 +53,8 @@ defmodule EWalletDB.AccountValidatorTest do
       changeset =
         %Account{}
         |> cast(%{parent_uuid: account1.uuid}, [:parent_uuid])
-        |> validate_account_level(2) # account0 -> account1 so far, there's room for account2
+        # account0 -> account1 so far, there's room for account2
+        |> validate_account_level(2)
 
       assert changeset.valid?
     end
@@ -72,8 +73,12 @@ defmodule EWalletDB.AccountValidatorTest do
         |> validate_account_level(1)
 
       refute changeset.valid?
+
       assert changeset.errors ==
-        [{:parent_uuid, {"is at the maximum child level", [validation: :account_level_limit]}}]
+               [
+                 {:parent_uuid,
+                  {"is at the maximum child level", [validation: :account_level_limit]}}
+               ]
     end
   end
 end

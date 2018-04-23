@@ -20,7 +20,7 @@ defmodule LocalLedger.CachedBalance do
   @doc """
   Get all the balance amounts for the given balance.
   """
-  @spec all(Balance.t) :: {:ok, Map.t}
+  @spec all(Balance.t()) :: {:ok, Map.t()}
   def all(balance) do
     {:ok, get_amounts(balance)}
   end
@@ -29,7 +29,7 @@ defmodule LocalLedger.CachedBalance do
   Get the balance amount for the specified minted token (token_id) and
   the given balance.
   """
-  @spec get(Balance.t, String.t) :: {:ok, Map.t}
+  @spec get(Balance.t(), String.t()) :: {:ok, Map.t()}
   def get(balance, token_id) do
     amounts = get_amounts(balance)
     {:ok, %{token_id => amounts[token_id] || 0}}
@@ -42,6 +42,7 @@ defmodule LocalLedger.CachedBalance do
   end
 
   defp calculate_amounts(nil, balance), do: calculate_from_beginning_and_insert(balance)
+
   defp calculate_amounts(cached_balance, balance) do
     balance.address
     |> Transaction.calculate_all_balances(%{
@@ -51,8 +52,8 @@ defmodule LocalLedger.CachedBalance do
   end
 
   defp add_amounts(amounts_1, amounts_2) do
-    Map.keys(amounts_1) ++ Map.keys(amounts_2)
-    |> Enum.map(fn(token_id) ->
+    (Map.keys(amounts_1) ++ Map.keys(amounts_2))
+    |> Enum.map(fn token_id ->
       {token_id, (amounts_1[token_id] || 0) + (amounts_2[token_id] || 0)}
     end)
     |> Enum.into(%{})
@@ -66,7 +67,7 @@ defmodule LocalLedger.CachedBalance do
 
   defp calculate_with_strategy("since_last_cached", balance) do
     case CachedBalance.get(balance.address) do
-      nil            -> calculate_from_beginning_and_insert(balance)
+      nil -> calculate_from_beginning_and_insert(balance)
       cached_balance -> calculate_from_cached_and_insert(balance, cached_balance)
     end
   end
@@ -101,11 +102,12 @@ defmodule LocalLedger.CachedBalance do
 
   defp insert(amounts, balance, computed_at) do
     if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
-      {:ok, _} = CachedBalance.insert(%{
-        amounts:         amounts,
-        balance_address: balance.address,
-        computed_at:     computed_at
-      })
+      {:ok, _} =
+        CachedBalance.insert(%{
+          amounts: amounts,
+          balance_address: balance.address,
+          computed_at: computed_at
+        })
     end
 
     amounts

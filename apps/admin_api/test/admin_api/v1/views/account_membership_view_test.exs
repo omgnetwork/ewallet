@@ -21,16 +21,17 @@ defmodule AdminAPI.V1.AccountMembershipViewTest do
         }
       }
 
-      assert AccountMembershipView.render("memberships.json", %{memberships: memberships}) == expected
+      assert AccountMembershipView.render("memberships.json", %{memberships: memberships}) ==
+               expected
     end
 
     test "renders empty.json correctly" do
       assert AccountMembershipView.render("empty.json", %{success: true}) ==
-        %{
-          version: @expected_version,
-          success: true,
-          data: %{}
-        }
+               %{
+                 version: @expected_version,
+                 success: true,
+                 data: %{}
+               }
     end
   end
 end

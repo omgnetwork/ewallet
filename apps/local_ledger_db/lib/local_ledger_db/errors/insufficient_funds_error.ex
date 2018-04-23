@@ -3,10 +3,10 @@ defmodule LocalLedgerDB.Errors.InsufficientFundsError do
                          for this transaction."
 
   def error_message(current_amount, %{
-    amount: amount_to_debit,
-    minted_token_id: minted_token_id,
-    address: address
-  }) do
+        amount: amount_to_debit,
+        minted_token_id: minted_token_id,
+        address: address
+      }) do
     %{
       address: address,
       current_amount: current_amount,

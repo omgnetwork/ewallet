@@ -6,7 +6,8 @@ defmodule AdminAPI.InviteEmail do
 
   def create(invite, redirect_url) do
     sender = Application.get_env(:admin_api, :sender_email)
-    link   =
+
+    link =
       redirect_url
       |> String.replace("{email}", invite.user.email)
       |> String.replace("{token}", invite.token)

@@ -7,7 +7,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
 
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
-      master  = :account |> insert()
+      master = :account |> insert()
       account = :account |> insert() |> Repo.preload(:parent)
 
       expected = %{

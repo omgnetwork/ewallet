@@ -24,7 +24,7 @@ defmodule AdminPanel.PageControllerTest do
     end
 
     test "returns the main front-end app with the API key" do
-      _account       = insert(:account)
+      _account = insert(:account)
       {:ok, api_key} = APIKey.insert(%{owner_app: "admin_api"})
 
       response =

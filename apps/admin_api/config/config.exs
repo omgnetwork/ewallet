@@ -13,8 +13,7 @@ config :admin_api,
   enable_client_auth: System.get_env("ENABLE_ADMIN_CLIENT_AUTH") == "true"
 
 # Configs for the endpoint
-config :admin_api,
-  AdminAPI.Endpoint,
+config :admin_api, AdminAPI.Endpoint,
   secret_key_base: System.get_env("SECRET_KEY_BASE"),
   error_handler: AdminAPI.V1.ErrorHandler,
   render_errors: [
@@ -24,12 +23,10 @@ config :admin_api,
   ]
 
 # Config for Phoenix's generators
-config :admin_api, :generators,
-  context_app: false
+config :admin_api, :generators, context_app: false
 
 # Configs for Bamboo emailing library
-config :admin_api, AdminAPI.Mailer,
-  adapter: Bamboo.LocalAdapter
+config :admin_api, AdminAPI.Mailer, adapter: Bamboo.LocalAdapter
 
 # Config for CORSPlug
 #
@@ -41,18 +38,35 @@ config :admin_api, AdminAPI.Mailer,
 # Because of this the anonymous function is invoked right away through
 # `(fn -> ... end).()` in order for :origin to be assigned at compile time.
 config :cors_plug,
-  max_age: System.get_env("CORS_MAX_AGE") || 600, # Lowest common value of all browsers
-  headers: ["Authorization", "Content-Type", "Accept", "Origin",
-            "User-Agent", "DNT", "Cache-Control", "X-Mx-ReqToken",
-            "Keep-Alive", "X-Requested-With", "If-Modified-Since",
-            "X-CSRF-Token", "OMGAdmin-Account-ID"],
+  # Lowest common value of all browsers
+  max_age: System.get_env("CORS_MAX_AGE") || 600,
+  headers: [
+    "Authorization",
+    "Content-Type",
+    "Accept",
+    "Origin",
+    "User-Agent",
+    "DNT",
+    "Cache-Control",
+    "X-Mx-ReqToken",
+    "Keep-Alive",
+    "X-Requested-With",
+    "If-Modified-Since",
+    "X-CSRF-Token",
+    "OMGAdmin-Account-ID"
+  ],
   methods: ["POST"],
-  origin: (fn ->
-    case System.get_env("CORS_ORIGINS") do
-      nil -> [] # Disallow all origins if CORS_ORIGINS is not set
-      origins -> origins |> String.trim() |> String.split(~r{\s*,\s*})
-    end
-  end).()
+  origin:
+    (fn ->
+       case System.get_env("CORS_ORIGINS") do
+         # Disallow all origins if CORS_ORIGINS is not set
+         nil ->
+           []
+
+         origins ->
+           origins |> String.trim() |> String.split(~r{\s*,\s*})
+       end
+     end).()
 
 # Two configs need to be added to have a new EWallet Admin version:
 #
@@ -76,16 +90,16 @@ config :mime, :types, %{
 # Configs for Sentry exception reporting
 config :sentry,
   dsn: System.get_env("SENTRY_DSN"),
-  environment_name: Mix.env,
+  environment_name: Mix.env(),
   enable_source_code_context: true,
-  root_source_code_path: File.cwd!,
+  root_source_code_path: File.cwd!(),
   tags: %{
-    env: Mix.env,
-    application: Mix.Project.config[:app]
+    env: Mix.env(),
+    application: Mix.Project.config()[:app]
   },
-  server_name: elem(:inet.gethostname, 1),
+  server_name: elem(:inet.gethostname(), 1),
   included_environments: [:prod]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

@@ -29,7 +29,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
           },
           exchange: %{
             object: "exchange",
-            rate: 1,
+            rate: 1
           },
           metadata: %{some: "metadata"},
           encrypted_metadata: %{},
@@ -39,8 +39,7 @@ defmodule EWalletAPI.V1.TransactionViewTest do
         }
       }
 
-      assert render(TransactionView, "transaction.json",
-                    transaction: transaction) == expected
+      assert render(TransactionView, "transaction.json", transaction: transaction) == expected
     end
   end
 end

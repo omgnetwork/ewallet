@@ -3,20 +3,20 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
   Serializes transaction request data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
+
   alias EWallet.Web.V1.{
     AccountSerializer,
     MintedTokenSerializer,
     UserSerializer
   }
+
   alias EWallet.Web.Date
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.TransactionRequest
 
   def serialize(%TransactionRequest{} = transaction_request) do
-    transaction_request = Preloader.preload(transaction_request, [:account,
-                                                                  :consumptions,
-                                                                  :minted_token,
-                                                                  :user])
+    transaction_request =
+      Preloader.preload(transaction_request, [:account, :consumptions, :minted_token, :user])
 
     %{
       object: "transaction_request",
@@ -47,6 +47,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       updated_at: Date.to_iso8601(transaction_request.updated_at)
     }
   end
+
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 end

@@ -9,11 +9,17 @@ defmodule LocalLedgerDB.CachedBalance do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "cached_balance" do
-    field :amounts, :map
-    field :computed_at, :naive_datetime
-    belongs_to :balance, Balance, foreign_key: :balance_address,
-                                  references: :address,
-                                  type: :string
+    field(:amounts, :map)
+    field(:computed_at, :naive_datetime)
+
+    belongs_to(
+      :balance,
+      Balance,
+      foreign_key: :balance_address,
+      references: :address,
+      type: :string
+    )
+
     timestamps()
   end
 

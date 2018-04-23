@@ -10,6 +10,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
+
   def serialize(%Transfer{} = transaction) do
     serialized_minted_token = MintedTokenSerializer.serialize(transaction.minted_token)
 
@@ -22,17 +23,17 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         object: "transaction_source",
         address: transaction.from,
         amount: transaction.amount,
-        minted_token: serialized_minted_token,
+        minted_token: serialized_minted_token
       },
       to: %{
         object: "transaction_source",
         address: transaction.to,
         amount: transaction.amount,
-        minted_token: serialized_minted_token,
+        minted_token: serialized_minted_token
       },
       exchange: %{
         object: "exchange",
-        rate: 1,
+        rate: 1
       },
       metadata: transaction.metadata,
       encrypted_metadata: transaction.encrypted_metadata,
@@ -41,6 +42,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       updated_at: Date.to_iso8601(transaction.updated_at)
     }
   end
+
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 end

@@ -15,8 +15,11 @@ defmodule EWalletAPI.V1.TransactionRequestViewTest do
         data: TransactionRequestSerializer.serialize(transaction_request)
       }
 
-      assert render(TransactionRequestView, "transaction_request.json",
-                    transaction_request: transaction_request) == expected
+      assert render(
+               TransactionRequestView,
+               "transaction_request.json",
+               transaction_request: transaction_request
+             ) == expected
     end
   end
 end

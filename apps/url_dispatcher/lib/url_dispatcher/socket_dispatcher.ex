@@ -10,7 +10,7 @@ defmodule UrlDispatcher.SocketDispatcher do
   end
 
   def ewallet_api do
-    Endpoint.__sockets__
+    Endpoint.__sockets__()
     |> Enum.map(fn {path, socket} ->
       {path, Endpoint, socket} |> build_websocket_config("/api")
     end)
@@ -21,11 +21,10 @@ defmodule UrlDispatcher.SocketDispatcher do
   end
 
   defp build_websocket_config({path, endpoint, socket}, prefix) do
-    {"#{prefix}#{path}",
-       CowboyWebSocket,
-       {
-         WebSocket, {endpoint, socket, :websocket}
-      }
-     }
+    {"#{prefix}#{path}", CowboyWebSocket,
+     {
+       WebSocket,
+       {endpoint, socket, :websocket}
+     }}
   end
 end

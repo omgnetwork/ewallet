@@ -24,9 +24,12 @@ defmodule AdminAPI.V1.AccountScopePlug do
       assign(conn, :scoped_account_id, uuid)
     else
       # If the header is provided, it must be a UUID
-      :error -> handle_error(conn, :invalid_account_id)
+      :error ->
+        handle_error(conn, :invalid_account_id)
+
       # If the header is not provided, this plug does nothing
-      nil -> conn
+      nil ->
+        conn
     end
   end
 end

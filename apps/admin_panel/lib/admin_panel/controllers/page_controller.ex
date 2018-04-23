@@ -6,9 +6,9 @@ defmodule AdminPanel.PageController do
   alias Plug.Conn
 
   @not_found_message """
-    The assets are not available. If you think this is incorrect,
-    please make sure that the front-end assets have been built.
-    """
+  The assets are not available. If you think this is incorrect,
+  please make sure that the front-end assets have been built.
+  """
 
   def index(conn, _params) do
     content =
@@ -30,6 +30,7 @@ defmodule AdminPanel.PageController do
   defp index_file_path(%{private: %{override_dist_path: dist_path}}) do
     Path.join(dist_path, "index.html")
   end
+
   defp index_file_path(_conn) do
     :admin_panel
     |> Application.get_env(:dist_path)
@@ -60,5 +61,7 @@ defmodule AdminPanel.PageController do
     </script>
     """
   end
-  defp api_key_script(_), do: "<!-- No API key found -->" # For troubleshooting purposes
+
+  # For troubleshooting purposes
+  defp api_key_script(_), do: "<!-- No API key found -->"
 end

@@ -15,6 +15,7 @@ defmodule EWallet.Web.SortParserTest do
       prepare_test_accounts()
 
       attrs = %{"sort_by" => "name", "sort_dir" => "asc"}
+
       sorted =
         Account
         |> SortParser.to_query(attrs, [:name])
@@ -29,6 +30,7 @@ defmodule EWallet.Web.SortParserTest do
       prepare_test_accounts()
 
       attrs = %{"sort_by" => "description", "sort_dir" => "desc"}
+
       sorted =
         Account
         |> SortParser.to_query(attrs, [:description])
@@ -44,6 +46,7 @@ defmodule EWallet.Web.SortParserTest do
 
       mapped_fields = %{"some_description_field" => "description"}
       attrs = %{"sort_by" => "some_description_field", "sort_dir" => "desc"}
+
       sorted =
         Account
         |> SortParser.to_query(attrs, [:description], mapped_fields)
@@ -56,32 +59,32 @@ defmodule EWallet.Web.SortParserTest do
 
     test "returns original query if sort_by is missing" do
       original = Account
-      attrs    = %{"sort_dir" => "asc"}
-      result   = SortParser.to_query(original, attrs, [:name])
+      attrs = %{"sort_dir" => "asc"}
+      result = SortParser.to_query(original, attrs, [:name])
 
       assert result == original
     end
 
     test "returns original query if sort_by is not an allowed field" do
       original = Account
-      attrs    = %{"sort_by" => "name", "sort_dir" => "asc"}
-      result   = SortParser.to_query(original, attrs, [:not_name])
+      attrs = %{"sort_by" => "name", "sort_dir" => "asc"}
+      result = SortParser.to_query(original, attrs, [:not_name])
 
       assert result == original
     end
 
     test "returns original query if sort_dir is missing" do
       original = Account
-      attrs    = %{"sort_by" => "name"}
-      result   = SortParser.to_query(original, attrs, [:name])
+      attrs = %{"sort_by" => "name"}
+      result = SortParser.to_query(original, attrs, [:name])
 
       assert result == original
     end
 
     test "returns original query if sort_dir is invalid" do
       original = Account
-      attrs    = %{"sort_by" => "name", "sort_dir" => "not a direction"}
-      result   = SortParser.to_query(original, attrs, [:name])
+      attrs = %{"sort_by" => "name", "sort_dir" => "not a direction"}
+      result = SortParser.to_query(original, attrs, [:name])
 
       assert result == original
     end

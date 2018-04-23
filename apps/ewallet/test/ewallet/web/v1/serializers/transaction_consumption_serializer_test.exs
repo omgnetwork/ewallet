@@ -3,6 +3,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
   alias EWalletDB.Helpers.Assoc
   alias EWalletDB.TransactionConsumption
   alias EWallet.Web.Date
+
   alias EWallet.Web.V1.{
     AccountSerializer,
     MintedTokenSerializer,
@@ -15,10 +16,12 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
   describe "serialize/1 for single transaction request consumption" do
     test "serializes into correct V1 transaction_request consumption format" do
       request = insert(:transaction_consumption)
-      consumption = TransactionConsumption.get(request.id, preload: [:minted_token,
-                                                                     :transfer,
-                                                                     :transaction_request,
-                                                                     :user])
+
+      consumption =
+        TransactionConsumption.get(
+          request.id,
+          preload: [:minted_token, :transfer, :transaction_request, :user]
+        )
 
       expected = %{
         object: "transaction_consumption",
@@ -48,7 +51,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         confirmed_at: Date.to_iso8601(consumption.confirmed_at),
         failed_at: Date.to_iso8601(consumption.failed_at),
         expired_at: Date.to_iso8601(consumption.expired_at),
-        created_at: Date.to_iso8601(consumption.inserted_at),
+        created_at: Date.to_iso8601(consumption.inserted_at)
       }
 
       assert TransactionConsumptionSerializer.serialize(consumption) == expected

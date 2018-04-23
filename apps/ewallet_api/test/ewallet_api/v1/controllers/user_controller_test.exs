@@ -4,14 +4,17 @@ defmodule EWalletAPI.V1.UserControllerTest do
 
   describe "/user.create" do
     test "creates and responds with a newly created user if attributes are valid" do
-      request_data = params_for(:user,
-        metadata: %{something: "interesting"},
-        encrypted_metadata: %{something: "secret"}
-      )
-      response     = provider_request("/user.create", request_data)
+      request_data =
+        params_for(
+          :user,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        )
+
+      response = provider_request("/user.create", request_data)
 
       assert response["version"] == @expected_version
-      assert response["success"] == :true
+      assert response["success"] == true
       assert Map.has_key?(response["data"], "id")
 
       data = response["data"]
@@ -28,27 +31,31 @@ defmodule EWalletAPI.V1.UserControllerTest do
 
     test "returns an error if provider_user_id is not provided" do
       request_data = params_for(:user, provider_user_id: "")
-      response     = provider_request("/user.create", request_data)
+      response = provider_request("/user.create", request_data)
 
       assert response["version"] == @expected_version
-      assert response["success"] == :false
+      assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided "
-        <> "`provider_user_id` can't be blank."
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided " <> "`provider_user_id` can't be blank."
+
       assert response["data"]["messages"] == %{"provider_user_id" => ["required"]}
     end
 
     test "returns an error if username is not provided" do
       request_data = params_for(:user, username: "")
-      response     = provider_request("/user.create", request_data)
+      response = provider_request("/user.create", request_data)
 
       assert response["version"] == @expected_version
-      assert response["success"] == :false
+      assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided "
-        <> "`username` can't be blank."
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided " <> "`username` can't be blank."
+
       assert response["data"]["messages"] == %{"username" => ["required"]}
     end
   end
@@ -58,19 +65,20 @@ defmodule EWalletAPI.V1.UserControllerTest do
       user = insert(:user)
 
       # Prepare the update data while keeping only provider_user_id the same
-      request_data = params_for(:user, %{
-        provider_user_id: user.provider_user_id,
-        username: "updated_username",
-        metadata: %{
-          first_name: "updated_first_name",
-          last_name: "updated_last_name"
-        }
-      })
+      request_data =
+        params_for(:user, %{
+          provider_user_id: user.provider_user_id,
+          username: "updated_username",
+          metadata: %{
+            first_name: "updated_first_name",
+            last_name: "updated_last_name"
+          }
+        })
 
       response = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
-      assert response["success"] == :true
+      assert response["success"] == true
 
       data = response["data"]
       assert data["object"] == "user"
@@ -85,11 +93,12 @@ defmodule EWalletAPI.V1.UserControllerTest do
     test "updates the metadata and encrypted metadata" do
       user = insert(:user)
 
-      request_data = params_for(:user, %{
-        provider_user_id: user.provider_user_id,
-        metadata: %{first_name: "updated_first_name"},
-        encrypted_metadata: %{my_secret_stuff: "123"}
-      })
+      request_data =
+        params_for(:user, %{
+          provider_user_id: user.provider_user_id,
+          metadata: %{first_name: "updated_first_name"},
+          encrypted_metadata: %{my_secret_stuff: "123"}
+        })
 
       response = provider_request("/user.update", request_data)
 
@@ -99,15 +108,17 @@ defmodule EWalletAPI.V1.UserControllerTest do
     end
 
     test "does not change the metadata/encrypted_metadata if not sent" do
-      user = insert(:user, %{
-        metadata: %{first_name: "updated_first_name"},
-        encrypted_metadata: %{my_secret_stuff: "123"}
-      })
+      user =
+        insert(:user, %{
+          metadata: %{first_name: "updated_first_name"},
+          encrypted_metadata: %{my_secret_stuff: "123"}
+        })
 
-      response = provider_request("/user.update", %{
-        provider_user_id: user.provider_user_id,
-        username: "new_username"
-      })
+      response =
+        provider_request("/user.update", %{
+          provider_user_id: user.provider_user_id,
+          username: "new_username"
+        })
 
       assert response["success"] == true
       assert response["data"]["username"] == "new_username"
@@ -116,17 +127,19 @@ defmodule EWalletAPI.V1.UserControllerTest do
     end
 
     test "resets the metadata/encrypted_metadata when sending empty hashes" do
-      user = insert(:user, %{
-        metadata: %{first_name: "updated_first_name"},
-        encrypted_metadata: %{my_secret_stuff: "123"}
-      })
+      user =
+        insert(:user, %{
+          metadata: %{first_name: "updated_first_name"},
+          encrypted_metadata: %{my_secret_stuff: "123"}
+        })
 
-      response = provider_request("/user.update", %{
-        provider_user_id: user.provider_user_id,
-        username: "new_username",
-        metadata: %{},
-        encrypted_metadata: %{}
-      })
+      response =
+        provider_request("/user.update", %{
+          provider_user_id: user.provider_user_id,
+          username: "new_username",
+          metadata: %{},
+          encrypted_metadata: %{}
+        })
 
       assert response["success"] == true
       assert response["data"]["metadata"] == %{}
@@ -134,32 +147,35 @@ defmodule EWalletAPI.V1.UserControllerTest do
     end
 
     test "returns an 'invalid parameter' error when sending nil for metadata/encrypted_metadata" do
-      user = insert(:user, %{
-        metadata: %{first_name: "updated_first_name"},
-        encrypted_metadata: %{my_secret_stuff: "123"}
-      })
+      user =
+        insert(:user, %{
+          metadata: %{first_name: "updated_first_name"},
+          encrypted_metadata: %{my_secret_stuff: "123"}
+        })
 
-      response = provider_request("/user.update", %{
-        provider_user_id: user.provider_user_id,
-        username: "new_username",
-        metadata: nil,
-        encrypted_metadata: nil
-      })
+      response =
+        provider_request("/user.update", %{
+          provider_user_id: user.provider_user_id,
+          username: "new_username",
+          metadata: nil,
+          encrypted_metadata: nil
+        })
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
+
       assert response["data"]["messages"] == %{
-        "metadata" => ["required"],
-        "encrypted_metadata" => ["required"]
-      }
+               "metadata" => ["required"],
+               "encrypted_metadata" => ["required"]
+             }
     end
 
     test "returns an error if provider_user_id is not provided" do
       request_data = params_for(:user, %{provider_user_id: ""})
-      response     = provider_request("/user.update", request_data)
+      response = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
-      assert response["success"] == :false
+      assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided"
@@ -167,23 +183,26 @@ defmodule EWalletAPI.V1.UserControllerTest do
 
     test "returns an error if user for provider_user_id is not found" do
       request_data = params_for(:user, %{provider_user_id: "unknown_id"})
-      response     = provider_request("/user.update", request_data)
+      response = provider_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
-      assert response["success"] == :false
+      assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:provider_user_id_not_found"
-      assert response["data"]["description"] == "There is no user corresponding to the provided provider_user_id"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided provider_user_id"
     end
 
     test "returns an error if username is not provided" do
       user = insert(:user)
 
       # ExMachine will remove the param if set to nil.
-      request_data = params_for(:user, %{
-        provider_user_id: user.provider_user_id,
-        username: nil
-      })
+      request_data =
+        params_for(:user, %{
+          provider_user_id: user.provider_user_id,
+          username: nil
+        })
 
       response = provider_request("/user.update", request_data)
 
@@ -202,8 +221,8 @@ defmodule EWalletAPI.V1.UserControllerTest do
         |> build(provider_user_id: "provider_id_1")
         |> insert()
 
-      request_data  = %{provider_user_id: inserted_user.provider_user_id}
-      response      = provider_request("/user.get", request_data)
+      request_data = %{provider_user_id: inserted_user.provider_user_id}
+      response = provider_request("/user.get", request_data)
 
       expected = %{
         "version" => @expected_version,
@@ -227,7 +246,7 @@ defmodule EWalletAPI.V1.UserControllerTest do
             "original" => nil,
             "small" => nil,
             "thumb" => nil
-          },
+          }
         }
       }
 
@@ -247,7 +266,7 @@ defmodule EWalletAPI.V1.UserControllerTest do
       }
 
       request_data = %{provider_user_id: "unknown_id999"}
-      response     = provider_request("/user.get", request_data)
+      response = provider_request("/user.get", request_data)
 
       assert response == expected
     end

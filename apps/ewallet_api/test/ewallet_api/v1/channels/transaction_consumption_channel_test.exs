@@ -11,8 +11,10 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannelTest do
       {res, _, socket} =
         "test"
         |> socket(%{auth: %{authenticated: :provider, account: account}})
-        |> subscribe_and_join(TransactionConsumptionChannel,
-                              "transaction_consumption:#{consumption.id}")
+        |> subscribe_and_join(
+          TransactionConsumptionChannel,
+          "transaction_consumption:#{consumption.id}"
+        )
 
       assert res == :ok
       assert socket.topic == "transaction_consumption:#{consumption.id}"
@@ -40,8 +42,10 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannelTest do
       {res, _, socket} =
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user}})
-        |> subscribe_and_join(TransactionConsumptionChannel,
-                              "transaction_consumption:#{consumption.id}")
+        |> subscribe_and_join(
+          TransactionConsumptionChannel,
+          "transaction_consumption:#{consumption.id}"
+        )
 
       assert res == :ok
       assert socket.topic == "transaction_consumption:#{consumption.id}"
@@ -54,8 +58,10 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannelTest do
       {res, code} =
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user}})
-        |> subscribe_and_join(TransactionConsumptionChannel,
-                              "transaction_consumption:#{consumption.id}")
+        |> subscribe_and_join(
+          TransactionConsumptionChannel,
+          "transaction_consumption:#{consumption.id}"
+        )
 
       assert res == :error
       assert code == :forbidden_channel

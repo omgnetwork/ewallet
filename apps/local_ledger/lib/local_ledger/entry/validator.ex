@@ -12,8 +12,7 @@ defmodule LocalLedger.Entry.Validator do
 
     case length(identical_addresses) do
       0 -> attrs
-      _ -> raise SameAddressError,
-                 message: SameAddressError.error_message(identical_addresses)
+      _ -> raise SameAddressError, message: SameAddressError.error_message(identical_addresses)
     end
   end
 
@@ -31,15 +30,16 @@ defmodule LocalLedger.Entry.Validator do
   end
 
   def validate_positive_amounts({debits, credits} = attrs) do
-    case Enum.any?(debits ++ credits, fn(attrs) -> attrs["amount"] == 0 end) do
-      true  -> raise AmountIsZeroError
+    case Enum.any?(debits ++ credits, fn attrs -> attrs["amount"] == 0 end) do
+      true -> raise AmountIsZeroError
       false -> attrs
     end
   end
 
   defp total(list) do
-    Enum.reduce(list, 0, fn(attrs, acc) -> attrs["amount"] + acc end)
+    Enum.reduce(list, 0, fn attrs, acc -> attrs["amount"] + acc end)
   end
+
   defp extract_addresses(list), do: Enum.map(list, fn e -> e["address"] end)
-  defp intersect(a, b), do: a -- (a -- b)
+  defp intersect(a, b), do: a -- a -- b
 end

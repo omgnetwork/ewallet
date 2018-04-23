@@ -3,7 +3,7 @@ defmodule EWalletDB.TransactionRequestTest do
   alias EWalletDB.TransactionRequest
 
   describe "TransactionRequest factory" do
-    test_has_valid_factory TransactionRequest
+    test_has_valid_factory(TransactionRequest)
   end
 
   describe "get/1" do
@@ -93,12 +93,12 @@ defmodule EWalletDB.TransactionRequestTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid TransactionRequest, :uuid
-    test_insert_generate_external_id TransactionRequest, :id, "txr_"
-    test_insert_generate_timestamps TransactionRequest
-    test_insert_prevent_blank TransactionRequest, :type
-    test_insert_prevent_blank TransactionRequest, :minted_token_uuid
-    test_insert_prevent_duplicate TransactionRequest, :correlation_id
+    test_insert_generate_uuid(TransactionRequest, :uuid)
+    test_insert_generate_external_id(TransactionRequest, :id, "txr_")
+    test_insert_generate_timestamps(TransactionRequest)
+    test_insert_prevent_blank(TransactionRequest, :type)
+    test_insert_prevent_blank(TransactionRequest, :minted_token_uuid)
+    test_insert_prevent_duplicate(TransactionRequest, :correlation_id)
 
     test "sets the status to 'valid'" do
       {:ok, inserted} = :transaction_request |> params_for() |> TransactionRequest.insert()
@@ -138,8 +138,9 @@ defmodule EWalletDB.TransactionRequestTest do
         |> params_for(allow_amount_override: false, amount: nil)
         |> TransactionRequest.insert()
 
-      assert changeset.errors == [{:amount,
-                                  {"needs to be set if amount override is not allowed.", []}}]
+      assert changeset.errors == [
+               {:amount, {"needs to be set if amount override is not allowed.", []}}
+             ]
     end
   end
 
@@ -175,7 +176,9 @@ defmodule EWalletDB.TransactionRequestTest do
     end
 
     test "returns nil if no consumption lifetime" do
-      request = insert(:transaction_request, require_confirmation: true, consumption_lifetime: nil)
+      request =
+        insert(:transaction_request, require_confirmation: true, consumption_lifetime: nil)
+
       date = TransactionRequest.expiration_from_lifetime(request)
       assert date == nil
     end
@@ -188,8 +191,14 @@ defmodule EWalletDB.TransactionRequestTest do
 
     test "returns the expiration date based on consumption_lifetime" do
       now = NaiveDateTime.utc_now()
-      request = insert(:transaction_request, require_confirmation: true,
-                                             consumption_lifetime: 1_000)
+
+      request =
+        insert(
+          :transaction_request,
+          require_confirmation: true,
+          consumption_lifetime: 1_000
+        )
+
       date = TransactionRequest.expiration_from_lifetime(request)
       assert date > now
     end
@@ -268,10 +277,20 @@ defmodule EWalletDB.TransactionRequestTest do
 
     test "expires the request if max_consumptions has been reached" do
       request = insert(:transaction_request, max_consumptions: 2)
-      _consumption = insert(:transaction_consumption, transaction_request_uuid: request.uuid,
-                                                      status: "confirmed")
-      _consumption = insert(:transaction_consumption, transaction_request_uuid: request.uuid,
-                                                      status: "confirmed")
+
+      _consumption =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "confirmed"
+        )
+
+      _consumption =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "confirmed"
+        )
 
       {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
       assert res == :ok

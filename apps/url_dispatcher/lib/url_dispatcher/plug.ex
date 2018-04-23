@@ -18,16 +18,19 @@ defmodule UrlDispatcher.Plug do
   defp handle_request("/api" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
   defp handle_request("/admin/api" <> _, conn), do: AdminAPI.Endpoint.call(conn, [])
   defp handle_request("/admin" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
+
   defp handle_request("/public" <> _, conn) do
-    opts = Static.init([
-      at: "/public",
-      from: Path.join(Application.get_env(:ewallet, :root), "public"),
-      only: @public_folders
-    ])
+    opts =
+      Static.init(
+        at: "/public",
+        from: Path.join(Application.get_env(:ewallet, :root), "public"),
+        only: @public_folders
+      )
 
     case Static.call(conn, opts) do
       %{halted: true} = conn ->
         conn
+
       _ ->
         conn
         |> resp(404, "The url could not be resolved.")

@@ -10,6 +10,7 @@ defmodule EWallet.Web.V1.UserSerializer do
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
+
   def serialize(%User{} = user) do
     %{
       object: "user",
@@ -25,6 +26,7 @@ defmodule EWallet.Web.V1.UserSerializer do
       updated_at: Date.to_iso8601(user.updated_at)
     }
   end
+
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 end

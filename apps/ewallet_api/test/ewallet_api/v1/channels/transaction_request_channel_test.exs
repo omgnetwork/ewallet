@@ -11,8 +11,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
       {res, _, socket} =
         "test"
         |> socket(%{auth: %{authenticated: :provider, account: account}})
-        |> subscribe_and_join(TransactionRequestChannel,
-                              "transaction_request:#{request.id}")
+        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:#{request.id}")
 
       assert res == :ok
       assert socket.topic == "transaction_request:#{request.id}"
@@ -40,8 +39,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
       {res, _, socket} =
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user}})
-        |> subscribe_and_join(TransactionRequestChannel,
-                              "transaction_request:#{request.id}")
+        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:#{request.id}")
 
       assert res == :ok
       assert socket.topic == "transaction_request:#{request.id}"
@@ -54,8 +52,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannelTest do
       {res, code} =
         "test"
         |> socket(%{auth: %{authenticated: :client, user: user}})
-        |> subscribe_and_join(TransactionRequestChannel,
-                              "transaction_request:#{request.id}")
+        |> subscribe_and_join(TransactionRequestChannel, "transaction_request:#{request.id}")
 
       assert res == :error
       assert code == :forbidden_channel

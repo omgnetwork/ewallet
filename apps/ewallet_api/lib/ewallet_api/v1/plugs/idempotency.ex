@@ -24,6 +24,7 @@ defmodule EWalletAPI.V1.Plug.Idempotency do
     |> assign(:idempotency_token, nil)
     |> handle_error(:no_idempotency_token_provided)
   end
+
   defp assign_token(idempotency_token, conn) do
     assign(conn, :idempotency_token, idempotency_token)
   end

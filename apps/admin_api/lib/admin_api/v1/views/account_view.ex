@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.AccountView do
     |> AccountSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("accounts.json", %{accounts: accounts}) do
     accounts
     |> AccountSerializer.serialize()

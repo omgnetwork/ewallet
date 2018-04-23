@@ -58,13 +58,15 @@ defmodule Mix.Tasks.Omg.Server do
   # so that it can prepare the endpoints to be served.
   defp configure_endpoints(args) do
     Application.put_env(:url_dispatcher, :serve_endpoints, true)
-    args # Doesn't touch the arguments, so send it back for further processing
+    # Doesn't touch the arguments, so send it back for further processing
+    args
   end
 
   defp configure_no_watch(args) do
-    {parsed, args, _invalids} = OptionParser.parse(args, [no_watch: :boolean])
+    {parsed, args, _invalids} = OptionParser.parse(args, no_watch: :boolean)
     if parsed[:no_watch], do: Application.put_env(:admin_panel, :start_with_no_watch, true)
-    args # This is the arguments with `--no-watch` flag removed by `OptionParser.parse/2` above
+    # This is the arguments with `--no-watch` flag removed by `OptionParser.parse/2` above
+    args
   end
 
   defp configure_no_halt(args) do
@@ -72,6 +74,6 @@ defmodule Mix.Tasks.Omg.Server do
   end
 
   defp iex_running? do
-    Code.ensure_loaded?(IEx) and IEx.started?
+    Code.ensure_loaded?(IEx) and IEx.started?()
   end
 end

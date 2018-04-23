@@ -7,6 +7,6 @@ config :local_ledger_db, LocalLedgerDB.Repo,
 key = "j6fy7rZP9ASvf1bmywWGRjrmh8gKANrg40yWZ-rSKpI"
 
 config :cloak, Salty.SecretBox.Cloak,
-       tag: "SBX",
-       default: true,
-       keys: [%{tag: <<1>>, key: key, default: true}]
+  tag: "SBX",
+  default: true,
+  keys: [%{tag: <<1>>, key: key, default: true}]

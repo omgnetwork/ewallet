@@ -32,16 +32,17 @@ defmodule EWallet.TransactionGate do
     end
 
   """
-  def process_with_addresses(%{
-    "from_address" => _,
-    "to_address" => _,
-    "token_id" => _,
-    "amount" => _,
-    "idempotency_token" => _
-  } = attrs) do
+  def process_with_addresses(
+        %{
+          "from_address" => _,
+          "to_address" => _,
+          "token_id" => _,
+          "amount" => _,
+          "idempotency_token" => _
+        } = attrs
+      ) do
     with {:ok, from, to, minted_token} <- AddressRecordFetcher.fetch(attrs),
-         {:ok, transfer} <- get_or_insert_transfer(from, to, minted_token, attrs)
-    do
+         {:ok, transfer} <- get_or_insert_transfer(from, to, minted_token, attrs) do
       process_with_transfer(transfer, [from, to], minted_token)
     else
       error -> error
@@ -75,22 +76,24 @@ defmodule EWallet.TransactionGate do
     end
 
   """
-  def process_credit_or_debit(%{
-    "provider_user_id" => _,
-    "token_id" => _,
-    "amount" => _,
-    "idempotency_token" => _,
-    "type" => type
-  } = attrs) do
+  def process_credit_or_debit(
+        %{
+          "provider_user_id" => _,
+          "token_id" => _,
+          "amount" => _,
+          "idempotency_token" => _,
+          "type" => type
+        } = attrs
+      ) do
     with {:ok, account, user, minted_token} <- CreditDebitRecordFetcher.fetch(attrs),
-         {:ok, from, to} <- BalanceAssigner.assign(%{
-           account: account,
-           user: user,
-           type: type,
-           burn_balance_identifier: attrs["burn_balance_identifier"]
-         }),
-         {:ok, transfer} <- get_or_insert_transfer(from, to, minted_token, attrs)
-    do
+         {:ok, from, to} <-
+           BalanceAssigner.assign(%{
+             account: account,
+             user: user,
+             type: type,
+             burn_balance_identifier: attrs["burn_balance_identifier"]
+           }),
+         {:ok, transfer} <- get_or_insert_transfer(from, to, minted_token, attrs) do
       user_balance = User.get_preloaded_primary_balance(user)
       process_with_transfer(transfer, [user_balance], minted_token)
     else
@@ -98,10 +101,15 @@ defmodule EWallet.TransactionGate do
     end
   end
 
-  defp get_or_insert_transfer(from, to, minted_token, %{
-    "amount" => amount,
-    "idempotency_token" => idempotency_token
-  } = attrs) do
+  defp get_or_insert_transfer(
+         from,
+         to,
+         minted_token,
+         %{
+           "amount" => amount,
+           "idempotency_token" => idempotency_token
+         } = attrs
+       ) do
     TransferGate.get_or_insert(%{
       idempotency_token: idempotency_token,
       from: from.address,
@@ -119,9 +127,11 @@ defmodule EWallet.TransactionGate do
     |> TransferGate.process()
     |> process_with_transfer(balances, minted_token)
   end
+
   defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, balances, minted_token) do
     {:ok, transfer, balances, minted_token}
   end
+
   defp process_with_transfer(%Transfer{status: "failed"} = transfer, _balances, _minted_token) do
     resp = transfer.ledger_response
     {:error, transfer, resp["code"], resp["description"]}

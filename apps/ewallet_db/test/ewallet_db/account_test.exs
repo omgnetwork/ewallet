@@ -4,20 +4,20 @@ defmodule EWalletDB.AccountTest do
   alias EWalletDB.Account
 
   describe "Account factory" do
-    test_has_valid_factory Account
-    test_encrypted_map_field Account, "account", :encrypted_metadata
+    test_has_valid_factory(Account)
+    test_encrypted_map_field(Account, "account", :encrypted_metadata)
   end
 
   describe "Account.insert/1" do
-    test_insert_generate_uuid Account, :uuid
-    test_insert_generate_external_id Account, :id, "acc_"
-    test_insert_generate_timestamps Account
-    test_insert_prevent_blank Account, :name
-    test_insert_prevent_duplicate Account, :name
-    test_default_metadata_fields Account, "account"
+    test_insert_generate_uuid(Account, :uuid)
+    test_insert_generate_external_id(Account, :id, "acc_")
+    test_insert_generate_timestamps(Account)
+    test_insert_prevent_blank(Account, :name)
+    test_insert_prevent_duplicate(Account, :name)
+    test_default_metadata_fields(Account, "account")
 
     test "inserts a non-master account by default" do
-      {:ok, account} = :account |> params_for() |> Account.insert
+      {:ok, account} = :account |> params_for() |> Account.insert()
       refute Account.master?(account)
     end
 
@@ -25,15 +25,18 @@ defmodule EWalletDB.AccountTest do
       {res, changeset} =
         :account
         |> params_for(parent: nil)
-        |> Account.insert
+        |> Account.insert()
 
       assert res == :error
-      assert Enum.member?(changeset.errors,
-                          {:parent_uuid, {"can't be blank", [validation: :required]}})
+
+      assert Enum.member?(
+               changeset.errors,
+               {:parent_uuid, {"can't be blank", [validation: :required]}}
+             )
     end
 
     test "inserts primary/burn balances for the account" do
-      {:ok, account} = :account |> params_for() |> Account.insert
+      {:ok, account} = :account |> params_for() |> Account.insert()
       primary = Account.get_primary_balance(account)
       burn = Account.get_default_burn_balance(account)
 
@@ -44,6 +47,7 @@ defmodule EWalletDB.AccountTest do
 
     test "prevents inserting an account beyond 1 child level" do
       account0 = Account.get_master_account()
+
       {:ok, account1} =
         :account
         |> params_for(%{parent: account0})
@@ -55,14 +59,18 @@ defmodule EWalletDB.AccountTest do
         |> Account.insert()
 
       assert res == :error
+
       assert changeset.errors ==
-        [{:parent_uuid, {"is at the maximum child level", [validation: :account_level_limit]}}]
+               [
+                 {:parent_uuid,
+                  {"is at the maximum child level", [validation: :account_level_limit]}}
+               ]
     end
   end
 
   describe "get/1" do
     test "accepts a uuid" do
-      {:ok, account} = :account |> params_for() |> Account.insert
+      {:ok, account} = :account |> params_for() |> Account.insert()
       result = Account.get(account.id)
 
       assert result.id == account.id
@@ -79,7 +87,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "get/2" do
     test "accepts a uuid and preload" do
-      {:ok, account} = :account |> params_for() |> Account.insert
+      {:ok, account} = :account |> params_for() |> Account.insert()
       result = Account.get(account.id, preload: :balances)
 
       assert result.id == account.id
@@ -89,7 +97,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "get_by_name/1" do
     test "accepts a non-empty string" do
-      {:ok, account} = :account |> params_for() |> Account.insert
+      {:ok, account} = :account |> params_for() |> Account.insert()
       result = Account.get_by(name: account.name)
 
       assert result.id == account.id
@@ -103,7 +111,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "get_master_account/1" do
     test "returns the master account" do
-      result  = Account.get_master_account()
+      result = Account.get_master_account()
 
       assert result.id == get_or_insert_master_account().id
       assert %Ecto.Association.NotLoaded{} = result.balances
@@ -120,7 +128,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "get_primary_balance/1" do
     test "returns the primary balance" do
-      {:ok, inserted} = :account |> params_for() |> Account.insert
+      {:ok, inserted} = :account |> params_for() |> Account.insert()
       balance = Account.get_primary_balance(inserted)
 
       [name: inserted.name]
@@ -135,7 +143,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "get_default_burn_balance/1" do
     test "returns the burn balance" do
-      {:ok, inserted} = :account |> params_for() |> Account.insert
+      {:ok, inserted} = :account |> params_for() |> Account.insert()
       balance = Account.get_default_burn_balance(inserted)
 
       [name: inserted.name]

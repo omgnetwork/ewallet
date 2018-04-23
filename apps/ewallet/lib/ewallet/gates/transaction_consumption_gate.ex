@@ -9,36 +9,38 @@ defmodule EWallet.TransactionConsumptionGate do
   alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher, Web.V1.Event}
   alias EWalletDB.{Repo, Account, MintedToken, User, Balance, TransactionConsumption}
 
-  @spec consume(Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
-  def consume(%{
-    "account_id" => account_id,
-    "provider_user_id" => provider_user_id,
-    "address" => address
-  } = attrs) do
+  @spec consume(Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
+  def consume(
+        %{
+          "account_id" => account_id,
+          "provider_user_id" => provider_user_id,
+          "address" => address
+        } = attrs
+      ) do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
-         %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
-                           :provider_user_id_not_found,
+         %User{} = user <-
+           User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
          {:ok, balance} <- BalanceFetcher.get(user, address),
-         balance <- Map.put(balance, :account_id, account.id)
-    do
+         balance <- Map.put(balance, :account_id, account.id) do
       consume(balance, attrs)
     else
       error when is_atom(error) -> {:error, error}
-      error                     -> error
+      error -> error
     end
   end
 
-  def consume(%{
-    "account_id" => account_id,
-    "address" => address
-  } = attrs) do
+  def consume(
+        %{
+          "account_id" => account_id,
+          "address" => address
+        } = attrs
+      ) do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
-         {:ok, balance} <- BalanceFetcher.get(account, address)
-    do
+         {:ok, balance} <- BalanceFetcher.get(account, address) do
       consume(balance, attrs)
     else
       error when is_atom(error) -> {:error, error}
-      error                     -> error
+      error -> error
     end
   end
 
@@ -48,18 +50,19 @@ defmodule EWallet.TransactionConsumptionGate do
     |> consume()
   end
 
-  def consume(%{
-    "provider_user_id" => provider_user_id,
-    "address" => address
-  } = attrs) do
-    with %User{} = user <- User.get_by_provider_user_id(provider_user_id) ||
-                           :provider_user_id_not_found,
-         {:ok, balance} <- BalanceFetcher.get(user, address)
-    do
+  def consume(
+        %{
+          "provider_user_id" => provider_user_id,
+          "address" => address
+        } = attrs
+      ) do
+    with %User{} = user <-
+           User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
+         {:ok, balance} <- BalanceFetcher.get(user, address) do
       consume(balance, attrs)
     else
       error when is_atom(error) -> {:error, error}
-      error                     -> error
+      error -> error
     end
   end
 
@@ -69,62 +72,71 @@ defmodule EWallet.TransactionConsumptionGate do
     |> consume()
   end
 
-  def consume(%{
-    "address" => address
-  } = attrs) do
-    with {:ok, balance} <- BalanceFetcher.get(nil, address)
-    do
+  def consume(
+        %{
+          "address" => address
+        } = attrs
+      ) do
+    with {:ok, balance} <- BalanceFetcher.get(nil, address) do
       consume(balance, attrs)
     else
       error when is_atom(error) -> {:error, error}
-      error                     -> error
+      error -> error
     end
   end
 
   def consume(_attrs), do: {:error, :invalid_parameter}
 
-  @spec consume(User.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
-  def consume(%User{} = user, %{
-    "address" => address
-  } = attrs) do
-    with {:ok, balance} <- BalanceFetcher.get(user, address)
-    do
+  @spec consume(User.t(), Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
+  def consume(
+        %User{} = user,
+        %{
+          "address" => address
+        } = attrs
+      ) do
+    with {:ok, balance} <- BalanceFetcher.get(user, address) do
       consume(balance, attrs)
     else
       error -> error
     end
   end
 
-  @spec consume(Balance.t, Map.t) :: {:ok, TransactionConsumption.t} | {:error, Atom.t}
-  def consume(%Balance{} = balance, %{
-    "transaction_request_id" => _,
-    "idempotency_token" => _
-  } = attrs) do
+  @spec consume(Balance.t(), Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
+  def consume(
+        %Balance{} = balance,
+        %{
+          "transaction_request_id" => _,
+          "idempotency_token" => _
+        } = attrs
+      ) do
     transaction = Repo.transaction(fn -> do_consume(balance, attrs) end)
 
     case transaction do
-      {:ok, res}      -> res
+      {:ok, res} -> res
       {:error, error} -> {:error, error}
     end
   end
 
   def consume(_, _attrs), do: {:error, :invalid_parameter}
 
-  defp do_consume(balance, %{
-    "transaction_request_id" => request_id,
-  } = attrs) do
+  defp do_consume(
+         balance,
+         %{
+           "transaction_request_id" => request_id
+         } = attrs
+       ) do
     with {:ok, request} <- TransactionRequestGate.get_with_lock(request_id),
          {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
          {:ok, request} <- TransactionRequestGate.validate_request(request),
          {:ok, amount} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
          {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
          {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
-         {:ok, consumption} <- get(consumption.id)
-    do
+         {:ok, consumption} <- get(consumption.id) do
       case request.require_confirmation do
         true ->
           Event.dispatch(:transaction_consumption_request, %{consumption: consumption})
           {:ok, consumption}
+
         false ->
           consumption
           |> TransactionConsumption.approve()
@@ -132,7 +144,7 @@ defmodule EWallet.TransactionConsumptionGate do
       end
     else
       error when is_atom(error) -> {:error, error}
-      error                     -> error
+      error -> error
     end
   end
 
@@ -143,7 +155,7 @@ defmodule EWallet.TransactionConsumptionGate do
 
   defp get_and_validate_minted_token(request, token_id) do
     case MintedToken.get(token_id) do
-      nil          -> {:error, :minted_token_not_found}
+      nil -> {:error, :minted_token_not_found}
       minted_token -> validate_minted_token(request, minted_token)
     end
   end
@@ -160,48 +172,61 @@ defmodule EWallet.TransactionConsumptionGate do
 
     case TransactionConsumption.expired?(consumption) do
       false -> {:ok, consumption}
-      true  -> {:error, :expired_transaction_consumption}
+      true -> {:error, :expired_transaction_consumption}
     end
   end
 
-  @spec get(UUID.t) :: {:ok, TransactionConsumption.t} |
-                       {:error, :transaction_consumption_not_found}
+  @spec get(UUID.t()) ::
+          {:ok, TransactionConsumption.t()}
+          | {:error, :transaction_consumption_not_found}
   def get(id) do
-    consumption = TransactionConsumption.get(id, preload: [
-      :account, :user, :balance, :minted_token, :transaction_request, :transfer
-    ])
+    consumption =
+      TransactionConsumption.get(
+        id,
+        preload: [
+          :account,
+          :user,
+          :balance,
+          :minted_token,
+          :transaction_request,
+          :transfer
+        ]
+      )
 
     case consumption do
-      nil         -> {:error, :transaction_consumption_not_found}
+      nil -> {:error, :transaction_consumption_not_found}
       consumption -> {:ok, consumption}
     end
   end
 
-  @spec confirm(UUID.t, Boolean.t, Map.t) :: {:ok, TransactionConsumption.t} |
-                                             {:error, Atom.t} |
-                                             {:error, TransactionConsumption.t, Atom.t, String.t}
+  @spec confirm(UUID.t(), Boolean.t(), Map.t()) ::
+          {:ok, TransactionConsumption.t()}
+          | {:error, Atom.t()}
+          | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
   def confirm(id, approved, owner) do
     transaction = Repo.transaction(fn -> do_confirm(id, approved, owner) end)
 
     case transaction do
-      {:ok, res}      -> res
+      {:ok, res} -> res
       {:error, error} -> {:error, error}
     end
   end
 
   defp do_confirm(id, approved, owner) do
     with {:ok, consumption} <- get(id),
-         {:ok, request} <- TransactionRequestGate.get_with_lock(consumption.transaction_request.id),
-         true <- TransactionRequestGate.is_owner?(request, owner) ||
-                 {:error, :not_transaction_request_owner},
+         {:ok, request} <-
+           TransactionRequestGate.get_with_lock(consumption.transaction_request.id),
+         true <-
+           TransactionRequestGate.is_owner?(request, owner) ||
+             {:error, :not_transaction_request_owner},
          {:ok, request} <- TransactionRequestGate.validate_request(request),
-         {:ok, consumption} <- validate_consumption(consumption)
-    do
+         {:ok, consumption} <- validate_consumption(consumption) do
       case approved do
         true ->
           consumption
           |> TransactionConsumption.approve()
           |> transfer(request.type)
+
         false ->
           consumption = TransactionConsumption.reject(consumption)
           {:ok, consumption}
@@ -265,6 +290,7 @@ defmodule EWallet.TransactionConsumptionGate do
           |> Map.put(:transaction_request, request)
 
         {:ok, consumption}
+
       {:error, transfer, code, description} ->
         consumption = TransactionConsumption.fail(consumption, transfer)
         {:error, consumption, code, description}

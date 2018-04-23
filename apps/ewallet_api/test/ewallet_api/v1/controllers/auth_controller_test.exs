@@ -4,8 +4,8 @@ defmodule EWalletAPI.V1.AuthControllerTest do
 
   describe "/login" do
     test "responds with a new auth token if provider_user_id is valid" do
-      _user      = insert(:user, %{provider_user_id: "1234"})
-      response   = provider_request("/login", %{provider_user_id: "1234"})
+      _user = insert(:user, %{provider_user_id: "1234"})
+      response = provider_request("/login", %{provider_user_id: "1234"})
       auth_token = get_last_inserted(AuthToken)
 
       expected = %{
@@ -77,7 +77,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       response = client_request("/logout")
 
       assert response["version"] == @expected_version
-      assert response["success"] == :true
+      assert response["success"] == true
       assert response["data"] == %{}
     end
   end

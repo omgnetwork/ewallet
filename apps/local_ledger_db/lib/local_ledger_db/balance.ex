@@ -11,12 +11,18 @@ defmodule LocalLedgerDB.Balance do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "balance" do
-    field :address, :string
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
-    has_many :transactions, Transaction, foreign_key: :balance_address,
-                                         references: :address
+    field(:address, :string)
+    field(:metadata, :map, default: %{})
+    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encryption_version, :binary)
+
+    has_many(
+      :transactions,
+      Transaction,
+      foreign_key: :balance_address,
+      references: :address
+    )
+
     timestamps()
   end
 
@@ -28,7 +34,7 @@ defmodule LocalLedgerDB.Balance do
     |> cast(attrs, [:address, :metadata, :encrypted_metadata, :encryption_version])
     |> validate_required([:address, :metadata, :encrypted_metadata])
     |> unique_constraint(:address)
-    |> put_change(:encryption_version, Cloak.version)
+    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
@@ -44,11 +50,14 @@ defmodule LocalLedgerDB.Balance do
   Update the updated_at field for all balances matching the given addresses.
   """
   def touch(addresses) do
-    updated_at = Ecto.DateTime.utc
-                 |> Ecto.DateTime.to_iso8601
+    updated_at =
+      Ecto.DateTime.utc()
+      |> Ecto.DateTime.to_iso8601()
 
-    Repo.update_all(from(b in Balance, where: b.address in ^addresses),
-                    set: [updated_at: updated_at])
+    Repo.update_all(
+      from(b in Balance, where: b.address in ^addresses),
+      set: [updated_at: updated_at]
+    )
   end
 
   @doc """
@@ -56,8 +65,13 @@ defmodule LocalLedgerDB.Balance do
   will be calculated.
   """
   def lock(addresses) do
-    Repo.all(from(b in Balance, where: b.address in ^addresses,
-                                lock: "FOR UPDATE"))
+    Repo.all(
+      from(
+        b in Balance,
+        where: b.address in ^addresses,
+        lock: "FOR UPDATE"
+      )
+    )
   end
 
   @doc """
@@ -68,6 +82,7 @@ defmodule LocalLedgerDB.Balance do
     case get(address) do
       nil ->
         insert(attrs)
+
       balance ->
         {:ok, balance}
     end
@@ -93,6 +108,7 @@ defmodule LocalLedgerDB.Balance do
     case Repo.insert(changeset, opts) do
       {:ok, _balance} ->
         {:ok, get(address)}
+
       {:error, changeset} ->
         {:error, changeset}
     end

@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.UserViewTest do
   describe "EWalletAPI.V1.UserView.render/2" do
     test "renders user.json with correct structure" do
       user = %User{
-        id: UUID.generate,
+        id: UUID.generate(),
         username: "johndoe",
         provider_user_id: "provider_id_9999",
         metadata: %{
@@ -34,7 +34,7 @@ defmodule EWalletAPI.V1.UserViewTest do
           },
           metadata: %{
             first_name: "John",
-            last_name: "Doe",
+            last_name: "Doe"
           },
           created_at: nil,
           updated_at: nil,

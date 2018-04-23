@@ -17,8 +17,11 @@ defmodule AdminAPI.V1.UserAuthPlug do
   alias AdminAPI.V1.ClientAuthPlug
 
   def init(opts) do
-    Keyword.put_new(opts, :enable_client_auth,
-                          Application.get_env(:admin_api, :enable_client_auth))
+    Keyword.put_new(
+      opts,
+      :enable_client_auth,
+      Application.get_env(:admin_api, :enable_client_auth)
+    )
   end
 
   def call(conn, opts) do
@@ -28,6 +31,7 @@ defmodule AdminAPI.V1.UserAuthPlug do
         |> parse_header()
         |> ClientAuthPlug.authenticate()
         |> authenticate_token()
+
       _ ->
         conn
         |> parse_header()
@@ -46,8 +50,7 @@ defmodule AdminAPI.V1.UserAuthPlug do
          [scheme, content] <- String.split(header, " ", parts: 2),
          true <- scheme in ["OMGAdmin"],
          {:ok, decoded} <- Base.decode64(content),
-         keys <- String.split(decoded, ":", parts: 4)
-    do
+         keys <- String.split(decoded, ":", parts: 4) do
       case keys do
         [key_id, key, user_id, token] ->
           conn
@@ -55,6 +58,7 @@ defmodule AdminAPI.V1.UserAuthPlug do
           |> put_private(:auth_api_key, key)
           |> put_private(:auth_user_id, user_id)
           |> put_private(:auth_auth_token, token)
+
         [user_id, token] ->
           conn
           |> put_private(:auth_user_id, user_id)
@@ -70,8 +74,9 @@ defmodule AdminAPI.V1.UserAuthPlug do
 
   # Skip token auth if it already failed since API key validation or header parsing
   defp authenticate_token(%{assigns: %{authenticated: false}} = conn), do: conn
+
   defp authenticate_token(conn) do
-    user_id    = conn.private[:auth_user_id]
+    user_id = conn.private[:auth_user_id]
     auth_token = conn.private[:auth_auth_token]
 
     case AuthToken.authenticate(user_id, auth_token, :admin_api) do
@@ -80,10 +85,12 @@ defmodule AdminAPI.V1.UserAuthPlug do
         |> assign(:authenticated, :user)
         |> assign(:api_key_id, conn.private[:auth_api_key_id])
         |> assign(:user, user)
+
       false ->
         conn
         |> assign(:authenticated, false)
         |> handle_error(:access_token_not_found)
+
       :token_expired ->
         conn
         |> assign(:authenticated, false)
@@ -99,20 +106,22 @@ defmodule AdminAPI.V1.UserAuthPlug do
     user = User.get_by_email(email)
     authenticate(conn, user, password)
   end
+
   def authenticate(conn, %{password_hash: password_hash} = user, password)
-    when is_binary(password) and is_binary(password_hash)
-  do
+      when is_binary(password) and is_binary(password_hash) do
     case Crypto.verify_password(password, password_hash) do
       true ->
         conn
         |> assign(:authenticated, :user)
         |> assign(:user, user)
+
       _ ->
         assign(conn, :authenticated, false)
     end
   end
+
   def authenticate(conn, _user, _password) do
-    Crypto.fake_verify
+    Crypto.fake_verify()
     assign(conn, :authenticated, false)
   end
 

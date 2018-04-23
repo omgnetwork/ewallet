@@ -99,11 +99,13 @@ defmodule EWallet.Web.PaginatorTest do
 
       # Assertions for paginator.pagination
       assert paginator.pagination == %{
-        per_page: per_page,
-        current_page: page,
-        is_first_page: false, # 2nd page is not the first page
-        is_last_page: false, # 2nd page is not the last page
-      }
+               per_page: per_page,
+               current_page: page,
+               # 2nd page is not the first page
+               is_first_page: false,
+               # 2nd page is not the last page
+               is_last_page: false
+             }
     end
   end
 
@@ -124,30 +126,35 @@ defmodule EWallet.Web.PaginatorTest do
       ensure_num_records(Account, 10)
       per_page = 4
 
-      query   = from(a in Account, select: a.id, order_by: a.id)
+      query = from(a in Account, select: a.id, order_by: a.id)
       all_ids = Repo.all(query)
 
-      {records, _} = Paginator.fetch(query, 1, per_page) # Page 1
+      # Page 1
+      {records, _} = Paginator.fetch(query, 1, per_page)
       assert records == Enum.slice(all_ids, 0..3)
 
-      {records, _} = Paginator.fetch(query, 2, per_page) # Page 2
+      # Page 2
+      {records, _} = Paginator.fetch(query, 2, per_page)
       assert records == Enum.slice(all_ids, 4..7)
 
-      {records, _} = Paginator.fetch(query, 3, per_page) # Page 3
+      # Page 3
+      {records, _} = Paginator.fetch(query, 3, per_page)
       assert records == Enum.slice(all_ids, 8..9)
     end
 
     test "returns {_, true} if there are more records to fetch" do
       ensure_num_records(Account, 10)
 
-      result = Paginator.fetch(Account, 2, 4) # Request page 2 out of div(10, 4) = 3
+      # Request page 2 out of div(10, 4) = 3
+      result = Paginator.fetch(Account, 2, 4)
       assert {_, true} = result
     end
 
     test "returns {_, false} if there are no more records to fetch" do
       ensure_num_records(Account, 9)
 
-      result = Paginator.fetch(Account, 3, 3) # Request page 2 out of div(10, 4) = 3
+      # Request page 2 out of div(10, 4) = 3
+      result = Paginator.fetch(Account, 3, 3)
       assert {_, false} = result
     end
   end

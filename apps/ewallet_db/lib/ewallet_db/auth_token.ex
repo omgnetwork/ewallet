@@ -14,14 +14,20 @@ defmodule EWalletDB.AuthToken do
   @key_length 32
 
   schema "auth_token" do
-    external_id prefix: "atk_"
+    external_id(prefix: "atk_")
 
-    field :token, :string
-    field :owner_app, :string
-    belongs_to :user, User, foreign_key: :user_uuid,
-                            references: :uuid,
-                            type: UUID
-    field :expired, :boolean
+    field(:token, :string)
+    field(:owner_app, :string)
+
+    belongs_to(
+      :user,
+      User,
+      foreign_key: :user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    field(:expired, :boolean)
     timestamps()
   end
 
@@ -47,6 +53,7 @@ defmodule EWalletDB.AuthToken do
     {:ok, record} = insert(attrs)
     {:ok, record.token}
   end
+
   def generate(_, _), do: {:error, :invalid_parameter}
 
   @doc """
@@ -59,16 +66,18 @@ defmodule EWalletDB.AuthToken do
     |> get_by_token(owner_app)
     |> return_user()
   end
+
   def authenticate(user_id, token, owner_app) when token != nil and is_atom(owner_app) do
     user_id
     |> get_by_user(owner_app)
     |> compare_multiple(token)
     |> return_user()
   end
-  def authenticate(_, _, _), do: Crypto.fake_verify
+
+  def authenticate(_, _, _), do: Crypto.fake_verify()
 
   defp compare_multiple(token_records, token) when is_list(token_records) do
-    Enum.find(token_records, fn (record) ->
+    Enum.find(token_records, fn record ->
       Crypto.secure_compare(record.token, token)
     end)
   end
@@ -77,8 +86,10 @@ defmodule EWalletDB.AuthToken do
     case token do
       nil ->
         false
+
       %{expired: true} ->
         :token_expired
+
       token ->
         token
         |> Repo.preload(:user)
@@ -88,8 +99,7 @@ defmodule EWalletDB.AuthToken do
 
   # `get_by_token/2` is private to prohibit direct auth token access,
   # please use `authenticate/2` instead.
-  defp get_by_token(token, owner_app) when is_binary(token) and is_atom(owner_app)
-  do
+  defp get_by_token(token, owner_app) when is_binary(token) and is_atom(owner_app) do
     AuthToken
     |> Repo.get_by(%{
       token: token,
@@ -97,18 +107,22 @@ defmodule EWalletDB.AuthToken do
     })
     |> Repo.preload(:user)
   end
+
   defp get_by_token(_, _), do: nil
 
   # `get_by_user/2` is private to prohibit direct auth token access,
   # please use `authenticate/3` instead.
   defp get_by_user(user_id, owner_app) when is_binary(user_id) and is_atom(owner_app) do
     Repo.all(
-      from a in AuthToken,
-      join: u in User, on: u.uuid == a.user_uuid,
-      where: u.id == ^user_id
-        and a.owner_app == ^Atom.to_string(owner_app)
+      from(
+        a in AuthToken,
+        join: u in User,
+        on: u.uuid == a.user_uuid,
+        where: u.id == ^user_id and a.owner_app == ^Atom.to_string(owner_app)
+      )
     )
   end
+
   defp get_by_user(_, _), do: nil
 
   # `insert/1` is private to prohibit direct auth token insertion,
@@ -125,6 +139,7 @@ defmodule EWalletDB.AuthToken do
     |> get_by_token(owner_app)
     |> expire()
   end
+
   def expire(%AuthToken{} = token) do
     update(token, %{expired: true})
   end

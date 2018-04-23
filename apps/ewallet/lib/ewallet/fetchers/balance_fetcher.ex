@@ -4,7 +4,7 @@ defmodule EWallet.BalanceFetcher do
   """
   alias EWalletDB.{User, Balance, Account}
 
-  @spec get(User.t, String.t) :: {:ok, Balance.t} | {:error, Atom.t}
+  @spec get(User.t(), String.t()) :: {:ok, Balance.t()} | {:error, Atom.t()}
   def get(%User{} = user, nil) do
     {:ok, User.get_primary_balance(user)}
   end
@@ -14,8 +14,7 @@ defmodule EWallet.BalanceFetcher do
   end
 
   def get(nil, address) do
-    with %Balance{} = balance <- Balance.get(address) || :balance_not_found
-    do
+    with %Balance{} = balance <- Balance.get(address) || :balance_not_found do
       {:ok, balance}
     else
       error -> {:error, error}
@@ -24,8 +23,7 @@ defmodule EWallet.BalanceFetcher do
 
   def get(%User{} = user, address) do
     with %Balance{} = balance <- Balance.get(address) || :balance_not_found,
-         true <- balance.user_uuid == user.uuid || :user_balance_mismatch
-    do
+         true <- balance.user_uuid == user.uuid || :user_balance_mismatch do
       {:ok, balance}
     else
       error -> {:error, error}
@@ -34,8 +32,7 @@ defmodule EWallet.BalanceFetcher do
 
   def get(%Account{} = account, address) do
     with %Balance{} = balance <- Balance.get(address) || :balance_not_found,
-         true <- balance.account_uuid == account.uuid || :account_balance_mismatch
-    do
+         true <- balance.account_uuid == account.uuid || :account_balance_mismatch do
       {:ok, balance}
     else
       error -> {:error, error}

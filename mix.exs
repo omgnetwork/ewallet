@@ -4,10 +4,10 @@ defmodule EWallet.Umbrella.Mixfile do
   def project do
     [
       apps_path: "apps",
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
-        "coveralls": :test,
+        coveralls: :test,
         "coveralls.detail": :test,
         "coveralls.post": :test,
         "coveralls.html": :test
@@ -19,21 +19,21 @@ defmodule EWallet.Umbrella.Mixfile do
         extra_section: "Guides",
         extras: [
           {"README.md", [filename: "introduction", title: "Introduction"]},
-          "docs/balances.md",
+          "docs/balances.md"
         ],
         groups_for_extras: [
           "Getting Started": ["README.md"],
-          "Entities": ["docs/balances.md"],
+          Entities: ["docs/balances.md"]
         ],
         groups_for_modules: [
-          "EWallet": ~r/EWallet(\..+)*$/,
+          EWallet: ~r/EWallet(\..+)*$/,
           "EWallet API": ~r/EWalletAPI(?!\.V\d+)(\..+)*$/,
           "EWallet API V1": ~r/EWalletAPI.V1(\..+)*$/,
           "EWallet DB": ~r/EWalletDB(\..+)*$/,
           "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
-          "Admin API V1": ~r/AdminAPI.V1(\..+)*$/,
-        ],
-      ],
+          "Admin API V1": ~r/AdminAPI.V1(\..+)*$/
+        ]
+      ]
     ]
   end
 
@@ -56,7 +56,7 @@ defmodule EWallet.Umbrella.Mixfile do
       init: [
         "ecto.create",
         "ecto.migrate",
-        "seed",
+        "seed"
       ],
       reset: [
         "ecto.drop",

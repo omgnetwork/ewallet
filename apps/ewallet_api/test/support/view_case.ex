@@ -15,7 +15,8 @@ defmodule EWalletAPI.ViewCase do
         :ok = Sandbox.checkout(Repo)
       end
 
-      @expected_version "1" # The expected response version
+      # The expected response version
+      @expected_version "1"
     end
   end
 

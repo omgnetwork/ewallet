@@ -48,7 +48,8 @@ defmodule EWalletDB.AuthTokenTest do
     end
 
     test "returns :token_expired if token exists but expired" do
-      {:ok, token} = :auth_token
+      {:ok, token} =
+        :auth_token
         |> insert(%{owner_app: Atom.to_string(@owner_app)})
         |> AuthToken.expire()
 
@@ -56,7 +57,8 @@ defmodule EWalletDB.AuthTokenTest do
     end
 
     test "returns false if token exists but for a different owner app" do
-      {:ok, token} = :auth_token
+      {:ok, token} =
+        :auth_token
         |> insert(%{owner_app: "wrong_app"})
         |> AuthToken.expire()
 
@@ -132,7 +134,8 @@ defmodule EWalletDB.AuthTokenTest do
       token = insert(:auth_token, %{owner_app: Atom.to_string(@owner_app)})
       token_string = token.token
 
-      assert AuthToken.authenticate(token_string, @owner_app) # Ensure token is usable.
+      # Ensure token is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
       AuthToken.expire(token)
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end
@@ -141,7 +144,8 @@ defmodule EWalletDB.AuthTokenTest do
       token = insert(:auth_token, %{owner_app: Atom.to_string(@owner_app)})
       token_string = token.token
 
-      assert AuthToken.authenticate(token_string, @owner_app) # Ensure token is usable.
+      # Ensure token is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
       AuthToken.expire(token_string, @owner_app)
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end

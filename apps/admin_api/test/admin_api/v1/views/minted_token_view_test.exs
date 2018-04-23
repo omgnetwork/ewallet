@@ -23,7 +23,8 @@ defmodule AdminAPI.V1.MintedTokenViewTest do
         }
       }
 
-      assert MintedTokenView.render("minted_token.json", %{minted_token: minted_token}) == expected
+      assert MintedTokenView.render("minted_token.json", %{minted_token: minted_token}) ==
+               expected
     end
 
     test "renders minted_tokens.json with correct response structure" do
@@ -36,8 +37,8 @@ defmodule AdminAPI.V1.MintedTokenViewTest do
           per_page: 10,
           current_page: 1,
           is_first_page: true,
-          is_last_page: false,
-        },
+          is_last_page: false
+        }
       }
 
       expected = %{
@@ -73,8 +74,8 @@ defmodule AdminAPI.V1.MintedTokenViewTest do
             per_page: 10,
             current_page: 1,
             is_first_page: true,
-            is_last_page: false,
-          },
+            is_last_page: false
+          }
         }
       }
 

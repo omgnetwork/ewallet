@@ -41,8 +41,9 @@ defmodule AdminAPI do
 
   def view do
     quote do
-      use Phoenix.View, root: "lib/admin_api/templates",
-                        namespace: AdminAPI
+      use Phoenix.View,
+        root: "lib/admin_api/templates",
+        namespace: AdminAPI
 
       # Import convenience functions from controllers
       import Phoenix.Controller, only: [get_flash: 2, view_module: 1]

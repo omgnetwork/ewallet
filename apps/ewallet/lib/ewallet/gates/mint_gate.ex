@@ -36,17 +36,19 @@ defmodule EWallet.MintGate do
     end
 
   """
-  def insert(%{
-    "idempotency_token" => idempotency_token,
-    "token_id" => token_id,
-    "amount" => amount,
-    "description" => description
-  } = attrs) do
+  def insert(
+        %{
+          "idempotency_token" => idempotency_token,
+          "token_id" => token_id,
+          "amount" => amount,
+          "description" => description
+        } = attrs
+      ) do
     minted_token = MintedToken.get(token_id)
     account = Account.get_master_account()
 
     multi =
-      Multi.new
+      Multi.new()
       |> Multi.run(:mint, fn _ ->
         Mint.insert(%{
           minted_token_uuid: minted_token.uuid,
@@ -71,12 +73,13 @@ defmodule EWallet.MintGate do
         Mint.update(mint, %{transfer_uuid: transfer.uuid})
       end)
 
-      case Repo.transaction(multi) do
-        {:ok, result} ->
-          process_with_transfer(result.transfer, result.mint_with_transfer)
-        {:error, _failed_operation, changeset, _changes_so_far} ->
-          {:error, changeset}
-      end
+    case Repo.transaction(multi) do
+      {:ok, result} ->
+        process_with_transfer(result.transfer, result.mint_with_transfer)
+
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
+    end
   end
 
   defp process_with_transfer(%Transfer{status: "pending"} = transfer, mint) do
@@ -84,15 +87,19 @@ defmodule EWallet.MintGate do
     |> TransferGate.genesis()
     |> confirm_and_return(mint)
   end
+
   defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, mint) do
     confirm_and_return(transfer, mint)
   end
+
   defp process_with_transfer(%Transfer{status: "failed"} = transfer, mint) do
     resp = transfer.ledger_response
     confirm_and_return({:error, resp["code"], resp["description"]}, mint)
   end
 
-  defp confirm_and_return({:error, code, description}, mint), do: {:error, code, description, mint}
+  defp confirm_and_return({:error, code, description}, mint),
+    do: {:error, code, description, mint}
+
   defp confirm_and_return(transfer, mint) do
     mint = Mint.confirm(mint)
     {:ok, mint, transfer}

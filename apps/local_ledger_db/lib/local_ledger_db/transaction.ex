@@ -5,8 +5,15 @@ defmodule LocalLedgerDB.Transaction do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Entry, Repo, MintedToken, Balance, Transaction,
-                   Errors.InsufficientFundsError}
+
+  alias LocalLedgerDB.{
+    Entry,
+    Repo,
+    MintedToken,
+    Balance,
+    Transaction,
+    Errors.InsufficientFundsError
+  }
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
   @credit "credit"
@@ -17,17 +24,33 @@ defmodule LocalLedgerDB.Transaction do
   def debit_type, do: @debit
 
   schema "transaction" do
-    field :amount, LocalLedger.Types.Integer
-    field :type, :string
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_id,
-                                           references: :id,
-                                           type: :string
-    belongs_to :balance, Balance, foreign_key: :balance_address,
-                                  references: :address,
-                                  type: :string
-    belongs_to :entry, Entry, foreign_key: :entry_uuid,
-                              references: :uuid,
-                              type: Ecto.UUID
+    field(:amount, LocalLedger.Types.Integer)
+    field(:type, :string)
+
+    belongs_to(
+      :minted_token,
+      MintedToken,
+      foreign_key: :minted_token_id,
+      references: :id,
+      type: :string
+    )
+
+    belongs_to(
+      :balance,
+      Balance,
+      foreign_key: :balance_address,
+      references: :address,
+      type: :string
+    )
+
+    belongs_to(
+      :entry,
+      Entry,
+      foreign_key: :entry_uuid,
+      references: :uuid,
+      type: Ecto.UUID
+    )
+
     timestamps()
   end
 
@@ -37,10 +60,8 @@ defmodule LocalLedgerDB.Transaction do
   """
   def changeset(%Transaction{} = balance, attrs) do
     balance
-    |> cast(attrs, [:amount, :type, :minted_token_id, :balance_address,
-                    :entry_uuid])
-    |> validate_required([:amount, :type, :minted_token_id,
-                          :balance_address])
+    |> cast(attrs, [:amount, :type, :minted_token_id, :balance_address, :entry_uuid])
+    |> validate_required([:amount, :type, :minted_token_id, :balance_address])
     |> validate_inclusion(:type, @types)
     |> foreign_key_constraint(:minted_token_id)
     |> foreign_key_constraint(:balance_address)
@@ -51,13 +72,14 @@ defmodule LocalLedgerDB.Transaction do
   Ensure that the given address has enough funds, else raise an
   InsufficientFundsError exception.
   """
-  def check_balance(%{amount: amount_to_debit, minted_token_id: minted_token_id,
-                       address: address} = attrs) do
+  def check_balance(
+        %{amount: amount_to_debit, minted_token_id: minted_token_id, address: address} = attrs
+      ) do
     current_amount = calculate_current_amount(address, minted_token_id)
 
     unless current_amount - amount_to_debit >= 0 do
       raise InsufficientFundsError,
-            message: InsufficientFundsError.error_message(current_amount, attrs)
+        message: InsufficientFundsError.error_message(current_amount, attrs)
     end
 
     :ok
@@ -69,8 +91,8 @@ defmodule LocalLedgerDB.Transaction do
   """
   def calculate_all_balances(address, options \\ %{}) do
     options = Map.put_new(options, :minted_token_id, :all)
-    credits = sum(address, Transaction.credit_type, options)
-    debits = sum(address, Transaction.debit_type, options)
+    credits = sum(address, Transaction.credit_type(), options)
+    debits = sum(address, Transaction.debit_type(), options)
 
     credits |> subtract(debits) |> format()
   end
@@ -96,22 +118,26 @@ defmodule LocalLedgerDB.Transaction do
     |> where([t], t.inserted_at > ^since)
     |> where([t], t.inserted_at <= ^upto)
   end
+
   defp build_sum_query(address, type, %{minted_token_id: id, since: since}) do
     address
     |> build_sum_query(type, %{minted_token_id: id})
     |> where([t], t.inserted_at > ^since)
   end
+
   defp build_sum_query(address, type, %{minted_token_id: id, upto: upto}) do
     address
     |> build_sum_query(type, %{minted_token_id: id})
     |> where([t], t.inserted_at <= ^upto)
   end
+
   defp build_sum_query(address, type, %{minted_token_id: :all}) do
     Transaction
     |> where([t], t.balance_address == ^address and t.type == ^type)
     |> group_by([t], t.minted_token_id)
     |> select([t, _], {t.minted_token_id, sum(t.amount)})
   end
+
   defp build_sum_query(address, type, %{minted_token_id: id}) do
     address
     |> build_sum_query(type, %{minted_token_id: :all})
@@ -129,10 +155,14 @@ defmodule LocalLedgerDB.Transaction do
   end
 
   defp sum_transactions_amount(address, minted_token_id, type) do
-    Repo.one from t in Transaction,
-             where: t.balance_address == ^address
-                    and t.type == ^type
-                    and t.minted_token_id == ^minted_token_id,
-             select: sum(t.amount)
+    Repo.one(
+      from(
+        t in Transaction,
+        where:
+          t.balance_address == ^address and t.type == ^type and
+            t.minted_token_id == ^minted_token_id,
+        select: sum(t.amount)
+      )
+    )
   end
 end

@@ -7,11 +7,13 @@ defmodule AdminAPI.V1.KeyView do
     |> KeySerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("keys.json", %{keys: keys}) do
     keys
     |> KeySerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("empty_response.json", _attrs) do
     ResponseSerializer.serialize(%{}, success: true)
   end

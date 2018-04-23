@@ -11,15 +11,29 @@ defmodule EWalletDB.Membership do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "membership" do
-    belongs_to :user, User, foreign_key: :user_uuid,
-                            references: :uuid,
-                            type: UUID
-    belongs_to :account, Account, foreign_key: :account_uuid,
-                            references: :uuid,
-                            type: UUID
-    belongs_to :role, Role, foreign_key: :role_uuid,
-                            references: :uuid,
-                            type: UUID
+    belongs_to(
+      :user,
+      User,
+      foreign_key: :user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :account,
+      Account,
+      foreign_key: :account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :role,
+      Role,
+      foreign_key: :role_uuid,
+      references: :uuid,
+      type: UUID
+    )
 
     timestamps()
   end
@@ -45,7 +59,7 @@ defmodule EWalletDB.Membership do
   Retrieves all memberships for the given user.
   """
   def all_by_user(user) do
-    Repo.all from m in Membership, where: m.user_uuid == ^user.uuid
+    Repo.all(from(m in Membership, where: m.user_uuid == ^user.uuid))
   end
 
   @doc """
@@ -55,10 +69,12 @@ defmodule EWalletDB.Membership do
     case Role.get_by_name(role) do
       nil ->
         {:error, :role_not_found}
+
       role ->
         assign(user, account, role)
     end
   end
+
   def assign(%User{} = user, %Account{} = account, %Role{} = role) do
     case get_by_user_and_account(user, account) do
       nil ->
@@ -67,6 +83,7 @@ defmodule EWalletDB.Membership do
           user_uuid: user.uuid,
           role_uuid: role.uuid
         })
+
       existing ->
         update(existing, %{role_uuid: role.uuid})
     end
@@ -79,6 +96,7 @@ defmodule EWalletDB.Membership do
     case get_by_user_and_account(user, account) do
       nil ->
         {:error, :membership_not_found}
+
       membership ->
         delete(membership)
     end

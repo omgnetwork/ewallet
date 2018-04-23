@@ -45,9 +45,9 @@ defmodule EWalletAPI.V1.ErrorHandler do
   @doc """
   Returns a map of all the error atoms along with their code and description.
   """
-  @spec errors() :: %{required(atom()) => %{code: String.t, description: String.t}}
+  @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    Map.merge(EWalletErrorHandler.errors, @errors, fn _k, _shared, current ->
+    Map.merge(EWalletErrorHandler.errors(), @errors, fn _k, _shared, current ->
       current
     end)
   end
@@ -60,6 +60,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
     |> EWalletErrorHandler.build_error(attrs, errors())
     |> respond(conn)
   end
+
   def handle_error(conn, code) do
     code
     |> EWalletErrorHandler.build_error(errors())

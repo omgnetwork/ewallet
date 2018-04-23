@@ -2,20 +2,23 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias EWalletDB.Helpers.Assoc
   alias EWalletDB.TransactionRequest
+
   alias EWallet.Web.V1.{
     TransactionRequestSerializer,
     MintedTokenSerializer,
     UserSerializer,
     AccountSerializer
   }
+
   alias EWallet.Web.Date
 
   describe "serialize/1 for single transaction request" do
     test "serializes into correct V1 transaction_request format" do
       request = insert(:transaction_request)
-      transaction_request = TransactionRequest.get(request.id, preload: [:minted_token,
-                                                                         :account,
-                                                                         :user])
+
+      transaction_request =
+        TransactionRequest.get(request.id, preload: [:minted_token, :account, :user])
+
       insert(:transaction_consumption, transaction_request_uuid: request.uuid)
       insert(:transaction_consumption, transaction_request_uuid: request.uuid)
 

@@ -1,12 +1,12 @@
 defmodule EWallet.BalanceFetcherTest do
- use EWallet.LocalLedgerCase, async: true
- alias EWallet.BalanceFetcher
- alias EWalletDB.{User, Balance}
+  use EWallet.LocalLedgerCase, async: true
+  alias EWallet.BalanceFetcher
+  alias EWalletDB.{User, Balance}
 
   setup do
-    {:ok, user}  = :user |> params_for() |> User.insert()
+    {:ok, user} = :user |> params_for() |> User.insert()
     minted_token = insert(:minted_token)
-    balance      = User.get_primary_balance(user)
+    balance = User.get_primary_balance(user)
 
     %{user: user, minted_token: minted_token, balance: balance}
   end
@@ -18,7 +18,7 @@ defmodule EWallet.BalanceFetcherTest do
     end
 
     test "retrieves the balance if address is given and belonds to the user", meta do
-      inserted_balance = insert(:balance, identifier: Balance.secondary, user: meta.user)
+      inserted_balance = insert(:balance, identifier: Balance.secondary(), user: meta.user)
       {:ok, balance} = BalanceFetcher.get(meta.user, inserted_balance.address)
       assert balance.uuid == inserted_balance.uuid
     end
@@ -29,7 +29,7 @@ defmodule EWallet.BalanceFetcherTest do
     end
 
     test "returns 'user_balance_mismatch' if the balance found does not belong to the user",
-    meta do
+         meta do
       balance = insert(:balance)
       {:error, error} = BalanceFetcher.get(meta.user, balance.address)
       assert error == :user_balance_mismatch

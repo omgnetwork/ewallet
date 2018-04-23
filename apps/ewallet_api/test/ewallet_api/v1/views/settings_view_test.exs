@@ -4,7 +4,6 @@ defmodule EWalletAPI.V1.SettingsViewTest do
   alias EWallet.Web.V1.MintedTokenSerializer
 
   describe "EWalletAPI.V1.SettingsView.render/2" do
-
     test "renders settings.json with correct structure" do
       token1 = build(:minted_token)
       token2 = build(:minted_token)

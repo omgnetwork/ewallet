@@ -5,7 +5,7 @@ defmodule EWalletDB.SoftDeleteTest do
 
   describe "exclude_deleted/1" do
     test "returns records that are not soft-deleted" do
-      key            = insert(:key)
+      key = insert(:key)
       {:ok, deleted} = :key |> insert() |> Key.delete()
 
       result =
@@ -13,8 +13,8 @@ defmodule EWalletDB.SoftDeleteTest do
         |> exclude_deleted()
         |> Repo.all()
 
-      refute Enum.any?(result, fn(k) -> k.id == deleted.id end)
-      assert Enum.any?(result, fn(k) -> k.id == key.id end)
+      refute Enum.any?(result, fn k -> k.id == deleted.id end)
+      assert Enum.any?(result, fn k -> k.id == key.id end)
     end
   end
 

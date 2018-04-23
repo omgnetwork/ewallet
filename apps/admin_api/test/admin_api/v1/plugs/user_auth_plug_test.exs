@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
     end
 
     test "assigns unauthenticated conn info if the token doesn't belong to the user_id" do
-      conn = test_with("OMGAdmin", @api_key_id, @api_key, UUID.generate, @auth_token)
+      conn = test_with("OMGAdmin", @api_key_id, @api_key, UUID.generate(), @auth_token)
 
       assert conn.halted
       assert_error(conn)
@@ -79,7 +79,7 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
   defp test_with(type, user_id, auth_token) do
     build_conn()
     |> put_auth_header(type, [user_id, auth_token])
-    |> UserAuthPlug.call([enable_client_auth: false])
+    |> UserAuthPlug.call(enable_client_auth: false)
   end
 
   defp assert_success(conn) do

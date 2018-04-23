@@ -21,6 +21,7 @@ defmodule AdminAPI.VersionedRouter do
     case get_accept_version(accept) do
       {:ok, router_module} ->
         dispatch_to_router(conn, opts, router_module)
+
       _ ->
         handle_invalid_version(conn, accept)
     end

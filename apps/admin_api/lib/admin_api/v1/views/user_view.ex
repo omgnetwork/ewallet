@@ -8,6 +8,7 @@ defmodule AdminAPI.V1.UserView do
     |> UserSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("users.json", %{users: users}) do
     users
     |> UserSerializer.serialize()

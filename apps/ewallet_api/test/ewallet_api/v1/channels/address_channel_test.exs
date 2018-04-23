@@ -24,8 +24,8 @@ defmodule EWalletAPI.V1.AddressChannelTest do
         |> socket(%{auth: %{authenticated: :provider, account: account}})
         |> subscribe_and_join(AddressChannel, "address:123")
 
-        assert res == :error
-        assert code == :channel_not_found
+      assert res == :error
+      assert code == :channel_not_found
     end
   end
 

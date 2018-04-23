@@ -14,9 +14,9 @@ defmodule EWalletDB.MembershipTest do
   end
 
   defp prepare_membership do
-    user       = insert(:user)
-    account    = insert(:account)
-    role       = insert(:role, %{name: "some_role"})
+    user = insert(:user)
+    account = insert(:account)
+    role = insert(:role, %{name: "some_role"})
     membership = insert(:membership, %{user: user, account: account, role: role})
 
     {membership, user, account, role}
@@ -42,9 +42,9 @@ defmodule EWalletDB.MembershipTest do
 
   describe "Membership.assign/3" do
     test "returns {:ok, membership} on successful assignment" do
-      user    = insert(:user)
+      user = insert(:user)
       account = insert(:account)
-      role    = insert(:role, %{name: "some_role"})
+      role = insert(:role, %{name: "some_role"})
 
       {res, membership} = Membership.assign(user, account, "some_role")
 
@@ -55,21 +55,21 @@ defmodule EWalletDB.MembershipTest do
     end
 
     test "re-assigns user to the new role if the user has an existing role on the account" do
-      user    = insert(:user)
+      user = insert(:user)
       account = insert(:account)
 
       insert(:role, %{name: "old_role"})
       insert(:role, %{name: "new_role"})
 
       {:ok, _membership} = Membership.assign(user, account, "old_role")
-      {:ok, _membership}  = Membership.assign(user, account, "new_role")
+      {:ok, _membership} = Membership.assign(user, account, "new_role")
 
       user = Repo.preload(user, :roles, force: true)
       assert User.get_roles(user) == ["new_role"]
     end
 
     test "returns {:error, :role_not_found} if the given role does not exist" do
-      user    = insert(:user)
+      user = insert(:user)
       account = insert(:account)
 
       {res, reason} = Membership.assign(user, account, "missing_role")
@@ -88,7 +88,7 @@ defmodule EWalletDB.MembershipTest do
     end
 
     test "returns {:error, :membership_not_found} if the user is not assigned to the account" do
-      user    = insert(:user)
+      user = insert(:user)
       account = insert(:account)
 
       assert Membership.unassign(user, account) == {:error, :membership_not_found}
