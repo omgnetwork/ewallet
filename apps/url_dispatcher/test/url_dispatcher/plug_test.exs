@@ -60,9 +60,10 @@ defmodule UrlDispatcher.PlugTest do
       refute conn.halted
       assert conn.status == 302
       assert conn.resp_body =~ ~s(/docs/index.html)
-      assert Enum.any?(conn.resp_headers, fn(header) ->
-        header == {"location", "/docs/index.html"}
-      end)
+
+      assert Enum.any?(conn.resp_headers, fn header ->
+               header == {"location", "/docs/index.html"}
+             end)
     end
   end
 end

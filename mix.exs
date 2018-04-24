@@ -52,6 +52,7 @@ defmodule EWallet.Umbrella.Mixfile do
 
   def docs do
     [
+      assets: "assets/",
       main: "introduction",
       extra_section: "Guides",
       extras: [
