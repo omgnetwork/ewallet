@@ -45,7 +45,7 @@ defmodule EWallet.Umbrella.Mixfile do
         "ecto.migrate"
       ],
       seed: [
-        "run apps/ewallet/priv/repo/seeder.exs"
+        "omg.seed"
       ]
     ]
   end
