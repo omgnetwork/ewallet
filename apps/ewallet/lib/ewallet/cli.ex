@@ -19,9 +19,9 @@ defmodule EWallet.CLI do
 
   def color(messages), do: messages |> format |> puts
 
-  def heading(message), do: Docs.print_heading(message, [width: 100])
+  def heading(message), do: Docs.print_heading(message, width: 100)
 
-  def print(message), do: Docs.print(message, [width: 100])
+  def print(message), do: Docs.print(message, width: 100)
 
   def halt(message) do
     error(message)
@@ -35,12 +35,12 @@ defmodule EWallet.CLI do
     thanks to `Mix.Hex.Utils` for the workaround below.
   """
   def gets_sensitive(prompt) do
-    pid   = spawn_link(fn -> loop_gets_sensitive(prompt) end)
-    ref   = make_ref()
+    pid = spawn_link(fn -> loop_gets_sensitive(prompt) end)
+    ref = make_ref()
     value = IO.gets(prompt <> " ")
 
-    send pid, {:done, self(), ref}
-    receive do: ({:done, ^pid, ^ref}  -> :ok)
+    send(pid, {:done, self(), ref})
+    receive do: ({:done, ^pid, ^ref} -> :ok)
 
     value
   end
@@ -48,11 +48,11 @@ defmodule EWallet.CLI do
   defp loop_gets_sensitive(prompt) do
     receive do
       {:done, parent, ref} ->
-        send parent, {:done, self(), ref}
-        IO.write :standard_error, "\e[2K\r"
+        send(parent, {:done, self(), ref})
+        IO.write(:standard_error, "\e[2K\r")
     after
       1 ->
-        IO.write :standard_error, "\e[2K\r#{prompt} "
+        IO.write(:standard_error, "\e[2K\r#{prompt} ")
         loop_gets_sensitive(prompt)
     end
   end

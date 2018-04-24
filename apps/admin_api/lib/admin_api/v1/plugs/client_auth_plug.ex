@@ -12,14 +12,15 @@ defmodule AdminAPI.V1.ClientAuthPlug do
   def init(opts), do: opts
 
   def call(conn, opts) do
-    auth = Keyword.get(opts, :enable_client_auth,
-                       Application.get_env(:admin_api, :enable_client_auth))
+    auth =
+      Keyword.get(opts, :enable_client_auth, Application.get_env(:admin_api, :enable_client_auth))
 
     case auth do
       "true" ->
         conn
         |> parse_header()
         |> authenticate()
+
       _ ->
         assign(conn, :authenticated, :client)
     end
@@ -50,10 +51,11 @@ defmodule AdminAPI.V1.ClientAuthPlug do
   @doc """
   Authenticates a client by using api_key_id and api_key in the connection (private values).
   """
-  def authenticate(%{assigns: %{authenticated: :false}} = conn), do: conn
+  def authenticate(%{assigns: %{authenticated: false}} = conn), do: conn
+
   def authenticate(conn) do
     api_key_id = conn.private[:auth_api_key_id]
-    api_key    = conn.private[:auth_api_key]
+    api_key = conn.private[:auth_api_key]
 
     case APIKey.authenticate(api_key_id, api_key, :admin_api) do
       %Account{} = account ->
@@ -61,6 +63,7 @@ defmodule AdminAPI.V1.ClientAuthPlug do
         |> assign(:authenticated, :client)
         |> assign(:api_key_id, api_key_id)
         |> assign(:account, account)
+
       false ->
         conn
         |> assign(:authenticated, false)

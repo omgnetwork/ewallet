@@ -13,9 +13,15 @@ defmodule EWalletDB.Invite do
   @allowed_user_attrs [:email]
 
   schema "invite" do
-    field :token, :string
-    has_one :user, User, foreign_key: :invite_uuid,
-                         references: :uuid
+    field(:token, :string)
+
+    has_one(
+      :user,
+      User,
+      foreign_key: :invite_uuid,
+      references: :uuid
+    )
+
     timestamps()
   end
 
@@ -39,6 +45,7 @@ defmodule EWalletDB.Invite do
     case get(:user, :email, email) do
       %Invite{} = invite ->
         if Crypto.secure_compare(invite.token, input_token), do: invite, else: nil
+
       _ ->
         nil
     end
@@ -52,9 +59,12 @@ defmodule EWalletDB.Invite do
   def get(:user, user_attr, value) do
     if Enum.member?(@allowed_user_attrs, user_attr) do
       query =
-        from i in Invite,
-          join: u in User, on: u.invite_uuid == i.uuid,
+        from(
+          i in Invite,
+          join: u in User,
+          on: u.invite_uuid == i.uuid,
           where: field(u, ^user_attr) == ^value
+        )
 
       Repo.one(query)
     else
@@ -70,9 +80,9 @@ defmodule EWalletDB.Invite do
     {:ok, invite} = insert(%{token: Crypto.generate_key(@token_length)})
 
     # Assign the invite to the user
-    changeset     = change(user, invite_uuid: invite.uuid)
-    {:ok, _user}  = Repo.update(changeset)
-    invite        = Repo.preload(invite, opts[:preload])
+    changeset = change(user, invite_uuid: invite.uuid)
+    {:ok, _user} = Repo.update(changeset)
+    invite = Repo.preload(invite, opts[:preload])
 
     {:ok, invite}
   end
@@ -87,7 +97,7 @@ defmodule EWalletDB.Invite do
   Accepts an invitation and sets the given password to the user.
   """
   def accept(invite, password) do
-    invite       = Repo.preload(invite, :user)
+    invite = Repo.preload(invite, :user)
     {:ok, _user} = User.update(invite.user, %{invite_uuid: nil, password: password})
     delete(invite)
   end

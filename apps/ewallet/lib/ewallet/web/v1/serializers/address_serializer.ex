@@ -7,12 +7,13 @@ defmodule EWallet.Web.V1.AddressSerializer do
 
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
   def serialize(address) do
     %{
       object: "address",
       socket_topic: "address:#{address.address}",
       balances: serialize_balances(address.balances),
-      address: address.address,
+      address: address.address
     }
   end
 

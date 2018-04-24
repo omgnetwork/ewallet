@@ -47,9 +47,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
-      template: "The specified balance ({address}) does not contain enough funds. " <>
-                "Available: {current_amount} {minted_token_id} - Attempted debit: " <>
-                "{amount_to_debit} {minted_token_id}"
+      template:
+        "The specified balance ({address}) does not contain enough funds. " <>
+          "Available: {current_amount} {minted_token_id} - Attempted debit: " <>
+          "{amount_to_debit} {minted_token_id}"
     },
     transaction_request_not_found: %{
       code: "transaction_request:transaction_request_not_found",
@@ -69,7 +70,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     no_idempotency_token_provided: %{
       code: "client:no_idempotency_token_provided",
-      description: "The call you made requires the Idempotency-Token header to prevent duplication."
+      description:
+        "The call you made requires the Idempotency-Token header to prevent duplication."
     },
     expired_transaction_request: %{
       code: "transaction_request:expired",
@@ -98,7 +100,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     invalid_minted_token_provided: %{
       code: "transaction_consumption:invalid_minted_token",
-      description: "The provided minted token does not match the transaction request minted token."
+      description:
+        "The provided minted token does not match the transaction request minted token."
     },
     forbidden_channel: %{
       code: "websocket:forbidden_channel",
@@ -124,14 +127,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Returns a map of all the error atoms along with their code and description.
   """
-  @spec errors() :: %{required(atom()) => %{code: String.t, description: String.t}}
+  @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors, do: @errors
 
   # ---- WITH CHANGESET ----
   @doc """
   Handles response of invalid parameter error with error details provided.
   """
-  @spec build_error(String.t, Ecto.Changeset.t, Map.t) :: Map.t
+  @spec build_error(String.t(), Ecto.Changeset.t(), Map.t()) :: Map.t()
   def build_error(code, %Changeset{} = changeset, supported_errors) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(
@@ -146,11 +149,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with custom error code and description.
   """
-  @spec build_error(Atom.t, String.t, Map.t) :: Map.t
+  @spec build_error(Atom.t(), String.t(), Map.t()) :: Map.t()
   def build_error(code, description, supported_errors)
-  when is_binary(description)
-  when is_atom(description)
-  do
+      when is_binary(description)
+      when is_atom(description) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(code: error.code, desc: description)
     end)
@@ -160,13 +162,17 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response of insufficient_funds.
   """
-  @spec build_error(Atom.t, Map.t, Map.t) :: Map.t
-  def build_error(code, %{
-    "address" => address,
-    "current_amount" => current_amount,
-    "amount_to_debit" => amount_to_debit,
-    "minted_token_id" => id
-  }, supported_errors) do
+  @spec build_error(Atom.t(), Map.t(), Map.t()) :: Map.t()
+  def build_error(
+        code,
+        %{
+          "address" => address,
+          "current_amount" => current_amount,
+          "amount_to_debit" => amount_to_debit,
+          "minted_token_id" => id
+        },
+        supported_errors
+      ) do
     run_if_valid_error(code, supported_errors, fn error ->
       minted_token = MintedToken.get(id)
 
@@ -184,7 +190,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with template description to build.
   """
-  @spec build_error(Atom.t, Map.t, Map.t) :: Map.t
+  @spec build_error(Atom.t(), Map.t(), Map.t()) :: Map.t()
   def build_error(code, data, supported_errors) when is_map(data) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(code: error.code, desc: build_template(data, error.template))
@@ -195,7 +201,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with default error code and description
   """
-  @spec build_error(Atom.t, Map.t) :: Map.t
+  @spec build_error(Atom.t(), Map.t()) :: Map.t()
   def build_error(error_name, supported_errors) do
     run_if_valid_error(error_name, supported_errors, fn error ->
       build(code: error.code, desc: error.description)
@@ -203,6 +209,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp run_if_valid_error(code, nil, func), do: run_if_valid_error(code, @errors, func)
+
   defp run_if_valid_error(code, supported_errors, func) when is_binary(code) do
     code
     |> String.to_existing_atom()
@@ -210,10 +217,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
   rescue
     ArgumentError -> internal_server_error(code)
   end
+
   defp run_if_valid_error(code, supported_errors, func) when is_atom(code) do
     case Map.fetch(supported_errors, code) do
       {:ok, error} -> func.(error)
-      _            -> internal_server_error(code)
+      _ -> internal_server_error(code)
     end
   end
 
@@ -221,15 +229,16 @@ defmodule EWallet.Web.V1.ErrorHandler do
     build(code: :internal_server_error, desc: "#{description}")
   end
 
-  defp build([code: code, desc: description]) do
-    build([code: code, desc: description, msgs: nil])
+  defp build(code: code, desc: description) do
+    build(code: code, desc: description, msgs: nil)
   end
-  defp build([code: code, desc: description, msgs: msgs]) do
+
+  defp build(code: code, desc: description, msgs: msgs) do
     ErrorSerializer.serialize(code, description, msgs)
   end
 
   defp build_template(data, template) do
-    Enum.reduce(data, template, fn({k, v}, desc) ->
+    Enum.reduce(data, template, fn {k, v}, desc ->
       String.replace(desc, "{#{k}}", "#{v}")
     end)
   end
@@ -241,14 +250,17 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp stringify_field(fields) when is_map(fields) do
-    Enum.map_join(fields, ", ", fn({key, _}) -> stringify_field(key) end)
+    Enum.map_join(fields, ", ", fn {key, _} -> stringify_field(key) end)
   end
+
   defp stringify_field(fields) when is_list(fields) do
     Enum.map(fields, &stringify_field/1)
   end
+
   defp stringify_field(field) when is_atom(field) do
     "`" <> to_string(field) <> "`"
   end
+
   defp stringify_field({key, _}) do
     "`" <> to_string(key) <> "`"
   end

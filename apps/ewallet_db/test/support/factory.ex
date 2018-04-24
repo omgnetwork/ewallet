@@ -4,6 +4,7 @@ defmodule EWalletDB.Factory do
   """
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
+
   alias EWalletDB.{
     Account,
     APIKey,
@@ -21,6 +22,7 @@ defmodule EWalletDB.Factory do
     Transfer,
     User
   }
+
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
   alias ExULID.ULID
@@ -32,17 +34,18 @@ defmodule EWalletDB.Factory do
   e.g. when APIKey becomes :a_p_i_key
   """
   def get_factory(APIKey), do: :api_key
+
   def get_factory(schema) when is_atom(schema) do
     schema
     |> struct
-    |> Strategy.name_from_struct
+    |> Strategy.name_from_struct()
   end
 
   def balance_factory do
     %Balance{
       address: sequence("address"),
       name: sequence("name"),
-      identifier: Balance.primary,
+      identifier: Balance.primary(),
       user: insert(:user),
       minted_token: nil,
       metadata: %{}
@@ -84,6 +87,7 @@ defmodule EWalletDB.Factory do
 
   def admin_factory do
     password = sequence("password")
+
     %User{
       email: sequence("johndoe") <> "@example.com",
       password: password,
@@ -151,7 +155,7 @@ defmodule EWalletDB.Factory do
       key: sequence("api_key"),
       owner_app: "some_app_name",
       account: insert(:account),
-      expired: false,
+      expired: false
     }
   end
 
@@ -160,7 +164,7 @@ defmodule EWalletDB.Factory do
       token: sequence("auth_token"),
       owner_app: "some_app_name",
       user: insert(:user),
-      expired: false,
+      expired: false
     }
   end
 
@@ -178,7 +182,7 @@ defmodule EWalletDB.Factory do
 
   def forget_password_request_factory do
     %ForgetPasswordRequest{
-      token: sequence("123"),
+      token: sequence("123")
     }
   end
 

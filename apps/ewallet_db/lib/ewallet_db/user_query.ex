@@ -13,6 +13,7 @@ defmodule EWalletDB.UserQuery do
     queryable
     |> join(:inner, [u], m in Membership, u.uuid == m.user_uuid)
     |> distinct(true)
-    |> select([c], c) # Returns only the User struct, not the Memberships
+    # Returns only the User struct, not the Memberships
+    |> select([c], c)
   end
 end

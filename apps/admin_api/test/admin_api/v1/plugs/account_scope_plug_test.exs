@@ -11,7 +11,7 @@ defmodule AdminAPI.V1.AccountScopePlugTest do
   describe "AccountScopePlug.call/2" do
     test "assigns scoped_account_id to the connection if the header value is a UUID" do
       account_id = UUID.generate()
-      conn       = test_with(account_id)
+      conn = test_with(account_id)
 
       refute conn.halted
       assert conn.assigns.scoped_account_id == account_id

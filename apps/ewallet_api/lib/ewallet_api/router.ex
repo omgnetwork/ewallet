@@ -4,7 +4,7 @@ defmodule EWalletAPI.Router do
   alias EWalletAPI.{StatusController, VersionedRouter}
 
   scope "/api" do
-    get "/", StatusController, :status
-    forward "/", VersionedRouter
+    get("/", StatusController, :status)
+    forward("/", VersionedRouter)
   end
 end

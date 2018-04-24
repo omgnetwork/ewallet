@@ -12,10 +12,16 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @token_length 32
 
   schema "forget_password_request" do
-    field :token, :string
-    belongs_to :user, User, foreign_key: :user_uuid,
-                            references: :uuid,
-                            type: UUID
+    field(:token, :string)
+
+    belongs_to(
+      :user,
+      User,
+      foreign_key: :user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
   end
 
@@ -42,6 +48,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
   end
 
   defp check_token(nil, _token), do: nil
+
   defp check_token(request, token) do
     if Crypto.secure_compare(request.token, token), do: request, else: nil
   end

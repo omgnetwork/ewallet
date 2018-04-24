@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.MintedTokenView do
     |> MintedTokenSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("minted_tokens.json", %{minted_tokens: minted_tokens}) do
     minted_tokens
     |> MintedTokenSerializer.serialize()

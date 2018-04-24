@@ -14,21 +14,21 @@ defmodule EWalletDB.Helpers.Crypto do
   @spec hash_password(nil) :: nil
   def hash_password(nil), do: nil
 
-  @spec hash_password(String.t) :: String.t
+  @spec hash_password(String.t()) :: String.t()
   def hash_password(password) do
     Bcrypt.hash_pwd_salt(password)
   end
 
-  @spec verify_password(String.t, String.t) :: boolean
+  @spec verify_password(String.t(), String.t()) :: boolean
   def verify_password(password, hash) do
     Bcrypt.verify_pass(password, hash)
   end
 
   @spec fake_verify :: boolean
   def fake_verify do
-    Bcrypt.no_user_verify
+    Bcrypt.no_user_verify()
   end
 
-  @spec secure_compare(String.t, String.t) :: boolean
+  @spec secure_compare(String.t(), String.t()) :: boolean
   def secure_compare(left, right), do: Crypto.secure_compare(left, right)
 end

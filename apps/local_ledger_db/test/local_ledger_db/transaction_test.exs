@@ -27,41 +27,50 @@ defmodule LocalLedgerDB.TransactionTest do
 
   defp insert_transaction(attrs, name \\ :transaction) do
     params = params_for(name, attrs)
-    {_, transaction} = %Transaction{}
-                       |> Transaction.changeset(params)
-                       |> Repo.insert
+
+    {_, transaction} =
+      %Transaction{}
+      |> Transaction.changeset(params)
+      |> Repo.insert()
+
     transaction
   end
 
   defp insert_transactions_with_amounts(credit, debit) do
-    {:ok, entry} = :entry |> build |> Repo.insert
-    {:ok, token} = :minted_token |> build |> Repo.insert
-    {:ok, balance} = :balance |> build |> Repo.insert
+    {:ok, entry} = :entry |> build |> Repo.insert()
+    {:ok, token} = :minted_token |> build |> Repo.insert()
+    {:ok, balance} = :balance |> build |> Repo.insert()
 
     attrs = %{
       amount: credit,
-      type: Transaction.credit_type,
+      type: Transaction.credit_type(),
       entry_uuid: entry.uuid,
       balance_address: balance.address,
       minted_token_id: token.id
     }
 
     insert_transaction(attrs, :empty_transaction)
-    insert_transaction(%{attrs | amount: debit, type: Transaction.debit_type},
-                       :empty_transaction)
+
+    insert_transaction(
+      %{attrs | amount: debit, type: Transaction.debit_type()},
+      :empty_transaction
+    )
+
     {token, balance}
   end
 
   defp transfer(balance, token, amount, type) do
-    {:ok, entry} = :entry |> build |> Repo.insert
+    {:ok, entry} = :entry |> build |> Repo.insert()
 
     attrs = %{
-      amount: amount, type: Transaction.credit_type, entry_uuid: entry.uuid,
-      balance_address: balance.address, minted_token_id: token.id
+      amount: amount,
+      type: Transaction.credit_type(),
+      entry_uuid: entry.uuid,
+      balance_address: balance.address,
+      minted_token_id: token.id
     }
 
-    insert_transaction(%{attrs | amount: amount, type: type},
-                       :empty_transaction)
+    insert_transaction(%{attrs | amount: amount, type: type}, :empty_transaction)
   end
 
   describe "initialization" do
@@ -90,26 +99,21 @@ defmodule LocalLedgerDB.TransactionTest do
       transaction = build_transaction(%{amount: nil})
 
       refute transaction.valid?
-      assert transaction.errors == [amount: {"can't be blank",
-                                            [validation: :required]}]
+      assert transaction.errors == [amount: {"can't be blank", [validation: :required]}]
     end
 
     test "prevents creation of a transaction without a type" do
       transaction = build_transaction(%{type: nil})
 
       refute transaction.valid?
-      assert transaction.errors == [type: {"can't be blank",
-                                          [validation: :required]}]
+      assert transaction.errors == [type: {"can't be blank", [validation: :required]}]
     end
 
     test "prevents creation of a transaction without a minted token id" do
       transaction = build_transaction(%{minted_token_id: nil})
 
       refute transaction.valid?
-      assert transaction.errors == [minted_token_id:
-                                    {"can't be blank",
-                                    [validation: :required]}
-                                   ]
+      assert transaction.errors == [minted_token_id: {"can't be blank", [validation: :required]}]
     end
 
     test "prevents creation of a transaction without an invalid minted token" do
@@ -123,8 +127,7 @@ defmodule LocalLedgerDB.TransactionTest do
       transaction = build_transaction(%{balance_address: nil})
 
       refute transaction.valid?
-      assert transaction.errors == [balance_address: {"can't be blank",
-                                                     [validation: :required]}]
+      assert transaction.errors == [balance_address: {"can't be blank", [validation: :required]}]
     end
 
     test "prevents creation of a transaction without a non existing balance" do
@@ -141,7 +144,7 @@ defmodule LocalLedgerDB.TransactionTest do
     end
 
     test "prevents creation of a transaction without a non existing entry" do
-      transaction = insert_transaction(%{entry_uuid: UUID.generate})
+      transaction = insert_transaction(%{entry_uuid: UUID.generate()})
 
       refute transaction.valid?
       assert transaction.errors == [entry_uuid: {"does not exist", []}]
@@ -151,9 +154,14 @@ defmodule LocalLedgerDB.TransactionTest do
   describe "check_balance/1" do
     test "returns :ok if the balance has enough funds" do
       {token, balance} = insert_transactions_with_amounts(200, 100)
-      res = Transaction.check_balance(%{amount: 80,
-                                        minted_token_id: token.id,
-                                        address: balance.address})
+
+      res =
+        Transaction.check_balance(%{
+          amount: 80,
+          minted_token_id: token.id,
+          address: balance.address
+        })
+
       assert res == :ok
     end
 
@@ -162,112 +170,122 @@ defmodule LocalLedgerDB.TransactionTest do
       {token, balance} = insert_transactions_with_amounts(200, 130)
 
       assert_raise InsufficientFundsError, fn ->
-        Transaction.check_balance(%{amount: 80,
-                                    minted_token_id: token.id,
-                                    address: balance.address})
+        Transaction.check_balance(%{
+          amount: 80,
+          minted_token_id: token.id,
+          address: balance.address
+        })
       end
     end
   end
 
   describe "calculate_all_balances/2" do
     test "returns the correct balances for each token" do
-      {:ok, balance} = :balance |> build |> Repo.insert
+      {:ok, balance} = :balance |> build |> Repo.insert()
 
-      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert
-      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert
-      {:ok, btc} = :minted_token |> build(id: "tok_BTC_789") |> Repo.insert
+      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
+      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert()
+      {:ok, btc} = :minted_token |> build(id: "tok_BTC_789") |> Repo.insert()
 
-      transfer(balance, omg, 100, Transaction.debit_type)
-      transfer(balance, omg, 300, Transaction.credit_type)
-      transfer(balance, omg, 500, Transaction.credit_type)
-      transfer(balance, knc, 100, Transaction.credit_type)
-      transfer(balance, btc, 100, Transaction.credit_type)
-      transfer(balance, btc, 200, Transaction.credit_type)
+      transfer(balance, omg, 100, Transaction.debit_type())
+      transfer(balance, omg, 300, Transaction.credit_type())
+      transfer(balance, omg, 500, Transaction.credit_type())
+      transfer(balance, knc, 100, Transaction.credit_type())
+      transfer(balance, btc, 100, Transaction.credit_type())
+      transfer(balance, btc, 200, Transaction.credit_type())
 
       balances = Transaction.calculate_all_balances(balance.address)
-      assert balances == %{
-        "tok_BTC_789" => 300,
-        "tok_KNC_456" => 100,
-        "tok_OMG_123" => 700}
+      assert balances == %{"tok_BTC_789" => 300, "tok_KNC_456" => 100, "tok_OMG_123" => 700}
     end
 
     test "returns the correct balance for the specified token" do
-      {:ok, balance} = :balance |> build |> Repo.insert
-      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert
-      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert
+      {:ok, balance} = :balance |> build |> Repo.insert()
+      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
+      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert()
 
-      transfer(balance, omg, 100, Transaction.debit_type)
-      transfer(balance, omg, 300, Transaction.credit_type)
-      transfer(balance, omg, 500, Transaction.credit_type)
-      transfer(balance, knc, 100, Transaction.credit_type)
+      transfer(balance, omg, 100, Transaction.debit_type())
+      transfer(balance, omg, 300, Transaction.credit_type())
+      transfer(balance, omg, 500, Transaction.credit_type())
+      transfer(balance, knc, 100, Transaction.credit_type())
 
-      balances = Transaction.calculate_all_balances(balance.address, %{
-        minted_token_id: "tok_OMG_123"
-      })
+      balances =
+        Transaction.calculate_all_balances(balance.address, %{
+          minted_token_id: "tok_OMG_123"
+        })
+
       assert balances == %{"tok_OMG_123" => 300 + 500 - 100}
     end
 
     test "calculates all balances since specified date" do
-      {:ok, balance} = :balance |> build |> Repo.insert
-      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert
-      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert
+      {:ok, balance} = :balance |> build |> Repo.insert()
+      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
+      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert()
 
-      transfer(balance, omg, 100, Transaction.debit_type)
-      transfer(balance, omg, 300, Transaction.credit_type)
-      transfer(balance, omg, 500, Transaction.credit_type)
-      transfer(balance, knc, 100, Transaction.credit_type)
+      transfer(balance, omg, 100, Transaction.debit_type())
+      transfer(balance, omg, 300, Transaction.credit_type())
+      transfer(balance, omg, 500, Transaction.credit_type())
+      transfer(balance, knc, 100, Transaction.credit_type())
 
       transactions = Repo.all(Transaction)
       transaction = Enum.at(transactions, 1)
 
       all_balances = Transaction.calculate_all_balances(balance.address)
-      balances = Transaction.calculate_all_balances(balance.address, %{
-        since: transaction.inserted_at
-      })
+
+      balances =
+        Transaction.calculate_all_balances(balance.address, %{
+          since: transaction.inserted_at
+        })
+
       assert all_balances == %{"tok_KNC_456" => 100, "tok_OMG_123" => 300 + 500 - 100}
       assert balances == %{"tok_KNC_456" => 100, "tok_OMG_123" => 500}
     end
 
     test "calculates all balances up to the specified date" do
-      {:ok, balance} = :balance |> build |> Repo.insert
-      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert
-      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert
+      {:ok, balance} = :balance |> build |> Repo.insert()
+      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
+      {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert()
 
-      transfer(balance, omg, 100, Transaction.debit_type)
-      transfer(balance, omg, 300, Transaction.credit_type)
-      transfer(balance, omg, 500, Transaction.credit_type)
-      transfer(balance, knc, 100, Transaction.credit_type)
+      transfer(balance, omg, 100, Transaction.debit_type())
+      transfer(balance, omg, 300, Transaction.credit_type())
+      transfer(balance, omg, 500, Transaction.credit_type())
+      transfer(balance, knc, 100, Transaction.credit_type())
 
       transactions = Repo.all(Transaction)
       transaction = Enum.at(transactions, 1)
 
       all_balances = Transaction.calculate_all_balances(balance.address)
-      balances = Transaction.calculate_all_balances(balance.address, %{
-        upto: transaction.inserted_at
-      })
+
+      balances =
+        Transaction.calculate_all_balances(balance.address, %{
+          upto: transaction.inserted_at
+        })
+
       assert all_balances == %{"tok_KNC_456" => 100, "tok_OMG_123" => 300 + 500 - 100}
       assert balances == %{"tok_OMG_123" => 300 - 100}
     end
 
     test "calculates all balances between the specified 'since' date and 'upto' date" do
-      {:ok, balance} = :balance |> build |> Repo.insert
-      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert
+      {:ok, balance} = :balance |> build |> Repo.insert()
+      {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
 
-      transfer(balance, omg, 300, Transaction.credit_type)
-      transfer(balance, omg, 500, Transaction.credit_type)
-      transfer(balance, omg, 100, Transaction.credit_type)
-      transfer(balance, omg, 1200, Transaction.credit_type)
-      transfer(balance, omg, 250, Transaction.credit_type)
+      transfer(balance, omg, 300, Transaction.credit_type())
+      transfer(balance, omg, 500, Transaction.credit_type())
+      transfer(balance, omg, 100, Transaction.credit_type())
+      transfer(balance, omg, 1200, Transaction.credit_type())
+      transfer(balance, omg, 250, Transaction.credit_type())
 
       transactions = Repo.all(Transaction)
       transaction_1 = Enum.at(transactions, 1)
       transaction_2 = Enum.at(transactions, 3)
 
       all_balances = Transaction.calculate_all_balances(balance.address)
-      balances = Transaction.calculate_all_balances(balance.address, %{
-        since: transaction_1.inserted_at,
-        upto: transaction_2.inserted_at
-      })
+
+      balances =
+        Transaction.calculate_all_balances(balance.address, %{
+          since: transaction_1.inserted_at,
+          upto: transaction_2.inserted_at
+        })
+
       assert all_balances == %{"tok_OMG_123" => 300 + 500 + 100 + 1200 + 250}
       assert balances == %{"tok_OMG_123" => 100 + 1200}
     end
@@ -277,8 +295,7 @@ defmodule LocalLedgerDB.TransactionTest do
     test "returns the correct current balance amount" do
       {token, balance} = insert_transactions_with_amounts(200, 130)
 
-      amount = Transaction.calculate_current_amount(balance.address,
-                                                    token.id)
+      amount = Transaction.calculate_current_amount(balance.address, token.id)
       assert amount == 70
     end
   end

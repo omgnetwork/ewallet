@@ -13,14 +13,18 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
         |> insert()
         |> Repo.preload([:user, :transaction_request, :minted_token])
 
-      res = TransactionConsumptionEventHandler.broadcast(:transaction_consumption_finalized,
-                                                         %{consumption: consumption})
+      res =
+        TransactionConsumptionEventHandler.broadcast(:transaction_consumption_finalized, %{
+          consumption: consumption
+        })
+
       events = TestEndpoint.get_events()
 
       assert res == :ok
       assert length(events) == 5
 
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
+
       [
         "transaction_request:#{consumption.transaction_request.id}",
         "address:#{consumption.balance_address}",
@@ -43,8 +47,11 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
         |> insert()
         |> Repo.preload([:user, :transaction_request, :minted_token])
 
-      res = TransactionConsumptionEventHandler.broadcast(:transaction_consumption_request,
-                                                         %{consumption: consumption})
+      res =
+        TransactionConsumptionEventHandler.broadcast(:transaction_consumption_request, %{
+          consumption: consumption
+        })
+
       events = TestEndpoint.get_events()
 
       assert res == :ok
@@ -52,6 +59,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
 
       request = consumption.transaction_request |> Repo.preload(:user)
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
+
       [
         "transaction_request:#{request.id}",
         "address:#{request.balance_address}",

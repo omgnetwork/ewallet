@@ -47,6 +47,7 @@ defmodule AdminAPI.V1.MintedTokenController do
     |> MintedToken.get()
     |> respond_single(conn)
   end
+
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
@@ -63,20 +64,24 @@ defmodule AdminAPI.V1.MintedTokenController do
         inserted_minted_token
         |> mint_token(%{"amount" => amount})
         |> respond_single(conn)
+
       _ ->
         respond_single(inserted_minted_token, conn)
     end
   end
+
   def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Mint a minted token.
   """
-  def mint(conn, %{
-    "id" => id,
-    "amount" => _
-  } = attrs)
-  do
+  def mint(
+        conn,
+        %{
+          "id" => id,
+          "amount" => _
+        } = attrs
+      ) do
     with %MintedToken{} = minted_token <- MintedToken.get(id) do
       mint_token({:ok, minted_token}, attrs)
     else
@@ -84,11 +89,11 @@ defmodule AdminAPI.V1.MintedTokenController do
     end
     |> respond_single(conn)
   end
+
   def mint(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp mint_token({:ok, minted_token}, %{"amount" => amount} = attrs)
-  when is_number(amount)
-  do
+       when is_number(amount) do
     %{
       "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
       "token_id" => minted_token.id,
@@ -98,10 +103,11 @@ defmodule AdminAPI.V1.MintedTokenController do
     |> MintGate.insert()
     |> case do
       {:ok, _mint, _ledger_response} -> {:ok, minted_token}
-      {:error, code, description}    -> {:error, code, description}
-      {:error, changeset}            -> {:error, changeset}
+      {:error, code, description} -> {:error, code, description}
+      {:error, changeset} -> {:error, changeset}
     end
   end
+
   defp mint_token({:error, changeset}, _attrs), do: {:error, changeset}
   defp mint_token(_, _attrs), do: {:error, :invalid_parameter}
 
@@ -109,6 +115,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   defp respond_multiple(%Paginator{} = paged_minted_tokens, conn) do
     render(conn, :minted_tokens, %{minted_tokens: paged_minted_tokens})
   end
+
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
@@ -117,12 +124,15 @@ defmodule AdminAPI.V1.MintedTokenController do
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
+
   defp respond_single({:ok, minted_token}, conn) do
     render(conn, :minted_token, %{minted_token: minted_token})
   end
+
   defp respond_single(%MintedToken{} = minted_token, conn) do
     render(conn, :minted_token, %{minted_token: minted_token})
   end
+
   defp respond_single(nil, conn) do
     handle_error(conn, :minted_token_id_not_found)
   end

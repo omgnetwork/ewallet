@@ -80,6 +80,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuthTest do
   end
 
   defp invoke_conn(api_key, auth_token), do: invoke_conn("OMGClient", api_key, auth_token)
+
   defp invoke_conn(type, api_key, auth_token) do
     build_conn()
     |> put_auth_header(type, api_key, auth_token)

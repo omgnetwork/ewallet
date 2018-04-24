@@ -6,11 +6,11 @@ defmodule EWallet.BalanceAssigner do
   alias EWallet.TransactionGate
 
   def assign(%{
-    account: account,
-    user: user,
-    type: type,
-    burn_balance_identifier: burn_balance_identifier
-  }) do
+        account: account,
+        user: user,
+        type: type,
+        burn_balance_identifier: burn_balance_identifier
+      }) do
     credit = TransactionGate.credit_type()
     debit = TransactionGate.debit_type()
     user_balance = User.get_preloaded_primary_balance(user)
@@ -19,6 +19,7 @@ defmodule EWallet.BalanceAssigner do
       ^credit ->
         account_balance = Account.get_preloaded_primary_balance(account)
         {:ok, account_balance, user_balance}
+
       ^debit ->
         case get_account_balance(burn_balance_identifier, account) do
           nil -> {:error, :burn_balance_not_found}
@@ -30,6 +31,7 @@ defmodule EWallet.BalanceAssigner do
   defp get_account_balance(nil, account) do
     Account.get_preloaded_primary_balance(account)
   end
+
   defp get_account_balance(identifier, account) do
     Account.get_balance_by_identifier(account, identifier)
   end

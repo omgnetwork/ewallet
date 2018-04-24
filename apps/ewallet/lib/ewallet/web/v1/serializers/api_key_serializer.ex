@@ -11,6 +11,7 @@ defmodule EWallet.Web.V1.APIKeySerializer do
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
+
   def serialize(%APIKey{} = api_key) do
     api_key = Preloader.preload(api_key, :account)
 
@@ -25,6 +26,7 @@ defmodule EWallet.Web.V1.APIKeySerializer do
       deleted_at: Date.to_iso8601(api_key.deleted_at)
     }
   end
+
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 end

@@ -1,21 +1,25 @@
-  defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
+defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
   alias EWallet.TestEndpoint
   alias EWallet.Web.Date
-  alias EWallet.Web.V1.{AccountSerializer,
-                        MintedTokenSerializer,
-                        TransactionRequestSerializer,
-                        TransactionSerializer,
-                        UserSerializer}
+
+  alias EWallet.Web.V1.{
+    AccountSerializer,
+    MintedTokenSerializer,
+    TransactionRequestSerializer,
+    TransactionSerializer,
+    UserSerializer
+  }
+
   alias EWalletAPI.V1.Endpoint
 
   setup do
     {:ok, _} = TestEndpoint.start_link()
 
     account = Account.get_master_account()
-    {:ok, alice}   = :user |> params_for() |> User.insert()
-    bob     = get_test_user()
+    {:ok, alice} = :user |> params_for() |> User.insert()
+    bob = get_test_user()
 
     %{
       account: account,
@@ -30,13 +34,15 @@
 
   describe "/transaction_request.consume" do
     test "consumes the request and transfers the appropriate amount of tokens", meta do
-      transaction_request = insert(:transaction_request,
-        type: "receive",
-        minted_token_uuid: meta.minted_token.uuid,
-        user_uuid: meta.alice.uuid,
-        balance: meta.alice_balance,
-        amount: 100_000 * meta.minted_token.subunit_to_unit
-      )
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.alice.uuid,
+          balance: meta.alice_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit
+        )
 
       set_initial_balance(%{
         address: meta.bob_balance.address,
@@ -44,56 +50,57 @@
         amount: 150_000
       })
 
-      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil,
-        account_id: meta.account.id
-      })
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
-      request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      request = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
 
       assert response == %{
-        "success" => true,
-        "version" => "1",
-        "data" => %{
-          "address" => meta.account_balance.address,
-          "amount" => 100_000 * meta.minted_token.subunit_to_unit,
-          "correlation_id" => nil,
-          "id" => inserted_consumption.id,
-          "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
-          "idempotency_token" => "123",
-          "object" => "transaction_consumption",
-          "status" => "confirmed",
-          "minted_token_id" => meta.minted_token.id,
-          "minted_token" =>
-            meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
-          "transaction_request_id" => transaction_request.id,
-          "transaction_request" =>
-            request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-          "transaction_id" => inserted_transfer.id,
-          "transaction" =>
-            inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
-          "user_id" => nil,
-          "user" => nil,
-          "account_id" => meta.account.id,
-          "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
-          "metadata" => %{},
-          "encrypted_metadata" => %{},
-          "expiration_date" => nil,
-          "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-          "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-          "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-          "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-          "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
-          "expired_at" => nil
-        }
-      }
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "address" => meta.account_balance.address,
+                 "amount" => 100_000 * meta.minted_token.subunit_to_unit,
+                 "correlation_id" => nil,
+                 "id" => inserted_consumption.id,
+                 "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+                 "idempotency_token" => "123",
+                 "object" => "transaction_consumption",
+                 "status" => "confirmed",
+                 "minted_token_id" => meta.minted_token.id,
+                 "minted_token" =>
+                   meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
+                 "transaction_request_id" => transaction_request.id,
+                 "transaction_request" =>
+                   request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
+                 "transaction_id" => inserted_transfer.id,
+                 "transaction" =>
+                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                 "user_id" => nil,
+                 "user" => nil,
+                 "account_id" => meta.account.id,
+                 "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
+                 "metadata" => %{},
+                 "encrypted_metadata" => %{},
+                 "expiration_date" => nil,
+                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "expired_at" => nil
+               }
+             }
 
       assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_balance.address
@@ -102,13 +109,15 @@
     end
 
     test "returns with preload if `embed` attribute is given", meta do
-      transaction_request = insert(:transaction_request,
-        type: "receive",
-        minted_token_uuid: meta.minted_token.uuid,
-        user_uuid: meta.alice.uuid,
-        balance: meta.alice_balance,
-        amount: 100_000 * meta.minted_token.subunit_to_unit
-      )
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.alice.uuid,
+          balance: meta.alice_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit
+        )
 
       set_initial_balance(%{
         address: meta.bob_balance.address,
@@ -116,28 +125,32 @@
         amount: 150_000
       })
 
-      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil,
-        account_id: meta.account.id,
-        embed: ["account"]
-      })
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id,
+          embed: ["account"]
+        })
 
       assert response["data"]["account"] != nil
     end
 
-    test "returns same transaction request consumption when idempotency token is the same", meta do
-      transaction_request = insert(:transaction_request,
-        type: "receive",
-        minted_token_uuid: meta.minted_token.uuid,
-        user_uuid: meta.alice.uuid,
-        balance: meta.alice_balance,
-        amount: 100_000 * meta.minted_token.subunit_to_unit
-      )
+    test "returns same transaction request consumption when idempotency token is the same",
+         meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.alice.uuid,
+          balance: meta.alice_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit
+        )
 
       set_initial_balance(%{
         address: meta.bob_balance.address,
@@ -145,33 +158,35 @@
         amount: 150_000
       })
 
-      response = provider_request_with_idempotency("/transaction_request.consume", "1234", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil,
-        account_id: meta.account.id
-      })
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "1234", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
 
-      response = client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil
-      })
+      response =
+        client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
 
       inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transfer_2 = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption_2.id
@@ -180,40 +195,45 @@
     end
 
     test "returns idempotency error if header is not specified" do
-      response = client_request("/me.consume_transaction_request", %{
-        transaction_request_id: "123",
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil
-      })
+      response =
+        client_request("/me.consume_transaction_request", %{
+          transaction_request_id: "123",
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
 
       assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:no_idempotency_token_provided",
-          "description" => "The call you made requires the " <>
-                           "Idempotency-Token header to prevent duplication.",
-          "messages" => nil,
-          "object" => "error"
-        }
-      }
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "client:no_idempotency_token_provided",
+                 "description" =>
+                   "The call you made requires the " <>
+                     "Idempotency-Token header to prevent duplication.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
     end
 
     test "sends socket confirmation when require_confirmation and approved", meta do
       mint!(meta.minted_token)
 
       # Create a require_confirmation transaction request that will be consumed soon
-      transaction_request = insert(:transaction_request,
-        type: "send",
-        minted_token_uuid: meta.minted_token.uuid,
-        account_uuid: meta.account.uuid,
-        balance: meta.account_balance,
-        amount: nil,
-        require_confirmation: true
-      )
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          minted_token_uuid: meta.minted_token.uuid,
+          account_uuid: meta.account.uuid,
+          balance: meta.account_balance,
+          amount: nil,
+          require_confirmation: true
+        )
+
       request_topic = "transaction_request:#{transaction_request.id}"
 
       # Start listening to the channels for the transaction request created above
@@ -221,14 +241,15 @@
 
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
-      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: 100_000 * meta.minted_token.subunit_to_unit,
-        metadata: nil,
-        token_id: nil,
-        provider_user_id: meta.bob.provider_user_id
-      })
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: meta.bob.provider_user_id
+        })
 
       consumption_id = response["data"]["id"]
       assert response["success"] == true
@@ -243,9 +264,10 @@
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_request",
         topic: "transaction_request:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # We need to know once the consumption has been approved, so let's
@@ -253,9 +275,10 @@
       Endpoint.subscribe("transaction_consumption:#{consumption_id}")
 
       # Confirm the consumption
-      response = provider_request("/transaction_consumption.approve", %{
-        id: consumption_id
-      })
+      response =
+        provider_request("/transaction_consumption.approve", %{
+          id: consumption_id
+        })
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
@@ -272,10 +295,11 @@
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
-        topic:  "transaction_consumption:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # Unsubscribe from all channels
@@ -292,14 +316,17 @@
       })
 
       # Create a require_confirmation transaction request that will be consumed soon
-      transaction_request = insert(:transaction_request,
-        type: "send",
-        minted_token_uuid: meta.minted_token.uuid,
-        user_uuid: meta.bob.uuid,
-        balance: meta.bob_balance,
-        amount: nil,
-        require_confirmation: true
-      )
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.bob.uuid,
+          balance: meta.bob_balance,
+          amount: nil,
+          require_confirmation: true
+        )
+
       request_topic = "transaction_request:#{transaction_request.id}"
 
       # Start listening to the channels for the transaction request created above
@@ -307,14 +334,15 @@
 
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
-      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: 100_000 * meta.minted_token.subunit_to_unit,
-        metadata: nil,
-        token_id: nil,
-        address: meta.alice_balance.address
-      })
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          address: meta.alice_balance.address
+        })
 
       consumption_id = response["data"]["id"]
       assert response["success"] == true
@@ -329,9 +357,10 @@
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_request",
         topic: "transaction_request:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # We need to know once the consumption has been approved, so let's
@@ -339,9 +368,10 @@
       Endpoint.subscribe("transaction_consumption:#{consumption_id}")
 
       # Confirm the consumption
-      response = client_request("/me.approve_transaction_consumption", %{
-        id: consumption_id
-      })
+      response =
+        client_request("/me.approve_transaction_consumption", %{
+          id: consumption_id
+        })
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
@@ -358,10 +388,11 @@
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
-        topic:  "transaction_consumption:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # Unsubscribe from all channels
@@ -373,15 +404,18 @@
       mint!(meta.minted_token)
 
       # Create a require_confirmation transaction request that will be consumed soon
-      transaction_request = insert(:transaction_request,
-        type: "send",
-        minted_token_uuid: meta.minted_token.uuid,
-        account_uuid: meta.account.uuid,
-        balance: meta.account_balance,
-        amount: nil,
-        require_confirmation: true,
-        max_consumptions: 1
-      )
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          minted_token_uuid: meta.minted_token.uuid,
+          account_uuid: meta.account.uuid,
+          balance: meta.account_balance,
+          amount: nil,
+          require_confirmation: true,
+          max_consumptions: 1
+        )
+
       request_topic = "transaction_request:#{transaction_request.id}"
 
       # Start listening to the channels for the transaction request created above
@@ -389,14 +423,15 @@
 
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
-      response = provider_request_with_idempotency("/transaction_request.consume", "123", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: 100_000 * meta.minted_token.subunit_to_unit,
-        metadata: nil,
-        token_id: nil,
-        provider_user_id: meta.bob.provider_user_id
-      })
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: meta.bob.provider_user_id
+        })
 
       consumption_id = response["data"]["id"]
       assert response["success"] == true
@@ -411,9 +446,10 @@
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_request",
         topic: "transaction_request:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # We need to know once the consumption has been approved, so let's
@@ -421,9 +457,10 @@
       Endpoint.subscribe("transaction_consumption:#{consumption_id}")
 
       # Confirm the consumption
-      response = provider_request("/transaction_consumption.reject", %{
-        id: consumption_id
-      })
+      response =
+        provider_request("/transaction_consumption.reject", %{
+          id: consumption_id
+        })
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
@@ -437,24 +474,26 @@
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
-        topic:  "transaction_consumption:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # Check that we can consume for real now
       #
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
-      response = provider_request_with_idempotency("/transaction_request.consume", "1234", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: 100_000 * meta.minted_token.subunit_to_unit,
-        metadata: nil,
-        token_id: nil,
-        provider_user_id: meta.bob.provider_user_id
-      })
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "1234", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          provider_user_id: meta.bob.provider_user_id
+        })
 
       consumption_id = response["data"]["id"]
       assert response["success"] == true
@@ -469,9 +508,10 @@
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_request",
         topic: "transaction_request:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # We need to know once the consumption has been approved, so let's
@@ -479,9 +519,10 @@
       Endpoint.subscribe("transaction_consumption:#{consumption_id}")
 
       # Confirm the consumption
-      response = provider_request("/transaction_consumption.approve", %{
-        id: consumption_id
-      })
+      response =
+        provider_request("/transaction_consumption.approve", %{
+          id: consumption_id
+        })
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
@@ -495,10 +536,11 @@
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
-        topic:  "transaction_consumption:" <> _,
-        payload: %{
-          # Ignore content
-        }
+        topic: "transaction_consumption:" <> _,
+        payload:
+          %{
+            # Ignore content
+          }
       }
 
       # Unsubscribe from all channels
@@ -509,13 +551,15 @@
 
   describe "/me.consume_transaction_request" do
     test "consumes the request and transfers the appropriate amount of tokens", meta do
-      transaction_request = insert(:transaction_request,
-        type: "receive",
-        minted_token_uuid: meta.minted_token.uuid,
-        user_uuid: meta.alice.uuid,
-        balance: meta.alice_balance,
-        amount: 100_000 * meta.minted_token.subunit_to_unit
-      )
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.alice.uuid,
+          balance: meta.alice_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit
+        )
 
       set_initial_balance(%{
         address: meta.bob_balance.address,
@@ -523,55 +567,56 @@
         amount: 150_000
       })
 
-      response = client_request_with_idempotency("/me.consume_transaction_request", "123", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil
-      })
+      response =
+        client_request_with_idempotency("/me.consume_transaction_request", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
-      request  = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      request = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
 
       assert response == %{
-        "success" => true,
-        "version" => "1",
-        "data" => %{
-          "address" => meta.bob_balance.address,
-          "amount" => 100_000 * meta.minted_token.subunit_to_unit,
-          "correlation_id" => nil,
-          "id" => inserted_consumption.id,
-          "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
-          "idempotency_token" => "123",
-          "object" => "transaction_consumption",
-          "status" => "confirmed",
-          "minted_token_id" => meta.minted_token.id,
-          "minted_token" =>
-            meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
-          "transaction_request_id" => transaction_request.id,
-          "transaction_request" =>
-            request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-          "transaction_id" => inserted_transfer.id,
-          "transaction" =>
-            inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
-          "user_id" => meta.bob.id,
-          "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
-          "encrypted_metadata" => %{},
-          "expiration_date" => nil,
-          "metadata" => %{},
-          "account_id" => nil,
-          "account" => nil,
-          "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
-          "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
-          "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
-          "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
-          "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
-          "expired_at" => nil
-        }
-      }
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "address" => meta.bob_balance.address,
+                 "amount" => 100_000 * meta.minted_token.subunit_to_unit,
+                 "correlation_id" => nil,
+                 "id" => inserted_consumption.id,
+                 "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+                 "idempotency_token" => "123",
+                 "object" => "transaction_consumption",
+                 "status" => "confirmed",
+                 "minted_token_id" => meta.minted_token.id,
+                 "minted_token" =>
+                   meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
+                 "transaction_request_id" => transaction_request.id,
+                 "transaction_request" =>
+                   request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
+                 "transaction_id" => inserted_transfer.id,
+                 "transaction" =>
+                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                 "user_id" => meta.bob.id,
+                 "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
+                 "encrypted_metadata" => %{},
+                 "expiration_date" => nil,
+                 "metadata" => %{},
+                 "account_id" => nil,
+                 "account" => nil,
+                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "expired_at" => nil
+               }
+             }
 
       assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_balance.address
@@ -579,14 +624,17 @@
       assert %{} = inserted_transfer.ledger_response
     end
 
-    test "returns same transaction request consumption when idempotency token is the same", meta do
-      transaction_request = insert(:transaction_request,
-        type: "receive",
-        minted_token_uuid: meta.minted_token.uuid,
-        user_uuid: meta.alice.uuid,
-        balance: meta.alice_balance,
-        amount: 100_000 * meta.minted_token.subunit_to_unit
-      )
+    test "returns same transaction request consumption when idempotency token is the same",
+         meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.alice.uuid,
+          balance: meta.alice_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit
+        )
 
       set_initial_balance(%{
         address: meta.bob_balance.address,
@@ -594,32 +642,34 @@
         amount: 150_000
       })
 
-      response = client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil
-      })
+      response =
+        client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
 
-      response = client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-        transaction_request_id: transaction_request.id,
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil
-      })
+      response =
+        client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
 
       inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer_2    = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transfer_2 = Repo.get(Transfer, inserted_consumption.transfer_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption_2.id
@@ -628,26 +678,28 @@
     end
 
     test "returns idempotency error if header is not specified" do
-      response = client_request("/me.consume_transaction_request", %{
-        transaction_request_id: "123",
-        correlation_id: nil,
-        amount: nil,
-        address: nil,
-        metadata: nil,
-        token_id: nil
-      })
+      response =
+        client_request("/me.consume_transaction_request", %{
+          transaction_request_id: "123",
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil
+        })
 
       assert response == %{
-        "success" => false,
-        "version" => "1",
-        "data" => %{
-          "code" => "client:no_idempotency_token_provided",
-          "description" => "The call you made requires the " <>
-                           "Idempotency-Token header to prevent duplication.",
-          "messages" => nil,
-          "object" => "error"
-        }
-      }
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "client:no_idempotency_token_provided",
+                 "description" =>
+                   "The call you made requires the " <>
+                     "Idempotency-Token header to prevent duplication.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
     end
   end
 end

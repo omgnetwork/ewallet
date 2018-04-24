@@ -9,7 +9,7 @@ use Mix.Config
 # back to each application for organization purposes.
 import_config "../apps/*/config/config.exs"
 
-config :ewallet, root: File.cwd!
+config :ewallet, root: File.cwd!()
 
 # Configures Elixir's Logger
 config :logger, :console,
@@ -18,4 +18,4 @@ config :logger, :console,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

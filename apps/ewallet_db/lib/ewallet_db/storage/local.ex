@@ -10,11 +10,12 @@ defmodule EWallet.Storage.Local do
   def put(definition, version, {file, scope}) do
     destination_dir = definition.storage_dir(version, {file, scope})
 
-    path = Path.join([
-      Application.get_env(:ewallet, :root),
-      destination_dir,
-      file.file_name
-    ])
+    path =
+      Path.join([
+        Application.get_env(:ewallet, :root),
+        destination_dir,
+        file.file_name
+      ])
 
     path |> Path.dirname() |> File.mkdir_p!()
 
@@ -31,11 +32,12 @@ defmodule EWallet.Storage.Local do
     base_url = Application.get_env(:ewallet_db, :base_url)
     local_path = build_local_path(definition, version, file_and_scope)
 
-    url = if String.starts_with?(local_path, "/") do
-      base_url <> local_path
-    else
-      base_url <> "/" <> local_path
-    end
+    url =
+      if String.starts_with?(local_path, "/") do
+        base_url <> local_path
+      else
+        base_url <> "/" <> local_path
+      end
 
     url |> URI.encode()
   end

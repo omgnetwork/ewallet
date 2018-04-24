@@ -38,21 +38,27 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     |> TransactionConsumptionGate.confirm(approved, entity)
     |> respond(conn)
   end
+
   defp confirm(conn, _entity, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
 
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
+
   defp respond({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
+
   defp respond({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
+
   defp respond({:error, consumption, code, description}, conn) do
     dispatch_confirm_event(consumption)
     handle_error(conn, code, description)
   end
+
   defp respond({:ok, consumption}, conn) do
     dispatch_confirm_event(consumption)
+
     render(conn, :transaction_consumption, %{
       transaction_consumption: embed(consumption, conn.body_params["embed"])
     })

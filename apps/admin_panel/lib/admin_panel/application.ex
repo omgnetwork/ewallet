@@ -52,18 +52,22 @@ defmodule AdminPanel.Application do
   defp webpack_watch do
     import Supervisor.Spec
 
-    worker(Watcher, [
-      :yarn,
+    worker(
+      Watcher,
       [
-        "webpack",
-        "--watch-stdin",
-        "--color",
-        "--progress",
-        "--config", "config/webpack.dev.js"
+        :yarn,
+        [
+          "webpack",
+          "--watch-stdin",
+          "--color",
+          "--progress",
+          "--config",
+          "config/webpack.dev.js"
+        ],
+        [cd: Path.expand("../../assets/", __DIR__)]
       ],
-      [cd: Path.expand("../../assets/", __DIR__)]
-    ],
-    restart: :transient)
+      restart: :transient
+    )
   end
 
   # Tell Phoenix to update the endpoint configuration

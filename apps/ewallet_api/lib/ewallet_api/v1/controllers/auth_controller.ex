@@ -8,12 +8,13 @@ defmodule EWalletAPI.V1.AuthController do
   Generates a new authentication token for the provider_user_id and returns it.
   """
   def login(conn, %{"provider_user_id" => id})
-  when is_binary(id) and byte_size(id) > 0  do
+      when is_binary(id) and byte_size(id) > 0 do
     id
     |> User.get_by_provider_user_id()
     |> generate_token()
     |> respond(conn)
   end
+
   def login(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   defp generate_token(nil), do: {:error, :provider_user_id_not_found}

@@ -6,7 +6,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.TransactionConsumption
 
-  @spec broadcast(Atom.t, TransactionConsumption.t) :: :ok | {:error, :unhandled_event}
+  @spec broadcast(Atom.t(), TransactionConsumption.t()) :: :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do
     consumption = Preloader.preload(consumption, transaction_request: [:account, :user])
 
@@ -58,6 +58,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
           status: :ok,
           data: TransactionConsumptionSerializer.serialize(consumption)
         }
+
       false ->
         %{
           status: :error,
@@ -71,7 +72,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
     consumption = Preloader.preload(consumption, :transfer)
 
     case consumption.status do
-      "failed"  -> consumption.transfer.ledger_response["code"]
+      "failed" -> consumption.transfer.ledger_response["code"]
       "expired" -> :expired_transaction_consumption
       "pending" -> :unfinalized_transaction_consumption
     end

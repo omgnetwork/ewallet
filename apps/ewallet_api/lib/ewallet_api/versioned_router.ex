@@ -21,6 +21,7 @@ defmodule EWalletAPI.VersionedRouter do
     case get_accept_version(accept) do
       {:ok, router_module} ->
         dispatch_to_router(conn, opts, router_module)
+
       _ ->
         handle_invalid_version(conn, accept)
     end
@@ -32,7 +33,9 @@ defmodule EWalletAPI.VersionedRouter do
     case Map.fetch(api_version, accept) do
       {:ok, version} ->
         {:ok, version[:router]}
-      _ -> :error
+
+      _ ->
+        :error
     end
   end
 

@@ -6,11 +6,10 @@ defmodule EWallet.Web.V1.ClientAuth do
 
   def parse_header(header) do
     with header when not is_nil(header) <- header,
-        [scheme, content] <- String.split(header, " ", parts: 2),
-        true <- scheme in ["Basic", "OMGClient"],
-        {:ok, decoded} <- Base.decode64(content),
-        [key, token] <- String.split(decoded, ":", parts: 2)
-    do
+         [scheme, content] <- String.split(header, " ", parts: 2),
+         true <- scheme in ["Basic", "OMGClient"],
+         {:ok, decoded} <- Base.decode64(content),
+         [key, token] <- String.split(decoded, ":", parts: 2) do
       {:ok, key, token}
     else
       _ ->
@@ -22,6 +21,7 @@ defmodule EWallet.Web.V1.ClientAuth do
     case APIKey.authenticate(api_key, owner_app) do
       false ->
         {:error, :invalid_api_key}
+
       account ->
         {:ok, account}
     end

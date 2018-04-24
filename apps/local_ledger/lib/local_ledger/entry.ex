@@ -4,20 +4,22 @@ defmodule LocalLedger.Entry do
   needed to insert valid entries and transactions.
   """
   alias LocalLedgerDB.{Repo, Entry, Errors.InsufficientFundsError}
+
   alias LocalLedger.{
     Transaction,
     Balance,
     Errors.InvalidAmountError,
     Errors.AmountIsZeroError,
-    Errors.SameAddressError,
+    Errors.SameAddressError
   }
+
   alias LocalLedger.Entry.Validator
 
   @doc """
   Retrieve all entries from the database.
   """
   def all do
-    {:ok, Entry.all}
+    {:ok, Entry.all()}
   end
 
   @doc """
@@ -78,9 +80,17 @@ defmodule LocalLedger.Entry do
       })
 
   """
-  def insert(%{"metadata" => metadata, "debits" => debits, "credits" => credits,
-               "minted_token" => minted_token, "correlation_id" => correlation_id},
-               %{genesis: genesis}, callback \\ nil) do
+  def insert(
+        %{
+          "metadata" => metadata,
+          "debits" => debits,
+          "credits" => credits,
+          "minted_token" => minted_token,
+          "correlation_id" => correlation_id
+        },
+        %{genesis: genesis},
+        callback \\ nil
+      ) do
     {debits, credits}
     |> Validator.validate_different_addresses()
     |> Validator.validate_zero_sum()
@@ -90,10 +100,13 @@ defmodule LocalLedger.Entry do
   rescue
     e in InsufficientFundsError ->
       {:error, :insufficient_funds, e.message}
+
     e in InvalidAmountError ->
       {:error, :invalid_amount, e.message}
+
     e in AmountIsZeroError ->
       {:error, :amount_is_zero, e.message}
+
     e in SameAddressError ->
       {:error, :same_address, e.message}
   end
@@ -109,6 +122,7 @@ defmodule LocalLedger.Entry do
       if callback, do: callback.()
 
       Transaction.check_balance(transactions, %{genesis: genesis})
+
       changes = %{
         correlation_id: correlation_id,
         transactions: transactions,
@@ -118,6 +132,7 @@ defmodule LocalLedger.Entry do
       case Entry.insert(changes) do
         {:ok, entry} ->
           entry
+
         {:error, error} ->
           Repo.rollback(error)
       end

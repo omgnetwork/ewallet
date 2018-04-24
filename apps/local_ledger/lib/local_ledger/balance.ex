@@ -33,11 +33,11 @@ defmodule LocalLedger.Balance do
   balances.
   """
   def lock(addresses, fun) do
-    Repo.transaction fn ->
+    Repo.transaction(fn ->
       Balance.lock(addresses)
       res = fun.()
       Balance.touch(addresses)
       res
-    end
+    end)
   end
 end

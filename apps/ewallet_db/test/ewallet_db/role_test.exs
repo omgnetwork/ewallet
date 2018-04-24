@@ -3,14 +3,14 @@ defmodule EWalletDB.RoleTest do
   alias EWalletDB.Role
 
   describe "Role factory" do
-    test_has_valid_factory Role
+    test_has_valid_factory(Role)
   end
 
   describe "Role.insert/1" do
-    test_insert_generate_uuid Role, :uuid
-    test_insert_generate_timestamps Role
-    test_insert_prevent_blank Role, :name
-    test_insert_prevent_duplicate Role, :name
+    test_insert_generate_uuid(Role, :uuid)
+    test_insert_generate_timestamps(Role)
+    test_insert_prevent_blank(Role, :name)
+    test_insert_prevent_duplicate(Role, :name)
   end
 
   describe "Role.get_by_name/1" do

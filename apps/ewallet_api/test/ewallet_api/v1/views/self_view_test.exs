@@ -47,7 +47,7 @@ defmodule EWalletAPI.V1.SelfViewTest do
           object: "setting",
           minted_tokens: [
             MintedTokenSerializer.serialize(token1),
-            MintedTokenSerializer.serialize(token2),
+            MintedTokenSerializer.serialize(token2)
           ]
         }
       }

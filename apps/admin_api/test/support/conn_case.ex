@@ -26,8 +26,10 @@ defmodule AdminAPI.ConnCase do
   @endpoint AdminAPI.Endpoint
 
   # Attributes for all calls
-  @expected_version "1" # The expected response version
-  @header_accept "application/vnd.omisego.v1+json" # The expected response version
+  # The expected response version
+  @expected_version "1"
+  # The expected response version
+  @header_accept "application/vnd.omisego.v1+json"
 
   # Attributes for client calls
   @api_key_id UUID.generate()
@@ -76,18 +78,20 @@ defmodule AdminAPI.ConnCase do
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
     # Insert necessary records for making authenticated calls.
-    user = insert(:user, %{
-      id: @user_id,
-      username: @username,
-      password_hash: Crypto.hash_password(@password),
-      email: @user_email,
-      provider_user_id: @provider_user_id
-    })
+    user =
+      insert(:user, %{
+        id: @user_id,
+        username: @username,
+        password_hash: Crypto.hash_password(@password),
+        email: @user_email,
+        provider_user_id: @provider_user_id
+      })
+
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
-    role           = insert(:role, %{name: "admin"})
-    _api_key       = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
-    _auth_token    = insert(:auth_token, %{user: user, token: @auth_token, owner_app: "admin_api"})
-    _membership    = insert(:membership, %{user: user, role: role, account: account})
+    role = insert(:role, %{name: "admin"})
+    _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
+    _auth_token = insert(:auth_token, %{user: user, token: @auth_token, owner_app: "admin_api"})
+    _membership = insert(:membership, %{user: user, role: role, account: account})
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code
@@ -107,14 +111,15 @@ defmodule AdminAPI.ConnCase do
   def get_last_inserted(schema) do
     schema
     |> last(:inserted_at)
-    |> Repo.one
+    |> Repo.one()
   end
 
   @doc """
   A helper function that generates a valid client request (client-authenticated)
   with given path and data, and return the parsed JSON response.
   """
-  def client_request(path, data \\ %{}, status \\ :ok) when is_binary(path) and byte_size(path) > 0 do
+  def client_request(path, data \\ %{}, status \\ :ok)
+      when is_binary(path) and byte_size(path) > 0 do
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGAdmin", [@api_key_id, @api_key])
@@ -126,7 +131,8 @@ defmodule AdminAPI.ConnCase do
   A helper function that generates a valid user request (user-authenticated)
   with given path and data, and return the parsed JSON response.
   """
-  def user_request(path, data \\ %{}, status \\ :ok) when is_binary(path) and byte_size(path) > 0 do
+  def user_request(path, data \\ %{}, status \\ :ok)
+      when is_binary(path) and byte_size(path) > 0 do
     # Make the authenticated request after login
     build_conn()
     |> put_req_header("accept", @header_accept)
@@ -141,9 +147,10 @@ defmodule AdminAPI.ConnCase do
   followed by a space, then the base64 pair of credentials.
   """
   def put_auth_header(conn, type, content) when is_list(content) do
-    serialized = content |> Enum.join(":") |> Base.encode64
+    serialized = content |> Enum.join(":") |> Base.encode64()
     put_auth_header(conn, type, serialized)
   end
+
   def put_auth_header(conn, type, content) when is_binary(content) do
     put_req_header(conn, "authorization", type <> " " <> content)
   end
@@ -154,7 +161,7 @@ defmodule AdminAPI.ConnCase do
   """
   def ensure_num_records(schema, num_required, attrs \\ %{}, count_field \\ :id) do
     num_remaining = num_required - Repo.aggregate(schema, :count, count_field)
-    factory_name  = get_factory(schema)
+    factory_name = get_factory(schema)
 
     insert_list(num_remaining, factory_name, attrs)
     Repo.all(schema)

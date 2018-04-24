@@ -38,6 +38,7 @@ defmodule AdminAPI.V1.KeyController do
   defp respond_multiple(%Paginator{} = paginated_keys, conn) do
     render(conn, :keys, %{keys: paginated_keys})
   end
+
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
@@ -55,6 +56,7 @@ defmodule AdminAPI.V1.KeyController do
   defp respond_single({:ok, key}, conn) do
     render(conn, :key, %{key: key})
   end
+
   # Responds when the key is saved unsucessfully
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
@@ -67,19 +69,23 @@ defmodule AdminAPI.V1.KeyController do
     key = Key.get(:access_key, access_key)
     do_delete(conn, key)
   end
+
   def delete(conn, %{"id" => id}) do
     key = Key.get(id)
     do_delete(conn, key)
   end
+
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp do_delete(conn, %Key{} = key) do
     case Key.delete(key) do
       {:ok, _key} ->
         render(conn, :empty_response)
+
       {:error, changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
     end
   end
+
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
 end

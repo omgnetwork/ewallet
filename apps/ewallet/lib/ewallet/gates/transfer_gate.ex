@@ -30,17 +30,19 @@ defmodule EWallet.TransferGate do
     end
 
   """
-  def get_or_insert(%{
-    idempotency_token: _,
-    from: _,
-    to: _,
-    minted_token_id: _,
-    amount: _,
-    payload: _
-  } = attrs) do
+  def get_or_insert(
+        %{
+          idempotency_token: _,
+          from: _,
+          to: _,
+          minted_token_id: _,
+          amount: _,
+          payload: _
+        } = attrs
+      ) do
     attrs
-    |> Map.put(:type, Transfer.internal)
-    |> Map.put(:minted_token_uuid, MintedToken.get_by([id: attrs.minted_token_id]).uuid)
+    |> Map.put(:type, Transfer.internal())
+    |> Map.put(:minted_token_uuid, MintedToken.get_by(id: attrs.minted_token_id).uuid)
     |> Transfer.get_or_insert()
   end
 
@@ -93,6 +95,7 @@ defmodule EWallet.TransferGate do
       entry_uuid: entry.uuid
     })
   end
+
   defp update_transfer({:error, code, description}, transfer) do
     Transfer.fail(transfer, %{
       code: code,

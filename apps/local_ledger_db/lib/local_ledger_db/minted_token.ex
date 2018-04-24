@@ -11,12 +11,18 @@ defmodule LocalLedgerDB.MintedToken do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "minted_token" do
-    field :id, :string
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
-    has_many :transactions, Transaction, foreign_key: :minted_token_id,
-                                         references: :id
+    field(:id, :string)
+    field(:metadata, :map, default: %{})
+    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encryption_version, :binary)
+
+    has_many(
+      :transactions,
+      Transaction,
+      foreign_key: :minted_token_id,
+      references: :id
+    )
+
     timestamps()
   end
 
@@ -28,7 +34,7 @@ defmodule LocalLedgerDB.MintedToken do
     |> cast(attrs, [:id, :metadata, :encrypted_metadata, :encryption_version])
     |> validate_required([:id, :metadata, :encrypted_metadata])
     |> unique_constraint(:id)
-    |> put_change(:encryption_version, Cloak.version)
+    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
@@ -39,6 +45,7 @@ defmodule LocalLedgerDB.MintedToken do
     case get(id) do
       nil ->
         insert(attrs)
+
       minted_token ->
         {:ok, minted_token}
     end
@@ -64,6 +71,7 @@ defmodule LocalLedgerDB.MintedToken do
     case Repo.insert(changeset, opts) do
       {:ok, _minted_token} ->
         {:ok, get(id)}
+
       {:error, changeset} ->
         {:error, changeset}
     end

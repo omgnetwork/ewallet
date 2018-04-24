@@ -5,7 +5,7 @@ defmodule EWalletDB.Uploaders.Avatar do
   use Arc.Definition
   use Arc.Ecto.Definition
 
-  @acl      :public_read
+  @acl :public_read
   @versions [:original, :large, :small, :thumb]
 
   def validate({file, _}) do
@@ -30,7 +30,7 @@ defmodule EWalletDB.Uploaders.Avatar do
 
   # Override the storage directory:
   def storage_dir(_version, {_file, scope}) do
-    "public/uploads/#{Mix.env}/#{get_schema_name(scope)}/avatars/#{scope.id}"
+    "public/uploads/#{Mix.env()}/#{get_schema_name(scope)}/avatars/#{scope.id}"
   end
 
   defp get_schema_name(scope) do

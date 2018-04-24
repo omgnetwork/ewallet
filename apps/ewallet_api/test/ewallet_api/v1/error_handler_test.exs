@@ -9,9 +9,9 @@ defmodule EWalletAPI.V1.ErrorHandlerTest do
     use Ecto.Schema
 
     schema "test_schema" do
-      field :field1, :string
-      field :field2, :string
-      field :field3, :string
+      field(:field1, :string)
+      field(:field2, :string)
+      field(:field3, :string)
     end
   end
 
@@ -48,9 +48,9 @@ defmodule EWalletAPI.V1.ErrorHandlerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided"
-            <> " `field2` can't be blank."
-            <> " `field3` can't be blank.",
+          "description" =>
+            "Invalid parameter provided" <>
+              " `field2` can't be blank." <> " `field3` can't be blank.",
           "messages" => %{
             "field2" => ["required"],
             "field3" => ["required"]

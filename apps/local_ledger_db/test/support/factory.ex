@@ -42,14 +42,14 @@ defmodule LocalLedgerDB.Factory do
   def empty_transaction_factory do
     %{
       amount: 150,
-      type: Transaction.credit_type
+      type: Transaction.credit_type()
     }
   end
 
   def credit_factory do
     %Transaction{
       amount: 150,
-      type: Transaction.credit_type,
+      type: Transaction.credit_type(),
       entry_uuid: insert(:entry).uuid
     }
   end
@@ -57,7 +57,7 @@ defmodule LocalLedgerDB.Factory do
   def debit_factory do
     %Transaction{
       amount: 150,
-      type: Transaction.debit_type,
+      type: Transaction.debit_type(),
       entry_uuid: insert(:entry).uuid
     }
   end
@@ -65,7 +65,7 @@ defmodule LocalLedgerDB.Factory do
   def transaction_factory do
     %Transaction{
       amount: 10_000,
-      type: Transaction.credit_type,
+      type: Transaction.credit_type(),
       minted_token_id: insert(:minted_token).id,
       balance_address: insert(:balance).address,
       entry_uuid: insert(:entry).uuid

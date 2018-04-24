@@ -1,5 +1,6 @@
 defmodule EWalletAPI.V1.TransactionView do
   use EWalletAPI, :view
+
   alias EWallet.Web.V1.{
     ResponseSerializer,
     TransactionSerializer
@@ -10,6 +11,7 @@ defmodule EWalletAPI.V1.TransactionView do
     |> TransactionSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("transactions.json", %{transactions: transactions}) do
     transactions
     |> TransactionSerializer.serialize()

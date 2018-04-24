@@ -11,20 +11,36 @@ defmodule EWalletDB.Mint do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "mint" do
-    external_id prefix: "mnt_"
+    external_id(prefix: "mnt_")
 
-    field :description, :string
-    field :amount, EWalletDB.Types.Integer
-    field :confirmed, :boolean, default: false
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
-                                           references: :uuid,
-                                           type: UUID
-    belongs_to :account, Account, foreign_key: :account_uuid,
-                                  references: :uuid,
-                                  type: UUID
-    belongs_to :transfer, Transfer, foreign_key: :transfer_uuid,
-                                    references: :uuid,
-                                    type: UUID
+    field(:description, :string)
+    field(:amount, EWalletDB.Types.Integer)
+    field(:confirmed, :boolean, default: false)
+
+    belongs_to(
+      :minted_token,
+      MintedToken,
+      foreign_key: :minted_token_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :account,
+      Account,
+      foreign_key: :account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :transfer,
+      Transfer,
+      foreign_key: :transfer_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
   end
 
@@ -55,14 +71,14 @@ defmodule EWalletDB.Mint do
   @doc """
   Updates a mint with the provided attributes.
   """
-  @spec update(mint :: %Mint{}, attrs :: map()) ::
-    {:ok, %Mint{}} | {:error, Ecto.Changeset.t}
+  @spec update(mint :: %Mint{}, attrs :: map()) :: {:ok, %Mint{}} | {:error, Ecto.Changeset.t()}
   def update(%Mint{} = mint, attrs) do
     changeset = update_changeset(mint, attrs)
 
     case Repo.update(changeset) do
       {:ok, mint} ->
         {:ok, mint}
+
       result ->
         result
     end
@@ -72,6 +88,7 @@ defmodule EWalletDB.Mint do
   Confirms a mint.
   """
   def confirm(%Mint{confirmed: true} = mint), do: mint
+
   def confirm(%Mint{confirmed: false} = mint) do
     {:ok, mint} =
       mint

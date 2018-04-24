@@ -6,4 +6,4 @@ config :ewallet,
   ecto_repos: [],
   max_per_page: System.get_env("REQUEST_MAX_PER_PAGE") || 100
 
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

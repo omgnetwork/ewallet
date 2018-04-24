@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
     end
 
     test "assigns unauthenticated conn info if the api_key_id is not found" do
-      conn = test_with("OMGAdmin", UUID.generate, @api_key)
+      conn = test_with("OMGAdmin", UUID.generate(), @api_key)
       assert_error(conn)
     end
 
@@ -51,6 +51,7 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
   end
 
   defp test_with(type, api_key_id, api_key), do: test_with(type, [api_key_id, api_key])
+
   defp test_with(type, data) when is_list(data) do
     build_conn()
     |> put_auth_header(type, data)
@@ -59,7 +60,7 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
 
   defp test_with_no_auth do
     build_conn()
-    |> ClientAuthPlug.call([enable_client_auth: false])
+    |> ClientAuthPlug.call(enable_client_auth: false)
   end
 
   defp assert_success(conn) do

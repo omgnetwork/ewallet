@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.AuthControllerTest do
 
   describe "/login" do
     test "responds with a new auth token if the given email and password are valid" do
-      response   = client_request("/login", %{email: @user_email, password: @password})
+      response = client_request("/login", %{email: @user_email, password: @password})
       auth_token = get_last_inserted(AuthToken)
 
       expected = %{
@@ -13,7 +13,7 @@ defmodule AdminAPI.V1.AuthControllerTest do
         "data" => %{
           "object" => "authentication_token",
           "authentication_token" => auth_token.token,
-          "user_id" => @user_id,
+          "user_id" => @user_id
         }
       }
 
@@ -21,7 +21,8 @@ defmodule AdminAPI.V1.AuthControllerTest do
     end
 
     test "returns an error if the given email does not exist" do
-      response = client_request("/login", %{email: "wrong_email@example.com", password: @password})
+      response =
+        client_request("/login", %{email: "wrong_email@example.com", password: @password})
 
       expected = %{
         "version" => @expected_version,

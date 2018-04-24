@@ -5,9 +5,9 @@ defmodule AdminAPI.InviteEmailTest do
 
   defp create_email(email, token) do
     invite = insert(:invite, %{token: token})
-    _user  = insert(:admin, %{email: email, invite: invite})
+    _user = insert(:admin, %{email: email, invite: invite})
     invite = Repo.preload(invite, :user)
-    email  = InviteEmail.create(invite, "https://invite_url/?email={email}&token={token}")
+    email = InviteEmail.create(invite, "https://invite_url/?email={email}&token={token}")
 
     email
   end

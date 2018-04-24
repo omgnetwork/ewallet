@@ -11,8 +11,8 @@ defmodule LocalLedger.Transaction do
   """
   def build_all({debits, credits}, minted_token) do
     {:ok, minted_token} = MintedToken.get_or_insert(minted_token)
-    sending = format(minted_token, debits, Transaction.debit_type)
-    receiving = format(minted_token, credits, Transaction.credit_type)
+    sending = format(minted_token, debits, Transaction.debit_type())
+    receiving = format(minted_token, credits, Transaction.credit_type())
 
     sending ++ receiving
   end
@@ -23,23 +23,23 @@ defmodule LocalLedger.Transaction do
   def get_addresses(transactions) do
     transactions
     |> Enum.filter(fn transaction ->
-      transaction[:type] == Transaction.debit_type
+      transaction[:type] == Transaction.debit_type()
     end)
     |> Enum.map(fn transaction -> transaction[:balance_address] end)
   end
 
   # Build a list of balance maps with the required details for DB insert.
   defp format(minted_token, balances, type) do
-    Enum.map balances, fn attrs ->
+    Enum.map(balances, fn attrs ->
       {:ok, balance} = Balance.get_or_insert(attrs)
 
       %{
         type: type,
         amount: attrs["amount"],
         minted_token_id: minted_token.id,
-        balance_address: balance.address,
+        balance_address: balance.address
       }
-    end
+    end)
   end
 
   @doc """
@@ -60,14 +60,14 @@ defmodule LocalLedger.Transaction do
   Check the current balance amount for each DEBIT transaction.
   """
   def check_balance(transactions) do
-    Enum.each transactions, fn transaction ->
-      if transaction[:type] == Transaction.debit_type do
+    Enum.each(transactions, fn transaction ->
+      if transaction[:type] == Transaction.debit_type() do
         Transaction.check_balance(%{
           amount: transaction[:amount],
           minted_token_id: transaction[:minted_token_id],
           address: transaction[:balance_address]
         })
       end
-    end
+    end)
   end
 end

@@ -23,11 +23,11 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
           object: "transaction_source",
           address: transaction.to,
           amount: transaction.amount,
-          minted_token: MintedTokenSerializer.serialize(transaction.minted_token),
+          minted_token: MintedTokenSerializer.serialize(transaction.minted_token)
         },
         exchange: %{
           object: "exchange",
-          rate: 1,
+          rate: 1
         },
         metadata: %{some: "metadata"},
         encrypted_metadata: %{},

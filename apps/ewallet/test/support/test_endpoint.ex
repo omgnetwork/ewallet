@@ -18,11 +18,15 @@ defmodule EWallet.TestEndpoint do
 
   def broadcast(topic, event, payload) do
     Agent.get_and_update(__MODULE__, fn list ->
-      updated = list ++ [%{
-        topic: topic,
-        event: event,
-        payload: payload
-      }]
+      updated =
+        list ++
+          [
+            %{
+              topic: topic,
+              event: event,
+              payload: payload
+            }
+          ]
 
       {list, updated}
     end)

@@ -14,40 +14,74 @@ defmodule EWalletDB.MintedToken do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "minted_token" do
-    field :id, :string # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
+    # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
+    field(:id, :string)
 
-    field :symbol, :string # "eur"
-    field :iso_code, :string # "EUR"
-    field :name, :string # "Euro"
-    field :description, :string # Official currency of the European Union
-    field :short_symbol, :string # "€"
-    field :subunit, :string # "Cent"
-    field :subunit_to_unit, EWalletDB.Types.Integer # 100
-    field :symbol_first, :boolean # true
-    field :html_entity, :string # "&#x20AC;"
-    field :iso_numeric, :string # "978"
-    field :smallest_denomination, :integer # 1
-    field :locked, :boolean # false
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
-    belongs_to :account, Account, foreign_key: :account_uuid,
-                                           references: :uuid,
-                                           type: UUID
+    # "eur"
+    field(:symbol, :string)
+    # "EUR"
+    field(:iso_code, :string)
+    # "Euro"
+    field(:name, :string)
+    # Official currency of the European Union
+    field(:description, :string)
+    # "€"
+    field(:short_symbol, :string)
+    # "Cent"
+    field(:subunit, :string)
+    # 100
+    field(:subunit_to_unit, EWalletDB.Types.Integer)
+    # true
+    field(:symbol_first, :boolean)
+    # "&#x20AC;"
+    field(:html_entity, :string)
+    # "978"
+    field(:iso_numeric, :string)
+    # 1
+    field(:smallest_denomination, :integer)
+    # false
+    field(:locked, :boolean)
+    field(:metadata, :map, default: %{})
+    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encryption_version, :binary)
+
+    belongs_to(
+      :account,
+      Account,
+      foreign_key: :account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
   end
 
   defp changeset(%MintedToken{} = minted_token, attrs) do
     minted_token
     |> cast(attrs, [
-      :symbol, :iso_code, :name, :description, :short_symbol,
-      :subunit, :subunit_to_unit, :symbol_first, :html_entity,
-      :iso_numeric, :smallest_denomination, :locked, :account_uuid,
-      :metadata, :encrypted_metadata
+      :symbol,
+      :iso_code,
+      :name,
+      :description,
+      :short_symbol,
+      :subunit,
+      :subunit_to_unit,
+      :symbol_first,
+      :html_entity,
+      :iso_numeric,
+      :smallest_denomination,
+      :locked,
+      :account_uuid,
+      :metadata,
+      :encrypted_metadata
     ])
     |> validate_required([
-      :symbol, :name, :subunit_to_unit, :account_uuid,
-      :metadata, :encrypted_metadata
+      :symbol,
+      :name,
+      :subunit_to_unit,
+      :account_uuid,
+      :metadata,
+      :encrypted_metadata
     ])
     |> validate_number(:subunit_to_unit, greater_than: 0, less_than_or_equal_to: 1.0e18)
     |> validate_immutable(:symbol)
@@ -57,7 +91,7 @@ defmodule EWalletDB.MintedToken do
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
     |> assoc_constraint(:account)
-    |> put_change(:encryption_version, Cloak.version)
+    |> put_change(:encryption_version, Cloak.version())
     |> set_id(prefix: "tok_")
   end
 
@@ -67,6 +101,7 @@ defmodule EWalletDB.MintedToken do
         symbol = get_field(changeset, :symbol)
         ulid = ULID.generate()
         put_change(changeset, :id, build_id(symbol, ulid, opts))
+
       _ ->
         changeset
     end
@@ -76,6 +111,7 @@ defmodule EWalletDB.MintedToken do
     case opts[:prefix] do
       nil ->
         "#{symbol}_#{ulid}"
+
       prefix ->
         "#{prefix}#{symbol}_#{ulid}"
     end
@@ -97,6 +133,7 @@ defmodule EWalletDB.MintedToken do
     case Repo.insert(changeset) do
       {:ok, minted_token} ->
         {:ok, get(minted_token.id)}
+
       {:error, changeset} ->
         {:error, changeset}
     end
@@ -108,6 +145,7 @@ defmodule EWalletDB.MintedToken do
   @spec get_by(String.t(), opts :: keyword()) :: %MintedToken{} | nil
   def get(id, opts \\ [])
   def get(nil, _), do: nil
+
   def get(id, opts) do
     get_by([id: id], opts)
   end
@@ -126,7 +164,6 @@ defmodule EWalletDB.MintedToken do
   Retrieve a list of minted tokens by supplying a list of IDs.
   """
   def get_all(ids) do
-    Repo.all(from m in MintedToken,
-                       where: m.id in ^ids)
+    Repo.all(from(m in MintedToken, where: m.id in ^ids))
   end
 end

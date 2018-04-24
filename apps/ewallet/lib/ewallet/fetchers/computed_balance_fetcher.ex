@@ -30,6 +30,7 @@ defmodule EWallet.ComputedBalanceFetcher do
     case user do
       nil ->
         {:error, :provider_user_id_not_found}
+
       user ->
         balance = User.get_primary_balance(user)
         format_all(balance.address)
@@ -119,12 +120,14 @@ defmodule EWallet.ComputedBalanceFetcher do
           |> map_minted_tokens(data)
 
         {:ok, %{address: address, balances: balances}}
+
       balances ->
         balances
     end
   end
 
   defp load_minted_tokens(:all, _), do: MintedToken.all()
+
   defp load_minted_tokens(:one, amounts) do
     amounts |> Map.keys() |> MintedToken.get_all()
   end

@@ -7,9 +7,9 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
 
   describe "serialize/1" do
     test "serializes a membership into user json" do
-      account    = insert(:account)
-      user       = insert(:user)
-      role       = insert(:role)
+      account = insert(:account)
+      user = insert(:user)
+      role = insert(:role)
       membership = insert(:membership, %{account: account, user: user, role: role})
 
       expected = %{
@@ -48,9 +48,9 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
     end
 
     test "serializes a list of memberships into a list of users json" do
-      account    = insert(:account)
-      user       = insert(:user)
-      role       = insert(:role)
+      account = insert(:account)
+      user = insert(:user)
+      role = insert(:role)
       membership = insert(:membership, %{account: account, user: user, role: role})
 
       expected = %{

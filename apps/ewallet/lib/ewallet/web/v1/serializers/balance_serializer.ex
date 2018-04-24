@@ -8,6 +8,7 @@ defmodule EWallet.Web.V1.BalanceSerializer do
   # Both the given balance and `%NotLoaded{}` are maps
   # so we need to pattern-match `%NotLoaded{}` first.
   def serialize(%NotLoaded{}), do: nil
+
   def serialize(balance) when is_map(balance) do
     %{
       object: "balance",
@@ -15,5 +16,6 @@ defmodule EWallet.Web.V1.BalanceSerializer do
       amount: balance.amount
     }
   end
+
   def serialize(nil), do: nil
 end

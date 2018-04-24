@@ -8,9 +8,9 @@ defmodule EWalletDB.Balance do
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, Balance, MintedToken, User}
 
-  @genesis   "genesis"
-  @burn      "burn"
-  @primary   "primary"
+  @genesis "genesis"
+  @burn "burn"
+  @primary "primary"
   @secondary "secondary"
 
   def genesis, do: @genesis
@@ -23,32 +23,51 @@ defmodule EWalletDB.Balance do
   schema "balance" do
     # Balance does not have an external ID. Use `address` instead.
 
-    field :address, :string
-    field :name, :string
-    field :identifier, :string
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
+    field(:address, :string)
+    field(:name, :string)
+    field(:identifier, :string)
+    field(:metadata, :map, default: %{})
+    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encryption_version, :binary)
 
-    belongs_to :user, User, foreign_key: :user_uuid,
-                            references: :uuid,
-                            type: UUID
+    belongs_to(
+      :user,
+      User,
+      foreign_key: :user_uuid,
+      references: :uuid,
+      type: UUID
+    )
 
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
-                                           references: :uuid,
-                                           type: UUID
+    belongs_to(
+      :minted_token,
+      MintedToken,
+      foreign_key: :minted_token_uuid,
+      references: :uuid,
+      type: UUID
+    )
 
-    belongs_to :account, Account, foreign_key: :account_uuid,
-                                  references: :uuid,
-                                  type: UUID
+    belongs_to(
+      :account,
+      Account,
+      foreign_key: :account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
   end
 
   defp changeset(%Balance{} = balance, attrs) do
     balance
     |> cast(attrs, [
-      :address, :account_uuid, :minted_token_uuid, :user_uuid, :metadata,
-      :encrypted_metadata, :name, :identifier
+      :address,
+      :account_uuid,
+      :minted_token_uuid,
+      :user_uuid,
+      :metadata,
+      :encrypted_metadata,
+      :name,
+      :identifier
     ])
     |> validate_required([:address, :name, :identifier, :metadata, :encrypted_metadata])
     |> validate_format(:identifier, ~r/#{@genesis}|#{@burn}|#{@primary}|#{@secondary}:.*/)
@@ -61,13 +80,14 @@ defmodule EWalletDB.Balance do
     |> unique_constraint(:unique_user_name, name: :balance_user_id_name_index)
     |> unique_constraint(:unique_account_identifier, name: :balance_account_id_identifier_index)
     |> unique_constraint(:unique_user_identifier, name: :balance_user_id_identifier_index)
-    |> put_change(:encryption_version, Cloak.version)
+    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
   Retrieve a balance using the specified address.
   """
   def get(nil), do: nil
+
   def get(address) do
     Repo.get_by(Balance, address: address)
   end
@@ -92,6 +112,7 @@ defmodule EWalletDB.Balance do
       nil ->
         {:ok, genesis} = insert_genesis()
         genesis
+
       balance ->
         balance
     end
@@ -107,6 +128,7 @@ defmodule EWalletDB.Balance do
     case Repo.insert(changeset, opts) do
       {:ok, _balance} ->
         {:ok, get(@genesis)}
+
       {:error, changeset} ->
         {:error, changeset}
     end

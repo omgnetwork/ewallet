@@ -52,6 +52,7 @@ defmodule EWalletDB.Helpers.Assoc do
       assoc -> get(assoc, remaining)
     end
   end
+
   def get(struct, nested) when length(nested) == 1 do
     field = List.first(nested)
     Map.get(struct, field)

@@ -21,10 +21,12 @@ defmodule EWalletDB.InviteTest do
   describe "Invite.get/2" do
     test "returns an Invite if the given email and token combo is found" do
       invite = insert(:invite, %{token: "the_token"})
-      _user  = insert(:admin, %{
-        email: "testemail@omise.co",
-        invite: invite
-      })
+
+      _user =
+        insert(:admin, %{
+          email: "testemail@omise.co",
+          invite: invite
+        })
 
       assert %Invite{} = Invite.get("testemail@omise.co", "the_token")
     end
@@ -61,7 +63,7 @@ defmodule EWalletDB.InviteTest do
 
   describe "Invite.generate/2" do
     test "returns {:ok, invite} for the given user" do
-      user             = insert(:admin)
+      user = insert(:admin)
       {result, invite} = Invite.generate(user)
 
       assert result == :ok
@@ -69,7 +71,7 @@ defmodule EWalletDB.InviteTest do
     end
 
     test "associates the invite_uuid to the user" do
-      user          = insert(:admin)
+      user = insert(:admin)
       {:ok, invite} = Invite.generate(user)
 
       user = User.get(user.id)
@@ -77,7 +79,7 @@ defmodule EWalletDB.InviteTest do
     end
 
     test "preloads the invite if the option is given" do
-      user          = insert(:admin)
+      user = insert(:admin)
       {:ok, invite} = Invite.generate(user, preload: :user)
 
       assert invite.user.uuid == user.uuid
@@ -87,20 +89,20 @@ defmodule EWalletDB.InviteTest do
   describe "Invite.accept/2" do
     test "sets user to :active status" do
       invite = insert(:invite)
-      user   = insert(:admin, %{invite: invite})
+      user = insert(:admin, %{invite: invite})
 
       :pending_confirmation = User.get_status(user)
-      {:ok, _invite}        = Invite.accept(invite, "some_password")
-      status                = user.id |> User.get() |> User.get_status()
+      {:ok, _invite} = Invite.accept(invite, "some_password")
+      status = user.id |> User.get() |> User.get_status()
 
-      assert status  == :active
+      assert status == :active
     end
 
     test "sets user with the given password" do
-      invite         = insert(:invite)
-      user           = insert(:admin, %{invite: invite})
+      invite = insert(:invite)
+      user = insert(:admin, %{invite: invite})
       {res, _invite} = Invite.accept(invite, "some_password")
-      user           = User.get(user.id)
+      user = User.get(user.id)
 
       assert res == :ok
       assert Crypto.verify_password("some_password", user.password_hash)
@@ -108,7 +110,7 @@ defmodule EWalletDB.InviteTest do
 
     test "deletes the invite" do
       invite = insert(:invite)
-      _user  = insert(:admin, %{invite: invite})
+      _user = insert(:admin, %{invite: invite})
 
       {res, _invite} = Invite.accept(invite, "some_password")
 

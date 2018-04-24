@@ -82,7 +82,7 @@ defmodule EWalletDB.SoftDelete do
   """
   defmacro soft_delete do
     quote do
-      field :deleted_at, :naive_datetime
+      field(:deleted_at, :naive_datetime)
     end
   end
 

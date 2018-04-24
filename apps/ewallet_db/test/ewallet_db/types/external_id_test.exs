@@ -5,7 +5,7 @@ defmodule EWalletDB.Types.ExternalIDTest do
   describe "cast/1" do
     test "casts input to lower case" do
       assert ExternalID.cast("ACC_01CA56X1ZTJD9DZ7H10BZ6VMZX") ==
-        {:ok, "acc_01ca56x1ztjd9dz7h10bz6vmzx"}
+               {:ok, "acc_01ca56x1ztjd9dz7h10bz6vmzx"}
     end
 
     test "returns error if the input does not have prefix" do
@@ -22,7 +22,7 @@ defmodule EWalletDB.Types.ExternalIDTest do
     ## So no transformation needed.
     test "returns the same string" do
       assert ExternalID.load("acc_01ca56x1ztjd9dz7h10bz6vmzx") ==
-        {:ok, "acc_01ca56x1ztjd9dz7h10bz6vmzx"}
+               {:ok, "acc_01ca56x1ztjd9dz7h10bz6vmzx"}
     end
   end
 
@@ -31,7 +31,7 @@ defmodule EWalletDB.Types.ExternalIDTest do
     # So no transformation needed.
     test "returns the same string" do
       assert ExternalID.dump("acc_01ca56x1ztjd9dz7h10bz6vmzx") ==
-        {:ok, "acc_01ca56x1ztjd9dz7h10bz6vmzx"}
+               {:ok, "acc_01ca56x1ztjd9dz7h10bz6vmzx"}
     end
   end
 

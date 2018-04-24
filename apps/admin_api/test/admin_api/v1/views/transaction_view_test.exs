@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
               subunit_to_unit: minted_token.subunit_to_unit,
               created_at: Date.to_iso8601(minted_token.inserted_at),
               updated_at: Date.to_iso8601(minted_token.updated_at)
-            },
+            }
           },
           to: %{
             object: "transaction_source",
@@ -45,11 +45,11 @@ defmodule AdminAPI.V1.TransactionViewTest do
               subunit_to_unit: minted_token.subunit_to_unit,
               created_at: Date.to_iso8601(minted_token.inserted_at),
               updated_at: Date.to_iso8601(minted_token.updated_at)
-            },
+            }
           },
           exchange: %{
             object: "exchange",
-            rate: 1,
+            rate: 1
           },
           metadata: %{some: "metadata"},
           encrypted_metadata: %{},
@@ -63,9 +63,9 @@ defmodule AdminAPI.V1.TransactionViewTest do
     end
 
     test "renders transactions.json with correct response structure" do
-      transaction1  = insert(:transfer)
+      transaction1 = insert(:transfer)
       minted_token1 = transaction1.minted_token
-      transaction2  = insert(:transfer)
+      transaction2 = insert(:transfer)
       minted_token2 = transaction2.minted_token
 
       paginator = %Paginator{
@@ -74,8 +74,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
           per_page: 10,
           current_page: 1,
           is_first_page: true,
-          is_last_page: false,
-        },
+          is_last_page: false
+        }
       }
 
       expected = %{
@@ -102,7 +102,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                   subunit_to_unit: minted_token1.subunit_to_unit,
                   created_at: Date.to_iso8601(minted_token1.inserted_at),
                   updated_at: Date.to_iso8601(minted_token1.updated_at)
-                },
+                }
               },
               to: %{
                 object: "transaction_source",
@@ -118,11 +118,11 @@ defmodule AdminAPI.V1.TransactionViewTest do
                   subunit_to_unit: minted_token1.subunit_to_unit,
                   created_at: Date.to_iso8601(minted_token1.inserted_at),
                   updated_at: Date.to_iso8601(minted_token1.updated_at)
-                },
+                }
               },
               exchange: %{
                 object: "exchange",
-                rate: 1,
+                rate: 1
               },
               metadata: %{some: "metadata"},
               encrypted_metadata: %{},
@@ -148,7 +148,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                   subunit_to_unit: minted_token2.subunit_to_unit,
                   created_at: Date.to_iso8601(minted_token2.inserted_at),
                   updated_at: Date.to_iso8601(minted_token2.updated_at)
-                },
+                }
               },
               to: %{
                 object: "transaction_source",
@@ -164,11 +164,11 @@ defmodule AdminAPI.V1.TransactionViewTest do
                   subunit_to_unit: minted_token2.subunit_to_unit,
                   created_at: Date.to_iso8601(minted_token2.inserted_at),
                   updated_at: Date.to_iso8601(minted_token2.updated_at)
-                },
+                }
               },
               exchange: %{
                 object: "exchange",
-                rate: 1,
+                rate: 1
               },
               metadata: %{some: "metadata"},
               encrypted_metadata: %{},
@@ -181,8 +181,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
             per_page: 10,
             current_page: 1,
             is_first_page: true,
-            is_last_page: false,
-          },
+            is_last_page: false
+          }
         }
       }
 

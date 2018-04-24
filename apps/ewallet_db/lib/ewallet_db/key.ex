@@ -10,17 +10,24 @@ defmodule EWalletDB.Key do
   alias EWalletDB.{Repo, Account, Key, Helpers.Crypto}
 
   @primary_key {:uuid, UUID, autogenerate: true}
-  @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
+  # String length = ceil(key_bytes / 3 * 4)
+  @key_bytes 32
 
   schema "key" do
-    external_id prefix: "key_"
+    external_id(prefix: "key_")
 
-    field :access_key, :string
-    field :secret_key, :string, virtual: true
-    field :secret_key_hash, :string
-    belongs_to :account, Account, foreign_key: :account_uuid,
-                                  references: :uuid,
-                                  type: UUID
+    field(:access_key, :string)
+    field(:secret_key, :string, virtual: true)
+    field(:secret_key_hash, :string)
+
+    belongs_to(
+      :account,
+      Account,
+      foreign_key: :account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
     soft_delete()
   end
@@ -46,13 +53,15 @@ defmodule EWalletDB.Key do
   @doc """
   Get key by id, exclude soft-deleted.
   """
-  @spec get(ExternalID.t) :: %Key{} | nil
+  @spec get(ExternalID.t()) :: %Key{} | nil
   def get(id)
+
   def get(id) when is_external_id(id) do
     Key
     |> exclude_deleted()
     |> Repo.get_by(id: id)
   end
+
   def get(_), do: nil
 
   @doc """
@@ -97,14 +106,14 @@ defmodule EWalletDB.Key do
   to avoid passing the access/secret key information around.
   """
   def authenticate(access, secret)
-    when is_binary(access)
-    and is_binary(secret)
-  do
+      when is_binary(access) and is_binary(secret) do
     query =
-      from(k in Key,
+      from(
+        k in Key,
         where: k.access_key == ^access,
         join: a in assoc(k, :account),
-        preload: [account: a])
+        preload: [account: a]
+      )
 
     query
     |> Repo.all()
@@ -128,7 +137,7 @@ defmodule EWalletDB.Key do
   # There is also timing leak due to fake_verify not performing comparison
   # (only performing Bcrypt hash operation) which may be a problem.
   def authenticate(_, _) do
-    Crypto.fake_verify
+    Crypto.fake_verify()
   end
 
   @doc """

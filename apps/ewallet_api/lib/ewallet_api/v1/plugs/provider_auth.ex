@@ -29,6 +29,7 @@ defmodule EWalletAPI.V1.Plug.ProviderAuth do
         conn
         |> put_private(:auth_access_key, access)
         |> put_private(:auth_secret_key, secret)
+
       {:error, :invalid_auth_scheme} ->
         conn
         |> assign(:authenticated, false)
@@ -38,15 +39,17 @@ defmodule EWalletAPI.V1.Plug.ProviderAuth do
 
   # Skip auth if it already failed since header parsing
   defp authenticate(%{assigns: %{authenticated: false}} = conn), do: conn
+
   defp authenticate(conn) do
     access_key = conn.private[:auth_access_key]
     secret_key = conn.private[:auth_secret_key]
 
     case ProviderAuth.authenticate(access_key, secret_key) do
-       {:ok, account} ->
+      {:ok, account} ->
         conn
         |> assign(:authenticated, :provider)
         |> assign(:account, account)
+
       {:error, :invalid_access_secret_key} ->
         conn
         |> assign(:authenticated, false)
