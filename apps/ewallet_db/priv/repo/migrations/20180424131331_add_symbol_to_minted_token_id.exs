@@ -38,7 +38,7 @@ defmodule EWalletDB.Repo.Migrations.AddSymbolToMintedTokenId do
   defp remove_symbol(id) do
     # Remove the symbol only if the pattern is strictly
     # `<non_underscores>_<non_underscores>_<non_underscores>`
-    String.replace(id, ~r/([^_]+)_([^_]+)_([^_]+)/, "\\1_\\3")
+    String.replace(id, ~r/^([^_]+)_([^_]+)_([^_]+)$/, "\\1_\\3")
   end
 
   defp update_id(id, table_name, uuid) do
