@@ -386,7 +386,7 @@ defmodule EWalletDB.User do
     query =
       from(
         [q, child] in query_accounts(user),
-        order_by: [asc: child.depth],
+        order_by: [asc: child.depth, desc: child.inserted_at],
         limit: 1
       )
 

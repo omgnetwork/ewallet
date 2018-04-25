@@ -90,8 +90,15 @@ defmodule AdminAPI.ConnCase do
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
     role = insert(:role, %{name: "admin"})
     _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
-    _auth_token = insert(:auth_token, %{user: user, token: @auth_token, owner_app: "admin_api"})
     _membership = insert(:membership, %{user: user, role: role, account: account})
+
+    _auth_token =
+      insert(:auth_token, %{
+        user: user,
+        account: account,
+        token: @auth_token,
+        owner_app: "admin_api"
+      })
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code
@@ -99,6 +106,14 @@ defmodule AdminAPI.ConnCase do
     # and access using `context[:attribute]`.
     :ok
   end
+
+  def stringify_keys(map) when is_map(map) do
+    for {key, val} <- map, into: %{}, do: {convert_key(key), stringify_keys(val)}
+  end
+
+  def stringify_keys(value), do: value
+  def convert_key(key) when is_atom(key), do: Atom.to_string(key)
+  def convert_key(key), do: key
 
   @doc """
   Returns the user that has just been created from the test setup.

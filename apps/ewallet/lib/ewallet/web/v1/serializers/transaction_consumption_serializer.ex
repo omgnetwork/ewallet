@@ -42,8 +42,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       account_id: Assoc.get(consumption, [:account, :id]),
       account: AccountSerializer.serialize(consumption.account),
       transaction_request_id: consumption.transaction_request.id,
-      transaction_request:
-        TransactionRequestSerializer.serialize(consumption.transaction_request),
+      transaction_request: TransactionRequestSerializer.serialize(consumption.transaction_request),
       address: consumption.balance_address,
       metadata: consumption.metadata || %{},
       encrypted_metadata: consumption.encrypted_metadata || %{},

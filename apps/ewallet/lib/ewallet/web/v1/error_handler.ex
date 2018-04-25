@@ -37,9 +37,13 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "server:unknown_error",
       description: "An unknown error occured on the server"
     },
+    account_not_found: %{
+      code: "account:not_found",
+      description: "There is no user corresponding to the provided account id"
+    },
     access_token_not_found: %{
       code: "user:access_token_not_found",
-      description: "There is no user corresponding to the provided access_token"
+      description: "There is no account corresponding to the provided access_token"
     },
     access_token_expired: %{
       code: "user:access_token_expired",

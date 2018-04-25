@@ -21,6 +21,8 @@ defmodule AdminAPI.V1.Router do
   scope "/", AdminAPI.V1 do
     pipe_through([:api, :user_api])
 
+    post("/auth_token.switch_account", AuthController, :switch_account)
+
     # Minted Token endpoints
     post("/minted_token.all", MintedTokenController, :all)
     post("/minted_token.get", MintedTokenController, :get)

@@ -164,6 +164,7 @@ defmodule EWalletDB.Factory do
       token: sequence("auth_token"),
       owner_app: "some_app_name",
       user: insert(:user),
+      account: insert(:account),
       expired: false
     }
   end
