@@ -3,11 +3,12 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{TransactionSerializer, MintedTokenSerializer}
   alias EWallet.Web.Date
-  alias EWalletDB.Repo
+  alias EWalletDB.{Repo, MintedToken}
 
   describe "serialize/1 for single transaction" do
     test "serializes into correct V1 transaction format" do
-      transaction = :transfer |> insert() |> Repo.preload(:minted_token)
+      transaction = insert(:transfer)
+      minted_token = MintedToken.get_by(uuid: transaction.minted_token_uuid)
 
       expected = %{
         object: "transaction",
@@ -17,13 +18,15 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
           object: "transaction_source",
           address: transaction.from,
           amount: transaction.amount,
-          minted_token: MintedTokenSerializer.serialize(transaction.minted_token)
+          minted_token_id: minted_token.id,
+          minted_token: MintedTokenSerializer.serialize(minted_token)
         },
         to: %{
           object: "transaction_source",
           address: transaction.to,
           amount: transaction.amount,
-          minted_token: MintedTokenSerializer.serialize(transaction.minted_token)
+          minted_token_id: minted_token.id,
+          minted_token: MintedTokenSerializer.serialize(minted_token)
         },
         exchange: %{
           object: "exchange",
@@ -39,7 +42,7 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
       assert TransactionSerializer.serialize(transaction) == expected
     end
 
-    test "serializes to nil if the tranasction is not loaded" do
+    test "serializes to nil if the transaction is not loaded" do
       assert TransactionSerializer.serialize(%NotLoaded{}) == nil
     end
   end

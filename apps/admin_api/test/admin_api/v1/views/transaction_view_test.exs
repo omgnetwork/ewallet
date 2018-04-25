@@ -19,6 +19,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.from,
             amount: transaction.amount,
+            minted_token_id: minted_token.id,
             minted_token: %{
               object: "minted_token",
               id: minted_token.id,
@@ -35,6 +36,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.to,
             amount: transaction.amount,
+            minted_token_id: minted_token.id,
             minted_token: %{
               object: "minted_token",
               id: minted_token.id,
@@ -92,6 +94,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction1.from,
                 amount: transaction1.amount,
+                minted_token_id: minted_token1.id,
                 minted_token: %{
                   object: "minted_token",
                   id: minted_token1.id,
@@ -108,6 +111,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction1.to,
                 amount: transaction1.amount,
+                minted_token_id: minted_token1.id,
                 minted_token: %{
                   object: "minted_token",
                   id: minted_token1.id,
@@ -138,6 +142,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction2.from,
                 amount: transaction2.amount,
+                minted_token_id: minted_token2.id,
                 minted_token: %{
                   object: "minted_token",
                   id: minted_token2.id,
@@ -154,6 +159,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction2.to,
                 amount: transaction2.amount,
+                minted_token_id: minted_token2.id,
                 minted_token: %{
                   object: "minted_token",
                   id: minted_token2.id,
