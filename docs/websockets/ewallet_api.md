@@ -119,25 +119,93 @@ Channels can be joined by sending the `phx_join` event. The list of events is av
 
 ## Listening for events
 
-
+Events for a specified chahnel will be sent to everyone who joined the channel. See list of channels and potential events below.
 
 ## Leaving a channel
 
+To leave a channel, simply send the `phx_leave` event.
+
+Payload sent:
+```
+{
+  "topic": "transaction_request:some_id",
+  "event": "phx_leave",
+  "ref": "1",
+  "data": {}
+}
+```
+
 ## Keeping the connection alive (hearbeat)
+
+In order to keep the socket connection alive, you can periodically send heartbeats using the following payload.
+
+Payload sent:
+```
+{
+  "topic": "phoenix",
+  "event": "heartbeat",
+  "ref": "1",
+  "data": {}
+}
+```
 
 ## Channels
 
-- "account:{id}"
-- "address:{address}"
-- "transaction_request:{id}"
-- "transaction_consumption:{id}"
-- "user:{id}"
+The following channels are available in the eWallet API:
+
+### `account:{id}`
+
+All events related to the specified account will be sent to that channel.
+
+Potential events:
+
+- `transaction_consumption_request`
+- `transaction_consumption_finalized`
+
+### `user:{id}`
+
+All events related to the specified user will be sent to that channel.
+
+Potential events:
+
+- `transaction_consumption_request`
+- `transaction_consumption_finalized`
+
+### `address:{address}`
+
+All events related to the specified address will be sent to that channel.
+
+Potential events:
+
+- `transaction_consumption_request`
+- `transaction_consumption_finalized`
+
+### `transaction_request:{id}`
+
+All events related to the specified transaction request will be sent to that channel.
+
+Potential events:
+
+- `transaction_consumption_request`
+- `transaction_consumption_finalized`
+
+### `transaction_consumption:{id}`
+
+All events related to the specified consumption will be sent to that channel.
+
+Potential events:
+
+- `transaction_consumption_finalized`
 
 ## Events
+
+### Sendable events
 
 - "phx_join"
 - "phx_leave"
 - "heartbeat"
+
+### Receivable events
 
 - "phx_error"
 - "phx_reply"
