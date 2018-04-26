@@ -339,9 +339,11 @@ In this section, we will be sharing some of the next features the OmiseGO team w
 
 # Support
 
-- Want to chat? Find us on [Rocket Chat](http://chat.omisego.network/). Questions regarding the eWallet SDK should go in `#eWallet SDK` channel.
-- Getting stuck on programming issues? Browse or create new questions on StackOverflow with tag [omisego](https://stackoverflow.com/questions/tagged/omisego)
-- Found a bug? File us a [GitHub issue](https://github.com/omisego/ewallet/issues)
+- Got an idea to improve the SDKs? Talk to us in our [Rocket Chat](https://chat.omisego.network/)'s `#eWallet SDK` channel
+
+- Found a bug? File an issue with [GitHub Issues](https://github.com/omisego/ewallet/issues).
+
+- Stuck at integrating or building on top of the SDKs? Search or create a question on StackOverflow using the tag [omisego](https://stackoverflow.com/questions/tagged/omisego).
 
 # F.A.Q
 
