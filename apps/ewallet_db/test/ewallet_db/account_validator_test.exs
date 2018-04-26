@@ -50,10 +50,10 @@ defmodule EWalletDB.AccountValidatorTest do
         |> params_for(%{parent: account0})
         |> Account.insert()
 
+      # account0 -> account1 so far, there's room for account2
       changeset =
         %Account{}
         |> cast(%{parent_uuid: account1.uuid}, [:parent_uuid])
-        # account0 -> account1 so far, there's room for account2
         |> validate_account_level(2)
 
       assert changeset.valid?

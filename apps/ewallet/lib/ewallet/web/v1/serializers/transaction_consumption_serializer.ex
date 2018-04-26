@@ -45,8 +45,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       transaction_request:
         TransactionRequestSerializer.serialize(consumption.transaction_request),
       address: consumption.balance_address,
-      metadata: consumption.metadata,
-      encrypted_metadata: consumption.encrypted_metadata,
+      metadata: consumption.metadata || %{},
+      encrypted_metadata: consumption.encrypted_metadata || %{},
       expiration_date: Date.to_iso8601(consumption.expiration_date),
       status: consumption.status,
       approved_at: Date.to_iso8601(consumption.approved_at),

@@ -20,9 +20,9 @@ defmodule EWallet.Web.SortParser do
   defp get_sort_field(%{"sort_by" => field}, allowed_fields, mapped_fields)
        when is_binary(field) and byte_size(field) > 0 and is_list(allowed_fields) and
               is_map(mapped_fields) do
+    # Defaults back to the original field name
     field =
       mapped_fields
-      # Defaults back to the original field name
       |> Map.get(field, field)
       |> String.to_atom()
 

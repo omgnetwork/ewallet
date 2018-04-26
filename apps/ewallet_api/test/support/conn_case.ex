@@ -71,10 +71,10 @@ defmodule EWalletAPI.ConnCase do
     # Insert account via `Account.insert/1` instead of the test factory to initialize balances, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
+    # Insert user via `User.insert/1` to initialize balances, etc.
     {:ok, user} =
       :user
       |> params_for(%{username: @username, provider_user_id: @provider_user_id})
-      # Insert user via `User.insert/1` to initialize balances, etc.
       |> User.insert()
 
     _api_key = insert(:api_key, %{key: @api_key, owner_app: "ewallet_api"})

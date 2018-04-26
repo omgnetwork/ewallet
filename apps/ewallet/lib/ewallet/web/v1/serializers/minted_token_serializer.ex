@@ -22,8 +22,8 @@ defmodule EWallet.Web.V1.MintedTokenSerializer do
       symbol: minted_token.symbol,
       name: minted_token.name,
       subunit_to_unit: minted_token.subunit_to_unit,
-      metadata: minted_token.metadata,
-      encrypted_metadata: minted_token.encrypted_metadata,
+      metadata: minted_token.metadata || %{},
+      encrypted_metadata: minted_token.encrypted_metadata || %{},
       created_at: Date.to_iso8601(minted_token.inserted_at),
       updated_at: Date.to_iso8601(minted_token.updated_at)
     }

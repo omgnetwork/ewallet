@@ -10,10 +10,10 @@ defmodule EWalletDB.UserQuery do
   If a `queryable` is not given, it automatically creates a new User query.
   """
   def where_has_membership(queryable \\ User) do
+    # Returns only the User struct, not the Memberships
     queryable
     |> join(:inner, [u], m in Membership, u.uuid == m.user_uuid)
     |> distinct(true)
-    # Returns only the User struct, not the Memberships
     |> select([c], c)
   end
 end
