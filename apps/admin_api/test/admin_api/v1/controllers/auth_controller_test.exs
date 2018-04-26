@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.{UserSerializer, AccountSerializer}
-  alias EWalletDB.{Repo, AuthToken, Membership}
+  alias EWalletDB.{Repo, AuthToken, Membership, Role}
 
   describe "/login" do
     test "responds with a new auth token if the given email and password are valid" do
@@ -17,7 +17,35 @@ defmodule AdminAPI.V1.AuthControllerTest do
           "user_id" => auth_token.user.id,
           "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
           "account_id" => auth_token.account.id,
-          "account" => auth_token.account |> AccountSerializer.serialize() |> stringify_keys()
+          "account" => auth_token.account |> AccountSerializer.serialize() |> stringify_keys(),
+          "master_admin" => true
+        }
+      }
+
+      assert response == expected
+    end
+
+    test "responds with a new auth token if credentials are valid but user is not master_admin" do
+      user = get_test_user() |> Repo.preload([:accounts])
+      {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
+      account = insert(:account)
+      role = Role.get_by_name("admin")
+      _membership = insert(:membership, %{user: user, role: role, account: account})
+
+      response = client_request("/login", %{email: @user_email, password: @password})
+      auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
+
+      expected = %{
+        "version" => @expected_version,
+        "success" => true,
+        "data" => %{
+          "object" => "authentication_token",
+          "authentication_token" => auth_token.token,
+          "user_id" => auth_token.user.id,
+          "user" => auth_token.user |> UserSerializer.serialize() |> stringify_keys(),
+          "account_id" => auth_token.account.id,
+          "account" => auth_token.account |> AccountSerializer.serialize() |> stringify_keys(),
+          "master_admin" => false
         }
       }
 
