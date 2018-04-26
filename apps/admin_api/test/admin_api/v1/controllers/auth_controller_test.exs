@@ -142,7 +142,7 @@ defmodule AdminAPI.V1.AuthControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "returns : when unauthenticated" do
+    test "returns :invalid_api_key when unauthenticated" do
       response =
         client_request("/auth_token.switch_account", %{
           "account_id" => "123"
