@@ -69,13 +69,13 @@ Currently, the easiest use-case to understand what the eWallet can do is to see 
 
 Here’s an overview of all the components and what needs to be integrated by a provider (and how):
 
-![A provider's Sample Setup](docs/images/provider_setup.jpg)
+![A provider's Sample Setup](assets/provider_setup.jpg)
 
 # Sample Setup
 
 OmiseGO has built a sample setup to demonstrate how the OmiseGO eWallet and the SDKs can be used. It is a simple t-shirt store allowing users to receive loyalty points when buying something. They can then use those loyalty points to get a discount.
 
-![OMGShop](docs/images/omgshop.png)
+![OMGShop](assets/omgshop.png)
 
 The code and documentation are available in the following repositories:
 
@@ -330,13 +330,18 @@ More information about deployment will be available soon.
 In this section, we will be sharing some of the next features the OmiseGO team will be working on.
 
 - Better environment variables management for `test` and `dev` environments.
-- Integrate the Admin Panel in the eWallet.
 - Finalize the transaction requests mechanism allowing QR code transfers.
 - Re-design and finalize the first version of the Admin Panel.
 - Implement the Request Logger sub-app for easier logging and debugging.
 - Refactor and split the factories files. Make smarter use of them throughout the tests.
 - Refactor and unify the test helpers for minting.
 - ...
+
+# Support
+
+- Want to chat? Find us on [Rocket Chat](http://chat.omisego.network/). Questions regarding the eWallet SDK should go in `#eWallet SDK` channel.
+- Getting stuck on programming issues? Browse or create new questions on StackOverflow with tag [omisego](https://stackoverflow.com/questions/tagged/omisego)
+- Found a bug? File us a [GitHub issue](https://github.com/omisego/ewallet/issues)
 
 # F.A.Q
 
