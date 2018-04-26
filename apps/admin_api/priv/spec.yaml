@@ -724,10 +724,12 @@ components:
           type: string
         user:
           type: object
+          $ref: '#/components/schemas/UserSchema'
         account_id:
           type: string
         account:
           type: object
+          $ref: '#/components/schemas/AccountSchema'
       required:
         - object
         - authentication_token
@@ -750,10 +752,10 @@ components:
           data:
             object: "authentication_token"
             authentication_token: "azJRj09l7jvR8KhTqUs3"
-            user_id: "cec34607-0761-4a59-8357-18963e42a1aa"
+            user_id: "usr_01cc02x0v98qcctvycfx4vsk8x"
             user:
               object: "user"
-              id: "cec34607-0761-4a59-8357-18963e42a1aa"
+              id: "usr_01cc02x0v98qcctvycfx4vsk8x"
               provider_user_id: "wijf-fbancomw-dqwjudb"
               username: "johndoe"
               email: "johndoe@omise.co"
