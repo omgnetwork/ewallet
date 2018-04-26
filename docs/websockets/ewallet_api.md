@@ -201,15 +201,99 @@ Potential events:
 
 ### Sendable events
 
-- "phx_join"
-- "phx_leave"
-- "heartbeat"
+- `phx_join`: event used to join a channel.
 
-### Receivable events
+```
+{
+  "topic": "transaction_request:some_id",
+  "event": "phx_join",
+  "ref": "1",
+  "data": {}
+}
+```
 
-- "phx_error"
-- "phx_reply"
-- "phx_close"
+- `phx_leave`: event used to leave a channel.
 
-- "transaction_consumption_request"
-- "transaction_consumption_finalized"
+```
+{
+  "topic": "transaction_request:some_id",
+  "event": "phx_leave",
+  "ref": "2",
+  "data": {}
+}
+```
+
+- `heartbeat`: event used to keep the connection open.
+
+```
+{
+  "topic": "phoenix",
+  "event": "heartbeat",
+  "ref": "1",
+  "data": {}
+}
+```
+
+### Receivable system events
+
+- `phx_error`: event sent by the server in case something goes wrong while connecting to a channel for example.
+
+- `phx_reply`: event sent as a reply to a client-emitted event.
+
+- `phx_close`: event sent by the server when the client requests to terminate the connection.
+
+### Receivable custom events
+
+#### Success vs failure
+
+The following events can contain either some `data` if `success` is true, or an `error` if `success` is false. For example, when sending the `transaction_consumption_finalized`, it is possible to receive the finalized consumption OR an error stating that it was finalized in a failed state because there were not enough funds for the actual transaction to proceed.
+
+#### Events
+
+- `transaction_consumption_request`:
+
+```
+{
+  "success": true,
+  "version": "1",
+  "data": {
+    "object": "transaction_consumption",
+    "id": "txc_123",
+    "socket_topic": "transaction_consumption:txc_123",
+    "amount": 1000,
+    "minted_token_id": "tok_124",
+    "minted_token": { # serialized minted token },
+    "correlation_id": "123456",
+    "idempotency_token": "some_idempotency_token",
+    "transaction_id": "tfr_890",
+    "transaction": { # serialized transaction },
+    "user_id": "usr_347"
+    "user": { # serialized user },
+    "account_id": "acc_3292",
+    "account": { # serialized account },
+    "transaction_request_id": consumption.transaction_request.id,
+    "address": consumption.balance_address,
+    "metadata": consumption.metadata,
+    "encrypted_metadata": consumption.encrypted_metadata,
+    "expiration_date": Date.to_iso8601(consumption.expiration_date),
+    "status": consumption.status,
+    "approved_at": Date.to_iso8601(consumption.approved_at),
+    "rejected_at": Date.to_iso8601(consumption.rejected_at),
+    "confirmed_at": Date.to_iso8601(consumption.confirmed_at),
+    "failed_at": Date.to_iso8601(consumption.failed_at),
+    "expired_at": Date.to_iso8601(consumption.expired_at),
+    "created_at": Date.to_iso8601(consumption.inserted_at)
+  },
+  "error": nil,
+  "topic": "transaction_request:some_id",
+  "event": "transaction_consumption_request",
+  "ref": "1"
+}
+```
+
+- `transaction_consumption_finalized`:
+
+
+```
+
+```
