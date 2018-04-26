@@ -614,7 +614,7 @@ defmodule EWallet.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
-      assert updated_request.updated_at > request.updated_at
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
     end
 
     test "touches the request if max_consumptions is equal to 0" do
@@ -623,7 +623,7 @@ defmodule EWallet.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
-      assert updated_request.updated_at > request.updated_at
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
     end
 
     test "touches the request if max_consumptions has not been reached" do
@@ -632,7 +632,7 @@ defmodule EWallet.TransactionRequestTest do
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
-      assert updated_request.updated_at > request.updated_at
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
     end
 
     test "expires the request if max_consumptions has been reached" do
