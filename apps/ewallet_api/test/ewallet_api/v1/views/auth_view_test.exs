@@ -6,16 +6,18 @@ defmodule EWalletAPI.V1.AuthViewTest do
     # Potential candidate to be moved to a shared library
     # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
     test "renders auth_token.json with correct structure" do
+      auth_token = insert(:auth_token)
+
       expected = %{
         version: @expected_version,
         success: true,
         data: %{
           object: "authentication_token",
-          authentication_token: "the_auth_token"
+          authentication_token: auth_token.token
         }
       }
 
-      attrs = %{auth_token: "the_auth_token"}
+      attrs = %{auth_token: auth_token}
       assert AuthView.render("auth_token.json", attrs) == expected
     end
 

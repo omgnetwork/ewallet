@@ -73,6 +73,7 @@ paths:
           $ref: "#/components/responses/AuthenticationTokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
   /logout:
     post:
       tags:
@@ -84,6 +85,22 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  /auth_token.switch_account:
+    post:
+      tags:
+        - Session
+      summary: Switch the current account associated with the auth token.
+      operationId: switch_account
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/SwitchAccountBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AuthenticationTokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -705,11 +722,21 @@ components:
           type: string
         user_id:
           type: string
-          format: uuid
+        user:
+          type: object
+          $ref: '#/components/schemas/UserSchema'
+        account_id:
+          type: string
+        account:
+          type: object
+          $ref: '#/components/schemas/AccountSchema'
       required:
         - object
         - authentication_token
         - user_id
+        - user
+        - account_id
+        - account
     AuthenticationTokenResponseSchema:
       description: "The response schema for an authentication token"
       allOf:
@@ -725,7 +752,30 @@ components:
           data:
             object: "authentication_token"
             authentication_token: "azJRj09l7jvR8KhTqUs3"
-            user_id: "12345678-1234-1234-1234-123456789012"
+            user_id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+            user:
+              object: "user"
+              id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+              provider_user_id: "wijf-fbancomw-dqwjudb"
+              username: "johndoe"
+              email: "johndoe@omise.co"
+              metadata: {"first_name": "John", "last_name": "Doe"}
+              encrypted_metadata: {"something": "secret"}
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T10:00:00Z"
+            account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+            account:
+              object: "account"
+              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+              parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+              name: "Account Name"
+              description: "The account description"
+              master: true
+              metadata: {}
+              encrypted_metadata: {}
+              avatar: {"original": "file_url"}
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T10:00:00Z"
 
     ######################################
     #         MINTED TOKEN SCHEMAS       #
@@ -1501,6 +1551,19 @@ components:
             example:
               email: "test@example.com"
               password: "the_password"
+    SwitchAccountBody:
+      description: The parameters to use for switching the current account
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              account_id:
+                type: string
+            required:
+              - account_id
+            example:
+              accound_id: "the_account_id"
     ResetPasswordBody:
       description: The parameters to use for requesting a reset password
       required: true

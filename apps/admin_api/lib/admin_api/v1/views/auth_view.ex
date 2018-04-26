@@ -3,8 +3,8 @@ defmodule AdminAPI.V1.AuthView do
   alias AdminAPI.V1.AuthTokenSerializer
   alias EWallet.Web.V1.ResponseSerializer
 
-  def render("auth_token.json", attrs) do
-    attrs
+  def render("auth_token.json", %{auth_token: auth_token}) do
+    auth_token
     |> AuthTokenSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end

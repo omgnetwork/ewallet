@@ -4,12 +4,12 @@ defmodule AdminAPI.V1.AuthTokenSerializerTest do
 
   describe "AuthTokenSerializer.serialize/1" do
     test "data contains the session token" do
-      attrs = %{auth_token: "the_auth_token", user: %{id: "the_user_id"}}
-      serialized = AuthTokenSerializer.serialize(attrs)
+      auth_token = insert(:auth_token)
+      serialized = AuthTokenSerializer.serialize(auth_token)
 
       assert serialized.object == "authentication_token"
-      assert serialized.authentication_token == "the_auth_token"
-      assert serialized.user_id == "the_user_id"
+      assert serialized.authentication_token == auth_token.token
+      assert serialized.user_id == auth_token.user.id
     end
   end
 end
