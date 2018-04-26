@@ -793,6 +793,25 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :unauthorized_amount_override
     end
 
+    test "returns an error if the minted tokens are different", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      different_minted_token = insert(:minted_token)
+
+      {res, error} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => meta.request.id,
+          "correlation_id" => "123",
+          "amount" => 0,
+          "address" => meta.sender_balance.address,
+          "metadata" => %{},
+          "idempotency_token" => "123",
+          "token_id" => different_minted_token.id
+        })
+
+      assert res == :error
+      assert error == :invalid_minted_token_provided
+    end
+
     test "returns an error if the consumption tries to set an amount equal to 0", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 

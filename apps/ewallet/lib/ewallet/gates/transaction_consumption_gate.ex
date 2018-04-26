@@ -161,7 +161,7 @@ defmodule EWallet.TransactionConsumptionGate do
   end
 
   defp validate_minted_token(request, minted_token) do
-    case request.minted_token_id == minted_token.id do
+    case request.minted_token_uuid == minted_token.uuid do
       true -> {:ok, minted_token}
       false -> {:error, :invalid_minted_token_provided}
     end
