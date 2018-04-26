@@ -19,8 +19,8 @@ defmodule EWallet.Web.V1.UserSerializer do
       username: user.username,
       provider_user_id: user.provider_user_id,
       email: user.email,
-      metadata: user.metadata,
-      encrypted_metadata: user.encrypted_metadata,
+      metadata: user.metadata || %{},
+      encrypted_metadata: user.encrypted_metadata || %{},
       avatar: Avatar.urls({user.avatar, user}),
       created_at: Date.to_iso8601(user.inserted_at),
       updated_at: Date.to_iso8601(user.updated_at)

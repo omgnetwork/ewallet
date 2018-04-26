@@ -41,8 +41,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         object: "exchange",
         rate: 1
       },
-      metadata: transaction.metadata,
-      encrypted_metadata: transaction.encrypted_metadata,
+      metadata: transaction.metadata || %{},
+      encrypted_metadata: transaction.encrypted_metadata || %{},
       status: transaction.status,
       created_at: Date.to_iso8601(transaction.inserted_at),
       updated_at: Date.to_iso8601(transaction.updated_at)
