@@ -2,6 +2,7 @@
 alias Ecto.UUID
 alias EWallet.{MintGate, Seeder}
 alias EWallet.Seeder.CLI
+alias EWallet.Web.Preloader
 alias EWalletDB.{Account, MintedToken, Repo}
 
 seeds = [
@@ -10,35 +11,35 @@ seeds = [
     name: "OmiseGO",
     subunit_to_unit:        10_000,
     genesis_amount: 10_000_000_000, # 1,000,000 OMG
-    account_id: Account.get_master_account().id
+    account_uuid: Account.get_master_account().uuid
   },
   %{
     symbol: "KNC",
     name: "Kyber",
     subunit_to_unit:        1_000,
     genesis_amount: 1_000_000_000,  # 1,000,000 KNC
-    account_id: Account.get_master_account().id
+    account_uuid: Account.get_master_account().uuid
   },
   %{
     symbol: "BTC",
     name: "Bitcoin",
     subunit_to_unit:        10_000,
     genesis_amount: 10_000_000_000, # 1,000,000 BTC
-    account_id: Account.get_master_account().id
+    account_uuid: Account.get_master_account().uuid
   },
   %{
     symbol: "OEM",
     name: "One EM",
     subunit_to_unit:        100,
     genesis_amount: 100_000_000, # 1,000,000 OEM
-    account_id: Account.get_master_account().id
+    account_uuid: Account.get_master_account().uuid
   },
   %{
     symbol: "ETH",
     name: "Ether",
     subunit_to_unit:        1_000_000_000_000_000_000,
     genesis_amount: 1_000_000_000_000_000_000_000_000, # 1,000,000 ETH
-    account_id: Account.get_master_account().id
+    account_uuid: Account.get_master_account().uuid
   },
 ]
 
@@ -46,19 +47,21 @@ CLI.subheading("Seeding the minted tokens:\n")
 
 Enum.each(seeds, fn(data) ->
   with nil                 <- Repo.get_by(MintedToken, symbol: data.symbol),
-       {:ok, minted_token} <- MintedToken.insert(data)
+       {:ok, minted_token} <- MintedToken.insert(data),
+       minted_token        <- Preloader.preload(minted_token, :account)
   do
     CLI.success("""
         ID              : #{minted_token.id}
         Subunit to unit : #{minted_token.subunit_to_unit}
-        Account         : #{minted_token.account_id}
+        Account ID      : #{minted_token.account.id}
       """)
   else
     %MintedToken{} = minted_token ->
+      minted_token = Preloader.preload(minted_token, :account)
       CLI.warn("""
           ID              : #{minted_token.id}
           Subunit to unit : #{minted_token.subunit_to_unit}
-          Account         : #{minted_token.account_id}
+          Account ID      : #{minted_token.account.id}
         """)
     {:error, changeset} ->
       CLI.error("  MintedToken #{data.symbol} could not be inserted:")
