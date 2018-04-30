@@ -88,13 +88,15 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     }
   end
 
-  defp encode_fields(msg) do
-    error =
-      case msg.reason != nil do
-        true -> build_reason(msg.reason)
-        false -> build_error(msg.error)
-      end
+  defp encode_fields(%{reason: reason} = msg) when not is_nil(reason) do
+    encode_fields(msg, build_reason(msg.reason))
+  end
 
+  defp encode_fields(msg) do
+    encode_fields(msg, build_error(msg.error))
+  end
+
+  defp encode_fields(msg, error) do
     %{
       data: msg.data,
       error: error,

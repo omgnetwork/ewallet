@@ -77,7 +77,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
         %{code: ledger["code"], description: ledger["description"]}
 
       "expired" ->
-         :expired_transaction_consumption
+        :expired_transaction_consumption
 
       "pending" ->
         :unfinalized_transaction_consumption
