@@ -89,9 +89,15 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   end
 
   defp encode_fields(msg) do
+    error =
+      case msg.reason != nil do
+        true -> build_reason(msg.reason)
+        false -> build_error(msg.error)
+      end
+
     %{
       data: msg.data,
-      error: build_error(msg.error, msg.reason),
+      error: error,
       msg: msg,
       success: msg.status == :ok
     }
@@ -99,13 +105,24 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Poison.encode_to_iodata!()
   end
 
-  defp build_error(nil, nil), do: nil
+  defp build_error(nil), do: nil
+  defp build_error(%{code: nil}), do: nil
 
-  defp build_error(nil, reason) do
-    ErrorHandler.build_error(:websocket_connect_error, reason, nil)
+  defp build_error(%{code: code, description: description}) do
+    ErrorHandler.build_error(code, description, nil)
   end
 
-  defp build_error(code, nil) when is_atom(code) when is_binary(code) do
+  defp build_error(%{code: code}), do: ErrorHandler.build_error(code, nil)
+
+  defp build_error(code) when is_atom(code) do
     ErrorHandler.build_error(code, nil)
+  end
+
+  defp build_error(_), do: nil
+
+  defp build_reason(nil), do: nil
+
+  defp build_reason(reason) do
+    ErrorHandler.build_error(:websocket_connect_error, reason, nil)
   end
 end

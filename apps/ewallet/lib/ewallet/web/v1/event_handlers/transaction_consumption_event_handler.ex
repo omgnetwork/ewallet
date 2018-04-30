@@ -72,9 +72,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
     consumption = Preloader.preload(consumption, :transfer)
 
     case consumption.status do
-      "failed" -> consumption.transfer.ledger_response["code"]
-      "expired" -> :expired_transaction_consumption
-      "pending" -> :unfinalized_transaction_consumption
+      "failed" ->
+        ledger = consumption.transfer.ledger_response
+        %{code: ledger["code"], description: ledger["description"]}
+
+      "expired" ->
+         :expired_transaction_consumption
+
+      "pending" ->
+        :unfinalized_transaction_consumption
     end
   end
 end
