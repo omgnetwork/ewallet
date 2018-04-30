@@ -2,7 +2,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
   alias EWallet.TestEndpoint
-  alias EWallet.Web.Date
+  alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
+  alias Phoenix.Socket.Broadcast
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -394,6 +395,96 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
             # Ignore content
           }
       }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    test "sends an error when approved without enough funds", meta do
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.bob.uuid,
+          balance: meta.bob_balance,
+          amount: nil,
+          require_confirmation: true
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          address: meta.alice_balance.address
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"] == true
+      assert response["data"]["status"] == "pending"
+      assert response["data"]["transaction_id"] == nil
+
+      # We check that we receive the confirmation request above in the
+      # transaction request channel
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_request",
+        topic: "transaction_request:" <> _,
+        payload: payload
+      }
+
+      # Ensure the websocket serializer can serialize the payload
+      {:socket_push, :text, encoded} =
+        WebsocketResponseSerializer.fastlane!(%Broadcast{
+          topic: "transaction_request:#{transaction_request.id}",
+          event: "transaction_consumption_request",
+          payload: payload
+        })
+
+      decoded = Poison.decode!(encoded)
+      assert decoded["success"] == true
+
+      # We need to know once the consumption has been approved, so let's
+      # listen to the channel for it
+      Endpoint.subscribe("transaction_consumption:#{consumption_id}")
+
+      # Confirm the consumption
+      response =
+        client_request("/me.approve_transaction_consumption", %{
+          id: consumption_id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "transaction:insufficient_funds"
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload: payload
+      }
+
+      {:socket_push, :text, encoded} =
+        WebsocketResponseSerializer.fastlane!(%Broadcast{
+          topic: "transaction_consumption:#{consumption_id}",
+          event: "transaction_consumption_finalized",
+          payload: payload
+        })
+
+      decoded = Poison.decode!(encoded)
+      assert decoded["success"] == false
+      assert decoded["error"]["code"] == "transaction:insufficient_funds"
+      assert "The specified balance" <> _ = decoded["error"]["description"]
 
       # Unsubscribe from all channels
       Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
