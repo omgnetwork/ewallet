@@ -573,7 +573,7 @@ defmodule EWallet.TransactionRequestTest do
         )
 
       date = TransactionRequestGate.expiration_from_lifetime(request)
-      assert date > now
+      assert NaiveDateTime.compare(date, now) == :gt
     end
   end
 
