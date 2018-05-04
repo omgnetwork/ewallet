@@ -84,7 +84,7 @@ CLI.print("""
 
       ```
       OMGAdmin #{Base.encode64(api_key_id <> ":" <> api_key
-        <> ":" <> admin.id <> ":" <> admin_auth_token)}
+        <> ":" <> admin.id <> ":" <> admin_auth_token.token)}
       ```
 
       The above header is for you to get started quickly. To integrate the eWallet SDK
