@@ -35,8 +35,6 @@ defmodule EWallet.Seeder.CLI do
   """
 
   def run(srcs) do
-    Enum.each(srcs, &ensure_started/1)
-
     mods = Seeder.gather_seeds(srcs)
     reporters = Seeder.gather_reporters(srcs)
 
@@ -71,21 +69,6 @@ defmodule EWallet.Seeder.CLI do
   defp run_reporters([reporter | t], args) do
     reporter.run(Writer, args)
     run_reporters(t, args)
-  end
-
-  #
-  # Booting
-  #
-
-  defp ensure_started({app_name, _}) do
-    case Application.load(app_name) do
-      :ok ->
-        repos = Application.get_env(app_name, :ecto_repos, [])
-        Enum.each(repos, & &1.start_link(pool_size: 1))
-
-      _ ->
-        nil
-    end
   end
 
   #

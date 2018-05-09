@@ -13,6 +13,7 @@ defmodule Mix.Tasks.Omg.Seed do
 
   @shortdoc "Create initial seed data"
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
+  @repo_apps [:ewallet_db, :local_ledger_db]
 
   def run(args) do
     spec = seed_spec(args)
@@ -20,7 +21,7 @@ defmodule Mix.Tasks.Omg.Seed do
     Enum.each(@start_apps, &Application.ensure_all_started/1)
     Logger.configure(level: :info)
 
-    Enum.each(spec, &ensure_started/1)
+    Enum.each(@repo_apps, &ensure_started/1)
     CLI.run(spec)
   end
 
@@ -28,7 +29,7 @@ defmodule Mix.Tasks.Omg.Seed do
   # Booting
   #
 
-  defp ensure_started({app_name, _}) do
+  defp ensure_started(app_name) do
     case Application.ensure_all_started(app_name) do
       {:ok, _} ->
         repos = Application.get_env(app_name, :ecto_repos, [])
