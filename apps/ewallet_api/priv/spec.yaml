@@ -371,41 +371,6 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to approve a consumption
-  /transaction_request.approve:
-    post:
-      tags:
-        - TransactionRequest
-      summary: Server - Approve a consumption.
-      description: This is a server call only.
-      operationId: transaction_consumption_approve
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionConsumptionResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  # Endpoint to reject a consumption
-  /transaction_request.reject:
-    post:
-      tags:
-        - TransactionRequest
-      summary: Server - Reject a consumption.
-      description: This is a server call only.
-      operationId: transaction_consumption_reject
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionConsumptionResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-
   # Endpoint to create a transaction request
   /me.create_transaction_request:
     post:
@@ -459,11 +424,47 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
+  # Endpoint to approve a consumption
+  /transaction_consumption.approve:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Server - Approve a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_approve
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to reject a consumption
+  /transaction_consumption.reject:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Server - Reject a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_reject
+      security:
+        - ServerAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
   # Endpoint to approve a consumption
   /me.approve_transaction_consumption:
     post:
       tags:
-        - TransactionRequest
+        - TransactionConsumption
       summary: Client - Approve a consumption.
       description: This is a client call only.
       operationId: approve_transaction_consumption
@@ -480,7 +481,7 @@ paths:
   /me.reject_transaction_consumption:
     post:
       tags:
-        - TransactionRequest
+        - TransactionConsumption
       summary: Client - Reject a consumption.
       description: This is a client call only.
       operationId: reject_transaction_consumption
