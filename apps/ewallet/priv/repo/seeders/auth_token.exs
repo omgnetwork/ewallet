@@ -36,7 +36,7 @@ Enum.each(seeds, fn(data) ->
         User ID          : #{data.user.id}
         Provider user ID : #{data.user.provider_user_id || '<nil>'}
         User email       : #{data.user.email || '<nil>'}
-        Auth token       : #{token}
+        Auth token       : #{token.token}
       """)
     {:error, changeset} ->
       CLI.error("""
