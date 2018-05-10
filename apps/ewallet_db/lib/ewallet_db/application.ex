@@ -11,8 +11,7 @@ defmodule EWalletDB.Application do
 
     # List all child processes to be supervised
     children = [
-      supervisor(EWalletDB.Repo, []),
-      worker(EWalletDB.Scheduler, [])
+      supervisor(EWalletDB.Repo, [])
     ]
 
     children =
