@@ -5,8 +5,7 @@ config :ewallet,
     EWalletAPI.V1.Endpoint
   ]
 
-config :logger,
-  level: :debug
+config :logger, level: :debug
 
 config :ewallet, EWallet.Scheduler,
   global: true,
