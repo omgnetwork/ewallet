@@ -244,9 +244,23 @@ Potential events:
 
 ### Receivable custom events
 
-#### Success vs failure
+#### Format
 
-The following events can contain either some `data` if `success` is true, or an `error` if `success` is false. For example, when sending the `transaction_consumption_finalized`, it is possible to receive the finalized consumption OR an error stating that it was finalized in a failed state because there were not enough funds for the actual transaction to proceed.
+Custom events have the following format. It closely follows the usual enveloppe used in the eWallet HTTP APIs with some added attributes related to websockets. Note that those events can either be successful or not.
+
+For example, when sending the `transaction_consumption_finalized`, it is possible to receive the finalized consumption OR an error stating that it was finalized in a failed state because there were not enough funds for the actual transaction to proceed.
+
+- `success` (`boolean`, `true` OR `false`): Defines if the event is the result of a successful action or not.
+- `version` (`string`, ex: `"1"`): The websockets API version.
+- `data` (`object`): The data relevant to the event. Can be `nil` if `success` is equal to `false` (but could also contain something to provide context for the error). See examples in the events below.
+- `error` (`object`): The error resulting from the action generating th event.
+  - `code` (`string`): The error code.
+  - `description` (`string`): The error description.
+  - `messages` (`array`): List of messages related to the error.
+  - `object` (`string`, `error`)
+- `topic` (`string`): The topic (channel) to which the event was sent (probably the name of the channel you joined).
+- `event` (`string`): The name of the event.
+- `ref` (`string`): `nil` for events emitted from the server in response to a server action.
 
 #### Events
 
@@ -256,34 +270,7 @@ The following events can contain either some `data` if `success` is true, or an 
 {
   "success": true,
   "version": "1",
-  "data": {
-    "object": "transaction_consumption",
-    "id": "txc_123",
-    "socket_topic": "transaction_consumption:txc_123",
-    "amount": 1000,
-    "minted_token_id": "tok_124",
-    "minted_token": { # serialized minted token },
-    "correlation_id": "123456",
-    "idempotency_token": "some_idempotency_token",
-    "transaction_id": "tfr_890",
-    "transaction": { # serialized transaction },
-    "user_id": "usr_347"
-    "user": { # serialized user },
-    "account_id": "acc_3292",
-    "account": { # serialized account },
-    "transaction_request_id": consumption.transaction_request.id,
-    "address": consumption.balance_address,
-    "metadata": consumption.metadata,
-    "encrypted_metadata": consumption.encrypted_metadata,
-    "expiration_date": Date.to_iso8601(consumption.expiration_date),
-    "status": consumption.status,
-    "approved_at": Date.to_iso8601(consumption.approved_at),
-    "rejected_at": Date.to_iso8601(consumption.rejected_at),
-    "confirmed_at": Date.to_iso8601(consumption.confirmed_at),
-    "failed_at": Date.to_iso8601(consumption.failed_at),
-    "expired_at": Date.to_iso8601(consumption.expired_at),
-    "created_at": Date.to_iso8601(consumption.inserted_at)
-  },
+  "data": { ... },
   "error": nil,
   "topic": "transaction_request:some_id",
   "event": "transaction_consumption_request",
@@ -291,9 +278,222 @@ The following events can contain either some `data` if `success` is true, or an 
 }
 ```
 
-- `transaction_consumption_finalized`:
-
+Where `data` contains a transaction consumption with the following attributes (stolen from our Swagger spec):
 
 ```
+object:
+  type: string
+id:
+  type: string
+socket_topic:
+  type: string
+status:
+  type: string
+  enum:
+    - pending
+    - approved
+    - rejected
+    - confirmed
+    - failed
+    - expired
+amount:
+  type: string
+minted_token_id:
+  type: string
+minted_token:
+  type: object
+correlation_id:
+  type: string
+idempotency_token:
+  type: string
+transaction_id:
+  type: string
+transaction:
+  type: object
+user_id:
+  type: string
+user:
+  type: object
+account_id:
+  type: string
+account:
+  type: object
+transaction_request_id:
+  type: string
+transaction_request:
+  type: object
+address:
+  type: string
+metadata:
+  type: object
+encrypted_metadata:
+  type: object
+expiration_date:
+  type: string
+created_at:
+  type: string
+updated_at:
+  type: string
+approved_at:
+  type: string
+rejected_at:
+  type: string
+confirmed_at:
+  type: string
+failed_at:
+  type: string
+expired_at:
+  type: string
+```
 
+Example:
+
+```
+{
+  object: "transaction_consumption",
+  id: "txc_01cbfg9qtdken61agxhx6wvj9h",
+  socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h",
+  status: "pending",
+  amount: 100,
+  minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+  minted_token: {},
+  correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120",
+  idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120",
+  transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt",
+  transaction: {},
+  user_id: "usr_01cbfgak47ng6x72vbwjca6j4v",
+  user: {},
+  account_id: "acc_01cbfgatsanznvzffqsekta5f0",
+  account: {},
+  transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h",
+  transaction_request: {},
+  address: "5555cer3-15d1-4463-9ec2-02bc8ded7120",
+  metadata: {},
+  encrypted_metadata: {},
+  expiration_date: null,
+  created_at: "2018-01-01T00:00:00Z",
+  updated_at: "2018-01-01T00:00:00Z",
+  approved_at: null,
+  rejected_at: null,
+  confirmed_at: null,
+  failed_at: null,
+  expired_at: null
+}
+```
+
+- `transaction_consumption_finalized`:
+
+```
+{
+  "success": true,
+  "version": "1",
+  "data": { ... },
+  "error": nil,
+  "topic": "transaction_request:some_id",
+  "event": "transaction_consumption_finalized",
+  "ref": "1"
+}
+```
+
+Where `data` contains a transaction consumption with the following attributes (stolen from our Swagger spec):
+
+```
+object:
+  type: string
+id:
+  type: string
+socket_topic:
+  type: string
+status:
+  type: string
+  enum:
+    - pending
+    - approved
+    - rejected
+    - confirmed
+    - failed
+    - expired
+amount:
+  type: string
+minted_token_id:
+  type: string
+minted_token:
+  type: object
+correlation_id:
+  type: string
+idempotency_token:
+  type: string
+transaction_id:
+  type: string
+transaction:
+  type: object
+user_id:
+  type: string
+user:
+  type: object
+account_id:
+  type: string
+account:
+  type: object
+transaction_request_id:
+  type: string
+transaction_request:
+  type: object
+address:
+  type: string
+metadata:
+  type: object
+encrypted_metadata:
+  type: object
+expiration_date:
+  type: string
+created_at:
+  type: string
+updated_at:
+  type: string
+approved_at:
+  type: string
+rejected_at:
+  type: string
+confirmed_at:
+  type: string
+failed_at:
+  type: string
+expired_at:
+  type: string
+```
+
+Example:
+
+```
+{
+  object: "transaction_consumption",
+  id: "txc_01cbfg9qtdken61agxhx6wvj9h",
+  socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h",
+  status: "confirmed",
+  amount: 100,
+  minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+  minted_token: {},
+  correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120",
+  idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120",
+  transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt",
+  transaction: {},
+  user_id: "usr_01cbfgak47ng6x72vbwjca6j4v",
+  user: {},
+  account_id: "acc_01cbfgatsanznvzffqsekta5f0",
+  account: {},
+  transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h",
+  transaction_request: {},
+  address: "5555cer3-15d1-4463-9ec2-02bc8ded7120",
+  metadata: {},
+  encrypted_metadata: {},
+  expiration_date: null,
+  created_at: "2018-01-01T00:00:00Z",
+  updated_at: "2018-01-01T00:00:00Z",
+  approved_at: "2018-01-01T00:00:00Z",
+  rejected_at: null,
+  confirmed_at: "2018-01-01T00:00:00Z",
+  failed_at: null,
+  expired_at: null
+}
 ```
