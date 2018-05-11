@@ -146,15 +146,19 @@ defmodule AdminAPI.ConnCase do
   A helper function that generates a valid user request (user-authenticated)
   with given path and data, and return the parsed JSON response.
   """
-  def user_request(path, data \\ %{}, status \\ :ok)
+  def user_request(path, data \\ %{}, status \\ :ok, include_client_auth \\ true)
       when is_binary(path) and byte_size(path) > 0 do
     # Make the authenticated request after login
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGAdmin", [@api_key_id, @api_key, @user_id, @auth_token])
+    |> put_auth_header("OMGAdmin", user_auth_header(include_client_auth))
     |> post(@base_dir <> path, data)
     |> json_response(status)
   end
+
+  defp user_auth_header(include_client_auth?)
+  defp user_auth_header(true), do: [@api_key_id, @api_key, @user_id, @auth_token]
+  defp user_auth_header(false), do: [@user_id, @auth_token]
 
   @doc """
   Helper functions that puts an Authorization header to the connection.

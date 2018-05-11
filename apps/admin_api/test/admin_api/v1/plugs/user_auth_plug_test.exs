@@ -3,14 +3,7 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
   alias AdminAPI.V1.UserAuthPlug
   alias Ecto.UUID
 
-  describe "UserAuthPlug.call/2" do
-    test "assigns authenticated conn info if the token is correct without admin " do
-      conn = test_with("OMGAdmin", @user_id, @auth_token)
-
-      refute conn.halted
-      assert_success(conn)
-    end
-
+  describe "UserAuthPlug.call/2 with enable_client_auth == true" do
     test "assigns authenticated conn info if the token is correct" do
       conn = test_with("OMGAdmin", @api_key_id, @api_key, @user_id, @auth_token)
 
@@ -27,6 +20,43 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
 
     test "assigns unauthenticated conn info if the token doesn't belong to the user_id" do
       conn = test_with("OMGAdmin", @api_key_id, @api_key, UUID.generate(), @auth_token)
+
+      assert conn.halted
+      assert_error(conn)
+    end
+
+    test "assigns unauthenticated conn info if client auth info is not provided " do
+      conn = test_with("OMGAdmin", @user_id, @auth_token)
+
+      assert conn.halted
+      assert_error(conn)
+    end
+  end
+
+  describe "UserAuthPlug.call/2 with enable_client_auth == false" do
+    test "assigns authenticated conn info if the token is correct " do
+      conn = test_with("OMGAdmin", @user_id, @auth_token, false)
+
+      refute conn.halted
+      assert_success(conn)
+    end
+
+    test "assigns authenticated conn info even if client auth info is provided" do
+      conn = test_with("OMGAdmin", @api_key_id, @api_key, @user_id, @auth_token, false)
+
+      refute conn.halted
+      assert_success(conn)
+    end
+
+    test "assigns authenticated conn info even if invalid client auth info is provided" do
+      conn = test_with("OMGAdmin", @api_key_id, "bad_api_key", @user_id, @auth_token, false)
+
+      refute conn.halted
+      assert_success(conn)
+    end
+
+    test "assigns unauthenticated conn info if the token is invalid " do
+      conn = test_with("OMGAdmin", @user_id, "bad_token", false)
 
       assert conn.halted
       assert_error(conn)
@@ -70,16 +100,16 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
     end
   end
 
-  defp test_with(type, api_key_id, api_key, user_id, auth_token) do
+  defp test_with(type, api_key_id, api_key, user_id, auth_token, client_auth? \\ true) do
     build_conn()
     |> put_auth_header(type, [api_key_id, api_key, user_id, auth_token])
-    |> UserAuthPlug.call([])
+    |> UserAuthPlug.call(enable_client_auth: client_auth?)
   end
 
-  defp test_with(type, user_id, auth_token) do
+  defp test_with(type, user_id, auth_token, client_auth? \\ true) do
     build_conn()
     |> put_auth_header(type, [user_id, auth_token])
-    |> UserAuthPlug.call(enable_client_auth: false)
+    |> UserAuthPlug.call(enable_client_auth: client_auth?)
   end
 
   defp assert_success(conn) do
