@@ -25,19 +25,30 @@ defmodule AdminAPI.V1.ClientAuthPlug do
   import AdminAPI.V1.ErrorHandler
   alias EWalletDB.{Account, APIKey}
 
-  def init(opts), do: opts
+  @doc """
+  API used by Plug to start client authentication.
+  """
+  @spec init(keyword()) :: keyword()
+  def init(opts) do
+    Keyword.put_new(
+      opts,
+      :enable_client_auth,
+      Application.get_env(:admin_api, :enable_client_auth)
+    )
+  end
 
+  @doc """
+  API used by Plug to authenticate the client.
+  """
+  @spec call(Conn.t(), keyword()) :: Conn.t()
   def call(conn, opts) do
-    auth =
-      Keyword.get(opts, :enable_client_auth, Application.get_env(:admin_api, :enable_client_auth))
-
-    case auth do
+    case opts[:enable_client_auth] do
       true ->
         conn
         |> parse_header()
         |> authenticate()
 
-      _ ->
+      false ->
         assign(conn, :authenticated, :client)
     end
   end
