@@ -36,6 +36,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       require_confirmation: transaction_request.require_confirmation,
       current_consumptions_count: length(transaction_request.consumptions),
       max_consumptions: transaction_request.max_consumptions,
+      max_consumptions_per_user: transaction_request.max_consumptions_per_user,
       consumption_lifetime: transaction_request.consumption_lifetime,
       expiration_reason: transaction_request.expiration_reason,
       allow_amount_override: transaction_request.allow_amount_override,

@@ -48,6 +48,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expired_at" => nil,
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
+                 "max_consumptions_per_user" => nil,
                  "metadata" => %{},
                  "created_at" => Date.to_iso8601(request.inserted_at),
                  "updated_at" => Date.to_iso8601(request.updated_at)
@@ -100,6 +101,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expired_at" => nil,
                  "max_consumptions" => nil,
                  "current_consumptions_count" => 0,
+                 "max_consumptions_per_user" => nil,
                  "created_at" => Date.to_iso8601(request.inserted_at),
                  "updated_at" => Date.to_iso8601(request.updated_at)
                }
@@ -220,7 +222,9 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: minted_token.id,
           correlation_id: "123",
           amount: 1_000,
-          address: balance.address
+          address: balance.address,
+          max_consumptions: 3,
+          max_consumptions_per_user: 1
         })
 
       request = TransactionRequest |> Repo.all() |> Enum.at(0)
@@ -252,7 +256,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expiration_date" => nil,
                  "expiration_reason" => nil,
                  "expired_at" => nil,
-                 "max_consumptions" => nil,
+                 "max_consumptions" => 3,
+                 "max_consumptions_per_user" => nil,
                  "current_consumptions_count" => 0,
                  "created_at" => Date.to_iso8601(request.inserted_at),
                  "updated_at" => Date.to_iso8601(request.updated_at)
@@ -298,6 +303,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expiration_reason" => nil,
                  "expired_at" => nil,
                  "max_consumptions" => nil,
+                 "max_consumptions_per_user" => nil,
                  "current_consumptions_count" => 0,
                  "type" => "send",
                  "status" => "valid",

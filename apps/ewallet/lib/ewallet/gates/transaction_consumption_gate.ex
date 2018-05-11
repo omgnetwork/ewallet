@@ -129,6 +129,7 @@ defmodule EWallet.TransactionConsumptionGate do
          {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
          {:ok, request} <- TransactionRequestGate.validate_request(request),
          {:ok, amount} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
+         {:ok, balance} <- validate_max_consumptions_per_user(request, balance),
          {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
          {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
          {:ok, consumption} <- get(consumption.id) do
@@ -145,6 +146,19 @@ defmodule EWallet.TransactionConsumptionGate do
     else
       error when is_atom(error) -> {:error, error}
       error -> error
+    end
+  end
+
+  defp validate_max_consumptions_per_user(request, balance) do
+    case request.max_consumptions_per_user do
+      nil ->
+        {:ok, balance}
+
+      max ->
+        case TransactionConsumption.all_active_for_user(balance.user_uuid) do
+          [] -> {:ok, balance}
+          _ -> {:error, :max_consumptions_per_user_reached}
+        end
     end
   end
 
