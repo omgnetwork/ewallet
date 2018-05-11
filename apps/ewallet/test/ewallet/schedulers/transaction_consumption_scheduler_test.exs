@@ -52,6 +52,8 @@ defmodule EWallet.TransactionConsumptionSchedulerTest do
         assert decoded["success"] == false
         assert decoded["event"] == "transaction_consumption_finalized"
         assert decoded["error"]["code"] == "transaction_consumption:expired"
+        assert decoded["data"]["object"] == "transaction_consumption"
+        assert decoded["data"]["status"] == "expired"
       end)
 
       # Reload all the records
