@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.UserAuthPlug do
 
   def call(conn, opts) do
     case Keyword.get(opts, :enable_client_auth) do
-      "true" ->
+      true ->
         conn
         |> parse_header()
         |> ClientAuthPlug.authenticate()

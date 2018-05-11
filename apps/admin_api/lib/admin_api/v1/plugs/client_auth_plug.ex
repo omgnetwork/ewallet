@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.ClientAuthPlug do
       Keyword.get(opts, :enable_client_auth, Application.get_env(:admin_api, :enable_client_auth))
 
     case auth do
-      "true" ->
+      true ->
         conn
         |> parse_header()
         |> authenticate()
