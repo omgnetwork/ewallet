@@ -76,8 +76,8 @@ window.onload = function() {
     url: window.location.origin + window.location.pathname.replace(/docs\.ui\/?$/, 'docs.yaml'),
     dom_id: '#swagger-ui',
     deepLinking: true,
-    defaultModelsExpandDepth: -1,
-    defaultModelExpandDepth: 10,
+    defaultModelsExpandDepth: 1,
+    defaultModelExpandDepth: 1,
     filter: true,
     presets: [
       SwaggerUIBundle.presets.apis,
