@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.MintGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.MintedToken
+  alias EWalletDB.{Account, MintedToken}
   alias Ecto.UUID
 
   # The field names to be mapped into DB column names.
@@ -53,10 +53,10 @@ defmodule AdminAPI.V1.MintedTokenController do
   @doc """
   Creates a new Minted Token.
   """
-  def create(%{assigns: %{account: account}} = conn, attrs) do
+  def create(conn, attrs) do
     inserted_minted_token =
       attrs
-      |> Map.put("account_uuid", account.uuid)
+      |> Map.put("account_uuid", Account.get_master_account().uuid)
       |> MintedToken.insert()
 
     case attrs["amount"] do
@@ -69,8 +69,6 @@ defmodule AdminAPI.V1.MintedTokenController do
         respond_single(inserted_minted_token, conn)
     end
   end
-
-  def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Mint a minted token.
