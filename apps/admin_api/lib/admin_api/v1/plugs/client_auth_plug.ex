@@ -62,7 +62,7 @@ defmodule AdminAPI.V1.ClientAuthPlug do
         conn
         |> assign(:authenticated, :client)
         |> assign(:api_key_id, api_key_id)
-        |> assign(:account, account)
+        |> assign(:auth_account, account)
 
       false ->
         conn
