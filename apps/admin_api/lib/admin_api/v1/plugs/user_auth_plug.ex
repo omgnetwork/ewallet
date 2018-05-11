@@ -1,14 +1,20 @@
 defmodule AdminAPI.V1.UserAuthPlug do
   @moduledoc """
-  This plug checks if valid api key and token were provided.
+  This plug checks if a pair of valid user ID and authentication token were provided.
 
-  If api key and token are valid, the plug assigns the user
-  associated with the token to the connection so that downstream
-  consumers know which user this request belongs to.
+  On success, the plug assigns the following to `conn.assigns`:
 
-  The credentials in this plug may need to be stored on client's side,
-  i.e. in the browser. Therefore high privilege credentials like
-  EWalletDB.Key's `access_key` and `secret_key` should not be used.
+    - `authenticated`: Set to `:user` to indicate that the request has been authenticated
+                       at the user level.
+    - `api_key_id`: The API key used to authenticate the request
+                    (set if enable_client_auth == true, otherwise not assigned).
+    - `user`: The user that is associated with the authentication token.
+
+  On failure, the plug assigns the following to `conn.assigns`:
+
+    - `authenticated`: Set to `false`.
+    - `api_key_id`: Not assigned.
+    - `user`: Not assigned.
   """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
