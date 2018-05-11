@@ -42,6 +42,7 @@ defmodule AdminAPI.ConnCase do
   @user_email "email@example.com"
   @provider_user_id "test_provider_user_id"
   @auth_token "test_auth_token"
+  @include_client_auth true
 
   @base_dir "admin/api/"
 
@@ -133,32 +134,53 @@ defmodule AdminAPI.ConnCase do
   A helper function that generates a valid client request (client-authenticated)
   with given path and data, and return the parsed JSON response.
   """
-  def client_request(path, data \\ %{}, status \\ :ok)
-      when is_binary(path) and byte_size(path) > 0 do
+  @spec client_request(String.t(), map(), keyword()) :: map() | no_return()
+  def client_request(path, data \\ %{}, opts \\ []) do
+    {status, opts} = Keyword.pop(opts, :status, :ok)
+
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGAdmin", [@api_key_id, @api_key])
+    |> put_auth_header("OMGAdmin", client_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)
+  end
+
+  defp client_auth_header(opts) do
+    api_key_id = Keyword.get(opts, :api_key_id, @api_key_id)
+    api_key = Keyword.get(opts, :api_key, @api_key)
+
+    [api_key_id, api_key]
   end
 
   @doc """
-  A helper function that generates a valid user request (user-authenticated)
+  A helper function that generates an invalid user request (user-authenticated)
   with given path and data, and return the parsed JSON response.
   """
-  def user_request(path, data \\ %{}, status \\ :ok, include_client_auth \\ true)
-      when is_binary(path) and byte_size(path) > 0 do
-    # Make the authenticated request after login
+  @spec user_request(String.t(), map(), keyword()) :: map() | no_return()
+  def user_request(path, data \\ %{}, opts \\ []) do
+    {status, opts} = Keyword.pop(opts, :status, :ok)
+
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGAdmin", user_auth_header(include_client_auth))
+    |> put_auth_header("OMGAdmin", user_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)
   end
 
-  defp user_auth_header(include_client_auth?)
-  defp user_auth_header(true), do: [@api_key_id, @api_key, @user_id, @auth_token]
-  defp user_auth_header(false), do: [@user_id, @auth_token]
+  defp user_auth_header(opts) do
+    api_key_id = Keyword.get(opts, :api_key_id, @api_key_id)
+    api_key = Keyword.get(opts, :api_key, @api_key)
+    user_id = Keyword.get(opts, :user_id, @user_id)
+    auth_token = Keyword.get(opts, :auth_token, @auth_token)
+
+    case Keyword.get(opts, :include_client_auth, @include_client_auth) do
+      true ->
+        [api_key_id, api_key, user_id, auth_token]
+
+      false ->
+        [user_id, auth_token]
+    end
+  end
 
   @doc """
   Helper functions that puts an Authorization header to the connection.

@@ -18,10 +18,15 @@ defmodule AdminAPI.V1.UserAuthPlug do
   """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
-  alias EWalletDB.Helpers.Crypto
-  alias EWalletDB.{AuthToken, User}
   alias AdminAPI.V1.ClientAuthPlug
+  alias EWalletDB.{AuthToken, User}
+  alias EWalletDB.Helpers.Crypto
+  alias Plug.Conn
 
+  @doc """
+  API used by Plug to start user authentication.
+  """
+  @spec init(keyword()) :: keyword()
   def init(opts) do
     Keyword.put_new(
       opts,
@@ -30,19 +35,41 @@ defmodule AdminAPI.V1.UserAuthPlug do
     )
   end
 
+  @doc """
+  API used by Plug to authenticate the user.
+  """
+  @spec call(Conn.t(), keyword()) :: Conn.t()
   def call(conn, opts) do
-    case Keyword.get(opts, :enable_client_auth) do
-      true ->
-        conn
-        |> parse_header()
-        |> ClientAuthPlug.authenticate()
-        |> authenticate_token()
+    call(conn, parse_header(conn), opts[:enable_client_auth])
+  end
 
-      _ ->
-        conn
-        |> parse_header()
-        |> authenticate_token()
-    end
+  @spec call(Conn.t(), [binary()], boolean()) :: Conn.t()
+
+  # Authenticates both client and user credentials if both are given,
+  # regardless of :enable_client_auth being true or false.
+  def call(conn, [key_id, key, user_id, token], _) do
+    conn
+    |> put_private(:auth_api_key_id, key_id)
+    |> put_private(:auth_api_key, key)
+    |> put_private(:auth_user_id, user_id)
+    |> put_private(:auth_auth_token, token)
+    |> ClientAuthPlug.authenticate()
+    |> authenticate_token()
+  end
+
+  # Authenticates only user credentials if :enable_client_auth is false
+  def call(conn, [user_id, token], false) do
+    conn
+    |> put_private(:auth_user_id, user_id)
+    |> put_private(:auth_auth_token, token)
+    |> authenticate_token()
+  end
+
+  # Returns :invalid_auth_scheme for any other cases
+  def call(conn, _, _) do
+    conn
+    |> assign(:authenticated, false)
+    |> handle_error(:invalid_auth_scheme)
   end
 
   defp get_header(conn) do
@@ -57,24 +84,7 @@ defmodule AdminAPI.V1.UserAuthPlug do
          true <- scheme in ["OMGAdmin"],
          {:ok, decoded} <- Base.decode64(content),
          keys <- String.split(decoded, ":", parts: 4) do
-      case keys do
-        [key_id, key, user_id, token] ->
-          conn
-          |> put_private(:auth_api_key_id, key_id)
-          |> put_private(:auth_api_key, key)
-          |> put_private(:auth_user_id, user_id)
-          |> put_private(:auth_auth_token, token)
-
-        [user_id, token] ->
-          conn
-          |> put_private(:auth_user_id, user_id)
-          |> put_private(:auth_auth_token, token)
-      end
-    else
-      _ ->
-        conn
-        |> assign(:authenticated, false)
-        |> handle_error(:invalid_auth_scheme)
+      keys
     end
   end
 
