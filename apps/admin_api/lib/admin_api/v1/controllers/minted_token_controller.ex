@@ -8,6 +8,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, MintedToken}
   alias Ecto.UUID
+  alias Plug.Conn
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -31,6 +32,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   @doc """
   Retrieves a list of minted tokens.
   """
+  @spec all(Conn.t(), map() | nil) :: map()
   def all(conn, attrs) do
     MintedToken
     |> SearchParser.to_query(attrs, @search_fields)
@@ -42,6 +44,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   @doc """
   Retrieves a specific minted token by its id.
   """
+  @spec get(Conn.t(), map()) :: map()
   def get(conn, %{"id" => id}) do
     id
     |> MintedToken.get()
@@ -53,6 +56,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   @doc """
   Creates a new Minted Token.
   """
+  @spec create(Conn.t(), map()) :: map()
   def create(conn, attrs) do
     inserted_minted_token =
       attrs
@@ -73,6 +77,7 @@ defmodule AdminAPI.V1.MintedTokenController do
   @doc """
   Mint a minted token.
   """
+  @spec mint(Conn.t(), map()) :: map()
   def mint(
         conn,
         %{
