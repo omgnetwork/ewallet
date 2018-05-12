@@ -727,6 +727,8 @@ components:
           $ref: '#/components/schemas/UserSchema'
         account_id:
           type: string
+        master_admin:
+          type: boolean
         account:
           type: object
           $ref: '#/components/schemas/AccountSchema'
@@ -793,7 +795,7 @@ components:
         name:
           type: string
         subunit_to_unit:
-          type: boolean
+          type: integer
         created_at:
           type: string
           format: date-time
