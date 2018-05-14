@@ -244,7 +244,8 @@ defmodule EWallet.TransactionRequestGate do
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       expiration_date: attrs["expiration_date"],
-      max_consumptions: attrs["max_consumptions"]
+      max_consumptions: attrs["max_consumptions"],
+      max_consumptions_per_user: attrs["max_consumptions_per_user"]
     })
   end
 end

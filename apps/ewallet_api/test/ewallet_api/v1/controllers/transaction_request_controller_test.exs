@@ -257,7 +257,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "expiration_reason" => nil,
                  "expired_at" => nil,
                  "max_consumptions" => 3,
-                 "max_consumptions_per_user" => nil,
+                 "max_consumptions_per_user" => 1,
                  "current_consumptions_count" => 0,
                  "created_at" => Date.to_iso8601(request.inserted_at),
                  "updated_at" => Date.to_iso8601(request.updated_at)
