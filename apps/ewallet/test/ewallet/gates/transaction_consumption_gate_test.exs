@@ -452,6 +452,145 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :expired_transaction_request
     end
 
+    test "returns a 'max_consumptions_per_user_reached' error if the maximum number of
+          consumptions has been reached for the current user", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions_per_user: 1})
+
+      {res, consumption} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+
+      {res, error} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "1234",
+          "token_id" => nil
+        })
+
+      assert res == :error
+      assert error == :max_consumptions_per_user_reached
+    end
+
+    test "allows only one consume per user with four consumes at the same time", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions_per_user: 1})
+
+      pid = self()
+
+      {:ok, pid_1} =
+        Task.start_link(fn ->
+          Sandbox.allow(EWalletDB.Repo, pid, self())
+          Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+          assert_receive :start_consume, 5000
+
+          {res, response} =
+            TransactionConsumptionGate.consume(meta.sender, %{
+              "transaction_request_id" => request.id,
+              "correlation_id" => nil,
+              "amount" => nil,
+              "address" => nil,
+              "metadata" => nil,
+              "idempotency_token" => "1",
+              "token_id" => nil
+            })
+
+          send(pid, {:updated_1, res, response})
+        end)
+
+      {:ok, pid_2} =
+        Task.start_link(fn ->
+          Sandbox.allow(EWalletDB.Repo, pid, self())
+          Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+          assert_receive :start_consume, 5000
+
+          {res, response} =
+            TransactionConsumptionGate.consume(meta.sender, %{
+              "transaction_request_id" => request.id,
+              "correlation_id" => nil,
+              "amount" => nil,
+              "address" => nil,
+              "metadata" => nil,
+              "idempotency_token" => "2",
+              "token_id" => nil
+            })
+
+          send(pid, {:updated_2, res, response})
+        end)
+
+      {:ok, pid_3} =
+        Task.start_link(fn ->
+          Sandbox.allow(EWalletDB.Repo, pid, self())
+          Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+          assert_receive :start_consume, 5000
+
+          {res, response} =
+            TransactionConsumptionGate.consume(meta.sender, %{
+              "transaction_request_id" => request.id,
+              "correlation_id" => nil,
+              "amount" => nil,
+              "address" => nil,
+              "metadata" => nil,
+              "idempotency_token" => "3",
+              "token_id" => nil
+            })
+
+          send(pid, {:updated_3, res, response})
+        end)
+
+      {:ok, pid_4} =
+        Task.start_link(fn ->
+          Sandbox.allow(EWalletDB.Repo, pid, self())
+          Sandbox.allow(LocalLedgerDB.Repo, pid, self())
+
+          assert_receive :start_consume, 5000
+
+          {res, response} =
+            TransactionConsumptionGate.consume(meta.sender, %{
+              "transaction_request_id" => request.id,
+              "correlation_id" => nil,
+              "amount" => nil,
+              "address" => nil,
+              "metadata" => nil,
+              "idempotency_token" => "4",
+              "token_id" => nil
+            })
+
+          send(pid, {:updated_4, res, response})
+        end)
+
+      send(pid_2, :start_consume)
+      send(pid_1, :start_consume)
+      send(pid_3, :start_consume)
+      send(pid_4, :start_consume)
+
+      assert_receive {:updated_1, _res, _response}, 5000
+      assert_receive {:updated_2, _res, _response}, 5000
+      assert_receive {:updated_3, _res, _response}, 5000
+      assert_receive {:updated_4, _res, response}, 5000
+      assert response == :max_consumptions_per_user_reached
+
+      consumptions = TransactionConsumption |> EWalletDB.Repo.all()
+      assert length(consumptions) == 1
+    end
+
     test "returns a 'max_consumptions_reached' error if the maximum number of
           consumptions has been reached", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
@@ -486,7 +625,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :max_consumptions_reached
     end
 
-    test "allows only one consume with two consume at the same time", meta do
+    test "allows only one consume with four consumes at the same time", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
 
@@ -584,7 +723,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert_receive {:updated_1, _res, _response}, 5000
       assert_receive {:updated_2, _res, _response}, 5000
       assert_receive {:updated_3, _res, _response}, 5000
-      assert_receive {:updated_4, _res, _response}, 5000
+      assert_receive {:updated_4, _res, response}, 5000
+      assert response == :max_consumptions_reached
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == 1

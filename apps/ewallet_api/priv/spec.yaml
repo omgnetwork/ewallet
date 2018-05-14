@@ -1182,6 +1182,8 @@ components:
             type: boolean
           max_consumptions:
             type: integer
+          max_consumptions_per_user:
+            type: integer
           consumption_lifetime:
             type: integer
           expiration_reason:
@@ -1219,6 +1221,7 @@ components:
           - account_id
           - require_confirmation
           - max_consumptions
+          - max_consumptions_per_user
           - consumption_lifetime
           - expiration_reason
           - allow_amount_override
@@ -1244,6 +1247,7 @@ components:
             account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
             require_confirmation: true
             max_consumptions: 3
+            max_consumptions_per_user: null
             consumption_lifetime: 1000
             expiration_reason: null
             allow_amount_override: false
@@ -1646,6 +1650,11 @@ components:
                 default: null
                 description:
                   "The number of times this created request can be consumed."
+              max_consumptions_per_user:
+                type: integer
+                default: null
+                description:
+                  "The maximum number of times a user can consume the request."
               consumption_lifetime:
                 type: integer
                 default: null
@@ -1723,6 +1732,11 @@ components:
                 default: null
                 description:
                   "The number of times this created request can be consumed."
+              max_consumptions_per_user:
+                type: integer
+                default: null
+                description:
+                  "The maximum number of times a user can consume the request."
               consumption_lifetime:
                 type: integer
                 default: null

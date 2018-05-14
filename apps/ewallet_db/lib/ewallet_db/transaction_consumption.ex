@@ -239,13 +239,28 @@ defmodule EWalletDB.TransactionConsumption do
   end
 
   @doc """
-  Get all confirmed and pending transaction consumptions.
+  Get all confirmed transaction consumptions.
   """
   @spec all_active_for_request(UUID.t()) :: List.t()
+  def all_active_for_request(nil), do: []
+
   def all_active_for_request(request_uuid) do
     TransactionConsumption
     |> where([t], t.status == @confirmed)
     |> where([t], t.transaction_request_uuid == ^request_uuid)
+    |> Repo.all()
+  end
+
+  @doc """
+  Get all confirmed transaction consumptions for the given user uuid.
+  """
+  @spec all_active_for_user(UUID.t()) :: List.t()
+  def all_active_for_user(nil), do: []
+
+  def all_active_for_user(user_uuid) do
+    TransactionConsumption
+    |> where([t], t.status == @confirmed)
+    |> where([t], t.user_uuid == ^user_uuid)
     |> Repo.all()
   end
 
