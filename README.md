@@ -373,6 +373,7 @@ More questions? Get in touch with us on [Rocket Chat](https://chat.omisego.netwo
 
 Here are some resources if you want to learn more about how the eWallet works.
 
+- [Database schemas](/docs/design/databases.md)
 - [All ENV needed to run the eWallet](/docs/setup/env.md)
 - [Integration Responsibilities](/docs/setup/integration.md)
 - [eWallet Entites](/docs/design/entities.md)
