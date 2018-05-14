@@ -7,7 +7,7 @@ Transaction requests are a way to create pre-transactions with only one side (ei
 
 Here is a quick example to give you a better idea of how it works:
 
-1. Alice generates a transaction request to receive 10 OMG. The transaction ID can be embedded in a QR code to provide a better user experience.
+1. Alice generates a transaction request to receive 10 OMG. The transaction request ID can be embedded in a QR code to provide a better user experience.
 2. Alice shows her QR code to Bob.
 3. Bob scans it, see the transaction request, updates some parts of it if needed, finalizes it and sends 10 OMG to Alice.
 
@@ -21,7 +21,7 @@ See [the Swagger doc](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRe
 
 Here is the model attributes when creating transaction requests:
 
-```
+```yaml
 type:
   type: string
   enum:
@@ -42,10 +42,10 @@ correlation_id:
   description: "Optional unique identifier to tie a request with your system."
 account_id:
   type: string
-  default: The owner of the given address.
+  description: The owner of the given address. Either account_id or provider_user_id needs to be filled.  
 provider_user_id:
   type: string
-  default: The owner of the given address.
+  description: The owner of the given address. Either account_id or provider_user_id needs to be filled. 
 address:
   type: string
   description:
@@ -95,7 +95,7 @@ encrypted_metadata:
 
 Here is the flow used in the sample OMGShop application:
 
-1. Alice using the OMGShop iOS application generates a transaction request. The endpoint called is [/me.create_transaction_request](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/create_transaction_request). The `id` of that is embedded in a QR Code and displayed on the screen of the device.
+1. Alice using [the OMGShop iOS application](https://github.com/omisego/sample-ios) generates a transaction request. The endpoint called is [/me.create_transaction_request](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/create_transaction_request). The `id` of that is embedded in a QR Code and displayed on the screen of the device.
 
 2. Bob uses the scan feature in OMGShop on his own device to scan the QR Code. The app uses [/me.get_transaction_request](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/get_transaction_request) to get the details of the request.
 

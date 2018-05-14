@@ -11,7 +11,7 @@ Before diving into the details of how websockets can be used, here is a sample f
 2. Join a channel (`"transaction_request:some_id"`)
 
 Payload sent:
-```
+```json
 {
   "topic": "transaction_request:some_id",
   "event": "phx_join",
@@ -21,7 +21,7 @@ Payload sent:
 ```
 
 Payload from server:
-```
+```json
 {
   "success": true,
   "version": "1",
@@ -36,7 +36,7 @@ Payload from server:
 3. Wait for events
 
 Payload from server:
-```
+```json
 {
   "success": true,
   "version": "1",
@@ -53,7 +53,7 @@ Payload from server:
 4. Leave a channel
 
 Payload sent:
-```
+```json
 {
   "topic": "transaction_request:some_id",
   "event": "phx_leave",
@@ -63,7 +63,7 @@ Payload sent:
 ```
 
 Payload from server:
-```
+```json
 {
   "success": true,
   "version": "1",
@@ -119,14 +119,14 @@ Channels can be joined by sending the `phx_join` event. The list of events is av
 
 ## Listening for events
 
-Events for a specified chahnel will be sent to everyone who joined the channel. See list of channels and potential events below.
+Events for a specified channel will be sent to everyone who joined the channel. See list of channels and potential events below.
 
 ## Leaving a channel
 
 To leave a channel, simply send the `phx_leave` event.
 
 Payload sent:
-```
+```json
 {
   "topic": "transaction_request:some_id",
   "event": "phx_leave",
@@ -135,12 +135,12 @@ Payload sent:
 }
 ```
 
-## Keeping the connection alive (hearbeat)
+## Keeping the connection alive (heartbeat)
 
 In order to keep the socket connection alive, you can periodically send heartbeats using the following payload.
 
 Payload sent:
-```
+```json
 {
   "topic": "phoenix",
   "event": "heartbeat",
@@ -197,6 +197,10 @@ Potential events:
 
 - `transaction_consumption_finalized`
 
+## Errors
+
+The potential errors are listed [here](https://ewallet.demo.omisego.io/api/errors.ui).
+
 ## Events
 
 ### Sendable events
@@ -214,7 +218,7 @@ Potential events:
 
 - `phx_leave`: event used to leave a channel.
 
-```
+```json
 {
   "topic": "transaction_request:some_id",
   "event": "phx_leave",
@@ -225,7 +229,7 @@ Potential events:
 
 - `heartbeat`: event used to keep the connection open.
 
-```
+```json
 {
   "topic": "phoenix",
   "event": "heartbeat",
@@ -266,7 +270,7 @@ For example, when sending the `transaction_consumption_finalized`, it is possibl
 
 - `transaction_consumption_request`:
 
-```
+```json
 {
   "success": true,
   "version": "1",
@@ -280,7 +284,7 @@ For example, when sending the `transaction_consumption_finalized`, it is possibl
 
 Where `data` contains a transaction consumption with the following attributes (stolen from our Swagger spec):
 
-```
+```yaml
 object:
   type: string
 id:
@@ -348,7 +352,7 @@ expired_at:
 
 Example:
 
-```
+```yaml
 {
   object: "transaction_consumption",
   id: "txc_01cbfg9qtdken61agxhx6wvj9h",
@@ -383,7 +387,7 @@ Example:
 
 - `transaction_consumption_finalized`:
 
-```
+```json
 {
   "success": true,
   "version": "1",
@@ -397,7 +401,7 @@ Example:
 
 Where `data` contains a transaction consumption with the following attributes (stolen from our Swagger spec):
 
-```
+```yaml
 object:
   type: string
 id:
@@ -465,35 +469,35 @@ expired_at:
 
 Example:
 
-```
+```json
 {
-  object: "transaction_consumption",
-  id: "txc_01cbfg9qtdken61agxhx6wvj9h",
-  socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h",
-  status: "confirmed",
-  amount: 100,
-  minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
-  minted_token: {},
-  correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120",
-  idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120",
-  transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt",
-  transaction: {},
-  user_id: "usr_01cbfgak47ng6x72vbwjca6j4v",
-  user: {},
-  account_id: "acc_01cbfgatsanznvzffqsekta5f0",
-  account: {},
-  transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h",
-  transaction_request: {},
-  address: "5555cer3-15d1-4463-9ec2-02bc8ded7120",
-  metadata: {},
-  encrypted_metadata: {},
-  expiration_date: null,
-  created_at: "2018-01-01T00:00:00Z",
-  updated_at: "2018-01-01T00:00:00Z",
-  approved_at: "2018-01-01T00:00:00Z",
-  rejected_at: null,
-  confirmed_at: "2018-01-01T00:00:00Z",
-  failed_at: null,
-  expired_at: null
+  "object": "transaction_consumption",
+  "id": "txc_01cbfg9qtdken61agxhx6wvj9h",
+  "socket_topic": "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h",
+  "status": "confirmed",
+  "amount": 100,
+  "minted_token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+  "minted_token": {},
+  "correlation_id": "7e9c0be5-15d1-4463-9ec2-02bc8ded7120",
+  "idempotency_token": "7831c0be5-15d1-4463-9ec2-02bc8ded7120",
+  "transaction_id": "txn_01cbfga8g0dgwcfc7xh6ks1njt",
+  "transaction": {},
+  "user_id": "usr_01cbfgak47ng6x72vbwjca6j4v",
+  "user": {},
+  "account_id": "acc_01cbfgatsanznvzffqsekta5f0",
+  "account": {},
+  "transaction_request_id": "txr_01cbfgb66cby8wp5wpq6n4pm0h",
+  "transaction_request": {},
+  "address": "5555cer3-15d1-4463-9ec2-02bc8ded7120",
+  "metadata": {},
+  "encrypted_metadata": {},
+  "expiration_date": null,
+  "created_at": "2018-01-01T00:00:00Z",
+  "updated_at": "2018-01-01T00:00:00Z",
+  "approved_at": "2018-01-01T00:00:00Z",
+  "rejected_at": null,
+  "confirmed_at": "2018-01-01T00:00:00Z",
+  "failed_at": null,
+  "expired_at": null
 }
 ```
