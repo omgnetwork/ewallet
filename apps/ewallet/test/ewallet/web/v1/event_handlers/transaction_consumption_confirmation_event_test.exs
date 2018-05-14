@@ -4,10 +4,13 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
   alias EWallet.TestEndpoint
   alias EWalletDB.Repo
 
+  setup do
+    {:ok, _} = TestEndpoint.start_link()
+    :ok
+  end
+
   describe "broadcast/1" do
     test "broadcasts the 'transaction_consumption_finalized' event" do
-      {:ok, _} = TestEndpoint.start_link()
-
       consumption =
         :transaction_consumption
         |> insert()
@@ -35,13 +38,9 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       |> Enum.each(fn topic ->
         assert Enum.member?(mapped, {"transaction_consumption_finalized", topic})
       end)
-
-      :ok = TestEndpoint.stop()
     end
 
     test "broadcasts the 'transaction_consumption_request' event" do
-      {:ok, _} = TestEndpoint.start_link()
-
       consumption =
         :transaction_consumption
         |> insert()
@@ -69,8 +68,6 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       |> Enum.each(fn topic ->
         assert Enum.member?(mapped, {"transaction_consumption_request", topic})
       end)
-
-      :ok = TestEndpoint.stop()
     end
   end
 end
