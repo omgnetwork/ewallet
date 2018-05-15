@@ -455,7 +455,17 @@ defmodule EWallet.TransactionConsumptionGateTest do
     test "returns a 'max_consumptions_per_user_reached' error if the maximum number of
           consumptions has been reached for the current user", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions_per_user: 1})
+
+      request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.receiver.uuid,
+          balance: meta.receiver_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          max_consumptions_per_user: 1
+        )
 
       {res, consumption} =
         TransactionConsumptionGate.consume(meta.sender, %{
@@ -589,6 +599,8 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == 1
+      consumption = Enum.at(consumptions, 0)
+      assert consumption.status == "confirmed"
     end
 
     test "returns a 'max_consumptions_reached' error if the maximum number of

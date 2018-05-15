@@ -150,15 +150,35 @@ defmodule EWallet.TransactionConsumptionGate do
   end
 
   defp validate_max_consumptions_per_user(request, balance) do
-    case request.max_consumptions_per_user do
-      nil ->
-        {:ok, balance}
+    validate_max_consumptions_per_user(
+      max: request.max_consumptions_per_user,
+      is_user_request: !is_nil(balance.user_uuid) && is_nil(balance.account_uuid),
+      request_uuid: request.uuid,
+      balance: balance
+    )
+  end
 
-      max ->
-        case TransactionConsumption.all_active_for_user(balance.user_uuid) do
-          [] -> {:ok, balance}
-          _ -> {:error, :max_consumptions_per_user_reached}
-        end
+  defp validate_max_consumptions_per_user(
+         max: nil,
+         is_user_request: false,
+         request_uuid: _,
+         balance: balance
+       ) do
+    {:ok, balance}
+  end
+
+  defp validate_max_consumptions_per_user(
+         max: max,
+         is_user_request: true,
+         request_uuid: request_uuid,
+         balance: balance
+       ) do
+    current_consumptions =
+      TransactionConsumption.all_active_for_user(balance.user_uuid, request_uuid)
+
+    case length(current_consumptions) < max do
+      true -> {:ok, balance}
+      false -> {:error, :max_consumptions_per_user_reached}
     end
   end
 
