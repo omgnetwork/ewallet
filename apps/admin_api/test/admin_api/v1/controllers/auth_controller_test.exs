@@ -170,14 +170,32 @@ defmodule AdminAPI.V1.AuthControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "returns :invalid_api_key when unauthenticated" do
+    test "returns :invalid_api_key if client credentials are invalid" do
       response =
-        client_request("/auth_token.switch_account", %{
-          "account_id" => "123"
-        })
+        user_request(
+          "/auth_token.switch_account",
+          %{
+            "account_id" => "123"
+          },
+          api_key: "bad_api_key"
+        )
 
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_api_key"
+    end
+
+    test "returns :access_token_not_found if user credentials are invalid" do
+      response =
+        user_request(
+          "/auth_token.switch_account",
+          %{
+            "account_id" => "123"
+          },
+          auth_token: "bad_auth_token"
+        )
+
+      refute response["success"]
+      assert response["data"]["code"] == "user:access_token_not_found"
     end
   end
 

@@ -3,13 +3,7 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
   alias AdminAPI.V1.ClientAuthPlug
   alias Ecto.UUID
 
-  describe "ClientAuthPlug.call/2" do
-    test "assigns authenticated conn info when auth is not enabled" do
-      conn = test_with_no_auth()
-      refute conn.halted
-      assert conn.assigns.authenticated == :client
-    end
-
+  describe "ClientAuthPlug.call/2 with enable_client_auth == true" do
     test "assigns authenticated conn info if the api_key_id and api_key match the db record" do
       conn = test_with("OMGAdmin", @api_key_id, @api_key)
       assert_success(conn)
@@ -50,17 +44,18 @@ defmodule AdminAPI.V1.ClientAuthPlugTest do
     end
   end
 
-  defp test_with(type, api_key_id, api_key), do: test_with(type, [api_key_id, api_key])
-
-  defp test_with(type, data) when is_list(data) do
-    build_conn()
-    |> put_auth_header(type, data)
-    |> ClientAuthPlug.call([])
+  describe "ClientAuthPlug.call/2 with enable_client_auth == false" do
+    test "assigns authenticated == :client" do
+      conn = test_with("OMGAdmin", "", "", false)
+      refute conn.halted
+      assert conn.assigns.authenticated == :client
+    end
   end
 
-  defp test_with_no_auth do
+  defp test_with(type, api_key_id, api_key, client_auth? \\ true) do
     build_conn()
-    |> ClientAuthPlug.call(enable_client_auth: false)
+    |> put_auth_header(type, [api_key_id, api_key])
+    |> ClientAuthPlug.call(enable_client_auth: client_auth?)
   end
 
   defp assert_success(conn) do
