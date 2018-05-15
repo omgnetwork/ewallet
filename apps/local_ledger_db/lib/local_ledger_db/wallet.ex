@@ -1,4 +1,4 @@
-defmodule LocalLedgerDB.Balance do
+defmodule LocalLedgerDB.Wallet do
   @moduledoc """
   Ecto Schema representing balances. A balance is made up of a unique address
   and the ID associated with it in eWallet DB.
@@ -10,7 +10,7 @@ defmodule LocalLedgerDB.Balance do
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
-  schema "balance" do
+  schema "wallet" do
     field(:address, :string)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})

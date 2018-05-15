@@ -1,4 +1,4 @@
-defmodule EWalletDB.Balance do
+defmodule EWalletDB.Wallet do
   @moduledoc """
   Ecto Schema representing balance.
   """
@@ -20,7 +20,7 @@ defmodule EWalletDB.Balance do
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
-  schema "balance" do
+  schema "wallet" do
     # Balance does not have an external ID. Use `address` instead.
 
     field(:address, :string)
