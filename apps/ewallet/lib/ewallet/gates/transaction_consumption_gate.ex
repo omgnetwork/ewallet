@@ -160,6 +160,15 @@ defmodule EWallet.TransactionConsumptionGate do
 
   defp validate_max_consumptions_per_user(
          max: nil,
+         is_user_request: _,
+         request_uuid: _,
+         balance: balance
+       ) do
+    {:ok, balance}
+  end
+
+  defp validate_max_consumptions_per_user(
+         max: _,
          is_user_request: false,
          request_uuid: _,
          balance: balance

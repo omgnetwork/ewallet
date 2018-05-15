@@ -191,6 +191,49 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       assert res == {:error, :account_balance_mismatch}
     end
+
+    test "works for account even if max_consumptions_per_user is set", meta do
+      request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.receiver.uuid,
+          balance: meta.receiver_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          max_consumptions_per_user: 1
+        )
+
+      {res, consumption} =
+        TransactionConsumptionGate.consume(%{
+          "account_id" => meta.account.id,
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+
+      {res, consumption} =
+        TransactionConsumptionGate.consume(%{
+          "account_id" => meta.account.id,
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "1234",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+    end
   end
 
   describe "consume/1 with provider_user_id" do
