@@ -126,7 +126,7 @@ defmodule EWallet.TransactionConsumptionGate do
          } = attrs
        ) do
     with {:ok, request} <- TransactionRequestGate.get_with_lock(request_id),
-         {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
+         {:ok, nil} <- get_with_idempotency_token(attrs["idempotency_token"]),
          {:ok, request} <- TransactionRequestGate.validate_request(request),
          {:ok, amount} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
          {:ok, balance} <- validate_max_consumptions_per_user(request, balance),
@@ -144,9 +144,14 @@ defmodule EWallet.TransactionConsumptionGate do
           |> transfer(request.type)
       end
     else
+      {:ok, consumption} -> {:ok, consumption}
       error when is_atom(error) -> {:error, error}
       error -> error
     end
+  end
+
+  def get_with_idempotency_token(idempotency_token) do
+    {:ok, TransactionConsumption.get_by(idempotency_token: idempotency_token)}
   end
 
   defp validate_max_consumptions_per_user(request, balance) do
@@ -214,8 +219,12 @@ defmodule EWallet.TransactionConsumptionGate do
     {:ok, consumption} = TransactionConsumption.expire_if_past_expiration_date(consumption)
 
     case TransactionConsumption.expired?(consumption) do
-      false -> {:ok, consumption}
-      true -> {:error, :expired_transaction_consumption}
+      false ->
+        {:ok, consumption}
+
+      true ->
+        Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
+        {:error, :expired_transaction_consumption}
     end
   end
 

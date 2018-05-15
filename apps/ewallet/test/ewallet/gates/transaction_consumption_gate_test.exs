@@ -495,6 +495,51 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :expired_transaction_request
     end
 
+    test "works with reached max_consumptions_per_user is reached but
+          same idempotent token is provided", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+
+      request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.receiver.uuid,
+          balance: meta.receiver_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          max_consumptions_per_user: 1
+        )
+
+      {res, consumption} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+
+      {res, consumption_2} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption_2.status == "confirmed"
+      assert consumption.uuid == consumption_2.uuid
+    end
+
     test "returns a 'max_consumptions_per_user_reached' error if the maximum number of
           consumptions has been reached for the current user", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
@@ -644,6 +689,41 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert length(consumptions) == 1
       consumption = Enum.at(consumptions, 0)
       assert consumption.status == "confirmed"
+    end
+
+    test "works and returns the previous consumption with max_consumptions and
+         same idempotency_token", meta do
+      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
+
+      {res, consumption} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption.status == "confirmed"
+
+      {res, consumption_2} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption_2.status == "confirmed"
+      assert consumption.uuid == consumption_2.uuid
     end
 
     test "returns a 'max_consumptions_reached' error if the maximum number of
