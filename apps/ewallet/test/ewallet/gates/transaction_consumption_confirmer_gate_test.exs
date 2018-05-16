@@ -78,7 +78,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      {:ok, consumption} = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
+      {:ok, consumption} =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
+
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
     end
@@ -117,7 +119,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      {:ok, consumption} = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
+      {:ok, consumption} =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
+
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
     end
@@ -223,7 +227,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      {:ok, consumption} = TransactionConsumptionConfirmerGate.confirm(consumption.id, false, meta.account)
+      {:ok, consumption} =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, false, meta.account)
+
       assert consumption.status == "rejected"
       assert consumption.approved_at == nil
     end
@@ -278,7 +284,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
             Sandbox.allow(EWalletDB.Repo, pid, self())
             Sandbox.allow(LocalLedgerDB.Repo, pid, self())
 
-            {res, response} = TransactionConsumptionConfirmerGate.confirm(c.id, true, meta.account)
+            {res, response} =
+              TransactionConsumptionConfirmerGate.confirm(c.id, true, meta.account)
+
             send(pid, {String.to_atom("updated_#{i + 1}"), res, response})
           end)
       end)
@@ -326,7 +334,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      {:ok, consumption} = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.receiver)
+      {:ok, consumption} =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.receiver)
+
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
     end
@@ -365,7 +375,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      {:ok, consumption} = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.receiver)
+      {:ok, consumption} =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.receiver)
+
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
     end

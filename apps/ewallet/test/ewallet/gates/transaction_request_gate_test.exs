@@ -3,6 +3,7 @@ defmodule EWallet.TransactionRequestGateTest do
   alias EWallet.TransactionRequestGate
   alias EWalletDB.{User, TransactionRequest}
 
+  # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
     {:ok, account} = :account |> params_for() |> Account.insert()
@@ -471,6 +472,127 @@ defmodule EWallet.TransactionRequestGateTest do
         })
 
       assert res == {:error, :minted_token_not_found}
+    end
+  end
+
+  describe "expiration_from_lifetime/1" do
+    test "returns nil if not require_confirmation" do
+      request = insert(:transaction_request, require_confirmation: false)
+      date = TransactionRequest.expiration_from_lifetime(request)
+      assert date == nil
+    end
+
+    test "returns nil if no consumption lifetime" do
+      request =
+        insert(:transaction_request, require_confirmation: true, consumption_lifetime: nil)
+
+      date = TransactionRequest.expiration_from_lifetime(request)
+      assert date == nil
+    end
+
+    test "returns nil if consumption lifetime is equal to 0" do
+      request = insert(:transaction_request, require_confirmation: true, consumption_lifetime: 0)
+      date = TransactionRequest.expiration_from_lifetime(request)
+      assert date == nil
+    end
+
+    test "returns the expiration date based on consumption_lifetime" do
+      now = NaiveDateTime.utc_now()
+
+      request =
+        insert(
+          :transaction_request,
+          require_confirmation: true,
+          consumption_lifetime: 1_000
+        )
+
+      date = TransactionRequest.expiration_from_lifetime(request)
+      assert NaiveDateTime.compare(date, now) == :gt
+    end
+  end
+
+  describe "expire_if_past_expiration_date/1" do
+    test "does nothing if expiration date is not set" do
+      request = insert(:transaction_request, expiration_date: nil)
+      {res, request} = TransactionRequestGate.expire_if_past_expiration_date(request)
+      assert res == :ok
+      assert %TransactionRequest{} = request
+      assert TransactionRequest.valid?(request) == true
+    end
+
+    test "does nothing if expiration date is not past" do
+      future_date = NaiveDateTime.add(NaiveDateTime.utc_now(), 60, :second)
+      request = insert(:transaction_request, expiration_date: future_date)
+      {res, request} = TransactionRequestGate.expire_if_past_expiration_date(request)
+      assert res == :ok
+      assert %TransactionRequest{} = request
+      assert TransactionRequest.valid?(request) == true
+    end
+
+    test "expires the request if expiration date is past" do
+      past_date = NaiveDateTime.add(NaiveDateTime.utc_now(), -60, :second)
+      request = insert(:transaction_request, expiration_date: past_date)
+      {res, error} = TransactionRequestGate.expire_if_past_expiration_date(request)
+      request = TransactionRequest.get(request.id)
+      assert res == :error
+      assert error == :expired_transaction_request
+      assert TransactionRequest.valid?(request) == false
+      assert TransactionRequest.expired?(request) == true
+    end
+  end
+
+  describe "expire_if_max_consumption/1" do
+    test "touches the request if max_consumptions is equal to nil" do
+      request = insert(:transaction_request, max_consumptions: nil)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert TransactionRequest.valid?(updated_request) == true
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
+    end
+
+    test "touches the request if max_consumptions is equal to 0" do
+      request = insert(:transaction_request, max_consumptions: 0)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert TransactionRequest.valid?(updated_request) == true
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
+    end
+
+    test "touches the request if max_consumptions has not been reached" do
+      request = insert(:transaction_request, max_consumptions: 3)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert TransactionRequest.valid?(updated_request) == true
+      assert NaiveDateTime.compare(updated_request.updated_at, request.updated_at) == :gt
+    end
+
+    test "expires the request if max_consumptions has been reached" do
+      request = insert(:transaction_request, max_consumptions: 2)
+
+      _consumption =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "confirmed"
+        )
+
+      _consumption =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "confirmed"
+        )
+
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
+      assert res == :ok
+      assert %TransactionRequest{} = updated_request
+      assert updated_request.expired_at != nil
+      assert updated_request.expiration_reason == "max_consumptions_reached"
+      assert TransactionRequest.valid?(updated_request) == false
+      assert TransactionRequest.expired?(updated_request) == true
     end
   end
 end

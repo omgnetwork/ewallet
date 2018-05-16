@@ -9,16 +9,15 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     TransactionGate,
     TransactionRequestFetcher,
     TransactionConsumptionFetcher,
-    TransactionConsumptionValidator,
-    TransactionRequestValidator
+    TransactionConsumptionValidator
   }
 
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption}
 
   @spec approve_and_confirm(TransactionRequest.t(), TransactionConsumption.t()) ::
-      {:ok, TransactionConsumption.t()} |
-      {:error, TransactionConsumption.t(), Atom.t, String.t} |
-      {:error, TransactionConsumption.t(), String.t, String.t}
+          {:ok, TransactionConsumption.t()}
+          | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
+          | {:error, TransactionConsumption.t(), String.t(), String.t()}
   def approve_and_confirm(request, consumption) do
     consumption
     |> TransactionConsumption.approve()
@@ -39,14 +38,11 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   end
 
   defp do_confirm(id, approved, owner) do
-    with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
-         {:ok, request} <-
-           TransactionRequestFetcher.get_with_lock(consumption.transaction_request.id),
-         true <-
-           TransactionRequestValidator.is_owner?(request, owner) ||
-             {:error, :not_transaction_request_owner},
-         {:ok, request} <- TransactionRequestValidator.validate_request(request),
-         {:ok, consumption} <- TransactionConsumptionValidator.validate_consumption(consumption) do
+    with {v, f} <- {TransactionConsumptionValidator, TransactionConsumptionFetcher},
+         {:ok, consumption} <- f.get(id),
+         request <- consumption.transaction_request,
+         {:ok, request} <- TransactionRequestFetcher.get_with_lock(request.id),
+         {:ok, consumption} <- v.validate_before_confirmation(consumption, owner) do
       case approved do
         true ->
           consumption
@@ -92,7 +88,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
         consumption = TransactionConsumption.confirm(consumption, transfer)
 
         request = consumption.transaction_request
-        {:ok, request} = TransactionRequestValidator.expire_if_max_consumption(request)
+        {:ok, request} = TransactionRequest.expire_if_max_consumption(request)
 
         consumption =
           consumption

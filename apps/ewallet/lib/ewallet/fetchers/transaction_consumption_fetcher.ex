@@ -7,11 +7,6 @@ defmodule EWallet.TransactionConsumptionFetcher do
   """
   alias EWalletDB.{TransactionConsumption, Transfer}
 
-  # transaction request validator
-  # transaction consumption validator
-  # transaction request fetcher
-  # transaction consumption finalizer
-
   @spec get(UUID.t()) ::
           {:ok, TransactionConsumption.t()}
           | {:error, :transaction_consumption_not_found}
@@ -53,11 +48,11 @@ defmodule EWallet.TransactionConsumptionFetcher do
 
   defp handle_existing_consumption(nil), do: {:ok, nil}
 
-  defp handle_existing_consumption(consumption = %TransactionConsumption{transfer: nil}) do
+  defp handle_existing_consumption(%TransactionConsumption{transfer: nil} = consumption) do
     {:idempotent_call, consumption}
   end
 
-  defp handle_existing_consumption(consumption = %TransactionConsumption{transfer: transfer}) do
+  defp handle_existing_consumption(%TransactionConsumption{transfer: transfer} = consumption) do
     handle_transfer_result(consumption, failed_transfer: Transfer.failed?(transfer))
   end
 

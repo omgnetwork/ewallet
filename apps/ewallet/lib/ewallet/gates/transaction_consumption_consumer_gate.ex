@@ -10,13 +10,12 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     TransactionRequestFetcher,
     TransactionConsumptionFetcher,
     TransactionConsumptionValidator,
-    TransactionConsumptionConfirmerGate,
-    TransactionRequestValidator
+    TransactionConsumptionConfirmerGate
   }
 
   alias EWallet.Web.V1.Event
 
-  alias EWalletDB.{Repo, Balance, Account, User, TransactionConsumption}
+  alias EWalletDB.{Repo, Balance, Account, User, TransactionRequest, TransactionConsumption}
 
   @spec consume(Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
   def consume(
@@ -131,22 +130,16 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
   defp do_consume(
          balance,
          %{
-           "transaction_request_id" => request_id
+           "transaction_request_id" => request_id,
+           "idempotency_token" => idempotency_token
          } = attrs
        ) do
-    with {:ok, request} <- TransactionRequestFetcher.get_with_lock(request_id),
-         {:ok, nil} <- TransactionConsumptionFetcher.idempotent_fetch(attrs["idempotency_token"]),
-         {:ok, request} <- TransactionRequestValidator.validate_request(request),
-         {:ok, amount} <- TransactionRequestValidator.validate_amount(request, attrs["amount"]),
-         {:ok, balance} <-
-           TransactionConsumptionValidator.validate_max_consumptions_per_user(request, balance),
-         {:ok, minted_token} <-
-           TransactionConsumptionValidator.get_and_validate_minted_token(
-             request,
-             attrs["token_id"]
-           ),
-         {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
-         {:ok, consumption} <- TransactionConsumptionFetcher.get(consumption.id) do
+    with {v, f} <- {TransactionConsumptionValidator, TransactionConsumptionFetcher},
+         {:ok, request} <- TransactionRequestFetcher.get_with_lock(request_id),
+         {:ok, nil} <- f.idempotent_fetch(idempotency_token),
+         {:ok, request, token, amount} <- v.validate_before_consumption(request, balance, attrs),
+         {:ok, consumption} <- insert(balance, token, request, amount, attrs),
+         {:ok, consumption} <- f.get(consumption.id) do
       case request.require_confirmation do
         true ->
           Event.dispatch(:transaction_consumption_request, %{consumption: consumption})
@@ -177,7 +170,7 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
       minted_token_uuid: minted_token.uuid,
       transaction_request_uuid: request.uuid,
       balance_address: balance.address,
-      expiration_date: TransactionRequestValidator.expiration_from_lifetime(request),
+      expiration_date: TransactionRequest.expiration_from_lifetime(request),
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{}
     })

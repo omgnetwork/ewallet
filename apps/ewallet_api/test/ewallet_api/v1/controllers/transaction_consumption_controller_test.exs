@@ -13,6 +13,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
     UserSerializer
   }
 
+  alias EWallet.TransactionConsumptionScheduler
   alias EWalletAPI.V1.Endpoint
 
   setup do
@@ -499,7 +500,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.subscribe(response["data"]["socket_topic"])
 
       # We trigger the CRON task
-      EWallet.TransactionConsumptionScheduler.expire_all()
+      TransactionConsumptionScheduler.expire_all()
 
       # And we should now receive a finalized failed consumption.
       assert_receive %Phoenix.Socket.Broadcast{

@@ -3,6 +3,7 @@ defmodule EWallet.TransactionRequestFetcherTest do
   alias EWallet.{TransactionRequestGate, TransactionRequestFetcher}
   alias EWalletDB.{User, TransactionRequest}
 
+  # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
     {:ok, account} = :account |> params_for() |> Account.insert()
@@ -51,7 +52,8 @@ defmodule EWallet.TransactionRequestFetcherTest do
     end
 
     test "returns a 'transaction_request_not_found' error when given nil" do
-      assert TransactionRequestFetcher.get_with_lock(nil) == {:error, :transaction_request_not_found}
+      assert TransactionRequestFetcher.get_with_lock(nil) ==
+               {:error, :transaction_request_not_found}
     end
 
     test "returns a 'transaction_request_not_found' error when given invalid UUID" do

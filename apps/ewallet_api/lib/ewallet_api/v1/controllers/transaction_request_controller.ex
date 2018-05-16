@@ -1,9 +1,10 @@
 defmodule EWalletAPI.V1.TransactionRequestController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
+
   alias EWallet.{
     TransactionRequestGate,
-    TransactionRequestFetcher,
+    TransactionRequestFetcher
   }
 
   def create(conn, attrs) do

@@ -131,6 +131,25 @@ defmodule EWallet.TransactionRequestGate do
 
   def create(_, _attrs), do: {:error, :invalid_parameter}
 
+  @spec expire_if_past_expiration_date(TransactionRequest.t()) ::
+          {:ok, TransactionRequest.t()}
+          | {:error, Atom.t()}
+          | {:error, Map.t()}
+  def expire_if_past_expiration_date(request) do
+    res = TransactionRequest.expire_if_past_expiration_date(request)
+
+    case res do
+      {:ok, %TransactionRequest{status: "expired"} = request} ->
+        {:error, String.to_existing_atom(request.expiration_reason)}
+
+      {:ok, request} ->
+        {:ok, request}
+
+      {:error, error} ->
+        {:error, error}
+    end
+  end
+
   defp insert(minted_token, balance, attrs) do
     require_confirmation =
       if(
