@@ -8,8 +8,7 @@ defmodule EWallet.TransactionRequestGate do
   """
   alias EWallet.{
     BalanceFetcher,
-    TransactionRequestFetcher,
-    TransactionRequestValidator
+    TransactionRequestFetcher
   }
 
   alias EWalletDB.{TransactionRequest, User, Balance, MintedToken, Account}

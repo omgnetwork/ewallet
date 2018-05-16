@@ -1,7 +1,10 @@
 defmodule EWalletAPI.V1.TransactionRequestController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.TransactionRequestGate
+  alias EWallet.{
+    TransactionRequestGate,
+    TransactionRequestFetcher,
+  }
 
   def create(conn, attrs) do
     attrs
@@ -17,7 +20,7 @@ defmodule EWalletAPI.V1.TransactionRequestController do
 
   def get(conn, %{"id" => id}) do
     id
-    |> TransactionRequestGate.get()
+    |> TransactionRequestFetcher.get()
     |> respond(conn)
   end
 

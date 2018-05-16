@@ -133,7 +133,6 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
 
       assert response == %{
                "success" => false,
@@ -441,6 +440,112 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
             # Ignore content
           }
       }
+
+      # Unsubscribe from all channels
+      Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")
+      Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
+    end
+
+    test "sends a websocket expiration event when a consumption expires", meta do
+      # bob = test_user
+      set_initial_balance(%{
+        address: meta.bob_balance.address,
+        minted_token: meta.minted_token,
+        amount: 1_000_000 * meta.minted_token.subunit_to_unit
+      })
+
+      # Create a require_confirmation transaction request that will be consumed soon
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.bob.uuid,
+          balance: meta.bob_balance,
+          amount: nil,
+          require_confirmation: true,
+
+          # The consumption will expire after 1 second.
+          consumption_lifetime: 1
+        )
+
+      request_topic = "transaction_request:#{transaction_request.id}"
+
+      # Start listening to the channels for the transaction request created above
+      Endpoint.subscribe(request_topic)
+
+      # Making the consumption, since we made the request require_confirmation, it will
+      # create a pending consumption that will need to be confirmed
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          metadata: nil,
+          token_id: nil,
+          address: meta.alice_balance.address
+        })
+
+      consumption_id = response["data"]["id"]
+      assert response["success"] == true
+      assert response["data"]["status"] == "pending"
+
+      # The consumption is still valid...
+      :timer.sleep(1000)
+      # And now it's not!
+      # We should receive a transaction_consumption_finalized event.
+
+      # Let's also listen to the consumption channel.
+      Endpoint.subscribe(response["data"]["socket_topic"])
+
+      # We trigger the CRON task
+      EWallet.TransactionConsumptionScheduler.expire_all()
+
+      # And we should now receive a finalized failed consumption.
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_request:" <> _,
+        payload: payload
+      }
+
+      # Ensure the websocket serializer can serialize the payload
+      {:socket_push, :text, encoded} =
+        WebsocketResponseSerializer.fastlane!(%Broadcast{
+          topic: "transaction_request:#{transaction_request.id}",
+          event: "transaction_consumption_finalized",
+          payload: payload
+        })
+
+      decoded = Poison.decode!(encoded)
+      assert decoded["success"] == false
+      assert decoded["error"]["code"] == "transaction_consumption:expired"
+
+      assert_receive %Phoenix.Socket.Broadcast{
+        event: "transaction_consumption_finalized",
+        topic: "transaction_consumption:" <> _,
+        payload: payload
+      }
+
+      # Ensure the websocket serializer can serialize the payload
+      {:socket_push, :text, encoded} =
+        WebsocketResponseSerializer.fastlane!(%Broadcast{
+          topic: "transaction_consumption:#{consumption_id}",
+          event: "transaction_consumption_finalized",
+          payload: payload
+        })
+
+      decoded = Poison.decode!(encoded)
+      assert decoded["success"] == false
+      assert decoded["error"]["code"] == "transaction_consumption:expired"
+
+      # If we try to approve it now, it will fail since it has already expired.
+      response =
+        client_request("/me.approve_transaction_consumption", %{
+          id: consumption_id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "transaction_consumption:expired"
 
       # Unsubscribe from all channels
       Endpoint.unsubscribe("transaction_request:#{transaction_request.id}")

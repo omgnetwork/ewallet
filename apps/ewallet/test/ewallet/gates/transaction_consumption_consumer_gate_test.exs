@@ -1,13 +1,10 @@
-defmodule EWallet.TransactionConsumptionGateTest do
+defmodule EWallet.TransactionConsumptionConsumerGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias Ecto.Adapters.SQL.Sandbox
-  alias Ecto.UUID
 
   alias EWallet.{
     TestEndpoint,
-    TransactionRequestGate,
-    TransactionConsumptionGate,
-    TransactionConsumptionFetcher
+    TransactionConsumptionConsumerGate
   }
 
   alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
@@ -50,7 +47,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
   describe "consume/1 with account_id" do
     test "with nil account_id and no address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -65,7 +62,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with invalid account_id and no address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -80,7 +77,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid account_id and nil address", meta do
       {res, consumption} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -97,7 +94,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid account_id and no address", meta do
       {res, request} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -113,7 +110,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid account_id and a valid address", meta do
       {res, request} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -133,7 +130,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, request} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -152,7 +149,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid account_id, valid user but not owned address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -169,7 +166,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid account_id and an invalid address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -185,7 +182,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid account_id and an address that does not belong to the account", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -212,7 +209,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         )
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "account_id" => meta.account.id,
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
@@ -227,7 +224,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "confirmed"
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "account_id" => meta.account.id,
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
@@ -246,7 +243,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
   describe "consume/1 with provider_user_id" do
     test "with nil provider_user_id and no address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "type" => "receive",
           "token_id" => meta.minted_token.id,
           "correlation_id" => "123",
@@ -259,7 +256,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with invalid provider_user_id and no address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -276,7 +273,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, request} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -294,7 +291,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, request} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -311,7 +308,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid provider_user_id and an invalid address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -327,7 +324,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with valid provider_user_id and an address that does not belong to the user", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -345,7 +342,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
   describe "consume/1 with address" do
     test "with nil address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -360,7 +357,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with a valid address", meta do
       {res, request} =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -376,7 +373,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "with an invalid address", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -393,7 +390,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
   describe "consume/1 with invalid parameters" do
     test "with invalid parameters", meta do
       res =
-        TransactionConsumptionGate.consume(%{
+        TransactionConsumptionConsumerGate.consume(%{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -412,7 +409,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -429,7 +426,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.balance_address == meta.sender_balance.address
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -458,7 +455,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         )
 
       {res, consumption, error, _error_data} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -474,7 +471,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == "insufficient_funds"
 
       {res, consumption, error, _error_data} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -505,7 +502,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -527,7 +524,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
@@ -549,7 +546,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       {:ok, request} = TransactionRequest.expire(meta.request)
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
@@ -579,7 +576,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         )
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -593,7 +590,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "confirmed"
 
       {res, consumption_2} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -624,7 +621,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         )
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -638,7 +635,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "confirmed"
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -666,7 +663,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -687,7 +684,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -708,7 +705,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -729,7 +726,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -765,7 +762,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -779,7 +776,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "confirmed"
 
       {res, consumption_2} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -800,7 +797,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -814,7 +811,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "confirmed"
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -842,7 +839,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -863,7 +860,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -884,7 +881,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -905,7 +902,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
           assert_receive :start_consume, 5000
 
           {res, response} =
-            TransactionConsumptionGate.consume(meta.sender, %{
+            TransactionConsumptionConsumerGate.consume(meta.sender, %{
               "transaction_request_id" => request.id,
               "correlation_id" => nil,
               "amount" => nil,
@@ -939,7 +936,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 2})
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -953,7 +950,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "confirmed"
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -982,7 +979,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         })
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
@@ -996,7 +993,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "confirmed"
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -1020,7 +1017,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         })
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
@@ -1034,7 +1031,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.status == "pending"
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
@@ -1060,7 +1057,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         })
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
@@ -1087,7 +1084,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         })
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
@@ -1111,7 +1108,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         })
 
       {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_123,
@@ -1136,7 +1133,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         })
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_123,
@@ -1155,7 +1152,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       different_minted_token = insert(:minted_token)
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => "123",
           "amount" => 0,
@@ -1173,7 +1170,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, changeset} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => "123",
           "amount" => 0,
@@ -1194,7 +1191,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, consumption_1} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -1207,7 +1204,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert res == :ok
 
       {res, consumption_2} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -1234,7 +1231,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
         )
 
       {error, changeset} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -1252,7 +1249,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -1271,7 +1268,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
       balance = insert(:balance)
 
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
@@ -1287,7 +1284,7 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
     test "returns 'invalid parameter' when not all attributes are provided", meta do
       {res, error} =
-        TransactionConsumptionGate.consume(meta.sender, %{
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil
@@ -1295,469 +1292,6 @@ defmodule EWallet.TransactionConsumptionGateTest do
 
       assert res == :error
       assert error == :invalid_parameter
-    end
-  end
-
-  describe "get/1" do
-    test "returns the consumption do when given valid ID", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(meta.sender, %{
-          "transaction_request_id" => meta.request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "address" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil
-        })
-
-      assert res == :ok
-      assert {:ok, consumption} = TransactionConsumptionFetcher.get(consumption.id)
-      assert %TransactionConsumption{} = consumption
-    end
-
-    test "returns nil when given nil" do
-      assert TransactionConsumptionFetcher.get(nil) ==
-               {:error, :transaction_consumption_not_found}
-    end
-
-    test "returns nil when given invalid UUID" do
-      assert TransactionConsumptionFetcher.get("123") ==
-               {:error, :transaction_consumption_not_found}
-    end
-  end
-
-  describe "confirm/3 with Account" do
-    test "confirms the consumption if approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
-      assert consumption.status == "confirmed"
-      assert consumption.approved_at != nil
-    end
-
-    test "confirms a user's consumption if created and approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      {res, request} =
-        TransactionRequestGate.create(%{
-          "type" => "receive",
-          "token_id" => meta.minted_token.id,
-          "correlation_id" => "123",
-          "amount" => 1_000,
-          "account_id" => meta.account.id,
-          "provider_user_id" => meta.receiver.provider_user_id,
-          "address" => meta.receiver_balance.address,
-          "require_confirmation" => true
-        })
-
-      assert res == :ok
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
-      assert consumption.status == "confirmed"
-      assert consumption.approved_at != nil
-    end
-
-    test "fails to confirm the consumption if not owner", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          user_uuid: meta.sender.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
-      assert res == {:error, :not_transaction_request_owner}
-    end
-
-    test "fails to confirm the consumption if expired", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
-      assert transaction_request.expired_at != nil
-
-      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.account)
-      assert res == {:error, :expired_transaction_request}
-    end
-
-    test "rejects the consumption if not approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, false, meta.account)
-      assert consumption.status == "rejected"
-      assert consumption.approved_at == nil
-    end
-
-    test "allows only one confirmation with two confirms at the same time", meta do
-      initialize_balance(meta.sender_balance, 1_000_000, meta.minted_token)
-
-      request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
-          max_consumptions: 1
-        )
-
-      params = fn ->
-        %{
-          "transaction_request_id" => request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => UUID.generate(),
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        }
-      end
-
-      max = 10
-      range = Enum.into(1..max, [])
-
-      consumptions =
-        Enum.map(range, fn _i ->
-          {:ok, consumption} = TransactionConsumptionGate.consume(params.())
-          consumption
-        end)
-
-      Enum.each(consumptions, fn c ->
-        assert c.status == "pending"
-      end)
-
-      pid = self()
-
-      consumptions
-      |> Enum.with_index()
-      |> Enum.each(fn {c, i} ->
-        {:ok, _new_pid} =
-          Task.start_link(fn ->
-            Sandbox.allow(EWalletDB.Repo, pid, self())
-            Sandbox.allow(LocalLedgerDB.Repo, pid, self())
-
-            {res, response} = TransactionConsumptionGate.confirm(c.id, true, meta.account)
-            send(pid, {String.to_atom("updated_#{i + 1}"), res, response})
-          end)
-      end)
-
-      Enum.each(range, fn i ->
-        update = String.to_atom("updated_#{i}")
-        assert_receive {^update, _res, _response}, 5000
-      end)
-
-      consumptions = TransactionConsumption |> EWalletDB.Repo.all()
-      assert length(consumptions) == max
-      assert Enum.count(consumptions, fn c -> c.status == "confirmed" end) == 1
-      assert Enum.count(consumptions, fn c -> c.status == "pending" end) == max - 1
-    end
-  end
-
-  describe "confirm/3 with User" do
-    test "confirms the consumption if approved as user", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.receiver)
-      assert consumption.status == "confirmed"
-      assert consumption.approved_at != nil
-    end
-
-    test "confirms a user's consumption if created and approved as user", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      {res, request} =
-        TransactionRequestGate.create(%{
-          "type" => "receive",
-          "token_id" => meta.minted_token.id,
-          "correlation_id" => "123",
-          "amount" => 1_000,
-          "account_id" => meta.account.id,
-          "provider_user_id" => meta.receiver.provider_user_id,
-          "address" => meta.receiver_balance.address,
-          "require_confirmation" => true
-        })
-
-      assert res == :ok
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, consumption} = TransactionConsumptionGate.confirm(consumption.id, true, meta.receiver)
-      assert consumption.status == "confirmed"
-      assert consumption.approved_at != nil
-    end
-
-    test "fails to confirm the consumption if not owner", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.sender)
-      assert res == {:error, :not_transaction_request_owner}
-    end
-
-    test "fails to confirm the consumption if expired", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
-      assert transaction_request.expired_at != nil
-
-      res = TransactionConsumptionGate.confirm(consumption.id, true, meta.receiver)
-      assert res == {:error, :expired_transaction_request}
-    end
-
-    test "rejects the consumption if not approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
-          user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
-        })
-
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, consumption} =
-        TransactionConsumptionGate.confirm(consumption.id, false, meta.receiver)
-
-      assert consumption.status == "rejected"
-      assert consumption.approved_at == nil
     end
   end
 end
