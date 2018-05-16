@@ -15,13 +15,13 @@ defmodule EWallet.TransactionConsumptionFetcher do
   def get(id) do
     %{id: id}
     |> get_by()
-    |> handle_consumption_existence
+    |> handle_consumption_existence()
   end
 
   defp handle_consumption_existence(nil), do: {:error, :transaction_consumption_not_found}
   defp handle_consumption_existence(consumption), do: {:ok, consumption}
 
-  @spec idempotent_fetch(UUID.t()) ::
+  @spec idempotent_fetch(String.t()) ::
           {:ok, TransactionConsumption.t()}
           | {:idempotent_call, TransactionConsumption.t()}
           | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
