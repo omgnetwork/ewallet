@@ -2,7 +2,14 @@ defmodule EWallet.TransactionConsumptionGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
-  alias EWallet.{TestEndpoint, TransactionRequestGate, TransactionConsumptionGate}
+
+  alias EWallet.{
+    TestEndpoint,
+    TransactionRequestGate,
+    TransactionConsumptionGate,
+    TransactionConsumptionFetcher
+  }
+
   alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
 
   setup do
@@ -399,9 +406,9 @@ defmodule EWallet.TransactionConsumptionGateTest do
     end
   end
 
-  describe "consume/2 with balance" do
+  describe "consume/2 with user" do
     test "consumes the receive request and transfer the appropriate amount of token with min
-    params", meta do
+    params (and is idempotent)", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, consumption} =
@@ -420,6 +427,67 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert consumption.transaction_request_uuid == meta.request.uuid
       assert consumption.amount == meta.request.amount
       assert consumption.balance_address == meta.sender_balance.address
+
+      {res, consumption} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => meta.request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.transaction_request_uuid == meta.request.uuid
+      assert consumption.amount == meta.request.amount
+      assert consumption.balance_address == meta.sender_balance.address
+    end
+
+    test "fails to consume with insufficient funds (and is idempotent)", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          account_uuid: meta.account.uuid,
+          balance: meta.account_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit
+        )
+
+      {res, consumption, error, _error_data} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => transaction_request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :error
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "failed"
+      assert error == "insufficient_funds"
+
+      {res, consumption, error, _error_data} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => transaction_request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "address" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :error
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "failed"
+      assert error == "insufficient_funds"
     end
 
     test "consumes an account receive request and transfer the appropriate amount of token with min
@@ -942,14 +1010,28 @@ defmodule EWallet.TransactionConsumptionGateTest do
       assert error == :max_consumptions_reached
     end
 
-    test "returns a pending request with no transfer is the request requires confirmation",
-         meta do
+    test "returns a pending request with no transfer is the request requires confirmation
+         (and is idempotent)", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {:ok, request} =
         TransactionRequest.update(meta.request, %{
           require_confirmation: true
         })
+
+      {res, consumption} =
+        TransactionConsumptionGate.consume(meta.sender, %{
+          "transaction_request_id" => request.id,
+          "correlation_id" => "123",
+          "amount" => 1_000,
+          "address" => meta.sender_balance.address,
+          "metadata" => %{},
+          "idempotency_token" => "123",
+          "token_id" => nil
+        })
+
+      assert res == :ok
+      assert consumption.status == "pending"
 
       {res, consumption} =
         TransactionConsumptionGate.consume(meta.sender, %{
@@ -1232,16 +1314,18 @@ defmodule EWallet.TransactionConsumptionGateTest do
         })
 
       assert res == :ok
-      assert {:ok, consumption} = TransactionConsumptionGate.get(consumption.id)
+      assert {:ok, consumption} = TransactionConsumptionFetcher.get(consumption.id)
       assert %TransactionConsumption{} = consumption
     end
 
     test "returns nil when given nil" do
-      assert TransactionConsumptionGate.get(nil) == {:error, :transaction_consumption_not_found}
+      assert TransactionConsumptionFetcher.get(nil) ==
+               {:error, :transaction_consumption_not_found}
     end
 
     test "returns nil when given invalid UUID" do
-      assert TransactionConsumptionGate.get("123") == {:error, :transaction_consumption_not_found}
+      assert TransactionConsumptionFetcher.get("123") ==
+               {:error, :transaction_consumption_not_found}
     end
   end
 

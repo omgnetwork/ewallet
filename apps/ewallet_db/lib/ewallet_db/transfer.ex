@@ -204,4 +204,14 @@ defmodule EWalletDB.Transfer do
 
     get_by_idempotency_token(transfer.idempotency_token)
   end
+
+  def get_error(nil), do: nil
+
+  def get_error(transfer) do
+    {transfer.ledger_response["code"], transfer.ledger_response["description"]}
+  end
+
+  def failed?(transfer) do
+    transfer.status == @failed
+  end
 end

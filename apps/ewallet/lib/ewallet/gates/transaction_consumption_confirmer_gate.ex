@@ -1,0 +1,109 @@
+defmodule EWallet.TransactionConsumptionConfirmerGate do
+  @moduledoc """
+  Handles all confirmations-related actions on transaction consumptions.
+
+  This module is responsible for finalizing (approving/rejecting) transaction
+  consumptions and initiating the actual transfer of funds.
+  """
+  alias EWallet.{
+    TransactionGate,
+    TransactionRequestFetcher,
+    TransactionConsumptionFetcher,
+    TransactionConsumptionValidator,
+    TransactionRequestValidator
+  }
+
+  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption}
+
+  @spec approve_and_confirm(TransactionRequest.t(), TransactionConsumption.t()) ::
+      {:ok, TransactionConsumption.t()} |
+      {:error, TransactionConsumption.t(), Atom.t, String.t} |
+      {:error, TransactionConsumption.t(), String.t, String.t}
+  def approve_and_confirm(request, consumption) do
+    consumption
+    |> TransactionConsumption.approve()
+    |> transfer(request.type)
+  end
+
+  @spec confirm(UUID.t(), Boolean.t(), Map.t()) ::
+          {:ok, TransactionConsumption.t()}
+          | {:error, Atom.t()}
+          | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
+  def confirm(id, approved, owner) do
+    transaction = Repo.transaction(fn -> do_confirm(id, approved, owner) end)
+
+    case transaction do
+      {:ok, res} -> res
+      {:error, error} -> {:error, error}
+    end
+  end
+
+  defp do_confirm(id, approved, owner) do
+    with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
+         {:ok, request} <-
+           TransactionRequestFetcher.get_with_lock(consumption.transaction_request.id),
+         true <-
+           TransactionRequestValidator.is_owner?(request, owner) ||
+             {:error, :not_transaction_request_owner},
+         {:ok, request} <- TransactionRequestValidator.validate_request(request),
+         {:ok, consumption} <- TransactionConsumptionValidator.validate_consumption(consumption) do
+      case approved do
+        true ->
+          consumption
+          |> TransactionConsumption.approve()
+          |> transfer(request.type)
+
+        false ->
+          consumption = TransactionConsumption.reject(consumption)
+          {:ok, consumption}
+      end
+    else
+      error -> error
+    end
+  end
+
+  defp transfer(consumption, "send") do
+    from = consumption.transaction_request.balance_address
+    to = consumption.balance.address
+    transfer(consumption, from, to)
+  end
+
+  defp transfer(consumption, "receive") do
+    from = consumption.balance.address
+    to = consumption.transaction_request.balance_address
+    transfer(consumption, from, to)
+  end
+
+  defp transfer(consumption, from, to) do
+    attrs = %{
+      "idempotency_token" => consumption.idempotency_token,
+      "from_address" => from,
+      "to_address" => to,
+      "token_id" => consumption.minted_token.id,
+      "amount" => consumption.amount,
+      "metadata" => consumption.metadata,
+      "encrypted_metadata" => consumption.encrypted_metadata
+    }
+
+    case TransactionGate.process_with_addresses(attrs) do
+      {:ok, transfer, _, _} ->
+        # Expires the request if it has reached the max number of consumptions (only CONFIRMED
+        # SUCCESSFUL) consumptions are accounted for.
+        consumption = TransactionConsumption.confirm(consumption, transfer)
+
+        request = consumption.transaction_request
+        {:ok, request} = TransactionRequestValidator.expire_if_max_consumption(request)
+
+        consumption =
+          consumption
+          |> Map.put(:transaction_request_id, request.id)
+          |> Map.put(:transaction_request, request)
+
+        {:ok, consumption}
+
+      {:error, transfer, code, description} ->
+        consumption = TransactionConsumption.fail(consumption, transfer)
+        {:error, consumption, code, description}
+    end
+  end
+end

@@ -109,6 +109,52 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert %{} = inserted_transfer.ledger_response
     end
 
+    test "fails to consume and return an insufficient funds error", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          minted_token_uuid: meta.minted_token.uuid,
+          user_uuid: meta.alice.uuid,
+          balance: meta.alice_balance,
+          amount: 100_000 * meta.minted_token.subunit_to_unit
+        )
+
+      response =
+        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+          transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      request = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "object" => "error",
+                 "messages" => nil,
+                 "code" => "transaction:insufficient_funds",
+                 "description" =>
+                   "The specified balance (#{meta.account_balance.address}) does not contain enough funds. Available: 0.0 #{
+                     meta.minted_token.id
+                   } - Attempted debit: 100000.0 #{meta.minted_token.id}"
+               }
+             }
+
+      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.to == meta.alice_balance.address
+      assert inserted_transfer.from == meta.account_balance.address
+      assert %{} = inserted_transfer.ledger_response
+    end
+
     test "returns with preload if `embed` attribute is given", meta do
       transaction_request =
         insert(
