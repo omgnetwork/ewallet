@@ -29,12 +29,16 @@ defmodule AdminAPI.V1.AccountMembershipController do
           "redirect_url" => redirect_url
         } = attrs
       ) do
-    with user when not is_tuple(user) <- get_user_or_email(attrs) || {:error, :user_id_not_found},
+    with user <- get_user_or_email(attrs),
+         {false, :user_id_not_found} <- {is_tuple(user), :user_id_not_found},
          %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
          %Role{} = role <- Role.get_by_name(role_name) || {:error, :role_name_not_found},
          {:ok, _} <- assign_or_invite(user, account, role, redirect_url) do
       render(conn, :empty, %{success: true})
     else
+      {true, :user_id_not_found} ->
+        handle_error(conn, :user_id_not_found)
+
       {:error, error} when is_atom(error) ->
         handle_error(conn, error)
 
@@ -70,7 +74,14 @@ defmodule AdminAPI.V1.AccountMembershipController do
     end
   end
 
-  defp assign_or_invite(%User{} = user, account, role, redirect_url) do
+  defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
+    case Inviter.invite(email, account, role, redirect_url) do
+      {:ok, invite} -> {:ok, invite.user}
+      {:error, _} = error -> error
+    end
+  end
+
+  defp assign_or_invite(user, account, role, redirect_url) do
     case User.get_status(user) do
       :pending_confirmation ->
         invite =
@@ -82,13 +93,6 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
       :active ->
         Membership.assign(user, account, role)
-    end
-  end
-
-  defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
-    case Inviter.invite(email, account, role, redirect_url) do
-      {:ok, invite} -> {:ok, invite.user}
-      {:error, _} = error -> error
     end
   end
 

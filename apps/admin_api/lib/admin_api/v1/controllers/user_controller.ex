@@ -60,5 +60,5 @@ defmodule AdminAPI.V1.UserController do
   end
 
   # Responds when the user is not found
-  defp respond_single(nil, conn), do: handle_error(conn, :user_id_not_found)
+  defp respond_single(_, conn), do: handle_error(conn, :user_id_not_found)
 end

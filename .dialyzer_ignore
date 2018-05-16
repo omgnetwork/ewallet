@@ -1,0 +1,18 @@
+Unknown function 'Elixir.IEx':'started?'/0
+Unknown function 'Elixir.Mix':env/0
+Unknown function 'Elixir.Mix':shell/0
+Unknown function 'Elixir.Mix.Task':run/2
+Unknown function 'Elixir.Mix.Tasks.Run':run/1
+Unknown type 'Elixir.Account':t/0
+Unknown type 'Elixir.Atom':t/0
+Unknown type 'Elixir.Boolean':t/0
+Unknown type 'Elixir.Conn':t/0
+Unknown type 'Elixir.Ecto.UUID':t/0
+Unknown type 'Elixir.Integer':t/0
+Unknown type 'Elixir.List':t/0
+Unknown type 'Elixir.Map':t/0
+Function 'iex_running?'/0 will never be called
+Function run/1 has no local return
+Function configure_no_halt/1 will never be called
+Callback info about the 'Elixir.Mix.Task' behaviour is not available
+Function run/1 has no local return

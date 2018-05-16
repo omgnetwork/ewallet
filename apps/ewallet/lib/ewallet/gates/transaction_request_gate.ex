@@ -18,15 +18,14 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
+    with %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
          %User{} = user <-
-           User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
+           User.get_by_provider_user_id(provider_user_id) || {:error, :provider_user_id_not_found},
          {:ok, wallet} <- WalletFetcher.get(user, address),
          wallet <- Map.put(wallet, :account_uuid, account.uuid),
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
-      error when is_atom(error) -> {:error, error}
       error -> error
     end
   end
@@ -37,7 +36,7 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
+    with %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
          {:ok, wallet} <- WalletFetcher.get(account, address),
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
@@ -60,7 +59,7 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %User{} = user <-
-           User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
+           User.get_by_provider_user_id(provider_user_id) || {:error, :provider_user_id_not_found},
          {:ok, wallet} <- WalletFetcher.get(user, address),
          {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
@@ -116,7 +115,7 @@ defmodule EWallet.TransactionRequestGate do
           "token_id" => token_id
         } = attrs
       ) do
-    with %Token{} = token <- Token.get(token_id) || :token_not_found,
+    with %Token{} = token <- Token.get(token_id) || || {:error, :token_not_found},
          {:ok, transaction_request} <- insert(token, wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else

@@ -10,11 +10,12 @@ defmodule AdminAPI.V1.ResetPasswordController do
         handle_error(conn, :user_email_not_found)
 
       user ->
-        user
-        |> ForgetPasswordRequest.delete_all()
-        |> ForgetPasswordRequest.generate()
-        |> ForgetPasswordEmail.create(redirect_url)
-        |> Mailer.deliver_now()
+        _
+          = user
+          |> ForgetPasswordRequest.delete_all()
+          |> ForgetPasswordRequest.generate()
+          |> ForgetPasswordEmail.create(redirect_url)
+          |> Mailer.deliver_now()
 
         render(conn, :empty, %{success: true})
     end
@@ -34,7 +35,7 @@ defmodule AdminAPI.V1.ResetPasswordController do
     with %User{} = user <- get_user(email),
          %ForgetPasswordRequest{} = request <- get_request(user, token),
          {:ok, %User{} = user} <- update_password(request, attrs) do
-      ForgetPasswordRequest.delete_all(user)
+      _ = ForgetPasswordRequest.delete_all(user)
       render(conn, :empty, %{success: true})
     else
       error when is_atom(error) ->
