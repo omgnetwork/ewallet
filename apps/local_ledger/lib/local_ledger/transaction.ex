@@ -25,7 +25,7 @@ defmodule LocalLedger.Transaction do
     |> Enum.filter(fn transaction ->
       transaction[:type] == Transaction.debit_type()
     end)
-    |> Enum.map(fn transaction -> transaction[:balance_address] end)
+    |> Enum.map(fn transaction -> transaction[:wallet_address] end)
   end
 
   # Build a list of balance maps with the required details for DB insert.
@@ -37,7 +37,7 @@ defmodule LocalLedger.Transaction do
         type: type,
         amount: attrs["amount"],
         minted_token_id: minted_token.id,
-        balance_address: balance.address
+        wallet_address: balance.address
       }
     end)
   end
@@ -65,7 +65,7 @@ defmodule LocalLedger.Transaction do
         Transaction.check_balance(%{
           amount: transaction[:amount],
           minted_token_id: transaction[:minted_token_id],
-          address: transaction[:balance_address]
+          address: transaction[:wallet_address]
         })
       end
     end)

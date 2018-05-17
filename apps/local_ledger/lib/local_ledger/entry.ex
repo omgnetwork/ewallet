@@ -38,7 +38,7 @@ defmodule LocalLedger.Entry do
 
   @doc """
   Insert a new entry and the associated transactions. If they are not already
-  present, a new minted token and new balances will be created.
+  present, a new minted token and new wallets will be created.
 
   ## Parameters
 
@@ -48,7 +48,7 @@ defmodule LocalLedger.Entry do
       - credits: a list of credit transactions to process (see example)
       - minted_token: the token associated with this entry
     - genesis (boolean, default to false): if set to true, this argument will
-      allow the debit balances to go into the negative.
+      allow the debit wallets to go into the negative.
 
   ## Errors
 

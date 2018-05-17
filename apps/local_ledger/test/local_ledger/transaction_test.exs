@@ -38,13 +38,13 @@ defmodule LocalLedger.TransactionTest do
                  type: LocalLedgerDB.Transaction.debit_type(),
                  amount: 100,
                  minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-                 balance_address: "omisego.test.sender1"
+                 wallet_address: "omisego.test.sender1"
                },
                %{
                  type: LocalLedgerDB.Transaction.credit_type(),
                  amount: 100,
                  minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-                 balance_address: "omisego.test.receiver1"
+                 wallet_address: "omisego.test.receiver1"
                }
              ]
     end
@@ -57,13 +57,13 @@ defmodule LocalLedger.TransactionTest do
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
           minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-          balance_address: "omisego.test.sender1"
+          wallet_address: "omisego.test.sender1"
         },
         %{
           type: LocalLedgerDB.Transaction.credit_type(),
           amount: 100,
           minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-          balance_address: "omisego.test.receiver1"
+          wallet_address: "omisego.test.receiver1"
         }
       ]
 
@@ -73,11 +73,11 @@ defmodule LocalLedger.TransactionTest do
   end
 
   describe "#check_funds" do
-    defp init_debit_balances(amount_1, amount_2) do
+    defp init_debit_wallets(amount_1, amount_2) do
       {:ok, token} = :minted_token |> build |> Repo.insert()
-      {:ok, balance_1} = :balance |> build(address: "test1") |> Repo.insert()
-      {:ok, balance_2} = :balance |> build(address: "test2") |> Repo.insert()
-      {:ok, balance_3} = :balance |> build(address: "test3") |> Repo.insert()
+      {:ok, wallet_1} = :wallet |> build(address: "test1") |> Repo.insert()
+      {:ok, wallet_2} = :wallet |> build(address: "test2") |> Repo.insert()
+      {:ok, wallet_3} = :wallet |> build(address: "test3") |> Repo.insert()
 
       Entry.insert(%{
         metadata: %{},
@@ -87,75 +87,75 @@ defmodule LocalLedger.TransactionTest do
             type: LocalLedgerDB.Transaction.credit_type(),
             amount: amount_1,
             minted_token_id: token.id,
-            balance_address: balance_1.address
+            wallet_address: wallet_1.address
           },
           %{
             type: LocalLedgerDB.Transaction.credit_type(),
             amount: amount_2,
             minted_token_id: token.id,
-            balance_address: balance_2.address
+            wallet_address: wallet_2.address
           }
         ]
       })
 
-      {token, balance_1, balance_2, balance_3}
+      {token, wallet_1, wallet_2, wallet_3}
     end
 
-    test "raises an InsufficientFundsError if one of the debit balances does
+    test "raises an InsufficientFundsError if one of the debit wallets does
           not have enough funds" do
-      {token, balance_1, balance_2, balance_3} = init_debit_balances(80, 100)
+      {token, wallet_1, wallet_2, wallet_3} = init_debit_wallets(80, 100)
 
       transactions = [
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
           minted_token_id: token.id,
-          balance_address: balance_1.address
+          wallet_address: wallet_1.address
         },
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
           minted_token_id: token.id,
-          balance_address: balance_2.address
+          wallet_address: wallet_2.address
         },
         %{
           type: LocalLedgerDB.Transaction.credit_type(),
           amount: 200,
           minted_token_id: token.id,
-          balance_address: balance_3.address
+          wallet_address: wallet_3.address
         }
       ]
 
       assert_raise InsufficientFundsError, fn ->
-        Transaction.check_balance(transactions)
+        Transaction.check_wallet(transactions)
       end
     end
 
-    test "returns :ok when all the debit balances have enough funds" do
-      {token, balance_1, balance_2, balance_3} = init_debit_balances(200, 100)
+    test "returns :ok when all the debit wallets have enough funds" do
+      {token, wallet_1, wallet_2, wallet_3} = init_debit_wallets(200, 100)
 
       transactions = [
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
           minted_token_id: token.id,
-          balance_address: balance_1.address
+          wallet_address: wallet_1.address
         },
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
           minted_token_id: token.id,
-          balance_address: balance_2.address
+          wallet_address: wallet_2.address
         },
         %{
           type: LocalLedgerDB.Transaction.credit_type(),
           amount: 100,
           minted_token_id: token.id,
-          balance_address: balance_3.address
+          wallet_address: wallet_3.address
         }
       ]
 
-      res = Transaction.check_balance(transactions)
+      res = Transaction.check_wallet(transactions)
       assert res == :ok
     end
   end

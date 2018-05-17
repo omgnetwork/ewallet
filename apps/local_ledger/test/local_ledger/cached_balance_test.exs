@@ -102,7 +102,7 @@ defmodule LocalLedger.CachedBalanceTest do
       # calculate the next cached balance (even if it's incorrect in that case...)
       LocalLedgerDB.CachedBalance.insert(%{
         amounts: %{"tok_OMG_1234" => 3_000},
-        balance_address: balance.address,
+        wallet_address: balance.address,
         computed_at: NaiveDateTime.utc_now()
       })
 
@@ -138,7 +138,7 @@ defmodule LocalLedger.CachedBalanceTest do
       # Then we manually add one to hijack the process - this value should NOT be used.
       LocalLedgerDB.CachedBalance.insert(%{
         amounts: %{"tok_OMG_1234" => 3_000},
-        balance_address: balance.address,
+        wallet_address: balance.address,
         computed_at: NaiveDateTime.utc_now()
       })
 
@@ -177,7 +177,7 @@ defmodule LocalLedger.CachedBalanceTest do
       # Then we manually add one to hijack the process - this value should NOT be used.
       LocalLedgerDB.CachedBalance.insert(%{
         amounts: %{"tok_OMG_1234" => 3_000},
-        balance_address: balance.address,
+        wallet_address: balance.address,
         computed_at: NaiveDateTime.utc_now()
       })
 

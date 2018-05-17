@@ -105,7 +105,7 @@ defmodule LocalLedger.CachedBalance do
       {:ok, _} =
         CachedBalance.insert(%{
           amounts: amounts,
-          balance_address: balance.address,
+          wallet_address: balance.address,
           computed_at: computed_at
         })
     end
