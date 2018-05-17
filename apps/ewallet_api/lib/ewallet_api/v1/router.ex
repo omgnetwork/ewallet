@@ -73,6 +73,7 @@ defmodule EWalletAPI.V1.Router do
     scope "/" do
       pipe_through([:idempotency])
       post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
+      post("/me.transfer", TransferController, :transfer_for_user)
     end
 
     post("/logout", AuthController, :logout)
