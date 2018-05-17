@@ -5,7 +5,7 @@ defmodule LocalLedgerDB.Wallet do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Balance, Transaction}
+  alias LocalLedgerDB.{Repo, Wallet, Transaction}
   alias LocalLedger.{EctoBatchStream}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
@@ -19,7 +19,7 @@ defmodule LocalLedgerDB.Wallet do
     has_many(
       :transactions,
       Transaction,
-      foreign_key: :balance_address,
+      foreign_key: :wallet_address,
       references: :address
     )
 
@@ -29,7 +29,7 @@ defmodule LocalLedgerDB.Wallet do
   @doc """
   Validate the balance attributes.
   """
-  def changeset(%Balance{} = balance, attrs) do
+  def changeset(%Wallet{} = balance, attrs) do
     balance
     |> cast(attrs, [:address, :metadata, :encrypted_metadata, :encryption_version])
     |> validate_required([:address, :metadata, :encrypted_metadata])
@@ -42,7 +42,7 @@ defmodule LocalLedgerDB.Wallet do
   """
   def stream_all(callback) do
     Repo
-    |> EctoBatchStream.stream(Balance)
+    |> EctoBatchStream.stream(Wallet)
     |> Enum.each(callback)
   end
 
@@ -55,7 +55,7 @@ defmodule LocalLedgerDB.Wallet do
       |> Ecto.DateTime.to_iso8601()
 
     Repo.update_all(
-      from(b in Balance, where: b.address in ^addresses),
+      from(b in Wallet, where: b.address in ^addresses),
       set: [updated_at: updated_at]
     )
   end
@@ -67,7 +67,7 @@ defmodule LocalLedgerDB.Wallet do
   def lock(addresses) do
     Repo.all(
       from(
-        b in Balance,
+        b in Wallet,
         where: b.address in ^addresses,
         lock: "FOR UPDATE"
       )
@@ -92,7 +92,7 @@ defmodule LocalLedgerDB.Wallet do
   Retrieve a balance using the specified address.
   """
   def get(address) do
-    Repo.get_by(Balance, address: address)
+    Repo.get_by(Wallet, address: address)
   end
 
   @doc """
@@ -102,7 +102,7 @@ defmodule LocalLedgerDB.Wallet do
   before or one inserted by another concurrent process.
   """
   def insert(%{"address" => address} = attrs) do
-    changeset = Balance.changeset(%Balance{}, attrs)
+    changeset = Wallet.changeset(%Wallet{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :address]
 
     case Repo.insert(changeset, opts) do

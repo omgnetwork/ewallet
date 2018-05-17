@@ -1,4 +1,4 @@
-defmodule LocalLedger.Balance do
+defmodule LocalLedger.Wallet do
   @moduledoc """
   This module is an interface to the LocalLedgerDB schema (Balance and Transaction)
   and contains the logic needed to lock a list of addresses.
