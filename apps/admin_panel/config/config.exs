@@ -9,7 +9,7 @@ use Mix.Config
 config :admin_panel,
   namespace: AdminPanel,
   ecto_repos: [],
-  dist_path: Path.expand("../priv/dist/", __DIR__),
+  dist_path: Path.expand("../priv/static/", __DIR__),
   webpack_watch: false
 
 # Configures the endpoint

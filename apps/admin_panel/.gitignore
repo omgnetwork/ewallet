@@ -4,14 +4,9 @@
 /deps
 /*.ez
 
-# Ignore all files in `/priv/dist` but keep the folder.
-/priv/dist/*
-!/priv/dist/.gitkeep
-
-# Temporily ignoring `/assets` which is a symlink of `admin-panel` repo.
-# Once the admin-panel has been moved into this eWallet repo,
-# the following `/assets` should be removed from `.gitignore`.
-/assets
+# Ignore all files in `/priv/static` but keep the folder.
+/priv/static/*
+!/priv/static/.gitkeep
 
 # Generated on crash by the VM
 erl_crash.dump
