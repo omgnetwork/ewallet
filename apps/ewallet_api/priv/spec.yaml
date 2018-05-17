@@ -221,6 +221,7 @@ paths:
           $ref: "#/components/responses/TransactionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
   /me.list_transactions:
     post:
       tags:
@@ -285,6 +286,23 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/MultipleWalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.transfer:
+    post:
+      tags:
+        - Transaction
+      summary: Client - Transfer the specified amount to a wallet.
+      operationId: me_transfer
+      security:
+        - ClientAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/ClientTransferBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -1484,6 +1502,38 @@ components:
                 type: object
             required:
               - from_address
+              - to_address
+              - token_id
+              - amount
+            example:
+              from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
+              to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
+              token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+              amount: 100
+              metadata: {}
+              encrypted_metadata: {}
+    ClientTransferBody:
+      description: |
+        The parameters for making a transfer to a specific address.
+        The from_address is optional, if specified it must belong to the current user.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              from_address:
+                type: string
+              to_address:
+                type: string
+              token_id:
+                type: string
+              amount:
+                type: integer
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            required:
               - to_address
               - token_id
               - amount
