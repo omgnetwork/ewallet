@@ -1,12 +1,12 @@
 defmodule EWallet.BalanceFetcher do
   @moduledoc """
-  Handles the retrieval and formatting of wallets from the local ledger.
+  Handles the retrieval and formatting of balances from the local ledger.
   """
   alias EWalletDB.{User, MintedToken}
   alias LocalLedger.Wallet
 
   @doc """
-  Prepare the list of wallets and turn them into a suitable format for
+  Prepare the list of balances and turn them into a suitable format for
   EWalletAPI using a provider_user_id.
 
   ## Examples
@@ -38,7 +38,7 @@ defmodule EWallet.BalanceFetcher do
   end
 
   @doc """
-  Prepare the list of wallets and turn them into a suitable format for
+  Prepare the list of balances and turn them into a suitable format for
   EWalletAPI using only an address.
 
   ## Examples
@@ -61,7 +61,7 @@ defmodule EWallet.BalanceFetcher do
   end
 
   @doc """
-  Prepare the list of wallets and turn them into a
+  Prepare the list of balances and turn them into a
   suitable format for EWalletAPI using a user and a token_id
 
   ## Examples
@@ -85,7 +85,7 @@ defmodule EWallet.BalanceFetcher do
   end
 
   @doc """
-  Prepare the list of wallets and turn them into a
+  Prepare the list of balances and turn them into a
   suitable format for EWalletAPI using a token_id and an address
 
   ## Examples
