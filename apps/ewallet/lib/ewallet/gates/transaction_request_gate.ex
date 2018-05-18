@@ -6,7 +6,7 @@ defmodule EWallet.TransactionRequestGate do
 
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
-  alias EWallet.WalletFetcher
+  alias EWallet.WalletFetcher, TransactionRequestFetcher
   alias EWalletDB.{TransactionRequest, User, Wallet, MintedToken, Account}
 
   @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
@@ -21,10 +21,10 @@ defmodule EWallet.TransactionRequestGate do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
          %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
-         {:ok, wallet} <- WalletFetcher.get(user, address),
-         wallet <- Map.put(wallet, :account_uuid, account.uuid),
-         {:ok, transaction_request} <- create(wallet, attrs) do
-      get(transaction_request.id)
+         {:ok, balance} <- WalletFetcher.get(user, address),
+         balance <- Map.put(balance, :account_uuid, account.uuid),
+         {:ok, transaction_request} <- create(balance, attrs) do
+      TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -38,9 +38,9 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
-         {:ok, wallet} <- WalletFetcher.get(account, address),
-         {:ok, transaction_request} <- create(wallet, attrs) do
-      get(transaction_request.id)
+         {:ok, balance} <- WalletFetcher.get(account, address),
+         {:ok, transaction_request} <- create(balance, attrs) do
+      TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -61,9 +61,9 @@ defmodule EWallet.TransactionRequestGate do
       ) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
-         {:ok, wallet} <- WalletFetcher.get(user, address),
-         {:ok, transaction_request} <- create(wallet, attrs) do
-      get(transaction_request.id)
+         {:ok, balance} <- WalletFetcher.get(user, address),
+         {:ok, transaction_request} <- create(balance, attrs) do
+      TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -81,9 +81,9 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with {:ok, wallet} <- WalletFetcher.get(nil, address),
-         {:ok, transaction_request} <- create(wallet, attrs) do
-      get(transaction_request.id)
+    with {:ok, balance} <- WalletFetcher.get(nil, address),
+         {:ok, transaction_request} <- create(balance, attrs) do
+      TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -117,8 +117,8 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %MintedToken{} = minted_token <- MintedToken.get(token_id) || :minted_token_not_found,
-         {:ok, transaction_request} <- insert(minted_token, wallet, attrs) do
-      get(transaction_request.id)
+         {:ok, transaction_request} <- insert(minted_token, balance, attrs) do
+      TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -126,68 +126,6 @@ defmodule EWallet.TransactionRequestGate do
   end
 
   def create(_, _attrs), do: {:error, :invalid_parameter}
-
-  @spec get(UUID.t()) :: {:ok, TransactionRequest.t()} | {:error, :transaction_request_not_found}
-  def get(id) do
-    request = TransactionRequest.get(id, preload: [:minted_token, :user, :wallet])
-
-    case request do
-      nil -> {:error, :transaction_request_not_found}
-      request -> {:ok, request}
-    end
-  end
-
-  @spec get_with_lock(UUID.t()) ::
-          {:ok, TransactionRequest.t()}
-          | {:error, :transaction_request_not_found}
-  def get_with_lock(id) do
-    request = TransactionRequest.get_with_lock(id)
-
-    case request do
-      nil -> {:error, :transaction_request_not_found}
-      request -> {:ok, request}
-    end
-  end
-
-  @spec validate_amount(TransactionRequest.t(), Integer.t()) ::
-          {:ok, TransactionRequest.t()} | {:error, :unauthorized_amount_override}
-  def validate_amount(request, amount) do
-    case request.allow_amount_override do
-      true ->
-        {:ok, amount || request.amount}
-
-      false ->
-        case amount do
-          nil -> {:ok, request.amount}
-          _amount -> {:error, :unauthorized_amount_override}
-        end
-    end
-  end
-
-  @spec validate_request(TransactionRequest.t()) ::
-          {:ok, TransactionRequest.t()}
-          | {:error, Atom.t()}
-  def validate_request(request) do
-    {:ok, request} = TransactionRequest.expire_if_past_expiration_date(request)
-
-    case TransactionRequest.valid?(request) do
-      true -> {:ok, request}
-      false -> {:error, String.to_existing_atom(request.expiration_reason)}
-    end
-  end
-
-  def is_owner?(request, %Account{} = account) do
-    request.account_uuid == account.uuid
-  end
-
-  def is_owner?(request, %User{} = user) do
-    request.user_uuid == user.uuid
-  end
-
-  @spec expiration_from_lifetime(TransactionRequest.t()) :: NaiveDateTime.t() | nil
-  def expiration_from_lifetime(request) do
-    TransactionRequest.expiration_from_lifetime(request)
-  end
 
   @spec expire_if_past_expiration_date(TransactionRequest.t()) ::
           {:ok, TransactionRequest.t()}
@@ -208,14 +146,7 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  @spec expire_if_max_consumption(TransactionRequest.t()) ::
-          {:ok, TransactionRequest.t()}
-          | {:error, Map.t()}
-  def expire_if_max_consumption(request) do
-    TransactionRequest.expire_if_max_consumption(request)
-  end
-
-  defp insert(minted_token, wallet, attrs) do
+  defp insert(minted_token, balance, attrs) do
     require_confirmation =
       if(
         is_nil(attrs["require_confirmation"]),

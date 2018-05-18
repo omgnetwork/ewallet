@@ -1,8 +1,9 @@
-defmodule EWallet.TransactionRequestTest do
+defmodule EWallet.TransactionRequestGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.TransactionRequestGate
   alias EWalletDB.{User, TransactionRequest}
 
+  # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
     {:ok, account} = :account |> params_for() |> Account.insert()
@@ -474,77 +475,10 @@ defmodule EWallet.TransactionRequestTest do
     end
   end
 
-  describe "get/1" do
-    test "returns the request do when given valid ID", meta do
-      {:ok, request} =
-        TransactionRequestGate.create(meta.user, %{
-          "type" => "receive",
-          "token_id" => meta.minted_token.id,
-          "correlation_id" => "123",
-          "amount" => 1_000,
-          "address" => meta.user_wallet.address
-        })
-
-      assert {:ok, request} = TransactionRequestGate.get(request.id)
-      assert %TransactionRequest{} = request
-    end
-
-    test "returns nil when given nil" do
-      assert TransactionRequestGate.get(nil) == {:error, :transaction_request_not_found}
-    end
-
-    test "returns nil when given invalid UUID" do
-      assert TransactionRequestGate.get("123") == {:error, :transaction_request_not_found}
-    end
-  end
-
-  describe "get_with_lock/1" do
-    test "returns the request when given a valid ID" do
-      request = insert(:transaction_request)
-      assert {:ok, request} = TransactionRequestGate.get_with_lock(request.id)
-      assert %TransactionRequest{} = request
-    end
-
-    test "returns a 'transaction_request_not_found' error when given nil" do
-      assert TransactionRequestGate.get_with_lock(nil) == {:error, :transaction_request_not_found}
-    end
-
-    test "returns a 'transaction_request_not_found' error when given invalid UUID" do
-      assert TransactionRequestGate.get_with_lock("123") ==
-               {:error, :transaction_request_not_found}
-    end
-  end
-
-  describe "allow_amount_override/2" do
-    test "returns {:ok, amount} when allowed" do
-      request = insert(:transaction_request, allow_amount_override: true)
-      {res, amount} = TransactionRequestGate.validate_amount(request, 1_000)
-
-      assert res == :ok
-      assert amount == 1_000
-    end
-
-    test "returns {:ok, request.amount} with nil amount when override not allowed" do
-      request = insert(:transaction_request, allow_amount_override: false)
-      {res, amount} = TransactionRequestGate.validate_amount(request, nil)
-
-      assert res == :ok
-      assert amount == request.amount
-    end
-
-    test "returns {:error, :unauthorized_amount_override} when not allowed" do
-      request = insert(:transaction_request, allow_amount_override: false)
-      {res, error} = TransactionRequestGate.validate_amount(request, 1_000)
-
-      assert res == :error
-      assert error == :unauthorized_amount_override
-    end
-  end
-
   describe "expiration_from_lifetime/1" do
     test "returns nil if not require_confirmation" do
       request = insert(:transaction_request, require_confirmation: false)
-      date = TransactionRequestGate.expiration_from_lifetime(request)
+      date = TransactionRequest.expiration_from_lifetime(request)
       assert date == nil
     end
 
@@ -552,13 +486,13 @@ defmodule EWallet.TransactionRequestTest do
       request =
         insert(:transaction_request, require_confirmation: true, consumption_lifetime: nil)
 
-      date = TransactionRequestGate.expiration_from_lifetime(request)
+      date = TransactionRequest.expiration_from_lifetime(request)
       assert date == nil
     end
 
     test "returns nil if consumption lifetime is equal to 0" do
       request = insert(:transaction_request, require_confirmation: true, consumption_lifetime: 0)
-      date = TransactionRequestGate.expiration_from_lifetime(request)
+      date = TransactionRequest.expiration_from_lifetime(request)
       assert date == nil
     end
 
@@ -572,7 +506,7 @@ defmodule EWallet.TransactionRequestTest do
           consumption_lifetime: 1_000
         )
 
-      date = TransactionRequestGate.expiration_from_lifetime(request)
+      date = TransactionRequest.expiration_from_lifetime(request)
       assert NaiveDateTime.compare(date, now) == :gt
     end
   end
@@ -610,7 +544,7 @@ defmodule EWallet.TransactionRequestTest do
   describe "expire_if_max_consumption/1" do
     test "touches the request if max_consumptions is equal to nil" do
       request = insert(:transaction_request, max_consumptions: nil)
-      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
@@ -619,7 +553,7 @@ defmodule EWallet.TransactionRequestTest do
 
     test "touches the request if max_consumptions is equal to 0" do
       request = insert(:transaction_request, max_consumptions: 0)
-      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
@@ -628,7 +562,7 @@ defmodule EWallet.TransactionRequestTest do
 
     test "touches the request if max_consumptions has not been reached" do
       request = insert(:transaction_request, max_consumptions: 3)
-      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert TransactionRequest.valid?(updated_request) == true
@@ -652,25 +586,13 @@ defmodule EWallet.TransactionRequestTest do
           status: "confirmed"
         )
 
-      {res, updated_request} = TransactionRequestGate.expire_if_max_consumption(request)
+      {res, updated_request} = TransactionRequest.expire_if_max_consumption(request)
       assert res == :ok
       assert %TransactionRequest{} = updated_request
       assert updated_request.expired_at != nil
       assert updated_request.expiration_reason == "max_consumptions_reached"
       assert TransactionRequest.valid?(updated_request) == false
       assert TransactionRequest.expired?(updated_request) == true
-    end
-  end
-
-  describe "valid?/1" do
-    test "returns {:ok, request} if valid" do
-      request = insert(:transaction_request)
-      assert TransactionRequestGate.validate_request(request) == {:ok, request}
-    end
-
-    test "returns {:error, expiration_reason} if expired" do
-      request = insert(:transaction_request, status: "expired", expiration_reason: "something")
-      assert TransactionRequestGate.validate_request(request) == {:error, :something}
     end
   end
 end

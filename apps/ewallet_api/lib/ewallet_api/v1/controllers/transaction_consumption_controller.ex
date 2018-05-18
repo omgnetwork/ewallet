@@ -2,7 +2,13 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   use EWalletAPI, :controller
   use EWallet.Web.Embedder
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.{Web.V1.Event, TransactionConsumptionGate}
+
+  alias EWallet.{
+    Web.V1.Event,
+    TransactionConsumptionConsumerGate,
+    TransactionConsumptionConfirmerGate
+  }
+
   alias EWalletDB.TransactionConsumption
 
   # The fields that are allowed to be embedded.
@@ -16,7 +22,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   def consume(conn, attrs) do
     attrs
     |> Map.put("idempotency_token", conn.assigns.idempotency_token)
-    |> TransactionConsumptionGate.consume()
+    |> TransactionConsumptionConsumerGate.consume()
     |> respond(conn)
   end
 
@@ -24,7 +30,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     attrs = Map.put(attrs, "idempotency_token", conn.assigns.idempotency_token)
 
     conn.assigns.user
-    |> TransactionConsumptionGate.consume(attrs)
+    |> TransactionConsumptionConsumerGate.consume(attrs)
     |> respond(conn)
   end
 
@@ -35,7 +41,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
 
   defp confirm(conn, entity, %{"id" => id}, approved) do
     id
-    |> TransactionConsumptionGate.confirm(approved, entity)
+    |> TransactionConsumptionConfirmerGate.confirm(approved, entity)
     |> respond(conn)
   end
 
