@@ -10,7 +10,7 @@ defmodule EWalletDB.TransactionRequest do
 
   alias EWalletDB.{
     Account,
-    Balance,
+    Wallet,
     MintedToken,
     TransactionRequest,
     TransactionConsumption,
@@ -82,9 +82,9 @@ defmodule EWalletDB.TransactionRequest do
     )
 
     belongs_to(
-      :balance,
-      Balance,
-      foreign_key: :balance_address,
+      :wallet,
+      Wallet,
+      foreign_key: :wallet_address,
       references: :address,
       type: :string
     )
@@ -101,7 +101,7 @@ defmodule EWalletDB.TransactionRequest do
       :user_uuid,
       :account_uuid,
       :minted_token_uuid,
-      :balance_address,
+      :wallet_address,
       :require_confirmation,
       :max_consumptions,
       :max_consumptions_per_user,
@@ -115,7 +115,7 @@ defmodule EWalletDB.TransactionRequest do
       :type,
       :status,
       :minted_token_uuid,
-      :balance_address
+      :wallet_address
     ])
     |> validate_amount_if_disallow_override()
     |> validate_inclusion(:type, @types)
@@ -123,7 +123,7 @@ defmodule EWalletDB.TransactionRequest do
     |> unique_constraint(:correlation_id)
     |> assoc_constraint(:minted_token)
     |> assoc_constraint(:user)
-    |> assoc_constraint(:balance)
+    |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version())
   end

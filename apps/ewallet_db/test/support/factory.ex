@@ -9,7 +9,7 @@ defmodule EWalletDB.Factory do
     Account,
     APIKey,
     AuthToken,
-    Balance,
+    Wallet,
     ForgetPasswordRequest,
     Invite,
     Key,
@@ -41,11 +41,11 @@ defmodule EWalletDB.Factory do
     |> Strategy.name_from_struct()
   end
 
-  def balance_factory do
-    %Balance{
+  def wallet_factory do
+    %Wallet{
       address: sequence("address"),
       name: sequence("name"),
-      identifier: Balance.primary(),
+      identifier: Wallet.primary(),
       user: insert(:user),
       minted_token: nil,
       metadata: %{}
@@ -176,8 +176,8 @@ defmodule EWalletDB.Factory do
       metadata: %{some: "metadata"},
       amount: 100,
       minted_token: insert(:minted_token),
-      from_balance: insert(:balance),
-      to_balance: insert(:balance)
+      from_wallet: insert(:wallet),
+      to_wallet: insert(:wallet)
     }
   end
 
@@ -194,7 +194,7 @@ defmodule EWalletDB.Factory do
       correlation_id: sequence("correlation"),
       minted_token_uuid: insert(:minted_token).uuid,
       user_uuid: insert(:user).uuid,
-      balance: insert(:balance)
+      wallet: insert(:wallet)
     }
   end
 
@@ -203,7 +203,7 @@ defmodule EWalletDB.Factory do
       idempotency_token: sequence("123"),
       minted_token_uuid: insert(:minted_token).uuid,
       user_uuid: insert(:user).uuid,
-      balance_address: insert(:balance).address,
+      wallet_address: insert(:wallet).address,
       amount: 100,
       transaction_request_uuid: insert(:transaction_request).uuid
     }

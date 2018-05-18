@@ -35,14 +35,14 @@ defmodule EWalletDB.AccountTest do
              )
     end
 
-    test "inserts primary/burn balances for the account" do
+    test "inserts primary/burn wallets for the account" do
       {:ok, account} = :account |> params_for() |> Account.insert()
-      primary = Account.get_primary_balance(account)
-      burn = Account.get_default_burn_balance(account)
+      primary = Account.get_primary_wallet(account)
+      burn = Account.get_default_burn_wallet(account)
 
       assert primary != nil
       assert burn != nil
-      assert length(account.balances) == 2
+      assert length(account.wallets) == 2
     end
 
     test "prevents inserting an account beyond 1 child level" do
@@ -88,10 +88,10 @@ defmodule EWalletDB.AccountTest do
   describe "get/2" do
     test "accepts a uuid and preload" do
       {:ok, account} = :account |> params_for() |> Account.insert()
-      result = Account.get(account.id, preload: :balances)
+      result = Account.get(account.id, preload: :wallets)
 
       assert result.id == account.id
-      assert Ecto.assoc_loaded?(result.balances)
+      assert Ecto.assoc_loaded?(result.wallets)
     end
   end
 
@@ -114,45 +114,45 @@ defmodule EWalletDB.AccountTest do
       result = Account.get_master_account()
 
       assert result.id == get_or_insert_master_account().id
-      assert %Ecto.Association.NotLoaded{} = result.balances
+      assert %Ecto.Association.NotLoaded{} = result.wallets
       assert Account.master?(result)
     end
 
-    test "returns the master account with balances if preload is given" do
-      result = Account.get_master_account(preload: :balances)
+    test "returns the master account with wallets if preload is given" do
+      result = Account.get_master_account(preload: :wallets)
 
       assert result.id == get_or_insert_master_account().id
       assert Account.master?(result)
     end
   end
 
-  describe "get_primary_balance/1" do
-    test "returns the primary balance" do
+  describe "get_primary_wallet/1" do
+    test "returns the primary wallet" do
       {:ok, inserted} = :account |> params_for() |> Account.insert()
-      balance = Account.get_primary_balance(inserted)
+      wallet = Account.get_primary_wallet(inserted)
 
       [name: inserted.name]
       |> Account.get_by()
-      |> Repo.preload([:balances])
+      |> Repo.preload([:wallets])
 
-      assert balance != nil
-      assert balance.name == "primary"
-      assert balance.identifier == "primary"
+      assert wallet != nil
+      assert wallet.name == "primary"
+      assert wallet.identifier == "primary"
     end
   end
 
-  describe "get_default_burn_balance/1" do
-    test "returns the burn balance" do
+  describe "get_default_burn_wallet/1" do
+    test "returns the burn wallet" do
       {:ok, inserted} = :account |> params_for() |> Account.insert()
-      balance = Account.get_default_burn_balance(inserted)
+      wallet = Account.get_default_burn_wallet(inserted)
 
       [name: inserted.name]
       |> Account.get_by()
-      |> Repo.preload([:balances])
+      |> Repo.preload([:wallets])
 
-      assert balance != nil
-      assert balance.name == "burn"
-      assert balance.identifier == "burn"
+      assert wallet != nil
+      assert wallet.name == "burn"
+      assert wallet.identifier == "burn"
     end
   end
 

@@ -7,7 +7,7 @@ defmodule EWalletDB.Transfer do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Transfer, Balance, MintedToken}
+  alias EWalletDB.{Repo, Transfer, Wallet, MintedToken}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -51,16 +51,16 @@ defmodule EWalletDB.Transfer do
     )
 
     belongs_to(
-      :to_balance,
-      Balance,
+      :to_wallet,
+      Wallet,
       foreign_key: :to,
       references: :address,
       type: :string
     )
 
     belongs_to(
-      :from_balance,
-      Balance,
+      :from_wallet,
+      Wallet,
       foreign_key: :from,
       references: :address,
       type: :string
@@ -101,8 +101,8 @@ defmodule EWalletDB.Transfer do
     |> validate_immutable(:idempotency_token)
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:minted_token)
-    |> assoc_constraint(:to_balance)
-    |> assoc_constraint(:from_balance)
+    |> assoc_constraint(:to_wallet)
+    |> assoc_constraint(:from_wallet)
     |> put_change(:encryption_version, Cloak.version())
   end
 
@@ -162,7 +162,7 @@ defmodule EWalletDB.Transfer do
       %{
         idempotency_token: idempotency_token
       },
-      preload: [:from_balance, :to_balance, :minted_token]
+      preload: [:from_wallet, :to_wallet, :minted_token]
     )
   end
 
