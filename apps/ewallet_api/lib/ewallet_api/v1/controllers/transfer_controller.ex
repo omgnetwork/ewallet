@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransferController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.{ErrorHandler}
-  alias EWallet.{BalanceFetcher, TransactionGate}
+  alias EWallet.{BalanceFetcher, TransactionGate, WalletFetcher}
   alias EWalletAPI.V1.{WalletView, TransactionView}
 
   def transfer(
@@ -32,19 +32,25 @@ defmodule EWalletAPI.V1.TransferController do
         } = attrs
       )
       when to_address != nil and token_id != nil and is_integer(amount) do
-      balance_res = BalanceFetcher.get(conn.assigns.user, attrs["from_address"])
+    balance_res = WalletFetcher.get(conn.assigns.user, attrs["from_address"])
 
-      case balance_res do
-        {:ok, from_balance} ->
-          attrs
-          |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
-          |> Map.put("from_address", from_balance.address)
-          |> TransactionGate.process_with_addresses()
-          |> respond_with(:transfer, conn)
-        {:error, :balance_not_found} -> handle_error(conn, :from_address_not_found)
-        {:error, :user_balance_mismatch} -> handle_error(conn, :from_address_mismatch)
-        {:error, error} -> handle_error(conn, error)
-      end
+    case balance_res do
+      {:ok, from_balance} ->
+        attrs
+        |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
+        |> Map.put("from_address", from_balance.address)
+        |> TransactionGate.process_with_addresses()
+        |> respond_with(:transfer, conn)
+
+      {:error, :wallet_not_found} ->
+        handle_error(conn, :from_address_not_found)
+
+      {:error, :user_wallet_mismatch} ->
+        handle_error(conn, :from_address_mismatch)
+
+      {:error, error} ->
+        handle_error(conn, error)
+    end
   end
 
   def transfer_for_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)

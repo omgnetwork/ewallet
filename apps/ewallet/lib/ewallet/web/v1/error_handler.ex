@@ -70,7 +70,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     from_address_mismatch: %{
       code: "user:from_address_mismatch",
-      description: "The provided address does not belong to the current user."
+      description: "The provided wallet address does not belong to the current user."
     },
     to_address_not_found: %{
       code: "user:to_address_not_found",
