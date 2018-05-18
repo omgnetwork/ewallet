@@ -66,7 +66,7 @@ iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c")
 %EWalletDB.User{
   # ...
   accounts: #Ecto.Association.NotLoaded<association :accounts is not loaded>,
-  balances: #Ecto.Association.NotLoaded<association :users is not loaded>,
+  wallets: #Ecto.Association.NotLoaded<association :users is not loaded>,
   # ...
 }
 ```
@@ -74,11 +74,11 @@ iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c")
 Versus `get/2` with the `:preload` option:
 
 ```ex
-iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [:accounts, :balances])
+iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [:accounts, :wallets])
 %EWalletDB.User{
   # ...
   accounts: [%EWalletDB.Account{...}, %EWalletDB.Account{...}],
-  balances: [%EWalletDB.Balance{...}, ...],
+  wallets: [%EWalletDB.Wallet{...}, ...],
   # ...
 }
 ```
@@ -86,12 +86,12 @@ iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [:accou
 It also allows deeply-nested preloading by providing nested keyword list into the `:preload` option:
 
 ```ex
-iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [accounts: :balances])
+iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c", preload: [accounts: :wallets])
 %EWalletDB.User{
   # ...
   accounts: [%EWalletDB.Account{
     # ...
-    balances: [%EWalletDB.Balance{...}],
+    wallets: [%EWalletDB.Wallet{...}],
     # ...
   }]
   # ...

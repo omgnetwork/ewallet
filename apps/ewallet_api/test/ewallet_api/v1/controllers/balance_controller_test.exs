@@ -1,29 +1,29 @@
-defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
+defmodule EWalletAPI.V1.BalanceControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{User, MintedToken, Account}
 
   describe "/all" do
-    test "Get all user balances from its provider_user_id" do
+    test "Get all user wallets from its provider_user_id" do
       account = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
+      master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
-      user_balance = User.get_primary_balance(user)
+      user_wallet = User.get_primary_wallet(user)
       {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
       {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
 
       mint!(btc)
       mint!(omg)
 
-      transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
-      transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
       response =
-        provider_request("/user.list_balances", %{
+        provider_request("/user.list_wallets", %{
           provider_user_id: user.provider_user_id
         })
 
-      address = User.get_primary_balance(user).address
+      address = User.get_primary_wallet(user).address
 
       assert response == %{
                "version" => "1",
@@ -32,8 +32,8 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                  "object" => "list",
                  "data" => [
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{address}",
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{address}",
                      "address" => address,
                      "balances" => [
                        %{
@@ -73,23 +73,23 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
              }
     end
 
-    test "Get all user balances from an address" do
+    test "Get all user wallets from an address" do
       account = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
+      master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
-      user_balance = User.get_primary_balance(user)
+      user_wallet = User.get_primary_wallet(user)
       {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
       {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
 
       mint!(btc)
       mint!(omg)
 
-      transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
-      transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
       response =
-        provider_request("/user.list_balances", %{
-          address: user_balance.address
+        provider_request("/user.list_wallets", %{
+          address: user_wallet.address
         })
 
       assert response == %{
@@ -99,9 +99,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
                  "object" => "list",
                  "data" => [
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{user_balance.address}",
-                     "address" => user_balance.address,
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -140,9 +140,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
              }
     end
 
-    test "Get all user balances with an invalid parameter should fail" do
+    test "Get all user wallets with an invalid parameter should fail" do
       request_data = %{some_invalid_param: "some_invalid_value"}
-      response = provider_request("/user.list_balances", request_data)
+      response = provider_request("/user.list_wallets", request_data)
 
       assert response == %{
                "version" => "1",
@@ -156,9 +156,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
              }
     end
 
-    test "Get all user balances with a nil provider_user_id should fail" do
+    test "Get all user wallets with a nil provider_user_id should fail" do
       request_data = %{provider_user_id: nil}
-      response = provider_request("/user.list_balances", request_data)
+      response = provider_request("/user.list_wallets", request_data)
 
       assert response == %{
                "version" => "1",
@@ -172,9 +172,9 @@ defmodule EWalletAPI.V1.ComputedBalanceControllerTest do
              }
     end
 
-    test "Get all user balances with a nil address should fail" do
+    test "Get all user wallets with a nil address should fail" do
       request_data = %{address: nil}
-      response = provider_request("/user.list_balances", request_data)
+      response = provider_request("/user.list_wallets", request_data)
 
       assert response == %{
                "version" => "1",

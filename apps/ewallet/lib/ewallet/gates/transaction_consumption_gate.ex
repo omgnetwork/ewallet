@@ -6,8 +6,8 @@ defmodule EWallet.TransactionConsumptionGate do
 
   It is basically an interface to the EWalletDB.TransactionConsumption schema.
   """
-  alias EWallet.{TransactionGate, TransactionRequestGate, BalanceFetcher, Web.V1.Event}
-  alias EWalletDB.{Repo, Account, MintedToken, User, Balance, TransactionConsumption}
+  alias EWallet.{TransactionGate, TransactionRequestGate, WalletFetcher, Web.V1.Event}
+  alias EWalletDB.{Repo, Account, MintedToken, User, Wallet, TransactionConsumption}
 
   @spec consume(Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
   def consume(
@@ -20,9 +20,9 @@ defmodule EWallet.TransactionConsumptionGate do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
          %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
-         {:ok, balance} <- BalanceFetcher.get(user, address),
-         balance <- Map.put(balance, :account_id, account.id) do
-      consume(balance, attrs)
+         {:ok, wallet} <- WalletFetcher.get(user, address),
+         wallet <- Map.put(wallet, :account_id, account.id) do
+      consume(wallet, attrs)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -36,8 +36,8 @@ defmodule EWallet.TransactionConsumptionGate do
         } = attrs
       ) do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
-         {:ok, balance} <- BalanceFetcher.get(account, address) do
-      consume(balance, attrs)
+         {:ok, wallet} <- WalletFetcher.get(account, address) do
+      consume(wallet, attrs)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -58,8 +58,8 @@ defmodule EWallet.TransactionConsumptionGate do
       ) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
-         {:ok, balance} <- BalanceFetcher.get(user, address) do
-      consume(balance, attrs)
+         {:ok, wallet} <- WalletFetcher.get(user, address) do
+      consume(wallet, attrs)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -77,8 +77,8 @@ defmodule EWallet.TransactionConsumptionGate do
           "address" => address
         } = attrs
       ) do
-    with {:ok, balance} <- BalanceFetcher.get(nil, address) do
-      consume(balance, attrs)
+    with {:ok, wallet} <- WalletFetcher.get(nil, address) do
+      consume(wallet, attrs)
     else
       error when is_atom(error) -> {:error, error}
       error -> error
@@ -94,22 +94,22 @@ defmodule EWallet.TransactionConsumptionGate do
           "address" => address
         } = attrs
       ) do
-    with {:ok, balance} <- BalanceFetcher.get(user, address) do
-      consume(balance, attrs)
+    with {:ok, wallet} <- WalletFetcher.get(user, address) do
+      consume(wallet, attrs)
     else
       error -> error
     end
   end
 
-  @spec consume(Balance.t(), Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
+  @spec consume(Wallet.t(), Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
   def consume(
-        %Balance{} = balance,
+        %Wallet{} = wallet,
         %{
           "transaction_request_id" => _,
           "idempotency_token" => _
         } = attrs
       ) do
-    transaction = Repo.transaction(fn -> do_consume(balance, attrs) end)
+    transaction = Repo.transaction(fn -> do_consume(wallet, attrs) end)
 
     case transaction do
       {:ok, res} -> res
@@ -120,7 +120,7 @@ defmodule EWallet.TransactionConsumptionGate do
   def consume(_, _attrs), do: {:error, :invalid_parameter}
 
   defp do_consume(
-         balance,
+         wallet,
          %{
            "transaction_request_id" => request_id
          } = attrs
@@ -129,9 +129,9 @@ defmodule EWallet.TransactionConsumptionGate do
          {:ok, request} <- TransactionRequestGate.expire_if_past_expiration_date(request),
          {:ok, request} <- TransactionRequestGate.validate_request(request),
          {:ok, amount} <- TransactionRequestGate.validate_amount(request, attrs["amount"]),
-         {:ok, balance} <- validate_max_consumptions_per_user(request, balance),
+         {:ok, wallet} <- validate_max_consumptions_per_user(request, wallet),
          {:ok, minted_token} <- get_and_validate_minted_token(request, attrs["token_id"]),
-         {:ok, consumption} <- insert(balance, minted_token, request, amount, attrs),
+         {:ok, consumption} <- insert(wallet, minted_token, request, amount, attrs),
          {:ok, consumption} <- get(consumption.id) do
       case request.require_confirmation do
         true ->
@@ -149,14 +149,14 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  defp validate_max_consumptions_per_user(request, balance) do
+  defp validate_max_consumptions_per_user(request, wallet) do
     case request.max_consumptions_per_user do
       nil ->
-        {:ok, balance}
+        {:ok, wallet}
 
       max ->
-        case TransactionConsumption.all_active_for_user(balance.user_uuid) do
-          [] -> {:ok, balance}
+        case TransactionConsumption.all_active_for_user(wallet.user_uuid) do
+          [] -> {:ok, wallet}
           _ -> {:error, :max_consumptions_per_user_reached}
         end
     end
@@ -200,7 +200,7 @@ defmodule EWallet.TransactionConsumptionGate do
         preload: [
           :account,
           :user,
-          :balance,
+          :wallet,
           :minted_token,
           :transaction_request,
           :transfer
@@ -250,16 +250,16 @@ defmodule EWallet.TransactionConsumptionGate do
     end
   end
 
-  defp insert(balance, minted_token, request, amount, attrs) do
+  defp insert(wallet, minted_token, request, amount, attrs) do
     TransactionConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
       idempotency_token: attrs["idempotency_token"],
       amount: amount,
-      user_uuid: balance.user_uuid,
-      account_uuid: balance.account_uuid,
+      user_uuid: wallet.user_uuid,
+      account_uuid: wallet.account_uuid,
       minted_token_uuid: minted_token.uuid,
       transaction_request_uuid: request.uuid,
-      balance_address: balance.address,
+      wallet_address: wallet.address,
       expiration_date: TransactionRequestGate.expiration_from_lifetime(request),
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{}
@@ -267,14 +267,14 @@ defmodule EWallet.TransactionConsumptionGate do
   end
 
   defp transfer(consumption, "send") do
-    from = consumption.transaction_request.balance_address
-    to = consumption.balance.address
+    from = consumption.transaction_request.wallet_address
+    to = consumption.wallet.address
     transfer(consumption, from, to)
   end
 
   defp transfer(consumption, "receive") do
-    from = consumption.balance.address
-    to = consumption.transaction_request.balance_address
+    from = consumption.wallet.address
+    to = consumption.transaction_request.wallet_address
     transfer(consumption, from, to)
   end
 

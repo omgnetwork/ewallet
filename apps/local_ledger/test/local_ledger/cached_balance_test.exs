@@ -52,7 +52,7 @@ defmodule LocalLedger.CachedBalanceTest do
   end
 
   describe "cache_all/0" do
-    test "caches all the balances", %{minted_token_1: minted_token_1, wallet: wallet_1} do
+    test "caches all the wallets", %{minted_token_1: minted_token_1, wallet: wallet_1} do
       wallet_2 = insert(:wallet, address: "1232")
 
       # Total: +39_924 OMG

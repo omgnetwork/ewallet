@@ -17,8 +17,7 @@ defmodule EWalletDB.Repo.Migrations.RenameWalletToWallet do
     rename table(:balance), to: table(:wallet)
     Enum.each(tables, fn {table, columns} ->
       Enum.each(columns, fn {old_name, new_name} ->
-        if old_name != new_name, do: rename table(table), old_name, to: new_name
-        drop constraint(table, "#{Atom.to_string(table)}_#{Atom.to_string(old_name)}_fkey")
+        drop_constraint(table, old_name, new_name)
       end)
     end)
 
@@ -42,5 +41,14 @@ defmodule EWalletDB.Repo.Migrations.RenameWalletToWallet do
         end
       end)
     end)
+  end
+
+  def drop_constraint(table, old_name, new_name) when old_name == new_name do
+    drop constraint(table, "#{Atom.to_string(table)}_#{Atom.to_string(old_name)}_fkey")
+  end
+
+  def drop_constraint(table, old_name, new_name) do
+    rename table(table), old_name, to: new_name
+    drop constraint(table, "#{Atom.to_string(table)}_#{Atom.to_string(old_name)}_fkey")
   end
 end

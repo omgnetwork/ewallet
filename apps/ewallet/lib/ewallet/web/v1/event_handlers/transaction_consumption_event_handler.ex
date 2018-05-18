@@ -12,7 +12,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
 
     topics =
       []
-      |> Event.address_topic(Assoc.get(consumption, [:transaction_request, :balance_address]))
+      |> Event.address_topic(Assoc.get(consumption, [:transaction_request, :wallet_address]))
       |> Event.transaction_request_topic(Assoc.get(consumption, [:transaction_request, :id]))
       |> Event.user_topic(Assoc.get(consumption, [:transaction_request, :user, :id]))
       |> Event.account_topic(Assoc.get(consumption, [:transaction_request, :account, :id]))
@@ -38,7 +38,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
 
     topics =
       []
-      |> Event.address_topic(consumption.balance_address)
+      |> Event.address_topic(consumption.wallet_address)
       |> Event.transaction_request_topic(Assoc.get(consumption, [:transaction_request, :id]))
       |> Event.transaction_consumption_topic(consumption.id)
       |> Event.user_topic(Assoc.get(consumption, [:user, :id]))

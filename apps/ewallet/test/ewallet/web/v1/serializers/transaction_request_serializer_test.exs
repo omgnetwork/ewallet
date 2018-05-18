@@ -34,7 +34,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         user: UserSerializer.serialize(transaction_request.user),
         account_id: Assoc.get(transaction_request, [:account, :id]),
         account: AccountSerializer.serialize(transaction_request.account),
-        address: transaction_request.balance_address,
+        address: transaction_request.wallet_address,
         correlation_id: transaction_request.correlation_id,
         status: "valid",
         allow_amount_override: true,

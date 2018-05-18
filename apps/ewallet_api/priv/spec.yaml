@@ -44,7 +44,7 @@ tags:
   - name: User
     description: Resources related to users. A user is an entity uniquely identified by its provider_user_id which is the user id in the provider database.
   - name: Balance
-    description: Resources related to balances of a specific user. Balances are the representation of the amount of each token a user owns.
+    description: Resources related to wallets of a specific user. Balances are the representation of the amount of each token a user owns.
   - name: Setting
     description: Resources related to global settings of the wallet.
   - name: Transaction
@@ -157,12 +157,12 @@ paths:
   ######################################
   #          BALANCE ENDPOINTS         #
   ######################################
-  /user.list_balances:
+  /user.list_wallets:
     post:
       tags:
-        - Balance
-      summary: Server - Get the balances of a user. The provider can call this to get the balances of any user from its id.
-      operationId: user_list_balances
+        - Wallet
+      summary: Server - Get the wallets of a user. The provider can call this to get the wallets of any user from its id.
+      operationId: user_list_wallets
       security:
         - ServerAuth: []
       requestBody:
@@ -172,12 +172,12 @@ paths:
           $ref: "#/components/responses/AddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /me.list_balances:
+  /me.list_wallets:
     post:
       tags:
-        - Balance
-      summary: Client - Get the balances of a specific user. The client can call this to get the balances of the user corresponding to the authentication_token provided.
-      operationId: me_list_balances
+        - Wallet
+      summary: Client - Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.
+      operationId: me_list_wallets
       security:
         - ClientAuth: []
       responses:
@@ -185,12 +185,12 @@ paths:
           $ref: "#/components/responses/AddressesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /user.credit_balance:
+  /user.credit_wallet:
     post:
       tags:
-        - Balance
-      summary: Server - Credit the balance of a user. The provider can call this to credit the balance of an existing user corresponding to the provider_user_id provided.
-      operationId: user_credit_balance
+        - Wallet
+      summary: Server - Credit the wallet of a user. The provider can call this to credit the wallet of an existing user corresponding to the provider_user_id provided.
+      operationId: user_credit_wallet
       security:
         - ServerAuth: []
       parameters:
@@ -199,15 +199,15 @@ paths:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
         '200':
-          $ref: "#/components/responses/SingleAddressesResponse"
+          $ref: "#/components/responses/SingleWalletsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /user.debit_balance:
+  /user.debit_wallet:
     post:
       tags:
-        - Balance
-      summary: Server - Debit the balance of a user. The provider can call this to debit the balance of an existing user corresponding to the provider_user_id provided.
-      operationId: user_debit_balance
+        - Wallet
+      summary: Server - Debit the wallet of a user. The provider can call this to debit the wallet of an existing user corresponding to the provider_user_id provided.
+      operationId: user_debit_wallet
       security:
         - ServerAuth: []
       parameters:
@@ -216,14 +216,14 @@ paths:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
         '200':
-          $ref: "#/components/responses/SingleAddressesResponse"
+          $ref: "#/components/responses/SingleWalletsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   /transfer:
     post:
       tags:
-        - Balance
-      summary: Server - Transfer the specified amount between two balances.
+        - Wallet
+      summary: Server - Transfer the specified amount between two wallets.
       operationId: transfer
       security:
         - ServerAuth: []
@@ -233,7 +233,7 @@ paths:
         $ref: '#/components/requestBodies/TransferBody'
       responses:
         '200':
-          $ref: "#/components/responses/MultipleAddressesResponse"
+          $ref: "#/components/responses/MultipleWalletsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -701,7 +701,7 @@ components:
     #            BALANCE SCHEMAS         #
     ######################################
     BalanceSchema:
-      description: "The object schema for a balance"
+      description: "The object schema for a wallet"
       type: object
       properties:
         object:
@@ -717,7 +717,7 @@ components:
         - address
         - amount
       example:
-        object: "balance"
+        object: "wallet"
         minted_token:
           object: 'minted_token'
           id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
@@ -746,27 +746,27 @@ components:
               name: "Bitcoin"
               subunit_to_unit: 100000000000000000
             amount: 100
-    AddressResponse:
-      description: "The object schema for an address"
+    WalletResponse:
+      description: "The object schema for a wallet"
       type: object
       properties:
         object:
           type: string
-        balances:
+        wallets:
           type: array
           $ref: '#/components/schemas/BalanceSchema'
         address:
           type: string
       required:
-        - balances
+        - wallets
         - address
       example:
         data:
-          object: "address"
-          balances: []
+          object: "wallet"
+          wallets: []
           address: "XXXXXXXXXXXXXXXXXXXXX"
-    SingleAddressesResponse:
-      description: "The response schema for a list with a single address"
+    SingleWalletsResponse:
+      description: "The response schema for a list with a single wallet"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -780,10 +780,10 @@ components:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/AddressResponse'
+                      $ref: '#/components/schemas/WalletResponse'
         required:
           - object
-          - balances
+          - wallets
           - address
         example:
           data:
@@ -791,7 +791,7 @@ components:
             data:
             - object: "address"
               address: "XXX123"
-              balances:
+              wallets:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
@@ -799,7 +799,7 @@ components:
                   symbol: "BTC"
                   name: "Bitcoin"
                   subunit_to_unit: 100000000000000000
-    MultipleAddressesResponse:
+    MultipleWalletsResponse:
       description: "The response schema for a list of multiple addresses (i.e. transfers)"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
@@ -814,10 +814,10 @@ components:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/AddressResponse'
+                      $ref: '#/components/schemas/WalletResponse'
         required:
           - object
-          - balances
+          - wallets
           - address
         example:
           data:
@@ -825,7 +825,7 @@ components:
             data:
             - object: "address"
               address: "XXX123"
-              balances:
+              wallets:
               - amount: 0
                 minted_token:
                   object: 'minted_token'
@@ -835,7 +835,7 @@ components:
                   subunit_to_unit: 100000000000000000
             - object: "address"
               address: "XXX456"
-              balances:
+              wallets:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
@@ -858,10 +858,10 @@ components:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/AddressResponse'
+                      $ref: '#/components/schemas/WalletResponse'
         required:
           - object
-          - balances
+          - wallets
           - address
         example:
           data:
@@ -869,7 +869,7 @@ components:
             data:
             - object: "address"
               address: "XXX123"
-              balances:
+              wallets:
               - amount: 100
                 minted_token:
                   object: 'minted_token'
@@ -886,7 +886,7 @@ components:
                   subunit_to_unit: 100000000000000000
             - object: "address"
               address: "XXX456"
-              balances: []
+              wallets: []
 
     ######################################
     #         MINTED TOKEN SCHEMAS       #
@@ -1937,18 +1937,18 @@ components:
     ######################################
     #          BALANCE RESPONSES         #
     ######################################
-    SingleAddressesResponse:
+    SingleWalletsResponse:
       description: "Returns a list of single addresses"
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/SingleAddressesResponse'
-    MultipleAddressesResponse:
+            $ref: '#/components/schemas/SingleWalletsResponse'
+    MultipleWalletsResponse:
       description: "Returns a list of multiple addresses"
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/MultipleAddressesResponse'
+            $ref: '#/components/schemas/MultipleWalletsResponse'
     AddressesResponse:
       description: "Returns a list of addresses"
       content:

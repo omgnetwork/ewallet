@@ -6,7 +6,7 @@ The eWallet is an umbrella Elixir application containing the following sub-appli
 
   - [admin_api](/apps/admin_api): Sub-application acting as a gateway to the World Wide Web through HTTP-RPC endpoints. These endpoints are used to __manage__ the system. Check the [Swagger spec](/apps/admin_api/swagger-doc.yaml) for more details.
 
-  - [admin_panel](/apps/admin_panel): Sub-application containing the front-end that allows provider admins, such as staff at the headquarter, to perform system-wide actions such as managing tokens, accounts, API keys, users, and balances.
+  - [admin_panel](/apps/admin_panel): Sub-application containing the front-end that allows provider admins, such as staff at the headquarter, to perform system-wide actions such as managing tokens, accounts, API keys, users, and wallets.
 
   - [ewallet](/apps/ewallet): Sub-application containing the business logic (minting process, transfer of value, etc.).
 

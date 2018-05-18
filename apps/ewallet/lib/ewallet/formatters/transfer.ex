@@ -12,16 +12,16 @@ defmodule EWallet.TransferFormatter do
       },
       "debits" => [
         %{
-          "address" => transfer.from_balance.address,
+          "address" => transfer.from_wallet.address,
           "amount" => transfer.amount,
-          "metadata" => transfer.from_balance.metadata
+          "metadata" => transfer.from_wallet.metadata
         }
       ],
       "credits" => [
         %{
-          "address" => transfer.to_balance.address,
+          "address" => transfer.to_wallet.address,
           "amount" => transfer.amount,
-          "metadata" => transfer.to_balance.metadata
+          "metadata" => transfer.to_wallet.metadata
         }
       ]
     }

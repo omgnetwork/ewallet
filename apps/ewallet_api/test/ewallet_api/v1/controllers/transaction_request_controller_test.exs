@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "creates a transaction request with all the params" do
       user = get_test_user()
       minted_token = insert(:minted_token)
-      balance = User.get_primary_balance(user)
+      wallet = User.get_primary_wallet(user)
 
       response =
         provider_request("/transaction_request.create", %{
@@ -15,7 +15,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: minted_token.id,
           correlation_id: "123",
           amount: 1_000,
-          address: balance.address
+          address: wallet.address
         })
 
       request = TransactionRequest |> Repo.all() |> Enum.at(0)
@@ -26,7 +26,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "data" => %{
                  "object" => "transaction_request",
                  "amount" => 1_000,
-                 "address" => balance.address,
+                 "address" => wallet.address,
                  "correlation_id" => "123",
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
@@ -59,7 +59,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "creates a transaction request with the minimum params" do
       user = get_test_user()
       minted_token = insert(:minted_token)
-      balance = User.get_primary_balance(user)
+      wallet = User.get_primary_wallet(user)
 
       response =
         provider_request("/transaction_request.create", %{
@@ -67,7 +67,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: minted_token.id,
           correlation_id: nil,
           amount: nil,
-          address: balance.address
+          address: wallet.address
         })
 
       request = TransactionRequest |> Repo.all() |> Enum.at(0)
@@ -78,7 +78,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "data" => %{
                  "object" => "transaction_request",
                  "amount" => nil,
-                 "address" => balance.address,
+                 "address" => wallet.address,
                  "correlation_id" => nil,
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
@@ -111,7 +111,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "receives an error when the type is invalid" do
       minted_token = insert(:minted_token)
       user = get_test_user()
-      balance = User.get_primary_balance(user)
+      wallet = User.get_primary_wallet(user)
 
       response =
         provider_request("/transaction_request.create", %{
@@ -119,7 +119,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: minted_token.id,
           correlation_id: nil,
           amount: nil,
-          address: balance.address
+          address: wallet.address
         })
 
       assert response == %{
@@ -150,8 +150,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "user:balance_not_found",
-                 "description" => "There is no balance corresponding to the provided address",
+                 "code" => "user:wallet_not_found",
+                 "description" => "There is no wallet corresponding to the provided address",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -161,7 +161,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "receives an error when the address does not belong to the user" do
       account = Account.get_master_account()
       minted_token = insert(:minted_token)
-      balance = insert(:balance)
+      wallet = insert(:wallet)
 
       response =
         provider_request("/transaction_request.create", %{
@@ -170,15 +170,15 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           correlation_id: nil,
           amount: nil,
           account_id: account.id,
-          address: balance.address
+          address: wallet.address
         })
 
       assert response == %{
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "account:account_balance_mismatch",
-                 "description" => "The provided balance does not belong to the given account",
+                 "code" => "account:account_wallet_mismatch",
+                 "description" => "The provided wallet does not belong to the given account",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -186,7 +186,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     end
 
     test "receives an error when the token ID is not found" do
-      balance = insert(:balance)
+      wallet = insert(:wallet)
 
       response =
         provider_request("/transaction_request.create", %{
@@ -194,7 +194,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: "123",
           correlation_id: nil,
           amount: nil,
-          address: balance.address
+          address: wallet.address
         })
 
       assert response == %{
@@ -214,7 +214,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "creates a transaction request with all the params" do
       user = get_test_user()
       minted_token = insert(:minted_token)
-      balance = User.get_primary_balance(user)
+      wallet = User.get_primary_wallet(user)
 
       response =
         client_request("/me.create_transaction_request", %{
@@ -222,7 +222,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: minted_token.id,
           correlation_id: "123",
           amount: 1_000,
-          address: balance.address,
+          address: wallet.address,
           max_consumptions: 3,
           max_consumptions_per_user: 1
         })
@@ -235,7 +235,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "data" => %{
                  "object" => "transaction_request",
                  "amount" => 1_000,
-                 "address" => balance.address,
+                 "address" => wallet.address,
                  "correlation_id" => "123",
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
@@ -268,7 +268,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "creates a transaction request with the minimum params" do
       user = get_test_user()
       minted_token = insert(:minted_token)
-      balance = User.get_primary_balance(user)
+      wallet = User.get_primary_wallet(user)
 
       response =
         client_request("/me.create_transaction_request", %{
@@ -287,7 +287,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "data" => %{
                  "object" => "transaction_request",
                  "amount" => nil,
-                 "address" => balance.address,
+                 "address" => wallet.address,
                  "correlation_id" => nil,
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
@@ -357,8 +357,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "user:balance_not_found",
-                 "description" => "There is no balance corresponding to the provided address",
+                 "code" => "user:wallet_not_found",
+                 "description" => "There is no wallet corresponding to the provided address",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -367,7 +367,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
     test "receives an error when the address does not belong to the user" do
       minted_token = insert(:minted_token)
-      balance = insert(:balance)
+      wallet = insert(:wallet)
 
       response =
         client_request("/me.create_transaction_request", %{
@@ -375,15 +375,15 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: minted_token.id,
           correlation_id: nil,
           amount: nil,
-          address: balance.address
+          address: wallet.address
         })
 
       assert response == %{
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "user:user_balance_mismatch",
-                 "description" => "The provided balance does not belong to the current user",
+                 "code" => "user:user_wallet_mismatch",
+                 "description" => "The provided wallet does not belong to the current user",
                  "messages" => nil,
                  "object" => "error"
                }

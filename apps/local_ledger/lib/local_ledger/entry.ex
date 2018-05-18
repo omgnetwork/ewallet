@@ -111,7 +111,7 @@ defmodule LocalLedger.Entry do
       {:error, :same_address, e.message}
   end
 
-  # Lock all the DEBIT addresses to ensure the truthness of the balances
+  # Lock all the DEBIT addresses to ensure the truthness of the wallets
   # amounts, before inserting one entry and the associated transactions.
   # If the genesis argument is passed as true, the balance check will be
   # skipped.

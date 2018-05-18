@@ -86,7 +86,7 @@ defmodule LocalLedgerDB.Transaction do
   end
 
   @doc """
-  Calculate the total balances for all the specified minted tokens associated
+  Calculate the total wallets for all the specified minted tokens associated
   with the given address.
   """
   def calculate_all_balances(address, options \\ %{}) do
@@ -103,7 +103,7 @@ defmodule LocalLedgerDB.Transaction do
     end)
   end
 
-  defp format(balances), do: Enum.into(balances, %{})
+  defp format(wallets), do: Enum.into(wallets, %{})
 
   defp sum(address, type, options) do
     address

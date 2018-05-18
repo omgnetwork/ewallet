@@ -5,7 +5,7 @@ defmodule EWallet.MintGate do
   examples on how to add value to a minted token.
   """
   alias EWallet.TransferGate
-  alias EWalletDB.{Repo, Account, Mint, Balance, Transfer, MintedToken}
+  alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, MintedToken}
   alias Ecto.Multi
 
   @doc """
@@ -60,8 +60,8 @@ defmodule EWallet.MintGate do
       |> Multi.run(:transfer, fn _ ->
         TransferGate.get_or_insert(%{
           idempotency_token: idempotency_token,
-          from: Balance.get_genesis().address,
-          to: Account.get_primary_balance(account).address,
+          from: Wallet.get_genesis().address,
+          to: Account.get_primary_wallet(account).address,
           minted_token_id: minted_token.id,
           amount: amount,
           metadata: attrs["metadata"] || %{},

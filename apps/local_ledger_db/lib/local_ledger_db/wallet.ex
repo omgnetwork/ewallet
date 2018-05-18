@@ -1,6 +1,6 @@
 defmodule LocalLedgerDB.Wallet do
   @moduledoc """
-  Ecto Schema representing balances. A balance is made up of a unique address
+  Ecto Schema representing wallets. A balance is made up of a unique address
   and the ID associated with it in eWallet DB.
   """
   use Ecto.Schema
@@ -38,7 +38,7 @@ defmodule LocalLedgerDB.Wallet do
   end
 
   @doc """
-  Batch load balances and run the callback for each balance.
+  Batch load wallets and run the callback for each balance.
   """
   def stream_all(callback) do
     Repo
@@ -47,7 +47,7 @@ defmodule LocalLedgerDB.Wallet do
   end
 
   @doc """
-  Update the updated_at field for all balances matching the given addresses.
+  Update the updated_at field for all wallets matching the given addresses.
   """
   def touch(addresses) do
     updated_at =
@@ -61,7 +61,7 @@ defmodule LocalLedgerDB.Wallet do
   end
 
   @doc """
-  Use a FOR UPDATE lock on the balance records for which the current balances
+  Use a FOR UPDATE lock on the balance records for which the current wallets
   will be calculated.
   """
   def lock(addresses) do

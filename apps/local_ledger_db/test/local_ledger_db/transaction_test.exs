@@ -180,7 +180,7 @@ defmodule LocalLedgerDB.TransactionTest do
   end
 
   describe "calculate_all_balances/2" do
-    test "returns the correct balances for each token" do
+    test "returns the correct wallets for each token" do
       {:ok, balance} = :wallet |> build |> Repo.insert()
 
       {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
@@ -194,8 +194,8 @@ defmodule LocalLedgerDB.TransactionTest do
       transfer(balance, btc, 100, Transaction.credit_type())
       transfer(balance, btc, 200, Transaction.credit_type())
 
-      balances = Transaction.calculate_all_balances(balance.address)
-      assert balances == %{"tok_BTC_789" => 300, "tok_KNC_456" => 100, "tok_OMG_123" => 700}
+      wallets = Transaction.calculate_all_balances(balance.address)
+      assert wallets == %{"tok_BTC_789" => 300, "tok_KNC_456" => 100, "tok_OMG_123" => 700}
     end
 
     test "returns the correct balance for the specified token" do
@@ -208,15 +208,15 @@ defmodule LocalLedgerDB.TransactionTest do
       transfer(balance, omg, 500, Transaction.credit_type())
       transfer(balance, knc, 100, Transaction.credit_type())
 
-      balances =
+      wallets =
         Transaction.calculate_all_balances(balance.address, %{
           minted_token_id: "tok_OMG_123"
         })
 
-      assert balances == %{"tok_OMG_123" => 300 + 500 - 100}
+      assert wallets == %{"tok_OMG_123" => 300 + 500 - 100}
     end
 
-    test "calculates all balances since specified date" do
+    test "calculates all wallets since specified date" do
       {:ok, balance} = :wallet |> build |> Repo.insert()
       {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
       {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert()
@@ -229,18 +229,18 @@ defmodule LocalLedgerDB.TransactionTest do
       transactions = Repo.all(Transaction)
       transaction = Enum.at(transactions, 1)
 
-      all_balances = Transaction.calculate_all_balances(balance.address)
+      all_wallets = Transaction.calculate_all_balances(balance.address)
 
-      balances =
+      wallets =
         Transaction.calculate_all_balances(balance.address, %{
           since: transaction.inserted_at
         })
 
-      assert all_balances == %{"tok_KNC_456" => 100, "tok_OMG_123" => 300 + 500 - 100}
-      assert balances == %{"tok_KNC_456" => 100, "tok_OMG_123" => 500}
+      assert all_wallets == %{"tok_KNC_456" => 100, "tok_OMG_123" => 300 + 500 - 100}
+      assert wallets == %{"tok_KNC_456" => 100, "tok_OMG_123" => 500}
     end
 
-    test "calculates all balances up to the specified date" do
+    test "calculates all wallets up to the specified date" do
       {:ok, balance} = :wallet |> build |> Repo.insert()
       {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
       {:ok, knc} = :minted_token |> build(id: "tok_KNC_456") |> Repo.insert()
@@ -253,18 +253,18 @@ defmodule LocalLedgerDB.TransactionTest do
       transactions = Repo.all(Transaction)
       transaction = Enum.at(transactions, 1)
 
-      all_balances = Transaction.calculate_all_balances(balance.address)
+      all_wallets = Transaction.calculate_all_balances(balance.address)
 
-      balances =
+      wallets =
         Transaction.calculate_all_balances(balance.address, %{
           upto: transaction.inserted_at
         })
 
-      assert all_balances == %{"tok_KNC_456" => 100, "tok_OMG_123" => 300 + 500 - 100}
-      assert balances == %{"tok_OMG_123" => 300 - 100}
+      assert all_wallets == %{"tok_KNC_456" => 100, "tok_OMG_123" => 300 + 500 - 100}
+      assert wallets == %{"tok_OMG_123" => 300 - 100}
     end
 
-    test "calculates all balances between the specified 'since' date and 'upto' date" do
+    test "calculates all wallets between the specified 'since' date and 'upto' date" do
       {:ok, balance} = :wallet |> build |> Repo.insert()
       {:ok, omg} = :minted_token |> build(id: "tok_OMG_123") |> Repo.insert()
 
@@ -278,16 +278,16 @@ defmodule LocalLedgerDB.TransactionTest do
       transaction_1 = Enum.at(transactions, 1)
       transaction_2 = Enum.at(transactions, 3)
 
-      all_balances = Transaction.calculate_all_balances(balance.address)
+      all_wallets = Transaction.calculate_all_balances(balance.address)
 
-      balances =
+      wallets =
         Transaction.calculate_all_balances(balance.address, %{
           since: transaction_1.inserted_at,
           upto: transaction_2.inserted_at
         })
 
-      assert all_balances == %{"tok_OMG_123" => 300 + 500 + 100 + 1200 + 250}
-      assert balances == %{"tok_OMG_123" => 100 + 1200}
+      assert all_wallets == %{"tok_OMG_123" => 300 + 500 + 100 + 1200 + 250}
+      assert wallets == %{"tok_OMG_123" => 100 + 1200}
     end
   end
 

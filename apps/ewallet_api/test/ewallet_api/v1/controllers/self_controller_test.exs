@@ -22,22 +22,22 @@ defmodule EWalletAPI.V1.SelfControllerTest do
     end
   end
 
-  describe "/me.list_balances" do
-    test "responds with a list of balances" do
+  describe "/me.list_wallets" do
+    test "responds with a list of wallets" do
       account = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
+      master_wallet = Account.get_primary_wallet(account)
       user = get_test_user()
-      user_balance = User.get_primary_balance(user)
+      user_wallet = User.get_primary_wallet(user)
       btc = insert(:minted_token, %{symbol: "BTC"})
       omg = insert(:minted_token, %{symbol: "OMG"})
 
       mint!(btc)
       mint!(omg)
 
-      transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
-      transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
-      response = client_request("/me.list_balances")
+      response = client_request("/me.list_wallets")
 
       assert response == %{
                "version" => "1",
@@ -46,9 +46,9 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                  "object" => "list",
                  "data" => [
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{user_balance.address}",
-                     "address" => user_balance.address,
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
                      "balances" => [
                        %{
                          "object" => "balance",
