@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.BalanceControllerTest do
+defmodule EWalletAPI.V1.WalletControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{User, MintedToken, Account}
@@ -23,8 +23,6 @@ defmodule EWalletAPI.V1.BalanceControllerTest do
           provider_user_id: user.provider_user_id
         })
 
-      address = User.get_primary_wallet(user).address
-
       assert response == %{
                "version" => "1",
                "success" => true,
@@ -33,8 +31,33 @@ defmodule EWalletAPI.V1.BalanceControllerTest do
                  "data" => [
                    %{
                      "object" => "wallet",
-                     "socket_topic" => "wallet:#{address}",
-                     "address" => address,
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => %{
+                       "avatar" => %{
+                         "large" => nil,
+                         "original" => nil,
+                         "small" => nil,
+                         "thumb" => nil
+                       },
+                       "created_at" => Date.to_iso8601(user.inserted_at),
+                       "email" => nil,
+                       "encrypted_metadata" => %{},
+                       "id" => user.id,
+                       "metadata" => user.metadata,
+                       "object" => "user",
+                       "provider_user_id" => user.provider_user_id,
+                       "socket_topic" => "user:#{user.id}",
+                       "updated_at" => Date.to_iso8601(user.updated_at),
+                       "username" => user.username
+                     },
+                     "user_id" => user.id,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -102,6 +125,31 @@ defmodule EWalletAPI.V1.BalanceControllerTest do
                      "object" => "wallet",
                      "socket_topic" => "wallet:#{user_wallet.address}",
                      "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => %{
+                       "avatar" => %{
+                         "large" => nil,
+                         "original" => nil,
+                         "small" => nil,
+                         "thumb" => nil
+                       },
+                       "created_at" => Date.to_iso8601(user.inserted_at),
+                       "email" => nil,
+                       "encrypted_metadata" => %{},
+                       "id" => user.id,
+                       "metadata" => user.metadata,
+                       "object" => "user",
+                       "provider_user_id" => user.provider_user_id,
+                       "socket_topic" => "user:#{user.id}",
+                       "updated_at" => Date.to_iso8601(user.updated_at),
+                       "username" => user.username
+                     },
+                     "user_id" => user.id,
                      "balances" => [
                        %{
                          "object" => "balance",

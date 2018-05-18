@@ -51,7 +51,7 @@ defmodule EWallet.BalanceFetcherTest do
       transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
-      {status, wallet} = BalanceFetcher.get(omg.id, user_wallet.address)
+      {status, wallet} = BalanceFetcher.get(omg.id, user_wallet)
       assert status == :ok
       assert wallet.address == User.get_primary_wallet(user).address
 
