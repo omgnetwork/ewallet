@@ -6,7 +6,7 @@ defmodule EWallet.TransactionRequestGate do
 
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
-  alias EWallet.WalletFetcher, TransactionRequestFetcher
+  alias EWallet.{WalletFetcher, TransactionRequestFetcher}
   alias EWalletDB.{TransactionRequest, User, Wallet, MintedToken, Account}
 
   @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
@@ -21,9 +21,9 @@ defmodule EWallet.TransactionRequestGate do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
          %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
-         {:ok, balance} <- WalletFetcher.get(user, address),
-         balance <- Map.put(balance, :account_uuid, account.uuid),
-         {:ok, transaction_request} <- create(balance, attrs) do
+         {:ok, wallet} <- WalletFetcher.get(user, address),
+         wallet <- Map.put(wallet, :account_uuid, account.uuid),
+         {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -38,8 +38,8 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
-         {:ok, balance} <- WalletFetcher.get(account, address),
-         {:ok, transaction_request} <- create(balance, attrs) do
+         {:ok, wallet} <- WalletFetcher.get(account, address),
+         {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -61,8 +61,8 @@ defmodule EWallet.TransactionRequestGate do
       ) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
-         {:ok, balance} <- WalletFetcher.get(user, address),
-         {:ok, transaction_request} <- create(balance, attrs) do
+         {:ok, wallet} <- WalletFetcher.get(user, address),
+         {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -81,8 +81,8 @@ defmodule EWallet.TransactionRequestGate do
           "address" => address
         } = attrs
       ) do
-    with {:ok, balance} <- WalletFetcher.get(nil, address),
-         {:ok, transaction_request} <- create(balance, attrs) do
+    with {:ok, wallet} <- WalletFetcher.get(nil, address),
+         {:ok, transaction_request} <- create(wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -117,7 +117,7 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %MintedToken{} = minted_token <- MintedToken.get(token_id) || :minted_token_not_found,
-         {:ok, transaction_request} <- insert(minted_token, balance, attrs) do
+         {:ok, transaction_request} <- insert(minted_token, wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -146,7 +146,7 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  defp insert(minted_token, balance, attrs) do
+  defp insert(minted_token, wallet, attrs) do
     require_confirmation =
       if(
         is_nil(attrs["require_confirmation"]),

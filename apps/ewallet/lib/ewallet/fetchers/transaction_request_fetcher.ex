@@ -11,7 +11,7 @@ defmodule EWallet.TransactionRequestFetcher do
   @spec get(UUID.t()) :: {:ok, TransactionRequest.t()} | {:error, :transaction_request_not_found}
   def get(id) do
     id
-    |> TransactionRequest.get(preload: [:minted_token, :user, :balance])
+    |> TransactionRequest.get(preload: [:minted_token, :user, :wallet])
     |> handle_request_existence()
   end
 

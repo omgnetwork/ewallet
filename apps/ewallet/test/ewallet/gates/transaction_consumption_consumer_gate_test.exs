@@ -203,7 +203,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           type: "receive",
           minted_token_uuid: meta.minted_token.uuid,
           user_uuid: meta.receiver.uuid,
-          balance: meta.receiver_balance,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.minted_token.subunit_to_unit,
           max_consumptions_per_user: 1
         )
@@ -406,7 +406,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
   describe "consume/2 with user" do
     test "consumes the receive request and transfer the appropriate amount of token with min
     params (and is idempotent)", meta do
-      initialize_balance(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
@@ -423,7 +423,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert %TransactionConsumption{} = consumption
       assert consumption.transaction_request_uuid == meta.request.uuid
       assert consumption.amount == meta.request.amount
-      assert consumption.balance_address == meta.sender_balance.address
+      assert consumption.wallet_address == meta.sender_wallet.address
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
@@ -450,7 +450,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           type: "receive",
           minted_token_uuid: meta.minted_token.uuid,
           account_uuid: meta.account.uuid,
-          balance: meta.account_balance,
+          wallet: meta.account_wallet,
           amount: 100_000 * meta.minted_token.subunit_to_unit
         )
 
@@ -562,7 +562,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
     test "works with reached max_consumptions_per_user is reached but
           same idempotent token is provided", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       request =
         insert(
@@ -570,7 +570,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           type: "receive",
           minted_token_uuid: meta.minted_token.uuid,
           user_uuid: meta.receiver.uuid,
-          balance: meta.receiver_balance,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.minted_token.subunit_to_unit,
           max_consumptions_per_user: 1
         )
@@ -607,7 +607,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
     test "returns a 'max_consumptions_per_user_reached' error if the maximum number of
           consumptions has been reached for the current user", meta do
-      initialize_balance(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       request =
         insert(
@@ -615,7 +615,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           type: "receive",
           minted_token_uuid: meta.minted_token.uuid,
           user_uuid: meta.receiver.uuid,
-          balance: meta.receiver_balance,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.minted_token.subunit_to_unit,
           max_consumptions_per_user: 1
         )
@@ -758,7 +758,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
     test "works and returns the previous consumption with max_consumptions and
          same idempotency_token", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
 
       {res, consumption} =
@@ -1009,7 +1009,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
     test "returns a pending request with no transfer is the request requires confirmation
          (and is idempotent)", meta do
-      initialize_balance(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       {:ok, request} =
         TransactionRequest.update(meta.request, %{
@@ -1021,7 +1021,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "transaction_request_id" => request.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "address" => meta.sender_balance.address,
+          "address" => meta.sender_wallet.address,
           "metadata" => %{},
           "idempotency_token" => "123",
           "token_id" => nil

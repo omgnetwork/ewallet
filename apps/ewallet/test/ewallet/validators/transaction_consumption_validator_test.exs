@@ -10,30 +10,30 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       request =
         insert(:transaction_request, expiration_date: NaiveDateTime.add(now, -60, :seconds))
 
-      balance = request.balance
+      wallet = request.wallet
 
       {:error, error} =
-        TransactionConsumptionValidator.validate_before_consumption(request, balance, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
 
       assert error == :expired_transaction_request
     end
 
     test "returns expiration reason if transaction request has expired" do
       {:ok, request} = :transaction_request |> insert() |> TransactionRequest.expire()
-      balance = request.balance
+      wallet = request.wallet
 
       {:error, error} =
-        TransactionConsumptionValidator.validate_before_consumption(request, balance, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
 
       assert error == :expired_transaction_request
     end
 
     test "returns unauthorized_amount_override amount when attempting to override illegally" do
       request = insert(:transaction_request, allow_amount_override: false)
-      balance = request.balance
+      wallet = request.wallet
 
       {:error, error} =
-        TransactionConsumptionValidator.validate_before_consumption(request, balance, %{
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{
           "amount" => 100
         })
 
@@ -42,10 +42,10 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
     test "returns the request, token and amount" do
       request = insert(:transaction_request)
-      balance = request.balance
+      wallet = request.wallet
 
       {:ok, request, token, amount} =
-        TransactionConsumptionValidator.validate_before_consumption(request, balance, %{})
+        TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
 
       assert request.status == "valid"
       assert token.uuid == request.minted_token_uuid
@@ -129,7 +129,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
-      balance = User.get_primary_balance(user_2)
+      wallet = User.get_primary_wallet(user_2)
 
       request =
         insert(
@@ -144,7 +144,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
         |> insert(
           account_uuid: nil,
           user_uuid: user_2.uuid,
-          balance_address: balance.address,
+          wallet_address: wallet.address,
           transaction_request_uuid: request.uuid,
           status: "confirmed"
         )
@@ -153,11 +153,11 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
         :transaction_consumption
         |> insert(
           account_uuid: nil,
-          balance_address: balance.address,
+          wallet_address: wallet.address,
           user_uuid: user_2.uuid,
           transaction_request_uuid: request.uuid
         )
-        |> Repo.preload([:transaction_request, :balance])
+        |> Repo.preload([:transaction_request, :wallet])
 
       {status, res} =
         TransactionConsumptionValidator.validate_before_confirmation(consumption, user_1)
@@ -265,49 +265,49 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   end
 
   describe "validate_max_consumptions_per_user/2" do
-    test "returns the balance if max_consumptions_per_user is not set" do
+    test "returns the wallet if max_consumptions_per_user is not set" do
       request = insert(:transaction_request)
-      balance = insert(:balance)
+      wallet = insert(:wallet)
 
       {status, res} =
-        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, balance)
+        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, wallet)
 
       assert status == :ok
-      assert res == balance
+      assert res == wallet
     end
 
-    test "returns the balance if the request is for an account" do
+    test "returns the wallet if the request is for an account" do
       {:ok, account} = :account |> params_for() |> Account.insert()
-      balance = Account.get_primary_balance(account)
+      wallet = Account.get_primary_wallet(account)
       request = insert(:transaction_request, max_consumptions_per_user: 0)
 
       {status, res} =
-        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, balance)
+        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, wallet)
 
       assert status == :ok
-      assert res == balance
+      assert res == wallet
     end
 
-    test "returns the balance if the current number of active consumptions is lower
+    test "returns the wallet if the current number of active consumptions is lower
           than the max_consumptions_per_user" do
       {:ok, user} = :user |> params_for() |> User.insert()
-      balance = User.get_primary_balance(user)
+      wallet = User.get_primary_wallet(user)
       request = insert(:transaction_request, max_consumptions_per_user: 1)
 
       {status, res} =
-        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, balance)
+        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, wallet)
 
       assert status == :ok
-      assert res == balance
+      assert res == wallet
     end
 
     test "returns max_consumptions_per_user_reached when it has been reached" do
       {:ok, user} = :user |> params_for() |> User.insert()
-      balance = User.get_primary_balance(user)
+      wallet = User.get_primary_wallet(user)
       request = insert(:transaction_request, max_consumptions_per_user: 0)
 
       {status, res} =
-        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, balance)
+        TransactionConsumptionValidator.validate_max_consumptions_per_user(request, wallet)
 
       assert status == :error
       assert res == :max_consumptions_per_user_reached

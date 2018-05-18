@@ -117,7 +117,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
           type: "receive",
           minted_token_uuid: meta.minted_token.uuid,
           user_uuid: meta.alice.uuid,
-          balance: meta.alice_balance,
+          wallet: meta.alice_wallet,
           amount: 100_000 * meta.minted_token.subunit_to_unit
         )
 
@@ -143,15 +143,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "messages" => nil,
                  "code" => "transaction:insufficient_funds",
                  "description" =>
-                   "The specified balance (#{meta.account_balance.address}) does not contain enough funds. Available: 0.0 #{
+                   "The specified wallet (#{meta.account_wallet.address}) does not contain enough funds. Available: 0.0 #{
                      meta.minted_token.id
                    } - Attempted debit: 100000.0 #{meta.minted_token.id}"
                }
              }
 
       assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
-      assert inserted_transfer.to == meta.alice_balance.address
-      assert inserted_transfer.from == meta.account_balance.address
+      assert inserted_transfer.to == meta.alice_wallet.address
+      assert inserted_transfer.from == meta.account_wallet.address
       assert %{} = inserted_transfer.ledger_response
     end
 
@@ -450,7 +450,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
     test "sends a websocket expiration event when a consumption expires", meta do
       # bob = test_user
       set_initial_balance(%{
-        address: meta.bob_balance.address,
+        address: meta.bob_wallet.address,
         minted_token: meta.minted_token,
         amount: 1_000_000 * meta.minted_token.subunit_to_unit
       })
@@ -462,7 +462,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
           type: "send",
           minted_token_uuid: meta.minted_token.uuid,
           user_uuid: meta.bob.uuid,
-          balance: meta.bob_balance,
+          wallet: meta.bob_wallet,
           amount: nil,
           require_confirmation: true,
 
@@ -484,7 +484,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
           amount: 100_000 * meta.minted_token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
-          address: meta.alice_balance.address
+          address: meta.alice_wallet.address
         })
 
       consumption_id = response["data"]["id"]
