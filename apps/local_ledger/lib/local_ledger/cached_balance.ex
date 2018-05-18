@@ -1,10 +1,10 @@
 defmodule LocalLedger.CachedBalance do
   @moduledoc """
-  This module is an interface to the LocalLedgerDB Balance schema. It is responsible for caching
+  This module is an interface to the LocalLedgerDB Wallet schema. It is responsible for caching
   balances and serves as an interface to retrieve the current balances (which will either be
   loaded from a cached balance or computed - or both).
   """
-  alias LocalLedgerDB.{Balance, CachedBalance, Transaction}
+  alias LocalLedgerDB.{Wallet, CachedBalance, Transaction}
 
   @doc """
   Cache all the balances using a batch stream mechanism for retrieval (1000 at a time). This
@@ -12,7 +12,7 @@ defmodule LocalLedger.CachedBalance do
   """
   @spec cache_all() :: {}
   def cache_all do
-    Balance.stream_all(fn balance ->
+    Wallet.stream_all(fn balance ->
       {:ok, calculate_with_strategy(balance)}
     end)
   end

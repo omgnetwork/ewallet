@@ -7,7 +7,7 @@ defmodule LocalLedger.Entry do
 
   alias LocalLedger.{
     Transaction,
-    Balance,
+    Wallet,
     Errors.InvalidAmountError,
     Errors.AmountIsZeroError,
     Errors.SameAddressError
@@ -118,7 +118,7 @@ defmodule LocalLedger.Entry do
   defp locked_insert(transactions, metadata, correlation_id, genesis, callback) do
     addresses = Transaction.get_addresses(transactions)
 
-    Balance.lock(addresses, fn ->
+    Wallet.lock(addresses, fn ->
       if callback, do: callback.()
 
       Transaction.check_balance(transactions, %{genesis: genesis})

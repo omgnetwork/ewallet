@@ -3,7 +3,7 @@ defmodule LocalLedger.Transaction do
   This module is responsible for preparing and formatting the transactions
   before they are passed to an entry to be inserted in the database.
   """
-  alias LocalLedgerDB.{Balance, MintedToken, Transaction}
+  alias LocalLedgerDB.{Wallet, MintedToken, Transaction}
 
   @doc """
   Get or insert the given minted token and all the given addresses before
@@ -28,16 +28,16 @@ defmodule LocalLedger.Transaction do
     |> Enum.map(fn transaction -> transaction[:wallet_address] end)
   end
 
-  # Build a list of balance maps with the required details for DB insert.
-  defp format(minted_token, balances, type) do
-    Enum.map(balances, fn attrs ->
-      {:ok, balance} = Balance.get_or_insert(attrs)
+  # Build a list of wallet maps with the required details for DB insert.
+  defp format(minted_token, wallets, type) do
+    Enum.map(wallets, fn attrs ->
+      {:ok, wallet} = Wallet.get_or_insert(attrs)
 
       %{
         type: type,
         amount: attrs["amount"],
         minted_token_id: minted_token.id,
-        wallet_address: balance.address
+        wallet_address: wallet.address
       }
     end)
   end
@@ -50,14 +50,14 @@ defmodule LocalLedger.Transaction do
   end
 
   @doc """
-  Match when genesis is false and run the balance check.
+  Match when genesis is false and run the wallet check.
   """
   def check_balance(transactions, %{genesis: _}) do
     check_balance(transactions)
   end
 
   @doc """
-  Check the current balance amount for each DEBIT transaction.
+  Check the current wallet amount for each DEBIT transaction.
   """
   def check_balance(transactions) do
     Enum.each(transactions, fn transaction ->

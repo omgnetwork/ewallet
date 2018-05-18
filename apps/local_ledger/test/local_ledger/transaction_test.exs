@@ -127,7 +127,7 @@ defmodule LocalLedger.TransactionTest do
       ]
 
       assert_raise InsufficientFundsError, fn ->
-        Transaction.check_wallet(transactions)
+        Transaction.check_balance(transactions)
       end
     end
 
@@ -155,7 +155,7 @@ defmodule LocalLedger.TransactionTest do
         }
       ]
 
-      res = Transaction.check_wallet(transactions)
+      res = Transaction.check_balance(transactions)
       assert res == :ok
     end
   end
