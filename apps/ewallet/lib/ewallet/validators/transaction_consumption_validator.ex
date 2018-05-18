@@ -20,7 +20,7 @@ defmodule EWallet.TransactionConsumptionValidator do
       {:ok, request, token, amount}
     else
       error when is_binary(error) ->
-        {:error, String.to_existing_atom(request.expiration_reason)}
+        {:error, String.to_existing_atom(error)}
 
       error when is_atom(error) ->
         {:error, error}
@@ -37,12 +37,10 @@ defmodule EWallet.TransactionConsumptionValidator do
     with {request, balance} <- {consumption.transaction_request, consumption.balance},
          true <-
            TransactionRequest.is_owned_by?(request, owner) || :not_transaction_request_owner,
-         true <-
-           TransactionRequest.is_owned_by?(request, owner) || :not_transaction_request_owner,
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
+         {:ok, _balance} <- validate_max_consumptions_per_user(request, balance),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
-         {:ok, consumption} = TransactionConsumption.expire_if_past_expiration_date(consumption),
-         {:ok, _balance} <- validate_max_consumptions_per_user(request, balance) do
+         {:ok, consumption} = TransactionConsumption.expire_if_past_expiration_date(consumption) do
       case TransactionConsumption.expired?(consumption) do
         false ->
           {:ok, consumption}
@@ -65,7 +63,7 @@ defmodule EWallet.TransactionConsumptionValidator do
 
   @spec validate_amount(TransactionRequest.t(), Integer.t()) ::
           {:ok, TransactionRequest.t()} | {:error, :unauthorized_amount_override}
-  defp validate_amount(request, amount) do
+  def validate_amount(request, amount) do
     case request.allow_amount_override do
       true ->
         {:ok, amount || request.amount}
@@ -78,29 +76,10 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  # defp get_and_validate_minted_token(request, nil) do
-  #   request = request |> Repo.preload(:minted_token)
-  #   {:ok, request.minted_token}
-  # end
-  #
-  # defp get_and_validate_minted_token(request, token_id) do
-  #   case MintedToken.get(token_id) do
-  #     nil -> {:error, :minted_token_not_found}
-  #     minted_token -> validate_minted_token(request, minted_token)
-  #   end
-  # end
-  #
-  # defp validate_minted_token(request, minted_token) do
-  #   case request.minted_token_uuid == minted_token.uuid do
-  #     true -> {:ok, minted_token}
-  #     false -> {:error, :invalid_minted_token_provided}
-  #   end
-  # end
-
   @spec get_and_validate_minted_token(TransactionRequest.t(), UUID.t()) ::
           {:ok, MintedToken.t()}
           | {:error, Atom.t()}
-  defp get_and_validate_minted_token(request, token_id) do
+  def get_and_validate_minted_token(request, token_id) do
     with request <- request |> Repo.preload(:minted_token),
          true <- !is_nil(token_id) || {:ok, request.minted_token},
          %MintedToken{} = token <- MintedToken.get(token_id) || :minted_token_not_found,
@@ -115,7 +94,7 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  defp validate_max_consumptions_per_user(request, balance) do
+  def validate_max_consumptions_per_user(request, balance) do
     with max <- request.max_consumptions_per_user,
          # max has a value
          false <- is_nil(max),

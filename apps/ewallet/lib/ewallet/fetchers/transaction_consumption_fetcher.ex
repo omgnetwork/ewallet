@@ -15,11 +15,11 @@ defmodule EWallet.TransactionConsumptionFetcher do
   def get(id) do
     %{id: id}
     |> get_by()
-    |> handle_consumption_existence()
+    |> return_consumption()
   end
 
-  defp handle_consumption_existence(nil), do: {:error, :transaction_consumption_not_found}
-  defp handle_consumption_existence(consumption), do: {:ok, consumption}
+  defp return_consumption(nil), do: {:error, :transaction_consumption_not_found}
+  defp return_consumption(consumption), do: {:ok, consumption}
 
   @spec idempotent_fetch(String.t()) ::
           {:ok, TransactionConsumption.t()}
@@ -29,7 +29,7 @@ defmodule EWallet.TransactionConsumptionFetcher do
   def idempotent_fetch(idempotency_token) do
     %{idempotency_token: idempotency_token}
     |> get_by()
-    |> handle_existing_consumption()
+    |> return_idempotent()
   end
 
   defp get_by(attrs) do
@@ -46,22 +46,22 @@ defmodule EWallet.TransactionConsumptionFetcher do
     )
   end
 
-  defp handle_existing_consumption(nil), do: {:ok, nil}
+  defp return_idempotent(nil), do: {:ok, nil}
 
-  defp handle_existing_consumption(%TransactionConsumption{transfer: nil} = consumption) do
+  defp return_idempotent(%TransactionConsumption{transfer: nil} = consumption) do
     {:idempotent_call, consumption}
   end
 
-  defp handle_existing_consumption(%TransactionConsumption{transfer: transfer} = consumption) do
-    handle_transfer_result(consumption, failed_transfer: Transfer.failed?(transfer))
+  defp return_idempotent(%TransactionConsumption{transfer: transfer} = consumption) do
+    return_transfer_result(consumption, failed_transfer: Transfer.failed?(transfer))
   end
 
-  defp handle_transfer_result(consumption, failed_transfer: true) do
+  defp return_transfer_result(consumption, failed_transfer: true) do
     {code, description} = Transfer.get_error(consumption.transfer)
     {:error, consumption, code, description}
   end
 
-  defp handle_transfer_result(consumption, failed_transfer: false) do
+  defp return_transfer_result(consumption, failed_transfer: false) do
     {:idempotent_call, consumption}
   end
 end

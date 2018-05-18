@@ -46,7 +46,7 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
   end
 
   describe "get/1" do
-    test "returns the consumption do when given valid ID", meta do
+    test "returns the consumption when given valid ID", meta do
       initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
 
       {res, consumption} =
