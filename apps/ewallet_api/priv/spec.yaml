@@ -1516,6 +1516,7 @@ components:
       description: |
         The parameters for making a transfer to a specific address.
         The from_address is optional, if specified it must belong to the current user.
+        If not specified, the user's primary balance will be used.
       required: true
       content:
         application/vnd.omisego.v1+json:

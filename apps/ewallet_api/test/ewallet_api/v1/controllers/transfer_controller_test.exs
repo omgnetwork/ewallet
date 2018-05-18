@@ -385,7 +385,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
              }
     end
 
-    test "returns insufficient_funds when the user is too poor `:(" do
+    test "returns insufficient_funds when the user is too poor :~(" do
       wallet1 = User.get_primary_wallet(get_test_user())
       wallet2 = insert(:wallet)
       minted_token = insert(:minted_token)
