@@ -315,4 +315,14 @@ defmodule EWalletDB.TransactionRequest do
   defp limited_consumptions?(request) do
     !is_nil(request.max_consumptions) && request.max_consumptions > 0
   end
+
+  @spec is_owned_by?(%TransactionRequest{}, %Account{}) :: true | false
+  def is_owned_by?(request, %Account{} = account) do
+    request.account_uuid == account.uuid
+  end
+
+  @spec is_owned_by?(%TransactionRequest{}, %User{}) :: true | false
+  def is_owned_by?(request, %User{} = user) do
+    request.user_uuid == user.uuid
+  end
 end

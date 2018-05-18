@@ -12,12 +12,12 @@ config :ewallet, EWallet.Scheduler,
   jobs: [
     expire_requests: [
       schedule: "* * * * *",
-      task: {EWalletDB.TransactionRequest, :expire_all, []},
+      task: {EWallet.TransactionRequestScheduler, :expire_all, []},
       run_strategy: {Quantum.RunStrategy.Random, :cluster}
     ],
     expire_consumptions: [
       schedule: "* * * * *",
-      task: {EWalletDB.TransactionConsumption, :expire_all, []},
+      task: {EWallet.TransactionConsumptionScheduler, :expire_all, []},
       run_strategy: {Quantum.RunStrategy.Random, :cluster}
     ]
   ]
