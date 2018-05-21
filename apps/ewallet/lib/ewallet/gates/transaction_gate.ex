@@ -3,7 +3,13 @@ defmodule EWallet.TransactionGate do
   Handles the logic for a transfer of value from an account to a user. Delegates the
   actual transfer to EWallet.TransferGate once the wallets have been loaded.
   """
-  alias EWallet.{TransferGate, CreditDebitRecordFetcher, AddressRecordFetcher, WalletAssigner}
+  alias EWallet.{
+    TransferGate,
+    CreditDebitRecordFetcher,
+    AddressRecordFetcher,
+    WalletCreditDebitAssigner
+  }
+
   alias EWalletDB.{Transfer, User}
 
   def credit_type, do: "credit"
@@ -87,7 +93,7 @@ defmodule EWallet.TransactionGate do
       ) do
     with {:ok, account, user, minted_token} <- CreditDebitRecordFetcher.fetch(attrs),
          {:ok, from, to} <-
-           WalletAssigner.assign(%{
+           WalletCreditDebitAssigner.assign(%{
              account: account,
              user: user,
              type: type,

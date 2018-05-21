@@ -51,7 +51,7 @@ Examples:
 
 If this feature is enabled, you can also specify a caching strategy.
 
-- `BALANCE_CACHING_STRATEGY`: Specify if new cached wallets should be computed using a previous cache or by recalculating everything from scratch.
+- `BALANCE_CACHING_STRATEGY`: Specify if new cached balances should be computed using a previous cache or by recalculating everything from scratch.
 
 Strategies available:
 

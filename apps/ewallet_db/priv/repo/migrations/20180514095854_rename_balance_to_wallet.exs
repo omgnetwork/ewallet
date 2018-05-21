@@ -1,4 +1,4 @@
-defmodule EWalletDB.Repo.Migrations.RenameWalletToWallet do
+defmodule EWalletDB.Repo.Migrations.RenameBalanceToWallet do
   use Ecto.Migration
 
   def change do

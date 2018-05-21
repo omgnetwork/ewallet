@@ -17,7 +17,7 @@ defmodule EWallet.WalletFetcherTest do
       assert wallet == User.get_primary_wallet(meta.user)
     end
 
-    test "retrieves the wallet if address is given and belonds to the user", meta do
+    test "retrieves the wallet if address is given and belongs to the user", meta do
       inserted_wallet = insert(:wallet, identifier: Wallet.secondary(), user: meta.user)
       {:ok, wallet} = WalletFetcher.get(meta.user, inserted_wallet.address)
       assert wallet.uuid == inserted_wallet.uuid

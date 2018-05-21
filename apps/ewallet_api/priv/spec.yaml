@@ -46,7 +46,7 @@ tags:
   - name: Wallet
     description: Resources related to wallets of a specific user. Wallets contains the balances of tokens that users and accounts own.
   - name: Transaction
-    description: Resources related to the listing of transactions.
+    description: Resources related to transactions.
   - name: TransactionRequest
     description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
   - name: TransactionConsumption
@@ -257,7 +257,7 @@ paths:
     post:
       tags:
         - Transaction
-      summary: Server - Debit the wallet of a user. The provider can call this to debit the wallet of an existing user corresponding to the provider_user_id provided.
+      summary: Server - Debit the wallet of a user, i.e. take funds away from the user's wallet. The provider can call this to debit the wallet of an existing user corresponding to the provider_user_id provided.
       operationId: user_debit_wallet
       security:
         - ServerAuth: []

@@ -66,7 +66,7 @@ iex> EWalletDB.User.get("9858570e-0a1f-4e4a-a630-4752aa04021c")
 %EWalletDB.User{
   # ...
   accounts: #Ecto.Association.NotLoaded<association :accounts is not loaded>,
-  wallets: #Ecto.Association.NotLoaded<association :users is not loaded>,
+  wallets: #Ecto.Association.NotLoaded<association :wallets is not loaded>,
   # ...
 }
 ```
