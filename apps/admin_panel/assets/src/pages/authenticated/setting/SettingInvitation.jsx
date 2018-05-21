@@ -193,7 +193,6 @@ class SettingInvitation extends Component {
         />
       );
     });
-
     return (
       <div>
         <OMGAddMemberForm
