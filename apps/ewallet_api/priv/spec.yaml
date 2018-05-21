@@ -240,7 +240,7 @@ paths:
     post:
       tags:
         - Transaction
-      summary: Server - Credit the wallet of a user. The provider can call this to credit the wallet of an existing user corresponding to the provider_user_id provided.
+      summary: Server - Credit the wallet of a user, i.e. put funds into the user's wallet. The provider can call this to credit the wallet of an existing user corresponding to the provider_user_id provided.
       operationId: user_credit_wallet
       security:
         - ServerAuth: []
