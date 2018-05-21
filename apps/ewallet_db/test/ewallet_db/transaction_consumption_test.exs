@@ -136,7 +136,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test_insert_prevent_blank(TransactionConsumption, :amount)
     test_insert_prevent_blank(TransactionConsumption, :idempotency_token)
     test_insert_prevent_blank(TransactionConsumption, :transaction_request_uuid)
-    test_insert_prevent_blank(TransactionConsumption, :balance_address)
+    test_insert_prevent_blank(TransactionConsumption, :wallet_address)
     test_insert_prevent_blank(TransactionConsumption, :minted_token_uuid)
 
     test "sets the status to 'pending'" do

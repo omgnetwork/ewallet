@@ -52,7 +52,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
       template:
-        "The specified balance ({address}) does not contain enough funds. " <>
+        "The specified wallet ({address}) does not contain enough funds. " <>
           "Available: {current_amount} {minted_token_id} - Attempted debit: " <>
           "{amount_to_debit} {minted_token_id}"
     },
@@ -66,11 +66,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     from_address_not_found: %{
       code: "user:from_address_not_found",
-      description: "No balance found for the provided from_address."
+      description: "No wallet found for the provided from_address."
     },
     to_address_not_found: %{
       code: "user:to_address_not_found",
-      description: "No balance found for the provided to_address."
+      description: "No wallet found for the provided to_address."
     },
     no_idempotency_token_provided: %{
       code: "client:no_idempotency_token_provided",

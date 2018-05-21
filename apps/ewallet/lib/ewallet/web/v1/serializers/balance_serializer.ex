@@ -1,11 +1,11 @@
 defmodule EWallet.Web.V1.BalanceSerializer do
   @moduledoc """
-  Serializes balance data into V1 JSON response format.
+  Serializes wallet data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.MintedTokenSerializer
 
-  # Both the given balance and `%NotLoaded{}` are maps
+  # Both the given wallet and `%NotLoaded{}` are maps
   # so we need to pattern-match `%NotLoaded{}` first.
   def serialize(%NotLoaded{}), do: nil
 

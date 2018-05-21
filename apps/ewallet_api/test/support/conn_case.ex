@@ -68,10 +68,10 @@ defmodule EWalletAPI.ConnCase do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
-    # Insert account via `Account.insert/1` instead of the test factory to initialize balances, etc.
+    # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
-    # Insert user via `User.insert/1` to initialize balances, etc.
+    # Insert user via `User.insert/1` to initialize wallets, etc.
     {:ok, user} =
       :user
       |> params_for(%{username: @username, provider_user_id: @provider_user_id})
@@ -124,12 +124,12 @@ defmodule EWalletAPI.ConnCase do
         amount: amount
       }) do
     account = Account.get_master_account()
-    master_balance = Account.get_primary_balance(account)
+    master_wallet = Account.get_primary_wallet(account)
 
     mint!(minted_token, amount * 100)
 
     transfer!(
-      master_balance.address,
+      master_wallet.address,
       address,
       minted_token,
       amount * minted_token.subunit_to_unit
@@ -151,7 +151,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def transfer!(from, to, minted_token, amount) do
-    {:ok, transfer, _balances, _minted_token} =
+    {:ok, transfer, _wallets, _minted_token} =
       TransactionGate.process_with_addresses(%{
         "from_address" => from,
         "to_address" => to,

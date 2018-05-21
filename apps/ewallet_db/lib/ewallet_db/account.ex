@@ -8,7 +8,7 @@ defmodule EWalletDB.Account do
   import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, APIKey, Balance, Key, Membership, MintedToken}
+  alias EWalletDB.{Repo, Account, APIKey, Wallet, Key, Membership, MintedToken}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -39,8 +39,8 @@ defmodule EWalletDB.Account do
     )
 
     has_many(
-      :balances,
-      Balance,
+      :wallets,
+      Wallet,
       foreign_key: :account_uuid,
       references: :uuid
     )
@@ -95,24 +95,24 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
-  Create a new account with the passed attributes, as well as a primary and a burn balances.
+  Create a new account with the passed attributes, as well as a primary and a burn wallets.
   """
   @spec insert(attrs :: map()) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     multi =
       Multi.new()
       |> Multi.insert(:account, changeset(%Account{}, attrs))
-      |> Multi.run(:balance, fn %{account: account} ->
-        insert_balance(account, Balance.primary())
-        insert_balance(account, Balance.burn())
+      |> Multi.run(:wallet, fn %{account: account} ->
+        insert_wallet(account, Wallet.primary())
+        insert_wallet(account, Wallet.burn())
       end)
 
     case Repo.transaction(multi) do
       {:ok, result} ->
-        account = result.account |> Repo.preload([:balances])
+        account = result.account |> Repo.preload([:wallets])
         {:ok, account}
 
-      # Only the account insertion should fail. If the balance insert fails, there is
+      # Only the account insertion should fail. If the wallet insert fails, there is
       # something wrong with our code.
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -137,18 +137,18 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
-  Inserts a balance for the given account.
+  Inserts a wallet for the given account.
   """
-  @spec insert_balance(account :: %Account{}, identifier :: String.t()) ::
-          {:ok, %Balance{}} | {:error, Ecto.Changeset.t()}
-  def insert_balance(%Account{} = account, identifier) do
+  @spec insert_wallet(account :: %Account{}, identifier :: String.t()) ::
+          {:ok, %Wallet{}} | {:error, Ecto.Changeset.t()}
+  def insert_wallet(%Account{} = account, identifier) do
     %{
       account_uuid: account.uuid,
       name: identifier,
       identifier: identifier,
       metadata: %{}
     }
-    |> Balance.insert()
+    |> Wallet.insert()
   end
 
   @doc """
@@ -216,7 +216,7 @@ defmodule EWalletDB.Account do
   @doc """
   Get the master account for the current wallet setup.
   """
-  @spec get_preloaded_primary_balance(opts :: keyword()) :: %Account{}
+  @spec get_preloaded_primary_wallet(opts :: keyword()) :: %Account{}
   def get_master_account(opts \\ []) do
     Account
     |> where([a], is_nil(a.parent_uuid))
@@ -225,35 +225,35 @@ defmodule EWalletDB.Account do
   end
 
   @doc """
-  Retrieve the primary balance for an account with preloaded balances.
+  Retrieve the primary wallet for an account with preloaded wallets.
   """
-  @spec get_preloaded_primary_balance(account :: %Account{}) :: %Balance{}
-  def get_preloaded_primary_balance(account) do
-    Enum.find(account.balances, fn balance -> balance.identifier == Balance.primary() end)
+  @spec get_preloaded_primary_wallet(account :: %Account{}) :: %Wallet{}
+  def get_preloaded_primary_wallet(account) do
+    Enum.find(account.wallets, fn wallet -> wallet.identifier == Wallet.primary() end)
   end
 
   @doc """
-  Retrieve the primary balance for an account.
+  Retrieve the primary wallet for an account.
   """
-  @spec get_primary_balance(account :: %Account{}) :: %Balance{}
-  def get_primary_balance(account) do
-    get_balance_by_identifier(account, Balance.primary())
+  @spec get_primary_wallet(account :: %Account{}) :: %Wallet{}
+  def get_primary_wallet(account) do
+    get_wallet_by_identifier(account, Wallet.primary())
   end
 
   @doc """
-  Retrieve the default burn balance for an account.
+  Retrieve the default burn wallet for an account.
   """
-  @spec get_default_burn_balance(account :: %Account{}) :: %Balance{}
-  def get_default_burn_balance(account) do
-    get_balance_by_identifier(account, Balance.burn())
+  @spec get_default_burn_wallet(account :: %Account{}) :: %Wallet{}
+  def get_default_burn_wallet(account) do
+    get_wallet_by_identifier(account, Wallet.burn())
   end
 
   @doc """
-  Retrieve a balance by name for the given account.
+  Retrieve a wallet by name for the given account.
   """
-  @spec get_balance_by_identifier(account :: %Account{}, identifier :: String.t()) :: %Balance{}
-  def get_balance_by_identifier(account, identifier) do
-    Balance
+  @spec get_wallet_by_identifier(account :: %Account{}, identifier :: String.t()) :: %Wallet{}
+  def get_wallet_by_identifier(account, identifier) do
+    Wallet
     |> where([b], b.identifier == ^identifier)
     |> where([b], b.account_uuid == ^account.uuid)
     |> Repo.one()

@@ -1,9 +1,9 @@
 defmodule EWalletAPI.V1.TransferController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.{ComputedBalanceFetcher, TransactionGate}
+  alias EWallet.{BalanceFetcher, TransactionGate}
 
-  plug(:put_view, EWalletAPI.V1.ComputedBalanceView)
+  plug(:put_view, EWalletAPI.V1.WalletView)
 
   def transfer(
         conn,
@@ -19,7 +19,7 @@ defmodule EWalletAPI.V1.TransferController do
     attrs
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
     |> TransactionGate.process_with_addresses()
-    |> respond_with_balances(conn)
+    |> respond_with_wallets(conn)
   end
 
   def transfer(conn, _attrs), do: handle_error(conn, :invalid_parameter)
@@ -38,34 +38,34 @@ defmodule EWalletAPI.V1.TransferController do
     |> Map.put("type", type)
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
     |> TransactionGate.process_credit_or_debit()
-    |> respond_with_balances(conn)
+    |> respond_with_wallets(conn)
   end
 
   defp credit_or_debit(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp respond_with_balances({:ok, _transfer, balances, minted_token}, conn) do
-    addresses =
-      Enum.map(balances, fn balance ->
-        case ComputedBalanceFetcher.get(minted_token.id, balance.address) do
+  defp respond_with_wallets({:ok, _transfer, wallets, minted_token}, conn) do
+    wallets =
+      Enum.map(wallets, fn wallet ->
+        case BalanceFetcher.get(minted_token.id, wallet.address) do
           {:ok, address} -> address
           error -> error
         end
       end)
 
-    case Enum.find(addresses, fn e -> match?({:error, _code, _description}, e) end) do
-      nil -> respond({:ok, addresses}, conn)
+    case Enum.find(wallets, fn e -> match?({:error, _code, _description}, e) end) do
+      nil -> respond({:ok, wallets}, conn)
       error -> error
     end
   end
 
-  defp respond_with_balances({:error, code}, conn), do: handle_error(conn, code)
+  defp respond_with_wallets({:error, code}, conn), do: handle_error(conn, code)
 
-  defp respond_with_balances({:error, _transfer, code, description}, conn) do
+  defp respond_with_wallets({:error, _transfer, code, description}, conn) do
     handle_error(conn, code, description)
   end
 
-  defp respond({:ok, addresses}, conn) do
-    render(conn, :balances, %{addresses: addresses})
+  defp respond({:ok, wallets}, conn) do
+    render(conn, :wallets, %{wallets: wallets})
   end
 
   defp respond({:error, code, description}, conn) do

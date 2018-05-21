@@ -4,36 +4,36 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
   setup do
     user = get_test_user()
-    balance_1 = User.get_primary_balance(user)
-    balance_2 = insert(:balance)
-    balance_3 = insert(:balance)
-    balance_4 = insert(:balance, user: user, identifier: "secondary")
+    wallet_1 = User.get_primary_wallet(user)
+    wallet_2 = insert(:wallet)
+    wallet_3 = insert(:wallet)
+    wallet_4 = insert(:wallet, user: user, identifier: "secondary")
 
     transfer_1 =
       insert(:transfer, %{
-        from_balance: balance_1,
-        to_balance: balance_2,
+        from_wallet: wallet_1,
+        to_wallet: wallet_2,
         status: "confirmed"
       })
 
     transfer_2 =
       insert(:transfer, %{
-        from_balance: balance_2,
-        to_balance: balance_1,
+        from_wallet: wallet_2,
+        to_wallet: wallet_1,
         status: "confirmed"
       })
 
     transfer_3 =
       insert(:transfer, %{
-        from_balance: balance_1,
-        to_balance: balance_3,
+        from_wallet: wallet_1,
+        to_wallet: wallet_3,
         status: "confirmed"
       })
 
     transfer_4 =
       insert(:transfer, %{
-        from_balance: balance_1,
-        to_balance: balance_2,
+        from_wallet: wallet_1,
+        to_wallet: wallet_2,
         status: "pending"
       })
 
@@ -42,24 +42,24 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
     transfer_7 =
       insert(:transfer, %{
-        from_balance: balance_4,
-        to_balance: balance_2,
+        from_wallet: wallet_4,
+        to_wallet: wallet_2,
         status: "confirmed"
       })
 
     transfer_8 =
       insert(:transfer, %{
-        from_balance: balance_4,
-        to_balance: balance_3,
+        from_wallet: wallet_4,
+        to_wallet: wallet_3,
         status: "pending"
       })
 
     %{
       user: user,
-      balance_1: balance_1,
-      balance_2: balance_2,
-      balance_3: balance_3,
-      balance_4: balance_4,
+      wallet_1: wallet_1,
+      wallet_2: wallet_2,
+      wallet_3: wallet_3,
+      wallet_4: wallet_4,
       transfer_1: transfer_1,
       transfer_2: transfer_2,
       transfer_3: transfer_3,
@@ -106,8 +106,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "from" => meta.balance_1.address,
-            "to" => meta.balance_2.address
+            "from" => meta.wallet_1.address,
+            "to" => meta.wallet_2.address
           }
         })
 
@@ -190,7 +190,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       response =
         provider_request("/user.list_transactions", %{
           "provider_user_id" => meta.user.provider_user_id,
-          "address" => meta.balance_4.address
+          "address" => meta.wallet_4.address
         })
 
       assert response["data"]["data"] |> length() == 2
@@ -203,19 +203,19 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
              ]
     end
 
-    test "returns an 'user:user_balance_mismatch' error with provider_user_id and invalid address",
+    test "returns an 'user:user_wallet_mismatch' error with provider_user_id and invalid address",
          meta do
       response =
         provider_request("/user.list_transactions", %{
           "provider_user_id" => meta.user.provider_user_id,
-          "address" => meta.balance_2.address
+          "address" => meta.wallet_2.address
         })
 
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:user_balance_mismatch"
+      assert response["data"]["code"] == "user:user_wallet_mismatch"
 
       assert response["data"]["description"] ==
-               "The provided balance does not belong to the current user"
+               "The provided wallet does not belong to the current user"
     end
 
     test "returns the user's transactions even when different search terms are provided", meta do
@@ -225,8 +225,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "desc",
           "search_terms" => %{
-            "from" => meta.balance_2.address,
-            "to" => meta.balance_2.address
+            "from" => meta.wallet_2.address,
+            "to" => meta.wallet_2.address
           }
         })
 
@@ -305,8 +305,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
-            "from" => meta.balance_2.address,
-            "to" => meta.balance_2.address
+            "from" => meta.wallet_2.address,
+            "to" => meta.wallet_2.address
           }
         })
 
@@ -322,12 +322,12 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
              ]
     end
 
-    test "returns only the transactions sent to a specific balance with nil from", meta do
+    test "returns only the transactions sent to a specific wallet with nil from", meta do
       response =
         client_request("/me.list_transactions", %{
           "search_terms" => %{
             "from" => nil,
-            "to" => meta.balance_3.address
+            "to" => meta.wallet_3.address
           }
         })
 
@@ -340,11 +340,11 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
              ]
     end
 
-    test "returns only the transactions sent to a specific balance", meta do
+    test "returns only the transactions sent to a specific wallet", meta do
       response =
         client_request("/me.list_transactions", %{
           "search_terms" => %{
-            "to" => meta.balance_3.address
+            "to" => meta.wallet_3.address
           }
         })
 

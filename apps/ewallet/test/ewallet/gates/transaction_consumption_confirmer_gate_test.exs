@@ -19,9 +19,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     {:ok, receiver} = :user |> params_for() |> User.insert()
     {:ok, sender} = :user |> params_for() |> User.insert()
     account = Account.get_master_account()
-    receiver_balance = User.get_primary_balance(receiver)
-    sender_balance = User.get_primary_balance(sender)
-    account_balance = Account.get_primary_balance(account)
+    receiver_wallet = User.get_primary_wallet(receiver)
+    sender_wallet = User.get_primary_wallet(sender)
+    account_wallet = Account.get_primary_wallet(account)
 
     mint!(minted_token)
 
@@ -31,7 +31,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
         type: "receive",
         minted_token_uuid: minted_token.uuid,
         user_uuid: receiver.uuid,
-        balance: receiver_balance,
+        wallet: receiver_wallet,
         amount: 100_000 * minted_token.subunit_to_unit
       )
 
@@ -40,16 +40,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       receiver: receiver,
       account: account,
       minted_token: minted_token,
-      receiver_balance: receiver_balance,
-      sender_balance: sender_balance,
-      account_balance: account_balance,
+      receiver_wallet: receiver_wallet,
+      sender_wallet: sender_wallet,
+      account_wallet: account_wallet,
       request: transaction_request
     }
   end
 
   describe "confirm/3 with Account" do
     test "confirms the consumption if approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -70,7 +70,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -86,7 +86,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "confirms a user's consumption if created and approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -96,7 +96,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "amount" => 1_000,
           "account_id" => meta.account.id,
           "provider_user_id" => meta.receiver.provider_user_id,
-          "address" => meta.receiver_balance.address,
+          "address" => meta.receiver_wallet.address,
           "require_confirmation" => true
         })
 
@@ -111,7 +111,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -127,7 +127,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if not owner", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -148,7 +148,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -161,7 +161,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if expired", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -182,7 +182,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -198,7 +198,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "rejects the consumption if not approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -219,7 +219,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -235,7 +235,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "allows only one confirmation with two confirms at the same time", meta do
-      initialize_balance(meta.sender_balance, 1_000_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 1_000_000, meta.minted_token)
 
       request =
         insert(
@@ -257,7 +257,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => UUID.generate(),
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         }
       end
 
@@ -305,7 +305,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
   describe "confirm/3 with User" do
     test "confirms the consumption if approved as user", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -326,7 +326,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -342,7 +342,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "confirms a user's consumption if created and approved as user", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -352,7 +352,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "amount" => 1_000,
           "account_id" => meta.account.id,
           "provider_user_id" => meta.receiver.provider_user_id,
-          "address" => meta.receiver_balance.address,
+          "address" => meta.receiver_wallet.address,
           "require_confirmation" => true
         })
 
@@ -367,7 +367,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -383,7 +383,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if not owner", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -404,7 +404,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -417,7 +417,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if expired", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -438,7 +438,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok
@@ -454,7 +454,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "rejects the consumption if not approved as account", meta do
-      initialize_balance(meta.sender_balance, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
 
       transaction_request =
         insert(
@@ -475,7 +475,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "user_id" => meta.sender.id,
-          "address" => meta.sender_balance.address
+          "address" => meta.sender_wallet.address
         })
 
       assert res == :ok

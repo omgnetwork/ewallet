@@ -9,13 +9,13 @@ defmodule EWallet.TransactionConsumptionValidator do
   @spec validate_before_consumption(TransactionRequest.t(), Balance.t(), Integer.t()) ::
           {:ok, TransactionRequest.t(), Integer.t()}
           | {:error, Atom.t()}
-  def validate_before_consumption(request, balance, attrs) do
+  def validate_before_consumption(request, wallet, attrs) do
     with amount <- attrs["amount"],
          token_id <- attrs["token_id"],
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, amount} <- validate_amount(request, amount),
-         {:ok, _balance} <- validate_max_consumptions_per_user(request, balance),
+         {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          {:ok, token} <- get_and_validate_minted_token(request, token_id) do
       {:ok, request, token, amount}
     else
@@ -34,11 +34,11 @@ defmodule EWallet.TransactionConsumptionValidator do
           {:ok, TransactionConsumption.t()}
           | {:error, Atom.t()}
   def validate_before_confirmation(consumption, owner) do
-    with {request, balance} <- {consumption.transaction_request, consumption.balance},
+    with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          true <-
            TransactionRequest.is_owned_by?(request, owner) || :not_transaction_request_owner,
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
-         {:ok, _balance} <- validate_max_consumptions_per_user(request, balance),
+         {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, consumption} = TransactionConsumption.expire_if_past_expiration_date(consumption) do
       case TransactionConsumption.expired?(consumption) do
@@ -94,18 +94,18 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  def validate_max_consumptions_per_user(request, balance) do
+  def validate_max_consumptions_per_user(request, wallet) do
     with max <- request.max_consumptions_per_user,
          # max has a value
          false <- is_nil(max),
          # The consumption is for a user
-         false <- is_nil(balance.user_uuid),
+         false <- is_nil(wallet.user_uuid),
          current_consumptions <-
-           TransactionConsumption.all_active_for_user(balance.user_uuid, request.uuid),
+           TransactionConsumption.all_active_for_user(wallet.user_uuid, request.uuid),
          false <- length(current_consumptions) < max do
       {:error, :max_consumptions_per_user_reached}
     else
-      _ -> {:ok, balance}
+      _ -> {:ok, wallet}
     end
   end
 end

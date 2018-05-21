@@ -6,13 +6,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
   describe "/transfer" do
     test "returns idempotency error if header is not specified" do
-      balance1 = insert(:balance)
-      balance2 = insert(:balance)
+      wallet1 = insert(:wallet)
+      wallet2 = insert(:wallet)
       minted_token = insert(:minted_token)
 
       request_data = %{
-        from_address: balance1.address,
-        to_address: balance2.address,
+        from_address: wallet1.address,
+        to_address: wallet2.address,
         token_id: minted_token.id,
         amount: 1_000 * minted_token.subunit_to_unit,
         metadata: %{}
@@ -33,25 +33,25 @@ defmodule EWalletAPI.V1.TransferControllerTest do
              }
     end
 
-    test "updates the user balance and returns the updated amount" do
+    test "updates the user wallet and returns the updated amount" do
       account = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
-      balance1 = insert(:balance)
-      balance2 = insert(:balance)
+      master_wallet = Account.get_primary_wallet(account)
+      wallet1 = insert(:wallet)
+      wallet2 = insert(:wallet)
       minted_token = insert(:minted_token)
       _mint = mint!(minted_token)
 
       transfer!(
-        master_balance.address,
-        balance1.address,
+        master_wallet.address,
+        wallet1.address,
         minted_token,
         200_000 * minted_token.subunit_to_unit
       )
 
       response =
         provider_request_with_idempotency("/transfer", UUID.generate(), %{
-          from_address: balance1.address,
-          to_address: balance2.address,
+          from_address: wallet1.address,
+          to_address: wallet2.address,
           token_id: minted_token.id,
           amount: 100_000 * minted_token.subunit_to_unit,
           metadata: %{something: "interesting"},
@@ -69,9 +69,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  "object" => "list",
                  "data" => [
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{balance1.address}",
-                     "address" => balance1.address,
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{wallet1.address}",
+                     "address" => wallet1.address,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -91,9 +91,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      ]
                    },
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{balance2.address}",
-                     "address" => balance2.address,
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{wallet2.address}",
+                     "address" => wallet2.address,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -118,13 +118,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     end
 
     test "returns a 'same_address' error when the addresses are the same" do
-      balance = insert(:balance)
+      wallet = insert(:wallet)
       minted_token = insert(:minted_token)
 
       response =
         provider_request_with_idempotency("/transfer", UUID.generate(), %{
-          from_address: balance.address,
-          to_address: balance.address,
+          from_address: wallet.address,
+          to_address: wallet.address,
           token_id: minted_token.id,
           amount: 100_000 * minted_token.subunit_to_unit,
           metadata: %{}
@@ -136,7 +136,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                "data" => %{
                  "code" => "transaction:same_address",
                  "description" =>
-                   "Found identical addresses in senders and receivers: #{balance.address}.",
+                   "Found identical addresses in senders and receivers: #{wallet.address}.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -144,14 +144,14 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     end
 
     test "returns insufficient_funds when the user is too poor" do
-      balance1 = insert(:balance)
-      balance2 = insert(:balance)
+      wallet1 = insert(:wallet)
+      wallet2 = insert(:wallet)
       minted_token = insert(:minted_token)
 
       response =
         provider_request_with_idempotency("/transfer", UUID.generate(), %{
-          from_address: balance1.address,
-          to_address: balance2.address,
+          from_address: wallet1.address,
+          to_address: wallet2.address,
           token_id: minted_token.id,
           amount: 100_000 * minted_token.subunit_to_unit,
           metadata: %{}
@@ -163,7 +163,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                "data" => %{
                  "code" => "transaction:insufficient_funds",
                  "description" =>
-                   "The specified balance (#{balance1.address}) does not " <>
+                   "The specified wallet (#{wallet1.address}) does not " <>
                      "contain enough funds. Available: 0.0 #{minted_token.id} - " <>
                      "Attempted debit: 100000.0 #{minted_token.id}",
                  "messages" => nil,
@@ -172,14 +172,14 @@ defmodule EWalletAPI.V1.TransferControllerTest do
              }
     end
 
-    test "returns from_address_not_found when the from balance is not found" do
-      balance = insert(:balance)
+    test "returns from_address_not_found when the from wallet is not found" do
+      wallet = insert(:wallet)
       minted_token = insert(:minted_token)
 
       response =
         provider_request_with_idempotency("/transfer", UUID.generate(), %{
           from_address: "00000000-0000-0000-0000-000000000000",
-          to_address: balance.address,
+          to_address: wallet.address,
           token_id: minted_token.id,
           amount: 100_000,
           metadata: %{}
@@ -190,20 +190,20 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "user:from_address_not_found",
-                 "description" => "No balance found for the provided from_address.",
+                 "description" => "No wallet found for the provided from_address.",
                  "messages" => nil,
                  "object" => "error"
                }
              }
     end
 
-    test "returns to_address_not_found when the to balance is not found" do
-      balance = insert(:balance)
+    test "returns to_address_not_found when the to wallet is not found" do
+      wallet = insert(:wallet)
       minted_token = insert(:minted_token)
 
       response =
         provider_request_with_idempotency("/transfer", UUID.generate(), %{
-          from_address: balance.address,
+          from_address: wallet.address,
           to_address: "00000000-0000-0000-0000-000000000000",
           token_id: minted_token.id,
           amount: 100_000,
@@ -215,7 +215,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "user:to_address_not_found",
-                 "description" => "No balance found for the provided to_address.",
+                 "description" => "No wallet found for the provided to_address.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -223,13 +223,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     end
 
     test "returns minted_token_not_found when the minted token is not found" do
-      balance1 = insert(:balance)
-      balance2 = insert(:balance)
+      wallet1 = insert(:wallet)
+      wallet2 = insert(:wallet)
 
       response =
         provider_request_with_idempotency("/transfer", UUID.generate(), %{
-          from_address: balance1.address,
-          to_address: balance2.address,
+          from_address: wallet1.address,
+          to_address: wallet2.address,
           token_id: "BTC:456",
           amount: 100_000,
           metadata: %{}
@@ -248,13 +248,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     end
   end
 
-  describe "/user.credit_balance" do
+  describe "/user.credit_wallet" do
     test "returns idempotency error if header is not specified" do
       {:ok, user} = :user |> params_for() |> User.insert()
       {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert()
 
       response =
-        provider_request("/user.credit_balance", %{
+        provider_request("/user.credit_wallet", %{
           provider_user_id: user.provider_user_id,
           token_id: minted_token.id,
           amount: 100_000,
@@ -274,15 +274,15 @@ defmodule EWalletAPI.V1.TransferControllerTest do
              }
     end
 
-    test "updates the user balance and returns the updated amount" do
+    test "updates the user wallet and returns the updated amount" do
       {:ok, user} = :user |> params_for() |> User.insert()
-      user_balance = User.get_primary_balance(user)
+      user_wallet = User.get_primary_wallet(user)
       account = Account.get_master_account()
       minted_token = insert(:minted_token, account: account)
       _mint = mint!(minted_token)
 
       response =
-        provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
+        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
           provider_user_id: user.provider_user_id,
           token_id: minted_token.id,
           amount: 1_000 * minted_token.subunit_to_unit,
@@ -301,9 +301,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  "object" => "list",
                  "data" => [
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{user_balance.address}",
-                     "address" => user_balance.address,
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -331,7 +331,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
+        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
           token_id: minted_token.id,
           amount: 100_000,
           metadata: %{}
@@ -354,7 +354,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
+        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
           provider_user_id: "fake",
           token_id: minted_token.id,
           amount: 100_000,
@@ -379,7 +379,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       {:ok, minted_token} = :minted_token |> params_for() |> MintedToken.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
+        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
           provider_user_id: user.provider_user_id,
           token_id: minted_token.id,
           amount: 100_000,
@@ -404,7 +404,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       {:ok, account} = :account |> params_for() |> Account.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_balance", UUID.generate(), %{
+        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
           provider_user_id: user.provider_user_id,
           token_id: "BTC:456",
           amount: 100_000,
@@ -425,14 +425,14 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     end
   end
 
-  describe "/user.debit_balance" do
+  describe "/user.debit_wallet" do
     test "returns idempotency error if header is not specified" do
       {:ok, user} = :user |> params_for() |> User.insert()
       {:ok, account} = :account |> params_for() |> Account.insert()
       {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
 
       response =
-        provider_request("/user.debit_balance", %{
+        provider_request("/user.debit_wallet", %{
           provider_user_id: user.provider_user_id,
           token_id: minted_token.id,
           amount: 100_000,
@@ -455,11 +455,11 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     test "returns insufficient_funds when the user is too poor" do
       {:ok, account} = :account |> params_for() |> Account.insert()
       {:ok, user} = :user |> params_for() |> User.insert()
-      user_balance = User.get_primary_balance(user)
+      user_wallet = User.get_primary_wallet(user)
       {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
 
       response =
-        provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
+        provider_request_with_idempotency("/user.debit_wallet", UUID.generate(), %{
           provider_user_id: user.provider_user_id,
           token_id: minted_token.id,
           amount: 100_000,
@@ -472,7 +472,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                "data" => %{
                  "code" => "transaction:insufficient_funds",
                  "description" =>
-                   "The specified balance (#{user_balance.address})" <>
+                   "The specified wallet (#{user_wallet.address})" <>
                      " does not contain enough funds. Available: 0.0 " <>
                      "#{minted_token.id} - Attempted debit: 1000.0 " <> "#{minted_token.id}",
                  "messages" => nil,
@@ -481,23 +481,23 @@ defmodule EWalletAPI.V1.TransferControllerTest do
              }
     end
 
-    test "returns the updated balances when the user has enough funds" do
+    test "returns the updated wallets when the user has enough funds" do
       account = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
+      master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
-      user_balance = User.get_primary_balance(user)
+      user_wallet = User.get_primary_wallet(user)
       {:ok, minted_token} = :minted_token |> params_for(account: account) |> MintedToken.insert()
       mint!(minted_token)
 
       transfer!(
-        master_balance.address,
-        user_balance.address,
+        master_wallet.address,
+        user_wallet.address,
         minted_token,
         200_000 * minted_token.subunit_to_unit
       )
 
       response =
-        provider_request_with_idempotency("/user.debit_balance", UUID.generate(), %{
+        provider_request_with_idempotency("/user.debit_wallet", UUID.generate(), %{
           provider_user_id: user.provider_user_id,
           token_id: minted_token.id,
           amount: 150_000 * minted_token.subunit_to_unit,
@@ -509,7 +509,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       assert transfer.metadata == %{"something" => "interesting"}
       assert transfer.encrypted_metadata == %{"something" => "secret"}
 
-      address = User.get_primary_balance(user).address
+      address = User.get_primary_wallet(user).address
 
       assert response == %{
                "version" => "1",
@@ -518,8 +518,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  "object" => "list",
                  "data" => [
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{address}",
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{address}",
                      "address" => address,
                      "balances" => [
                        %{

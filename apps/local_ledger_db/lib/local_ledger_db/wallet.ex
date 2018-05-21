@@ -1,16 +1,16 @@
-defmodule LocalLedgerDB.Balance do
+defmodule LocalLedgerDB.Wallet do
   @moduledoc """
-  Ecto Schema representing balances. A balance is made up of a unique address
+  Ecto Schema representing wallets. A balance is made up of a unique address
   and the ID associated with it in eWallet DB.
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Balance, Transaction}
+  alias LocalLedgerDB.{Repo, Wallet, Transaction}
   alias LocalLedger.{EctoBatchStream}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
-  schema "balance" do
+  schema "wallet" do
     field(:address, :string)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
@@ -19,7 +19,7 @@ defmodule LocalLedgerDB.Balance do
     has_many(
       :transactions,
       Transaction,
-      foreign_key: :balance_address,
+      foreign_key: :wallet_address,
       references: :address
     )
 
@@ -29,7 +29,7 @@ defmodule LocalLedgerDB.Balance do
   @doc """
   Validate the balance attributes.
   """
-  def changeset(%Balance{} = balance, attrs) do
+  def changeset(%Wallet{} = balance, attrs) do
     balance
     |> cast(attrs, [:address, :metadata, :encrypted_metadata, :encryption_version])
     |> validate_required([:address, :metadata, :encrypted_metadata])
@@ -38,16 +38,16 @@ defmodule LocalLedgerDB.Balance do
   end
 
   @doc """
-  Batch load balances and run the callback for each balance.
+  Batch load wallets and run the callback for each balance.
   """
   def stream_all(callback) do
     Repo
-    |> EctoBatchStream.stream(Balance)
+    |> EctoBatchStream.stream(Wallet)
     |> Enum.each(callback)
   end
 
   @doc """
-  Update the updated_at field for all balances matching the given addresses.
+  Update the updated_at field for all wallets matching the given addresses.
   """
   def touch(addresses) do
     updated_at =
@@ -55,19 +55,19 @@ defmodule LocalLedgerDB.Balance do
       |> Ecto.DateTime.to_iso8601()
 
     Repo.update_all(
-      from(b in Balance, where: b.address in ^addresses),
+      from(b in Wallet, where: b.address in ^addresses),
       set: [updated_at: updated_at]
     )
   end
 
   @doc """
-  Use a FOR UPDATE lock on the balance records for which the current balances
+  Use a FOR UPDATE lock on the balance records for which the current wallets
   will be calculated.
   """
   def lock(addresses) do
     Repo.all(
       from(
-        b in Balance,
+        b in Wallet,
         where: b.address in ^addresses,
         lock: "FOR UPDATE"
       )
@@ -92,7 +92,7 @@ defmodule LocalLedgerDB.Balance do
   Retrieve a balance using the specified address.
   """
   def get(address) do
-    Repo.get_by(Balance, address: address)
+    Repo.get_by(Wallet, address: address)
   end
 
   @doc """
@@ -102,7 +102,7 @@ defmodule LocalLedgerDB.Balance do
   before or one inserted by another concurrent process.
   """
   def insert(%{"address" => address} = attrs) do
-    changeset = Balance.changeset(%Balance{}, attrs)
+    changeset = Wallet.changeset(%Wallet{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :address]
 
     case Repo.insert(changeset, opts) do

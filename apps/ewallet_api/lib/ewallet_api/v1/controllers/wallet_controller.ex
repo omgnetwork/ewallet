@@ -1,7 +1,7 @@
-defmodule EWalletAPI.V1.ComputedBalanceController do
+defmodule EWalletAPI.V1.WalletController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.ComputedBalanceFetcher
+  alias EWallet.BalanceFetcher
 
   def all(conn, %{"provider_user_id" => provider_user_id} = attrs)
       when provider_user_id != nil,
@@ -15,12 +15,12 @@ defmodule EWalletAPI.V1.ComputedBalanceController do
 
   defp get_all(conn, attrs) do
     attrs
-    |> ComputedBalanceFetcher.all()
+    |> BalanceFetcher.all()
     |> respond(conn)
   end
 
-  defp respond({:ok, addresses}, conn) do
-    render(conn, :balances, %{addresses: [addresses]})
+  defp respond({:ok, wallets}, conn) do
+    render(conn, :wallets, %{wallets: [wallets]})
   end
 
   defp respond({:error, code, description}, conn) do

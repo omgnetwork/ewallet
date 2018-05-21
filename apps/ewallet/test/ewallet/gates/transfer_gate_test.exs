@@ -7,15 +7,15 @@ defmodule EWallet.TransferTest do
 
   setup do
     master_account = Account.get_master_account()
-    master_balance = Account.get_primary_balance(master_account)
+    master_wallet = Account.get_primary_wallet(master_account)
     {:ok, account1} = Account.insert(params_for(:account))
     {:ok, account2} = Account.insert(params_for(:account))
     {:ok, token} = MintedToken.insert(params_for(:minted_token, subunit_to_unit: 100))
-    from = Account.get_primary_balance(account1)
-    to = Account.get_primary_balance(account2)
+    from = Account.get_primary_wallet(account1)
+    to = Account.get_primary_wallet(account2)
 
     mint!(token)
-    transfer!(master_balance.address, from.address, token, 1_000 * token.subunit_to_unit)
+    transfer!(master_wallet.address, from.address, token, 1_000 * token.subunit_to_unit)
 
     %{
       idempotency_token: UUID.generate(),

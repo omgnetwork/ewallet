@@ -103,7 +103,7 @@ defmodule LocalLedger.EntryTest do
       assert get_current_balance("mederic") == 150
     end
 
-    test "inserts an entry and four transactions when the debit balances have
+    test "inserts an entry and four transactions when the debit wallets have
           enough funds" do
       genesis()
 
@@ -205,7 +205,7 @@ defmodule LocalLedger.EntryTest do
              }
     end
 
-    test "returns an 'insufficient_funds' error when the debit balances don't have enough funds" do
+    test "returns an 'insufficient_funds' error when the debit wallets don't have enough funds" do
       genesis()
 
       {:error, :insufficient_funds, _} =
@@ -295,7 +295,7 @@ defmodule LocalLedger.EntryTest do
         )
     end
 
-    test "updates the balances one after the other with two inserts happening
+    test "updates the wallets one after the other with two inserts happening
           at the same time" do
       genesis()
       pid = self()

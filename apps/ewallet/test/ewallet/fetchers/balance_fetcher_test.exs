@@ -1,38 +1,63 @@
 defmodule EWallet.BalanceFetcherTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.BalanceFetcher
-  alias EWalletDB.{User, Balance}
+  alias EWalletDB.{User, MintedToken, Account}
+  alias Ecto.Adapters.SQL.Sandbox
 
-  setup do
-    {:ok, user} = :user |> params_for() |> User.insert()
-    minted_token = insert(:minted_token)
-    balance = User.get_primary_balance(user)
+  describe "all/1" do
+    test "retrieve all balances from a provider_user_id" do
+      account = Account.get_master_account()
+      master_wallet = Account.get_primary_wallet(account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_wallet = User.get_primary_wallet(user)
+      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+      {:ok, knc} = :minted_token |> params_for(symbol: "KNC") |> MintedToken.insert()
 
-    %{user: user, minted_token: minted_token, balance: balance}
+      mint!(btc)
+      mint!(omg)
+      mint!(knc)
+
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
+
+      {status, wallet} = BalanceFetcher.all(%{"provider_user_id" => user.provider_user_id})
+
+      assert status == :ok
+      assert wallet.address == User.get_primary_wallet(user).address
+
+      assert wallet.balances == [
+               %{minted_token: btc, amount: 150_000 * btc.subunit_to_unit},
+               %{minted_token: omg, amount: 12_000 * omg.subunit_to_unit},
+               %{minted_token: knc, amount: 0}
+             ]
+    end
   end
 
-  describe "get_balance/2" do
-    test "retrieves the user's primary balance if address is nil", meta do
-      {:ok, balance} = BalanceFetcher.get(meta.user, nil)
-      assert balance == User.get_primary_balance(meta.user)
-    end
+  describe "get/2" do
+    test "retrieve the specific balance from a minted_token and an address" do
+      account = Account.get_master_account()
+      master_wallet = Account.get_primary_wallet(account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_wallet = User.get_primary_wallet(user)
+      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+      {:ok, knc} = :minted_token |> params_for(symbol: "KNC") |> MintedToken.insert()
 
-    test "retrieves the balance if address is given and belonds to the user", meta do
-      inserted_balance = insert(:balance, identifier: Balance.secondary(), user: meta.user)
-      {:ok, balance} = BalanceFetcher.get(meta.user, inserted_balance.address)
-      assert balance.uuid == inserted_balance.uuid
-    end
+      mint!(btc)
+      mint!(omg)
+      mint!(knc)
 
-    test "returns 'balance_not_found' if the address is not found", meta do
-      {:error, error} = BalanceFetcher.get(meta.user, "fake")
-      assert error == :balance_not_found
-    end
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
-    test "returns 'user_balance_mismatch' if the balance found does not belong to the user",
-         meta do
-      balance = insert(:balance)
-      {:error, error} = BalanceFetcher.get(meta.user, balance.address)
-      assert error == :user_balance_mismatch
+      {status, wallet} = BalanceFetcher.get(omg.id, user_wallet.address)
+      assert status == :ok
+      assert wallet.address == User.get_primary_wallet(user).address
+
+      assert wallet.balances == [
+               %{minted_token: omg, amount: 12_000 * omg.subunit_to_unit}
+             ]
     end
   end
 end

@@ -10,7 +10,7 @@ defmodule LocalLedgerDB.Transaction do
     Entry,
     Repo,
     MintedToken,
-    Balance,
+    Wallet,
     Transaction,
     Errors.InsufficientFundsError
   }
@@ -36,9 +36,9 @@ defmodule LocalLedgerDB.Transaction do
     )
 
     belongs_to(
-      :balance,
-      Balance,
-      foreign_key: :balance_address,
+      :wallet,
+      Wallet,
+      foreign_key: :wallet_address,
       references: :address,
       type: :string
     )
@@ -58,13 +58,13 @@ defmodule LocalLedgerDB.Transaction do
   Validate the transaction attributes. This changeset is only used through the
   "cast_assoc" method in the Entry schema module.
   """
-  def changeset(%Transaction{} = balance, attrs) do
-    balance
-    |> cast(attrs, [:amount, :type, :minted_token_id, :balance_address, :entry_uuid])
-    |> validate_required([:amount, :type, :minted_token_id, :balance_address])
+  def changeset(%Transaction{} = transaction, attrs) do
+    transaction
+    |> cast(attrs, [:amount, :type, :minted_token_id, :wallet_address, :entry_uuid])
+    |> validate_required([:amount, :type, :minted_token_id, :wallet_address])
     |> validate_inclusion(:type, @types)
     |> foreign_key_constraint(:minted_token_id)
-    |> foreign_key_constraint(:balance_address)
+    |> foreign_key_constraint(:wallet_address)
     |> foreign_key_constraint(:entry_uuid)
   end
 
@@ -86,7 +86,7 @@ defmodule LocalLedgerDB.Transaction do
   end
 
   @doc """
-  Calculate the total balances for all the specified minted tokens associated
+  Calculate the total wallets for all the specified minted tokens associated
   with the given address.
   """
   def calculate_all_balances(address, options \\ %{}) do
@@ -103,7 +103,7 @@ defmodule LocalLedgerDB.Transaction do
     end)
   end
 
-  defp format(balances), do: Enum.into(balances, %{})
+  defp format(wallets), do: Enum.into(wallets, %{})
 
   defp sum(address, type, options) do
     address
@@ -133,7 +133,7 @@ defmodule LocalLedgerDB.Transaction do
 
   defp build_sum_query(address, type, %{minted_token_id: :all}) do
     Transaction
-    |> where([t], t.balance_address == ^address and t.type == ^type)
+    |> where([t], t.wallet_address == ^address and t.type == ^type)
     |> group_by([t], t.minted_token_id)
     |> select([t, _], {t.minted_token_id, sum(t.amount)})
   end
@@ -159,7 +159,7 @@ defmodule LocalLedgerDB.Transaction do
       from(
         t in Transaction,
         where:
-          t.balance_address == ^address and t.type == ^type and
+          t.wallet_address == ^address and t.type == ^type and
             t.minted_token_id == ^minted_token_id,
         select: sum(t.amount)
       )

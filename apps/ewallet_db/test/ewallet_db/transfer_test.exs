@@ -52,7 +52,7 @@ defmodule EWalletDB.TransferTest do
         |> Transfer.insert()
 
       transfers =
-        Transfer |> Repo.all() |> Repo.preload([:from_balance, :to_balance, :minted_token])
+        Transfer |> Repo.all() |> Repo.preload([:from_wallet, :to_wallet, :minted_token])
 
       assert transfers == [transfer]
     end

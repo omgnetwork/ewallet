@@ -1,4 +1,4 @@
-defmodule EWallet.Web.V1.AddressSerializer do
+defmodule EWallet.Web.V1.WalletSerializer do
   @moduledoc """
   Serializes address data into V1 JSON response format.
   """
@@ -8,12 +8,12 @@ defmodule EWallet.Web.V1.AddressSerializer do
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 
-  def serialize(address) do
+  def serialize(wallet) do
     %{
-      object: "address",
-      socket_topic: "address:#{address.address}",
-      balances: serialize_balances(address.balances),
-      address: address.address
+      object: "wallet",
+      socket_topic: "wallet:#{wallet.address}",
+      balances: serialize_balances(wallet.balances),
+      address: wallet.address
     }
   end
 

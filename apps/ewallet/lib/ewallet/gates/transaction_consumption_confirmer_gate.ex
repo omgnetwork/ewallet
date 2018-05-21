@@ -59,14 +59,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   end
 
   defp transfer(consumption, "send") do
-    from = consumption.transaction_request.balance_address
-    to = consumption.balance.address
+    from = consumption.transaction_request.wallet_address
+    to = consumption.wallet.address
     transfer(consumption, from, to)
   end
 
   defp transfer(consumption, "receive") do
-    from = consumption.balance.address
-    to = consumption.transaction_request.balance_address
+    from = consumption.wallet.address
+    to = consumption.transaction_request.wallet_address
     transfer(consumption, from, to)
   end
 

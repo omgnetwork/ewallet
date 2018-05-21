@@ -1,12 +1,12 @@
-defmodule EWalletDB.Balance do
+defmodule EWalletDB.Wallet do
   @moduledoc """
-  Ecto Schema representing balance.
+  Ecto Schema representing wallet.
   """
   use Ecto.Schema
   import Ecto.Changeset
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Balance, MintedToken, User}
+  alias EWalletDB.{Repo, Account, Wallet, MintedToken, User}
 
   @genesis "genesis"
   @burn "burn"
@@ -20,8 +20,8 @@ defmodule EWalletDB.Balance do
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
-  schema "balance" do
-    # Balance does not have an external ID. Use `address` instead.
+  schema "wallet" do
+    # Wallet does not have an external ID. Use `address` instead.
 
     field(:address, :string)
     field(:name, :string)
@@ -57,8 +57,8 @@ defmodule EWalletDB.Balance do
     timestamps()
   end
 
-  defp changeset(%Balance{} = balance, attrs) do
-    balance
+  defp changeset(%Wallet{} = wallet, attrs) do
+    wallet
     |> cast(attrs, [
       :address,
       :account_uuid,
@@ -76,36 +76,36 @@ defmodule EWalletDB.Balance do
     |> assoc_constraint(:account)
     |> assoc_constraint(:minted_token)
     |> assoc_constraint(:user)
-    |> unique_constraint(:unique_account_name, name: :balance_account_id_name_index)
-    |> unique_constraint(:unique_user_name, name: :balance_user_id_name_index)
-    |> unique_constraint(:unique_account_identifier, name: :balance_account_id_identifier_index)
-    |> unique_constraint(:unique_user_identifier, name: :balance_user_id_identifier_index)
+    |> unique_constraint(:unique_account_name, name: :wallet_account_uuid_name_index)
+    |> unique_constraint(:unique_user_name, name: :wallet_user_uuid_name_index)
+    |> unique_constraint(:unique_account_identifier, name: :wallet_account_uuid_identifier_index)
+    |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
     |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
-  Retrieve a balance using the specified address.
+  Retrieve a wallet using the specified address.
   """
   def get(nil), do: nil
 
   def get(address) do
-    Repo.get_by(Balance, address: address)
+    Repo.get_by(Wallet, address: address)
   end
 
   @doc """
-  Create a new balance with the passed attributes.
+  Create a new wallet with the passed attributes.
   A UUID is generated as the address if address is not specified.
   """
   def insert(attrs) do
     attrs = attrs |> Map.put_new_lazy(:address, &UUID.generate/0)
 
-    %Balance{}
+    %Wallet{}
     |> changeset(attrs)
     |> Repo.insert()
   end
 
   @doc """
-  Returns the genesis balance.
+  Returns the genesis wallet.
   """
   def get_genesis do
     case get(@genesis) do
@@ -113,8 +113,8 @@ defmodule EWalletDB.Balance do
         {:ok, genesis} = insert_genesis()
         genesis
 
-      balance ->
-        balance
+      wallet ->
+        wallet
     end
   end
 
@@ -122,11 +122,11 @@ defmodule EWalletDB.Balance do
   Inserts a genesis.
   """
   def insert_genesis do
-    changeset = changeset(%Balance{}, %{address: @genesis, name: @genesis, identifier: @genesis})
+    changeset = changeset(%Wallet{}, %{address: @genesis, name: @genesis, identifier: @genesis})
     opts = [on_conflict: :nothing, conflict_target: :address]
 
     case Repo.insert(changeset, opts) do
-      {:ok, _balance} ->
+      {:ok, _wallet} ->
         {:ok, get(@genesis)}
 
       {:error, changeset} ->

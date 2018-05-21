@@ -13,7 +13,7 @@ defmodule EWalletDB.TransactionConsumption do
     User,
     MintedToken,
     TransactionRequest,
-    Balance,
+    Wallet,
     Transfer,
     Account
   }
@@ -88,9 +88,9 @@ defmodule EWalletDB.TransactionConsumption do
     )
 
     belongs_to(
-      :balance,
-      Balance,
-      foreign_key: :balance_address,
+      :wallet,
+      Wallet,
+      foreign_key: :wallet_address,
       references: :address,
       type: :string
     )
@@ -107,7 +107,7 @@ defmodule EWalletDB.TransactionConsumption do
       :user_uuid,
       :account_uuid,
       :transaction_request_uuid,
-      :balance_address,
+      :wallet_address,
       :minted_token_uuid,
       :metadata,
       :encrypted_metadata,
@@ -118,7 +118,7 @@ defmodule EWalletDB.TransactionConsumption do
       :amount,
       :idempotency_token,
       :transaction_request_uuid,
-      :balance_address,
+      :wallet_address,
       :minted_token_uuid
     ])
     |> validate_number(:amount, greater_than: 0)
@@ -127,7 +127,7 @@ defmodule EWalletDB.TransactionConsumption do
     |> unique_constraint(:correlation_id)
     |> assoc_constraint(:user)
     |> assoc_constraint(:transaction_request)
-    |> assoc_constraint(:balance)
+    |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version())
   end

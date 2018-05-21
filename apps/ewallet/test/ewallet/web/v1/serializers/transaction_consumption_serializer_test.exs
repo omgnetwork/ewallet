@@ -42,7 +42,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         transaction_request_id: Assoc.get(consumption, [:transaction_request, :id]),
         transaction_request:
           TransactionRequestSerializer.serialize(consumption.transaction_request),
-        address: consumption.balance_address,
+        address: consumption.wallet_address,
         metadata: %{},
         encrypted_metadata: %{},
         expiration_date: nil,

@@ -22,7 +22,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
   defp join_as(request, %{authenticated: :client, user: user}, socket) do
     user
     |> User.addresses()
-    |> Enum.member?(request.balance_address)
+    |> Enum.member?(request.wallet_address)
     |> case do
       true -> {:ok, socket}
       false -> {:error, :forbidden_channel}

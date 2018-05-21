@@ -15,18 +15,18 @@ defmodule EWallet.AddressRecordFetcherTest do
       {:ok, inserted_user1} = User.insert(params_for(:user))
       {:ok, inserted_user2} = User.insert(params_for(:user))
 
-      from = User.get_primary_balance(inserted_user1)
-      to = User.get_primary_balance(inserted_user2)
+      from = User.get_primary_wallet(inserted_user1)
+      to = User.get_primary_wallet(inserted_user2)
 
-      {:ok, from_balance, to_balance, minted_token} =
+      {:ok, from_wallet, to_wallet, minted_token} =
         AddressRecordFetcher.fetch(%{
           "from_address" => from.address,
           "to_address" => to.address,
           "token_id" => inserted_token.id
         })
 
-      assert from_balance == from
-      assert to_balance == to
+      assert from_wallet == from
+      assert to_wallet == to
       assert minted_token == inserted_token
     end
 
@@ -37,7 +37,7 @@ defmodule EWallet.AddressRecordFetcherTest do
       res =
         AddressRecordFetcher.fetch(%{
           "from_address" => "123",
-          "to_address" => User.get_primary_balance(inserted_user).address,
+          "to_address" => User.get_primary_wallet(inserted_user).address,
           "token_id" => inserted_token.id
         })
 
@@ -50,7 +50,7 @@ defmodule EWallet.AddressRecordFetcherTest do
 
       res =
         AddressRecordFetcher.fetch(%{
-          "from_address" => User.get_primary_balance(inserted_user).address,
+          "from_address" => User.get_primary_wallet(inserted_user).address,
           "to_address" => "123",
           "token_id" => inserted_token.id
         })
@@ -62,8 +62,8 @@ defmodule EWallet.AddressRecordFetcherTest do
       {:ok, inserted_user1} = User.insert(params_for(:user))
       {:ok, inserted_user2} = User.insert(params_for(:user))
 
-      to = User.get_primary_balance(inserted_user1).address
-      from = User.get_primary_balance(inserted_user2).address
+      to = User.get_primary_wallet(inserted_user1).address
+      from = User.get_primary_wallet(inserted_user2).address
 
       res =
         AddressRecordFetcher.fetch(%{

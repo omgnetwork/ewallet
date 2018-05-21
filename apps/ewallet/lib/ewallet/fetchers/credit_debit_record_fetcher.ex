@@ -19,9 +19,9 @@ defmodule EWallet.CreditDebitRecordFetcher do
   defp load_account(nil, nil), do: nil
 
   defp load_account(nil, minted_token),
-    do: Account.get_by([uuid: minted_token.account_uuid], preload: :balances)
+    do: Account.get_by([uuid: minted_token.account_uuid], preload: :wallets)
 
-  defp load_account(account_id, _minted_token), do: Account.get(account_id, preload: :balances)
+  defp load_account(account_id, _minted_token), do: Account.get(account_id, preload: :wallets)
 
   defp handle_result(_, _, nil), do: {:error, :minted_token_not_found}
   defp handle_result(nil, _, _), do: {:error, :account_id_not_found}

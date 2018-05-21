@@ -57,7 +57,7 @@ defmodule EWallet.Umbrella.Mixfile do
       extra_section: "Guides",
       extras: [
         {"README.md", [filename: "introduction", title: "Introduction"]},
-        "docs/design/balances.md",
+        "docs/design/wallets.md",
         "docs/design/components.md",
         "docs/design/entities.md",
         "docs/setup/clustering.md",
@@ -69,7 +69,7 @@ defmodule EWallet.Umbrella.Mixfile do
           "README.md"
         ],
         "Technical Design": [
-          "docs/design/balances.md",
+          "docs/design/wallets.md",
           "docs/design/components.md",
           "docs/design/entities.md"
         ],

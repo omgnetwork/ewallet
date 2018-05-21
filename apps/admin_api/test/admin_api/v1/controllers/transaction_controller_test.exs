@@ -19,15 +19,15 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     end
 
     test "returns a list of transactions according to search_term, sort_by and sort_direction" do
-      balance1 = insert(:balance, address: "ABC1")
-      balance2 = insert(:balance, address: "ABC3")
-      balance3 = insert(:balance, address: "ABC2")
-      balance4 = insert(:balance, address: "XYZ1")
+      wallet1 = insert(:wallet, address: "ABC1")
+      wallet2 = insert(:wallet, address: "ABC3")
+      wallet3 = insert(:wallet, address: "ABC2")
+      wallet4 = insert(:wallet, address: "XYZ1")
 
-      insert(:transfer, %{from_balance: balance1})
-      insert(:transfer, %{from_balance: balance2})
-      insert(:transfer, %{from_balance: balance3})
-      insert(:transfer, %{from_balance: balance4})
+      insert(:transfer, %{from_wallet: wallet1})
+      insert(:transfer, %{from_wallet: wallet2})
+      insert(:transfer, %{from_wallet: wallet3})
+      insert(:transfer, %{from_wallet: wallet4})
 
       attrs = %{
         # Search is case-insensitive

@@ -13,7 +13,7 @@ defmodule EWalletDB.User do
     Repo,
     Account,
     AuthToken,
-    Balance,
+    Wallet,
     Invite,
     Membership,
     Role,
@@ -46,8 +46,8 @@ defmodule EWalletDB.User do
     )
 
     has_many(
-      :balances,
-      Balance,
+      :wallets,
+      Wallet,
       foreign_key: :user_uuid,
       references: :uuid
     )
@@ -149,10 +149,10 @@ defmodule EWalletDB.User do
   Retrieves all the addresses for the given user.
   """
   def addresses(user) do
-    user = user |> Repo.preload(:balances)
+    user = user |> Repo.preload(:wallets)
 
-    Enum.map(user.balances, fn balance ->
-      balance.address
+    Enum.map(user.wallets, fn wallet ->
+      wallet.address
     end)
   end
 
@@ -166,7 +166,7 @@ defmodule EWalletDB.User do
   def get(id, queryable) when is_external_id(id) do
     queryable
     |> Repo.get_by(id: id)
-    |> Repo.preload(:balances)
+    |> Repo.preload(:wallets)
   end
 
   def get(_, _), do: nil
@@ -179,7 +179,7 @@ defmodule EWalletDB.User do
   def get_by_provider_user_id(provider_user_id) do
     User
     |> Repo.get_by(provider_user_id: provider_user_id)
-    |> Repo.preload(:balances)
+    |> Repo.preload(:wallets)
   end
 
   @doc """
@@ -188,7 +188,7 @@ defmodule EWalletDB.User do
   def get_by_email(email) when is_binary(email) do
     User
     |> Repo.get_by(email: email)
-    |> Repo.preload(:balances)
+    |> Repo.preload(:wallets)
   end
 
   @doc """
@@ -199,22 +199,22 @@ defmodule EWalletDB.User do
       iex> insert(%{field: value})
       {:ok, %User{}}
 
-  Creates a user and their primary balance.
+  Creates a user and their primary wallet.
   """
   def insert(attrs) do
     multi =
       Multi.new()
       |> Multi.insert(:user, changeset(%User{}, attrs))
-      |> Multi.run(:balance, fn %{user: user} ->
-        insert_balance(user, Balance.primary())
+      |> Multi.run(:wallet, fn %{user: user} ->
+        insert_wallet(user, Wallet.primary())
       end)
 
     case Repo.transaction(multi) do
       {:ok, result} ->
-        user = result.user |> Repo.preload([:balances])
+        user = result.user |> Repo.preload([:wallets])
         {:ok, user}
 
-      # Only the account insertion should fail. If the balance insert fails, there is
+      # Only the account insertion should fail. If the wallet insert fails, there is
       # something wrong with our code.
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -222,15 +222,15 @@ defmodule EWalletDB.User do
   end
 
   @doc """
-  Inserts a balance for the given user.
+  Inserts a wallet for the given user.
   """
-  def insert_balance(%User{} = user, identifier) do
+  def insert_wallet(%User{} = user, identifier) do
     %{
       user_uuid: user.uuid,
       name: identifier,
       identifier: identifier
     }
-    |> Balance.insert()
+    |> Wallet.insert()
   end
 
   @doc """
@@ -268,20 +268,20 @@ defmodule EWalletDB.User do
   end
 
   @doc """
-  Retrieve the primary balance for a user.
+  Retrieve the primary wallet for a user.
   """
-  def get_primary_balance(user) do
-    Balance
+  def get_primary_wallet(user) do
+    Wallet
     |> where([b], b.user_uuid == ^user.uuid)
-    |> where([b], b.identifier == ^Balance.primary())
+    |> where([b], b.identifier == ^Wallet.primary())
     |> Repo.one()
   end
 
   @doc """
-  Retrieve the primary balance for a user with preloaded balances.
+  Retrieve the primary wallet for a user with preloaded wallets.
   """
-  def get_preloaded_primary_balance(user) do
-    Enum.find(user.balances, fn balance -> balance.identifier == Balance.primary() end)
+  def get_preloaded_primary_wallet(user) do
+    Enum.find(user.wallets, fn wallet -> wallet.identifier == Wallet.primary() end)
   end
 
   @doc """

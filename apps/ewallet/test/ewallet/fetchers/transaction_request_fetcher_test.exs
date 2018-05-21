@@ -8,14 +8,14 @@ defmodule EWallet.TransactionRequestFetcherTest do
     {:ok, user} = :user |> params_for() |> User.insert()
     {:ok, account} = :account |> params_for() |> Account.insert()
     minted_token = insert(:minted_token)
-    user_balance = User.get_primary_balance(user)
-    account_balance = Account.get_primary_balance(account)
+    user_wallet = User.get_primary_wallet(user)
+    account_wallet = Account.get_primary_wallet(account)
 
     %{
       user: user,
       minted_token: minted_token,
-      user_balance: user_balance,
-      account_balance: account_balance,
+      user_wallet: user_wallet,
+      account_wallet: account_wallet,
       account: account
     }
   end
@@ -28,7 +28,7 @@ defmodule EWallet.TransactionRequestFetcherTest do
           "token_id" => meta.minted_token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "address" => meta.user_balance.address
+          "address" => meta.user_wallet.address
         })
 
       assert {:ok, request} = TransactionRequestFetcher.get(request.id)

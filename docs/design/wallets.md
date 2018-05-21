@@ -6,15 +6,15 @@ This file contains information about the balance system and how it can be used.
 
 Balances are used to "hold" amounts in specific minted tokens (a.k.a cryptocurrencies/loyalty/points/coins). Hold is between quotes because those amounts are not actually stored in any records, they are computed from the local ledger (using a Double Bookkeeping approach) by summing all the credits and subtracting all the debits.
 
-Balances are saved in eWallet DB, and a shadow copy is made in LocalLedger to ensure data consistency at the database level. Those balances have three fields that really matter: address, name and identifier.
+Balances are saved in eWallet DB, and a shadow copy is made in LocalLedger to ensure data consistency at the database level. Those wallets have three fields that really matter: address, name and identifier.
 
 - `address`: The balance ID used to transfer funds to that balance.
 - `name`: A modifiable field used to identify a specific balance. By default, the identifier will be used as a name.
 - `identifier`: An identifier acting both as a type and a unique identifier in the scope of the current account or user.
   - Can contain: `genesis`, `burn`, `primary`, `secondary:#{uuid}`
   - The `genesis` balance will be lazy-created the first time it's needed. A primary balance is created for users and accounts on creation (accounts also get a burn balance).
-  - The value has to be unique in the scope of the current account/user: One account can only have one primary and one burn balances. Multiple secondary balances can be created by adding a generated `uuid`. The `genesis` balance has no user or account associated and is the only one working that way.
-  - Secondary balances are not available yet, but it should be possible in the future for users to create alternative balances (like different bank accounts for example), and potentially change their primary address.
+  - The value has to be unique in the scope of the current account/user: One account can only have one primary and one burn wallets. Multiple secondary wallets can be created by adding a generated `uuid`. The `genesis` balance has no user or account associated and is the only one working that way.
+  - Secondary wallets are not available yet, but it should be possible in the future for users to create alternative wallets (like different bank accounts for example), and potentially change their primary address.
 
 ## The minting process
 

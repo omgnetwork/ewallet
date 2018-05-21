@@ -7,7 +7,7 @@ defmodule LocalLedger.Entry do
 
   alias LocalLedger.{
     Transaction,
-    Balance,
+    Wallet,
     Errors.InvalidAmountError,
     Errors.AmountIsZeroError,
     Errors.SameAddressError
@@ -38,7 +38,7 @@ defmodule LocalLedger.Entry do
 
   @doc """
   Insert a new entry and the associated transactions. If they are not already
-  present, a new minted token and new balances will be created.
+  present, a new minted token and new wallets will be created.
 
   ## Parameters
 
@@ -48,7 +48,7 @@ defmodule LocalLedger.Entry do
       - credits: a list of credit transactions to process (see example)
       - minted_token: the token associated with this entry
     - genesis (boolean, default to false): if set to true, this argument will
-      allow the debit balances to go into the negative.
+      allow the debit wallets to go into the negative.
 
   ## Errors
 
@@ -111,14 +111,14 @@ defmodule LocalLedger.Entry do
       {:error, :same_address, e.message}
   end
 
-  # Lock all the DEBIT addresses to ensure the truthness of the balances
+  # Lock all the DEBIT addresses to ensure the truthness of the wallets
   # amounts, before inserting one entry and the associated transactions.
   # If the genesis argument is passed as true, the balance check will be
   # skipped.
   defp locked_insert(transactions, metadata, correlation_id, genesis, callback) do
     addresses = Transaction.get_addresses(transactions)
 
-    Balance.lock(addresses, fn ->
+    Wallet.lock(addresses, fn ->
       if callback, do: callback.()
 
       Transaction.check_balance(transactions, %{genesis: genesis})
