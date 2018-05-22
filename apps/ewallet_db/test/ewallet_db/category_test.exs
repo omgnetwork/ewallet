@@ -14,30 +14,25 @@ defmodule EWalletDB.CategoryTest do
     end
   end
 
-  describe "get/1" do
-    test "accepts an id" do
-      category = insert(:category)
-      result = Category.get(category.id)
-
-      assert result.id == category.id
-    end
-
-    test "returns nil if the given id is in an invalid format" do
-      assert Category.get("not_an_id") == nil
-    end
-
-    test "returns nil if the category with the given id is not found" do
-      assert Category.get("cat_00000000000000000000000000") == nil
-    end
-  end
-
   describe "get/2" do
-    test "accepts an id and preload" do
+    test_schema_get_returns_struct_if_given_valid_id(Category)
+    test_schema_get_returns_nil_for_id(Category, "cat_00000000000000000000000000")
+    test_schema_get_returns_nil_for_id(Category, "not_an_id")
+
+    test "accepts :preload option" do
       category = insert(:category)
       result = Category.get(category.id, preload: :accounts)
 
       assert result.id == category.id
       assert Ecto.assoc_loaded?(result.accounts)
+    end
+  end
+
+  describe "get_by/2" do
+    test "accepts arbitary field" do
+      category = insert(:category)
+      result = Category.get_by(category.name)
+      assert result.id == category.id
     end
   end
 
