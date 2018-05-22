@@ -7,7 +7,7 @@ info:
 
 
     Two kinds of endpoints can be found in this document: the server endpoints
-    and the client (mobile wallet) endpoints.
+    and the client (mobile ) endpoints.
 
 
     All API calls that modify the database need to be done from the server
@@ -778,19 +778,65 @@ components:
       properties:
         object:
           type: string
+        socket_topic:
+          type: string
+        address:
+          type: string
+        name:
+          type: string
+        identifier:
+          type: string
+        metadata:
+          type: object
+        encrypted_metadata:
+          type: object
+        user_id:
+          type: string
+        user:
+          type: object
+          $ref: '#/components/schemas/UserSchema'
+        account_id:
+          type: string
+        account:
+          type: object
+          $ref: '#/components/schemas/AccountSchema'
         balances:
           type: array
           $ref: '#/components/schemas/BalanceSchema'
-        address:
-          type: string
       required:
-        - wallets
+        - object
+        - socket_topic
         - address
+        - name
+        - identifier
+        - metadata
+        - encrypted_metadata
+        - user_id
+        - user
+        - account_id
+        - account
+        - balances
       example:
         data:
           object: "wallet"
-          balances: []
-          address: "XXXXXXXXXXXXXXXXXXXXX"
+          socket_topic: "wallet:XXX123"
+          address: "XXX123"
+          name: "primary"
+          identifier: "primary"
+          metadata: {}
+          encrypted_metadata: {}
+          user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+          user: {}
+          account_id: null
+          account: null
+          balances:
+            - amount: 0
+              minted_token:
+                object: 'minted_token'
+                id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                symbol: "BTC"
+                name: "Bitcoin"
+                subunit_to_unit: 100000000000000000
     MultipleWalletsResponse:
       description: "The response schema for a list of multiple wallets (i.e. transfers)"
       allOf:
@@ -809,33 +855,88 @@ components:
                       $ref: '#/components/schemas/WalletResponse'
         required:
           - object
-          - balances
-          - address
         example:
           data:
             object: list
             data:
             - object: "wallet"
+              socket_topic: "wallet:XXX123"
               address: "XXX123"
+              name: "primary"
+              identifier: "primary"
+              metadata: {}
+              encrypted_metadata: {}
+              user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+              user: {}
+              account_id: null
+              account: null
               balances:
-              - amount: 0
-                minted_token:
-                  object: 'minted_token'
-                  id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-                  symbol: "BTC"
-                  name: "Bitcoin"
-                  subunit_to_unit: 100000000000000000
+                - amount: 0
+                  minted_token:
+                    object: 'minted_token'
+                    id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                    symbol: "BTC"
+                    name: "Bitcoin"
+                    subunit_to_unit: 100000000000000000
             - object: "wallet"
+              socket_topic: "wallet:XXX456"
               address: "XXX456"
+              name: "primary"
+              identifier: "primary"
+              metadata: {}
+              encrypted_metadata: {}
+              user_id: "usr_02cbfg6v9thrc3sd9m1v4gazjv"
+              user: {}
+              account_id: null
+              account: null
               balances:
-              - amount: 100
-                minted_token:
-                  object: 'minted_token'
-                  id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-                  symbol: "BTC"
-                  name: "Bitcoin"
-                  subunit_to_unit: 100000000000000000
-
+                - amount: 0
+                  minted_token:
+                    object: 'minted_token'
+                    id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                    symbol: "BTC"
+                    name: "Bitcoin"
+    ######################################
+    #           ACCOUNT SCHEMAS          #
+    ######################################
+    AccountSchema:
+      description: "The object schema for an account"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        parent_id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        master:
+          type: boolean
+        avatar:
+          type: object
+        metadata:
+          type: object
+        encrypted_metadata:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - parent_id
+        - name
+        - master
+        - avatar
+        - created_at
+        - updated_at
+        
     ######################################
     #         MINTED TOKEN SCHEMAS       #
     ######################################

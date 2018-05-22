@@ -1,7 +1,8 @@
-defmodule EWalletAPI.V1.BalanceControllerTest do
+defmodule EWalletAPI.V1.WalletControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{User, MintedToken, Account}
+  alias EWallet.Web.V1.UserSerializer
 
   describe "/all" do
     test "Get all user wallets from its provider_user_id" do
@@ -23,8 +24,6 @@ defmodule EWalletAPI.V1.BalanceControllerTest do
           provider_user_id: user.provider_user_id
         })
 
-      address = User.get_primary_wallet(user).address
-
       assert response == %{
                "version" => "1",
                "success" => true,
@@ -33,8 +32,16 @@ defmodule EWalletAPI.V1.BalanceControllerTest do
                  "data" => [
                    %{
                      "object" => "wallet",
-                     "socket_topic" => "wallet:#{address}",
-                     "address" => address,
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
+                     "user_id" => user.id,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -102,6 +109,14 @@ defmodule EWalletAPI.V1.BalanceControllerTest do
                      "object" => "wallet",
                      "socket_topic" => "wallet:#{user_wallet.address}",
                      "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
+                     "user_id" => user.id,
                      "balances" => [
                        %{
                          "object" => "balance",

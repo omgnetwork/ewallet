@@ -33,7 +33,7 @@ defmodule EWallet.BalanceFetcher do
 
       user ->
         wallet = User.get_primary_wallet(user)
-        format_all(wallet.address)
+        format_all(wallet)
     end
   end
 
@@ -57,7 +57,7 @@ defmodule EWallet.BalanceFetcher do
 
   """
   def all(%{"address" => address}) do
-    format_all(address)
+    address |> EWalletDB.Wallet.get() |> format_all()
   end
 
   @doc """
@@ -81,7 +81,7 @@ defmodule EWallet.BalanceFetcher do
   """
   def get(%User{} = user, %MintedToken{} = minted_token) do
     user_wallet = User.get_primary_wallet(user)
-    get(minted_token.id, user_wallet.address)
+    get(minted_token.id, user_wallet)
   end
 
   @doc """
@@ -103,27 +103,21 @@ defmodule EWallet.BalanceFetcher do
     end
 
   """
-  def get(id, address) do
-    id |> Wallet.get_balance(address) |> process_response(address, :one)
+  def get(id, wallet) do
+    id |> Wallet.get_balance(wallet.address) |> process_response(wallet, :one)
   end
 
-  defp format_all(address) do
-    address |> Wallet.all_balances() |> process_response(address, :all)
+  defp format_all(wallet) do
+    wallet.address |> Wallet.all_balances() |> process_response(wallet, :all)
   end
 
-  defp process_response(wallets, address, type) do
-    case wallets do
-      {:ok, data} ->
-        balances =
-          type
-          |> load_minted_tokens(data)
-          |> map_minted_tokens(data)
+  defp process_response({:ok, data}, wallet, type) do
+    balances =
+      type
+      |> load_minted_tokens(data)
+      |> map_minted_tokens(data)
 
-        {:ok, %{address: address, balances: balances}}
-
-      wallets ->
-        wallets
-    end
+    {:ok, Map.put(wallet, :balances, balances)}
   end
 
   defp load_minted_tokens(:all, _), do: MintedToken.all()

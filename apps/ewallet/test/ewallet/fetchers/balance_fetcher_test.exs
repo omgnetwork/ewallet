@@ -5,7 +5,7 @@ defmodule EWallet.BalanceFetcherTest do
   alias Ecto.Adapters.SQL.Sandbox
 
   describe "all/1" do
-    test "retrieve all balances from a provider_user_id" do
+    test "retrieve all wallets from a provider_user_id" do
       account = Account.get_master_account()
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -35,7 +35,7 @@ defmodule EWallet.BalanceFetcherTest do
   end
 
   describe "get/2" do
-    test "retrieve the specific balance from a minted_token and an address" do
+    test "retrieve the specific wallet from a minted_token and an address" do
       account = Account.get_master_account()
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -51,7 +51,7 @@ defmodule EWallet.BalanceFetcherTest do
       transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
-      {status, wallet} = BalanceFetcher.get(omg.id, user_wallet.address)
+      {status, wallet} = BalanceFetcher.get(omg.id, user_wallet)
       assert status == :ok
       assert wallet.address == User.get_primary_wallet(user).address
 

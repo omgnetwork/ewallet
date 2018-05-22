@@ -3,6 +3,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
   alias EWalletDB.{User, MintedToken, Account, Transfer}
   alias Ecto.UUID
   alias EWallet.Web.Date
+  alias EWallet.Web.V1.UserSerializer
   alias EWallet.BalanceFetcher
 
   describe "/transfer" do
@@ -37,8 +38,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     test "updates the user wallet and returns the updated amount" do
       account = Account.get_master_account()
       master_wallet = Account.get_primary_wallet(account)
-      wallet1 = insert(:wallet)
-      wallet2 = insert(:wallet)
+      wallet1 = insert(:wallet, name: "name0")
+      wallet2 = insert(:wallet, name: "name1")
       minted_token = insert(:minted_token)
       _mint = mint!(minted_token)
 
@@ -73,6 +74,14 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "object" => "wallet",
                      "socket_topic" => "wallet:#{wallet1.address}",
                      "address" => wallet1.address,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "name0",
+                     "account" => nil,
+                     "account_id" => nil,
+                     "user" => wallet1.user |> UserSerializer.serialize() |> stringify_keys(),
+                     "user_id" => wallet1.user.id,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -95,6 +104,14 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "object" => "wallet",
                      "socket_topic" => "wallet:#{wallet2.address}",
                      "address" => wallet2.address,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "name1",
+                     "account" => nil,
+                     "account_id" => nil,
+                     "user" => wallet2.user |> UserSerializer.serialize() |> stringify_keys(),
+                     "user_id" => wallet2.user.id,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -299,9 +316,9 @@ defmodule EWalletAPI.V1.TransferControllerTest do
           encrypted_metadata: %{something: "secret"}
         })
 
-      {:ok, b1} = BalanceFetcher.get(minted_token.id, wallet1.address)
+      {:ok, b1} = BalanceFetcher.get(minted_token.id, wallet1)
       assert List.first(b1.balances).amount == (200_000 - 100) * minted_token.subunit_to_unit
-      {:ok, b2} = BalanceFetcher.get(minted_token.id, wallet2.address)
+      {:ok, b2} = BalanceFetcher.get(minted_token.id, wallet2)
       assert List.first(b2.balances).amount == 100 * minted_token.subunit_to_unit
 
       transfer = get_last_inserted(Transfer)
@@ -608,6 +625,14 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "object" => "wallet",
                      "socket_topic" => "wallet:#{user_wallet.address}",
                      "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
+                     "user_id" => user.id,
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -813,8 +838,6 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       assert transfer.metadata == %{"something" => "interesting"}
       assert transfer.encrypted_metadata == %{"something" => "secret"}
 
-      address = User.get_primary_wallet(user).address
-
       assert response == %{
                "version" => "1",
                "success" => true,
@@ -823,8 +846,33 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  "data" => [
                    %{
                      "object" => "wallet",
-                     "socket_topic" => "wallet:#{address}",
-                     "address" => address,
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => %{
+                       "avatar" => %{
+                         "large" => nil,
+                         "original" => nil,
+                         "small" => nil,
+                         "thumb" => nil
+                       },
+                       "created_at" => Date.to_iso8601(user.inserted_at),
+                       "email" => nil,
+                       "encrypted_metadata" => %{},
+                       "id" => user.id,
+                       "metadata" => user.metadata,
+                       "object" => "user",
+                       "provider_user_id" => user.provider_user_id,
+                       "socket_topic" => "user:#{user.id}",
+                       "updated_at" => Date.to_iso8601(user.updated_at),
+                       "username" => user.username
+                     },
+                     "user_id" => user.id,
                      "balances" => [
                        %{
                          "object" => "balance",
