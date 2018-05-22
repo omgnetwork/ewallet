@@ -160,14 +160,14 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     end
   end
 
-  defp insert(wallet, minted_token, request, amount, attrs) do
+  defp insert(wallet, token, request, amount, attrs) do
     TransactionConsumption.insert(%{
       correlation_id: attrs["correlation_id"],
       idempotency_token: attrs["idempotency_token"],
       amount: amount,
       user_uuid: wallet.user_uuid,
       account_uuid: wallet.account_uuid,
-      minted_token_uuid: minted_token.uuid,
+      token_uuid: token.uuid,
       transaction_request_uuid: request.uuid,
       wallet_address: wallet.address,
       expiration_date: TransactionRequest.expiration_from_lifetime(request),

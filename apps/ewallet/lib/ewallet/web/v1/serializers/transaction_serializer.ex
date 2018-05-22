@@ -1,9 +1,9 @@
 defmodule EWallet.Web.V1.TransactionSerializer do
   @moduledoc """
-  Serializes minted token(s) into V1 JSON response format.
+  Serializes token(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{PaginatorSerializer, MintedTokenSerializer}
+  alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
   alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Transfer
   alias EWalletDB.Helpers.{Assoc, Preloader}
@@ -13,10 +13,10 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   end
 
   def serialize(%Transfer{} = transaction) do
-    transaction = Preloader.preload(transaction, [:minted_token])
+    transaction = Preloader.preload(transaction, [:token])
 
-    minted_token_id = Assoc.get(transaction, [:minted_token, :id])
-    minted_token = MintedTokenSerializer.serialize(transaction.minted_token)
+    token_id = Assoc.get(transaction, [:token, :id])
+    token = TokenSerializer.serialize(transaction.token)
 
     # credo:disable-for-next-line
     %{
@@ -27,15 +27,15 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         object: "transaction_source",
         address: transaction.from,
         amount: transaction.amount,
-        minted_token_id: minted_token_id,
-        minted_token: minted_token
+        token_id: token_id,
+        token: token
       },
       to: %{
         object: "transaction_source",
         address: transaction.to,
         amount: transaction.amount,
-        minted_token_id: minted_token_id,
-        minted_token: minted_token
+        token_id: token_id,
+        token: token
       },
       exchange: %{
         object: "exchange",

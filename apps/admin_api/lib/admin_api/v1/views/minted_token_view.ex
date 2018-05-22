@@ -1,16 +1,16 @@
-defmodule AdminAPI.V1.MintedTokenView do
+defmodule AdminAPI.V1.TokenView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, MintedTokenSerializer}
+  alias EWallet.Web.V1.{ResponseSerializer, TokenSerializer}
 
-  def render("minted_token.json", %{minted_token: minted_token}) do
-    minted_token
-    |> MintedTokenSerializer.serialize()
+  def render("token.json", %{token: token}) do
+    token
+    |> TokenSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 
-  def render("minted_tokens.json", %{minted_tokens: minted_tokens}) do
-    minted_tokens
-    |> MintedTokenSerializer.serialize()
+  def render("tokens.json", %{tokens: tokens}) do
+    tokens
+    |> TokenSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 end

@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.SelfViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.SelfView
-  alias EWallet.Web.V1.MintedTokenSerializer
+  alias EWallet.Web.V1.TokenSerializer
 
   describe "EWalletAPI.V1.UserView.render/2" do
     test "renders user.json with correct structure" do
@@ -37,22 +37,22 @@ defmodule EWalletAPI.V1.SelfViewTest do
     end
 
     test "renders settings.json with correct structure" do
-      token1 = build(:minted_token)
-      token2 = build(:minted_token)
+      token1 = build(:token)
+      token2 = build(:token)
 
       expected = %{
         version: @expected_version,
         success: true,
         data: %{
           object: "setting",
-          minted_tokens: [
-            MintedTokenSerializer.serialize(token1),
-            MintedTokenSerializer.serialize(token2)
+          tokens: [
+            TokenSerializer.serialize(token1),
+            TokenSerializer.serialize(token2)
           ]
         }
       }
 
-      settings = %{minted_tokens: [token1, token2]}
+      settings = %{tokens: [token1, token2]}
       assert SelfView.render("settings.json", settings) == expected
     end
   end

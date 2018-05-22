@@ -2,7 +2,7 @@ defmodule EWallet.BalanceFetcher do
   @moduledoc """
   Handles the retrieval and formatting of balances from the local ledger.
   """
-  alias EWalletDB.{User, MintedToken}
+  alias EWalletDB.{User, Token}
   alias LocalLedger.Wallet
 
   @doc """
@@ -79,9 +79,9 @@ defmodule EWallet.BalanceFetcher do
     end
 
   """
-  def get(%User{} = user, %MintedToken{} = minted_token) do
+  def get(%User{} = user, %Token{} = token) do
     user_wallet = User.get_primary_wallet(user)
-    get(minted_token.id, user_wallet)
+    get(token.id, user_wallet)
   end
 
   @doc """
@@ -114,23 +114,23 @@ defmodule EWallet.BalanceFetcher do
   defp process_response({:ok, data}, wallet, type) do
     balances =
       type
-      |> load_minted_tokens(data)
-      |> map_minted_tokens(data)
+      |> load_tokens(data)
+      |> map_tokens(data)
 
     {:ok, Map.put(wallet, :balances, balances)}
   end
 
-  defp load_minted_tokens(:all, _), do: MintedToken.all()
+  defp load_tokens(:all, _), do: Token.all()
 
-  defp load_minted_tokens(:one, amounts) do
-    amounts |> Map.keys() |> MintedToken.get_all()
+  defp load_tokens(:one, amounts) do
+    amounts |> Map.keys() |> Token.get_all()
   end
 
-  defp map_minted_tokens(minted_tokens, amounts) do
-    Enum.map(minted_tokens, fn minted_token ->
+  defp map_tokens(tokens, amounts) do
+    Enum.map(tokens, fn token ->
       %{
-        minted_token: minted_token,
-        amount: amounts[minted_token.id] || 0
+        token: token,
+        amount: amounts[token.id] || 0
       }
     end)
   end

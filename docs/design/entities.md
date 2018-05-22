@@ -1,6 +1,6 @@
 # Entities
 
-- __Minted Tokens__: A currency (loyalty points, cryptocurrency, tokenized fiat). Identified by a symbol (OMG, BTC, USDT). By default, a token is not backed by the blockchain, which means a provider can only make internal transfers, between the provider's wallets and the users wallets (back and forth) or between accounts. If a provider wishes to have one of its token backed, the address of the smart contract on the blockchain needs to be defined in the token details to uniquely identify it.
+- __Tokens__: A currency (loyalty points, cryptocurrency, tokenized fiat). Identified by a symbol (OMG, BTC, USDT). By default, a token is not backed by the blockchain, which means a provider can only make internal transfers, between the provider's wallets and the users wallets (back and forth) or between accounts. If a provider wishes to have one of its token backed, the address of the smart contract on the blockchain needs to be defined in the token details to uniquely identify it.
 
 - __Mints__: A record of each occurrence when more tokens were put into circulation.
 

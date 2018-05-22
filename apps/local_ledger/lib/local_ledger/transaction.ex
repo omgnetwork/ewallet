@@ -3,16 +3,16 @@ defmodule LocalLedger.Transaction do
   This module is responsible for preparing and formatting the transactions
   before they are passed to an entry to be inserted in the database.
   """
-  alias LocalLedgerDB.{Wallet, MintedToken, Transaction}
+  alias LocalLedgerDB.{Wallet, Token, Transaction}
 
   @doc """
-  Get or insert the given minted token and all the given addresses before
+  Get or insert the given token and all the given addresses before
   building a map representation usable by the LocalLedgerDB schemas.
   """
-  def build_all({debits, credits}, minted_token) do
-    {:ok, minted_token} = MintedToken.get_or_insert(minted_token)
-    sending = format(minted_token, debits, Transaction.debit_type())
-    receiving = format(minted_token, credits, Transaction.credit_type())
+  def build_all({debits, credits}, token) do
+    {:ok, token} = Token.get_or_insert(token)
+    sending = format(token, debits, Transaction.debit_type())
+    receiving = format(token, credits, Transaction.credit_type())
 
     sending ++ receiving
   end
@@ -29,14 +29,14 @@ defmodule LocalLedger.Transaction do
   end
 
   # Build a list of wallet maps with the required details for DB insert.
-  defp format(minted_token, wallets, type) do
+  defp format(token, wallets, type) do
     Enum.map(wallets, fn attrs ->
       {:ok, wallet} = Wallet.get_or_insert(attrs)
 
       %{
         type: type,
         amount: attrs["amount"],
-        minted_token_id: minted_token.id,
+        token_id: token.id,
         wallet_address: wallet.address
       }
     end)
@@ -64,7 +64,7 @@ defmodule LocalLedger.Transaction do
       if transaction[:type] == Transaction.debit_type() do
         Transaction.check_balance(%{
           amount: transaction[:amount],
-          minted_token_id: transaction[:minted_token_id],
+          token_id: transaction[:token_id],
           address: transaction[:wallet_address]
         })
       end

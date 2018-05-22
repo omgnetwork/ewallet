@@ -3,7 +3,7 @@ defmodule EWallet.Web.V1.BalanceSerializer do
   Serializes wallet data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.MintedTokenSerializer
+  alias EWallet.Web.V1.TokenSerializer
 
   # Both the given wallet and `%NotLoaded{}` are maps
   # so we need to pattern-match `%NotLoaded{}` first.
@@ -12,7 +12,7 @@ defmodule EWallet.Web.V1.BalanceSerializer do
   def serialize(balance) when is_map(balance) do
     %{
       object: "balance",
-      minted_token: MintedTokenSerializer.serialize(balance.minted_token),
+      token: TokenSerializer.serialize(balance.token),
       amount: balance.amount
     }
   end

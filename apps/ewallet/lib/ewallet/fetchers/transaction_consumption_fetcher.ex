@@ -39,7 +39,7 @@ defmodule EWallet.TransactionConsumptionFetcher do
         :account,
         :user,
         :wallet,
-        :minted_token,
+        :token,
         :transaction_request,
         :transfer
       ]

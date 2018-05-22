@@ -15,7 +15,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   setup do
     {:ok, _} = TestEndpoint.start_link()
 
-    minted_token = insert(:minted_token)
+    token = insert(:token)
     {:ok, receiver} = :user |> params_for() |> User.insert()
     {:ok, sender} = :user |> params_for() |> User.insert()
     account = Account.get_master_account()
@@ -23,23 +23,23 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     sender_wallet = User.get_primary_wallet(sender)
     account_wallet = Account.get_primary_wallet(account)
 
-    mint!(minted_token)
+    mint!(token)
 
     transaction_request =
       insert(
         :transaction_request,
         type: "receive",
-        minted_token_uuid: minted_token.uuid,
+        token_uuid: token.uuid,
         user_uuid: receiver.uuid,
         wallet: receiver_wallet,
-        amount: 100_000 * minted_token.subunit_to_unit
+        amount: 100_000 * token.subunit_to_unit
       )
 
     %{
       sender: sender,
       receiver: receiver,
       account: account,
-      minted_token: minted_token,
+      token: token,
       receiver_wallet: receiver_wallet,
       sender_wallet: sender_wallet,
       account_wallet: account_wallet,
@@ -49,16 +49,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
   describe "confirm/3 with Account" do
     test "confirms the consumption if approved as account", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =
@@ -86,12 +86,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "confirms a user's consumption if created and approved as account", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
@@ -127,16 +127,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if not owner", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.sender.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =
@@ -161,16 +161,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if expired", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =
@@ -198,16 +198,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "rejects the consumption if not approved as account", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =
@@ -235,16 +235,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "allows only one confirmation with two confirms at the same time", meta do
-      initialize_wallet(meta.sender_wallet, 1_000_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 1_000_000, meta.token)
 
       request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          amount: 100_000 * meta.token.subunit_to_unit,
           max_consumptions: 1
         )
 
@@ -305,16 +305,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
   describe "confirm/3 with User" do
     test "confirms the consumption if approved as user", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =
@@ -342,12 +342,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "confirms a user's consumption if created and approved as user", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
@@ -383,16 +383,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if not owner", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =
@@ -417,16 +417,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "fails to confirm the consumption if expired", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =
@@ -454,16 +454,16 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     end
 
     test "rejects the consumption if not approved as account", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
           require_confirmation: true,
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       {res, consumption} =

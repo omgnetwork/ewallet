@@ -1,12 +1,12 @@
-defmodule AdminAPI.V1.MintedTokenController do
+defmodule AdminAPI.V1.TokenController do
   @moduledoc """
-  The controller to serve minted token endpoints.
+  The controller to serve token endpoints.
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.MintGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{Account, MintedToken}
+  alias EWalletDB.{Account, Token}
   alias Ecto.UUID
   alias Plug.Conn
 
@@ -30,11 +30,11 @@ defmodule AdminAPI.V1.MintedTokenController do
   @sort_fields [:id, :symbol, :name, :subunit_to_unit, :inserted_at, :updated_at]
 
   @doc """
-  Retrieves a list of minted tokens.
+  Retrieves a list of tokens.
   """
   @spec all(Conn.t(), map() | nil) :: map()
   def all(conn, attrs) do
-    MintedToken
+    Token
     |> SearchParser.to_query(attrs, @search_fields)
     |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
     |> Paginator.paginate_attrs(attrs)
@@ -42,40 +42,40 @@ defmodule AdminAPI.V1.MintedTokenController do
   end
 
   @doc """
-  Retrieves a specific minted token by its id.
+  Retrieves a specific token by its id.
   """
   @spec get(Conn.t(), map()) :: map()
   def get(conn, %{"id" => id}) do
     id
-    |> MintedToken.get()
+    |> Token.get()
     |> respond_single(conn)
   end
 
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
-  Creates a new Minted Token.
+  Creates a new Token.
   """
   @spec create(Conn.t(), map()) :: map()
   def create(conn, attrs) do
-    inserted_minted_token =
+    inserted_token =
       attrs
       |> Map.put("account_uuid", Account.get_master_account().uuid)
-      |> MintedToken.insert()
+      |> Token.insert()
 
     case attrs["amount"] do
       amount when is_number(amount) and amount > 0 ->
-        inserted_minted_token
+        inserted_token
         |> mint_token(%{"amount" => amount})
         |> respond_single(conn)
 
       _ ->
-        respond_single(inserted_minted_token, conn)
+        respond_single(inserted_token, conn)
     end
   end
 
   @doc """
-  Mint a minted token.
+  Mint a token.
   """
   @spec mint(Conn.t(), map()) :: map()
   def mint(
@@ -85,8 +85,8 @@ defmodule AdminAPI.V1.MintedTokenController do
           "amount" => _
         } = attrs
       ) do
-    with %MintedToken{} = minted_token <- MintedToken.get(id) do
-      mint_token({:ok, minted_token}, attrs)
+    with %Token{} = token <- Token.get(id) do
+      mint_token({:ok, token}, attrs)
     else
       error -> error
     end
@@ -95,17 +95,17 @@ defmodule AdminAPI.V1.MintedTokenController do
 
   def mint(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  defp mint_token({:ok, minted_token}, %{"amount" => amount} = attrs)
+  defp mint_token({:ok, token}, %{"amount" => amount} = attrs)
        when is_number(amount) do
     %{
       "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
-      "token_id" => minted_token.id,
+      "token_id" => token.id,
       "amount" => amount,
       "description" => attrs["description"]
     }
     |> MintGate.insert()
     |> case do
-      {:ok, _mint, _ledger_response} -> {:ok, minted_token}
+      {:ok, _mint, _ledger_response} -> {:ok, token}
       {:error, code, description} -> {:error, code, description}
       {:error, changeset} -> {:error, changeset}
     end
@@ -114,29 +114,29 @@ defmodule AdminAPI.V1.MintedTokenController do
   defp mint_token({:error, changeset}, _attrs), do: {:error, changeset}
   defp mint_token(_, _attrs), do: {:error, :invalid_parameter}
 
-  # Respond with a list of minted tokens
-  defp respond_multiple(%Paginator{} = paged_minted_tokens, conn) do
-    render(conn, :minted_tokens, %{minted_tokens: paged_minted_tokens})
+  # Respond with a list of tokens
+  defp respond_multiple(%Paginator{} = paged_tokens, conn) do
+    render(conn, :tokens, %{tokens: paged_tokens})
   end
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
 
-  # Respond with a single minted token
+  # Respond with a single token
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  defp respond_single({:ok, minted_token}, conn) do
-    render(conn, :minted_token, %{minted_token: minted_token})
+  defp respond_single({:ok, token}, conn) do
+    render(conn, :token, %{token: token})
   end
 
-  defp respond_single(%MintedToken{} = minted_token, conn) do
-    render(conn, :minted_token, %{minted_token: minted_token})
+  defp respond_single(%Token{} = token, conn) do
+    render(conn, :token, %{token: token})
   end
 
   defp respond_single(nil, conn) do
-    handle_error(conn, :minted_token_id_not_found)
+    handle_error(conn, :token_id_not_found)
   end
 end

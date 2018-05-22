@@ -11,7 +11,7 @@ defmodule EWalletDB.TransactionRequest do
   alias EWalletDB.{
     Account,
     Wallet,
-    MintedToken,
+    Token,
     TransactionRequest,
     TransactionConsumption,
     Repo,
@@ -74,9 +74,9 @@ defmodule EWalletDB.TransactionRequest do
     )
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_uuid,
+      :token,
+      Token,
+      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
@@ -100,7 +100,7 @@ defmodule EWalletDB.TransactionRequest do
       :correlation_id,
       :user_uuid,
       :account_uuid,
-      :minted_token_uuid,
+      :token_uuid,
       :wallet_address,
       :require_confirmation,
       :max_consumptions,
@@ -114,14 +114,14 @@ defmodule EWalletDB.TransactionRequest do
     |> validate_required([
       :type,
       :status,
-      :minted_token_uuid,
+      :token_uuid,
       :wallet_address
     ])
     |> validate_amount_if_disallow_override()
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:correlation_id)
-    |> assoc_constraint(:minted_token)
+    |> assoc_constraint(:token)
     |> assoc_constraint(:user)
     |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)

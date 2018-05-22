@@ -7,13 +7,13 @@ defmodule EWallet.TransactionRequestGateTest do
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
     {:ok, account} = :account |> params_for() |> Account.insert()
-    minted_token = insert(:minted_token)
+    token = insert(:token)
     user_wallet = User.get_primary_wallet(user)
     account_wallet = Account.get_primary_wallet(account)
 
     %{
       user: user,
-      minted_token: minted_token,
+      token: token,
       user_wallet: user_wallet,
       account_wallet: account_wallet,
       account: account
@@ -25,7 +25,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => nil
@@ -38,7 +38,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => "fake"
@@ -51,7 +51,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => "fake",
@@ -65,7 +65,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id
@@ -79,7 +79,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
@@ -95,7 +95,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
@@ -109,7 +109,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
@@ -129,7 +129,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
@@ -144,7 +144,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
@@ -160,7 +160,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => nil
@@ -173,7 +173,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => "fake"
@@ -186,7 +186,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => meta.user.provider_user_id
@@ -200,7 +200,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => meta.user.provider_user_id,
@@ -215,7 +215,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => meta.user.provider_user_id,
@@ -229,7 +229,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => meta.user.provider_user_id,
@@ -245,7 +245,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "address" => nil
@@ -258,7 +258,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "address" => meta.user_wallet.address
@@ -272,7 +272,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "address" => "fake"
@@ -287,7 +287,7 @@ defmodule EWallet.TransactionRequestGateTest do
       res =
         TransactionRequestGate.create(%{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000
         })
@@ -301,7 +301,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:ok, request} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "address" => meta.user_wallet.address
@@ -310,7 +310,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert %TransactionRequest{} = request
       assert request.id != nil
       assert request.type == "receive"
-      assert request.minted_token_uuid == meta.minted_token.uuid
+      assert request.token_uuid == meta.token.uuid
       assert request.correlation_id == "123"
       assert request.amount == 1_000
       assert request.wallet_address == meta.user_wallet.address
@@ -320,7 +320,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:ok, request} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil,
           "address" => nil
@@ -333,7 +333,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:error, changeset} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "fake",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil,
           "address" => nil
@@ -346,7 +346,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:error, error} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil,
           "address" => "fake"
@@ -362,7 +362,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:error, error} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil,
           "address" => wallet.address
@@ -371,7 +371,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert error == :user_wallet_mismatch
     end
 
-    test "receives an 'minted_token_not_found' error when the token ID is not found", meta do
+    test "receives an 'token_not_found' error when the token ID is not found", meta do
       res =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
@@ -381,7 +381,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "address" => nil
         })
 
-      assert res == {:error, :minted_token_not_found}
+      assert res == {:error, :token_not_found}
     end
   end
 
@@ -393,7 +393,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:ok, request} =
         TransactionRequestGate.create(meta.user_wallet, %{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
           "allow_amount_override" => false,
@@ -410,7 +410,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert %TransactionRequest{} = request
       assert request.id != nil
       assert request.type == "receive"
-      assert request.minted_token_uuid == meta.minted_token.uuid
+      assert request.token_uuid == meta.token.uuid
       assert request.correlation_id == "123"
       assert request.amount == 1_000
       assert request.wallet_address == meta.user_wallet.address
@@ -430,7 +430,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:ok, request} =
         TransactionRequestGate.create(meta.user_wallet, %{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil
         })
@@ -442,7 +442,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:error, changeset} =
         TransactionRequestGate.create(meta.user_wallet, %{
           "type" => "fake",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil
         })
@@ -454,7 +454,7 @@ defmodule EWallet.TransactionRequestGateTest do
       {:error, error} =
         TransactionRequestGate.create(nil, %{
           "type" => "receive",
-          "token_id" => meta.minted_token.id,
+          "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil
         })
@@ -462,7 +462,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert error == :invalid_parameter
     end
 
-    test "receives an 'minted_token_not_found' error when the token ID is not found", meta do
+    test "receives an 'token_not_found' error when the token ID is not found", meta do
       res =
         TransactionRequestGate.create(meta.user_wallet, %{
           "type" => "receive",
@@ -471,7 +471,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "amount" => nil
         })
 
-      assert res == {:error, :minted_token_not_found}
+      assert res == {:error, :token_not_found}
     end
   end
 

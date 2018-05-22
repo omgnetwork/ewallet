@@ -2,12 +2,12 @@ defmodule EWallet.Web.V1.SettingsSerializer do
   @moduledoc """
   Serializes provider settings data into V1 JSON response format.
   """
-  alias EWallet.Web.V1.MintedTokenSerializer
+  alias EWallet.Web.V1.TokenSerializer
 
-  def serialize(%{minted_tokens: minted_tokens}) do
+  def serialize(%{tokens: tokens}) do
     %{
       object: "setting",
-      minted_tokens: MintedTokenSerializer.serialize(minted_tokens)
+      tokens: TokenSerializer.serialize(tokens)
     }
   end
 end

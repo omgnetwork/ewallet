@@ -5,10 +5,10 @@ defmodule EWallet.WalletFetcherTest do
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
-    minted_token = insert(:minted_token)
+    token = insert(:token)
     wallet = User.get_primary_wallet(user)
 
-    %{user: user, minted_token: minted_token, wallet: wallet}
+    %{user: user, token: token, wallet: wallet}
   end
 
   describe "get_wallet/2" do

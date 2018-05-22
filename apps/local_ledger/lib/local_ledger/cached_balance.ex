@@ -26,7 +26,7 @@ defmodule LocalLedger.CachedBalance do
   end
 
   @doc """
-  Get the balance for the specified minted token (token_id) and
+  Get the balance for the specified token (token_id) and
   the given wallet.
   """
   @spec get(Wallet.t(), String.t()) :: {:ok, Map.t()}

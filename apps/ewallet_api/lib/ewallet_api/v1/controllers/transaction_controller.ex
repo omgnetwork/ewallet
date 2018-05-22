@@ -5,7 +5,7 @@ defmodule EWalletAPI.V1.TransactionController do
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.{Transfer, User, Repo}
 
-  @preload_fields [:minted_token]
+  @preload_fields [:token]
   @mapped_fields %{"created_at" => "inserted_at"}
   @search_fields [:id, :idempotency_token, :status, :from, :to]
   @sort_fields [:id, :status, :from, :to, :inserted_at, :updated_at]

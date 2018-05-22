@@ -8,15 +8,15 @@ defmodule LocalLedger.CachedBalanceTest do
   setup do
     :ok = Sandbox.checkout(Repo)
 
-    minted_token_1 = insert(:minted_token, id: "tok_OMG_1234")
-    minted_token_2 = insert(:minted_token, id: "tok_BTC_5678")
+    token_1 = insert(:token, id: "tok_OMG_1234")
+    token_2 = insert(:token, id: "tok_BTC_5678")
     wallet = insert(:wallet)
 
     # Total: +120_000 OMG
     insert_list(
       12,
       :credit,
-      minted_token: minted_token_1,
+      token: token_1,
       wallet: wallet,
       amount: 10_000
     )
@@ -25,7 +25,7 @@ defmodule LocalLedger.CachedBalanceTest do
     insert_list(
       9,
       :debit,
-      minted_token: minted_token_1,
+      token: token_1,
       wallet: wallet,
       amount: 6_783
     )
@@ -34,7 +34,7 @@ defmodule LocalLedger.CachedBalanceTest do
     insert_list(
       12,
       :credit,
-      minted_token: minted_token_2,
+      token: token_2,
       wallet: wallet,
       amount: 13_377
     )
@@ -43,23 +43,23 @@ defmodule LocalLedger.CachedBalanceTest do
     insert_list(
       9,
       :debit,
-      minted_token: minted_token_2,
+      token: token_2,
       wallet: wallet,
       amount: 8_329
     )
 
-    %{minted_token_1: minted_token_1, minted_token_2: minted_token_2, wallet: wallet}
+    %{token_1: token_1, token_2: token_2, wallet: wallet}
   end
 
   describe "cache_all/0" do
-    test "caches all the wallets", %{minted_token_1: minted_token_1, wallet: wallet_1} do
+    test "caches all the wallets", %{token_1: token_1, wallet: wallet_1} do
       wallet_2 = insert(:wallet, address: "1232")
 
       # Total: +39_924 OMG
       insert_list(
         12,
         :credit,
-        minted_token: minted_token_1,
+        token: token_1,
         wallet: wallet_2,
         amount: 3_327
       )
@@ -68,7 +68,7 @@ defmodule LocalLedger.CachedBalanceTest do
       insert_list(
         9,
         :debit,
-        minted_token: minted_token_1,
+        token: token_1,
         wallet: wallet_2,
         amount: 3_892
       )
@@ -87,7 +87,7 @@ defmodule LocalLedger.CachedBalanceTest do
     end
 
     test "reuses the previous cached balance to calculate the new one when
-          strategy = 'since_last_cached'", %{minted_token_1: minted_token_1, wallet: wallet} do
+          strategy = 'since_last_cached'", %{token_1: token_1, wallet: wallet} do
       Application.put_env(:local_ledger, :balance_caching_strategy, "since_last_cached")
 
       CachedBalance.cache_all()
@@ -110,7 +110,7 @@ defmodule LocalLedger.CachedBalanceTest do
       insert_list(
         2,
         :credit,
-        minted_token: minted_token_1,
+        token: token_1,
         wallet: wallet,
         amount: 500
       )
@@ -124,7 +124,7 @@ defmodule LocalLedger.CachedBalanceTest do
     end
 
     test "reuses the previous cached balance to calculate the new one when
-          strategy = 'since_beginning'", %{minted_token_1: minted_token_1, wallet: wallet} do
+          strategy = 'since_beginning'", %{token_1: token_1, wallet: wallet} do
       Application.put_env(:local_ledger, :balance_caching_strategy, "since_beginning")
 
       CachedBalance.cache_all()
@@ -146,7 +146,7 @@ defmodule LocalLedger.CachedBalanceTest do
       insert_list(
         2,
         :credit,
-        minted_token: minted_token_1,
+        token: token_1,
         wallet: wallet,
         amount: 500
       )
@@ -161,7 +161,7 @@ defmodule LocalLedger.CachedBalanceTest do
     end
 
     test "reuses the previous cached balance to calculate the new one if no strategy is given", %{
-      minted_token_1: minted_token_1,
+      token_1: token_1,
       wallet: wallet
     } do
       Application.put_env(:local_ledger, :balance_caching_strategy, nil)
@@ -185,7 +185,7 @@ defmodule LocalLedger.CachedBalanceTest do
       insert_list(
         2,
         :credit,
-        minted_token: minted_token_1,
+        token: token_1,
         wallet: wallet,
         amount: 500
       )
@@ -229,16 +229,16 @@ defmodule LocalLedger.CachedBalanceTest do
     end
 
     test "uses the cached balance and adds the transactions that happened after", %{
-      minted_token_1: minted_token_1,
-      minted_token_2: minted_token_2,
+      token_1: token_1,
+      token_2: token_2,
       wallet: wallet
     } do
       {:ok, _amounts} = CachedBalance.all(wallet)
 
-      insert_list(1, :credit, minted_token: minted_token_1, wallet: wallet, amount: 1_337)
-      insert_list(1, :debit, minted_token: minted_token_1, wallet: wallet, amount: 789)
-      insert_list(1, :credit, minted_token: minted_token_2, wallet: wallet, amount: 1_232)
-      insert_list(1, :debit, minted_token: minted_token_2, wallet: wallet, amount: 234)
+      insert_list(1, :credit, token: token_1, wallet: wallet, amount: 1_337)
+      insert_list(1, :debit, token: token_1, wallet: wallet, amount: 789)
+      insert_list(1, :credit, token: token_2, wallet: wallet, amount: 1_232)
+      insert_list(1, :debit, token: token_2, wallet: wallet, amount: 234)
 
       {:ok, amounts} = CachedBalance.all(wallet)
 

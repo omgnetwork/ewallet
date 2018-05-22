@@ -7,7 +7,7 @@ defmodule LocalLedger.Wallet do
   alias LocalLedgerDB.{Repo, Wallet}
 
   @doc """
-  Calculate and returns the current wallets for each minted token associated
+  Calculate and returns the current wallets for each token associated
   with the given address.
   """
   def all_balances(address) do
@@ -18,7 +18,7 @@ defmodule LocalLedger.Wallet do
   end
 
   @doc """
-  Calculate and returns the current balance for the specified minted token
+  Calculate and returns the current balance for the specified token
   associated with the given address.
   """
   def get_balance(token_id, address) do

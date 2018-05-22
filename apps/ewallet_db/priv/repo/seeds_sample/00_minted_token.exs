@@ -1,8 +1,8 @@
-defmodule EWalletDB.Repo.Seeds.MintedTokenSampleSeed do
+defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
   alias Ecto.UUID
   alias EWallet.MintGate
   alias EWallet.Web.Preloader
-  alias EWalletDB.{Account, MintedToken}
+  alias EWalletDB.{Account, Token}
 
   @seed_data [
     %{
@@ -44,7 +44,7 @@ defmodule EWalletDB.Repo.Seeds.MintedTokenSampleSeed do
 
   def seed do
     [
-      run_banner: "Seeding sample minted tokens:",
+      run_banner: "Seeding sample tokens:",
       argsline: [],
     ]
   end
@@ -56,62 +56,62 @@ defmodule EWalletDB.Repo.Seeds.MintedTokenSampleSeed do
   end
 
   defp run_with(writer, data) do
-    case MintedToken.get_by(symbol: data.symbol) do
+    case Token.get_by(symbol: data.symbol) do
       nil ->
         account = Account.get_by(name: data.account_name)
         data = Map.put(data, :account_uuid, account.uuid)
 
-        case MintedToken.insert(data) do
-          {:ok, minted_token} ->
-            minted_token = Preloader.preload(minted_token, :account)
+        case Token.insert(data) do
+          {:ok, token} ->
+            token = Preloader.preload(token, :account)
             writer.success("""
-              ID              : #{minted_token.id}
-              Subunit to unit : #{minted_token.subunit_to_unit}
-              Account Name    : #{minted_token.account.name}
-              Account ID      : #{minted_token.account.id}
+              ID              : #{token.id}
+              Subunit to unit : #{token.subunit_to_unit}
+              Account Name    : #{token.account.name}
+              Account ID      : #{token.account.id}
             """)
-            mint_with(writer, data, minted_token)
+            mint_with(writer, data, token)
           {:error, changeset} ->
-            writer.error("  MintedToken #{data.symbol} could not be inserted.")
+            writer.error("  Token #{data.symbol} could not be inserted.")
             writer.print_errors(changeset)
           _ ->
-            writer.error("  MintedToken #{data.symbol} could not be inserted.")
+            writer.error("  Token #{data.symbol} could not be inserted.")
             writer.error("  Unknown error.")
         end
-      %MintedToken{} = minted_token ->
-        minted_token = Preloader.preload(minted_token, :account)
+      %Token{} = token ->
+        token = Preloader.preload(token, :account)
         writer.warn("""
-          ID              : #{minted_token.id}
-          Subunit to unit : #{minted_token.subunit_to_unit}
-          Account Name    : #{minted_token.account.name}
-          Account ID      : #{minted_token.account.id}
+          ID              : #{token.id}
+          Subunit to unit : #{token.subunit_to_unit}
+          Account Name    : #{token.account.name}
+          Account ID      : #{token.account.id}
         """)
     end
   end
 
-  defp mint_with(writer, data, minted_token) do
+  defp mint_with(writer, data, token) do
     mint_data = %{
       "idempotency_token" => UUID.generate(),
-      "token_id" => minted_token.id,
+      "token_id" => token.id,
       "amount" => data.genesis_amount,
-      "description" => "Seeded #{data.genesis_amount} #{minted_token.id}.",
+      "description" => "Seeded #{data.genesis_amount} #{token.id}.",
       "metadata" => %{}
     }
 
     case MintGate.insert(mint_data) do
       {:ok, mint, transfer} ->
         writer.success("""
-            Minted Token ID  : #{minted_token.id}
+            Token ID  : #{token.id}
             Amount (subunit) : #{mint.amount}
             Confirmed?       : #{mint.confirmed}
             From address     : #{transfer.from || '<not set>'}
             To address       : #{transfer.to || '<not set>'}
         """)
       {:error, changeset} ->
-        writer.error("    #{minted_token.symbol} could not be minted:")
+        writer.error("    #{token.symbol} could not be minted:")
         writer.print_errors(changeset)
       _ ->
-        writer.error("    #{minted_token.symbol} could not be minted:")
+        writer.error("    #{token.symbol} could not be minted:")
         writer.error("    Unknown error.")
     end
   end
