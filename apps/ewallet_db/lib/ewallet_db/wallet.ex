@@ -6,7 +6,7 @@ defmodule EWalletDB.Wallet do
   import Ecto.Changeset
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Wallet, MintedToken, User}
+  alias EWalletDB.{Repo, Account, Wallet, Token, User}
 
   @genesis "genesis"
   @burn "burn"
@@ -39,9 +39,9 @@ defmodule EWalletDB.Wallet do
     )
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_uuid,
+      :token,
+      Token,
+      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
@@ -62,7 +62,7 @@ defmodule EWalletDB.Wallet do
     |> cast(attrs, [
       :address,
       :account_uuid,
-      :minted_token_uuid,
+      :token_uuid,
       :user_uuid,
       :metadata,
       :encrypted_metadata,
@@ -74,7 +74,7 @@ defmodule EWalletDB.Wallet do
     |> validate_required_exclusive(%{account_uuid: nil, user_uuid: nil, identifier: @genesis})
     |> unique_constraint(:address)
     |> assoc_constraint(:account)
-    |> assoc_constraint(:minted_token)
+    |> assoc_constraint(:token)
     |> assoc_constraint(:user)
     |> unique_constraint(:unique_account_name, name: :wallet_account_uuid_name_index)
     |> unique_constraint(:unique_user_name, name: :wallet_user_uuid_name_index)

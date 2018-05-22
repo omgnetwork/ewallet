@@ -76,16 +76,16 @@ defmodule EWalletAPI.V1.TransferController do
 
   defp credit_or_debit(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp respond_with({:ok, transfer, _balances, _minted_token}, :transfer, conn) do
+  defp respond_with({:ok, transfer, _balances, _token}, :transfer, conn) do
     conn
     |> put_view(TransactionView)
     |> render(:transaction, %{transaction: transfer})
   end
 
-  defp respond_with({:ok, _transfer, wallets, minted_token}, :wallets, conn) do
+  defp respond_with({:ok, _transfer, wallets, token}, :wallets, conn) do
     wallets =
       Enum.map(wallets, fn wallet ->
-        case BalanceFetcher.get(minted_token.id, wallet) do
+        case BalanceFetcher.get(token.id, wallet) do
           {:ok, address} -> address
           error -> error
         end

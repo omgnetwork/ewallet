@@ -21,15 +21,15 @@ defmodule EWalletDB.TransactionRequestTest do
 
   describe "get/2" do
     test "returns nil if the transaction request does not exist" do
-      request = TransactionRequest.get("unknown", preload: [:minted_token])
+      request = TransactionRequest.get("unknown", preload: [:token])
       assert request == nil
     end
 
     test "preloads the specified association" do
       inserted = insert(:transaction_request)
-      request = TransactionRequest.get(inserted.id, preload: [:minted_token])
+      request = TransactionRequest.get(inserted.id, preload: [:token])
       assert request.id == inserted.id
-      assert request.minted_token.id != nil
+      assert request.token.id != nil
     end
   end
 
@@ -97,7 +97,7 @@ defmodule EWalletDB.TransactionRequestTest do
     test_insert_generate_external_id(TransactionRequest, :id, "txr_")
     test_insert_generate_timestamps(TransactionRequest)
     test_insert_prevent_blank(TransactionRequest, :type)
-    test_insert_prevent_blank(TransactionRequest, :minted_token_uuid)
+    test_insert_prevent_blank(TransactionRequest, :token_uuid)
     test_insert_prevent_duplicate(TransactionRequest, :correlation_id)
 
     test "sets the status to 'valid'" do

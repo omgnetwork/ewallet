@@ -8,7 +8,7 @@ defmodule EWalletDB.Account do
   import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, APIKey, Wallet, Key, Membership, MintedToken}
+  alias EWalletDB.{Repo, Account, APIKey, Wallet, Key, Membership, Token}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -46,8 +46,8 @@ defmodule EWalletDB.Account do
     )
 
     has_many(
-      :minted_tokens,
-      MintedToken,
+      :tokens,
+      Token,
       foreign_key: :account_uuid,
       references: :uuid
     )

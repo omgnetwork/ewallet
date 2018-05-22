@@ -4,7 +4,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   expiration.
   """
   alias EWallet.Web.V1.Event
-  alias EWalletDB.{Repo, Balance, TransactionRequest, TransactionConsumption, MintedToken}
+  alias EWalletDB.{Repo, Balance, TransactionRequest, TransactionConsumption, Token}
 
   @spec validate_before_consumption(TransactionRequest.t(), Balance.t(), Integer.t()) ::
           {:ok, TransactionRequest.t(), Integer.t()}
@@ -16,7 +16,7 @@ defmodule EWallet.TransactionConsumptionValidator do
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, amount} <- validate_amount(request, amount),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
-         {:ok, token} <- get_and_validate_minted_token(request, token_id) do
+         {:ok, token} <- get_and_validate_token(request, token_id) do
       {:ok, request, token, amount}
     else
       error when is_binary(error) ->
@@ -76,14 +76,14 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  @spec get_and_validate_minted_token(TransactionRequest.t(), UUID.t()) ::
-          {:ok, MintedToken.t()}
+  @spec get_and_validate_token(TransactionRequest.t(), UUID.t()) ::
+          {:ok, Token.t()}
           | {:error, Atom.t()}
-  def get_and_validate_minted_token(request, token_id) do
-    with request <- request |> Repo.preload(:minted_token),
-         true <- !is_nil(token_id) || {:ok, request.minted_token},
-         %MintedToken{} = token <- MintedToken.get(token_id) || :minted_token_not_found,
-         true <- request.minted_token_uuid == token.uuid || :invalid_minted_token_provided do
+  def get_and_validate_token(request, token_id) do
+    with request <- request |> Repo.preload(:token),
+         true <- !is_nil(token_id) || {:ok, request.token},
+         %Token{} = token <- Token.get(token_id) || :token_not_found,
+         true <- request.token_uuid == token.uuid || :invalid_token_provided do
       {:ok, token}
     else
       error when is_atom(error) ->

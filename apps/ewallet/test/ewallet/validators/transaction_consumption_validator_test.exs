@@ -48,7 +48,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
         TransactionConsumptionValidator.validate_before_consumption(request, wallet, %{})
 
       assert request.status == "valid"
-      assert token.uuid == request.minted_token_uuid
+      assert token.uuid == request.token_uuid
       assert amount == request.amount
     end
   end
@@ -226,41 +226,41 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
   end
 
-  describe "get_and_validate_minted_token/2" do
-    test "returns the request's minted token if nil is passed" do
+  describe "get_and_validate_token/2" do
+    test "returns the request's token if nil is passed" do
       request = insert(:transaction_request)
 
-      {:ok, token} = TransactionConsumptionValidator.get_and_validate_minted_token(request, nil)
-      assert token.uuid == request.minted_token_uuid
+      {:ok, token} = TransactionConsumptionValidator.get_and_validate_token(request, nil)
+      assert token.uuid == request.token_uuid
     end
 
-    test "returns a minted_token_not_found error if given not existing token" do
+    test "returns a token_not_found error if given not existing token" do
       request = insert(:transaction_request)
 
       {:error, code} =
-        TransactionConsumptionValidator.get_and_validate_minted_token(request, "fake")
+        TransactionConsumptionValidator.get_and_validate_token(request, "fake")
 
-      assert code == :minted_token_not_found
+      assert code == :token_not_found
     end
 
-    test "returns a invalid_minted_token_provided error if given a different minted token" do
+    test "returns a invalid_token_provided error if given a different token" do
       request = insert(:transaction_request)
-      token = insert(:minted_token)
+      token = insert(:token)
 
       {:error, code} =
-        TransactionConsumptionValidator.get_and_validate_minted_token(request, token.id)
+        TransactionConsumptionValidator.get_and_validate_token(request, token.id)
 
-      assert code == :invalid_minted_token_provided
+      assert code == :invalid_token_provided
     end
 
-    test "returns the specified minted token if valid" do
-      request = :transaction_request |> insert() |> Repo.preload([:minted_token])
-      token = request.minted_token
+    test "returns the specified token if valid" do
+      request = :transaction_request |> insert() |> Repo.preload([:token])
+      token = request.token
 
       {:ok, token} =
-        TransactionConsumptionValidator.get_and_validate_minted_token(request, token.id)
+        TransactionConsumptionValidator.get_and_validate_token(request, token.id)
 
-      assert token.uuid == request.minted_token_uuid
+      assert token.uuid == request.token_uuid
     end
   end
 

@@ -13,7 +13,7 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
   setup do
     {:ok, _} = TestEndpoint.start_link()
 
-    minted_token = insert(:minted_token)
+    token = insert(:token)
     {:ok, receiver} = :user |> params_for() |> User.insert()
     {:ok, sender} = :user |> params_for() |> User.insert()
     account = Account.get_master_account()
@@ -21,23 +21,23 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
     sender_wallet = User.get_primary_wallet(sender)
     account_wallet = Account.get_primary_wallet(account)
 
-    mint!(minted_token)
+    mint!(token)
 
     transaction_request =
       insert(
         :transaction_request,
         type: "receive",
-        minted_token_uuid: minted_token.uuid,
+        token_uuid: token.uuid,
         user_uuid: receiver.uuid,
         wallet: receiver_wallet,
-        amount: 100_000 * minted_token.subunit_to_unit
+        amount: 100_000 * token.subunit_to_unit
       )
 
     %{
       sender: sender,
       receiver: receiver,
       account: account,
-      minted_token: minted_token,
+      token: token,
       receiver_wallet: receiver_wallet,
       sender_wallet: sender_wallet,
       account_wallet: account_wallet,
@@ -47,7 +47,7 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
 
   describe "get/1" do
     test "returns the consumption when given valid ID", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.minted_token)
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{

@@ -13,11 +13,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
-  @embeddable [:account, :minted_token, :transaction, :transaction_request, :user]
+  @embeddable [:account, :token, :transaction, :transaction_request, :user]
 
   # The fields in `@embeddable` that are embedded regardless of the request.
   # These fields must be one of the schema's association names.
-  @always_embed [:minted_token]
+  @always_embed [:token]
 
   def consume(conn, attrs) do
     attrs

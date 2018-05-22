@@ -27,9 +27,9 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
     test "preloads the specified association" do
       inserted = insert(:transaction_consumption)
-      consumption = TransactionConsumption.get(inserted.id, preload: [:minted_token])
+      consumption = TransactionConsumption.get(inserted.id, preload: [:token])
       assert consumption.id == inserted.id
-      assert consumption.minted_token != nil
+      assert consumption.token != nil
     end
   end
 
@@ -137,7 +137,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test_insert_prevent_blank(TransactionConsumption, :idempotency_token)
     test_insert_prevent_blank(TransactionConsumption, :transaction_request_uuid)
     test_insert_prevent_blank(TransactionConsumption, :wallet_address)
-    test_insert_prevent_blank(TransactionConsumption, :minted_token_uuid)
+    test_insert_prevent_blank(TransactionConsumption, :token_uuid)
 
     test "sets the status to 'pending'" do
       {:ok, inserted} =

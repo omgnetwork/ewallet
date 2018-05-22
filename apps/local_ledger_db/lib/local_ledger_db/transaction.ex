@@ -9,7 +9,7 @@ defmodule LocalLedgerDB.Transaction do
   alias LocalLedgerDB.{
     Entry,
     Repo,
-    MintedToken,
+    Token,
     Wallet,
     Transaction,
     Errors.InsufficientFundsError
@@ -28,9 +28,9 @@ defmodule LocalLedgerDB.Transaction do
     field(:type, :string)
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_id,
+      :token,
+      Token,
+      foreign_key: :token_id,
       references: :id,
       type: :string
     )
@@ -60,10 +60,10 @@ defmodule LocalLedgerDB.Transaction do
   """
   def changeset(%Transaction{} = transaction, attrs) do
     transaction
-    |> cast(attrs, [:amount, :type, :minted_token_id, :wallet_address, :entry_uuid])
-    |> validate_required([:amount, :type, :minted_token_id, :wallet_address])
+    |> cast(attrs, [:amount, :type, :token_id, :wallet_address, :entry_uuid])
+    |> validate_required([:amount, :type, :token_id, :wallet_address])
     |> validate_inclusion(:type, @types)
-    |> foreign_key_constraint(:minted_token_id)
+    |> foreign_key_constraint(:token_id)
     |> foreign_key_constraint(:wallet_address)
     |> foreign_key_constraint(:entry_uuid)
   end
@@ -73,9 +73,9 @@ defmodule LocalLedgerDB.Transaction do
   InsufficientFundsError exception.
   """
   def check_balance(
-        %{amount: amount_to_debit, minted_token_id: minted_token_id, address: address} = attrs
+        %{amount: amount_to_debit, token_id: token_id, address: address} = attrs
       ) do
-    current_amount = calculate_current_amount(address, minted_token_id)
+    current_amount = calculate_current_amount(address, token_id)
 
     unless current_amount - amount_to_debit >= 0 do
       raise InsufficientFundsError,
@@ -86,11 +86,11 @@ defmodule LocalLedgerDB.Transaction do
   end
 
   @doc """
-  Calculate the total wallets for all the specified minted tokens associated
+  Calculate the total wallets for all the specified tokens associated
   with the given address.
   """
   def calculate_all_balances(address, options \\ %{}) do
-    options = Map.put_new(options, :minted_token_id, :all)
+    options = Map.put_new(options, :token_id, :all)
     credits = sum(address, Transaction.credit_type(), options)
     debits = sum(address, Transaction.debit_type(), options)
 
@@ -112,55 +112,55 @@ defmodule LocalLedgerDB.Transaction do
     |> Enum.into(%{}, fn {k, v} -> {k, Decimal.to_integer(v)} end)
   end
 
-  defp build_sum_query(address, type, %{minted_token_id: id, since: since, upto: upto}) do
+  defp build_sum_query(address, type, %{token_id: id, since: since, upto: upto}) do
     address
-    |> build_sum_query(type, %{minted_token_id: id})
+    |> build_sum_query(type, %{token_id: id})
     |> where([t], t.inserted_at > ^since)
     |> where([t], t.inserted_at <= ^upto)
   end
 
-  defp build_sum_query(address, type, %{minted_token_id: id, since: since}) do
+  defp build_sum_query(address, type, %{token_id: id, since: since}) do
     address
-    |> build_sum_query(type, %{minted_token_id: id})
+    |> build_sum_query(type, %{token_id: id})
     |> where([t], t.inserted_at > ^since)
   end
 
-  defp build_sum_query(address, type, %{minted_token_id: id, upto: upto}) do
+  defp build_sum_query(address, type, %{token_id: id, upto: upto}) do
     address
-    |> build_sum_query(type, %{minted_token_id: id})
+    |> build_sum_query(type, %{token_id: id})
     |> where([t], t.inserted_at <= ^upto)
   end
 
-  defp build_sum_query(address, type, %{minted_token_id: :all}) do
+  defp build_sum_query(address, type, %{token_id: :all}) do
     Transaction
     |> where([t], t.wallet_address == ^address and t.type == ^type)
-    |> group_by([t], t.minted_token_id)
-    |> select([t, _], {t.minted_token_id, sum(t.amount)})
+    |> group_by([t], t.token_id)
+    |> select([t, _], {t.token_id, sum(t.amount)})
   end
 
-  defp build_sum_query(address, type, %{minted_token_id: id}) do
+  defp build_sum_query(address, type, %{token_id: id}) do
     address
-    |> build_sum_query(type, %{minted_token_id: :all})
-    |> where([t], t.minted_token_id == ^id)
+    |> build_sum_query(type, %{token_id: :all})
+    |> where([t], t.token_id == ^id)
   end
 
   @doc """
-  Sum up all debit and credits for the given address/minted_token_id combo before
+  Sum up all debit and credits for the given address/token_id combo before
   substracting one from the other.
   """
-  def calculate_current_amount(address, minted_token_id) do
-    credit = sum_transactions_amount(address, minted_token_id, @credit) || Decimal.new(0)
-    debit = sum_transactions_amount(address, minted_token_id, @debit) || Decimal.new(0)
+  def calculate_current_amount(address, token_id) do
+    credit = sum_transactions_amount(address, token_id, @credit) || Decimal.new(0)
+    debit = sum_transactions_amount(address, token_id, @debit) || Decimal.new(0)
     Decimal.to_integer(credit) - Decimal.to_integer(debit)
   end
 
-  defp sum_transactions_amount(address, minted_token_id, type) do
+  defp sum_transactions_amount(address, token_id, type) do
     Repo.one(
       from(
         t in Transaction,
         where:
           t.wallet_address == ^address and t.type == ^type and
-            t.minted_token_id == ^minted_token_id,
+            t.token_id == ^token_id,
         select: sum(t.amount)
       )
     )

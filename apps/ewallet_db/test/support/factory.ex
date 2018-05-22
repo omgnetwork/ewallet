@@ -15,7 +15,7 @@ defmodule EWalletDB.Factory do
     Key,
     Membership,
     Mint,
-    MintedToken,
+    Token,
     Role,
     TransactionRequest,
     TransactionConsumption,
@@ -47,15 +47,15 @@ defmodule EWalletDB.Factory do
       name: sequence("name"),
       identifier: Wallet.primary(),
       user: insert(:user),
-      minted_token: nil,
+      token: nil,
       metadata: %{}
     }
   end
 
-  def minted_token_factory do
+  def token_factory do
     symbol = sequence("jon")
 
-    %MintedToken{
+    %Token{
       id: "tok_" <> symbol <> "_" <> ULID.generate(),
       symbol: symbol,
       iso_code: sequence("JON"),
@@ -124,7 +124,7 @@ defmodule EWalletDB.Factory do
   def mint_factory do
     %Mint{
       amount: 100_000,
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       transfer_uuid: insert(:transfer).uuid
     }
   end
@@ -175,7 +175,7 @@ defmodule EWalletDB.Factory do
       payload: %{example: "Payload"},
       metadata: %{some: "metadata"},
       amount: 100,
-      minted_token: insert(:minted_token),
+      token: insert(:token),
       from_wallet: insert(:wallet),
       to_wallet: insert(:wallet)
     }
@@ -192,7 +192,7 @@ defmodule EWalletDB.Factory do
       type: "receive",
       amount: 100,
       correlation_id: sequence("correlation"),
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
       wallet: insert(:wallet)
     }
@@ -201,7 +201,7 @@ defmodule EWalletDB.Factory do
   def transaction_consumption_factory do
     %TransactionConsumption{
       idempotency_token: sequence("123"),
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
       wallet_address: insert(:wallet).address,
       amount: 100,

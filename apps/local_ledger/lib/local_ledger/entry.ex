@@ -38,7 +38,7 @@ defmodule LocalLedger.Entry do
 
   @doc """
   Insert a new entry and the associated transactions. If they are not already
-  present, a new minted token and new wallets will be created.
+  present, a new token and new wallets will be created.
 
   ## Parameters
 
@@ -46,7 +46,7 @@ defmodule LocalLedger.Entry do
       - metadata: a map containing metadata for this entry
       - debits: a list of debit transactions to process (see example)
       - credits: a list of credit transactions to process (see example)
-      - minted_token: the token associated with this entry
+      - token: the token associated with this entry
     - genesis (boolean, default to false): if set to true, this argument will
       allow the debit wallets to go into the negative.
 
@@ -72,7 +72,7 @@ defmodule LocalLedger.Entry do
           amount: 100,
           metadata: %{}
         }],
-        minted_token: %{
+        token: %{
           id: "tok_OMG_01cbennsd8q4xddqfmewpwzxdy",
           metadata: %{}
         },
@@ -85,7 +85,7 @@ defmodule LocalLedger.Entry do
           "metadata" => metadata,
           "debits" => debits,
           "credits" => credits,
-          "minted_token" => minted_token,
+          "token" => token,
           "correlation_id" => correlation_id
         },
         %{genesis: genesis},
@@ -95,7 +95,7 @@ defmodule LocalLedger.Entry do
     |> Validator.validate_different_addresses()
     |> Validator.validate_zero_sum()
     |> Validator.validate_positive_amounts()
-    |> Transaction.build_all(minted_token)
+    |> Transaction.build_all(token)
     |> locked_insert(metadata, correlation_id, genesis, callback)
   rescue
     e in InsufficientFundsError ->

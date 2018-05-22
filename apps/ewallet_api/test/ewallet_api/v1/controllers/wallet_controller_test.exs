@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.WalletControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{User, MintedToken, Account}
+  alias EWalletDB.{User, Token, Account}
   alias EWallet.Web.V1.UserSerializer
 
   describe "/all" do
@@ -10,8 +10,8 @@ defmodule EWalletAPI.V1.WalletControllerTest do
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
       user_wallet = User.get_primary_wallet(user)
-      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
-      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
+      {:ok, omg} = :token |> params_for(symbol: "OMG") |> Token.insert()
 
       mint!(btc)
       mint!(omg)
@@ -46,9 +46,9 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                        %{
                          "object" => "balance",
                          "amount" => 150_000 * btc.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => btc.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => btc.subunit_to_unit,
                            "symbol" => btc.symbol,
                            "id" => btc.id,
@@ -61,9 +61,9 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                        %{
                          "object" => "balance",
                          "amount" => 12_000 * omg.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => omg.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => omg.subunit_to_unit,
                            "symbol" => omg.symbol,
                            "id" => omg.id,
@@ -85,8 +85,8 @@ defmodule EWalletAPI.V1.WalletControllerTest do
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
       user_wallet = User.get_primary_wallet(user)
-      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
-      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
+      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
+      {:ok, omg} = :token |> params_for(symbol: "OMG") |> Token.insert()
 
       mint!(btc)
       mint!(omg)
@@ -121,9 +121,9 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                        %{
                          "object" => "balance",
                          "amount" => 150_000 * btc.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => btc.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => btc.subunit_to_unit,
                            "symbol" => btc.symbol,
                            "id" => btc.id,
@@ -136,9 +136,9 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                        %{
                          "object" => "balance",
                          "amount" => 12_000 * omg.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => omg.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => omg.subunit_to_unit,
                            "symbol" => omg.symbol,
                            "id" => omg.id,

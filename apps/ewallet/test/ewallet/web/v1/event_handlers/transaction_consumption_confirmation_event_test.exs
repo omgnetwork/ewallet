@@ -14,7 +14,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       consumption =
         :transaction_consumption
         |> insert()
-        |> Repo.preload([:user, :transaction_request, :minted_token])
+        |> Repo.preload([:user, :transaction_request, :token])
 
       res =
         TransactionConsumptionEventHandler.broadcast(:transaction_consumption_finalized, %{
@@ -44,7 +44,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       consumption =
         :transaction_consumption
         |> insert()
-        |> Repo.preload([:user, :transaction_request, :minted_token])
+        |> Repo.preload([:user, :transaction_request, :token])
 
       res =
         TransactionConsumptionEventHandler.broadcast(:transaction_consumption_request, %{

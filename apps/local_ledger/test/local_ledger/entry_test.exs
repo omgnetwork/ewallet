@@ -79,7 +79,7 @@ defmodule LocalLedger.EntryTest do
             "metadata" => %{},
             "debits" => debits(),
             "credits" => credits(),
-            "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "correlation_id" => UUID.generate()
           },
           %{genesis: true}
@@ -125,7 +125,7 @@ defmodule LocalLedger.EntryTest do
                 "amount" => 100
               }
             ],
-            "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "correlation_id" => UUID.generate()
           },
           %{genesis: false}
@@ -158,7 +158,7 @@ defmodule LocalLedger.EntryTest do
                 "amount" => 100
               }
             ],
-            "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "correlation_id" => genesis_entry.correlation_id
           },
           %{genesis: false}
@@ -189,7 +189,7 @@ defmodule LocalLedger.EntryTest do
                 "amount" => 200
               }
             ],
-            "minted_token" => %{
+            "token" => %{
               "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
               "metadata" => %{}
             },
@@ -226,7 +226,7 @@ defmodule LocalLedger.EntryTest do
                 "amount" => 200
               }
             ],
-            "minted_token" => %{
+            "token" => %{
               "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
               "metadata" => %{}
             },
@@ -257,7 +257,7 @@ defmodule LocalLedger.EntryTest do
                 "amount" => 100
               }
             ],
-            "minted_token" => %{
+            "token" => %{
               "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
               "metadata" => %{}
             },
@@ -288,7 +288,7 @@ defmodule LocalLedger.EntryTest do
                 "amount" => 0
               }
             ],
-            "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "correlation_id" => UUID.generate()
           },
           %{genesis: false}
@@ -319,7 +319,7 @@ defmodule LocalLedger.EntryTest do
               "metadata" => %{},
               "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 50}],
               "credits" => [%{"address" => "sirn", "metadata" => %{}, "amount" => 50}],
-              "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
               "correlation_id" => UUID.generate()
             },
             %{genesis: false}
@@ -333,7 +333,7 @@ defmodule LocalLedger.EntryTest do
           "metadata" => %{},
           "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 100}],
           "credits" => [%{"address" => "thibault", "metadata" => %{}, "amount" => 100}],
-          "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
           "correlation_id" => UUID.generate()
         },
         %{genesis: false},
@@ -381,7 +381,7 @@ defmodule LocalLedger.EntryTest do
                     "amount" => 100
                   }
                 ],
-                "minted_token" => %{
+                "token" => %{
                   "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
                   "metadata" => %{}
                 },
@@ -414,7 +414,7 @@ defmodule LocalLedger.EntryTest do
               "amount" => 100
             }
           ],
-          "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
           "correlation_id" => UUID.generate()
         },
         %{genesis: false}
@@ -445,7 +445,7 @@ defmodule LocalLedger.EntryTest do
                 "amount" => 1_000_000_000_000_000_000_000_000_000_000
               }
             ],
-            "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "correlation_id" => UUID.generate()
           },
           %{genesis: true}
@@ -477,7 +477,7 @@ defmodule LocalLedger.EntryTest do
                   "amount" => round(1_000_000_000_000.0e82)
                 }
               ],
-              "minted_token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
               "correlation_id" => UUID.generate()
             },
             %{genesis: true}

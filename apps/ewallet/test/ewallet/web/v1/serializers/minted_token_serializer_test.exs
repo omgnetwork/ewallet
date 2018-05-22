@@ -1,41 +1,41 @@
-defmodule EWallet.Web.V1.MintedTokenSerializerTest do
+defmodule EWallet.Web.V1.TokenSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.MintedTokenSerializer
+  alias EWallet.Web.V1.TokenSerializer
 
-  describe "serialize/1 for single minted_token" do
-    test "serializes into correct V1 minted_token format" do
-      minted_token = build(:minted_token)
+  describe "serialize/1 for single token" do
+    test "serializes into correct V1 token format" do
+      token = build(:token)
 
       expected = %{
-        object: "minted_token",
-        id: minted_token.id,
-        symbol: minted_token.symbol,
-        name: minted_token.name,
-        subunit_to_unit: minted_token.subunit_to_unit,
-        metadata: minted_token.metadata,
-        encrypted_metadata: minted_token.encrypted_metadata,
-        created_at: minted_token.inserted_at,
-        updated_at: minted_token.updated_at
+        object: "token",
+        id: token.id,
+        symbol: token.symbol,
+        name: token.name,
+        subunit_to_unit: token.subunit_to_unit,
+        metadata: token.metadata,
+        encrypted_metadata: token.encrypted_metadata,
+        created_at: token.inserted_at,
+        updated_at: token.updated_at
       }
 
-      assert MintedTokenSerializer.serialize(minted_token) == expected
+      assert TokenSerializer.serialize(token) == expected
     end
 
-    test "serializes to nil if the minted_token is not loaded" do
-      assert MintedTokenSerializer.serialize(%NotLoaded{}) == nil
+    test "serializes to nil if the token is not loaded" do
+      assert TokenSerializer.serialize(%NotLoaded{}) == nil
     end
   end
 
-  describe "serialize/1 for minted_tokens list" do
-    test "serialize into list of V1 minted_token" do
-      token1 = build(:minted_token)
-      token2 = build(:minted_token)
-      minted_tokens = [token1, token2]
+  describe "serialize/1 for tokens list" do
+    test "serialize into list of V1 token" do
+      token1 = build(:token)
+      token2 = build(:token)
+      tokens = [token1, token2]
 
       expected = [
         %{
-          object: "minted_token",
+          object: "token",
           id: token1.id,
           symbol: token1.symbol,
           name: token1.name,
@@ -46,7 +46,7 @@ defmodule EWallet.Web.V1.MintedTokenSerializerTest do
           updated_at: token1.updated_at
         },
         %{
-          object: "minted_token",
+          object: "token",
           id: token2.id,
           symbol: token2.symbol,
           name: token2.name,
@@ -58,7 +58,7 @@ defmodule EWallet.Web.V1.MintedTokenSerializerTest do
         }
       ]
 
-      assert MintedTokenSerializer.serialize(minted_tokens) == expected
+      assert TokenSerializer.serialize(tokens) == expected
     end
   end
 end

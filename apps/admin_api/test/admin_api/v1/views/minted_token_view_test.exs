@@ -1,38 +1,38 @@
-defmodule AdminAPI.V1.MintedTokenViewTest do
+defmodule AdminAPI.V1.TokenViewTest do
   use AdminAPI.ViewCase, :v1
   alias EWallet.Web.{Date, Paginator}
-  alias AdminAPI.V1.MintedTokenView
+  alias AdminAPI.V1.TokenView
 
-  describe "AdminAPI.V1.MintedTokenView.render/2" do
-    test "renders minted_token.json with correct response structure" do
-      minted_token = insert(:minted_token)
+  describe "AdminAPI.V1.TokenView.render/2" do
+    test "renders token.json with correct response structure" do
+      token = insert(:token)
 
       expected = %{
         version: @expected_version,
         success: true,
         data: %{
-          object: "minted_token",
-          id: minted_token.id,
-          symbol: minted_token.symbol,
-          name: minted_token.name,
+          object: "token",
+          id: token.id,
+          symbol: token.symbol,
+          name: token.name,
           metadata: %{},
           encrypted_metadata: %{},
-          subunit_to_unit: minted_token.subunit_to_unit,
-          created_at: Date.to_iso8601(minted_token.inserted_at),
-          updated_at: Date.to_iso8601(minted_token.updated_at)
+          subunit_to_unit: token.subunit_to_unit,
+          created_at: Date.to_iso8601(token.inserted_at),
+          updated_at: Date.to_iso8601(token.updated_at)
         }
       }
 
-      assert MintedTokenView.render("minted_token.json", %{minted_token: minted_token}) ==
+      assert TokenView.render("token.json", %{token: token}) ==
                expected
     end
 
-    test "renders minted_tokens.json with correct response structure" do
-      minted_token1 = insert(:minted_token)
-      minted_token2 = insert(:minted_token)
+    test "renders tokens.json with correct response structure" do
+      token1 = insert(:token)
+      token2 = insert(:token)
 
       paginator = %Paginator{
-        data: [minted_token1, minted_token2],
+        data: [token1, token2],
         pagination: %{
           per_page: 10,
           current_page: 1,
@@ -48,26 +48,26 @@ defmodule AdminAPI.V1.MintedTokenViewTest do
           object: "list",
           data: [
             %{
-              object: "minted_token",
-              id: minted_token1.id,
-              symbol: minted_token1.symbol,
-              name: minted_token1.name,
+              object: "token",
+              id: token1.id,
+              symbol: token1.symbol,
+              name: token1.name,
               metadata: %{},
               encrypted_metadata: %{},
-              subunit_to_unit: minted_token1.subunit_to_unit,
-              created_at: Date.to_iso8601(minted_token1.inserted_at),
-              updated_at: Date.to_iso8601(minted_token1.updated_at)
+              subunit_to_unit: token1.subunit_to_unit,
+              created_at: Date.to_iso8601(token1.inserted_at),
+              updated_at: Date.to_iso8601(token1.updated_at)
             },
             %{
-              object: "minted_token",
-              id: minted_token2.id,
-              symbol: minted_token2.symbol,
-              name: minted_token2.name,
+              object: "token",
+              id: token2.id,
+              symbol: token2.symbol,
+              name: token2.name,
               metadata: %{},
               encrypted_metadata: %{},
-              subunit_to_unit: minted_token2.subunit_to_unit,
-              created_at: Date.to_iso8601(minted_token2.inserted_at),
-              updated_at: Date.to_iso8601(minted_token2.updated_at)
+              subunit_to_unit: token2.subunit_to_unit,
+              created_at: Date.to_iso8601(token2.inserted_at),
+              updated_at: Date.to_iso8601(token2.updated_at)
             }
           ],
           pagination: %{
@@ -79,7 +79,7 @@ defmodule AdminAPI.V1.MintedTokenViewTest do
         }
       }
 
-      assert MintedTokenView.render("minted_tokens.json", %{minted_tokens: paginator}) == expected
+      assert TokenView.render("tokens.json", %{tokens: paginator}) == expected
     end
   end
 end
