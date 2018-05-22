@@ -31,7 +31,7 @@ defmodule EWalletDB.CategoryTest do
   describe "get_by/2" do
     test "accepts arbitary field" do
       category = insert(:category)
-      result = Category.get_by(category.name)
+      result = Category.get_by(name: category.name)
       assert result.id == category.id
     end
   end

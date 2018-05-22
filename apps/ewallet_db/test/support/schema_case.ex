@@ -99,6 +99,37 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
+  Test schema's get/1 returns the struct if the given id is found
+  """
+  defmacro test_schema_get_returns_struct_if_given_valid_id(schema) do
+    quote do
+      test "returns a struct if given a valid id" do
+        schema = unquote(schema)
+
+        inserted =
+          schema
+          |> get_factory()
+          |> insert()
+
+        result = schema.get(inserted.id)
+
+        assert result.id == inserted.id
+      end
+    end
+  end
+
+  defmacro test_schema_get_returns_nil_for_id(schema, id) do
+    quote do
+      test "returns a struct if given '#{unquote(id)}' as id" do
+        schema = unquote(schema)
+        id = unquote(id)
+
+        assert schema.get(id) == nil
+      end
+    end
+  end
+
+  @doc """
   Test schema's insert/1 with a specific field value is successful.
   """
   defmacro test_insert_ok(schema, field, value) when is_atom(field) do
