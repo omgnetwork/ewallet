@@ -72,9 +72,7 @@ defmodule LocalLedgerDB.Transaction do
   Ensure that the given address has enough funds, else raise an
   InsufficientFundsError exception.
   """
-  def check_balance(
-        %{amount: amount_to_debit, token_id: token_id, address: address} = attrs
-      ) do
+  def check_balance(%{amount: amount_to_debit, token_id: token_id, address: address} = attrs) do
     current_amount = calculate_current_amount(address, token_id)
 
     unless current_amount - amount_to_debit >= 0 do
@@ -158,9 +156,7 @@ defmodule LocalLedgerDB.Transaction do
     Repo.one(
       from(
         t in Transaction,
-        where:
-          t.wallet_address == ^address and t.type == ^type and
-            t.token_id == ^token_id,
+        where: t.wallet_address == ^address and t.type == ^type and t.token_id == ^token_id,
         select: sum(t.amount)
       )
     )

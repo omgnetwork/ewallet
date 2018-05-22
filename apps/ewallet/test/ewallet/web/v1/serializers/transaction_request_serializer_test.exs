@@ -16,8 +16,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
     test "serializes into correct V1 transaction_request format" do
       request = insert(:transaction_request)
 
-      transaction_request =
-        TransactionRequest.get(request.id, preload: [:token, :account, :user])
+      transaction_request = TransactionRequest.get(request.id, preload: [:token, :account, :user])
 
       insert(:transaction_consumption, transaction_request_uuid: request.uuid)
       insert(:transaction_consumption, transaction_request_uuid: request.uuid)

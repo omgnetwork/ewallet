@@ -80,8 +80,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "object" => "transaction_consumption",
                  "status" => "confirmed",
                  "token_id" => meta.token.id,
-                 "token" =>
-                   meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
@@ -837,8 +836,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "object" => "transaction_consumption",
                  "status" => "confirmed",
                  "token_id" => meta.token.id,
-                 "token" =>
-                   meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),

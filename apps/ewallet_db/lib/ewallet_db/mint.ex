@@ -50,6 +50,11 @@ defmodule EWalletDB.Mint do
     |> validate_required([:amount, :token_uuid])
     |> validate_number(:amount, greater_than: 0)
     |> assoc_constraint(:token)
+    |> assoc_constraint(:account)
+    |> assoc_constraint(:transfer)
+    |> foreign_key_constraint(:token_uuid)
+    |> foreign_key_constraint(:account_uuid)
+    |> foreign_key_constraint(:transfer_uuid)
   end
 
   defp update_changeset(%Mint{} = token, attrs) do

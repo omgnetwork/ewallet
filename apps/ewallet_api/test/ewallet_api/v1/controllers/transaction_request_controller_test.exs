@@ -31,8 +31,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
-                 "token" =>
-                   token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
                  "type" => "send",
                  "status" => "valid",
                  "user_id" => user.id,
@@ -83,8 +82,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
-                 "token" =>
-                   token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
                  "type" => "send",
                  "status" => "valid",
                  "user_id" => user.id,
@@ -240,8 +238,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
-                 "token" =>
-                   token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
                  "type" => "send",
                  "status" => "valid",
                  "user_id" => user.id,
@@ -292,8 +289,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
-                 "token" =>
-                   token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
                  "allow_amount_override" => true,
                  "require_confirmation" => false,
                  "consumption_lifetime" => nil,

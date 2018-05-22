@@ -9,18 +9,15 @@ defmodule EWalletDB.TokenTest do
 
   describe "insert/1" do
     test_insert_generate_uuid(Token, :uuid)
+    test_insert_generate_uuid(Token, :account_uuid)
     test_insert_generate_timestamps(Token)
     test_insert_prevent_blank(Token, :symbol)
     test_insert_prevent_blank(Token, :name)
     test_insert_prevent_blank(Token, :subunit_to_unit)
-    test_insert_prevent_duplicate(Token, :symbol)
-    test_insert_prevent_duplicate(Token, :iso_code)
-    test_insert_prevent_duplicate(Token, :name)
     test_default_metadata_fields(Token, "token")
 
     test "generates an id with the schema prefix and token symbol" do
-      {:ok, token} =
-        :token |> params_for(id: nil, symbol: "OMG") |> Token.insert()
+      {:ok, token} = :token |> params_for(id: nil, symbol: "OMG") |> Token.insert()
 
       assert "tok_OMG_" <> ulid = token.id
       # A ULID has 26 characters
@@ -28,15 +25,13 @@ defmodule EWalletDB.TokenTest do
     end
 
     test "allow subunit to be set between 0 and 1.0e18" do
-      {:ok, token} =
-        :token |> params_for(subunit_to_unit: 1.0e18) |> Token.insert()
+      {:ok, token} = :token |> params_for(subunit_to_unit: 1.0e18) |> Token.insert()
 
       assert token.subunit_to_unit == 1_000_000_000_000_000_000
     end
 
     test "fails to insert when subunit is equal to 1.0e19" do
-      {:error, error} =
-        :token |> params_for(subunit_to_unit: 1.0e19) |> Token.insert()
+      {:error, error} = :token |> params_for(subunit_to_unit: 1.0e19) |> Token.insert()
 
       assert error.errors == [
                subunit_to_unit:
@@ -55,8 +50,7 @@ defmodule EWalletDB.TokenTest do
     end
 
     test "fails to insert when subunit is superior to 1.0e18" do
-      {:error, error} =
-        :token |> params_for(subunit_to_unit: 1.0e82) |> Token.insert()
+      {:error, error} = :token |> params_for(subunit_to_unit: 1.0e82) |> Token.insert()
 
       assert error.errors == [
                subunit_to_unit:
@@ -80,8 +74,7 @@ defmodule EWalletDB.TokenTest do
 
   describe "get/1" do
     test "returns an existing token using a symbol" do
-      {:ok, inserted} =
-        :token |> params_for(id: nil, symbol: "sym") |> Token.insert()
+      {:ok, inserted} = :token |> params_for(id: nil, symbol: "sym") |> Token.insert()
 
       token = Token.get(inserted.id)
       assert "tok_sym_" <> _ = token.id

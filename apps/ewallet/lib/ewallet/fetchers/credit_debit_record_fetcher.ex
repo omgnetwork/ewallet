@@ -18,8 +18,7 @@ defmodule EWallet.CreditDebitRecordFetcher do
 
   defp load_account(nil, nil), do: nil
 
-  defp load_account(nil, token),
-    do: Account.get_by([uuid: token.account_uuid], preload: :wallets)
+  defp load_account(nil, token), do: Account.get_by([uuid: token.account_uuid], preload: :wallets)
 
   defp load_account(account_id, _token), do: Account.get(account_id, preload: :wallets)
 

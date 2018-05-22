@@ -23,8 +23,7 @@ defmodule AdminAPI.V1.TokenViewTest do
         }
       }
 
-      assert TokenView.render("token.json", %{token: token}) ==
-               expected
+      assert TokenView.render("token.json", %{token: token}) == expected
     end
 
     test "renders tokens.json with correct response structure" do

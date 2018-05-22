@@ -393,8 +393,7 @@ defmodule EWallet.TransactionGateTest do
 
       init_wallet(wallet.address, inserted_token, 1_000)
 
-      {status, _transfer, _wallets, _token} =
-        TransactionGate.process_credit_or_debit(attrs)
+      {status, _transfer, _wallets, _token} = TransactionGate.process_credit_or_debit(attrs)
 
       assert status == :ok
 

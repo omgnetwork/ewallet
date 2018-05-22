@@ -237,8 +237,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     test "returns a token_not_found error if given not existing token" do
       request = insert(:transaction_request)
 
-      {:error, code} =
-        TransactionConsumptionValidator.get_and_validate_token(request, "fake")
+      {:error, code} = TransactionConsumptionValidator.get_and_validate_token(request, "fake")
 
       assert code == :token_not_found
     end
@@ -247,8 +246,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       request = insert(:transaction_request)
       token = insert(:token)
 
-      {:error, code} =
-        TransactionConsumptionValidator.get_and_validate_token(request, token.id)
+      {:error, code} = TransactionConsumptionValidator.get_and_validate_token(request, token.id)
 
       assert code == :invalid_token_provided
     end
@@ -257,8 +255,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       request = :transaction_request |> insert() |> Repo.preload([:token])
       token = request.token
 
-      {:ok, token} =
-        TransactionConsumptionValidator.get_and_validate_token(request, token.id)
+      {:ok, token} = TransactionConsumptionValidator.get_and_validate_token(request, token.id)
 
       assert token.uuid == request.token_uuid
     end
