@@ -98,6 +98,26 @@ defmodule EWalletDB.SchemaCase do
     end
   end
 
+  defmacro test_schema_all_returns_all_records(schema, count) do
+    quote do
+      test "returns all existing #{unquote(schema)} records" do
+        schema = unquote(schema)
+        count = unquote(count)
+
+        assert Enum.empty?(schema.all())
+
+        for n <- 1..count do
+          schema
+          |> get_factory
+          |> params_for
+          |> schema.insert()
+        end
+
+        assert length(schema.all()) == count
+      end
+    end
+  end
+
   @doc """
   Test schema's get/1 returns the struct if the given id is found
   """

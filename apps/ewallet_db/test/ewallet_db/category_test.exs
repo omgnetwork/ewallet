@@ -7,11 +7,7 @@ defmodule EWalletDB.CategoryTest do
   end
 
   describe "all/1" do
-    test "returns all existing categories" do
-      assert Enum.empty?(Category.all())
-      insert_list(3, :category)
-      assert length(Category.all()) == 3
-    end
+    test_schema_all_returns_all_records(Category, 10)
   end
 
   describe "get/2" do
@@ -26,21 +22,12 @@ defmodule EWalletDB.CategoryTest do
   end
 
   describe "insert/1" do
+    test_insert_ok(Category, :name, "Test category name")
     test_insert_generate_uuid(Category, :uuid)
     test_insert_generate_external_id(Category, :id, "cat_")
     test_insert_generate_timestamps(Category)
 
     test_insert_prevent_duplicate(Category, :name)
-
-    test "inserts and returns a Category struct" do
-      {res, category} =
-        :category
-        |> params_for(%{name: "Test category name"})
-        |> Category.insert()
-
-      assert res == :ok
-      assert category.name == "Test category name"
-    end
   end
 
   describe "update/1" do
