@@ -9,7 +9,7 @@ defmodule EWalletDB.Factory do
     Account,
     APIKey,
     AuthToken,
-    Wallet,
+    Category,
     ForgetPasswordRequest,
     Invite,
     Key,
@@ -20,7 +20,8 @@ defmodule EWalletDB.Factory do
     TransactionRequest,
     TransactionConsumption,
     Transfer,
-    User
+    User,
+    Wallet
   }
 
   alias EWalletDB.Helpers.Crypto
@@ -39,6 +40,12 @@ defmodule EWalletDB.Factory do
     schema
     |> struct
     |> Strategy.name_from_struct()
+  end
+
+  def category_factory do
+    %Category{
+      name: sequence("Category name")
+    }
   end
 
   def wallet_factory do
