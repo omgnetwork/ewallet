@@ -101,7 +101,7 @@ defmodule EWalletDB.Repo.Migrations.RenameMintedTokenToToken do
     drop constraint(:wallet, "balance_minted_token_id_fkey")
     alter table(:wallet) do
       modify :minted_token_uuid, references(:minted_token, type: :uuid,
-                                            column: :uuid), null: false
+                                            column: :uuid), null: true
     end
   end
   defp up_regenerate_constraint(table, old_name) do
@@ -127,7 +127,7 @@ defmodule EWalletDB.Repo.Migrations.RenameMintedTokenToToken do
     alter table(table) do
       modify old_name, references(:minted_token, type: :uuid,
                                   column: :uuid, name: "balance_minted_token_id_fkey"),
-                                  null: false
+                                  null: true
     end
   end
   defp down_regenerate_constraint(table, old_name, new_name) do

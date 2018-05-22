@@ -1,7 +1,7 @@
 defmodule EWalletDB.Repo.Migrations.RenameBalanceToWallet do
   use Ecto.Migration
 
-  def change do
+  def up do
     drop constraint(:transaction_consumption, "transaction_request_consumption_balance_address_fkey")
     alter table(:transaction_consumption) do
       modify :balance_address, references(:balance, type: :string,
@@ -41,6 +41,50 @@ defmodule EWalletDB.Repo.Migrations.RenameBalanceToWallet do
         end
       end)
     end)
+  end
+
+  def down do
+    tables = %{
+      transaction_consumption: %{balance_address: :wallet_address},
+      transaction_request: %{balance_address: :wallet_address},
+      transfer: %{to: :to, from: :from},
+    }
+
+    rename table(:wallet), to: table(:balance)
+
+    Enum.each(tables, fn {table, columns} ->
+      Enum.each(columns, fn {old_name, new_name} ->
+        drop_constraint(table, new_name, old_name)
+      end)
+    end)
+
+    drop index(:wallet, [:address])
+    drop index(:wallet, [:account_uuid, :name])
+    drop index(:wallet, [:account_uuid, :identifier])
+    drop index(:wallet, [:user_uuid, :name])
+    drop index(:wallet, [:user_uuid, :identifier])
+
+    create unique_index(:balance, [:address])
+    create unique_index(:balance, [:account_uuid, :name])
+    create unique_index(:balance, [:account_uuid, :identifier])
+    create unique_index(:balance, [:user_uuid, :name])
+    create unique_index(:balance, [:user_uuid, :identifier])
+
+    Enum.each(tables, fn {table, columns} ->
+      Enum.each(columns, fn {old_name, _new_name} ->
+        alter table(table) do
+          modify old_name, references(:balance, type: :string,
+                                      column: :address), null: false
+        end
+      end)
+    end)
+
+    drop constraint(:transaction_consumption, "transaction_consumption_balance_address_fkey")
+    alter table(:transaction_consumption) do
+      modify :balance_address, references(:balance, type: :string,
+                                          column: :address, name: "transaction_request_consumption_balance_address_fkey"),
+                                          null: false
+    end
   end
 
   def drop_constraint(table, old_name, new_name) when old_name == new_name do
