@@ -3,7 +3,7 @@ defmodule EWalletDB.Wallet do
   Ecto Schema representing wallet.
   """
   use Ecto.Schema
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account, Wallet, Token, User}
@@ -82,6 +82,10 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
     |> put_change(:encryption_version, Cloak.version())
   end
+
+  def all_for(%Account{} = account), do: from(t in Wallet, where: t.account_uuid == ^account.uuid)
+  def all_for(%User{} = user), do: from(t in Wallet, where: t.user_uuid == ^user.uuid)
+  def all_for(_), do: nil
 
   @doc """
   Retrieve a wallet using the specified address.

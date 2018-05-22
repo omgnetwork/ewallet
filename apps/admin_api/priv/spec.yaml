@@ -44,13 +44,14 @@ tags:
     description: Resources related to account.
   - name: User
     description: Resources related to users.
+  - name: Wallet
+    description: Resources related to wallets.
   - name: Admin
     description: Resources related to admins.
   - name: Transaction
     description: Resources related to transactions.
   - name: API Access
     description: Resources related to API access.
-
 servers:
   - url: /admin/api
 
