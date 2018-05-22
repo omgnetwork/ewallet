@@ -90,6 +90,7 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
+    |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version())
     |> set_id(prefix: "tok_")

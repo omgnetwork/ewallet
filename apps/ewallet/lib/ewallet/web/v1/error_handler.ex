@@ -113,8 +113,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     invalid_token_provided: %{
       code: "transaction_consumption:invalid_token",
-      description:
-        "The provided token does not match the transaction request token."
+      description: "The provided token does not match the transaction request token."
     },
     forbidden_channel: %{
       code: "websocket:forbidden_channel",
