@@ -21,7 +21,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   end
 
   def serialize(%Account{} = account) do
-    account = Preloader.preload(account, :parent)
+    account = Preloader.preload(account, [:parent, :categories])
 
     %{
       object: "account",
@@ -31,6 +31,8 @@ defmodule EWallet.Web.V1.AccountSerializer do
       name: account.name,
       description: account.description,
       master: Account.master?(account),
+      category_ids: Enum.map(account.categories, fn(category) -> category.id end),
+      categories: account.categories,
       avatar: Avatar.urls({account.avatar, account}),
       metadata: account.metadata || %{},
       encrypted_metadata: account.encrypted_metadata || %{},

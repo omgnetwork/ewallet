@@ -8,7 +8,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
       master = :account |> insert()
-      account = :account |> insert() |> Repo.preload(:parent)
+      account = :account |> insert() |> Repo.preload([:parent, :categories])
 
       expected = %{
         object: "account",
@@ -18,6 +18,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
         name: account.name,
         description: account.description,
         master: Account.master?(account),
+        category_ids: account.category_ids,
+        categories: account.categories,
         metadata: %{},
         encrypted_metadata: %{},
         avatar: %{
@@ -34,8 +36,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
     end
 
     test "serializes an account paginator into a list object" do
-      account1 = :account |> insert() |> Repo.preload(:parent)
-      account2 = :account |> insert() |> Repo.preload(:parent)
+      account1 = :account |> insert() |> Repo.preload([:parent, :categories])
+      account2 = :account |> insert() |> Repo.preload([:parent, :categories])
 
       paginator = %Paginator{
         data: [account1, account2],
@@ -58,6 +60,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             name: account1.name,
             description: account1.description,
             master: Account.master?(account1),
+            category_ids: Enum.map(account1.categories, fn(category) -> category.id end),
+            categories: account1.categories,
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{
@@ -77,6 +81,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),
+            category_ids: Enum.map(account2.categories, fn(category) -> category.id end),
+            categories: account2.categories,
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{
