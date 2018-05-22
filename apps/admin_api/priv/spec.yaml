@@ -1117,7 +1117,7 @@ components:
             id: "cat_01ce31n493dqbtj3fe8hadwndx"
             name: "Account Category Name"
             description: "The account category description"
-            account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+            account_ids: []
             accounts: []
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -1149,7 +1149,7 @@ components:
                 id: "cat_01ce31n493dqbtj3fe8hadwndx"
                 name: "Account Category Name"
                 description: "The account category description"
-                account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+                account_ids: []
                 accounts: []
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -1235,9 +1235,7 @@ components:
             name: "Account Name"
             description: "The account description"
             master: true
-            category_ids: [
-              "cat_01ce31n493dqbtj3fe8hadwndx"
-            ]
+            category_ids: []
             categories: []
             metadata: {}
             encrypted_metadata: {}
@@ -1274,9 +1272,7 @@ components:
                 name: "Account name"
                 description: "The account description"
                 master: true
-                category_ids: [
-                  "cat_01ce31n493dqbtj3fe8hadwndx"
-                ]
+                category_ids: []
                 categories: []
                 metadata: {}
                 encrypted_metadata: {}
@@ -2369,6 +2365,10 @@ components:
                 type: string
               parent_id:
                 type: string
+              category_ids:
+                type: array
+                items:
+                  type: string
               metadata:
                 type: object
               encrypted_metadata:
@@ -2379,6 +2379,7 @@ components:
               name: "Account Name"
               description: "The account description"
               parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
+              category_ids: []
               metadata: {}
               encrypted_metadata: {}
     AccountUpdateBody:
@@ -2408,7 +2409,7 @@ components:
               id: "acc_01ca2p8jqans5aty5gj5etmjcf"
               name: "Account Name"
               description: "The account description"
-              category_ids: ["cat_01ce31n493dqbtj3fe8hadwndx"]
+              category_ids: []
               metadata: {}
               encrypted_metadata: {}
     AccountListUsersBody:
