@@ -34,7 +34,8 @@ defmodule EWalletDB.Account do
       :categories,
       Category,
       join_through: "account_category",
-      join_keys: [account_uuid: :uuid, category_uuid: :uuid]
+      join_keys: [account_uuid: :uuid, category_uuid: :uuid],
+      on_replace: :delete
     )
 
     belongs_to(
@@ -93,6 +94,17 @@ defmodule EWalletDB.Account do
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
     |> put_change(:encryption_version, Cloak.version())
+    |> put_categories(attrs, :category_ids)
+  end
+
+  defp put_categories(changeset, attrs, attr_name) do
+    case attrs[attr_name] do
+      ids when is_list(ids) ->
+        categories = Repo.all(from c in Category, where: c.id in ^attrs[attr_name])
+        put_assoc(changeset, :categories, categories)
+      nil ->
+        changeset
+    end
   end
 
   @spec avatar_changeset(changeset :: Ecto.Changeset.t(), attrs :: map()) :: Ecto.Changeset.t()

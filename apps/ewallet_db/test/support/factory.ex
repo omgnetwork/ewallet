@@ -44,7 +44,8 @@ defmodule EWalletDB.Factory do
 
   def category_factory do
     %Category{
-      name: sequence("Category name")
+      name: sequence("Category name"),
+      description: sequence("description")
     }
   end
 
