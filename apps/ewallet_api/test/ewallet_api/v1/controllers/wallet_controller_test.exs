@@ -2,6 +2,7 @@ defmodule EWalletAPI.V1.WalletControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{User, MintedToken, Account}
+  alias EWallet.Web.V1.UserSerializer
 
   describe "/all" do
     test "Get all user wallets from its provider_user_id" do
@@ -39,24 +40,7 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                      "identifier" => "primary",
                      "metadata" => %{},
                      "name" => "primary",
-                     "user" => %{
-                       "avatar" => %{
-                         "large" => nil,
-                         "original" => nil,
-                         "small" => nil,
-                         "thumb" => nil
-                       },
-                       "created_at" => Date.to_iso8601(user.inserted_at),
-                       "email" => nil,
-                       "encrypted_metadata" => %{},
-                       "id" => user.id,
-                       "metadata" => user.metadata,
-                       "object" => "user",
-                       "provider_user_id" => user.provider_user_id,
-                       "socket_topic" => "user:#{user.id}",
-                       "updated_at" => Date.to_iso8601(user.updated_at),
-                       "username" => user.username
-                     },
+                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
                      "balances" => [
                        %{
@@ -131,24 +115,7 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                      "identifier" => "primary",
                      "metadata" => %{},
                      "name" => "primary",
-                     "user" => %{
-                       "avatar" => %{
-                         "large" => nil,
-                         "original" => nil,
-                         "small" => nil,
-                         "thumb" => nil
-                       },
-                       "created_at" => Date.to_iso8601(user.inserted_at),
-                       "email" => nil,
-                       "encrypted_metadata" => %{},
-                       "id" => user.id,
-                       "metadata" => user.metadata,
-                       "object" => "user",
-                       "provider_user_id" => user.provider_user_id,
-                       "socket_topic" => "user:#{user.id}",
-                       "updated_at" => Date.to_iso8601(user.updated_at),
-                       "username" => user.username
-                     },
+                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
                      "balances" => [
                        %{

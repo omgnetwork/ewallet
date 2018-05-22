@@ -1,7 +1,7 @@
-defmodule EWallet.WalletAssignerTest do
+defmodule EWallet.WalletCreditDebitAssignerTest do
   use ExUnit.Case
   import EWalletDB.Factory
-  alias EWallet.{TransactionGate, WalletAssigner}
+  alias EWallet.{TransactionGate, WalletCreditDebitAssigner}
   alias EWalletDB.{Repo, User, Account}
   alias Ecto.Adapters.SQL.Sandbox
 
@@ -16,7 +16,7 @@ defmodule EWallet.WalletAssignerTest do
   describe "load/1" do
     test "loads the correct wallets when credit", meta do
       {:ok, from, to} =
-        WalletAssigner.assign(%{
+        WalletCreditDebitAssigner.assign(%{
           account: meta.account,
           user: meta.user,
           type: TransactionGate.credit_type(),
@@ -29,7 +29,7 @@ defmodule EWallet.WalletAssignerTest do
 
     test "loads the correct wallets when debit", meta do
       {:ok, from, to} =
-        WalletAssigner.assign(%{
+        WalletCreditDebitAssigner.assign(%{
           account: meta.account,
           user: meta.user,
           type: TransactionGate.debit_type(),
@@ -42,7 +42,7 @@ defmodule EWallet.WalletAssignerTest do
 
     test "loads the correct wallets when debit and burn wallet is specified", meta do
       {:ok, from, to} =
-        WalletAssigner.assign(%{
+        WalletCreditDebitAssigner.assign(%{
           account: meta.account,
           user: meta.user,
           type: TransactionGate.debit_type(),
@@ -55,7 +55,7 @@ defmodule EWallet.WalletAssignerTest do
 
     test "returns an error if the given burn address is not found", meta do
       {res, code} =
-        WalletAssigner.assign(%{
+        WalletCreditDebitAssigner.assign(%{
           account: meta.account,
           user: meta.user,
           type: TransactionGate.debit_type(),

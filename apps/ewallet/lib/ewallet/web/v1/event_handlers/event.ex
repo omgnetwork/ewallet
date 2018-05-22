@@ -30,7 +30,7 @@ defmodule EWallet.Web.V1.Event do
     end)
   end
 
-  defp log(event, topics, payload) do
+  def log(event, topics, payload) do
     Logger.info("")
     Logger.info("WEBSOCKET EVENT: Dispatching event '#{event}' to:")
     Logger.info("-- Endpoints:")
@@ -51,7 +51,7 @@ defmodule EWallet.Web.V1.Event do
 
       error ->
         Logger.info("With error:")
-        Logger.info(error)
+        error |> inspect() |> Logger.info()
     end
 
     Logger.info("Ending event dispatch...")

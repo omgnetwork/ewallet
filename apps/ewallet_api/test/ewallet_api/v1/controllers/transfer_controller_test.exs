@@ -4,6 +4,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
   alias Ecto.UUID
   alias EWallet.Web.Date
   alias EWallet.Web.V1.UserSerializer
+  alias EWallet.BalanceFetcher
 
   describe "/transfer" do
     test "returns idempotency error if header is not specified" do
@@ -73,12 +74,12 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "object" => "wallet",
                      "socket_topic" => "wallet:#{wallet1.address}",
                      "address" => wallet1.address,
-                     "account" => nil,
-                     "account_id" => nil,
                      "encrypted_metadata" => %{},
                      "identifier" => "primary",
                      "metadata" => %{},
                      "name" => "name0",
+                     "account" => nil,
+                     "account_id" => nil,
                      "user" => wallet1.user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => wallet1.user.id,
                      "balances" => [
@@ -103,12 +104,12 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "object" => "wallet",
                      "socket_topic" => "wallet:#{wallet2.address}",
                      "address" => wallet2.address,
-                     "account" => nil,
-                     "account_id" => nil,
                      "encrypted_metadata" => %{},
                      "identifier" => "primary",
                      "metadata" => %{},
                      "name" => "name1",
+                     "account" => nil,
+                     "account_id" => nil,
                      "user" => wallet2.user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => wallet2.user.id,
                      "balances" => [
@@ -265,6 +266,309 @@ defmodule EWalletAPI.V1.TransferControllerTest do
     end
   end
 
+  describe "/transfer_for_user" do
+    test "returns idempotency error if header is not specified" do
+      wallet1 = User.get_primary_wallet(get_test_user())
+      wallet2 = insert(:wallet)
+      minted_token = insert(:minted_token)
+
+      request_data = %{
+        from_address: wallet1.address,
+        to_address: wallet2.address,
+        token_id: minted_token.id,
+        amount: 1_000 * minted_token.subunit_to_unit,
+        metadata: %{}
+      }
+
+      response = client_request("/me.transfer", request_data)
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "client:no_idempotency_token_provided",
+                 "description" =>
+                   "The call you made requires the Idempotency-Token header to prevent duplication.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+
+    test "updates the wallets and returns the transaction" do
+      wallet1 = User.get_primary_wallet(get_test_user())
+      wallet2 = insert(:wallet)
+      minted_token = insert(:minted_token)
+
+      set_initial_balance(%{
+        address: wallet1.address,
+        minted_token: minted_token,
+        amount: 200_000
+      })
+
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          from_address: wallet1.address,
+          to_address: wallet2.address,
+          token_id: minted_token.id,
+          amount: 100 * minted_token.subunit_to_unit,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      {:ok, b1} = BalanceFetcher.get(minted_token.id, wallet1)
+      assert List.first(b1.balances).amount == (200_000 - 100) * minted_token.subunit_to_unit
+      {:ok, b2} = BalanceFetcher.get(minted_token.id, wallet2)
+      assert List.first(b2.balances).amount == 100 * minted_token.subunit_to_unit
+
+      transfer = get_last_inserted(Transfer)
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "object" => "transaction",
+                 "id" => transfer.id,
+                 "idempotency_token" => transfer.idempotency_token,
+                 "from" => %{
+                   "object" => "transaction_source",
+                   "address" => transfer.from,
+                   "amount" => transfer.amount,
+                   "minted_token_id" => minted_token.id,
+                   "minted_token" => %{
+                     "name" => minted_token.name,
+                     "object" => "minted_token",
+                     "subunit_to_unit" => minted_token.subunit_to_unit,
+                     "id" => minted_token.id,
+                     "symbol" => minted_token.symbol,
+                     "metadata" => %{},
+                     "encrypted_metadata" => %{},
+                     "created_at" => Date.to_iso8601(minted_token.inserted_at),
+                     "updated_at" => Date.to_iso8601(minted_token.updated_at)
+                   }
+                 },
+                 "to" => %{
+                   "object" => "transaction_source",
+                   "address" => transfer.to,
+                   "amount" => transfer.amount,
+                   "minted_token_id" => minted_token.id,
+                   "minted_token" => %{
+                     "name" => minted_token.name,
+                     "object" => "minted_token",
+                     "subunit_to_unit" => 100,
+                     "id" => minted_token.id,
+                     "symbol" => minted_token.symbol,
+                     "metadata" => %{},
+                     "encrypted_metadata" => %{},
+                     "created_at" => Date.to_iso8601(minted_token.inserted_at),
+                     "updated_at" => Date.to_iso8601(minted_token.updated_at)
+                   }
+                 },
+                 "exchange" => %{
+                   "object" => "exchange",
+                   "rate" => 1
+                 },
+                 "metadata" => transfer.metadata || %{},
+                 "encrypted_metadata" => transfer.encrypted_metadata || %{},
+                 "status" => transfer.status,
+                 "created_at" => Date.to_iso8601(transfer.inserted_at),
+                 "updated_at" => Date.to_iso8601(transfer.updated_at)
+               }
+             }
+    end
+
+    test "returns a 'same_address' error when the addresses are the same" do
+      wallet = User.get_primary_wallet(get_test_user())
+      minted_token = insert(:minted_token)
+
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          from_address: wallet.address,
+          to_address: wallet.address,
+          token_id: minted_token.id,
+          amount: 100_000 * minted_token.subunit_to_unit
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "transaction:same_address",
+                 "description" =>
+                   "Found identical addresses in senders and receivers: #{wallet.address}.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+
+    test "returns insufficient_funds when the user is too poor :~(" do
+      wallet1 = User.get_primary_wallet(get_test_user())
+      wallet2 = insert(:wallet)
+      minted_token = insert(:minted_token)
+
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          from_address: wallet1.address,
+          to_address: wallet2.address,
+          token_id: minted_token.id,
+          amount: 100_000 * minted_token.subunit_to_unit
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "transaction:insufficient_funds",
+                 "description" =>
+                   "The specified wallet (#{wallet1.address}) does not " <>
+                     "contain enough funds. Available: 0.0 #{minted_token.id} - " <>
+                     "Attempted debit: 100000.0 #{minted_token.id}",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+
+    test "returns from_address_not_found when no wallet found for the 'from_address'" do
+      wallet = insert(:wallet)
+      minted_token = insert(:minted_token)
+
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          from_address: "00000000-0000-0000-0000-000000000000",
+          to_address: wallet.address,
+          token_id: minted_token.id,
+          amount: 100_000
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "user:from_address_not_found",
+                 "description" => "No wallet found for the provided from_address.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+
+    test "returns a from_address_mismatch error if 'from_address' does not belong to the user" do
+      wallet1 = insert(:wallet)
+      wallet2 = insert(:wallet)
+      minted_token = insert(:minted_token)
+
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          from_address: wallet1.address,
+          to_address: wallet2.address,
+          token_id: minted_token.id,
+          amount: 100_000
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "user:from_address_mismatch",
+                 "description" =>
+                   "The provided wallet address does not belong to the current user.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+
+    test "returns to_address_not_found when the to wallet is not found" do
+      wallet = User.get_primary_wallet(get_test_user())
+      minted_token = insert(:minted_token)
+
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          from_address: wallet.address,
+          to_address: "00000000-0000-0000-0000-000000000000",
+          token_id: minted_token.id,
+          amount: 100_000
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "user:to_address_not_found",
+                 "description" => "No wallet found for the provided to_address.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+
+    test "returns minted_token_not_found when the minted token is not found" do
+      wallet1 = User.get_primary_wallet(get_test_user())
+      wallet2 = insert(:wallet)
+
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          from_address: wallet1.address,
+          to_address: wallet2.address,
+          token_id: "BTC:456",
+          amount: 100_000
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "minted_token:minted_token_not_found",
+                 "description" => "There is no minted token matching the provided token_id.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+
+    test "takes primary wallet if 'from_address' is not specified" do
+      wallet1 = User.get_primary_wallet(get_test_user())
+      wallet2 = insert(:wallet)
+      minted_token = insert(:minted_token)
+
+      set_initial_balance(%{
+        address: wallet1.address,
+        minted_token: minted_token,
+        amount: 200_000
+      })
+
+      client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        to_address: wallet2.address,
+        token_id: minted_token.id,
+        amount: 100_000
+      })
+
+      transfer = get_last_inserted(Transfer)
+      assert transfer.from == wallet1.address
+    end
+
+    test "returns an invalid_parameter error if a parameter is missing" do
+      response =
+        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+          token_id: "an_id",
+          amount: 100_000
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+  end
+
   describe "/user.credit_wallet" do
     test "returns idempotency error if header is not specified" do
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -327,24 +631,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "identifier" => "primary",
                      "metadata" => %{},
                      "name" => "primary",
-                     "user" => %{
-                       "avatar" => %{
-                         "large" => nil,
-                         "original" => nil,
-                         "small" => nil,
-                         "thumb" => nil
-                       },
-                       "created_at" => Date.to_iso8601(user.inserted_at),
-                       "email" => nil,
-                       "encrypted_metadata" => %{},
-                       "id" => user.id,
-                       "metadata" => user.metadata,
-                       "object" => "user",
-                       "provider_user_id" => user.provider_user_id,
-                       "socket_topic" => "user:#{user.id}",
-                       "updated_at" => Date.to_iso8601(user.updated_at),
-                       "username" => user.username
-                     },
+                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
                      "balances" => [
                        %{

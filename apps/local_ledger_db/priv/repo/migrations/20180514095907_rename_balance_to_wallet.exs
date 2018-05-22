@@ -27,24 +27,5 @@ defmodule LocalLedgerDB.Repo.Migrations.RenameBalanceToWallet do
         end
       end)
     end)
-
-    # tables = [:cached_balance, :transaction]
-    #
-    # rename table(:balance), to: table(:wallet)
-    #
-    # Enum.each(tables, fn table ->
-    #   rename table(table), :balance_address, to: :wallet_address
-    #   drop constraint(table, "#{Atom.to_string(table)}_balance_address_fkey")
-    # end)
-    #
-    # drop index(:balance, [:address])
-    # create unique_index(:wallet, [:address])
-    #
-    # Enum.each(tables, fn table ->
-    #   alter table(table) do
-    #     modify :wallet_address, references(:wallet, type: :string,
-    #                                         column: :address), null: false
-    #   end
-    # end)
   end
 end

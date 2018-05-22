@@ -9,7 +9,7 @@ Integrating the OmiseGO eWallet requires a new setup to be deployed. Feel free t
 |Area of responsibilities|Tasks|
 |------------------------|-----|
 |Token management   | - Create loyalty tokens <br> - Put more loyalty tokens in circulation <br> - Remove loyalty tokens from circulation <br> - Provide user interface for creating new loyalty tokens <br> - Provide user interface for add/remove of loyalty tokens from circulation|
-|Secondary user store|- Create users along with their token wallets. The user stored in the Wallet API is solely for identifying and transacting with the user’s token wallets.|
+|Secondary user store|- Create users along with their wallets. The user stored in the Wallet API is solely for identifying and transacting with the user’s wallets.|
 |Token transactions|- Perform credit/debit of loyalty tokens to/from users|
 |Entity management|- Create, update and list accounts<br>- Create, update and list users with their wallets<br>- Assign and unassign roles to users in an account<br>- Assign and unassign permissions to roles|
 |API management|- Generate and invalidate access and secret keys (for server application)<br>- Generate and invalidate API keys (for mobile application)|
