@@ -7,11 +7,12 @@ defmodule EWalletDB.Repo.Migrations.CreateCategoryTable do
       add :uuid, :uuid, primary_key: true
       add :name, :string, null: false
       add :description, :string
-
       timestamps()
+      add :deleted_at, :naive_datetime
     end
 
     create unique_index(:category, [:name])
+    create index(:category, [:deleted_at])
 
     # Create the pivot table to support many-to-many account <-> category relationship
     create table(:account_category, primary_key: false) do
