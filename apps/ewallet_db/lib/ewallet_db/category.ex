@@ -91,15 +91,18 @@ defmodule EWalletDB.Category do
   @doc """
   Checks whether the given account category is soft-deleted.
   """
+  @spec deleted?(%__MODULE__{}) :: boolean()
   def deleted?(category), do: SoftDelete.deleted?(category)
 
   @doc """
   Soft-deletes the given account category.
   """
+  @spec delete(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def delete(category), do: SoftDelete.delete(category)
 
   @doc """
   Restores the given account category from soft-delete.
   """
+  @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def restore(category), do: SoftDelete.restore(category)
 end
