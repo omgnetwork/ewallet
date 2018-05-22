@@ -26,7 +26,7 @@ defmodule EWallet.Web.Paginator do
   (so long as the attribute keys don't conflict). Therefore this function
   expects attribute keys to be strings, not atoms.
   """
-  @spec paginate_attrs(Ecto.Query.t(), map()) :: map() | {:error, :invalid_parameter, String.t}
+  @spec paginate_attrs(Ecto.Query.t(), map()) :: map() | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(queryable, %{"page" => page} = attrs) when not is_integer(page) do
     parse_string_param(queryable, attrs, "page", page)
   end

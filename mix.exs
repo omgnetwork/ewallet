@@ -15,7 +15,10 @@ defmodule EWallet.Umbrella.Mixfile do
       deps: deps(),
       aliases: aliases(),
       docs: docs(),
-      dialyzer: [flags: ["-Wunmatched_returns", :error_handling, :underspecs], ignore_warnings: ".dialyzer_ignore"]
+      dialyzer: [
+        flags: ["-Wunmatched_returns", :error_handling, :underspecs],
+        ignore_warnings: ".dialyzer_ignore"
+      ]
     ]
   end
 

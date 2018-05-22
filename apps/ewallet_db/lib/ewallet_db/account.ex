@@ -108,7 +108,8 @@ defmodule EWalletDB.Account do
     end
   end
 
-  @spec avatar_changeset(changeset :: Ecto.Changeset.t(), attrs :: map()) :: Ecto.Changeset.t() | no_return() | none()
+  @spec avatar_changeset(changeset :: Ecto.Changeset.t(), attrs :: map()) ::
+          Ecto.Changeset.t() | no_return() | none()
   defp avatar_changeset(changeset, attrs) do
     changeset
     |> cast_attachments(attrs, [:avatar])
@@ -176,7 +177,8 @@ defmodule EWalletDB.Account do
   @doc """
   Stores an avatar for the given account.
   """
-  @spec store_avatar(account :: %Account{}, attrs :: map()) :: %Account{} | nil | no_return() | none()
+  @spec store_avatar(account :: %Account{}, attrs :: map()) ::
+          %Account{} | nil | no_return() | none()
   def store_avatar(%Account{} = account, attrs) do
     attrs =
       case attrs["avatar"] do
@@ -208,7 +210,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieves an account with the given ID.
   """
-  @spec get(id :: ExternalID.t(), opts :: keyword()) :: %Account{} | nil | no_return()  | none()
+  @spec get(id :: ExternalID.t(), opts :: keyword()) :: %Account{} | nil | no_return() | none()
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do
@@ -220,7 +222,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieves an account using one or more fields.
   """
-  @spec get_by(fields :: keyword(), opts :: keyword()) :: %Account{} | nil | no_return()  | none()
+  @spec get_by(fields :: keyword(), opts :: keyword()) :: %Account{} | nil | no_return() | none()
   def get_by(fields, opts \\ []) do
     Account
     |> Repo.get_by(fields)
@@ -273,7 +275,8 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve a wallet by name for the given account.
   """
-  @spec get_wallet_by_identifier(account :: %Account{}, identifier :: String.t()) :: %Wallet{} | nil | no_return()
+  @spec get_wallet_by_identifier(account :: %Account{}, identifier :: String.t()) ::
+          %Wallet{} | nil | no_return()
   def get_wallet_by_identifier(account, identifier) do
     Wallet
     |> where([b], b.identifier == ^identifier)

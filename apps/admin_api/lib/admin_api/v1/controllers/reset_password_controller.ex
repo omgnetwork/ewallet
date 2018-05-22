@@ -10,8 +10,8 @@ defmodule AdminAPI.V1.ResetPasswordController do
         handle_error(conn, :user_email_not_found)
 
       user ->
-        _
-          = user
+        _ =
+          user
           |> ForgetPasswordRequest.delete_all()
           |> ForgetPasswordRequest.generate()
           |> ForgetPasswordEmail.create(redirect_url)

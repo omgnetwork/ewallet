@@ -115,7 +115,7 @@ defmodule EWallet.TransactionRequestGate do
           "token_id" => token_id
         } = attrs
       ) do
-    with %Token{} = token <- Token.get(token_id) || || {:error, :token_not_found},
+    with %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
          {:ok, transaction_request} <- insert(token, wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else

@@ -54,7 +54,7 @@ defmodule LocalLedgerDB.Token do
   @doc """
   Retrieve a token using the specified id.
   """
-  @spec get(String.t) :: Ecto.Schema.t() | nil | no_return()
+  @spec get(String.t()) :: Ecto.Schema.t() | nil | no_return()
   def get(id) do
     Repo.get_by(Token, id: id)
   end
