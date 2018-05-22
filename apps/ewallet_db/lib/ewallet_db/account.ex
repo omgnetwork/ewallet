@@ -8,7 +8,7 @@ defmodule EWalletDB.Account do
   import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, APIKey, Wallet, Key, Membership, Token}
+  alias EWalletDB.{Repo, Account, APIKey, Category, Key, Membership, Token, Wallet}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -29,6 +29,13 @@ defmodule EWalletDB.Account do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
     field(:encryption_version, :binary)
+
+    many_to_many(
+      :categories,
+      Category,
+      join_through: "account_category",
+      join_keys: [account_uuid: :uuid, category_uuid: :uuid]
+    )
 
     belongs_to(
       :parent,
