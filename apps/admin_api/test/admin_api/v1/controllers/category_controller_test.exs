@@ -77,4 +77,94 @@ defmodule AdminAPI.V1.CategoryControllerTest do
                "There is no category corresponding to the provided id"
     end
   end
+
+  describe "/category.create" do
+    test "creates a new category and returns it" do
+      request_data = %{name: "A test category"}
+      response = user_request("/category.create", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "category"
+      assert response["data"]["name"] == request_data.name
+    end
+
+    test "returns an error if the category name is not provided" do
+      request_data = %{name: ""}
+      response = user_request("/category.create", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+  end
+
+  describe "/category.update" do
+    test "updates the given category" do
+      category = insert(:category)
+
+      # Prepare the update data while keeping only id the same
+      request_data =
+        params_for(:category, %{
+          id: category.id,
+          name: "updated_name",
+          description: "updated_description"
+        })
+
+      response = user_request("/category.update", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "category"
+      assert response["data"]["name"] == "updated_name"
+      assert response["data"]["description"] == "updated_description"
+    end
+
+    test "returns a 'client:invalid_parameter' error if id is not provided" do
+      request_data = params_for(:category, %{id: nil})
+      response = user_request("/category.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
+    end
+
+    test "returns a 'user:unauthorized' error if id is invalid" do
+      request_data = params_for(:category, %{id: "invalid_format"})
+      response = user_request("/category.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "category:id_not_found"
+
+      assert response["data"]["description"] ==
+               "There is no category corresponding to the provided id"
+    end
+  end
+
+  describe "/category.delete" do
+    test "responds success with the deleted category" do
+      category = insert(:category)
+      response = user_request("/category.delete", %{id: category.id})
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "category"
+      assert response["data"]["id"] == category.id
+    end
+
+    test "responds with an error if the provided id is not found" do
+      response = user_request("/category.delete", %{id: "wrong_id"})
+
+      assert response ==
+        %{
+          "version" => "1",
+          "success" => false,
+          "data" => %{
+            "code" => "category:id_not_found",
+            "description" => "There is no category corresponding to the provided id",
+            "messages" => nil,
+            "object" => "error"
+          }
+        }
+    end
+  end
 end

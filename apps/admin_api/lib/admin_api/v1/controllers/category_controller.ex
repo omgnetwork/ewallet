@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.CategoryController do
   Retrieves a specific category by its id.
   """
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns.user.id, nil),
+    with :ok <- permit(:get, conn.assigns.user.id, id),
          %Category{} = category <- Category.get_by(id: id) do
       render(conn, :category, %{category: category})
     else
@@ -67,50 +67,57 @@ defmodule AdminAPI.V1.CategoryController do
     end
   end
 
-  # @doc """
-  # Creates a new account.
+  @doc """
+  Creates a new category.
+  """
+  def create(conn, attrs) do
+    with :ok <- permit(:create, conn.assigns.user.id, nil),
+         {:ok, category} <- Category.insert(attrs) do
+      render(conn, :category, %{category: category})
+    else
+      {:error, %{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
 
-  # The requesting user must have write permission on the given parent account.
-  # """
-  # def create(conn, attrs) do
-  #   parent =
-  #     if attrs["parent_id"] do
-  #       Account.get_by(id: attrs["parent_id"])
-  #     else
-  #       Account.get_master_account()
-  #     end
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
 
-  #   with :ok <- permit(:create, conn.assigns.user.id, parent.id),
-  #        attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
-  #        {:ok, account} <- Account.insert(attrs) do
-  #     render(conn, :account, %{account: account})
-  #   else
-  #     {:error, %{} = changeset} ->
-  #       handle_error(conn, :invalid_parameter, changeset)
+  @doc """
+  Updates the category if all required parameters are provided.
+  """
+  def update(conn, %{"id" => id} = attrs) do
+    with :ok <- permit(:update, conn.assigns.user.id, id),
+         %{} = original <- Category.get(id) || {:error, :category_id_not_found},
+         {:ok, updated} <- Category.update(original, attrs) do
+      render(conn, :category, %{category: updated})
+    else
+      {:error, %{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
 
-  #     {:error, code} ->
-  #       handle_error(conn, code)
-  #   end
-  # end
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
 
-  # @doc """
-  # Updates the account if all required parameters are provided.
+  def update(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  # The requesting user must have write permission on the given account.
-  # """
-  # def update(conn, %{"id" => account_id} = attrs) do
-  #   with :ok <- permit(:update, conn.assigns.user.id, account_id),
-  #        %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
-  #        {:ok, updated} <- Account.update(original, attrs) do
-  #     render(conn, :account, %{account: updated})
-  #   else
-  #     {:error, %{} = changeset} ->
-  #       handle_error(conn, :invalid_parameter, changeset)
+  @doc """
+  Soft-deletes an existing category by its id.
+  """
+  def delete(conn, %{"id" => id}) do
+    with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
+         {:ok, deleted} = Category.delete(category)
+    do
+      render(conn, :category, %{category: deleted})
+    else
+      {:error, %{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
 
-  #     {:error, code} ->
-  #       handle_error(conn, code)
-  #   end
-  # end
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
 
-  # def update(conn, _), do: handle_error(conn, :invalid_parameter)
+  def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 end
