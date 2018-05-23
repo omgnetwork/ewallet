@@ -1,4 +1,4 @@
-defmodule EWallet.AccountCategoryPolicy do
+defmodule EWallet.CategoryPolicy do
   @moduledoc """
   The authorization policy for accounts.
   """

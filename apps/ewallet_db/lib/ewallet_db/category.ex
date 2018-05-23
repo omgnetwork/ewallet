@@ -1,6 +1,6 @@
 defmodule EWalletDB.Category do
   @moduledoc """
-  Ecto Schema representing an account category.
+  Ecto Schema representing a category.
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
@@ -36,7 +36,7 @@ defmodule EWalletDB.Category do
   end
 
   @doc """
-  Get all account categories.
+  Get all categories.
   """
   @spec all(keyword()) :: [%__MODULE__{}] | []
   def all(opts \\ []) do
@@ -46,7 +46,7 @@ defmodule EWalletDB.Category do
   end
 
   @doc """
-  Retrieves an account category with the given ID.
+  Retrieves a category with the given ID.
   """
   @spec get(ExternalID.t(), keyword()) :: %__MODULE__{} | nil
   def get(id, opts \\ [])
@@ -58,7 +58,7 @@ defmodule EWalletDB.Category do
   def get(_id, _opts), do: nil
 
   @doc """
-  Retrieves an account category using one or more fields.
+  Retrieves a category using one or more fields.
   """
   @spec get_by(map(), keyword()) :: %__MODULE__{} | nil
   def get_by(fields, opts \\ []) do
@@ -69,7 +69,7 @@ defmodule EWalletDB.Category do
   end
 
   @doc """
-  Creates a new account category with the passed attributes.
+  Creates a new category with the passed attributes.
   """
   @spec insert(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
@@ -79,7 +79,7 @@ defmodule EWalletDB.Category do
   end
 
   @doc """
-  Updates an account category with the passed attributes.
+  Updates a category with the passed attributes.
   """
   @spec update(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def update(category, attrs) do
@@ -89,19 +89,19 @@ defmodule EWalletDB.Category do
   end
 
   @doc """
-  Checks whether the given account category is soft-deleted.
+  Checks whether the given category is soft-deleted.
   """
   @spec deleted?(%__MODULE__{}) :: boolean()
   def deleted?(category), do: SoftDelete.deleted?(category)
 
   @doc """
-  Soft-deletes the given account category.
+  Soft-deletes the given category.
   """
   @spec delete(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def delete(category), do: SoftDelete.delete(category)
 
   @doc """
-  Restores the given account category from soft-delete.
+  Restores the given category from soft-delete.
   """
   @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def restore(category), do: SoftDelete.restore(category)

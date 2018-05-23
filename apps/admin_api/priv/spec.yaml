@@ -40,7 +40,7 @@ tags:
     description: Resources related to session tokens.
   - name: Token
     description: Resources related to tokens.
-  - name: Account Category
+  - name: Category
     description: Resources related to account categories.
   - name: Account
     description: Resources related to accounts.
@@ -206,81 +206,81 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
   ####################################
-  #    ACCOUNT CATEGORY ENDPOINTS    #
+  #        CATEGORY ENDPOINTS        #
   ####################################
-  /account_category.all:
+  /category.all:
     post:
       tags:
-        - Account Category
-      summary: Get the list of account categories
-      operationId: account_category_all
+        - Category
+      summary: Get the list of categories
+      operationId: category_all
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/AccountCategoryAllBody'
+        $ref: '#/components/requestBodies/CategoryAllBody'
       responses:
         '200':
           $ref: "#/components/responses/AccountCategoriesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /account_category.get:
+  /category.get:
     post:
       tags:
-        - Account Category
-      summary: Get a specific account category
-      operationId: account_category_get
+        - Category
+      summary: Get a specific category
+      operationId: category_get
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/AccountCategoryGetBody'
+        $ref: '#/components/requestBodies/CategoryGetBody'
       responses:
         '200':
-          $ref: "#/components/responses/AccountCategoryResponse"
+          $ref: "#/components/responses/CategoryResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /account_category.create:
+  /category.create:
     post:
       tags:
-        - Account Category
-      summary: Create a new account category
-      operationId: account_category_create
+        - Category
+      summary: Create a new category
+      operationId: category_create
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/AccountCategoryCreateBody'
+        $ref: '#/components/requestBodies/CategoryCreateBody'
       responses:
         '200':
-          $ref: "#/components/responses/AccountCategoryResponse"
+          $ref: "#/components/responses/CategoryResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /account_category.update:
+  /category.update:
     post:
       tags:
-        - Account Category
-      summary: Update an account category
-      operationId: account_category_update
+        - Category
+      summary: Update an category
+      operationId: category_update
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/AccountCategoryUpdateBody'
+        $ref: '#/components/requestBodies/CategoryUpdateBody'
       responses:
         '200':
-          $ref: "#/components/responses/AccountCategoryResponse"
+          $ref: "#/components/responses/CategoryResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /account_category.delete:
+  /category.delete:
     post:
       tags:
-        - Account Category
-      summary: Delete an account category
-      operationId: account_category_delete
+        - Category
+      summary: Delete an category
+      operationId: category_delete
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/AccountCategoryDeleteBody'
+        $ref: '#/components/requestBodies/CategoryDeleteBody'
       responses:
         '200':
-          $ref: "#/components/responses/AccountCategoryResponse"
+          $ref: "#/components/responses/CategoryResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -1056,10 +1056,10 @@ components:
                 is_last_page: true
 
     ######################################
-    #      ACCOUNT CATEGORY SCHEMAS      #
+    #          CATEGORY SCHEMAS          #
     ######################################
-    AccountCategorySchema:
-      description: "The object schema for an account category"
+    CategorySchema:
+      description: "The object schema for an category"
       type: object
       properties:
         object:
@@ -1098,25 +1098,25 @@ components:
         - account_ids
         - created_at
         - updated_at
-    AccountCategoryResponseSchema:
-      description: "The response schema for an account category"
+    CategoryResponseSchema:
+      description: "The response schema for an category"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
         properties:
           data:
             type: object
-            $ref: '#/components/schemas/AccountCategorySchema'
+            $ref: '#/components/schemas/CategorySchema'
         required:
           - data
         example:
           version: "1"
           success: true
           data:
-            object: "account_category"
+            object: "category"
             id: "cat_01ce31n493dqbtj3fe8hadwndx"
-            name: "Account Category Name"
-            description: "The account category description"
+            name: "Category Name"
+            description: "The category description"
             account_ids: []
             accounts: []
             created_at: "2018-01-01T00:00:00Z"
@@ -1136,7 +1136,7 @@ components:
                   data:
                     type: array
                     items:
-                      $ref: '#/components/schemas/AccountCategorySchema'
+                      $ref: '#/components/schemas/CategorySchema'
         required:
           - data
         example:
@@ -1145,10 +1145,10 @@ components:
           data:
             object: "list"
             data:
-              - object: "account_category"
+              - object: "category"
                 id: "cat_01ce31n493dqbtj3fe8hadwndx"
-                name: "Account Category Name"
-                description: "The account category description"
+                name: "Category Name"
+                description: "The category description"
                 account_ids: []
                 accounts: []
                 created_at: "2018-01-01T00:00:00Z"
@@ -1193,7 +1193,7 @@ components:
                 data:
                   type: array
                   items:
-                    $ref: '#/components/schemas/AccountCategorySchema'
+                    $ref: '#/components/schemas/CategorySchema'
         metadata:
           type: object
         encrypted_metadata:
@@ -2207,9 +2207,9 @@ components:
                 amount: 1000
 
     ###########################################
-    #     ACCOUNT CATEGORY REQUEST BODIES     #
+    #         CATEGORY REQUEST BODIES         #
     ###########################################
-    AccountCategoryAllBody:
+    CategoryAllBody:
       description: The parameters to use for listing the account categories
       required: true
       content:
@@ -2235,8 +2235,8 @@ components:
               search_term: ""
               sort_by: "field_name"
               sort_dir: "asc"
-    AccountCategoryGetBody:
-      description: The parameters to use for retrieving a specific account category
+    CategoryGetBody:
+      description: The parameters to use for retrieving a specific category
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2248,8 +2248,8 @@ components:
               - id
             example:
               id: "cat_01ce30qdajwb7gdecq0ebn3twq"
-    AccountCategoryCreateBody:
-      description: The parameters to use for creating a new account category.
+    CategoryCreateBody:
+      description: The parameters to use for creating a new category.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2272,7 +2272,7 @@ components:
               name: "Name to Update"
               description: "New category description"
               account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
-    AccountCategoryUpdateBody:
+    CategoryUpdateBody:
       description: The parameters to use for updating an account. Only the provided fields are updated.
       required: true
       content:
@@ -2296,8 +2296,8 @@ components:
               name: "Name to Update"
               description: "New category description"
               account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
-    AccountCategoryDeleteBody:
-      description: The parameters to use for deleting an account category.
+    CategoryDeleteBody:
+      description: The parameters to use for deleting an category.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2974,14 +2974,14 @@ components:
             $ref: '#/components/schemas/TokensResponseSchema'
 
     ######################################
-    #     ACCOUNT CATEGORY RESPONSES     #
+    #          CATEGORY RESPONSES        #
     ######################################
-    AccountCategoryResponse:
-      description: "Returns a single account category"
+    CategoryResponse:
+      description: "Returns a single category"
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/AccountCategoryResponseSchema'
+            $ref: '#/components/schemas/CategoryResponseSchema'
     AccountCategoriesResponse:
       description: "Returns a list of account categories"
       content:
