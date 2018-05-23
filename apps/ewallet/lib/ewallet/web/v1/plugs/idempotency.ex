@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.Plug.Idempotency do
+defmodule EWallet.Web.V1.Plug.Idempotency do
   @moduledoc """
   This plug extracts the value from the Idempotency-Token header.
   """

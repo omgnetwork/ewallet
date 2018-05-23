@@ -4,6 +4,7 @@ defmodule AdminAPI.V1.TransactionController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias EWallet.TransactionGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.{Repo, Transfer}
 
@@ -66,13 +67,14 @@ defmodule AdminAPI.V1.TransactionController do
           "amount" => amount
         } = attrs
       )
-      when from_address != nil
-      when to_address != nil and token_id != nil and is_integer(amount) do
+      when from_address != nil and to_address != nil and token_id != nil and is_integer(amount) do
     attrs
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
     |> TransactionGate.process_with_addresses()
     |> respond_single(conn)
   end
+
+  def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
   # Respond with a list of transactions
   defp respond_multiple(%Paginator{} = paged_transactions, conn) do
@@ -86,6 +88,18 @@ defmodule AdminAPI.V1.TransactionController do
   # Respond with a single transaction
   defp respond_single(%Transfer{} = transaction, conn) do
     render(conn, :transaction, %{transaction: transaction})
+  end
+
+  defp respond_single({:ok, transaction, _wallets, _token}, conn) do
+    render(conn, :transaction, %{transaction: transaction})
+  end
+
+  defp respond_single({:error, _transfer, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
+  defp respond_single({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   defp respond_single(nil, conn) do

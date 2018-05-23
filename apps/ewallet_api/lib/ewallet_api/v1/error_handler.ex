@@ -35,10 +35,6 @@ defmodule EWalletAPI.V1.ErrorHandler do
     account_id_not_found: %{
       code: "user:account_id_not_found",
       description: "There is no account corresponding to the provided account_id"
-    },
-    token_not_found: %{
-      code: "token:token_not_found",
-      description: "There is no token matching the provided token_id."
     }
   }
 

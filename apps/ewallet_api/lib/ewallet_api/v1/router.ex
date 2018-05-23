@@ -1,6 +1,7 @@
 defmodule EWalletAPI.V1.Router do
   use EWalletAPI, :router
-  alias EWalletAPI.V1.Plug.{ClientAuth, ProviderAuth, Idempotency}
+  alias EWallet.Web.V1.Plug.Idempotency
+  alias EWalletAPI.V1.Plug.{ClientAuth, ProviderAuth}
 
   pipeline :provider_api do
     plug(ProviderAuth)
