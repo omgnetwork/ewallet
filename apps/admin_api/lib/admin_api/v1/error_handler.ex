@@ -28,6 +28,10 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "forget_password:token_not_found",
       description: "There are no password reset requests corresponding to the provided token"
     },
+    auth_token_not_found: %{
+      code: "auth_token:not_found",
+      description: "There is no auth token corresponding to the provided token"
+    },
     user_email_not_found: %{
       code: "user:email_not_found",
       description: "There is no user corresponding to the provided email"
@@ -36,9 +40,9 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "account:id_not_found",
       description: "There is no account corresponding to the provided id"
     },
-    minted_token_id_not_found: %{
-      code: "minted_token:id_not_found",
-      description: "There is no minted token corresponding to the provided id"
+    token_id_not_found: %{
+      code: "token:id_not_found",
+      description: "There is no token corresponding to the provided id"
     },
     transaction_id_not_found: %{
       code: "transaction:id_not_found",
@@ -81,9 +85,9 @@ defmodule AdminAPI.V1.ErrorHandler do
   @doc """
   Returns a map of all the error atoms along with their code and description.
   """
-  @spec errors() :: %{required(atom()) => %{code: String.t, description: String.t}}
+  @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
   def errors do
-    Map.merge(EWalletErrorHandler.errors, @errors, fn _k, _shared, current ->
+    Map.merge(EWalletErrorHandler.errors(), @errors, fn _k, _shared, current ->
       current
     end)
   end
@@ -96,6 +100,7 @@ defmodule AdminAPI.V1.ErrorHandler do
     |> EWalletErrorHandler.build_error(attrs, errors())
     |> respond(conn)
   end
+
   def handle_error(conn, code) do
     code
     |> EWalletErrorHandler.build_error(errors())

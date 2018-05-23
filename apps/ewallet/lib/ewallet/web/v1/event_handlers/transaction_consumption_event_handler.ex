@@ -6,13 +6,13 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.TransactionConsumption
 
-  @spec broadcast(Atom.t, TransactionConsumption.t) :: :ok | {:error, :unhandled_event}
+  @spec broadcast(Atom.t(), TransactionConsumption.t()) :: :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do
     consumption = Preloader.preload(consumption, transaction_request: [:account, :user])
 
     topics =
       []
-      |> Event.address_topic(Assoc.get(consumption, [:transaction_request, :balance_address]))
+      |> Event.address_topic(Assoc.get(consumption, [:transaction_request, :wallet_address]))
       |> Event.transaction_request_topic(Assoc.get(consumption, [:transaction_request, :id]))
       |> Event.user_topic(Assoc.get(consumption, [:transaction_request, :user, :id]))
       |> Event.account_topic(Assoc.get(consumption, [:transaction_request, :account, :id]))
@@ -38,7 +38,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
 
     topics =
       []
-      |> Event.address_topic(consumption.balance_address)
+      |> Event.address_topic(consumption.wallet_address)
       |> Event.transaction_request_topic(Assoc.get(consumption, [:transaction_request, :id]))
       |> Event.transaction_consumption_topic(consumption.id)
       |> Event.user_topic(Assoc.get(consumption, [:user, :id]))
@@ -58,6 +58,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
           status: :ok,
           data: TransactionConsumptionSerializer.serialize(consumption)
         }
+
       false ->
         %{
           status: :error,
@@ -71,9 +72,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
     consumption = Preloader.preload(consumption, :transfer)
 
     case consumption.status do
-      "failed"  -> consumption.transfer.ledger_response["code"]
-      "expired" -> :expired_transaction_consumption
-      "pending" -> :unfinalized_transaction_consumption
+      "failed" ->
+        ledger = consumption.transfer.ledger_response
+        %{code: ledger["code"], description: ledger["description"]}
+
+      "expired" ->
+        :expired_transaction_consumption
+
+      "pending" ->
+        :unfinalized_transaction_consumption
     end
   end
 end

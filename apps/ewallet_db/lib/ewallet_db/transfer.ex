@@ -7,7 +7,7 @@ defmodule EWalletDB.Transfer do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Transfer, Balance, MintedToken}
+  alias EWalletDB.{Repo, Transfer, Wallet, Token}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -26,57 +26,91 @@ defmodule EWalletDB.Transfer do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "transfer" do
-    external_id prefix: "tfr_"
+    external_id(prefix: "tfr_")
 
-    field :idempotency_token, :string
-    field :amount, EWalletDB.Types.Integer
-    field :status, :string, default: @pending # pending -> confirmed
-    field :type, :string, default: @internal # internal / external
-    field :payload, Cloak.EncryptedMapField # Payload received from client
-    field :ledger_response, Cloak.EncryptedMapField # Response returned by ledger
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
+    field(:idempotency_token, :string)
+    field(:amount, EWalletDB.Types.Integer)
+    # pending -> confirmed
+    field(:status, :string, default: @pending)
+    # internal / external
+    field(:type, :string, default: @internal)
+    # Payload received from client
+    field(:payload, Cloak.EncryptedMapField)
+    # Response returned by ledger
+    field(:ledger_response, Cloak.EncryptedMapField)
+    field(:metadata, :map, default: %{})
+    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encryption_version, :binary)
 
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
-                                           references: :uuid,
-                                           type: UUID
+    belongs_to(
+      :token,
+      Token,
+      foreign_key: :token_uuid,
+      references: :uuid,
+      type: UUID
+    )
 
-    belongs_to :to_balance, Balance, foreign_key: :to,
-                                     references: :address,
-                                     type: :string
+    belongs_to(
+      :to_wallet,
+      Wallet,
+      foreign_key: :to,
+      references: :address,
+      type: :string
+    )
 
-    belongs_to :from_balance, Balance, foreign_key: :from,
-                                       references: :address,
-                                       type: :string
+    belongs_to(
+      :from_wallet,
+      Wallet,
+      foreign_key: :from,
+      references: :address,
+      type: :string
+    )
+
     timestamps()
   end
 
   defp changeset(%Transfer{} = transfer, attrs) do
     transfer
     |> cast(attrs, [
-      :idempotency_token, :status, :type, :payload, :ledger_response, :metadata,
-      :encrypted_metadata, :amount, :minted_token_uuid, :to, :from
+      :idempotency_token,
+      :status,
+      :type,
+      :payload,
+      :ledger_response,
+      :metadata,
+      :encrypted_metadata,
+      :amount,
+      :token_uuid,
+      :to,
+      :from
     ])
     |> validate_required([
-      :idempotency_token, :status, :type, :payload, :amount,
-      :minted_token_uuid, :to, :from, :metadata, :encrypted_metadata
+      :idempotency_token,
+      :status,
+      :type,
+      :payload,
+      :amount,
+      :token_uuid,
+      :to,
+      :from,
+      :metadata,
+      :encrypted_metadata
     ])
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
     |> unique_constraint(:idempotency_token)
-    |> assoc_constraint(:minted_token)
-    |> assoc_constraint(:to_balance)
-    |> assoc_constraint(:from_balance)
-    |> put_change(:encryption_version, Cloak.version)
+    |> assoc_constraint(:token)
+    |> assoc_constraint(:to_wallet)
+    |> assoc_constraint(:from_wallet)
+    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
   Gets all transfers for the given address.
   """
   def all_for_address(address) do
-    from t in Transfer, where: (t.from == ^address) or (t.to == ^address)
+    from(t in Transfer, where: t.from == ^address or t.to == ^address)
   end
 
   @doc """
@@ -86,6 +120,7 @@ defmodule EWalletDB.Transfer do
     case get_by_idempotency_token(idempotency_token) do
       nil ->
         insert(attrs)
+
       transfer ->
         {:ok, transfer}
     end
@@ -97,9 +132,11 @@ defmodule EWalletDB.Transfer do
   @spec get(ExternalID.t()) :: %Transfer{} | nil
   @spec get(ExternalID.t(), keyword()) :: %Transfer{} | nil
   def get(id, opts \\ [])
+
   def get(id, opts) when is_external_id(id) do
     get_by([id: id], opts)
   end
+
   def get(_id, _opts), do: nil
 
   @doc """
@@ -110,7 +147,7 @@ defmodule EWalletDB.Transfer do
     query = Transfer |> Repo.get_by(map)
 
     case opts[:preload] do
-      nil     -> query
+      nil -> query
       preload -> Repo.preload(query, preload)
     end
   end
@@ -119,11 +156,14 @@ defmodule EWalletDB.Transfer do
   Helper function to get a transfer with an idempotency token and loads all the required
   associations.
   """
-  @spec get_by_idempotency_token(String.t) :: %Transfer{} | nil
+  @spec get_by_idempotency_token(String.t()) :: %Transfer{} | nil
   def get_by_idempotency_token(idempotency_token) do
-    get_by(%{
-      idempotency_token: idempotency_token
-    }, preload: [:from_balance, :to_balance, :minted_token])
+    get_by(
+      %{
+        idempotency_token: idempotency_token
+      },
+      preload: [:from_wallet, :to_wallet, :token]
+    )
   end
 
   @doc """
@@ -133,9 +173,11 @@ defmodule EWalletDB.Transfer do
   def insert(attrs) do
     changeset = changeset(%Transfer{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
+
     case Repo.insert(changeset, opts) do
       {:ok, transfer} ->
         {:ok, get_by_idempotency_token(transfer.idempotency_token)}
+
       changeset ->
         changeset
     end
@@ -161,5 +203,15 @@ defmodule EWalletDB.Transfer do
     |> Repo.update()
 
     get_by_idempotency_token(transfer.idempotency_token)
+  end
+
+  def get_error(nil), do: nil
+
+  def get_error(transfer) do
+    {transfer.ledger_response["code"], transfer.ledger_response["description"]}
+  end
+
+  def failed?(transfer) do
+    transfer.status == @failed
   end
 end

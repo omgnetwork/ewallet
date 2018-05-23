@@ -1,7 +1,11 @@
 defmodule EWalletAPI.V1.TransactionRequestController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.TransactionRequestGate
+
+  alias EWallet.{
+    TransactionRequestGate,
+    TransactionRequestFetcher
+  }
 
   def create(conn, attrs) do
     attrs
@@ -17,15 +21,17 @@ defmodule EWalletAPI.V1.TransactionRequestController do
 
   def get(conn, %{"id" => id}) do
     id
-    |> TransactionRequestGate.get()
+    |> TransactionRequestFetcher.get()
     |> respond(conn)
   end
 
   defp respond(nil, conn), do: handle_error(conn, :transaction_request_not_found)
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
+
   defp respond({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
+
   defp respond({:ok, request}, conn) do
     render(conn, :transaction_request, %{
       transaction_request: request

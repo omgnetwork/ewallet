@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.TransactionController do
 
   # The fields that should be preloaded.
   # Note that these values *must be in the schema associations*.
-  @preload_fields [:minted_token]
+  @preload_fields [:token]
 
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
@@ -51,12 +51,14 @@ defmodule AdminAPI.V1.TransactionController do
     |> Repo.get_by(id: id)
     |> respond_single(conn)
   end
+
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   # Respond with a list of transactions
   defp respond_multiple(%Paginator{} = paged_transactions, conn) do
     render(conn, :transactions, %{transactions: paged_transactions})
   end
+
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
   end
@@ -65,6 +67,7 @@ defmodule AdminAPI.V1.TransactionController do
   defp respond_single(%Transfer{} = transaction, conn) do
     render(conn, :transaction, %{transaction: transaction})
   end
+
   defp respond_single(nil, conn) do
     handle_error(conn, :transaction_id_not_found)
   end

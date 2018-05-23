@@ -3,20 +3,21 @@ defmodule EWalletAPI.StatusController do
   alias LocalLedger.Status
 
   def status(conn, _attrs) do
-    json conn, %{
+    json(conn, %{
       success: true,
       nodes: node_count(),
       services: %{
         ewallet: true,
         local_ledger: local_ledger()
       }
-    }
+    })
   end
 
   defp local_ledger do
     case Status.check() do
       :ok ->
         true
+
       _ ->
         false
     end

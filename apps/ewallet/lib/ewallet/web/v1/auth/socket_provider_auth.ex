@@ -19,6 +19,7 @@ defmodule EWallet.Web.V1.SocketProviderAuth do
         auth
         |> Map.put(:auth_access_key, access)
         |> Map.put(:auth_secret_key, secret)
+
       {:error, :invalid_auth_scheme} ->
         auth
         |> Map.put(:authenticated, false)
@@ -27,7 +28,8 @@ defmodule EWallet.Web.V1.SocketProviderAuth do
   end
 
   # Skip auth if it already failed since header parsing
-  defp authenticate_access(%{authenticated: :false} = auth), do: auth
+  defp authenticate_access(%{authenticated: false} = auth), do: auth
+
   defp authenticate_access(auth) do
     access_key = auth[:auth_access_key]
     secret_key = auth[:auth_secret_key]
@@ -37,8 +39,9 @@ defmodule EWallet.Web.V1.SocketProviderAuth do
         auth
         |> Map.put(:authenticated, :provider)
         |> Map.put(:account, account)
+
       {:error, :invalid_access_secret_key} ->
-                auth
+        auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :invalid_access_secret_key)
     end

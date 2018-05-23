@@ -5,12 +5,13 @@ defmodule EWalletAPI.VersionedRouterTest do
   # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
   describe "versioned router" do
     test "accepts v1+json requests" do
-      response = build_conn()
-      |> put_req_header("accept", "application/vnd.omisego.v1+json")
-      |> post(@base_dir <> "/status")
-      |> json_response(:ok)
+      response =
+        build_conn()
+        |> put_req_header("accept", "application/vnd.omisego.v1+json")
+        |> post(@base_dir <> "/status")
+        |> json_response(:ok)
 
-      assert response == %{"success" => :true}
+      assert response == %{"success" => true}
     end
 
     test "rejects unrecognized version requests" do
@@ -20,15 +21,17 @@ defmodule EWalletAPI.VersionedRouterTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_version",
-          "description" => "Invalid API version Given: 'application/vnd.omisego.invalid_ver+json'.",
+          "description" =>
+            "Invalid API version Given: 'application/vnd.omisego.invalid_ver+json'.",
           "messages" => nil
         }
       }
 
-      response = build_conn()
-      |> put_req_header("accept", "application/vnd.omisego.invalid_ver+json")
-      |> post(@base_dir <> "/status")
-      |> json_response(:ok)
+      response =
+        build_conn()
+        |> put_req_header("accept", "application/vnd.omisego.invalid_ver+json")
+        |> post(@base_dir <> "/status")
+        |> json_response(:ok)
 
       assert response == expected
     end

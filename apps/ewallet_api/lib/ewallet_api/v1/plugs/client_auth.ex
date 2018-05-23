@@ -30,6 +30,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
         conn
         |> put_private(:auth_api_key, key)
         |> put_private(:auth_auth_token, token)
+
       {:error, :invalid_auth_scheme} ->
         conn
         |> assign(:authenticated, false)
@@ -38,7 +39,8 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
   end
 
   # Skip client auth if it already failed since header parsing
-  defp authenticate_client(%{assigns: %{authenticated: :false}} = conn), do: conn
+  defp authenticate_client(%{assigns: %{authenticated: false}} = conn), do: conn
+
   defp authenticate_client(conn) do
     api_key = conn.private[:auth_api_key]
 
@@ -46,6 +48,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
       {:ok, account} ->
         conn
         |> assign(:account, account)
+
       {:error, :invalid_api_key} ->
         conn
         |> assign(:authenticated, false)
@@ -55,6 +58,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
 
   # Skip token auth if it already failed since API key validation
   defp authenticate_token(%{assigns: %{authenticated: false}} = conn), do: conn
+
   defp authenticate_token(conn) do
     auth_token = conn.private[:auth_auth_token]
 
@@ -63,6 +67,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuth do
         conn
         |> assign(:authenticated, :client)
         |> assign(:user, user)
+
       {:error, code} ->
         conn
         |> assign(:authenticated, false)

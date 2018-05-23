@@ -20,6 +20,7 @@ defmodule EWallet.Web.V1.SocketClientAuth do
         auth
         |> Map.put(:auth_api_key, key)
         |> Map.put(:auth_auth_token, token)
+
       {:error, :invalid_auth_scheme} ->
         auth
         |> Map.put(:authenticated, false)
@@ -28,13 +29,15 @@ defmodule EWallet.Web.V1.SocketClientAuth do
   end
 
   # Skip client auth if it already failed since header parsing
-  defp authenticate_client(%{authenticated: :false} = auth), do: auth
+  defp authenticate_client(%{authenticated: false} = auth), do: auth
+
   defp authenticate_client(auth) do
     api_key = auth[:auth_api_key]
 
     case ClientAuth.authenticate_client(api_key, :ewallet_api) do
       {:ok, account} ->
         Map.put(auth, :account, account)
+
       {:error, :invalid_api_key} ->
         auth
         |> Map.put(:authenticated, false)
@@ -43,7 +46,8 @@ defmodule EWallet.Web.V1.SocketClientAuth do
   end
 
   # Skip token auth if it already failed since API key validation
-  defp authenticate_token(%{authenticated: :false} = auth), do: auth
+  defp authenticate_token(%{authenticated: false} = auth), do: auth
+
   defp authenticate_token(auth) do
     auth_token = auth[:auth_auth_token]
 
@@ -52,6 +56,7 @@ defmodule EWallet.Web.V1.SocketClientAuth do
         auth
         |> Map.put(:authenticated, :client)
         |> Map.put(:user, user)
+
       {:error, code} ->
         auth
         |> Map.put(:authenticated, false)

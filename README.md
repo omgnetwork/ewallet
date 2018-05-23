@@ -69,13 +69,13 @@ Currently, the easiest use-case to understand what the eWallet can do is to see 
 
 Here’s an overview of all the components and what needs to be integrated by a provider (and how):
 
-![A provider's Sample Setup](docs/images/provider_setup.jpg)
+![A provider's Sample Setup](assets/provider_setup.jpg)
 
 # Sample Setup
 
 OmiseGO has built a sample setup to demonstrate how the OmiseGO eWallet and the SDKs can be used. It is a simple t-shirt store allowing users to receive loyalty points when buying something. They can then use those loyalty points to get a discount.
 
-![OMGShop](docs/images/omgshop.png)
+![OMGShop](assets/omgshop.png)
 
 The code and documentation are available in the following repositories:
 
@@ -284,7 +284,7 @@ Here are some steps to get you started with the fun, they can all be performed b
 1. In the Admin API, configure the authentication at the top using the keys generated in the seeding step.
 2. Log yourself in and get the returned authentication token. In case you're getting an invalid auth scheme, double check that you're using `OMGAdmin` with the base64 encoded version of `API_KEY_ID:API_KEY` (with no `\n`, some programming languages add them).
 3. Configure the user authentication using the authentication token you've received in the previous step.
-4. Create a minted token using `/minted_token.create`. You can specify the optional `amount` parameter to do an initial minting.
+4. Create a token using `/token.create`. You can specify the optional `amount` parameter to do an initial minting.
 5. After that you're ready to start messing around with the eWallet API. You can create yourself a user using one of the server calls and credit/debit tokens!
 
 ## Communicating with the eWallet
@@ -330,13 +330,20 @@ More information about deployment will be available soon.
 In this section, we will be sharing some of the next features the OmiseGO team will be working on.
 
 - Better environment variables management for `test` and `dev` environments.
-- Integrate the Admin Panel in the eWallet.
 - Finalize the transaction requests mechanism allowing QR code transfers.
 - Re-design and finalize the first version of the Admin Panel.
 - Implement the Request Logger sub-app for easier logging and debugging.
 - Refactor and split the factories files. Make smarter use of them throughout the tests.
 - Refactor and unify the test helpers for minting.
 - ...
+
+# Support
+
+- Got an idea to improve the SDKs? Talk to us in our [Rocket Chat](https://chat.omisego.network/)'s `#eWallet SDK` channel
+
+- Found a bug? File an issue with [GitHub Issues](https://github.com/omisego/ewallet/issues).
+
+- Stuck at integrating or building on top of the SDKs? Search or create a question on StackOverflow using the tag [omisego](https://stackoverflow.com/questions/tagged/omisego).
 
 # F.A.Q
 
@@ -366,11 +373,12 @@ More questions? Get in touch with us on [Rocket Chat](https://chat.omisego.netwo
 
 Here are some resources if you want to learn more about how the eWallet works.
 
+- [Database schemas](/docs/design/databases.md)
 - [All ENV needed to run the eWallet](/docs/setup/env.md)
 - [Integration Responsibilities](/docs/setup/integration.md)
 - [eWallet Entites](/docs/design/entities.md)
 - [eWallet Components](/docs/design/components.md)
-- [A closer look at balances](/docs/design/balances.md)
+- [A closer look at wallets](/docs/design/wallets.md)
 
 # Contributing
 

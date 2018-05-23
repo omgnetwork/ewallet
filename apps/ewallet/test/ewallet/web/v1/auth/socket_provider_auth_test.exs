@@ -57,11 +57,13 @@ defmodule EWallet.Web.V1.SocketProviderAuthTest do
     end
 
     test "halts with :invalid_auth_scheme if auth header is not provided" do
-      auth = SocketProviderAuth.authenticate(%{
-        http_headers: %{
-          "authorization" => "FAKE test"
-        }
-      })
+      auth =
+        SocketProviderAuth.authenticate(%{
+          http_headers: %{
+            "authorization" => "FAKE test"
+          }
+        })
+
       refute auth.authenticated
       assert auth[:auth_error] == :invalid_auth_scheme
       assert auth[:account] == nil

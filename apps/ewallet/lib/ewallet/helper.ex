@@ -13,6 +13,7 @@ defmodule EWallet.Helper do
     |> Enum.reduce([], &to_existing_atoms/2)
     |> Enum.reverse()
   end
+
   def to_existing_atoms(string, atom_list) do
     atom = String.to_existing_atom(string)
     [atom | atom_list]
@@ -26,7 +27,7 @@ defmodule EWallet.Helper do
   Membership is tested with the match (`===`) operator.
   """
   def members?(enumerable, elements) do
-    Enum.all?(elements, fn(element) ->
+    Enum.all?(elements, fn element ->
       Enum.member?(enumerable, element)
     end)
   end

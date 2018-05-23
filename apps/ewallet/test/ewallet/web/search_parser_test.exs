@@ -18,6 +18,7 @@ defmodule EWallet.Web.SearchParserTest do
       account = prepare_test_accounts() |> Enum.at(0)
 
       attrs = %{"search_term" => account.id}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:id, :name])
@@ -31,6 +32,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_term" => "Name Match 1"}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -44,6 +46,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_term" => "me Matc"}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -58,6 +61,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_term" => "NAME MATCH"}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -72,6 +76,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_term" => "match"}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name, :description])
@@ -84,6 +89,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_term" => "Description match 1"}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -94,8 +100,8 @@ defmodule EWallet.Web.SearchParserTest do
 
     test "returns original query if search_term is missing" do
       original = Account
-      attrs    = %{"wrong_attr" => "Name Match 1"}
-      result   = SearchParser.to_query(original, attrs, [:name])
+      attrs = %{"wrong_attr" => "Name Match 1"}
+      result = SearchParser.to_query(original, attrs, [:name])
 
       assert result == original
     end
@@ -106,6 +112,7 @@ defmodule EWallet.Web.SearchParserTest do
       account = prepare_test_accounts() |> Enum.at(0)
 
       attrs = %{"search_terms" => %{"id" => account.id}}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:id, :name])
@@ -119,6 +126,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_terms" => %{"name" => "Name Match 1"}}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -132,6 +140,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_terms" => %{"name" => "me Matc"}}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -146,6 +155,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_terms" => %{"name" => "NAME MATCH"}}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -160,6 +170,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_terms" => %{"name" => "match"}}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name, :description])
@@ -172,6 +183,7 @@ defmodule EWallet.Web.SearchParserTest do
       prepare_test_accounts()
 
       attrs = %{"search_terms" => %{"name" => "Description match 1"}}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:name])
@@ -184,6 +196,7 @@ defmodule EWallet.Web.SearchParserTest do
       account = prepare_test_accounts() |> Enum.at(0)
 
       attrs = %{"search_terms" => %{"mapped_id" => account.id}}
+
       result =
         Account
         |> SearchParser.to_query(attrs, [:id], %{"mapped_id" => "id"})
@@ -195,8 +208,8 @@ defmodule EWallet.Web.SearchParserTest do
 
     test "returns original query if search_terms is missing" do
       original = Account
-      attrs    = %{"search_terms" => %{"wrong_attr" => "Name Match 1"}}
-      result   = SearchParser.to_query(original, attrs, [:name])
+      attrs = %{"search_terms" => %{"wrong_attr" => "Name Match 1"}}
+      result = SearchParser.to_query(original, attrs, [:name])
 
       assert result == original
     end

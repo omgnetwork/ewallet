@@ -13,10 +13,10 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       # Asserts pagination data
       pagination = response["data"]["pagination"]
-      assert is_integer pagination["per_page"]
-      assert is_integer pagination["current_page"]
-      assert is_boolean pagination["is_last_page"]
-      assert is_boolean pagination["is_first_page"]
+      assert is_integer(pagination["per_page"])
+      assert is_integer(pagination["current_page"])
+      assert is_boolean(pagination["is_last_page"])
+      assert is_boolean(pagination["is_first_page"])
     end
 
     test "returns a list of accounts according to search_term, sort_by and sort_direction" do
@@ -26,7 +26,8 @@ defmodule AdminAPI.V1.AccountControllerTest do
       insert(:account, %{name: "Missed 1"})
 
       attrs = %{
-        "search_term" => "MaTcHed", # Search is case-insensitive
+        # Search is case-insensitive
+        "search_term" => "MaTcHed",
         "sort_by" => "name",
         "sort_dir" => "desc"
       }
@@ -44,9 +45,10 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
   describe "/account.get" do
     test "returns an account by the given account's external ID" do
-      accounts  = insert_list(3, :account)
-      target    = Enum.at(accounts, 1) # Pick the 2nd inserted account
-      response  = user_request("/account.get", %{"id" => target.id})
+      accounts = insert_list(3, :account)
+      # Pick the 2nd inserted account
+      target = Enum.at(accounts, 1)
+      response = user_request("/account.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "account"
@@ -56,36 +58,40 @@ defmodule AdminAPI.V1.AccountControllerTest do
     # The user should not know any information about the account it doesn't have access to.
     # So even the account is not found, the user is unauthorized to know that.
     test "returns 'user:unauthorized' if the given ID is in correct format but not found" do
-      response  = user_request("/account.get", %{"id" => "acc_00000000000000000000000000"})
+      response = user_request("/account.get", %{"id" => "acc_00000000000000000000000000"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:unauthorized"
+
       assert response["data"]["description"] ==
-        "The user is not allowed to perform the requested operation"
+               "The user is not allowed to perform the requested operation"
     end
 
     test "returns 'client:invalid_parameter' if the given ID is not in the correct format" do
-      response  = user_request("/account.get", %{"id" => "invalid_format"})
+      response = user_request("/account.get", %{"id" => "invalid_format"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:unauthorized"
+
       assert response["data"]["description"] ==
-        "The user is not allowed to perform the requested operation"
+               "The user is not allowed to perform the requested operation"
     end
   end
 
   describe "/account.create" do
     test "creates a new account and returns it" do
-      parent       = User.get_account(get_test_user())
+      parent = User.get_account(get_test_user())
+
       request_data = %{
         parent_id: parent.id,
         name: "A test account",
         metadata: %{something: "interesting"},
         encrypted_metadata: %{something: "secret"}
       }
-      response     = user_request("/account.create", request_data)
+
+      response = user_request("/account.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "account"
@@ -96,14 +102,16 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test "creates a new account with no parent_id" do
-      parent       = Account.get_master_account()
+      parent = Account.get_master_account()
+
       request_data = %{
         parent_id: parent.id,
         metadata: %{something: "interesting"},
         name: "A test account",
         encrypted_metadata: %{something: "secret"}
       }
-      response     = user_request("/account.create", request_data)
+
+      response = user_request("/account.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "account"
@@ -114,9 +122,9 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test "returns an error if account name is not provided" do
-      parent       = User.get_account(get_test_user())
+      parent = User.get_account(get_test_user())
       request_data = %{name: "", parent_id: parent.id}
-      response     = user_request("/account.create", request_data)
+      response = user_request("/account.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -129,11 +137,12 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = User.get_account(get_test_user())
 
       # Prepare the update data while keeping only id the same
-      request_data = params_for(:account, %{
-        id: account.id,
-        name: "updated_name",
-        description: "updated_description"
-      })
+      request_data =
+        params_for(:account, %{
+          id: account.id,
+          name: "updated_name",
+          description: "updated_description"
+        })
 
       response = user_request("/account.update", request_data)
 
@@ -145,7 +154,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:account, %{id: nil})
-      response     = user_request("/account.update", request_data)
+      response = user_request("/account.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -155,13 +164,14 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     test "returns a 'user:unauthorized' error if id is invalid" do
       request_data = params_for(:account, %{id: "invalid_format"})
-      response     = user_request("/account.update", request_data)
+      response = user_request("/account.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:unauthorized"
+
       assert response["data"]["description"] ==
-        "The user is not allowed to perform the requested operation"
+               "The user is not allowed to perform the requested operation"
     end
   end
 
@@ -169,43 +179,51 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test "uploads an avatar for the specified account" do
       account = insert(:account)
 
-      response = user_request("/account.upload_avatar", %{
-        "id" => account.id,
-        "avatar" => %Plug.Upload{
-          path: "test/support/assets/test.jpg",
-          filename: "test.jpg"
-        }
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
 
       assert response["success"]
       assert response["data"]["object"] == "account"
+
       assert response["data"]["avatar"]["large"] =~
-             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/large.png?v="
+               "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/large.png?v="
+
       assert response["data"]["avatar"]["original"] =~
-             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/original.jpg?v="
+               "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/original.jpg?v="
+
       assert response["data"]["avatar"]["small"] =~
-             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/small.png?v="
+               "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/small.png?v="
+
       assert response["data"]["avatar"]["thumb"] =~
-             "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
+               "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
     end
 
     test "removes the avatar from an account" do
       account = insert(:account)
 
-      response = user_request("/account.upload_avatar", %{
-        "id" => account.id,
-        "avatar" => %Plug.Upload{
-          path: "test/support/assets/test.jpg",
-          filename: "test.jpg"
-        }
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
 
       assert response["success"]
 
-      response = user_request("/account.upload_avatar", %{
-        "id" => account.id,
-        "avatar" => nil
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => nil
+        })
+
       assert response["success"]
 
       account = Account.get(account.id)
@@ -215,20 +233,23 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test "removes the avatar from an account with empty string" do
       account = insert(:account)
 
-      response = user_request("/account.upload_avatar", %{
-        "id" => account.id,
-        "avatar" => %Plug.Upload{
-          path: "test/support/assets/test.jpg",
-          filename: "test.jpg"
-        }
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
 
       assert response["success"]
 
-      response = user_request("/account.upload_avatar", %{
-        "id" => account.id,
-        "avatar" => ""
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => ""
+        })
+
       assert response["success"]
 
       account = Account.get(account.id)
@@ -238,20 +259,23 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test "removes the avatar from an account with 'null' string" do
       account = insert(:account)
 
-      response = user_request("/account.upload_avatar", %{
-        "id" => account.id,
-        "avatar" => %Plug.Upload{
-          path: "test/support/assets/test.jpg",
-          filename: "test.jpg"
-        }
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
 
       assert response["success"]
 
-      response = user_request("/account.upload_avatar", %{
-        "id" => account.id,
-        "avatar" => "null"
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => "null"
+        })
+
       assert response["success"]
 
       account = Account.get(account.id)
@@ -259,19 +283,21 @@ defmodule AdminAPI.V1.AccountControllerTest do
     end
 
     test "returns 'user:unauthorized' if the given account ID was not found" do
-      response = user_request("/account.upload_avatar", %{
-        "id" => "fake",
-        "avatar" => %Plug.Upload{
-          path: "test/support/assets/test.jpg",
-          filename: "test.jpg"
-        }
-      })
+      response =
+        user_request("/account.upload_avatar", %{
+          "id" => "fake",
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:unauthorized"
+
       assert response["data"]["description"] ==
-        "The user is not allowed to perform the requested operation"
+               "The user is not allowed to perform the requested operation"
     end
   end
 end

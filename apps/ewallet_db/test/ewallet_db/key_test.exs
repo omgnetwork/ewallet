@@ -4,23 +4,24 @@ defmodule EWalletDB.KeyTest do
   alias EWalletDB.Key
 
   describe "Key factory" do
-    test_has_valid_factory Key
+    test_has_valid_factory(Key)
   end
 
   describe "all/0" do
-    test "returns all minted tokens" do
-      assert Enum.empty?(Key.all)
+    test "returns all tokens" do
+      assert Enum.empty?(Key.all())
       insert_list(3, :key)
 
-      assert length(Key.all) == 3
+      assert length(Key.all()) == 3
     end
 
-    test "returns all minted tokens excluding soft deleted" do
-      assert Enum.empty?(Key.all)
+    test "returns all tokens excluding soft deleted" do
+      assert Enum.empty?(Key.all())
       keys = insert_list(5, :key)
-      {:ok, _key} = keys |> Enum.at(0) |> Key.delete() # Soft delete d key
+      # Soft delete d key
+      {:ok, _key} = keys |> Enum.at(0) |> Key.delete()
 
-      assert length(Key.all) == 4
+      assert length(Key.all()) == 4
     end
   end
 
@@ -63,12 +64,12 @@ defmodule EWalletDB.KeyTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid Key, :uuid
-    test_insert_generate_external_id Key, :id, "key_"
-    test_insert_generate_timestamps Key
-    test_insert_generate_length Key, :access_key, 43
-    test_insert_generate_length Key, :secret_key, 43
-    test_insert_prevent_duplicate Key, :access_key
+    test_insert_generate_uuid(Key, :uuid)
+    test_insert_generate_external_id(Key, :id, "key_")
+    test_insert_generate_timestamps(Key)
+    test_insert_generate_length(Key, :access_key, 43)
+    test_insert_generate_length(Key, :secret_key, 43)
+    test_insert_prevent_duplicate(Key, :access_key)
 
     test "hashes secret_key with bcrypt before saving" do
       {res, key} = Key.insert(params_for(:key, %{secret_key: "my_secret"}))
@@ -94,7 +95,7 @@ defmodule EWalletDB.KeyTest do
         secret_key: "secret321",
         account: account
       })
-      |> Key.insert
+      |> Key.insert()
 
       auth_account = Key.authenticate("access123", "secret321")
       assert auth_account.uuid == account.uuid
@@ -103,7 +104,7 @@ defmodule EWalletDB.KeyTest do
     test "returns nil if access_key and/or secret_key do not match" do
       :key
       |> params_for(%{access_key: "access123", secret_key: "secret321"})
-      |> Key.insert
+      |> Key.insert()
 
       assert Key.authenticate("access123", "unmatched") == false
       assert Key.authenticate("unmatched", "secret321") == false
@@ -118,14 +119,14 @@ defmodule EWalletDB.KeyTest do
   end
 
   describe "deleted?/1" do
-    test_deleted_checks_nil_deleted_at Key
+    test_deleted_checks_nil_deleted_at(Key)
   end
 
   describe "delete/1" do
-    test_delete_causes_record_deleted Key
+    test_delete_causes_record_deleted(Key)
   end
 
   describe "restore/1" do
-    test_restore_causes_record_undeleted Key
+    test_restore_causes_record_undeleted(Key)
   end
 end

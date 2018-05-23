@@ -6,38 +6,59 @@ defmodule EWalletDB.Mint do
   use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Mint, MintedToken, Transfer, Account}
+  alias EWalletDB.{Repo, Mint, Token, Transfer, Account}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "mint" do
-    external_id prefix: "mnt_"
+    external_id(prefix: "mnt_")
 
-    field :description, :string
-    field :amount, EWalletDB.Types.Integer
-    field :confirmed, :boolean, default: false
-    belongs_to :minted_token, MintedToken, foreign_key: :minted_token_uuid,
-                                           references: :uuid,
-                                           type: UUID
-    belongs_to :account, Account, foreign_key: :account_uuid,
-                                  references: :uuid,
-                                  type: UUID
-    belongs_to :transfer, Transfer, foreign_key: :transfer_uuid,
-                                    references: :uuid,
-                                    type: UUID
+    field(:description, :string)
+    field(:amount, EWalletDB.Types.Integer)
+    field(:confirmed, :boolean, default: false)
+
+    belongs_to(
+      :token,
+      Token,
+      foreign_key: :token_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :account,
+      Account,
+      foreign_key: :account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :transfer,
+      Transfer,
+      foreign_key: :transfer_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
   end
 
-  defp changeset(%Mint{} = minted_token, attrs) do
-    minted_token
-    |> cast(attrs, [:description, :amount, :minted_token_uuid, :confirmed])
-    |> validate_required([:amount, :minted_token_uuid])
+  defp changeset(%Mint{} = token, attrs) do
+    token
+    |> cast(attrs, [:description, :amount, :token_uuid, :confirmed])
+    |> validate_required([:amount, :token_uuid])
     |> validate_number(:amount, greater_than: 0)
-    |> assoc_constraint(:minted_token)
+    |> assoc_constraint(:token)
+    |> assoc_constraint(:account)
+    |> assoc_constraint(:transfer)
+    |> foreign_key_constraint(:token_uuid)
+    |> foreign_key_constraint(:account_uuid)
+    |> foreign_key_constraint(:transfer_uuid)
   end
 
-  defp update_changeset(%Mint{} = minted_token, attrs) do
-    minted_token
+  defp update_changeset(%Mint{} = token, attrs) do
+    token
     |> cast(attrs, [:transfer_uuid])
     |> validate_required([:transfer_uuid])
     |> assoc_constraint(:transfer)
@@ -55,14 +76,14 @@ defmodule EWalletDB.Mint do
   @doc """
   Updates a mint with the provided attributes.
   """
-  @spec update(mint :: %Mint{}, attrs :: map()) ::
-    {:ok, %Mint{}} | {:error, Ecto.Changeset.t}
+  @spec update(mint :: %Mint{}, attrs :: map()) :: {:ok, %Mint{}} | {:error, Ecto.Changeset.t()}
   def update(%Mint{} = mint, attrs) do
     changeset = update_changeset(mint, attrs)
 
     case Repo.update(changeset) do
       {:ok, mint} ->
         {:ok, mint}
+
       result ->
         result
     end
@@ -72,6 +93,7 @@ defmodule EWalletDB.Mint do
   Confirms a mint.
   """
   def confirm(%Mint{confirmed: true} = mint), do: mint
+
   def confirm(%Mint{confirmed: false} = mint) do
     {:ok, mint} =
       mint

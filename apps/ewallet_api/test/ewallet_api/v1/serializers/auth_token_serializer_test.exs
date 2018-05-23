@@ -4,10 +4,11 @@ defmodule EWalletAPI.V1.AuthTokenSerializerTest do
 
   describe "V1.AuthTokenSerializer" do
     test "data contains the authentication token" do
-      serialized = AuthTokenSerializer.serialize("the_auth_token")
+      auth_token = insert(:auth_token)
+      serialized = AuthTokenSerializer.serialize(auth_token)
 
       assert serialized.object == "authentication_token"
-      assert serialized.authentication_token == "the_auth_token"
+      assert serialized.authentication_token == auth_token.token
     end
   end
 end

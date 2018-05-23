@@ -13,11 +13,11 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   Renders the given `data` into a V1 response format as JSON.
   """
   def serialize(%{
-     data: data,
-     error: error,
-     msg: msg,
-     success: success
-  }) do
+        data: data,
+        error: error,
+        msg: msg,
+        success: success
+      }) do
     %{
       success: success,
       version: "1",
@@ -66,30 +66,40 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
           reason: nil
         })
         |> format()
+
       false ->
         format(reply)
     end
   end
+
   defp build_message(msg), do: format(msg)
 
   defp format(data) do
     data = Map.from_struct(data)
 
     %{
-       topic: data[:topic],
-       event: data[:event] || "phx_reply",
-       ref: data[:ref] || nil,
-       status: data[:status] || data[:payload][:status],
-       data: data[:payload][:data],
-       error: data[:payload][:error],
-       reason: data[:payload][:reason]
-     }
+      topic: data[:topic],
+      event: data[:event] || "phx_reply",
+      ref: data[:ref] || nil,
+      status: data[:status] || data[:payload][:status],
+      data: data[:payload][:data],
+      error: data[:payload][:error],
+      reason: data[:payload][:reason]
+    }
+  end
+
+  defp encode_fields(%{reason: reason} = msg) when not is_nil(reason) do
+    encode_fields(msg, build_reason(msg.reason))
   end
 
   defp encode_fields(msg) do
+    encode_fields(msg, build_error(msg.error))
+  end
+
+  defp encode_fields(msg, error) do
     %{
       data: msg.data,
-      error: build_error(msg.error, msg.reason),
+      error: error,
       msg: msg,
       success: msg.status == :ok
     }
@@ -97,11 +107,24 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
     |> Poison.encode_to_iodata!()
   end
 
-  defp build_error(nil, nil), do: nil
-  defp build_error(nil, reason) do
-    ErrorHandler.build_error(:websocket_connect_error, reason, nil)
+  defp build_error(nil), do: nil
+  defp build_error(%{code: nil}), do: nil
+
+  defp build_error(%{code: code, description: description}) do
+    ErrorHandler.build_error(code, description, nil)
   end
-  defp build_error(code, nil) when is_atom(code) when is_binary(code) do
+
+  defp build_error(%{code: code}), do: ErrorHandler.build_error(code, nil)
+
+  defp build_error(code) when is_atom(code) do
     ErrorHandler.build_error(code, nil)
+  end
+
+  defp build_error(_), do: nil
+
+  defp build_reason(nil), do: nil
+
+  defp build_reason(reason) do
+    ErrorHandler.build_error(:websocket_connect_error, reason, nil)
   end
 end

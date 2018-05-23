@@ -10,12 +10,17 @@ defmodule LocalLedgerDB.Entry do
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "entry" do
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
-    field :correlation_id, :string
-    has_many :transactions, Transaction, foreign_key: :entry_uuid,
-                                         references: :uuid
+    field(:metadata, :map, default: %{})
+    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encryption_version, :binary)
+    field(:correlation_id, :string)
+
+    has_many(
+      :transactions,
+      Transaction,
+      foreign_key: :entry_uuid,
+      references: :uuid
+    )
 
     timestamps()
   end
@@ -30,33 +35,45 @@ defmodule LocalLedgerDB.Entry do
     |> validate_required([:correlation_id, :metadata, :encrypted_metadata])
     |> cast_assoc(:transactions, required: true)
     |> unique_constraint(:correlation_id)
-    |> put_change(:encryption_version, Cloak.version)
+    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
   Retrieve all entries.
   """
   def all do
-    Repo.all from e in Entry,
-             join: t in assoc(e, :transactions),
-             preload: [transactions: t]
+    Repo.all(
+      from(
+        e in Entry,
+        join: t in assoc(e, :transactions),
+        preload: [transactions: t]
+      )
+    )
   end
 
   def get_with_correlation_id(correlation_id) do
-    Repo.one! from e in Entry,
-              join: t in assoc(e, :transactions),
-              where: e.correlation_id == ^correlation_id,
-              preload: [transactions: t]
+    Repo.one!(
+      from(
+        e in Entry,
+        join: t in assoc(e, :transactions),
+        where: e.correlation_id == ^correlation_id,
+        preload: [transactions: t]
+      )
+    )
   end
 
   @doc """
   Retrieve a specific entry and preload the associated transactions.
   """
   def one(uuid) do
-    Repo.one! from e in Entry,
-              join: t in assoc(e, :transactions),
-              where: e.uuid == ^uuid,
-              preload: [transactions: t]
+    Repo.one!(
+      from(
+        e in Entry,
+        join: t in assoc(e, :transactions),
+        where: e.uuid == ^uuid,
+        preload: [transactions: t]
+      )
+    )
   end
 
   @doc """
@@ -65,6 +82,6 @@ defmodule LocalLedgerDB.Entry do
   def insert(attrs) do
     %Entry{}
     |> Entry.changeset(attrs)
-    |> Repo.insert
+    |> Repo.insert()
   end
 end

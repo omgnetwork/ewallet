@@ -14,9 +14,10 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
       refute conn.halted
       assert conn.status == 302
       assert conn.resp_body =~ ~s(/some_scope/docs.ui)
-      assert Enum.any?(conn.resp_headers, fn(header) ->
-        header == {"location", "/some_scope/docs.ui"}
-      end)
+
+      assert Enum.any?(conn.resp_headers, fn header ->
+               header == {"location", "/some_scope/docs.ui"}
+             end)
     end
 
     test "return the Swagger UI page when calling /docs.ui" do
@@ -32,7 +33,8 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
 
       refute conn.halted
       assert conn.status == 200
-      assert conn.resp_body =~ ~r/^openapi:/ # Expects the spec to begin with "openapi:"
+      # Expects the spec to begin with "openapi:"
+      assert conn.resp_body =~ ~r/^openapi:/
     end
   end
 
@@ -43,9 +45,10 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
       refute conn.halted
       assert conn.status == 302
       assert conn.resp_body =~ ~s(/some_scope/errors.ui)
-      assert Enum.any?(conn.resp_headers, fn(header) ->
-        header == {"location", "/some_scope/errors.ui"}
-      end)
+
+      assert Enum.any?(conn.resp_headers, fn header ->
+               header == {"location", "/some_scope/errors.ui"}
+             end)
     end
 
     test "returns the HTML page when calling /errors.ui" do
@@ -61,8 +64,10 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
 
       refute conn.halted
       assert conn.status == 200
-      assert conn.resp_body =~ ~r/code:/ # Expects the response to have a `code` key
-      assert conn.resp_body =~ ~r/description:/ # Expects the response to have a `description` key
+      # Expects the response to have a `code` key
+      assert conn.resp_body =~ ~r/code:/
+      # Expects the response to have a `description` key
+      assert conn.resp_body =~ ~r/description:/
     end
 
     test "returns the json spec when calling /errors.json" do
@@ -70,8 +75,10 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
 
       refute conn.halted
       assert conn.status == 200
-      assert conn.resp_body =~ ~r/"code":/ # Expects the response to have a `code` key
-      assert conn.resp_body =~ ~r/"description":/ # Expects the response to have a `description` key
+      # Expects the response to have a `code` key
+      assert conn.resp_body =~ ~r/"code":/
+      # Expects the response to have a `description` key
+      assert conn.resp_body =~ ~r/"description":/
     end
   end
 

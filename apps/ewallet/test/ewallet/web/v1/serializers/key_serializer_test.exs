@@ -6,7 +6,7 @@ defmodule EWallet.Web.V1.KeySerializerTest do
 
   describe "serialize/1" do
     test "serializes a key into the correct response format" do
-      key     = :key |> insert() |> Repo.preload(:account)
+      key = :key |> insert() |> Repo.preload(:account)
 
       expected = %{
         object: "key",

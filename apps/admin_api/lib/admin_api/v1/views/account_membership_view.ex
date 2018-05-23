@@ -8,6 +8,7 @@ defmodule AdminAPI.V1.AccountMembershipView do
     |> MembershipSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("empty.json", %{success: success}) do
     %{}
     |> ResponseSerializer.serialize(success: success)

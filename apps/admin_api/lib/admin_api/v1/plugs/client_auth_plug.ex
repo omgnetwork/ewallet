@@ -2,25 +2,53 @@ defmodule AdminAPI.V1.ClientAuthPlug do
   @moduledoc """
   This plug checks if valid `api_key_id` and `api_key` are provided.
 
-  If `api_key_id` and `api_key` matches the database record, the plug assigns
-  the `api_key_id` and `account` to the connection along with `authenticated: true`.
+  On success, the plug assigns the following `conn.assigns`:
+
+    - `authenticated`: Set to `:client` to indicate that the request has been authenticated
+                       at the client level.
+    - `api_key_id`: The API key used to authenticate the request.
+    - `auth_account`: The account that is associated with the API key.
+
+  If client auth is disabled, the plug assigns the following `conn.assigns`:
+
+    - `authenticated`: Set to `:client`.
+    - `api_key_id`: Not assigned.
+    - `auth_account`: Not assigned.
+
+  On failure, the plug halts, then assigns the following `conn.assigns`:
+
+    - `authenticated`: Set to `false`.
+    - `api_key_id`: Not assigned.
+    - `auth_account`: Not assigned.
   """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
   alias EWalletDB.{Account, APIKey}
 
-  def init(opts), do: opts
+  @doc """
+  API used by Plug to start client authentication.
+  """
+  @spec init(keyword()) :: keyword()
+  def init(opts) do
+    Keyword.put_new(
+      opts,
+      :enable_client_auth,
+      Application.get_env(:admin_api, :enable_client_auth)
+    )
+  end
 
+  @doc """
+  API used by Plug to authenticate the client.
+  """
+  @spec call(Conn.t(), keyword()) :: Conn.t()
   def call(conn, opts) do
-    auth = Keyword.get(opts, :enable_client_auth,
-                       Application.get_env(:admin_api, :enable_client_auth))
-
-    case auth do
-      "true" ->
+    case opts[:enable_client_auth] do
+      true ->
         conn
         |> parse_header()
         |> authenticate()
-      _ ->
+
+      false ->
         assign(conn, :authenticated, :client)
     end
   end
@@ -50,17 +78,19 @@ defmodule AdminAPI.V1.ClientAuthPlug do
   @doc """
   Authenticates a client by using api_key_id and api_key in the connection (private values).
   """
-  def authenticate(%{assigns: %{authenticated: :false}} = conn), do: conn
+  def authenticate(%{assigns: %{authenticated: false}} = conn), do: conn
+
   def authenticate(conn) do
     api_key_id = conn.private[:auth_api_key_id]
-    api_key    = conn.private[:auth_api_key]
+    api_key = conn.private[:auth_api_key]
 
     case APIKey.authenticate(api_key_id, api_key, :admin_api) do
       %Account{} = account ->
         conn
         |> assign(:authenticated, :client)
         |> assign(:api_key_id, api_key_id)
-        |> assign(:account, account)
+        |> assign(:auth_account, account)
+
       false ->
         conn
         |> assign(:authenticated, false)

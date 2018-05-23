@@ -10,10 +10,15 @@ defmodule EWalletDB.Role do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "role" do
-    field :name, :string
-    field :display_name, :string
-    many_to_many :users, User, join_through: Membership,
-                               join_keys: [role_uuid: :uuid, user_uuid: :uuid]
+    field(:name, :string)
+    field(:display_name, :string)
+
+    many_to_many(
+      :users,
+      User,
+      join_through: Membership,
+      join_keys: [role_uuid: :uuid, user_uuid: :uuid]
+    )
 
     timestamps()
   end
@@ -40,6 +45,7 @@ defmodule EWalletDB.Role do
   def get_by_name(name) when is_binary(name) do
     Repo.get_by(Role, name: name)
   end
+
   def get_by_name(_), do: nil
 
   @doc """

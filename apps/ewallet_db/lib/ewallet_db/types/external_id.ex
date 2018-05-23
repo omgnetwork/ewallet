@@ -31,29 +31,33 @@ defmodule EWalletDB.Types.ExternalID do
   Returns `{:ok, value}` on successful casting where `value` is a string of 3-character symbol,
   an underscore and 26-character ULID string. Returns `:error` on failure.
   """
-  @spec cast(String.t) :: {:ok, String.t} | :error
+  @spec cast(String.t()) :: {:ok, String.t()} | :error
   def cast(<<_::bytes-size(3), "_", _::bytes-size(26)>> = ulid_string) do
     {:ok, String.downcase(ulid_string)}
   end
+
   def cast(_), do: :error
 
   @doc """
   Transforms the value after loaded from the database.
   """
-  @spec load(String.t) :: {:ok, String.t}
+  @spec load(String.t()) :: {:ok, String.t()}
   def load(value), do: {:ok, value}
 
   @doc """
   Prepares the value for saving to database.
   """
-  @spec dump(String.t) :: {:ok, String.t}
+  @spec dump(String.t()) :: {:ok, String.t()}
   def dump(value), do: {:ok, value}
 
   # The defaults to use to define the External ID field.
   @external_id_defaults [
-    field_name: :id, # The field name
-    prefix: "", # The prefix to prepend to the generated ULID
-    autogenerate: nil # The function to use for autogenerating the value
+    # The field name
+    field_name: :id,
+    # The prefix to prepend to the generated ULID
+    prefix: "",
+    # The function to use for autogenerating the value
+    autogenerate: nil
   ]
 
   @doc """
@@ -87,14 +91,15 @@ defmodule EWalletDB.Types.ExternalID do
 
   Returns a ULID if the prefix is not given, otherwise prepends the ULID with the given prefix.
   """
-  @spec generate(String.t) :: String.t
-  def generate(<<symbol::bytes-size(3), "_" >> = prefix) do
+  @spec generate(String.t()) :: String.t()
+  def generate(<<symbol::bytes-size(3), "_">> = prefix) do
     if String.match?(symbol, ~r/^[0-9a-z]{3}$/) do
       String.downcase(prefix <> ULID.generate())
     else
       :error
     end
   end
+
   def generate(_), do: :error
 
   # Callback invoked by autogenerate fields.
@@ -105,9 +110,11 @@ defmodule EWalletDB.Types.ExternalID do
   # Ref: https://stackoverflow.com/questions/21261696/create-new-guard-clause
   defmacro is_external_id(id) do
     quote do
-      is_binary(unquote(id)) # is a string
-      and binary_part(unquote(id), 3, 1) == "_" # 4th character is an underscore
-      and byte_size(unquote(id)) == 30 # 3-char symbol, 1-char underscore, 26-char ULID
+      # is a string
+      # 4th character is an underscore
+      # 3-char symbol, 1-char underscore, 26-char ULID
+      is_binary(unquote(id)) and binary_part(unquote(id), 3, 1) == "_" and
+        byte_size(unquote(id)) == 30
     end
   end
 

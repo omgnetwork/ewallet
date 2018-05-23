@@ -47,7 +47,7 @@ podTemplate(
                         s6-env HOME=/tmp/ewallet \
                         s6-env MIX_ENV=test \
                         cd /app \
-                        mix do credo, ecto.create, ecto.migrate, test \
+                        mix do format --check-formatted, credo, ecto.create, ecto.migrate, test \
                     " \
                 """.stripIndent()
             )
@@ -76,8 +76,8 @@ podTemplate(
                         ]
                     ])
 
-                    sh("sed -i.bak 's#${imageName}:latest#${imageName}:${gitCommit}#' staging/k8s/ewallet/ewallet.yaml")
-                    sh("kubectl apply -f staging/k8s/ewallet/ewallet.yaml")
+                    sh("sed -i.bak 's#${imageName}:latest#${imageName}:${gitCommit}#' staging/k8s/ewallet/deployment.yaml")
+                    sh("kubectl apply -f staging/k8s/ewallet/deployment.yaml")
                     sh("kubectl rollout status --namespace=staging deployment/ewallet")
 
                     def podID = getPodID('--namespace=staging -l app=ewallet')

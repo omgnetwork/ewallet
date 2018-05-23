@@ -3,10 +3,10 @@ defmodule EWalletDB.TransferTest do
   alias EWalletDB.Transfer
 
   describe "Transfer factory" do
-    test_has_valid_factory Transfer
-    test_encrypted_map_field Transfer, "transfer", :encrypted_metadata
-    test_encrypted_map_field Transfer, "transfer", :payload
-    test_encrypted_map_field Transfer, "transfer", :ledger_response
+    test_has_valid_factory(Transfer)
+    test_encrypted_map_field(Transfer, "transfer", :encrypted_metadata)
+    test_encrypted_map_field(Transfer, "transfer", :payload)
+    test_encrypted_map_field(Transfer, "transfer", :ledger_response)
   end
 
   describe "get_or_insert/1" do
@@ -14,7 +14,7 @@ defmodule EWalletDB.TransferTest do
       {:ok, transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
 
       assert transfer.id != nil
-      assert transfer.type == Transfer.internal
+      assert transfer.type == Transfer.internal()
     end
 
     test "retrieves an existing transfer when idempotency token exists" do
@@ -36,54 +36,59 @@ defmodule EWalletDB.TransferTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid Transfer, :uuid
-    test_insert_generate_external_id Transfer, :id, "tfr_"
-    test_insert_generate_timestamps Transfer
-    test_insert_prevent_blank Transfer, :payload
-    test_insert_prevent_blank Transfer, :idempotency_token
-    test_default_metadata_fields Transfer, "transfer"
+    test_insert_generate_uuid(Transfer, :uuid)
+    test_insert_generate_external_id(Transfer, :id, "tfr_")
+    test_insert_generate_timestamps(Transfer)
+    test_insert_prevent_blank(Transfer, :payload)
+    test_insert_prevent_blank(Transfer, :idempotency_token)
+    test_default_metadata_fields(Transfer, "transfer")
 
     test "inserts a transfer if it does not existing" do
       assert Repo.all(Transfer) == []
+
       {:ok, transfer} =
         :transfer
         |> params_for()
-        |> Transfer.insert
-      transfers =
-        Transfer |> Repo.all() |> Repo.preload([:from_balance, :to_balance, :minted_token])
+        |> Transfer.insert()
+
+      transfers = Transfer |> Repo.all() |> Repo.preload([:from_wallet, :to_wallet, :token])
 
       assert transfers == [transfer]
     end
 
     test "returns the existing transfer without error if already existing" do
       assert Repo.all(Transfer) == []
+
       {:ok, inserted_transfer} =
-        :transfer |> params_for(idempotency_token: "123") |> Transfer.insert
-      {:ok, transfer} = :transfer |> params_for(idempotency_token: "123") |> Transfer.insert
+        :transfer |> params_for(idempotency_token: "123") |> Transfer.insert()
+
+      {:ok, transfer} = :transfer |> params_for(idempotency_token: "123") |> Transfer.insert()
 
       assert inserted_transfer == transfer
     end
 
     test "returns an error when passing invalid arguments" do
       assert Repo.all(Transfer) == []
-      {res, changeset} = %{idempotency_token: nil, payload: %{}} |> Transfer.insert
+      {res, changeset} = %{idempotency_token: nil, payload: %{}} |> Transfer.insert()
       assert res == :error
-      assert changeset.errors == [idempotency_token: {"can't be blank", [validation: :required]},
-                                  amount: {"can't be blank", [validation: :required]},
-                                  minted_token_uuid: {"can't be blank",
-                                                             [validation: :required]},
-                                  to: {"can't be blank", [validation: :required]},
-                                  from: {"can't be blank", [validation: :required]}]
+
+      assert changeset.errors == [
+               idempotency_token: {"can't be blank", [validation: :required]},
+               amount: {"can't be blank", [validation: :required]},
+               token_uuid: {"can't be blank", [validation: :required]},
+               to: {"can't be blank", [validation: :required]},
+               from: {"can't be blank", [validation: :required]}
+             ]
     end
   end
 
   describe "confirm/2" do
     test "confirms a transfer" do
       {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
-      assert inserted_transfer.status == Transfer.pending
+      assert inserted_transfer.status == Transfer.pending()
       transfer = Transfer.confirm(inserted_transfer, %{ledger: "response"})
       assert transfer.id == inserted_transfer.id
-      assert transfer.status == Transfer.confirmed
+      assert transfer.status == Transfer.confirmed()
       assert transfer.ledger_response == %{"ledger" => "response"}
     end
   end
@@ -91,10 +96,10 @@ defmodule EWalletDB.TransferTest do
   describe "fail/2" do
     test "sets a transfer as failed" do
       {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
-      assert inserted_transfer.status == Transfer.pending
+      assert inserted_transfer.status == Transfer.pending()
       transfer = Transfer.fail(inserted_transfer, %{ledger: "response"})
       assert transfer.id == inserted_transfer.id
-      assert transfer.status == Transfer.failed
+      assert transfer.status == Transfer.failed()
       assert transfer.ledger_response == %{"ledger" => "response"}
     end
   end

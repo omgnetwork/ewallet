@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.TransactionView do
     |> TransactionSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
   def render("transactions.json", %{transactions: transactions}) do
     transactions
     |> TransactionSerializer.serialize()

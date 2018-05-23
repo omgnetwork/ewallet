@@ -30,10 +30,12 @@ defmodule EWallet.Web.Embedder do
   @doc """
   Embed association data.
   """
-  def embed(record, nil, embeddable, always_embed), do: embed(record, [], embeddable, always_embed)
+  def embed(record, nil, embeddable, always_embed),
+    do: embed(record, [], embeddable, always_embed)
+
   def embed(record, requested, embeddable, always_embed) do
     requested = Helper.to_existing_atoms(requested) ++ always_embed
-    allowed   = embeddable -- (embeddable -- requested)
+    allowed = embeddable -- embeddable -- requested
 
     Repo.preload(record, allowed)
   end

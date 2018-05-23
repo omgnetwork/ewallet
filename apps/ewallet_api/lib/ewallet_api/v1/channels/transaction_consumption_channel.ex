@@ -5,13 +5,18 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   use Phoenix.Channel
   alias EWalletDB.{User, TransactionConsumption}
 
-  def join("transaction_consumption:" <> consumption_id, _params, %{
-    assigns: %{auth: auth}
-  } = socket) do
+  def join(
+        "transaction_consumption:" <> consumption_id,
+        _params,
+        %{
+          assigns: %{auth: auth}
+        } = socket
+      ) do
     consumption_id
     |> TransactionConsumption.get()
     |> join_as(auth, socket)
   end
+
   def join(_, _, _), do: {:error, :invalid_parameter}
 
   defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
@@ -23,9 +28,9 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   defp join_as(consumption, %{authenticated: :client, user: user}, socket) do
     user
     |> User.addresses()
-    |> Enum.member?(consumption.balance_address)
+    |> Enum.member?(consumption.wallet_address)
     |> case do
-      true  -> {:ok, socket}
+      true -> {:ok, socket}
       false -> {:error, :forbidden_channel}
     end
   end

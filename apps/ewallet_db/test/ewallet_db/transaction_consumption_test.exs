@@ -3,7 +3,7 @@ defmodule EWalletDB.TransactionConsumptionTest do
   alias EWalletDB.TransactionConsumption
 
   describe "TransactionConsumption factory" do
-    test_has_valid_factory TransactionConsumption
+    test_has_valid_factory(TransactionConsumption)
   end
 
   describe "get/1" do
@@ -27,9 +27,9 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
     test "preloads the specified association" do
       inserted = insert(:transaction_consumption)
-      consumption = TransactionConsumption.get(inserted.id, preload: [:minted_token])
+      consumption = TransactionConsumption.get(inserted.id, preload: [:token])
       assert consumption.id == inserted.id
-      assert consumption.minted_token != nil
+      assert consumption.token != nil
     end
   end
 
@@ -38,10 +38,17 @@ defmodule EWalletDB.TransactionConsumptionTest do
       now = NaiveDateTime.utc_now()
 
       # t1 and t2 have expiration dates in the past
-      t1 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :seconds))
-      t2 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -600, :seconds))
-      t3 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 600, :seconds))
-      t4 = insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 160, :seconds))
+      t1 =
+        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -60, :seconds))
+
+      t2 =
+        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, -600, :seconds))
+
+      t3 =
+        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 600, :seconds))
+
+      t4 =
+        insert(:transaction_consumption, expiration_date: NaiveDateTime.add(now, 160, :seconds))
 
       # They are still valid since we haven't made them expired yet
       assert TransactionConsumption.expired?(t1) == false
@@ -78,26 +85,41 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "all_active_for_request" do
     test "it returns all pending and confirmed consumptions for the given request" do
       request = insert(:transaction_request)
-      _consumption_1 = insert(:transaction_consumption,
-        transaction_request_uuid: request.uuid,
-        status: "pending"
-      )
-      consumption_2 = insert(:transaction_consumption,
-        transaction_request_uuid: request.uuid,
-        status: "confirmed"
-      )
-      _consumption_3 = insert(:transaction_consumption,
-        transaction_request_uuid: request.uuid,
-        status: "failed"
-      )
-      _consumption_4 = insert(:transaction_consumption,
-        transaction_request_uuid: request.uuid,
-        status: "expired"
-      )
-      consumption_5 = insert(:transaction_consumption,
-        transaction_request_uuid: request.uuid,
-        status: "confirmed"
-      )
+
+      _consumption_1 =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "pending"
+        )
+
+      consumption_2 =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "confirmed"
+        )
+
+      _consumption_3 =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "failed"
+        )
+
+      _consumption_4 =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "expired"
+        )
+
+      consumption_5 =
+        insert(
+          :transaction_consumption,
+          transaction_request_uuid: request.uuid,
+          status: "confirmed"
+        )
 
       consumptions = TransactionConsumption.all_active_for_request(request.uuid)
 
@@ -108,17 +130,19 @@ defmodule EWalletDB.TransactionConsumptionTest do
   end
 
   describe "insert/1" do
-    test_insert_generate_uuid TransactionConsumption, :uuid
-    test_insert_generate_external_id TransactionConsumption, :id, "txc_"
-    test_insert_generate_timestamps TransactionConsumption
-    test_insert_prevent_blank TransactionConsumption, :amount
-    test_insert_prevent_blank TransactionConsumption, :idempotency_token
-    test_insert_prevent_blank TransactionConsumption, :transaction_request_uuid
-    test_insert_prevent_blank TransactionConsumption, :balance_address
-    test_insert_prevent_blank TransactionConsumption, :minted_token_uuid
+    test_insert_generate_uuid(TransactionConsumption, :uuid)
+    test_insert_generate_external_id(TransactionConsumption, :id, "txc_")
+    test_insert_generate_timestamps(TransactionConsumption)
+    test_insert_prevent_blank(TransactionConsumption, :amount)
+    test_insert_prevent_blank(TransactionConsumption, :idempotency_token)
+    test_insert_prevent_blank(TransactionConsumption, :transaction_request_uuid)
+    test_insert_prevent_blank(TransactionConsumption, :wallet_address)
+    test_insert_prevent_blank(TransactionConsumption, :token_uuid)
 
     test "sets the status to 'pending'" do
-      {:ok, inserted} = :transaction_consumption |> params_for() |> TransactionConsumption.insert()
+      {:ok, inserted} =
+        :transaction_consumption |> params_for() |> TransactionConsumption.insert()
+
       assert inserted.status == "pending"
     end
   end

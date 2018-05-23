@@ -53,7 +53,7 @@ defmodule EWallet.Web.V1.PaginatorSerializerTest do
         }
       }
 
-      result = PaginatorSerializer.serialize(paginator, fn(_) -> "replaced_data" end)
+      result = PaginatorSerializer.serialize(paginator, fn _ -> "replaced_data" end)
       assert result == expected
     end
   end

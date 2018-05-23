@@ -9,14 +9,15 @@ defmodule UrlDispatcher.Application do
     import Supervisor.Spec, warn: false
 
     # List all child processes to be supervised
-    children = prepare_children([
-      {
-        :http,
-        UrlDispatcher.Plug,
-        port_for(:url_dispatcher),
-        websockets_dispatcher() ++ [http_dispatcher()]
-      }
-    ])
+    children =
+      prepare_children([
+        {
+          :http,
+          UrlDispatcher.Plug,
+          port_for(:url_dispatcher),
+          websockets_dispatcher() ++ [http_dispatcher()]
+        }
+      ])
 
     # See https://hexdocs.pm/elixir/Supervisor.html
     # for other strategies and supported options
@@ -45,13 +46,17 @@ defmodule UrlDispatcher.Application do
   defp prepare_children(children) when is_list(children) do
     if server?(), do: Enum.map(children, &prepare_children/1), else: []
   end
-  defp prepare_children({scheme, plug, port, dispatchers}) do
-    Logger.info "Running #{inspect plug} with Cowboy #{scheme} on port #{port}"
 
-    Cowboy.child_spec(scheme, plug, [], [
+  defp prepare_children({scheme, plug, port, dispatchers}) do
+    Logger.info("Running #{inspect(plug)} with Cowboy #{scheme} on port #{port}")
+
+    Cowboy.child_spec(
+      scheme,
+      plug,
+      [],
       port: port,
       dispatch: [{:_, dispatchers}]
-    ])
+    )
   end
 
   defp server? do

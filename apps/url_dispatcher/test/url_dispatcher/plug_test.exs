@@ -41,7 +41,8 @@ defmodule UrlDispatcher.PlugTest do
     test "returns a 200 response when requesting a file in /public folder" do
       conn = request("/public/uploads/test.txt")
 
-      assert conn.halted # Plug.Static returns `%Plug.Conn{halted: true}` on success
+      # Plug.Static returns `%Plug.Conn{halted: true}` on success
+      assert conn.halted
       assert conn.status == 200
     end
 
@@ -51,6 +52,18 @@ defmodule UrlDispatcher.PlugTest do
       assert conn.halted
       assert conn.status == 404
       assert conn.resp_body == "The url could not be resolved."
+    end
+
+    test "returns a 302 redirect response to /docs/index.html when requesting /docs" do
+      conn = request("/docs")
+
+      refute conn.halted
+      assert conn.status == 302
+      assert conn.resp_body =~ ~s(/docs/index.html)
+
+      assert Enum.any?(conn.resp_headers, fn header ->
+               header == {"location", "/docs/index.html"}
+             end)
     end
   end
 end

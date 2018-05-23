@@ -39,6 +39,7 @@ RUN set -xe && \
         if { mix local.rebar --force } \
         if { mix deps.get } \
         mix compile \
+        if {mix docs --output=public/docs} \
         rm -rf /tmp/ewallet"
 
 ENV PORT 4000

@@ -27,8 +27,7 @@ defmodule EWalletAPI.WebSocket do
   @behaviour Phoenix.Socket.Transport
 
   def default_config do
-    [timeout: 60_000,
-     transport_log: false]
+    [timeout: 60_000, transport_log: false]
   end
 
   ## Callbacks
@@ -55,9 +54,8 @@ defmodule EWalletAPI.WebSocket do
          conn <- Transport.check_origin(conn, handler, endpoint, opts),
          %{halted: false} = conn <- conn,
          params <- conn.params |> Map.put_new(:http_headers, conn.req_headers),
-         {:ok, socket} <- Transport.connect(endpoint, handler, transport, __MODULE__,
-                                            serializer, params)
-    do
+         {:ok, socket} <-
+           Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params) do
       {:ok, conn, {__MODULE__, {socket, opts}}}
     else
       _error ->
@@ -74,7 +72,7 @@ defmodule EWalletAPI.WebSocket do
   defp get_endpoint(conn, accept) when is_binary(accept) do
     case get_accept_version(accept) do
       {:ok, version} -> {:ok, version[:endpoint], version[:websocket_serializer]}
-      _              -> invalid_version(conn, accept)
+      _ -> invalid_version(conn, accept)
     end
   end
 

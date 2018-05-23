@@ -49,8 +49,8 @@ defmodule AdminAPI.V1.UserViewTest do
           per_page: 10,
           current_page: 1,
           is_first_page: true,
-          is_last_page: false,
-        },
+          is_last_page: false
+        }
       }
 
       expected = %{
@@ -106,8 +106,8 @@ defmodule AdminAPI.V1.UserViewTest do
             per_page: 10,
             current_page: 1,
             is_first_page: true,
-            is_last_page: false,
-          },
+            is_last_page: false
+          }
         }
       }
 

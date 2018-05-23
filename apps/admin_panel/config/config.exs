@@ -9,7 +9,7 @@ use Mix.Config
 config :admin_panel,
   namespace: AdminPanel,
   ecto_repos: [],
-  dist_path: Path.expand("../priv/dist/", __DIR__),
+  dist_path: Path.expand("../priv/static/", __DIR__),
   webpack_watch: false
 
 # Configures the endpoint
@@ -19,4 +19,4 @@ config :admin_panel, AdminPanel.Endpoint,
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.
-import_config "#{Mix.env}.exs"
+import_config "#{Mix.env()}.exs"

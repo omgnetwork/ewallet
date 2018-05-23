@@ -10,6 +10,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
     |> TransactionRequest.get()
     |> join_as(auth, socket)
   end
+
   def join(_, _, _), do: {:error, :invalid_parameter}
 
   defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
@@ -21,9 +22,9 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
   defp join_as(request, %{authenticated: :client, user: user}, socket) do
     user
     |> User.addresses()
-    |> Enum.member?(request.balance_address)
+    |> Enum.member?(request.wallet_address)
     |> case do
-      true  -> {:ok, socket}
+      true -> {:ok, socket}
       false -> {:error, :forbidden_channel}
     end
   end

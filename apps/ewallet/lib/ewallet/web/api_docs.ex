@@ -42,14 +42,14 @@ defmodule EWallet.Web.APIDocs do
   defmacro __using__(scope: api_scope) do
     quote bind_quoted: binding() do
       scope api_scope do
-        get "/docs", Controller, :forward, private: %{redirect_to: api_scope <> "/docs.ui"}
-        get "/docs.ui", Controller, :ui
-        get "/docs.yaml", Controller, :yaml
+        get("/docs", Controller, :forward, private: %{redirect_to: api_scope <> "/docs.ui"})
+        get("/docs.ui", Controller, :ui)
+        get("/docs.yaml", Controller, :yaml)
 
-        get "/errors", Controller, :forward, private: %{redirect_to: api_scope <> "/errors.ui"}
-        get "/errors.ui", Controller, :errors_ui
-        get "/errors.yaml", Controller, :errors_yaml
-        get "/errors.json", Controller, :errors_json
+        get("/errors", Controller, :forward, private: %{redirect_to: api_scope <> "/errors.ui"})
+        get("/errors.ui", Controller, :errors_ui)
+        get("/errors.yaml", Controller, :errors_yaml)
+        get("/errors.json", Controller, :errors_json)
       end
     end
   end

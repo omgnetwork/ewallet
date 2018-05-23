@@ -9,8 +9,7 @@ defmodule EWallet.Web.V1.ProviderAuth do
          [scheme, content] <- String.split(header, " ", parts: 2),
          true <- scheme in ["Basic", "OMGServer"],
          {:ok, decoded} <- Base.decode64(content),
-         [access, secret] <- String.split(decoded, ":", parts: 2)
-    do
+         [access, secret] <- String.split(decoded, ":", parts: 2) do
       {:ok, access, secret}
     else
       _ -> {:error, :invalid_auth_scheme}
@@ -19,7 +18,7 @@ defmodule EWallet.Web.V1.ProviderAuth do
 
   def authenticate(access_key, secret_key) do
     case Key.authenticate(access_key, secret_key) do
-      false   -> {:error, :invalid_access_secret_key}
+      false -> {:error, :invalid_access_secret_key}
       account -> {:ok, account}
     end
   end

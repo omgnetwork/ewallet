@@ -12,10 +12,10 @@ defmodule AdminAPI.V1.UserControllerTest do
 
       # Asserts pagination data
       pagination = response["data"]["pagination"]
-      assert is_integer pagination["per_page"]
-      assert is_integer pagination["current_page"]
-      assert is_boolean pagination["is_last_page"]
-      assert is_boolean pagination["is_first_page"]
+      assert is_integer(pagination["per_page"])
+      assert is_integer(pagination["current_page"])
+      assert is_boolean(pagination["is_last_page"])
+      assert is_boolean(pagination["is_first_page"])
     end
 
     test "returns a list of users according to search_term, sort_by and sort_direction" do
@@ -25,9 +25,10 @@ defmodule AdminAPI.V1.UserControllerTest do
       insert(:user, %{username: "missed_user1"})
 
       attrs = %{
-        "search_term" => "MaTcH", # Search is case-insensitive
-        "sort_by"     => "username",
-        "sort_dir"    => "desc"
+        # Search is case-insensitive
+        "search_term" => "MaTcH",
+        "sort_by" => "username",
+        "sort_dir" => "desc"
       }
 
       response = user_request("/user.all", attrs)
@@ -43,8 +44,9 @@ defmodule AdminAPI.V1.UserControllerTest do
 
   describe "/user.get" do
     test "returns an user by the given user's ID" do
-      users    = insert_list(3, :user)
-      target   = Enum.at(users, 1) # Pick the 2nd inserted user
+      users = insert_list(3, :user)
+      # Pick the 2nd inserted user
+      target = Enum.at(users, 1)
       response = user_request("/user.get", %{"id" => target.id})
 
       assert response["success"]
@@ -53,21 +55,25 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID was not found" do
-      response  = user_request("/user.get", %{"id" => "usr_12345678901234567890123456"})
+      response = user_request("/user.get", %{"id" => "usr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:id_not_found"
-      assert response["data"]["description"] == "There is no user corresponding to the provided id"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided id"
     end
 
     test "returns 'user:id_not_found' if the given ID format is invalid" do
-      response  = user_request("/user.get", %{"id" => "not_uuid"})
+      response = user_request("/user.get", %{"id" => "not_uuid"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:id_not_found"
-      assert response["data"]["description"] == "There is no user corresponding to the provided id"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided id"
     end
   end
 end

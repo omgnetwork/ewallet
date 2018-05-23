@@ -4,16 +4,22 @@ defmodule LocalLedgerDB.CachedBalance do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Balance, CachedBalance}
+  alias LocalLedgerDB.{Repo, Wallet, CachedBalance}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
   schema "cached_balance" do
-    field :amounts, :map
-    field :computed_at, :naive_datetime
-    belongs_to :balance, Balance, foreign_key: :balance_address,
-                                  references: :address,
-                                  type: :string
+    field(:amounts, :map)
+    field(:computed_at, :naive_datetime)
+
+    belongs_to(
+      :wallet,
+      Wallet,
+      foreign_key: :wallet_address,
+      references: :address,
+      type: :string
+    )
+
     timestamps()
   end
 
@@ -22,9 +28,9 @@ defmodule LocalLedgerDB.CachedBalance do
   """
   def changeset(%CachedBalance{} = balance, attrs) do
     balance
-    |> cast(attrs, [:amounts, :balance_address, :computed_at])
-    |> validate_required([:amounts, :balance_address, :computed_at])
-    |> foreign_key_constraint(:balance_address)
+    |> cast(attrs, [:amounts, :wallet_address, :computed_at])
+    |> validate_required([:amounts, :wallet_address, :computed_at])
+    |> foreign_key_constraint(:wallet_address)
   end
 
   @doc """
@@ -32,7 +38,7 @@ defmodule LocalLedgerDB.CachedBalance do
   """
   def get(address) do
     CachedBalance
-    |> where([c], c.balance_address == ^address)
+    |> where([c], c.wallet_address == ^address)
     |> order_by([c], desc: c.computed_at)
     |> limit(1)
     |> Repo.one()

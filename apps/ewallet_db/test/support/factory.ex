@@ -4,23 +4,25 @@ defmodule EWalletDB.Factory do
   """
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
+
   alias EWalletDB.{
     Account,
     APIKey,
     AuthToken,
-    Balance,
+    Wallet,
     ForgetPasswordRequest,
     Invite,
     Key,
     Membership,
     Mint,
-    MintedToken,
+    Token,
     Role,
     TransactionRequest,
     TransactionConsumption,
     Transfer,
     User
   }
+
   alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
   alias ExULID.ULID
@@ -32,27 +34,28 @@ defmodule EWalletDB.Factory do
   e.g. when APIKey becomes :a_p_i_key
   """
   def get_factory(APIKey), do: :api_key
+
   def get_factory(schema) when is_atom(schema) do
     schema
     |> struct
-    |> Strategy.name_from_struct
+    |> Strategy.name_from_struct()
   end
 
-  def balance_factory do
-    %Balance{
+  def wallet_factory do
+    %Wallet{
       address: sequence("address"),
       name: sequence("name"),
-      identifier: Balance.primary,
+      identifier: Wallet.primary(),
       user: insert(:user),
-      minted_token: nil,
+      token: nil,
       metadata: %{}
     }
   end
 
-  def minted_token_factory do
+  def token_factory do
     symbol = sequence("jon")
 
-    %MintedToken{
+    %Token{
       id: "tok_" <> symbol <> "_" <> ULID.generate(),
       symbol: symbol,
       iso_code: sequence("JON"),
@@ -84,6 +87,7 @@ defmodule EWalletDB.Factory do
 
   def admin_factory do
     password = sequence("password")
+
     %User{
       email: sequence("johndoe") <> "@example.com",
       password: password,
@@ -120,7 +124,7 @@ defmodule EWalletDB.Factory do
   def mint_factory do
     %Mint{
       amount: 100_000,
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       transfer_uuid: insert(:transfer).uuid
     }
   end
@@ -151,7 +155,7 @@ defmodule EWalletDB.Factory do
       key: sequence("api_key"),
       owner_app: "some_app_name",
       account: insert(:account),
-      expired: false,
+      expired: false
     }
   end
 
@@ -160,7 +164,8 @@ defmodule EWalletDB.Factory do
       token: sequence("auth_token"),
       owner_app: "some_app_name",
       user: insert(:user),
-      expired: false,
+      account: insert(:account),
+      expired: false
     }
   end
 
@@ -170,15 +175,15 @@ defmodule EWalletDB.Factory do
       payload: %{example: "Payload"},
       metadata: %{some: "metadata"},
       amount: 100,
-      minted_token: insert(:minted_token),
-      from_balance: insert(:balance),
-      to_balance: insert(:balance)
+      token: insert(:token),
+      from_wallet: insert(:wallet),
+      to_wallet: insert(:wallet)
     }
   end
 
   def forget_password_request_factory do
     %ForgetPasswordRequest{
-      token: sequence("123"),
+      token: sequence("123")
     }
   end
 
@@ -187,18 +192,18 @@ defmodule EWalletDB.Factory do
       type: "receive",
       amount: 100,
       correlation_id: sequence("correlation"),
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
-      balance: insert(:balance)
+      wallet: insert(:wallet)
     }
   end
 
   def transaction_consumption_factory do
     %TransactionConsumption{
       idempotency_token: sequence("123"),
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
-      balance_address: insert(:balance).address,
+      wallet_address: insert(:wallet).address,
       amount: 100,
       transaction_request_uuid: insert(:transaction_request).uuid
     }

@@ -27,9 +27,9 @@ defmodule EWalletAPI.V1.StatusControllerTest do
       #
       # See example: /phoenix/test/phoenix/endpoint/render_errors_test.exs
       {status, _headers, response} =
-        assert_error_sent 500, fn ->
+        assert_error_sent(500, fn ->
           public_request("/status.server_error")
-        end
+        end)
 
       assert status == 500
       assert Parser.parse!(response) == expected

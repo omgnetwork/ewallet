@@ -4,7 +4,7 @@ defmodule AdminAPI.Router do
   alias AdminAPI.{StatusController, VersionedRouter}
 
   scope "/admin/api" do
-    get "/", StatusController, :status
-    forward "/", VersionedRouter
+    get("/", StatusController, :status)
+    forward("/", VersionedRouter)
   end
 end

@@ -12,12 +12,14 @@ defmodule EWallet.Web.V1.AccountSerializer do
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
+
   def serialize(accounts) when is_list(accounts) do
     %{
       object: "list",
       data: Enum.map(accounts, &serialize/1)
     }
   end
+
   def serialize(%Account{} = account) do
     account = Preloader.preload(account, :parent)
 
@@ -30,12 +32,13 @@ defmodule EWallet.Web.V1.AccountSerializer do
       description: account.description,
       master: Account.master?(account),
       avatar: Avatar.urls({account.avatar, account}),
-      metadata: account.metadata,
-      encrypted_metadata: account.encrypted_metadata,
+      metadata: account.metadata || %{},
+      encrypted_metadata: account.encrypted_metadata || %{},
       created_at: Date.to_iso8601(account.inserted_at),
       updated_at: Date.to_iso8601(account.updated_at)
     }
   end
+
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 end

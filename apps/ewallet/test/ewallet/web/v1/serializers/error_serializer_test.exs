@@ -4,10 +4,10 @@ defmodule EWallet.Web.V1.ErrorSerializerTest do
 
   describe "V1.ErrorSerializer.serialize" do
     test "data contains the code, description and messages" do
-      code        = "error_code"
+      code = "error_code"
       description = "This is the description"
-      messages    = %{field: "required"}
-      serialized  = ErrorSerializer.serialize(code, description, messages)
+      messages = %{field: "required"}
+      serialized = ErrorSerializer.serialize(code, description, messages)
 
       assert serialized.object == "error"
       assert serialized.code == "error_code"

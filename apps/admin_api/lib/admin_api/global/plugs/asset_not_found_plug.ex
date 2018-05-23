@@ -16,5 +16,6 @@ defmodule AdminAPI.AssetNotFoundPlug do
     |> send_resp(404, "")
     |> halt()
   end
+
   defp check_asset(conn, _), do: conn
 end

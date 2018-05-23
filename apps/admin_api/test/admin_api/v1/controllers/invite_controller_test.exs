@@ -4,17 +4,17 @@ defmodule AdminAPI.V1.InviteControllerTest do
 
   defp request(email, token, password, password_confirmation) do
     client_request("/invite.accept", %{
-      "email"                 => email,
-      "token"                 => token,
-      "password"              => password,
+      "email" => email,
+      "token" => token,
+      "password" => password,
       "password_confirmation" => password_confirmation
     })
   end
 
   describe "InviteController.accept/2" do
     test "returns success if invite is accepted successfully" do
-      invite   = insert(:invite)
-      user     = insert(:admin, %{invite: invite})
+      invite = insert(:invite)
+      user = insert(:admin, %{invite: invite})
       response = request(user.email, invite.token, "some_password", "some_password")
 
       expected = %{
@@ -39,32 +39,34 @@ defmodule AdminAPI.V1.InviteControllerTest do
     end
 
     test "returns :invite_not_found error if the email has not been invited" do
-      invite   = insert(:invite)
-      _user    = insert(:admin, %{invite: invite})
+      invite = insert(:invite)
+      _user = insert(:admin, %{invite: invite})
       response = request("unknown@example.com", invite.token, "some_password", "some_password")
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invite_not_found"
+
       assert response["data"]["description"] ==
-        "There is no invite corresponding to the provided email and token"
+               "There is no invite corresponding to the provided email and token"
     end
 
     test "returns :invite_not_found error if the token is incorrect" do
-      invite   = insert(:invite)
-      user     = insert(:admin, %{invite: invite})
+      invite = insert(:invite)
+      user = insert(:admin, %{invite: invite})
       response = request(user.email, "wrong_token", "some_password", "some_password")
 
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invite_not_found"
+
       assert response["data"]["description"] ==
-        "There is no invite corresponding to the provided email and token"
+               "There is no invite corresponding to the provided email and token"
     end
 
     test "returns :passwords_mismatch error if the passwords do not match" do
-      invite   = insert(:invite)
-      user     = insert(:admin, %{invite: invite})
+      invite = insert(:invite)
+      user = insert(:admin, %{invite: invite})
       response = request(user.email, invite.token, "some_password", "mismatch_password")
 
       refute response["success"]
@@ -75,10 +77,11 @@ defmodule AdminAPI.V1.InviteControllerTest do
 
     test "returns :invalid_parameter error if a required parameter is missing" do
       invite = insert(:invite)
-      user   = insert(:admin, %{invite: invite})
+      user = insert(:admin, %{invite: invite})
 
       # Missing passwords
-      response = client_request("/invite.accept", %{"email" => user.email, "token" => invite.token})
+      response =
+        client_request("/invite.accept", %{"email" => user.email, "token" => invite.token})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

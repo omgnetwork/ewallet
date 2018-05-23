@@ -10,9 +10,10 @@ defmodule EWallet.Web.V1.PaginatorSerializer do
   """
   def serialize(%Paginator{} = paginator, mapper) when is_function(mapper) do
     paginator
-    |> Map.update!(:data, fn(data) -> Enum.map(data, mapper) end)
+    |> Map.update!(:data, fn data -> Enum.map(data, mapper) end)
     |> serialize()
   end
+
   def serialize(%Paginator{} = paginator) do
     %{
       object: "list",

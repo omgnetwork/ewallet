@@ -27,6 +27,7 @@ defmodule EWallet.Mixfile do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
+      mod: {EWallet.Application, []},
       extra_applications: [:logger]
     ]
   end
@@ -40,6 +41,8 @@ defmodule EWallet.Mixfile do
     [
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
+      {:quantum, "~> 2.2.6"},
+      {:timex, "~> 3.0"},
       {:ewallet_db, in_umbrella: true},
       {:local_ledger, in_umbrella: true},
       {:local_ledger_db, in_umbrella: true, only: :test}

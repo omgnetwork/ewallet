@@ -61,9 +61,9 @@ defmodule EWalletDB.SchemaCase do
   end
 
   def insert_user_with_role(role_name) do
-    user        = insert(:user)
-    account     = insert(:account)
-    role        = insert(:role, %{name: role_name})
+    user = insert(:user)
+    account = insert(:account)
+    role = insert(:role, %{name: role_name})
     _membership = insert(:membership, %{user: user, account: account, role: role})
 
     {user, account}
@@ -73,6 +73,7 @@ defmodule EWalletDB.SchemaCase do
     case Account.get_master_account() do
       %{} = account ->
         account
+
       _ ->
         insert(:account, %{parent: nil})
     end
@@ -102,7 +103,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_insert_ok(schema, field, value) when is_atom(field) do
     quote do
-      test "inserts #{unquote field} successfully" do
+      test "inserts #{unquote(field)} successfully" do
         schema = unquote(schema)
         field = unquote(field)
         value = unquote(value)
@@ -124,9 +125,9 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_insert_generate_uuid(schema, field) do
     quote do
-      test "generates a UUID for :#{unquote field}" do
+      test "generates a UUID for :#{unquote(field)}" do
         schema = unquote(schema)
-        field  = unquote(field)
+        field = unquote(field)
 
         {res, record} =
           schema
@@ -135,8 +136,7 @@ defmodule EWalletDB.SchemaCase do
           |> schema.insert
 
         assert res == :ok
-        assert String.match?(record.unquote(field),
-          ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
+        assert String.match?(record.unquote(field), ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/)
       end
     end
   end
@@ -163,6 +163,7 @@ defmodule EWalletDB.SchemaCase do
         case prefix do
           "" ->
             assert String.length(external_id) == 26
+
           _ ->
             assert String.starts_with?(external_id, prefix)
             assert String.length(external_id) == String.length(prefix) + 26
@@ -198,10 +199,10 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_insert_generate_length(schema, field, len) do
     quote do
-      test "generates a string with length #{unquote len} into :#{unquote field}" do
+      test "generates a string with length #{unquote(len)} into :#{unquote(field)}" do
         schema = unquote(schema)
-        field  = unquote(field)
-        len  = unquote(len)
+        field = unquote(field)
+        len = unquote(len)
 
         {res, record} =
           schema
@@ -220,7 +221,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_insert_prevent_blank(schema, field) when is_atom(field) do
     quote do
-      test "prevents creation with blank :#{unquote field}" do
+      test "prevents creation with blank :#{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
 
@@ -231,8 +232,7 @@ defmodule EWalletDB.SchemaCase do
           |> schema.insert
 
         assert result == :error
-        assert changeset.errors ==
-          [{field, {"can't be blank", [validation: :required]}}]
+        assert changeset.errors == [{field, {"can't be blank", [validation: :required]}}]
       end
     end
   end
@@ -242,7 +242,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_insert_prevent_blank_assoc(schema, field) when is_atom(field) do
     quote do
-      test "prevents creation with missing association :#{unquote field}" do
+      test "prevents creation with missing association :#{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
 
@@ -253,8 +253,7 @@ defmodule EWalletDB.SchemaCase do
           |> schema.insert
 
         assert result == :error
-        assert changeset.errors ==
-          [{:"#{field}_id", {"can't be blank", [validation: :required]}}]
+        assert changeset.errors == [{:"#{field}_id", {"can't be blank", [validation: :required]}}]
       end
     end
   end
@@ -274,7 +273,7 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(Map.new(fields, fn field -> {field, nil} end))
           |> schema.insert
 
-        reason = changeset.errors |> List.first |> elem(1) |> elem(0)
+        reason = changeset.errors |> List.first() |> elem(1) |> elem(0)
 
         assert result == :error
         assert reason == "can't all be blank"
@@ -287,7 +286,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_insert_allow_duplicate(schema, field, value \\ "same") do
     quote do
-      test "allows insert with existing :#{unquote field} value" do
+      test "allows insert with existing :#{unquote(field)} value" do
         schema = unquote(schema)
         field = unquote(field)
         value = unquote(value)
@@ -314,7 +313,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_insert_prevent_duplicate(schema, field, value \\ "same") do
     quote do
-      test "returns error if same :#{unquote field} already exists" do
+      test "returns error if same :#{unquote(field)} already exists" do
         schema = unquote(schema)
         field = unquote(field)
         value = unquote(value)
@@ -342,7 +341,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_update_field_ok(schema, field, old \\ "old", new \\ "new") do
     quote do
-      test "updates #{unquote field} successfully" do
+      test "updates #{unquote(field)} successfully" do
         schema = unquote(schema)
         field = unquote(field)
         old = unquote(old)
@@ -367,7 +366,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_update_prevents_changing(schema, field) do
     quote do
-      test "prevents changing of #{unquote field}" do
+      test "prevents changing of #{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
 
@@ -400,8 +399,8 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(metadata: nil, encrypted_metadata: nil)
           |> schema.insert()
 
-        {:ok, results} = SQL.query(EWalletDB.Repo,
-                                   "SELECT metadata, encrypted_metadata FROM \"#{table}\"", [])
+        {:ok, results} =
+          SQL.query(EWalletDB.Repo, "SELECT metadata, encrypted_metadata FROM \"#{table}\"", [])
 
         assert record.metadata == %{}
         assert record.encrypted_metadata == %{}
@@ -414,7 +413,7 @@ defmodule EWalletDB.SchemaCase do
   """
   defmacro test_encrypted_map_field(schema, table, field) do
     quote do
-      test "saves #{unquote field} as encrypted data" do
+      test "saves #{unquote(field)} as encrypted data" do
         schema = unquote(schema)
         table = unquote(table)
         field = unquote(field)

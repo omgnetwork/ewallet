@@ -26,25 +26,28 @@ defmodule AdminAPI.Inviter do
   end
 
   defp validate_email(email) do
-    if EmailValidator.valid?(email), do: email, else: throw :invalid_email
+    if EmailValidator.valid?(email), do: email, else: throw(:invalid_email)
   end
 
   defp get_or_create_user(email) do
     case User.get_by_email(email) do
       %User{} = user ->
         check_active(user)
+
       nil ->
-        {:ok, user} = User.insert(%{
-          email: email,
-          password: Crypto.generate_key(32)
-        })
+        {:ok, user} =
+          User.insert(%{
+            email: email,
+            password: Crypto.generate_key(32)
+          })
+
         user
     end
   end
 
   defp check_active(user) do
     case User.get_status(user) do
-      :active -> throw :user_already_active
+      :active -> throw(:user_already_active)
       _ -> user
     end
   end

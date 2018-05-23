@@ -11,17 +11,24 @@ defmodule EWalletDB.APIKey do
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:uuid, UUID, autogenerate: true}
-  @key_bytes 32 # String length = ceil(key_bytes / 3 * 4)
+  # String length = ceil(key_bytes / 3 * 4)
+  @key_bytes 32
 
   schema "api_key" do
-    external_id prefix: "api_"
+    external_id(prefix: "api_")
 
-    field :key, :string
-    field :owner_app, :string
-    belongs_to :account, Account, foreign_key: :account_uuid,
-                                  references: :uuid,
-                                  type: UUID
-    field :expired, :boolean
+    field(:key, :string)
+    field(:owner_app, :string)
+
+    belongs_to(
+      :account,
+      Account,
+      foreign_key: :account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    field(:expired, :boolean)
     timestamps()
     soft_delete()
   end
@@ -37,13 +44,15 @@ defmodule EWalletDB.APIKey do
   @doc """
   Get API key by id, exclude soft-deleted.
   """
-  @spec get(ExternalID.t) :: %APIKey{} | nil
+  @spec get(ExternalID.t()) :: %APIKey{} | nil
   def get(id)
+
   def get(id) when is_external_id(id) do
     APIKey
     |> exclude_deleted()
     |> Repo.get_by(id: id)
   end
+
   def get(_), do: nil
 
   @doc """
@@ -76,15 +85,13 @@ defmodule EWalletDB.APIKey do
   to avoid passing the API key information around.
   """
   def authenticate(api_key_id, api_key, owner_app)
-    when byte_size(api_key_id) > 0
-    and byte_size(api_key) > 0
-    and is_atom(owner_app)
-  do
+      when byte_size(api_key_id) > 0 and byte_size(api_key) > 0 and is_atom(owner_app) do
     api_key_id
     |> get(owner_app)
     |> do_authenticate(api_key)
   end
-  def authenticate(_, _, _), do: Crypto.fake_verify
+
+  def authenticate(_, _, _), do: Crypto.fake_verify()
 
   defp do_authenticate(%{key: expected_key} = api_key, input_key) do
     case Crypto.secure_compare(expected_key, input_key) do
@@ -92,7 +99,8 @@ defmodule EWalletDB.APIKey do
       _ -> false
     end
   end
-  defp do_authenticate(nil, _input_key), do: Crypto.fake_verify
+
+  defp do_authenticate(nil, _input_key), do: Crypto.fake_verify()
 
   @doc """
   Authenticates using the given API key (without API key id).
@@ -108,7 +116,9 @@ defmodule EWalletDB.APIKey do
     end
   end
 
-  defp get(nil, _), do: nil # Handles unsafe nil query
+  # Handles unsafe nil query
+  defp get(nil, _), do: nil
+
   defp get(id, owner_app) when is_binary(id) and is_atom(owner_app) do
     APIKey
     |> Repo.get_by(%{
@@ -119,7 +129,9 @@ defmodule EWalletDB.APIKey do
     |> Repo.preload(:account)
   end
 
-  defp get_by_key(nil, _), do: nil # Handles unsafe nil query
+  # Handles unsafe nil query
+  defp get_by_key(nil, _), do: nil
+
   defp get_by_key(key, owner_app) when is_binary(key) and is_atom(owner_app) do
     APIKey
     |> Repo.get_by(%{

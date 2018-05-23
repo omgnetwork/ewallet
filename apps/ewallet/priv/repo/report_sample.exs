@@ -44,7 +44,7 @@ CLI.print("""
   3. Use the value below for `ClientAuth`:
 
   ```
-  OMGClient #{Base.encode64(ewallet_api_key.key <> ":" <> ewallet_auth_token)}
+  OMGClient #{Base.encode64(ewallet_api_key.key <> ":" <> ewallet_auth_token.token)}
   ```
 
   4. Try out Client endpoints such as /me.get, /me.list_transactions, /logout, etc.
@@ -69,7 +69,7 @@ CLI.print("""
 
   ```
   OMGAdmin #{Base.encode64(admin_api_key.id <> ":" <> admin_api_key.key <> ":" <> admin_user.id
-    <> ":" <> admin_auth_token)}
+    <> ":" <> admin_auth_token.token)}
   ```
 
   4. Try out User endpoints such as /account.create, /account.assign_user, /access_key.create, etc.

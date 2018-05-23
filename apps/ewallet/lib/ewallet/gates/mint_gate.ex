@@ -2,10 +2,10 @@ defmodule EWallet.MintGate do
   @moduledoc """
   Handles the mint creation logic. Since it relies on external applications to
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
-  examples on how to add value to a minted token.
+  examples on how to add value to a token.
   """
   alias EWallet.TransferGate
-  alias EWalletDB.{Repo, Account, Mint, Balance, Transfer, MintedToken}
+  alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, Token}
   alias Ecto.Multi
 
   @doc """
@@ -16,7 +16,7 @@ defmodule EWallet.MintGate do
 
     res = Mint.insert(%{
       "idempotency_token" => idempotency_token,
-      "token_id" => minted_token_id,
+      "token_id" => token_id,
       "amount" => 100_000,
       "description" => "Another mint bites the dust.",
       "metadata" => %{probably: "something useful. Or not."},
@@ -36,20 +36,22 @@ defmodule EWallet.MintGate do
     end
 
   """
-  def insert(%{
-    "idempotency_token" => idempotency_token,
-    "token_id" => token_id,
-    "amount" => amount,
-    "description" => description
-  } = attrs) do
-    minted_token = MintedToken.get(token_id)
+  def insert(
+        %{
+          "idempotency_token" => idempotency_token,
+          "token_id" => token_id,
+          "amount" => amount,
+          "description" => description
+        } = attrs
+      ) do
+    token = Token.get(token_id)
     account = Account.get_master_account()
 
     multi =
-      Multi.new
+      Multi.new()
       |> Multi.run(:mint, fn _ ->
         Mint.insert(%{
-          minted_token_uuid: minted_token.uuid,
+          token_uuid: token.uuid,
           amount: amount,
           account_uuid: account.uuid,
           description: description
@@ -58,9 +60,9 @@ defmodule EWallet.MintGate do
       |> Multi.run(:transfer, fn _ ->
         TransferGate.get_or_insert(%{
           idempotency_token: idempotency_token,
-          from: Balance.get_genesis().address,
-          to: Account.get_primary_balance(account).address,
-          minted_token_id: minted_token.id,
+          from: Wallet.get_genesis().address,
+          to: Account.get_primary_wallet(account).address,
+          token_id: token.id,
           amount: amount,
           metadata: attrs["metadata"] || %{},
           encrypted_metadata: attrs["encrypted_metadata"] || %{},
@@ -71,12 +73,13 @@ defmodule EWallet.MintGate do
         Mint.update(mint, %{transfer_uuid: transfer.uuid})
       end)
 
-      case Repo.transaction(multi) do
-        {:ok, result} ->
-          process_with_transfer(result.transfer, result.mint_with_transfer)
-        {:error, _failed_operation, changeset, _changes_so_far} ->
-          {:error, changeset}
-      end
+    case Repo.transaction(multi) do
+      {:ok, result} ->
+        process_with_transfer(result.transfer, result.mint_with_transfer)
+
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
+    end
   end
 
   defp process_with_transfer(%Transfer{status: "pending"} = transfer, mint) do
@@ -84,15 +87,19 @@ defmodule EWallet.MintGate do
     |> TransferGate.genesis()
     |> confirm_and_return(mint)
   end
+
   defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, mint) do
     confirm_and_return(transfer, mint)
   end
+
   defp process_with_transfer(%Transfer{status: "failed"} = transfer, mint) do
     resp = transfer.ledger_response
     confirm_and_return({:error, resp["code"], resp["description"]}, mint)
   end
 
-  defp confirm_and_return({:error, code, description}, mint), do: {:error, code, description, mint}
+  defp confirm_and_return({:error, code, description}, mint),
+    do: {:error, code, description, mint}
+
   defp confirm_and_return(transfer, mint) do
     mint = Mint.confirm(mint)
     {:ok, mint, transfer}

@@ -1,8 +1,7 @@
 use Mix.Config
 
 # General application configuration
-config :admin_panel,
-  webpack_watch: true
+config :admin_panel, webpack_watch: true
 
 # For development, we disable any cache and enable
 # debugging and code reloading.

@@ -8,49 +8,93 @@ defmodule EWalletDB.User do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, AuthToken, Balance, Invite,
-                   Membership, Role, User, Helpers.Crypto}
+
+  alias EWalletDB.{
+    Repo,
+    Account,
+    AuthToken,
+    Wallet,
+    Invite,
+    Membership,
+    Role,
+    User,
+    Helpers.Crypto
+  }
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "user" do
-    external_id prefix: "usr_"
+    external_id(prefix: "usr_")
 
-    field :username, :string
-    field :email, :string
-    field :password, :string, virtual: true
-    field :password_confirmation, :string, virtual: true
-    field :password_hash, :string
-    field :provider_user_id, :string
-    field :metadata, :map, default: %{}
-    field :encrypted_metadata, Cloak.EncryptedMapField, default: %{}
-    field :encryption_version, :binary
-    field :avatar, EWalletDB.Uploaders.Avatar.Type
+    field(:username, :string)
+    field(:email, :string)
+    field(:password, :string, virtual: true)
+    field(:password_confirmation, :string, virtual: true)
+    field(:password_hash, :string)
+    field(:provider_user_id, :string)
+    field(:metadata, :map, default: %{})
+    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encryption_version, :binary)
+    field(:avatar, EWalletDB.Uploaders.Avatar.Type)
 
-    belongs_to :invite, Invite, foreign_key: :invite_uuid,
-                                references: :uuid,
-                                type: UUID
+    belongs_to(
+      :invite,
+      Invite,
+      foreign_key: :invite_uuid,
+      references: :uuid,
+      type: UUID
+    )
 
-    has_many :balances, Balance, foreign_key: :user_uuid,
-                                 references: :uuid
-    has_many :auth_tokens, AuthToken, foreign_key: :user_uuid,
-                                      references: :uuid
-    has_many :memberships, Membership, foreign_key: :user_uuid,
-                                       references: :uuid
+    has_many(
+      :wallets,
+      Wallet,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
 
-    many_to_many :roles, Role, join_through: Membership,
-                               join_keys: [user_uuid: :uuid, role_uuid: :uuid]
-    many_to_many :accounts, Account, join_through: Membership,
-                                     join_keys: [user_uuid: :uuid, account_uuid: :uuid]
+    has_many(
+      :auth_tokens,
+      AuthToken,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    has_many(
+      :memberships,
+      Membership,
+      foreign_key: :user_uuid,
+      references: :uuid
+    )
+
+    many_to_many(
+      :roles,
+      Role,
+      join_through: Membership,
+      join_keys: [user_uuid: :uuid, role_uuid: :uuid]
+    )
+
+    many_to_many(
+      :accounts,
+      Account,
+      join_through: Membership,
+      join_keys: [user_uuid: :uuid, account_uuid: :uuid]
+    )
 
     timestamps()
   end
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:username, :provider_user_id, :email, :password,
-                    :password_confirmation, :metadata, :encrypted_metadata,
-                    :invite_uuid])
+    |> cast(attrs, [
+      :username,
+      :provider_user_id,
+      :email,
+      :password,
+      :password_confirmation,
+      :metadata,
+      :encrypted_metadata,
+      :invite_uuid
+    ])
     |> validate_required([:metadata, :encrypted_metadata])
     |> validate_confirmation(:password, message: "does not match password!")
     |> validate_immutable(:provider_user_id)
@@ -59,7 +103,7 @@ defmodule EWalletDB.User do
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
     |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
-    |> put_change(:encryption_version, Cloak.version)
+    |> put_change(:encryption_version, Cloak.version())
     |> validate_by_roles(attrs)
   end
 
@@ -82,8 +126,10 @@ defmodule EWalletDB.User do
     cond do
       user.email != nil ->
         do_validate_loginable(changeset, attrs)
+
       User.has_membership?(user) ->
         do_validate_loginable(changeset, attrs)
+
       true ->
         do_validate_provider_user(changeset, attrs)
     end
@@ -103,9 +149,10 @@ defmodule EWalletDB.User do
   Retrieves all the addresses for the given user.
   """
   def addresses(user) do
-    user = user |> Repo.preload(:balances)
-    Enum.map(user.balances, fn balance ->
-      balance.address
+    user = user |> Repo.preload(:wallets)
+
+    Enum.map(user.wallets, fn wallet ->
+      wallet.address
     end)
   end
 
@@ -115,21 +162,24 @@ defmodule EWalletDB.User do
   @spec get(ExternalID.t()) :: %User{} | nil
   @spec get(ExternalID.t(), Ecto.Queryable.t()) :: %User{} | nil
   def get(id, queryable \\ User)
+
   def get(id, queryable) when is_external_id(id) do
     queryable
     |> Repo.get_by(id: id)
-    |> Repo.preload(:balances)
+    |> Repo.preload(:wallets)
   end
+
   def get(_, _), do: nil
 
   @doc """
   Retrieves a specific user from its provider_user_id.
   """
   def get_by_provider_user_id(nil), do: nil
+
   def get_by_provider_user_id(provider_user_id) do
     User
     |> Repo.get_by(provider_user_id: provider_user_id)
-    |> Repo.preload(:balances)
+    |> Repo.preload(:wallets)
   end
 
   @doc """
@@ -138,7 +188,7 @@ defmodule EWalletDB.User do
   def get_by_email(email) when is_binary(email) do
     User
     |> Repo.get_by(email: email)
-    |> Repo.preload(:balances)
+    |> Repo.preload(:wallets)
   end
 
   @doc """
@@ -149,21 +199,22 @@ defmodule EWalletDB.User do
       iex> insert(%{field: value})
       {:ok, %User{}}
 
-  Creates a user and their primary balance.
+  Creates a user and their primary wallet.
   """
   def insert(attrs) do
     multi =
-      Multi.new
+      Multi.new()
       |> Multi.insert(:user, changeset(%User{}, attrs))
-      |> Multi.run(:balance, fn %{user: user} ->
-        insert_balance(user, Balance.primary)
+      |> Multi.run(:wallet, fn %{user: user} ->
+        insert_wallet(user, Wallet.primary())
       end)
 
     case Repo.transaction(multi) do
       {:ok, result} ->
-        user = result.user |> Repo.preload([:balances])
+        user = result.user |> Repo.preload([:wallets])
         {:ok, user}
-      # Only the account insertion should fail. If the balance insert fails, there is
+
+      # Only the account insertion should fail. If the wallet insert fails, there is
       # something wrong with our code.
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
@@ -171,15 +222,15 @@ defmodule EWalletDB.User do
   end
 
   @doc """
-  Inserts a balance for the given user.
+  Inserts a wallet for the given user.
   """
-  def insert_balance(%User{} = user, identifier) do
+  def insert_wallet(%User{} = user, identifier) do
     %{
       user_uuid: user.uuid,
       name: identifier,
       identifier: identifier
     }
-    |> Balance.insert()
+    |> Wallet.insert()
   end
 
   @doc """
@@ -191,6 +242,7 @@ defmodule EWalletDB.User do
     case Repo.update(changeset) do
       {:ok, user} ->
         {:ok, get(user.id)}
+
       result ->
         result
     end
@@ -202,33 +254,34 @@ defmodule EWalletDB.User do
   def store_avatar(%User{} = user, attrs) do
     attrs =
       case attrs["avatar"] do
-        ""     -> %{avatar: nil}
+        "" -> %{avatar: nil}
         "null" -> %{avatar: nil}
         avatar -> %{avatar: avatar}
       end
 
     changeset = avatar_changeset(user, attrs)
+
     case Repo.update(changeset) do
       {:ok, user} -> get(user.id)
-      result      -> result
+      result -> result
     end
   end
 
   @doc """
-  Retrieve the primary balance for a user.
+  Retrieve the primary wallet for a user.
   """
-  def get_primary_balance(user) do
-    Balance
+  def get_primary_wallet(user) do
+    Wallet
     |> where([b], b.user_uuid == ^user.uuid)
-    |> where([b], b.identifier == ^Balance.primary)
+    |> where([b], b.identifier == ^Wallet.primary())
     |> Repo.one()
   end
 
   @doc """
-  Retrieve the primary balance for a user with preloaded balances.
+  Retrieve the primary wallet for a user with preloaded wallets.
   """
-  def get_preloaded_primary_balance(user) do
-    Enum.find(user.balances, fn balance -> balance.identifier == Balance.primary end)
+  def get_preloaded_primary_wallet(user) do
+    Enum.find(user.wallets, fn wallet -> wallet.identifier == Wallet.primary() end)
   end
 
   @doc """
@@ -253,6 +306,7 @@ defmodule EWalletDB.User do
   # User does not have any membership if it has not been saved yet.
   # Without pattern matching for nil id, Ecto will return an unsafe nil comparison error.
   def has_membership?(%{uuid: nil}), do: false
+
   def has_membership?(user) do
     query = from(m in Membership, where: m.user_uuid == ^user.uuid)
     Repo.aggregate(query, :count, :uuid) > 0
@@ -277,7 +331,7 @@ defmodule EWalletDB.User do
     user
     |> Repo.preload(:roles)
     |> Map.get(:roles, [])
-    |> Enum.map(fn(role) -> Map.fetch!(role, :name) end)
+    |> Enum.map(fn role -> Map.fetch!(role, :name) end)
     |> Enum.uniq()
   end
 
@@ -296,37 +350,45 @@ defmodule EWalletDB.User do
 
   defp query_role(user_id, account_id) do
     # Traverses up the account tree to find the user's role in the closest parent.
-    from r in Role,
-      join: account_tree in fragment("""
-        WITH RECURSIVE account_tree AS (
-          SELECT a.*, m.role_uuid, m.user_uuid
-          FROM account a
-          LEFT JOIN membership AS m ON m.account_uuid = a.uuid
-          WHERE a.id = ?
-        UNION
-          SELECT parent.*, m.role_uuid, m.user_uuid
-          FROM account parent
-          LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
-          JOIN account_tree ON account_tree.parent_uuid = parent.uuid
-        )
-        SELECT role_uuid FROM account_tree
-        JOIN "role" AS r ON r.uuid = role_uuid
-        JOIN "user" AS u ON u.uuid = user_uuid
-        WHERE u.id = ? LIMIT 1
-      """,
-        ^account_id,
-        ^user_id
-      ), on: r.uuid == account_tree.role_uuid,
+    from(
+      r in Role,
+      join:
+        account_tree in fragment(
+          ~s/
+            WITH RECURSIVE account_tree AS (
+              SELECT a.*, m.role_uuid, m.user_uuid
+              FROM account a
+              LEFT JOIN membership AS m ON m.account_uuid = a.uuid
+              WHERE a.id = ?
+            UNION
+              SELECT parent.*, m.role_uuid, m.user_uuid
+              FROM account parent
+              LEFT JOIN membership AS m ON m.account_uuid = parent.uuid
+              JOIN account_tree ON account_tree.parent_uuid = parent.uuid
+            )
+            SELECT role_uuid FROM account_tree
+            JOIN "role" AS r ON r.uuid = role_uuid
+            JOIN "user" AS u ON u.uuid = user_uuid
+            WHERE u.id = ? LIMIT 1
+          /,
+          ^account_id,
+          ^user_id
+        ),
+      on: r.uuid == account_tree.role_uuid,
       select: r.name
+    )
   end
 
   @doc """
   Retrieves the upper-most account that the given user has membership in.
   """
   def get_account(user) do
-    query = from [q, child] in query_accounts(user),
-      order_by: [asc: child.depth],
-      limit: 1
+    query =
+      from(
+        [q, child] in query_accounts(user),
+        order_by: [asc: child.depth, desc: child.inserted_at],
+        limit: 1
+      )
 
     Repo.one(query)
   end
@@ -347,23 +409,28 @@ defmodule EWalletDB.User do
     account_uuids =
       user
       |> Membership.all_by_user()
-      |> Enum.map(fn(m) -> Map.fetch!(m, :account_uuid) end)
+      |> Enum.map(fn m -> Map.fetch!(m, :account_uuid) end)
 
     # Traverses down the account tree
-    from a in Account,
-      join: child in fragment("""
-        WITH RECURSIVE account_tree AS (
-          SELECT account.*, 0 AS depth
-          FROM account
-          WHERE account.uuid = ANY(?)
-        UNION
-          SELECT child.*, account_tree.depth + 1 as depth
-          FROM account child
-          JOIN account_tree ON account_tree.uuid = child.parent_uuid
-        ) SELECT * FROM account_tree
-      """,
-        type(^account_uuids, {:array, UUID})
-      ), on: a.uuid == child.uuid,
+    from(
+      a in Account,
+      join:
+        child in fragment(
+          """
+            WITH RECURSIVE account_tree AS (
+              SELECT account.*, 0 AS depth
+              FROM account
+              WHERE account.uuid = ANY(?)
+            UNION
+              SELECT child.*, account_tree.depth + 1 as depth
+              FROM account child
+              JOIN account_tree ON account_tree.uuid = child.parent_uuid
+            ) SELECT * FROM account_tree
+          """,
+          type(^account_uuids, {:array, UUID})
+        ),
+      on: a.uuid == child.uuid,
       select: %{a | relative_depth: child.depth}
+    )
   end
 end

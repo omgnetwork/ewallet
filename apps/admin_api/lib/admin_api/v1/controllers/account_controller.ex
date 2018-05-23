@@ -41,12 +41,14 @@ defmodule AdminAPI.V1.AccountController do
       case accounts do
         %Paginator{} = paginator ->
           render(conn, :accounts, %{accounts: paginator})
+
         {:error, code, description} ->
           handle_error(conn, code, description)
       end
     else
       {:error, code} ->
         handle_error(conn, code)
+
       nil ->
         handle_error(conn, :account_id_not_found)
     end
@@ -56,13 +58,13 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a specific account by its id.
   """
   def get(conn, %{"id" => id}) do
-    with :ok                  <- permit(:get, conn.assigns.user.id, id),
-         %Account{} = account <- Account.get_by(id: id)
-    do
+    with :ok <- permit(:get, conn.assigns.user.id, id),
+         %Account{} = account <- Account.get_by(id: id) do
       render(conn, :account, %{account: account})
     else
       {:error, code} ->
         handle_error(conn, code)
+
       nil ->
         handle_error(conn, :account_id_not_found)
     end
@@ -81,14 +83,14 @@ defmodule AdminAPI.V1.AccountController do
         Account.get_master_account()
       end
 
-    with :ok            <- permit(:create, conn.assigns.user.id, parent.id),
-         attrs          <- Map.put(attrs, "parent_uuid", parent.uuid),
-         {:ok, account} <- Account.insert(attrs)
-    do
+    with :ok <- permit(:create, conn.assigns.user.id, parent.id),
+         attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
+         {:ok, account} <- Account.insert(attrs) do
       render(conn, :account, %{account: account})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
       {:error, code} ->
         handle_error(conn, code)
     end
@@ -100,32 +102,33 @@ defmodule AdminAPI.V1.AccountController do
   The requesting user must have write permission on the given account.
   """
   def update(conn, %{"id" => account_id} = attrs) do
-    with :ok            <- permit(:update, conn.assigns.user.id, account_id),
+    with :ok <- permit(:update, conn.assigns.user.id, account_id),
          %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
-         {:ok, updated} <- Account.update(original, attrs)
-    do
+         {:ok, updated} <- Account.update(original, attrs) do
       render(conn, :account, %{account: updated})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
       {:error, code} ->
         handle_error(conn, code)
     end
   end
+
   def update(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Uploads an image as avatar for a specific account.
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    with :ok           <- permit(:update, conn.assigns.user.id, id),
+    with :ok <- permit(:update, conn.assigns.user.id, id),
          %{} = account <- Account.get(id) || {:error, :account_id_not_found},
-         %{} = saved   <- Account.store_avatar(account, attrs)
-    do
+         %{} = saved <- Account.store_avatar(account, attrs) do
       render(conn, :account, %{account: saved})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
       {:error, code} ->
         handle_error(conn, code)
     end

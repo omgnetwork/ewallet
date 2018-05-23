@@ -7,9 +7,9 @@ defmodule EWalletDB.ValidatorTest do
     use Ecto.Schema
 
     schema "sample_structs" do
-      field :attr1, :string
-      field :attr2, :string
-      field :attr3, :string
+      field(:attr1, :string)
+      field(:attr2, :string)
+      field(:attr3, :string)
     end
   end
 
@@ -21,7 +21,8 @@ defmodule EWalletDB.ValidatorTest do
         attr3: nil
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_exclusive(%{attr1: nil, attr2: nil, attr3: nil})
 
@@ -35,7 +36,8 @@ defmodule EWalletDB.ValidatorTest do
         attr3: nil
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_exclusive(%{attr1: "value", attr2: nil, attr3: nil})
 
@@ -49,7 +51,8 @@ defmodule EWalletDB.ValidatorTest do
         attr3: nil
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_exclusive(%{attr1: "something", attr2: nil, attr3: nil})
 
@@ -63,29 +66,33 @@ defmodule EWalletDB.ValidatorTest do
         attr3: nil
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_exclusive(%{attr1: nil, attr2: nil, attr3: nil})
 
       refute changeset.valid?
+
       assert changeset.errors ==
-        [{%{attr1: nil, attr2: nil, attr3: nil}, {"can't all be blank", []}}]
+               [{%{attr1: nil, attr2: nil, attr3: nil}, {"can't all be blank", []}}]
     end
 
     test "invalid if more than one field is present" do
       attrs = %{
         attr1: "value",
         attr2: "extra_value",
-        attr3: "another_extra_value",
+        attr3: "another_extra_value"
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_exclusive(%{attr1: nil, attr2: nil, attr3: nil})
 
       refute changeset.valid?
+
       assert changeset.errors ==
-        [{%{attr1: nil, attr2: nil, attr3: nil}, {"only one must be present", []}}]
+               [{%{attr1: nil, attr2: nil, attr3: nil}, {"only one must be present", []}}]
     end
 
     test "invalid if more than one field is present with an attribute value given" do
@@ -95,13 +102,15 @@ defmodule EWalletDB.ValidatorTest do
         attr3: nil
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_exclusive(%{attr1: "value", attr2: nil, attr3: nil})
 
       refute changeset.valid?
+
       assert changeset.errors ==
-        [{%{attr1: "value", attr2: nil, attr3: nil}, {"only one must be present", []}}]
+               [{%{attr1: "value", attr2: nil, attr3: nil}, {"only one must be present", []}}]
     end
   end
 
@@ -113,7 +122,8 @@ defmodule EWalletDB.ValidatorTest do
         attr3: "value3"
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
 
@@ -127,7 +137,8 @@ defmodule EWalletDB.ValidatorTest do
         attr3: ""
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
 
@@ -141,13 +152,18 @@ defmodule EWalletDB.ValidatorTest do
         attr3: ""
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
 
       refute changeset.valid?
+
       assert changeset.errors ==
-        [{%{attr1: nil, attr2: nil, attr3: nil}, {"either all or none of them must be present", [validation: "all_or_none"]}}]
+               [
+                 {%{attr1: nil, attr2: nil, attr3: nil},
+                  {"either all or none of them must be present", [validation: "all_or_none"]}}
+               ]
     end
 
     test "returns invalid if only some of the attributes are present" do
@@ -157,13 +173,18 @@ defmodule EWalletDB.ValidatorTest do
         attr3: "value3"
       }
 
-      changeset = %SampleStruct{}
+      changeset =
+        %SampleStruct{}
         |> cast(attrs, [:attr1, :attr2, :attr3])
         |> validate_required_all_or_none(%{attr1: nil, attr2: nil, attr3: nil})
 
       refute changeset.valid?
+
       assert changeset.errors ==
-        [{%{attr1: nil, attr2: nil, attr3: nil}, {"either all or none of them must be present", [validation: "all_or_none"]}}]
+               [
+                 {%{attr1: nil, attr2: nil, attr3: nil},
+                  {"either all or none of them must be present", [validation: "all_or_none"]}}
+               ]
     end
   end
 
@@ -232,10 +253,9 @@ defmodule EWalletDB.ValidatorTest do
 
   describe "validate_password/2" do
     test "returns valid if the password meets the requirements" do
-      struct =
-        %SampleStruct{
-          attr1: "valid_password"
-        }
+      struct = %SampleStruct{
+        attr1: "valid_password"
+      }
 
       changeset =
         struct

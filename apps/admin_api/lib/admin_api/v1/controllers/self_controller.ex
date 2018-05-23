@@ -19,6 +19,7 @@ defmodule AdminAPI.V1.SelfController do
     case User.get_account(conn.assigns.user) do
       %Account{} = account ->
         render(conn, AccountView, :account, %{account: account})
+
       nil ->
         handle_error(conn, :user_account_not_found)
     end
