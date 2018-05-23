@@ -13,7 +13,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
 
   setup do
-    {:ok, _} = TestEndpoint.start_link()
+    TestEndpoint.start_link()
 
     token = insert(:token)
     {:ok, receiver} = :user |> params_for() |> User.insert()

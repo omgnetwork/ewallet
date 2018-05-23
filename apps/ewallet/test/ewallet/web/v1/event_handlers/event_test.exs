@@ -12,7 +12,7 @@ defmodule EWallet.Web.V1.EventTest do
       Logger.configure(level: :warn)
     end)
 
-    {:ok, _} = TestEndpoint.start_link()
+    TestEndpoint.start_link()
     :ok
   end
 
