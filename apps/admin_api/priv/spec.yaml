@@ -564,6 +564,21 @@ paths:
           $ref: "#/components/responses/TransactionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /transaction.create:
+    post:
+      tags:
+        - Transaction
+      summary: Create a new transaction
+      operationId: transaction_create
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 
   ######################################
   #        API ACCESS ENDPOINTS        #
@@ -2358,6 +2373,7 @@ components:
               search_term: ""
               sort_by: "created_at"
               sort_dir: "desc"
+
     TransactionGetBody:
       description: The parameters to use for retrieving a specific transaction by its id
       required: true
@@ -2372,6 +2388,28 @@ components:
               - id
             example:
               id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+    TransactionCreateBody:
+      description: The parameters to use for creating a transaction
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              from_address:
+                type: string
+              to_address:
+                type: string
+              token_id:
+                type: string
+              amount:
+                type: integer
+            required:
+              - id
+            example:
+              from_address: "123982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              to_address: "343982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy"
+              amount: 1000
 
     ######################################
     #      ADMIN USER REQUEST BODIES     #
