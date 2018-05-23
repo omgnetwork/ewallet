@@ -267,21 +267,42 @@ defmodule EWalletDB.AccountTest do
 
   describe "add_category/2" do
     test "returns an account with the added category" do
-      [category1, category2] = insert_list(2, :category)
+      [cat1, cat2] = insert_list(2, :category)
 
       account =
         :account
-        |> insert(categories: [category1])
+        |> insert(categories: [cat1])
         |> Preloader.preload(:categories)
 
-      assert account.categories == [category1]
+      assert account.categories == [cat1]
 
-      {:ok, account} = Account.add_category(account, category2)
+      {:ok, account} = Account.add_category(account, cat2)
       account = Account.get(account.id, preload: :categories)
 
-      assert Enum.member?(account.categories, category1)
-      assert Enum.member?(account.categories, category2)
+      assert Enum.member?(account.categories, cat1)
+      assert Enum.member?(account.categories, cat2)
       assert Enum.count(account.categories) == 2
+    end
+  end
+
+  describe "remove_category/2" do
+    test "returns an account with the removed category" do
+      [cat1, cat2] = insert_list(2, :category)
+
+      account =
+        :account
+        |> insert(categories: [cat1, cat2])
+        |> Preloader.preload(:categories)
+
+      assert Enum.member?(account.categories, cat1)
+      assert Enum.member?(account.categories, cat2)
+      assert Enum.count(account.categories) == 2
+
+      {:ok, account} = Account.remove_category(account, cat1)
+      account = Account.get(account.id, preload: :categories)
+
+      assert Enum.member?(account.categories, cat2)
+      assert Enum.count(account.categories) == 1
     end
   end
 end
