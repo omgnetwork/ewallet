@@ -42,6 +42,8 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                      "name" => "primary",
                      "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
+                     "created_at" => Date.to_iso8601(user_wallet.inserted_at),
+                     "updated_at" => Date.to_iso8601(user_wallet.updated_at),
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -117,6 +119,8 @@ defmodule EWalletAPI.V1.WalletControllerTest do
                      "name" => "primary",
                      "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
+                     "created_at" => Date.to_iso8601(user_wallet.inserted_at),
+                     "updated_at" => Date.to_iso8601(user_wallet.updated_at),
                      "balances" => [
                        %{
                          "object" => "balance",

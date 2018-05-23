@@ -82,6 +82,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "account_id" => nil,
                      "user" => wallet1.user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => wallet1.user.id,
+                     "created_at" => Date.to_iso8601(wallet1.inserted_at),
+                     "updated_at" => Date.to_iso8601(wallet1.updated_at),
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -112,6 +114,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "account_id" => nil,
                      "user" => wallet2.user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => wallet2.user.id,
+                     "created_at" => Date.to_iso8601(wallet2.inserted_at),
+                     "updated_at" => Date.to_iso8601(wallet2.updated_at),
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -633,6 +637,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "name" => "primary",
                      "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
+                     "created_at" => Date.to_iso8601(user_wallet.inserted_at),
+                     "updated_at" => Date.to_iso8601(user_wallet.updated_at),
                      "balances" => [
                        %{
                          "object" => "balance",
@@ -854,6 +860,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                      "identifier" => "primary",
                      "metadata" => %{},
                      "name" => "primary",
+                     "created_at" => Date.to_iso8601(user_wallet.inserted_at),
+                     "updated_at" => Date.to_iso8601(user_wallet.updated_at),
                      "user" => %{
                        "avatar" => %{
                          "large" => nil,

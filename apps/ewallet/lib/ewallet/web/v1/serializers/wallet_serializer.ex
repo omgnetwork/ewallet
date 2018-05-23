@@ -4,12 +4,14 @@ defmodule EWallet.Web.V1.WalletSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
+
   alias EWallet.Web.V1.{
     AccountSerializer,
     UserSerializer,
     BalanceSerializer,
     PaginatorSerializer
   }
+
   alias EWallet.BalanceFetcher
   alias EWalletDB.Wallet
 
@@ -27,11 +29,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Wallet{} = wallet) do
-    serialize(wallet, [])
-  end
-
-  def serialize(%Wallet{} = wallet, opts) do
-    wallet = Preloader.preload(wallet, opts[:preload] || [])
+    wallet = Preloader.preload(wallet, [:user, :account])
     {:ok, wallet} = BalanceFetcher.all(%{"wallet" => wallet})
 
     %{

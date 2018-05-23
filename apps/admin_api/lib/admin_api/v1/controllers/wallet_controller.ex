@@ -5,9 +5,8 @@ defmodule AdminAPI.V1.WalletController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWallet.BalanceFetcher
+  alias EWallet.UUIDFetcher
   alias EWalletDB.{Wallet, Account, User}
-  alias Ecto.UUID
   alias Plug.Conn
 
   @mapped_fields %{
@@ -30,7 +29,8 @@ defmodule AdminAPI.V1.WalletController do
 
   def all_for_account(conn, %{"id" => id} = attrs) do
     with %Account{} = account <- Account.get(id) || :account_id_not_found do
-      Wallet.all_for(account)
+      account
+      |> Wallet.all_for()
       |> SearchParser.to_query(attrs, @search_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)
@@ -39,11 +39,13 @@ defmodule AdminAPI.V1.WalletController do
       error -> handle_error(conn, error)
     end
   end
+
   def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
 
   def all_for_user(conn, %{"id" => id} = attrs) do
     with %User{} = user <- User.get(id) || :user_id_not_found do
-      user.wallets
+      user
+      |> Wallet.all_for()
       |> SearchParser.to_query(attrs, @search_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)
@@ -65,8 +67,11 @@ defmodule AdminAPI.V1.WalletController do
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @spec create(Conn.t(), map()) :: map()
-  def create(conn, %{"account_id" => account_id}) do
-
+  def create(conn, attrs) do
+    attrs
+    |> UUIDFetcher.replace_external_ids()
+    |> Wallet.insert_secondary_or_burn()
+    |> respond_single(conn)
   end
 
   # Respond with a list of wallets

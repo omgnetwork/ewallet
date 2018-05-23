@@ -15,10 +15,20 @@ defmodule EWalletDB.Validator do
         changeset
 
       n when n > 1 ->
-        Changeset.add_error(changeset, attrs, "only one must be present")
+        Changeset.add_error(
+          changeset,
+          attrs,
+          "only one must be present",
+          validation: :only_one_required
+        )
 
       _ ->
-        Changeset.add_error(changeset, attrs, "can't all be blank")
+        Changeset.add_error(
+          changeset,
+          attrs,
+          "can't all be blank",
+          validation: :required_exclusive
+        )
     end
   end
 
