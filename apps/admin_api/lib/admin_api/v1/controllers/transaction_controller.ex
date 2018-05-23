@@ -54,6 +54,26 @@ defmodule AdminAPI.V1.TransactionController do
 
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  @doc """
+  Creates a transaction.
+  """
+  def create(
+        conn,
+        %{
+          "from_address" => from_address,
+          "to_address" => to_address,
+          "token_id" => token_id,
+          "amount" => amount
+        } = attrs
+      )
+      when from_address != nil
+      when to_address != nil and token_id != nil and is_integer(amount) do
+    attrs
+    |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
+    |> TransactionGate.process_with_addresses()
+    |> respond_single(conn)
+  end
+
   # Respond with a list of transactions
   defp respond_multiple(%Paginator{} = paged_transactions, conn) do
     render(conn, :transactions, %{transactions: paged_transactions})
