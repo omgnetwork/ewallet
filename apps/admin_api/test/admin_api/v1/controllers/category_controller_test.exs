@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/category.all" do
-    test "returns a list of account categories and pagination data" do
+    test "returns a list of categories and pagination data" do
       response = user_request("/category.all")
 
       # Asserts return data

@@ -41,7 +41,7 @@ tags:
   - name: Token
     description: Resources related to tokens.
   - name: Category
-    description: Resources related to account categories.
+    description: Resources related to categories.
   - name: Account
     description: Resources related to accounts.
   - name: User
@@ -220,7 +220,7 @@ paths:
         $ref: '#/components/requestBodies/CategoryAllBody'
       responses:
         '200':
-          $ref: "#/components/responses/AccountCategoriesResponse"
+          $ref: "#/components/responses/CategoriesResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   /category.get:
@@ -257,7 +257,7 @@ paths:
     post:
       tags:
         - Category
-      summary: Update an category
+      summary: Update a category
       operationId: category_update
       security:
         - UserAuth: []
@@ -272,7 +272,7 @@ paths:
     post:
       tags:
         - Category
-      summary: Delete an category
+      summary: Delete a category
       operationId: category_delete
       security:
         - UserAuth: []
@@ -1121,8 +1121,8 @@ components:
             accounts: []
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
-    AccountCategoriesResponseSchema:
-      description: "The response schema for a list of account categories"
+    CategoriesResponseSchema:
+      description: "The response schema for a list of categories"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -2210,7 +2210,7 @@ components:
     #         CATEGORY REQUEST BODIES         #
     ###########################################
     CategoryAllBody:
-      description: The parameters to use for listing the account categories
+      description: The parameters to use for listing the categories
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2982,12 +2982,12 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/CategoryResponseSchema'
-    AccountCategoriesResponse:
-      description: "Returns a list of account categories"
+    CategoriesResponse:
+      description: "Returns a list of categories"
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/AccountCategoriesResponseSchema'
+            $ref: '#/components/schemas/CategoriesResponseSchema'
 
     ######################################
     #          ACCOUNT RESPONSES         #
