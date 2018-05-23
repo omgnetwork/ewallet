@@ -262,12 +262,16 @@ defmodule EWalletDB.Account do
   @doc """
   Determine the relative depth to the master account.
 
+  Returns a non-negative integer if the account is found.
   The master account has a relative depth of 0.
+
+  It raises an error if passed nil, because a nil does not belong to any account level.
+  And it is unsafe to default it, for example, to being a top level account.
   """
-  @spec get_depth(account :: %Account{} | account_uuid :: String.t()) :: non_neg_integer()
+  @spec get_depth(%Account{} | String.t()) :: non_neg_integer() | no_return()
   def get_depth(%Account{} = account), do: get_depth(account.uuid)
 
-  def get_depth(account_uuid) do
+  def get_depth(account_uuid) when not is_nil(account_uuid) do
     case Account.get_master_account() do
       nil ->
         # No master account means that this account is at level 0.
