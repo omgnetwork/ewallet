@@ -1,9 +1,8 @@
 defmodule EWallet.Web.V1.CategorySerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.CategorySerializer
+  alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
   alias EWallet.Web.{Paginator, Date}
-  alias EWalletDB.Category
 
   describe "CategorySerializer.serialize/1" do
     test "serializes a category into V1 response format" do
@@ -14,8 +13,8 @@ defmodule EWallet.Web.V1.CategorySerializerTest do
         id: category.id,
         name: category.name,
         description: category.description,
-        account_ids: category.account_ids,
-        accounts: category.accounts,
+        account_ids: AccountSerializer.serialize(category.accounts, :id),
+        accounts: AccountSerializer.serialize(category.accounts),
         created_at: Date.to_iso8601(category.inserted_at),
         updated_at: Date.to_iso8601(category.updated_at)
       }
@@ -45,8 +44,8 @@ defmodule EWallet.Web.V1.CategorySerializerTest do
             id: category1.id,
             name: category1.name,
             description: category1.description,
-            account_ids: category1.account_ids,
-            accounts: category1.accounts,
+            account_ids: AccountSerializer.serialize(category1.accounts, :id),
+            accounts: AccountSerializer.serialize(category1.accounts),
             created_at: Date.to_iso8601(category1.inserted_at),
             updated_at: Date.to_iso8601(category1.updated_at)
           },
@@ -55,8 +54,8 @@ defmodule EWallet.Web.V1.CategorySerializerTest do
             id: category2.id,
             name: category2.name,
             description: category2.description,
-            account_ids: category2.account_ids,
-            accounts: category2.accounts,
+            account_ids: AccountSerializer.serialize(category2.accounts, :id),
+            accounts: AccountSerializer.serialize(category2.accounts),
             created_at: Date.to_iso8601(category2.inserted_at),
             updated_at: Date.to_iso8601(category2.updated_at)
           }
@@ -103,6 +102,13 @@ defmodule EWallet.Web.V1.CategorySerializerTest do
       }
 
       assert CategorySerializer.serialize(paginator) == expected
+    end
+  end
+
+  describe "CategorySerializer.serialize/2" do
+    test "serializes categories to ids" do
+      categories = [category1, category2] = insert_list(2, :account)
+      assert CategorySerializer.serialize(categories, :id) == [category1.id, category2.id]
     end
   end
 end

@@ -1,7 +1,7 @@
 defmodule EWallet.Web.V1.AccountSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.AccountSerializer
+  alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
   alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.Account
 
@@ -18,8 +18,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
         name: account.name,
         description: account.description,
         master: Account.master?(account),
-        category_ids: account.category_ids,
-        categories: account.categories,
+        category_ids: CategorySerializer.serialize(account.categories, :id),
         metadata: %{},
         encrypted_metadata: %{},
         avatar: %{
@@ -60,8 +59,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             name: account1.name,
             description: account1.description,
             master: Account.master?(account1),
-            category_ids: Enum.map(account1.categories, fn(category) -> category.id end),
-            categories: account1.categories,
+            category_ids: CategorySerializer.serialize(account1.categories, :id),
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{
@@ -81,8 +79,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),
-            category_ids: Enum.map(account2.categories, fn(category) -> category.id end),
-            categories: account2.categories,
+            category_ids: CategorySerializer.serialize(account2.categories, :id),
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{
@@ -137,6 +134,13 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
       }
 
       assert AccountSerializer.serialize(paginator) == expected
+    end
+  end
+
+  describe "AccountSerializer.serialize/2" do
+    test "serializes accounts to ids" do
+      accounts = [account1, account2] = insert_list(2, :account)
+      assert AccountSerializer.serialize(accounts, :id) == [account1.id, account2.id]
     end
   end
 end
