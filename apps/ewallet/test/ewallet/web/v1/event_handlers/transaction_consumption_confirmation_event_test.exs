@@ -5,7 +5,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
   alias EWalletDB.Repo
 
   setup do
-    {:ok, _} = TestEndpoint.start_link()
+    TestEndpoint.start_link()
     :ok
   end
 

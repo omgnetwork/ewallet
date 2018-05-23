@@ -125,7 +125,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns max_consumptions_per_user_reached if the max has been reached" do
-      {:ok, _} = TestEndpoint.start_link()
+      TestEndpoint.start_link()
 
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
@@ -167,7 +167,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "expires consumption if past expiration" do
-      {:ok, _} = TestEndpoint.start_link()
+      TestEndpoint.start_link()
 
       now = NaiveDateTime.utc_now()
       {:ok, user} = :user |> params_for() |> User.insert()
@@ -189,7 +189,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns expired_transaction_consumption if the consumption has expired" do
-      {:ok, _} = TestEndpoint.start_link()
+      TestEndpoint.start_link()
 
       {:ok, user} = :user |> params_for() |> User.insert()
       request = insert(:transaction_request, account_uuid: nil, user_uuid: user.uuid)
@@ -207,7 +207,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns the consumption if valid" do
-      {:ok, _} = TestEndpoint.start_link()
+      TestEndpoint.start_link()
 
       {:ok, user} = :user |> params_for() |> User.insert()
       request = insert(:transaction_request, account_uuid: nil, user_uuid: user.uuid)
