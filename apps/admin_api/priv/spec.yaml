@@ -387,6 +387,21 @@ paths:
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /me.update:
+    post:
+      tags:
+        - User
+      summary: Update the user with the provided parameters
+      operationId: me_update
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /me.get_account:
     post:
       tags:
@@ -2242,7 +2257,26 @@ components:
               token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
               password: "user_provided_password"
               password_confirmation: "user_provided_password"
-
+    UserUpdateBody:
+      description: The parameters to use for updating a user
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              username:
+                type: string
+              email:
+                type: string
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            example:
+              username: "johndoe"
+              email: "example@omise.co"
+              metadata: {}
+              encrypted_metadata: {}
     ######################################
     #             WALLET BODIES          #
     ######################################

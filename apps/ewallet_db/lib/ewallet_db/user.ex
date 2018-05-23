@@ -112,6 +112,18 @@ defmodule EWalletDB.User do
     |> cast_attachments(attrs, [:avatar])
   end
 
+  defp update_changeset(%User{} = user, attrs) do
+    user
+    |> cast(attrs, [
+      :username,
+      :email,
+      :metadata,
+      :encrypted_metadata
+    ])
+    |> unique_constraint(:username)
+    |> unique_constraint(:email)
+  end
+
   # Two cases to validate for loginable:
   #
   #   1. A new admin user has just been created. No membership assgined yet.
@@ -238,6 +250,21 @@ defmodule EWalletDB.User do
   """
   def update(%User{} = user, attrs) do
     changeset = changeset(user, attrs)
+
+    case Repo.update(changeset) do
+      {:ok, user} ->
+        {:ok, get(user.id)}
+
+      result ->
+        result
+    end
+  end
+
+  @doc """
+  Updates a user with the provided attributes.
+  """
+  def update_without_password(%User{} = user, attrs) do
+    changeset = update_changeset(user, attrs)
 
     case Repo.update(changeset) do
       {:ok, user} ->
