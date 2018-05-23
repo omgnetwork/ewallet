@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
-    MintedTokenSerializer,
+    TokenSerializer,
     TransactionRequestSerializer,
     TransactionSerializer,
     UserSerializer
@@ -25,7 +25,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
     %{
       account: account,
-      minted_token: insert(:minted_token),
+      token: insert(:token),
       alice: alice,
       bob: bob,
       account_wallet: Account.get_primary_wallet(account),
@@ -40,15 +40,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "receive",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       set_initial_balance(%{
         address: meta.bob_wallet.address,
-        minted_token: meta.minted_token,
+        token: meta.token,
         amount: 150_000
       })
 
@@ -65,23 +65,22 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
+      request = TransactionRequest.get(transaction_request.id, preload: [:token])
 
       assert response == %{
                "success" => true,
                "version" => "1",
                "data" => %{
                  "address" => meta.account_wallet.address,
-                 "amount" => 100_000 * meta.minted_token.subunit_to_unit,
+                 "amount" => 100_000 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
                  "status" => "confirmed",
-                 "minted_token_id" => meta.minted_token.id,
-                 "minted_token" =>
-                   meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
+                 "token_id" => meta.token.id,
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
@@ -104,7 +103,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.account_wallet.address
       assert %{} = inserted_transfer.ledger_response
@@ -115,10 +114,10 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "receive",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       response =
@@ -144,12 +143,12 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "code" => "transaction:insufficient_funds",
                  "description" =>
                    "The specified wallet (#{meta.account_wallet.address}) does not contain enough funds. Available: 0.0 #{
-                     meta.minted_token.id
-                   } - Attempted debit: 100000.0 #{meta.minted_token.id}"
+                     meta.token.id
+                   } - Attempted debit: 100000.0 #{meta.token.id}"
                }
              }
 
-      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.account_wallet.address
       assert %{} = inserted_transfer.ledger_response
@@ -160,15 +159,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "receive",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       set_initial_balance(%{
         address: meta.bob_wallet.address,
-        minted_token: meta.minted_token,
+        token: meta.token,
         amount: 150_000
       })
 
@@ -193,15 +192,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "receive",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       set_initial_balance(%{
         address: meta.bob_wallet.address,
-        minted_token: meta.minted_token,
+        token: meta.token,
         amount: 150_000
       })
 
@@ -267,14 +266,14 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test "sends socket confirmation when require_confirmation and approved", meta do
-      mint!(meta.minted_token)
+      mint!(meta.token)
 
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
           wallet: meta.account_wallet,
           amount: nil,
@@ -292,7 +291,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
           transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
           provider_user_id: meta.bob.provider_user_id
@@ -335,7 +334,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       # Check that a transfer was inserted
       inserted_transfer = Repo.get_by(Transfer, id: response["data"]["transaction_id"])
-      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.bob_wallet.address
       assert inserted_transfer.from == meta.account_wallet.address
       assert %{} = inserted_transfer.ledger_response
@@ -358,8 +357,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # bob = test_user
       set_initial_balance(%{
         address: meta.bob_wallet.address,
-        minted_token: meta.minted_token,
-        amount: 1_000_000 * meta.minted_token.subunit_to_unit
+        token: meta.token,
+        amount: 1_000_000 * meta.token.subunit_to_unit
       })
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -367,7 +366,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "send",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.bob.uuid,
           wallet: meta.bob_wallet,
           amount: nil,
@@ -385,7 +384,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
           transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
           address: meta.alice_wallet.address
@@ -428,7 +427,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       # Check that a transfer was inserted
       inserted_transfer = Repo.get_by(Transfer, id: response["data"]["transaction_id"])
-      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.bob_wallet.address
       assert %{} = inserted_transfer.ledger_response
@@ -451,8 +450,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # bob = test_user
       set_initial_balance(%{
         address: meta.bob_wallet.address,
-        minted_token: meta.minted_token,
-        amount: 1_000_000 * meta.minted_token.subunit_to_unit
+        token: meta.token,
+        amount: 1_000_000 * meta.token.subunit_to_unit
       })
 
       # Create a require_confirmation transaction request that will be consumed soon
@@ -460,7 +459,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "send",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.bob.uuid,
           wallet: meta.bob_wallet,
           amount: nil,
@@ -481,7 +480,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
           transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
           address: meta.alice_wallet.address
@@ -559,7 +558,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "send",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.bob.uuid,
           wallet: meta.bob_wallet,
           amount: nil,
@@ -577,7 +576,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
           transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
           address: meta.alice_wallet.address
@@ -644,14 +643,14 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
     end
 
     test "sends socket confirmation when require_confirmation and rejected", meta do
-      mint!(meta.minted_token)
+      mint!(meta.token)
 
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =
         insert(
           :transaction_request,
           type: "send",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
           wallet: meta.account_wallet,
           amount: nil,
@@ -670,7 +669,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
           transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
           provider_user_id: meta.bob.provider_user_id
@@ -732,7 +731,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         provider_request_with_idempotency("/transaction_request.consume", "1234", %{
           transaction_request_id: transaction_request.id,
           correlation_id: nil,
-          amount: 100_000 * meta.minted_token.subunit_to_unit,
+          amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
           token_id: nil,
           provider_user_id: meta.bob.provider_user_id
@@ -798,15 +797,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "receive",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       set_initial_balance(%{
         address: meta.bob_wallet.address,
-        minted_token: meta.minted_token,
+        token: meta.token,
         amount: 150_000
       })
 
@@ -822,23 +821,22 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:minted_token])
+      request = TransactionRequest.get(transaction_request.id, preload: [:token])
 
       assert response == %{
                "success" => true,
                "version" => "1",
                "data" => %{
                  "address" => meta.bob_wallet.address,
-                 "amount" => 100_000 * meta.minted_token.subunit_to_unit,
+                 "amount" => 100_000 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
                  "idempotency_token" => "123",
                  "object" => "transaction_consumption",
                  "status" => "confirmed",
-                 "minted_token_id" => meta.minted_token.id,
-                 "minted_token" =>
-                   meta.minted_token |> MintedTokenSerializer.serialize() |> stringify_keys(),
+                 "token_id" => meta.token.id,
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
@@ -861,7 +859,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transfer.amount == 100_000 * meta.minted_token.subunit_to_unit
+      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.bob_wallet.address
       assert %{} = inserted_transfer.ledger_response
@@ -873,15 +871,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         insert(
           :transaction_request,
           type: "receive",
-          minted_token_uuid: meta.minted_token.uuid,
+          token_uuid: meta.token.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
-          amount: 100_000 * meta.minted_token.subunit_to_unit
+          amount: 100_000 * meta.token.subunit_to_unit
         )
 
       set_initial_balance(%{
         address: meta.bob_wallet.address,
-        minted_token: meta.minted_token,
+        token: meta.token,
         amount: 150_000
       })
 

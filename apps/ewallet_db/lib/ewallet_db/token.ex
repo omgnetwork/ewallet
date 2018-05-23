@@ -1,6 +1,6 @@
-defmodule EWalletDB.MintedToken do
+defmodule EWalletDB.Token do
   @moduledoc """
-  Ecto Schema representing minted tokens.
+  Ecto Schema representing tokens.
   """
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
@@ -8,12 +8,12 @@ defmodule EWalletDB.MintedToken do
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, MintedToken}
+  alias EWalletDB.{Repo, Account, Token}
   alias ExULID.ULID
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
-  schema "minted_token" do
+  schema "token" do
     # tok_eur_01cbebcdjprhpbzp1pt7h0nzvt
     field(:id, :string)
 
@@ -56,8 +56,8 @@ defmodule EWalletDB.MintedToken do
     timestamps()
   end
 
-  defp changeset(%MintedToken{} = minted_token, attrs) do
-    minted_token
+  defp changeset(%Token{} = token, attrs) do
+    token
     |> cast(attrs, [
       :symbol,
       :iso_code,
@@ -90,6 +90,7 @@ defmodule EWalletDB.MintedToken do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
+    |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version())
     |> set_id(prefix: "tok_")
@@ -118,21 +119,21 @@ defmodule EWalletDB.MintedToken do
   end
 
   @doc """
-  Returns all minted tokens in the system
+  Returns all tokens in the system
   """
   def all do
-    Repo.all(MintedToken)
+    Repo.all(Token)
   end
 
   @doc """
-  Create a new minted token with the passed attributes.
+  Create a new token with the passed attributes.
   """
   def insert(attrs) do
-    changeset = changeset(%MintedToken{}, attrs)
+    changeset = changeset(%Token{}, attrs)
 
     case Repo.insert(changeset) do
-      {:ok, minted_token} ->
-        {:ok, get(minted_token.id)}
+      {:ok, token} ->
+        {:ok, get(token.id)}
 
       {:error, changeset} ->
         {:error, changeset}
@@ -140,9 +141,9 @@ defmodule EWalletDB.MintedToken do
   end
 
   @doc """
-  Retrieve a minted token by id.
+  Retrieve a token by id.
   """
-  @spec get_by(String.t(), opts :: keyword()) :: %MintedToken{} | nil
+  @spec get_by(String.t(), opts :: keyword()) :: %Token{} | nil
   def get(id, opts \\ [])
   def get(nil, _), do: nil
 
@@ -151,19 +152,19 @@ defmodule EWalletDB.MintedToken do
   end
 
   @doc """
-  Retrieves a minted token using one or more fields.
+  Retrieves a token using one or more fields.
   """
-  @spec get_by(fields :: map(), opts :: keyword()) :: %MintedToken{} | nil
+  @spec get_by(fields :: map(), opts :: keyword()) :: %Token{} | nil
   def get_by(fields, opts \\ []) do
-    MintedToken
+    Token
     |> Repo.get_by(fields)
     |> preload_option(opts)
   end
 
   @doc """
-  Retrieve a list of minted tokens by supplying a list of IDs.
+  Retrieve a list of tokens by supplying a list of IDs.
   """
   def get_all(ids) do
-    Repo.all(from(m in MintedToken, where: m.id in ^ids))
+    Repo.all(from(m in Token, where: m.id in ^ids))
   end
 end

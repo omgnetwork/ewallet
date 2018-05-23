@@ -32,7 +32,7 @@ defmodule EWallet.Web.V1.EventTest do
                      "address" => "b1c49cc8-7bed-4f18-a9b6-db696c012859",
                      "amount_to_debit" => 10_000_000,
                      "current_amount" => 0,
-                     "minted_token_id" => "tok_jon532_01CE0MF708E3B296FM4GFSXGRT"
+                     "token_id" => "tok_jon532_01CE0MF708E3B296FM4GFSXGRT"
                    }
                  }
                })

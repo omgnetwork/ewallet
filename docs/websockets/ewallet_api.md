@@ -302,9 +302,9 @@ status:
     - expired
 amount:
   type: string
-minted_token_id:
+token_id:
   type: string
-minted_token:
+token:
   type: object
 correlation_id:
   type: string
@@ -359,8 +359,8 @@ Example:
   socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h",
   status: "pending",
   amount: 100,
-  minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
-  minted_token: {},
+  token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+  token: {},
   correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120",
   idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120",
   transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt",
@@ -419,9 +419,9 @@ status:
     - expired
 amount:
   type: string
-minted_token_id:
+token_id:
   type: string
-minted_token:
+token:
   type: object
 correlation_id:
   type: string
@@ -476,8 +476,8 @@ Example:
   "socket_topic": "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h",
   "status": "confirmed",
   "amount": 100,
-  "minted_token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
-  "minted_token": {},
+  "token_id": "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+  "token": {},
   "correlation_id": "7e9c0be5-15d1-4463-9ec2-02bc8ded7120",
   "idempotency_token": "7831c0be5-15d1-4463-9ec2-02bc8ded7120",
   "transaction_id": "txn_01cbfga8g0dgwcfc7xh6ks1njt",

@@ -7,7 +7,7 @@ defmodule EWallet.TransactionRequestGate do
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
   alias EWallet.{WalletFetcher, TransactionRequestFetcher}
-  alias EWalletDB.{TransactionRequest, User, Wallet, MintedToken, Account}
+  alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account}
 
   @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
 
@@ -116,8 +116,8 @@ defmodule EWallet.TransactionRequestGate do
           "token_id" => token_id
         } = attrs
       ) do
-    with %MintedToken{} = minted_token <- MintedToken.get(token_id) || :minted_token_not_found,
-         {:ok, transaction_request} <- insert(minted_token, wallet, attrs) do
+    with %Token{} = token <- Token.get(token_id) || :token_not_found,
+         {:ok, transaction_request} <- insert(token, wallet, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -146,7 +146,7 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  defp insert(minted_token, wallet, attrs) do
+  defp insert(token, wallet, attrs) do
     require_confirmation =
       if(
         is_nil(attrs["require_confirmation"]),
@@ -167,7 +167,7 @@ defmodule EWallet.TransactionRequestGate do
       amount: attrs["amount"],
       user_uuid: wallet.user_uuid,
       account_uuid: wallet.account_uuid,
-      minted_token_uuid: minted_token.uuid,
+      token_uuid: token.uuid,
       wallet_address: wallet.address,
       allow_amount_override: allow_amount_override,
       require_confirmation: require_confirmation,

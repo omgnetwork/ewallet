@@ -5,7 +5,7 @@ export function getAll(params) {
     per, sort, query, ...rest
   } = params;
   const requestParams = {
-    path: 'minted_token.all',
+    path: 'token.all',
     params: JSON.stringify({
       per_page: per, sort_by: sort.by, sort_dir: sort.dir, search_term: query, ...rest,
     }),
@@ -27,7 +27,7 @@ export function create(params) {
     ...rest
   } = params;
   const requestParams = {
-    path: 'minted_token.create',
+    path: 'token.create',
     params: JSON.stringify({
       iso_code: isoCode,
       short_symbol: shortSymbol,

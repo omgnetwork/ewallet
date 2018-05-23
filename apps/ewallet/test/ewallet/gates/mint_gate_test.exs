@@ -1,13 +1,13 @@
 defmodule EWallet.MintGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.MintGate
-  alias EWalletDB.MintedToken
+  alias EWalletDB.Token
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 
   describe "insert/2" do
     test "inserts a new confirmed mint" do
-      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
+      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
 
       {res, mint, transfer} =
         MintGate.insert(%{
@@ -25,12 +25,12 @@ defmodule EWallet.MintGateTest do
     end
 
     test "fails to insert a new mint when the data is invalid" do
-      {:ok, minted_token} = MintedToken.insert(params_for(:minted_token))
+      {:ok, token} = Token.insert(params_for(:token))
 
       {res, changeset} =
         MintGate.insert(%{
           "idempotency_token" => UUID.generate(),
-          "token_id" => minted_token.id,
+          "token_id" => token.id,
           "amount" => nil,
           "description" => "description",
           "metadata" => %{}

@@ -7,7 +7,7 @@ defmodule EWallet.Web.EmbedderTest do
   defmodule TestModule do
     use EWallet.Web.Embedder
 
-    @embeddable [:wallets, :minted_tokens]
+    @embeddable [:wallets, :tokens]
     @always_embed [:wallets]
 
     def call_embed(record, embeds) do
@@ -35,11 +35,11 @@ defmodule EWallet.Web.EmbedderTest do
 
     test "returns the embed and @always_embed if the given field is in @embeddable" do
       account = insert_and_get_account()
-      assert %NotLoaded{} = account.minted_tokens
+      assert %NotLoaded{} = account.tokens
 
-      embedded = TestModule.call_embed(account, ["minted_tokens"])
+      embedded = TestModule.call_embed(account, ["tokens"])
       assert is_list(embedded.wallets)
-      assert is_list(embedded.minted_tokens)
+      assert is_list(embedded.tokens)
     end
 
     test "returns without embed if the given field is not in @embeddable" do

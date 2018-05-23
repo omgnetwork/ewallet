@@ -5,7 +5,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
 
   alias EWallet.Web.V1.{
     TransactionRequestSerializer,
-    MintedTokenSerializer,
+    TokenSerializer,
     UserSerializer,
     AccountSerializer
   }
@@ -16,8 +16,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
     test "serializes into correct V1 transaction_request format" do
       request = insert(:transaction_request)
 
-      transaction_request =
-        TransactionRequest.get(request.id, preload: [:minted_token, :account, :user])
+      transaction_request = TransactionRequest.get(request.id, preload: [:token, :account, :user])
 
       insert(:transaction_consumption, transaction_request_uuid: request.uuid)
       insert(:transaction_consumption, transaction_request_uuid: request.uuid)
@@ -27,8 +26,8 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         id: transaction_request.id,
         socket_topic: "transaction_request:#{transaction_request.id}",
         type: transaction_request.type,
-        minted_token_id: Assoc.get(transaction_request, [:minted_token, :id]),
-        minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
+        token_id: Assoc.get(transaction_request, [:token, :id]),
+        token: TokenSerializer.serialize(transaction_request.token),
         amount: transaction_request.amount,
         user_id: Assoc.get(transaction_request, [:user, :id]),
         user: UserSerializer.serialize(transaction_request.user),

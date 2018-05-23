@@ -2,7 +2,7 @@ defmodule EWallet.TransactionGateTest do
   use EWallet.LocalLedgerCase, async: true
   import EWalletDB.Factory
   alias EWallet.TransactionGate
-  alias EWalletDB.{Repo, User, MintedToken, Transfer, Account}
+  alias EWalletDB.{Repo, User, Token, Transfer, Account}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 
@@ -17,7 +17,7 @@ defmodule EWallet.TransactionGateTest do
     def insert_addresses_records do
       {:ok, user1} = User.insert(params_for(:user))
       {:ok, user2} = User.insert(params_for(:user))
-      {:ok, token} = MintedToken.insert(params_for(:minted_token))
+      {:ok, token} = Token.insert(params_for(:token))
 
       wallet1 = User.get_primary_wallet(user1)
       wallet2 = User.get_primary_wallet(user2)
@@ -50,7 +50,7 @@ defmodule EWallet.TransactionGateTest do
           idempotency_token: idempotency_token,
           from: wallet1.address,
           to: wallet2.address,
-          minted_token_uuid: token.uuid,
+          token_uuid: token.uuid,
           amount: 100 * token.subunit_to_unit,
           metadata: metadata,
           payload: attrs,
@@ -73,7 +73,7 @@ defmodule EWallet.TransactionGateTest do
 
       assert inserted_transfer.status == Transfer.confirmed()
 
-      {status, transfer, _user, _minted_token} = TransactionGate.process_with_addresses(attrs)
+      {status, transfer, _user, _token} = TransactionGate.process_with_addresses(attrs)
       assert status == :ok
 
       assert inserted_transfer.id == transfer.id
@@ -113,9 +113,9 @@ defmodule EWallet.TransactionGateTest do
         })
 
       assert inserted_transfer.status == Transfer.pending()
-      init_wallet(inserted_transfer.from, inserted_transfer.minted_token, 1_000)
+      init_wallet(inserted_transfer.from, inserted_transfer.token, 1_000)
 
-      {status, transfer, _wallets, _minted_token} = TransactionGate.process_with_addresses(attrs)
+      {status, transfer, _wallets, _token} = TransactionGate.process_with_addresses(attrs)
       assert status == :ok
 
       assert inserted_transfer.id == transfer.id
@@ -153,7 +153,7 @@ defmodule EWallet.TransactionGateTest do
                  "address" => _,
                  "current_amount" => _,
                  "amount_to_debit" => _,
-                 "minted_token_id" => _
+                 "token_id" => _
                }
              } = transfer.ledger_response
 
@@ -166,7 +166,7 @@ defmodule EWallet.TransactionGateTest do
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
       init_wallet(wallet1.address, token, 1_000)
 
-      {status, _transfer, _wallets, _minted_token} = TransactionGate.process_with_addresses(attrs)
+      {status, _transfer, _wallets, _token} = TransactionGate.process_with_addresses(attrs)
 
       assert status == :ok
 
@@ -212,11 +212,11 @@ defmodule EWallet.TransactionGateTest do
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
       init_wallet(wallet1.address, token, 1_000)
 
-      {status, transfer, wallets, minted_token} = TransactionGate.process_with_addresses(attrs)
+      {status, transfer, wallets, token} = TransactionGate.process_with_addresses(attrs)
       assert status == :ok
       assert transfer.idempotency_token == idempotency_token
       assert wallets == [wallet1, wallet2]
-      assert minted_token.id == token.id
+      assert token.id == token.id
     end
   end
 
@@ -224,7 +224,7 @@ defmodule EWallet.TransactionGateTest do
     defp insert_debit_credit_records do
       {:ok, account} = Account.insert(params_for(:account))
       {:ok, user} = User.insert(params_for(:user))
-      {:ok, token} = MintedToken.insert(params_for(:minted_token, account: account))
+      {:ok, token} = Token.insert(params_for(:token, account: account))
       {account, user, token |> Repo.preload([:account])}
     end
 
@@ -261,7 +261,7 @@ defmodule EWallet.TransactionGateTest do
           idempotency_token: idempotency_token,
           from: User.get_primary_wallet(inserted_user).address,
           to: Account.get_primary_wallet(inserted_token.account).address,
-          minted_token_uuid: inserted_token.uuid,
+          token_uuid: inserted_token.uuid,
           amount: 100_000,
           metadata: metadata,
           payload: attrs,
@@ -284,7 +284,7 @@ defmodule EWallet.TransactionGateTest do
 
       assert inserted_transfer.status == Transfer.confirmed()
 
-      {status, transfer, _user, _minted_token} = TransactionGate.process_credit_or_debit(attrs)
+      {status, transfer, _user, _token} = TransactionGate.process_credit_or_debit(attrs)
       assert status == :ok
 
       assert inserted_transfer.id == transfer.id
@@ -322,9 +322,9 @@ defmodule EWallet.TransactionGateTest do
         })
 
       assert inserted_transfer.status == Transfer.pending()
-      init_wallet(inserted_transfer.from, inserted_transfer.minted_token, 1_000)
+      init_wallet(inserted_transfer.from, inserted_transfer.token, 1_000)
 
-      {status, transfer, _wallets, _minted_token} = TransactionGate.process_credit_or_debit(attrs)
+      {status, transfer, _wallets, _token} = TransactionGate.process_credit_or_debit(attrs)
 
       assert status == :ok
 
@@ -371,7 +371,7 @@ defmodule EWallet.TransactionGateTest do
                  "address" => _,
                  "current_amount" => _,
                  "amount_to_debit" => _,
-                 "minted_token_id" => _
+                 "token_id" => _
                }
              } = transfer.ledger_response
 
@@ -393,8 +393,7 @@ defmodule EWallet.TransactionGateTest do
 
       init_wallet(wallet.address, inserted_token, 1_000)
 
-      {status, _transfer, _wallets, _minted_token} =
-        TransactionGate.process_credit_or_debit(attrs)
+      {status, _transfer, _wallets, _token} = TransactionGate.process_credit_or_debit(attrs)
 
       assert status == :ok
 
@@ -431,11 +430,11 @@ defmodule EWallet.TransactionGateTest do
 
       init_wallet(wallet.address, inserted_token, 1_000)
 
-      {status, transfer, wallets, minted_token} = TransactionGate.process_credit_or_debit(attrs)
+      {status, transfer, wallets, token} = TransactionGate.process_credit_or_debit(attrs)
       assert status == :ok
       assert transfer.idempotency_token == idempotency_token
       assert wallets == [User.get_preloaded_primary_wallet(inserted_user)]
-      assert minted_token.id == inserted_token.id
+      assert token.id == inserted_token.id
     end
   end
 end

@@ -4,14 +4,14 @@ defmodule LocalLedgerDB.Errors.InsufficientFundsError do
 
   def error_message(current_amount, %{
         amount: amount_to_debit,
-        minted_token_id: minted_token_id,
+        token_id: token_id,
         address: address
       }) do
     %{
       address: address,
       current_amount: current_amount,
       amount_to_debit: amount_to_debit,
-      minted_token_id: minted_token_id
+      token_id: token_id
     }
   end
 end

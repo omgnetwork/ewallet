@@ -37,13 +37,13 @@ defmodule LocalLedger.TransactionTest do
                %{
                  type: LocalLedgerDB.Transaction.debit_type(),
                  amount: 100,
-                 minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+                 token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
                  wallet_address: "omisego.test.sender1"
                },
                %{
                  type: LocalLedgerDB.Transaction.credit_type(),
                  amount: 100,
-                 minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+                 token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
                  wallet_address: "omisego.test.receiver1"
                }
              ]
@@ -56,13 +56,13 @@ defmodule LocalLedger.TransactionTest do
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
-          minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+          token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
           wallet_address: "omisego.test.sender1"
         },
         %{
           type: LocalLedgerDB.Transaction.credit_type(),
           amount: 100,
-          minted_token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+          token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
           wallet_address: "omisego.test.receiver1"
         }
       ]
@@ -74,7 +74,7 @@ defmodule LocalLedger.TransactionTest do
 
   describe "#check_funds" do
     defp init_debit_wallets(amount_1, amount_2) do
-      {:ok, token} = :minted_token |> build |> Repo.insert()
+      {:ok, token} = :token |> build |> Repo.insert()
       {:ok, wallet_1} = :wallet |> build(address: "test1") |> Repo.insert()
       {:ok, wallet_2} = :wallet |> build(address: "test2") |> Repo.insert()
       {:ok, wallet_3} = :wallet |> build(address: "test3") |> Repo.insert()
@@ -86,13 +86,13 @@ defmodule LocalLedger.TransactionTest do
           %{
             type: LocalLedgerDB.Transaction.credit_type(),
             amount: amount_1,
-            minted_token_id: token.id,
+            token_id: token.id,
             wallet_address: wallet_1.address
           },
           %{
             type: LocalLedgerDB.Transaction.credit_type(),
             amount: amount_2,
-            minted_token_id: token.id,
+            token_id: token.id,
             wallet_address: wallet_2.address
           }
         ]
@@ -109,19 +109,19 @@ defmodule LocalLedger.TransactionTest do
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
-          minted_token_id: token.id,
+          token_id: token.id,
           wallet_address: wallet_1.address
         },
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
-          minted_token_id: token.id,
+          token_id: token.id,
           wallet_address: wallet_2.address
         },
         %{
           type: LocalLedgerDB.Transaction.credit_type(),
           amount: 200,
-          minted_token_id: token.id,
+          token_id: token.id,
           wallet_address: wallet_3.address
         }
       ]
@@ -138,19 +138,19 @@ defmodule LocalLedger.TransactionTest do
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
-          minted_token_id: token.id,
+          token_id: token.id,
           wallet_address: wallet_1.address
         },
         %{
           type: LocalLedgerDB.Transaction.debit_type(),
           amount: 100,
-          minted_token_id: token.id,
+          token_id: token.id,
           wallet_address: wallet_2.address
         },
         %{
           type: LocalLedgerDB.Transaction.credit_type(),
           amount: 100,
-          minted_token_id: token.id,
+          token_id: token.id,
           wallet_address: wallet_3.address
         }
       ]

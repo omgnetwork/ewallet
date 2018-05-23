@@ -1,7 +1,7 @@
 defmodule EWallet.BalanceFetcherTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.BalanceFetcher
-  alias EWalletDB.{User, MintedToken, Account}
+  alias EWalletDB.{User, Token, Account}
   alias Ecto.Adapters.SQL.Sandbox
 
   describe "all/1" do
@@ -10,9 +10,9 @@ defmodule EWallet.BalanceFetcherTest do
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
       user_wallet = User.get_primary_wallet(user)
-      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
-      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
-      {:ok, knc} = :minted_token |> params_for(symbol: "KNC") |> MintedToken.insert()
+      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
+      {:ok, omg} = :token |> params_for(symbol: "OMG") |> Token.insert()
+      {:ok, knc} = :token |> params_for(symbol: "KNC") |> Token.insert()
 
       mint!(btc)
       mint!(omg)
@@ -27,22 +27,22 @@ defmodule EWallet.BalanceFetcherTest do
       assert wallet.address == User.get_primary_wallet(user).address
 
       assert wallet.balances == [
-               %{minted_token: btc, amount: 150_000 * btc.subunit_to_unit},
-               %{minted_token: omg, amount: 12_000 * omg.subunit_to_unit},
-               %{minted_token: knc, amount: 0}
+               %{token: btc, amount: 150_000 * btc.subunit_to_unit},
+               %{token: omg, amount: 12_000 * omg.subunit_to_unit},
+               %{token: knc, amount: 0}
              ]
     end
   end
 
   describe "get/2" do
-    test "retrieve the specific wallet from a minted_token and an address" do
+    test "retrieve the specific wallet from a token and an address" do
       account = Account.get_master_account()
       master_wallet = Account.get_primary_wallet(account)
       {:ok, user} = :user |> params_for() |> User.insert()
       user_wallet = User.get_primary_wallet(user)
-      {:ok, omg} = :minted_token |> params_for(symbol: "OMG") |> MintedToken.insert()
-      {:ok, btc} = :minted_token |> params_for(symbol: "BTC") |> MintedToken.insert()
-      {:ok, knc} = :minted_token |> params_for(symbol: "KNC") |> MintedToken.insert()
+      {:ok, omg} = :token |> params_for(symbol: "OMG") |> Token.insert()
+      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
+      {:ok, knc} = :token |> params_for(symbol: "KNC") |> Token.insert()
 
       mint!(btc)
       mint!(omg)
@@ -56,7 +56,7 @@ defmodule EWallet.BalanceFetcherTest do
       assert wallet.address == User.get_primary_wallet(user).address
 
       assert wallet.balances == [
-               %{minted_token: omg, amount: 12_000 * omg.subunit_to_unit}
+               %{token: omg, amount: 12_000 * omg.subunit_to_unit}
              ]
     end
   end

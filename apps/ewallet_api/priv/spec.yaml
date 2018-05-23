@@ -741,8 +741,8 @@ components:
         address: "123"
         balances:
           - object: "wallet"
-            minted_token:
-              object: 'minted_token'
+            token:
+              object: 'token'
               id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
               symbol: "BTC"
               name: "Bitcoin"
@@ -754,19 +754,19 @@ components:
       properties:
         object:
           type: string
-        minted_token:
+        token:
           type: object
-          $ref: '#/components/schemas/MintedTokenSchema'
+          $ref: '#/components/schemas/TokenSchema'
         amount:
           type: number
       required:
         - object
-        - minted_token
+        - token
         - amount
       example:
         object: "balance"
-        minted_token:
-          object: 'minted_token'
+        token:
+          object: 'token'
           id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
           symbol: "BTC"
           name: "Bitcoin"
@@ -831,8 +831,8 @@ components:
           account: null
           balances:
             - amount: 0
-              minted_token:
-                object: 'minted_token'
+              token:
+                object: 'token'
                 id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                 symbol: "BTC"
                 name: "Bitcoin"
@@ -872,8 +872,8 @@ components:
               account: null
               balances:
                 - amount: 0
-                  minted_token:
-                    object: 'minted_token'
+                  token:
+                    object: 'token'
                     id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                     symbol: "BTC"
                     name: "Bitcoin"
@@ -891,8 +891,8 @@ components:
               account: null
               balances:
                 - amount: 0
-                  minted_token:
-                    object: 'minted_token'
+                  token:
+                    object: 'token'
                     id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                     symbol: "BTC"
                     name: "Bitcoin"
@@ -936,12 +936,12 @@ components:
         - avatar
         - created_at
         - updated_at
-        
+
     ######################################
-    #         MINTED TOKEN SCHEMAS       #
+    #         TOKEN SCHEMAS       #
     ######################################
-    MintedTokenSchema:
-      description: "The object schema for a minted token"
+    TokenSchema:
+      description: "The object schema for a token"
       type: object
       properties:
         object:
@@ -964,7 +964,7 @@ components:
         - name
         - subunit_to_unit
       example:
-        object: "minted_token"
+        object: "token"
         id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
         symbol: "OMG"
         name: "Mint"
@@ -993,9 +993,9 @@ components:
               type: string
             amount:
               type: number
-            minted_token:
+            token:
               type: object
-              $ref: '#/components/schemas/MintedTokenSchema'
+              $ref: '#/components/schemas/TokenSchema'
         to:
           type: object
           properties:
@@ -1005,9 +1005,9 @@ components:
               type: string
             amount:
               type: number
-            minted_token:
+            token:
               type: object
-              $ref: '#/components/schemas/MintedTokenSchema'
+              $ref: '#/components/schemas/TokenSchema'
         exchange:
           type: object
           properties:
@@ -1063,8 +1063,8 @@ components:
               object: "transaction_source"
               address: "XXX123"
               amount: 1000
-              minted_token:
-                object: "minted_token"
+              token:
+                object: "token"
                 id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                 symbol: "ABC"
                 name: "ABC Point"
@@ -1073,8 +1073,8 @@ components:
               object: "transaction_source"
               address: "XXX123"
               amount: 1000
-              minted_token:
-                object: "minted_token"
+              token:
+                object: "token"
                 id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                 symbol: "ABC"
                 name: "ABC Point"
@@ -1117,8 +1117,8 @@ components:
                   object: "transaction_source"
                   address: "XXX123"
                   amount: 1000
-                  minted_token:
-                    object: "minted_token"
+                  token:
+                    object: "token"
                     id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                     symbol: "ABC"
                     name: "ABC Point"
@@ -1129,8 +1129,8 @@ components:
                   object: "transaction_source"
                   address: "XXX123"
                   amount: 1000
-                  minted_token:
-                    object: "minted_token"
+                  token:
+                    object: "token"
                     id: "tok_ABC_01cbfg349rb8akcvs7vx20a3g0"
                     symbol: "ABC"
                     name: "ABC Point"
@@ -1165,23 +1165,23 @@ components:
             properties:
               object:
                 type: string
-              minted_tokens:
+              tokens:
                 type: array
                 items:
-                 $ref: '#/components/schemas/MintedTokenSchema'
+                 $ref: '#/components/schemas/TokenSchema'
             required:
               - object
-              - minted_tokens
+              - tokens
         example:
           data:
             object: "setting"
-            minted_tokens:
-              - object: "minted_token"
+            tokens:
+              - object: "token"
                 id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
                 symbol: "BTC"
                 name: "Bitcoin"
                 subunit_to_unit: 100000000000000000
-              - object: "minted_token"
+              - object: "token"
                 id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
                 symbol: "OMG"
                 name: "OmiseGO"
@@ -1217,9 +1217,9 @@ components:
               - expired
           correlation_id:
             type: string
-          minted_token_id:
+          token_id:
             type: string
-          minted_token:
+          token:
             type: object
           address:
             type: string
@@ -1263,8 +1263,8 @@ components:
           - amount
           - status
           - correlation_id
-          - minted_token_id
-          - minted_token
+          - token_id
+          - token
           - address
           - user_id
           - account_id
@@ -1289,8 +1289,8 @@ components:
             amount: 100
             status: "valid"
             correlation_id: "123"
-            minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
-            minted_token: null
+            token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+            token: null
             address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
             user_id: "usr_01cbfg922kzmhvw04xvqn17qbd"
             account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
@@ -1330,9 +1330,9 @@ components:
               - expired
           amount:
             type: string
-          minted_token_id:
+          token_id:
             type: string
-          minted_token:
+          token:
             type: object
           correlation_id:
             type: string
@@ -1382,8 +1382,8 @@ components:
           - socket_topic
           - status
           - amount
-          - minted_token_id
-          - minted_token
+          - token_id
+          - token
           - correlation_id
           - idempotency_token
           - transaction_id
@@ -1412,8 +1412,8 @@ components:
             socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h"
             status: "confirmed"
             amount: 100
-            minted_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
-            minted_token: {}
+            token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+            token: {}
             correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
             idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
             transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt"
@@ -1651,7 +1651,7 @@ components:
         The parameters for crediting or debiting the balance of the specified user
         by taking/giving back the given amount from/to the account_id.
 
-        If not specified, the account owning the minted token will be used as the source.
+        If not specified, the account owning the token will be used as the source.
         If no burn_balance_identifier is specified, the tokens won't be burned
         and will instead be returned to the primary balance of the selected account.
       required: true
@@ -1699,7 +1699,7 @@ components:
                   - receive
               token_id:
                 type: string
-                description: "The minted token ID to use for the transaction."
+                description: "The token ID to use for the transaction."
               amount:
                 type: integer
                 default: null
@@ -1787,7 +1787,7 @@ components:
                   - receive
               token_id:
                 type: string
-                description: "The minted token ID to use for the transaction."
+                description: "The token ID to use for the transaction."
               amount:
                 type: integer
                 default: null

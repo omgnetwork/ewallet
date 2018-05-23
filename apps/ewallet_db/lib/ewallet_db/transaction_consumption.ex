@@ -11,7 +11,7 @@ defmodule EWalletDB.TransactionConsumption do
     TransactionConsumption,
     Repo,
     User,
-    MintedToken,
+    Token,
     TransactionRequest,
     Wallet,
     Transfer,
@@ -80,9 +80,9 @@ defmodule EWalletDB.TransactionConsumption do
     )
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_uuid,
+      :token,
+      Token,
+      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
@@ -108,7 +108,7 @@ defmodule EWalletDB.TransactionConsumption do
       :account_uuid,
       :transaction_request_uuid,
       :wallet_address,
-      :minted_token_uuid,
+      :token_uuid,
       :metadata,
       :encrypted_metadata,
       :expiration_date
@@ -119,7 +119,7 @@ defmodule EWalletDB.TransactionConsumption do
       :idempotency_token,
       :transaction_request_uuid,
       :wallet_address,
-      :minted_token_uuid
+      :token_uuid
     ])
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)

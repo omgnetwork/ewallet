@@ -23,11 +23,11 @@ defmodule AdminAPI.V1.Router do
 
     post("/auth_token.switch_account", AuthController, :switch_account)
 
-    # Minted Token endpoints
-    post("/minted_token.all", MintedTokenController, :all)
-    post("/minted_token.get", MintedTokenController, :get)
-    post("/minted_token.create", MintedTokenController, :create)
-    post("/minted_token.mint", MintedTokenController, :mint)
+    # Token endpoints
+    post("/token.all", TokenController, :all)
+    post("/token.get", TokenController, :get)
+    post("/token.create", TokenController, :create)
+    post("/token.mint", TokenController, :mint)
 
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)

@@ -13,12 +13,12 @@ defmodule EWalletAPI.V1.SelfControllerTest do
   end
 
   describe "/me.get_settings" do
-    test "responds with a list of minted_tokens" do
+    test "responds with a list of tokens" do
       response = client_request("/me.get_settings")
 
       assert response["success"]
-      assert Map.has_key?(response["data"], "minted_tokens")
-      assert is_list(response["data"]["minted_tokens"])
+      assert Map.has_key?(response["data"], "tokens")
+      assert is_list(response["data"]["tokens"])
     end
   end
 
@@ -28,8 +28,8 @@ defmodule EWalletAPI.V1.SelfControllerTest do
       master_wallet = Account.get_primary_wallet(account)
       user = get_test_user()
       user_wallet = User.get_primary_wallet(user)
-      btc = insert(:minted_token, %{symbol: "BTC"})
-      omg = insert(:minted_token, %{symbol: "OMG"})
+      btc = insert(:token, %{symbol: "BTC"})
+      omg = insert(:token, %{symbol: "OMG"})
 
       mint!(btc)
       mint!(omg)
@@ -78,9 +78,9 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        %{
                          "object" => "balance",
                          "amount" => 150_000 * btc.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => btc.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => btc.subunit_to_unit,
                            "symbol" => btc.symbol,
                            "id" => btc.id,
@@ -93,9 +93,9 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        %{
                          "object" => "balance",
                          "amount" => 12_000 * omg.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => omg.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => omg.subunit_to_unit,
                            "symbol" => omg.symbol,
                            "id" => omg.id,

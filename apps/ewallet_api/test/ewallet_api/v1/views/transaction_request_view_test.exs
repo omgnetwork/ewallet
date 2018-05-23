@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.TransactionRequestViewTest do
   describe "EWalletAPI.V1.TransactionRequestView.render/2" do
     test "renders transaction_request.json with correct structure" do
       request = insert(:transaction_request)
-      transaction_request = TransactionRequest.get(request.id, preload: [:minted_token])
+      transaction_request = TransactionRequest.get(request.id, preload: [:token])
 
       expected = %{
         version: @expected_version,

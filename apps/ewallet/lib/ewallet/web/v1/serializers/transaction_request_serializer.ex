@@ -6,7 +6,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
-    MintedTokenSerializer,
+    TokenSerializer,
     UserSerializer
   }
 
@@ -16,7 +16,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
 
   def serialize(%TransactionRequest{} = transaction_request) do
     transaction_request =
-      Preloader.preload(transaction_request, [:account, :consumptions, :minted_token, :user])
+      Preloader.preload(transaction_request, [:account, :consumptions, :token, :user])
 
     %{
       object: "transaction_request",
@@ -26,8 +26,8 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       amount: transaction_request.amount,
       status: transaction_request.status,
       correlation_id: transaction_request.correlation_id,
-      minted_token_id: Assoc.get(transaction_request, [:minted_token, :id]),
-      minted_token: MintedTokenSerializer.serialize(transaction_request.minted_token),
+      token_id: Assoc.get(transaction_request, [:token, :id]),
+      token: TokenSerializer.serialize(transaction_request.token),
       address: transaction_request.wallet_address,
       user_id: Assoc.get(transaction_request, [:user, :id]),
       user: UserSerializer.serialize(transaction_request.user),

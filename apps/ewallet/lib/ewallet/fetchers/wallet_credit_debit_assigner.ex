@@ -1,6 +1,6 @@
 defmodule EWallet.WalletCreditDebitAssigner do
   @moduledoc """
-  Handles the load of the wallets of the user and minted_token
+  Handles the load of the wallets of the user and token
   """
   alias EWalletDB.{User, Account}
   alias EWallet.TransactionGate
