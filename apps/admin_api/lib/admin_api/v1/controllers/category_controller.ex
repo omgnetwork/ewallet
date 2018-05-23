@@ -107,8 +107,7 @@ defmodule AdminAPI.V1.CategoryController do
   """
   def delete(conn, %{"id" => id}) do
     with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
-         {:ok, deleted} = Category.delete(category)
-    do
+         {:ok, deleted} = Category.delete(category) do
       render(conn, :category, %{category: deleted})
     else
       {:error, %{} = changeset} ->

@@ -38,6 +38,6 @@ defmodule EWallet.Web.V1.CategorySerializer do
   def serialize(nil), do: nil
 
   def serialize(categories, :id) when is_list(categories) do
-    Enum.map(categories, fn(category) -> category.id end)
+    Enum.map(categories, fn category -> category.id end)
   end
 end

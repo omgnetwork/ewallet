@@ -170,7 +170,7 @@ defmodule EWalletDB.AccountTest do
     defp assert_categories(account, expected) do
       account = Repo.preload(account, :categories)
 
-      Enum.each(expected, fn(category) ->
+      Enum.each(expected, fn category ->
         assert Enum.member?(account.categories, category)
       end)
 

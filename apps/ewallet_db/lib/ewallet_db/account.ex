@@ -100,8 +100,9 @@ defmodule EWalletDB.Account do
   defp put_categories(changeset, attrs, attr_name) do
     case attrs[attr_name] do
       ids when is_list(ids) ->
-        categories = Repo.all(from c in Category, where: c.id in ^attrs[attr_name])
+        categories = Repo.all(from(c in Category, where: c.id in ^attrs[attr_name]))
         put_assoc(changeset, :categories, categories)
+
       nil ->
         changeset
     end
@@ -337,7 +338,7 @@ defmodule EWalletDB.Account do
     category_ids =
       account
       |> Map.fetch!(:categories)
-      |> Enum.map(fn(existing) -> existing.id end)
+      |> Enum.map(fn existing -> existing.id end)
       |> List.insert_at(0, category.id)
 
     Account.update(account, %{category_ids: category_ids})
@@ -347,11 +348,11 @@ defmodule EWalletDB.Account do
     account = Repo.preload(account, :categories)
 
     remaining =
-      Enum.reject(account.categories, fn(existing) ->
+      Enum.reject(account.categories, fn existing ->
         existing.id == category.id
       end)
 
-    category_ids = Enum.map(remaining, fn(c) -> c.id end)
+    category_ids = Enum.map(remaining, fn c -> c.id end)
 
     Account.update(account, %{category_ids: category_ids})
   end

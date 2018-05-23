@@ -155,16 +155,16 @@ defmodule AdminAPI.V1.CategoryControllerTest do
       response = user_request("/category.delete", %{id: "wrong_id"})
 
       assert response ==
-        %{
-          "version" => "1",
-          "success" => false,
-          "data" => %{
-            "code" => "category:id_not_found",
-            "description" => "There is no category corresponding to the provided id",
-            "messages" => nil,
-            "object" => "error"
-          }
-        }
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "category:id_not_found",
+                   "description" => "There is no category corresponding to the provided id",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
     end
   end
 end
