@@ -1,15 +1,43 @@
+def label = "ewallet-${UUID.randomUUID().toString()}"
+def yamlSpec = """
+spec:
+  nodeSelector:
+    cloud.google.com/gke-preemptible: "true"
+  tolerations:
+    - key: dedicated
+      operator: Equal
+      value: worker
+      effect: NoSchedule
+"""
+
 podTemplate(
-    label: 'ewallet',
+    label: label,
+    yaml: yamlSpec,
     containers: [
-        containerTemplate(name: 'jnlp', image: 'gcr.io/omise-go/jenkins-slave', args: '${computer.jnlpmac} ${computer.name}'),
-        containerTemplate(name: 'postgresql', image: 'postgres:9.6'),
+        containerTemplate(
+            name: 'jnlp',
+            image: 'gcr.io/omise-go/jenkins-slave',
+            args: '${computer.jnlpmac} ${computer.name}',
+            resourceRequestCpu: '200m',
+            resourceLimitCpu: '500m',
+            resourceRequestMemory: '128Mi',
+            resourceLimitMemory: '512Mi',
+        ),
+        containerTemplate(
+            name: 'postgresql',
+            image: 'postgres:9.6.9-alpine',
+            resourceRequestCpu: '300m',
+            resourceLimitCpu: '800m',
+            resourceRequestMemory: '512Mi',
+            resourceLimitMemory: '1024Mi',
+        ),
     ],
     volumes: [
         hostPathVolume(mountPath: '/var/run/docker.sock', hostPath: '/var/run/docker.sock'),
         hostPathVolume(mountPath: '/usr/bin/docker', hostPath: '/usr/bin/docker'),
-    ]
+    ],
 ) {
-    node('ewallet') {
+    node(label) {
         Random random = new Random()
         def tmpDir = pwd(tmp: true)
 
