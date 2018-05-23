@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.Router do
   use AdminAPI, :router
-  alias EWallet.Web.V1.Plug.Idempotency
+  alias AdminAPI.V1.Plug.Idempotency
   alias AdminAPI.V1.{ClientAuthPlug, UserAuthPlug}
 
   # Pipeline for plugs to apply for all endpoints
