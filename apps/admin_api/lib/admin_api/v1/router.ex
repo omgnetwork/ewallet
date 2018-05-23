@@ -46,7 +46,7 @@ defmodule AdminAPI.V1.Router do
 
     # Category endpoints
     post("/category.all", CategoryController, :all)
-    # post("/category.get", CategoryController, :get)
+    post("/category.get", CategoryController, :get)
     # post("/category.create", CategoryController, :create)
     # post("/category.update", CategoryController, :update)
     # post("/category.delete", CategoryController, :delete)

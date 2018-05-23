@@ -6,6 +6,7 @@ defmodule EWallet.CategoryPolicy do
 
   # Allowed by any role including none
   def authorize(:all, _user_id, nil), do: true
+  def authorize(:get, _user_id, nil), do: true
 
   # Catch-all: deny everything else
   def authorize(_, _, _), do: false

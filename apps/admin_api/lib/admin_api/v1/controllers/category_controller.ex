@@ -51,21 +51,21 @@ defmodule AdminAPI.V1.CategoryController do
     end
   end
 
-  # @doc """
-  # Retrieves a specific account by its id.
-  # """
-  # def get(conn, %{"id" => id}) do
-  #   with :ok <- permit(:get, conn.assigns.user.id, id),
-  #        %Account{} = account <- Account.get_by(id: id) do
-  #     render(conn, :account, %{account: account})
-  #   else
-  #     {:error, code} ->
-  #       handle_error(conn, code)
+  @doc """
+  Retrieves a specific category by its id.
+  """
+  def get(conn, %{"id" => id}) do
+    with :ok <- permit(:get, conn.assigns.user.id, nil),
+         %Category{} = category <- Category.get_by(id: id) do
+      render(conn, :category, %{category: category})
+    else
+      {:error, code} ->
+        handle_error(conn, code)
 
-  #     nil ->
-  #       handle_error(conn, :account_id_not_found)
-  #   end
-  # end
+      nil ->
+        handle_error(conn, :category_id_not_found)
+    end
+  end
 
   # @doc """
   # Creates a new account.
