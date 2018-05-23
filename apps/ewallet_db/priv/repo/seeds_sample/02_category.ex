@@ -23,14 +23,8 @@ defmodule EWalletDB.Repo.Seeds.CategorySampleSeed do
   defp run_with(writer, data) do
     case Category.get_by(name: data.name) do
       nil ->
-        case Category.insert(data) do
+        case insert(data) do
           {:ok, category} ->
-            Enum.each(data.account_names, fn(name) ->
-              [name: name]
-              |> Account.get_by()
-              |> Account.add_category(category)
-            end)
-
             category = Category.get(category.id)
 
             writer.success("""
@@ -54,6 +48,21 @@ defmodule EWalletDB.Repo.Seeds.CategorySampleSeed do
           ID       : #{category.id}
           Accounts : #{get_account_names(category)}
         """)
+    end
+  end
+
+  defp insert(data) do
+    case Category.insert(data) do
+      {:ok, category} ->
+        Enum.each(data.account_names, fn(name) ->
+          [name: name]
+          |> Account.get_by()
+          |> Account.add_category(category)
+        end)
+        {:ok, category}
+
+      other_result ->
+        other_result
     end
   end
 
