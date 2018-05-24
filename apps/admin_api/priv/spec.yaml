@@ -2268,9 +2268,8 @@ components:
               - description
               - account_ids
             example:
-              id: "cat_01ce30qdajwb7gdecq0ebn3twq"
-              name: "Name to Update"
-              description: "New category description"
+              name: "Name of category"
+              description: "The category description"
               account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
     CategoryUpdateBody:
       description: The parameters to use for updating an account. Only the provided fields are updated.
