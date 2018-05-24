@@ -39,6 +39,29 @@ defmodule EWallet.BalanceFetcher do
 
   @doc """
   Prepare the list of balances and turn them into a suitable format for
+  EWalletAPI using only a wallet.
+
+  ## Examples
+
+    res = BalanceFetcher.all(%Wallet{})
+
+    case res do
+      {:ok, wallets} ->
+        # Everything went well, do something.
+        # response is the response returned by the local ledger (LocalLedger for
+        # example).
+      {:error, code, description} ->
+        # Something went wrong on the other side (LocalLedger maybe) and the
+        # retrieval failed.
+    end
+
+  """
+  def all(%{"wallet" => wallet}) do
+    format_all(wallet)
+  end
+
+  @doc """
+  Prepare the list of balances and turn them into a suitable format for
   EWalletAPI using only an address.
 
   ## Examples

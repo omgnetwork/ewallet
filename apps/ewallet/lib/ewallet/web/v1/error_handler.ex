@@ -76,6 +76,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:to_address_not_found",
       description: "No wallet found for the provided to_address."
     },
+    wallet_address_not_found: %{
+      code: "wallet:address_not_found",
+      description: "There is no wallet corresponding to the provided address."
+    },
     no_idempotency_token_provided: %{
       code: "client:no_idempotency_token_provided",
       description:
@@ -257,7 +261,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
   defp stringify_errors(changeset, description) do
     Enum.reduce(changeset.errors, description, fn {field, {description, _values}}, acc ->
-      acc <> " " <> stringify_field(field) <> " " <> description <> "."
+      field = field |> stringify_field() |> replace_uuids()
+      acc <> " " <> field <> " " <> description <> "."
     end)
   end
 
@@ -266,11 +271,15 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp stringify_field(fields) when is_list(fields) do
-    Enum.map(fields, &stringify_field/1)
+    Enum.map_join(fields, ", ", fn key -> stringify_field(key) end)
   end
 
   defp stringify_field(field) when is_atom(field) do
     "`" <> to_string(field) <> "`"
+  end
+
+  defp stringify_field(field) when is_binary(field) do
+    field
   end
 
   defp stringify_field({key, _}) do
@@ -282,12 +291,45 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp error_fields(changeset) do
-    traverse_errors(changeset, fn {_message, opts} ->
-      validation = Keyword.get(opts, :validation)
+    errors =
+      traverse_errors(changeset, fn {_message, opts} ->
+        validation = Keyword.get(opts, :validation)
 
-      # Maps Ecto.changeset validation to be more meaningful
-      # to send to the client.
-      Map.get(@validation_mapping, validation, validation)
+        # Maps Ecto.changeset validation to be more meaningful
+        # to send to the client.
+        Map.get(@validation_mapping, validation, validation)
+      end)
+
+    errors
+    |> Enum.map(fn {key, value} ->
+      {key |> replace_uuids() |> stringify_field(), value}
     end)
+    |> Enum.into(%{})
+  end
+
+  defp replace_uuids(field) do
+    field
+    |> stringify_message_key()
+    |> String.replace("_uuid", "_id")
+  end
+
+  defp stringify_message_key(fields) when is_map(fields) do
+    Enum.map_join(fields, ", ", fn {key, _} -> stringify_message_key(key) end)
+  end
+
+  defp stringify_message_key(fields) when is_list(fields) do
+    Enum.map_join(fields, ", ", fn key -> stringify_message_key(key) end)
+  end
+
+  defp stringify_message_key(field) when is_atom(field) do
+    to_string(field)
+  end
+
+  defp stringify_message_key(field) when is_binary(field) do
+    field
+  end
+
+  defp stringify_message_key({key, _}) do
+    to_string(key)
   end
 end

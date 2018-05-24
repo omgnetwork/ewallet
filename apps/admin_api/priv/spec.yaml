@@ -44,13 +44,14 @@ tags:
     description: Resources related to account.
   - name: User
     description: Resources related to users.
+  - name: Wallet
+    description: Resources related to wallets.
   - name: Admin
     description: Resources related to admins.
   - name: Transaction
     description: Resources related to transactions.
   - name: API Access
     description: Resources related to API access.
-
 servers:
   - url: /admin/api
 
@@ -325,7 +326,21 @@ paths:
           $ref: "#/components/responses/EmptyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
+  /account.get_wallets:
+    post:
+      tags:
+        - Account
+      summary: Get the list of wallets for the given account
+      operationId: account_wallet_all
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletAccountBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   #####################################
   #           USER ENDPOINTS          #
   #####################################
@@ -411,6 +426,61 @@ paths:
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /user.get_wallets:
+    post:
+      tags:
+        - User
+      summary: Get the list of wallets for the given user
+      operationId: user_wallet_all
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletUserBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  #####################################
+  #        WALLET ENDPOINTS          #
+  #####################################
+  /wallet.all:
+    post:
+      tags:
+        - Wallet
+      summary: Get the list of wallets
+      operationId: wallet_all
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /wallet.get:
+    post:
+      tags:
+        - Wallet
+      summary: Get a specific wallet
+      operationId: wallet_get
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletGetBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+
+
+
+
+
 
   ##########################################
   #          ADMIN USER ENDPOINTS          #
@@ -765,11 +835,11 @@ components:
               encrypted_metadata: {"something": "secret"}
               created_at: "2018-01-01T00:00:00Z"
               updated_at: "2018-01-01T10:00:00Z"
-            account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+            account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
             account:
               object: "account"
-              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
-              parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+              id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
+              parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
               name: "Account Name"
               description: "The account description"
               master: true
@@ -929,8 +999,8 @@ components:
           success: true
           data:
             object: "account"
-            id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
-            parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+            id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
+            parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
             name: "Account Name"
             description: "The account description"
             master: true
@@ -964,8 +1034,8 @@ components:
             object: "list"
             data:
               - object: "account"
-                id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
-                parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+                id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
+                parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
                 name: "Account name"
                 description: "The account description"
                 master: true
@@ -1084,6 +1154,185 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+
+
+
+    ######################################
+    #         WALLET SCHEMAS            #
+    ######################################
+    WalletSchema:
+      description: "The object schema for a wallet"
+      type: object
+      properties:
+        object:
+          type: string
+        socket_topic:
+          type: string
+        address:
+          type: string
+        name:
+          type: string
+        identifier:
+          type: string
+        metadata:
+          type: object
+        encrypted_metadata:
+          type: object
+        user_id:
+          type: string
+        user:
+          type: object
+          $ref: '#/components/schemas/UserSchema'
+        account_id:
+          type: string
+        account:
+          type: object
+          $ref: '#/components/schemas/AccountSchema'
+        balances:
+          type: array
+          $ref: '#/components/schemas/BalanceSchema'
+      required:
+        - object
+        - socket_topic
+        - address
+        - name
+        - identifier
+        - metadata
+        - encrypted_metadata
+        - user_id
+        - user
+        - account_id
+        - account
+        - balances
+      example:
+        data:
+          object: "wallet"
+          socket_topic: "wallet:XXX123"
+          address: "XXX123"
+          name: "primary"
+          identifier: "primary"
+          metadata: {}
+          encrypted_metadata: {}
+          user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+          user: {}
+          account_id: null
+          account: null
+          balances:
+            - amount: 0
+              token:
+                object: "token"
+                id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                symbol: "BTC"
+                name: "Bitcoin"
+                subunit_to_unit: 100000000000000000
+    BalanceSchema:
+      description: "The object schema for a balance"
+      type: object
+      properties:
+        object:
+          type: string
+        token:
+          type: object
+          $ref: '#/components/schemas/TokenSchema'
+        amount:
+          type: number
+      required:
+        - object
+        - token
+        - amount
+      example:
+        object: "balance"
+        token:
+          object: "token"
+          id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+          symbol: "BTC"
+          name: "Bitcoin"
+          subunit_to_unit: 100000000000000000
+        amount: 100
+
+    WalletResponseSchema:
+      description: "The response schema for a wallet"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/WalletSchema'
+        required:
+          - data
+        example:
+          data:
+            object: "wallet"
+            socket_topic: "wallet:XXX123"
+            address: "XXX123"
+            name: "primary"
+            identifier: "primary"
+            metadata: {}
+            encrypted_metadata: {}
+            user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+            user: {}
+            account_id: null
+            account: null
+            balances:
+              - amount: 0
+                token:
+                  object: "token"
+                  id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                  symbol: "BTC"
+                  name: "Bitcoin"
+                  subunit_to_unit: 100000000000000000
+    WalletsResponseSchema:
+      description: "The response schema for a list of wallets"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WalletSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "wallet"
+                socket_topic: "wallet:XXX123"
+                address: "XXX123"
+                name: "primary"
+                identifier: "primary"
+                metadata: {}
+                encrypted_metadata: {}
+                user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+                user: {}
+                account_id: null
+                account: null
+                balances:
+                  - amount: 0
+                    token:
+                      object: "token"
+                      id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                      symbol: "BTC"
+                      name: "Bitcoin"
+                      subunit_to_unit: 100000000000000000
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
+
+
+
 
     ######################################
     #         ADMIN USER SCHEMAS         #
@@ -1390,7 +1639,7 @@ components:
             id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             secret_key: "the_secret_key_or_null"
-            account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+            account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
@@ -1422,7 +1671,7 @@ components:
                 id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                 access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 secret_key: "the_secret_key_or_null"
-                account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+                account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
                 deleted_at: null
@@ -1488,7 +1737,7 @@ components:
             id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             owner_app: "admin_api"
-            account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+            account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
             deleted_at: null
@@ -1520,7 +1769,7 @@ components:
                 id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                 key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 owner_app: "admin_api"
-                account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+                account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
                 deleted_at: null
@@ -1758,7 +2007,7 @@ components:
             required:
               - id
             example:
-              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+              id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
     AccountCreateBody:
       description: The parameters to use for creating a new account.
       required: true
@@ -1781,7 +2030,7 @@ components:
             example:
               name: "Account Name"
               description: "The account description"
-              parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+              parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
               metadata: {}
               encrypted_metadata: {}
     AccountUpdateBody:
@@ -1806,7 +2055,7 @@ components:
               - name
               - description
             example:
-              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+              id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
               name: "Account Name"
               description: "The account description"
               metadata: {}
@@ -1823,7 +2072,7 @@ components:
             required:
               - account_id
             example:
-              account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+              account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
     AccountAssignUserBody:
       description: The parameters to use for assigning a user to an account
       required: true
@@ -1848,7 +2097,7 @@ components:
                   - redirect_url
                 example:
                   user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
-                  account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+                  account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
                   role_name: "admin"
                   redirect_url: "https://domain/redirect_path?email={email}&token={token}"
               - properties:
@@ -1865,11 +2114,11 @@ components:
                   - redirect_url
                 example:
                   email: "user@example.com"
-                  account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+                  account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
                   role_name: "admin"
                   redirect_url: "https://domain/redirect_path?email={email}&token={token}"
             example:
-              account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+              account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
               role_name: "admin"
               redirect_url: "https://domain/redirect_path?email={email}&token={token}"
@@ -1889,7 +2138,7 @@ components:
               - user_id
               - account_id
             example:
-              account_id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+              account_id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
               user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
     AccountUploadBody:
       description: The parameters to use for uploading an account's avatar. Only supports .jpg, .jpeg, .gif and .png.
@@ -1907,7 +2156,7 @@ components:
               - id
               - avatar
             example:
-              id: "acc_01CA2P8JQANS5ATY5GJ5ETMJCF"
+              id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
               avatar: "/path/to/file"
 
     ######################################
@@ -1978,6 +2227,107 @@ components:
               token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
               password: "user_provided_password"
               password_confirmation: "user_provided_password"
+
+    ######################################
+    #             WALLET BODIES          #
+    ######################################
+    WalletAllBody:
+      description: The parameters to use for listing the wallets
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    WalletAccountBody:
+      description: The parameters to use for listing the wallets for an account
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              account_id:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    WalletUserBody:
+      description: The parameters to use for listing the wallets for a user
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              user:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              user: usr_01cc02x0v98qcctvycfx4vsk8x
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    WalletGetBody:
+      description: The parameters to use for retrieving a specific user by its address
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              address:
+                type: string
+            required:
+              - address
+            example:
+              address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
 
     ######################################
     #     TRANSACTION REQUEST BODIES     #
@@ -2270,6 +2620,22 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/UsersResponseSchema'
+
+    ######################################
+    #          WALLET RESPONSES          #
+    ######################################
+    WalletResponse:
+      description: "Returns a single wallet"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/WalletResponseSchema'
+    WalletsResponse:
+      description: "Returns a list of wallets"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/WalletsResponseSchema'
 
     ######################################
     #        TRANSACTION RESPONSES       #
