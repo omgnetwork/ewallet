@@ -78,12 +78,14 @@ defmodule EWalletDB.UserTest do
   describe "update_without_password/2" do
     test "updates only username, email, metadata, encrypted_metadata" do
       user = prepare_admin_user()
-      {:ok, updated_user} = User.update_without_password(user, %{
-        "username": "test_username_1337",
-        "email": "test_1337@example.com",
-        "metadata": %{"key" => "value_1337"},
-        "encrypted_metadata": %{"key" => "value_1337"},
-        "provider_user_id": "test_1337_puid"
+
+      {:ok, updated_user} =
+        User.update_without_password(user, %{
+          username: "test_username_1337",
+          email: "test_1337@example.com",
+          metadata: %{"key" => "value_1337"},
+          encrypted_metadata: %{"key" => "value_1337"},
+          provider_user_id: "test_1337_puid"
         })
 
       assert updated_user.username == "test_username_1337"

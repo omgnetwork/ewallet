@@ -19,14 +19,14 @@ defmodule AdminAPI.V1.SelfController do
     case User.update_without_password(conn.assigns.user, attrs) do
       {:ok, %User{} = user} ->
         render(conn, :user, %{user: user})
+
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
       {:error, code} ->
         handle_error(conn, code)
     end
   end
-
-  def update(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Retrieves the upper-most account that the given user has membership in.
