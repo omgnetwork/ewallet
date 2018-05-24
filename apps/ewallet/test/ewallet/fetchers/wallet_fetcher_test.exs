@@ -5,13 +5,14 @@ defmodule EWallet.WalletFetcherTest do
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
+    {:ok, account} = :account |> params_for() |> Account.insert()
     token = insert(:token)
     wallet = User.get_primary_wallet(user)
 
-    %{user: user, token: token, wallet: wallet}
+    %{user: user, account: account, token: token, wallet: wallet}
   end
 
-  describe "get_wallet/2" do
+  describe "get/2" do
     test "retrieves the user's primary wallet if address is nil", meta do
       {:ok, wallet} = WalletFetcher.get(meta.user, nil)
       assert wallet == User.get_primary_wallet(meta.user)
@@ -23,15 +24,27 @@ defmodule EWallet.WalletFetcherTest do
       assert wallet.uuid == inserted_wallet.uuid
     end
 
-    test "returns 'wallet_not_found' if the address is not found", meta do
+    test "returns 'user_wallet_not_found' if the address is not found", meta do
       {:error, error} = WalletFetcher.get(meta.user, "fake")
-      assert error == :wallet_not_found
+      assert error == :user_wallet_not_found
     end
 
     test "returns 'user_wallet_mismatch' if the wallet found does not belong to the user", meta do
       wallet = insert(:wallet)
       {:error, error} = WalletFetcher.get(meta.user, wallet.address)
       assert error == :user_wallet_mismatch
+    end
+
+    test "returns 'account_wallet_not_found' if the address is not found", meta do
+      {:error, error} = WalletFetcher.get(meta.account, "fake")
+      assert error == :account_wallet_not_found
+    end
+
+    test "returns 'account_wallet_mismatch' if the wallet found does not belong to the account",
+         meta do
+      wallet = insert(:wallet)
+      {:error, error} = WalletFetcher.get(meta.account, wallet.address)
+      assert error == :account_wallet_mismatch
     end
   end
 end

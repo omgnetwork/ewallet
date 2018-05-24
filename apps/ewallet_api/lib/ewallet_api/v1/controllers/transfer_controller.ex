@@ -47,7 +47,7 @@ defmodule EWalletAPI.V1.TransferController do
     |> respond_with(:transfer, conn)
   end
 
-  defp transfer_from_wallet({:error, :wallet_not_found}, conn, _attrs) do
+  defp transfer_from_wallet({:error, :user_wallet_not_found}, conn, _attrs) do
     handle_error(conn, :from_address_not_found)
   end
 

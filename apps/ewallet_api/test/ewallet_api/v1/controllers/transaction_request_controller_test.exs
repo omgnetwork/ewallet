@@ -148,7 +148,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "user:wallet_not_found",
+                 "code" => "wallet:wallet_not_found",
                  "description" => "There is no wallet corresponding to the provided address",
                  "messages" => nil,
                  "object" => "error"
@@ -354,7 +354,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "user:wallet_not_found",
-                 "description" => "There is no wallet corresponding to the provided address",
+                 "description" => "There is no user wallet corresponding to the provided address",
                  "messages" => nil,
                  "object" => "error"
                }

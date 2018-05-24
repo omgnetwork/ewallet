@@ -7,10 +7,11 @@ defmodule EWallet.TransactionGate do
     TransferGate,
     CreditDebitRecordFetcher,
     AddressRecordFetcher,
-    WalletCreditDebitAssigner
+    WalletCreditDebitAssigner,
+    WalletFetcher
   }
 
-  alias EWalletDB.{Transfer, User}
+  alias EWalletDB.{Transfer}
 
   def credit_type, do: "credit"
   def debit_type, do: "debit"
@@ -64,8 +65,9 @@ defmodule EWallet.TransactionGate do
 
     res = Transaction.process_credit_or_debit(%{
       "account_id" => "510f32b5-17f4-4c5c-86f2-aad1396330f9", # Optional
-      "burn_wallet_identifier" => "burn", # Optional
+      "account_address" => "4b4b1adb-683f-4d5e-ae0a-34e76867f3da", # Optional
       "provider_user_id" => "sample_provider_user_id",
+      "user_address" => "6e28963c-0866-45ad-95af-13f692019a49", # Optional
       "token_id" => "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
       "amount" => 100_000,
       "type" => Transaction.debit_type,
@@ -95,12 +97,13 @@ defmodule EWallet.TransactionGate do
          {:ok, from, to} <-
            WalletCreditDebitAssigner.assign(%{
              account: account,
+             account_address: attrs["account_address"],
              user: user,
-             type: type,
-             burn_wallet_identifier: attrs["burn_wallet_identifier"]
+             user_address: attrs["user_address"],
+             type: type
            }),
-         {:ok, transfer} <- get_or_insert_transfer(from, to, token, attrs) do
-      user_wallet = User.get_preloaded_primary_wallet(user)
+         {:ok, transfer} <- get_or_insert_transfer(from, to, token, attrs),
+         {:ok, user_wallet} <- WalletFetcher.get(user, attrs["user_address"]) do
       process_with_transfer(transfer, [user_wallet], token)
     else
       error -> error

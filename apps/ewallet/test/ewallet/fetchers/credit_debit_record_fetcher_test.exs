@@ -10,8 +10,8 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
   end
 
   describe "fetch/2" do
-    test "fetches the user and token correctly" do
-      {:ok, inserted_account} = Account.insert(params_for(:account))
+    test "fetches the user and token, and get the default master_account correctly" do
+      {:ok, master_account} = Account.insert(params_for(:account))
       {:ok, inserted_token} = Token.insert(params_for(:token))
       {:ok, inserted_user} = User.insert(params_for(:user))
 
@@ -21,8 +21,7 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
           "token_id" => inserted_token.id
         })
 
-      assert account.uuid != inserted_account.uuid
-      assert account.uuid == inserted_token.account_uuid
+      assert account.uuid == master_account.uuid
       assert user == inserted_user
       assert token == inserted_token
     end
