@@ -839,7 +839,7 @@ components:
             account:
               object: "account"
               id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
-              parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+              parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
               name: "Account Name"
               description: "The account description"
               master: true
@@ -1000,7 +1000,7 @@ components:
           data:
             object: "account"
             id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
-            parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+            parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
             name: "Account Name"
             description: "The account description"
             master: true
@@ -1035,7 +1035,7 @@ components:
             data:
               - object: "account"
                 id: ""acc_01ca2p8jqans5aty5gj5etmjcf""
-                parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+                parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
                 name: "Account name"
                 description: "The account description"
                 master: true
@@ -2030,7 +2030,7 @@ components:
             example:
               name: "Account Name"
               description: "The account description"
-              parent_id: "acc_01CA26PKGE49AABZD6K6MSHN0Y"
+              parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
               metadata: {}
               encrypted_metadata: {}
     AccountUpdateBody:
