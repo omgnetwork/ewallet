@@ -284,7 +284,7 @@ Here are some steps to get you started with the fun, they can all be performed b
 1. In the Admin API, configure the authentication at the top using the keys generated in the seeding step.
 2. Log yourself in and get the returned authentication token. In case you're getting an invalid auth scheme, double check that you're using `OMGAdmin` with the base64 encoded version of `API_KEY_ID:API_KEY` (with no `\n`, some programming languages add them).
 3. Configure the user authentication using the authentication token you've received in the previous step.
-4. Create a minted token using `/minted_token.create`. You can specify the optional `amount` parameter to do an initial minting.
+4. Create a token using `/token.create`. You can specify the optional `amount` parameter to do an initial minting.
 5. After that you're ready to start messing around with the eWallet API. You can create yourself a user using one of the server calls and credit/debit tokens!
 
 ## Communicating with the eWallet
@@ -378,7 +378,7 @@ Here are some resources if you want to learn more about how the eWallet works.
 - [Integration Responsibilities](/docs/setup/integration.md)
 - [eWallet Entites](/docs/design/entities.md)
 - [eWallet Components](/docs/design/components.md)
-- [A closer look at balances](/docs/design/balances.md)
+- [A closer look at wallets](/docs/design/wallets.md)
 
 # Contributing
 

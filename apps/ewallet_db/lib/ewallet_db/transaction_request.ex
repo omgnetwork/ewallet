@@ -10,8 +10,8 @@ defmodule EWalletDB.TransactionRequest do
 
   alias EWalletDB.{
     Account,
-    Balance,
-    MintedToken,
+    Wallet,
+    Token,
     TransactionRequest,
     TransactionConsumption,
     Repo,
@@ -74,17 +74,17 @@ defmodule EWalletDB.TransactionRequest do
     )
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_uuid,
+      :token,
+      Token,
+      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
 
     belongs_to(
-      :balance,
-      Balance,
-      foreign_key: :balance_address,
+      :wallet,
+      Wallet,
+      foreign_key: :wallet_address,
       references: :address,
       type: :string
     )
@@ -100,8 +100,8 @@ defmodule EWalletDB.TransactionRequest do
       :correlation_id,
       :user_uuid,
       :account_uuid,
-      :minted_token_uuid,
-      :balance_address,
+      :token_uuid,
+      :wallet_address,
       :require_confirmation,
       :max_consumptions,
       :max_consumptions_per_user,
@@ -114,16 +114,16 @@ defmodule EWalletDB.TransactionRequest do
     |> validate_required([
       :type,
       :status,
-      :minted_token_uuid,
-      :balance_address
+      :token_uuid,
+      :wallet_address
     ])
     |> validate_amount_if_disallow_override()
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:correlation_id)
-    |> assoc_constraint(:minted_token)
+    |> assoc_constraint(:token)
     |> assoc_constraint(:user)
-    |> assoc_constraint(:balance)
+    |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version())
   end
@@ -314,5 +314,15 @@ defmodule EWalletDB.TransactionRequest do
   @spec limited_consumptions?(%TransactionRequest{}) :: true | false
   defp limited_consumptions?(request) do
     !is_nil(request.max_consumptions) && request.max_consumptions > 0
+  end
+
+  @spec is_owned_by?(%TransactionRequest{}, %Account{}) :: true | false
+  def is_owned_by?(request, %Account{} = account) do
+    request.account_uuid == account.uuid
+  end
+
+  @spec is_owned_by?(%TransactionRequest{}, %User{}) :: true | false
+  def is_owned_by?(request, %User{} = user) do
+    request.user_uuid == user.uuid
   end
 end

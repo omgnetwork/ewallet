@@ -7,17 +7,19 @@ config :ewallet,
 
 config :logger, level: :debug
 
-config :ewallet, EWallet.Scheduler,
-  global: true,
-  jobs: [
-    expire_requests: [
-      schedule: "* * * * *",
-      task: {EWalletDB.TransactionRequest, :expire_all, []},
-      run_strategy: {Quantum.RunStrategy.Random, :cluster}
-    ],
-    expire_consumptions: [
-      schedule: "* * * * *",
-      task: {EWalletDB.TransactionConsumption, :expire_all, []},
-      run_strategy: {Quantum.RunStrategy.Random, :cluster}
+unless IEx.started?() do
+  config :ewallet, EWallet.Scheduler,
+    global: true,
+    jobs: [
+      expire_requests: [
+        schedule: "* * * * *",
+        task: {EWallet.TransactionRequestScheduler, :expire_all, []},
+        run_strategy: {Quantum.RunStrategy.Random, :cluster}
+      ],
+      expire_consumptions: [
+        schedule: "* * * * *",
+        task: {EWallet.TransactionConsumptionScheduler, :expire_all, []},
+        run_strategy: {Quantum.RunStrategy.Random, :cluster}
+      ]
     ]
-  ]
+end

@@ -41,7 +41,39 @@ defmodule EWalletDB.AccountValidatorTest do
     end
   end
 
-  describe "validate_account_level/2" do
+  describe "validate_account_level/2 with top-level account" do
+    test "returns a valid changeset if the given max child level is == 0" do
+      changeset =
+        %Account{}
+        |> change()
+        |> force_change(:parent_uuid, nil)
+        |> validate_account_level(0)
+
+      assert changeset.valid?
+    end
+
+    test "returns a valid changeset if the given max child level is > 0" do
+      changeset =
+        %Account{}
+        |> change()
+        |> force_change(:parent_uuid, nil)
+        |> validate_account_level(1)
+
+      assert changeset.valid?
+    end
+
+    test "returns a changeset error if the given max child level is < 0" do
+      changeset =
+        %Account{}
+        |> change()
+        |> force_change(:parent_uuid, nil)
+        |> validate_account_level(-1)
+
+      refute changeset.valid?
+    end
+  end
+
+  describe "validate_account_level/2 with sub-level account" do
     test "returns valid if the account's parent is not at the given max child level" do
       account0 = Account.get_master_account()
 

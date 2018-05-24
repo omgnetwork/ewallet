@@ -9,13 +9,13 @@ defmodule EWalletDB.Factory do
     Account,
     APIKey,
     AuthToken,
-    Balance,
+    Wallet,
     ForgetPasswordRequest,
     Invite,
     Key,
     Membership,
     Mint,
-    MintedToken,
+    Token,
     Role,
     TransactionRequest,
     TransactionConsumption,
@@ -41,21 +41,21 @@ defmodule EWalletDB.Factory do
     |> Strategy.name_from_struct()
   end
 
-  def balance_factory do
-    %Balance{
+  def wallet_factory do
+    %Wallet{
       address: sequence("address"),
       name: sequence("name"),
-      identifier: Balance.primary(),
+      identifier: Wallet.primary(),
       user: insert(:user),
-      minted_token: nil,
+      token: nil,
       metadata: %{}
     }
   end
 
-  def minted_token_factory do
+  def token_factory do
     symbol = sequence("jon")
 
-    %MintedToken{
+    %Token{
       id: "tok_" <> symbol <> "_" <> ULID.generate(),
       symbol: symbol,
       iso_code: sequence("JON"),
@@ -124,7 +124,7 @@ defmodule EWalletDB.Factory do
   def mint_factory do
     %Mint{
       amount: 100_000,
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       transfer_uuid: insert(:transfer).uuid
     }
   end
@@ -175,9 +175,9 @@ defmodule EWalletDB.Factory do
       payload: %{example: "Payload"},
       metadata: %{some: "metadata"},
       amount: 100,
-      minted_token: insert(:minted_token),
-      from_balance: insert(:balance),
-      to_balance: insert(:balance)
+      token: insert(:token),
+      from_wallet: insert(:wallet),
+      to_wallet: insert(:wallet)
     }
   end
 
@@ -192,18 +192,18 @@ defmodule EWalletDB.Factory do
       type: "receive",
       amount: 100,
       correlation_id: sequence("correlation"),
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
-      balance: insert(:balance)
+      wallet: insert(:wallet)
     }
   end
 
   def transaction_consumption_factory do
     %TransactionConsumption{
       idempotency_token: sequence("123"),
-      minted_token_uuid: insert(:minted_token).uuid,
+      token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
-      balance_address: insert(:balance).address,
+      wallet_address: insert(:wallet).address,
       amount: 100,
       transaction_request_uuid: insert(:transaction_request).uuid
     }

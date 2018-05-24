@@ -6,22 +6,22 @@ defmodule EWallet.TransferFormatter do
     %{
       "correlation_id" => transfer.idempotency_token,
       "metadata" => transfer.metadata,
-      "minted_token" => %{
-        "id" => transfer.minted_token.id,
-        "metadata" => transfer.minted_token.metadata
+      "token" => %{
+        "id" => transfer.token.id,
+        "metadata" => transfer.token.metadata
       },
       "debits" => [
         %{
-          "address" => transfer.from_balance.address,
+          "address" => transfer.from_wallet.address,
           "amount" => transfer.amount,
-          "metadata" => transfer.from_balance.metadata
+          "metadata" => transfer.from_wallet.metadata
         }
       ],
       "credits" => [
         %{
-          "address" => transfer.to_balance.address,
+          "address" => transfer.to_wallet.address,
           "amount" => transfer.amount,
-          "metadata" => transfer.to_balance.metadata
+          "metadata" => transfer.to_wallet.metadata
         }
       ]
     }

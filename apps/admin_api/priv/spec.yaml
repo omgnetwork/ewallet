@@ -38,8 +38,8 @@ info:
 tags:
   - name: Session
     description: Resources related to session tokens.
-  - name: Minted Token
-    description: Resources related to minted tokens.
+  - name: Token
+    description: Resources related to tokens.
   - name: Account
     description: Resources related to account.
   - name: User
@@ -137,68 +137,68 @@ paths:
           $ref: "#/components/responses/InternalServerError"
 
   #####################################
-  #       MINTED TOKEN ENDPOINTS      #
+  #       TOKEN ENDPOINTS      #
   #####################################
-  /minted_token.all:
+  /token.all:
     post:
       tags:
-        - Minted Token
-      summary: Get the list of minted tokens
+        - Token
+      summary: Get the list of tokens
       operationId: token_all
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/MintedTokenAllBody'
+        $ref: '#/components/requestBodies/TokenAllBody'
       responses:
         '200':
-          $ref: "#/components/responses/MintedTokensResponse"
+          $ref: "#/components/responses/TokensResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /minted_token.get:
+  /token.get:
     post:
       tags:
-        - Minted Token
-      summary: Get a specific minted token
+        - Token
+      summary: Get a specific token
       operationId: token_get
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/MintedTokenGetBody'
+        $ref: '#/components/requestBodies/TokenGetBody'
       responses:
         '200':
-          $ref: "#/components/responses/MintedTokenResponse"
+          $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new minted token
-  /minted_token.create:
+  # Endpoint to create a new token
+  /token.create:
     post:
       tags:
-        - Minted Token
-      summary: Create a new minted token
-      operationId: minted_token_create
+        - Token
+      summary: Create a new token
+      operationId: token_create
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/MintedTokenCreateBody'
+        $ref: '#/components/requestBodies/TokenCreateBody'
       responses:
         '200':
-          $ref: "#/components/responses/MintedTokenResponse"
+          $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new minted token
-  /minted_token.mint:
+  # Endpoint to create a new token
+  /token.mint:
     post:
       tags:
-        - Minted Token
-      summary: Mint an existing minted token
-      operationId: minted_token_mint
+        - Token
+      summary: Mint an existing token
+      operationId: token_mint
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/MintedTokenMintBody'
+        $ref: '#/components/requestBodies/TokenMintBody'
       responses:
         '200':
-          $ref: "#/components/responses/MintedTokenResponse"
+          $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   ############################
@@ -780,10 +780,10 @@ components:
               updated_at: "2018-01-01T10:00:00Z"
 
     ######################################
-    #         MINTED TOKEN SCHEMAS       #
+    #         TOKEN SCHEMAS       #
     ######################################
-    MintedTokenSchema:
-      description: "The object schema for a minted token"
+    TokenSchema:
+      description: "The object schema for a token"
       type: object
       properties:
         object:
@@ -814,30 +814,30 @@ components:
         - subunit_to_unit
         - created_at
         - updated_at
-    MintedTokenResponseSchema:
-      description: "The response schema for a minted token"
+    TokenResponseSchema:
+      description: "The response schema for a token"
       allOf:
         - $ref: '#/components/schemas/BaseResponseSchema'
         - type: object
           properties:
             data:
               type: object
-              $ref: '#/components/schemas/MintedTokenSchema'
+              $ref: '#/components/schemas/TokenSchema'
           required:
             - data
           example:
             version: "1"
             success: true
             data:
-              object: "minted_token"
+              object: "token"
               id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
               symbol: "ABC"
               name: "ABC Point"
               subunit_to_unit: 100
               created_at: "2018-01-01T00:00:00Z"
               updated_at: "2018-01-01T10:00:00Z"
-    MintedTokensResponseSchema:
-      description: "The response schema for a list of minted tokens"
+    TokensResponseSchema:
+      description: "The response schema for a list of tokens"
       allOf:
         - $ref: '#/components/schemas/BaseResponseSchema'
         - type: object
@@ -851,7 +851,7 @@ components:
                     data:
                       type: array
                       items:
-                        $ref: '#/components/schemas/MintedTokenSchema'
+                        $ref: '#/components/schemas/TokenSchema'
           required:
             - data
           example:
@@ -860,7 +860,7 @@ components:
             data:
               object: "list"
               data:
-                - object: "minted_token"
+                - object: "token"
                   id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                   symbol: "ABC"
                   name: "ABC Point"
@@ -1172,9 +1172,9 @@ components:
               type: string
             amount:
               type: number
-            minted_token:
+            token:
               type: object
-              $ref: '#/components/schemas/MintedTokenSchema'
+              $ref: '#/components/schemas/TokenSchema'
         to:
           type: object
           properties:
@@ -1184,9 +1184,9 @@ components:
               type: string
             amount:
               type: number
-            minted_token:
+            token:
               type: object
-              $ref: '#/components/schemas/MintedTokenSchema'
+              $ref: '#/components/schemas/TokenSchema'
         exchange:
           type: object
           properties:
@@ -1242,8 +1242,8 @@ components:
               object: "transaction_source"
               address: "XXX123"
               amount: 1000
-              minted_token:
-                object: "minted_token"
+              token:
+                object: "token"
                 id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                 symbol: "ABC"
                 name: "ABC Point"
@@ -1254,8 +1254,8 @@ components:
               object: "transaction_source"
               address: "XXX123"
               amount: 1000
-              minted_token:
-                object: "minted_token"
+              token:
+                object: "token"
                 id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                 symbol: "ABC"
                 name: "ABC Point"
@@ -1300,8 +1300,8 @@ components:
                   object: "transaction_source"
                   address: "XXX123"
                   amount: 1000
-                  minted_token:
-                    object: "minted_token"
+                  token:
+                    object: "token"
                     id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                     symbol: "ABC"
                     name: "ABC Point"
@@ -1312,8 +1312,8 @@ components:
                   object: "transaction_source"
                   address: "XXX123"
                   amount: 1000
-                  minted_token:
-                    object: "minted_token"
+                  token:
+                    object: "token"
                     id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
                     symbol: "ABC"
                     name: "ABC Point"
@@ -1614,10 +1614,10 @@ components:
               password_confirmation: "nZi9Enc5$l#"
 
     ######################################
-    #     MINTED TOKEN REQUEST BODIES    #
+    #     TOKEN REQUEST BODIES    #
     ######################################
-    MintedTokenAllBody:
-      description: The parameters to use for listing the minted tokens
+    TokenAllBody:
+      description: The parameters to use for listing the tokens
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1642,8 +1642,8 @@ components:
               search_term: ""
               sort_by: "field_name"
               sort_dir: "asc"
-    MintedTokenGetBody:
-      description: The parameters to use for retrieving a specific minted token by its id
+    TokenGetBody:
+      description: The parameters to use for retrieving a specific token by its id
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1655,9 +1655,9 @@ components:
               - id
             example:
               id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
-    # Request body for creating a minted token
-    MintedTokenCreateBody:
-        description: The parameters to create a minted token. Note that if amount is specified, the token will be minted automatically.
+    # Request body for creating a token
+    TokenCreateBody:
+        description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
         required: true
         content:
           application/vnd.omisego.v1+json:
@@ -1701,9 +1701,9 @@ components:
                 name: "Bitcoin"
                 description: "desc"
                 subunit_to_unit: 100
-    # Request body for minting a minted token
-    MintedTokenMintBody:
-        description: The parameters to create a minted token. Note that if amount is specified, the token will be minted automatically.
+    # Request body for minting a token
+    TokenMintBody:
+        description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
         required: true
         content:
           application/vnd.omisego.v1+json:
@@ -2224,20 +2224,20 @@ components:
             $ref: '#/components/schemas/AuthenticationTokenResponseSchema'
 
     ######################################
-    #        MINTED TOKEN RESPONSES      #
+    #        TOKEN RESPONSES      #
     ######################################
-    MintedTokenResponse:
-      description: "Returns a single minted tokens"
+    TokenResponse:
+      description: "Returns a single tokens"
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/MintedTokenResponseSchema'
-    MintedTokensResponse:
-      description: "Returns a list of minted tokens"
+            $ref: '#/components/schemas/TokenResponseSchema'
+    TokensResponse:
+      description: "Returns a list of tokens"
       content:
         application/vnd.omisego.v1+json:
           schema:
-            $ref: '#/components/schemas/MintedTokensResponseSchema'
+            $ref: '#/components/schemas/TokensResponseSchema'
 
     ######################################
     #          ACCOUNT RESPONSES         #

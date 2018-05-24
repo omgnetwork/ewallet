@@ -14,7 +14,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       consumption =
         :transaction_consumption
         |> insert()
-        |> Repo.preload([:user, :transaction_request, :minted_token])
+        |> Repo.preload([:user, :transaction_request, :token])
 
       res =
         TransactionConsumptionEventHandler.broadcast(:transaction_consumption_finalized, %{
@@ -30,7 +30,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
 
       [
         "transaction_request:#{consumption.transaction_request.id}",
-        "address:#{consumption.balance_address}",
+        "address:#{consumption.wallet_address}",
         "transaction_consumption:#{consumption.id}",
         "user:#{consumption.user.id}",
         "user:#{consumption.user.provider_user_id}"
@@ -44,7 +44,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       consumption =
         :transaction_consumption
         |> insert()
-        |> Repo.preload([:user, :transaction_request, :minted_token])
+        |> Repo.preload([:user, :transaction_request, :token])
 
       res =
         TransactionConsumptionEventHandler.broadcast(:transaction_consumption_request, %{
@@ -61,7 +61,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
 
       [
         "transaction_request:#{request.id}",
-        "address:#{request.balance_address}",
+        "address:#{request.wallet_address}",
         "user:#{request.user.id}",
         "user:#{request.user.provider_user_id}"
       ]

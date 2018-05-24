@@ -1,9 +1,15 @@
 defmodule EWallet.TransactionGate do
   @moduledoc """
   Handles the logic for a transfer of value from an account to a user. Delegates the
-  actual transfer to EWallet.TransferGate once the balances have been loaded.
+  actual transfer to EWallet.TransferGate once the wallets have been loaded.
   """
-  alias EWallet.{TransferGate, CreditDebitRecordFetcher, AddressRecordFetcher, BalanceAssigner}
+  alias EWallet.{
+    TransferGate,
+    CreditDebitRecordFetcher,
+    AddressRecordFetcher,
+    WalletCreditDebitAssigner
+  }
+
   alias EWalletDB.{Transfer, User}
 
   def credit_type, do: "credit"
@@ -25,7 +31,7 @@ defmodule EWallet.TransactionGate do
     })
 
     case res do
-      {:ok, transfer, changed_balances, minted_token} ->
+      {:ok, transfer, changed_wallets, token} ->
         # Everything went well, do something.
       {:error, transfer, code, description} ->
         # Something went wrong with the transfer processing.
@@ -41,9 +47,9 @@ defmodule EWallet.TransactionGate do
           "idempotency_token" => _
         } = attrs
       ) do
-    with {:ok, from, to, minted_token} <- AddressRecordFetcher.fetch(attrs),
-         {:ok, transfer} <- get_or_insert_transfer(from, to, minted_token, attrs) do
-      process_with_transfer(transfer, [from, to], minted_token)
+    with {:ok, from, to, token} <- AddressRecordFetcher.fetch(attrs),
+         {:ok, transfer} <- get_or_insert_transfer(from, to, token, attrs) do
+      process_with_transfer(transfer, [from, to], token)
     else
       error -> error
     end
@@ -58,7 +64,7 @@ defmodule EWallet.TransactionGate do
 
     res = Transaction.process_credit_or_debit(%{
       "account_id" => "510f32b5-17f4-4c5c-86f2-aad1396330f9", # Optional
-      "burn_balance_identifier" => "burn", # Optional
+      "burn_wallet_identifier" => "burn", # Optional
       "provider_user_id" => "sample_provider_user_id",
       "token_id" => "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
       "amount" => 100_000,
@@ -69,7 +75,7 @@ defmodule EWallet.TransactionGate do
     })
 
     case res do
-      {:ok, changed_balances, minted_token} ->
+      {:ok, changed_wallets, token} ->
         # Everything went well, do something.
       {:error, code, description} ->
         # Something went wrong with the transfer processing.
@@ -85,17 +91,17 @@ defmodule EWallet.TransactionGate do
           "type" => type
         } = attrs
       ) do
-    with {:ok, account, user, minted_token} <- CreditDebitRecordFetcher.fetch(attrs),
+    with {:ok, account, user, token} <- CreditDebitRecordFetcher.fetch(attrs),
          {:ok, from, to} <-
-           BalanceAssigner.assign(%{
+           WalletCreditDebitAssigner.assign(%{
              account: account,
              user: user,
              type: type,
-             burn_balance_identifier: attrs["burn_balance_identifier"]
+             burn_wallet_identifier: attrs["burn_wallet_identifier"]
            }),
-         {:ok, transfer} <- get_or_insert_transfer(from, to, minted_token, attrs) do
-      user_balance = User.get_preloaded_primary_balance(user)
-      process_with_transfer(transfer, [user_balance], minted_token)
+         {:ok, transfer} <- get_or_insert_transfer(from, to, token, attrs) do
+      user_wallet = User.get_preloaded_primary_wallet(user)
+      process_with_transfer(transfer, [user_wallet], token)
     else
       error -> error
     end
@@ -104,7 +110,7 @@ defmodule EWallet.TransactionGate do
   defp get_or_insert_transfer(
          from,
          to,
-         minted_token,
+         token,
          %{
            "amount" => amount,
            "idempotency_token" => idempotency_token
@@ -114,7 +120,7 @@ defmodule EWallet.TransactionGate do
       idempotency_token: idempotency_token,
       from: from.address,
       to: to.address,
-      minted_token_id: minted_token.id,
+      token_id: token.id,
       amount: amount,
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
@@ -122,17 +128,17 @@ defmodule EWallet.TransactionGate do
     })
   end
 
-  defp process_with_transfer(%Transfer{status: "pending"} = transfer, balances, minted_token) do
+  defp process_with_transfer(%Transfer{status: "pending"} = transfer, wallets, token) do
     transfer
     |> TransferGate.process()
-    |> process_with_transfer(balances, minted_token)
+    |> process_with_transfer(wallets, token)
   end
 
-  defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, balances, minted_token) do
-    {:ok, transfer, balances, minted_token}
+  defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, wallets, token) do
+    {:ok, transfer, wallets, token}
   end
 
-  defp process_with_transfer(%Transfer{status: "failed"} = transfer, _balances, _minted_token) do
+  defp process_with_transfer(%Transfer{status: "failed"} = transfer, _wallets, _token) do
     resp = transfer.ledger_response
     {:error, transfer, resp["code"], resp["description"]}
   end

@@ -29,7 +29,7 @@ type:
     - receive
 token_id:
   type: string
-  description: "The minted token ID to use for the transaction."
+  description: "The token ID to use for the transaction."
 amount:
   type: integer
   default: null

@@ -6,7 +6,7 @@ defmodule EWalletDB.Mint do
   use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Mint, MintedToken, Transfer, Account}
+  alias EWalletDB.{Repo, Mint, Token, Transfer, Account}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
@@ -18,9 +18,9 @@ defmodule EWalletDB.Mint do
     field(:confirmed, :boolean, default: false)
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_uuid,
+      :token,
+      Token,
+      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
@@ -44,16 +44,21 @@ defmodule EWalletDB.Mint do
     timestamps()
   end
 
-  defp changeset(%Mint{} = minted_token, attrs) do
-    minted_token
-    |> cast(attrs, [:description, :amount, :minted_token_uuid, :confirmed])
-    |> validate_required([:amount, :minted_token_uuid])
+  defp changeset(%Mint{} = token, attrs) do
+    token
+    |> cast(attrs, [:description, :amount, :token_uuid, :confirmed])
+    |> validate_required([:amount, :token_uuid])
     |> validate_number(:amount, greater_than: 0)
-    |> assoc_constraint(:minted_token)
+    |> assoc_constraint(:token)
+    |> assoc_constraint(:account)
+    |> assoc_constraint(:transfer)
+    |> foreign_key_constraint(:token_uuid)
+    |> foreign_key_constraint(:account_uuid)
+    |> foreign_key_constraint(:transfer_uuid)
   end
 
-  defp update_changeset(%Mint{} = minted_token, attrs) do
-    minted_token
+  defp update_changeset(%Mint{} = token, attrs) do
+    token
     |> cast(attrs, [:transfer_uuid])
     |> validate_required([:transfer_uuid])
     |> assoc_constraint(:transfer)

@@ -26,7 +26,7 @@ defmodule EWalletAPI.V1.Router do
     post("/user.get", UserController, :get)
     post("/user.update", UserController, :update)
 
-    post("/user.list_balances", ComputedBalanceController, :all)
+    post("/user.list_wallets", WalletController, :all)
     post("/user.list_transactions", TransactionController, :all_for_user)
 
     post("/transaction_request.create", TransactionRequestController, :create)
@@ -40,8 +40,8 @@ defmodule EWalletAPI.V1.Router do
     scope "/" do
       pipe_through([:idempotency])
 
-      post("/user.credit_balance", TransferController, :credit)
-      post("/user.debit_balance", TransferController, :debit)
+      post("/user.credit_wallet", TransferController, :credit)
+      post("/user.debit_wallet", TransferController, :debit)
       post("/transfer", TransferController, :transfer)
       post("/transaction_request.consume", TransactionConsumptionController, :consume)
     end
@@ -56,7 +56,7 @@ defmodule EWalletAPI.V1.Router do
 
     post("/me.get", SelfController, :get)
     post("/me.get_settings", SelfController, :get_settings)
-    post("/me.list_balances", SelfController, :get_balances)
+    post("/me.list_wallets", SelfController, :get_wallets)
     post("/me.list_transactions", TransactionController, :get_transactions)
 
     post("/me.create_transaction_request", TransactionRequestController, :create_for_user)
@@ -73,6 +73,7 @@ defmodule EWalletAPI.V1.Router do
     scope "/" do
       pipe_through([:idempotency])
       post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
+      post("/me.transfer", TransferController, :transfer_for_user)
     end
 
     post("/logout", AuthController, :logout)

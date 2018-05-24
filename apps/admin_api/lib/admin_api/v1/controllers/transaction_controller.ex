@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.TransactionController do
 
   # The fields that should be preloaded.
   # Note that these values *must be in the schema associations*.
-  @preload_fields [:minted_token]
+  @preload_fields [:token]
 
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*

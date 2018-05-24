@@ -7,7 +7,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
-    MintedTokenSerializer,
+    TokenSerializer,
     TransactionSerializer,
     TransactionRequestSerializer,
     UserSerializer
@@ -20,7 +20,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
     consumption =
       Preloader.preload(consumption, [
         :account,
-        :minted_token,
+        :token,
         :transaction_request,
         :transfer,
         :user
@@ -31,8 +31,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       id: consumption.id,
       socket_topic: "transaction_consumption:#{consumption.id}",
       amount: consumption.amount,
-      minted_token_id: consumption.minted_token.id,
-      minted_token: MintedTokenSerializer.serialize(consumption.minted_token),
+      token_id: consumption.token.id,
+      token: TokenSerializer.serialize(consumption.token),
       correlation_id: consumption.correlation_id,
       idempotency_token: consumption.idempotency_token,
       transaction_id: Assoc.get(consumption, [:transfer, :id]),
@@ -44,7 +44,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       transaction_request_id: consumption.transaction_request.id,
       transaction_request:
         TransactionRequestSerializer.serialize(consumption.transaction_request),
-      address: consumption.balance_address,
+      address: consumption.wallet_address,
       metadata: consumption.metadata || %{},
       encrypted_metadata: consumption.encrypted_metadata || %{},
       expiration_date: Date.to_iso8601(consumption.expiration_date),

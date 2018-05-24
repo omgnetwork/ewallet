@@ -5,7 +5,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
   alias EWallet.Web.V1.ErrorSerializer
-  alias EWalletDB.MintedToken
+  alias EWalletDB.Token
 
   @errors %{
     invalid_auth_scheme: %{
@@ -52,9 +52,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
       template:
-        "The specified balance ({address}) does not contain enough funds. " <>
-          "Available: {current_amount} {minted_token_id} - Attempted debit: " <>
-          "{amount_to_debit} {minted_token_id}"
+        "The specified wallet ({address}) does not contain enough funds. " <>
+          "Available: {current_amount} {token_id} - Attempted debit: " <>
+          "{amount_to_debit} {token_id}"
     },
     transaction_request_not_found: %{
       code: "transaction_request:transaction_request_not_found",
@@ -66,11 +66,15 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     from_address_not_found: %{
       code: "user:from_address_not_found",
-      description: "No balance found for the provided from_address."
+      description: "No wallet found for the provided from_address."
+    },
+    from_address_mismatch: %{
+      code: "user:from_address_mismatch",
+      description: "The provided wallet address does not belong to the current user."
     },
     to_address_not_found: %{
       code: "user:to_address_not_found",
-      description: "No balance found for the provided to_address."
+      description: "No wallet found for the provided to_address."
     },
     no_idempotency_token_provided: %{
       code: "client:no_idempotency_token_provided",
@@ -107,10 +111,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "transaction_consumption:unfinalized",
       description: "The specified transaction consumption has not been finalized yet."
     },
-    invalid_minted_token_provided: %{
-      code: "transaction_consumption:invalid_minted_token",
-      description:
-        "The provided minted token does not match the transaction request minted token."
+    invalid_token_provided: %{
+      code: "transaction_consumption:invalid_token",
+      description: "The provided token does not match the transaction request token."
     },
     forbidden_channel: %{
       code: "websocket:forbidden_channel",
@@ -178,18 +181,18 @@ defmodule EWallet.Web.V1.ErrorHandler do
           "address" => address,
           "current_amount" => current_amount,
           "amount_to_debit" => amount_to_debit,
-          "minted_token_id" => id
+          "token_id" => id
         },
         supported_errors
       ) do
     run_if_valid_error(code, supported_errors, fn error ->
-      minted_token = MintedToken.get(id)
+      token = Token.get(id)
 
       data = %{
         "address" => address,
-        "current_amount" => float_to_binary(current_amount / minted_token.subunit_to_unit),
-        "amount_to_debit" => float_to_binary(amount_to_debit / minted_token.subunit_to_unit),
-        "minted_token_id" => minted_token.id
+        "current_amount" => float_to_binary(current_amount / token.subunit_to_unit),
+        "amount_to_debit" => float_to_binary(amount_to_debit / token.subunit_to_unit),
+        "token_id" => token.id
       }
 
       build(code: error.code, desc: build_template(data, error.template))

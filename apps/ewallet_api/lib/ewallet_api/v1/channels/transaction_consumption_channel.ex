@@ -28,7 +28,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   defp join_as(consumption, %{authenticated: :client, user: user}, socket) do
     user
     |> User.addresses()
-    |> Enum.member?(consumption.balance_address)
+    |> Enum.member?(consumption.wallet_address)
     |> case do
       true -> {:ok, socket}
       false -> {:error, :forbidden_channel}

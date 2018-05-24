@@ -40,7 +40,7 @@ module.exports = {
     ],
   },
   plugins: [
-    new CleanWebpackPlugin(['priv/dist'], {
+    new CleanWebpackPlugin(['priv/static'], {
       root: __dirname + '/../../',
     }),
     new HtmlWebpackPlugin({
@@ -51,7 +51,7 @@ module.exports = {
   ],
   output: {
     filename: 'bundle.js',
-    path: path.resolve(__dirname, '../../priv/dist'),
+    path: path.resolve(__dirname, '../../priv/static'),
     publicPath: '/admin/',
   },
 };

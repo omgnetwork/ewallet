@@ -2,10 +2,10 @@ defmodule EWallet.MintGate do
   @moduledoc """
   Handles the mint creation logic. Since it relies on external applications to
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
-  examples on how to add value to a minted token.
+  examples on how to add value to a token.
   """
   alias EWallet.TransferGate
-  alias EWalletDB.{Repo, Account, Mint, Balance, Transfer, MintedToken}
+  alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, Token}
   alias Ecto.Multi
 
   @doc """
@@ -16,7 +16,7 @@ defmodule EWallet.MintGate do
 
     res = Mint.insert(%{
       "idempotency_token" => idempotency_token,
-      "token_id" => minted_token_id,
+      "token_id" => token_id,
       "amount" => 100_000,
       "description" => "Another mint bites the dust.",
       "metadata" => %{probably: "something useful. Or not."},
@@ -44,14 +44,14 @@ defmodule EWallet.MintGate do
           "description" => description
         } = attrs
       ) do
-    minted_token = MintedToken.get(token_id)
+    token = Token.get(token_id)
     account = Account.get_master_account()
 
     multi =
       Multi.new()
       |> Multi.run(:mint, fn _ ->
         Mint.insert(%{
-          minted_token_uuid: minted_token.uuid,
+          token_uuid: token.uuid,
           amount: amount,
           account_uuid: account.uuid,
           description: description
@@ -60,9 +60,9 @@ defmodule EWallet.MintGate do
       |> Multi.run(:transfer, fn _ ->
         TransferGate.get_or_insert(%{
           idempotency_token: idempotency_token,
-          from: Balance.get_genesis().address,
-          to: Account.get_primary_balance(account).address,
-          minted_token_id: minted_token.id,
+          from: Wallet.get_genesis().address,
+          to: Account.get_primary_wallet(account).address,
+          token_id: token.id,
           amount: amount,
           metadata: attrs["metadata"] || %{},
           encrypted_metadata: attrs["encrypted_metadata"] || %{},

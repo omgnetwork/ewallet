@@ -13,31 +13,31 @@ defmodule EWalletAPI.V1.SelfControllerTest do
   end
 
   describe "/me.get_settings" do
-    test "responds with a list of minted_tokens" do
+    test "responds with a list of tokens" do
       response = client_request("/me.get_settings")
 
       assert response["success"]
-      assert Map.has_key?(response["data"], "minted_tokens")
-      assert is_list(response["data"]["minted_tokens"])
+      assert Map.has_key?(response["data"], "tokens")
+      assert is_list(response["data"]["tokens"])
     end
   end
 
-  describe "/me.list_balances" do
-    test "responds with a list of balances" do
+  describe "/me.list_wallets" do
+    test "responds with a list of wallets" do
       account = Account.get_master_account()
-      master_balance = Account.get_primary_balance(account)
+      master_wallet = Account.get_primary_wallet(account)
       user = get_test_user()
-      user_balance = User.get_primary_balance(user)
-      btc = insert(:minted_token, %{symbol: "BTC"})
-      omg = insert(:minted_token, %{symbol: "OMG"})
+      user_wallet = User.get_primary_wallet(user)
+      btc = insert(:token, %{symbol: "BTC"})
+      omg = insert(:token, %{symbol: "OMG"})
 
       mint!(btc)
       mint!(omg)
 
-      transfer!(master_balance.address, user_balance.address, btc, 150_000 * btc.subunit_to_unit)
-      transfer!(master_balance.address, user_balance.address, omg, 12_000 * omg.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
-      response = client_request("/me.list_balances")
+      response = client_request("/me.list_wallets")
 
       assert response == %{
                "version" => "1",
@@ -46,16 +46,41 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                  "object" => "list",
                  "data" => [
                    %{
-                     "object" => "address",
-                     "socket_topic" => "address:#{user_balance.address}",
-                     "address" => user_balance.address,
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => %{
+                       "avatar" => %{
+                         "large" => nil,
+                         "original" => nil,
+                         "small" => nil,
+                         "thumb" => nil
+                       },
+                       "created_at" => Date.to_iso8601(user.inserted_at),
+                       "email" => nil,
+                       "encrypted_metadata" => %{},
+                       "id" => user.id,
+                       "metadata" => user.metadata,
+                       "object" => "user",
+                       "provider_user_id" => user.provider_user_id,
+                       "socket_topic" => "user:#{user.id}",
+                       "updated_at" => Date.to_iso8601(user.updated_at),
+                       "username" => user.username
+                     },
+                     "user_id" => user.id,
                      "balances" => [
                        %{
                          "object" => "balance",
                          "amount" => 150_000 * btc.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => btc.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => btc.subunit_to_unit,
                            "symbol" => btc.symbol,
                            "id" => btc.id,
@@ -68,9 +93,9 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                        %{
                          "object" => "balance",
                          "amount" => 12_000 * omg.subunit_to_unit,
-                         "minted_token" => %{
+                         "token" => %{
                            "name" => omg.name,
-                           "object" => "minted_token",
+                           "object" => "token",
                            "subunit_to_unit" => omg.subunit_to_unit,
                            "symbol" => omg.symbol,
                            "id" => omg.id,

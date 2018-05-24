@@ -26,13 +26,13 @@ defmodule EWallet.LocalLedgerCase do
     end
   end
 
-  def mint!(minted_token, amount \\ 1_000_000) do
+  def mint!(token, amount \\ 1_000_000) do
     {:ok, mint, _transfer} =
       MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
-        "token_id" => minted_token.id,
-        "amount" => amount * minted_token.subunit_to_unit,
-        "description" => "Minting #{amount} #{minted_token.symbol}",
+        "token_id" => token.id,
+        "amount" => amount * token.subunit_to_unit,
+        "description" => "Minting #{amount} #{token.symbol}",
         "metadata" => %{}
       })
 
@@ -40,12 +40,12 @@ defmodule EWallet.LocalLedgerCase do
     mint
   end
 
-  def transfer!(from, to, minted_token, amount) do
-    {:ok, transfer, _balances, _minted_token} =
+  def transfer!(from, to, token, amount) do
+    {:ok, transfer, _wallets, _token} =
       TransactionGate.process_with_addresses(%{
         "from_address" => from,
         "to_address" => to,
-        "token_id" => minted_token.id,
+        "token_id" => token.id,
         "amount" => amount,
         "metadata" => %{},
         "idempotency_token" => UUID.generate()
@@ -54,16 +54,16 @@ defmodule EWallet.LocalLedgerCase do
     transfer
   end
 
-  def initialize_balance(balance, amount, minted_token) do
+  def initialize_wallet(wallet, amount, token) do
     master_account = Account.get_master_account()
-    master_balance = Account.get_primary_balance(master_account)
+    master_wallet = Account.get_primary_wallet(master_account)
 
-    {:ok, transfer, _balances, _minted_token} =
+    {:ok, transfer, _wallets, _token} =
       TransactionGate.process_with_addresses(%{
-        "from_address" => master_balance.address,
-        "to_address" => balance.address,
-        "token_id" => minted_token.id,
-        "amount" => amount * minted_token.subunit_to_unit,
+        "from_address" => master_wallet.address,
+        "to_address" => wallet.address,
+        "token_id" => token.id,
+        "amount" => amount * token.subunit_to_unit,
         "metadata" => %{},
         "idempotency_token" => UUID.generate()
       })

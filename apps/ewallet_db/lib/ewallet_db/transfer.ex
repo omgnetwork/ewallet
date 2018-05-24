@@ -7,7 +7,7 @@ defmodule EWalletDB.Transfer do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Transfer, Balance, MintedToken}
+  alias EWalletDB.{Repo, Transfer, Wallet, Token}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -43,24 +43,24 @@ defmodule EWalletDB.Transfer do
     field(:encryption_version, :binary)
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_uuid,
+      :token,
+      Token,
+      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
 
     belongs_to(
-      :to_balance,
-      Balance,
+      :to_wallet,
+      Wallet,
       foreign_key: :to,
       references: :address,
       type: :string
     )
 
     belongs_to(
-      :from_balance,
-      Balance,
+      :from_wallet,
+      Wallet,
       foreign_key: :from,
       references: :address,
       type: :string
@@ -80,7 +80,7 @@ defmodule EWalletDB.Transfer do
       :metadata,
       :encrypted_metadata,
       :amount,
-      :minted_token_uuid,
+      :token_uuid,
       :to,
       :from
     ])
@@ -90,7 +90,7 @@ defmodule EWalletDB.Transfer do
       :type,
       :payload,
       :amount,
-      :minted_token_uuid,
+      :token_uuid,
       :to,
       :from,
       :metadata,
@@ -100,9 +100,9 @@ defmodule EWalletDB.Transfer do
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
     |> unique_constraint(:idempotency_token)
-    |> assoc_constraint(:minted_token)
-    |> assoc_constraint(:to_balance)
-    |> assoc_constraint(:from_balance)
+    |> assoc_constraint(:token)
+    |> assoc_constraint(:to_wallet)
+    |> assoc_constraint(:from_wallet)
     |> put_change(:encryption_version, Cloak.version())
   end
 
@@ -162,7 +162,7 @@ defmodule EWalletDB.Transfer do
       %{
         idempotency_token: idempotency_token
       },
-      preload: [:from_balance, :to_balance, :minted_token]
+      preload: [:from_wallet, :to_wallet, :token]
     )
   end
 
@@ -203,5 +203,15 @@ defmodule EWalletDB.Transfer do
     |> Repo.update()
 
     get_by_idempotency_token(transfer.idempotency_token)
+  end
+
+  def get_error(nil), do: nil
+
+  def get_error(transfer) do
+    {transfer.ledger_response["code"], transfer.ledger_response["description"]}
+  end
+
+  def failed?(transfer) do
+    transfer.status == @failed
   end
 end

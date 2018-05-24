@@ -19,10 +19,10 @@ const tables = (translate, datas) => ({
     id: { type: tableConstants.PROPERTY, value: id, shortened: true },
     amount: {
       type: tableConstants.PROPERTY,
-      value: from.amount / from.minted_token.subunit_to_unit,
+      value: from.amount / from.token.subunit_to_unit,
       shortened: false,
     },
-    token: { type: tableConstants.PROPERTY, value: from.minted_token.id, shortened: true },
+    token: { type: tableConstants.PROPERTY, value: from.token.id, shortened: true },
     from: { type: tableConstants.PROPERTY, value: from.address, shortened: true },
     to: { type: tableConstants.PROPERTY, value: to.address, shortened: true },
     idempotency_token: {

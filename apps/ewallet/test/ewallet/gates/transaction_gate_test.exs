@@ -2,33 +2,33 @@ defmodule EWallet.TransactionGateTest do
   use EWallet.LocalLedgerCase, async: true
   import EWalletDB.Factory
   alias EWallet.TransactionGate
-  alias EWalletDB.{Repo, User, MintedToken, Transfer, Account}
+  alias EWalletDB.{Repo, User, Token, Transfer, Account}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 
-  def init_balance(address, token, amount \\ 1_000) do
+  def init_wallet(address, token, amount \\ 1_000) do
     master_account = Account.get_master_account()
-    master_balance = Account.get_primary_balance(master_account)
+    master_wallet = Account.get_primary_wallet(master_account)
     mint!(token)
-    transfer!(master_balance.address, address, token, amount * token.subunit_to_unit)
+    transfer!(master_wallet.address, address, token, amount * token.subunit_to_unit)
   end
 
   describe "process_with_addresses/1" do
     def insert_addresses_records do
       {:ok, user1} = User.insert(params_for(:user))
       {:ok, user2} = User.insert(params_for(:user))
-      {:ok, token} = MintedToken.insert(params_for(:minted_token))
+      {:ok, token} = Token.insert(params_for(:token))
 
-      balance1 = User.get_primary_balance(user1)
-      balance2 = User.get_primary_balance(user2)
+      wallet1 = User.get_primary_wallet(user1)
+      wallet2 = User.get_primary_wallet(user2)
 
-      {balance1, balance2, token}
+      {wallet1, wallet2, token}
     end
 
-    defp build_addresses_attrs(idempotency_token, balance1, balance2, token) do
+    defp build_addresses_attrs(idempotency_token, wallet1, wallet2, token) do
       %{
-        "from_address" => balance1.address,
-        "to_address" => balance2.address,
+        "from_address" => wallet1.address,
+        "to_address" => wallet2.address,
         "token_id" => token.id,
         "amount" => 100 * token.subunit_to_unit,
         "metadata" => %{some: "data"},
@@ -42,15 +42,15 @@ defmodule EWallet.TransactionGateTest do
           status: status
         }) do
       idempotency_token = UUID.generate()
-      {balance1, balance2, token} = insert_addresses_records()
-      attrs = build_addresses_attrs(idempotency_token, balance1, balance2, token)
+      {wallet1, wallet2, token} = insert_addresses_records()
+      attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
 
       {:ok, transfer} =
         Transfer.get_or_insert(%{
           idempotency_token: idempotency_token,
-          from: balance1.address,
-          to: balance2.address,
-          minted_token_uuid: token.uuid,
+          from: wallet1.address,
+          to: wallet2.address,
+          token_uuid: token.uuid,
           amount: 100 * token.subunit_to_unit,
           metadata: metadata,
           payload: attrs,
@@ -73,7 +73,7 @@ defmodule EWallet.TransactionGateTest do
 
       assert inserted_transfer.status == Transfer.confirmed()
 
-      {status, transfer, _user, _minted_token} = TransactionGate.process_with_addresses(attrs)
+      {status, transfer, _user, _token} = TransactionGate.process_with_addresses(attrs)
       assert status == :ok
 
       assert inserted_transfer.id == transfer.id
@@ -113,9 +113,9 @@ defmodule EWallet.TransactionGateTest do
         })
 
       assert inserted_transfer.status == Transfer.pending()
-      init_balance(inserted_transfer.from, inserted_transfer.minted_token, 1_000)
+      init_wallet(inserted_transfer.from, inserted_transfer.token, 1_000)
 
-      {status, transfer, _balances, _minted_token} = TransactionGate.process_with_addresses(attrs)
+      {status, transfer, _wallets, _token} = TransactionGate.process_with_addresses(attrs)
       assert status == :ok
 
       assert inserted_transfer.id == transfer.id
@@ -126,8 +126,8 @@ defmodule EWallet.TransactionGateTest do
     test "creates and fails a transfer when idempotency token is not present and the ledger
           returned an error" do
       idempotency_token = UUID.generate()
-      {balance1, balance2, token} = insert_addresses_records()
-      attrs = build_addresses_attrs(idempotency_token, balance1, balance2, token)
+      {wallet1, wallet2, token} = insert_addresses_records()
+      attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
 
       {status, transfer, code, _description} = TransactionGate.process_with_addresses(attrs)
       assert status == :error
@@ -139,8 +139,8 @@ defmodule EWallet.TransactionGateTest do
       assert transfer.status == Transfer.failed()
 
       assert transfer.payload == %{
-               "from_address" => balance1.address,
-               "to_address" => balance2.address,
+               "from_address" => wallet1.address,
+               "to_address" => wallet2.address,
                "token_id" => token.id,
                "amount" => 100 * token.subunit_to_unit,
                "metadata" => %{"some" => "data"},
@@ -153,7 +153,7 @@ defmodule EWallet.TransactionGateTest do
                  "address" => _,
                  "current_amount" => _,
                  "amount_to_debit" => _,
-                 "minted_token_id" => _
+                 "token_id" => _
                }
              } = transfer.ledger_response
 
@@ -162,12 +162,11 @@ defmodule EWallet.TransactionGateTest do
 
     test "creates and confirms a transfer when idempotency token does not exist" do
       idempotency_token = UUID.generate()
-      {balance1, balance2, token} = insert_addresses_records()
-      attrs = build_addresses_attrs(idempotency_token, balance1, balance2, token)
-      init_balance(balance1.address, token, 1_000)
+      {wallet1, wallet2, token} = insert_addresses_records()
+      attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
+      init_wallet(wallet1.address, token, 1_000)
 
-      {status, _transfer, _balances, _minted_token} =
-        TransactionGate.process_with_addresses(attrs)
+      {status, _transfer, _wallets, _token} = TransactionGate.process_with_addresses(attrs)
 
       assert status == :ok
 
@@ -176,8 +175,8 @@ defmodule EWallet.TransactionGateTest do
       assert transfer.status == Transfer.confirmed()
 
       assert transfer.payload == %{
-               "from_address" => balance1.address,
-               "to_address" => balance2.address,
+               "from_address" => wallet1.address,
+               "to_address" => wallet2.address,
                "token_id" => token.id,
                "amount" => 100 * token.subunit_to_unit,
                "metadata" => %{"some" => "data"},
@@ -190,12 +189,12 @@ defmodule EWallet.TransactionGateTest do
 
     test "gets back an 'amount_is_zero' error when amount sent is 0" do
       idempotency_token = UUID.generate()
-      {balance1, balance2, token} = insert_addresses_records()
+      {wallet1, wallet2, token} = insert_addresses_records()
 
       {res, transfer, code, _description} =
         TransactionGate.process_with_addresses(%{
-          "from_address" => balance1.address,
-          "to_address" => balance2.address,
+          "from_address" => wallet1.address,
+          "to_address" => wallet2.address,
           "token_id" => token.id,
           "amount" => 0,
           "metadata" => %{some: "data"},
@@ -209,15 +208,15 @@ defmodule EWallet.TransactionGateTest do
 
     test "build, format and send the transaction to the local ledger" do
       idempotency_token = UUID.generate()
-      {balance1, balance2, token} = insert_addresses_records()
-      attrs = build_addresses_attrs(idempotency_token, balance1, balance2, token)
-      init_balance(balance1.address, token, 1_000)
+      {wallet1, wallet2, token} = insert_addresses_records()
+      attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
+      init_wallet(wallet1.address, token, 1_000)
 
-      {status, transfer, balances, minted_token} = TransactionGate.process_with_addresses(attrs)
+      {status, transfer, wallets, token} = TransactionGate.process_with_addresses(attrs)
       assert status == :ok
       assert transfer.idempotency_token == idempotency_token
-      assert balances == [balance1, balance2]
-      assert minted_token.id == token.id
+      assert wallets == [wallet1, wallet2]
+      assert token.id == token.id
     end
   end
 
@@ -225,7 +224,7 @@ defmodule EWallet.TransactionGateTest do
     defp insert_debit_credit_records do
       {:ok, account} = Account.insert(params_for(:account))
       {:ok, user} = User.insert(params_for(:user))
-      {:ok, token} = MintedToken.insert(params_for(:minted_token, account: account))
+      {:ok, token} = Token.insert(params_for(:token, account: account))
       {account, user, token |> Repo.preload([:account])}
     end
 
@@ -260,9 +259,9 @@ defmodule EWallet.TransactionGateTest do
       {:ok, transfer} =
         Transfer.get_or_insert(%{
           idempotency_token: idempotency_token,
-          from: User.get_primary_balance(inserted_user).address,
-          to: Account.get_primary_balance(inserted_token.account).address,
-          minted_token_uuid: inserted_token.uuid,
+          from: User.get_primary_wallet(inserted_user).address,
+          to: Account.get_primary_wallet(inserted_token.account).address,
+          token_uuid: inserted_token.uuid,
           amount: 100_000,
           metadata: metadata,
           payload: attrs,
@@ -285,7 +284,7 @@ defmodule EWallet.TransactionGateTest do
 
       assert inserted_transfer.status == Transfer.confirmed()
 
-      {status, transfer, _user, _minted_token} = TransactionGate.process_credit_or_debit(attrs)
+      {status, transfer, _user, _token} = TransactionGate.process_credit_or_debit(attrs)
       assert status == :ok
 
       assert inserted_transfer.id == transfer.id
@@ -323,10 +322,9 @@ defmodule EWallet.TransactionGateTest do
         })
 
       assert inserted_transfer.status == Transfer.pending()
-      init_balance(inserted_transfer.from, inserted_transfer.minted_token, 1_000)
+      init_wallet(inserted_transfer.from, inserted_transfer.token, 1_000)
 
-      {status, transfer, _balances, _minted_token} =
-        TransactionGate.process_credit_or_debit(attrs)
+      {status, transfer, _wallets, _token} = TransactionGate.process_credit_or_debit(attrs)
 
       assert status == :ok
 
@@ -373,7 +371,7 @@ defmodule EWallet.TransactionGateTest do
                  "address" => _,
                  "current_amount" => _,
                  "amount_to_debit" => _,
-                 "minted_token_id" => _
+                 "token_id" => _
                }
              } = transfer.ledger_response
 
@@ -383,7 +381,7 @@ defmodule EWallet.TransactionGateTest do
     test "creates and confirms a transfer when idempotency token does not exist" do
       idempotency_token = UUID.generate()
       {inserted_account, inserted_user, inserted_token} = insert_debit_credit_records()
-      balance = User.get_primary_balance(inserted_user)
+      wallet = User.get_primary_wallet(inserted_user)
 
       attrs =
         build_debit_credit_attrs(
@@ -393,10 +391,9 @@ defmodule EWallet.TransactionGateTest do
           inserted_token
         )
 
-      init_balance(balance.address, inserted_token, 1_000)
+      init_wallet(wallet.address, inserted_token, 1_000)
 
-      {status, _transfer, _balances, _minted_token} =
-        TransactionGate.process_credit_or_debit(attrs)
+      {status, _transfer, _wallets, _token} = TransactionGate.process_credit_or_debit(attrs)
 
       assert status == :ok
 
@@ -421,7 +418,7 @@ defmodule EWallet.TransactionGateTest do
     test "build, format and send the transaction to the local ledger" do
       idempotency_token = UUID.generate()
       {inserted_account, inserted_user, inserted_token} = insert_debit_credit_records()
-      balance = User.get_primary_balance(inserted_user)
+      wallet = User.get_primary_wallet(inserted_user)
 
       attrs =
         build_debit_credit_attrs(
@@ -431,13 +428,13 @@ defmodule EWallet.TransactionGateTest do
           inserted_token
         )
 
-      init_balance(balance.address, inserted_token, 1_000)
+      init_wallet(wallet.address, inserted_token, 1_000)
 
-      {status, transfer, balances, minted_token} = TransactionGate.process_credit_or_debit(attrs)
+      {status, transfer, wallets, token} = TransactionGate.process_credit_or_debit(attrs)
       assert status == :ok
       assert transfer.idempotency_token == idempotency_token
-      assert balances == [User.get_preloaded_primary_balance(inserted_user)]
-      assert minted_token.id == inserted_token.id
+      assert wallets == [User.get_preloaded_primary_wallet(inserted_user)]
+      assert token.id == inserted_token.id
     end
   end
 end

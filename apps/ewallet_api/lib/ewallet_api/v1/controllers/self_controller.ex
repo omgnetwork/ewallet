@@ -1,26 +1,26 @@
 defmodule EWalletAPI.V1.SelfController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.ComputedBalanceFetcher
-  alias EWalletDB.MintedToken
+  alias EWallet.BalanceFetcher
+  alias EWalletDB.Token
 
   def get(conn, _attrs) do
     render(conn, :user, %{user: conn.assigns.user})
   end
 
   def get_settings(conn, _attrs) do
-    settings = %{minted_tokens: MintedToken.all()}
+    settings = %{tokens: Token.all()}
     render(conn, :settings, settings)
   end
 
-  def get_balances(conn, _attrs) do
+  def get_wallets(conn, _attrs) do
     %{"provider_user_id" => conn.assigns.user.provider_user_id}
-    |> ComputedBalanceFetcher.all()
+    |> BalanceFetcher.all()
     |> respond(conn)
   end
 
   defp respond({:ok, addresses}, conn) do
-    render(conn, :balances, %{addresses: [addresses]})
+    render(conn, :wallets, %{addresses: [addresses]})
   end
 
   defp respond({:error, code, description}, conn) do

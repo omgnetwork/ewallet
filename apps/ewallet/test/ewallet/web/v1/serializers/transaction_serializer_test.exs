@@ -1,14 +1,14 @@
 defmodule EWallet.Web.V1.TransactionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{TransactionSerializer, MintedTokenSerializer}
+  alias EWallet.Web.V1.{TransactionSerializer, TokenSerializer}
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, MintedToken}
+  alias EWalletDB.{Repo, Token}
 
   describe "serialize/1 for single transaction" do
     test "serializes into correct V1 transaction format" do
       transaction = insert(:transfer)
-      minted_token = MintedToken.get_by(uuid: transaction.minted_token_uuid)
+      token = Token.get_by(uuid: transaction.token_uuid)
 
       expected = %{
         object: "transaction",
@@ -18,15 +18,15 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
           object: "transaction_source",
           address: transaction.from,
           amount: transaction.amount,
-          minted_token_id: minted_token.id,
-          minted_token: MintedTokenSerializer.serialize(minted_token)
+          token_id: token.id,
+          token: TokenSerializer.serialize(token)
         },
         to: %{
           object: "transaction_source",
           address: transaction.to,
           amount: transaction.amount,
-          minted_token_id: minted_token.id,
-          minted_token: MintedTokenSerializer.serialize(minted_token)
+          token_id: token.id,
+          token: TokenSerializer.serialize(token)
         },
         exchange: %{
           object: "exchange",

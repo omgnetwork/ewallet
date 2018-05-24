@@ -11,9 +11,9 @@ defmodule EWalletDB.TransactionConsumption do
     TransactionConsumption,
     Repo,
     User,
-    MintedToken,
+    Token,
     TransactionRequest,
-    Balance,
+    Wallet,
     Transfer,
     Account
   }
@@ -80,17 +80,17 @@ defmodule EWalletDB.TransactionConsumption do
     )
 
     belongs_to(
-      :minted_token,
-      MintedToken,
-      foreign_key: :minted_token_uuid,
+      :token,
+      Token,
+      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
 
     belongs_to(
-      :balance,
-      Balance,
-      foreign_key: :balance_address,
+      :wallet,
+      Wallet,
+      foreign_key: :wallet_address,
       references: :address,
       type: :string
     )
@@ -107,8 +107,8 @@ defmodule EWalletDB.TransactionConsumption do
       :user_uuid,
       :account_uuid,
       :transaction_request_uuid,
-      :balance_address,
-      :minted_token_uuid,
+      :wallet_address,
+      :token_uuid,
       :metadata,
       :encrypted_metadata,
       :expiration_date
@@ -118,8 +118,8 @@ defmodule EWalletDB.TransactionConsumption do
       :amount,
       :idempotency_token,
       :transaction_request_uuid,
-      :balance_address,
-      :minted_token_uuid
+      :wallet_address,
+      :token_uuid
     ])
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
@@ -127,7 +127,7 @@ defmodule EWalletDB.TransactionConsumption do
     |> unique_constraint(:correlation_id)
     |> assoc_constraint(:user)
     |> assoc_constraint(:transaction_request)
-    |> assoc_constraint(:balance)
+    |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
     |> put_change(:encryption_version, Cloak.version())
   end
@@ -254,13 +254,14 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Get all confirmed transaction consumptions for the given user uuid.
   """
-  @spec all_active_for_user(UUID.t()) :: List.t()
-  def all_active_for_user(nil), do: []
+  @spec all_active_for_user(UUID.t(), UUID.t()) :: List.t()
+  def all_active_for_user(nil, _), do: []
 
-  def all_active_for_user(user_uuid) do
+  def all_active_for_user(user_uuid, request_uuid) do
     TransactionConsumption
     |> where([t], t.status == @confirmed)
     |> where([t], t.user_uuid == ^user_uuid)
+    |> where([t], t.transaction_request_uuid == ^request_uuid)
     |> Repo.all()
   end
 

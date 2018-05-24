@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
   describe "AdminAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct response structure" do
       transaction = insert(:transfer)
-      minted_token = transaction.minted_token
+      token = transaction.token
 
       expected = %{
         version: @expected_version,
@@ -19,34 +19,34 @@ defmodule AdminAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.from,
             amount: transaction.amount,
-            minted_token_id: minted_token.id,
-            minted_token: %{
-              object: "minted_token",
-              id: minted_token.id,
-              symbol: minted_token.symbol,
-              name: minted_token.name,
+            token_id: token.id,
+            token: %{
+              object: "token",
+              id: token.id,
+              symbol: token.symbol,
+              name: token.name,
               metadata: %{},
               encrypted_metadata: %{},
-              subunit_to_unit: minted_token.subunit_to_unit,
-              created_at: Date.to_iso8601(minted_token.inserted_at),
-              updated_at: Date.to_iso8601(minted_token.updated_at)
+              subunit_to_unit: token.subunit_to_unit,
+              created_at: Date.to_iso8601(token.inserted_at),
+              updated_at: Date.to_iso8601(token.updated_at)
             }
           },
           to: %{
             object: "transaction_source",
             address: transaction.to,
             amount: transaction.amount,
-            minted_token_id: minted_token.id,
-            minted_token: %{
-              object: "minted_token",
-              id: minted_token.id,
-              symbol: minted_token.symbol,
-              name: minted_token.name,
+            token_id: token.id,
+            token: %{
+              object: "token",
+              id: token.id,
+              symbol: token.symbol,
+              name: token.name,
               metadata: %{},
               encrypted_metadata: %{},
-              subunit_to_unit: minted_token.subunit_to_unit,
-              created_at: Date.to_iso8601(minted_token.inserted_at),
-              updated_at: Date.to_iso8601(minted_token.updated_at)
+              subunit_to_unit: token.subunit_to_unit,
+              created_at: Date.to_iso8601(token.inserted_at),
+              updated_at: Date.to_iso8601(token.updated_at)
             }
           },
           exchange: %{
@@ -66,9 +66,9 @@ defmodule AdminAPI.V1.TransactionViewTest do
 
     test "renders transactions.json with correct response structure" do
       transaction1 = insert(:transfer)
-      minted_token1 = transaction1.minted_token
+      token1 = transaction1.token
       transaction2 = insert(:transfer)
-      minted_token2 = transaction2.minted_token
+      token2 = transaction2.token
 
       paginator = %Paginator{
         data: [transaction1, transaction2],
@@ -94,34 +94,34 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction1.from,
                 amount: transaction1.amount,
-                minted_token_id: minted_token1.id,
-                minted_token: %{
-                  object: "minted_token",
-                  id: minted_token1.id,
-                  symbol: minted_token1.symbol,
-                  name: minted_token1.name,
+                token_id: token1.id,
+                token: %{
+                  object: "token",
+                  id: token1.id,
+                  symbol: token1.symbol,
+                  name: token1.name,
                   metadata: %{},
                   encrypted_metadata: %{},
-                  subunit_to_unit: minted_token1.subunit_to_unit,
-                  created_at: Date.to_iso8601(minted_token1.inserted_at),
-                  updated_at: Date.to_iso8601(minted_token1.updated_at)
+                  subunit_to_unit: token1.subunit_to_unit,
+                  created_at: Date.to_iso8601(token1.inserted_at),
+                  updated_at: Date.to_iso8601(token1.updated_at)
                 }
               },
               to: %{
                 object: "transaction_source",
                 address: transaction1.to,
                 amount: transaction1.amount,
-                minted_token_id: minted_token1.id,
-                minted_token: %{
-                  object: "minted_token",
-                  id: minted_token1.id,
-                  symbol: minted_token1.symbol,
-                  name: minted_token1.name,
+                token_id: token1.id,
+                token: %{
+                  object: "token",
+                  id: token1.id,
+                  symbol: token1.symbol,
+                  name: token1.name,
                   metadata: %{},
                   encrypted_metadata: %{},
-                  subunit_to_unit: minted_token1.subunit_to_unit,
-                  created_at: Date.to_iso8601(minted_token1.inserted_at),
-                  updated_at: Date.to_iso8601(minted_token1.updated_at)
+                  subunit_to_unit: token1.subunit_to_unit,
+                  created_at: Date.to_iso8601(token1.inserted_at),
+                  updated_at: Date.to_iso8601(token1.updated_at)
                 }
               },
               exchange: %{
@@ -142,34 +142,34 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction2.from,
                 amount: transaction2.amount,
-                minted_token_id: minted_token2.id,
-                minted_token: %{
-                  object: "minted_token",
-                  id: minted_token2.id,
-                  symbol: minted_token2.symbol,
-                  name: minted_token2.name,
+                token_id: token2.id,
+                token: %{
+                  object: "token",
+                  id: token2.id,
+                  symbol: token2.symbol,
+                  name: token2.name,
                   metadata: %{},
                   encrypted_metadata: %{},
-                  subunit_to_unit: minted_token2.subunit_to_unit,
-                  created_at: Date.to_iso8601(minted_token2.inserted_at),
-                  updated_at: Date.to_iso8601(minted_token2.updated_at)
+                  subunit_to_unit: token2.subunit_to_unit,
+                  created_at: Date.to_iso8601(token2.inserted_at),
+                  updated_at: Date.to_iso8601(token2.updated_at)
                 }
               },
               to: %{
                 object: "transaction_source",
                 address: transaction2.to,
                 amount: transaction2.amount,
-                minted_token_id: minted_token2.id,
-                minted_token: %{
-                  object: "minted_token",
-                  id: minted_token2.id,
-                  symbol: minted_token2.symbol,
-                  name: minted_token2.name,
+                token_id: token2.id,
+                token: %{
+                  object: "token",
+                  id: token2.id,
+                  symbol: token2.symbol,
+                  name: token2.name,
                   metadata: %{},
                   encrypted_metadata: %{},
-                  subunit_to_unit: minted_token2.subunit_to_unit,
-                  created_at: Date.to_iso8601(minted_token2.inserted_at),
-                  updated_at: Date.to_iso8601(minted_token2.updated_at)
+                  subunit_to_unit: token2.subunit_to_unit,
+                  created_at: Date.to_iso8601(token2.inserted_at),
+                  updated_at: Date.to_iso8601(token2.updated_at)
                 }
               },
               exchange: %{

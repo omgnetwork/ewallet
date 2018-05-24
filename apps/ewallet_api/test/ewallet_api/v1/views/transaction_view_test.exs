@@ -1,12 +1,12 @@
 defmodule EWalletAPI.V1.TransactionViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.TransactionView
-  alias EWallet.Web.{Date, V1.MintedTokenSerializer}
+  alias EWallet.Web.{Date, V1.TokenSerializer}
 
   describe "EWalletAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct structure" do
       transaction = insert(:transfer)
-      minted_token = transaction.minted_token
+      token = transaction.token
 
       expected = %{
         version: @expected_version,
@@ -19,15 +19,15 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.from,
             amount: transaction.amount,
-            minted_token_id: minted_token.id,
-            minted_token: MintedTokenSerializer.serialize(minted_token)
+            token_id: token.id,
+            token: TokenSerializer.serialize(token)
           },
           to: %{
             object: "transaction_source",
             address: transaction.to,
             amount: transaction.amount,
-            minted_token_id: minted_token.id,
-            minted_token: MintedTokenSerializer.serialize(transaction.minted_token)
+            token_id: token.id,
+            token: TokenSerializer.serialize(transaction.token)
           },
           exchange: %{
             object: "exchange",

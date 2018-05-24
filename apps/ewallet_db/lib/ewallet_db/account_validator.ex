@@ -35,14 +35,9 @@ defmodule EWalletDB.AccountValidator do
     - `2` : valid if the account is the master account, its direct children, or one more level down
     - ...
   """
-  @spec validate_account_level(
-          changeset :: Ecto.Changeset.t(),
-          child_level_limit :: non_neg_integer()
-        ) :: Ecto.Changeset.t()
+  @spec validate_account_level(Ecto.Changeset.t(), non_neg_integer()) :: Ecto.Changeset.t()
   def validate_account_level(changeset, child_level_limit) do
-    with {_, parent_uuid} <- fetch_field(changeset, :parent_uuid),
-         depth <- Account.get_depth(parent_uuid),
-         true <- depth >= child_level_limit do
+    if get_depth(changeset) > child_level_limit do
       add_error(
         changeset,
         :parent_uuid,
@@ -50,7 +45,21 @@ defmodule EWalletDB.AccountValidator do
         validation: :account_level_limit
       )
     else
-      _ -> changeset
+      changeset
+    end
+  end
+
+  defp get_depth(changeset) do
+    case fetch_field(changeset, :parent_uuid) do
+      {_, nil} ->
+        # If the account does not have a parent_uuid,
+        # it means it's a top-level account
+        0
+
+      {_, parent_uuid} ->
+        # Since the depth returned is of the parent,
+        # we need to +1 to get this account's depth
+        Account.get_depth(parent_uuid) + 1
     end
   end
 end

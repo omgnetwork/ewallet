@@ -38,10 +38,10 @@ defmodule EWalletDB.UserTest do
       assert changeset.errors == [{:email, {"has already been taken", []}}]
     end
 
-    test "automatically creates a balance when user is created" do
+    test "automatically creates a wallet when user is created" do
       {_result, user} = :user |> params_for |> User.insert()
-      User.get_primary_balance(user)
-      assert length(User.get(user.id).balances) == 1
+      User.get_primary_wallet(user)
+      assert length(User.get(user.id).wallets) == 1
     end
   end
 
@@ -126,25 +126,25 @@ defmodule EWalletDB.UserTest do
     end
   end
 
-  describe "get_primary_balance/1" do
-    test "returns the first balance" do
+  describe "get_primary_wallet/1" do
+    test "returns the first wallet" do
       {:ok, inserted} = User.insert(params_for(:user))
-      balance = User.get_primary_balance(inserted)
+      wallet = User.get_primary_wallet(inserted)
 
       user =
         inserted.id
         |> User.get()
-        |> Repo.preload([:balances])
+        |> Repo.preload([:wallets])
 
-      assert balance != nil
-      assert balance == Enum.at(user.balances, 0)
+      assert wallet != nil
+      assert wallet == Enum.at(user.wallets, 0)
     end
 
-    test "make sure only 1 balance is created at most" do
+    test "make sure only 1 wallet is created at most" do
       {:ok, inserted} = User.insert(params_for(:user))
-      balance_1 = User.get_primary_balance(inserted)
-      balance_2 = User.get_primary_balance(inserted)
-      assert balance_1 == balance_2
+      wallet_1 = User.get_primary_wallet(inserted)
+      wallet_2 = User.get_primary_wallet(inserted)
+      assert wallet_1 == wallet_2
     end
   end
 

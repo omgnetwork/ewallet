@@ -104,8 +104,8 @@ podTemplate(
                         ]
                     ])
 
-                    sh("sed -i.bak 's#${imageName}:latest#${imageName}:${gitCommit}#' staging/k8s/ewallet/ewallet.yaml")
-                    sh("kubectl apply -f staging/k8s/ewallet/ewallet.yaml")
+                    sh("sed -i.bak 's#${imageName}:latest#${imageName}:${gitCommit}#' staging/k8s/ewallet/deployment.yaml")
+                    sh("kubectl apply -f staging/k8s/ewallet/deployment.yaml")
                     sh("kubectl rollout status --namespace=staging deployment/ewallet")
 
                     def podID = getPodID('--namespace=staging -l app=ewallet')

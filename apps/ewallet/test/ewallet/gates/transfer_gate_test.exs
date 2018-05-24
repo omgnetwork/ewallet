@@ -1,27 +1,27 @@
 defmodule EWallet.TransferTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.TransferGate
-  alias EWalletDB.{Repo, MintedToken, Account, Transfer}
+  alias EWalletDB.{Repo, Token, Account, Transfer}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 
   setup do
     master_account = Account.get_master_account()
-    master_balance = Account.get_primary_balance(master_account)
+    master_wallet = Account.get_primary_wallet(master_account)
     {:ok, account1} = Account.insert(params_for(:account))
     {:ok, account2} = Account.insert(params_for(:account))
-    {:ok, token} = MintedToken.insert(params_for(:minted_token, subunit_to_unit: 100))
-    from = Account.get_primary_balance(account1)
-    to = Account.get_primary_balance(account2)
+    {:ok, token} = Token.insert(params_for(:token, subunit_to_unit: 100))
+    from = Account.get_primary_wallet(account1)
+    to = Account.get_primary_wallet(account2)
 
     mint!(token)
-    transfer!(master_balance.address, from.address, token, 1_000 * token.subunit_to_unit)
+    transfer!(master_wallet.address, from.address, token, 1_000 * token.subunit_to_unit)
 
     %{
       idempotency_token: UUID.generate(),
       from: from.address,
       to: to.address,
-      minted_token_id: token.id,
+      token_id: token.id,
       amount: 100 * token.subunit_to_unit,
       metadata: %{},
       payload: %{}
@@ -74,7 +74,7 @@ defmodule EWallet.TransferTest do
                "address" => attrs[:from],
                "amount_to_debit" => 1_000_000,
                "current_amount" => 100_000,
-               "minted_token_id" => attrs[:minted_token_id]
+               "token_id" => attrs[:token_id]
              }
 
       assert transfer.status == Transfer.failed()

@@ -1,54 +1,54 @@
 defmodule LocalLedger.CachedBalance do
   @moduledoc """
-  This module is an interface to the LocalLedgerDB Balance schema. It is responsible for caching
-  balances and serves as an interface to retrieve the current balances (which will either be
+  This module is an interface to the abstract balances stored in DB. It is responsible for caching
+  wallets and serves as an interface to retrieve the current balances (which will either be
   loaded from a cached balance or computed - or both).
   """
-  alias LocalLedgerDB.{Balance, CachedBalance, Transaction}
+  alias LocalLedgerDB.{Wallet, CachedBalance, Transaction}
 
   @doc """
-  Cache all the balances using a batch stream mechanism for retrieval (1000 at a time). This
+  Cache all the wallets balances using a batch stream mechanism for retrieval (1000 at a time). This
   is meant to be used in some kind of schedulers, but can also be ran manually.
   """
   @spec cache_all() :: {}
   def cache_all do
-    Balance.stream_all(fn balance ->
-      {:ok, calculate_with_strategy(balance)}
+    Wallet.stream_all(fn wallet ->
+      {:ok, calculate_with_strategy(wallet)}
     end)
   end
 
   @doc """
-  Get all the balance amounts for the given balance.
+  Get all the balances for the given wallet.
   """
-  @spec all(Balance.t()) :: {:ok, Map.t()}
-  def all(balance) do
-    {:ok, get_amounts(balance)}
+  @spec all(Wallet.t()) :: {:ok, Map.t()}
+  def all(wallet) do
+    {:ok, get_amounts(wallet)}
   end
 
   @doc """
-  Get the balance amount for the specified minted token (token_id) and
-  the given balance.
+  Get the balance for the specified token (token_id) and
+  the given wallet.
   """
-  @spec get(Balance.t(), String.t()) :: {:ok, Map.t()}
-  def get(balance, token_id) do
-    amounts = get_amounts(balance)
+  @spec get(Wallet.t(), String.t()) :: {:ok, Map.t()}
+  def get(wallet, token_id) do
+    amounts = get_amounts(wallet)
     {:ok, %{token_id => amounts[token_id] || 0}}
   end
 
-  defp get_amounts(balance) do
-    balance.address
+  defp get_amounts(wallet) do
+    wallet.address
     |> CachedBalance.get()
-    |> calculate_amounts(balance)
+    |> calculate_amounts(wallet)
   end
 
-  defp calculate_amounts(nil, balance), do: calculate_from_beginning_and_insert(balance)
+  defp calculate_amounts(nil, wallet), do: calculate_from_beginning_and_insert(wallet)
 
-  defp calculate_amounts(cached_balance, balance) do
-    balance.address
+  defp calculate_amounts(computed_balance, wallet) do
+    wallet.address
     |> Transaction.calculate_all_balances(%{
-      since: cached_balance.computed_at
+      since: computed_balance.computed_at
     })
-    |> add_amounts(cached_balance.amounts)
+    |> add_amounts(computed_balance.amounts)
   end
 
   defp add_amounts(amounts_1, amounts_2) do
@@ -59,53 +59,53 @@ defmodule LocalLedger.CachedBalance do
     |> Enum.into(%{})
   end
 
-  defp calculate_with_strategy(balance) do
+  defp calculate_with_strategy(wallet) do
     :local_ledger
     |> Application.get_env(:balance_caching_strategy)
-    |> calculate_with_strategy(balance)
+    |> calculate_with_strategy(wallet)
   end
 
-  defp calculate_with_strategy("since_last_cached", balance) do
-    case CachedBalance.get(balance.address) do
-      nil -> calculate_from_beginning_and_insert(balance)
-      cached_balance -> calculate_from_cached_and_insert(balance, cached_balance)
+  defp calculate_with_strategy("since_last_cached", wallet) do
+    case CachedBalance.get(wallet.address) do
+      nil -> calculate_from_beginning_and_insert(wallet)
+      computed_balance -> calculate_from_cached_and_insert(wallet, computed_balance)
     end
   end
 
-  defp calculate_with_strategy("since_beginning", balance) do
-    calculate_from_beginning_and_insert(balance)
+  defp calculate_with_strategy("since_beginning", wallet) do
+    calculate_from_beginning_and_insert(wallet)
   end
 
-  defp calculate_with_strategy(_, balance) do
-    calculate_with_strategy("since_beginning", balance)
+  defp calculate_with_strategy(_, wallet) do
+    calculate_with_strategy("since_beginning", wallet)
   end
 
-  defp calculate_from_beginning_and_insert(balance) do
+  defp calculate_from_beginning_and_insert(wallet) do
     computed_at = NaiveDateTime.utc_now()
 
-    balance.address
+    wallet.address
     |> Transaction.calculate_all_balances(%{upto: computed_at})
-    |> insert(balance, computed_at)
+    |> insert(wallet, computed_at)
   end
 
-  defp calculate_from_cached_and_insert(balance, cached_balance) do
+  defp calculate_from_cached_and_insert(wallet, computed_balance) do
     computed_at = NaiveDateTime.utc_now()
 
-    balance.address
+    wallet.address
     |> Transaction.calculate_all_balances(%{
-      since: cached_balance.computed_at,
+      since: computed_balance.computed_at,
       upto: computed_at
     })
-    |> add_amounts(cached_balance.amounts)
-    |> insert(balance, computed_at)
+    |> add_amounts(computed_balance.amounts)
+    |> insert(wallet, computed_at)
   end
 
-  defp insert(amounts, balance, computed_at) do
+  defp insert(amounts, wallet, computed_at) do
     if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
       {:ok, _} =
         CachedBalance.insert(%{
           amounts: amounts,
-          balance_address: balance.address,
+          wallet_address: wallet.address,
           computed_at: computed_at
         })
     end

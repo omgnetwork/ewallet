@@ -1,0 +1,84 @@
+defmodule AdminAPI.V1.TokenViewTest do
+  use AdminAPI.ViewCase, :v1
+  alias EWallet.Web.{Date, Paginator}
+  alias AdminAPI.V1.TokenView
+
+  describe "AdminAPI.V1.TokenView.render/2" do
+    test "renders token.json with correct response structure" do
+      token = insert(:token)
+
+      expected = %{
+        version: @expected_version,
+        success: true,
+        data: %{
+          object: "token",
+          id: token.id,
+          symbol: token.symbol,
+          name: token.name,
+          metadata: %{},
+          encrypted_metadata: %{},
+          subunit_to_unit: token.subunit_to_unit,
+          created_at: Date.to_iso8601(token.inserted_at),
+          updated_at: Date.to_iso8601(token.updated_at)
+        }
+      }
+
+      assert TokenView.render("token.json", %{token: token}) == expected
+    end
+
+    test "renders tokens.json with correct response structure" do
+      token1 = insert(:token)
+      token2 = insert(:token)
+
+      paginator = %Paginator{
+        data: [token1, token2],
+        pagination: %{
+          per_page: 10,
+          current_page: 1,
+          is_first_page: true,
+          is_last_page: false
+        }
+      }
+
+      expected = %{
+        version: @expected_version,
+        success: true,
+        data: %{
+          object: "list",
+          data: [
+            %{
+              object: "token",
+              id: token1.id,
+              symbol: token1.symbol,
+              name: token1.name,
+              metadata: %{},
+              encrypted_metadata: %{},
+              subunit_to_unit: token1.subunit_to_unit,
+              created_at: Date.to_iso8601(token1.inserted_at),
+              updated_at: Date.to_iso8601(token1.updated_at)
+            },
+            %{
+              object: "token",
+              id: token2.id,
+              symbol: token2.symbol,
+              name: token2.name,
+              metadata: %{},
+              encrypted_metadata: %{},
+              subunit_to_unit: token2.subunit_to_unit,
+              created_at: Date.to_iso8601(token2.inserted_at),
+              updated_at: Date.to_iso8601(token2.updated_at)
+            }
+          ],
+          pagination: %{
+            per_page: 10,
+            current_page: 1,
+            is_first_page: true,
+            is_last_page: false
+          }
+        }
+      }
+
+      assert TokenView.render("tokens.json", %{tokens: paginator}) == expected
+    end
+  end
+end
