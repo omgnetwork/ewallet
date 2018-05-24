@@ -1617,7 +1617,7 @@ components:
       description: |
         The parameters for making a transfer to a specific address.
         The from_address is optional, if specified it must belong to the current user.
-        If not specified, the user's primary balance will be used.
+        If not specified, the user's primary wallet will be used.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1653,7 +1653,7 @@ components:
 
         If not specified, the account owning the token will be used as the source.
         If no burn_balance_identifier is specified, the tokens won't be burned
-        and will instead be returned to the primary balance of the selected account.
+        and will instead be returned to the primary wallet of the selected account.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1719,7 +1719,7 @@ components:
               address:
                 type: string
                 description:
-                  "If not specified, the current user's primary balance will be used.
+                  "If not specified, the current user's primary wallet will be used.
                    If specified, it needs to be one of the account's or user's addresses."
               require_confirmation:
                 type: boolean
@@ -1801,7 +1801,7 @@ components:
               address:
                 type: string
                 description:
-                  "If not specified, the current user's primary balance will be used.
+                  "If not specified, the current user's primary wallet will be used.
                    If specified, it needs to be one of the current user's addresses."
               require_confirmation:
                 type: boolean
@@ -1890,7 +1890,7 @@ components:
               address:
                 type: string
                 description:
-                  "If not specified, the current user's primary balance will be used.
+                  "If not specified, the current user's primary wallet will be used.
                    If specified, it needs to be one of the account's or user's addresses."
               metadata:
                 type: object

@@ -12,13 +12,13 @@ Balances are saved in eWallet DB, and a shadow copy is made in LocalLedger to en
 - `name`: A modifiable field used to identify a specific balance. By default, the identifier will be used as a name.
 - `identifier`: An identifier acting both as a type and a unique identifier in the scope of the current account or user.
   - Can contain: `genesis`, `burn`, `primary`, `secondary:#{uuid}`
-  - The `genesis` balance will be lazy-created the first time it's needed. A primary balance is created for users and accounts on creation (accounts also get a burn balance).
+  - The `genesis` balance will be lazy-created the first time it's needed. A primary wallet is created for users and accounts on creation (accounts also get a burn balance).
   - The value has to be unique in the scope of the current account/user: One account can only have one primary and one burn wallets. Multiple secondary wallets can be created by adding a generated `uuid`. The `genesis` balance has no user or account associated and is the only one working that way.
   - Secondary wallets are not available yet, but it should be possible in the future for users to create alternative wallets (like different bank accounts for example), and potentially change their primary address.
 
 ## The minting process
 
-When minting, tokens are taken from the genesis (the only balance allowed to go in the negative in the DEB ledger) and transferred into the primary balance of the master account (there can only be one master account per eWallet). It is then possible for an admin to transfer funds from that primary balance (associated with the master account) to any other account's balance.
+When minting, tokens are taken from the genesis (the only balance allowed to go in the negative in the DEB ledger) and transferred into the primary wallet of the master account (there can only be one master account per eWallet). It is then possible for an admin to transfer funds from that primary wallet (associated with the master account) to any other account's balance.
 
 ## The burn balance
 
@@ -26,4 +26,4 @@ The burn balance is an optional balance that can be used to get rid of tokens. I
 
 ## Crediting or debiting from a specific account
 
-When debiting or crediting, it is also possible to specify which account (with the `account_id` parameter) is being used. The primary balance of that given account will be used to get funds in case of a credit, or where will the funds be returned in case of a debit. By default, if no account is specified, the master account will be used.
+When debiting or crediting, it is also possible to specify which account (with the `account_id` parameter) is being used. The primary wallet of that given account will be used to get funds in case of a credit, or where will the funds be returned in case of a debit. By default, if no account is specified, the master account will be used.

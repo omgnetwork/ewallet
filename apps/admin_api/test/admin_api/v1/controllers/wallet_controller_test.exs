@@ -186,7 +186,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
   end
 
   describe "/wallet.create" do
-    test "fails to insert a primary balance for an account" do
+    test "fails to insert a primary wallet for an account" do
       account = insert(:account)
 
       response =
@@ -250,7 +250,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert Enum.at(wallets, 2).address == response["data"]["address"]
     end
 
-    test "fails to insert a primary balance for a user" do
+    test "fails to insert a primary wallet for a user" do
       user = insert(:user)
 
       response =

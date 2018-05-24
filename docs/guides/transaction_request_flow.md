@@ -49,7 +49,7 @@ provider_user_id:
 address:
   type: string
   description:
-    "If not specified, the current user's primary balance will be used.
+    "If not specified, the current user's primary wallet will be used.
      If specified, it needs to be one of the account's or user's addresses."
 require_confirmation:
   type: boolean
