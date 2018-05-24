@@ -51,6 +51,40 @@ defmodule EWallet.TransferTest do
       assert inserted_transfer1.id == inserted_transfer2.id
       assert Transfer |> Repo.all() |> length() == 3
     end
+
+    test "fails to insert a transfer with a burn wallet", attrs do
+      master_account = Account.get_master_account()
+      burn_wallet = Account.get_default_burn_wallet(master_account)
+
+      attrs = attrs |> Map.put(:from, burn_wallet.address)
+      transfer = Transfer.get(attrs.idempotency_token)
+      assert transfer == nil
+
+      {:error, changeset} = TransferGate.get_or_insert(attrs)
+
+      assert changeset.errors == [
+               from:
+                 {"can't be the address of a burn wallet",
+                  [validation: :burn_wallet_as_sender_not_allowed]}
+             ]
+    end
+
+    test "fails to insert a transfer with an additional burn wallet", attrs do
+      master_account = Account.get_master_account()
+      burn_wallet = insert(:wallet, account: master_account, identifier: "burn_1")
+
+      attrs = attrs |> Map.put(:from, burn_wallet.address)
+      transfer = Transfer.get(attrs.idempotency_token)
+      assert transfer == nil
+
+      {:error, changeset} = TransferGate.get_or_insert(attrs)
+
+      assert changeset.errors == [
+               from:
+                 {"can't be the address of a burn wallet",
+                  [validation: :burn_wallet_as_sender_not_allowed]}
+             ]
+    end
   end
 
   describe "process/1" do

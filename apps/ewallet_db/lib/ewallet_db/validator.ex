@@ -3,6 +3,7 @@ defmodule EWalletDB.Validator do
   Custom validators that extend Ecto.Changeset's list of built-in validators.
   """
   alias Ecto.Changeset
+  alias EWalletDB.Wallet
 
   @min_password_length Application.get_env(:ewallet_db, :min_password_length, 8)
 
@@ -113,6 +114,24 @@ defmodule EWalletDB.Validator do
 
       {:error, _} ->
         Changeset.add_error(changeset, key, "does not meet the password requirements")
+    end
+  end
+
+  def validate_from_wallet_identifier(changeset) do
+    from = Changeset.get_field(changeset, :from)
+    wallet = Wallet.get(from)
+
+    case Wallet.burn_wallet?(wallet) do
+      true ->
+        Changeset.add_error(
+          changeset,
+          :from,
+          "can't be the address of a burn wallet",
+          validation: :burn_wallet_as_sender_not_allowed
+        )
+
+      false ->
+        changeset
     end
   end
 end
