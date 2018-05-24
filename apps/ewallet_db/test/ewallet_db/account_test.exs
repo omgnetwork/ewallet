@@ -175,5 +175,13 @@ defmodule EWalletDB.AccountTest do
       account3 = insert(:account, %{parent: account2})
       assert Account.get_depth(account3) == 3
     end
+
+    # Returning a value, e.g. 0, is unsafe since that would be assuming that
+    # some arbitary account or value is the top level account. Safer to raise an error.
+    test "raises an error if given nil" do
+      assert_raise FunctionClauseError, fn ->
+        Account.get_depth(nil)
+      end
+    end
   end
 end
