@@ -74,7 +74,10 @@ defmodule EWalletDB.ValidatorTest do
       refute changeset.valid?
 
       assert changeset.errors ==
-               [{%{attr1: nil, attr2: nil, attr3: nil}, {"can't all be blank", []}}]
+               [
+                 {%{attr1: nil, attr2: nil, attr3: nil},
+                  {"can't all be blank", [validation: :required_exclusive]}}
+               ]
     end
 
     test "invalid if more than one field is present" do
@@ -92,7 +95,10 @@ defmodule EWalletDB.ValidatorTest do
       refute changeset.valid?
 
       assert changeset.errors ==
-               [{%{attr1: nil, attr2: nil, attr3: nil}, {"only one must be present", []}}]
+               [
+                 {%{attr1: nil, attr2: nil, attr3: nil},
+                  {"only one must be present", [validation: :only_one_required]}}
+               ]
     end
 
     test "invalid if more than one field is present with an attribute value given" do
@@ -110,7 +116,10 @@ defmodule EWalletDB.ValidatorTest do
       refute changeset.valid?
 
       assert changeset.errors ==
-               [{%{attr1: "value", attr2: nil, attr3: nil}, {"only one must be present", []}}]
+               [
+                 {%{attr1: "value", attr2: nil, attr3: nil},
+                  {"only one must be present", [validation: :only_one_required]}}
+               ]
     end
   end
 

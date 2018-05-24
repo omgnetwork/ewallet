@@ -55,7 +55,7 @@ defmodule EWalletDB.WalletTest do
       assert changeset.errors ==
                [
                  {%{account_uuid: nil, identifier: "genesis", user_uuid: nil},
-                  {"only one must be present", []}}
+                  {"only one must be present", [validation: :only_one_required]}}
                ]
     end
 
@@ -68,7 +68,7 @@ defmodule EWalletDB.WalletTest do
       assert changeset.errors ==
                [
                  {%{account_uuid: nil, identifier: "genesis", user_uuid: nil},
-                  {"can't all be blank", []}}
+                  {"can't all be blank", [validation: :required_exclusive]}}
                ]
     end
 
