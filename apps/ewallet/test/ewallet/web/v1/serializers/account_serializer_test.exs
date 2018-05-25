@@ -19,6 +19,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
         description: account.description,
         master: Account.master?(account),
         category_ids: CategorySerializer.serialize(account.categories, :id),
+        categories: CategorySerializer.serialize(account.categories),
         metadata: %{},
         encrypted_metadata: %{},
         avatar: %{
@@ -60,6 +61,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             description: account1.description,
             master: Account.master?(account1),
             category_ids: CategorySerializer.serialize(account1.categories, :id),
+            categories: CategorySerializer.serialize(account1.categories),
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{
@@ -80,6 +82,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             description: account2.description,
             master: Account.master?(account2),
             category_ids: CategorySerializer.serialize(account2.categories, :id),
+            categories: CategorySerializer.serialize(account2.categories),
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{

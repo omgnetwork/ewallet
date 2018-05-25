@@ -1,6 +1,6 @@
 defmodule EWallet.CategoryPolicy do
   @moduledoc """
-  The authorization policy for accounts.
+  The authorization policy for categories.
   """
   alias EWalletDB.User
   @behaviour Bodyguard.Policy

@@ -32,6 +32,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
       description: account.description,
       master: Account.master?(account),
       category_ids: CategorySerializer.serialize(account.categories, :id),
+      categories: CategorySerializer.serialize(account.categories),
       avatar: Avatar.urls({account.avatar, account}),
       metadata: account.metadata || %{},
       encrypted_metadata: account.encrypted_metadata || %{},
