@@ -14,7 +14,7 @@ defmodule AdminAPI.V1.MintController do
     "created_at" => "inserted_at"
   }
   @search_fields [:id, :description, :amount, :confirmed]
-  @sort_fields [:id, :description, :amount, :confirmed]
+  @sort_fields [:id, :description, :amount, :confirmed, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of mints.
@@ -26,5 +26,14 @@ defmodule AdminAPI.V1.MintController do
     |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
     |> Paginator.paginate_attrs(attrs)
     |> respond_multiple(conn)
+  end
+
+  # Respond with a list of mints
+  defp respond_multiple(%Paginator{} = paged_mints, conn) do
+    render(conn, :mints, %{mints: paged_mints})
+  end
+
+  defp respond_multiple({:error, code, description}, conn) do
+    handle_error(conn, code, description)
   end
 end
