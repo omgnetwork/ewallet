@@ -19,6 +19,7 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias EWalletDB.{Repo, User, Account}
+  alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.Helpers.Crypto
   alias EWalletDB.Types.ExternalID
 
@@ -130,6 +131,52 @@ defmodule AdminAPI.ConnCase do
     |> Repo.one()
   end
 
+  def mint!(token, amount \\ 1_000_000) do
+    {:ok, mint, _ledger_response} =
+      MintGate.insert(%{
+        "idempotency_token" => UUID.generate(),
+        "token_id" => token.id,
+        "amount" => amount * token.subunit_to_unit,
+        "description" => "Minting #{amount} #{token.symbol}",
+        "metadata" => %{}
+      })
+
+    assert mint.confirmed == true
+    mint
+  end
+
+  def set_initial_balance(%{
+        address: address,
+        token: token,
+        amount: amount
+      }) do
+    account = Account.get_master_account()
+    master_wallet = Account.get_primary_wallet(account)
+
+    mint!(token, amount * 100)
+
+    transfer!(
+      master_wallet.address,
+      address,
+      token,
+      amount * token.subunit_to_unit
+    )
+  end
+
+  def transfer!(from, to, token, amount) do
+    {:ok, transfer, _wallets, _token} =
+      TransactionGate.process_with_addresses(%{
+        "from_address" => from,
+        "to_address" => to,
+        "token_id" => token.id,
+        "amount" => amount,
+        "metadata" => %{},
+        "idempotency_token" => UUID.generate()
+      })
+
+    transfer
+  end
+
   @doc """
   A helper function that generates a valid client request (client-authenticated)
   with given path and data, and return the parsed JSON response.
@@ -162,6 +209,23 @@ defmodule AdminAPI.ConnCase do
 
     build_conn()
     |> put_req_header("accept", @header_accept)
+    |> put_auth_header("OMGAdmin", user_auth_header(opts))
+    |> post(@base_dir <> path, data)
+    |> json_response(status)
+  end
+
+  @doc """
+  A helper function that generates an invalid user request (user-authenticated)
+  with given path and data, and return the parsed JSON response.
+  Idempotency token needs to be specified.
+  """
+  @spec user_request(String.t(), map(), keyword()) :: map() | no_return()
+  def user_request_with_idempotency(path, idempotency, data \\ %{}, opts \\ []) do
+    {status, opts} = Keyword.pop(opts, :status, :ok)
+
+    build_conn()
+    |> put_req_header("accept", @header_accept)
+    |> put_req_header("idempotency-token", idempotency)
     |> put_auth_header("OMGAdmin", user_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)
