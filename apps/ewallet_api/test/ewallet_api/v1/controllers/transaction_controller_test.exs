@@ -288,14 +288,12 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
       assert response["data"]["data"] |> length() == 4
 
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.transfer_1.id,
-               meta.transfer_2.id,
-               meta.transfer_3.id,
-               meta.transfer_4.id
-             ]
+      ids = Enum.map(response["data"]["data"], fn t -> t["id"] end)
+      assert length(ids) == 4
+      assert Enum.member?(ids, meta.transfer_1.id)
+      assert Enum.member?(ids, meta.transfer_2.id)
+      assert Enum.member?(ids, meta.transfer_3.id)
+      assert Enum.member?(ids, meta.transfer_4.id)
     end
 
     test "ignores search terms if both from and to are provided and
