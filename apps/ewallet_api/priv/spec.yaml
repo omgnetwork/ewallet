@@ -1651,9 +1651,9 @@ components:
         The parameters for crediting or debiting the balance of the specified user
         by taking/giving back the given amount from/to the account_id.
 
-        If not specified, the account owning the token will be used as the source.
-        If no burn_balance_identifier is specified, the tokens won't be burned
-        and will instead be returned to the primary wallet of the selected account.
+        If not specified, the master account will be used as the source.
+        You can optionally specify the account_address and/or user_address to use a spcific wallet.
+        A convenient way to burn tokens is to make a debit and specify the burn wallet address.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1661,13 +1661,15 @@ components:
             properties:
               provider_user_id:
                 type: string
+              user_address:
+                type: string
               token_id:
                 type: string
               amount:
                 type: integer
               account_id:
                 type: string
-              burn_balance_identifier:
+              account_address:
                 type: string
               metadata:
                 type: object
@@ -1679,10 +1681,11 @@ components:
               - amount
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
+              user_address: "d28d5053-a1d5-4314-8c13-4aef396fe1e4"
               token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
               amount: 100
               account_id: "acc_01cbfgbt9hezkbz8mphmwdfcj1"
-              burn_balance_identifier: "burn"
+              account_address: "546570a9-6ebf-4df7-be01-724745d0b298"
               metadata: {}
               encrypted_metadata: {}
     ServerCreateTransactionRequestBody:
