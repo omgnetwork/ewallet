@@ -44,8 +44,8 @@ defmodule EWalletDB.Mint do
     timestamps()
   end
 
-  defp changeset(%Mint{} = token, attrs) do
-    token
+  defp changeset(%Mint{} = mint, attrs) do
+    mint
     |> cast(attrs, [:description, :amount, :token_uuid, :confirmed])
     |> validate_required([:amount, :token_uuid])
     |> validate_number(:amount, greater_than: 0)
@@ -57,11 +57,15 @@ defmodule EWalletDB.Mint do
     |> foreign_key_constraint(:transfer_uuid)
   end
 
-  defp update_changeset(%Mint{} = token, attrs) do
-    token
+  defp update_changeset(%Mint{} = mint, attrs) do
+    mint
     |> cast(attrs, [:transfer_uuid])
     |> validate_required([:transfer_uuid])
     |> assoc_constraint(:transfer)
+  end
+
+  def for_token(token) do
+    from(m in Mint, where: m.token_uuid == ^token.uuid)
   end
 
   @doc """

@@ -95,6 +95,11 @@ defmodule AdminAPI.V1.TokenController do
 
   def mint(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  def stats(conn. %{"id" => id}) do
+    # total supply
+    # burn
+  end
+
   defp mint_token({:ok, token}, %{"amount" => amount} = attrs)
        when is_number(amount) do
     %{
