@@ -1,1 +1,1 @@
-export const ADMIN_API_BASE_URL = '/'
+export const ADMIN_API_BASE_URL = 'admin/api/'
