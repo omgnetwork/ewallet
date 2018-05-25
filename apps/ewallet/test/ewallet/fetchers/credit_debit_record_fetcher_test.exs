@@ -26,7 +26,24 @@ defmodule EWallet.CreditDebitRecordFetcherTest do
       assert token == inserted_token
     end
 
-    test "returns the given account if provided" do
+    test "returns nil account given an address but no account_id" do
+      {:ok, master_account} = Account.insert(params_for(:account))
+      {:ok, inserted_token} = Token.insert(params_for(:token))
+      {:ok, inserted_user} = User.insert(params_for(:user))
+
+      {:ok, account, user, token} =
+        CreditDebitRecordFetcher.fetch(%{
+          "provider_user_id" => inserted_user.provider_user_id,
+          "token_id" => inserted_token.id,
+          "account_address" => Account.get_default_burn_wallet(master_account).address
+        })
+
+      assert account == nil
+      assert user == inserted_user
+      assert token == inserted_token
+    end
+
+    test "returns the given account if account_id is provided" do
       {:ok, inserted_account} = Account.insert(params_for(:account))
       {:ok, inserted_token} = Token.insert(params_for(:token))
       {:ok, inserted_user} = User.insert(params_for(:user))
