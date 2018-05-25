@@ -661,7 +661,6 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       transfer = get_last_inserted(Transfer)
       assert transfer.metadata == %{"something" => "interesting"}
       assert transfer.encrypted_metadata == %{"something" => "secret"}
-
     end
 
     test "returns invalid_parameter when the provider_user_id is missing" do
@@ -908,7 +907,6 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       transfer = get_last_inserted(Transfer)
       assert transfer.metadata == %{"something" => "interesting"}
       assert transfer.encrypted_metadata == %{"something" => "secret"}
-
     end
   end
 end

@@ -4,13 +4,11 @@ defmodule EWallet.CreditDebitRecordFetcher do
   """
   alias EWalletDB.{User, Token, Account}
 
-  def fetch(
-        %{
-          "account_id" => account_id,
-          "provider_user_id" => provider_user_id,
-          "token_id" => token_id
-        }
-      ) do
+  def fetch(%{
+        "account_id" => account_id,
+        "provider_user_id" => provider_user_id,
+        "token_id" => token_id
+      }) do
     account = Account.get(account_id, preload: :wallets)
     user = User.get_by_provider_user_id(provider_user_id)
     token = Token.get(token_id)
