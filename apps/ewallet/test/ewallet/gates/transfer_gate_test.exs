@@ -52,7 +52,7 @@ defmodule EWallet.TransferTest do
       assert Transfer |> Repo.all() |> length() == 3
     end
 
-    test "fails to insert a transfer with a burn wallet", attrs do
+    test "fails to insert a transfer from a burn wallet", attrs do
       master_account = Account.get_master_account()
       burn_wallet = Account.get_default_burn_wallet(master_account)
 
@@ -69,7 +69,7 @@ defmodule EWallet.TransferTest do
              ]
     end
 
-    test "fails to insert a transfer with an additional burn wallet", attrs do
+    test "fails to insert a transfer from an additional burn wallet", attrs do
       master_account = Account.get_master_account()
       burn_wallet = insert(:wallet, account: master_account, identifier: "burn_1")
 
