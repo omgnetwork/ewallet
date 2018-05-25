@@ -96,6 +96,7 @@ defmodule EWalletDB.Transfer do
       :metadata,
       :encrypted_metadata
     ])
+    |> validate_from_wallet_identifier()
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
     |> validate_immutable(:idempotency_token)
