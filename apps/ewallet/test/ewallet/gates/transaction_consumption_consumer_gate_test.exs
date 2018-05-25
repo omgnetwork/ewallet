@@ -744,11 +744,28 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       send(pid_3, :start_consume)
       send(pid_4, :start_consume)
 
-      assert_receive {:updated_1, _res, _response}, 5000
-      assert_receive {:updated_2, _res, _response}, 5000
-      assert_receive {:updated_3, _res, _response}, 5000
-      assert_receive {:updated_4, _res, response}, 5000
-      assert response == :max_consumptions_per_user_reached
+      assert_receive {:updated_1, _res, response_1}, 5000
+      assert_receive {:updated_2, _res, response_2}, 5000
+      assert_receive {:updated_3, _res, response_3}, 5000
+      assert_receive {:updated_4, _res, response_4}, 5000
+
+      acc = %{errors: 0, consumptions: 0}
+
+      counts =
+        Enum.reduce([response_1, response_2, response_3, response_4], acc, fn response, acc ->
+          case response do
+            :max_consumptions_per_user_reached ->
+              Map.put(acc, :errors, acc[:errors] + 1)
+
+            _ ->
+              Map.put(acc, :consumptions, acc[:consumptions] + 1)
+          end
+        end)
+
+      assert counts == %{
+               consumptions: 1,
+               errors: 3
+             }
 
       consumptions = TransactionConsumption |> EWalletDB.Repo.all()
       assert length(consumptions) == 1
