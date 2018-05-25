@@ -58,11 +58,10 @@ defmodule AdminPanel.Application do
         :yarn,
         [
           "webpack",
-          "--watch-stdin",
           "--color",
           "--progress",
           "--config",
-          "config/webpack.dev.js"
+          "webpack/webpack.dev.config.js"
         ],
         [cd: Path.expand("../../assets/", __DIR__)]
       ],

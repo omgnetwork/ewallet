@@ -130,6 +130,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     websocket_connect_error: %{
       code: "websocket:connect_error",
       description: "Connection to websocket failed."
+    },
+    token_not_found: %{
+      code: "token:token_not_found",
+      description: "There is no token matching the provided token_id."
     }
   }
 

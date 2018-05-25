@@ -14,6 +14,56 @@ defmodule AdminAPI.V1.SelfControllerTest do
     end
   end
 
+  describe "/me.update" do
+    test "update the current user with the given parameters" do
+      response =
+        user_request("/me.update", %{
+          email: "test_1337@example.com",
+          metadata: %{"key" => "value_1337"},
+          encrypted_metadata: %{"key" => "value_1337"}
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "user"
+      assert response["data"]["email"] == "test_1337@example.com"
+      assert response["data"]["metadata"] == %{"key" => "value_1337"}
+      assert response["data"]["encrypted_metadata"] == %{"key" => "value_1337"}
+    end
+
+    test "doesn't update params that are not provided" do
+      user = get_test_user()
+      response = user_request("/me.update", %{})
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "user"
+      assert response["data"]["username"] == user.username
+      assert response["data"]["email"] == user.email
+      assert response["data"]["metadata"] == user.metadata
+      assert response["data"]["encrypted_metadata"] == user.encrypted_metadata
+    end
+
+    test "ignore additional/invalid params" do
+      user = get_test_user()
+      response = user_request("/me.update", %{provider_user_id: "test_puid_1337"})
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "user"
+      assert response["data"]["provider_user_id"] == user.provider_user_id
+    end
+
+    test "raise an error if the update is not valid" do
+      insert(:user, %{email: "user1@example.com"})
+      response = user_request("/me.update", %{email: "user1@example.com"})
+
+      assert response["success"] == false
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `email` has already been taken."
+
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+  end
+
   describe "/me.get_account" do
     test "responds with an account" do
       account = User.get_account(get_test_user())

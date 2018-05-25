@@ -193,4 +193,11 @@ defmodule EWalletDB.Wallet do
         {:error, changeset}
     end
   end
+
+  @doc """
+  Check if a wallet is a burn wallet.
+  """
+  @spec burn_wallet?(%Wallet{} | nil) :: true | false
+  def burn_wallet?(nil), do: false
+  def burn_wallet?(wallet), do: String.match?(wallet.identifier, ~r/^#{@burn}|#{@burn}:.*/)
 end
