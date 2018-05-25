@@ -86,6 +86,7 @@ defmodule EWallet.TransactionGate do
   """
   def process_credit_or_debit(
         %{
+          "account_id" => _,
           "provider_user_id" => _,
           "token_id" => _,
           "amount" => _,

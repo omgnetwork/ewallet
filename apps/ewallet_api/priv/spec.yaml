@@ -1651,7 +1651,6 @@ components:
         The parameters for crediting or debiting the balance of the specified user
         by taking/giving back the given amount from/to the account_id.
 
-        If not specified, the master account will be used as the source.
         You can optionally specify the account_address and/or user_address to use a spcific wallet.
         A convenient way to burn tokens is to make a debit and specify the burn wallet address.
       required: true
@@ -1676,6 +1675,7 @@ components:
               encrypted_metadata:
                 type: object
             required:
+              - account_id
               - provider_user_id
               - token_id
               - amount
