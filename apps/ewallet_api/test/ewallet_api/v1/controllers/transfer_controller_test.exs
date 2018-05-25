@@ -608,16 +608,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response =
         provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
+          account_id: account.id,
           provider_user_id: user.provider_user_id,
           token_id: token.id,
           amount: 1_000 * token.subunit_to_unit,
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
         })
-
-      transfer = get_last_inserted(Transfer)
-      assert transfer.metadata == %{"something" => "interesting"}
-      assert transfer.encrypted_metadata == %{"something" => "secret"}
 
       assert response == %{
                "success" => true,
@@ -660,6 +657,10 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  ]
                }
              }
+
+      transfer = get_last_inserted(Transfer)
+      assert transfer.metadata == %{"something" => "interesting"}
+      assert transfer.encrypted_metadata == %{"something" => "secret"}
     end
 
     test "returns invalid_parameter when the provider_user_id is missing" do
@@ -690,6 +691,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response =
         provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
+          account_id: account.id,
           provider_user_id: "fake",
           token_id: token.id,
           amount: 100_000,
@@ -768,6 +770,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response =
         provider_request("/user.debit_wallet", %{
+          account_id: account.id,
           provider_user_id: user.provider_user_id,
           token_id: token.id,
           amount: 100_000,
@@ -787,7 +790,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
              }
     end
 
-    test "returns insufficient_funds when the user is too poor" do
+    test "returns insufficient_funds when the user is too poor :~(" do
       {:ok, account} = :account |> params_for() |> Account.insert()
       {:ok, user} = :user |> params_for() |> User.insert()
       user_wallet = User.get_primary_wallet(user)
@@ -795,6 +798,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response =
         provider_request_with_idempotency("/user.debit_wallet", UUID.generate(), %{
+          account_id: account.id,
           provider_user_id: user.provider_user_id,
           token_id: token.id,
           amount: 100_000,
@@ -833,16 +837,13 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
       response =
         provider_request_with_idempotency("/user.debit_wallet", UUID.generate(), %{
+          account_id: account.id,
           provider_user_id: user.provider_user_id,
           token_id: token.id,
           amount: 150_000 * token.subunit_to_unit,
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
         })
-
-      transfer = get_last_inserted(Transfer)
-      assert transfer.metadata == %{"something" => "interesting"}
-      assert transfer.encrypted_metadata == %{"something" => "secret"}
 
       assert response == %{
                "version" => "1",
@@ -902,6 +903,10 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  ]
                }
              }
+
+      transfer = get_last_inserted(Transfer)
+      assert transfer.metadata == %{"something" => "interesting"}
+      assert transfer.encrypted_metadata == %{"something" => "secret"}
     end
   end
 end

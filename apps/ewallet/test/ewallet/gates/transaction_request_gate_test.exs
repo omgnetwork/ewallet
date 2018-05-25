@@ -102,7 +102,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "address" => "fake"
         })
 
-      assert res == {:error, :wallet_not_found}
+      assert res == {:error, :account_wallet_not_found}
     end
 
     test "with valid account_id, valid user and a valid address", meta do
@@ -222,7 +222,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "address" => "fake"
         })
 
-      assert res == {:error, :wallet_not_found}
+      assert res == {:error, :user_wallet_not_found}
     end
 
     test "with valid provider_user_id and an address that does not belong to the user", meta do
@@ -342,7 +342,7 @@ defmodule EWallet.TransactionRequestGateTest do
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
     end
 
-    test "receives a 'wallet_not_found' error when the address is invalid", meta do
+    test "receives a 'user_wallet_not_found' error when the address is invalid", meta do
       {:error, error} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
@@ -352,7 +352,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "address" => "fake"
         })
 
-      assert error == :wallet_not_found
+      assert error == :user_wallet_not_found
     end
 
     test "receives an 'user_wallet_mismatch' error when the address does not belong to the user",

@@ -18,9 +18,10 @@ defmodule EWallet.WalletCreditDebitAssignerTest do
       {:ok, from, to} =
         WalletCreditDebitAssigner.assign(%{
           account: meta.account,
+          account_address: nil,
           user: meta.user,
-          type: TransactionGate.credit_type(),
-          burn_wallet_identifier: nil
+          user_address: nil,
+          type: TransactionGate.credit_type()
         })
 
       assert from == Account.get_primary_wallet(meta.account)
@@ -31,39 +32,106 @@ defmodule EWallet.WalletCreditDebitAssignerTest do
       {:ok, from, to} =
         WalletCreditDebitAssigner.assign(%{
           account: meta.account,
+          account_address: nil,
           user: meta.user,
-          type: TransactionGate.debit_type(),
-          burn_wallet_identifier: nil
+          user_address: nil,
+          type: TransactionGate.debit_type()
         })
 
       assert from == User.get_primary_wallet(meta.user)
       assert to == Account.get_primary_wallet(meta.account)
     end
 
-    test "loads the correct wallets when debit and burn wallet is specified", meta do
+    test "loads the correct wallets when debit and account_address is specified", meta do
+      account_burn_address = Account.get_default_burn_wallet(meta.account).address
+
       {:ok, from, to} =
         WalletCreditDebitAssigner.assign(%{
           account: meta.account,
+          account_address: account_burn_address,
           user: meta.user,
-          type: TransactionGate.debit_type(),
-          burn_wallet_identifier: "burn"
+          user_address: nil,
+          type: TransactionGate.debit_type()
         })
 
       assert from == User.get_primary_wallet(meta.user)
       assert to == Account.get_default_burn_wallet(meta.account)
     end
 
-    test "returns an error if the given burn address is not found", meta do
+    test "returns an error if the given account address is not found", meta do
       {res, code} =
         WalletCreditDebitAssigner.assign(%{
           account: meta.account,
+          account_address: "invalid_address",
           user: meta.user,
-          type: TransactionGate.debit_type(),
-          burn_wallet_identifier: "burnz"
+          user_address: nil,
+          type: TransactionGate.debit_type()
         })
 
       assert res == :error
-      assert code == :burn_wallet_not_found
+      assert code == :account_wallet_not_found
+    end
+
+    test "returns an error if the given account address does not belong to the account", meta do
+      wallet = insert(:wallet)
+
+      {res, code} =
+        WalletCreditDebitAssigner.assign(%{
+          account: meta.account,
+          account_address: wallet.address,
+          user: meta.user,
+          user_address: nil,
+          type: TransactionGate.debit_type()
+        })
+
+      assert res == :error
+      assert code == :account_wallet_mismatch
+    end
+
+    test "loads the correct wallets when debit and user_address is specified", meta do
+      user_secondary_wallet = insert(:wallet, user: meta.user, identifier: "secondary")
+
+      {:ok, from, to} =
+        WalletCreditDebitAssigner.assign(%{
+          account: meta.account,
+          account_address: nil,
+          user: meta.user,
+          user_address: user_secondary_wallet.address,
+          type: TransactionGate.debit_type()
+        })
+
+      assert from.address == user_secondary_wallet.address
+      assert to == Account.get_primary_wallet(meta.account)
+    end
+
+    test "returns an error if the given user address is not found", meta do
+      {res, code} =
+        WalletCreditDebitAssigner.assign(%{
+          account: meta.account,
+          account_address: nil,
+          user: meta.user,
+          user_address: "invalid_address",
+          type: TransactionGate.debit_type()
+        })
+
+      assert res == :error
+      assert code == :user_wallet_not_found
+    end
+
+    test "returns an error if the given user address does not belong to the user", meta do
+      wallet = insert(:wallet)
+
+      {res, code} =
+        WalletCreditDebitAssigner.assign(%{
+          account: meta.account,
+          account_address: nil,
+          user: meta.user,
+          user_address: wallet.address,
+          type: TransactionGate.debit_type()
+        })
+
+      assert res == :error
+      assert code == :user_wallet_mismatch
     end
   end
 end

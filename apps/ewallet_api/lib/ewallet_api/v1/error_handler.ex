@@ -17,8 +17,16 @@ defmodule EWalletAPI.V1.ErrorHandler do
       description: "There is no user corresponding to the provided provider_user_id"
     },
     wallet_not_found: %{
-      code: "user:wallet_not_found",
+      code: "wallet:wallet_not_found",
       description: "There is no wallet corresponding to the provided address"
+    },
+    user_wallet_not_found: %{
+      code: "user:wallet_not_found",
+      description: "There is no user wallet corresponding to the provided address"
+    },
+    account_wallet_not_found: %{
+      code: "account:wallet_not_found",
+      description: "There is no account wallet corresponding to the provided address"
     },
     user_wallet_mismatch: %{
       code: "user:user_wallet_mismatch",
@@ -27,10 +35,6 @@ defmodule EWalletAPI.V1.ErrorHandler do
     account_wallet_mismatch: %{
       code: "account:account_wallet_mismatch",
       description: "The provided wallet does not belong to the given account"
-    },
-    burn_wallet_not_found: %{
-      code: "user:burn_wallet_not_found",
-      description: "There is no burn wallet corresponding to the provided name"
     },
     account_id_not_found: %{
       code: "user:account_id_not_found",

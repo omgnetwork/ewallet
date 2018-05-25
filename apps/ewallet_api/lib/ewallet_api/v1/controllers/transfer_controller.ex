@@ -47,7 +47,7 @@ defmodule EWalletAPI.V1.TransferController do
     |> respond_with(:transfer, conn)
   end
 
-  defp transfer_from_wallet({:error, :wallet_not_found}, conn, _attrs) do
+  defp transfer_from_wallet({:error, :user_wallet_not_found}, conn, _attrs) do
     handle_error(conn, :from_address_not_found)
   end
 
@@ -63,10 +63,15 @@ defmodule EWalletAPI.V1.TransferController do
   defp credit_or_debit(
          conn,
          type,
-         %{"provider_user_id" => provider_user_id, "token_id" => token_id, "amount" => amount} =
-           attrs
+         %{
+           "provider_user_id" => provider_user_id,
+           "token_id" => token_id,
+           "amount" => amount,
+           "account_id" => account_id
+         } = attrs
        )
-       when provider_user_id != nil and token_id != nil and is_integer(amount) do
+       when provider_user_id != nil and token_id != nil and is_integer(amount) and
+              account_id != nil do
     attrs
     |> Map.put("type", type)
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])

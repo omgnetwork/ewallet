@@ -22,7 +22,7 @@ defmodule EWallet.WalletFetcher do
   end
 
   def get(%User{} = user, address) do
-    with %Wallet{} = wallet <- Wallet.get(address) || :wallet_not_found,
+    with %Wallet{} = wallet <- Wallet.get(address) || :user_wallet_not_found,
          true <- wallet.user_uuid == user.uuid || :user_wallet_mismatch do
       {:ok, wallet}
     else
@@ -31,7 +31,7 @@ defmodule EWallet.WalletFetcher do
   end
 
   def get(%Account{} = account, address) do
-    with %Wallet{} = wallet <- Wallet.get(address) || :wallet_not_found,
+    with %Wallet{} = wallet <- Wallet.get(address) || :account_wallet_not_found,
          true <- wallet.account_uuid == account.uuid || :account_wallet_mismatch do
       {:ok, wallet}
     else

@@ -177,7 +177,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => "fake"
         })
 
-      assert res == {:error, :wallet_not_found}
+      assert res == {:error, :account_wallet_not_found}
     end
 
     test "with valid account_id and an address that does not belong to the account", meta do
@@ -319,7 +319,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "address" => "fake"
         })
 
-      assert res == {:error, :wallet_not_found}
+      assert res == {:error, :user_wallet_not_found}
     end
 
     test "with valid provider_user_id and an address that does not belong to the user", meta do
@@ -1245,7 +1245,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert changeset.errors == [amount: {"can't be blank", [validation: :required]}]
     end
 
-    test "returns 'wallet_not_found' when address is invalid", meta do
+    test "returns 'user_wallet_not_found' when address is invalid", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {res, error} =
@@ -1260,7 +1260,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :error
-      assert error == :wallet_not_found
+      assert error == :user_wallet_not_found
     end
 
     test "returns 'wallet_not_found' when address does not belong to sender", meta do
