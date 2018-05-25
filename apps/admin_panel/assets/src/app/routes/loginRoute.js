@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom'
-import AuthFormLayout from '../../omg-layout/AuthFormLayout'
+import AuthFormLayout from '../../omg-layout/authFormLayout'
 
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
