@@ -111,8 +111,12 @@ defmodule EWalletDB.Wallet do
     |> put_change(:encryption_version, Cloak.version())
   end
 
-  def all_for(%Account{} = account), do: from(t in Wallet, where: t.account_uuid == ^account.uuid)
-  def all_for(%User{} = user), do: from(t in Wallet, where: t.user_uuid == ^user.uuid)
+  def all_for(%Account{} = account),
+    do: from(t in Wallet, where: t.account_uuid == ^account.uuid, preload: [:user, :account])
+
+  def all_for(%User{} = user),
+    do: from(t in Wallet, where: t.user_uuid == ^user.uuid, preload: [:user, :account])
+
   def all_for(_), do: nil
 
   @doc """
