@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.AccountPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
+  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.Account
 
   # The field names to be mapped into DB column names.
@@ -12,6 +12,10 @@ defmodule AdminAPI.V1.AccountController do
   @mapped_fields %{
     "created_at" => "inserted_at"
   }
+
+  # The fields that should be preloaded.
+  # Note that these values *must be in the schema associations*.
+  @preload_fields [:categories]
 
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
@@ -34,6 +38,7 @@ defmodule AdminAPI.V1.AccountController do
     with :ok <- permit(:all, conn.assigns.user.id, nil) do
       accounts =
         Account
+        |> Preloader.to_query(@preload_fields)
         |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
         |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
         |> Paginator.paginate_attrs(attrs)
@@ -59,7 +64,8 @@ defmodule AdminAPI.V1.AccountController do
   """
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns.user.id, id),
-         %Account{} = account <- Account.get_by(id: id) do
+         %Account{} = account <- Account.get_by(id: id),
+         account <- Preloader.preload(account, @preload_fields) do
       render(conn, :account, %{account: account})
     else
       {:error, code} ->
@@ -85,7 +91,8 @@ defmodule AdminAPI.V1.AccountController do
 
     with :ok <- permit(:create, conn.assigns.user.id, parent.id),
          attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
-         {:ok, account} <- Account.insert(attrs) do
+         {:ok, account} <- Account.insert(attrs),
+         account <- Preloader.preload(account, @preload_fields) do
       render(conn, :account, %{account: account})
     else
       {:error, %{} = changeset} ->
@@ -104,7 +111,8 @@ defmodule AdminAPI.V1.AccountController do
   def update(conn, %{"id" => account_id} = attrs) do
     with :ok <- permit(:update, conn.assigns.user.id, account_id),
          %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
-         {:ok, updated} <- Account.update(original, attrs) do
+         {:ok, updated} <- Account.update(original, attrs),
+         updated <- Preloader.preload(updated, @preload_fields) do
       render(conn, :account, %{account: updated})
     else
       {:error, %{} = changeset} ->
@@ -123,7 +131,8 @@ defmodule AdminAPI.V1.AccountController do
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with :ok <- permit(:update, conn.assigns.user.id, id),
          %{} = account <- Account.get(id) || {:error, :account_id_not_found},
-         %{} = saved <- Account.store_avatar(account, attrs) do
+         %{} = saved <- Account.store_avatar(account, attrs),
+         %{} = saved <- Preloader.preload(saved, @preload_fields) do
       render(conn, :account, %{account: saved})
     else
       {:error, %{} = changeset} ->

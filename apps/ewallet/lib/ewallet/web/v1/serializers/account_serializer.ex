@@ -44,7 +44,9 @@ defmodule EWallet.Web.V1.AccountSerializer do
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
 
+  def serialize(%NotLoaded{}, _), do: nil
   def serialize(accounts, :id) when is_list(accounts) do
     Enum.map(accounts, fn account -> account.id end)
   end
+  def serialize(nil, _), do: nil
 end

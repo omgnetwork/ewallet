@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.CategoryController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.CategoryPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
+  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.Category
 
   # The field names to be mapped into DB column names.
@@ -12,6 +12,10 @@ defmodule AdminAPI.V1.CategoryController do
   @mapped_fields %{
     "created_at" => "inserted_at"
   }
+
+  # The fields that should be preloaded.
+  # Note that these values *must be in the schema associations*.
+  @preload_fields [:accounts]
 
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
@@ -34,6 +38,7 @@ defmodule AdminAPI.V1.CategoryController do
     with :ok <- permit(:all, conn.assigns.user.id, nil) do
       categories =
         Category
+        |> Preloader.to_query(@preload_fields)
         |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
         |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
         |> Paginator.paginate_attrs(attrs)
@@ -56,7 +61,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns.user.id, id),
-         %Category{} = category <- Category.get_by(id: id) do
+         %Category{} = category <- Category.get_by(id: id),
+         %Category{} = category <- Preloader.preload(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, code} ->
@@ -72,7 +78,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns.user.id, nil),
-         {:ok, category} <- Category.insert(attrs) do
+         {:ok, category} <- Category.insert(attrs),
+         %Category{} = category <- Preloader.preload(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, %{} = changeset} ->
@@ -88,8 +95,9 @@ defmodule AdminAPI.V1.CategoryController do
   """
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns.user.id, id),
-         %{} = original <- Category.get(id) || {:error, :category_id_not_found},
-         {:ok, updated} <- Category.update(original, attrs) do
+         %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
+         {:ok, updated} <- Category.update(original, attrs),
+         %Category{} = updated <- Preloader.preload(updated, @preload_fields) do
       render(conn, :category, %{category: updated})
     else
       {:error, %{} = changeset} ->
@@ -107,7 +115,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   def delete(conn, %{"id" => id}) do
     with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
-         {:ok, deleted} = Category.delete(category) do
+         {:ok, deleted} = Category.delete(category),
+         %Category{} = deleted <- Preloader.preload(deleted, @preload_fields) do
       render(conn, :category, %{category: deleted})
     else
       {:error, %{} = changeset} ->

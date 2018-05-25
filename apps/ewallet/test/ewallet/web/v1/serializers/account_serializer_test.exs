@@ -8,7 +8,9 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
       master = :account |> insert()
-      account = :account |> insert() |> Repo.preload([:parent, :categories])
+      category = :category |> insert()
+      {:ok, account} = :account |> insert() |> Account.add_category(category)
+      account = Repo.preload(account, [:parent, :categories])
 
       expected = %{
         object: "account",

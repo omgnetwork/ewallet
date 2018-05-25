@@ -20,8 +20,6 @@ defmodule EWallet.Web.V1.CategorySerializer do
   end
 
   def serialize(%Category{} = category) do
-    category = Preloader.preload(category, :accounts)
-
     %{
       object: "category",
       id: category.id,
