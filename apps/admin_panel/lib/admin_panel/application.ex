@@ -57,11 +57,7 @@ defmodule AdminPanel.Application do
       [
         :yarn,
         [
-          "webpack",
-          "--color",
-          "--progress",
-          "--config",
-          "webpack/webpack.dev.config.js"
+          "build"
         ],
         [cd: Path.expand("../../assets/", __DIR__)]
       ],

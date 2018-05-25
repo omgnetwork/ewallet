@@ -1,15 +1,15 @@
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const commonLoaders = require('./commonLoaders')
-const webpack = require('webpack')
-const path = require('path')
+const HtmlWebpackPlugin = require("html-webpack-plugin")
+const commonLoaders = require("./commonLoaders")
+const webpack = require("webpack")
+const path = require("path")
 // const MiniCssExtractPlugin = require('mini-css-extract-plugin')
 // const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 module.exports = {
-  entry: [path.resolve(__dirname, '../src/index.js')],
+  entry: [path.resolve(__dirname, "../src/index.js")],
   output: {
-    path: path.resolve(__dirname, '../build/'),
-    publicPath: '/',
-    filename: 'bundle.js'
+    path: path.resolve(__dirname, "../../priv/static"),
+    publicPath: "/admin/",
+    filename: "bundle.js"
   },
   module: {
     rules: [
@@ -23,11 +23,13 @@ module.exports = {
       // }
     ]
   },
-  mode: 'production',
+  mode: "production",
+  stats: { colors: true },
+
   plugins: [
-    new HtmlWebpackPlugin({ template: path.resolve(__dirname, './index.html') }),
+    new HtmlWebpackPlugin({ template: path.resolve(__dirname, "./index.html") }),
     new webpack.ProvidePlugin({
-      _: 'lodash'
+      _: "lodash"
     })
     // new MiniCssExtractPlugin({
     //   // Options similar to the same options in webpackOptions.output
