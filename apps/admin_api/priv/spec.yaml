@@ -2264,8 +2264,6 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              username:
-                type: string
               email:
                 type: string
               metadata:
@@ -2273,7 +2271,6 @@ components:
               encrypted_metadata:
                 type: object
             example:
-              username: "johndoe"
               email: "example@omise.co"
               metadata: {}
               encrypted_metadata: {}

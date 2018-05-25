@@ -115,12 +115,11 @@ defmodule EWalletDB.User do
   defp update_changeset(%User{} = user, attrs) do
     user
     |> cast(attrs, [
-      :username,
       :email,
       :metadata,
       :encrypted_metadata
     ])
-    |> unique_constraint(:username)
+    |> validate_required(:email)
     |> unique_constraint(:email)
   end
 

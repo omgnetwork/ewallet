@@ -18,7 +18,6 @@ defmodule AdminAPI.V1.SelfControllerTest do
     test "update the current user with the given parameters" do
       response =
         user_request("/me.update", %{
-          username: "test_username_1337",
           email: "test_1337@example.com",
           metadata: %{"key" => "value_1337"},
           encrypted_metadata: %{"key" => "value_1337"}
@@ -26,7 +25,6 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
       assert response["success"] == true
       assert response["data"]["object"] == "user"
-      assert response["data"]["username"] == "test_username_1337"
       assert response["data"]["email"] == "test_1337@example.com"
       assert response["data"]["metadata"] == %{"key" => "value_1337"}
       assert response["data"]["encrypted_metadata"] == %{"key" => "value_1337"}
