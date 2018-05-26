@@ -10,7 +10,6 @@ defmodule EWallet.TransactionRequestGate do
   alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account}
 
   @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
-
   def create(
         %{
           "account_id" => account_id,
@@ -91,7 +90,8 @@ defmodule EWallet.TransactionRequestGate do
 
   def create(_), do: {:error, :invalid_parameter}
 
-  @spec create(User.t(), Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
+  @spec create(User.t() | Wallet.t(), Map.t()) ::
+          {:ok, TransactionRequest.t()} | {:error, Atom.t()}
   def create(
         %User{} = user,
         %{
@@ -105,7 +105,6 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  @spec create(Wallet.t(), Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
   def create(
         %Wallet{} = wallet,
         %{

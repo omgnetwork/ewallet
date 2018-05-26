@@ -7,7 +7,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   alias EWalletDB.{Repo, Balance, TransactionRequest, TransactionConsumption, Token}
 
   @spec validate_before_consumption(TransactionRequest.t(), Balance.t(), Integer.t()) ::
-          {:ok, TransactionRequest.t(), Integer.t()}
+          {:ok, TransactionRequest.t(), Token.t(), Integer.t()}
           | {:error, Atom.t()}
   def validate_before_consumption(request, wallet, attrs) do
     with amount <- attrs["amount"],

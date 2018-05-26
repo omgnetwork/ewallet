@@ -159,7 +159,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response of invalid parameter error with error details provided.
   """
-  @spec build_error(String.t(), Ecto.Changeset.t(), Map.t()) :: Map.t()
+  @spec build_error(String.t() | Atom.t(), Map.t() | Ecto.Changeset.t() | String.t(), Map.t()) ::
+          Map.t()
   def build_error(code, %Changeset{} = changeset, supported_errors) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(
@@ -174,7 +175,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with custom error code and description.
   """
-  @spec build_error(Atom.t(), String.t(), Map.t()) :: Map.t()
   def build_error(code, description, supported_errors)
       when is_binary(description)
       when is_atom(description) do
@@ -187,7 +187,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response of insufficient_funds.
   """
-  @spec build_error(Atom.t(), Map.t(), Map.t()) :: Map.t()
   def build_error(
         code,
         %{
@@ -215,7 +214,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with template description to build.
   """
-  @spec build_error(Atom.t(), Map.t(), Map.t()) :: Map.t()
   def build_error(code, data, supported_errors) when is_map(data) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(code: error.code, desc: build_template(data, error.template))

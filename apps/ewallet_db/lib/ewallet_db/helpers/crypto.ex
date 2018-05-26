@@ -4,7 +4,7 @@ defmodule EWalletDB.Helpers.Crypto do
   """
   alias Plug.Crypto
 
-  @spec generate_key(integer) :: binary
+  @spec generate_key(Integer.t()) :: binary()
   def generate_key(key_bytes) when is_integer(key_bytes) do
     key_bytes
     |> :crypto.strong_rand_bytes()
@@ -24,7 +24,7 @@ defmodule EWalletDB.Helpers.Crypto do
     Bcrypt.verify_pass(password, hash)
   end
 
-  @spec fake_verify :: boolean
+  @spec fake_verify :: false
   def fake_verify do
     Bcrypt.no_user_verify()
   end

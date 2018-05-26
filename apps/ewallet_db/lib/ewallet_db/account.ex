@@ -307,7 +307,7 @@ defmodule EWalletDB.Account do
     end
   end
 
-  @spec query_depth(account_uuid :: String.t(), parent_uuid :: String.t()) :: Ecto.Query.t()
+  @spec query_depth(account_uuid :: String.t(), parent_uuid :: String.t()) :: Ecto.Queryable.t()
   defp query_depth(account_uuid, parent_uuid) do
     # Traverses up the account tree and count each step up until it reaches the master account.
     from(
