@@ -37,10 +37,6 @@ defmodule EWallet.UUIDFetcher do
     |> Enum.into(%{})
   end
 
-  defp replace_external_id(key, value, external_id: true) when is_atom(key) do
-    replace_external_id(Atom.to_string(key), value, external_id: true)
-  end
-
   defp replace_external_id(key, value, external_id: true) do
     schema = @mappings[key]
     uuid_key = String.replace(key, "_id", "_uuid")

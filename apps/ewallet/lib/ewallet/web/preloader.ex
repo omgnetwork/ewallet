@@ -4,11 +4,12 @@ defmodule EWallet.Web.Preloader do
   It takes in a list of associations to preload as a list of atoms.
   """
   alias EWalletDB.Repo
+  alias EWalletDB.Transfer
 
   @doc """
   Preload the given list of associations.
   """
-  @spec to_query(Ecto.Query.t(), List.t()) :: {Ecto.Query.t()}
+  @spec to_query(Ecto.Query.t() | Transfer.t(), List.t()) :: {Ecto.Query.t()}
   def to_query(queryable, preload_fields) when is_list(preload_fields) do
     import Ecto.Query
     from(q in queryable, preload: ^preload_fields)

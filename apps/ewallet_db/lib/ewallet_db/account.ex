@@ -108,7 +108,7 @@ defmodule EWalletDB.Account do
     end
   end
 
-  @spec avatar_changeset(changeset :: Ecto.Changeset.t(), attrs :: map()) ::
+  @spec avatar_changeset(changeset :: Ecto.Changeset.t() | %Account{}, attrs :: map()) ::
           Ecto.Changeset.t() | no_return() | none()
   defp avatar_changeset(changeset, attrs) do
     changeset

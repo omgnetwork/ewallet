@@ -152,7 +152,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Returns a map of all the error atoms along with their code and description.
   """
-  @spec errors() :: %{required(atom()) => %{code: String.t(), description: String.t()}}
+  @spec errors() :: %{
+          required(Atom.t()) => %{
+            required(Atom.t()) => String.t(),
+            required(Atom.t()) => String.t()
+          }
+        }
   def errors, do: @errors
 
   # ---- WITH CHANGESET ----
