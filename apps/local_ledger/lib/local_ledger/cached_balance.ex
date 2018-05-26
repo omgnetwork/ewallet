@@ -101,14 +101,15 @@ defmodule LocalLedger.CachedBalance do
   end
 
   defp insert(amounts, wallet, computed_at) do
-    if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
-      {:ok, _} =
-        CachedBalance.insert(%{
-          amounts: amounts,
-          wallet_address: wallet.address,
-          computed_at: computed_at
-        })
-    end
+    _ =
+      if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
+        {:ok, _} =
+          CachedBalance.insert(%{
+            amounts: amounts,
+            wallet_address: wallet.address,
+            computed_at: computed_at
+          })
+      end
 
     amounts
   end
