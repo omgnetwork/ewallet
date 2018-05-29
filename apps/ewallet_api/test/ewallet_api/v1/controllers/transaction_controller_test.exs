@@ -288,8 +288,11 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
       assert response["data"]["data"] |> length() == 4
 
-      ids = Enum.map(response["data"]["data"], fn t -> t["id"] end)
-      assert length(ids) == 4
+      ids =
+        Enum.map(response["data"]["data"], fn t ->
+          t["id"]
+        end)
+
       assert Enum.member?(ids, meta.transfer_1.id)
       assert Enum.member?(ids, meta.transfer_2.id)
       assert Enum.member?(ids, meta.transfer_3.id)

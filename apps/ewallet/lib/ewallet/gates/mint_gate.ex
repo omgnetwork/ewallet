@@ -14,7 +14,7 @@ defmodule EWallet.MintGate do
 
   ## Examples
 
-    res = Mint.insert(%{
+    res = MintGate.insert(%{
       "idempotency_token" => idempotency_token,
       "token_id" => token_id,
       "amount" => 100_000,
