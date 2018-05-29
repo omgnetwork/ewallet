@@ -8,7 +8,7 @@ defmodule EWalletDB.Account do
   import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, APIKey, Wallet, Key, Membership, Token}
+  alias EWalletDB.{Repo, Account, APIKey, Category, Key, Membership, Token, Wallet}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -29,6 +29,14 @@ defmodule EWalletDB.Account do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
     field(:encryption_version, :binary)
+
+    many_to_many(
+      :categories,
+      Category,
+      join_through: "account_category",
+      join_keys: [account_uuid: :uuid, category_uuid: :uuid],
+      on_replace: :delete
+    )
 
     belongs_to(
       :parent,
@@ -86,6 +94,18 @@ defmodule EWalletDB.Account do
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
     |> put_change(:encryption_version, Cloak.version())
+    |> put_categories(attrs, :category_ids)
+  end
+
+  defp put_categories(changeset, attrs, attr_name) do
+    case attrs[attr_name] do
+      ids when is_list(ids) ->
+        categories = Repo.all(from(c in Category, where: c.id in ^attrs[attr_name]))
+        put_assoc(changeset, :categories, categories)
+
+      nil ->
+        changeset
+    end
   end
 
   @spec avatar_changeset(changeset :: Ecto.Changeset.t(), attrs :: map()) :: Ecto.Changeset.t()
@@ -310,5 +330,30 @@ defmodule EWalletDB.Account do
       on: a.uuid == account_tree.uuid,
       select: account_tree.depth
     )
+  end
+
+  def add_category(account, category) do
+    account = Repo.preload(account, :categories)
+
+    category_ids =
+      account
+      |> Map.fetch!(:categories)
+      |> Enum.map(fn existing -> existing.id end)
+      |> List.insert_at(0, category.id)
+
+    Account.update(account, %{category_ids: category_ids})
+  end
+
+  def remove_category(account, category) do
+    account = Repo.preload(account, :categories)
+
+    remaining =
+      Enum.reject(account.categories, fn existing ->
+        existing.id == category.id
+      end)
+
+    category_ids = Enum.map(remaining, fn c -> c.id end)
+
+    Account.update(account, %{category_ids: category_ids})
   end
 end

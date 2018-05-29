@@ -79,6 +79,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     invalid_account_id: %{
       code: "client:invalid_account_id",
       description: "Invalid Account ID provided."
+    },
+    category_id_not_found: %{
+      code: "category:id_not_found",
+      description: "There is no category corresponding to the provided id"
     }
   }
 

@@ -40,8 +40,10 @@ tags:
     description: Resources related to session tokens.
   - name: Token
     description: Resources related to tokens.
+  - name: Category
+    description: Resources related to categories.
   - name: Account
-    description: Resources related to account.
+    description: Resources related to accounts.
   - name: User
     description: Resources related to users.
   - name: Wallet
@@ -202,6 +204,86 @@ paths:
           $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
+  ####################################
+  #        CATEGORY ENDPOINTS        #
+  ####################################
+  /category.all:
+    post:
+      tags:
+        - Category
+      summary: Get the list of categories
+      operationId: category_all
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoriesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.get:
+    post:
+      tags:
+        - Category
+      summary: Get a specific category
+      operationId: category_get
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryGetBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.create:
+    post:
+      tags:
+        - Category
+      summary: Create a new category
+      operationId: category_create
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.update:
+    post:
+      tags:
+        - Category
+      summary: Update a category
+      operationId: category_update
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.delete:
+    post:
+      tags:
+        - Category
+      summary: Delete a category
+      operationId: category_delete
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryDeleteBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
   ############################
   #         ACCOUNTS         #
   ############################
@@ -974,6 +1056,110 @@ components:
                 is_last_page: true
 
     ######################################
+    #          CATEGORY SCHEMAS          #
+    ######################################
+    CategorySchema:
+      description: "The object schema for an category"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        account_ids:
+          type: array
+          items:
+            type: string
+        accounts:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/UnpaginatedListSchema'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AccountSchema'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - name
+        - description
+        - account_ids
+        - created_at
+        - updated_at
+    CategoryResponseSchema:
+      description: "The response schema for an category"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/CategorySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "category"
+            id: "cat_01ce31n493dqbtj3fe8hadwndx"
+            name: "Category Name"
+            description: "The category description"
+            account_ids: []
+            accounts: []
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+    CategoriesResponseSchema:
+      description: "The response schema for a list of categories"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CategorySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "category"
+                id: "cat_01ce31n493dqbtj3fe8hadwndx"
+                name: "Category Name"
+                description: "The category description"
+                account_ids: []
+                accounts: []
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
+
+    ######################################
     #           ACCOUNT SCHEMAS          #
     ######################################
     AccountSchema:
@@ -994,6 +1180,20 @@ components:
           type: boolean
         avatar:
           type: object
+        category_ids:
+          type: array
+          items:
+            type: string
+        categories:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/UnpaginatedListSchema'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CategorySchema'
         metadata:
           type: object
         encrypted_metadata:
@@ -1011,6 +1211,7 @@ components:
         - name
         - master
         - avatar
+        - category_ids
         - created_at
         - updated_at
     AccountResponseSchema:
@@ -1034,6 +1235,8 @@ components:
             name: "Account Name"
             description: "The account description"
             master: true
+            category_ids: []
+            categories: []
             metadata: {}
             encrypted_metadata: {}
             avatar: {"original": "file_url"}
@@ -1069,6 +1272,10 @@ components:
                 name: "Account name"
                 description: "The account description"
                 master: true
+                category_ids: []
+                categories: []
+                metadata: {}
+                encrypted_metadata: {}
                 avatar: {"original": "file_url"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -1998,7 +2205,113 @@ components:
               example:
                 id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
                 amount: 1000
-    # Request body for listing accounts
+
+    ###########################################
+    #         CATEGORY REQUEST BODIES         #
+    ###########################################
+    CategoryAllBody:
+      description: The parameters to use for listing the categories
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    CategoryGetBody:
+      description: The parameters to use for retrieving a specific category
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+    CategoryCreateBody:
+      description: The parameters to use for creating a new category.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              account_ids:
+                type: array
+                items:
+                  type: string
+            required:
+              - name
+              - description
+              - account_ids
+            example:
+              name: "Name of category"
+              description: "The category description"
+              account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+    CategoryUpdateBody:
+      description: The parameters to use for updating an account. Only the provided fields are updated.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              account_ids:
+                type: array
+                items:
+                  type: string
+            required:
+              - id
+            example:
+              id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+              name: "Name to Update"
+              description: "New category description"
+              account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+    CategoryDeleteBody:
+      description: The parameters to use for deleting an category.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+
+    ###########################################
+    #          ACCOUNT REQUEST BODIES         #
+    ###########################################
     AccountAllBody:
       description: The parameters to use for listing the accounts
       required: true
@@ -2051,6 +2364,10 @@ components:
                 type: string
               parent_id:
                 type: string
+              category_ids:
+                type: array
+                items:
+                  type: string
               metadata:
                 type: object
               encrypted_metadata:
@@ -2061,10 +2378,11 @@ components:
               name: "Account Name"
               description: "The account description"
               parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
+              category_ids: []
               metadata: {}
               encrypted_metadata: {}
     AccountUpdateBody:
-      description: The parameters to use for updating an account
+      description: The parameters to use for updating an account. Only the provided fields are updated.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2076,18 +2394,21 @@ components:
                 type: string
               description:
                 type: string
+              category_ids:
+                type: array
+                items:
+                  type: string
               metadata:
                 type: object
               encrypted_metadata:
                 type: object
             required:
               - id
-              - name
-              - description
             example:
               id: "acc_01ca2p8jqans5aty5gj5etmjcf"
               name: "Account Name"
               description: "The account description"
+              category_ids: []
               metadata: {}
               encrypted_metadata: {}
     AccountListUsersBody:
@@ -2650,6 +2971,22 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TokensResponseSchema'
+
+    ######################################
+    #          CATEGORY RESPONSES        #
+    ######################################
+    CategoryResponse:
+      description: "Returns a single category"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/CategoryResponseSchema'
+    CategoriesResponse:
+      description: "Returns a list of categories"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/CategoriesResponseSchema'
 
     ######################################
     #          ACCOUNT RESPONSES         #
