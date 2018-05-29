@@ -120,10 +120,14 @@ const SearchGroupContainer = styled.form`
 `
 const InlineInput = styled(Input)`
   display: inline-block;
-  transition: 0.2s ease-in-out;
-  margin-right: ${props => (props.show ? 10 : 0)}px;
-  width: ${props => (props.show ? 150 : 0)}px;
-  overflow: hidden;
+  input:focus {
+    margin-right:10px;
+    width: 150px;   
+  }
+  input {
+    width: 0px;
+    transition: 0.2s ease-in-out;
+  }
 `
 const SearchGroup = withRouter(
   clickOutside(
@@ -140,6 +144,7 @@ const SearchGroup = withRouter(
         this.setState({ search: false })
       }
       onClickSearch = e => {
+        console.log('xxxx')
         this.input.focus()
         this.setState({ search: true })
       }
@@ -168,7 +173,6 @@ const SearchGroup = withRouter(
               onClick={this.onClickSearch}
             />
             <InlineInput
-              show={this.state.search}
               registerRef={this.registerRef}
               onPressEscape={this.handleClickOutside}
             />
