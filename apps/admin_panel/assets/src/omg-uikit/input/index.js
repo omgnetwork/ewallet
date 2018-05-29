@@ -18,7 +18,7 @@ const Placeholder = styled.span`
   bottom: 0;
   padding-bottom: 5px;
   font-size: 14px;
-  transition: ${props => props.prefill ? null : '0.2s ease all'};
+  transition:0.2s ease all;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
 `
@@ -66,20 +66,24 @@ class InputComonent extends PureComponent {
     errorText: PropTypes.node,
     autofocus: PropTypes.bool,
     onPressEnter: PropTypes.func,
-    prefill: PropTypes.bool,
+    onPressEscape: PropTypes.func,
     onChange: PropTypes.func
   }
   static defaultProps = {
     placeholderType: 'float'
   }
   state = {
-    placeholderMoveHeight: '2em',
-    prefill: this.props.prefill
+    placeholderMoveHeight: '2em'
   }
 
   handleKeyPress = e => {
     if (e.key === 'Enter') {
-      this.props.onPressEnter && this.props.onPressEnter()
+      return this.props.onPressEnter && this.props.onPressEnter()
+    }
+  }
+  handleKeyDown =e => {
+    if (e.key === 'Escape') {
+      return this.props.onPressEscape && this.props.onPressEscape()
     }
   }
 
@@ -95,9 +99,6 @@ class InputComonent extends PureComponent {
   }
   onChange = e => {
     if (this.props.onChange) this.props.onChange(e)
-    if (this.state.prefill) {
-      this.setState({ prefill: false })
-    }
   }
 
   registerRef = () => {
@@ -112,16 +113,16 @@ class InputComonent extends PureComponent {
         <InnerContainer>
           <Input
             onKeyPress={this.handleKeyPress}
+            onKeyDown={this.handleKeyDown}
             required
             innerRef={this.registerInput}
             error={this.props.error}
             placeholderMoveHeight={this.state.placeholderMoveHeight}
-            prefill={this.state.prefill}
             {...rest}
             placeholder={this.props.normalPlaceholder}
             onChange={this.onChange}
           />
-          <Placeholder prefill={this.state.prefill}>{placeholder}</Placeholder>
+          <Placeholder>{placeholder}</Placeholder>
         </InnerContainer>
         <Error error={this.props.error}>{this.props.errorText}</Error>
       </Container>

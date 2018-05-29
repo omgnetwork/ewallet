@@ -65,9 +65,6 @@ export default class TopNavigation extends PureComponent {
     super(props)
     this.types = ['History', 'Table Info']
   }
-  onClickSearch = e => {
-    this.setState({})
-  }
   renderTableTypes () {
     return (
       <SecondaryActionsContainer>
@@ -170,7 +167,11 @@ const SearchGroup = withRouter(
               hoverable={!this.state.search}
               onClick={this.onClickSearch}
             />
-            <InlineInput show={this.state.search} registerRef={this.registerRef} />
+            <InlineInput
+              show={this.state.search}
+              registerRef={this.registerRef}
+              onPressEscape={this.handleClickOutside}
+            />
           </SearchGroupContainer>
         )
       }
