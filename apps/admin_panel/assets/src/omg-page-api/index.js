@@ -88,11 +88,11 @@ class ApiKeyPage extends Component {
     return (
       <KeySection>
         <h3>Admin API Key</h3>
-        <p>
+        {/* <p>
           When asked, “If you could wish for one thing only, what would that wish be?” almost
           everyone; from beauty pagent contestants, to politicians, to religious leaders, to
           children,
-        </p>
+        </p> */}
         <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
           <span>Generate Key</span>
         </Button>
@@ -104,11 +104,11 @@ class ApiKeyPage extends Component {
     return (
       <KeySectionEwallet>
         <h3>E-Wallet API Key</h3>
-        <p>
+        {/* <p>
           When asked, “If you could wish for one thing only, what would that wish be?” almost
           everyone; from beauty pagent contestants, to politicians, to religious leaders, to
           children,
-        </p>
+        </p> */}
         <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
           <span>Generate Key</span>
         </Button>
@@ -147,7 +147,7 @@ class ApiKeyPage extends Component {
                 onOk={this.onClickOk('admin_api')}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>CREATE API KEY</h4>
+                  <h4>GENERATE ADMIN API KEY</h4>
                   <p>
                     Are you sure to generate an api key ? this key will be use for your application
                   </p>
@@ -159,9 +159,9 @@ class ApiKeyPage extends Component {
                 onOk={this.onClickOk('ewallet_api')}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>CREATE API KEY</h4>
+                  <h4>GENERATE EWALLET API KEY</h4>
                   <p>
-                    Are you sure to generate an api key ? this key will be use for your application
+                    Are you sure to generate an ewallet api key ? this key will be use for your application
                   </p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>

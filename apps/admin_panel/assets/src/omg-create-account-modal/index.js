@@ -115,6 +115,7 @@ class CreateAccountModal extends Component {
           onChangeInputDescription={this.onChangeInputDescription}
           error={this.state.error}
           onChangeAvatar={this.onChangeAvatar}
+          avatar={this.state.avatarPath}
         />
       ),
       category: <ChooseCategoryStage onClickBack={this.onClickBack} />,

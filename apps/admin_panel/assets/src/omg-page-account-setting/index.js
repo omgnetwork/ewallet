@@ -12,6 +12,7 @@ import { updateCurrentAccount } from '../omg-account-current/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
+import moment from 'moment'
 const columns = [
   { key: 'role', title: 'ROLE', sort: true },
   { key: 'member', title: 'MEMBER NAME', sort: true },
@@ -48,7 +49,7 @@ const InviteButton = styled(Button)`
 const enhance = compose(
   withRouter,
   currentAccountProviderHoc,
-  connect(null, { updateCurrentAccount }),
+  connect(null, { updateCurrentAccount })
 )
 class AccountSettingPage extends Component {
   static propTypes = {
@@ -126,12 +127,7 @@ class AccountSettingPage extends Component {
   render () {
     return (
       <AccountSettingContainer>
-        <TopNavigation
-          title='Account Setting'
-          buttons={[]}
-          secondaryAction={false}
-          types={false}
-        />
+        <TopNavigation title='Account Setting' buttons={[]} secondaryAction={false} types={false} />
         <ContentContainer>
           <ProfileSection>
             {this.props.loadingStatus === 'SUCCESS' && (
@@ -171,10 +167,18 @@ class AccountSettingPage extends Component {
                     role: invite.account_role,
                     email: invite.email,
                     member: invite.username || '-',
-                    since: invite.created_at
+                    since: moment(invite.created_at).format('DD/MM/YYYY hh:mm:ss')
                   }
                 })
-                return <SortableTable dataSource={rows} columns={columns} perPage={99999} loading={loadingStatus === 'DEFAULT'} loadingRowNumber={7} />
+                return (
+                  <SortableTable
+                    dataSource={rows}
+                    columns={columns}
+                    perPage={99999}
+                    loading={loadingStatus === 'DEFAULT'}
+                    loadingRowNumber={7}
+                  />
+                )
               }}
             />
           </TableSection>

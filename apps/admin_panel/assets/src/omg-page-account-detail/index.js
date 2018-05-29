@@ -8,6 +8,7 @@ import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
+import moment from 'moment'
 const AccountDetailContainer = styled.div`
   padding: 20px 0;
 `
@@ -39,8 +40,12 @@ class AccountDetailPage extends Component {
   renderDetail = account => {
     return (
       <Section title='DETAILS'>
-        <DetailGroup><b>Created:</b> {account.created_at}</DetailGroup>
-        <DetailGroup><b>ID:</b> {account.id}</DetailGroup>
+        <DetailGroup>
+          <b>Created:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
+        </DetailGroup>
+        <DetailGroup>
+          <b>ID:</b> {account.id}
+        </DetailGroup>
         <DetailGroup>
           <b>Description:</b> <span>{account.description}</span>
         </DetailGroup>

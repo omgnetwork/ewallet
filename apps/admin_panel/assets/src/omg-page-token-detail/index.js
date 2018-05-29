@@ -71,7 +71,7 @@ class TokenDetailPage extends Component {
           <b>ID:</b> <span>{token.id}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created at:</b> <span>{moment(token.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Created date:</b> <span>{moment(token.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Last update:</b> <span>{moment(token.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>

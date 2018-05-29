@@ -54,7 +54,8 @@ export default class CreateAccountStage extends Component {
     onChangeInputName: PropTypes.func,
     onChangeInputDescription: PropTypes.func,
     onChangeAvatar: PropTypes.func,
-    error: PropTypes.string
+    error: PropTypes.string,
+    avatar: PropTypes.string
   }
 
   render () {
@@ -62,7 +63,7 @@ export default class CreateAccountStage extends Component {
       <Form onSubmit={this.props.onSubmit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <h4>Create Account</h4>
-        <ImageUploaderAvatar onChangeImage={this.props.onChangeAvatar} />
+        <ImageUploaderAvatar onChangeImage={this.props.onChangeAvatar} placeholder={this.props.avatar} />
         <Input
           placeholder='name'
           autofocus

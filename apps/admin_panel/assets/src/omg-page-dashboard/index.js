@@ -6,6 +6,7 @@ import { Button, Icon, RatioBar } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
+import moment from 'moment'
 const number = new Array(30).fill().map((x, i) => i)
 const data = {
   labels: number,
@@ -113,7 +114,7 @@ export default class Dashboard extends Component {
     return (
       <SectionContainer>
         <Section title={currentAccount.name || '...'}>
-          <DetailGroup><b>Created at:</b> <span>{currentAccount.created_at}</span></DetailGroup>
+          <DetailGroup><b>Created date:</b> <span>{moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss')}</span></DetailGroup>
           <DetailGroup><b>ID:</b> <span>{currentAccount.id}</span></DetailGroup>
           <DetailGroup><b>Description:</b> <span>{currentAccount.descrition || '-'}</span></DetailGroup>
           <DetailGroup><b>Group:</b> <span>{currentAccount.group || '-'}</span></DetailGroup>
