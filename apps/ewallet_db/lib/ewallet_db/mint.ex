@@ -4,7 +4,7 @@ defmodule EWalletDB.Mint do
   """
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
-  import Ecto.Changeset
+  import Ecto.{Query, Changeset}
   alias Ecto.UUID
   alias EWalletDB.{Repo, Mint, Token, Transfer, Account}
 
@@ -46,7 +46,7 @@ defmodule EWalletDB.Mint do
 
   defp changeset(%Mint{} = mint, attrs) do
     mint
-    |> cast(attrs, [:description, :amount, :token_uuid, :confirmed])
+    |> cast(attrs, [:description, :amount, :account_uuid, :token_uuid, :confirmed])
     |> validate_required([:amount, :token_uuid])
     |> validate_number(:amount, greater_than: 0)
     |> assoc_constraint(:token)
@@ -64,8 +64,8 @@ defmodule EWalletDB.Mint do
     |> assoc_constraint(:transfer)
   end
 
-  def for_token(token) do
-    from(m in Mint, where: m.token_uuid == ^token.uuid)
+  def for_token(token, query \\ Mint) do
+    from(m in query, where: m.token_uuid == ^token.uuid)
   end
 
   @doc """
