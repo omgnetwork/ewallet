@@ -32,7 +32,7 @@ export const getAccounts = search => async dispatch => {
   // dispatch({ type: 'ACCOUNTS/REQUEST/INITIATED' })
   try {
     const result = await accountService.getAllAccounts({
-      per: 2,
+      per: 100,
       sort: { by: 'created_at', dir: 'desc' },
       search_term: search
     })
