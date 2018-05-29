@@ -3,7 +3,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   Serializes account(s) into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.PaginatorSerializer
+  alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
   alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.Account
   alias EWalletDB.Helpers.{Assoc, Preloader}
@@ -21,7 +21,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   end
 
   def serialize(%Account{} = account) do
-    account = Preloader.preload(account, :parent)
+    account = Preloader.preload(account, [:parent, :categories])
 
     %{
       object: "account",
@@ -31,6 +31,8 @@ defmodule EWallet.Web.V1.AccountSerializer do
       name: account.name,
       description: account.description,
       master: Account.master?(account),
+      category_ids: CategorySerializer.serialize(account.categories, :id),
+      categories: CategorySerializer.serialize(account.categories),
       avatar: Avatar.urls({account.avatar, account}),
       metadata: account.metadata || %{},
       encrypted_metadata: account.encrypted_metadata || %{},
@@ -41,4 +43,12 @@ defmodule EWallet.Web.V1.AccountSerializer do
 
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
+  def serialize(%NotLoaded{}, _), do: nil
+
+  def serialize(accounts, :id) when is_list(accounts) do
+    Enum.map(accounts, fn account -> account.id end)
+  end
+
+  def serialize(nil, _), do: nil
 end

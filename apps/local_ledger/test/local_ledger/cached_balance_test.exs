@@ -87,7 +87,8 @@ defmodule LocalLedger.CachedBalanceTest do
     end
 
     test "reuses the previous cached balance to calculate the new one when
-          strategy = 'since_last_cached'", %{token_1: token_1, wallet: wallet} do
+          strategy = 'since_last_cached'",
+         %{token_1: token_1, wallet: wallet} do
       Application.put_env(:local_ledger, :balance_caching_strategy, "since_last_cached")
 
       CachedBalance.cache_all()
@@ -124,7 +125,8 @@ defmodule LocalLedger.CachedBalanceTest do
     end
 
     test "reuses the previous cached balance to calculate the new one when
-          strategy = 'since_beginning'", %{token_1: token_1, wallet: wallet} do
+          strategy = 'since_beginning'",
+         %{token_1: token_1, wallet: wallet} do
       Application.put_env(:local_ledger, :balance_caching_strategy, "since_beginning")
 
       CachedBalance.cache_all()

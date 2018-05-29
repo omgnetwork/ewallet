@@ -44,6 +44,13 @@ defmodule AdminAPI.V1.Router do
       post("/transaction.create", TransactionController, :create)
     end
 
+    # Category endpoints
+    post("/category.all", CategoryController, :all)
+    post("/category.get", CategoryController, :get)
+    post("/category.create", CategoryController, :create)
+    post("/category.update", CategoryController, :update)
+    post("/category.delete", CategoryController, :delete)
+
     # Account endpoints
     post("/account.all", AccountController, :all)
     post("/account.get", AccountController, :get)

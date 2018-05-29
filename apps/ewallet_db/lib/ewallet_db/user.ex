@@ -406,6 +406,19 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Checks if the user has an admin role on the top-level account.
+  """
+  @spec master_admin?(%User{}) :: String.t() | nil
+  def master_admin?(%User{id: user_id}) do
+    master_admin?(user_id)
+  end
+
+  @spec master_admin?(String.t()) :: String.t() | nil
+  def master_admin?(user_id) do
+    User.get_role(user_id, Account.get_master_account().id) == "admin"
+  end
+
+  @doc """
   Retrieves the upper-most account that the given user has membership in.
   """
   def get_account(user) do

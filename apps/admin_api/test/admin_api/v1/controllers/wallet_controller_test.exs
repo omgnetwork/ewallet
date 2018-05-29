@@ -55,11 +55,14 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
       wallets = response["data"]["data"]
       assert length(wallets) == 2
-      assert Enum.at(wallets, 0)["account_id"] == account.id
-      assert Enum.at(wallets, 0)["identifier"] == "burn"
 
-      assert Enum.at(wallets, 1)["account_id"] == account.id
-      assert Enum.at(wallets, 1)["identifier"] == "primary"
+      wallets =
+        Enum.map(wallets, fn wallet ->
+          {wallet["account_id"], wallet["identifier"]}
+        end)
+
+      assert Enum.member?(wallets, {account.id, "primary"})
+      assert Enum.member?(wallets, {account.id, "burn"})
 
       # Asserts pagination data
       pagination = response["data"]["pagination"]
@@ -69,8 +72,8 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of wallets according to search_term, sort_by and sort_direction" do
-      {:ok, account} = :account |> params_for() |> Account.insert()
+    test "returns a list of wallets according to sort_by and sort_direction" do
+      account = insert(:account)
       insert(:wallet, %{account: account, address: "XYZ1", identifier: "secondary_1"})
       insert(:wallet, %{account: account, address: "XYZ3", identifier: "secondary_2"})
       insert(:wallet, %{account: account, address: "XYZ2", identifier: "secondary_3"})
@@ -79,7 +82,6 @@ defmodule AdminAPI.V1.WalletControllerTest do
       attrs = %{
         "id" => account.id,
         # Search is case-insensitive
-        "search_term" => "xYz",
         "sort_by" => "address",
         "sort_dir" => "desc"
       }
@@ -88,10 +90,11 @@ defmodule AdminAPI.V1.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(wallets) == 3
-      assert Enum.at(wallets, 0)["address"] == "XYZ3"
-      assert Enum.at(wallets, 1)["address"] == "XYZ2"
-      assert Enum.at(wallets, 2)["address"] == "XYZ1"
+      assert Enum.count(wallets) == 4
+      assert Enum.at(wallets, 0)["address"] == "ZZZ1"
+      assert Enum.at(wallets, 1)["address"] == "XYZ3"
+      assert Enum.at(wallets, 2)["address"] == "XYZ2"
+      assert Enum.at(wallets, 3)["address"] == "XYZ1"
 
       Enum.each(wallets, fn wallet ->
         assert wallet["account_id"] == account.id
@@ -122,8 +125,8 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
-    test "returns a list of wallets according to search_term, sort_by and sort_direction" do
-      {:ok, user} = :user |> params_for() |> User.insert()
+    test "returns a list of wallets according to sort_by and sort_direction" do
+      user = insert(:user)
       insert(:wallet, %{user: user, address: "XYZ1", identifier: "secondary_1"})
       insert(:wallet, %{user: user, address: "XYZ3", identifier: "secondary_2"})
       insert(:wallet, %{user: user, address: "XYZ2", identifier: "secondary_3"})
@@ -131,8 +134,6 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
       attrs = %{
         "id" => user.id,
-        # Search is case-insensitive
-        "search_term" => "xYz",
         "sort_by" => "address",
         "sort_dir" => "desc"
       }
@@ -141,10 +142,11 @@ defmodule AdminAPI.V1.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(wallets) == 3
-      assert Enum.at(wallets, 0)["address"] == "XYZ3"
-      assert Enum.at(wallets, 1)["address"] == "XYZ2"
-      assert Enum.at(wallets, 2)["address"] == "XYZ1"
+      assert Enum.count(wallets) == 4
+      assert Enum.at(wallets, 0)["address"] == "ZZZ1"
+      assert Enum.at(wallets, 1)["address"] == "XYZ3"
+      assert Enum.at(wallets, 2)["address"] == "XYZ2"
+      assert Enum.at(wallets, 3)["address"] == "XYZ1"
 
       Enum.each(wallets, fn wallet ->
         assert wallet["user_id"] == user.id

@@ -98,6 +98,95 @@ defmodule EWalletDB.SchemaCase do
     end
   end
 
+  defmacro test_schema_all_returns_all_records(schema, count) do
+    quote do
+      test "returns all existing #{unquote(schema)} records" do
+        schema = unquote(schema)
+        count = unquote(count)
+
+        assert Enum.empty?(schema.all())
+
+        for n <- 1..count do
+          schema
+          |> get_factory
+          |> params_for
+          |> schema.insert()
+        end
+
+        assert length(schema.all()) == count
+      end
+    end
+  end
+
+  @doc """
+  Test schema's get/1 returns the struct if the given id is found
+  """
+  defmacro test_schema_get_returns_struct_if_given_valid_id(schema) do
+    quote do
+      test "returns a struct if given a valid id" do
+        schema = unquote(schema)
+
+        inserted =
+          schema
+          |> get_factory()
+          |> insert()
+
+        result = schema.get(inserted.id)
+
+        assert result.id == inserted.id
+      end
+    end
+  end
+
+  defmacro test_schema_get_returns_nil_for_id(schema, id) do
+    quote do
+      test "returns a struct if given '#{unquote(id)}' as id" do
+        schema = unquote(schema)
+        id = unquote(id)
+
+        assert schema.get(id) == nil
+      end
+    end
+  end
+
+  defmacro test_schema_get_accepts_preload(schema, preload) do
+    quote do
+      test "accepts :preload option with #{unquote(preload)}" do
+        schema = unquote(schema)
+        preload = unquote(preload)
+
+        inserted =
+          schema
+          |> get_factory()
+          |> insert()
+
+        result = schema.get(inserted.id, preload: preload)
+
+        assert result.id == inserted.id
+        assert Ecto.assoc_loaded?(Map.get(result, preload))
+      end
+    end
+  end
+
+  defmacro test_schema_get_by_allows_search_by(schema, attr) do
+    quote do
+      test "searches by attribute #{unquote(attr)}" do
+        schema = unquote(schema)
+        attr = unquote(attr)
+
+        inserted =
+          schema
+          |> get_factory()
+          |> insert()
+
+        {:ok, value} = Map.fetch(inserted, attr)
+
+        result = schema.get_by(%{attr => value})
+        assert Map.get(result, attr) == Map.get(inserted, attr)
+      end
+    end
+  end
+
   @doc """
   Test schema's insert/1 with a specific field value is successful.
   """
