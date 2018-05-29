@@ -177,7 +177,9 @@ defmodule EWalletDB.Transfer do
     %Transfer{}
     |> changeset(attrs)
     |> do_insert(opts)
-    |> case do {_, res} -> res end
+    |> case do
+      {_, res} -> res
+    end
   end
 
   defp do_insert(changeset, opts) do
