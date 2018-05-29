@@ -1,16 +1,22 @@
 {
-  "extends": ["airbnb", "plugin:react/all"],
-  "globals": { "fetch": false, "btoa": false },
-  "env": { "browser": true, "jest": true },
-  "plugins": [
-      "react"
+  "extends": [
+    "standard",
+    "standard-react",
+    "standard-jsx"
   ],
+  "parser": "babel-eslint",
   "rules": {
-    "react/jsx-no-literals": "off",
-    "react/require-optimization": "off",
-    "react/no-set-state": "off",
-    "react/forbid-prop-types": "off",
-    "react/no-array-index-key": "off",
-    "import/no-extraneous-dependencies": ["error", { "devDependencies": true }]
+    "react/jsx-no-bind": 0,
+    "no-return-assign": 0,
+    "react/jsx-closing-bracket-location": 2,
+    "react/no-unused-prop-types": 1
+  },
+  "env": {
+    "jquery": true,
+    "jest": true
+  },
+  "globals": {
+    "_":  true,
+    "BACKEND_URL": true
   }
 }
