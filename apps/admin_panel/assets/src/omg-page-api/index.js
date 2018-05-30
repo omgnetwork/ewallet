@@ -149,7 +149,7 @@ class ApiKeyPage extends Component {
                 <ConfirmCreateKeyContainer>
                   <h4>GENERATE ADMIN API KEY</h4>
                   <p>
-                    Are you sure to generate an api key ? this key will be use for your application
+                  The Admin API key is used to authenticate an API and allows that specific API to access various admin-related functions such as creating new minted tokens, mint more tokens, create and manage accounts, create new API keys, etc.
                   </p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
@@ -161,7 +161,7 @@ class ApiKeyPage extends Component {
                 <ConfirmCreateKeyContainer>
                   <h4>GENERATE EWALLET API KEY</h4>
                   <p>
-                    Are you sure to generate an ewallet api key ? this key will be use for your application
+                  The eWallet API key is used to authenticate an API and allows that specific API to access various user-related functions, e.g. make transfers with the user's wallets, list a user's transactions, create transaction requests, etc.
                   </p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>

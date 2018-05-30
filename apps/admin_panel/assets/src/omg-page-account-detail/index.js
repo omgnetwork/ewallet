@@ -60,7 +60,7 @@ class AccountDetailPage extends Component {
   }
   renderTransactionRatio = account => {
     return (
-      <Section title='TRANSACTION INFOMATION'>
+      <Section title='TRANSACTION INFORMATION'>
         <RatioBar
           dataSource={[
             { percent: 20, content: 'transaction', color: this.props.theme.colors.B100 },
