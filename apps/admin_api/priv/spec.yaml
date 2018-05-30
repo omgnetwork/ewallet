@@ -40,8 +40,10 @@ tags:
     description: Resources related to session tokens.
   - name: Token
     description: Resources related to tokens.
+  - name: Category
+    description: Resources related to categories.
   - name: Account
-    description: Resources related to account.
+    description: Resources related to accounts.
   - name: User
     description: Resources related to users.
   - name: Wallet
@@ -202,6 +204,86 @@ paths:
           $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
+  ####################################
+  #        CATEGORY ENDPOINTS        #
+  ####################################
+  /category.all:
+    post:
+      tags:
+        - Category
+      summary: Get the list of categories
+      operationId: category_all
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoriesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.get:
+    post:
+      tags:
+        - Category
+      summary: Get a specific category
+      operationId: category_get
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryGetBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.create:
+    post:
+      tags:
+        - Category
+      summary: Create a new category
+      operationId: category_create
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.update:
+    post:
+      tags:
+        - Category
+      summary: Update a category
+      operationId: category_update
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /category.delete:
+    post:
+      tags:
+        - Category
+      summary: Delete a category
+      operationId: category_delete
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CategoryDeleteBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/CategoryResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
   ############################
   #         ACCOUNTS         #
   ############################
@@ -869,7 +951,7 @@ components:
             account:
               object: "account"
               id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-              parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
+              parent_id: "acc_01ca26pkge49aabzd6k6mshn0y"
               name: "Account Name"
               description: "The account description"
               master: true
@@ -930,7 +1012,7 @@ components:
             success: true
             data:
               object: "token"
-              id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
+              id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
               symbol: "ABC"
               name: "ABC Point"
               subunit_to_unit: 100
@@ -961,7 +1043,7 @@ components:
               object: "list"
               data:
                 - object: "token"
-                  id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
+                  id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
                   symbol: "ABC"
                   name: "ABC Point"
                   subunit_to_unit: 100
@@ -972,6 +1054,110 @@ components:
                 current_page: 1
                 is_first_page: true
                 is_last_page: true
+
+    ######################################
+    #          CATEGORY SCHEMAS          #
+    ######################################
+    CategorySchema:
+      description: "The object schema for an category"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        account_ids:
+          type: array
+          items:
+            type: string
+        accounts:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/UnpaginatedListSchema'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/AccountSchema'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - name
+        - description
+        - account_ids
+        - created_at
+        - updated_at
+    CategoryResponseSchema:
+      description: "The response schema for an category"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/CategorySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "category"
+            id: "cat_01ce31n493dqbtj3fe8hadwndx"
+            name: "Category Name"
+            description: "The category description"
+            account_ids: []
+            accounts: []
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+    CategoriesResponseSchema:
+      description: "The response schema for a list of categories"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CategorySchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "category"
+                id: "cat_01ce31n493dqbtj3fe8hadwndx"
+                name: "Category Name"
+                description: "The category description"
+                account_ids: []
+                accounts: []
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
 
     ######################################
     #           ACCOUNT SCHEMAS          #
@@ -994,6 +1180,20 @@ components:
           type: boolean
         avatar:
           type: object
+        category_ids:
+          type: array
+          items:
+            type: string
+        categories:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/UnpaginatedListSchema'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/CategorySchema'
         metadata:
           type: object
         encrypted_metadata:
@@ -1011,6 +1211,7 @@ components:
         - name
         - master
         - avatar
+        - category_ids
         - created_at
         - updated_at
     AccountResponseSchema:
@@ -1030,10 +1231,12 @@ components:
           data:
             object: "account"
             id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-            parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
+            parent_id: "acc_01ca26pkge49aabzd6k6mshn0y"
             name: "Account Name"
             description: "The account description"
             master: true
+            category_ids: []
+            categories: []
             metadata: {}
             encrypted_metadata: {}
             avatar: {"original": "file_url"}
@@ -1065,10 +1268,14 @@ components:
             data:
               - object: "account"
                 id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-                parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
+                parent_id: "acc_01ca26pkge49aabzd6k6mshn0y"
                 name: "Account name"
                 description: "The account description"
                 master: true
+                category_ids: []
+                categories: []
+                metadata: {}
+                encrypted_metadata: {}
                 avatar: {"original": "file_url"}
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -1115,7 +1322,7 @@ components:
         - updated_at
       example:
         object: "user"
-        id: "cec34607-0761-4a59-8357-18963e42a1aa"
+        id: "usr_01ce83zf80j542z4q4zqd8qvfx"
         provider_user_id: "wijf-fbancomw-dqwjudb"
         username: "johndoe"
         email: "johndoe@omise.co"
@@ -1138,7 +1345,7 @@ components:
         example:
           data:
             object: "user"
-            id: "cec34607-0761-4a59-8357-18963e42a1aa"
+            id: "usr_01ce83zf80j542z4q4zqd8qvfx"
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "johndoe"
             email: "johndoe@omise.co"
@@ -1171,7 +1378,7 @@ components:
             object: "list"
             data:
               - object: "user"
-                id: "cec34607-0761-4a59-8357-18963e42a1aa"
+                id: "usr_01ce83zf80j542z4q4zqd8qvfx"
                 provider_user_id: "wijf-fbancomw-dqwjudb"
                 username: "johndoe"
                 email: "johndoe@omise.co"
@@ -1381,7 +1588,7 @@ components:
         example:
           data:
             object: "user"
-            id: "cec34607-0761-4a59-8357-18963e42a1aa"
+            id: "usr_01ce83zf80j542z4q4zqd8qvfx"
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "johndoe"
             email: "johndoe@omise.co"
@@ -1415,7 +1622,7 @@ components:
             object: "list"
             data:
               - object: "user"
-                id: "cec34607-0761-4a59-8357-18963e42a1aa"
+                id: "usr_01ce83zf80j542z4q4zqd8qvfx"
                 provider_user_id: "wijf-fbancomw-dqwjudb"
                 username: "johndoe"
                 email: "johndoe@omise.co"
@@ -1441,7 +1648,6 @@ components:
           type: string
         id:
           type: string
-          format: uuid
         from:
           type: object
           properties:
@@ -1515,11 +1721,11 @@ components:
           success: true
           data:
             object: "transaction"
-            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            id: "txn_01ce840q5svw6058r8yk6jzf65"
             idempotency_token: "123982f5-4a27-498d-a91b-7bb2e2a8d3d1"
             from:
               object: "transaction_source"
-              address: "XXX123"
+              address: "bec66785-f0d8-416c-a650-2859aa680166"
               amount: 1000
               token:
                 object: "token"
@@ -1531,7 +1737,7 @@ components:
                 updated_at: "2018-01-01T10:00:00Z"
             to:
               object: "transaction_source"
-              address: "XXX123"
+              address: "47218ab4-d94f-44e9-b7f2-36061f76ce58"
               amount: 1000
               token:
                 object: "token"
@@ -1574,10 +1780,10 @@ components:
             object: "list"
             data:
               - object: "transaction"
-                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "txn_01ce842dxrrprkak0rzq716ax1"
                 from:
                   object: "transaction_source"
-                  address: "XXX123"
+                  address: "bec66785-f0d8-416c-a650-2859aa680166"
                   amount: 1000
                   token:
                     object: "token"
@@ -1589,7 +1795,7 @@ components:
                     updated_at: "2018-01-01T10:00:00Z"
                 to:
                   object: "transaction_source"
-                  address: "XXX123"
+                  address: "47218ab4-d94f-44e9-b7f2-36061f76ce58"
                   amount: 1000
                   token:
                     object: "token"
@@ -1624,7 +1830,6 @@ components:
           type: string
         id:
           type: string
-          format: uuid
         access_key:
           type: string
         secret_key:
@@ -1666,7 +1871,7 @@ components:
           success: true
           data:
             object: "key"
-            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            id: "key_01ce843mvg5fa1zpk5myy69h4q"
             access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             secret_key: "the_secret_key_or_null"
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
@@ -1698,7 +1903,7 @@ components:
             object: "list"
             data:
               - object: "key"
-                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "key_01ce843mvg5fa1zpk5myy69h4q"
                 access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 secret_key: "the_secret_key_or_null"
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
@@ -1722,7 +1927,6 @@ components:
           type: string
         id:
           type: string
-          format: uuid
         key:
           type: string
         owner_app:
@@ -1764,7 +1968,7 @@ components:
           success: true
           data:
             object: "api_key"
-            id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+            id: "api_01ce844d5w9e81snekr5kprvem"
             key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             owner_app: "admin_api"
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
@@ -1796,7 +2000,7 @@ components:
             object: "list"
             data:
               - object: "api_key"
-                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "api_01ce844d5w9e81snekr5kprvem"
                 key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 owner_app: "admin_api"
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
@@ -1933,7 +2137,7 @@ components:
             required:
               - id
             example:
-              id: "tok_ABC_01cbfge9qhmsdbjyb7a8e8pxt3"
+              id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
     # Request body for creating a token
     TokenCreateBody:
         description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
@@ -1996,9 +2200,115 @@ components:
                 - id
                 - amount
               example:
-                id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+                id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
                 amount: 1000
-    # Request body for listing accounts
+
+    ###########################################
+    #         CATEGORY REQUEST BODIES         #
+    ###########################################
+    CategoryAllBody:
+      description: The parameters to use for listing the categories
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    CategoryGetBody:
+      description: The parameters to use for retrieving a specific category
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+    CategoryCreateBody:
+      description: The parameters to use for creating a new category.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              name:
+                type: string
+              description:
+                type: string
+              account_ids:
+                type: array
+                items:
+                  type: string
+            required:
+              - name
+              - description
+              - account_ids
+            example:
+              name: "Name of category"
+              description: "The category description"
+              account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+    CategoryUpdateBody:
+      description: The parameters to use for updating an account. Only the provided fields are updated.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              account_ids:
+                type: array
+                items:
+                  type: string
+            required:
+              - id
+            example:
+              id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+              name: "Name to Update"
+              description: "New category description"
+              account_ids: ["acc_01ca26pkge49aabzd6k6mshn0y"]
+    CategoryDeleteBody:
+      description: The parameters to use for deleting an category.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "cat_01ce30qdajwb7gdecq0ebn3twq"
+
+    ###########################################
+    #          ACCOUNT REQUEST BODIES         #
+    ###########################################
     AccountAllBody:
       description: The parameters to use for listing the accounts
       required: true
@@ -2051,6 +2361,10 @@ components:
                 type: string
               parent_id:
                 type: string
+              category_ids:
+                type: array
+                items:
+                  type: string
               metadata:
                 type: object
               encrypted_metadata:
@@ -2060,11 +2374,12 @@ components:
             example:
               name: "Account Name"
               description: "The account description"
-              parent_id: "acc_01ca2pkge49aabzd6k6msho0y"
+              parent_id: "acc_01ca26pkge49aabzd6k6mshn0y"
+              category_ids: []
               metadata: {}
               encrypted_metadata: {}
     AccountUpdateBody:
-      description: The parameters to use for updating an account
+      description: The parameters to use for updating an account. Only the provided fields are updated.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2076,18 +2391,21 @@ components:
                 type: string
               description:
                 type: string
+              category_ids:
+                type: array
+                items:
+                  type: string
               metadata:
                 type: object
               encrypted_metadata:
                 type: object
             required:
               - id
-              - name
-              - description
             example:
               id: "acc_01ca2p8jqans5aty5gj5etmjcf"
               name: "Account Name"
               description: "The account description"
+              category_ids: []
               metadata: {}
               encrypted_metadata: {}
     AccountListUsersBody:
@@ -2113,7 +2431,6 @@ components:
               - properties:
                   user_id:
                     type: string
-                    format: uuid
                   account_id:
                     type: string
                   role_name:
@@ -2126,7 +2443,7 @@ components:
                   - role_name
                   - redirect_url
                 example:
-                  user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+                  user_id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
                   account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
                   role_name: "admin"
                   redirect_url: "https://domain/redirect_path?email={email}&token={token}"
@@ -2149,7 +2466,7 @@ components:
                   redirect_url: "https://domain/redirect_path?email={email}&token={token}"
             example:
               account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-              user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+              user_id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
               role_name: "admin"
               redirect_url: "https://domain/redirect_path?email={email}&token={token}"
     AccountUnassignUserBody:
@@ -2161,7 +2478,6 @@ components:
             properties:
               user_id:
                 type: string
-                format: uuid
               account_id:
                 type: string
             required:
@@ -2169,7 +2485,7 @@ components:
               - account_id
             example:
               account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
-              user_id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+              user_id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
     AccountUploadBody:
       description: The parameters to use for uploading an account's avatar. Only supports .jpg, .jpeg, .gif and .png.
       required: true
@@ -2227,11 +2543,10 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
             required:
               - id
             example:
-              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
     InviteAcceptBody:
       description: The parameters to use for accepting an invite
       required: true
@@ -2310,26 +2625,22 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              account_id:
+              id:
                 type: string
               page:
                 type: integer
                 minimum: 1
               per_page:
                 type: integer
-                minimum: 1
-              search_term:
-                type: string
               sort_by:
                 type: string
               sort_dir:
                 type: string
                 enum: ["asc", "desc"]
             example:
-              account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+              id: "acc_01ca2p8jqans5aty5gj5etmjcf"
               page: 1
               per_page: 10
-              search_term: ""
               sort_by: "field_name"
               sort_dir: "asc"
     WalletUserBody:
@@ -2339,7 +2650,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              user:
+              id:
                 type: string
               page:
                 type: integer
@@ -2347,18 +2658,15 @@ components:
               per_page:
                 type: integer
                 minimum: 1
-              search_term:
-                type: string
               sort_by:
                 type: string
               sort_dir:
                 type: string
                 enum: ["asc", "desc"]
             example:
-              user: usr_01cc02x0v98qcctvycfx4vsk8x
+              id: usr_01cc02x0v98qcctvycfx4vsk8x
               page: 1
               per_page: 10
-              search_term: ""
               sort_by: "field_name"
               sort_dir: "asc"
     WalletGetBody:
@@ -2414,11 +2722,10 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
             required:
               - id
             example:
-              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "txn_01ce83x8w4db56f3fcjy4n4qpc"
     TransactionCreateBody:
       description: The parameters to use for creating a transaction
       required: true
@@ -2480,11 +2787,10 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
             required:
               - id
             example:
-              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "usr_01ce83xvrsh8bzpctq3wqbprf8"
     AdminUploadBody:
       description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
       required: true
@@ -2494,7 +2800,6 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
               avatar:
                 type: string
                 format: binary
@@ -2502,7 +2807,7 @@ components:
               - id
               - avatar
             example:
-              id: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              id: "usr_01ce83xvrsh8bzpctq3wqbprf8"
               avatar: "/path/to/file"
 
     ######################################
@@ -2544,11 +2849,10 @@ components:
               - properties:
                   id:
                     type: string
-                    format: uuid
                 required:
                   - id
                 example:
-                  id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+                  id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
               - properties:
                   access_key:
                     type: string
@@ -2557,7 +2861,7 @@ components:
                 example:
                   access_key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             example:
-              id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
 
     ######################################
     #       API KEY REQUEST BODIES       #
@@ -2610,11 +2914,10 @@ components:
             properties:
               id:
                 type: string
-                format: uuid
             required:
               - id
             example:
-              id: "582edb32-1b7e-46aa-95f2-e0b3f57d71d3"
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
 
   ######################################
   #          SECURITY SCHEMES          #
@@ -2657,6 +2960,22 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TokensResponseSchema'
+
+    ######################################
+    #          CATEGORY RESPONSES        #
+    ######################################
+    CategoryResponse:
+      description: "Returns a single category"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/CategoryResponseSchema'
+    CategoriesResponse:
+      description: "Returns a list of categories"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/CategoriesResponseSchema'
 
     ######################################
     #          ACCOUNT RESPONSES         #

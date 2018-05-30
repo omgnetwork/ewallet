@@ -31,7 +31,6 @@ defmodule AdminAPI.V1.WalletController do
     with %Account{} = account <- Account.get(id) || :account_id_not_found do
       account
       |> Wallet.all_for()
-      |> SearchParser.to_query(attrs, @search_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)
       |> respond_multiple(conn)
@@ -46,7 +45,6 @@ defmodule AdminAPI.V1.WalletController do
     with %User{} = user <- User.get(id) || :user_id_not_found do
       user
       |> Wallet.all_for()
-      |> SearchParser.to_query(attrs, @search_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)
       |> respond_multiple(conn)

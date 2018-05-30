@@ -1,14 +1,16 @@
 defmodule EWallet.Web.V1.AccountSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.AccountSerializer
+  alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
   alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.Account
 
   describe "AccountSerializer.serialize/1" do
     test "serializes an account into V1 response format" do
       master = :account |> insert()
-      account = :account |> insert() |> Repo.preload(:parent)
+      category = :category |> insert()
+      {:ok, account} = :account |> insert() |> Account.add_category(category)
+      account = Repo.preload(account, [:parent, :categories])
 
       expected = %{
         object: "account",
@@ -18,6 +20,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
         name: account.name,
         description: account.description,
         master: Account.master?(account),
+        category_ids: CategorySerializer.serialize(account.categories, :id),
+        categories: CategorySerializer.serialize(account.categories),
         metadata: %{},
         encrypted_metadata: %{},
         avatar: %{
@@ -34,8 +38,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
     end
 
     test "serializes an account paginator into a list object" do
-      account1 = :account |> insert() |> Repo.preload(:parent)
-      account2 = :account |> insert() |> Repo.preload(:parent)
+      account1 = :account |> insert() |> Repo.preload([:parent, :categories])
+      account2 = :account |> insert() |> Repo.preload([:parent, :categories])
 
       paginator = %Paginator{
         data: [account1, account2],
@@ -58,6 +62,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             name: account1.name,
             description: account1.description,
             master: Account.master?(account1),
+            category_ids: CategorySerializer.serialize(account1.categories, :id),
+            categories: CategorySerializer.serialize(account1.categories),
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{
@@ -77,6 +83,8 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
             name: account2.name,
             description: account2.description,
             master: Account.master?(account2),
+            category_ids: CategorySerializer.serialize(account2.categories, :id),
+            categories: CategorySerializer.serialize(account2.categories),
             metadata: %{},
             encrypted_metadata: %{},
             avatar: %{
@@ -131,6 +139,13 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
       }
 
       assert AccountSerializer.serialize(paginator) == expected
+    end
+  end
+
+  describe "AccountSerializer.serialize/2" do
+    test "serializes accounts to ids" do
+      accounts = [account1, account2] = insert_list(2, :account)
+      assert AccountSerializer.serialize(accounts, :id) == [account1.id, account2.id]
     end
   end
 end
