@@ -11,6 +11,7 @@ defmodule LocalLedgerDB.Mixfile do
       lockfile: "../../mix.lock",
       elixir: "~> 1.5",
       elixirc_paths: elixirc_paths(Mix.env),
+      elixirc_options: [warnings_as_errors: true],
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
