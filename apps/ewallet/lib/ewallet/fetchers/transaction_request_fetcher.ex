@@ -8,9 +8,10 @@ defmodule EWallet.TransactionRequestFetcher do
   """
   alias EWalletDB.TransactionRequest
 
-  @spec get(UUID.t()) :: {:ok, TransactionRequest.t()} | {:error, :transaction_request_not_found}
-  def get(id) do
-    id
+  @spec get(String.t()) ::
+          {:ok, TransactionRequest.t()} | {:error, :transaction_request_not_found}
+  def get(transaction_request_id) do
+    transaction_request_id
     |> TransactionRequest.get(preload: [:token, :user, :wallet])
     |> handle_request_existence()
   end
@@ -18,11 +19,11 @@ defmodule EWallet.TransactionRequestFetcher do
   defp handle_request_existence(nil), do: {:error, :transaction_request_not_found}
   defp handle_request_existence(request), do: {:ok, request}
 
-  @spec get_with_lock(UUID.t()) ::
+  @spec get_with_lock(String.t()) ::
           {:ok, TransactionRequest.t()}
           | {:error, :transaction_request_not_found}
-  def get_with_lock(id) do
-    request = TransactionRequest.get_with_lock(id)
+  def get_with_lock(transaction_request_id) do
+    request = TransactionRequest.get_with_lock(transaction_request_id)
 
     case request do
       nil -> {:error, :transaction_request_not_found}

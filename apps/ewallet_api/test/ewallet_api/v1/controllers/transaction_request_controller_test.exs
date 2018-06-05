@@ -29,6 +29,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "address" => wallet.address,
                  "correlation_id" => "123",
                  "id" => request.id,
+                 "formatted_id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
                  "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
@@ -80,6 +81,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "address" => wallet.address,
                  "correlation_id" => nil,
                  "id" => request.id,
+                 "formatted_id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
                  "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
@@ -236,6 +238,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "address" => wallet.address,
                  "correlation_id" => "123",
                  "id" => request.id,
+                 "formatted_id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
                  "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
@@ -287,6 +290,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "address" => wallet.address,
                  "correlation_id" => nil,
                  "id" => request.id,
+                 "formatted_id" => request.id,
                  "socket_topic" => "transaction_request:#{request.id}",
                  "token_id" => token.id,
                  "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
@@ -415,7 +419,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response =
         provider_request("/transaction_request.get", %{
-          id: transaction_request.id
+          formatted_id: transaction_request.id
         })
 
       assert response["success"] == true
@@ -425,7 +429,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "returns an error when the request ID is not found" do
       response =
         provider_request("/transaction_request.get", %{
-          id: "123"
+          formatted_id: "123"
         })
 
       assert response == %{
@@ -448,7 +452,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
 
       response =
         client_request("/me.get_transaction_request", %{
-          id: transaction_request.id
+          formatted_id: transaction_request.id
         })
 
       assert response["success"] == true
@@ -458,7 +462,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
     test "returns an error when the request ID is not found" do
       response =
         client_request("/me.get_transaction_request", %{
-          id: "123"
+          formatted_id: "123"
         })
 
       assert response == %{
