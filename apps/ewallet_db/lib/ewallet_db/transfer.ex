@@ -172,16 +172,26 @@ defmodule EWalletDB.Transfer do
   using the passed idempotency token.
   """
   def insert(attrs) do
-    changeset = changeset(%Transfer{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
 
-    case Repo.insert(changeset, opts) do
-      {:ok, transfer} ->
-        {:ok, get_by_idempotency_token(transfer.idempotency_token)}
-
-      changeset ->
-        changeset
+    %Transfer{}
+    |> changeset(attrs)
+    |> do_insert(opts)
+    |> case do
+      {_, res} -> res
     end
+  end
+
+  defp do_insert(changeset, opts) do
+    Repo.transaction(fn ->
+      case Repo.insert(changeset, opts) do
+        {:ok, transfer} ->
+          {:ok, get_by_idempotency_token(transfer.idempotency_token)}
+
+        changeset ->
+          changeset
+      end
+    end)
   end
 
   @doc """
