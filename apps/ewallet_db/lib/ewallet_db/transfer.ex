@@ -186,8 +186,9 @@ defmodule EWalletDB.Transfer do
     Repo.transaction(fn ->
       case Repo.insert(changeset, opts) do
         {:ok, transfer} ->
-          {:ok, attempt_retrieval(nil, transfer.idempotency_token, 0)}
-        changeset       ->
+          attempt_retrieval(nil, transfer.idempotency_token, 0)
+
+        changeset ->
           changeset
       end
     end)
@@ -196,6 +197,7 @@ defmodule EWalletDB.Transfer do
   defp attempt_retrieval(_transfer, _idempotency_token, 2) do
     {:error, :inserted_transaction_could_not_be_loaded}
   end
+
   defp attempt_retrieval(transfer, idempotency_token, count) do
     case transfer do
       nil ->
@@ -208,8 +210,9 @@ defmodule EWalletDB.Transfer do
         idempotency_token
         |> get_by_idempotency_token()
         |> attempt_retrieval(idempotency_token, count + 1)
+
       transfer ->
-        transfer
+        {:ok, transfer}
     end
   end
 

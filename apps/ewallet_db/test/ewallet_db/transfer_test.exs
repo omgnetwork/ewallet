@@ -61,6 +61,7 @@ defmodule EWalletDB.TransferTest do
 
       {:ok, inserted_transfer} =
         :transfer |> params_for(idempotency_token: "123") |> Transfer.insert()
+
       {:ok, transfer} = :transfer |> params_for(idempotency_token: "123") |> Transfer.insert()
 
       assert inserted_transfer == transfer

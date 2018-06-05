@@ -58,7 +58,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     inserted_transaction_could_not_be_loaded: %{
       code: "db:inserted_transaction_could_not_be_loaded",
-      description: "We could not load the transaction after insertion. Please try submitting the same transaction again (with identical idempontecy token!)."
+      description:
+        "We could not load the transaction after insertion. Please try submitting the same transaction again (with identical idempontecy token!)."
     },
     transaction_request_not_found: %{
       code: "transaction_request:transaction_request_not_found",
