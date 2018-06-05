@@ -21,6 +21,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
     %{
       object: "transaction_request",
       id: transaction_request.id,
+      formatted_id: transaction_request.id,
       socket_topic: "transaction_request:#{transaction_request.id}",
       type: transaction_request.type,
       amount: transaction_request.amount,

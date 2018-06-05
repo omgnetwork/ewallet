@@ -54,7 +54,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
@@ -122,7 +122,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
@@ -173,7 +173,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
@@ -206,7 +206,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         provider_request_with_idempotency("/transaction_request.consume", "1234", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
@@ -223,7 +223,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
@@ -289,7 +289,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # create a pending consumption that will need to be confirmed
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
@@ -382,7 +382,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # create a pending consumption that will need to be confirmed
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
@@ -478,7 +478,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # create a pending consumption that will need to be confirmed
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
@@ -574,7 +574,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # create a pending consumption that will need to be confirmed
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
@@ -667,7 +667,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # create a pending consumption that will need to be confirmed
       response =
         provider_request_with_idempotency("/transaction_request.consume", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
@@ -729,7 +729,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       # create a pending consumption that will need to be confirmed
       response =
         provider_request_with_idempotency("/transaction_request.consume", "1234", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
           metadata: nil,
@@ -811,7 +811,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         client_request_with_idempotency("/me.consume_transaction_request", "123", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
@@ -885,7 +885,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
@@ -901,7 +901,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
-          transaction_request_id: transaction_request.id,
+          formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,

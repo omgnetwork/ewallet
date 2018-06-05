@@ -63,7 +63,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -104,7 +104,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => request.id,
+          "formatted_transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -141,7 +141,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -175,7 +175,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -212,7 +212,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -250,7 +250,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       params = fn ->
         %{
-          "transaction_request_id" => request.id,
+          "formatted_transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -319,7 +319,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -360,7 +360,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => request.id,
+          "formatted_transaction_request_id" => request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -397,7 +397,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -431,7 +431,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,
@@ -468,7 +468,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(%{
-          "transaction_request_id" => transaction_request.id,
+          "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "metadata" => nil,

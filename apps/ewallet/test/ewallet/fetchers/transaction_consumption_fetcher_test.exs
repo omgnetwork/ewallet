@@ -51,7 +51,7 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
 
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
-          "transaction_request_id" => meta.request.id,
+          "formatted_transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "address" => nil,

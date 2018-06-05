@@ -24,6 +24,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
       expected = %{
         object: "transaction_request",
         id: transaction_request.id,
+        formatted_id: transaction_request.id,
         socket_topic: "transaction_request:#{transaction_request.id}",
         type: transaction_request.type,
         token_id: Assoc.get(transaction_request, [:token, :id]),

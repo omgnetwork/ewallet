@@ -113,7 +113,7 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
   def consume(
         %Wallet{} = wallet,
         %{
-          "transaction_request_id" => _,
+          "formatted_transaction_request_id" => _,
           "idempotency_token" => _
         } = attrs
       ) do
@@ -130,12 +130,12 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
   defp do_consume(
          wallet,
          %{
-           "transaction_request_id" => request_id,
+           "formatted_transaction_request_id" => formatted_request_id,
            "idempotency_token" => idempotency_token
          } = attrs
        ) do
     with {v, f} <- {TransactionConsumptionValidator, TransactionConsumptionFetcher},
-         {:ok, request} <- TransactionRequestFetcher.get_with_lock(request_id),
+         {:ok, request} <- TransactionRequestFetcher.get_with_lock(formatted_request_id),
          {:ok, nil} <- f.idempotent_fetch(idempotency_token),
          {:ok, request, token, amount} <- v.validate_before_consumption(request, wallet, attrs),
          {:ok, consumption} <- insert(wallet, token, request, amount, attrs),
