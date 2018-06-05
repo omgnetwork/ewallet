@@ -194,7 +194,7 @@ defmodule EWalletDB.Transfer do
     end)
   end
 
-  defp attempt_retrieval(_transfer, _idempotency_token, 2) do
+  defp attempt_retrieval(_transfer, _idempotency_token, 3) do
     {:error, :inserted_transaction_could_not_be_loaded}
   end
 
