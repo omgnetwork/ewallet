@@ -61,10 +61,10 @@ defmodule EWalletDB.TransferTest do
 
       {:ok, inserted_transfer} =
         :transfer |> params_for(idempotency_token: "123") |> Transfer.insert()
-
       {:ok, transfer} = :transfer |> params_for(idempotency_token: "123") |> Transfer.insert()
 
       assert inserted_transfer == transfer
+      assert Transfer |> Repo.all() |> length() == 1
     end
 
     test "returns an error when passing invalid arguments" do
