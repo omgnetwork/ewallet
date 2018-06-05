@@ -186,12 +186,32 @@ defmodule EWalletDB.Transfer do
     Repo.transaction(fn ->
       case Repo.insert(changeset, opts) do
         {:ok, transfer} ->
-          {:ok, get_by_idempotency_token(transfer.idempotency_token)}
+          attempt_retrieval(nil, transfer.idempotency_token, 0)
 
         changeset ->
           changeset
       end
     end)
+  end
+
+  defp attempt_retrieval(_transfer, _idempotency_token, 3) do
+    {:error, :inserted_transaction_could_not_be_loaded}
+  end
+
+  # Due to DB sync issues accross clusters and because of the way we retrieve
+  # the transactions (ignoring failure on conflicts), it's possible we're not able
+  # to retrive the record right away. We'll try 3 times in total, with a ms delay
+  # starting at 0, then 5, then 10ms before returning an error.
+  defp attempt_retrieval(nil, idempotency_token, count) do
+    Process.sleep(count * 5)
+
+    idempotency_token
+    |> get_by_idempotency_token()
+    |> attempt_retrieval(idempotency_token, count + 1)
+  end
+
+  defp attempt_retrieval(transfer, _idempotency_token, _count) do
+    {:ok, transfer}
   end
 
   @doc """
