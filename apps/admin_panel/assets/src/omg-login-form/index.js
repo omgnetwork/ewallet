@@ -126,9 +126,9 @@ class LoginForm extends Component {
           <OptionItem align='left' onClick={this.onClickCheckbox}>
             <Checkbox checked={this.state.rememberMe} label={'Remember Me'} />
           </OptionItem>
-          {/* <OptionItem align='right'>
+          <OptionItem align='right'>
             <Link to='/forget-password/'>Forget Password ?</Link>
-          </OptionItem> */}
+          </OptionItem>
         </OptionRowContainer>
         <Button size='large' type='submit' fluid loading={this.state.submitted}>
           Login

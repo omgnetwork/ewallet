@@ -33,7 +33,7 @@ const Input = styled.input`
     props.error ? props.theme.colors.R400 : props.theme.colors.S400};
   transform: translate3d(0, 0, 0);
   :-webkit-autofill~ ${Placeholder},:disabled~ ${Placeholder},:focus~ ${Placeholder},:not(:focus):valid~ ${Placeholder} {
-    transform: translate3d(0, -20px, 0);
+    transform: translate3d(0, -22px, 0);
   }
   :disabled {
     background-color: transparent;
@@ -49,6 +49,16 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity,
     0.3s ease padding ${props => (!props.error ? '0.3s' : '0s')};
 `
+const Success = styled.div`
+  color: #50a895;
+  text-align: left;
+  padding-top: ${props => (props.success ? '5px' : 0)};
+  overflow: hidden;
+  max-height: ${props => (props.success ? '30px' : 0)};
+  opacity: ${props => (props.success ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity,
+    0.3s ease padding ${props => (!props.success ? '0.3s' : '0s')};
+`
 class InputComonent extends PureComponent {
   static propTypes = {
     placeholder: PropTypes.string,
@@ -57,13 +67,12 @@ class InputComonent extends PureComponent {
     registerRef: PropTypes.func,
     error: PropTypes.bool,
     errorText: PropTypes.node,
+    success: PropTypes.bool,
+    successText: PropTypes.number,
     autofocus: PropTypes.bool,
     onPressEnter: PropTypes.func,
     onPressEscape: PropTypes.func,
     onChange: PropTypes.func
-  }
-  static defaultProps = {
-    placeholderType: 'float'
   }
   handleKeyPress = e => {
     if (e.key === 'Enter') {
@@ -99,7 +108,6 @@ class InputComonent extends PureComponent {
             onKeyDown={this.handleKeyDown}
             required
             innerRef={this.registerInput}
-            error={this.props.error}
             {...rest}
             placeholder={this.props.normalPlaceholder}
             onChange={this.onChange}
@@ -107,6 +115,7 @@ class InputComonent extends PureComponent {
           <Placeholder>{placeholder}</Placeholder>
         </InnerContainer>
         <Error error={this.props.error}>{this.props.errorText}</Error>
+        <Success success={this.props.success}>{this.props.successText}</Success>
       </Container>
     )
   }

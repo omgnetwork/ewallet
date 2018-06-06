@@ -1,7 +1,11 @@
 import React, { Component } from 'react'
 import { Input, Button } from '../omg-uikit'
 import styled from 'styled-components'
-import {Link} from 'react-router-dom'
+import { Link } from 'react-router-dom'
+import { resetPassword } from '../omg-session/action'
+import { connect } from 'react-redux'
+import PropTypes from 'prop-types'
+import { compose } from 'recompose'
 const Form = styled.form`
   text-align: left;
   input {
@@ -19,10 +23,15 @@ const Form = styled.form`
     text-align: center;
   }
 `
+const enhance = compose(connect(null, { resetPassword }))
 class ForgetPasswordForm extends Component {
+  static propTypes = {
+    resetPassword: PropTypes.func
+  }
   state = {
     email: '',
-    emailError: false
+    emailError: false,
+    submitStatus: null
   }
 
   validateEmail = email => {
@@ -31,17 +40,27 @@ class ForgetPasswordForm extends Component {
   validatePassword = password => {
     return password.length === 0
   }
-  onSubmit = e => {
+  onSubmit = async e => {
     e.preventDefault()
     const emailError = this.validateEmail(this.state.email)
     this.setState({
       emailError,
-      submitted: !emailError
+      submitStatus: emailError ? 'ERROR' : 'SUBMITTED'
     })
+    if (!emailError) {
+      const result = await this.props.resetPassword({
+        email: this.state.email,
+        redirectUrl: window.location.href
+      })
+      this.setState({ submitStatus: result.data.success ? 'SUCCESS' : 'FAILED' })
+    }
   }
   onEmailInputChange = e => {
     const value = e.target.value
-    this.setState({ email: value, emailError: this.state.submitted && this.validateEmail(value) })
+    this.setState({
+      email: value,
+      emailError: this.state.submitStatus === 'ERROR' && this.validateEmail(value)
+    })
   }
   render () {
     return (
@@ -52,17 +71,21 @@ class ForgetPasswordForm extends Component {
           placeholder='email@domain.com'
           error={this.state.emailError}
           errorText='Invalid email'
+          success={this.state.submitStatus === 'SUCCESS'}
+          successText={'Email has been sent, please check your email.'}
           onChange={this.onEmailInputChange}
           value={this.state.email}
           disabled={this.state.submitted}
         />
-        <Button size='large' type='submit'fluid loading={this.state.submitted}>
+        <Button size='large' type='submit' fluid loading={this.state.submitStatus === 'SUBMITTED'}>
           Send Request Email
         </Button>
-        <Link to='/login/' className='back-link'>Go back to Login</Link>
+        <Link to='/login/' className='back-link'>
+          Go back to Login
+        </Link>
       </Form>
     )
   }
 }
 
-export default ForgetPasswordForm
+export default enhance(ForgetPasswordForm)
