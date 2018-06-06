@@ -23,6 +23,18 @@ const Form = styled.form`
     text-align: center;
   }
 `
+const SendEmailSuccessfulContainer = styled.div`
+  text-align: center;
+`
+const Error = styled.div`
+  color: ${props => props.theme.colors.R400};
+  text-align: center;
+  padding: 10px 0;
+  overflow: hidden;
+  max-height: ${props => (props.error ? '50px' : 0)};
+  opacity: ${props => (props.error ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity;
+`
 const enhance = compose(withRouter, connect(null, { sendResetPasswordEmail }))
 class ForgetPasswordForm extends Component {
   static propTypes = {
@@ -56,7 +68,11 @@ class ForgetPasswordForm extends Component {
           '/create-new-password/'
         )
       })
-      this.setState({ submitStatus: result.data.success ? 'SUCCESS' : 'FAILED' })
+      if (result.data.success) {
+        this.setState({ submitStatus: 'SUCCESS' })
+      } else {
+        this.setState({ submitStatus: 'FAILED', submitErrorText: result.data.data.description })
+      }
     }
   }
   onEmailInputChange = e => {
@@ -69,24 +85,36 @@ class ForgetPasswordForm extends Component {
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
-        <h4>Reset Password</h4>
-        <p>Please enter your recovery email to reset password.</p>
-        <Input
-          placeholder='email@domain.com'
-          error={this.state.emailError}
-          errorText='Invalid email'
-          success={this.state.submitStatus === 'SUCCESS'}
-          successText={'Email has been sent, please check your email.'}
-          onChange={this.onEmailInputChange}
-          value={this.state.email}
-          disabled={this.state.submitted}
-        />
-        <Button size='large' type='submit' fluid loading={this.state.submitStatus === 'SUBMITTED'}>
-          Send Request Email
-        </Button>
+        {this.state.submitStatus === 'SUCCESS' ? (
+          <SendEmailSuccessfulContainer>
+            <h4>Email has been sent, please check your email</h4>
+          </SendEmailSuccessfulContainer>
+        ) : (
+          <div>
+            <h4>Reset Password</h4>
+            <p>Please enter your recovery email to reset password.</p>
+            <Input
+              placeholder='email@domain.com'
+              error={this.state.emailError}
+              errorText='Invalid email'
+              onChange={this.onEmailInputChange}
+              value={this.state.email}
+              disabled={this.state.submitted}
+            />
+            <Button
+              size='large'
+              type='submit'
+              fluid
+              loading={this.state.submitStatus === 'SUBMITTED'}
+            >
+              Send Request Email
+            </Button>
+          </div>
+        )}
         <Link to='/login/' className='back-link'>
           Go back to Login
         </Link>
+        <Error error={this.state.submitStatus === 'FAILED'}>{this.state.submitErrorText}</Error>
       </Form>
     )
   }

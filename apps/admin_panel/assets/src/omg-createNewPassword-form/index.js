@@ -105,7 +105,7 @@ class ForgetPasswordForm extends Component {
         {this.state.submitStatus !== 'SUCCESS' ? (
           <div>
             <h4>Reset Password ({email})</h4>
-            <p>Create new password with 8 - 16 characters</p>
+            <p>Create new password with at least 8 characters</p>
             <Input
               placeholder='New password'
               error={this.state.newPasswordError}
