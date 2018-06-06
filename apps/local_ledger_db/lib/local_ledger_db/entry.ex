@@ -13,7 +13,7 @@ defmodule LocalLedgerDB.Entry do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
     field(:encryption_version, :binary)
-    field(:correlation_id, :string)
+    field(:idempotency_token, :string)
 
     has_many(
       :transactions,
@@ -31,10 +31,10 @@ defmodule LocalLedgerDB.Entry do
   """
   def changeset(%Entry{} = entry, attrs) do
     entry
-    |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :correlation_id])
-    |> validate_required([:correlation_id, :metadata, :encrypted_metadata])
+    |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :idempotency_token])
+    |> validate_required([:idempotency_token, :metadata, :encrypted_metadata])
     |> cast_assoc(:transactions, required: true)
-    |> unique_constraint(:correlation_id)
+    |> unique_constraint(:idempotency_token)
     |> put_change(:encryption_version, Cloak.version())
   end
 
@@ -51,12 +51,12 @@ defmodule LocalLedgerDB.Entry do
     )
   end
 
-  def get_with_correlation_id(correlation_id) do
+  def get_with_idempotency_token(idempotency_token) do
     Repo.one!(
       from(
         e in Entry,
         join: t in assoc(e, :transactions),
-        where: e.correlation_id == ^correlation_id,
+        where: e.idempotency_token == ^idempotency_token,
         preload: [transactions: t]
       )
     )
