@@ -13,4 +13,10 @@ defmodule AdminAPI.V1.TokenView do
     |> TokenSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
+  def render("stats.json", %{stats: stats}) do
+    stats
+    |> TokenStatsSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
+  end
 end

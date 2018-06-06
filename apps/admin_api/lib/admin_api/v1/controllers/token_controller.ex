@@ -54,6 +54,17 @@ defmodule AdminAPI.V1.TokenController do
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
+  Retrieves stats for a specific token.
+  """
+  @spec stats(Conn.t(), map()) :: map()
+  def stats(conn, %{"id" => id}) do
+    stats = %{}
+    render(conn, :token, %{stats: stats})
+  end
+
+  def stats(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  @doc """
   Creates a new Token.
   """
   @spec create(Conn.t(), map()) :: map()

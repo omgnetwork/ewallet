@@ -76,6 +76,17 @@ defmodule AdminAPI.V1.TokenControllerTest do
     end
   end
 
+  describe "/token.stats" do
+    test "returns the stats for a token" do
+      token = insert(:token)
+      mints = insert_list(3, :mint, token_uuid: token.uuid)
+      response = user_request("/token.stats", %{"id" => token.id})
+
+      assert response["success"]
+      assert response["data"] == %{}
+    end
+  end
+
   describe "/token.create" do
     test "inserts a new token" do
       response =
