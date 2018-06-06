@@ -137,10 +137,10 @@ defmodule LocalLedger.EntryTest do
       assert get_current_balance("thibault") == 250
     end
 
-    test "fails when the idempotency_token is already in the database" do
+    test "returns the same entry when the idempotency token is already in the DB" do
       genesis_entry = genesis()
 
-      {status, error} =
+      {status, entry} =
         Entry.insert(
           %{
             "metadata" => %{},
@@ -164,8 +164,8 @@ defmodule LocalLedger.EntryTest do
           %{genesis: false}
         )
 
-      assert status == :error
-      assert error.errors == [idempotency_token: {"has already been taken", []}]
+      assert status == :ok
+      assert entry.uuid == genesis_entry.uuid
     end
 
     test "returns a 'same address' error when the from/to addresses are identical" do

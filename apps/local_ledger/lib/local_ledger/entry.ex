@@ -32,8 +32,8 @@ defmodule LocalLedger.Entry do
   @doc """
   Retrieve a specific entry based on a correlation ID from the database.
   """
-  def get_with_idempotency_token(idempotency_token) do
-    {:ok, Entry.get_with_idempotency_token(idempotency_token)}
+  def get_by_idempotency_token(idempotency_token) do
+    {:ok, Entry.get_by_idempotency_token(idempotency_token)}
   end
 
   @doc """
@@ -123,13 +123,13 @@ defmodule LocalLedger.Entry do
 
       Transaction.check_balance(transactions, %{genesis: genesis})
 
-      changes = %{
+      %{
         idempotency_token: idempotency_token,
         transactions: transactions,
         metadata: metadata
       }
-
-      case Entry.insert(changes) do
+      |> Entry.get_or_insert()
+      |> case do
         {:ok, entry} ->
           entry
 

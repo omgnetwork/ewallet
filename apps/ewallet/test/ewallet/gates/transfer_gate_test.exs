@@ -113,6 +113,23 @@ defmodule EWallet.TransferTest do
 
       assert transfer.status == Transfer.failed()
     end
+
+    test "returns the previously inserted transfer", attrs do
+      assert Transfer |> Repo.all() |> length() == 2
+
+      {:ok, transfer_1} = TransferGate.get_or_insert(attrs)
+      transfer_1 = TransferGate.process(transfer_1)
+
+      assert %{"entry_uuid" => _} = transfer_1.ledger_response
+      assert transfer_1.status == Transfer.confirmed()
+
+      transfer_2 = TransferGate.process(transfer_1)
+
+      assert %{"entry_uuid" => _} = transfer_2.ledger_response
+      assert transfer_2.status == Transfer.confirmed()
+      assert transfer_1.uuid == transfer_2.uuid
+      assert Transfer |> Repo.all() |> length() == 3
+    end
   end
 
   describe "genesis/1" do

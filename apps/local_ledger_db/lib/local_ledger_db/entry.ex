@@ -51,17 +51,6 @@ defmodule LocalLedgerDB.Entry do
     )
   end
 
-  def get_with_idempotency_token(idempotency_token) do
-    Repo.one!(
-      from(
-        e in Entry,
-        join: t in assoc(e, :transactions),
-        where: e.idempotency_token == ^idempotency_token,
-        preload: [transactions: t]
-      )
-    )
-  end
-
   @doc """
   Retrieve a specific entry and preload the associated transactions.
   """
@@ -77,11 +66,70 @@ defmodule LocalLedgerDB.Entry do
   end
 
   @doc """
+  Get a entry using one or more fields.
+  """
+  @spec get_by(keyword() | map(), keyword()) :: %Entry{} | nil
+  def get_by(map, opts \\ []) do
+    query = Entry |> Repo.get_by(map)
+
+    case opts[:preload] do
+      nil -> query
+      preload -> Repo.preload(query, preload)
+    end
+  end
+
+  @doc """
+  Helper function to get a entry with an idempotency token and loads all the required
+  associations.
+  """
+  @spec get_by_idempotency_token(String.t()) :: %Entry{} | nil
+  def get_by_idempotency_token(idempotency_token) do
+    get_by(
+      %{
+        idempotency_token: idempotency_token
+      },
+      preload: [:transactions]
+    )
+  end
+
+  def get_or_insert(%{idempotency_token: idempotency_token} = attrs) do
+    case get_by_idempotency_token(idempotency_token) do
+      nil ->
+        insert(attrs)
+
+      entry ->
+        {:ok, entry}
+    end
+  end
+
+  @doc """
   Insert an entry and its transactions.
   """
   def insert(attrs) do
+    opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
+
     %Entry{}
-    |> Entry.changeset(attrs)
-    |> Repo.insert()
+    |> changeset(attrs)
+    |> do_insert(opts)
+  end
+
+  defp do_insert(changeset, opts) do
+    case Repo.insert(changeset, opts) do
+      {:ok, entry} ->
+        entry.idempotency_token
+        |> get_by_idempotency_token()
+        |> handle_retrieval_result()
+
+      changeset ->
+        changeset
+    end
+  end
+
+  defp handle_retrieval_result(nil) do
+    {:error, :inserted_transaction_could_not_be_loaded}
+  end
+
+  defp handle_retrieval_result(entry) do
+    {:ok, entry}
   end
 end
