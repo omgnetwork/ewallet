@@ -46,6 +46,14 @@ const ApiKeyContainer = styled.div`
 `
 const KeySection = styled.div`
   max-width: 700px;
+  h3 {
+    font-size: 18px;
+    font-weight: 400;
+    margin-bottom: 20px;
+  }
+  p {
+    color: ${props => props.theme.colors.B100};
+  }
 `
 const KeySectionEwallet = KeySection.extend`
   margin-top: 50px;
@@ -88,15 +96,18 @@ class ApiKeyPage extends Component {
     return (
       <KeySection>
         <h3>Admin API Key</h3>
-        {/* <p>
-          When asked, “If you could wish for one thing only, what would that wish be?” almost
-          everyone; from beauty pagent contestants, to politicians, to religious leaders, to
-          children,
-        </p> */}
+        <p>
+        The Admin API key is used to authenticate an API and allows that specific API to access various admin-related functions such as creating new minted tokens, mint more tokens, create and manage accounts, create new API keys, etc.
+        </p>
         <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
           <span>Generate Key</span>
         </Button>
-        <Table rows={apiKeysRows} columns={columns} perPage={99999} loading={loadingStatus === 'DEFAULT'} />
+        <Table
+          rows={apiKeysRows}
+          columns={columns}
+          perPage={99999}
+          loading={loadingStatus === 'DEFAULT'}
+        />
       </KeySection>
     )
   }
@@ -104,15 +115,18 @@ class ApiKeyPage extends Component {
     return (
       <KeySectionEwallet>
         <h3>E-Wallet API Key</h3>
-        {/* <p>
-          When asked, “If you could wish for one thing only, what would that wish be?” almost
-          everyone; from beauty pagent contestants, to politicians, to religious leaders, to
-          children,
-        </p> */}
+        <p>
+        The eWallet API key is used to authenticate an API and allows that specific API to access various user-related functions, e.g. make transfers with the user's wallets, list a user's transactions, create transaction requests, etc.
+        </p>
         <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
           <span>Generate Key</span>
         </Button>
-        <Table rows={apiKeysRows} columns={columns} perPage={99999} loading={loadingStatus === 'DEFAULT'} />
+        <Table
+          rows={apiKeysRows}
+          columns={columns}
+          perPage={99999}
+          loading={loadingStatus === 'DEFAULT'}
+        />
       </KeySectionEwallet>
     )
   }
@@ -139,8 +153,14 @@ class ApiKeyPage extends Component {
                 secondaryAction={false}
                 types={false}
               />
-              {this.renderAdminApiKey(apiKeysRows.filter(x => x.ownerApp === 'admin_api'), loadingStatus)}
-              {this.renderEwalletApiKey(apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'), loadingStatus)}
+              {this.renderAdminApiKey(
+                apiKeysRows.filter(x => x.ownerApp === 'admin_api'),
+                loadingStatus
+              )}
+              {this.renderEwalletApiKey(
+                apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
+                loadingStatus
+              )}
               <ConfirmationModal
                 open={this.state.adminModalOpen}
                 onRequestClose={this.onRequestClose}
@@ -148,9 +168,7 @@ class ApiKeyPage extends Component {
               >
                 <ConfirmCreateKeyContainer>
                   <h4>GENERATE ADMIN API KEY</h4>
-                  <p>
-                  The Admin API key is used to authenticate an API and allows that specific API to access various admin-related functions such as creating new minted tokens, mint more tokens, create and manage accounts, create new API keys, etc.
-                  </p>
+                  <p>Are you sure you want to generate admin api key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
               <ConfirmationModal
@@ -160,9 +178,7 @@ class ApiKeyPage extends Component {
               >
                 <ConfirmCreateKeyContainer>
                   <h4>GENERATE EWALLET API KEY</h4>
-                  <p>
-                  The eWallet API key is used to authenticate an API and allows that specific API to access various user-related functions, e.g. make transfers with the user's wallets, list a user's transactions, create transaction requests, etc.
-                  </p>
+                  <p>Are you sure you want to generate ewallet api key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
             </ApiKeyContainer>

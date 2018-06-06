@@ -102,7 +102,7 @@ class AccountPage extends Component {
           dataSource={transactions}
           columns={columns}
           rowRenderer={this.rowRenderer}
-          loading={loadingStatus === 'DEFAULT'}
+          loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
         />
         <CreateAccountModal
           open={this.state.createAccountModalOpen}
