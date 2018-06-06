@@ -1,8 +1,8 @@
 import React, { Component } from 'react'
 import { Input, Button } from '../omg-uikit'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
-import { resetPassword } from '../omg-session/action'
+import { Link, withRouter } from 'react-router-dom'
+import { sendResetPasswordEmail } from '../omg-session/action'
 import { connect } from 'react-redux'
 import PropTypes from 'prop-types'
 import { compose } from 'recompose'
@@ -23,10 +23,11 @@ const Form = styled.form`
     text-align: center;
   }
 `
-const enhance = compose(connect(null, { resetPassword }))
+const enhance = compose(withRouter, connect(null, { sendResetPasswordEmail }))
 class ForgetPasswordForm extends Component {
   static propTypes = {
-    resetPassword: PropTypes.func
+    sendResetPasswordEmail: PropTypes.func,
+    location: PropTypes.func
   }
   state = {
     email: '',
@@ -48,9 +49,12 @@ class ForgetPasswordForm extends Component {
       submitStatus: emailError ? 'ERROR' : 'SUBMITTED'
     })
     if (!emailError) {
-      const result = await this.props.resetPassword({
+      const result = await this.props.sendResetPasswordEmail({
         email: this.state.email,
-        redirectUrl: window.location.href
+        redirectUrl: window.location.href.replace(
+          this.props.location.pathname,
+          '/create-new-password/'
+        )
       })
       this.setState({ submitStatus: result.data.success ? 'SUCCESS' : 'FAILED' })
     }

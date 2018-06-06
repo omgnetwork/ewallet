@@ -19,12 +19,11 @@ export const login = ({ email, password, rememberMe }) => async dispatch => {
     }
     return sessionResult
   } catch (error) {
-    console.log(error)
     dispatch({ type: 'LOGIN/FAILED' })
   }
 }
 
-export const resetPassword = ({ email, redirectUrl }) => async dispatch => {
+export const sendResetPasswordEmail = ({ email, redirectUrl }) => async dispatch => {
   try {
     const result = await sessionService.resetPassword({
       email,
@@ -37,7 +36,30 @@ export const resetPassword = ({ email, redirectUrl }) => async dispatch => {
     }
     return result
   } catch (error) {
-    console.log(error)
     dispatch({ type: 'RESET_PASSWORD/FAILED' })
+  }
+}
+
+export const updatePassword = ({
+  resetToken,
+  password,
+  passwordConfirmation,
+  email
+}) => async dispatch => {
+  try {
+    const result = await sessionService.updatePassword({
+      resetToken,
+      password,
+      passwordConfirmation,
+      email
+    })
+    if (result.data.success) {
+      dispatch({ type: 'UPDATE_PASSWORD/SUCCESS' })
+    } else {
+      dispatch({ type: 'UPDATE_PASSWORD/FAILED' })
+    }
+    return result
+  } catch (error) {
+    dispatch({ type: 'UPDATE_PASSWORD/FAILED' })
   }
 }
