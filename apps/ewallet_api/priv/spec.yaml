@@ -1258,6 +1258,7 @@ components:
         required:
           - object
           - id
+          - formatted_id
           - socket_topic
           - type
           - amount
@@ -1284,6 +1285,7 @@ components:
           data:
             object: "transaction_request"
             id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+            formatted_id: "data|txr_01cbfg8mafdnbthgb9e68nd9y9"
             socket_topic: "transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9"
             type: "send"
             amount: 100
@@ -1865,10 +1867,10 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              id:
+              formatted_id:
                 type: string
             example:
-              id: "txr_01cbfgc8cmmyzy1cfzpqwme3ey"
+              formatted_id: "data|txr_01cbfgc8cmmyzy1cfzpqwme3ey"
     ServerConsumeTransactionRequestBody:
       description: Consume a transaction request using the specified values.
       required: true
@@ -1876,7 +1878,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              transaction_request_id:
+              formatted_transaction_request_id:
                 type: string
               correlation_id:
                 type: string
@@ -1900,9 +1902,9 @@ components:
               encrypted_metadata:
                 type: object
             required:
-              - transaction_request_id
+              - formatted_transaction_request_id
             example:
-              transaction_request_id: "txr_01cbfgcts5kqfgpqxcxn71rnbs"
+              formatted_transaction_request_id: "txr_01cbfgcts5kqfgpqxcxn71rnbs"
               correlation_id: "123"
               token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
               amount: 100
@@ -1917,7 +1919,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              transaction_request_id:
+              formatted_transaction_request_id:
                 type: string
               correlation_id:
                 type: string
@@ -1932,9 +1934,9 @@ components:
               encrypted_metadata:
                 type: object
             required:
-              - transaction_request_id
+              - formatted_transaction_request_id
             example:
-              transaction_request_id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
+              formatted_transaction_request_id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
               correlation_id: "123"
               token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
               amount: 100
