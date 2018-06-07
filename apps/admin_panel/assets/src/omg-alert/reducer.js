@@ -21,6 +21,8 @@ export const alertsReducer = createReducer([], {
   },
   'CURRENT_ACCOUNT/UPDATE/SUCCESS': state => {
     return [...state, createAlertState('Update account successfully.')]
+  },
+  'INVITE/REQUEST/SUCCESS': state => {
+    return [...state, createAlertState('Invite member successfully.')]
   }
-
 })

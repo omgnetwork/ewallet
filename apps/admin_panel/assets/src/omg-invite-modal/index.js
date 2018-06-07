@@ -77,10 +77,12 @@ class InviteModal extends Component {
   }
   state = {
     email: null,
-    role: 'viewer'
+    role: 'viewer',
+    submitStatus: null
   }
   onSubmit = async e => {
     e.preventDefault()
+    this.setState({ submitStatus: 'SUBMITTED' })
     const accountId = this.props.match.params.accountId
     const result = await this.props.inviteMember({
       email: this.state.email,
@@ -89,6 +91,7 @@ class InviteModal extends Component {
       redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
     })
     if (result.data.success) {
+      this.setState({ submitStatus: 'SUCCESS', email: null })
       this.props.getListMembers(accountId)
       this.props.onRequestClose()
     }
@@ -134,7 +137,11 @@ class InviteModal extends Component {
               />
             </RadioButtonsContainer>
           </RoleRadioButtonContainer>
-          <InviteButton styleType='primary' type='submit'>
+          <InviteButton
+            styleType='primary'
+            type='submit'
+            loading={this.state.submitStatus === 'SUBMITTED'}
+          >
             Invite
           </InviteButton>
         </InviteModalContainer>
