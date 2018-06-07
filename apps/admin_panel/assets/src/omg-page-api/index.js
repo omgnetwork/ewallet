@@ -56,7 +56,6 @@ const KeySection = styled.div`
   }
 `
 const KeySectionEwallet = KeySection.extend`
-  margin-top: 50px;
 `
 const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
@@ -153,10 +152,10 @@ class ApiKeyPage extends Component {
                 secondaryAction={false}
                 types={false}
               />
-              {this.renderAdminApiKey(
+              {/* {this.renderAdminApiKey(
                 apiKeysRows.filter(x => x.ownerApp === 'admin_api'),
                 loadingStatus
-              )}
+              )} */}
               {this.renderEwalletApiKey(
                 apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
                 loadingStatus
