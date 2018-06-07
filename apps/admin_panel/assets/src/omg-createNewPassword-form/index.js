@@ -52,16 +52,16 @@ class ForgetPasswordForm extends Component {
   }
 
   validatePassword = password => {
-    return password.length === 0
+    return password.length >= 8
   }
   validateReEnteredNewPassword = (newPassword, reEnteredNewPassword) => {
-    return newPassword !== reEnteredNewPassword || newPassword === '' || reEnteredNewPassword === ''
+    return newPassword === reEnteredNewPassword && newPassword !== '' && reEnteredNewPassword !== ''
   }
   onSubmit = async e => {
     e.preventDefault()
     const { email, token } = queryString.parse(this.props.location.search)
-    const newPasswordError = this.validatePassword(this.state.newPassword)
-    const reEnteredNewPasswordError = this.validateReEnteredNewPassword(
+    const newPasswordError = !this.validatePassword(this.state.newPassword)
+    const reEnteredNewPasswordError = !this.validateReEnteredNewPassword(
       this.state.newPassword,
       this.state.reEnteredNewPassword
     )
@@ -88,14 +88,14 @@ class ForgetPasswordForm extends Component {
     const value = e.target.value
     this.setState({
       newPassword: value,
-      newPasswordError: this.state.submitStatus && this.validatePassword(value)
+      newPasswordError: this.state.submitStatus && !this.validatePassword(value)
     })
   }
   onReEnteredNewPasswordInputChange = e => {
     const value = e.target.value
     this.setState({
       reEnteredNewPassword: value,
-      reEnteredNewPasswordError: this.validateReEnteredNewPassword(this.state.newPassword, value)
+      reEnteredNewPasswordError: !this.validateReEnteredNewPassword(this.state.newPassword, value)
     })
   }
   render () {
@@ -109,7 +109,7 @@ class ForgetPasswordForm extends Component {
             <Input
               placeholder='New password'
               error={this.state.newPasswordError}
-              errorText='Field cannot be empty'
+              errorText='Invalid password'
               onChange={this.onNewPasswordInputChange}
               value={this.state.newPassword}
               disabled={this.state.submitStatus === 'SUBMITTED'}
