@@ -80,7 +80,7 @@ defmodule LocalLedger.EntryTest do
             "debits" => debits(),
             "credits" => credits(),
             "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "correlation_id" => UUID.generate()
+            "idempotency_token" => UUID.generate()
           },
           %{genesis: true}
         )
@@ -126,7 +126,7 @@ defmodule LocalLedger.EntryTest do
               }
             ],
             "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "correlation_id" => UUID.generate()
+            "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
         )
@@ -137,10 +137,10 @@ defmodule LocalLedger.EntryTest do
       assert get_current_balance("thibault") == 250
     end
 
-    test "fails when the correlation_id is already in the database" do
+    test "returns the same entry when the idempotency token is already in the DB" do
       genesis_entry = genesis()
 
-      {status, error} =
+      {status, entry} =
         Entry.insert(
           %{
             "metadata" => %{},
@@ -159,13 +159,13 @@ defmodule LocalLedger.EntryTest do
               }
             ],
             "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "correlation_id" => genesis_entry.correlation_id
+            "idempotency_token" => genesis_entry.idempotency_token
           },
           %{genesis: false}
         )
 
-      assert status == :error
-      assert error.errors == [correlation_id: {"has already been taken", []}]
+      assert status == :ok
+      assert entry.uuid == genesis_entry.uuid
     end
 
     test "returns a 'same address' error when the from/to addresses are identical" do
@@ -193,7 +193,7 @@ defmodule LocalLedger.EntryTest do
               "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
               "metadata" => %{}
             },
-            "correlation_id" => UUID.generate()
+            "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
         )
@@ -230,7 +230,7 @@ defmodule LocalLedger.EntryTest do
               "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
               "metadata" => %{}
             },
-            "correlation_id" => UUID.generate()
+            "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
         )
@@ -261,7 +261,7 @@ defmodule LocalLedger.EntryTest do
               "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
               "metadata" => %{}
             },
-            "correlation_id" => UUID.generate()
+            "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
         )
@@ -289,7 +289,7 @@ defmodule LocalLedger.EntryTest do
               }
             ],
             "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "correlation_id" => UUID.generate()
+            "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
         )
@@ -320,7 +320,7 @@ defmodule LocalLedger.EntryTest do
               "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 50}],
               "credits" => [%{"address" => "sirn", "metadata" => %{}, "amount" => 50}],
               "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-              "correlation_id" => UUID.generate()
+              "idempotency_token" => UUID.generate()
             },
             %{genesis: false}
           )
@@ -334,7 +334,7 @@ defmodule LocalLedger.EntryTest do
           "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 100}],
           "credits" => [%{"address" => "thibault", "metadata" => %{}, "amount" => 100}],
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-          "correlation_id" => UUID.generate()
+          "idempotency_token" => UUID.generate()
         },
         %{genesis: false},
         fn ->
@@ -385,7 +385,7 @@ defmodule LocalLedger.EntryTest do
                   "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
                   "metadata" => %{}
                 },
-                "correlation_id" => UUID.generate()
+                "idempotency_token" => UUID.generate()
               },
               %{genesis: false}
             )
@@ -415,7 +415,7 @@ defmodule LocalLedger.EntryTest do
             }
           ],
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-          "correlation_id" => UUID.generate()
+          "idempotency_token" => UUID.generate()
         },
         %{genesis: false}
       )
@@ -446,7 +446,7 @@ defmodule LocalLedger.EntryTest do
               }
             ],
             "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "correlation_id" => UUID.generate()
+            "idempotency_token" => UUID.generate()
           },
           %{genesis: true}
         )
@@ -478,7 +478,7 @@ defmodule LocalLedger.EntryTest do
                 }
               ],
               "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-              "correlation_id" => UUID.generate()
+              "idempotency_token" => UUID.generate()
             },
             %{genesis: true}
           )
