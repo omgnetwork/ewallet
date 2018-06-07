@@ -5,7 +5,7 @@ import { Link, withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { updatePassword } from '../omg-session/action'
+import { createUser } from '../omg-invite/action'
 import { compose } from 'recompose'
 const Form = styled.form`
   text-align: left;
@@ -37,11 +37,11 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
 
-const enhance = compose(withRouter, connect(null, { updatePassword }))
+const enhance = compose(withRouter, connect(null, { createUser }))
 class ForgetPasswordForm extends Component {
   static propTypes = {
     location: PropTypes.object.isRequired,
-    updatePassword: PropTypes.func.isRequired
+    createUser: PropTypes.func.isRequired
   }
   state = {
     newPassword: '',
@@ -52,16 +52,16 @@ class ForgetPasswordForm extends Component {
   }
 
   validatePassword = password => {
-    return password.length === 0
+    return password.length >= 8
   }
   validateReEnteredNewPassword = (newPassword, reEnteredNewPassword) => {
-    return newPassword !== reEnteredNewPassword || newPassword === '' || reEnteredNewPassword === ''
+    return newPassword === reEnteredNewPassword && newPassword !== '' && reEnteredNewPassword !== ''
   }
   onSubmit = async e => {
     e.preventDefault()
     const { email, token } = queryString.parse(this.props.location.search)
-    const newPasswordError = this.validatePassword(this.state.newPassword)
-    const reEnteredNewPasswordError = this.validateReEnteredNewPassword(
+    const newPasswordError = !this.validatePassword(this.state.newPassword)
+    const reEnteredNewPasswordError = !this.validateReEnteredNewPassword(
       this.state.newPassword,
       this.state.reEnteredNewPassword
     )
@@ -71,7 +71,7 @@ class ForgetPasswordForm extends Component {
       submitStatus: !newPasswordError && !reEnteredNewPasswordError ? 'SUBMITTED' : null
     })
     if (!newPasswordError && !reEnteredNewPasswordError) {
-      const result = await this.props.updatePassword({
+      const result = await this.props.createUser({
         email,
         resetToken: token,
         password: this.state.newPassword,
@@ -88,14 +88,14 @@ class ForgetPasswordForm extends Component {
     const value = e.target.value
     this.setState({
       newPassword: value,
-      newPasswordError: this.state.submitStatus && this.validatePassword(value)
+      newPasswordError: this.state.submitStatus && !this.validatePassword(value)
     })
   }
   onReEnteredNewPasswordInputChange = e => {
     const value = e.target.value
     this.setState({
       reEnteredNewPassword: value,
-      reEnteredNewPasswordError: this.validateReEnteredNewPassword(this.state.newPassword, value)
+      reEnteredNewPasswordError: !this.validateReEnteredNewPassword(this.state.newPassword, value)
     })
   }
   render () {
@@ -109,7 +109,7 @@ class ForgetPasswordForm extends Component {
             <Input
               placeholder='New password'
               error={this.state.newPasswordError}
-              errorText='Field cannot be empty'
+              errorText='Invalid password'
               onChange={this.onNewPasswordInputChange}
               value={this.state.newPassword}
               disabled={this.state.submitStatus === 'SUBMITTED'}
@@ -130,12 +130,12 @@ class ForgetPasswordForm extends Component {
               fluid
               loading={this.state.submitStatus === 'SUBMITTED'}
             >
-              Reset Password
+              Create Account
             </Button>
           </div>
         ) : (
           <UpdateSuccessfulContainer>
-            <h4>Reset password successfully</h4>
+            <h4>Create account successfully</h4>
           </UpdateSuccessfulContainer>
         )}
 
