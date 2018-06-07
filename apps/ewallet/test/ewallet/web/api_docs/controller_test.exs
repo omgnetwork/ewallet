@@ -36,6 +36,15 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
       # Expects the spec to begin with "openapi:"
       assert conn.resp_body =~ ~r/^openapi:/
     end
+
+    test "return the json spec when calling /docs.json" do
+      conn = get("/some_scope/docs.json")
+
+      refute conn.halted
+      assert conn.status == 200
+      # Expects the spec to begin with "openapi:"
+      assert conn.resp_body =~ ~r/^{\n  \"openapi\"/
+    end
   end
 
   describe "/errors endpoints" do
@@ -76,9 +85,9 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
       refute conn.halted
       assert conn.status == 200
       # Expects the response to have a `code` key
-      assert conn.resp_body =~ ~r/"code":/
+      assert conn.resp_body =~ ~r/\"- token_not_found:\\n    code:/
       # Expects the response to have a `description` key
-      assert conn.resp_body =~ ~r/"description":/
+      assert conn.resp_body =~ ~r/      description:/
     end
   end
 

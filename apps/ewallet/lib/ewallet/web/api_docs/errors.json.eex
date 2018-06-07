@@ -1,0 +1,10 @@
+<%= for {key, error} <- assigns.errors do %>
+- <%= key %>:
+    code: "<%= error.code %>"
+    <%= if error[:description] do %>
+      description: "<%= error.description %>"
+    <% end %>
+    <%= if error[:template] do %>
+      template: "<%= error.template %>"
+    <% end %>
+<% end %>
