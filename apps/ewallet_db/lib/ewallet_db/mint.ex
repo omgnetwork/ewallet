@@ -68,6 +68,14 @@ defmodule EWalletDB.Mint do
     from(m in query, where: m.token_uuid == ^token.uuid)
   end
 
+  def total_supply_for_token(token) do
+    Mint
+    |> where([m], m.token_uuid == ^token.uuid)
+    |> select([m], sum(m.amount))
+    |> Repo.one()
+    |> EWalletDB.Types.Integer.load!()
+  end
+
   @doc """
   Create a new mint with the passed attributes.
   """

@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.TokenController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.MintGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{Account, Token}
+  alias EWalletDB.{Account, Token, Mint}
   alias Ecto.UUID
   alias Plug.Conn
 
@@ -58,8 +58,15 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec stats(Conn.t(), map()) :: map()
   def stats(conn, %{"id" => id}) do
-    stats = %{}
-    render(conn, :token, %{stats: stats})
+    token = Token.get(id)
+
+    stats = %{
+      token_id: id,
+      subunit_to_unit: token.subunit_to_unit,
+      total_supply: Mint.total_supply_for_token(token)
+    }
+
+    render(conn, :stats, %{stats: stats})
   end
 
   def stats(conn, _), do: handle_error(conn, :invalid_parameter)
