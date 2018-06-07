@@ -32,8 +32,8 @@ defmodule LocalLedger.Entry do
   @doc """
   Retrieve a specific entry based on a correlation ID from the database.
   """
-  def get_with_correlation_id(correlation_id) do
-    {:ok, Entry.get_with_correlation_id(correlation_id)}
+  def get_by_idempotency_token(idempotency_token) do
+    {:ok, Entry.get_by_idempotency_token(idempotency_token)}
   end
 
   @doc """
@@ -76,7 +76,7 @@ defmodule LocalLedger.Entry do
           id: "tok_OMG_01cbennsd8q4xddqfmewpwzxdy",
           metadata: %{}
         },
-        correlation_id: "123"
+        idempotency_token: "123"
       })
 
   """
@@ -86,7 +86,7 @@ defmodule LocalLedger.Entry do
           "debits" => debits,
           "credits" => credits,
           "token" => token,
-          "correlation_id" => correlation_id
+          "idempotency_token" => idempotency_token
         },
         %{genesis: genesis},
         callback \\ nil
@@ -96,7 +96,7 @@ defmodule LocalLedger.Entry do
     |> Validator.validate_zero_sum()
     |> Validator.validate_positive_amounts()
     |> Transaction.build_all(token)
-    |> locked_insert(metadata, correlation_id, genesis, callback)
+    |> locked_insert(metadata, idempotency_token, genesis, callback)
   rescue
     e in InsufficientFundsError ->
       {:error, :insufficient_funds, e.message}
@@ -115,7 +115,7 @@ defmodule LocalLedger.Entry do
   # amounts, before inserting one entry and the associated transactions.
   # If the genesis argument is passed as true, the balance check will be
   # skipped.
-  defp locked_insert(transactions, metadata, correlation_id, genesis, callback) do
+  defp locked_insert(transactions, metadata, idempotency_token, genesis, callback) do
     addresses = Transaction.get_addresses(transactions)
 
     Wallet.lock(addresses, fn ->
@@ -123,13 +123,13 @@ defmodule LocalLedger.Entry do
 
       Transaction.check_balance(transactions, %{genesis: genesis})
 
-      changes = %{
-        correlation_id: correlation_id,
+      %{
+        idempotency_token: idempotency_token,
         transactions: transactions,
         metadata: metadata
       }
-
-      case Entry.insert(changes) do
+      |> Entry.get_or_insert()
+      |> case do
         {:ok, entry} ->
           entry
 
