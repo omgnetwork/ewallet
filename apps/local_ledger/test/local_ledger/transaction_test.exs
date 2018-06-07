@@ -81,7 +81,7 @@ defmodule LocalLedger.TransactionTest do
 
       Entry.insert(%{
         metadata: %{},
-        correlation_id: UUID.generate(),
+        idempotency_token: UUID.generate(),
         transactions: [
           %{
             type: LocalLedgerDB.Transaction.credit_type(),

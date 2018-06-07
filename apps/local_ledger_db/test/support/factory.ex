@@ -32,7 +32,7 @@ defmodule LocalLedgerDB.Factory do
 
   def entry_factory do
     %Entry{
-      correlation_id: UUID.generate(),
+      idempotency_token: UUID.generate(),
       metadata: %{
         merchant_id: "123"
       }

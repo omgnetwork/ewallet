@@ -6,7 +6,7 @@ defmodule EWalletDB.Transfer do
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
-  alias Ecto.UUID
+  alias Ecto.{UUID, Multi}
   alias EWalletDB.{Repo, Transfer, Wallet, Token}
 
   @pending "pending"
@@ -173,45 +173,30 @@ defmodule EWalletDB.Transfer do
   """
   def insert(attrs) do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
+    changeset = changeset(%Transfer{}, attrs)
 
-    %Transfer{}
-    |> changeset(attrs)
-    |> do_insert(opts)
-    |> case do
-      {_, res} -> res
-    end
-  end
+    Multi.new()
+    |> Multi.insert(:transfer, changeset, opts)
+    |> Multi.run(:transfer_1, fn %{transfer: transfer} ->
+      case get(transfer.id, preload: [:from_wallet, :to_wallet, :token]) do
+        nil ->
+          {:ok, get_by_idempotency_token(transfer.idempotency_token)}
 
-  defp do_insert(changeset, opts) do
-    Repo.transaction(fn ->
-      case Repo.insert(changeset, opts) do
-        {:ok, transfer} ->
-          attempt_retrieval(nil, transfer.idempotency_token, 0)
-
-        changeset ->
-          changeset
+        transfer ->
+          {:ok, transfer}
       end
     end)
-  end
+    |> Repo.transaction()
+    |> case do
+      {:ok, %{transfer: _transfer, transfer_1: nil}} ->
+        {:error, :inserted_transaction_could_not_be_loaded}
 
-  defp attempt_retrieval(_transfer, _idempotency_token, 3) do
-    {:error, :inserted_transaction_could_not_be_loaded}
-  end
+      {:ok, %{transfer: _transfer, transfer_1: transfer_1}} ->
+        {:ok, transfer_1}
 
-  # Due to DB sync issues accross clusters and because of the way we retrieve
-  # the transactions (ignoring failure on conflicts), it's possible we're not able
-  # to retrive the record right away. We'll try 3 times in total, with a ms delay
-  # starting at 0, then 5, then 10ms before returning an error.
-  defp attempt_retrieval(nil, idempotency_token, count) do
-    Process.sleep(count * 5)
-
-    idempotency_token
-    |> get_by_idempotency_token()
-    |> attempt_retrieval(idempotency_token, count + 1)
-  end
-
-  defp attempt_retrieval(transfer, _idempotency_token, _count) do
-    {:ok, transfer}
+      {:error, _failed_operation, failed_value, _changes_so_far} ->
+        {:error, failed_value}
+    end
   end
 
   @doc """

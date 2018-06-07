@@ -4,7 +4,7 @@ defmodule EWallet.TransferFormatter do
   """
   def format(transfer) do
     %{
-      "correlation_id" => transfer.idempotency_token,
+      "idempotency_token" => transfer.idempotency_token,
       "metadata" => transfer.metadata,
       "token" => %{
         "id" => transfer.token.id,

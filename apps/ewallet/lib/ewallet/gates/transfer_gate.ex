@@ -90,6 +90,11 @@ defmodule EWallet.TransferGate do
     |> update_transfer(transfer)
   end
 
+  defp update_transfer(_, %Transfer{ledger_response: ledger_response} = transfer)
+       when ledger_response != nil do
+    transfer
+  end
+
   defp update_transfer({:ok, entry}, transfer) do
     Transfer.confirm(transfer, %{
       entry_uuid: entry.uuid

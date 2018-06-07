@@ -13,7 +13,7 @@ defmodule LocalLedgerDB.Entry do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
     field(:encryption_version, :binary)
-    field(:correlation_id, :string)
+    field(:idempotency_token, :string)
 
     has_many(
       :transactions,
@@ -31,10 +31,10 @@ defmodule LocalLedgerDB.Entry do
   """
   def changeset(%Entry{} = entry, attrs) do
     entry
-    |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :correlation_id])
-    |> validate_required([:correlation_id, :metadata, :encrypted_metadata])
+    |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :idempotency_token])
+    |> validate_required([:idempotency_token, :metadata, :encrypted_metadata])
     |> cast_assoc(:transactions, required: true)
-    |> unique_constraint(:correlation_id)
+    |> unique_constraint(:idempotency_token)
     |> put_change(:encryption_version, Cloak.version())
   end
 
@@ -46,17 +46,6 @@ defmodule LocalLedgerDB.Entry do
       from(
         e in Entry,
         join: t in assoc(e, :transactions),
-        preload: [transactions: t]
-      )
-    )
-  end
-
-  def get_with_correlation_id(correlation_id) do
-    Repo.one!(
-      from(
-        e in Entry,
-        join: t in assoc(e, :transactions),
-        where: e.correlation_id == ^correlation_id,
         preload: [transactions: t]
       )
     )
@@ -77,11 +66,70 @@ defmodule LocalLedgerDB.Entry do
   end
 
   @doc """
+  Get a entry using one or more fields.
+  """
+  @spec get_by(keyword() | map(), keyword()) :: %Entry{} | nil
+  def get_by(map, opts \\ []) do
+    query = Entry |> Repo.get_by(map)
+
+    case opts[:preload] do
+      nil -> query
+      preload -> Repo.preload(query, preload)
+    end
+  end
+
+  @doc """
+  Helper function to get a entry with an idempotency token and loads all the required
+  associations.
+  """
+  @spec get_by_idempotency_token(String.t()) :: %Entry{} | nil
+  def get_by_idempotency_token(idempotency_token) do
+    get_by(
+      %{
+        idempotency_token: idempotency_token
+      },
+      preload: [:transactions]
+    )
+  end
+
+  def get_or_insert(%{idempotency_token: idempotency_token} = attrs) do
+    case get_by_idempotency_token(idempotency_token) do
+      nil ->
+        insert(attrs)
+
+      entry ->
+        {:ok, entry}
+    end
+  end
+
+  @doc """
   Insert an entry and its transactions.
   """
   def insert(attrs) do
+    opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
+
     %Entry{}
-    |> Entry.changeset(attrs)
-    |> Repo.insert()
+    |> changeset(attrs)
+    |> do_insert(opts)
+  end
+
+  defp do_insert(changeset, opts) do
+    case Repo.insert(changeset, opts) do
+      {:ok, entry} ->
+        entry.idempotency_token
+        |> get_by_idempotency_token()
+        |> handle_retrieval_result()
+
+      changeset ->
+        changeset
+    end
+  end
+
+  defp handle_retrieval_result(nil) do
+    {:error, :inserted_transaction_could_not_be_loaded}
+  end
+
+  defp handle_retrieval_result(entry) do
+    {:ok, entry}
   end
 end
