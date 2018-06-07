@@ -127,7 +127,7 @@ class AccountSettingPage extends Component {
   render () {
     return (
       <AccountSettingContainer>
-        <TopNavigation title='Account Setting' buttons={[]} secondaryAction={false} types={false} />
+        <TopNavigation title='Account Setting' buttons={[this.renderInviteButton()]} secondaryAction={false} types={false} />
         <ContentContainer>
           <ProfileSection>
             {this.props.loadingStatus === 'SUCCESS' && (

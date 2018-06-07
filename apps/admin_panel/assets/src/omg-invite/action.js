@@ -1,19 +1,20 @@
 import * as settingService from '../services/settingService'
 export const inviteMember = ({ email, redirectUrl, accountId, role }) => async dispatch => {
-  dispatch({ type: 'INVITE/REQUEST/INITIATED' })
   try {
     const result = await settingService.inviteMember({
       email,
-      redirect_url: redirectUrl,
-      account_id: accountId,
-      role_name: role
+      redirectUrl: `${redirectUrl}?token={token}&email={email}`,
+      accountId,
+      role
     })
     if (result.data.success) {
-      return dispatch({ type: 'INVITE/REQUEST/SUCCESS', invited: result.data.data })
+      dispatch({ type: 'INVITE/REQUEST/SUCCESS' })
     } else {
-      return dispatch({ type: 'INVITE/REQUEST/FAILED', error: result.data.data })
+      dispatch({ type: 'INVITE/REQUEST/FAILED', error: result.data.data })
     }
+    return result
   } catch (error) {
+    console.log(error)
     return dispatch({ type: 'INVITE/REQUEST/FAILED', error })
   }
 }

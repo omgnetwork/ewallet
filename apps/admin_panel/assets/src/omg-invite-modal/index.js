@@ -3,6 +3,10 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { RadioButton, Input, Button, Icon } from '../omg-uikit'
 import Modal from 'react-modal'
+import { connect } from 'react-redux'
+import { inviteMember, getListMembers } from '../omg-invite/action'
+import { compose } from 'recompose'
+import { withRouter } from 'react-router-dom'
 const customStyles = {
   content: {
     top: '50%',
@@ -61,10 +65,40 @@ const InviteButton = styled(Button)`
   padding-left: 40px;
   padding-right: 40px;
 `
-export default class InviteModal extends Component {
+const enhance = compose(withRouter, connect(null, { inviteMember, getListMembers }))
+class InviteModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
-    onRequestClose: PropTypes.func
+    onRequestClose: PropTypes.func,
+    inviteMember: PropTypes.func.isRequired,
+    getListMembers: PropTypes.func.isRequired,
+    match: PropTypes.object,
+    location: PropTypes.object
+  }
+  state = {
+    email: null,
+    role: 'viewer'
+  }
+  onSubmit = async e => {
+    e.preventDefault()
+    const accountId = this.props.match.params.accountId
+    const result = await this.props.inviteMember({
+      email: this.state.email,
+      role: this.state.role,
+      accountId,
+      redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
+    })
+    if (result.data.success) {
+      this.props.getListMembers(accountId)
+      this.props.onRequestClose()
+    }
+  }
+
+  onInputEmailChange = e => {
+    this.setState({ email: e.target.value })
+  }
+  onClickRadioButton = role => e => {
+    this.setState({ role })
   }
 
   render () {
@@ -76,20 +110,36 @@ export default class InviteModal extends Component {
         contentLabel='invite modal'
         shouldCloseOnOverlayClick={false}
       >
-        <InviteModalContainer>
+        <InviteModalContainer onSubmit={this.onSubmit}>
           <Icon name='Close' onClick={this.props.onRequestClose} />
           <h4>Invite Member</h4>
-          <Input autoFocus placeholder='Email' />
+          <Input
+            autoFocus
+            placeholder='Email'
+            onChange={this.onInputEmailChange}
+            value={this.state.email}
+          />
           <RoleRadioButtonContainer>
             <InviteTitle>Select Role</InviteTitle>
             <RadioButtonsContainer>
-              <RadioButton label='Admin' checked />
-              <RadioButton label='Member' />
+              <RadioButton
+                label='Admin'
+                checked={this.state.role === 'admin'}
+                onClick={this.onClickRadioButton('admin')}
+              />
+              <RadioButton
+                label='Viewer'
+                checked={this.state.role === 'viewer'}
+                onClick={this.onClickRadioButton('viewer')}
+              />
             </RadioButtonsContainer>
           </RoleRadioButtonContainer>
-          <InviteButton styleType='primary' type='submit'>Invite</InviteButton>
+          <InviteButton styleType='primary' type='submit'>
+            Invite
+          </InviteButton>
         </InviteModalContainer>
       </Modal>
     )
   }
 }
+export default enhance(InviteModal)
