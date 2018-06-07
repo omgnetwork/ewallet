@@ -46,7 +46,6 @@ export const createUser = ({
       passwordConfirmation,
       email
     })
-    console.log(result)
     if (result.data.success) {
       dispatch({ type: 'INVITE/CREATE/SUCCESS' })
     } else {
