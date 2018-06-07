@@ -77,7 +77,7 @@ class LoginForm extends Component {
           const redirectUrl = _.get(this.props, 'location.state.from.pathname')
           this.props.history.push(redirectUrl || `/${result.data.data.account_id}/dashboard`)
         } else {
-          this.setState({ error: result.data.data.code, submitted: false })
+          this.setState({ error: result.data.data.description, submitted: false })
         }
       } catch (error) {
         this.setState({ error: 'Something went wrong :(', submitted: false })
@@ -126,9 +126,9 @@ class LoginForm extends Component {
           <OptionItem align='left' onClick={this.onClickCheckbox}>
             <Checkbox checked={this.state.rememberMe} label={'Remember Me'} />
           </OptionItem>
-          {/* <OptionItem align='right'>
+          <OptionItem align='right'>
             <Link to='/forget-password/'>Forget Password ?</Link>
-          </OptionItem> */}
+          </OptionItem>
         </OptionRowContainer>
         <Button size='large' type='submit' fluid loading={this.state.submitted}>
           Login

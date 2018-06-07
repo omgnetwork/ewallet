@@ -27,8 +27,6 @@ module.exports = {
   plugins: [
     new HtmlWebpackPlugin({ template: path.resolve(__dirname, './index.html') }),
     new ProvidePlugin({
-      $: 'jquery',
-      jQuery: 'jquery',
       _: 'lodash'
     }),
     new DefinePlugin({

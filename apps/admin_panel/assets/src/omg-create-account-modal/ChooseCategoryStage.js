@@ -116,10 +116,6 @@ export default class ChooseCategoryStage extends Component {
             </SearchItem>
             <SearchItem>
               <Icon name='Checkmark' />
-              <span>None 1</span>
-            </SearchItem>
-            <SearchItem>
-              <Icon name='Checkmark' />
               <span>None 2</span>
             </SearchItem>
             <SearchItem>

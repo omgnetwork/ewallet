@@ -1,7 +1,6 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import ReactDOM from 'react-dom'
 
 const Container = styled.div`
   position: relative;
@@ -18,7 +17,7 @@ const Placeholder = styled.span`
   bottom: 0;
   padding-bottom: 5px;
   font-size: 14px;
-  transition:0.2s ease all;
+  transition: 0.2s ease all;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
 `
@@ -30,17 +29,11 @@ const Input = styled.input`
   padding-bottom: 5px;
   background-color: transparent;
   line-height: 1;
-  border-bottom: 1px solid
-    ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.S400)};
-  :-webkit-autofill
-    ~ ${Placeholder},
-    :disabled
-    ~ ${Placeholder},
-    :focus
-    ~ ${Placeholder},
-    :not(:focus):valid
-    ~ ${Placeholder} {
-    transform: ${props => `translate3d(0, -${props.placeholderMoveHeight}, 0)`};
+  border-bottom: 1px solid ${props =>
+    props.error ? props.theme.colors.R400 : props.theme.colors.S400};
+  transform: translate3d(0, 0, 0);
+  :-webkit-autofill~ ${Placeholder},:disabled~ ${Placeholder},:focus~ ${Placeholder},:not(:focus):valid~ ${Placeholder} {
+    transform: translate3d(0, -22px, 0);
   }
   :disabled {
     background-color: transparent;
@@ -56,6 +49,16 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity,
     0.3s ease padding ${props => (!props.error ? '0.3s' : '0s')};
 `
+const Success = styled.div`
+  color: #50a895;
+  text-align: left;
+  padding-top: ${props => (props.success ? '5px' : 0)};
+  overflow: hidden;
+  max-height: ${props => (props.success ? '30px' : 0)};
+  opacity: ${props => (props.success ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity,
+    0.3s ease padding ${props => (!props.success ? '0.3s' : '0s')};
+`
 class InputComonent extends PureComponent {
   static propTypes = {
     placeholder: PropTypes.string,
@@ -64,24 +67,19 @@ class InputComonent extends PureComponent {
     registerRef: PropTypes.func,
     error: PropTypes.bool,
     errorText: PropTypes.node,
+    success: PropTypes.bool,
+    successText: PropTypes.number,
     autofocus: PropTypes.bool,
     onPressEnter: PropTypes.func,
     onPressEscape: PropTypes.func,
     onChange: PropTypes.func
   }
-  static defaultProps = {
-    placeholderType: 'float'
-  }
-  state = {
-    placeholderMoveHeight: '2em'
-  }
-
   handleKeyPress = e => {
     if (e.key === 'Enter') {
       return this.props.onPressEnter && this.props.onPressEnter()
     }
   }
-  handleKeyDown =e => {
+  handleKeyDown = e => {
     if (e.key === 'Escape') {
       return this.props.onPressEscape && this.props.onPressEscape()
     }
@@ -90,12 +88,6 @@ class InputComonent extends PureComponent {
   componentDidMount = () => {
     if (this.props.autofocus) this.input.focus()
     this.registerRef()
-    const inputNodeHeight = ReactDOM.findDOMNode(this.input).clientHeight
-    this.setState({
-      placeholderMoveHeight: inputNodeHeight
-        ? `${ReactDOM.findDOMNode(this.input).clientHeight * 0.9}px`
-        : '2em'
-    })
   }
   onChange = e => {
     if (this.props.onChange) this.props.onChange(e)
@@ -116,8 +108,6 @@ class InputComonent extends PureComponent {
             onKeyDown={this.handleKeyDown}
             required
             innerRef={this.registerInput}
-            error={this.props.error}
-            placeholderMoveHeight={this.state.placeholderMoveHeight}
             {...rest}
             placeholder={this.props.normalPlaceholder}
             onChange={this.onChange}
@@ -125,6 +115,7 @@ class InputComonent extends PureComponent {
           <Placeholder>{placeholder}</Placeholder>
         </InnerContainer>
         <Error error={this.props.error}>{this.props.errorText}</Error>
+        <Success success={this.props.success}>{this.props.successText}</Success>
       </Container>
     )
   }

@@ -31,10 +31,10 @@ export function logout () {
   })
 }
 
-export function resetPassword ({ email, url }) {
+export function resetPassword ({ email, redirectUrl }) {
   return unAuthenticatedRequest({
     path: '/password.reset',
-    data: { email, redirect_url: url }
+    data: { email, redirect_url: redirectUrl }
   })
 }
 

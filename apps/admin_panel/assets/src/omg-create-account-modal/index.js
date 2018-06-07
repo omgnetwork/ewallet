@@ -65,7 +65,7 @@ class CreateAccountModal extends Component {
       this.setState({ stage: 'finished' })
     } else {
       this.setState({
-        error: result.data.data.code,
+        error: result.data.data.description,
         submitting: false
       })
     }
