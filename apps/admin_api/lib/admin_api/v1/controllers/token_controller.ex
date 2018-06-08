@@ -58,15 +58,17 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec stats(Conn.t(), map()) :: map()
   def stats(conn, %{"id" => id}) do
-    token = Token.get(id)
+    with %Token{} = token <- Token.get(id) || :token_not_found do
+      stats = %{
+        token: token,
+        total_supply: Mint.total_supply_for_token(token)
+      }
 
-    stats = %{
-      token_id: id,
-      subunit_to_unit: token.subunit_to_unit,
-      total_supply: Mint.total_supply_for_token(token)
-    }
-
-    render(conn, :stats, %{stats: stats})
+      render(conn, :stats, %{stats: stats})
+    else
+      error ->
+        handle_error(conn, error)
+    end
   end
 
   def stats(conn, _), do: handle_error(conn, :invalid_parameter)

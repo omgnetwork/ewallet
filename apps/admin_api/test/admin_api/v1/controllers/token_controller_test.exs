@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWallet.Web.V1.TokenSerializer
   alias EWalletDB.{Repo, Token, Mint}
 
   describe "/token.all" do
@@ -83,12 +84,28 @@ defmodule AdminAPI.V1.TokenControllerTest do
       response = user_request("/token.stats", %{"id" => token.id})
 
       assert response["success"]
+
       assert response["data"] == %{
-        "object" => "token_stats",
-        "token_id" => token.id,
-        "subunit_to_unit" => 100,
-        "total_supply" => 300000
-      }
+               "object" => "token_stats",
+               "token_id" => token.id,
+               "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
+               "total_supply" => 300_000
+             }
+    end
+
+    test "return token_not_found for non existing tokens" do
+      token = insert(:token)
+      _mints = insert_list(3, :mint, token_uuid: token.uuid)
+      response = user_request("/token.stats", %{"id" => "fale"})
+
+      assert response["success"] == false
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "token:token_not_found",
+               "description" => "There is no token matching the provided token_id.",
+               "messages" => nil
+             }
     end
   end
 
