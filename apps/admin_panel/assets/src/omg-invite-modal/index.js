@@ -80,25 +80,44 @@ class InviteModal extends Component {
     role: 'viewer',
     submitStatus: null
   }
+  validateEmail = email => {
+    return /@/.test(email) && email.length !== 0
+  }
+  reset = () => {
+    this.setState({
+      email: null,
+      role: 'viewer',
+      submitStatus: null
+    })
+  }
+  onRequestClose = () => {
+    this.props.onRequestClose()
+    this.reset()
+  }
   onSubmit = async e => {
     e.preventDefault()
-    this.setState({ submitStatus: 'SUBMITTED' })
-    const accountId = this.props.match.params.accountId
-    const result = await this.props.inviteMember({
-      email: this.state.email,
-      role: this.state.role,
-      accountId,
-      redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
-    })
-    if (result.data.success) {
-      this.setState({ submitStatus: 'SUCCESS', email: null })
-      this.props.getListMembers(accountId)
-      this.props.onRequestClose()
+    this.setState({ submitStatus: 'ATTEMPT_TO_SUBMIT' })
+    if (this.validateEmail(this.state.email)) {
+      this.setState({ submitStatus: 'SUBMITTED' })
+      const accountId = this.props.match.params.accountId
+      const result = await this.props.inviteMember({
+        email: this.state.email,
+        role: this.state.role,
+        accountId,
+        redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
+      })
+      if (result.data.success) {
+        this.props.getListMembers(accountId)
+        this.setState({ submitStatus: 'SUCCESS' })
+        this.onRequestClose()
+      }
     }
   }
 
   onInputEmailChange = e => {
-    this.setState({ email: e.target.value })
+    this.setState({
+      email: e.target.value
+    })
   }
   onClickRadioButton = role => e => {
     this.setState({ role })
@@ -108,7 +127,7 @@ class InviteModal extends Component {
     return (
       <Modal
         isOpen={this.props.open}
-        onRequestClose={this.props.onRequestClose}
+        onRequestClose={this.onRequestClose}
         style={customStyles}
         contentLabel='invite modal'
         shouldCloseOnOverlayClick={false}
@@ -121,6 +140,11 @@ class InviteModal extends Component {
             placeholder='Email'
             onChange={this.onInputEmailChange}
             value={this.state.email}
+            error={
+              this.state.submitStatus === 'ATTEMPT_TO_SUBMIT' &&
+              !this.validateEmail(this.state.email)
+            }
+            errorText='Email is not valid'
           />
           <RoleRadioButtonContainer>
             <InviteTitle>Select Role</InviteTitle>
