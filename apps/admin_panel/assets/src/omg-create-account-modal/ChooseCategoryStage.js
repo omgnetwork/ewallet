@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Icon, Input, PlainButton } from '../omg-uikit'
 import CategoriesProvider from '../omg-account-category/categoriesProvider'
+import {connect} from 'react-redux'
 const CategoryContainer = styled.div`
   position: relative;
   text-align: left;
@@ -87,7 +88,7 @@ const PlainButtonContainer = styled.div`
     font-size: 14px;
   }
 `
-export default class ChooseCategoryStage extends Component {
+class ChooseCategoryStage extends Component {
   static propTypes = {
     onClickBack: PropTypes.func
   }
@@ -154,3 +155,5 @@ export default class ChooseCategoryStage extends Component {
     return <CategoriesProvider render={this.renderCategories} {...this.props} {...this.state} />
   }
 }
+
+export default connect(null, {createCategory})(ChooseCategoryStage)

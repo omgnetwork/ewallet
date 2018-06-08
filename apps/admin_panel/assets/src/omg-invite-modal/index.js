@@ -81,7 +81,7 @@ class InviteModal extends Component {
     submitStatus: null
   }
   validateEmail = email => {
-    return /@/.test(email) && email.length !== 0
+    return /@/.test(email)
   }
   reset = () => {
     this.setState({

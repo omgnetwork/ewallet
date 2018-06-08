@@ -24,7 +24,6 @@ export function assignMember ({ userId, accountId, role, redirectUrl }) {
 }
 
 export function inviteMember ({ email, accountId, role, redirectUrl }) {
-  console.log(redirectUrl)
   return authenticatedRequest({
     path: '/account.assign_user',
     data: {
