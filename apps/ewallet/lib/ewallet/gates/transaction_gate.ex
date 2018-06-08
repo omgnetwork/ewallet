@@ -143,7 +143,6 @@ defmodule EWallet.TransactionGate do
   end
 
   defp process_with_transfer(%Transfer{status: "failed"} = transfer, _wallets, _token) do
-    resp = transfer.ledger_response
-    {:error, transfer, resp["code"], resp["description"]}
+    {:error, transfer, transfer.error_code, transfer.error_description || transfer.error_data}
   end
 end

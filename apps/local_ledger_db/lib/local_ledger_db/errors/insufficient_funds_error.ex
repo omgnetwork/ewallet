@@ -8,10 +8,10 @@ defmodule LocalLedgerDB.Errors.InsufficientFundsError do
         address: address
       }) do
     %{
-      address: address,
-      current_amount: current_amount,
-      amount_to_debit: amount_to_debit,
-      token_id: token_id
+      "address" => address,
+      "current_amount" => current_amount,
+      "amount_to_debit" => amount_to_debit,
+      "token_id" => token_id
     }
   end
 end
