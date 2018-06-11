@@ -29,7 +29,6 @@ export const loadApiKeys = () => async dispatch => {
     }
     return result
   } catch (error) {
-    console.log(error)
     dispatch({ type: 'API_KEY/REQUEST/FAILED' })
   }
 }
