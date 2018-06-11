@@ -24,7 +24,7 @@ defmodule EWallet.MintGate do
     })
 
     case res do
-      {:ok, mint, ledger_response} ->
+      {:ok, mint, transfer} ->
         # Everything went well, do something.
         # response is the response returned by the local ledger (LocalLedger for
         # example).
@@ -93,8 +93,10 @@ defmodule EWallet.MintGate do
   end
 
   defp process_with_transfer(%Transfer{status: "failed"} = transfer, mint) do
-    resp = transfer.ledger_response
-    confirm_and_return({:error, resp["code"], resp["description"]}, mint)
+    confirm_and_return(
+      {:error, transfer.error_code, transfer.error_description || transfer.error_data},
+      mint
+    )
   end
 
   defp confirm_and_return({:error, code, description}, mint),

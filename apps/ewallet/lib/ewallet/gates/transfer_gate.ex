@@ -54,7 +54,7 @@ defmodule EWallet.TransferGate do
     res = Transactions.Transfer.process(transfer)
 
     case res do
-      {:ok, ledger_response} ->
+      {:ok, transfer} ->
         # Everything went well, do something.
       {:error, code, description} ->
         # Something went wrong with the transfer processing.
@@ -76,7 +76,7 @@ defmodule EWallet.TransferGate do
     res = Transactions.Transfer.genesis(transfer)
 
     case res do
-      {:ok, ledger_response} ->
+      {:ok, transfer} ->
         # Everything went well, do something.
       {:error, code, description} ->
         # Something went wrong with the transfer processing.
@@ -90,21 +90,17 @@ defmodule EWallet.TransferGate do
     |> update_transfer(transfer)
   end
 
-  defp update_transfer(_, %Transfer{ledger_response: ledger_response} = transfer)
-       when ledger_response != nil do
+  defp update_transfer(_, %Transfer{entry_uuid: entry_uuid, error_code: error_code} = transfer)
+       when entry_uuid != nil
+       when error_code != nil do
     transfer
   end
 
   defp update_transfer({:ok, entry}, transfer) do
-    Transfer.confirm(transfer, %{
-      entry_uuid: entry.uuid
-    })
+    Transfer.confirm(transfer, entry.uuid)
   end
 
   defp update_transfer({:error, code, description}, transfer) do
-    Transfer.fail(transfer, %{
-      code: code,
-      description: description
-    })
+    Transfer.fail(transfer, code, description)
   end
 end

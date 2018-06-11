@@ -105,7 +105,7 @@ defmodule AdminAPI.V1.TokenController do
     }
     |> MintGate.insert()
     |> case do
-      {:ok, _mint, _ledger_response} -> {:ok, token}
+      {:ok, _mint, _transfer} -> {:ok, token}
       {:error, code, description} -> {:error, code, description}
       {:error, changeset} -> {:error, changeset}
     end

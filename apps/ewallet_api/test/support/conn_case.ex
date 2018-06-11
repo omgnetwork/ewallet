@@ -137,7 +137,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def mint!(token, amount \\ 1_000_000) do
-    {:ok, mint, _ledger_response} =
+    {:ok, mint, _transfer} =
       MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
         "token_id" => token.id,

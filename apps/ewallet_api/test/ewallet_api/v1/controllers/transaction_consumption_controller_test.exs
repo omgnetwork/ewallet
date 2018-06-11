@@ -106,7 +106,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.account_wallet.address
-      assert %{} = inserted_transfer.ledger_response
+      assert inserted_transfer.entry_uuid != nil
     end
 
     test "fails to consume and return an insufficient funds error", meta do
@@ -151,7 +151,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.account_wallet.address
-      assert %{} = inserted_transfer.ledger_response
+      assert inserted_transfer.error_code == "insufficient_funds"
+      assert inserted_transfer.error_description == nil
+
+      assert inserted_transfer.error_data == %{
+               "address" => meta.account_wallet.address,
+               "amount_to_debit" => 100_000 * meta.token.subunit_to_unit,
+               "current_amount" => 0,
+               "token_id" => meta.token.id
+             }
     end
 
     test "returns with preload if `embed` attribute is given", meta do
@@ -337,7 +345,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.bob_wallet.address
       assert inserted_transfer.from == meta.account_wallet.address
-      assert %{} = inserted_transfer.ledger_response
+      assert inserted_transfer.entry_uuid != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
@@ -430,7 +438,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.bob_wallet.address
-      assert %{} = inserted_transfer.ledger_response
+      assert inserted_transfer.entry_uuid != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
@@ -862,7 +870,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.bob_wallet.address
-      assert %{} = inserted_transfer.ledger_response
+      assert inserted_transfer.entry_uuid != nil
     end
 
     test "returns same transaction request consumption when idempotency token is the same",
