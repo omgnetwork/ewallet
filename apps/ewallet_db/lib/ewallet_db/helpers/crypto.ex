@@ -4,7 +4,7 @@ defmodule EWalletDB.Helpers.Crypto do
   """
   alias Plug.Crypto
 
-  @spec generate_key(Integer.t()) :: binary()
+  @spec generate_key(non_neg_integer()) :: binary()
   def generate_key(key_bytes) when is_integer(key_bytes) do
     key_bytes
     |> :crypto.strong_rand_bytes()
