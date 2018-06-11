@@ -19,19 +19,21 @@ defmodule EWalletDB.Repo.Migrations.MoveLedgerResponseIntoSpecificFields do
                  lock: "FOR UPDATE")
 
     for [uuid, ledger_response] <- Repo.all(query) do
-      {:ok, ledger_response} = EncryptedMapField.load(ledger_response)
-      description = get_data_or_description(ledger_response["description"], :description)
-      data = get_data_or_description(ledger_response["description"], :data)
+      if ledger_response != nil do
+        {:ok, ledger_response} = EncryptedMapField.load(ledger_response)
+        description = get_data_or_description(ledger_response["description"], :description)
+        data = get_data_or_description(ledger_response["description"], :data)
 
-      query = from(t in "transfer",
-                   where: t.uuid == ^uuid,
-                   update: [set: [entry_uuid: ^ledger_response["entry_uuid"],
-                                  error_code: ^ledger_response["code"],
-                                  error_description: ^description,
-                                  error_data: ^data
-                                  ]])
+        query = from(t in "transfer",
+                     where: t.uuid == ^uuid,
+                     update: [set: [entry_uuid: ^ledger_response["entry_uuid"],
+                                    error_code: ^ledger_response["code"],
+                                    error_description: ^description,
+                                    error_data: ^data
+                                    ]])
 
-      Repo.update_all(query, [])
+        Repo.update_all(query, [])
+      end
     end
 
     flush()
