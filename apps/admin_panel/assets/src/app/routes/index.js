@@ -6,6 +6,7 @@ import LoginRoute from './loginRoute'
 import LoginForm from '../../omg-login-form'
 import ForgetPasswordForm from '../../omg-forgetPassword-form'
 import CreateNewPasswordForm from '../../omg-createNewPassword-form'
+import InviteForm from '../../omg-invite-form'
 import AccountPage from '../../omg-page-account'
 import DashboardPage from '../../omg-page-dashboard'
 import TokenPage from '../../omg-page-token'
@@ -27,6 +28,7 @@ export default () => (
       <LoginRoute path='/login' exact component={LoginForm} />
       <LoginRoute path='/forget-password' exact component={ForgetPasswordForm} />
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />
+      <LoginRoute path='/invite' exact component={InviteForm} />
       <AuthenticatedRoute path='/:accountId/dashboard' exact component={DashboardPage} />
       <AuthenticatedRoute path='/:accountId/accounts' exact component={AccountPage} />\
       <AuthenticatedRoute path='/:accountId/token' exact component={TokenPage} />

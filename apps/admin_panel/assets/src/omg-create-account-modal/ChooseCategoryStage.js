@@ -2,6 +2,8 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Icon, Input, PlainButton } from '../omg-uikit'
+import CategoriesProvider from '../omg-account-category/categoriesProvider'
+import {connect} from 'react-redux'
 const CategoryContainer = styled.div`
   position: relative;
   text-align: left;
@@ -86,7 +88,7 @@ const PlainButtonContainer = styled.div`
     font-size: 14px;
   }
 `
-export default class ChooseCategoryStage extends Component {
+class ChooseCategoryStage extends Component {
   static propTypes = {
     onClickBack: PropTypes.func
   }
@@ -97,7 +99,7 @@ export default class ChooseCategoryStage extends Component {
   onClickCreateGroup = e => {
     this.setState({ createNewGroup: false })
   }
-  render () {
+  renderCategories = ({ categories, loadingStatus }) => {
     return (
       <CategoryContainer>
         <TopBar>
@@ -131,18 +133,27 @@ export default class ChooseCategoryStage extends Component {
         <BottomBar>
           {this.state.createNewGroup ? (
             <CreateNewGroupActionContainer>
-              <Input normalPlaceholder='Enter group name' autofocus onPressEnter={this.onClickCreateGroup} />
+              <Input
+                normalPlaceholder='Enter group name'
+                autofocus
+                onPressEnter={this.onClickCreateGroup}
+              />
               <PlainButtonContainer>
                 <PlainButton onClick={this.onClickCreateGroup}>Create</PlainButton>
               </PlainButtonContainer>
             </CreateNewGroupActionContainer>
-            ) : (
-              <PlainButton onClick={this.onClickCreateNewGroup}>
-                <Icon name='Plus' /> Create New Group
-                </PlainButton>
-            )}
+          ) : (
+            <PlainButton onClick={this.onClickCreateNewGroup}>
+              <Icon name='Plus' /> Create New Group
+            </PlainButton>
+          )}
         </BottomBar>
       </CategoryContainer>
     )
   }
+  render () {
+    return <CategoriesProvider render={this.renderCategories} {...this.props} {...this.state} />
+  }
 }
+
+export default connect(null, {createCategory})(ChooseCategoryStage)

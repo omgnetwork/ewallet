@@ -11,26 +11,26 @@ export function updateAccountInfo ({ id, name, description }) {
   })
 }
 
-export function assignMember ({ userId, accountId, roleName, url }) {
+export function assignMember ({ userId, accountId, role, redirectUrl }) {
   return authenticatedRequest({
     path: '/account.assign_user',
     data: {
-      redirect_url: url,
+      redirect_url: redirectUrl,
       user_id: userId,
       account_id: accountId,
-      role_name: roleName
+      role_name: role
     }
   })
 }
 
-export function inviteMember ({ email, accountId, roleName, url }) {
+export function inviteMember ({ email, accountId, role, redirectUrl }) {
   return authenticatedRequest({
     path: '/account.assign_user',
     data: {
       email,
-      redirect_url: url,
+      redirect_url: redirectUrl,
       account_id: accountId,
-      role_name: roleName
+      role_name: role
     }
   })
 }

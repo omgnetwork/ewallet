@@ -1,18 +1,19 @@
 import * as settingService from '../services/settingService'
+import * as adminSerivce from '../services/adminService'
 export const inviteMember = ({ email, redirectUrl, accountId, role }) => async dispatch => {
-  dispatch({ type: 'INVITE/REQUEST/INITIATED' })
   try {
     const result = await settingService.inviteMember({
       email,
-      redirect_url: redirectUrl,
-      account_id: accountId,
-      role_name: role
+      redirectUrl: `${redirectUrl}?token={token}&email={email}`,
+      accountId,
+      role
     })
     if (result.data.success) {
-      return dispatch({ type: 'INVITE/REQUEST/SUCCESS', invited: result.data.data })
+      dispatch({ type: 'INVITE/REQUEST/SUCCESS' })
     } else {
-      return dispatch({ type: 'INVITE/REQUEST/FAILED', error: result.data.data })
+      dispatch({ type: 'INVITE/REQUEST/FAILED', error: result.data.data })
     }
+    return result
   } catch (error) {
     return dispatch({ type: 'INVITE/REQUEST/FAILED', error })
   }
@@ -29,5 +30,30 @@ export const getListMembers = accountId => async dispatch => {
     }
   } catch (error) {
     return dispatch({ type: 'INVITE_LIST/REQUEST/FAILED', error })
+  }
+}
+
+export const createUser = ({
+  resetToken,
+  password,
+  passwordConfirmation,
+  email
+}) => async dispatch => {
+  try {
+    const result = await adminSerivce.createAdmin({
+      resetToken,
+      password,
+      passwordConfirmation,
+      email
+    })
+    if (result.data.success) {
+      dispatch({ type: 'INVITE/CREATE/SUCCESS' })
+    } else {
+      dispatch({ type: 'INVITE/CREATE/FAILED' })
+    }
+    return result
+  } catch (error) {
+    console.log(error)
+    dispatch({ type: 'INVITE/CREATE/FAILED' })
   }
 }
