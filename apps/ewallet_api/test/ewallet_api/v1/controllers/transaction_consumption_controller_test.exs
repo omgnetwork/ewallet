@@ -438,7 +438,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.bob_wallet.address
-      assert assert inserted_transfer.entry_uuid != nil
+      assert inserted_transfer.entry_uuid != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
@@ -870,7 +870,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transfer.to == meta.alice_wallet.address
       assert inserted_transfer.from == meta.bob_wallet.address
-      assert assert inserted_transfer.entry_uuid != nil
+      assert inserted_transfer.entry_uuid != nil
     end
 
     test "returns same transaction request consumption when idempotency token is the same",
