@@ -5,8 +5,8 @@ defmodule EWalletDB.Transfer do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  import EWalletDB.Validator
   alias Ecto.{UUID, Multi}
+  import EWalletDB.Validator
   alias EWalletDB.{Repo, Transfer, Wallet, Token}
 
   @pending "pending"
@@ -37,7 +37,11 @@ defmodule EWalletDB.Transfer do
     # Payload received from client
     field(:payload, Cloak.EncryptedMapField)
     # Response returned by ledger
-    field(:ledger_response, Cloak.EncryptedMapField)
+    field(:entry_uuid, :string)
+    field(:error_code, :string)
+    field(:error_description, :string)
+    field(:error_data, :map)
+
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
     field(:encryption_version, :binary)
@@ -76,8 +80,11 @@ defmodule EWalletDB.Transfer do
       :status,
       :type,
       :payload,
-      :ledger_response,
       :metadata,
+      :entry_uuid,
+      :error_code,
+      :error_description,
+      :error_data,
       :encrypted_metadata,
       :amount,
       :token_uuid,
@@ -99,6 +106,7 @@ defmodule EWalletDB.Transfer do
     |> validate_from_wallet_identifier()
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
+    |> validate_exclusive([:entry_uuid, :error_code])
     |> validate_immutable(:idempotency_token)
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:token)
@@ -202,29 +210,63 @@ defmodule EWalletDB.Transfer do
   @doc """
   Confirms a transfer and saves the ledger's response.
   """
-  def confirm(transfer, ledger_response) do
+  def confirm(transfer, entry_uuid) do
     transfer
-    |> changeset(%{status: @confirmed, ledger_response: ledger_response})
+    |> changeset(%{status: @confirmed, entry_uuid: entry_uuid})
     |> Repo.update()
-
-    get_by_idempotency_token(transfer.idempotency_token)
+    |> handle_update_result()
   end
 
   @doc """
   Sets a transfer as failed and saves the ledger's response.
   """
-  def fail(transfer, ledger_response) do
-    transfer
-    |> changeset(%{status: @failed, ledger_response: ledger_response})
-    |> Repo.update()
-
-    get_by_idempotency_token(transfer.idempotency_token)
+  def fail(transfer, error_code, error_description) when is_map(error_description) do
+    do_fail(
+      %{
+        status: @failed,
+        error_code: error_code,
+        error_description: nil,
+        error_data: error_description
+      },
+      transfer
+    )
   end
+
+  def fail(transfer, error_code, error_description) do
+    do_fail(
+      %{
+        status: @failed,
+        error_code: error_code,
+        error_description: error_description,
+        error_data: nil
+      },
+      transfer
+    )
+  end
+
+  defp do_fail(%{error_code: error_code} = data, transfer) when is_atom(error_code) do
+    data
+    |> Map.put(:error_code, Atom.to_string(error_code))
+    |> do_fail(transfer)
+  end
+
+  defp do_fail(data, transfer) do
+    transfer
+    |> changeset(data)
+    |> Repo.update()
+    |> handle_update_result()
+  end
+
+  defp handle_update_result({:ok, transfer}) do
+    Repo.preload(transfer, [:from_wallet, :to_wallet, :token])
+  end
+
+  defp handle_update_result(error), do: error
 
   def get_error(nil), do: nil
 
   def get_error(transfer) do
-    {transfer.ledger_response["code"], transfer.ledger_response["description"]}
+    {transfer.error_code, transfer.error_description || transfer.error_data}
   end
 
   def failed?(transfer) do
