@@ -4,6 +4,7 @@ defmodule AdminAPI.V1.MintController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias EWallet.MintGate
   alias EWallet.Web.{SortParser, Paginator, Preloader}
   alias EWalletDB.{Token, Mint}
   alias Plug.Conn
@@ -33,6 +34,27 @@ defmodule AdminAPI.V1.MintController do
 
   def all_for_token(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  @doc """
+  Mint a token.
+  """
+  @spec mint(Conn.t(), map()) :: map()
+  def mint(
+        conn,
+        %{
+          "id" => id,
+          "amount" => _
+        } = attrs
+      ) do
+    with %Token{} = token <- Token.get(id) do
+      MintGate.mint_token({:ok, token}, attrs)
+    else
+      error -> error
+    end
+    |> respond_single(conn)
+  end
+
+  def mint(conn, _), do: handle_error(conn, :invalid_parameter)
+
   # Respond with a list of mints
   defp respond_multiple(%Paginator{} = paged_mints, conn) do
     render(conn, :mints, %{mints: paged_mints})
@@ -40,5 +62,14 @@ defmodule AdminAPI.V1.MintController do
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  # Respond with a single mint
+  defp respond_single({:error, changeset}, conn) do
+    handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond_single({:ok, mint}, conn) do
+    render(conn, :mint, %{mint: mint})
   end
 end

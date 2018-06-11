@@ -6,7 +6,25 @@ defmodule EWallet.MintGate do
   """
   alias EWallet.TransferGate
   alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, Token}
-  alias Ecto.Multi
+  alias Ecto.{UUID, Multi}
+
+  def mint_token({:ok, token}, %{"amount" => amount} = attrs)
+       when is_number(amount) do
+    %{
+      "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
+      "token_id" => token.id,
+      "amount" => amount,
+      "description" => attrs["description"]
+    }
+    |> insert()
+    |> case do
+      {:ok, mint, _ledger_response} -> {:ok, mint}
+      {:error, code, description} -> {:error, code, description}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+  def mint_token({:error, changeset}, _attrs), do: {:error, changeset}
+  def mint_token(_, _attrs), do: {:error, :invalid_parameter}
 
   @doc """
   Insert a new mint for a token, adding more value to it which can then be

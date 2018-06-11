@@ -7,7 +7,6 @@ defmodule AdminAPI.V1.TokenController do
   alias EWallet.MintGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, Token, Mint}
-  alias Ecto.UUID
   alias Plug.Conn
 
   # The field names to be mapped into DB column names.
@@ -86,53 +85,13 @@ defmodule AdminAPI.V1.TokenController do
     case attrs["amount"] do
       amount when is_number(amount) and amount > 0 ->
         inserted_token
-        |> mint_token(%{"amount" => amount})
+        |> MintGate.mint_token(%{"amount" => amount})
         |> respond_single(conn)
 
       _ ->
         respond_single(inserted_token, conn)
     end
   end
-
-  @doc """
-  Mint a token.
-  """
-  @spec mint(Conn.t(), map()) :: map()
-  def mint(
-        conn,
-        %{
-          "id" => id,
-          "amount" => _
-        } = attrs
-      ) do
-    with %Token{} = token <- Token.get(id) do
-      mint_token({:ok, token}, attrs)
-    else
-      error -> error
-    end
-    |> respond_single(conn)
-  end
-
-  def mint(conn, _), do: handle_error(conn, :invalid_parameter)
-
-  defp mint_token({:ok, token}, %{"amount" => amount} = attrs)
-       when is_number(amount) do
-    %{
-      "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
-      "token_id" => token.id,
-      "amount" => amount,
-      "description" => attrs["description"]
-    }
-    |> MintGate.insert()
-    |> case do
-      {:ok, _mint, _transfer} -> {:ok, token}
-      {:error, code, description} -> {:error, code, description}
-      {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  defp mint_token({:error, changeset}, _attrs), do: {:error, changeset}
-  defp mint_token(_, _attrs), do: {:error, :invalid_parameter}
 
   # Respond with a list of tokens
   defp respond_multiple(%Paginator{} = paged_tokens, conn) do

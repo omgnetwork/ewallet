@@ -222,14 +222,11 @@ paths:
           $ref: "#/components/responses/TokenStatsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
-  #####################################
-  #           MINTS ENDPOINTS         #
-  #####################################
-  /mint.all:
+  # Endpoint to get mints for a token
+  /token.get_mints:
     post:
       tags:
-        - Mint
+        - Token
       summary: Get the list of mints for a token
       operationId: mint_all
       security:
