@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Icon, Input, PlainButton } from '../omg-uikit'
 import CategoriesProvider from '../omg-account-category/categoriesProvider'
-import {connect} from 'react-redux'
+import { connect } from 'react-redux'
+import { createCategory } from '../omg-account-category/action'
 const CategoryContainer = styled.div`
   position: relative;
   text-align: left;
@@ -156,4 +157,7 @@ class ChooseCategoryStage extends Component {
   }
 }
 
-export default connect(null, {createCategory})(ChooseCategoryStage)
+export default connect(
+  null,
+  { createCategory }
+)(ChooseCategoryStage)
