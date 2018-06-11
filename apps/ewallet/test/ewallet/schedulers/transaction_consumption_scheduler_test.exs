@@ -6,7 +6,13 @@ defmodule EWallet.TransactionConsumptionSchedulerTest do
   alias Phoenix.Socket.Broadcast
 
   setup do
-    {:ok, _} = TestEndpoint.start_link()
+    {:ok, pid} = TestEndpoint.start_link()
+    
+    on_exit fn ->
+      ref = Process.monitor(pid)
+      assert_receive {:DOWN, ^ref, _, _, _}
+    end
+
     :ok
   end
 

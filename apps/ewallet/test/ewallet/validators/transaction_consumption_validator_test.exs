@@ -54,6 +54,17 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
   end
 
   describe "validate_before_confirmation/2" do
+    setup do
+      {:ok, pid} = TestEndpoint.start_link()
+
+      on_exit fn ->
+        ref = Process.monitor(pid)
+        assert_receive {:DOWN, ^ref, _, _, _}
+      end
+
+      :ok
+    end
+
     test "returns not_transaction_request_owner if the request is not owned by user" do
       {:ok, user} = :user |> params_for() |> User.insert()
       consumption = :transaction_consumption |> insert() |> Repo.preload([:transaction_request])
@@ -125,8 +136,6 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns max_consumptions_per_user_reached if the max has been reached" do
-      {:ok, _} = TestEndpoint.start_link()
-
       {:ok, user_1} = :user |> params_for() |> User.insert()
       {:ok, user_2} = :user |> params_for() |> User.insert()
       wallet = User.get_primary_wallet(user_2)
@@ -167,8 +176,6 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "expires consumption if past expiration" do
-      {:ok, _} = TestEndpoint.start_link()
-
       now = NaiveDateTime.utc_now()
       {:ok, user} = :user |> params_for() |> User.insert()
       request = insert(:transaction_request, account_uuid: nil, user_uuid: user.uuid)
@@ -189,8 +196,6 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns expired_transaction_consumption if the consumption has expired" do
-      {:ok, _} = TestEndpoint.start_link()
-
       {:ok, user} = :user |> params_for() |> User.insert()
       request = insert(:transaction_request, account_uuid: nil, user_uuid: user.uuid)
 
@@ -207,8 +212,6 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     end
 
     test "returns the consumption if valid" do
-      {:ok, _} = TestEndpoint.start_link()
-
       {:ok, user} = :user |> params_for() |> User.insert()
       request = insert(:transaction_request, account_uuid: nil, user_uuid: user.uuid)
 

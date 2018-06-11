@@ -7,12 +7,14 @@ defmodule EWallet.Web.V1.EventTest do
 
   setup do
     Logger.configure(level: :info)
+    {:ok, pid} = TestEndpoint.start_link()
 
     on_exit(fn ->
       Logger.configure(level: :warn)
+      ref = Process.monitor(pid)
+      assert_receive {:DOWN, ^ref, _, _, _}
     end)
 
-    {:ok, _} = TestEndpoint.start_link()
     :ok
   end
 
