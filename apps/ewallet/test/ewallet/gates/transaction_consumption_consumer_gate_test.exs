@@ -12,10 +12,10 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
   setup do
     {:ok, pid} = TestEndpoint.start_link()
 
-    on_exit fn ->
+    on_exit(fn ->
       ref = Process.monitor(pid)
       assert_receive {:DOWN, ^ref, _, _, _}
-    end
+    end)
 
     token = insert(:token)
     {:ok, receiver} = :user |> params_for() |> User.insert()

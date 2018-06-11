@@ -57,10 +57,10 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
     setup do
       {:ok, pid} = TestEndpoint.start_link()
 
-      on_exit fn ->
+      on_exit(fn ->
         ref = Process.monitor(pid)
         assert_receive {:DOWN, ^ref, _, _, _}
-      end
+      end)
 
       :ok
     end
