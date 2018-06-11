@@ -40,8 +40,6 @@ tags:
     description: Resources related to session tokens.
   - name: Token
     description: Resources related to tokens.
-  - name: Mint
-    description: Resources related to mints.
   - name: Category
     description: Resources related to categories.
   - name: Account
@@ -212,11 +210,11 @@ paths:
       tags:
         - Token
       summary: Get the list of mints for a token
-      operationId: mint_all
+      operationId: token_get_mints
       security:
         - UserAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/MintAllBody'
+        $ref: '#/components/requestBodies/TokenGetMintsBody'
       responses:
         '200':
           $ref: "#/components/responses/MintsResponse"
@@ -238,7 +236,7 @@ paths:
           $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-          
+
   ####################################
   #        CATEGORY ENDPOINTS        #
   ####################################
@@ -2376,7 +2374,7 @@ components:
     ######################################
     #               MINT BODIES          #
     ######################################
-    MintAllBody:
+    TokenGetMintsBody:
       description: The parameters to use for listing the mints for a token
       required: true
       content:
@@ -3155,7 +3153,7 @@ components:
           schema:
             $ref: '#/components/schemas/TokenResponseSchema'
     TokenStatsResponse:
-      description: "Returns the stats for a single tokens"
+      description: "Returns the stats for a single token"
       content:
         application/vnd.omisego.v1+json:
           schema:

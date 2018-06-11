@@ -55,7 +55,7 @@ defmodule AdminAPI.V1.TokenController do
   @doc """
   Retrieves stats for a specific token.
   """
-  @spec stats(Conn.t(), map()) :: map()
+  @spec stats(Conn.t(), map()) :: Conn.t()
   def stats(conn, %{"id" => id}) do
     with %Token{} = token <- Token.get(id) || :token_not_found do
       stats = %{

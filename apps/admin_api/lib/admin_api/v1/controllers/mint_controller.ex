@@ -18,11 +18,11 @@ defmodule AdminAPI.V1.MintController do
   @doc """
   Retrieves a list of mints.
   """
-  @spec all_for_token(Conn.t(), map() | nil) :: map()
+  @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
     with %Token{} = token <- Token.get(id) || :token_id_not_found do
       token
-      |> Mint.for_token()
+      |> Mint.query_by_token()
       |> Preloader.to_query(@preload_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)
@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.MintController do
   @doc """
   Mint a token.
   """
-  @spec mint(Conn.t(), map()) :: map()
+  @spec mint(Conn.t(), map()) :: Conn.t()
   def mint(
         conn,
         %{

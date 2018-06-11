@@ -65,7 +65,7 @@ defmodule EWalletDB.Mint do
     |> assoc_constraint(:transfer)
   end
 
-  def for_token(token, query \\ Mint) do
+  def query_by_token(token, query \\ Mint) do
     from(m in query, where: m.token_uuid == ^token.uuid)
   end
 

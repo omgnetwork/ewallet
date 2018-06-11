@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   describe "/token.stats" do
     test "returns the stats for a token" do
       token = insert(:token)
-      _mints = insert_list(3, :mint, token_uuid: token.uuid)
+      _mints = insert_list(3, :mint, token_uuid: token.uuid, amount: 100_000)
       response = user_request("/token.stats", %{"id" => token.id})
 
       assert response["success"]
