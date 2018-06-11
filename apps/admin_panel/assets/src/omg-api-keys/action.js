@@ -12,7 +12,6 @@ export const generateApiKey = owner => async dispatch => {
     }
     return result
   } catch (error) {
-    console.log(error)
     dispatch({ type: 'API_KEY/CREATE/FAILED' })
   }
 }
