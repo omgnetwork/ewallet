@@ -50,11 +50,13 @@ defmodule EWalletDB.Mixfile do
       {:ex_ulid, github: "omisego/ex_ulid"},
       {:poison, "~> 3.1"},
       {:bcrypt_elixir, "~> 1.0"},
-      {:salty, github: "omisego/salty"},
-      {:cloak, "~> 0.3.3"},
+      {:cloak, "~> 0.7.0-alpha"},
       {:plug, "~> 1.0"},
       {:arc, "~> 0.8.0"},
       {:arc_ecto, "~> 0.7.0"},
+
+      # cloak optional dependencies
+      {:salty, github: "omisego/salty"},
 
       # arc GCS dependencies
       {:arc_gcs, "~> 0.0.3", runtime: false},
