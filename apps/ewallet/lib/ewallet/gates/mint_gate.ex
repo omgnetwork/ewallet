@@ -8,8 +8,12 @@ defmodule EWallet.MintGate do
   alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, Token}
   alias Ecto.{UUID, Multi}
 
-  def mint_token({:ok, token}, %{"amount" => amount} = attrs)
-       when is_number(amount) do
+  def mint_token({:ok, token}, attrs) do
+    mint_token(token, attrs)
+  end
+
+  def mint_token(token, %{"amount" => amount} = attrs)
+      when is_number(amount) do
     %{
       "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
       "token_id" => token.id,
@@ -18,11 +22,12 @@ defmodule EWallet.MintGate do
     }
     |> insert()
     |> case do
-      {:ok, mint, _ledger_response} -> {:ok, mint}
+      {:ok, mint, _entry} -> {:ok, mint, token}
       {:error, code, description} -> {:error, code, description}
       {:error, changeset} -> {:error, changeset}
     end
   end
+
   def mint_token({:error, changeset}, _attrs), do: {:error, changeset}
   def mint_token(_, _attrs), do: {:error, :invalid_parameter}
 

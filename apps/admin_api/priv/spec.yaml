@@ -191,22 +191,6 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
   # Endpoint to create a new token
-  /token.mint:
-    post:
-      tags:
-        - Token
-      summary: Mint an existing token
-      operationId: token_mint
-      security:
-        - UserAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/TokenMintBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TokenResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new token
   /token.stats:
     post:
       tags:
@@ -238,7 +222,23 @@ paths:
           $ref: "#/components/responses/MintsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
+  # Endpoint to create a new token
+  /token.mint:
+    post:
+      tags:
+        - Token
+      summary: Mint an existing token
+      operationId: token_mint
+      security:
+        - UserAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TokenMintBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+          
   ####################################
   #        CATEGORY ENDPOINTS        #
   ####################################
@@ -606,12 +606,6 @@ paths:
           $ref: "#/components/responses/WalletResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
-
-
-
-
-
 
   ##########################################
   #          ADMIN USER ENDPOINTS          #

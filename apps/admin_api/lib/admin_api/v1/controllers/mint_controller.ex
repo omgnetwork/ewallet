@@ -45,12 +45,13 @@ defmodule AdminAPI.V1.MintController do
           "amount" => _
         } = attrs
       ) do
-    with %Token{} = token <- Token.get(id) do
-      MintGate.mint_token({:ok, token}, attrs)
+    with %Token{} = token <- Token.get(id) || :token_id_not_found do
+      token
+      |> MintGate.mint_token(attrs)
+      |> respond_single(conn)
     else
-      error -> error
+      error -> handle_error(conn, error)
     end
-    |> respond_single(conn)
   end
 
   def mint(conn, _), do: handle_error(conn, :invalid_parameter)
@@ -69,7 +70,11 @@ defmodule AdminAPI.V1.MintController do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  defp respond_single({:ok, mint}, conn) do
+  defp respond_single({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
+  defp respond_single({:ok, mint, _token}, conn) do
     render(conn, :mint, %{mint: mint})
   end
 end

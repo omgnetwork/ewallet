@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.MintControllerTest do
   alias EWallet.MintGate
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer}
-  alias EWalletDB.Repo
+  alias EWalletDB.{Repo, Mint}
 
   describe "/token.get_mints" do
     test "returns a list of mints and pagination data" do
@@ -108,8 +108,8 @@ defmodule AdminAPI.V1.MintControllerTest do
       mint = Mint |> Repo.all() |> Enum.at(0)
 
       assert response["success"]
-      assert response["data"]["object"] == "token"
-      assert Token.get(response["data"]["id"]) != nil
+      assert response["data"]["object"] == "mint"
+      assert Mint.get(response["data"]["id"]) != nil
       assert mint != nil
       assert mint.amount == 1_000_000 * token.subunit_to_unit
       assert mint.token_uuid == token.uuid

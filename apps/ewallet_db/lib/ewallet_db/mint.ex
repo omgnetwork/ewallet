@@ -5,6 +5,7 @@ defmodule EWalletDB.Mint do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Query, Changeset}
+  import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias EWalletDB.{Repo, Mint, Token, Transfer, Account}
 
@@ -74,6 +75,27 @@ defmodule EWalletDB.Mint do
     |> select([m], sum(m.amount))
     |> Repo.one()
     |> EWalletDB.Types.Integer.load!()
+  end
+
+  @doc """
+  Retrieve a mint by id.
+  """
+  @spec get_by(String.t(), opts :: keyword()) :: %Mint{} | nil
+  def get(id, opts \\ [])
+  def get(nil, _), do: nil
+
+  def get(id, opts) do
+    get_by([id: id], opts)
+  end
+
+  @doc """
+  Retrieves a mint using one or more fields.
+  """
+  @spec get_by(fields :: map(), opts :: keyword()) :: %Mint{} | nil
+  def get_by(fields, opts \\ []) do
+    Mint
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 
   @doc """
