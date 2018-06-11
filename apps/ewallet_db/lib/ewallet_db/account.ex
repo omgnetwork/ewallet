@@ -122,8 +122,10 @@ defmodule EWalletDB.Account do
     multi =
       Multi.new()
       |> Multi.insert(:account, changeset(%Account{}, attrs))
-      |> Multi.run(:wallet, fn %{account: account} ->
+      |> Multi.run(:primary_wallet, fn %{account: account} ->
         insert_wallet(account, Wallet.primary())
+      end)
+      |> Multi.run(:burn_wallet, fn %{account: account} ->
         insert_wallet(account, Wallet.burn())
       end)
 

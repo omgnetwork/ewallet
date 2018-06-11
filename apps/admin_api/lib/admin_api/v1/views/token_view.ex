@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.TokenView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, TokenSerializer}
+  alias EWallet.Web.V1.{ResponseSerializer, TokenSerializer, TokenStatsSerializer}
 
   def render("token.json", %{token: token}) do
     token
@@ -11,6 +11,12 @@ defmodule AdminAPI.V1.TokenView do
   def render("tokens.json", %{tokens: tokens}) do
     tokens
     |> TokenSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
+  end
+
+  def render("stats.json", %{stats: stats}) do
+    stats
+    |> TokenStatsSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 end
