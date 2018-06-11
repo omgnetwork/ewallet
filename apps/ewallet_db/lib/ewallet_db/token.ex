@@ -154,7 +154,7 @@ defmodule EWalletDB.Token do
   @doc """
   Retrieves a token using one or more fields.
   """
-  @spec get_by(fields :: keyword(), opts :: keyword()) :: %Token{} | nil
+  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %Token{} | nil
   def get_by(fields, opts \\ []) do
     Token
     |> Repo.get_by(fields)

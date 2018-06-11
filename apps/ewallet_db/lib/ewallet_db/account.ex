@@ -219,7 +219,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieves an account using one or more fields.
   """
-  @spec get_by(fields :: keyword(), opts :: keyword()) :: %Account{} | nil | no_return()
+  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %Account{} | nil | no_return()
   def get_by(fields, opts \\ []) do
     Account
     |> Repo.get_by(fields)
