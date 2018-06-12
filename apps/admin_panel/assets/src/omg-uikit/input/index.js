@@ -40,9 +40,11 @@ const Input = styled.input`
   }
 `
 const Error = styled.div`
+  position: absolute;
+  font-size: 12px;
   color: ${props => props.theme.colors.R400};
   text-align: left;
-  padding-top: ${props => (props.error ? '5px' : 0)};
+  padding-top: ${props => (props.error ? '2px' : 0)};
   overflow: hidden;
   max-height: ${props => (props.error ? '30px' : 0)};
   opacity: ${props => (props.error ? 1 : 0)};

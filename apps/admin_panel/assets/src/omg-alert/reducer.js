@@ -1,7 +1,7 @@
 import createReducer from '../reducer/createReducer'
 import uuid from 'uuid/v4'
-const createAlertState = text => {
-  return { id: uuid(), text }
+const createAlertState = (text, type) => {
+  return { id: uuid(), text, type }
 }
 export const alertsReducer = createReducer([], {
   'ALERTS/CLEAR': (state, { id }) => {
@@ -25,7 +25,7 @@ export const alertsReducer = createReducer([], {
   'INVITE/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invite member successfully.')]
   },
-  'CATEGORY/CREATE/SUCCESS': (state, {category}) => {
+  'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
     return [...state, createAlertState(`Created category successfully.`)]
   }
 })

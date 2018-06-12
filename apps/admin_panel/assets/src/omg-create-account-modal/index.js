@@ -95,7 +95,7 @@ class CreateAccountModal extends Component {
     this.setState({ stage: 'category' })
   }
   onChangeInputName = e => {
-    this.setState({ name: e.target.value })
+    this.setState({ name: e.target.value, error: false })
   }
   onChangeInputDescription = e => {
     this.setState({ description: e.target.value })

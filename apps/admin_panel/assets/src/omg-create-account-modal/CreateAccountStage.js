@@ -71,6 +71,8 @@ export default class CreateAccountStage extends Component {
           autofocus
           value={this.props.name}
           onChange={this.props.onChangeInputName}
+          error={this.props.error}
+          errorText={this.props.error}
         />
         <Input
           placeholder='description'
@@ -92,7 +94,6 @@ export default class CreateAccountStage extends Component {
         >
           Create account
         </Button>
-        <div>{this.props.error}</div>
       </Form>
     )
   }
