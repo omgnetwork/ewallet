@@ -13,6 +13,7 @@ const UserPageContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
+  padding-bottom: 100px;
   > div {
     flex: 1;
   }
