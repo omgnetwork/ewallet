@@ -1,6 +1,5 @@
 import * as accountService from '../services/accountService'
 export const createAccount = ({ name, description, avatar, category }) => async dispatch => {
-  console.log(category)
   try {
     const resultCreateAccount = await accountService.createAccount({ name, description, category })
     if (resultCreateAccount.data.success) {

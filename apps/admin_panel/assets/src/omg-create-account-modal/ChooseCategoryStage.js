@@ -5,10 +5,14 @@ import { Icon, Input, PlainButton } from '../omg-uikit'
 import CategoriesProvider from '../omg-account-category/categoriesProvider'
 import { connect } from 'react-redux'
 import { createCategory } from '../omg-account-category/action'
+import { withRouter } from 'react-router-dom'
+import { compose } from 'recompose'
 const CategoryContainer = styled.div`
   position: relative;
   text-align: left;
   height: 100%;
+  display: flex;
+  flex-direction: column;
 `
 const TopBar = styled.div`
   border-bottom: 1px solid ${props => props.theme.colors.S400};
@@ -21,6 +25,7 @@ const TopBar = styled.div`
 `
 const SearchContainer = styled.div`
   padding: 10px 20px;
+  overflow: auto;
 `
 const SearchBar = styled.div`
   display: flex;
@@ -67,12 +72,8 @@ const SearchItem = styled.div`
   }
 `
 const BottomBar = styled.div`
-  position: absolute;
-  top: auto;
-  bottom: 0;
+  background-color: white;
   text-align: center;
-  left: 0;
-  right: 0;
   padding: 20px 25px;
   border-top: 1px solid ${props => props.theme.colors.S400};
   color: ${props => props.theme.colors.BL400};
@@ -81,7 +82,7 @@ const BottomBar = styled.div`
     margin-left: 5px;
   }
 `
-const CreateNewGroupActionContainer = styled.div``
+const CreateNewGroupActionContainer = styled.form``
 const PlainButtonContainer = styled.div`
   margin-top: 15px;
   text-align: right;
@@ -89,27 +90,38 @@ const PlainButtonContainer = styled.div`
     font-size: 14px;
   }
 `
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { createCategory }
+  )
+)
 class ChooseCategoryStage extends Component {
   static propTypes = {
     onClickBack: PropTypes.func,
     categories: PropTypes.array,
     createCategory: PropTypes.func,
     onChooseCategory: PropTypes.func,
-    category: PropTypes.object
+    category: PropTypes.object,
+    match: PropTypes.object
   }
   state = { createNewGroup: false }
   onClickCreateNewGroup = e => {
     this.setState({ createNewGroup: true })
   }
-  onClickCreateGroup = e => {
-    this.props.createCategory({
-      name: this.state.name,
-      description: this.state.description
+  onClickCreateCategory = async e => {
+    e.preventDefault()
+    const result = await this.props.createCategory({
+      name: this.state.categoryNameToCreate,
+      accountId: this.props.match.params.accountId
     })
-    this.setState({ createNewGroup: false })
+    if (result.data.success) {
+      this.props.onChooseCategory(result.data.data)
+    }
   }
   onChangeInputCreateGroup = e => {
-    this.setState({ groupName: e.target.value })
+    this.setState({ categoryNameToCreate: e.target.value })
   }
   renderCategories = ({ categories, loadingStatus }) => {
     return (
@@ -124,14 +136,14 @@ class ChooseCategoryStage extends Component {
             <InputSearch />
           </SearchBar>
           <SearchResult>
-            <SearchItem active={!this.props.category} onClick={this.props.onChooseCategory(null)}>
+            <SearchItem active={!this.props.category} onClick={e => this.props.onChooseCategory(null)}>
               <Icon name='Checkmark' />
               <span>None</span>
             </SearchItem>
             {categories.map(cat => {
               return (
                 <SearchItem
-                  onClick={this.props.onChooseCategory(cat)}
+                  onClick={e => this.props.onChooseCategory(cat)}
                   active={_.get(this.props.category, 'id') === cat.id}
                 >
                   <Icon name='Checkmark' />
@@ -143,16 +155,15 @@ class ChooseCategoryStage extends Component {
         </SearchContainer>
         <BottomBar>
           {this.state.createNewGroup ? (
-            <CreateNewGroupActionContainer>
+            <CreateNewGroupActionContainer onSubmit={this.onClickCreateCategory}>
               <Input
                 normalPlaceholder='Enter group name'
                 autofocus
-                onPressEnter={this.onClickCreateGroup}
-                value={this.state.groupName}
+                value={this.state.categoryNameToCreate}
                 onChange={this.onChangeInputCreateGroup}
               />
               <PlainButtonContainer>
-                <PlainButton onClick={this.onClickCreateGroup}>Create</PlainButton>
+                <PlainButton onClick={this.onClickCreateCategory}>Create</PlainButton>
               </PlainButtonContainer>
             </CreateNewGroupActionContainer>
           ) : (
@@ -169,7 +180,4 @@ class ChooseCategoryStage extends Component {
   }
 }
 
-export default connect(
-  null,
-  { createCategory }
-)(ChooseCategoryStage)
+export default enhance(ChooseCategoryStage)

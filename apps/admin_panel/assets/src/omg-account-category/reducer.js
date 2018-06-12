@@ -5,6 +5,9 @@ export const categoriesReducer = createReducer(
   {
     'CATEGORIES/REQUEST/SUCCESS': (state, action) => {
       return { ...state, ..._.keyBy(action.categories.data, 'id') }
+    },
+    'CATEGORY/CREATE/SUCCESS': (state, action) => {
+      return { ...state, [action.category.id]: action.category }
     }
   }
 )

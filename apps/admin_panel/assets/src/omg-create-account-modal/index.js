@@ -103,7 +103,7 @@ class CreateAccountModal extends Component {
   onChangeAvatar = ({ file, image, path }) => {
     this.setState({ avatar: file, avatarPath: path })
   }
-  onChooseCategory = category => e => {
+  onChooseCategory = category => {
     this.setState({ category, stage: 'create' })
   }
   render () {
@@ -130,6 +130,7 @@ class CreateAccountModal extends Component {
           category={this.state.category}
           onClickBack={this.onClickBack}
           onChooseCategory={this.onChooseCategory}
+          goToStage={this.goToStage}
         />
       ),
       finished: (
