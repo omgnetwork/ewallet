@@ -24,5 +24,8 @@ export const alertsReducer = createReducer([], {
   },
   'INVITE/REQUEST/SUCCESS': state => {
     return [...state, createAlertState('Invite member successfully.')]
+  },
+  'CATEGORY/CREATE/SUCCESS': (state, {category}) => {
+    return [...state, createAlertState(`Created category successfully.`)]
   }
 })
