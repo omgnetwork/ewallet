@@ -62,7 +62,7 @@
   "rabbitmq_rpc": {:git, "ssh://git@github.com/omisego/rabbitmq-rpc.git", "d5d918bfd453eae6747509acd46b857512410137", [tag: "0.3.0"]},
   "ranch": {:hex, :ranch, "1.3.2", "e4965a144dc9fbe70e5c077c65e73c57165416a901bd02ea899cfd95aa890986", [:rebar3], [], "hexpm"},
   "recon": {:hex, :recon, "2.3.4", "b406c2fccdeaa0d94e23b5e30ae3d635a2d461e363a5c9c6316897037cf050d2", [:rebar3], [], "hexpm"},
-  "salty": {:git, "https://github.com/omisego/salty.git", "be59a61e8ad12dfb2fa9fab5ec251403d0a4e78e", []},
+  "salty": {:git, "https://github.com/omisego/salty.git", "cc86dbc5db0802441d76299ae98370c8a4db9c5b", [branch: "cloak-0.7.0"]},
   "sentry": {:hex, :sentry, "6.0.5", "5f4e5818e39b2721bb92ee07c164d10c510af9b519dc587727008433e119ad7a", [:mix], [{:hackney, "~> 1.8 or 1.6.5", [hex: :hackney, repo: "hexpm", optional: false]}, {:plug, "~> 1.0", [hex: :plug, repo: "hexpm", optional: true]}, {:poison, "~> 1.5 or ~> 2.0 or ~> 3.0", [hex: :poison, repo: "hexpm", optional: false]}, {:uuid, "~> 1.0", [hex: :uuid, repo: "hexpm", optional: false]}], "hexpm"},
   "ssl_verify_fun": {:hex, :ssl_verify_fun, "1.1.1", "28a4d65b7f59893bc2c7de786dec1e1555bd742d336043fe644ae956c3497fbe", [:make, :rebar], [], "hexpm"},
   "sweet_xml": {:hex, :sweet_xml, "0.6.5", "dd9cde443212b505d1b5f9758feb2000e66a14d3c449f04c572f3048c66e6697", [:mix], [], "hexpm"},

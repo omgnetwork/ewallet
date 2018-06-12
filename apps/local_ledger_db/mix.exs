@@ -41,7 +41,7 @@ defmodule LocalLedgerDB.Mixfile do
       {:ex_machina, "~> 2.2", only: :test},
 
       # cloak optional dependencies
-      {:salty, github: "omisego/salty"},
+      {:salty, github: "omisego/salty", branch: "cloak-0.7.0"},
     ]
   end
 

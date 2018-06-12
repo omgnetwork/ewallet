@@ -56,7 +56,7 @@ defmodule EWalletDB.Mixfile do
       {:arc_ecto, "~> 0.7.0"},
 
       # cloak optional dependencies
-      {:salty, github: "omisego/salty"},
+      {:salty, github: "omisego/salty", branch: "cloak-0.7.0"},
 
       # arc GCS dependencies
       {:arc_gcs, "~> 0.0.3", runtime: false},
