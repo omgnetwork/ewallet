@@ -43,7 +43,14 @@ const ChangePasswordContainer = styled.div`
     color: ${props => props.theme.colors.BL400};
   }
 `
-const enhance = compose(currentUserProviderHoc, connect(null, { updateCurrentAccount }), withRouter)
+const enhance = compose(
+  currentUserProviderHoc,
+  connect(
+    null,
+    { updateCurrentAccount }
+  ),
+  withRouter
+)
 
 class UserSettingPage extends Component {
   static propTypes = {
@@ -65,9 +72,7 @@ class UserSettingPage extends Component {
   setInitialCurrentUserState = () => {
     if (this.props.loadingStatus === 'SUCCESS' && !this.state.accountLoaded) {
       this.setState({
-        name: this.props.currentUser.name,
-        description: this.props.currentUser.description,
-        avatar: this.props.currentUser.avatar.original,
+        email: this.props.currentUser.email,
         accountLoaded: true
       })
     }
@@ -108,22 +113,10 @@ class UserSettingPage extends Component {
             </AvatarContainer>
             <InputsContainer>
               <StyledInput
-                placeholder={'Name'}
-                value={this.state.name}
+                placeholder={'Email'}
+                value={this.state.email}
                 prefill
                 onChange={this.onChangeName}
-              />
-              <StyledInput
-                placeholder={'Description'}
-                value={this.state.description}
-                prefill
-                onChange={this.onChangeDescription}
-
-              />
-              <StyledInput
-                placeholder={'Group'}
-                value={this.state.group}
-                prefill
               />
               <ChangePasswordContainer>
                 <div>Password</div>
