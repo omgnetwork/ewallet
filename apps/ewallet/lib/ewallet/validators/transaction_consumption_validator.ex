@@ -4,10 +4,10 @@ defmodule EWallet.TransactionConsumptionValidator do
   expiration.
   """
   alias EWallet.Web.V1.Event
-  alias EWalletDB.{Repo, Balance, TransactionRequest, TransactionConsumption, Token}
+  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token}
 
-  @spec validate_before_consumption(TransactionRequest.t(), Balance.t(), Integer.t()) ::
-          {:ok, TransactionRequest.t(), Integer.t()}
+  @spec validate_before_consumption(TransactionRequest.t(), any(), nil | keyword() | map()) ::
+          {:ok, TransactionRequest.t(), Token.t(), integer()}
           | {:error, Atom.t()}
   def validate_before_consumption(request, wallet, attrs) do
     with amount <- attrs["amount"],

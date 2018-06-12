@@ -26,7 +26,7 @@ defmodule UrlDispatcher.Application do
   end
 
   defp websockets_dispatcher do
-    Logger.info("Setting up websockets dispatchers...")
+    _ = Logger.info("Setting up websockets dispatchers...")
     SocketDispatcher.websockets()
   end
 
@@ -48,7 +48,7 @@ defmodule UrlDispatcher.Application do
   end
 
   defp prepare_children({scheme, plug, port, dispatchers}) do
-    Logger.info("Running #{inspect(plug)} with Cowboy #{scheme} on port #{port}")
+    _ = Logger.info("Running #{inspect(plug)} with Cowboy #{scheme} on port #{port}")
 
     Cowboy.child_spec(
       scheme,

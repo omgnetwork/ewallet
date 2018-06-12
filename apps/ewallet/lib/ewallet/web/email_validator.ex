@@ -16,7 +16,7 @@ defmodule EWallet.EmailValidator do
   Checks whether the email address looks correct.
   Returns the email string if valid, returns false if invalid.
   """
-  @spec valid?(String.t()) :: String.t() | false
+  @spec validate(String.t()) :: String.t() | false
   def validate(email) do
     if Regex.match?(@email_regex, email), do: email, else: false
   end

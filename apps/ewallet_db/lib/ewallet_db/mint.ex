@@ -91,7 +91,7 @@ defmodule EWalletDB.Mint do
   @doc """
   Retrieves a mint using one or more fields.
   """
-  @spec get_by(fields :: map(), opts :: keyword()) :: %Mint{} | nil
+  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %Mint{} | nil
   def get_by(fields, opts \\ []) do
     Mint
     |> Repo.get_by(fields)

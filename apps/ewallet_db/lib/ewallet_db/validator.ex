@@ -130,9 +130,6 @@ defmodule EWalletDB.Validator do
 
       {:error, :too_short, data} ->
         Changeset.add_error(changeset, key, "must be #{data[:min_length]} characters or more")
-
-      {:error, _} ->
-        Changeset.add_error(changeset, key, "does not meet the password requirements")
     end
   end
 

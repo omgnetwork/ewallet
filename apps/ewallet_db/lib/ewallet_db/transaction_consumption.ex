@@ -180,7 +180,7 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Get a consumption using one or more fields.
   """
-  @spec get_by(Map.t(), List.t()) :: %TransactionConsumption{} | nil
+  @spec get_by(map() | keyword(), List.t()) :: %TransactionConsumption{} | nil
   def get_by(map, opts \\ []) do
     query = TransactionConsumption |> Repo.get_by(map)
 

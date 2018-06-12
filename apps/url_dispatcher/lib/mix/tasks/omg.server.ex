@@ -63,7 +63,7 @@ defmodule Mix.Tasks.Omg.Server do
   end
 
   defp configure_no_watch(args) do
-    {parsed, args, _invalids} = OptionParser.parse(args, no_watch: :boolean)
+    {parsed, args, _invalids} = OptionParser.parse(args, switches: [no_watch: :boolean])
     if parsed[:no_watch], do: Application.put_env(:admin_panel, :start_with_no_watch, true)
     # This is the arguments with `--no-watch` flag removed by `OptionParser.parse/2` above
     args

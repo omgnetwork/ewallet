@@ -227,7 +227,6 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Updates a transaction request.
   """
-  @spec insert(Map.t()) :: {:ok, %TransactionRequest{}} | {:error, Map.t()}
   def update(%TransactionRequest{} = request, attrs) do
     request
     |> changeset(attrs)

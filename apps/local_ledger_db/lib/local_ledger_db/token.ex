@@ -54,6 +54,7 @@ defmodule LocalLedgerDB.Token do
   @doc """
   Retrieve a token using the specified id.
   """
+  @spec get(String.t()) :: Ecto.Schema.t() | nil | no_return()
   def get(id) do
     Repo.get_by(Token, id: id)
   end
@@ -64,6 +65,7 @@ defmodule LocalLedgerDB.Token do
   query is made to get the current database record, be it the one inserted right
   before or one inserted by another concurrent process.
   """
+  @spec insert(map()) :: {:ok, Ecto.Schema.t()} | {:error, Ecto.Changeset.t()}
   def insert(%{"id" => id} = attrs) do
     changeset = Token.changeset(%Token{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :id]

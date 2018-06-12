@@ -17,7 +17,7 @@ defmodule EWallet.Web.V1.Event do
         topics: topics,
         payload: payload
       ) do
-    log(event, topics, payload)
+    _ = log(event, topics, payload)
 
     Enum.each(topics, fn topic ->
       Enum.each(endpoints(), fn endpoint ->
@@ -31,30 +31,31 @@ defmodule EWallet.Web.V1.Event do
   end
 
   def log(event, topics, payload) do
-    Logger.info("")
-    Logger.info("WEBSOCKET EVENT: Dispatching event '#{event}' to:")
-    Logger.info("-- Endpoints:")
+    _ = Logger.info("")
+    _ = Logger.info("WEBSOCKET EVENT: Dispatching event '#{event}' to:")
+    _ = Logger.info("-- Endpoints:")
 
     Enum.each(endpoints(), fn endpoint ->
       Logger.info("---- #{endpoint}")
     end)
 
-    Logger.info("-- Channels:")
+    _ = Logger.info("-- Channels:")
 
     Enum.each(topics, fn topic ->
       Logger.info("---- #{topic}")
     end)
 
-    case payload[:error] do
-      nil ->
-        Logger.info("With no errors.")
+    _ =
+      case payload[:error] do
+        nil ->
+          Logger.info("With no errors.")
 
-      error ->
-        Logger.info("With error:")
-        error |> inspect() |> Logger.info()
-    end
+        error ->
+          _ = Logger.info("With error:")
+          error |> inspect() |> Logger.info()
+      end
 
-    Logger.info("Ending event dispatch...")
+    _ = Logger.info("Ending event dispatch...")
     Logger.info("")
   end
 
