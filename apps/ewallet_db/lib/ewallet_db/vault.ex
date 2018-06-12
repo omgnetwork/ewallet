@@ -16,7 +16,7 @@ defmodule EWalletDB.Vault do
 
   defp decode_env(var) do
     var
-    |> System.get_env(var)
+    |> System.get_env()
     |> Base.decode64!()
   end
 end
