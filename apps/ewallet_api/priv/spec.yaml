@@ -550,6 +550,8 @@ components:
           type: string
         data:
           type: array
+          items:
+            type: object
       required:
         - object
         - data
@@ -563,6 +565,8 @@ components:
           type: string
         data:
           type: array
+          items:
+            type: object
         pagination:
           type: object
           properties:
@@ -731,7 +735,8 @@ components:
           type: string
         balances:
           type: array
-          $ref: '#/components/schemas/BalanceSchema'
+          items:
+            $ref: '#/components/schemas/BalanceSchema'
       required:
         - object
         - address
@@ -755,7 +760,6 @@ components:
         object:
           type: string
         token:
-          type: object
           $ref: '#/components/schemas/TokenSchema'
         amount:
           type: number
@@ -793,16 +797,15 @@ components:
         user_id:
           type: string
         user:
-          type: object
           $ref: '#/components/schemas/UserSchema'
         account_id:
           type: string
         account:
-          type: object
           $ref: '#/components/schemas/AccountSchema'
         balances:
           type: array
-          $ref: '#/components/schemas/BalanceSchema'
+          items:
+            $ref: '#/components/schemas/BalanceSchema'
       required:
         - object
         - socket_topic
