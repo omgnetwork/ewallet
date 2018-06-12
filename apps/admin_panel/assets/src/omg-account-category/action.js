@@ -17,7 +17,7 @@ export const createCategory = ({ name, description, accountId }) => async dispat
   }
 }
 
-export const getCategories = () => async dispatch => {
+export const getCategories = search => async dispatch => {
   try {
     const result = await categoryService.getCategories({
       per: 1000,
@@ -29,7 +29,6 @@ export const getCategories = () => async dispatch => {
       return dispatch({ type: 'CATEGORIES/REQUEST/FAILED', error: result.data.data })
     }
   } catch (error) {
-    console.log(error)
     return dispatch({ type: 'CATEGORIES/REQUEST/FAILED', error })
   }
 }

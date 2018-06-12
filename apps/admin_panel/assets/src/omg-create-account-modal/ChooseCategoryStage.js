@@ -26,6 +26,7 @@ const TopBar = styled.div`
 const SearchContainer = styled.div`
   padding: 10px 20px;
   overflow: auto;
+  height: 100%;
 `
 const SearchBar = styled.div`
   display: flex;
@@ -123,6 +124,9 @@ class ChooseCategoryStage extends Component {
   onChangeInputCreateGroup = e => {
     this.setState({ categoryNameToCreate: e.target.value })
   }
+  onChangeInputSearch = e => {
+    this.setState({ search: e.target.value })
+  }
   renderCategories = ({ categories, loadingStatus }) => {
     return (
       <CategoryContainer>
@@ -133,24 +137,29 @@ class ChooseCategoryStage extends Component {
         <SearchContainer>
           <SearchBar>
             <Icon name='Search' />
-            <InputSearch />
+            <InputSearch autofocus value={this.state.search} onChange={this.onChangeInputSearch} />
           </SearchBar>
           <SearchResult>
-            <SearchItem active={!this.props.category} onClick={e => this.props.onChooseCategory(null)}>
+            <SearchItem
+              active={!this.props.category}
+              onClick={e => this.props.onChooseCategory(null)}
+            >
               <Icon name='Checkmark' />
               <span>None</span>
             </SearchItem>
-            {categories.map(cat => {
-              return (
-                <SearchItem
-                  onClick={e => this.props.onChooseCategory(cat)}
-                  active={_.get(this.props.category, 'id') === cat.id}
-                >
-                  <Icon name='Checkmark' />
-                  <span>{cat.name}</span>
-                </SearchItem>
-              )
-            })}
+            {categories
+              .map(cat => {
+                return (
+                  <SearchItem
+                    onClick={e => this.props.onChooseCategory(cat)}
+                    active={_.get(this.props.category, 'id') === cat.id}
+                    key={cat.id}
+                  >
+                    <Icon name='Checkmark' />
+                    <span>{cat.name}</span>
+                  </SearchItem>
+                )
+              })}
           </SearchResult>
         </SearchContainer>
         <BottomBar>
@@ -176,7 +185,7 @@ class ChooseCategoryStage extends Component {
     )
   }
   render () {
-    return <CategoriesProvider render={this.renderCategories} {...this.props} {...this.state} />
+    return <CategoriesProvider render={this.renderCategories} {...this.props} {...this.state} search={this.state.search} />
   }
 }
 
