@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Account, User}
+  alias EWalletDB.{Account, Repo, User}
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -150,6 +150,25 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["data"]["object"] == "account"
       assert response["data"]["name"] == "updated_name"
       assert response["data"]["description"] == "updated_description"
+    end
+
+    test "updates the account's categories" do
+      account = :account |> insert() |> Repo.preload(:categories)
+      category = :category |> insert()
+      assert Enum.empty?(account.categories)
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: account.id,
+        category_ids: [category.id]
+      }
+
+      response = user_request("/account.update", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "account"
+      assert response["data"]["category_ids"] == [category.id]
+      assert List.first(response["data"]["categories"]["data"])["id"] == category.id
     end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
