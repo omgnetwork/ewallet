@@ -11,7 +11,7 @@ defmodule LocalLedgerDB.Entry do
 
   schema "entry" do
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
     field(:encryption_version, :binary)
     field(:idempotency_token, :string)
 

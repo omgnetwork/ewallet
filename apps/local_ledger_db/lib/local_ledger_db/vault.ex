@@ -1,5 +1,5 @@
-defmodule EWalletDB.Vault do
-  use Cloak.Vault, otp_app: :ewallet_db
+defmodule LocalLedgerDB.Vault do
+  use Cloak.Vault, otp_app: :local_ledger_db
 
   @impl Cloak.Vault
   def init(config) do
@@ -11,7 +11,7 @@ defmodule EWalletDB.Vault do
     {:ok, config}
   end
 
-  defp secret_key(:prod), do: decode_env("EWALLET_SECRET_KEY")
+  defp secret_key(:prod), do: decode_env("LOCAL_LEDGER_SECRET_KEY")
   defp secret_key(_), do: "j6fy7rZP9ASvf1bmywWGRjrmh8gKANrg40yWZ-rSKpI"
 
   defp decode_env(var) do

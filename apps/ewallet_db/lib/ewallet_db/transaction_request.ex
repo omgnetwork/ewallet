@@ -48,7 +48,7 @@ defmodule EWalletDB.TransactionRequest do
     field(:expiration_reason, :string)
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     has_many(
       :consumptions,

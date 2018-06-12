@@ -38,7 +38,7 @@ defmodule EWalletDB.Wallet do
     field(:name, :string)
     field(:identifier, :string)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:encryption_version, :binary)
 
     belongs_to(

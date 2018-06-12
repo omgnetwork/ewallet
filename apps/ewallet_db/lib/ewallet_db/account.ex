@@ -28,7 +28,7 @@ defmodule EWalletDB.Account do
     field(:relative_depth, :integer, virtual: true)
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:encryption_version, :binary)
 
     many_to_many(

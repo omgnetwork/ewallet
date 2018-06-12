@@ -33,7 +33,7 @@ defmodule EWalletDB.User do
     field(:password_hash, :string)
     field(:provider_user_id, :string)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:encryption_version, :binary)
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
 

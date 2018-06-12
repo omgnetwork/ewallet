@@ -13,7 +13,7 @@ defmodule LocalLedgerDB.Token do
   schema "token" do
     field(:id, :string)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
+    field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
     field(:encryption_version, :binary)
 
     has_many(
