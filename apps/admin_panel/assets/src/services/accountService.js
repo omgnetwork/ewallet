@@ -15,7 +15,7 @@ export function getAllAccounts ({ per, sort, query, ...rest }) {
 export function createAccount ({ name, description, category }) {
   return authenticatedRequest({
     path: '/account.create',
-    data: { name, description, category }
+    data: { name, description, category_ids: [category] }
   })
 }
 

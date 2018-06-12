@@ -42,7 +42,12 @@ export default class CreateAccountStage extends Component {
     onClickFinish: PropTypes.func,
     name: PropTypes.string,
     description: PropTypes.string,
-    avatar: PropTypes.string
+    avatar: PropTypes.string,
+    category: PropTypes.object
+  }
+
+  static defaultProps = {
+    category: {}
   }
 
   render () {
@@ -52,8 +57,13 @@ export default class CreateAccountStage extends Component {
         <ImageUpload placeholder={this.props.avatar} />
         <h5>{this.props.name}</h5>
         <AccountDescription>{this.props.description}</AccountDescription>
-        <AccountDescription>Category: Food</AccountDescription>
-        <Button size='small' type='submit' loading={this.props.submitting} onClick={this.props.onClickContinue}>
+        <AccountDescription>Category: {this.props.category.name}</AccountDescription>
+        <Button
+          size='small'
+          type='submit'
+          loading={this.props.submitting}
+          onClick={this.props.onClickContinue}
+        >
           Continue Create Account
         </Button>
         <PlainButton onClick={this.props.onClickFinish}>Finished</PlainButton>
