@@ -42,6 +42,7 @@ class CreateAccountModal extends Component {
     name: '',
     description: '',
     avatar: '',
+    category: '',
     error: null
   }
 
@@ -59,7 +60,8 @@ class CreateAccountModal extends Component {
     const result = await this.props.createAccount({
       name: this.state.name,
       description: this.state.description,
-      avatar: this.state.avatar
+      avatar: this.state.avatar,
+      category: this.state.category.id
     })
     if (result.data.success) {
       this.setState({ stage: 'finished' })
@@ -81,6 +83,7 @@ class CreateAccountModal extends Component {
       avatar: '',
       avatarPath: '',
       error: '',
+      category: '',
       submitting: false
     })
   }
@@ -134,7 +137,7 @@ class CreateAccountModal extends Component {
           onClickContinue={this.onClickContinue}
           onClickFinish={this.onRequestClose}
           name={this.state.name}
-          x
+          category={this.state.category}
           description={this.state.description}
           avatar={this.state.avatarPath}
         />

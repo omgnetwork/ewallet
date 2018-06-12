@@ -1,7 +1,8 @@
 import * as accountService from '../services/accountService'
-export const createAccount = ({ name, description, avatar }) => async dispatch => {
+export const createAccount = ({ name, description, avatar, category }) => async dispatch => {
+  console.log(category)
   try {
-    const resultCreateAccount = await accountService.createAccount({ name, description })
+    const resultCreateAccount = await accountService.createAccount({ name, description, category })
     if (resultCreateAccount.data.success) {
       if (avatar) {
         const accountId = resultCreateAccount.data.data.id
