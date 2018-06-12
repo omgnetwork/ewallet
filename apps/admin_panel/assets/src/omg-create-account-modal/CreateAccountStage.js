@@ -59,6 +59,9 @@ export default class CreateAccountStage extends Component {
     avatar: PropTypes.string,
     category: PropTypes.object
   }
+  static defaultProps = {
+    category: {}
+  }
 
   render () {
     return (

@@ -42,7 +42,7 @@ class CreateAccountModal extends Component {
     name: '',
     description: '',
     avatar: '',
-    category: '',
+    category: {},
     error: null
   }
 
