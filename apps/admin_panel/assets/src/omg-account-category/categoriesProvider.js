@@ -23,11 +23,11 @@ class AccountsProvider extends Component {
     categoriesLoadingStatus: PropTypes.string,
     search: PropTypes.string
   }
-  componentWillReceiveProps = nextProps => {
-    if (this.props.search !== nextProps.search) {
-      this.props.getCategories(nextProps.search)
-    }
-  }
+  // componentWillReceiveProps = nextProps => {
+  //   if (this.props.search !== nextProps.search) {
+  //     this.props.getCategories(nextProps.search)
+  //   }
+  // }
 
   componentDidMount = () => {
     if (this.props.categoriesLoadingStatus === 'DEFAULT') {
