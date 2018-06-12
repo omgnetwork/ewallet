@@ -1,4 +1,6 @@
 defmodule LocalLedgerDB.Vault do
+  @moduledoc false
+
   use Cloak.Vault, otp_app: :local_ledger_db
 
   @impl Cloak.Vault
