@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.Router do
   use AdminAPI, :router
   alias AdminAPI.V1.Plug.Idempotency
-  alias AdminAPI.V1.{ClientAuthPlug, UserAuthPlug}
+  alias AdminAPI.V1.{ClientAuthPlug, AdminAPIAuthPlug}
 
   # Pipeline for plugs to apply for all endpoints
   pipeline :api do
@@ -13,9 +13,10 @@ defmodule AdminAPI.V1.Router do
     plug(ClientAuthPlug)
   end
 
-  # Pipeline for endpoints that require user authentication
-  pipeline :user_api do
-    plug(UserAuthPlug)
+  # Pipeline for endpoints that require user authentication or provider
+  # authentication
+  pipeline :admin_api do
+    plug(AdminAPIAuthPlug)
   end
 
   pipeline :idempotency do
@@ -24,9 +25,9 @@ defmodule AdminAPI.V1.Router do
 
   # Authenticated endpoints
   scope "/", AdminAPI.V1 do
-    pipe_through([:api, :user_api])
+    pipe_through([:api, :admin_api])
 
-    post("/auth_token.switch_account", AuthController, :switch_account)
+    post("/auth_token.switch_account", AdminAuthController, :switch_account)
 
     # Token endpoints
     post("/token.all", TokenController, :all)
@@ -41,10 +42,19 @@ defmodule AdminAPI.V1.Router do
     post("/transaction.all", TransactionController, :all)
     post("/transaction.get", TransactionController, :get)
 
+    # post("/transaction_request.create", TransactionRequestController, :create)
+    # post("/transaction_request.get", TransactionRequestController, :get)
+    # post("/transaction_consumption.approve", TransactionConsumptionController, :approve)
+    # post("/transaction_consumption.reject", TransactionConsumptionController, :reject)
+
     scope "/" do
       pipe_through([:idempotency])
 
       post("/transaction.create", TransactionController, :create)
+      # post("/user.credit_wallet", TransferController, :credit)
+      # post("/user.debit_wallet", TransferController, :debit)
+      # post("/transfer", TransferController, :transfer)
+      # post("/transaction_request.consume", TransactionConsumptionController, :consume)
     end
 
     # Category endpoints
@@ -70,7 +80,12 @@ defmodule AdminAPI.V1.Router do
     # User endpoints
     post("/user.all", UserController, :all)
     post("/user.get", UserController, :get)
+    post("/user.login", UserAuthController, :login)
+    post("/user.logout", UserAuthController, :logout)
+    # post("/user.create", UserController, :create)
+    # post("/user.update", UserController, :update)
     post("/user.get_wallets", WalletController, :all_for_user)
+    post("/user.get_transactions", TransactionController, :all_for_user)
 
     # Wallet endpoints
     post("/wallet.all", WalletController, :all)
@@ -91,20 +106,22 @@ defmodule AdminAPI.V1.Router do
     post("/api_key.create", APIKeyController, :create)
     post("/api_key.delete", APIKeyController, :delete)
 
+    # post("/get_settings", SettingsController, :get_settings)
+
     # Self endpoints (operations on the currently authenticated user)
     post("/me.get", SelfController, :get)
     post("/me.get_account", SelfController, :get_account)
     post("/me.get_accounts", SelfController, :get_accounts)
     post("/me.update", SelfController, :update)
 
-    post("/logout", AuthController, :logout)
+    post("/logout", AdminAuthController, :logout)
   end
 
   # Public endpoints (still protected by API key)
   scope "/", AdminAPI.V1 do
     pipe_through([:api, :client_api])
 
-    post("/login", AuthController, :login)
+    post("/login", AdminAuthController, :login)
     post("/invite.accept", InviteController, :accept)
 
     # Forget Password endpoints

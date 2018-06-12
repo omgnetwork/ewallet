@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AuthController do
+defmodule AdminAPI.V1.AdminAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.UserAuthPlug

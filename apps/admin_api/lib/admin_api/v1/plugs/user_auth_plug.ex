@@ -27,7 +27,7 @@ defmodule AdminAPI.V1.UserAuthPlug do
   API used by Plug to start user authentication.
   """
   @spec init(keyword()) :: keyword()
-  def init(opts) do
+  def init(opts \\ []) do
     Keyword.put_new(
       opts,
       :enable_client_auth,

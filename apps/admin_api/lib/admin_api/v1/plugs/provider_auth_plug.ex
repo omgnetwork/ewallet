@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.Plug.ProviderAuth do
+defmodule AdminAPI.V1.ProviderAuth do
   @moduledoc """
   This plug checks if valid access and secret keys were provided.
 
@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.Plug.ProviderAuth do
   this request belongs to.
   """
   import Plug.Conn
-  import EWalletAPI.V1.ErrorHandler
+  import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.V1.ProviderAuth
 
   def init(opts), do: opts

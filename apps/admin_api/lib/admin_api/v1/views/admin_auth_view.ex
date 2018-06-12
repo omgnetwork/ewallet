@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AuthView do
+defmodule AdminAPI.V1.AdminAuthView do
   use AdminAPI, :view
   alias AdminAPI.V1.AuthTokenSerializer
   alias EWallet.Web.V1.ResponseSerializer
