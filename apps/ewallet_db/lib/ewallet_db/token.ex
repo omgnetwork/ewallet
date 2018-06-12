@@ -43,7 +43,6 @@ defmodule EWalletDB.Token do
     field(:locked, :boolean)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
-    field(:encryption_version, :binary)
 
     belongs_to(
       :account,
@@ -92,7 +91,6 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:iso_numeric)
     |> foreign_key_constraint(:account_uuid)
     |> assoc_constraint(:account)
-    |> put_change(:encryption_version, Cloak.version())
     |> set_id(prefix: "tok_")
   end
 

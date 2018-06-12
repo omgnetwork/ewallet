@@ -129,7 +129,6 @@ defmodule EWalletDB.TransactionConsumption do
     |> assoc_constraint(:transaction_request)
     |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
-    |> put_change(:encryption_version, Cloak.version())
   end
 
   def approved_changeset(%TransactionConsumption{} = consumption, attrs) do

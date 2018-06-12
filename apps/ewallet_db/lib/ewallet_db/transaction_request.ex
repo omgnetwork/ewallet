@@ -125,7 +125,6 @@ defmodule EWalletDB.TransactionRequest do
     |> assoc_constraint(:user)
     |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
-    |> put_change(:encryption_version, Cloak.version())
   end
 
   defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do

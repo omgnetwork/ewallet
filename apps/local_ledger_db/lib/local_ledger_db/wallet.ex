@@ -14,7 +14,6 @@ defmodule LocalLedgerDB.Wallet do
     field(:address, :string)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
-    field(:encryption_version, :binary)
 
     has_many(
       :transactions,
@@ -31,10 +30,9 @@ defmodule LocalLedgerDB.Wallet do
   """
   def changeset(%Wallet{} = balance, attrs) do
     balance
-    |> cast(attrs, [:address, :metadata, :encrypted_metadata, :encryption_version])
+    |> cast(attrs, [:address, :metadata, :encrypted_metadata])
     |> validate_required([:address, :metadata, :encrypted_metadata])
     |> unique_constraint(:address)
-    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """

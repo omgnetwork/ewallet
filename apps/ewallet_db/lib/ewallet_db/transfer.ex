@@ -44,7 +44,6 @@ defmodule EWalletDB.Transfer do
 
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
-    field(:encryption_version, :binary)
 
     belongs_to(
       :token,
@@ -112,7 +111,6 @@ defmodule EWalletDB.Transfer do
     |> assoc_constraint(:token)
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
-    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """

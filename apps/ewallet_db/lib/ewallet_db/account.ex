@@ -29,7 +29,6 @@ defmodule EWalletDB.Account do
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
-    field(:encryption_version, :binary)
 
     many_to_many(
       :categories,
@@ -94,7 +93,6 @@ defmodule EWalletDB.Account do
     |> validate_account_level(@child_level_limit)
     |> unique_constraint(:name)
     |> assoc_constraint(:parent)
-    |> put_change(:encryption_version, Cloak.version())
     |> put_categories(attrs, :category_ids)
   end
 
