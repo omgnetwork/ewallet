@@ -116,9 +116,6 @@ defmodule EWalletDB.APIKey do
     end
   end
 
-  # Handles unsafe nil query
-  defp get(nil, _), do: nil
-
   defp get(id, owner_app) when is_binary(id) and is_atom(owner_app) do
     APIKey
     |> Repo.get_by(%{

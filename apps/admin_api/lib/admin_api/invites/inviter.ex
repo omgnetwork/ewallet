@@ -19,7 +19,7 @@ defmodule AdminAPI.Inviter do
 
     {:ok, _membership} = Membership.assign(invite.user, account, role)
 
-    send_email(invite, redirect_url)
+    _ = send_email(invite, redirect_url)
     {:ok, invite}
   catch
     error when is_atom(error) -> {:error, error}

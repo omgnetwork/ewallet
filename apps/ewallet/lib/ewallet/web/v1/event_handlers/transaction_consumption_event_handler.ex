@@ -73,8 +73,12 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
 
     case consumption.status do
       "failed" ->
-        ledger = consumption.transfer.ledger_response
-        %{code: ledger["code"], description: ledger["description"]}
+        transfer = consumption.transfer
+
+        %{
+          code: transfer.error_code,
+          description: transfer.error_description || transfer.error_data
+        }
 
       "expired" ->
         :expired_transaction_consumption

@@ -4,7 +4,8 @@ defmodule EWalletDB.Mint do
   """
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
-  import Ecto.Changeset
+  import Ecto.{Query, Changeset}
+  import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias EWalletDB.{Repo, Mint, Token, Transfer, Account}
 
@@ -44,9 +45,9 @@ defmodule EWalletDB.Mint do
     timestamps()
   end
 
-  defp changeset(%Mint{} = token, attrs) do
-    token
-    |> cast(attrs, [:description, :amount, :token_uuid, :confirmed])
+  defp changeset(%Mint{} = mint, attrs) do
+    mint
+    |> cast(attrs, [:description, :amount, :account_uuid, :token_uuid, :confirmed])
     |> validate_required([:amount, :token_uuid])
     |> validate_number(:amount, greater_than: 0)
     |> assoc_constraint(:token)
@@ -57,11 +58,44 @@ defmodule EWalletDB.Mint do
     |> foreign_key_constraint(:transfer_uuid)
   end
 
-  defp update_changeset(%Mint{} = token, attrs) do
-    token
+  defp update_changeset(%Mint{} = mint, attrs) do
+    mint
     |> cast(attrs, [:transfer_uuid])
     |> validate_required([:transfer_uuid])
     |> assoc_constraint(:transfer)
+  end
+
+  def query_by_token(token, query \\ Mint) do
+    from(m in query, where: m.token_uuid == ^token.uuid)
+  end
+
+  def total_supply_for_token(token) do
+    Mint
+    |> where([m], m.token_uuid == ^token.uuid)
+    |> select([m], sum(m.amount))
+    |> Repo.one()
+    |> EWalletDB.Types.Integer.load!()
+  end
+
+  @doc """
+  Retrieve a mint by id.
+  """
+  @spec get_by(String.t(), opts :: keyword()) :: %Mint{} | nil
+  def get(id, opts \\ [])
+  def get(nil, _), do: nil
+
+  def get(id, opts) do
+    get_by([id: id], opts)
+  end
+
+  @doc """
+  Retrieves a mint using one or more fields.
+  """
+  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %Mint{} | nil
+  def get_by(fields, opts \\ []) do
+    Mint
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 
   @doc """

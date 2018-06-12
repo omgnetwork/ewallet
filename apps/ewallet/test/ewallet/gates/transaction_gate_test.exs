@@ -54,7 +54,10 @@ defmodule EWallet.TransactionGateTest do
           amount: 100 * token.subunit_to_unit,
           metadata: metadata,
           payload: attrs,
-          ledger_response: response,
+          entry_uuid: response["entry_uuid"],
+          error_code: response["code"],
+          error_description: response["description"],
+          error_data: nil,
           status: status,
           type: Transfer.internal()
         })
@@ -67,7 +70,7 @@ defmodule EWallet.TransactionGateTest do
       {idempotency_token, inserted_transfer, attrs} =
         insert_transfer_with_addresses(%{
           metadata: %{some: "data"},
-          response: %{"data" => "from cached ledger"},
+          response: %{"entry_uuid" => "from cached ledger"},
           status: Transfer.confirmed()
         })
 
@@ -79,7 +82,7 @@ defmodule EWallet.TransactionGateTest do
       assert inserted_transfer.id == transfer.id
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.confirmed()
-      assert transfer.ledger_response == %{"data" => "from cached ledger"}
+      assert transfer.entry_uuid == "from cached ledger"
     end
 
     test "returns the transfer ledger response when idempotency token is present and
@@ -100,7 +103,8 @@ defmodule EWallet.TransactionGateTest do
       assert inserted_transfer.id == transfer.id
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.failed()
-      assert transfer.ledger_response == %{"code" => "code!", "description" => "description!"}
+      assert transfer.error_code == "code!"
+      assert transfer.error_description == "description!"
     end
 
     test "resend the request to the ledger when idempotency token is present and
@@ -147,15 +151,14 @@ defmodule EWallet.TransactionGateTest do
                "idempotency_token" => idempotency_token
              }
 
+      assert transfer.error_code == "insufficient_funds"
+
       assert %{
-               "code" => "insufficient_funds",
-               "description" => %{
-                 "address" => _,
-                 "current_amount" => _,
-                 "amount_to_debit" => _,
-                 "token_id" => _
-               }
-             } = transfer.ledger_response
+               "address" => _,
+               "current_amount" => _,
+               "amount_to_debit" => _,
+               "token_id" => _
+             } = transfer.error_data
 
       assert transfer.metadata == %{"some" => "data"}
     end
@@ -183,7 +186,7 @@ defmodule EWallet.TransactionGateTest do
                "idempotency_token" => idempotency_token
              }
 
-      assert %{"entry_uuid" => _} = transfer.ledger_response
+      assert transfer.entry_uuid != nil
       assert transfer.metadata == %{"some" => "data"}
     end
 
@@ -265,7 +268,10 @@ defmodule EWallet.TransactionGateTest do
           amount: 100_000,
           metadata: metadata,
           payload: attrs,
-          ledger_response: response,
+          entry_uuid: response["entry_uuid"],
+          error_code: response["code"],
+          error_description: response["description"],
+          error_data: nil,
           status: status,
           type: Transfer.internal()
         })
@@ -278,7 +284,7 @@ defmodule EWallet.TransactionGateTest do
       {idempotency_token, inserted_transfer, attrs} =
         insert_debit_credit_transfer(%{
           metadata: %{some: "data"},
-          response: %{"data" => "from cached ledger"},
+          response: %{"entry_uuid" => "from cached ledger"},
           status: Transfer.confirmed()
         })
 
@@ -290,7 +296,7 @@ defmodule EWallet.TransactionGateTest do
       assert inserted_transfer.id == transfer.id
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.confirmed()
-      assert transfer.ledger_response == %{"data" => "from cached ledger"}
+      assert transfer.entry_uuid != nil
     end
 
     test "returns the transfer ledger response when idempotency token is present and
@@ -309,7 +315,8 @@ defmodule EWallet.TransactionGateTest do
       assert inserted_transfer.id == transfer.id
       assert transfer.idempotency_token == idempotency_token
       assert transfer.status == Transfer.failed()
-      assert transfer.ledger_response == %{"code" => "code!", "description" => "description!"}
+      assert transfer.error_code == "code!"
+      assert transfer.error_description == "description!"
     end
 
     test "resend the request to the ledger when idempotency token is present and
@@ -365,15 +372,14 @@ defmodule EWallet.TransactionGateTest do
                "account_id" => inserted_account.id
              }
 
+      assert transfer.error_code == "insufficient_funds"
+
       assert %{
-               "code" => "insufficient_funds",
-               "description" => %{
-                 "address" => _,
-                 "current_amount" => _,
-                 "amount_to_debit" => _,
-                 "token_id" => _
-               }
-             } = transfer.ledger_response
+               "address" => _,
+               "current_amount" => _,
+               "amount_to_debit" => _,
+               "token_id" => _
+             } = transfer.error_data
 
       assert transfer.metadata == %{"some" => "data"}
     end
@@ -411,7 +417,7 @@ defmodule EWallet.TransactionGateTest do
                "account_id" => inserted_account.id
              }
 
-      assert %{"entry_uuid" => _} = transfer.ledger_response
+      assert transfer.entry_uuid != nil
       assert transfer.metadata == %{"some" => "data"}
     end
 

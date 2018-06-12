@@ -60,7 +60,7 @@ defmodule EWalletDB.Category do
   @doc """
   Retrieves a category using one or more fields.
   """
-  @spec get_by(map(), keyword()) :: %__MODULE__{} | nil
+  @spec get_by(map() | keyword(), keyword()) :: %__MODULE__{} | nil
   def get_by(fields, opts \\ []) do
     __MODULE__
     |> exclude_deleted()

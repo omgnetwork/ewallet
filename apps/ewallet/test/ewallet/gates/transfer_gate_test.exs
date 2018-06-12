@@ -92,7 +92,7 @@ defmodule EWallet.TransferTest do
       {:ok, transfer} = TransferGate.get_or_insert(attrs)
       transfer = TransferGate.process(transfer)
 
-      assert %{"entry_uuid" => _} = transfer.ledger_response
+      assert transfer.entry_uuid != nil
       assert transfer.status == Transfer.confirmed()
     end
 
@@ -102,9 +102,10 @@ defmodule EWallet.TransferTest do
       transfer = TransferGate.process(transfer)
 
       assert transfer.status == Transfer.failed()
-      assert transfer.ledger_response["code"] == "insufficient_funds"
+      assert transfer.error_code == "insufficient_funds"
+      assert transfer.error_description == nil
 
-      assert transfer.ledger_response["description"] == %{
+      assert transfer.error_data == %{
                "address" => attrs[:from],
                "amount_to_debit" => 1_000_000,
                "current_amount" => 100_000,
@@ -120,12 +121,12 @@ defmodule EWallet.TransferTest do
       {:ok, transfer_1} = TransferGate.get_or_insert(attrs)
       transfer_1 = TransferGate.process(transfer_1)
 
-      assert %{"entry_uuid" => _} = transfer_1.ledger_response
+      assert transfer_1.entry_uuid != nil
       assert transfer_1.status == Transfer.confirmed()
 
       transfer_2 = TransferGate.process(transfer_1)
 
-      assert %{"entry_uuid" => _} = transfer_2.ledger_response
+      assert transfer_2.entry_uuid != nil
       assert transfer_2.status == Transfer.confirmed()
       assert transfer_1.uuid == transfer_2.uuid
       assert Transfer |> Repo.all() |> length() == 3
@@ -138,7 +139,7 @@ defmodule EWallet.TransferTest do
       transfer = TransferGate.genesis(transfer)
 
       assert transfer.status == Transfer.confirmed()
-      assert %{"entry_uuid" => _} = transfer.ledger_response
+      assert transfer.entry_uuid != nil
     end
   end
 end

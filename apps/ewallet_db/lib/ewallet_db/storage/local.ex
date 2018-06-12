@@ -19,11 +19,12 @@ defmodule EWallet.Storage.Local do
 
     path |> Path.dirname() |> File.mkdir_p!()
 
-    if binary = file.binary do
-      File.write!(path, binary)
-    else
-      File.copy!(file.path, path)
-    end
+    _ =
+      if binary = file.binary do
+        File.write!(path, binary)
+      else
+        File.copy!(file.path, path)
+      end
 
     {:ok, file.file_name}
   end

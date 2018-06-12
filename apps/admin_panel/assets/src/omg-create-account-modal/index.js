@@ -61,7 +61,7 @@ class CreateAccountModal extends Component {
       name: this.state.name,
       description: this.state.description,
       avatar: this.state.avatar,
-      category: this.state.category.id
+      category: this.state.category ? this.state.category.id : null
     })
     if (result.data.success) {
       this.setState({ stage: 'finished' })

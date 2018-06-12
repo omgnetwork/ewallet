@@ -57,6 +57,25 @@ defmodule EWalletDB.Validator do
     end
   end
 
+  @doc """
+  Validates that only one out of the provided fields can have value but
+  both can be nil.
+  """
+  def validate_exclusive(changeset, attrs) when is_map(attrs) or is_list(attrs) do
+    case count_fields_present(changeset, attrs) do
+      n when n > 1 ->
+        Changeset.add_error(
+          changeset,
+          attrs,
+          "only one must be present",
+          validation: :only_one_required
+        )
+
+      _ ->
+        changeset
+    end
+  end
+
   def count_fields_present(changeset, attrs) do
     Enum.count(attrs, fn attr -> field_present?(changeset, attr) end)
   end
@@ -111,9 +130,6 @@ defmodule EWalletDB.Validator do
 
       {:error, :too_short, data} ->
         Changeset.add_error(changeset, key, "must be #{data[:min_length]} characters or more")
-
-      {:error, _} ->
-        Changeset.add_error(changeset, key, "does not meet the password requirements")
     end
   end
 

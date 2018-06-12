@@ -6,7 +6,30 @@ defmodule EWallet.MintGate do
   """
   alias EWallet.TransferGate
   alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, Token}
-  alias Ecto.Multi
+  alias Ecto.{UUID, Multi}
+
+  def mint_token({:ok, token}, attrs) do
+    mint_token(token, attrs)
+  end
+
+  def mint_token(token, %{"amount" => amount} = attrs)
+      when is_number(amount) do
+    %{
+      "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
+      "token_id" => token.id,
+      "amount" => amount,
+      "description" => attrs["description"]
+    }
+    |> insert()
+    |> case do
+      {:ok, mint, _entry} -> {:ok, mint, token}
+      {:error, code, description} -> {:error, code, description}
+      {:error, changeset} -> {:error, changeset}
+    end
+  end
+
+  def mint_token({:error, changeset}, _attrs), do: {:error, changeset}
+  def mint_token(_, _attrs), do: {:error, :invalid_parameter}
 
   @doc """
   Insert a new mint for a token, adding more value to it which can then be
@@ -14,7 +37,7 @@ defmodule EWallet.MintGate do
 
   ## Examples
 
-    res = Mint.insert(%{
+    res = MintGate.insert(%{
       "idempotency_token" => idempotency_token,
       "token_id" => token_id,
       "amount" => 100_000,
@@ -24,7 +47,7 @@ defmodule EWallet.MintGate do
     })
 
     case res do
-      {:ok, mint, ledger_response} ->
+      {:ok, mint, transfer} ->
         # Everything went well, do something.
         # response is the response returned by the local ledger (LocalLedger for
         # example).
@@ -93,8 +116,10 @@ defmodule EWallet.MintGate do
   end
 
   defp process_with_transfer(%Transfer{status: "failed"} = transfer, mint) do
-    resp = transfer.ledger_response
-    confirm_and_return({:error, resp["code"], resp["description"]}, mint)
+    confirm_and_return(
+      {:error, transfer.error_code, transfer.error_description || transfer.error_data},
+      mint
+    )
   end
 
   defp confirm_and_return({:error, code, description}, mint),

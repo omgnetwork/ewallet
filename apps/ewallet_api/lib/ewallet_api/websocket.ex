@@ -104,7 +104,7 @@ defmodule EWalletAPI.WebSocket do
 
   defp code_reload(conn, opts, endpoint) do
     reload? = Keyword.get(opts, :code_reloader, endpoint.config(:code_reloader))
-    if reload?, do: CodeReloader.reload!(endpoint)
+    _ = if reload?, do: CodeReloader.reload!(endpoint)
 
     conn
   end

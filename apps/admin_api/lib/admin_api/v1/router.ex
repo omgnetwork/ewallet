@@ -32,7 +32,10 @@ defmodule AdminAPI.V1.Router do
     post("/token.all", TokenController, :all)
     post("/token.get", TokenController, :get)
     post("/token.create", TokenController, :create)
-    post("/token.mint", TokenController, :mint)
+    post("/token.stats", TokenController, :stats)
+
+    post("/token.get_mints", MintController, :all_for_token)
+    post("/token.mint", MintController, :mint)
 
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)

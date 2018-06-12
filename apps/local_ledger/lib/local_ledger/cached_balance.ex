@@ -10,7 +10,7 @@ defmodule LocalLedger.CachedBalance do
   Cache all the wallets balances using a batch stream mechanism for retrieval (1000 at a time). This
   is meant to be used in some kind of schedulers, but can also be ran manually.
   """
-  @spec cache_all() :: {}
+  @spec cache_all() :: :ok
   def cache_all do
     Wallet.stream_all(fn wallet ->
       {:ok, calculate_with_strategy(wallet)}
@@ -101,14 +101,15 @@ defmodule LocalLedger.CachedBalance do
   end
 
   defp insert(amounts, wallet, computed_at) do
-    if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
-      {:ok, _} =
-        CachedBalance.insert(%{
-          amounts: amounts,
-          wallet_address: wallet.address,
-          computed_at: computed_at
-        })
-    end
+    _ =
+      if Enum.any?(amounts, fn {_token, amount} -> amount > 0 end) do
+        {:ok, _} =
+          CachedBalance.insert(%{
+            amounts: amounts,
+            wallet_address: wallet.address,
+            computed_at: computed_at
+          })
+      end
 
     amounts
   end

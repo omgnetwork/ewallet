@@ -1,12 +1,12 @@
 defmodule EWalletDB.TransferTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.Transfer
+  alias Ecto.UUID
 
   describe "Transfer factory" do
     test_has_valid_factory(Transfer)
     test_encrypted_map_field(Transfer, "transfer", :encrypted_metadata)
     test_encrypted_map_field(Transfer, "transfer", :payload)
-    test_encrypted_map_field(Transfer, "transfer", :ledger_response)
   end
 
   describe "get_or_insert/1" do
@@ -87,10 +87,11 @@ defmodule EWalletDB.TransferTest do
     test "confirms a transfer" do
       {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
       assert inserted_transfer.status == Transfer.pending()
-      transfer = Transfer.confirm(inserted_transfer, %{ledger: "response"})
+      entry_uuid = UUID.generate()
+      transfer = Transfer.confirm(inserted_transfer, entry_uuid)
       assert transfer.id == inserted_transfer.id
       assert transfer.status == Transfer.confirmed()
-      assert transfer.ledger_response == %{"ledger" => "response"}
+      assert transfer.entry_uuid == entry_uuid
     end
   end
 
@@ -98,10 +99,34 @@ defmodule EWalletDB.TransferTest do
     test "sets a transfer as failed" do
       {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
       assert inserted_transfer.status == Transfer.pending()
-      transfer = Transfer.fail(inserted_transfer, %{ledger: "response"})
+      transfer = Transfer.fail(inserted_transfer, "error", "desc")
       assert transfer.id == inserted_transfer.id
       assert transfer.status == Transfer.failed()
-      assert transfer.ledger_response == %{"ledger" => "response"}
+      assert transfer.error_code == "error"
+      assert transfer.error_description == "desc"
+      assert transfer.error_data == nil
+    end
+
+    test "sets a transfer as failed with atom error" do
+      {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
+      assert inserted_transfer.status == Transfer.pending()
+      transfer = Transfer.fail(inserted_transfer, :error, "desc")
+      assert transfer.id == inserted_transfer.id
+      assert transfer.status == Transfer.failed()
+      assert transfer.error_code == "error"
+      assert transfer.error_description == "desc"
+      assert transfer.error_data == nil
+    end
+
+    test "sets a transfer as failed with error_data" do
+      {:ok, inserted_transfer} = :transfer |> params_for() |> Transfer.get_or_insert()
+      assert inserted_transfer.status == Transfer.pending()
+      transfer = Transfer.fail(inserted_transfer, "error", %{})
+      assert transfer.id == inserted_transfer.id
+      assert transfer.status == Transfer.failed()
+      assert transfer.error_code == "error"
+      assert transfer.error_description == nil
+      assert transfer.error_data == %{}
     end
   end
 end

@@ -6,8 +6,7 @@ defmodule AdminAPI.V1.TokenController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.MintGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{Account, Token}
-  alias Ecto.UUID
+  alias EWalletDB.{Account, Token, Mint}
   alias Plug.Conn
 
   # The field names to be mapped into DB column names.
@@ -54,6 +53,26 @@ defmodule AdminAPI.V1.TokenController do
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
+  Retrieves stats for a specific token.
+  """
+  @spec stats(Conn.t(), map()) :: Conn.t()
+  def stats(conn, %{"id" => id}) do
+    with %Token{} = token <- Token.get(id) || :token_not_found do
+      stats = %{
+        token: token,
+        total_supply: Mint.total_supply_for_token(token)
+      }
+
+      render(conn, :stats, %{stats: stats})
+    else
+      error ->
+        handle_error(conn, error)
+    end
+  end
+
+  def stats(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  @doc """
   Creates a new Token.
   """
   @spec create(Conn.t(), map()) :: map()
@@ -66,53 +85,13 @@ defmodule AdminAPI.V1.TokenController do
     case attrs["amount"] do
       amount when is_number(amount) and amount > 0 ->
         inserted_token
-        |> mint_token(%{"amount" => amount})
+        |> MintGate.mint_token(%{"amount" => amount})
         |> respond_single(conn)
 
       _ ->
         respond_single(inserted_token, conn)
     end
   end
-
-  @doc """
-  Mint a token.
-  """
-  @spec mint(Conn.t(), map()) :: map()
-  def mint(
-        conn,
-        %{
-          "id" => id,
-          "amount" => _
-        } = attrs
-      ) do
-    with %Token{} = token <- Token.get(id) do
-      mint_token({:ok, token}, attrs)
-    else
-      error -> error
-    end
-    |> respond_single(conn)
-  end
-
-  def mint(conn, _), do: handle_error(conn, :invalid_parameter)
-
-  defp mint_token({:ok, token}, %{"amount" => amount} = attrs)
-       when is_number(amount) do
-    %{
-      "idempotency_token" => attrs["idempotency_token"] || UUID.generate(),
-      "token_id" => token.id,
-      "amount" => amount,
-      "description" => attrs["description"]
-    }
-    |> MintGate.insert()
-    |> case do
-      {:ok, _mint, _ledger_response} -> {:ok, token}
-      {:error, code, description} -> {:error, code, description}
-      {:error, changeset} -> {:error, changeset}
-    end
-  end
-
-  defp mint_token({:error, changeset}, _attrs), do: {:error, changeset}
-  defp mint_token(_, _attrs), do: {:error, :invalid_parameter}
 
   # Respond with a list of tokens
   defp respond_multiple(%Paginator{} = paged_tokens, conn) do
@@ -126,6 +105,14 @@ defmodule AdminAPI.V1.TokenController do
   # Respond with a single token
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond_single({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
+  defp respond_single({:ok, _mint, token}, conn) do
+    render(conn, :token, %{token: token})
   end
 
   defp respond_single({:ok, token}, conn) do
