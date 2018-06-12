@@ -12,16 +12,17 @@ const CreateAddTitle = styled.div`
   }
 `
 const CategoryActionContainer = styled.div`
-  display: flex;
-  align-items: flex-end;
-  > input {
-    flex: 1 1 auto;
-    margin-top: 0;
-  }
+  text-align: left;
+  margin-top: 35px;
   > button {
-    flex: 0 0 auto;
-    margin: 15px 5px 0 0;
     margin-right: 5px;
+    vertical-align: middle;
+    display: inline-block;
+  }
+  span {
+    vertical-align: middle;
+    display: inline-block;
+    margin-left: 10px;
   }
 `
 const Form = styled.form`
@@ -36,7 +37,7 @@ const Form = styled.form`
   input {
     margin-top: 50px;
   }
-  button {
+  > button {
     margin: 35px 0 0;
     font-size: 14px;
   }
@@ -55,7 +56,11 @@ export default class CreateAccountStage extends Component {
     onChangeInputDescription: PropTypes.func,
     onChangeAvatar: PropTypes.func,
     error: PropTypes.string,
-    avatar: PropTypes.string
+    avatar: PropTypes.string,
+    category: PropTypes.object
+  }
+  static defaultProps = {
+    category: {}
   }
 
   render () {
@@ -69,6 +74,8 @@ export default class CreateAccountStage extends Component {
           autofocus
           value={this.props.name}
           onChange={this.props.onChangeInputName}
+          error={this.props.error}
+          errorText={this.props.error}
         />
         <Input
           placeholder='description'
@@ -80,6 +87,7 @@ export default class CreateAccountStage extends Component {
         </CreateAddTitle>
         <CategoryActionContainer>
           <AddButton onClick={this.props.onClickAddCategory} type='button' />
+          <span>{_.get(this.props.category, 'name')}</span>
         </CategoryActionContainer>
         <Button
           size='small'
@@ -89,7 +97,6 @@ export default class CreateAccountStage extends Component {
         >
           Create account
         </Button>
-        <div>{this.props.error}</div>
       </Form>
     )
   }

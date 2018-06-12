@@ -4,7 +4,7 @@ import { connect } from 'react-redux'
 import { selectCategories, selectCategoriesLoadingStatus } from './selector'
 import { getCategories } from './action'
 import { compose } from 'recompose'
-const ehance = compose(
+const enhance = compose(
   connect(
     (state, props) => {
       return {
@@ -23,11 +23,11 @@ class AccountsProvider extends Component {
     categoriesLoadingStatus: PropTypes.string,
     search: PropTypes.string
   }
-  componentWillReceiveProps = nextProps => {
-    if (this.props.search !== nextProps.search) {
-      this.props.getCategories(nextProps.search)
-    }
-  }
+  // componentWillReceiveProps = nextProps => {
+  //   if (this.props.search !== nextProps.search) {
+  //     this.props.getCategories(nextProps.search)
+  //   }
+  // }
 
   componentDidMount = () => {
     if (this.props.categoriesLoadingStatus === 'DEFAULT') {
@@ -36,9 +36,9 @@ class AccountsProvider extends Component {
   }
   render () {
     return this.props.render({
-      transactions: this.props.categories,
+      categories: this.props.categories,
       loadingStatus: this.props.categoriesLoadingStatus
     })
   }
 }
-export default ehance(AccountsProvider)
+export default enhance(AccountsProvider)

@@ -27,7 +27,7 @@ export function createCategory ({ name, description, accountId }) {
     data: {
       name,
       description,
-      accountIds: [accountId]
+      account_ids: [accountId]
     }
   })
 }

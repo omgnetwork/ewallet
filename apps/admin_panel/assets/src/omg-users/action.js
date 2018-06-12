@@ -14,7 +14,6 @@ export const createUser = ({ name, description, avatar }) => async dispatch => {
 }
 
 export const getUsers = () => async dispatch => {
-  dispatch({ type: 'USERS/REQUEST/INITIATED' })
   try {
     const result = await userService.getAllUsers({
       per: 1000,
