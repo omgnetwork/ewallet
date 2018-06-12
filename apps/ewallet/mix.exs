@@ -44,6 +44,7 @@ defmodule EWallet.Mixfile do
       {:phoenix_html, "~> 2.11.0"},
       {:quantum, "~> 2.2.6"},
       {:timex, "~> 3.0"},
+      {:bodyguard, "~> 2.2"},
       {:ewallet_db, in_umbrella: true},
       {:local_ledger, in_umbrella: true},
       {:local_ledger_db, in_umbrella: true}
