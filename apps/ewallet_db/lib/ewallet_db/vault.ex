@@ -13,7 +13,7 @@ defmodule EWalletDB.Vault do
         :ciphers,
         default: {Cloak.Ciphers.AES.GCM, tag: "AES.GCM.V1", key: secret_key(env)},
         retired:
-          {Salty.SecretBox.Cloak, module_tag: "SBX", tag: <<1>>, key: retired_secret_key(env)}
+          {Salty.Cloak.Deprecated.SecretBox, module_tag: "SBX", tag: <<1>>, key: retired_secret_key(env)}
       )
 
     {:ok, config}
