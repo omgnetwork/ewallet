@@ -53,7 +53,6 @@ export const createUser = ({
     }
     return result
   } catch (error) {
-    console.log(error)
     dispatch({ type: 'INVITE/CREATE/FAILED' })
   }
 }

@@ -91,14 +91,25 @@ const PlainButtonContainer = styled.div`
 `
 class ChooseCategoryStage extends Component {
   static propTypes = {
-    onClickBack: PropTypes.func
+    onClickBack: PropTypes.func,
+    categories: PropTypes.array,
+    createCategory: PropTypes.func,
+    onChooseCategory: PropTypes.func,
+    category: PropTypes.object
   }
   state = { createNewGroup: false }
   onClickCreateNewGroup = e => {
     this.setState({ createNewGroup: true })
   }
   onClickCreateGroup = e => {
+    this.props.createCategory({
+      name: this.state.name,
+      description: this.state.description
+    })
     this.setState({ createNewGroup: false })
+  }
+  onChangeInputCreateGroup = e => {
+    this.setState({ groupName: e.target.value })
   }
   renderCategories = ({ categories, loadingStatus }) => {
     return (
@@ -113,22 +124,21 @@ class ChooseCategoryStage extends Component {
             <InputSearch />
           </SearchBar>
           <SearchResult>
-            <SearchItem active>
+            <SearchItem active={!this.props.category} onClick={this.props.onChooseCategory(null)}>
               <Icon name='Checkmark' />
               <span>None</span>
             </SearchItem>
-            <SearchItem>
-              <Icon name='Checkmark' />
-              <span>None 2</span>
-            </SearchItem>
-            <SearchItem>
-              <Icon name='Checkmark' />
-              <span>None 3</span>
-            </SearchItem>
-            <SearchItem>
-              <Icon name='Checkmark' />
-              <span>None 4</span>
-            </SearchItem>
+            {categories.map(cat => {
+              return (
+                <SearchItem
+                  onClick={this.props.onChooseCategory(cat)}
+                  active={_.get(this.props.category, 'id') === cat.id}
+                >
+                  <Icon name='Checkmark' />
+                  <span>{cat.name}</span>
+                </SearchItem>
+              )
+            })}
           </SearchResult>
         </SearchContainer>
         <BottomBar>
@@ -138,6 +148,8 @@ class ChooseCategoryStage extends Component {
                 normalPlaceholder='Enter group name'
                 autofocus
                 onPressEnter={this.onClickCreateGroup}
+                value={this.state.groupName}
+                onChange={this.onChangeInputCreateGroup}
               />
               <PlainButtonContainer>
                 <PlainButton onClick={this.onClickCreateGroup}>Create</PlainButton>

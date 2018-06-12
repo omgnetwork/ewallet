@@ -10,8 +10,12 @@ const AddButtonCointainer = styled.button`
   position: relative;
   text-align: center;
   cursor: pointer;
-  :hover{
-    background-color: ${props => props.theme.colors.S200}
+  transition: 0.2s;
+  :hover {
+    background-color: ${props => props.theme.colors.BL400};
+  }
+  :hover > i {
+    color: white;
   }
   
   i {

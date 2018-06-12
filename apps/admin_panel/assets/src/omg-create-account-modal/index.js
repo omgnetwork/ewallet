@@ -100,6 +100,9 @@ class CreateAccountModal extends Component {
   onChangeAvatar = ({ file, image, path }) => {
     this.setState({ avatar: file, avatarPath: path })
   }
+  onChooseCategory = category => e => {
+    this.setState({ category, stage: 'create' })
+  }
   render () {
     const stageComponent = {
       create: (
@@ -116,14 +119,22 @@ class CreateAccountModal extends Component {
           error={this.state.error}
           onChangeAvatar={this.onChangeAvatar}
           avatar={this.state.avatarPath}
+          category={this.state.category}
         />
       ),
-      category: <ChooseCategoryStage onClickBack={this.onClickBack} />,
+      category: (
+        <ChooseCategoryStage
+          category={this.state.category}
+          onClickBack={this.onClickBack}
+          onChooseCategory={this.onChooseCategory}
+        />
+      ),
       finished: (
         <CreateSuccessStage
           onClickContinue={this.onClickContinue}
           onClickFinish={this.onRequestClose}
-          name={this.state.name}x
+          name={this.state.name}
+          x
           description={this.state.description}
           avatar={this.state.avatarPath}
         />
@@ -144,8 +155,11 @@ class CreateAccountModal extends Component {
 }
 
 const enhance = compose(
-  connect(null, {
-    createAccount
-  })
+  connect(
+    null,
+    {
+      createAccount
+    }
+  )
 )
 export default enhance(CreateAccountModal)

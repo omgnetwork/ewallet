@@ -14,6 +14,7 @@ import { tokensReducer, tokensLoadingStatusReducer } from '../omg-token/reducer'
 import { usersReducer, usersLoadingStatusReducer } from '../omg-users/reducer'
 import { transactionsReducer, transactionsLoadingStatusReducer } from '../omg-transaction/reducer'
 import { walletsReducer, walletsLoadingStatusReducer } from '../omg-wallet/reducer'
+import {categoriesLoadingStatusReducer, categoriesReducer} from '../omg-account-category/reducer'
 export default combineReducers({
   app: appReducer,
   session: sessionReducer,
@@ -35,5 +36,7 @@ export default combineReducers({
   transactions: transactionsReducer,
   transactionsLoadingStatus: transactionsLoadingStatusReducer,
   wallets: walletsReducer,
-  walletsLoadingStatus: walletsLoadingStatusReducer
+  walletsLoadingStatus: walletsLoadingStatusReducer,
+  categories: categoriesReducer,
+  categoriesLoadingStatus: categoriesLoadingStatusReducer
 })

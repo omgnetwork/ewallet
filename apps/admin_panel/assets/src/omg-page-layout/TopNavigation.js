@@ -144,7 +144,6 @@ const SearchGroup = withRouter(
         this.setState({ search: false })
       }
       onClickSearch = e => {
-        console.log('xxxx')
         this.input.focus()
         this.setState({ search: true })
       }
