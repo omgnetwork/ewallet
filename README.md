@@ -325,6 +325,15 @@ Deploying the OmiseGO SDK can be done on any infrastructure. For security reason
 
 More information about deployment will be available soon.
 
+# Contributing
+
+In order for the build to pass, the following commands must run successfully without errors:
+
+- `mix format --check-formatted`
+- `mix credo`
+- `mix dialyzer`
+- `mix test`
+
 # Coming Soon
 
 In this section, we will be sharing some of the next features the OmiseGO team will be working on.
