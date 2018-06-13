@@ -10,9 +10,13 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
-const AccountDetailContainer = styled.div`
+const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
+  b {
+    width: 150px;
+    display: inline-block;
+  }
 `
 const ContentDetailContainer = styled.div`
   margin-top: 50px;
@@ -71,7 +75,7 @@ class TokenDetailPage extends Component {
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Account Owner:</b> <span>{wallet.account_id}</span>
+          <b>Account Owner:</b> <span><a>{wallet.account.name}</a></span>
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b> <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
@@ -82,13 +86,27 @@ class TokenDetailPage extends Component {
       </Section>
     )
   }
-  renderAccountDetailContainer = wallet => {
-    const accountId = this.props.match.params.walletId
+  renderBalances = wallet => {
+    return (
+      <Section title='BALANCES'>
+        {wallet.balances.map(balance => {
+          return (
+            <DetailGroup>
+              <b>{balance.token.name}</b> <span>{balance.amount}</span>
+            </DetailGroup>
+          )
+        })}
+      </Section>
+    )
+  }
+  renderWalletDetailContainer = wallet => {
+    const accountId = this.props.match.params.accountId
     return (
       <DetailLayout backPath={`/${accountId}/wallets`}>
         <ContentContainer>
           {this.renderTopBar(wallet)}
           <ContentDetailContainer>
+            <DetailContainer>{this.renderBalances(wallet)}</DetailContainer>
             <DetailContainer>{this.renderDetail(wallet)}</DetailContainer>
           </ContentDetailContainer>
         </ContentContainer>
@@ -103,9 +121,9 @@ class TokenDetailPage extends Component {
 
   renderWalletDetailPage = ({ wallet }) => {
     return (
-      <AccountDetailContainer>
-        {wallet ? this.renderAccountDetailContainer(wallet) : 'loading'}
-      </AccountDetailContainer>
+      <WalletDetailContainer>
+        {wallet ? this.renderWalletDetailContainer(wallet) : 'loading'}
+      </WalletDetailContainer>
     )
   }
   render () {
