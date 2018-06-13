@@ -49,11 +49,10 @@ class TokenDetailPage extends Component {
     this.setState({ createTransactionModalOpen: true })
   }
   renderTopBar = wallet => {
-    console.log(wallet)
     return (
       <TopBar
         title={wallet.name}
-        breadcrumbItems={['Wallet', `${wallet.address} (${wallet.symbol})`]}
+        breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickMintTopen} key='transfer'>
             <span>Transfer</span>
@@ -66,13 +65,13 @@ class TokenDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Symbol:</b> <span>{wallet.symbol}</span>
+          <b>Address:</b> <span>{wallet.address}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Decimal:</b> <span>{Math.log10(wallet.subunit_to_unit)}</span>
+          <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>ID:</b> <span>{wallet.id}</span>
+          <b>Account Owner:</b> <span>{wallet.account_id}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b> <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
