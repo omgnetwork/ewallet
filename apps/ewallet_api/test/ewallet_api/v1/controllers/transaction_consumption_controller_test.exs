@@ -269,7 +269,6 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       Endpoint.unsubscribe("transaction_consumption:#{consumption_id}")
     end
 
-
     test "returns idempotency error if header is not specified" do
       response =
         client_request("/me.consume_transaction_request", %{
