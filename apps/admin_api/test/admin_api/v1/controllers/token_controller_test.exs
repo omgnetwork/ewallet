@@ -20,6 +20,22 @@ defmodule AdminAPI.V1.TokenControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
+    test "returns a list of tokens and pagination data as a provider" do
+      response = provider_request("/token.all")
+
+      # Asserts return data
+      assert response["success"]
+      assert response["data"]["object"] == "list"
+      assert is_list(response["data"]["data"])
+
+      # Asserts pagination data
+      pagination = response["data"]["pagination"]
+      assert is_integer(pagination["per_page"])
+      assert is_integer(pagination["current_page"])
+      assert is_boolean(pagination["is_last_page"])
+      assert is_boolean(pagination["is_first_page"])
+    end
+
     test "returns a list of tokens according to search_term, sort_by and sort_direction" do
       insert(:token, %{symbol: "XYZ1"})
       insert(:token, %{symbol: "XYZ3"})

@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.Plug.ProviderAuthTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.ProviderAuth
 
-  describe "V1.Plugs.ProviderAuth with OMGServer auth type" do
+  describe "V1.Plugs.ProviderAuth with OMGProvider auth type" do
     test "assigns authenticated and account if access/secret key are correct" do
       conn = invoke_conn(@access_key, @secret_key)
 
@@ -76,14 +76,14 @@ defmodule AdminAPI.V1.Plug.ProviderAuthTest do
     test "halts with :invalid_auth_scheme if credentials format is invalid" do
       conn =
         build_conn()
-        |> put_auth_header("OMGServer", "not_colon_separated_base64")
+        |> put_auth_header("OMGProvider", "not_colon_separated_base64")
         |> ProviderAuth.call([])
 
       assert_error(conn, "client:invalid_auth_scheme")
     end
   end
 
-  defp invoke_conn(api_key, auth_token), do: invoke_conn("OMGServer", api_key, auth_token)
+  defp invoke_conn(api_key, auth_token), do: invoke_conn("OMGProvider", api_key, auth_token)
 
   defp invoke_conn(type, api_key, auth_token) do
     build_conn()

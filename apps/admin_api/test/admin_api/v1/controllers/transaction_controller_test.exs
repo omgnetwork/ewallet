@@ -196,12 +196,10 @@ defmodule AdminAPI.V1.TransactionControllerTest do
 
       assert response["data"]["data"] |> length() == 2
 
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.transfer_7.id,
-               meta.transfer_8.id
-             ]
+      ids = Enum.map(response["data"]["data"], fn t -> t["id"] end)
+      assert length(ids) == 2
+      assert Enum.member?(ids, meta.transfer_7.id)
+      assert Enum.member?(ids, meta.transfer_8.id)
     end
 
     test "returns an 'user:user_wallet_mismatch' error with provider_user_id and invalid address",

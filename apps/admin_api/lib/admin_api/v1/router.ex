@@ -34,7 +34,6 @@ defmodule AdminAPI.V1.Router do
     post("/token.get", TokenController, :get)
     post("/token.create", TokenController, :create)
     post("/token.stats", TokenController, :stats)
-
     post("/token.get_mints", MintController, :all_for_token)
     post("/token.mint", MintController, :mint)
 
@@ -95,7 +94,6 @@ defmodule AdminAPI.V1.Router do
     # Admin endpoints
     post("/admin.all", AdminController, :all)
     post("/admin.get", AdminController, :get)
-    post("/admin.upload_avatar", AdminController, :upload_avatar)
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
@@ -113,15 +111,16 @@ defmodule AdminAPI.V1.Router do
     post("/me.get_accounts", SelfController, :get_accounts)
     post("/me.get_account", SelfController, :get_account)
     post("/me.update", SelfController, :update)
+    post("/me.upload_avatar", SelfController, :upload_avatar)
 
-    post("/logout", AdminAuthController, :logout)
+    post("/admin.logout", AdminAuthController, :logout)
   end
 
   # Public endpoints (still protected by API key)
   scope "/", AdminAPI.V1 do
     pipe_through([:api, :client_api])
 
-    post("/login", AdminAuthController, :login)
+    post("/admin.login", AdminAuthController, :login)
     post("/invite.accept", InviteController, :accept)
 
     # Forget Password endpoints

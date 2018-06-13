@@ -32,7 +32,7 @@ CLI.print("""
   3. Use the value below for `ServerAuth`:
 
   ```
-  OMGServer #{Base.encode64(ewallet_key.access_key <> ":" <> ewallet_key.secret_key)}
+  OMGProvider #{Base.encode64(ewallet_key.access_key <> ":" <> ewallet_key.secret_key)}
   ```
 
   4. Try out Server endpoints such as /login, /user.create, /transfer, etc.

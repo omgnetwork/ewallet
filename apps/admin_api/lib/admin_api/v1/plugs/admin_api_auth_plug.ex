@@ -26,13 +26,17 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   end
 
   defp authenticate("OMGAdmin", conn) do
-    UserAuthPlug.call(conn, UserAuthPlug.init())
+    conn
+    |> assign(:auth_scheme, :admin)
+    |> UserAuthPlug.call(UserAuthPlug.init())
   end
 
-  defp authenticate("Basic", conn), do: authenticate("OMGServer", conn)
+  defp authenticate("Basic", conn), do: authenticate("OMGProvider", conn)
 
-  defp authenticate("OMGServer", conn) do
-    ProviderAuth.call(conn, nil)
+  defp authenticate("OMGProvider", conn) do
+    conn
+    |> assign(:auth_scheme, :provider)
+    |> ProviderAuth.call(nil)
   end
 
   defp authenticate(_, conn) do

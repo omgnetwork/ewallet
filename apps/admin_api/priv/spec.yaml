@@ -6,11 +6,10 @@ info:
     This is the documentation for eWallet Admin API.
 
 
-    All calls must be user-authenticated. That is, the client must first
+    All calls must be user-authenticated or provider-authenticate. That is, the client must first
     authenticate with the API using the user's email and password.
     On successful authentication, the API returns an authentication token
     (i.e. `authentication_token`).
-
 
     Once a valid `authentication_token` is received, use the given auth token
     to make subsequent calls to the API via HTTP header:
@@ -19,6 +18,17 @@ info:
     ```
     Authorization=OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
     ```
+
+    or, if client authentication is disabled (the default):
+
+    ```
+    Authorization=OMGAdmin Base64(user_id:authentication_token)
+    ```
+
+    An access/secret keys combination can be used as well.
+
+    ```
+    Authorization=OMGProvider Base64(access_key:secret_key)
 
 
     Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
@@ -36,22 +46,28 @@ info:
     url: 'https://omisego.network/'
 
 tags:
-  - name: Session
-    description: Resources related to session tokens.
+  - name: AdminSession
+    description: Resources related to admin session tokens.
+  - name: Admin
+    description: Resources related to admin users.
+  - name: UserSession
+    description: Resources related to user session tokens.
+  - name: User
+    description: Resources related to users.
   - name: Token
     description: Resources related to tokens.
   - name: Category
     description: Resources related to categories.
   - name: Account
     description: Resources related to accounts.
-  - name: User
-    description: Resources related to users.
   - name: Wallet
     description: Resources related to wallets.
-  - name: Admin
-    description: Resources related to admins.
   - name: Transaction
     description: Resources related to transactions.
+  - name: TransactionRequest
+    description: Resources related to the creation of transaction requests (either receiving or sending) that needs to be consumed by another user.
+  - name: TransactionConsumption
+    description: Resources related to consumption of transaction requests.
   - name: API Access
     description: Resources related to API access.
 servers:
@@ -59,13 +75,13 @@ servers:
 
 paths:
   ######################################
-  #          SESSION ENDPOINTS         #
+  #       ADMIN SESSION ENDPOINTS      #
   ######################################
-  /login:
+  /admin.login:
     post:
       tags:
-        - Session
-      summary: Login an existing user using email and password.
+        - AdminSession
+      summary: Login an existing admin user using email and password.
       operationId: login
       security:
         - ClientAuth: []
@@ -77,14 +93,14 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  /logout:
+  /admin.logout:
     post:
       tags:
-        - Session
+        - AdminSession
       summary: Expires a user's authentication_token.
       operationId: logout
       security:
-        - UserAuth: []
+        - AdminAuth: []
       responses:
         '200':
           $ref: "#/components/responses/EmptyResponse"
@@ -94,11 +110,11 @@ paths:
   /auth_token.switch_account:
     post:
       tags:
-        - Session
+        - AdminSession
       summary: Switch the current account associated with the auth token.
       operationId: switch_account
       security:
-        - UserAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/SwitchAccountBody'
       responses:
@@ -107,10 +123,10 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  /password.reset:
+  /admin.reset_password:
     post:
       tags:
-        - Session
+        - AdminSession
       summary: Sends an email containing a link to reset the password.
       operationId: password_reset
       security:
@@ -123,10 +139,10 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  /password.update:
+  /admin.update_password:
     post:
       tags:
-        - Session
+        - AdminSession
       summary: Reset the password for a specific token with the provided new password.
       operationId: password_update
       security:
@@ -139,8 +155,44 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
+  ######################################
+  #        USER SESSION ENDPOINTS      #
+  ######################################
+  /user.login:
+    post:
+      tags:
+        - UserSession
+      summary: Login an existing user. The provider can call this to get an authentication token for a specific user.
+      operationId: user_login
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserIdentifierBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AuthenticationTokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.logout:
+    post:
+      tags:
+        - UserSession
+      summary: Expires a user's authentication_token.
+      operationId: user_logout
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/LogoutUserBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
   #####################################
-  #       TOKEN ENDPOINTS      #
+  #          TOKEN ENDPOINTS          #
   #####################################
   /token.all:
     post:
@@ -149,7 +201,8 @@ paths:
       summary: Get the list of tokens
       operationId: token_all
       security:
-        - UserAuth: []
+        - AdminAuth: []
+        - ProviderAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TokenAllBody'
       responses:
@@ -164,7 +217,8 @@ paths:
       summary: Get a specific token
       operationId: token_get
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TokenGetBody'
       responses:
@@ -180,7 +234,8 @@ paths:
       summary: Create a new token
       operationId: token_create
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TokenCreateBody'
       responses:
@@ -196,7 +251,8 @@ paths:
       summary: Get the statistics for a token
       operationId: token_stats
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TokenStatsBody'
       responses:
@@ -212,7 +268,8 @@ paths:
       summary: Get the list of mints for a token
       operationId: token_get_mints
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TokenGetMintsBody'
       responses:
@@ -228,7 +285,8 @@ paths:
       summary: Mint an existing token
       operationId: token_mint
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TokenMintBody'
       responses:
@@ -247,7 +305,8 @@ paths:
       summary: Get the list of categories
       operationId: category_all
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/CategoryAllBody'
       responses:
@@ -262,7 +321,8 @@ paths:
       summary: Get a specific category
       operationId: category_get
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/CategoryGetBody'
       responses:
@@ -277,7 +337,8 @@ paths:
       summary: Create a new category
       operationId: category_create
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/CategoryCreateBody'
       responses:
@@ -292,7 +353,8 @@ paths:
       summary: Update a category
       operationId: category_update
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/CategoryUpdateBody'
       responses:
@@ -307,7 +369,8 @@ paths:
       summary: Delete a category
       operationId: category_delete
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/CategoryDeleteBody'
       responses:
@@ -327,7 +390,8 @@ paths:
       summary: Get the list of accounts
       operationId: account_all
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountAllBody'
       responses:
@@ -342,7 +406,8 @@ paths:
       summary: Get a specific account
       operationId: account_get
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountGetBody'
       responses:
@@ -357,7 +422,8 @@ paths:
       summary: Create a new account
       operationId: account_create
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountCreateBody'
       responses:
@@ -372,7 +438,8 @@ paths:
       summary: Update an account
       operationId: account_update
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountUpdateBody'
       responses:
@@ -387,7 +454,8 @@ paths:
       summary: Uploads avatar for an account
       operationId: account_upload_avatar
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountUploadBody'
       responses:
@@ -402,7 +470,8 @@ paths:
       summary: List the users that are currently assigned to the given acount
       operationId: account_list_users
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountListUsersBody'
       responses:
@@ -417,7 +486,8 @@ paths:
       summary: Assigns a user to an account with a role
       operationId: account_assign_user
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountAssignUserBody'
       responses:
@@ -432,7 +502,8 @@ paths:
       summary: Unassigns a user from an account
       operationId: account_unassign_user
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccountUnassignUserBody'
       responses:
@@ -447,7 +518,8 @@ paths:
       summary: Get the list of wallets for the given account
       operationId: account_wallet_all
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/WalletAccountBody'
       responses:
@@ -455,159 +527,10 @@ paths:
           $ref: "#/components/responses/WalletsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  #####################################
-  #           USER ENDPOINTS          #
-  #####################################
-  /user.all:
-    post:
-      tags:
-        - User
-      summary: Get the list of users
-      operationId: user_all
-      security:
-        - UserAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/UserAllBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/UsersResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /user.get:
-    post:
-      tags:
-        - User
-      summary: Get a specific user
-      operationId: user_get
-      security:
-        - UserAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/UserGetBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /me.get:
-    post:
-      tags:
-        - User
-      summary: Get the user corresponding to the provided authentication header.
-      operationId: me_get
-      security:
-        - UserAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /me.update:
-    post:
-      tags:
-        - User
-      summary: Update the user with the provided parameters
-      operationId: me_update
-      security:
-        - UserAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/UserUpdateBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /me.get_account:
-    post:
-      tags:
-        - User
-      summary: Get one upper-most account that the user has membership in.
-      operationId: me_get_account
-      security:
-        - UserAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/AccountResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /me.get_accounts:
-    post:
-      tags:
-        - User
-      summary: Get the list of account and sub-accounts that the user has membership in.
-      operationId: me_get_accounts
-      security:
-        - UserAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/AccountsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /invite.accept:
-    post:
-      tags:
-        - User
-      summary: Accepts an invite
-      operationId: invite_accept
-      security:
-        - UserAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /user.get_wallets:
-    post:
-      tags:
-        - User
-      summary: Get the list of wallets for the given user
-      operationId: user_wallet_all
-      security:
-        - UserAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/WalletUserBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/WalletsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
 
   #####################################
-  #        WALLET ENDPOINTS          #
+  #        ADMIN USER ENDPOINTS       #
   #####################################
-  /wallet.all:
-    post:
-      tags:
-        - Wallet
-      summary: Get the list of wallets
-      operationId: wallet_all
-      security:
-        - UserAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/WalletAllBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/WalletsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /wallet.get:
-    post:
-      tags:
-        - Wallet
-      summary: Get a specific wallet
-      operationId: wallet_get
-      security:
-        - UserAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/WalletGetBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/WalletResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-
-  ##########################################
-  #          ADMIN USER ENDPOINTS          #
-  ##########################################
   /admin.all:
     post:
       tags:
@@ -615,7 +538,8 @@ paths:
       summary: Get the list of admins
       operationId: admin_all
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AdminAllBody'
       responses:
@@ -630,7 +554,8 @@ paths:
       summary: Get a specific admin
       operationId: admin_get
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AdminGetBody'
       responses:
@@ -638,19 +563,282 @@ paths:
           $ref: "#/components/responses/AdminResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /admin.upload_avatar:
+  /invite.accept:
+    post:
+      tags:
+        - Admin
+      summary: Accepts an invite
+      operationId: invite_accept
+      security:
+        - ClientAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  #####################################
+  #    CURRENT ADMIN USER ENDPOINTS   #
+  #####################################
+  /me.get:
+    post:
+      tags:
+        - Admin
+      summary: Get the user corresponding to the provided authentication header.
+      operationId: me_get
+      security:
+        - AdminAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/AdminResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.update:
+    post:
+      tags:
+        - Admin
+      summary: Update the user with the provided parameters
+      operationId: me_update
+      security:
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AdminUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.upload_avatar:
     post:
       tags:
         - Admin
       summary: Uploads avatar for an admin
       operationId: admin_upload_avatar
       security:
-        - UserAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AdminUploadBody'
       responses:
         '200':
           $ref: "#/components/responses/AdminResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.get_account:
+    post:
+      tags:
+        - Admin
+      summary: Get the one upper-most account that the user has membership in.
+      operationId: me_get_account
+      security:
+        - AdminAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/AccountResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /me.get_accounts:
+    post:
+      tags:
+        - Admin
+      summary: Get the list of account and sub-accounts that the user has membership in.
+      operationId: me_get_accounts
+      security:
+        - AdminAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/AccountsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  #####################################
+  #           USER ENDPOINTS          #
+  #####################################
+  /user.all:
+    post:
+      tags:
+        - User
+      summary: Get the list of users
+      operationId: user_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UsersResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.create:
+    post:
+      tags:
+        - User
+      summary: Create a new user
+      operationId: user_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserBody'
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.update:
+    post:
+      tags:
+        - User
+      summary: Update an existing user
+      operationId: user_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/UserBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.get:
+    post:
+      tags:
+        - User
+      summary: Get a specific user
+      operationId: user_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserIdentifierBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.get_wallets:
+    post:
+      tags:
+        - User
+      summary: Get the list of wallets for the given user
+      operationId: user_wallet_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserIdentifierWithFiltersBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.get_transactions:
+    post:
+      tags:
+        - Transaction
+      summary: Get the list of transactions for the given user
+      operationId: get_all_transactions_for_user
+      requestBody:
+        $ref: '#/components/requestBodies/UserIdentifierWithFiltersBody'
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.credit_wallet:
+    post:
+      tags:
+        - Transaction
+      summary: Credit the wallet of a user, i.e. put funds into the user's wallet. The provider can call this to credit the wallet of an existing user corresponding to the provider_user_id provided.
+      operationId: user_credit_wallet
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/BalanceAdjustmentBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MultipleWalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.debit_wallet:
+    post:
+      tags:
+        - Transaction
+      summary: Debit the wallet of a user, i.e. take funds away from the user's wallet. The provider can call this to debit the wallet of an existing user corresponding to the provider_user_id provided.
+      operationId: user_debit_wallet
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/BalanceAdjustmentBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MultipleWalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  #####################################
+  #        WALLET ENDPOINTS          #
+  #####################################
+  /wallet.all:
+    post:
+      tags:
+        - Wallet
+      summary: Get the list of wallets
+      operationId: wallet_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /wallet.create:
+    post:
+      tags:
+        - Wallet
+      summary: Create a wallet
+      operationId: wallet_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /wallet.get:
+    post:
+      tags:
+        - Wallet
+      summary: Get a specific wallet
+      operationId: wallet_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletGetBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -664,7 +852,8 @@ paths:
       summary: Get the list of transactions
       operationId: transaction_all
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TransactionAllBody'
       responses:
@@ -679,7 +868,8 @@ paths:
       summary: Get the a specific transaction by its id
       operationId: transaction_get
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TransactionGetBody'
       responses:
@@ -694,7 +884,8 @@ paths:
       summary: Create a new transaction
       operationId: transaction_create
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/TransactionCreateBody'
       responses:
@@ -702,6 +893,116 @@ paths:
           $ref: "#/components/responses/TransactionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /transfer:
+    post:
+      tags:
+        - Transaction
+      summary: Transfer the specified amount between two wallets.
+      operationId: transfer
+      security:
+        - ProviderAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/TransferBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MultipleWalletsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  ############################
+  #   TRANSACTION REQUESTS   #
+  ############################
+  # Endpoint to create a transaction request
+  /transaction_request.create:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Create a new transaction request.
+      description: This is a server call only.
+      operationId: transaction_request_create
+      security:
+        - ProviderAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/CreateTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get a transaction request
+  /transaction_request.get:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Get a transaction request.
+      description: This is a server call only.
+      operationId: transaction_request_get
+      security:
+        - ProviderAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/GetTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to consume a transaction request
+  /transaction_request.consume:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Consume a transaction request.
+      description: This is a server call only.
+      operationId: transaction_request_consume
+      security:
+        - ProviderAuth: []
+      parameters:
+        - $ref: "#/components/parameters/IdempotencyToken"
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumeTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to approve a consumption
+  /transaction_consumption.approve:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Approve a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_approve
+      security:
+        - ProviderAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to reject a consumption
+  /transaction_consumption.reject:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Reject a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_reject
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
 
   ######################################
   #        API ACCESS ENDPOINTS        #
@@ -713,7 +1014,8 @@ paths:
       summary: Get the list of access and secret keys
       operationId: access_key_all
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccessKeyAllBody'
       responses:
@@ -728,7 +1030,8 @@ paths:
       summary: Create a pair of access and secret keys
       operationId: access_key_create
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       responses:
         '200':
           $ref: "#/components/responses/AccessKeyResponse"
@@ -741,7 +1044,8 @@ paths:
       summary: Delete a pair of access and secret keys by its id or access key
       operationId: access_key_delete
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/AccessKeyDeleteBody'
       responses:
@@ -756,7 +1060,8 @@ paths:
       summary: Get the list of API keys
       operationId: api_key_all
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyAllBody'
       responses:
@@ -771,7 +1076,8 @@ paths:
       summary: Create an API key
       operationId: api_key_create
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyCreateBody'
       responses:
@@ -786,12 +1092,31 @@ paths:
       summary: Delete an API key by its id
       operationId: api_key_delete
       security:
-        - UserAuth: []
+        - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/APIKeyDeleteBody'
       responses:
         '200':
           $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  ######################################
+  #          SETTINGS ENDPOINTS        #
+  ######################################
+  /get_settings:
+    post:
+      tags:
+        - Setting
+      summary: Get the global settings.
+      operationId: get_settings
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/SettingResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -829,6 +1154,8 @@ components:
           type: string
         data:
           type: array
+          items:
+            type: object
       required:
         - object
         - data
@@ -843,8 +1170,12 @@ components:
           type: string
         data:
           type: array
+          items:
+            type: object
         pagination:
           type: object
+          items:
+            type: object
           properties:
             per_page:
               type: integer
@@ -1572,16 +1903,15 @@ components:
         user_id:
           type: string
         user:
-          type: object
           $ref: '#/components/schemas/UserSchema'
         account_id:
           type: string
         account:
-          type: object
           $ref: '#/components/schemas/AccountSchema'
         balances:
           type: array
-          $ref: '#/components/schemas/BalanceSchema'
+          items:
+            $ref: '#/components/schemas/BalanceSchema'
       required:
         - object
         - socket_topic
@@ -1721,9 +2051,65 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
-
-
-
+    MultipleWalletsSchema:
+      description: "The response schema for a list of multiple wallets (i.e. transfers)"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/UnpaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/WalletSchema'
+        required:
+          - object
+        example:
+          data:
+            object: list
+            data:
+            - object: "wallet"
+              socket_topic: "wallet:XXX123"
+              address: "XXX123"
+              name: "primary"
+              identifier: "primary"
+              metadata: {}
+              encrypted_metadata: {}
+              user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+              user: {}
+              account_id: null
+              account: null
+              balances:
+                - amount: 0
+                  token:
+                    object: 'token'
+                    id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                    symbol: "BTC"
+                    name: "Bitcoin"
+                    subunit_to_unit: 100000000000000000
+            - object: "wallet"
+              socket_topic: "wallet:XXX456"
+              address: "XXX456"
+              name: "primary"
+              identifier: "primary"
+              metadata: {}
+              encrypted_metadata: {}
+              user_id: "usr_02cbfg6v9thrc3sd9m1v4gazjv"
+              user: {}
+              account_id: null
+              account: null
+              balances:
+                - amount: 0
+                  token:
+                    object: 'token'
+                    id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                    symbol: "BTC"
+                    name: "Bitcoin"
 
     ######################################
     #         ADMIN USER SCHEMAS         #
@@ -1972,6 +2358,293 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+
+    ######################################
+    #     TRANSACTION REQUEST SCHEMAS    #
+    ######################################
+    # Schema for transaction request response body
+    TransactionRequestSchema:
+      description: "The response schema for a transaction request"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          object:
+            type: string
+          id:
+            type: string
+          socket_topic:
+            type: string
+          type:
+            type: string
+            enum:
+              - send
+              - receive
+          amount:
+            type: string
+          status:
+            type: string
+            enum:
+              - valid
+              - expired
+          correlation_id:
+            type: string
+          token_id:
+            type: string
+          token:
+            type: object
+          address:
+            type: string
+          user_id:
+            type: string
+          account_id:
+            type: string
+          require_confirmation:
+            type: boolean
+          max_consumptions:
+            type: integer
+          max_consumptions_per_user:
+            type: integer
+          consumption_lifetime:
+            type: integer
+          expiration_reason:
+            type: string
+            enum:
+              - max_consumptions_reached
+              - expired_transaction_request
+              - null
+          allow_amount_override:
+            type: boolean
+          metadata:
+            type: object
+          encrypted_metadata:
+            type: object
+          expiration_date:
+            type: string
+          expired_at:
+            type: string
+          created_at:
+            type: string
+          updated_at:
+            type: string
+        required:
+          - object
+          - id
+          - formatted_id
+          - socket_topic
+          - type
+          - amount
+          - status
+          - correlation_id
+          - token_id
+          - token
+          - address
+          - user_id
+          - account_id
+          - require_confirmation
+          - max_consumptions
+          - max_consumptions_per_user
+          - consumption_lifetime
+          - expiration_reason
+          - allow_amount_override
+          - metadata
+          - encrypted_metadata
+          - expiration_date
+          - expired_at
+          - created_at
+          - updated_at
+        example:
+          data:
+            object: "transaction_request"
+            id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+            formatted_id: "data|txr_01cbfg8mafdnbthgb9e68nd9y9"
+            socket_topic: "transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9"
+            type: "send"
+            amount: 100
+            status: "valid"
+            correlation_id: "123"
+            token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+            token: null
+            address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
+            user_id: "usr_01cbfg922kzmhvw04xvqn17qbd"
+            account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
+            require_confirmation: true
+            max_consumptions: 3
+            max_consumptions_per_user: null
+            consumption_lifetime: 1000
+            expiration_reason: null
+            allow_amount_override: false
+            metadata: {}
+            encrypted_metadata: {}
+            expiration_date: "2018-01-01T00:00:00Z"
+            expired_at: "2018-01-01T00:00:00Z"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T00:00:00Z"
+    # Schema for transaction request consumption response body
+    TransactionConsumptionSchema:
+      description: "The schema for a transaction request consumption"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          object:
+            type: string
+          id:
+            type: string
+          socket_topic:
+            type: string
+          status:
+            type: string
+            enum:
+              - pending
+              - approved
+              - rejected
+              - confirmed
+              - failed
+              - expired
+          amount:
+            type: string
+          token_id:
+            type: string
+          token:
+            type: object
+          correlation_id:
+            type: string
+          idempotency_token:
+            type: string
+          transaction_id:
+            type: string
+          transaction:
+            type: object
+          user_id:
+            type: string
+          user:
+            type: object
+          account_id:
+            type: string
+          account:
+            type: object
+          transaction_request_id:
+            type: string
+          transaction_request:
+            type: object
+          address:
+            type: string
+          metadata:
+            type: object
+          encrypted_metadata:
+            type: object
+          expiration_date:
+            type: string
+          created_at:
+            type: string
+          updated_at:
+            type: string
+          approved_at:
+            type: string
+          rejected_at:
+            type: string
+          confirmed_at:
+            type: string
+          failed_at:
+            type: string
+          expired_at:
+            type: string
+        required:
+          - object
+          - id
+          - socket_topic
+          - status
+          - amount
+          - token_id
+          - token
+          - correlation_id
+          - idempotency_token
+          - transaction_id
+          - transaction
+          - user_id
+          - user
+          - account_id
+          - account
+          - transaction_request_id
+          - transaction_request
+          - address
+          - metadata
+          - encrypted_metadata
+          - expiration_date
+          - created_at
+          - updated_at
+          - approved_at
+          - rejected_at
+          - confirmed_at
+          - failed_at
+          - expired_at
+        example:
+          data:
+            object: "transaction_consumption"
+            id: "txc_01cbfg9qtdken61agxhx6wvj9h"
+            socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h"
+            status: "confirmed"
+            amount: 100
+            token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+            token: {}
+            correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+            idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
+            transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt"
+            transaction: {}
+            user_id: "usr_01cbfgak47ng6x72vbwjca6j4v"
+            user: {}
+            account_id: "acc_01cbfgatsanznvzffqsekta5f0"
+            account: {}
+            transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h"
+            transaction_request: {}
+            address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
+            metadata: {}
+            encrypted_metadata: {}
+            expiration_date: null
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T00:00:00Z"
+            approved_at: "2018-01-01T00:00:00Z"
+            rejected_at: null
+            confirmed_at: "2018-01-01T00:00:00Z"
+            failed_at: null
+            expired_at: null
+
+    ######################################
+    #           SETTING SCHEMAS          #
+    ######################################
+    SettingResponse:
+      description: "The response schema for settings"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            properties:
+              object:
+                type: string
+              tokens:
+                type: array
+                items:
+                 $ref: '#/components/schemas/TokenSchema'
+            required:
+              - object
+              - tokens
+        example:
+          data:
+            object: "setting"
+            tokens:
+              - object: "token"
+                id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+                symbol: "BTC"
+                name: "Bitcoin"
+                subunit_to_unit: 100000000000000000
+              - object: "token"
+                id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+                symbol: "OMG"
+                name: "OmiseGO"
+                subunit_to_unit: 100000000000000000
 
     ######################################
     #         ACCESS KEY SCHEMAS         #
@@ -2704,6 +3377,109 @@ components:
               avatar: "/path/to/file"
 
     ######################################
+    #         ADMIN REQUEST BODIES       #
+    ######################################
+    AdminAllBody:
+      description: The parameters to use for listing the users
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    AdminGetBody:
+      description: The parameters to use for retrieving a specific user by its id
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+    InviteAcceptBody:
+      description: The parameters to use for accepting an invite
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+              token:
+                type: string
+              password:
+                type: string
+              password_confirmation:
+                type: string
+            required:
+              - email
+              - token
+              - password
+              - password_confirmation
+            example:
+              email: "example@omise.co"
+              token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
+              password: "user_provided_password"
+              password_confirmation: "user_provided_password"
+    AdminUpdateBody:
+      description: The parameters to use for updating a user
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            example:
+              email: "example@omise.co"
+              metadata: {}
+              encrypted_metadata: {}
+    AdminUploadBody:
+      description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
+      required: true
+      content:
+        application/x-www-form-urlencoded:
+          schema:
+            properties:
+              id:
+                type: string
+              avatar:
+                type: string
+                format: binary
+            required:
+              - id
+              - avatar
+            example:
+              id: "usr_01ce83xvrsh8bzpctq3wqbprf8"
+              avatar: "/path/to/file"
+
+    ######################################
     #         USER REQUEST BODIES        #
     ######################################
     UserAllBody:
@@ -2745,48 +3521,113 @@ components:
               - id
             example:
               id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
-    InviteAcceptBody:
-      description: The parameters to use for accepting an invite
+    UserBody:
+      description: The parameters to use for creating or updating a user
       required: true
       content:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              email:
+              provider_user_id:
                 type: string
-              token:
-                type: string
-              password:
-                type: string
-              password_confirmation:
-                type: string
-            required:
-              - email
-              - token
-              - password
-              - password_confirmation
-            example:
-              email: "example@omise.co"
-              token: "dmWEOiEvlPfEpb2XPEkNkNYR4xEqNuf25E9hqBYwvzg"
-              password: "user_provided_password"
-              password_confirmation: "user_provided_password"
-    UserUpdateBody:
-      description: The parameters to use for updating a user
-      required: true
-      content:
-        application/vnd.omisego.v1+json:
-          schema:
-            properties:
-              email:
+              username:
                 type: string
               metadata:
                 type: object
               encrypted_metadata:
                 type: object
+            required:
+              - provider_user_id
+              - username
             example:
-              email: "example@omise.co"
-              metadata: {}
+              provider_user_id: "wijf-fbancomw-dqwjudb"
+              username: "thibault@omise.co"
+              metadata: {"first_name": "Thibault", "last_name": "Denizet"}
               encrypted_metadata: {}
+    UserIdentifierBody:
+      description: The parameters to use for retrieving a specific user by its id or provider_user_id
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            oneOf:
+              - properties:
+                  id:
+                    type: string
+                required:
+                  - id
+              - properties:
+                  provider_user_id:
+                    type: string
+                required:
+                  - provider_user_id
+            example:
+              id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+    UserIdentifierWithFiltersBody:
+      description: The parameters to use for retrieving a specific user by its id or provider_user_id
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            oneOf:
+              - properties:
+                  id:
+                    type: string
+                  page:
+                    type: integer
+                    minimum: 1
+                  per_page:
+                    type: integer
+                    minimum: 1
+                  sort_by:
+                    type: string
+                  sort_dir:
+                    type: string
+                    enum: ["asc", "desc"]
+                required:
+                  - id
+                example:
+                  id: "usr_01ce83q2zw7zk1dqr79t22zr1v"
+                  page: 1
+                  per_page: 10
+                  sort_by: "field_name"
+                  sort_dir: "asc"
+              - properties:
+                  provider_user_id:
+                    type: string
+                  page:
+                    type: integer
+                    minimum: 1
+                  per_page:
+                    type: integer
+                    minimum: 1
+                  sort_by:
+                    type: string
+                  sort_dir:
+                    type: string
+                    enum: ["asc", "desc"]
+                required:
+                  - provider_user_id
+                example:
+                  provider_user_id: "provider_user_id01"
+                  page: 1
+                  per_page: 10
+                  sort_by: "field_name"
+                  sort_dir: "asc"
+    LogoutUserBody:
+      description: The parameters to use to log out a user
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              auth_token:
+                type: string
+            required:
+              - auth_token
+            example:
+              auth_token: "atk_01ce83q2zw7zk1dqr79t22zr1v"
+
     ######################################
     #             WALLET BODIES          #
     ######################################
@@ -2868,7 +3709,7 @@ components:
               sort_by: "field_name"
               sort_dir: "asc"
     WalletGetBody:
-      description: The parameters to use for retrieving a specific user by its address
+      description: The parameters to use for retrieving a wallet by its address
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2880,6 +3721,46 @@ components:
               - address
             example:
               address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+    WalletCreateBody:
+      description: The parameters to use for creating a wallet
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            oneOf:
+              - properties:
+                  name:
+                    type: string
+                  identifier:
+                    type: string
+                    enum: ["burn", "secondary"]
+                  user_id:
+                    type: string
+                required:
+                  - name
+                  - identifier
+                  - user_id
+                example:
+                  name: "My Wallet"
+                  identifier: "secondary"
+                  user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+              - properties:
+                  name:
+                    type: string
+                  identifier:
+                    type: string
+                    enum: ["burn", "secondary"]
+                  account_id:
+                    type: string
+                required:
+                  - name
+                  - identifier
+                  - account_id
+                example:
+                  name: "My Wallet"
+                  identifier: "secondary"
+                  account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
+
 
     ######################################
     #     TRANSACTION REQUEST BODIES     #
@@ -2946,38 +3827,221 @@ components:
               to_address: "343982f5-4a27-498d-a91b-7bb2e2a8d3d1"
               token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy"
               amount: 1000
+    BalanceAdjustmentBody:
+      description: |
+        The parameters for crediting or debiting the balance of the specified user
+        by taking/giving back the given amount from/to the account_id.
 
-    ######################################
-    #      ADMIN USER REQUEST BODIES     #
-    ######################################
-    AdminAllBody:
-      description: The parameters to use for listing the admins
+        You can optionally specify the account_address and/or user_address to use a spcific wallet.
+        A convenient way to burn tokens is to make a debit and specify the burn wallet address.
       required: true
       content:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              page:
+              provider_user_id:
+                type: string
+              user_address:
+                type: string
+              token_id:
+                type: string
+              amount:
                 type: integer
-                minimum: 1
-              per_page:
-                type: integer
-                minimum: 1
-              search_term:
+              account_id:
                 type: string
-              sort_by:
+              account_address:
                 type: string
-              sort_dir:
-                type: string
-                enum: ["asc", "desc"]
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            required:
+              - account_id
+              - provider_user_id
+              - token_id
+              - amount
             example:
-              page: 1
-              per_page: 10
-              search_term: ""
-              sort_by: "email"
-              sort_dir: "asc"
-    AdminGetBody:
-      description: The parameters to use for retrieving a specific admin by its id
+              provider_user_id: "wijf-fbancomw-dqwjudb"
+              user_address: "d28d5053-a1d5-4314-8c13-4aef396fe1e4"
+              token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+              amount: 100
+              account_id: "acc_01cbfgbt9hezkbz8mphmwdfcj1"
+              account_address: "546570a9-6ebf-4df7-be01-724745d0b298"
+              metadata: {}
+              encrypted_metadata: {}
+    TransferBody:
+      description: The parameters for making a transfer from an address to another.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              from_address:
+                type: string
+              to_address:
+                type: string
+              token_id:
+                type: string
+              amount:
+                type: integer
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            required:
+              - from_address
+              - to_address
+              - token_id
+              - amount
+            example:
+              from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
+              to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
+              token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
+              amount: 100
+              metadata: {}
+              encrypted_metadata: {}
+    CreateTransactionRequestBody:
+      description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint to create a transaction from that request.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              type:
+                type: string
+                enum:
+                  - send
+                  - receive
+              token_id:
+                type: string
+                description: "The token ID to use for the transaction."
+              amount:
+                type: integer
+                default: null
+                description:
+                  "The amount to transfer. If not specified, the consumption will need to set
+                   the amount."
+              correlation_id:
+                type: string
+                default: null
+                description: "Optional unique identifier to tie a request with your system."
+              account_id:
+                type: string
+                default: The owner of the given address.
+              provider_user_id:
+                type: string
+                default: The owner of the given address.
+              address:
+                type: string
+                description:
+                  "If not specified, the current user's primary wallet will be used.
+                   If specified, it needs to be one of the account's or user's addresses."
+              require_confirmation:
+                type: boolean
+                default: false
+                description:
+                  "Indicates if a consumption of the created request needs to be approved before
+                  being processed."
+              max_consumptions:
+                type: integer
+                default: null
+                description:
+                  "The number of times this created request can be consumed."
+              max_consumptions_per_user:
+                type: integer
+                default: null
+                description:
+                  "The maximum number of times a user can consume the request."
+              consumption_lifetime:
+                type: integer
+                default: null
+                description:
+                  "The lifetime in milliseconds of how long a consumption can stay
+                   'pending' before being expired. If a consumption is not approved before its
+                   expiration date, it will become invalid and be cancelled. This property
+                   can be used to avoid stale consumptions blocking the 'max_consumptions' count."
+              expiration_date:
+                type: string
+                default: null
+                description:
+                  "The datetime at which the created request should expire (no one will be
+                   able to consume it anymore). The format is yyyy-MM-dd'T'HH:mm:ssZZZZZ."
+              allow_amount_override:
+                type: boolean
+                default: true
+                description:
+                  "Defines if the amount set in the created request can be overriden in a
+                   consumption. Cannot be set to true if the amount property is not set at
+                   creation"
+              metadata:
+                type: object
+                default: {}
+              encrypted_metadata:
+                type: object
+                default: {}
+            required:
+              - type
+              - token_id
+            example:
+              type: "send"
+              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+              amount: 100
+              correlation_id: "123"
+              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
+    GetTransactionRequestBody:
+      description: Get a transaction request using the specified ID.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              formatted_id:
+                type: string
+            example:
+              formatted_id: "data|txr_01cbfgc8cmmyzy1cfzpqwme3ey"
+    ConsumeTransactionRequestBody:
+      description: Consume a transaction request using the specified values.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              formatted_transaction_request_id:
+                type: string
+              correlation_id:
+                type: string
+              amount:
+                type: integer
+              token_id:
+                type: string
+              account_id:
+                type: string
+                default: The owner of the given address.
+              provider_user_id:
+                type: string
+                default: The owner of the given address.
+              address:
+                type: string
+                description:
+                  "If not specified, the current user's primary wallet will be used.
+                   If specified, it needs to be one of the account's or user's addresses."
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            required:
+              - formatted_transaction_request_id
+            example:
+              formatted_transaction_request_id: "txr_01cbfgcts5kqfgpqxcxn71rnbs"
+              correlation_id: "123"
+              token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+              amount: 100
+              provider_user_id: "provider_user_id01"
+              address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
+              metadata: {}
+              encrypted_metadata: {}
+    ConsumptionConfirmationRequestBody:
+      description: Approve or reject a consumption using the specified ID.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -2988,25 +4052,7 @@ components:
             required:
               - id
             example:
-              id: "usr_01ce83xvrsh8bzpctq3wqbprf8"
-    AdminUploadBody:
-      description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
-      required: true
-      content:
-        application/x-www-form-urlencoded:
-          schema:
-            properties:
-              id:
-                type: string
-              avatar:
-                type: string
-                format: binary
-            required:
-              - id
-              - avatar
-            example:
-              id: "usr_01ce83xvrsh8bzpctq3wqbprf8"
-              avatar: "/path/to/file"
+              id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
 
     ######################################
     #      ACCESS KEY REQUEST BODIES     #
@@ -3118,6 +4164,18 @@ components:
               id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
 
   ######################################
+  #           REQUEST HEADERS          #
+  ######################################
+  parameters:
+    IdempotencyToken:
+      in: header
+      name: Idempotency-Token
+      description: The idempotency token for the request
+      required: true
+      schema:
+        type: string
+
+  ######################################
   #          SECURITY SCHEMES          #
   ######################################
   securitySchemes:
@@ -3126,11 +4184,16 @@ components:
       in: header
       name: Authorization
       description: OMGAdmin Base64(api_key_id:api_key)
-    UserAuth:
+    AdminAuth:
       type: apiKey
       in: header
       name: Authorization
       description: OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
+    ProviderAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: OMGProvider Base64(access_key:secret_key)
 
   responses:
     ######################################
@@ -3238,7 +4301,12 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/WalletsResponseSchema'
-
+    MultipleWalletsResponse:
+      description: "Returns a list of wallets."
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/MultipleWalletsSchema'
     ######################################
     #        TRANSACTION RESPONSES       #
     ######################################
@@ -3254,6 +4322,34 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TransactionsResponseSchema'
+
+    ######################################
+    #   TRANSACTION REQUEST RESPONSES    #
+    ######################################
+    # Schema for transaction request response body
+    TransactionRequestResponse:
+      description: Transaction request response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionRequestSchema'
+    # Schema for transaction request response body
+    TransactionConsumptionResponse:
+      description: Transaction request consumption response
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionConsumptionSchema'
+
+    ######################################
+    #          SETTING RESPONSES         #
+    ######################################
+    SettingResponse:
+      description: "Returns a list of settings"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/SettingResponse'
 
     ######################################
     #         ADMIN USER RESPONSES       #

@@ -246,7 +246,7 @@ defmodule AdminAPI.ConnCase do
       when is_binary(path) and byte_size(path) > 0 do
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGServer", @access_key, @secret_key)
+    |> put_auth_header("OMGProvider", @access_key, @secret_key)
     |> post(@base_dir <> path, data)
     |> json_response(status)
   end
@@ -260,7 +260,7 @@ defmodule AdminAPI.ConnCase do
     build_conn()
     |> put_req_header("idempotency-token", idempotency_token)
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGServer", @access_key, @secret_key)
+    |> put_auth_header("OMGProvider", @access_key, @secret_key)
     |> post(@base_dir <> path, data)
     |> json_response(status)
   end

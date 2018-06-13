@@ -7,7 +7,7 @@ defmodule EWallet.Web.V1.SocketProviderAuthTest do
 
     SocketProviderAuth.authenticate(%{
       http_headers: %{
-        "authorization" => "OMGServer #{encoded_key}"
+        "authorization" => "OMGProvider #{encoded_key}"
       }
     })
   end

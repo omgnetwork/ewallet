@@ -23,13 +23,12 @@ defmodule AdminAPI.V1.AuthController do
   @doc """
   Invalidates the authentication token used in this request.
   """
-  def logout(conn, _attrs) do
-    conn.private[:auth_auth_token]
+  def logout(conn, %{"auth_token" => auth_token}) do
+    auth_token
     |> ClientAuth.expire_token(:ewallet_api)
-    |> respond()
+    |> respond(conn)
   end
 
   defp respond({:ok, token}, conn), do: render(conn, :auth_token, %{auth_token: token})
   defp respond({:error, code}, conn), do: handle_error(conn, code)
-  defp respond(conn), do: render(conn, :empty_response, %{})
 end
