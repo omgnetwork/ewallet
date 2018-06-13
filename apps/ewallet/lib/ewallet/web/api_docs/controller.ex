@@ -69,8 +69,8 @@ defmodule EWallet.Web.APIDocs.Controller do
   @spec errors_json(Plug.Conn.t(), map) :: Plug.Conn.t()
   def errors_json(conn, _attrs) do
     conn
-    |> put_resp_content_type("application/javascript")
-    |> render(EWallet.Web.ApiDocsView, "errors.json", errors: get_errors(conn))
+    |> put_resp_content_type("application/json")
+    |> Phoenix.Controller.json(get_errors(conn))
   end
 
   defp get_otp_app(conn), do: endpoint_module(conn).config(:otp_app)

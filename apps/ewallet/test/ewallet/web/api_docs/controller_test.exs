@@ -84,10 +84,12 @@ defmodule EWallet.Web.APIDocs.ControllerTest do
 
       refute conn.halted
       assert conn.status == 200
-      # Expects the response to have a `code` key
-      assert conn.resp_body =~ ~r/\"- token_not_found:\\n    code:/
-      # Expects the response to have a `description` key
-      assert conn.resp_body =~ ~r/      description:/
+      response = Poison.decode!(conn.resp_body)
+
+      Enum.each(response, fn {_k, v} ->
+        assert Map.has_key?(v, "code") &&
+                 (Map.has_key?(v, "description") or Map.has_key?(v, "template"))
+      end)
     end
   end
 
