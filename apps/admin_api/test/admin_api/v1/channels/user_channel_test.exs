@@ -1,7 +1,7 @@
 # credo:disable-for-this-file
-defmodule EWalletAPI.V1.UserChannelTest do
-  use EWalletAPI.ChannelCase
-  alias EWalletAPI.V1.UserChannel
+defmodule AdminAPI.V1.UserChannelTest do
+  use AdminAPI.ChannelCase
+  alias AdminAPI.V1.UserChannel
   alias EWalletDB.User
 
   describe "join/3 as provider" do

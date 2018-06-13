@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do
-      key_1 = Repo.get_by(Key, access_key: @access_key) |> Repo.preload([:account])
+      key_1 = Key |> Repo.get_by(access_key: @access_key) |> Repo.preload([:account])
       key_2 = insert(:key, %{secret_key: "the_secret_key"})
 
       assert user_request("/access_key.all") ==

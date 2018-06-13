@@ -1,4 +1,8 @@
 defmodule AdminAPI.V1.AdminAPIAuthPlug do
+  @moduledoc """
+  This module is responsible for dispatching the authentication of the given
+  request to the appropriate authentication plug based on the provided scheme.
+  """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.{ProviderAuth, UserAuthPlug}

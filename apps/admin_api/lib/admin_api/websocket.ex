@@ -32,67 +32,29 @@ defmodule AdminAPI.WebSocket do
 
   ## Callbacks
 
-  import Plug.Conn, only: [fetch_query_params: 1, get_req_header: 2, send_resp: 3, assign: 3]
-  import AdminAPI.V1.ErrorHandler
+  import Plug.Conn, only: [get_req_header: 2, send_resp: 3]
 
   require Logger
 
-  alias Phoenix.Socket.Transport
-  alias Phoenix.CodeReloader
+  alias AdminAPI.V1.ErrorHandler
   alias Phoenix.Transports.WebSocket
 
   @doc false
-  def init(%Plug.Conn{method: "GET"} = conn, {_global_endpoint, handler, transport}) do
-    {_, opts} = handler.__transport__(transport)
-
+  def init(%Plug.Conn{method: "GET"} = conn, opts) do
     with accept <- Enum.at(get_req_header(conn, "accept"), 0),
-         {:ok, endpoint, serializer} <- get_endpoint(conn, accept),
-         conn <- code_reload(conn, opts, endpoint),
-         conn <- fetch_query_params(conn),
-         conn <- Transport.transport_log(conn, opts[:transport_log]),
-         conn <- Transport.force_ssl(conn, handler, endpoint, opts),
-         conn <- Transport.check_origin(conn, handler, endpoint, opts),
-         %{halted: false} = conn <- conn,
-         params <- conn.params |> Map.put_new(:http_headers, conn.req_headers),
-         {:ok, socket} <-
-           Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params) do
-      {:ok, conn, {__MODULE__, {socket, opts}}}
+         {:ok, endpoint, serializer} <-
+           EWallet.Web.WebSocket.get_endpoint(
+             conn,
+             accept,
+             :admin_api,
+             &ErrorHandler.handle_error/2
+           ) do
+      EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer)
     else
       _error ->
         conn = send_resp(conn, 403, "")
         {:error, conn}
     end
-  end
-
-  def init(conn, _) do
-    conn = send_resp(conn, :bad_request, "")
-    {:error, conn}
-  end
-
-  defp get_endpoint(conn, accept) when is_binary(accept) do
-    case get_accept_version(accept) do
-      {:ok, version} -> {:ok, version[:endpoint], version[:websocket_serializer]}
-      _ -> invalid_version(conn, accept)
-    end
-  end
-
-  defp get_endpoint(conn, accept) do
-    invalid_version(conn, accept)
-  end
-
-  defp invalid_version(conn, accept) do
-    conn =
-      conn
-      |> assign(:accept, inspect(accept))
-      |> handle_error(:invalid_version)
-
-    {:error, conn}
-  end
-
-  defp get_accept_version(accept) do
-    :admin_api
-    |> Application.get_env(:api_versions)
-    |> Map.fetch(accept)
   end
 
   @doc false
@@ -102,10 +64,5 @@ defmodule AdminAPI.WebSocket do
   defdelegate ws_terminate(reason, state), to: WebSocket
   defdelegate ws_close(state), to: WebSocket
 
-  defp code_reload(conn, opts, endpoint) do
-    reload? = Keyword.get(opts, :code_reloader, endpoint.config(:code_reloader))
-    _ = if reload?, do: CodeReloader.reload!(endpoint)
-
-    conn
-  end
+  defdelegate code_reload(conn, opts, endpoint), to: EWallet.Web.WebSocket
 end

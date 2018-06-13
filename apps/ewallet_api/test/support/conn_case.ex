@@ -184,6 +184,7 @@ defmodule EWalletAPI.ConnCase do
   A helper function that generates a valid client request
   with given path and data, and return the parsed JSON response.
   """
+  # credo:disable-for-next-line
   def client_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
       when is_binary(path) and byte_size(path) > 0 do
     build_conn()

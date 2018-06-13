@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule AdminAPI.V1.AccountChannel do
   @moduledoc """
   Represents the account channel.

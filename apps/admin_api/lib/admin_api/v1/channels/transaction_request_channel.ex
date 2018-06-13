@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule AdminAPI.V1.TransactionRequestChannel do
   @moduledoc """
   Represents the transaction request channel.

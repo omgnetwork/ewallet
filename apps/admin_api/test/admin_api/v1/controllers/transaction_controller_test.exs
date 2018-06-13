@@ -2,6 +2,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.User
 
+  # credo:disable-for-next-line
   setup do
     user = get_test_user()
     wallet_1 = User.get_primary_wallet(user)
