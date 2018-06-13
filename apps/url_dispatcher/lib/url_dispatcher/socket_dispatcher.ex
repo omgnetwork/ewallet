@@ -11,14 +11,16 @@ defmodule UrlDispatcher.SocketDispatcher do
   def ewallet_api do
     EWalletAPI.V1.Endpoint.__sockets__()
     |> Enum.map(fn {path, socket} ->
-      {path, EWalletAPI.V1.Endpoint, socket} |> build_websocket_config("/api", EWalletAPI.WebSocket)
+      {path, EWalletAPI.V1.Endpoint, socket}
+      |> build_websocket_config("/api", EWalletAPI.WebSocket)
     end)
   end
 
   def admin_api do
-    Endpoint.__sockets__()
+    AdminAPI.V1.Endpoint.__sockets__()
     |> Enum.map(fn {path, socket} ->
-      {path, Endpoint, socket} |> build_websocket_config("/admin/api")
+      {path, AdminAPI.V1.Endpoint, socket}
+      |> build_websocket_config("/admin/api", AdminAPI.WebSocket)
     end)
   end
 

@@ -11,7 +11,7 @@ endpoints =
   if Code.ensure_compiled?(AdminAPI.V1.Endpoint),
     do: endpoints ++ [AdminAPI.V1.Endpoint],
     else: endpoints
-    
+
 config :ewallet,
   websocket_endpoints: endpoints
 
