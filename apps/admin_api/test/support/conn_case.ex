@@ -41,7 +41,7 @@ defmodule AdminAPI.ConnCase do
   @secret_key "test_secret_key"
 
   # Attributes for user calls
-  @user_id ExternalID.generate("usr_")
+  @admin_id ExternalID.generate("usr_")
   @username "test_username"
   @password "test_password"
   @user_email "email@example.com"
@@ -71,7 +71,7 @@ defmodule AdminAPI.ConnCase do
       @api_key_id unquote(@api_key_id)
       @api_key unquote(@api_key)
 
-      @user_id unquote(@user_id)
+      @admin_id unquote(@admin_id)
       @username unquote(@username)
       @password unquote(@password)
       @user_email unquote(@user_email)
@@ -92,7 +92,7 @@ defmodule AdminAPI.ConnCase do
     # Insert necessary records for making authenticated calls.
     admin =
       insert(:user, %{
-        id: @user_id,
+        id: @admin_id,
         email: @user_email,
         password_hash: Crypto.hash_password(@password)
       })
@@ -143,7 +143,7 @@ defmodule AdminAPI.ConnCase do
   @doc """
   Returns the user that has just been created from the test setup.
   """
-  def get_test_admin, do: User.get(@user_id)
+  def get_test_admin, do: User.get(@admin_id)
   def get_test_user, do: User.get_by_provider_user_id(@provider_user_id)
 
   @doc """
@@ -299,7 +299,7 @@ defmodule AdminAPI.ConnCase do
   defp user_auth_header(opts) do
     api_key_id = Keyword.get(opts, :api_key_id, @api_key_id)
     api_key = Keyword.get(opts, :api_key, @api_key)
-    user_id = Keyword.get(opts, :user_id, @user_id)
+    user_id = Keyword.get(opts, :user_id, @admin_id)
     auth_token = Keyword.get(opts, :auth_token, @auth_token)
 
     case Keyword.get(opts, :include_client_auth, @include_client_auth) do

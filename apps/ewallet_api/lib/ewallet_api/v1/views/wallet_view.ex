@@ -4,8 +4,8 @@ defmodule EWalletAPI.V1.WalletView do
 
   def render("wallets.json", %{wallets: wallets}) do
     wallets
-    |> Enum.map(&WalletSerializer.serialize/1)
-    |> ListSerializer.serialize()
+    # |> Enum.map(&WalletSerializer.serialize/1)
+    |> WalletSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
 end

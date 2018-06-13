@@ -424,8 +424,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "user:account_id_not_found",
-                 "description" => "There is no account corresponding to the provided account_id",
+                 "code" => "account:id_not_found",
+                 "description" => "There is no account corresponding to the provided id",
                  "messages" => nil,
                  "object" => "error"
                }

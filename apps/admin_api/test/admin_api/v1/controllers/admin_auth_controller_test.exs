@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "responds with a new auth token if credentials are valid but user is not master_admin" do
-      user = get_test_user() |> Repo.preload([:accounts])
+      user = get_test_admin() |> Repo.preload([:accounts])
       {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
       account = insert(:account)
       role = Role.get_by_name("admin")
@@ -121,7 +121,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
   describe "/auth_token.switch_account" do
     test "switches the account" do
-      user = get_test_user()
+      user = get_test_admin()
       account = insert(:account)
 
       # User belongs to the master account and has access to the sub account
@@ -137,7 +137,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "returns a permission error when trying to switch to an invalid account" do
-      user = get_test_user() |> Repo.preload([:accounts])
+      user = get_test_admin() |> Repo.preload([:accounts])
       {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
       account = insert(:account)
 

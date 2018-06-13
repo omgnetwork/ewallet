@@ -4,14 +4,14 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   alias EWallet.Web.Date
   alias EWalletDB.User
 
-  describe "/account.list_users" do
+  describe "/account.get_users" do
     test "returns a list of users with role and status" do
       account = insert(:account)
       user = insert(:user)
       role = insert(:role)
       _ = insert(:membership, %{account: account, user: user, role: role})
 
-      assert user_request("/account.list_users", %{account_id: account.id}) ==
+      assert user_request("/account.get_users", %{account_id: account.id}) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -46,7 +46,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns an empty list if account has no users" do
       account = insert(:account)
 
-      assert user_request("/account.list_users", %{account_id: account.id}) ==
+      assert user_request("/account.get_users", %{account_id: account.id}) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -58,7 +58,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "returns account:id_not_found error if account id could not be found" do
-      assert user_request("/account.list_users", %{account_id: "acc_12345678901234567890123456"}) ==
+      assert user_request("/account.get_users", %{account_id: "acc_12345678901234567890123456"}) ==
                %{
                  "success" => false,
                  "version" => "1",
@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "returns invalid_parameter error if account id is not provided" do
-      assert user_request("/account.list_users", %{}) ==
+      assert user_request("/account.get_users", %{}) ==
                %{
                  "success" => false,
                  "version" => "1",

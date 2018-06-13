@@ -7,16 +7,16 @@ defmodule AdminAPI.V1.AccountMembershipController do
   @doc """
   Lists the users that are assigned to the given account.
   """
-  def list_users(conn, %{"account_id" => account_id}) do
-    list_users(conn, Account.get(account_id, preload: [memberships: [:user, :role]]))
+  def get_users(conn, %{"account_id" => account_id}) do
+    get_users(conn, Account.get(account_id, preload: [memberships: [:user, :role]]))
   end
 
-  def list_users(conn, %Account{} = account) do
+  def get_users(conn, %Account{} = account) do
     render(conn, :memberships, %{memberships: account.memberships})
   end
 
-  def list_users(conn, nil), do: handle_error(conn, :account_id_not_found)
-  def list_users(conn, _), do: handle_error(conn, :invalid_parameter)
+  def get_users(conn, nil), do: handle_error(conn, :account_id_not_found)
+  def get_users(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Assigns the user to the given account and role.

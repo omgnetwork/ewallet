@@ -200,6 +200,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           :transaction_request,
           type: "receive",
           token_uuid: meta.token.uuid,
+          account_uuid: meta.account.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
           amount: 100_000 * meta.token.subunit_to_unit
@@ -229,13 +230,14 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == inserted_consumption.id
 
       response =
-        provider_request_with_idempotency("/me.consume_transaction_request", "1234", %{
+        provider_request_with_idempotency("/transaction_request.consume", "1234", %{
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
           address: nil,
           metadata: nil,
-          token_id: nil
+          token_id: nil,
+          account_id: meta.account.id
         })
 
       inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
@@ -249,7 +251,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
 
     test "returns idempotency error if header is not specified" do
       response =
-        provider_request("/me.consume_transaction_request", %{
+        provider_request("/transaction_request.consume", %{
           transaction_request_id: "123",
           correlation_id: nil,
           amount: nil,
@@ -374,6 +376,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           :transaction_request,
           type: "send",
           token_uuid: meta.token.uuid,
+          account_uuid: meta.account.uuid,
           user_uuid: meta.bob.uuid,
           wallet: meta.bob_wallet,
           amount: nil,
@@ -566,6 +569,7 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
           :transaction_request,
           type: "send",
           token_uuid: meta.token.uuid,
+          account_uuid: meta.account.uuid,
           user_uuid: meta.bob.uuid,
           wallet: meta.bob_wallet,
           amount: nil,
