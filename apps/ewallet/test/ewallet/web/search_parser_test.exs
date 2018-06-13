@@ -67,9 +67,10 @@ defmodule EWallet.Web.SearchParserTest do
         |> SearchParser.to_query(attrs, [:name])
         |> Repo.all()
 
-      assert Enum.count(result) == 2
-      assert Enum.at(result, 0).name == "Name Match 1"
-      assert Enum.at(result, 1).name == "Name Match 2"
+      names = Enum.map(result, fn account -> account.name end)
+      assert Enum.count(names) == 2
+      assert Enum.member?(names, "Name Match 1")
+      assert Enum.member?(names, "Name Match 2")
     end
 
     test "returns records that the given term matches in different fields" do
