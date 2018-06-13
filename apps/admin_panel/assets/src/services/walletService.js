@@ -15,7 +15,7 @@ export function getWallets ({ per, sort, query, ...rest }) {
 
 export function getWallet (id) {
   return authenticatedRequest({
-    path: '/wallet.all',
+    path: '/wallet.get',
     data: {
       address: id
     }

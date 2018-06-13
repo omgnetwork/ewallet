@@ -1,40 +1,32 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { selectWallets, selectWalletsLoadingStatus } from './selector'
-import { getWallets } from './action'
+import { selectWalletById } from './selector'
+import { getWalletById } from './action'
 class WalletProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
-    wallets: PropTypes.array,
-    getWallets: PropTypes.func,
-    walletsLoadingStatus: PropTypes.string,
-    search: PropTypes.string
-  }
-  componentWillReceiveProps = nextProps => {
-    if (this.props.search !== nextProps.search) {
-      this.props.getWallets(nextProps.search)
-    }
+    walletId: PropTypes.string,
+    getWalletById: PropTypes.func,
+    wallet: PropTypes.object
   }
 
   componentDidMount = () => {
-    if (this.props.walletsLoadingStatus === 'DEFAULT') {
-      this.props.getWallets()
+    if (!this.props.wallet) {
+      this.props.getWalletById(this.props.walletId)
     }
   }
   render () {
     return this.props.render({
-      wallets: this.props.wallets,
-      loadingStatus: this.props.walletsLoadingStatus
+      wallet: this.props.wallet
     })
   }
 }
 export default connect(
   (state, props) => {
     return {
-      wallets: selectWallets(state, props.search),
-      walletsLoadingStatus: selectWalletsLoadingStatus(state)
+      wallet: selectWalletById(props.walletId)(state)
     }
   },
-  { getWallets }
+  { getWalletById }
 )(WalletProvider)

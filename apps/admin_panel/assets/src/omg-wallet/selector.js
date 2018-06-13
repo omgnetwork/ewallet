@@ -6,4 +6,4 @@ export const selectWallets = (state, search) => {
   })
 }
 export const selectWalletsLoadingStatus = state => state.walletsLoadingStatus
-export const selectGetUserById = state => id => state.wallets[id]
+export const selectWalletById = id => state => state.wallets[id]
