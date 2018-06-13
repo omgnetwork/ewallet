@@ -89,3 +89,11 @@ Nothing else to set, files will be stored at the root of the project in `public/
 
 -   `GCS_BUCKET`: Your GCS bucket.
 -   `GCS_CREDENTIALS`: A JSON containing your GCS credentials.
+
+### E2E Tests
+
+- `E2E_ENABLED`: Allows to run `mix seed --test --yes` to generate test data
+- `E2E_TEST_ADMIN_EMAIL`: The email of the first test admin
+- `E2E_TEST_ADMIN_PASSWORD`: The password of the first test admin
+- `E2E_TEST_ADMIN_1_EMAIL`: The email of the second test admin
+- `E2E_TEST_ADMIN_1_PASSWORD`: The password of the second test admin
