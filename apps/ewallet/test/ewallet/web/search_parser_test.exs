@@ -147,8 +147,9 @@ defmodule EWallet.Web.SearchParserTest do
         |> Repo.all()
 
       assert Enum.count(result) == 2
-      assert Enum.at(result, 0).name == "Name Match 1"
-      assert Enum.at(result, 1).name == "Name Match 2"
+      result = Enum.map(result, fn r -> r.name end)
+      assert Enum.member?(result, "Name Match 1")
+      assert Enum.member?(result, "Name Match 2")
     end
 
     test "returns records that the given term matches case-insensitively" do

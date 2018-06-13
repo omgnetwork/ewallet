@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.SettingsControllerTest do
 
   describe "/get_settings" do
     test "responds with a list of tokens" do
-      response = provider_request("/get_settings")
+      response = provider_request("/settings.all")
 
       assert response["success"]
       assert Map.has_key?(response["data"], "tokens")

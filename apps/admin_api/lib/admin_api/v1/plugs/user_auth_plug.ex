@@ -105,12 +105,12 @@ defmodule AdminAPI.V1.UserAuthPlug do
       false ->
         conn
         |> assign(:authenticated, false)
-        |> handle_error(:access_token_not_found)
+        |> handle_error(:auth_token_not_found)
 
       :token_expired ->
         conn
         |> assign(:authenticated, false)
-        |> handle_error(:access_token_expired)
+        |> handle_error(:auth_token_expired)
     end
   end
 

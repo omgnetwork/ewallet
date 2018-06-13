@@ -106,12 +106,12 @@ defmodule AdminAPI.V1.Router do
     post("/api_key.create", APIKeyController, :create)
     post("/api_key.delete", APIKeyController, :delete)
 
-    post("/get_settings", SettingsController, :get_settings)
+    post("/settings.all", SettingsController, :get_settings)
 
     # Self endpoints (operations on the currently authenticated user)
     post("/me.get", SelfController, :get)
-    post("/me.get_account", SelfController, :get_account)
     post("/me.get_accounts", SelfController, :get_accounts)
+    post("/me.get_account", SelfController, :get_account)
     post("/me.update", SelfController, :update)
 
     post("/logout", AdminAuthController, :logout)

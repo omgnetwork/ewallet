@@ -71,10 +71,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
     }
   end
 
-  describe "/me.list_transactions" do
+  describe "/me.get_transactions" do
     test "returns all the transactions for the current user", meta do
       response =
-        client_request("/me.list_transactions", %{
+        client_request("/me.get_transactions", %{
           "sort_by" => "created_at"
         })
 
@@ -95,7 +95,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
           address does not belong to user",
          meta do
       response =
-        client_request("/me.list_transactions", %{
+        client_request("/me.get_transactions", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -118,7 +118,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
     test "returns only the transactions sent to a specific wallet with nil from", meta do
       response =
-        client_request("/me.list_transactions", %{
+        client_request("/me.get_transactions", %{
           "search_terms" => %{
             "from" => nil,
             "to" => meta.wallet_3.address
@@ -136,7 +136,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
     test "returns only the transactions sent to a specific wallet", meta do
       response =
-        client_request("/me.list_transactions", %{
+        client_request("/me.get_transactions", %{
           "search_terms" => %{
             "to" => meta.wallet_3.address
           }
@@ -153,7 +153,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
     test "returns all transactions for the current user sorted", meta do
       response =
-        client_request("/me.list_transactions", %{
+        client_request("/me.get_transactions", %{
           "sort_by" => "created_at",
           "sort_dir" => "desc"
         })
@@ -172,7 +172,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
     test "returns all transactions for the current user filtered", meta do
       response =
-        client_request("/me.list_transactions", %{
+        client_request("/me.get_transactions", %{
           "search_terms" => %{"status" => "pending"}
         })
 
@@ -187,7 +187,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
     test "returns all transactions for the current user paginated", meta do
       response =
-        client_request("/me.list_transactions", %{
+        client_request("/me.get_transactions", %{
           "page" => 2,
           "per_page" => 1,
           "sort_by" => "created_at",

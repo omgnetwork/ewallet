@@ -1,6 +1,6 @@
-defmodule EWalletAPI.V1.Plug.ProviderAuthTest do
-  use EWalletAPI.ConnCase, async: true
-  alias EWalletAPI.V1.Plug.ProviderAuth
+defmodule AdminAPI.V1.Plug.ProviderAuthTest do
+  use AdminAPI.ConnCase, async: true
+  alias AdminAPI.V1.ProviderAuth
 
   describe "V1.Plugs.ProviderAuth with OMGServer auth type" do
     test "assigns authenticated and account if access/secret key are correct" do

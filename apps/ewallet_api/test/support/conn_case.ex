@@ -16,7 +16,7 @@ defmodule EWalletAPI.ConnCase do
   import EWalletDB.Factory
   import Ecto.Query
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletDB.{Account, Key, Repo, User}
+  alias EWalletDB.{Account, Repo, User}
   alias EWallet.{MintGate, TransactionGate}
   alias Ecto.UUID
   use Phoenix.ConnTest
@@ -50,8 +50,6 @@ defmodule EWalletAPI.ConnCase do
       @endpoint EWalletAPI.Endpoint
       @expected_version unquote(@expected_version)
       @header_accept unquote(@header_accept)
-      @access_key unquote(@access_key)
-      @secret_key unquote(@secret_key)
       @api_key unquote(@api_key)
       @auth_token unquote(@auth_token)
       @username unquote(@username)
@@ -74,6 +72,14 @@ defmodule EWalletAPI.ConnCase do
       |> User.insert()
 
     _api_key = insert(:api_key, %{key: @api_key, owner_app: "ewallet_api"})
+
+    _auth_token =
+      insert(:auth_token, %{
+        user: user,
+        account: account,
+        token: @auth_token,
+        owner_app: "ewallet_api"
+      })
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code
@@ -193,6 +199,10 @@ defmodule EWalletAPI.ConnCase do
   It can handle BasicAuth-like format, i.e. starts with auth type,
   followed by a space, then the base64 pair of credentials.
   """
+  def put_auth_header(conn, type, access_key, secret_key) do
+    put_auth_header(conn, type, Base.encode64(access_key <> ":" <> secret_key))
+  end
+
   def put_auth_header(conn, type, content) do
     put_req_header(conn, "authorization", type <> " " <> content)
   end

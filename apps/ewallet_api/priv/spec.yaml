@@ -159,12 +159,12 @@ paths:
   ######################################
   #           WALLET ENDPOINTS         #
   ######################################
-  /user.list_wallets:
+  /user.get_wallets:
     post:
       tags:
         - Wallet
       summary: Server - Get a user's wallets. The provider can call this to get the wallets of any user with its id.
-      operationId: user_list_wallets
+      operationId: user_get_wallets
       security:
         - ServerAuth: []
       requestBody:
@@ -174,12 +174,12 @@ paths:
           $ref: "#/components/responses/MultipleWalletsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /me.list_wallets:
+  /me.get_wallets:
     post:
       tags:
         - Wallet
       summary: Client - Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.
-      operationId: me_list_wallets
+      operationId: me_get_wallets
       security:
         - ClientAuth: []
       responses:
@@ -206,7 +206,7 @@ paths:
           $ref: "#/components/responses/TransactionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /user.list_transactions:
+  /user.get_transactions:
     post:
       tags:
         - Transaction
@@ -222,7 +222,7 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  /me.list_transactions:
+  /me.get_transactions:
     post:
       tags:
         - Transaction

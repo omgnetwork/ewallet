@@ -184,7 +184,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       assert response["data"]["code"] == "client:invalid_api_key"
     end
 
-    test "returns :access_token_not_found if user credentials are invalid" do
+    test "returns :auth_token_not_found if user credentials are invalid" do
       response =
         user_request(
           "/auth_token.switch_account",
@@ -195,7 +195,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
         )
 
       refute response["success"]
-      assert response["data"]["code"] == "user:access_token_not_found"
+      assert response["data"]["code"] == "auth_token:not_found"
     end
   end
 
@@ -218,7 +218,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
       response2 = user_request("/logout")
       refute response2["success"]
-      assert response2["data"]["code"] == "user:access_token_expired"
+      assert response2["data"]["code"] == "user:auth_token_expired"
     end
   end
 end

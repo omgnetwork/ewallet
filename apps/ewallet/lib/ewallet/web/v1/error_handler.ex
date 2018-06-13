@@ -41,12 +41,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "account:not_found",
       description: "There is no user corresponding to the provided account id"
     },
-    access_token_not_found: %{
-      code: "user:access_token_not_found",
-      description: "There is no account corresponding to the provided access_token"
+    auth_token_not_found: %{
+      code: "user:auth_token_not_found",
+      description: "There is no account or user corresponding to the provided auth_token"
     },
-    access_token_expired: %{
-      code: "user:access_token_expired",
+    auth_token_expired: %{
+      code: "user:auth_token_expired",
       description: "The provided token is expired or has been invalidated"
     },
     insufficient_funds: %{
