@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Button, Icon } from '../omg-uikit'
+import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from 'react-modal'
 import { createToken } from '../omg-token/action'
 import { connect } from 'react-redux'
@@ -95,12 +95,7 @@ class CreateTokenModal extends Component {
         <Form onSubmit={this.onSubmit} noValidate>
           <Icon name='Close' onClick={this.props.onRequestClose} />
           <h4>Create Token</h4>
-          <Input
-            placeholder='Token name'
-            autofocus
-            value={this.state.name}
-            onChange={this.onChangeInputName}
-          />
+          <Select />
           <Input
             placeholder='Token symbol'
             value={this.state.symbol}

@@ -6,7 +6,7 @@ import { Avatar, Icon } from '../omg-uikit'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 const AvatarDropdownContainer = styled.div`
   position: relative;
 `
