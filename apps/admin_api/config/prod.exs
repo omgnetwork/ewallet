@@ -7,3 +7,7 @@ config :admin_api, AdminAPI.Mailer,
   port: System.get_env("SMTP_PORT"),
   username: System.get_env("SMTP_USER"),
   password: System.get_env("SMTP_PASSWORD")
+
+config :admin_api, AdminAPI.V1.Endpoint,
+  debug_errors: true,
+  check_origin: false

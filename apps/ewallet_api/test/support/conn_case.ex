@@ -30,10 +30,6 @@ defmodule EWalletAPI.ConnCase do
   # The expected response version
   @header_accept "application/vnd.omisego.v1+json"
 
-  # Attributes for provider calls
-  @access_key "test_access_key"
-  @secret_key "test_secret_key"
-
   # Attributes for client calls
   @api_key "test_api_key"
   @auth_token "test_auth_token"
@@ -78,17 +74,6 @@ defmodule EWalletAPI.ConnCase do
       |> User.insert()
 
     _api_key = insert(:api_key, %{key: @api_key, owner_app: "ewallet_api"})
-    _auth_token = insert(:auth_token, %{user: user, token: @auth_token, owner_app: "ewallet_api"})
-
-    # Keys need to be inserted through `EWalletDB.Key.insert/1`
-    # so that the secret key is hashed and usable by the tests.
-    :key
-    |> params_for(%{
-      account: account,
-      access_key: @access_key,
-      secret_key: @secret_key
-    })
-    |> Key.insert()
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code
@@ -177,33 +162,6 @@ defmodule EWalletAPI.ConnCase do
   end
 
   @doc """
-  A helper function that generates a valid provider request
-  with given path and data, and return the parsed JSON response.
-  """
-  def provider_request(path, data \\ %{}, status \\ :ok)
-      when is_binary(path) and byte_size(path) > 0 do
-    build_conn()
-    |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGServer", @access_key, @secret_key)
-    |> post(@base_dir <> path, data)
-    |> json_response(status)
-  end
-
-  @doc """
-  A helper function that generates a valid provider request
-  with given path and data, and return the parsed JSON response.
-  """
-  def provider_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
-      when is_binary(path) and byte_size(path) > 0 do
-    build_conn()
-    |> put_req_header("idempotency-token", idempotency_token)
-    |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGServer", @access_key, @secret_key)
-    |> post(@base_dir <> path, data)
-    |> json_response(status)
-  end
-
-  @doc """
   A helper function that generates a valid client request
   with given path and data, and return the parsed JSON response.
   """
@@ -235,10 +193,6 @@ defmodule EWalletAPI.ConnCase do
   It can handle BasicAuth-like format, i.e. starts with auth type,
   followed by a space, then the base64 pair of credentials.
   """
-  def put_auth_header(conn, type, access_key, secret_key) do
-    put_auth_header(conn, type, Base.encode64(access_key <> ":" <> secret_key))
-  end
-
   def put_auth_header(conn, type, content) do
     put_req_header(conn, "authorization", type <> " " <> content)
   end

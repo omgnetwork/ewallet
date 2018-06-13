@@ -3,7 +3,6 @@ defmodule EWalletAPI.V1.Router do
   alias EWalletAPI.V1.Plug.Idempotency
   alias EWalletAPI.V1.Plug.ClientAuth
 
-
   pipeline :client_api do
     plug(ClientAuth)
   end
@@ -22,8 +21,8 @@ defmodule EWalletAPI.V1.Router do
 
     post("/me.get", SelfController, :get)
     post("/me.get_settings", SelfController, :get_settings)
-    post("/me.list_wallets", SelfController, :get_wallets)
-    post("/me.list_transactions", TransactionController, :get_transactions)
+    post("/me.get_wallets", SelfController, :get_wallets)
+    post("/me.get_transactions", TransactionController, :get_transactions)
 
     post("/me.create_transaction_request", TransactionRequestController, :create_for_user)
     post("/me.get_transaction_request", TransactionRequestController, :get)

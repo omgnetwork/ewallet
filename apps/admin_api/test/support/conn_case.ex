@@ -18,7 +18,7 @@ defmodule AdminAPI.ConnCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
-  alias EWalletDB.{Repo, User, Account}
+  alias EWalletDB.{Repo, User, Account, Key}
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.Helpers.Crypto
   alias EWalletDB.Types.ExternalID
@@ -35,6 +35,10 @@ defmodule AdminAPI.ConnCase do
   # Attributes for client calls
   @api_key_id UUID.generate()
   @api_key "test_api_key"
+
+  # Attributes for provider calls
+  @access_key "test_access_key"
+  @secret_key "test_secret_key"
 
   # Attributes for user calls
   @user_id ExternalID.generate("usr_")
@@ -61,6 +65,9 @@ defmodule AdminAPI.ConnCase do
       @expected_version unquote(@expected_version)
       @header_accept unquote(@header_accept)
 
+      @access_key unquote(@access_key)
+      @secret_key unquote(@secret_key)
+
       @api_key_id unquote(@api_key_id)
       @api_key unquote(@api_key)
 
@@ -79,28 +86,44 @@ defmodule AdminAPI.ConnCase do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
+    # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
+    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
+
     # Insert necessary records for making authenticated calls.
-    user =
+    admin =
       insert(:user, %{
         id: @user_id,
-        username: @username,
-        password_hash: Crypto.hash_password(@password),
         email: @user_email,
-        provider_user_id: @provider_user_id
+        password_hash: Crypto.hash_password(@password)
       })
 
-    {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
-    role = insert(:role, %{name: "admin"})
-    _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
-    _membership = insert(:membership, %{user: user, role: role, account: account})
+    # Insert user via `User.insert/1` to initialize wallets, etc.
+    {:ok, _user} =
+      :user
+      |> params_for(%{username: @username, provider_user_id: @provider_user_id})
+      |> User.insert()
 
     _auth_token =
       insert(:auth_token, %{
-        user: user,
+        user: admin,
         account: account,
         token: @auth_token,
         owner_app: "admin_api"
       })
+
+    # Keys need to be inserted through `EWalletDB.Key.insert/1`
+    # so that the secret key is hashed and usable by the tests.
+    :key
+    |> params_for(%{
+      account: account,
+      access_key: @access_key,
+      secret_key: @secret_key
+    })
+    |> Key.insert()
+
+    role = insert(:role, %{name: "admin"})
+    _api_key = insert(:api_key, %{id: @api_key_id, key: @api_key, owner_app: "admin_api"})
+    _membership = insert(:membership, %{user: admin, role: role, account: account})
 
     # Setup could return all the inserted credentials using ExUnit context
     # by returning {:ok, context_map}. But it would make the code
@@ -120,7 +143,8 @@ defmodule AdminAPI.ConnCase do
   @doc """
   Returns the user that has just been created from the test setup.
   """
-  def get_test_user, do: User.get(@user_id)
+  def get_test_admin, do: User.get(@user_id)
+  def get_test_user, do: User.get_by_provider_user_id(@provider_user_id)
 
   @doc """
   Returns the last inserted record of the given schema.
@@ -192,11 +216,52 @@ defmodule AdminAPI.ConnCase do
     |> json_response(status)
   end
 
+  @doc """
+  A helper function that generates a valid client request
+  with given path and data, and return the parsed JSON response.
+  """
+  def client_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
+      when is_binary(path) and byte_size(path) > 0 do
+    build_conn()
+    |> put_req_header("idempotency-token", idempotency_token)
+    |> put_req_header("accept", @header_accept)
+    |> put_auth_header("OMGClient", @api_key, @auth_token)
+    |> post(@base_dir <> path, data)
+    |> json_response(status)
+  end
+
   defp client_auth_header(opts) do
     api_key_id = Keyword.get(opts, :api_key_id, @api_key_id)
     api_key = Keyword.get(opts, :api_key, @api_key)
 
     [api_key_id, api_key]
+  end
+
+  @doc """
+  A helper function that generates a valid provider request
+  with given path and data, and return the parsed JSON response.
+  """
+  def provider_request(path, data \\ %{}, status \\ :ok)
+      when is_binary(path) and byte_size(path) > 0 do
+    build_conn()
+    |> put_req_header("accept", @header_accept)
+    |> put_auth_header("OMGServer", @access_key, @secret_key)
+    |> post(@base_dir <> path, data)
+    |> json_response(status)
+  end
+
+  @doc """
+  A helper function that generates a valid provider request
+  with given path and data, and return the parsed JSON response.
+  """
+  def provider_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
+      when is_binary(path) and byte_size(path) > 0 do
+    build_conn()
+    |> put_req_header("idempotency-token", idempotency_token)
+    |> put_req_header("accept", @header_accept)
+    |> put_auth_header("OMGServer", @access_key, @secret_key)
+    |> post(@base_dir <> path, data)
+    |> json_response(status)
   end
 
   @doc """
@@ -251,6 +316,10 @@ defmodule AdminAPI.ConnCase do
   It can handle BasicAuth-like format, i.e. starts with auth type,
   followed by a space, then the base64 pair of credentials.
   """
+  def put_auth_header(conn, type, access_key, secret_key) do
+    put_auth_header(conn, type, Base.encode64(access_key <> ":" <> secret_key))
+  end
+
   def put_auth_header(conn, type, content) when is_list(content) do
     serialized = content |> Enum.join(":") |> Base.encode64()
     put_auth_header(conn, type, serialized)

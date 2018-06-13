@@ -1,49 +1,281 @@
 defmodule AdminAPI.V1.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.User
+
+  setup do
+    user = get_test_user()
+    wallet_1 = User.get_primary_wallet(user)
+    wallet_2 = insert(:wallet)
+    wallet_3 = insert(:wallet)
+    wallet_4 = insert(:wallet, user: user, identifier: "secondary")
+
+    transfer_1 =
+      insert(:transfer, %{
+        from_wallet: wallet_1,
+        to_wallet: wallet_2,
+        status: "confirmed"
+      })
+
+    transfer_2 =
+      insert(:transfer, %{
+        from_wallet: wallet_2,
+        to_wallet: wallet_1,
+        status: "confirmed"
+      })
+
+    transfer_3 =
+      insert(:transfer, %{
+        from_wallet: wallet_1,
+        to_wallet: wallet_3,
+        status: "confirmed"
+      })
+
+    transfer_4 =
+      insert(:transfer, %{
+        from_wallet: wallet_1,
+        to_wallet: wallet_2,
+        status: "pending"
+      })
+
+    transfer_5 = insert(:transfer, %{status: "confirmed"})
+    transfer_6 = insert(:transfer, %{status: "pending"})
+
+    transfer_7 =
+      insert(:transfer, %{
+        from_wallet: wallet_4,
+        to_wallet: wallet_2,
+        status: "confirmed"
+      })
+
+    transfer_8 =
+      insert(:transfer, %{
+        from_wallet: wallet_4,
+        to_wallet: wallet_3,
+        status: "pending"
+      })
+
+    %{
+      user: user,
+      wallet_1: wallet_1,
+      wallet_2: wallet_2,
+      wallet_3: wallet_3,
+      wallet_4: wallet_4,
+      transfer_1: transfer_1,
+      transfer_2: transfer_2,
+      transfer_3: transfer_3,
+      transfer_4: transfer_4,
+      transfer_5: transfer_5,
+      transfer_6: transfer_6,
+      transfer_7: transfer_7,
+      transfer_8: transfer_8
+    }
+  end
 
   describe "/transaction.all" do
-    test "returns a list of transactions and pagination data" do
-      response = user_request("/transaction.all")
+    test "returns all the transactions", meta do
+      response =
+        provider_request("/transaction.all", %{
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
 
-      # Asserts return data
-      assert response["success"]
-      assert response["data"]["object"] == "list"
-      assert is_list(response["data"]["data"])
+      transfers = [
+        meta.transfer_1,
+        meta.transfer_2,
+        meta.transfer_3,
+        meta.transfer_4,
+        meta.transfer_5,
+        meta.transfer_6,
+        meta.transfer_7,
+        meta.transfer_8
+      ]
 
-      # Asserts pagination data
-      pagination = response["data"]["pagination"]
-      assert is_integer(pagination["per_page"])
-      assert is_integer(pagination["current_page"])
-      assert is_boolean(pagination["is_last_page"])
-      assert is_boolean(pagination["is_first_page"])
+      assert length(response["data"]["data"]) == length(transfers)
+
+      # All transfers made during setup should exist in the response
+      assert Enum.all?(transfers, fn transfer ->
+               Enum.any?(response["data"]["data"], fn data ->
+                 transfer.id == data["id"]
+               end)
+             end)
     end
 
-    test "returns a list of transactions according to search_term, sort_by and sort_direction" do
-      wallet1 = insert(:wallet, address: "ABC1")
-      wallet2 = insert(:wallet, address: "ABC3")
-      wallet3 = insert(:wallet, address: "ABC2")
-      wallet4 = insert(:wallet, address: "XYZ1")
+    test "returns all the transactions for a specific address", meta do
+      response =
+        provider_request("/transaction.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_terms" => %{
+            "from" => meta.wallet_1.address,
+            "to" => meta.wallet_2.address
+          }
+        })
 
-      insert(:transfer, %{from_wallet: wallet1})
-      insert(:transfer, %{from_wallet: wallet2})
-      insert(:transfer, %{from_wallet: wallet3})
-      insert(:transfer, %{from_wallet: wallet4})
+      assert response["data"]["data"] |> length() == 4
 
-      attrs = %{
-        # Search is case-insensitive
-        "search_term" => "aBc",
-        "sort_by" => "from",
-        "sort_dir" => "desc"
-      }
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_1.id,
+               meta.transfer_3.id,
+               meta.transfer_4.id,
+               meta.transfer_7.id
+             ]
+    end
 
-      response = user_request("/transaction.all", attrs)
-      transactions = response["data"]["data"]
+    test "returns all transactions filtered", meta do
+      response =
+        provider_request("/transaction.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_term" => "pending"
+        })
 
-      assert response["success"]
-      assert Enum.count(transactions) == 3
-      assert Enum.at(transactions, 0)["from"]["address"] == "ABC3"
-      assert Enum.at(transactions, 1)["from"]["address"] == "ABC2"
-      assert Enum.at(transactions, 2)["from"]["address"] == "ABC1"
+      assert response["data"]["data"] |> length() == 3
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_4.id,
+               meta.transfer_6.id,
+               meta.transfer_8.id
+             ]
+    end
+
+    test "returns all transactions sorted and paginated", meta do
+      response =
+        provider_request("/transaction.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 2,
+          "page" => 1
+        })
+
+      assert response["data"]["data"] |> length() == 2
+      transaction_1 = Enum.at(response["data"]["data"], 0)
+      transaction_2 = Enum.at(response["data"]["data"], 1)
+      assert transaction_2["created_at"] > transaction_1["created_at"]
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_1.id,
+               meta.transfer_2.id
+             ]
+    end
+  end
+
+  describe "/user.get_transactions" do
+    test "returns all the transactions for a specific provider_user_id", meta do
+      response =
+        provider_request("/user.get_transactions", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "provider_user_id" => meta.user.provider_user_id
+        })
+
+      assert response["data"]["data"] |> length() == 4
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_1.id,
+               meta.transfer_2.id,
+               meta.transfer_3.id,
+               meta.transfer_4.id
+             ]
+    end
+
+    test "returns all the transactions for a specific provider_user_id and valid address", meta do
+      response =
+        provider_request("/user.get_transactions", %{
+          "provider_user_id" => meta.user.provider_user_id,
+          "address" => meta.wallet_4.address
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_7.id,
+               meta.transfer_8.id
+             ]
+    end
+
+    test "returns an 'user:user_wallet_mismatch' error with provider_user_id and invalid address",
+         meta do
+      response =
+        provider_request("/user.get_transactions", %{
+          "provider_user_id" => meta.user.provider_user_id,
+          "address" => meta.wallet_2.address
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:user_wallet_mismatch"
+
+      assert response["data"]["description"] ==
+               "The provided wallet does not belong to the current user"
+    end
+
+    test "returns the user's transactions even when different search terms are provided", meta do
+      response =
+        provider_request("/user.get_transactions", %{
+          "provider_user_id" => meta.user.provider_user_id,
+          "sort_by" => "created_at",
+          "sort_dir" => "desc",
+          "search_terms" => %{
+            "from" => meta.wallet_2.address,
+            "to" => meta.wallet_2.address
+          }
+        })
+
+      assert response["data"]["data"] |> length() == 4
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_4.id,
+               meta.transfer_3.id,
+               meta.transfer_2.id,
+               meta.transfer_1.id
+             ]
+    end
+
+    test "returns all transactions filtered", meta do
+      response =
+        provider_request("/user.get_transactions", %{
+          "provider_user_id" => meta.user.provider_user_id,
+          "search_terms" => %{"status" => "pending"}
+        })
+
+      assert response["data"]["data"] |> length() == 1
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_4.id
+             ]
+    end
+
+    test "returns all transactions sorted and paginated", meta do
+      response =
+        provider_request("/user.get_transactions", %{
+          "provider_user_id" => meta.user.provider_user_id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 2,
+          "page" => 1
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transfer_1.id,
+               meta.transfer_2.id
+             ]
     end
   end
 

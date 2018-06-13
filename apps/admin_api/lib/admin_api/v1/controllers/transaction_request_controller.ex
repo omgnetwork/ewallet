@@ -1,15 +1,15 @@
-defmodule EWalletAPI.V1.TransactionRequestController do
-  use EWalletAPI, :controller
-  import EWalletAPI.V1.ErrorHandler
+defmodule AdminAPI.V1.TransactionRequestController do
+  use AdminAPI, :controller
+  import AdminAPI.V1.ErrorHandler
 
   alias EWallet.{
     TransactionRequestGate,
     TransactionRequestFetcher
   }
 
-  def create_for_user(conn, attrs) do
-    conn.assigns.user
-    |> TransactionRequestGate.create(attrs)
+  def create(conn, attrs) do
+    attrs
+    |> TransactionRequestGate.create()
     |> respond(conn)
   end
 

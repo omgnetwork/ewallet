@@ -1,5 +1,5 @@
-defmodule EWalletAPI.V1.SettingsControllerTest do
-  use EWalletAPI.ConnCase, async: true
+defmodule AdminAPI.V1.SettingsControllerTest do
+  use AdminAPI.ConnCase, async: true
 
   describe "/get_settings" do
     test "responds with a list of tokens" do

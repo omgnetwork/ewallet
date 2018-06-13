@@ -18,14 +18,15 @@ defmodule EWallet.Web.V1.Event do
         payload: payload
       ) do
     _ = log(event, topics, payload)
-
     Enum.each(topics, fn topic ->
       Enum.each(endpoints(), fn endpoint ->
-        endpoint.broadcast(
-          topic,
-          event,
-          payload
-        )
+        if Code.ensure_compiled?(endpoint) do
+          endpoint.broadcast(
+            topic,
+            event,
+            payload
+          )
+        end
       end)
     end)
   end

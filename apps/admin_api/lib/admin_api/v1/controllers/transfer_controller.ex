@@ -1,42 +1,51 @@
-defmodule EWalletAPI.V1.TransferController do
-  use EWalletAPI, :controller
-  import EWalletAPI.V1.{ErrorHandler}
-  alias EWallet.{BalanceFetcher, TransactionGate, WalletFetcher}
-  alias EWalletAPI.V1.{WalletView, TransactionView}
+defmodule AdminAPI.V1.TransferController do
+  use AdminAPI, :controller
+  import AdminAPI.V1.{ErrorHandler}
+  alias EWallet.{BalanceFetcher, TransactionGate}
+  alias AdminAPI.V1.{WalletView, TransactionView}
 
-  def transfer_for_user(
+  def transfer(
         conn,
         %{
+          "from_address" => from_address,
           "to_address" => to_address,
           "token_id" => token_id,
           "amount" => amount
         } = attrs
       )
+      when from_address != nil
       when to_address != nil and token_id != nil and is_integer(amount) do
-    conn.assigns.user
-    |> WalletFetcher.get(attrs["from_address"])
-    |> transfer_from_wallet(conn, attrs)
-  end
-
-  def transfer_for_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
-
-  defp transfer_from_wallet({:ok, from_wallet}, conn, attrs) do
     attrs
     |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
-    |> Map.put("from_address", from_wallet.address)
     |> TransactionGate.process_with_addresses()
-    |> respond_with(:transfer, conn)
+    |> respond_with(:wallets, conn)
   end
 
-  defp transfer_from_wallet({:error, :user_wallet_not_found}, conn, _attrs) do
-    handle_error(conn, :from_address_not_found)
+  def transfer(conn, _attrs), do: handle_error(conn, :invalid_parameter)
+
+  def credit(conn, attrs), do: credit_or_debit(conn, TransactionGate.credit_type(), attrs)
+  def debit(conn, attrs), do: credit_or_debit(conn, TransactionGate.debit_type(), attrs)
+
+  defp credit_or_debit(
+         conn,
+         type,
+         %{
+           "provider_user_id" => provider_user_id,
+           "token_id" => token_id,
+           "amount" => amount,
+           "account_id" => account_id
+         } = attrs
+       )
+       when provider_user_id != nil and token_id != nil and is_integer(amount) and
+              account_id != nil do
+    attrs
+    |> Map.put("type", type)
+    |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
+    |> TransactionGate.process_credit_or_debit()
+    |> respond_with(:wallets, conn)
   end
 
-  defp transfer_from_wallet({:error, :user_wallet_mismatch}, conn, _attrs) do
-    handle_error(conn, :from_address_mismatch)
-  end
-
-  defp transfer_from_wallet({:error, error}, conn, _attrs), do: handle_error(conn, error)
+  defp credit_or_debit(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
   defp respond_with({:ok, transfer, _balances, _token}, :transfer, conn) do
     conn

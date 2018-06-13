@@ -26,6 +26,7 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   end
 
   defp authenticate("Basic", conn), do: authenticate("OMGServer", conn)
+
   defp authenticate("OMGServer", conn) do
     ProviderAuth.call(conn, nil)
   end

@@ -1,12 +1,13 @@
 defmodule AdminAPI.V1.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, Key}
+  alias EWalletDB.{Repo, Account, Key}
   alias EWalletDB.Helpers.Assoc
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do
-      key = insert(:key, %{secret_key: "the_secret_key"})
+      key_1 = Repo.get_by(Key, access_key: @access_key) |> Repo.preload([:account])
+      key_2 = insert(:key, %{secret_key: "the_secret_key"})
 
       assert user_request("/access_key.all") ==
                %{
@@ -17,14 +18,25 @@ defmodule AdminAPI.V1.KeyControllerTest do
                    "data" => [
                      %{
                        "object" => "key",
-                       "id" => key.id,
-                       "access_key" => key.access_key,
+                       "id" => key_1.id,
+                       "access_key" => key_1.access_key,
                        # Secret keys cannot be retrieved after creation
                        "secret_key" => nil,
-                       "account_id" => Assoc.get(key, [:account, :id]),
-                       "created_at" => Date.to_iso8601(key.inserted_at),
-                       "updated_at" => Date.to_iso8601(key.updated_at),
-                       "deleted_at" => Date.to_iso8601(key.deleted_at)
+                       "account_id" => Assoc.get(key_1, [:account, :id]),
+                       "created_at" => Date.to_iso8601(key_1.inserted_at),
+                       "updated_at" => Date.to_iso8601(key_1.updated_at),
+                       "deleted_at" => Date.to_iso8601(key_1.deleted_at)
+                     },
+                     %{
+                       "object" => "key",
+                       "id" => key_2.id,
+                       "access_key" => key_2.access_key,
+                       # Secret keys cannot be retrieved after creation
+                       "secret_key" => nil,
+                       "account_id" => Assoc.get(key_2, [:account, :id]),
+                       "created_at" => Date.to_iso8601(key_2.inserted_at),
+                       "updated_at" => Date.to_iso8601(key_2.updated_at),
+                       "deleted_at" => Date.to_iso8601(key_2.deleted_at)
                      }
                    ],
                    "pagination" => %{

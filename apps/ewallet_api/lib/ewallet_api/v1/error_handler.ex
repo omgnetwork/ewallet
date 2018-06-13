@@ -7,40 +7,7 @@ defmodule EWalletAPI.V1.ErrorHandler do
   alias EWallet.Web.V1.ErrorHandler, as: EWalletErrorHandler
   alias EWallet.Web.V1.ResponseSerializer
 
-  @errors %{
-    invalid_access_secret_key: %{
-      code: "client:invalid_access_secret_key",
-      description: "Invalid access and/or secret key"
-    },
-    provider_user_id_not_found: %{
-      code: "user:provider_user_id_not_found",
-      description: "There is no user corresponding to the provided provider_user_id"
-    },
-    wallet_not_found: %{
-      code: "wallet:wallet_not_found",
-      description: "There is no wallet corresponding to the provided address"
-    },
-    user_wallet_not_found: %{
-      code: "user:wallet_not_found",
-      description: "There is no user wallet corresponding to the provided address"
-    },
-    account_wallet_not_found: %{
-      code: "account:wallet_not_found",
-      description: "There is no account wallet corresponding to the provided address"
-    },
-    user_wallet_mismatch: %{
-      code: "user:user_wallet_mismatch",
-      description: "The provided wallet does not belong to the current user"
-    },
-    account_wallet_mismatch: %{
-      code: "account:account_wallet_mismatch",
-      description: "The provided wallet does not belong to the given account"
-    },
-    account_id_not_found: %{
-      code: "user:account_id_not_found",
-      description: "There is no account corresponding to the provided account_id"
-    }
-  }
+  @errors %{}
 
   @doc """
   Returns a map of all the error atoms along with their code and description.

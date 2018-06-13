@@ -1,7 +1,7 @@
-defmodule EWalletAPI.V1.TransactionConsumptionController do
-  use EWalletAPI, :controller
+defmodule AdminAPI.V1.TransactionConsumptionController do
+  use AdminAPI, :controller
   use EWallet.Web.Embedder
-  import EWalletAPI.V1.ErrorHandler
+  import AdminAPI.V1.ErrorHandler
 
   alias EWallet.{
     Web.V1.Event,
@@ -19,16 +19,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   # These fields must be one of the schema's association names.
   @always_embed [:token]
 
-  def consume_for_user(conn, attrs) do
-    attrs = Map.put(attrs, "idempotency_token", conn.assigns.idempotency_token)
-
-    conn.assigns.user
-    |> TransactionConsumptionConsumerGate.consume(attrs)
+  def consume(conn, attrs) do
+    attrs
+    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
+    |> TransactionConsumptionConsumerGate.consume()
     |> respond(conn)
   end
 
-  def approve_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, true)
-  def reject_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, false)
+  def approve(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, true)
+  def reject(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, false)
 
   defp confirm(conn, entity, %{"id" => id}, approved) do
     id

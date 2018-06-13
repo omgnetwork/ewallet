@@ -53,6 +53,19 @@ defmodule AdminAPI.V1.WalletController do
     end
   end
 
+  def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
+    with %User{} = user <-
+           User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found do
+      user
+      |> Wallet.all_for()
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      error -> handle_error(conn, error)
+    end
+  end
+
   def all_for_user(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @spec get(Conn.t(), map()) :: map()

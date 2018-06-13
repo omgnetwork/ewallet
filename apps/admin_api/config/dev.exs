@@ -13,6 +13,12 @@ config :admin_api, AdminAPI.Endpoint,
   check_origin: false,
   watchers: []
 
+config :admin_api, AdminAPI.V1.Endpoint,
+  debug_errors: true,
+  code_reloader: true,
+  check_origin: false,
+  watchers: []
+
 # Set a higher stacktrace during development. Avoid configuring such
 # in production as building large stacktraces may be expensive.
 config :phoenix, :stacktrace_depth, 20
