@@ -1,7 +1,7 @@
 defmodule EWallet.Web.APIDocs.Controller do
   @moduledoc false
   use EWallet, :controller
-
+  alias Phoenix.Controller
   plug(:put_layout, false)
 
   @doc false
@@ -70,7 +70,7 @@ defmodule EWallet.Web.APIDocs.Controller do
   def errors_json(conn, _attrs) do
     conn
     |> put_resp_content_type("application/json")
-    |> Phoenix.Controller.json(get_errors(conn))
+    |> Controller.json(get_errors(conn))
   end
 
   defp get_otp_app(conn), do: endpoint_module(conn).config(:otp_app)
