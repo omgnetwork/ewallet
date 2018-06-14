@@ -26,6 +26,11 @@ defmodule EWallet.Web.V1.Event do
     end)
   end
 
+  # We use 'Code.ensure_compiled?' to ensure the endpoints are loaded.
+  # When running tests from inside the Admin API/eWallet API/eWallet sub apps,
+  # those endpoint modules are not available and therefore should not be added to
+  # the list of endpoints that needs to be notified. If they are and the
+  # Event emitter tries to call them, it will result in a 500 error.
   defp broadcast_if_compiled(endpoint, topic, event, payload) do
     if Code.ensure_compiled?(endpoint) do
       endpoint.broadcast(

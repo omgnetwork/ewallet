@@ -1,19 +1,7 @@
 use Mix.Config
 
-endpoints = []
-
-endpoints =
-  if Code.ensure_compiled?(EWalletAPI.V1.Endpoint),
-    do: endpoints ++ [EWalletAPI.V1.Endpoint],
-    else: endpoints
-
-endpoints =
-  if Code.ensure_compiled?(AdminAPI.V1.Endpoint),
-    do: endpoints ++ [AdminAPI.V1.Endpoint],
-    else: endpoints
-
 config :ewallet,
-  websocket_endpoints: endpoints
+  websocket_endpoints: [EWalletAPI.V1.Endpoint, AdminAPI.V1.Endpoint]
 
 config :logger, level: :debug
 
