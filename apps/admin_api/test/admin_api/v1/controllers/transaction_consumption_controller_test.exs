@@ -52,7 +52,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -120,7 +121,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
         )
 
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -179,7 +181,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -213,7 +216,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       })
 
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "1234", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -230,7 +234,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == inserted_consumption.id
 
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "1234", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -264,10 +269,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "client:no_idempotency_token_provided",
-                 "description" =>
-                   "The call you made requires the " <>
-                     "Idempotency-Token header to prevent duplication.",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -297,7 +300,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
@@ -391,7 +395,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
@@ -487,7 +492,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
@@ -584,7 +590,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
@@ -677,7 +684,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "123", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,
@@ -739,7 +747,8 @@ defmodule AdminAPI.V1.TransactionConsumptionControllerTest do
       # Making the consumption, since we made the request require_confirmation, it will
       # create a pending consumption that will need to be confirmed
       response =
-        provider_request_with_idempotency("/transaction_request.consume", "1234", %{
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: 100_000 * meta.token.subunit_to_unit,

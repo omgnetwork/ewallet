@@ -328,7 +328,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       })
 
       response =
-        user_request_with_idempotency("/transaction.create", "123", %{
+        user_request("/transaction.create", %{
+          "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,
@@ -346,7 +347,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        user_request_with_idempotency("/transaction.create", "123", %{
+        user_request("/transaction.create", %{
+          "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,
@@ -366,7 +368,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
              }
     end
 
-    test "returns client:no_idempotency_token_provided when idempotency token is not given" do
+    test "returns client:invalid_parameter when idempotency token is not given" do
       token = insert(:token)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
@@ -384,9 +386,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["data"] == %{
                "messages" => nil,
                "object" => "error",
-               "code" => "client:no_idempotency_token_provided",
-               "description" =>
-                 "The call you made requires the Idempotency-Token header to prevent duplication."
+               "code" => "client:invalid_parameter",
+               "description" => "Invalid parameter provided"
              }
     end
 
@@ -403,7 +404,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       })
 
       response =
-        user_request_with_idempotency("/transaction.create", "123", %{
+        user_request("/transaction.create", %{
+          "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => "fake",
           "token_id" => token.id,
@@ -425,7 +427,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        user_request_with_idempotency("/transaction.create", "123", %{
+        user_request("/transaction.create", %{
+          "idempotency_token" => "123",
           "from_address" => "fake",
           "to_address" => wallet_2.address,
           "token_id" => token.id,
@@ -447,7 +450,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        user_request_with_idempotency("/transaction.create", "123", %{
+        user_request("/transaction.create", %{
+          "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => "fake",
@@ -470,7 +474,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        user_request_with_idempotency("/transaction.create", "123", %{
+        user_request("/transaction.create", %{
+          "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,

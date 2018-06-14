@@ -25,9 +25,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "client:no_idempotency_token_provided",
-                 "description" =>
-                   "The call you made requires the Idempotency-Token header to prevent duplication.",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -50,7 +49,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       )
 
       response =
-        provider_request_with_idempotency("/transfer", UUID.generate(), %{
+        provider_request("/transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
           token_id: token.id,
@@ -143,7 +143,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        provider_request_with_idempotency("/transfer", UUID.generate(), %{
+        provider_request("/transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet.address,
           to_address: wallet.address,
           token_id: token.id,
@@ -170,7 +171,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        provider_request_with_idempotency("/transfer", UUID.generate(), %{
+        provider_request("/transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
           token_id: token.id,
@@ -198,7 +200,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        provider_request_with_idempotency("/transfer", UUID.generate(), %{
+        provider_request("/transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: "00000000-0000-0000-0000-000000000000",
           to_address: wallet.address,
           token_id: token.id,
@@ -223,7 +226,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        provider_request_with_idempotency("/transfer", UUID.generate(), %{
+        provider_request("/transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet.address,
           to_address: "00000000-0000-0000-0000-000000000000",
           token_id: token.id,
@@ -248,7 +252,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       wallet2 = insert(:wallet)
 
       response =
-        provider_request_with_idempotency("/transfer", UUID.generate(), %{
+        provider_request("/transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
           token_id: "BTC:456",
@@ -286,9 +291,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "client:no_idempotency_token_provided",
-                 "description" =>
-                   "The call you made requires the Idempotency-Token header to prevent duplication.",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -303,7 +307,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       _mint = mint!(token)
 
       response =
-        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
+        provider_request("/user.credit_wallet", %{
+          idempotency_token: UUID.generate(),
           account_id: account.id,
           provider_user_id: user.provider_user_id,
           token_id: token.id,
@@ -363,7 +368,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       {:ok, token} = :token |> params_for() |> Token.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
+        provider_request("/user.credit_wallet", %{
+          idempotency_token: UUID.generate(),
           token_id: token.id,
           amount: 100_000,
           metadata: %{}
@@ -386,7 +392,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       {:ok, token} = :token |> params_for(account: account) |> Token.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
+        provider_request("/user.credit_wallet", %{
+          idempotency_token: UUID.generate(),
           account_id: account.id,
           provider_user_id: "fake",
           token_id: token.id,
@@ -412,7 +419,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       {:ok, token} = :token |> params_for() |> Token.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
+        provider_request("/user.credit_wallet", %{
+          idempotency_token: UUID.generate(),
           provider_user_id: user.provider_user_id,
           token_id: token.id,
           amount: 100_000,
@@ -437,7 +445,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       {:ok, account} = :account |> params_for() |> Account.insert()
 
       response =
-        provider_request_with_idempotency("/user.credit_wallet", UUID.generate(), %{
+        provider_request("/user.credit_wallet", %{
+          idempotency_token: UUID.generate(),
           provider_user_id: user.provider_user_id,
           token_id: "BTC:456",
           amount: 100_000,
@@ -477,9 +486,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "client:no_idempotency_token_provided",
-                 "description" =>
-                   "The call you made requires the Idempotency-Token header to prevent duplication.",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -493,7 +501,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       {:ok, token} = :token |> params_for(account: account) |> Token.insert()
 
       response =
-        provider_request_with_idempotency("/user.debit_wallet", UUID.generate(), %{
+        provider_request("/user.debit_wallet", %{
+          idempotency_token: UUID.generate(),
           account_id: account.id,
           provider_user_id: user.provider_user_id,
           token_id: token.id,
@@ -532,7 +541,8 @@ defmodule AdminAPI.V1.TransferControllerTest do
       )
 
       response =
-        provider_request_with_idempotency("/user.debit_wallet", UUID.generate(), %{
+        provider_request("/user.debit_wallet", %{
+          idempotency_token: UUID.generate(),
           account_id: account.id,
           provider_user_id: user.provider_user_id,
           token_id: token.id,

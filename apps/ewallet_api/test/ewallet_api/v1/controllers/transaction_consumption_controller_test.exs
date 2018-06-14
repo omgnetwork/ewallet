@@ -51,7 +51,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       })
 
       response =
-        client_request_with_idempotency("/me.consume_transaction_request", "123", %{
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "123",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -125,7 +126,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       })
 
       response =
-        client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -141,7 +143,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == inserted_consumption.id
 
       response =
-        client_request_with_idempotency("/me.consume_transaction_request", "1234", %{
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "1234",
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
@@ -197,6 +200,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       data = %{
+        idempotency_token: "12342",
         formatted_transaction_request_id: transaction_request.id,
         correlation_id: nil,
         amount: 100_000 * meta.token.subunit_to_unit,
@@ -207,7 +211,6 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       response =
         build_conn()
-        |> put_req_header("idempotency-token", "12342")
         |> put_req_header("accept", @header_accept)
         |> put_auth_header("OMGClient", @api_key, auth_token.token)
         |> post(@base_dir <> "/me.consume_transaction_request", data)
@@ -284,10 +287,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "client:no_idempotency_token_provided",
-                 "description" =>
-                   "The call you made requires the " <>
-                     "Idempotency-Token header to prevent duplication.",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
                  "messages" => nil,
                  "object" => "error"
                }
