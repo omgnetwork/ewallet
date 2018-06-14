@@ -4,15 +4,15 @@ import { Input, Button } from '../omg-uikit'
 import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
 import { currentUserProviderHoc } from '../omg-user-current/currentUserProvider'
 import { withRouter } from 'react-router-dom'
-import { updateCurrentAccount } from '../omg-account-current/action'
+import { updateCurrentUser } from '../omg-user-current/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 const UserSettingContainer = styled.div`
   padding-top: 20px;
-  button {
+  /* button {
     margin-top: 40px;
-  }
+  } */
   h2 {
     margin-bottom: 30px;
   }
@@ -47,7 +47,7 @@ const enhance = compose(
   currentUserProviderHoc,
   connect(
     null,
-    { updateCurrentAccount }
+    { updateCurrentUser }
   ),
   withRouter
 )
@@ -55,7 +55,7 @@ const enhance = compose(
 class UserSettingPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    updateCurrentAccount: PropTypes.func.isRequired,
+    updateCurrentUser: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
     currentUser: PropTypes.object
   }
@@ -69,10 +69,11 @@ class UserSettingPage extends Component {
     this.setInitialCurrentUserState()
   }
   setInitialCurrentUserState = () => {
-    if (this.props.loadingStatus === 'SUCCESS' && !this.state.accountLoaded) {
+    if (this.props.loadingStatus === 'SUCCESS' && !this.state.currentUserLoaded) {
       this.setState({
         email: this.props.currentUser.email,
-        accountLoaded: true
+        avatarPlaceholder: this.props.currentUser.avatar.original,
+        currentUserLoaded: true
       })
     }
   }
@@ -84,15 +85,10 @@ class UserSettingPage extends Component {
   }
   onClickUpdateAccount = async e => {
     e.preventDefault()
-    const result = await this.props.updateCurrentAccount({
-      accountId: this.props.match.params.accountId,
-      name: this.state.name,
-      description: this.state.description,
+    this.props.updateCurrentUser({
+      email: this.state.email,
       avatar: this.state.image
     })
-    if (result.data.success) {
-      this.setState({ image: null })
-    }
   }
   render () {
     return (
@@ -104,7 +100,7 @@ class UserSettingPage extends Component {
               <Avatar
                 onChangeImage={this.onChangeImage}
                 size='180px'
-                placeholder={this.state.avatar}
+                placeholder={this.state.avatarPlaceholder}
               />
             </AvatarContainer>
             <InputsContainer>
@@ -114,10 +110,10 @@ class UserSettingPage extends Component {
                 prefill
                 onChange={this.onChangeEmail}
               />
-              <ChangePasswordContainer>
+              {/* <ChangePasswordContainer>
                 <div>Password</div>
                 <a>Change password</a>
-              </ChangePasswordContainer>
+              </ChangePasswordContainer> */}
               <Button size='small' type='submit' key={'save'}>
                 Save Change
               </Button>

@@ -71,13 +71,14 @@ class ProfileAvatarDropdown extends Component {
     this.props.history.push(`/login`)
   }
 
-  renderAvatar = () => {
-    return <StyledAvatar onClick={this.props.onClickButton} />
+  renderAvatar = (currentUser) => {
+    console.log(currentUser)
+    return <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} />
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {
     return (
       <AvatarDropdownContainer>
-        {this.renderAvatar()}
+        {this.renderAvatar(currentUser)}
         {this.props.open && (
           <DropdownBoxStyled>
             <div>

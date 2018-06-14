@@ -27,5 +27,8 @@ export const alertsReducer = createReducer([], {
   },
   'CATEGORY/CREATE/SUCCESS': (state, { category }) => {
     return [...state, createAlertState(`Created category successfully.`)]
+  },
+  'CURRENT_USER/UPDATE/SUCCESS': (state, { category }) => {
+    return [...state, createAlertState(`Update user setting successfully.`)]
   }
 })

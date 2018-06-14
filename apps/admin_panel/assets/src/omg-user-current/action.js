@@ -15,7 +15,7 @@ export const getCurrentUser = () => async dispatch => {
   }
 }
 
-export const updateCurrentUser = ({ id, avatar, email }) => async dispatch => {
+export const updateCurrentUser = ({ avatar, email }) => async dispatch => {
   try {
     const resultUpdateCurrentUser = await currentUserSerivce.updateCurrentUser({ email })
     if (resultUpdateCurrentUser.data.success) {
