@@ -97,16 +97,27 @@ defmodule EWalletDB.Account do
     |> put_categories(attrs, :category_ids)
   end
 
-  defp put_categories(changeset, attrs, attr_name) do
-    case attrs[attr_name] do
-      ids when is_list(ids) ->
-        categories = Repo.all(from(c in Category, where: c.id in ^attrs[attr_name]))
-        put_assoc(changeset, :categories, categories)
-
-      nil ->
-        changeset
-    end
+  # Since the attribute key could be either an atom or string, the two functions below
+  # are created to support both types.
+  defp put_categories(changeset, attrs, attr_name) when is_atom(attr_name) do
+    category_ids = Map.get(attrs, attr_name) || Map.get(attrs, to_string(attr_name))
+    put_categories(changeset, category_ids)
   end
+
+  defp put_categories(changeset, attrs, attr_name) when is_binary(attr_name) do
+    category_ids = Map.get(attrs, attr_name) || Map.get(attrs, String.to_existing_atom(attr_name))
+    put_categories(changeset, category_ids)
+  end
+
+  defp put_categories(changeset, category_ids) when is_list(category_ids) do
+    # Associations need to be preloaded before updating
+    changeset = Map.put(changeset, :data, Repo.preload(changeset.data, :categories))
+    categories = Repo.all(from(c in Category, where: c.id in ^category_ids))
+    put_assoc(changeset, :categories, categories)
+  end
+
+  # Categories are not updated if nil is passed
+  defp put_categories(changeset, nil), do: changeset
 
   @spec avatar_changeset(changeset :: Ecto.Changeset.t() | %Account{}, attrs :: map()) ::
           Ecto.Changeset.t() | no_return()
