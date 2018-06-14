@@ -113,7 +113,7 @@ defmodule AdminAPI.V1.Router do
     post("/me.update", SelfController, :update)
     post("/me.upload_avatar", SelfController, :upload_avatar)
 
-    post("/admin.logout", AdminAuthController, :logout)
+    post("/me.logout", AdminAuthController, :logout)
   end
 
   # Public endpoints (still protected by API key)

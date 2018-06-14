@@ -93,7 +93,7 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
 
-  /admin.logout:
+  /me.logout:
     post:
       tags:
         - AdminSession

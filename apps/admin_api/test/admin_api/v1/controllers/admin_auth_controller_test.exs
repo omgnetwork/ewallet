@@ -199,9 +199,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
   end
 
-  describe "/admin.logout" do
+  describe "/me.logout" do
     test "responds success with empty response when successful" do
-      response = user_request("/admin.logout")
+      response = user_request("/me.logout")
 
       expected = %{
         "version" => @expected_version,
@@ -213,10 +213,10 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "prevents following calls from using the same credentials" do
-      response1 = user_request("/admin.logout")
+      response1 = user_request("/me.logout")
       assert response1["success"]
 
-      response2 = user_request("/admin.logout")
+      response2 = user_request("/me.logout")
       refute response2["success"]
       assert response2["data"]["code"] == "user:auth_token_expired"
     end
