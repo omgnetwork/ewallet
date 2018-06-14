@@ -8,7 +8,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       metadata: %{},
     },
     %{
-      email: System.get_env("E2E_TEST_ADMIN_1_EMAIL") || "test_admin@example.com",
+      email: System.get_env("E2E_TEST_ADMIN_1_EMAIL") || "test_admin_1@example.com",
       password: System.get_env("E2E_TEST_ADMIN_1_PASSWORD") || "password",
       metadata: %{},
     },
