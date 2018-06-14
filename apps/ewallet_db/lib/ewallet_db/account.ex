@@ -9,6 +9,7 @@ defmodule EWalletDB.Account do
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Repo, Account, APIKey, Category, Key, Membership, Token, Wallet}
+  alias EWalletDB.Helpers.InputAttribute
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -98,14 +99,20 @@ defmodule EWalletDB.Account do
   end
 
   defp put_categories(changeset, attrs, attr_name) do
-    case attrs[attr_name] do
+    case InputAttribute.get(attrs, attr_name) do
       ids when is_list(ids) ->
-        categories = Repo.all(from(c in Category, where: c.id in ^attrs[attr_name]))
-        put_assoc(changeset, :categories, categories)
+        put_categories(changeset, ids)
 
-      nil ->
+      _ ->
         changeset
     end
+  end
+
+  defp put_categories(changeset, category_ids) do
+    # Associations need to be preloaded before updating
+    changeset = Map.put(changeset, :data, Repo.preload(changeset.data, :categories))
+    categories = Repo.all(from(c in Category, where: c.id in ^category_ids))
+    put_assoc(changeset, :categories, categories)
   end
 
   @spec avatar_changeset(changeset :: Ecto.Changeset.t() | %Account{}, attrs :: map()) ::

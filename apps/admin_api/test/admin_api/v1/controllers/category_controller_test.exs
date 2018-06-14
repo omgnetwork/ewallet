@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.CategoryControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.Helpers.Preloader
 
   describe "/category.all" do
     test "returns a list of categories and pagination data" do
@@ -116,6 +117,25 @@ defmodule AdminAPI.V1.CategoryControllerTest do
       assert response["data"]["object"] == "category"
       assert response["data"]["name"] == "updated_name"
       assert response["data"]["description"] == "updated_description"
+    end
+
+    test "updates the category's accounts" do
+      category = :category |> insert() |> Preloader.preload(:accounts)
+      account = :account |> insert()
+      assert Enum.empty?(category.accounts)
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: category.id,
+        account_ids: [account.id]
+      }
+
+      response = user_request("/category.update", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "category"
+      assert response["data"]["account_ids"] == [account.id]
+      assert List.first(response["data"]["accounts"]["data"])["id"] == account.id
     end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
