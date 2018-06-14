@@ -463,12 +463,12 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /account.list_users:
+  /account.get_users:
     post:
       tags:
         - Account
       summary: List the users that are currently assigned to the given acount
-      operationId: account_list_users
+      operationId: account_get_users
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -1105,12 +1105,12 @@ paths:
   ######################################
   #          SETTINGS ENDPOINTS        #
   ######################################
-  /get_settings:
+  /settings.all:
     post:
       tags:
         - Setting
       summary: Get the global settings.
-      operationId: get_settings
+      operationId: settings_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
