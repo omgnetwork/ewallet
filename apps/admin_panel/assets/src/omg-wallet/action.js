@@ -5,7 +5,7 @@ export const getWallets = search => async dispatch => {
   try {
     const result = await walletService.getWallets({
       per: 1000,
-      sort: { by: 'created_at', dir: 'desc' },
+      sort: { by: 'created_at', dir: 'asc' },
       search_term: search
     })
     if (result.data.success) {

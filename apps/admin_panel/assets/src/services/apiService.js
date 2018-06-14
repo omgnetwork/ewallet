@@ -6,8 +6,11 @@ export function request ({ path, data, headers }) {
   const url = buildApiURL(path)
   return axios.post(url, data, { headers })
 }
-export function authenticatedRequest ({ path, data }) {
-  const headers = createHeader({ auth: true })
+export function authenticatedRequest ({ path, data, idempotencyToken }) {
+  let headers = createHeader({ auth: true })
+  if (idempotencyToken) {
+    headers = { ...headers, ...{ 'Idempotency-Token': idempotencyToken } }
+  }
   return request({ path, data, headers })
 }
 export function unAuthenticatedRequest ({ path, data }) {
@@ -15,6 +18,9 @@ export function unAuthenticatedRequest ({ path, data }) {
   return request({ path, data, headers })
 }
 export function authenticatedMultipartRequest ({ path, data }) {
-  const headers = createHeader({ auth: true, headerOption: { 'content-type': 'multipart/form-data' } })
+  const headers = createHeader({
+    auth: true,
+    headerOption: { 'content-type': 'multipart/form-data' }
+  })
   return request({ path, data, headers })
 }

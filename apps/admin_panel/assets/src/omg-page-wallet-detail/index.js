@@ -91,7 +91,7 @@ class TokenDetailPage extends Component {
       <Section title='BALANCES'>
         {wallet.balances.map(balance => {
           return (
-            <DetailGroup>
+            <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b> <span>{balance.amount}</span>
             </DetailGroup>
           )

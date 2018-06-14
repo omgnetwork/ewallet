@@ -60,39 +60,38 @@ class CreateTransactionModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    wallet: PropTypes.func
+    wallet: PropTypes.object
   }
   state = {
-    name: '',
-    symbol: '',
-    amount: null,
-    token: '',
-    selectedToken: {}
+    amount: '',
+    selectedToken: {},
+    toAddress: ''
   }
-  onChangeInputName = e => {
-    this.setState({ name: e.target.value })
-  }
-  onChangeInputSymbol = e => {
-    this.setState({ symbol: e.target.value })
+  onChangeInputToAddress = e => {
+    this.setState({ toAddress: e.target.value })
   }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
-  onChangeToken = e => {
-    this.setState({ token: e.target.value })
-  }
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
-    const result = await this.props.createTransaction({
-      name: this.state.name,
-      symbol: this.state.symbol,
-      amount: this.state.amount,
-      decimal: this.state.decimal
-    })
-    if (result.data.success) {
-      this.props.onRequestClose()
-      this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
+
+    try {
+      const result = await this.props.createTransaction({
+        fromAddress: this.props.wallet.address,
+        toAddress: this.state.toAddress,
+        tokenId: this.state.selectedToken.token.id,
+        amount: this.state.amount
+      })
+      if (result.data.success) {
+        this.props.onRequestClose()
+        this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
+      } else {
+        this.setState({ submitting: false })
+      }
+    } catch (errror) {
+      this.setState({ submitting: false })
     }
   }
   onSelect = item => {
@@ -113,18 +112,16 @@ class CreateTransactionModal extends Component {
           <InputLabel>To Address</InputLabel>
           <Input
             normalPlaceholder='acc_01cfda0qygekaqgxc7qsvwc83h'
-            value={this.state.symbol}
-            onChange={this.onChangeInputSymbol}
+            value={this.state.toAddress}
+            onChange={this.onChangeInputToAddress}
           />
           <InputLabel>Token</InputLabel>
           <Select
             normalPlaceholder='OMG'
-            value={this.state.token}
-            onChange={this.onChangeToken}
             onSelect={this.onSelect}
             options={this.props.wallet.balances.map(b => ({
               ...{
-                key: b.token.name,
+                key: b.token.id,
                 value: `${b.token.name} (${b.token.symbol})`
               },
               ...b

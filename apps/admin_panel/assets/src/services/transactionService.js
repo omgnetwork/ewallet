@@ -1,5 +1,5 @@
 import { authenticatedRequest } from './apiService'
-
+import uuid from 'uuid/v4'
 export function getAllTransactions ({ per, sort, query, ...rest }) {
   return authenticatedRequest({
     path: '/transaction.all',
@@ -13,9 +13,17 @@ export function getAllTransactions ({ per, sort, query, ...rest }) {
   })
 }
 
-export function createTransaction (params, callback) {
-  // not sure what is this yet
-  callback(null, { id: 1234 })
+export function createTransaction ({ fromAddress, toAddress, tokenId, amount }) {
+  return authenticatedRequest({
+    path: '/transaction.create',
+    data: {
+      from_address: fromAddress,
+      to_address: toAddress,
+      token_id: tokenId,
+      amount: 1000
+    },
+    idempotencyToken: uuid()
+  })
 }
 
 export function getTransactionById (id) {
