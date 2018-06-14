@@ -5,10 +5,11 @@ defmodule EWalletDB.Category do
   use Ecto.Schema
   use EWalletDB.SoftDelete
   use EWalletDB.Types.ExternalID
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
   alias EWalletDB.{Repo, Account}
+  alias EWalletDB.Helpers.InputAttribute
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -24,7 +25,8 @@ defmodule EWalletDB.Category do
       :accounts,
       Account,
       join_through: "account_category",
-      join_keys: [category_uuid: :uuid, account_uuid: :uuid]
+      join_keys: [category_uuid: :uuid, account_uuid: :uuid],
+      on_replace: :delete
     )
   end
 
@@ -33,6 +35,23 @@ defmodule EWalletDB.Category do
     |> cast(attrs, [:name, :description])
     |> validate_required(:name)
     |> unique_constraint(:name)
+    |> put_accounts(attrs, :account_ids)
+  end
+
+  defp put_accounts(changeset, attrs, attr_name) do
+    case InputAttribute.get(attrs, attr_name) do
+      ids when is_list(ids) ->
+        put_accounts(changeset, ids)
+      _ ->
+        changeset
+    end
+  end
+
+  defp put_accounts(changeset, account_ids) do
+    # Associations need to be preloaded before updating
+    changeset = Map.put(changeset, :data, Repo.preload(changeset.data, :accounts))
+    accounts = Repo.all(from(a in Account, where: a.id in ^account_ids))
+    put_assoc(changeset, :accounts, accounts)
   end
 
   @doc """
