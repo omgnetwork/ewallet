@@ -135,8 +135,6 @@ paths:
       operationId: me_transfer
       security:
         - ClientAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/ClientTransferBody'
       responses:
@@ -192,8 +190,6 @@ paths:
       operationId: consume_transaction_request
       security:
         - ClientAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/ClientConsumeTransactionRequestBody'
       responses:
@@ -1365,6 +1361,8 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
+              idempotency_token:
+                type: string
               from_address:
                 type: string
               to_address:
@@ -1378,10 +1376,12 @@ components:
               encrypted_metadata:
                 type: object
             required:
+              - idempotency_token
               - to_address
               - token_id
               - amount
             example:
+              idempotency_token: "dfdgr"
               from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
               to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
               token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
@@ -1659,6 +1659,8 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
+              idempotency_token:
+                type: string
               formatted_transaction_request_id:
                 type: string
               correlation_id:
@@ -1674,8 +1676,10 @@ components:
               encrypted_metadata:
                 type: object
             required:
+              - idempotency_token
               - formatted_transaction_request_id
             example:
+              idempotency_token: "3unr3u3"
               formatted_transaction_request_id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
               correlation_id: "123"
               token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
@@ -1696,18 +1700,6 @@ components:
               - id
             example:
               id: "txn_01cbfg5m2ee06kzm8tbysfmmw5"
-
-  ######################################
-  #           REQUEST HEADERS          #
-  ######################################
-  parameters:
-    IdempotencyToken:
-      in: header
-      name: Idempotency-Token
-      description: The idempotency token for the request
-      required: true
-      schema:
-        type: string
 
   ######################################
   #          SECURITY SCHEMES          #
