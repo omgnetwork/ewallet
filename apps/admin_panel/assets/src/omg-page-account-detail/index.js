@@ -38,7 +38,6 @@ class AccountDetailPage extends Component {
     return <TopBar title={account.name} breadcrumbItems={['Account', account.name]} />
   }
   renderDetail = account => {
-    console.log(account)
     return (
       <Section title='DETAILS'>
         <DetailGroup>
@@ -51,7 +50,7 @@ class AccountDetailPage extends Component {
           <b>Description:</b> <span>{account.description}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Category:</b> <span>{account.category}</span>
+          <b>Category:</b> <span>{_.get(account.categories, 'data[0].name')}</span>
         </DetailGroup>
         {/* <DetailGroup>
           <b>Category:</b> <span>{account.description}</span>

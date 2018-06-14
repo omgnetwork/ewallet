@@ -38,6 +38,9 @@ const Input = styled.input`
   :disabled {
     background-color: transparent;
   }
+  ::placeholder {
+    color: ${props => props.theme.colors.B100};
+  }
 `
 const Error = styled.div`
   position: absolute;

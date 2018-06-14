@@ -75,7 +75,7 @@ class TokenDetailPage extends Component {
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Account Owner:</b> <span><a>{wallet.account.name}</a></span>
+          <b>Account Owner:</b> <span><a>{_.get(wallet, 'account.name', '-')}</a></span>
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b> <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>

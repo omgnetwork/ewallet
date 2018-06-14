@@ -23,7 +23,7 @@ const customStyles = {
 }
 const Form = styled.form`
   padding: 50px;
-  width: 250px;
+  width: 400px;
   > i {
     position: absolute;
     right: 15px;
@@ -32,7 +32,7 @@ const Form = styled.form`
     cursor: pointer;
   }
   input {
-    margin-top: 50px;
+    margin-top: 5px;
   }
   button {
     margin: 35px 0 0;
@@ -41,6 +41,11 @@ const Form = styled.form`
   h4 {
     text-align: center;
   }
+`
+const InputLabel = styled.div`
+    margin-top: 20px;
+    font-size: 14px;
+    font-weight: 400;
 `
 const ButtonContainer = styled.div`
   text-align: center;
@@ -55,8 +60,8 @@ class CreateTokenModal extends Component {
   state = {
     name: '',
     symbol: '',
-    amount: 0,
-    decimal: 18
+    amount: null,
+    token: ''
   }
   onChangeInputName = e => {
     this.setState({ name: e.target.value })
@@ -67,8 +72,8 @@ class CreateTokenModal extends Component {
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
-  onChangeDecimal = e => {
-    this.setState({ decimal: e.target.value })
+  onChangeToken = e => {
+    this.setState({ token: e.target.value })
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -94,27 +99,29 @@ class CreateTokenModal extends Component {
       >
         <Form onSubmit={this.onSubmit} noValidate>
           <Icon name='Close' onClick={this.props.onRequestClose} />
-          <h4>Create Token</h4>
-          <Select />
+          <h4>Transfer Token</h4>
+          <InputLabel>To Address</InputLabel>
           <Input
-            placeholder='Token symbol'
+            normalPlaceholder='acc_01cfda0qygekaqgxc7qsvwc83h'
             value={this.state.symbol}
             onChange={this.onChangeInputSymbol}
           />
-          <Input
-            placeholder='Decimal point'
-            value={this.state.decimal}
-            onChange={this.onChangeDecimal}
+          <InputLabel>Token</InputLabel>
+          <Select
+            normalPlaceholder='OMG'
+            value={this.state.token}
+            onChange={this.onChangeToken}
           />
+          <InputLabel>Amount</InputLabel>
           <Input
-            placeholder='Amount (Optional)'
+            normalPlaceholder='1,000,000'
             value={this.state.amount}
             onChange={this.onChangeAmount}
             type='number'
           />
           <ButtonContainer>
             <Button size='small' type='submit' loading={this.state.submitting}>
-              Create Token
+              Transfer
             </Button>
           </ButtonContainer>
           <div>{this.state.error}</div>
