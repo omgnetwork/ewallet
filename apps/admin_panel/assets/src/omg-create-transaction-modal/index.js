@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from 'react-modal'
-import { createToken } from '../omg-token/action'
+import { createTransaction } from '../omg-transaction/action'
 import { connect } from 'react-redux'
 const customStyles = {
   content: {
@@ -43,25 +43,31 @@ const Form = styled.form`
   }
 `
 const InputLabel = styled.div`
-    margin-top: 20px;
-    font-size: 14px;
-    font-weight: 400;
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 400;
 `
 const ButtonContainer = styled.div`
   text-align: center;
 `
+const BalanceTokenLabel = styled.div`
+  font-size: 12px;
+  color: ${props => props.theme.colors.B100};
+  margin-top: 5px;
+`
 
-class CreateTokenModal extends Component {
+class CreateTransactionModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    createToken: PropTypes.func
+    wallet: PropTypes.func
   }
   state = {
     name: '',
     symbol: '',
     amount: null,
-    token: ''
+    token: '',
+    selectedToken: {}
   }
   onChangeInputName = e => {
     this.setState({ name: e.target.value })
@@ -78,7 +84,7 @@ class CreateTokenModal extends Component {
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
-    const result = await this.props.createToken({
+    const result = await this.props.createTransaction({
       name: this.state.name,
       symbol: this.state.symbol,
       amount: this.state.amount,
@@ -89,6 +95,10 @@ class CreateTokenModal extends Component {
       this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
     }
   }
+  onSelect = item => {
+    this.setState({ selectedToken: item })
+  }
+
   render () {
     return (
       <Modal
@@ -111,7 +121,16 @@ class CreateTokenModal extends Component {
             normalPlaceholder='OMG'
             value={this.state.token}
             onChange={this.onChangeToken}
+            onSelect={this.onSelect}
+            options={this.props.wallet.balances.map(b => ({
+              ...{
+                key: b.token.name,
+                value: `${b.token.name} (${b.token.symbol})`
+              },
+              ...b
+            }))}
           />
+          <BalanceTokenLabel>Balance: {this.state.selectedToken.amount} </BalanceTokenLabel>
           <InputLabel>Amount</InputLabel>
           <Input
             normalPlaceholder='1,000,000'
@@ -131,4 +150,7 @@ class CreateTokenModal extends Component {
   }
 }
 
-export default connect(null, { createToken })(CreateTokenModal)
+export default connect(
+  null,
+  { createTransaction }
+)(CreateTransactionModal)

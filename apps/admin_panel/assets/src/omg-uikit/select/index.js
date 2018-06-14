@@ -13,12 +13,12 @@ const OptionsContainer = styled.div`
   box-shadow: 0 4px 12px 0 #e8eaed;
   background-color: white;
   right: 0;
-  max-height: 200px;
+  max-height: 150px;
   overflow: auto;
   width: 100%;
 `
 const OptionItem = styled.div`
-  padding: 5px 10px;
+  padding: 10px 10px;
   cursor: pointer;
   :hover {
     background-color: ${props => props.theme.colors.S100};
@@ -26,26 +26,29 @@ const OptionItem = styled.div`
 `
 export default class Select extends Component {
   static propTypes = {
-    value: PropTypes.string,
-    onChange: PropTypes.func
+    onSelect: PropTypes.func,
+    options: PropTypes.array
   }
   state = {
-    active: false
+    active: false,
+    value: ''
   }
   registerRef = input => {
     this.input = input
   }
   onFocus = () => {
-    this.setState({ active: true })
+    this.setState({ active: true, value: '' })
   }
   onBlur = e => {
-    e.preventDefault()
-    setTimeout(() => {
-      this.setState({ active: false })
-    })
+    this.setState({ active: false })
   }
   onClickItem = item => e => {
-    this.setState({ active: false, value: item })
+    this.setState({ active: false, value: item.value }, () => {
+      this.props.onSelect && this.props.onSelect(item)
+    })
+  }
+  onChange = e => {
+    this.setState({ value: e.target.value })
   }
   render () {
     return (
@@ -54,15 +57,21 @@ export default class Select extends Component {
           {...this.props}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
-          onChange={this.props.onChange}
-          value={this.state.value || this.props.value}
+          onChange={this.onChange}
+          value={this.state.value}
           registerRef={this.registerRef}
         />
         {this.state.active && (
           <OptionsContainer>
-            <OptionItem onClick={this.onClickItem('OMG')}>OMG</OptionItem>
-            <OptionItem onClick={this.onClickItem('BTC')}>BTC</OptionItem>
-            <OptionItem onClick={this.onClickItem('ETH')}>ETH</OptionItem>
+            {this.props.options
+              .filter(option => new RegExp(this.state.value).test(option.value))
+              .map(option => {
+                return (
+                  <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
+                    {option.value}
+                  </OptionItem>
+                )
+              })}
           </OptionsContainer>
         )}
       </SelectContainer>
