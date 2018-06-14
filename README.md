@@ -227,7 +227,7 @@ Finished in 4.5 seconds
 134 tests, 0 failures
 ```
 
-All the tests should pass. If some tests are failing, double-check you have install all the dependencies. If you keep getting the failures, you can get in touch with us on [Rocket](https://chat.omisego.network/channel/ewallet-sdk)!
+All the tests should pass. If some tests are failing, double-check you have install all the dependencies. If you keep getting the failures, you can get in touch with us on [Gitter](https://gitter.im/omisego/ewallet)!
 
 ## Migrating the development database
 
@@ -315,7 +315,7 @@ For client-side applications (non-sensitive calls), the following SDKs are avail
 
 ### Not seeing what you need?
 
-If none of the current SDKs matches your needs, you can create it! Get in touch with us [on Rocket](https://chat.omisego.network/channel/ewallet-sdk) and let us know. We'll be happy to help you implement it and, if your SDK meets our standards, support it as one of our official SDK.
+If none of the current SDKs matches your needs, you can create it! Get in touch with us [on Gitter](https://gitter.im/omisego/ewallet) and let us know. We'll be happy to help you implement it and, if your SDK meets our standards, support it as one of our official SDK.
 
 # Deploying the OmiseGO eWallet
 
@@ -348,7 +348,7 @@ In this section, we will be sharing some of the next features the OmiseGO team w
 
 # Support
 
-- Got an idea to improve the SDKs? Talk to us in our [Rocket Chat](https://chat.omisego.network/)'s `#eWallet SDK` channel
+- Got an idea to improve the SDKs? Talk to us in [Gitter](https://gitter.im/omisego/ewallet)'s `omisego/ewallet` room
 
 - Found a bug? File an issue with [GitHub Issues](https://github.com/omisego/ewallet/issues).
 
@@ -376,7 +376,7 @@ We decided to stay as protocol-agnostic as possible and not follow HTTP conventi
 
 Each provider is responsible for running its own version of the eWallet. To get started, we offer hosting solutions but the long term goal is to have a federated network of eWallets running on top of a decentralized blockchain with no centralization.
 
-More questions? Get in touch with us on [Rocket Chat](https://chat.omisego.network/channel/ewallet-sdk)!
+More questions? Get in touch with us on [Gitter](https://gitter.im/omisego/ewallet)!
 
 # Going Further
 

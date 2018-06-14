@@ -16,11 +16,11 @@ Welcome to one of OmiseGO's open source projects! We welcome contributions in al
 
 #### **Do you intend to add a new feature or change an existing one?**
 
-* Do not open an issue right away. First, get in touch with us through [Rocket Chat](https://chat.omisego.network/channel/ewallet-sdk). Once you get the green light to work on something, create an issue to describe the whole idea.
+* Do not open an issue right away. First, get in touch with us through [Gitter](https://gitter.im/omisego/ewallet). Once you get the green light to work on something, create an issue to describe the whole idea.
 
 #### **Do you have questions about the source code?**
 
-* You can ask any question about the source code in the [Rocket Chat](https://chat.omisego.network/channel/ewallet-sdk) or on [stack overflow](https://stackoverflow.com/).
+* You can ask any question about the source code in [Gitter](https://gitter.im/omisego/ewallet) or on [stack overflow](https://stackoverflow.com/).
 
 Thanks!
 
