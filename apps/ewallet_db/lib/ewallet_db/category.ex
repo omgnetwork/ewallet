@@ -42,6 +42,7 @@ defmodule EWalletDB.Category do
     case InputAttribute.get(attrs, attr_name) do
       ids when is_list(ids) ->
         put_accounts(changeset, ids)
+
       _ ->
         changeset
     end

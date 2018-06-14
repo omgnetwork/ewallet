@@ -121,8 +121,8 @@ defmodule EWalletDB.CategoryTest do
         |> Enum.map(fn account -> account.id end)
 
       assert Enum.all?(expected, fn account ->
-        account.id in actual_account_ids
-      end)
+               account.id in actual_account_ids
+             end)
 
       assert Enum.count(actual_account_ids) == Enum.count(expected)
     end
