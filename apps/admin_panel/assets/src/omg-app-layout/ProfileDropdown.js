@@ -72,7 +72,6 @@ class ProfileAvatarDropdown extends Component {
   }
 
   renderAvatar = (currentUser) => {
-    console.log(currentUser)
     return <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} />
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {

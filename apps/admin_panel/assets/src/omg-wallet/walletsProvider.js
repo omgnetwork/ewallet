@@ -23,9 +23,6 @@ class WalletProvider extends Component {
     }
   }
   render () {
-    this.props.wallets.map(x => {
-      console.log(x.balances.map(x => x.amount))
-    })
     return this.props.render({
       wallets: this.props.wallets,
       loadingStatus: this.props.walletsLoadingStatus

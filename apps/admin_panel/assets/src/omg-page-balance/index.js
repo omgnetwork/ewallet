@@ -16,9 +16,13 @@ const WalletPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  th:first-child {
-    width: 50%;
-  }
+  /* th:first-child, td:first-child {
+    width: 200px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } */
 `
 const SortableTableContainer = styled.div`
   position: relative;
@@ -60,13 +64,19 @@ class WalletPage extends Component {
   }
   getColumns = wallets => {
     return [
-      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
+      { key: 'owner', title: 'OWNER TYPE', sort: true },
+      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true }
     ]
   }
   getRow = wallets => {
-    return wallets
+    return wallets.map(wallet => {
+      return {
+        ...{ owner: wallet.user_id ? 'User' : 'Account' },
+        ...wallet
+      }
+    })
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match

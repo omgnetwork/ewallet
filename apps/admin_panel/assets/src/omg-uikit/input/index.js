@@ -39,7 +39,7 @@ const Input = styled.input`
     background-color: transparent;
   }
   ::placeholder {
-    color: ${props => props.theme.colors.B100};
+    color: ${props => props.theme.colors.S400};
   }
 `
 const Error = styled.div`
