@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AuthController do
+defmodule AdminAPI.V1.UserAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.V1.ClientAuth
@@ -7,6 +7,14 @@ defmodule AdminAPI.V1.AuthController do
   @doc """
   Generates a new authentication token for the provider_user_id and returns it.
   """
+  def login(conn, %{"id" => id})
+      when is_binary(id) and byte_size(id) > 0 do
+    id
+    |> User.get()
+    |> generate_token()
+    |> respond(conn)
+  end
+
   def login(conn, %{"provider_user_id" => id})
       when is_binary(id) and byte_size(id) > 0 do
     id
@@ -24,11 +32,12 @@ defmodule AdminAPI.V1.AuthController do
   Invalidates the authentication token used in this request.
   """
   def logout(conn, %{"auth_token" => auth_token}) do
-    auth_token
-    |> ClientAuth.expire_token(:ewallet_api)
-    |> respond(conn)
+    auth_token |> ClientAuth.expire_token(:ewallet_api)
+
+    respond(conn)
   end
 
   defp respond({:ok, token}, conn), do: render(conn, :auth_token, %{auth_token: token})
   defp respond({:error, code}, conn), do: handle_error(conn, code)
+  defp respond(conn), do: render(conn, :empty_response, %{})
 end

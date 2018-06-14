@@ -1,6 +1,7 @@
-defmodule EWalletAPI.V1.AuthView do
-  use EWalletAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, UserAuthTokenSerializer}
+defmodule AdminAPI.V1.UserAuthView do
+  use AdminAPI, :view
+  alias EWallet.Web.V1.ResponseSerializer
+  alias EWallet.Web.V1.UserAuthTokenSerializer
 
   def render("auth_token.json", %{auth_token: auth_token}) do
     auth_token
