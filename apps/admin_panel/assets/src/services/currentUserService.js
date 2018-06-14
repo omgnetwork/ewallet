@@ -13,3 +13,10 @@ export function getCurrentUserAccount () {
     data: {}
   })
 }
+
+export function updateCurrentUser () {
+  return authenticatedRequest({
+    path: 'me.get_account',
+    data: {}
+  })
+}

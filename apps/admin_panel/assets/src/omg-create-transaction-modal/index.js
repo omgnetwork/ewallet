@@ -76,7 +76,6 @@ class CreateTransactionModal extends Component {
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
-
     try {
       const result = await this.props.createTransaction({
         fromAddress: this.props.wallet.address,

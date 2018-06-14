@@ -60,8 +60,7 @@ class UserSettingPage extends Component {
     currentUser: PropTypes.object
   }
   state = {
-    name: '',
-    description: ''
+    email: ''
   }
   componentWillReceiveProps = props => {
     this.setInitialCurrentUserState()
@@ -80,11 +79,8 @@ class UserSettingPage extends Component {
   onChangeImage = ({ file }) => {
     this.setState({ image: file })
   }
-  onChangeName = e => {
-    this.setState({ name: e.target.value })
-  }
-  onChangeDescription = e => {
-    this.setState({ description: e.target.value })
+  onChangeEmail = e => {
+    this.setState({ email: e.target.value })
   }
   onClickUpdateAccount = async e => {
     e.preventDefault()
@@ -116,7 +112,7 @@ class UserSettingPage extends Component {
                 placeholder={'Email'}
                 value={this.state.email}
                 prefill
-                onChange={this.onChangeName}
+                onChange={this.onChangeEmail}
               />
               <ChangePasswordContainer>
                 <div>Password</div>
