@@ -85,11 +85,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "wallet:address_not_found",
       description: "There is no wallet corresponding to the provided address."
     },
-    no_idempotency_token_provided: %{
-      code: "client:no_idempotency_token_provided",
-      description:
-        "The call you made requires the Idempotency-Token header to prevent duplication."
-    },
     expired_transaction_request: %{
       code: "transaction_request:expired",
       description: "The specified transaction request has expired."
