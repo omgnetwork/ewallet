@@ -3067,7 +3067,10 @@ components:
               sort_dir:
                 type: string
                 enum: ["asc", "desc"]
+              id:
+                type: string
             example:
+              id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
               page: 1
               per_page: 10
               search_term: ""
@@ -3721,7 +3724,24 @@ components:
       content:
         application/vnd.omisego.v1+json:
           schema:
+            example:
+              name: "My Wallet"
+              identifier: "secondary"
+              user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
             oneOf:
+              - properties:
+                  name:
+                    type: string
+                  identifier:
+                    type: string
+                    enum: ["burn", "secondary"]
+                  provider_user_id:
+                    type: string
+                required:
+                  - name
+                  - identifier
+                  - provider_user_id
+
               - properties:
                   name:
                     type: string
@@ -3734,10 +3754,7 @@ components:
                   - name
                   - identifier
                   - user_id
-                example:
-                  name: "My Wallet"
-                  identifier: "secondary"
-                  user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
+
               - properties:
                   name:
                     type: string
@@ -3750,11 +3767,6 @@ components:
                   - name
                   - identifier
                   - account_id
-                example:
-                  name: "My Wallet"
-                  identifier: "secondary"
-                  account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
-
 
     ######################################
     #     TRANSACTION REQUEST BODIES     #
