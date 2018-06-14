@@ -61,7 +61,7 @@ paths:
   ######################################
   #          SESSION ENDPOINTS         #
   ######################################
-  /logout:
+  /me.logout:
     post:
       tags:
         - Session

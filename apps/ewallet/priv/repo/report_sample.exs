@@ -47,7 +47,7 @@ CLI.print("""
   OMGClient #{Base.encode64(ewallet_api_key.key <> ":" <> ewallet_auth_token.token)}
   ```
 
-  4. Try out Client endpoints such as /me.get, /me.list_transactions, /logout, etc.
+  4. Try out Client endpoints such as /me.get, /me.list_transactions, /me.logout, etc.
 
   ## Try Admin API's Client endpoints
 

@@ -41,7 +41,7 @@ defmodule EWalletAPI.V1.Router do
       post("/me.transfer", TransferController, :transfer_for_user)
     end
 
-    post("/logout", AuthController, :logout)
+    post("/me.logout", AuthController, :logout)
   end
 
   # Public endpoints
