@@ -6,8 +6,9 @@ defmodule EWallet.UUIDFetcher do
 
   # Add more mappings if you wish to use this fetcher for other schemas.
   @mappings %{
-    "account_id" => Account,
-    "user_id" => User
+    "account_id" => {Account, :id, "account_uuid"},
+    "user_id" => {User, :id, "user_uuid"},
+    "provider_user_id" => {User, :provider_user_id, "user_uuid"}
   }
 
   @doc """
@@ -38,19 +39,16 @@ defmodule EWallet.UUIDFetcher do
   end
 
   defp replace_external_id(key, value, external_id: true) do
-    schema = @mappings[key]
-    uuid_key = String.replace(key, "_id", "_uuid")
-
-    load_record(schema, uuid_key, key, value)
+    load_record(@mappings[key], key, value)
   end
 
   defp replace_external_id(key, value, external_id: false), do: {key, value}
 
-  defp load_record(nil, _, key, value), do: {key, value}
+  defp load_record(nil, key, value), do: {key, value}
 
-  defp load_record(schema, uuid_key, _key, value) do
-    value
-    |> schema.get()
+  defp load_record({schema, internal_field, uuid_key}, _key, value) do
+    [{internal_field, value}]
+    |> schema.get_by()
     |> extract_uuid(uuid_key)
   end
 

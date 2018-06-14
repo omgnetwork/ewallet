@@ -20,6 +20,15 @@ defmodule EWallet.UUIDFetcherTest do
       assert %User{} = res["user"]
     end
 
+    test "turns provider_user_id into user_uuid" do
+      user = insert(:user)
+      attrs = %{"provider_user_id" => user.provider_user_id}
+
+      res = UUIDFetcher.replace_external_ids(attrs)
+      assert res["user_uuid"] == user.uuid
+      assert %User{} = res["user"]
+    end
+
     test "turns external IDs into internal UUIDs" do
       account = insert(:account)
       attrs = %{"account_id" => account.id}
