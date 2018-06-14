@@ -9,37 +9,44 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
 
   def init(opts), do: opts
 
-  def call(conn, _opts) do
+  def call(conn, opts) do
     conn
     |> extract_auth_scheme()
-    |> authenticate(conn)
+    |> authenticate(conn, opts)
   end
 
   defp extract_auth_scheme(conn) do
-    header =
-      conn
-      |> get_req_header("authorization")
-      |> List.first()
+    case get_authorization_header(conn) do
+      nil ->
+        authenticate(nil, conn, nil)
 
-    [scheme, _content] = String.split(header, " ", parts: 2)
-    scheme
+      header ->
+        [scheme, _content] = String.split(header, " ", parts: 2)
+        scheme
+    end
   end
 
-  defp authenticate("OMGAdmin", conn) do
+  defp get_authorization_header(conn) do
+    conn
+    |> get_req_header("authorization")
+    |> List.first()
+  end
+
+  defp authenticate("OMGAdmin", conn, opts) do
     conn
     |> assign(:auth_scheme, :admin)
-    |> UserAuthPlug.call(UserAuthPlug.init())
+    |> UserAuthPlug.call(UserAuthPlug.init(opts))
   end
 
-  defp authenticate("Basic", conn), do: authenticate("OMGProvider", conn)
+  defp authenticate("Basic", conn, opts), do: authenticate("OMGProvider", conn, opts)
 
-  defp authenticate("OMGProvider", conn) do
+  defp authenticate("OMGProvider", conn, opts) do
     conn
     |> assign(:auth_scheme, :provider)
-    |> ProviderAuth.call(nil)
+    |> ProviderAuth.call(opts)
   end
 
-  defp authenticate(_, conn) do
+  defp authenticate(_, conn, _opts) do
     conn
     |> assign(:authenticated, false)
     |> handle_error(:invalid_auth_scheme)
