@@ -6,14 +6,14 @@ import { getWalletById } from './action'
 class WalletProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
-    walletId: PropTypes.string,
+    walletAddress: PropTypes.string,
     getWalletById: PropTypes.func,
     wallet: PropTypes.object
   }
 
   componentDidMount = () => {
     if (!this.props.wallet) {
-      this.props.getWalletById(this.props.walletId)
+      this.props.getWalletById(this.props.walletAddress)
     }
   }
   render () {
@@ -25,7 +25,7 @@ class WalletProvider extends Component {
 export default connect(
   (state, props) => {
     return {
-      wallet: selectWalletById(props.walletId)(state)
+      wallet: selectWalletById(props.walletAddress)(state)
     }
   },
   { getWalletById }

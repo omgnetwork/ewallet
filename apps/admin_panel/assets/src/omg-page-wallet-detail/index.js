@@ -130,7 +130,7 @@ class TokenDetailPage extends Component {
     return (
       <WalletProvider
         render={this.renderWalletDetailPage}
-        walletId={this.props.match.params.walletId}
+        walletAddress={this.props.match.params.walletAddress}
         {...this.state}
       />
     )

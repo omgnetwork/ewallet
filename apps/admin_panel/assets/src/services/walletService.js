@@ -27,11 +27,11 @@ export function getWalletsByAccountId ({ accountId, per, sort, query, ...rest })
   })
 }
 
-export function getWallet (id) {
+export function getWallet (address) {
   return authenticatedRequest({
     path: '/wallet.get',
     data: {
-      address: id
+      address
     }
   })
 }
