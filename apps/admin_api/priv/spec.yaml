@@ -4170,6 +4170,18 @@ components:
               id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
 
   ######################################
+  #           REQUEST HEADERS          #
+  ######################################
+  parameters:
+    IdempotencyToken:
+      in: header
+      name: Idempotency-Token
+      description: The idempotency token for the request
+      required: true
+      schema:
+        type: string
+
+  ######################################
   #          SECURITY SCHEMES          #
   ######################################
   securitySchemes:

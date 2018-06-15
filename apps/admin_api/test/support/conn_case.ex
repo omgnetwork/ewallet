@@ -216,6 +216,21 @@ defmodule AdminAPI.ConnCase do
     |> json_response(status)
   end
 
+  @doc """
+  A helper function that generates a valid client request
+  with given path and data, and return the parsed JSON response.
+  """
+  # credo:disable-for-next-line
+  def client_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
+      when is_binary(path) and byte_size(path) > 0 do
+    build_conn()
+    |> put_req_header("idempotency-token", idempotency_token)
+    |> put_req_header("accept", @header_accept)
+    |> put_auth_header("OMGClient", @api_key, @auth_token)
+    |> post(@base_dir <> path, data)
+    |> json_response(status)
+  end
+
   defp client_auth_header(opts) do
     api_key_id = Keyword.get(opts, :api_key_id, @api_key_id)
     api_key = Keyword.get(opts, :api_key, @api_key)
