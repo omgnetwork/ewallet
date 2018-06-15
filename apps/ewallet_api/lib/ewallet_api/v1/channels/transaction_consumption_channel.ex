@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   @moduledoc """
   Represents the transaction consumption channel.

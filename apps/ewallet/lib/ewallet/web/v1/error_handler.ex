@@ -41,12 +41,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "account:not_found",
       description: "There is no user corresponding to the provided account id"
     },
-    access_token_not_found: %{
-      code: "user:access_token_not_found",
-      description: "There is no account corresponding to the provided access_token"
+    auth_token_not_found: %{
+      code: "user:auth_token_not_found",
+      description: "There is no account or user corresponding to the provided auth_token"
     },
-    access_token_expired: %{
-      code: "user:access_token_expired",
+    auth_token_expired: %{
+      code: "user:auth_token_expired",
       description: "The provided token is expired or has been invalidated"
     },
     insufficient_funds: %{
@@ -84,11 +84,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
     wallet_address_not_found: %{
       code: "wallet:address_not_found",
       description: "There is no wallet corresponding to the provided address."
-    },
-    no_idempotency_token_provided: %{
-      code: "client:no_idempotency_token_provided",
-      description:
-        "The call you made requires the Idempotency-Token header to prevent duplication."
     },
     expired_transaction_request: %{
       code: "transaction_request:expired",
@@ -139,6 +134,38 @@ defmodule EWallet.Web.V1.ErrorHandler do
     token_not_found: %{
       code: "token:token_not_found",
       description: "There is no token matching the provided token_id."
+    },
+    user_wallet_mismatch: %{
+      code: "user:user_wallet_mismatch",
+      description: "The provided wallet does not belong to the current user"
+    },
+    account_wallet_mismatch: %{
+      code: "account:account_wallet_mismatch",
+      description: "The provided wallet does not belong to the given account"
+    },
+    invalid_access_secret_key: %{
+      code: "client:invalid_access_secret_key",
+      description: "Invalid access and/or secret key"
+    },
+    provider_user_id_not_found: %{
+      code: "user:provider_user_id_not_found",
+      description: "There is no user corresponding to the provided provider_user_id"
+    },
+    wallet_not_found: %{
+      code: "wallet:wallet_not_found",
+      description: "There is no wallet corresponding to the provided address"
+    },
+    user_wallet_not_found: %{
+      code: "user:wallet_not_found",
+      description: "There is no user wallet corresponding to the provided address"
+    },
+    account_wallet_not_found: %{
+      code: "account:wallet_not_found",
+      description: "There is no account wallet corresponding to the provided address"
+    },
+    account_id_not_found: %{
+      code: "user:account_id_not_found",
+      description: "There is no account corresponding to the provided account_id"
     }
   }
 

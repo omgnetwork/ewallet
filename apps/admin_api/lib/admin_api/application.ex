@@ -11,7 +11,8 @@ defmodule AdminAPI.Application do
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
-      supervisor(AdminAPI.Endpoint, [])
+      supervisor(AdminAPI.Endpoint, []),
+      supervisor(AdminAPI.V1.Endpoint, [])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

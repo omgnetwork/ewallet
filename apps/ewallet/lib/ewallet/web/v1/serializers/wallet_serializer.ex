@@ -9,7 +9,8 @@ defmodule EWallet.Web.V1.WalletSerializer do
     AccountSerializer,
     UserSerializer,
     BalanceSerializer,
-    PaginatorSerializer
+    PaginatorSerializer,
+    ListSerializer
   }
 
   alias EWallet.BalanceFetcher
@@ -22,7 +23,9 @@ defmodule EWallet.Web.V1.WalletSerializer do
   end
 
   def serialize(wallets) when is_list(wallets) do
-    Enum.map(wallets, &serialize/1)
+    wallets
+    |> Enum.map(&serialize/1)
+    |> ListSerializer.serialize()
   end
 
   def serialize(%NotLoaded{}), do: nil

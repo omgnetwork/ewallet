@@ -22,7 +22,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
     end
   end
 
-  describe "/me.list_wallets" do
+  describe "/me.get_wallets" do
     test "responds with a list of wallets" do
       account = Account.get_master_account()
       master_wallet = Account.get_primary_wallet(account)
@@ -37,7 +37,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
       transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
       transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
-      response = client_request("/me.list_wallets")
+      response = client_request("/me.get_wallets")
 
       assert response == %{
                "version" => "1",

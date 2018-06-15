@@ -19,23 +19,17 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   # These fields must be one of the schema's association names.
   @always_embed [:token]
 
-  def consume(conn, attrs) do
-    attrs
-    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
-    |> TransactionConsumptionConsumerGate.consume()
-    |> respond(conn)
-  end
-
-  def consume_for_user(conn, attrs) do
-    attrs = Map.put(attrs, "idempotency_token", conn.assigns.idempotency_token)
-
+  def consume_for_user(conn, %{"idempotency_token" => idempotency_token} = attrs)
+      when idempotency_token != nil do
     conn.assigns.user
     |> TransactionConsumptionConsumerGate.consume(attrs)
     |> respond(conn)
   end
 
-  def approve(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, true)
-  def reject(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, false)
+  def consume_for_user(conn, _) do
+    handle_error(conn, :invalid_parameter)
+  end
+
   def approve_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, true)
   def reject_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, false)
 

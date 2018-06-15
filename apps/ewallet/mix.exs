@@ -46,7 +46,7 @@ defmodule EWallet.Mixfile do
       {:timex, "~> 3.0"},
       {:ewallet_db, in_umbrella: true},
       {:local_ledger, in_umbrella: true},
-      {:local_ledger_db, in_umbrella: true, only: :test}
+      {:local_ledger_db, in_umbrella: true}
     ]
   end
 end

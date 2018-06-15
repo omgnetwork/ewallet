@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.AuthTokenSerializer do
+defmodule EWallet.Web.V1.UserAuthTokenSerializer do
   @moduledoc """
   Serializes auth token data into V1 JSON response format.
   """

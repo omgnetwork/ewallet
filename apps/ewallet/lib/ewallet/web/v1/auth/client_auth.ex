@@ -29,8 +29,8 @@ defmodule EWallet.Web.V1.ClientAuth do
 
   def authenticate_token(auth_token, owner_app) do
     case AuthToken.authenticate(auth_token, owner_app) do
-      false -> {:error, :access_token_not_found}
-      :token_expired -> {:error, :access_token_expired}
+      false -> {:error, :auth_token_not_found}
+      :token_expired -> {:error, :auth_token_expired}
       user -> {:ok, user}
     end
   end
