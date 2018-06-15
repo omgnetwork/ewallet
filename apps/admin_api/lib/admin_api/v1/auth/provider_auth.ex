@@ -1,4 +1,4 @@
-defmodule EWallet.Web.V1.ProviderAuth do
+defmodule AdminAPI.V1.ProviderAuth do
   @moduledoc """
   This module takes care of authenticating a provider for HTTP or Websocket connections.
   """

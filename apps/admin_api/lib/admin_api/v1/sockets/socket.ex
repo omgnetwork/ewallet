@@ -16,8 +16,11 @@ defmodule AdminAPI.V1.Socket do
 
   def connect(params, socket) do
     provider_auth = SocketProviderAuth.authenticate(params)
+    admin_user_auth = SocketAdminUserAuth.authenticate(params)
 
     case provider_auth do
+      %{authenticated: :admin} = admin_auth ->
+        {:ok, assign(socket, :auth, admin_auth)}
       %{authenticated: :provider} = provider_auth ->
         {:ok, assign(socket, :auth, provider_auth)}
 

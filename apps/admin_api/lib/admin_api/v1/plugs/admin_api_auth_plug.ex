@@ -5,7 +5,7 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.{ProviderAuth, UserAuthPlug}
+  alias AdminAPI.V1.{ProviderAuthPlug, AdminUserAuthPlug}
 
   def init(opts), do: opts
 
@@ -35,7 +35,7 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   defp authenticate("OMGAdmin", conn, opts) do
     conn
     |> assign(:auth_scheme, :admin)
-    |> UserAuthPlug.call(UserAuthPlug.init(opts))
+    |> AdminUserAuthPlug.call(opts)
   end
 
   defp authenticate("Basic", conn, opts), do: authenticate("OMGProvider", conn, opts)
@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   defp authenticate("OMGProvider", conn, opts) do
     conn
     |> assign(:auth_scheme, :provider)
-    |> ProviderAuth.call(opts)
+    |> ProviderAuthPlug.call(opts)
   end
 
   defp authenticate(_, conn, _opts) do

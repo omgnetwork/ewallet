@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.UserAuthPlug do
+defmodule AdminAPI.V1.AdminUserAuthPlug do
   @moduledoc """
   This plug checks if a pair of valid user ID and authentication token were provided.
 
@@ -6,19 +6,16 @@ defmodule AdminAPI.V1.UserAuthPlug do
 
     - `authenticated`: Set to `:user` to indicate that the request has been authenticated
                        at the user level.
-    - `api_key_id`: The API key used to authenticate the request
-                    (set if enable_client_auth == true, otherwise not assigned).
     - `user`: The user that is associated with the authentication token.
 
   On failure, the plug assigns the following to `conn.assigns`:
 
     - `authenticated`: Set to `false`.
-    - `api_key_id`: Not assigned.
     - `user`: Not assigned.
   """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.ClientAuthPlug
+  alias AdminAPI.V1.AdminUserAuth
   alias EWalletDB.{AuthToken, User}
   alias EWalletDB.Helpers.Crypto
   alias Plug.Conn
@@ -27,64 +24,34 @@ defmodule AdminAPI.V1.UserAuthPlug do
   API used by Plug to start user authentication.
   """
   @spec init(keyword()) :: keyword()
-  def init(opts \\ []) do
-    Keyword.put_new(
-      opts,
-      :enable_client_auth,
-      Application.get_env(:admin_api, :enable_client_auth)
-    )
-  end
+  def init(opts), do: opts
 
   @doc """
   API used by Plug to authenticate the user.
   """
   @spec call(Conn.t(), keyword()) :: Conn.t()
-  def call(conn, opts) do
-    call(conn, parse_header(conn), opts[:enable_client_auth])
-  end
-
-  @spec call(Conn.t(), [binary()], boolean()) :: Conn.t()
-
-  # Authenticates both client and user credentials if both are given,
-  # regardless of :enable_client_auth being true or false.
-  def call(conn, [key_id, key, user_id, token], _) do
+  def call(conn, _opts) do
     conn
-    |> put_private(:auth_api_key_id, key_id)
-    |> put_private(:auth_api_key, key)
-    |> put_private(:auth_user_id, user_id)
-    |> put_private(:auth_auth_token, token)
-    |> ClientAuthPlug.authenticate()
-    |> authenticate_token()
+    |> parse_header()
+    |> authenticate()
   end
 
-  # Authenticates only user credentials if :enable_client_auth is false
-  def call(conn, [user_id, token], false) do
-    conn
-    |> put_private(:auth_user_id, user_id)
-    |> put_private(:auth_auth_token, token)
-    |> authenticate_token()
-  end
+  def parse_header() do
+    header =
+      conn
+      |> get_req_header("authorization")
+      |> List.first()
 
-  # Returns :invalid_auth_scheme for any other cases
-  def call(conn, _, _) do
-    conn
-    |> assign(:authenticated, false)
-    |> handle_error(:invalid_auth_scheme)
-  end
+    case AdminAuth.parse_header(header) do
+      {:ok, user_id, auth_token} ->
+        conn
+        |> put_private(:auth_user_id, user_id)
+        |> put_private(:auth_auth_token, auth_token)
 
-  defp get_header(conn) do
-    conn
-    |> get_req_header("authorization")
-    |> List.first()
-  end
-
-  defp parse_header(conn) do
-    with header when not is_nil(header) <- get_header(conn),
-         [scheme, content] <- String.split(header, " ", parts: 2),
-         true <- scheme in ["OMGAdmin"],
-         {:ok, decoded} <- Base.decode64(content),
-         keys <- String.split(decoded, ":", parts: 4) do
-      keys
+      {:error, :invalid_auth_scheme} ->
+        conn
+        |> assign(:authenticated, false)
+        |> handle_error(:invalid_auth_scheme)
     end
   end
 
@@ -99,7 +66,6 @@ defmodule AdminAPI.V1.UserAuthPlug do
       %User{} = user ->
         conn
         |> assign(:authenticated, :user)
-        |> assign(:api_key_id, conn.private[:auth_api_key_id])
         |> assign(:user, user)
 
       false ->

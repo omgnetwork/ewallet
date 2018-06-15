@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuth do
+defmodule AdminAPI.V1.ProviderAuthPlug do
   @moduledoc """
   This plug checks if valid access and secret keys were provided.
 

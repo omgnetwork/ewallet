@@ -1,20 +1,17 @@
-defmodule EWallet.Web.V1.SocketProviderAuth do
+defmodule AdminAPI.V1.SocketProviderAuth do
   @moduledoc """
   This module takes care of authenticating a provider for websocket connections.
   """
-  alias EWallet.Web.V1.ProviderAuth
+  alias AdminAPI.V1.ProviderAuth
 
-  def authenticate(params) do
-    %{}
-    |> parse_header(params)
+  def authenticate(auth) do
+    auth
+    |> parse_header()
     |> authenticate_access()
   end
 
-  defp parse_header(auth, params) do
-    headers = Enum.into(params.http_headers, %{})
-    header = headers["authorization"]
-
-    case ProviderAuth.parse_header(header) do
+  defp parse_header(auth) do
+    case ProviderAuth.parse_header(auth[:auth_header]) do
       {:ok, access, secret} ->
         auth
         |> Map.put(:auth_access_key, access)
