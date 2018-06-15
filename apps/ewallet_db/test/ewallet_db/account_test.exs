@@ -91,7 +91,7 @@ defmodule EWalletDB.AccountTest do
 
   describe "update/2 with category_ids" do
     test "associates the category if it's been added to category_ids" do
-      # Prepare 4 categories. We will start of the account with 2, add 1, and leave one behind.
+      # Prepare 4 categories. We will start off the account with 2, add 1, and leave one behind.
       [cat1, cat2, cat3, _not_used] = insert_list(4, :category)
 
       {:ok, account} =
@@ -141,7 +141,7 @@ defmodule EWalletDB.AccountTest do
       # Make sure that the account has 2 categories
       assert_categories(account, [cat1, cat2])
 
-      # Now update by removing a category from category_ids
+      # Now update by setting category_ids to an empty list
       {:ok, updated} = Account.update(account, %{category_ids: []})
 
       # No category should be left
