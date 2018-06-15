@@ -47,21 +47,6 @@ defmodule AdminAPI.V1.AdminController do
     |> respond_single(conn)
   end
 
-  @doc """
-  Uploads an image as avatar for a specific user.
-  """
-  def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    case User.get(id, UserQuery.where_has_membership()) do
-      nil ->
-        respond_single(nil, conn)
-
-      user ->
-        user
-        |> User.store_avatar(attrs)
-        |> respond_single(conn)
-    end
-  end
-
   # Respond with a list of admins
   defp respond_multiple(%Paginator{} = paged_users, conn) do
     render(conn, UserView, :users, %{users: paged_users})

@@ -51,30 +51,30 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
       assert auth[:user] == nil
     end
 
-    test "halts with :access_token_not_found if auth_token is missing", meta do
+    test "halts with :auth_token_not_found if auth_token is missing", meta do
       auth = auth_header(meta.api_key.key, "")
 
       assert auth.authenticated == false
-      assert auth[:auth_error] == :access_token_not_found
+      assert auth[:auth_error] == :auth_token_not_found
       assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:user] == nil
     end
 
-    test "halts with :access_token_not_found if auth_token is incorrect", meta do
+    test "halts with :auth_token_not_found if auth_token is incorrect", meta do
       auth = auth_header(meta.api_key.key, "abc")
 
       assert auth.authenticated == false
-      assert auth[:auth_error] == :access_token_not_found
+      assert auth[:auth_error] == :auth_token_not_found
       assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:user] == nil
     end
 
-    test "halts with :access_token_expired if auth_token exists but expired", meta do
+    test "halts with :auth_token_expired if auth_token exists but expired", meta do
       {:ok, auth_token} = AuthToken.expire(meta.auth_token.token, :ewallet_api)
       auth = auth_header(meta.api_key.key, auth_token.token)
 
       assert auth.authenticated == false
-      assert auth[:auth_error] == :access_token_expired
+      assert auth[:auth_error] == :auth_token_expired
       assert auth[:account].uuid == meta.api_key.account.uuid
       assert auth[:user] == nil
     end

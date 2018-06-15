@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule EWalletAPI.V1.WalletChannelTest do
   use EWalletAPI.ChannelCase
   alias EWalletAPI.V1.WalletChannel

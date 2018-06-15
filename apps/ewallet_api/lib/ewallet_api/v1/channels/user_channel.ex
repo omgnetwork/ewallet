@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule EWalletAPI.V1.UserChannel do
   @moduledoc """
   Represents the user channel.

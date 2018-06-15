@@ -5,21 +5,21 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
 
   describe "UserAuthPlug.call/2 with enable_client_auth == true" do
     test "authenticates if both client and user credentials are correct" do
-      conn = test_with("OMGAdmin", @api_key_id, @api_key, @user_id, @auth_token)
+      conn = test_with("OMGAdmin", @api_key_id, @api_key, @admin_id, @auth_token)
 
       refute conn.halted
       assert_success(conn)
     end
 
     test "halts if client credentials are incorrect" do
-      conn = test_with("OMGAdmin", @api_key_id, "bad_api_key", @user_id, @auth_token)
+      conn = test_with("OMGAdmin", @api_key_id, "bad_api_key", @admin_id, @auth_token)
 
       assert conn.halted
       assert_error(conn)
     end
 
     test "halts if user credentials are incorrect" do
-      conn = test_with("OMGAdmin", @api_key_id, @api_key, @user_id, "bad_token")
+      conn = test_with("OMGAdmin", @api_key_id, @api_key, @admin_id, "bad_token")
 
       assert conn.halted
       assert_error(conn)
@@ -33,7 +33,7 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
     end
 
     test "halts if client credentials are not provided" do
-      conn = test_with("OMGAdmin", @user_id, @auth_token)
+      conn = test_with("OMGAdmin", @admin_id, @auth_token)
 
       assert conn.halted
       assert_error(conn)
@@ -42,35 +42,35 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
 
   describe "UserAuthPlug.call/2 with enable_client_auth is false" do
     test "authenticates if user credentials are correct " do
-      conn = test_with("OMGAdmin", @user_id, @auth_token, false)
+      conn = test_with("OMGAdmin", @admin_id, @auth_token, false)
 
       refute conn.halted
       assert_success(conn)
     end
 
     test "halts if both client and user credentials are correct" do
-      conn = test_with("OMGAdmin", @api_key_id, @api_key, @user_id, @auth_token, false)
+      conn = test_with("OMGAdmin", @api_key_id, @api_key, @admin_id, @auth_token, false)
 
       refute conn.halted
       assert_success(conn)
     end
 
     test "halts if user credentials are incorrect" do
-      conn = test_with("OMGAdmin", @user_id, "bad_token", false)
+      conn = test_with("OMGAdmin", @admin_id, "bad_token", false)
 
       assert conn.halted
       assert_error(conn)
     end
 
     test "halts if both credentials are provided but client credentials are incorrect" do
-      conn = test_with("OMGAdmin", @api_key_id, "bad_api_key", @user_id, @auth_token, false)
+      conn = test_with("OMGAdmin", @api_key_id, "bad_api_key", @admin_id, @auth_token, false)
 
       assert conn.halted
       assert_error(conn)
     end
 
     test "halts if both credentials are provided but user credentials are incorrect" do
-      conn = test_with("OMGAdmin", @api_key_id, @api_key, @user_id, "bad_auth_token", false)
+      conn = test_with("OMGAdmin", @api_key_id, @api_key, @admin_id, "bad_auth_token", false)
 
       assert conn.halted
       assert_error(conn)
@@ -128,7 +128,7 @@ defmodule AdminAPI.V1.UserAuthPlugTest do
 
   defp assert_success(conn) do
     assert conn.assigns.authenticated == :user
-    assert conn.assigns.user.uuid == get_test_user().uuid
+    assert conn.assigns.user.uuid == get_test_admin().uuid
   end
 
   defp assert_error(conn) do

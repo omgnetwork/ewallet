@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule EWalletAPI.V1.WalletChannel do
   @moduledoc """
   Represents the address channel.

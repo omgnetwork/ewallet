@@ -22,6 +22,17 @@ config :admin_api, AdminAPI.Endpoint,
     default_format: "json"
   ]
 
+config :admin_api, AdminAPI.V1.Endpoint,
+  render_errors: [
+    view: AdminAPI.ErrorView,
+    accepts: ~w(json),
+    default_format: "json"
+  ],
+  pubsub: [
+    name: AdminAPI.PubSub,
+    adapter: Phoenix.PubSub.PG2
+  ]
+
 # Config for Phoenix's generators
 config :admin_api, :generators, context_app: false
 

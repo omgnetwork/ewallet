@@ -7,12 +7,6 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     TransactionRequestFetcher
   }
 
-  def create(conn, attrs) do
-    attrs
-    |> TransactionRequestGate.create()
-    |> respond(conn)
-  end
-
   def create_for_user(conn, attrs) do
     conn.assigns.user
     |> TransactionRequestGate.create(attrs)

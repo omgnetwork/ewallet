@@ -19,7 +19,7 @@ info:
     HTTP header with the following format:
 
 
-    - Server: `Authorization=OMGServer Base64(access_key:secret_key)`
+    - Server: `Authorization=OMGProvider Base64(access_key:secret_key)`
 
     - Client: `Authorization=OMGClient Base64(api_key:authentication_token)`
 
@@ -61,26 +61,11 @@ paths:
   ######################################
   #          SESSION ENDPOINTS         #
   ######################################
-  /login:
+  /me.logout:
     post:
       tags:
         - Session
-      summary: Server - Login an existing user. The provider can call this to get an authentication token for a specific user.
-      operationId: login
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ProviderIdBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/AuthenticationTokenResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /logout:
-    post:
-      tags:
-        - Session
-      summary: Client - Expires a user's authentication_token.
+      summary: Expires a user's authentication_token.
       operationId: logout
       security:
         - ClientAuth: []
@@ -93,60 +78,11 @@ paths:
   ######################################
   #            USER ENDPOINTS          #
   ######################################
-  /user.create:
-    post:
-      tags:
-        - User
-      summary: Server - Create a new user
-      operationId: user_create
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/UserBody'
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
-      responses:
-        '200':
-          $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /user.update:
-    post:
-      tags:
-        - User
-      summary: Server - Update an existing user
-      operationId: user_update
-      security:
-        - ServerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
-      requestBody:
-        $ref: '#/components/requestBodies/UserBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /user.get:
-    post:
-      tags:
-        - User
-      summary: Server - Get an existing user. The provider can call this to get any user from its id.
-      operationId: user_get
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ProviderIdBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/UserResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
   /me.get:
     post:
       tags:
         - User
-      summary: Client - Get the user corresponding to the provided authentication token.
+      summary: Get the user corresponding to the provided authentication token.
       operationId: me_get
       security:
         - ClientAuth: []
@@ -159,27 +95,12 @@ paths:
   ######################################
   #           WALLET ENDPOINTS         #
   ######################################
-  /user.list_wallets:
+  /me.get_wallets:
     post:
       tags:
         - Wallet
-      summary: Server - Get a user's wallets. The provider can call this to get the wallets of any user with its id.
-      operationId: user_list_wallets
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ProviderIdBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/MultipleWalletsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /me.list_wallets:
-    post:
-      tags:
-        - Wallet
-      summary: Client - Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.
-      operationId: me_list_wallets
+      summary: Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.
+      operationId: me_get_wallets
       security:
         - ClientAuth: []
       responses:
@@ -191,42 +112,11 @@ paths:
   ############################
   #      TRANSACTIONS        #
   ############################
-  /transaction.all:
+  /me.get_transactions:
     post:
       tags:
         - Transaction
-      summary: Server - Get the list of transactions.
-      operationId: get_all_transactions
-      requestBody:
-        $ref: '#/components/requestBodies/TransactionsBody'
-      security:
-        - ServerAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /user.list_transactions:
-    post:
-      tags:
-        - Transaction
-      summary: Server - Get the list of transactions for a specific provider_user_id.
-      operationId: get_all_transactions_for_user
-      requestBody:
-        $ref: '#/components/requestBodies/UserTransactionsBody'
-      security:
-        - ServerAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-
-  /me.list_transactions:
-    post:
-      tags:
-        - Transaction
-      summary: Client - Get the list of transactions for the current user.
+      summary: Get the list of transactions for the current user.
       operationId: get_current_user_transactions
       requestBody:
         $ref: '#/components/requestBodies/CurrentUserTransactionsBody'
@@ -237,62 +127,11 @@ paths:
           $ref: "#/components/responses/TransactionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /user.credit_wallet:
-    post:
-      tags:
-        - Transaction
-      summary: Server - Credit the wallet of a user, i.e. put funds into the user's wallet. The provider can call this to credit the wallet of an existing user corresponding to the provider_user_id provided.
-      operationId: user_credit_wallet
-      security:
-        - ServerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
-      requestBody:
-        $ref: '#/components/requestBodies/BalanceAdjustmentBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/MultipleWalletsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /user.debit_wallet:
-    post:
-      tags:
-        - Transaction
-      summary: Server - Debit the wallet of a user, i.e. take funds away from the user's wallet. The provider can call this to debit the wallet of an existing user corresponding to the provider_user_id provided.
-      operationId: user_debit_wallet
-      security:
-        - ServerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
-      requestBody:
-        $ref: '#/components/requestBodies/BalanceAdjustmentBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/MultipleWalletsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  /transfer:
-    post:
-      tags:
-        - Transaction
-      summary: Server - Transfer the specified amount between two wallets.
-      operationId: transfer
-      security:
-        - ServerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
-      requestBody:
-        $ref: '#/components/requestBodies/TransferBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/MultipleWalletsResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
   /me.transfer:
     post:
       tags:
         - Transaction
-      summary: Client - Transfer the specified amount to a wallet.
+      summary: Transfer the specified amount to a wallet.
       operationId: me_transfer
       security:
         - ClientAuth: []
@@ -310,64 +149,11 @@ paths:
   #   TRANSACTION REQUESTS   #
   ############################
   # Endpoint to create a transaction request
-  /transaction_request.create:
-    post:
-      tags:
-        - TransactionRequest
-      summary: Server - Create a new transaction request.
-      description: This is a server call only.
-      operationId: transaction_request_create
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ServerCreateTransactionRequestBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionRequestResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  # Endpoint to get a transaction request
-  /transaction_request.get:
-    post:
-      tags:
-        - TransactionRequest
-      summary: Server - Get a transaction request.
-      description: This is a server call only.
-      operationId: transaction_request_get
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/GetTransactionRequestBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionRequestResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  # Endpoint to consume a transaction request
-  /transaction_request.consume:
-    post:
-      tags:
-        - TransactionRequest
-      summary: Server - Consume a transaction request.
-      description: This is a server call only.
-      operationId: transaction_request_consume
-      security:
-        - ServerAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
-      requestBody:
-        $ref: '#/components/requestBodies/ServerConsumeTransactionRequestBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionConsumptionResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a transaction request
   /me.create_transaction_request:
     post:
       tags:
         - TransactionRequest
-      summary: Client - Create a new transaction request.
+      summary: Create a new transaction request.
       description: This is a client call only.
       operationId: create_transaction_request
       security:
@@ -384,7 +170,7 @@ paths:
     post:
       tags:
         - TransactionRequest
-      summary: Client - Get a transaction request.
+      summary: Get a transaction request.
       description: This is a client call only.
       operationId: get_transaction_request
       security:
@@ -401,7 +187,7 @@ paths:
     post:
       tags:
         - TransactionRequest
-      summary: Client - Consume a transaction request.
+      summary: Consume a transaction request.
       description: This is a client call only.
       operationId: consume_transaction_request
       security:
@@ -415,48 +201,12 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-
-  # Endpoint to approve a consumption
-  /transaction_consumption.approve:
-    post:
-      tags:
-        - TransactionConsumption
-      summary: Server - Approve a consumption.
-      description: This is a server call only.
-      operationId: transaction_consumption_approve
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionConsumptionResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-  # Endpoint to reject a consumption
-  /transaction_consumption.reject:
-    post:
-      tags:
-        - TransactionConsumption
-      summary: Server - Reject a consumption.
-      description: This is a server call only.
-      operationId: transaction_consumption_reject
-      security:
-        - ServerAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
-      responses:
-        '200':
-          $ref: "#/components/responses/TransactionConsumptionResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
-
   # Endpoint to approve a consumption
   /me.approve_transaction_consumption:
     post:
       tags:
         - TransactionConsumption
-      summary: Client - Approve a consumption.
+      summary: Approve a consumption.
       description: This is a client call only.
       operationId: approve_transaction_consumption
       security:
@@ -473,7 +223,7 @@ paths:
     post:
       tags:
         - TransactionConsumption
-      summary: Client - Reject a consumption.
+      summary: Reject a consumption.
       description: This is a client call only.
       operationId: reject_transaction_consumption
       security:
@@ -489,24 +239,11 @@ paths:
   ######################################
   #          SETTINGS ENDPOINTS        #
   ######################################
-  /get_settings:
-    post:
-      tags:
-        - Setting
-      summary: Server - Get the global settings.
-      operationId: get_settings
-      security:
-        - ServerAuth: []
-      responses:
-        '200':
-          $ref: "#/components/responses/SettingResponse"
-        '500':
-          $ref: "#/components/responses/InternalServerError"
   /me.get_settings:
     post:
       tags:
         - Setting
-      summary: Client - Get the global settings.
+      summary: Get the global settings.
       operationId: me_get_settings
       security:
         - ClientAuth: []
@@ -1976,11 +1713,6 @@ components:
   #          SECURITY SCHEMES          #
   ######################################
   securitySchemes:
-    ServerAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: OMGServer Base64(access_key:secret_key)
     ClientAuth:
       type: apiKey
       in: header

@@ -10,6 +10,7 @@ erl_crash.dump
 
 # Public
 /public/uploads
+/apps/admin_api/public/uploads
 !/public/uploads/test.txt
 /public/docs
 

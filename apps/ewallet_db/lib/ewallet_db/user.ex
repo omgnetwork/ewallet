@@ -6,7 +6,7 @@ defmodule EWalletDB.User do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  import EWalletDB.Validator
+  import EWalletDB.{Validator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
 
   alias EWalletDB.{
@@ -200,6 +200,16 @@ defmodule EWalletDB.User do
     User
     |> Repo.get_by(email: email)
     |> Repo.preload(:wallets)
+  end
+
+  @doc """
+  Retrieves a user using one or more fields.
+  """
+  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %User{} | nil | no_return()
+  def get_by(fields, opts \\ []) do
+    User
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
   end
 
   @doc """

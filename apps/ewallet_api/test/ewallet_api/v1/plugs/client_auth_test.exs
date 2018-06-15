@@ -22,20 +22,20 @@ defmodule EWalletAPI.V1.Plug.ClientAuthTest do
       assert_error(conn, "client:invalid_api_key")
     end
 
-    test "halts with :access_token_not_found if auth_token is missing" do
+    test "halts with :auth_token_not_found if auth_token is missing" do
       conn = invoke_conn(@api_key, "")
-      assert_error(conn, "user:access_token_not_found")
+      assert_error(conn, "user:auth_token_not_found")
     end
 
-    test "halts with :access_token_not_found if auth_token is incorrect" do
+    test "halts with :auth_token_not_found if auth_token is incorrect" do
       conn = invoke_conn(@api_key, "wrong_auth_token")
-      assert_error(conn, "user:access_token_not_found")
+      assert_error(conn, "user:auth_token_not_found")
     end
 
-    test "halts with :access_token_expired if auth_token exists but expired" do
+    test "halts with :auth_token_expired if auth_token exists but expired" do
       AuthToken.expire(@auth_token, :ewallet_api)
       conn = invoke_conn(@api_key, @auth_token)
-      assert_error(conn, "user:access_token_expired")
+      assert_error(conn, "user:auth_token_expired")
     end
   end
 

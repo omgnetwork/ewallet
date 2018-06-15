@@ -10,7 +10,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       response = user_request("/me.get")
 
       assert response["success"]
-      assert response["data"]["username"] == @username
+      assert response["data"]["email"] == "email@example.com"
     end
   end
 
@@ -31,19 +31,18 @@ defmodule AdminAPI.V1.SelfControllerTest do
     end
 
     test "doesn't update params that are not provided" do
-      user = get_test_user()
+      user = get_test_admin()
       response = user_request("/me.update", %{})
 
       assert response["success"] == true
       assert response["data"]["object"] == "user"
-      assert response["data"]["username"] == user.username
       assert response["data"]["email"] == user.email
       assert response["data"]["metadata"] == user.metadata
       assert response["data"]["encrypted_metadata"] == user.encrypted_metadata
     end
 
     test "ignore additional/invalid params" do
-      user = get_test_user()
+      user = get_test_admin()
       response = user_request("/me.update", %{provider_user_id: "test_puid_1337"})
 
       assert response["success"] == true
@@ -64,9 +63,126 @@ defmodule AdminAPI.V1.SelfControllerTest do
     end
   end
 
+  describe "/me.upload_avatar" do
+    test "uploads an avatar for the specified user" do
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      admin = get_test_admin()
+      uuid = admin.id
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response =
+        user_request("/me.upload_avatar", %{
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "user"
+      assert response["data"]["email"] == admin.email
+
+      assert response["data"]["avatar"]["large"] =~
+               "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/large.png?v="
+
+      assert response["data"]["avatar"]["original"] =~
+               "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/original.jpg?v="
+
+      assert response["data"]["avatar"]["small"] =~
+               "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/small.png?v="
+
+      assert response["data"]["avatar"]["thumb"] =~
+               "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/thumb.png?v="
+    end
+
+    test "removes the avatar from a user" do
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      admin = get_test_admin()
+      uuid = admin.id
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response =
+        user_request("/me.upload_avatar", %{
+          "id" => uuid,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"]
+
+      response =
+        user_request("/me.upload_avatar", %{
+          "avatar" => nil
+        })
+
+      assert response["success"]
+
+      admin = User.get(admin.id)
+      assert admin.avatar == nil
+    end
+
+    test "removes the avatar from a user with empty string" do
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      admin = get_test_admin()
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response =
+        user_request("/me.upload_avatar", %{
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"]
+
+      response =
+        user_request("/me.upload_avatar", %{
+          "avatar" => ""
+        })
+
+      assert response["success"]
+
+      admin = User.get(admin.id)
+      assert admin.avatar == nil
+    end
+
+    test "removes the avatar from a user with 'null' string" do
+      account = insert(:account)
+      role = insert(:role, %{name: "some_role"})
+      admin = get_test_admin()
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      response =
+        user_request("/me.upload_avatar", %{
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/test.jpg",
+            filename: "test.jpg"
+          }
+        })
+
+      assert response["success"]
+
+      response =
+        user_request("/me.upload_avatar", %{
+          "avatar" => "null"
+        })
+
+      assert response["success"]
+
+      admin = User.get(admin.id)
+      assert admin.avatar == nil
+    end
+  end
+
   describe "/me.get_account" do
     test "responds with an account" do
-      account = User.get_account(get_test_user())
+      account = User.get_account(get_test_admin())
 
       assert user_request("/me.get_account") ==
                %{
@@ -100,7 +216,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
     end
 
     test "responds with error if the user does not have an account" do
-      user = get_test_user()
+      user = get_test_admin()
       Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
 
       assert user_request("/me.get_account") ==
@@ -119,7 +235,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get_accounts" do
     test "responds with a list of accounts" do
-      user = get_test_user()
+      user = get_test_admin()
       parent = insert(:account)
       account = insert(:account, %{parent: parent})
 

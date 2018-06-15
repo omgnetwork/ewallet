@@ -40,25 +40,22 @@ defmodule AdminAPI.V1.MintControllerTest do
       assert is_list(response["data"]["data"])
       assert length(response["data"]["data"]) == 2
 
-      mint_1 = Enum.at(response["data"]["data"], 0)
-
-      assert mint_1 == %{
-               "account" =>
-                 inserted_mint.account |> AccountSerializer.serialize() |> stringify_keys(),
-               "account_id" => inserted_mint.account.id,
-               "amount" => 100_000,
-               "confirmed" => true,
-               "description" => "desc.",
-               "id" => inserted_mint.id,
-               "object" => "mint",
-               "token" => inserted_mint.token |> TokenSerializer.serialize() |> stringify_keys(),
-               "token_id" => inserted_mint.token.id,
-               "transaction" =>
-                 inserted_mint.transfer |> TransactionSerializer.serialize() |> stringify_keys(),
-               "transaction_id" => inserted_mint.transfer.id,
-               "created_at" => Date.to_iso8601(inserted_mint.inserted_at),
-               "updated_at" => Date.to_iso8601(inserted_mint.updated_at)
-             }
+      Enum.member?(response["data"]["data"], %{
+        "account" => inserted_mint.account |> AccountSerializer.serialize() |> stringify_keys(),
+        "account_id" => inserted_mint.account.id,
+        "amount" => 100_000,
+        "confirmed" => true,
+        "description" => "desc.",
+        "id" => inserted_mint.id,
+        "object" => "mint",
+        "token" => inserted_mint.token |> TokenSerializer.serialize() |> stringify_keys(),
+        "token_id" => inserted_mint.token.id,
+        "transaction" =>
+          inserted_mint.transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+        "transaction_id" => inserted_mint.transfer.id,
+        "created_at" => Date.to_iso8601(inserted_mint.inserted_at),
+        "updated_at" => Date.to_iso8601(inserted_mint.updated_at)
+      })
 
       # Asserts pagination data
       pagination = response["data"]["pagination"]

@@ -7,7 +7,7 @@ defmodule EWallet.Web.V1.ProviderAuth do
   def parse_header(header) do
     with header when not is_nil(header) <- header,
          [scheme, content] <- String.split(header, " ", parts: 2),
-         true <- scheme in ["Basic", "OMGServer"],
+         true <- scheme in ["Basic", "OMGProvider"],
          {:ok, decoded} <- Base.decode64(content),
          [access, secret] <- String.split(decoded, ":", parts: 2) do
       {:ok, access, secret}

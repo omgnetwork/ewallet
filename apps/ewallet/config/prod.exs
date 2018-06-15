@@ -1,9 +1,7 @@
 use Mix.Config
 
 config :ewallet,
-  websocket_endpoints: [
-    EWalletAPI.V1.Endpoint
-  ]
+  websocket_endpoints: [EWalletAPI.V1.Endpoint, AdminAPI.V1.Endpoint]
 
 config :ewallet, EWallet.Scheduler,
   global: true,

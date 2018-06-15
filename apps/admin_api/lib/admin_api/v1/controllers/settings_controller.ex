@@ -1,5 +1,5 @@
-defmodule EWalletAPI.V1.SettingsController do
-  use EWalletAPI, :controller
+defmodule AdminAPI.V1.SettingsController do
+  use AdminAPI, :controller
   alias EWalletDB.Token
 
   def get_settings(conn, _attrs) do

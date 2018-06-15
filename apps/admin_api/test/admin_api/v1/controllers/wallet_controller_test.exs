@@ -1,6 +1,8 @@
 defmodule AdminAPI.V1.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, Wallet, Account, User}
+  alias EWallet.Web.V1.UserSerializer
+  alias EWallet.Web.Date
+  alias EWalletDB.{Repo, Wallet, Account, User, Token}
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
@@ -152,6 +154,138 @@ defmodule AdminAPI.V1.WalletControllerTest do
         assert wallet["user_id"] == user.id
       end)
     end
+
+    test "Get all user wallets from its provider_user_id" do
+      account = Account.get_master_account()
+      master_wallet = Account.get_primary_wallet(account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_wallet = User.get_primary_wallet(user)
+      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
+      {:ok, omg} = :token |> params_for(symbol: "OMG") |> Token.insert()
+
+      mint!(btc)
+      mint!(omg)
+
+      transfer!(master_wallet.address, user_wallet.address, btc, 150_000 * btc.subunit_to_unit)
+      transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
+
+      response =
+        provider_request("/user.get_wallets", %{
+          provider_user_id: user.provider_user_id
+        })
+
+      assert response == %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "object" => "list",
+                 "pagination" => %{
+                   "current_page" => 1,
+                   "is_first_page" => true,
+                   "is_last_page" => true,
+                   "per_page" => 10
+                 },
+                 "data" => [
+                   %{
+                     "object" => "wallet",
+                     "socket_topic" => "wallet:#{user_wallet.address}",
+                     "address" => user_wallet.address,
+                     "account" => nil,
+                     "account_id" => nil,
+                     "encrypted_metadata" => %{},
+                     "identifier" => "primary",
+                     "metadata" => %{},
+                     "name" => "primary",
+                     "user" => user |> UserSerializer.serialize() |> stringify_keys(),
+                     "user_id" => user.id,
+                     "created_at" => Date.to_iso8601(user_wallet.inserted_at),
+                     "updated_at" => Date.to_iso8601(user_wallet.updated_at),
+                     "balances" => [
+                       %{
+                         "object" => "balance",
+                         "amount" => 150_000 * btc.subunit_to_unit,
+                         "token" => %{
+                           "name" => btc.name,
+                           "object" => "token",
+                           "subunit_to_unit" => btc.subunit_to_unit,
+                           "symbol" => btc.symbol,
+                           "id" => btc.id,
+                           "metadata" => %{},
+                           "encrypted_metadata" => %{},
+                           "created_at" => Date.to_iso8601(btc.inserted_at),
+                           "updated_at" => Date.to_iso8601(btc.updated_at)
+                         }
+                       },
+                       %{
+                         "object" => "balance",
+                         "amount" => 12_000 * omg.subunit_to_unit,
+                         "token" => %{
+                           "name" => omg.name,
+                           "object" => "token",
+                           "subunit_to_unit" => omg.subunit_to_unit,
+                           "symbol" => omg.symbol,
+                           "id" => omg.id,
+                           "metadata" => %{},
+                           "encrypted_metadata" => %{},
+                           "created_at" => Date.to_iso8601(omg.inserted_at),
+                           "updated_at" => Date.to_iso8601(omg.updated_at)
+                         }
+                       }
+                     ]
+                   }
+                 ]
+               }
+             }
+    end
+
+    test "Get all user wallets with an invalid parameter should fail" do
+      request_data = %{some_invalid_param: "some_invalid_value"}
+      response = provider_request("/user.get_wallets", request_data)
+
+      assert response == %{
+               "version" => "1",
+               "success" => false,
+               "data" => %{
+                 "object" => "error",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
+                 "messages" => nil
+               }
+             }
+    end
+
+    test "Get all user wallets with a nil provider_user_id should fail" do
+      request_data = %{provider_user_id: nil}
+      response = provider_request("/user.get_wallets", request_data)
+
+      assert response == %{
+               "version" => "1",
+               "success" => false,
+               "data" => %{
+                 "object" => "error",
+                 "code" => "user:provider_user_id_not_found",
+                 "description" =>
+                   "There is no user corresponding to the provided provider_user_id",
+                 "messages" => nil
+               }
+             }
+    end
+
+    test "Get all user wallets with a nil address should fail" do
+      request_data = %{address: nil}
+      response = provider_request("/user.get_wallets", request_data)
+
+      assert response == %{
+               "version" => "1",
+               "success" => false,
+               "data" => %{
+                 "object" => "error",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
+                 "messages" => nil
+               }
+             }
+    end
   end
 
   describe "/wallet.get" do
@@ -210,7 +344,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test "inserts a secondary wallet for an account" do
       account = insert(:account)
-      assert Wallet |> Repo.all() |> length() == 2
+      assert Wallet |> Repo.all() |> length() == 3
 
       response =
         user_request("/wallet.create", %{
@@ -226,13 +360,13 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert response["data"]["name"] == "MyWallet"
 
       wallets = Repo.all(Wallet)
-      assert length(wallets) == 3
-      assert Enum.at(wallets, 2).address == response["data"]["address"]
+      assert length(wallets) == 4
+      assert Enum.at(wallets, 3).address == response["data"]["address"]
     end
 
     test "inserts a new burn wallet for an account" do
       account = insert(:account)
-      assert Wallet |> Repo.all() |> length() == 2
+      assert Wallet |> Repo.all() |> length() == 3
 
       response =
         user_request("/wallet.create", %{
@@ -248,8 +382,8 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert response["data"]["name"] == "MyWallet"
 
       wallets = Repo.all(Wallet)
-      assert length(wallets) == 3
-      assert Enum.at(wallets, 2).address == response["data"]["address"]
+      assert length(wallets) == 4
+      assert Enum.at(wallets, 3).address == response["data"]["address"]
     end
 
     test "fails to insert a primary wallet for a user" do
@@ -274,7 +408,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test "inserts two secondary wallets for a user" do
       user = insert(:user)
-      assert Wallet |> Repo.all() |> length() == 2
+      assert Wallet |> Repo.all() |> length() == 3
 
       response_1 =
         user_request("/wallet.create", %{
@@ -303,9 +437,9 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert response_2["data"]["name"] == "MyWallet2"
 
       wallets = Repo.all(Wallet)
-      assert length(wallets) == 4
-      assert Enum.at(wallets, 2).address == response_1["data"]["address"]
-      assert Enum.at(wallets, 3).address == response_2["data"]["address"]
+      assert length(wallets) == 5
+      assert Enum.at(wallets, 3).address == response_1["data"]["address"]
+      assert Enum.at(wallets, 4).address == response_2["data"]["address"]
     end
 
     test "fails to insert a burn wallet for a user" do
@@ -394,7 +528,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
       # The account's wallets made to use the request
       length = Wallet |> Repo.all() |> length()
-      assert length == 2
+      assert length == 3
     end
   end
 end

@@ -97,7 +97,7 @@ In order to connect to a websocket, you must provide the same `Authorization` he
 
 For authentication from servers:
 ```
-Authorization: OMGServer base64(access_key:secret_key)
+Authorization: OMGProvider base64(access_key:secret_key)
 ```
 
 From clients:
