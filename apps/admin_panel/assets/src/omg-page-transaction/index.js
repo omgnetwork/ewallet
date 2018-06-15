@@ -81,8 +81,8 @@ class AccountPage extends Component {
     if (key === 'fromToToken') {
       return (
         <div>
-          {rows.from.amount} - {rows.from.token.symbol}
-          <br /> {rows.to.amount} - {rows.to.token.symbol}
+          {rows.from.amount / rows.from.token.subunit_to_unit} - {rows.from.token.symbol}
+          <br /> {rows.to.amount / rows.from.token.subunit_to_unit} - {rows.to.token.symbol}
         </div>
       )
     }

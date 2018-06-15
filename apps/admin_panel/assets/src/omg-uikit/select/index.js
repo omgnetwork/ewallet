@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Input from '../input'
+import Icon from '../icon'
 const SelectContainer = styled.div`
   position: relative;
 `
@@ -60,6 +61,7 @@ export default class Select extends Component {
           onChange={this.onChange}
           value={this.state.value}
           registerRef={this.registerRef}
+          suffix={this.state.active ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
         />
         {this.state.active && (
           <OptionsContainer>

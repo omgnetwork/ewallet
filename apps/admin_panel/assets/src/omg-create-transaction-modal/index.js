@@ -23,7 +23,7 @@ const customStyles = {
 }
 const Form = styled.form`
   padding: 50px;
-  width: 400px;
+  width: 350px;
   > i {
     position: absolute;
     right: 15px;
@@ -108,6 +108,12 @@ class CreateTransactionModal extends Component {
         <Form onSubmit={this.onSubmit} noValidate>
           <Icon name='Close' onClick={this.props.onRequestClose} />
           <h4>Transfer Token</h4>
+          <InputLabel>From</InputLabel>
+          <Input
+            normalPlaceholder='acc_01cfda0qygekaqgxc7qsvwc83h'
+            value={this.props.wallet.address}
+            disabled
+          />
           <InputLabel>To Address</InputLabel>
           <Input
             normalPlaceholder='acc_01cfda0qygekaqgxc7qsvwc83h'

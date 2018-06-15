@@ -2,24 +2,31 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectWallets, selectWalletsLoadingStatus } from './selector'
-import { getWallets } from './action'
+import { getWalletsByAccountId } from './action'
 class WalletProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
     wallets: PropTypes.array,
-    getWallets: PropTypes.func,
+    getWalletsByAccountId: PropTypes.func,
     walletsLoadingStatus: PropTypes.string,
-    search: PropTypes.string
+    search: PropTypes.string,
+    accountId: PropTypes.string
   }
   componentWillReceiveProps = nextProps => {
     if (this.props.search !== nextProps.search) {
-      this.props.getWallets(nextProps.search)
+      this.props.getWalletsByAccountId({
+        accountId: this.props.accountId,
+        search: this.props.search
+      })
     }
   }
 
   componentDidMount = () => {
     if (this.props.walletsLoadingStatus === 'DEFAULT') {
-      this.props.getWallets()
+      this.props.getWalletsByAccountId({
+        accountId: this.props.accountId,
+        search: this.props.search
+      })
     }
   }
   render () {
@@ -36,5 +43,5 @@ export default connect(
       walletsLoadingStatus: selectWalletsLoadingStatus(state)
     }
   },
-  { getWallets }
+  { getWalletsByAccountId }
 )(WalletProvider)

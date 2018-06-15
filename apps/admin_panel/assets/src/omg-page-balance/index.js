@@ -116,6 +116,7 @@ class WalletPage extends Component {
         render={this.renderWalletPage}
         {...this.state}
         {...this.props}
+        accountId={this.props.match.params.accountId}
         search={queryString.parse(this.props.location.search).search}
       />
     )
