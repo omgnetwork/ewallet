@@ -19,7 +19,7 @@ export function setAccessToken (data) {
 
 export function login ({ email, password }) {
   return unAuthenticatedRequest({
-    path: '/login',
+    path: '/admin.login',
     data: { email, password }
   })
 }

@@ -20,9 +20,9 @@ export function createTransaction ({ fromAddress, toAddress, tokenId, amount }) 
       from_address: fromAddress,
       to_address: toAddress,
       token_id: tokenId,
-      amount: 1000
-    },
-    idempotencyToken: uuid()
+      amount,
+      idempotency_token: uuid()
+    }
   })
 }
 

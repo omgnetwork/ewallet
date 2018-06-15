@@ -64,7 +64,6 @@ class CreateTransactionModal extends Component {
   }
   state = {
     amount: '',
-    selectedToken: {},
     toAddress: ''
   }
   onChangeInputToAddress = e => {
@@ -81,7 +80,7 @@ class CreateTransactionModal extends Component {
         fromAddress: this.props.wallet.address,
         toAddress: this.state.toAddress,
         tokenId: this.state.selectedToken.token.id,
-        amount: this.state.amount
+        amount: Number(this.state.amount * this.state.selectedToken.token.subunit_to_unit)
       })
       if (result.data.success) {
         this.props.onRequestClose()
@@ -132,7 +131,7 @@ class CreateTransactionModal extends Component {
               ...b
             }))}
           />
-          <BalanceTokenLabel>Balance: {this.state.selectedToken.amount} </BalanceTokenLabel>
+          <BalanceTokenLabel>Balance: {this.state.selectedToken ? this.state.selectedToken.amount / _.get(this.state.selectedToken, 'token.subunit_to_unit') : '-'} </BalanceTokenLabel>
           <InputLabel>Amount</InputLabel>
           <Input
             normalPlaceholder='1,000,000'

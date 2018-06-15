@@ -6,11 +6,8 @@ export function request ({ path, data, headers }) {
   const url = buildApiURL(path)
   return axios.post(url, data, { headers })
 }
-export function authenticatedRequest ({ path, data, idempotencyToken }) {
-  let headers = createHeader({ auth: true })
-  if (idempotencyToken) {
-    headers = { ...headers, ...{ 'Idempotency-Token': idempotencyToken } }
-  }
+export function authenticatedRequest ({ path, data }) {
+  const headers = createHeader({ auth: true })
   return request({ path, data, headers })
 }
 export function unAuthenticatedRequest ({ path, data }) {
