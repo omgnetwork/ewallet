@@ -26,21 +26,21 @@ export function login ({ email, password }) {
 
 export function logout () {
   return authenticatedRequest({
-    path: '/logout',
+    path: '/me.logout',
     data: {}
   })
 }
 
 export function resetPassword ({ email, redirectUrl }) {
   return unAuthenticatedRequest({
-    path: '/password.reset',
+    path: '/admin.reset_password',
     data: { email, redirect_url: redirectUrl }
   })
 }
 
 export function updatePassword ({ resetToken, password, passwordConfirmation, email }) {
   return unAuthenticatedRequest({
-    path: '/password.update',
+    path: '/admin.update_password',
     data: {
       email,
       token: resetToken,

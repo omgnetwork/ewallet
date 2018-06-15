@@ -18,7 +18,7 @@ export function uploadAvatar ({ id, avatar }) {
   formData.append('id', id)
   formData.append('avatar', avatar)
   return authenticatedMultipartRequest({
-    path: '/admin.upload_avatar',
+    path: '/me.upload_avatar',
     data: formData
   })
 }
