@@ -93,15 +93,16 @@ defmodule AdminAPI.V1.TransactionController do
   def create(
         conn,
         %{
+          "idempotency_token" => idempotency_token,
           "from_address" => from_address,
           "to_address" => to_address,
           "token_id" => token_id,
           "amount" => amount
         } = attrs
       )
-      when from_address != nil and to_address != nil and token_id != nil and is_integer(amount) do
+      when idempotency_token != nil and from_address != nil and to_address != nil and
+             token_id != nil and is_integer(amount) do
     attrs
-    |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
     |> TransactionGate.process_with_addresses()
     |> respond_single(conn)
   end

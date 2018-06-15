@@ -7,16 +7,16 @@ defmodule AdminAPI.V1.TransferController do
   def transfer(
         conn,
         %{
+          "idempotency_token" => idempotency_token,
           "from_address" => from_address,
           "to_address" => to_address,
           "token_id" => token_id,
           "amount" => amount
         } = attrs
       )
-      when from_address != nil
+      when idempotency_token != nil and from_address != nil
       when to_address != nil and token_id != nil and is_integer(amount) do
     attrs
-    |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
     |> TransactionGate.process_with_addresses()
     |> respond_with(:wallets, conn)
   end
@@ -30,17 +30,17 @@ defmodule AdminAPI.V1.TransferController do
          conn,
          type,
          %{
+           "idempotency_token" => idempotency_token,
            "provider_user_id" => provider_user_id,
            "token_id" => token_id,
            "amount" => amount,
            "account_id" => account_id
          } = attrs
        )
-       when provider_user_id != nil and token_id != nil and is_integer(amount) and
-              account_id != nil do
+       when idempotency_token != nil and provider_user_id != nil and token_id != nil and
+              is_integer(amount) and account_id != nil do
     attrs
     |> Map.put("type", type)
-    |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
     |> TransactionGate.process_credit_or_debit()
     |> respond_with(:wallets, conn)
   end

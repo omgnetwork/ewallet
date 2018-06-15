@@ -252,20 +252,6 @@ defmodule AdminAPI.ConnCase do
   end
 
   @doc """
-  A helper function that generates a valid provider request
-  with given path and data, and return the parsed JSON response.
-  """
-  def provider_request_with_idempotency(path, idempotency_token, data \\ %{}, status \\ :ok)
-      when is_binary(path) and byte_size(path) > 0 do
-    build_conn()
-    |> put_req_header("idempotency-token", idempotency_token)
-    |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGProvider", @access_key, @secret_key)
-    |> post(@base_dir <> path, data)
-    |> json_response(status)
-  end
-
-  @doc """
   A helper function that generates an invalid user request (user-authenticated)
   with given path and data, and return the parsed JSON response.
   """
@@ -275,23 +261,6 @@ defmodule AdminAPI.ConnCase do
 
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGAdmin", user_auth_header(opts))
-    |> post(@base_dir <> path, data)
-    |> json_response(status)
-  end
-
-  @doc """
-  A helper function that generates an invalid user request (user-authenticated)
-  with given path and data, and return the parsed JSON response.
-  Idempotency token needs to be specified.
-  """
-  @spec user_request(String.t(), map(), keyword()) :: map() | no_return()
-  def user_request_with_idempotency(path, idempotency, data \\ %{}, opts \\ []) do
-    {status, opts} = Keyword.pop(opts, :status, :ok)
-
-    build_conn()
-    |> put_req_header("accept", @header_accept)
-    |> put_req_header("idempotency-token", idempotency)
     |> put_auth_header("OMGAdmin", user_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)

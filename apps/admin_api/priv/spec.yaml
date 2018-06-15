@@ -680,8 +680,6 @@ paths:
         - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/UserBody'
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
@@ -696,8 +694,6 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/UserBody'
       responses:
@@ -762,8 +758,6 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
@@ -780,8 +774,6 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/BalanceAdjustmentBody'
       responses:
@@ -901,8 +893,6 @@ paths:
       operationId: transfer
       security:
         - ProviderAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/TransferBody'
       responses:
@@ -958,8 +948,6 @@ paths:
       operationId: transaction_request_consume
       security:
         - ProviderAuth: []
-      parameters:
-        - $ref: "#/components/parameters/IdempotencyToken"
       requestBody:
         $ref: '#/components/requestBodies/ConsumeTransactionRequestBody'
       responses:
@@ -3845,6 +3833,8 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
+              idempotency_token:
+                type: string
               provider_user_id:
                 type: string
               user_address:
@@ -3862,11 +3852,13 @@ components:
               encrypted_metadata:
                 type: object
             required:
+              - idempotency_token
               - account_id
               - provider_user_id
               - token_id
               - amount
             example:
+              idempotency_token: "1234"
               provider_user_id: "wijf-fbancomw-dqwjudb"
               user_address: "d28d5053-a1d5-4314-8c13-4aef396fe1e4"
               token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
@@ -3882,6 +3874,8 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
+              idempotency_token:
+                type: string
               from_address:
                 type: string
               to_address:
@@ -3895,11 +3889,13 @@ components:
               encrypted_metadata:
                 type: object
             required:
+              - idempotency_token
               - from_address
               - to_address
               - token_id
               - amount
             example:
+              idempotency_token: "2345"
               from_address: "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c"
               to_address: "4aa07691-2f99-4cb1-b36c-50763e2d2ba8"
               token_id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
@@ -4012,6 +4008,8 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
+              idempotency_token:
+                type: string
               formatted_transaction_request_id:
                 type: string
               correlation_id:
@@ -4036,8 +4034,10 @@ components:
               encrypted_metadata:
                 type: object
             required:
+              - idempotency_token
               - formatted_transaction_request_id
             example:
+              idempotency_token: "32435"
               formatted_transaction_request_id: "txr_01cbfgcts5kqfgpqxcxn71rnbs"
               correlation_id: "123"
               token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"

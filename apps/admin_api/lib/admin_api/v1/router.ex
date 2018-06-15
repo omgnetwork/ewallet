@@ -1,6 +1,5 @@
 defmodule AdminAPI.V1.Router do
   use AdminAPI, :router
-  alias AdminAPI.V1.Plug.Idempotency
   alias AdminAPI.V1.{ClientAuthPlug, AdminAPIAuthPlug}
 
   # Pipeline for plugs to apply for all endpoints
@@ -17,10 +16,6 @@ defmodule AdminAPI.V1.Router do
   # authentication
   pipeline :admin_api do
     plug(AdminAPIAuthPlug)
-  end
-
-  pipeline :idempotency do
-    plug(Idempotency)
   end
 
   # Authenticated endpoints
@@ -46,15 +41,11 @@ defmodule AdminAPI.V1.Router do
     post("/transaction_consumption.approve", TransactionConsumptionController, :approve)
     post("/transaction_consumption.reject", TransactionConsumptionController, :reject)
 
-    scope "/" do
-      pipe_through([:idempotency])
-
-      post("/transaction.create", TransactionController, :create)
-      post("/user.credit_wallet", TransferController, :credit)
-      post("/user.debit_wallet", TransferController, :debit)
-      post("/transfer", TransferController, :transfer)
-      post("/transaction_request.consume", TransactionConsumptionController, :consume)
-    end
+    post("/transaction.create", TransactionController, :create)
+    post("/user.credit_wallet", TransferController, :credit)
+    post("/user.debit_wallet", TransferController, :debit)
+    post("/transfer", TransferController, :transfer)
+    post("/transaction_request.consume", TransactionConsumptionController, :consume)
 
     # Category endpoints
     post("/category.all", CategoryController, :all)

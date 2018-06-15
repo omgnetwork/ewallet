@@ -25,9 +25,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "client:no_idempotency_token_provided",
-                 "description" =>
-                   "The call you made requires the Idempotency-Token header to prevent duplication.",
+                 "code" => "client:invalid_parameter",
+                 "description" => "Invalid parameter provided",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -46,7 +45,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       })
 
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
           token_id: token.id,
@@ -121,7 +121,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet.address,
           to_address: wallet.address,
           token_id: token.id,
@@ -147,7 +148,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
           token_id: token.id,
@@ -174,7 +176,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: "00000000-0000-0000-0000-000000000000",
           to_address: wallet.address,
           token_id: token.id,
@@ -199,7 +202,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
           token_id: token.id,
@@ -224,7 +228,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet.address,
           to_address: "00000000-0000-0000-0000-000000000000",
           token_id: token.id,
@@ -248,7 +253,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       wallet2 = insert(:wallet)
 
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
           token_id: "BTC:456",
@@ -278,7 +284,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         amount: 200_000
       })
 
-      client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+      client_request("/me.transfer", %{
+        idempotency_token: UUID.generate(),
         to_address: wallet2.address,
         token_id: token.id,
         amount: 100_000
@@ -290,7 +297,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
     test "returns an invalid_parameter error if a parameter is missing" do
       response =
-        client_request_with_idempotency("/me.transfer", UUID.generate(), %{
+        client_request("/me.transfer", %{
+          idempotency_token: UUID.generate(),
           token_id: "an_id",
           amount: 100_000
         })

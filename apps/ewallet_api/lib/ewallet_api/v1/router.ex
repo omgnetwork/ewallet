@@ -1,14 +1,9 @@
 defmodule EWalletAPI.V1.Router do
   use EWalletAPI, :router
-  alias EWalletAPI.V1.Plug.Idempotency
   alias EWalletAPI.V1.Plug.ClientAuth
 
   pipeline :client_api do
     plug(ClientAuth)
-  end
-
-  pipeline :idempotency do
-    plug(Idempotency)
   end
 
   pipeline :api do
@@ -35,11 +30,8 @@ defmodule EWalletAPI.V1.Router do
 
     post("/me.reject_transaction_consumption", TransactionConsumptionController, :reject_for_user)
 
-    scope "/" do
-      pipe_through([:idempotency])
-      post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
-      post("/me.transfer", TransferController, :transfer_for_user)
-    end
+    post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
+    post("/me.transfer", TransferController, :transfer_for_user)
 
     post("/me.logout", AuthController, :logout)
   end

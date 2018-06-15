@@ -7,12 +7,14 @@ defmodule EWalletAPI.V1.TransferController do
   def transfer_for_user(
         conn,
         %{
+          "idempotency_token" => idempotency_token,
           "to_address" => to_address,
           "token_id" => token_id,
           "amount" => amount
         } = attrs
       )
-      when to_address != nil and token_id != nil and is_integer(amount) do
+      when idempotency_token != nil and to_address != nil and token_id != nil and
+             is_integer(amount) do
     conn.assigns.user
     |> WalletFetcher.get(attrs["from_address"])
     |> transfer_from_wallet(conn, attrs)
@@ -22,7 +24,6 @@ defmodule EWalletAPI.V1.TransferController do
 
   defp transfer_from_wallet({:ok, from_wallet}, conn, attrs) do
     attrs
-    |> Map.put("idempotency_token", conn.assigns[:idempotency_token])
     |> Map.put("from_address", from_wallet.address)
     |> TransactionGate.process_with_addresses()
     |> respond_with(:transfer, conn)

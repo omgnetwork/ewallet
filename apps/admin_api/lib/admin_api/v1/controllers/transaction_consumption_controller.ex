@@ -19,11 +19,15 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   # These fields must be one of the schema's association names.
   @always_embed [:token]
 
-  def consume(conn, attrs) do
+  def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
+      when idempotency_token != nil do
     attrs
-    |> Map.put("idempotency_token", conn.assigns.idempotency_token)
     |> TransactionConsumptionConsumerGate.consume()
     |> respond(conn)
+  end
+
+  def consume(conn, _) do
+    handle_error(conn, :invalid_parameter)
   end
 
   def approve(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, true)
