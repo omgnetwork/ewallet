@@ -96,8 +96,10 @@ defmodule LocalLedgerDB.Transaction do
   end
 
   defp subtract(credits, debits) do
-    Enum.map(credits, fn {id, amount} ->
-      {id, amount - (debits[id] || 0)}
+    tokens = Enum.uniq(Map.keys(credits) ++ Map.keys(debits))
+
+    Enum.map(tokens, fn token ->
+      {token, (credits[token] || 0) - (debits[token] || 0)}
     end)
   end
 
