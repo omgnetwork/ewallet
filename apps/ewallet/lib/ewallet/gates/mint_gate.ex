@@ -23,7 +23,6 @@ defmodule EWallet.MintGate do
     |> insert()
     |> case do
       {:ok, mint, _entry} -> {:ok, mint, token}
-      {:error, code, description} -> {:error, code, description}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -51,9 +50,6 @@ defmodule EWallet.MintGate do
         # Everything went well, do something.
         # response is the response returned by the local ledger (LocalLedger for
         # example).
-      {:error, code, description} ->
-        # Something went wrong on the other side (LocalLedger maybe) and the
-        # insert failed.
       {:error, changeset} ->
         # Something went wrong, check the errors in the changeset!
     end
@@ -99,6 +95,9 @@ defmodule EWallet.MintGate do
     case Repo.transaction(multi) do
       {:ok, result} ->
         process_with_transfer(result.transfer, result.mint_with_transfer)
+
+      {:error, _changeset} = error ->
+        error
 
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}

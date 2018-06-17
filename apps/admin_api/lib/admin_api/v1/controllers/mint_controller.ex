@@ -70,10 +70,6 @@ defmodule AdminAPI.V1.MintController do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  defp respond_single({:error, code, description}, conn) do
-    handle_error(conn, code, description)
-  end
-
   defp respond_single({:ok, mint, _token}, conn) do
     render(conn, :mint, %{mint: mint})
   end

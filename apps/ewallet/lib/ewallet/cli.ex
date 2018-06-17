@@ -23,6 +23,7 @@ defmodule EWallet.CLI do
 
   def print(message), do: Docs.print(message, width: 100)
 
+  @spec halt(any()) :: no_return()
   def halt(message) do
     error(message)
     System.halt(1)

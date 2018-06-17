@@ -27,9 +27,6 @@ defmodule EWallet.AccountPolicy do
   defp do_authorize("viewer", :update), do: false
   defp do_authorize("viewer", :delete), do: false
 
-  # Deny and return the error if provided
-  defp do_authorize({:error, _} = error, _action), do: error
-
   # Catch-all: deny everything else
   defp do_authorize(_role, _action), do: false
 end

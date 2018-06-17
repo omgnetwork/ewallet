@@ -27,10 +27,6 @@ defmodule AdminAPI.V1.CategoryController do
   # If the request provides different names, map it via `@mapped_fields` first.
   @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
-  defp permit(action, user_id, category_id) do
-    Bodyguard.permit(CategoryPolicy, action, user_id, category_id)
-  end
-
   @doc """
   Retrieves a list of categories.
   """
@@ -68,6 +64,10 @@ defmodule AdminAPI.V1.CategoryController do
       {:error, code} ->
         handle_error(conn, code)
 
+      changeset when is_list(changeset) ->
+        # preloader returned more then one record
+        handle_error(conn, :internal_server_error)
+
       nil ->
         handle_error(conn, :category_id_not_found)
     end
@@ -84,6 +84,10 @@ defmodule AdminAPI.V1.CategoryController do
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      changeset when is_list(changeset) ->
+        # preloader returned more then one record
+        handle_error(conn, :internal_server_error)
 
       {:error, code} ->
         handle_error(conn, code)
@@ -102,6 +106,10 @@ defmodule AdminAPI.V1.CategoryController do
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      changeset when is_list(changeset) ->
+        # preloader returned more then one record
+        handle_error(conn, :internal_server_error)
 
       {:error, code} ->
         handle_error(conn, code)
@@ -122,10 +130,20 @@ defmodule AdminAPI.V1.CategoryController do
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
+      changeset when is_list(changeset) ->
+        # preloader returned more then one record
+        handle_error(conn, :internal_server_error)
+
       {:error, code} ->
         handle_error(conn, code)
     end
   end
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  @spec permit(:all | :create | :get | :update, any(), any()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, user_id, category_id) do
+    Bodyguard.permit(CategoryPolicy, action, user_id, category_id)
+  end
 end

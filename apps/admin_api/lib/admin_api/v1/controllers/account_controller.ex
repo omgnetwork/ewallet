@@ -27,10 +27,6 @@ defmodule AdminAPI.V1.AccountController do
   # If the request provides different names, map it via `@mapped_fields` first.
   @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
-  defp permit(action, user_id, account_id) do
-    Bodyguard.permit(AccountPolicy, action, user_id, account_id)
-  end
-
   @doc """
   Retrieves a list of accounts.
   """
@@ -135,11 +131,24 @@ defmodule AdminAPI.V1.AccountController do
          %{} = saved <- Preloader.preload(saved, @preload_fields) do
       render(conn, :account, %{account: saved})
     else
-      {:error, %{} = changeset} ->
+      nil ->
+        handle_error(conn, :invalid_parameter)
+
+      changeset when is_map(changeset) ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      changeset when is_list(changeset) ->
+        # preloader returned more then one record
+        handle_error(conn, :internal_server_error)
 
       {:error, code} ->
         handle_error(conn, code)
     end
+  end
+
+  @spec permit(:all | :create | :get | :update, any(), any()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, user_id, account_id) do
+    Bodyguard.permit(AccountPolicy, action, user_id, account_id)
   end
 end

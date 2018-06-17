@@ -61,11 +61,6 @@ defmodule AdminAPI.V1.AdminController do
     render(conn, UserView, :user, %{user: user})
   end
 
-  # Responds when the given params were invalid
-  defp respond_single({:error, changeset}, conn) do
-    handle_error(conn, :invalid_parameter, changeset)
-  end
-
   # Responds when the admin is not found
   defp respond_single(nil, conn) do
     handle_error(conn, :user_id_not_found)
