@@ -30,8 +30,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, :invalid_parameter)
   end
 
-  def approve(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, true)
-  def reject(conn, attrs), do: confirm(conn, conn.assigns.account, attrs, false)
+  def approve(conn, attrs), do: confirm(conn, conn.assigns.key.account, attrs, true)
+  def reject(conn, attrs), do: confirm(conn, conn.assigns.key.account, attrs, false)
 
   defp confirm(conn, entity, %{"id" => id}, approved) do
     id

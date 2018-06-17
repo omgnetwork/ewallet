@@ -106,15 +106,15 @@ defmodule EWalletDB.KeyTest do
       |> params_for(%{access_key: "access123", secret_key: "secret321"})
       |> Key.insert()
 
-      assert Key.authenticate("access123", "unmatched") == false
-      assert Key.authenticate("unmatched", "secret321") == false
-      assert Key.authenticate("unmatched", "unmatched") == false
+      assert Key.authenticate("access123", "unmatched") == :error
+      assert Key.authenticate("unmatched", "secret321") == :error
+      assert Key.authenticate("unmatched", "unmatched") == :error
     end
 
     test "returns nil if access_key and/or secret_key is nil" do
-      assert Key.authenticate("access_key", nil) == false
-      assert Key.authenticate(nil, "secret_key") == false
-      assert Key.authenticate(nil, nil) == false
+      assert Key.authenticate("access_key", nil) == :error
+      assert Key.authenticate(nil, "secret_key") == :error
+      assert Key.authenticate(nil, nil) == :error
     end
   end
 

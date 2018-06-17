@@ -70,8 +70,7 @@ defmodule AdminAPI.V1.APIKeyController do
   Soft-deletes an existing API key by its id.
   """
   def delete(conn, %{"id" => id}) do
-    with false <- self_delete?(id, conn),
-         %APIKey{} = key <- APIKey.get(id) do
+    with %APIKey{} = key <- APIKey.get(id) do
       do_delete(conn, key)
     else
       true ->
@@ -83,10 +82,6 @@ defmodule AdminAPI.V1.APIKeyController do
   end
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
-
-  defp self_delete?(id, conn) do
-    if id == conn.assigns.api_key_id, do: true, else: false
-  end
 
   defp do_delete(conn, %APIKey{} = key) do
     case APIKey.delete(key) do

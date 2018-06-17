@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.ProviderAuth do
     case Key.authenticate(access_key, secret_key) do
       {:ok, key} ->
         auth
-        |> Map.put(:authenticated, :provider)
+        |> Map.put(:authenticated, true)
         |> Map.put(:key, key)
 
       :error ->
