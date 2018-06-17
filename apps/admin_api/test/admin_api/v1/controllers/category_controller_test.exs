@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
 
   describe "/category.all" do
     test "returns a list of categories and pagination data" do
-      response = user_request("/category.all")
+      response = admin_user_request("/category.all")
 
       # Asserts return data
       assert response["success"]
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = user_request("/category.all", attrs)
+      response = admin_user_request("/category.all", attrs)
       categories = response["data"]["data"]
 
       assert response["success"]
@@ -49,7 +49,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
 
       # Pick the 2nd inserted category
       target = Enum.at(categories, 1)
-      response = user_request("/category.get", %{"id" => target.id})
+      response = admin_user_request("/category.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "category"
@@ -57,7 +57,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
     end
 
     test "returns 'category:id_not_found' if the given ID was not found" do
-      response = user_request("/category.get", %{"id" => "cat_12345678901234567890123456"})
+      response = admin_user_request("/category.get", %{"id" => "cat_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -68,7 +68,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
     end
 
     test "returns 'category:id_not_found' if the given ID format is invalid" do
-      response = user_request("/category.get", %{"id" => "not_an_id"})
+      response = admin_user_request("/category.get", %{"id" => "not_an_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -82,7 +82,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
   describe "/category.create" do
     test "creates a new category and returns it" do
       request_data = %{name: "A test category"}
-      response = user_request("/category.create", request_data)
+      response = admin_user_request("/category.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
@@ -91,7 +91,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
 
     test "returns an error if the category name is not provided" do
       request_data = %{name: ""}
-      response = user_request("/category.create", request_data)
+      response = admin_user_request("/category.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -111,7 +111,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
           description: "updated_description"
         })
 
-      response = user_request("/category.update", request_data)
+      response = admin_user_request("/category.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
@@ -130,7 +130,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
         account_ids: [account.id]
       }
 
-      response = user_request("/category.update", request_data)
+      response = admin_user_request("/category.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
@@ -140,7 +140,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:category, %{id: nil})
-      response = user_request("/category.update", request_data)
+      response = admin_user_request("/category.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -150,7 +150,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
 
     test "returns a 'user:unauthorized' error if id is invalid" do
       request_data = params_for(:category, %{id: "invalid_format"})
-      response = user_request("/category.update", request_data)
+      response = admin_user_request("/category.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -164,7 +164,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
   describe "/category.delete" do
     test "responds success with the deleted category" do
       category = insert(:category)
-      response = user_request("/category.delete", %{id: category.id})
+      response = admin_user_request("/category.delete", %{id: category.id})
 
       assert response["success"] == true
       assert response["data"]["object"] == "category"
@@ -172,7 +172,7 @@ defmodule AdminAPI.V1.CategoryControllerTest do
     end
 
     test "responds with an error if the provided id is not found" do
-      response = user_request("/category.delete", %{id: "wrong_id"})
+      response = admin_user_request("/category.delete", %{id: "wrong_id"})
 
       assert response ==
                %{

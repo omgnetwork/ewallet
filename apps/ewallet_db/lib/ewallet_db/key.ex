@@ -123,8 +123,8 @@ defmodule EWalletDB.Key do
 
   def authenticate(%{secret_key_hash: secret_key_hash} = key, secret) do
     case Crypto.verify_password(secret, secret_key_hash) do
-      true -> Map.get(key, :account)
-      _ -> false
+      true -> {:ok, key}
+      _ -> :error
     end
   end
 

@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.Router do
   use AdminAPI, :router
-  alias AdminAPI.V1.{ClientAuthPlug, AdminAPIAuthPlug}
+  alias AdminAPI.V1.AdminAPIAuthPlug
 
   # Pipeline for plugs to apply for all endpoints
   pipeline :api do

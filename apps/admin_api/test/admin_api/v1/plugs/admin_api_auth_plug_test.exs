@@ -109,7 +109,7 @@ defmodule AdminAPI.V1.AdminAPIAuthPlugTest do
 
   defp assert_success(conn) do
     assert conn.assigns.authenticated == :user
-    assert conn.assigns.user.uuid == get_test_admin().uuid
+    assert conn.assigns.admin_user.uuid == get_test_admin().uuid
   end
 
   defp assert_error(conn) do

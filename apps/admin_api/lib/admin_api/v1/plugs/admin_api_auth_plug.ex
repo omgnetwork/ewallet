@@ -5,50 +5,37 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   """
   import Plug.Conn
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.{ProviderAuthPlug, AdminUserAuthPlug}
+  alias AdminAPI.V1.AdminAPIAuth
 
   def init(opts), do: opts
 
-  def call(conn, opts) do
-    conn
-    |> extract_auth_scheme()
-    |> authenticate(conn, opts)
+  def call(conn, _opts) do
+    %{http_headers: conn.req_headers}
+    |> AdminAPIAuth.authenticate()
+    |> handle_auth_result(conn)
   end
 
-  defp extract_auth_scheme(conn) do
-    case get_authorization_header(conn) do
-      nil ->
-        authenticate(nil, conn, nil)
-
-      header ->
-        [scheme, _content] = String.split(header, " ", parts: 2)
-        scheme
-    end
-  end
-
-  defp get_authorization_header(conn) do
-    conn
-    |> get_req_header("authorization")
-    |> List.first()
-  end
-
-  defp authenticate("OMGAdmin", conn, opts) do
-    conn
-    |> assign(:auth_scheme, :admin)
-    |> AdminUserAuthPlug.call(opts)
-  end
-
-  defp authenticate("Basic", conn, opts), do: authenticate("OMGProvider", conn, opts)
-
-  defp authenticate("OMGProvider", conn, opts) do
-    conn
-    |> assign(:auth_scheme, :provider)
-    |> ProviderAuthPlug.call(opts)
-  end
-
-  defp authenticate(_, conn, _opts) do
+  defp handle_auth_result(%{authenticated: false} = auth, conn) do
     conn
     |> assign(:authenticated, false)
-    |> handle_error(:invalid_auth_scheme)
+    |> handle_error(auth[:auth_error])
+  end
+
+  defp handle_auth_result(%{authenticated: true, auth_scheme: :admin, admin_user: admin_user} = auth, conn) do
+    conn
+    |> assign(:authenticated, true)
+    |> assign(:auth_scheme, :admin)
+    |> assign(:admin_user, admin_user)
+    |> put_private(:auth_user_id, auth[:auth_user_id])
+    |> put_private(:auth_auth_token, auth[:auth_auth_token])
+  end
+
+  defp handle_auth_result(%{authenticated: true, auth_scheme: :provider, key: key} = auth, conn) do
+    conn
+    |> assign(:authenticated, true)
+    |> assign(:auth_scheme, :provider)
+    |> assign(:key, key)
+    |> put_private(:auth_access_key, auth[:auth_access_key])
+    |> put_private(:auth_secret_key, auth[:auth_secret_key])
   end
 end

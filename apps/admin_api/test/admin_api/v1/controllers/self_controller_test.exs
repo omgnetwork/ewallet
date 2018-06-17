@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
   describe "/me.get" do
     test "responds with user data" do
-      response = user_request("/me.get")
+      response = admin_user_request("/me.get")
 
       assert response["success"]
       assert response["data"]["email"] == "email@example.com"
@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
   describe "/me.update" do
     test "update the current user with the given parameters" do
       response =
-        user_request("/me.update", %{
+        admin_user_request("/me.update", %{
           email: "test_1337@example.com",
           metadata: %{"key" => "value_1337"},
           encrypted_metadata: %{"key" => "value_1337"}
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
     test "doesn't update params that are not provided" do
       user = get_test_admin()
-      response = user_request("/me.update", %{})
+      response = admin_user_request("/me.update", %{})
 
       assert response["success"] == true
       assert response["data"]["object"] == "user"
@@ -43,7 +43,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
     test "ignore additional/invalid params" do
       user = get_test_admin()
-      response = user_request("/me.update", %{provider_user_id: "test_puid_1337"})
+      response = admin_user_request("/me.update", %{provider_user_id: "test_puid_1337"})
 
       assert response["success"] == true
       assert response["data"]["object"] == "user"
@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
 
     test "raise an error if the update is not valid" do
       insert(:user, %{email: "user1@example.com"})
-      response = user_request("/me.update", %{email: "user1@example.com"})
+      response = admin_user_request("/me.update", %{email: "user1@example.com"})
 
       assert response["success"] == false
 
@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
-        user_request("/me.upload_avatar", %{
+        admin_user_request("/me.upload_avatar", %{
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
             filename: "test.jpg"
@@ -104,7 +104,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
-        user_request("/me.upload_avatar", %{
+        admin_user_request("/me.upload_avatar", %{
           "id" => uuid,
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
@@ -115,7 +115,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert response["success"]
 
       response =
-        user_request("/me.upload_avatar", %{
+        admin_user_request("/me.upload_avatar", %{
           "avatar" => nil
         })
 
@@ -132,7 +132,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
-        user_request("/me.upload_avatar", %{
+        admin_user_request("/me.upload_avatar", %{
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
             filename: "test.jpg"
@@ -142,7 +142,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert response["success"]
 
       response =
-        user_request("/me.upload_avatar", %{
+        admin_user_request("/me.upload_avatar", %{
           "avatar" => ""
         })
 
@@ -159,7 +159,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
       response =
-        user_request("/me.upload_avatar", %{
+        admin_user_request("/me.upload_avatar", %{
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
             filename: "test.jpg"
@@ -169,7 +169,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       assert response["success"]
 
       response =
-        user_request("/me.upload_avatar", %{
+        admin_user_request("/me.upload_avatar", %{
           "avatar" => "null"
         })
 
@@ -184,7 +184,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
     test "responds with an account" do
       account = User.get_account(get_test_admin())
 
-      assert user_request("/me.get_account") ==
+      assert admin_user_request("/me.get_account") ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -219,7 +219,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       user = get_test_admin()
       Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
 
-      assert user_request("/me.get_account") ==
+      assert admin_user_request("/me.get_account") ==
                %{
                  "version" => "1",
                  "success" => false,
@@ -243,7 +243,7 @@ defmodule AdminAPI.V1.SelfControllerTest do
       Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
       Membership.assign(user, account, "admin")
 
-      assert user_request("/me.get_accounts") ==
+      assert admin_user_request("/me.get_accounts") ==
                %{
                  "version" => "1",
                  "success" => true,

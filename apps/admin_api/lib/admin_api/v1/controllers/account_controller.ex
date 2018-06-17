@@ -35,7 +35,7 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a list of accounts.
   """
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns.user.id, nil) do
+    with :ok <- permit(:all, conn.assigns.admin_user.id, nil) do
       accounts =
         Account
         |> Preloader.to_query(@preload_fields)
@@ -63,7 +63,7 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a specific account by its id.
   """
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns.user.id, id),
+    with :ok <- permit(:get, conn.assigns.admin_user.id, id),
          %Account{} = account <- Account.get_by(id: id),
          account <- Preloader.preload(account, @preload_fields) do
       render(conn, :account, %{account: account})
@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.AccountController do
         Account.get_master_account()
       end
 
-    with :ok <- permit(:create, conn.assigns.user.id, parent.id),
+    with :ok <- permit(:create, conn.assigns.admin_user.id, parent.id),
          attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
          {:ok, account} <- Account.insert(attrs),
          account <- Preloader.preload(account, @preload_fields) do
@@ -109,7 +109,7 @@ defmodule AdminAPI.V1.AccountController do
   The requesting user must have write permission on the given account.
   """
   def update(conn, %{"id" => account_id} = attrs) do
-    with :ok <- permit(:update, conn.assigns.user.id, account_id),
+    with :ok <- permit(:update, conn.assigns.admin_user.id, account_id),
          %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
          {:ok, updated} <- Account.update(original, attrs),
          updated <- Preloader.preload(updated, @preload_fields) do
@@ -129,7 +129,7 @@ defmodule AdminAPI.V1.AccountController do
   Uploads an image as avatar for a specific account.
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    with :ok <- permit(:update, conn.assigns.user.id, id),
+    with :ok <- permit(:update, conn.assigns.admin_user.id, id),
          %{} = account <- Account.get(id) || {:error, :account_id_not_found},
          %{} = saved <- Account.store_avatar(account, attrs),
          %{} = saved <- Preloader.preload(saved, @preload_fields) do

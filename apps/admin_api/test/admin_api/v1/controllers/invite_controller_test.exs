@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.InviteControllerTest do
   alias EWallet.Web.Date
 
   defp request(email, token, password, password_confirmation) do
-    client_request("/invite.accept", %{
+    unauthenticated_request("/invite.accept", %{
       "email" => email,
       "token" => token,
       "password" => password,
@@ -81,7 +81,7 @@ defmodule AdminAPI.V1.InviteControllerTest do
 
       # Missing passwords
       response =
-        client_request("/invite.accept", %{"email" => user.email, "token" => invite.token})
+        unauthenticated_request("/invite.accept", %{"email" => user.email, "token" => invite.token})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

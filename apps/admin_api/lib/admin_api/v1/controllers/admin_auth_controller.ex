@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.AdminUserAuthPlug
+  alias AdminAPI.V1.AdminUserAuthenticator
   alias EWallet.AccountPolicy
   alias EWalletDB.{AuthToken, Account}
 
@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.AdminAuthController do
       })
       when is_binary(email) and is_binary(password) do
     conn
-    |> AdminUserAuthPlug.authenticate(email, password)
+    |> AdminUserAuthenticator.authenticate(email, password)
     |> respond_with_token()
   end
 
@@ -28,7 +28,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   def switch_account(conn, %{"account_id" => account_id}) do
     with token <- conn.private.auth_auth_token,
          %Account{} = account <- Account.get(account_id) || {:error, :account_not_found},
-         :ok <- permit(:get, conn.assigns.user.id, account.id),
+         :ok <- permit(:get, conn.assigns.admin_user.id, account.id),
          %AuthToken{} = token <-
            AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},
          {:ok, token} <- AuthToken.switch_account(token, account) do
@@ -42,7 +42,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   def switch_account(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   defp respond_with_token(%{assigns: %{authenticated: :user}} = conn) do
-    {:ok, auth_token} = AuthToken.generate(conn.assigns.user, :admin_api)
+    {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api)
     render_token(conn, auth_token)
   end
 
@@ -63,7 +63,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   """
   def logout(conn, _attrs) do
     conn
-    |> AdminUserAuthPlug.expire_token()
+    |> AdminUserAuthenticator.expire_token()
     |> render(:empty_response, %{})
   end
 end

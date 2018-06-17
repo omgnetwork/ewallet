@@ -8,7 +8,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     test "responds with a list of api keys when no params are given" do
       [api_key1, api_key2] = APIKey |> ensure_num_records(2) |> Preloader.preload(:account)
 
-      assert user_request("/api_key.all") ==
+      assert admin_user_request("/api_key.all") ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -58,7 +58,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
         sort_dir: "asc"
       }
 
-      assert user_request("/api_key.all", attrs) ==
+      assert admin_user_request("/api_key.all", attrs) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
 
   describe "/api_key.create" do
     test "responds with an API key on success" do
-      response = user_request("/api_key.create", %{owner_app: "some_app"})
+      response = admin_user_request("/api_key.create", %{owner_app: "some_app"})
       api_key = get_last_inserted(APIKey)
 
       assert response == %{
@@ -109,7 +109,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "returns error if owner_app is not provided" do
-      response = user_request("/api_key.create", %{owner_app: nil})
+      response = admin_user_request("/api_key.create", %{owner_app: nil})
 
       assert response == %{
                "version" => "1",
@@ -129,7 +129,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
   describe "/api_key.delete" do
     test "responds with an empty success if provided a valid id" do
       api_key = insert(:api_key)
-      response = user_request("/api_key.delete", %{id: api_key.id})
+      response = admin_user_request("/api_key.delete", %{id: api_key.id})
 
       assert response == %{
                "version" => "1",
@@ -139,7 +139,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "responds with an error if the provided id is not found" do
-      response = user_request("/api_key.delete", %{id: "wrong_id"})
+      response = admin_user_request("/api_key.delete", %{id: "wrong_id"})
 
       assert response == %{
                "version" => "1",
@@ -154,7 +154,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
     end
 
     test "responds with an error if the given id is used for making the deletion request" do
-      response = user_request("/api_key.delete", %{id: @api_key_id})
+      response = admin_user_request("/api_key.delete", %{id: @api_key_id})
 
       assert response == %{
                "version" => "1",
