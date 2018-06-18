@@ -38,6 +38,9 @@ const Input = styled.input`
   :disabled {
     background-color: transparent;
   }
+  ::placeholder {
+    color: ${props => props.theme.colors.S400};
+  }
 `
 const Error = styled.div`
   position: absolute;
@@ -61,6 +64,16 @@ const Success = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity,
     0.3s ease padding ${props => (!props.success ? '0.3s' : '0s')};
 `
+const Suffix = styled.div`
+  position: absolute;
+  pointer-events: none;
+  right: 10px;
+  bottom: 0;
+  padding-bottom: 5px;
+  transition: 0.2s ease all;
+  border-bottom: 1px solid transparent;
+  color: ${props => props.theme.colors.B100};
+`
 class InputComonent extends PureComponent {
   static propTypes = {
     placeholder: PropTypes.string,
@@ -74,7 +87,8 @@ class InputComonent extends PureComponent {
     autofocus: PropTypes.bool,
     onPressEnter: PropTypes.func,
     onPressEscape: PropTypes.func,
-    onChange: PropTypes.func
+    onChange: PropTypes.func,
+    suffix: PropTypes.node
   }
   handleKeyPress = e => {
     if (e.key === 'Enter') {
@@ -115,6 +129,7 @@ class InputComonent extends PureComponent {
             onChange={this.onChange}
           />
           <Placeholder>{placeholder}</Placeholder>
+          <Suffix>{this.props.suffix}</Suffix>
         </InnerContainer>
         <Error error={this.props.error}>{this.props.errorText}</Error>
         <Success success={this.props.success}>{this.props.successText}</Success>

@@ -10,6 +10,7 @@ import LoadingSkeleton from '../omg-uikit/loading'
 import Avatar from '../omg-uikit/avatar'
 import RatioBar from '../omg-uikit/ratioBar'
 import Breadcrumb from '../omg-uikit/breadcrumb'
+import Select from '../omg-uikit/select'
 export {
   Input,
   Button,
@@ -23,5 +24,6 @@ export {
   RadioButton,
   Avatar,
   RatioBar,
-  Breadcrumb
+  Breadcrumb,
+  Select
 }

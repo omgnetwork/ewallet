@@ -5,6 +5,9 @@ export const currentUserReducer = createReducer({}, {
   },
   'CURRENT_USER/REQUEST/SUCCESS': (state, { currentUser }) => {
     return currentUser
+  },
+  'CURRENT_USER/UPDATE/SUCCESS': (state, { currentUser }) => {
+    return currentUser
   }
 })
 

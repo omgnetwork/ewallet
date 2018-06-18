@@ -4,7 +4,10 @@ export const walletsReducer = createReducer(
   {},
   {
     'WALLETS/REQUEST/SUCCESS': (state, action) => {
-      return _.keyBy(action.wallets, 'address')
+      return {...state, ..._.keyBy(action.wallets, 'address')}
+    },
+    'WALLET/REQUEST/SUCCESS': (state, { wallet }) => {
+      return { ...state, ...{ [wallet.address]: wallet } }
     },
     'CURRENT_ACCOUNT/SWITCH': () => ({})
   }

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
-import WalletsProvider from '../omg-wallet/walletProvider'
+import WalletsProvider from '../omg-wallet/walletsProvider'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -16,9 +16,13 @@ const WalletPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  th:first-child {
-    width: 50%;
-  }
+  /* th:first-child, td:first-child {
+    width: 200px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  } */
 `
 const SortableTableContainer = styled.div`
   position: relative;
@@ -39,6 +43,7 @@ class WalletPage extends Component {
   onClickExport = () => {
     this.setState({ exportModalOpen: true })
   }
+
   onRequestCloseExport = () => {
     this.setState({ exportModalOpen: false })
   }
@@ -59,15 +64,23 @@ class WalletPage extends Component {
   }
   getColumns = wallets => {
     return [
-      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
+      { key: 'owner', title: 'OWNER TYPE', sort: true },
+      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true }
     ]
   }
   getRow = wallets => {
-    return wallets
+    return wallets.map(wallet => {
+      return {
+        ...{ owner: wallet.user_id ? 'User' : 'Account' },
+        ...wallet
+      }
+    })
   }
   onClickRow = (data, index) => e => {
+    const { params } = this.props.match
+    this.props.history.push(`/${params.accountId}/wallet/${data.address}`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'created_at') {
@@ -98,7 +111,15 @@ class WalletPage extends Component {
   }
 
   render () {
-    return <WalletsProvider render={this.renderWalletPage} {...this.state} {...this.props} search={queryString.parse(this.props.location.search).search} />
+    return (
+      <WalletsProvider
+        render={this.renderWalletPage}
+        {...this.state}
+        {...this.props}
+        accountId={this.props.match.params.accountId}
+        search={queryString.parse(this.props.location.search).search}
+      />
+    )
   }
 }
 
