@@ -212,7 +212,7 @@ defmodule LocalLedgerDB.WalletTest do
           assert_receive :select_for_update, 5000
 
           Repo.transaction(fn ->
-            # this should block until the other transaction commit
+            # this should block until the other entry commit
             wallet = Wallet.get(wallet_1.address)
             changeset = Wallet.changeset(wallet, %{metadata: %{desc: "Blocked"}})
             Repo.update!(changeset)
