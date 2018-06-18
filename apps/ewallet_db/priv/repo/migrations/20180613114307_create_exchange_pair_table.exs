@@ -16,5 +16,6 @@ defmodule EWalletDB.Repo.Migrations.CreateExchangePairTable do
     end
 
     create unique_index(:exchange_pair, [:id])
+    create unique_index(:exchange_pair, [:from_token_uuid, :to_token_uuid, :reversible])
   end
 end

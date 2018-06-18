@@ -10,6 +10,7 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     Category,
+    ExchangePair,
     ForgetPasswordRequest,
     Invite,
     Key,
@@ -46,6 +47,16 @@ defmodule EWalletDB.Factory do
     %Category{
       name: sequence("Category name"),
       description: sequence("description")
+    }
+  end
+
+  def exchange_pair_factory do
+    %ExchangePair{
+      name: sequence("Exchange pair name"),
+      rate: 1,
+      reversible: true,
+      from_token: insert(:token),
+      to_token: insert(:token)
     }
   end
 
