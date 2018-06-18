@@ -11,7 +11,7 @@ defmodule EWallet.TransactionGate do
     WalletFetcher
   }
 
-  alias EWalletDB.{Transfer}
+  alias EWalletDB.Transaction
 
   def credit_type, do: "credit"
   def debit_type, do: "debit"
@@ -32,10 +32,10 @@ defmodule EWallet.TransactionGate do
     })
 
     case res do
-      {:ok, transfer, changed_wallets, token} ->
+      {:ok, transaction, changed_wallets, token} ->
         # Everything went well, do something.
-      {:error, transfer, code, description} ->
-        # Something went wrong with the transfer processing.
+      {:error, transaction, code, description} ->
+        # Something went wrong with the transaction processing.
     end
 
   """
@@ -49,8 +49,8 @@ defmodule EWallet.TransactionGate do
         } = attrs
       ) do
     with {:ok, from, to, token} <- AddressRecordFetcher.fetch(attrs),
-         {:ok, transfer} <- get_or_insert_transfer(from, to, token, attrs) do
-      process_with_transfer(transfer, [from, to], token)
+         {:ok, transaction} <- get_or_insert_transaction(from, to, token, attrs) do
+      process_with_transaction(transaction, [from, to], token)
     else
       error -> error
     end
@@ -58,7 +58,7 @@ defmodule EWallet.TransactionGate do
 
   @doc """
   Process a transaction, starting with the creation or retrieval of a transfer record (using
-  the given idempotency token), then calling the Transfer.process function to add the transaction
+  the given idempotency token), then calling the Transaction.process function to add the transaction
   to the ledger(s).
 
   ## Examples
@@ -80,7 +80,7 @@ defmodule EWallet.TransactionGate do
       {:ok, changed_wallets, token} ->
         # Everything went well, do something.
       {:error, code, description} ->
-        # Something went wrong with the transfer processing.
+        # Something went wrong with the transaction processing.
     end
 
   """
@@ -103,15 +103,15 @@ defmodule EWallet.TransactionGate do
              user_address: attrs["user_address"],
              type: type
            }),
-         {:ok, transfer} <- get_or_insert_transfer(from, to, token, attrs),
+         {:ok, transaction} <- get_or_insert_transaction(from, to, token, attrs),
          {:ok, user_wallet} <- WalletFetcher.get(user, attrs["user_address"]) do
-      process_with_transfer(transfer, [user_wallet], token)
+      process_with_transaction(transaction, [user_wallet], token)
     else
       error -> error
     end
   end
 
-  defp get_or_insert_transfer(
+  defp get_or_insert_transaction(
          from,
          to,
          token,
@@ -132,17 +132,18 @@ defmodule EWallet.TransactionGate do
     })
   end
 
-  defp process_with_transfer(%Transfer{status: "pending"} = transfer, wallets, token) do
-    transfer
+  defp process_with_transaction(%Transaction{status: "pending"} = transaction, wallets, token) do
+    transaction
     |> TransferGate.process()
-    |> process_with_transfer(wallets, token)
+    |> process_with_transaction(wallets, token)
   end
 
-  defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, wallets, token) do
-    {:ok, transfer, wallets, token}
+  defp process_with_transaction(%Transaction{status: "confirmed"} = transaction, wallets, token) do
+    {:ok, transaction, wallets, token}
   end
 
-  defp process_with_transfer(%Transfer{status: "failed"} = transfer, _wallets, _token) do
-    {:error, transfer, transfer.error_code, transfer.error_description || transfer.error_data}
+  defp process_with_transaction(%Transaction{status: "failed"} = transaction, _wallets, _token) do
+    {:error, transaction, transaction.error_code, transaction.error_description
+             || transaction.error_data}
   end
 end

@@ -13,7 +13,7 @@ defmodule AdminAPI.V1.MintController do
     "created_at" => "inserted_at"
   }
   @sort_fields [:id, :description, :amount, :confirmed, :inserted_at, :updated_at]
-  @preload_fields [:token, :account, :transfer]
+  @preload_fields [:token, :account, :transaction]
 
   @doc """
   Retrieves a list of mints.

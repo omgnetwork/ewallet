@@ -72,10 +72,6 @@ defmodule LocalLedger.Transaction do
           amount: 100,
           metadata: %{}
         }],
-        token: %{
-          id: "tok_OMG_01cbennsd8q4xddqfmewpwzxdy",
-          metadata: %{}
-        },
         idempotency_token: "123"
       })
 
@@ -85,7 +81,6 @@ defmodule LocalLedger.Transaction do
           "metadata" => metadata,
           "debits" => debits,
           "credits" => credits,
-          "token" => token,
           "idempotency_token" => idempotency_token
         },
         %{genesis: genesis},
@@ -95,7 +90,7 @@ defmodule LocalLedger.Transaction do
     |> Validator.validate_different_addresses()
     |> Validator.validate_zero_sum()
     |> Validator.validate_positive_amounts()
-    |> Entry.build_all(token)
+    |> Entry.build_all()
     |> locked_insert(metadata, idempotency_token, genesis, callback)
   rescue
     e in InsufficientFundsError ->

@@ -9,7 +9,7 @@ defmodule EWallet.MintGateTest do
     test "inserts a new confirmed mint" do
       {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
 
-      {res, mint, transfer} =
+      {res, mint, transaction} =
         MintGate.insert(%{
           "idempotency_token" => UUID.generate(),
           "token_id" => btc.id,
@@ -21,7 +21,7 @@ defmodule EWallet.MintGateTest do
       assert res == :ok
       assert mint != nil
       assert mint.confirmed == true
-      assert transfer.status == "confirmed"
+      assert transaction.status == "confirmed"
     end
 
     test "fails to insert a new mint when the data is invalid" do

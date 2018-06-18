@@ -47,12 +47,14 @@ defmodule LocalLedger.TransactionTest do
         %{
           "address" => "o",
           "metadata" => %{},
-          "amount" => 100
+          "amount" => 100,
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         },
         %{
           "address" => "sirn",
           "metadata" => %{},
-          "amount" => 200
+          "amount" => 200,
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         }
       ]
     end
@@ -62,12 +64,14 @@ defmodule LocalLedger.TransactionTest do
         %{
           "address" => "thibault",
           "metadata" => %{},
-          "amount" => 150
+          "amount" => 150,
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         },
         %{
           "address" => "mederic",
           "metadata" => %{},
-          "amount" => 150
+          "amount" => 150,
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         }
       ]
     end
@@ -79,7 +83,6 @@ defmodule LocalLedger.TransactionTest do
             "metadata" => %{},
             "debits" => debits(),
             "credits" => credits(),
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "idempotency_token" => UUID.generate()
           },
           %{genesis: true}
@@ -115,17 +118,18 @@ defmodule LocalLedger.TransactionTest do
               %{
                 "address" => "mederic",
                 "metadata" => %{},
-                "amount" => 100
+                "amount" => 100,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
             "credits" => [
               %{
                 "address" => "thibault",
                 "metadata" => %{},
-                "amount" => 100
+                "amount" => 100,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
@@ -148,17 +152,18 @@ defmodule LocalLedger.TransactionTest do
               %{
                 "address" => "mederic",
                 "metadata" => %{},
-                "amount" => 100
+                "amount" => 100,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
             "credits" => [
               %{
                 "address" => "thibault",
                 "metadata" => %{},
-                "amount" => 100
+                "amount" => 100,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "idempotency_token" => genesis_transaction.idempotency_token
           },
           %{genesis: false}
@@ -179,20 +184,18 @@ defmodule LocalLedger.TransactionTest do
               %{
                 "address" => "mederic",
                 "metadata" => %{},
-                "amount" => 200
+                "amount" => 200,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
             "credits" => [
               %{
                 "address" => "mederic",
                 "metadata" => %{},
-                "amount" => 200
+                "amount" => 200,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
-            "token" => %{
-              "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-              "metadata" => %{}
-            },
             "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
@@ -216,20 +219,18 @@ defmodule LocalLedger.TransactionTest do
               %{
                 "address" => "mederic",
                 "metadata" => %{},
-                "amount" => 200
+                "amount" => 200,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
             "credits" => [
               %{
                 "address" => "thibault",
                 "metadata" => %{},
-                "amount" => 200
+                "amount" => 200,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
-            "token" => %{
-              "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-              "metadata" => %{}
-            },
             "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
@@ -247,20 +248,18 @@ defmodule LocalLedger.TransactionTest do
               %{
                 "address" => "mederic",
                 "metadata" => %{},
-                "amount" => 200
+                "amount" => 200,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
             "credits" => [
               %{
                 "address" => "thibault",
                 "metadata" => %{},
-                "amount" => 100
+                "amount" => 100,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
-            "token" => %{
-              "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-              "metadata" => %{}
-            },
             "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
@@ -278,17 +277,18 @@ defmodule LocalLedger.TransactionTest do
               %{
                 "address" => "mederic",
                 "metadata" => %{},
-                "amount" => 0
+                "amount" => 0,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
             "credits" => [
               %{
                 "address" => "thibault",
                 "metadata" => %{},
-                "amount" => 0
+                "amount" => 0,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "idempotency_token" => UUID.generate()
           },
           %{genesis: false}
@@ -317,9 +317,18 @@ defmodule LocalLedger.TransactionTest do
           Transaction.insert(
             %{
               "metadata" => %{},
-              "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 50}],
-              "credits" => [%{"address" => "sirn", "metadata" => %{}, "amount" => 50}],
-              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+              "debits" => [%{
+                "address" => "mederic",
+                "metadata" => %{},
+                "amount" => 50,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+              }],
+              "credits" => [%{
+                "address" => "sirn",
+                "metadata" => %{},
+                "amount" => 50,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+              }],
               "idempotency_token" => UUID.generate()
             },
             %{genesis: false}
@@ -331,9 +340,18 @@ defmodule LocalLedger.TransactionTest do
       Transaction.insert(
         %{
           "metadata" => %{},
-          "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 100}],
-          "credits" => [%{"address" => "thibault", "metadata" => %{}, "amount" => 100}],
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
+          "debits" => [%{
+            "address" => "mederic",
+            "metadata" => %{},
+            "amount" => 100,
+            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+          }],
+          "credits" => [%{
+            "address" => "thibault",
+            "metadata" => %{},
+            "amount" => 100,
+            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+          }],
           "idempotency_token" => UUID.generate()
         },
         %{genesis: false},
@@ -371,20 +389,18 @@ defmodule LocalLedger.TransactionTest do
                   %{
                     "address" => "mederic",
                     "metadata" => %{},
-                    "amount" => 100
+                    "amount" => 100,
+                    "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
                   }
                 ],
                 "credits" => [
                   %{
                     "address" => "sirn",
                     "metadata" => %{},
-                    "amount" => 100
+                    "amount" => 100,
+                    "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
                   }
                 ],
-                "token" => %{
-                  "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-                  "metadata" => %{}
-                },
                 "idempotency_token" => UUID.generate()
               },
               %{genesis: false}
@@ -404,17 +420,18 @@ defmodule LocalLedger.TransactionTest do
             %{
               "address" => "mederic",
               "metadata" => %{},
-              "amount" => 100
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
             }
           ],
           "credits" => [
             %{
               "address" => "thibault",
               "metadata" => %{},
-              "amount" => 100
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
             }
           ],
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
           "idempotency_token" => UUID.generate()
         },
         %{genesis: false}
@@ -435,17 +452,18 @@ defmodule LocalLedger.TransactionTest do
               %{
                 "address" => "o",
                 "metadata" => %{},
-                "amount" => 1_000_000_000_000_000_000_000_000_000_000
+                "amount" => 1_000_000_000_000_000_000_000_000_000_000,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
             "credits" => [
               %{
                 "address" => "thibault",
                 "metadata" => %{},
-                "amount" => 1_000_000_000_000_000_000_000_000_000_000
+                "amount" => 1_000_000_000_000_000_000_000_000_000_000,
+                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
               }
             ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
             "idempotency_token" => UUID.generate()
           },
           %{genesis: true}
@@ -467,17 +485,18 @@ defmodule LocalLedger.TransactionTest do
                 %{
                   "address" => "o",
                   "metadata" => %{},
-                  "amount" => round(1_000_000_000_000.0e82)
+                  "amount" => round(1_000_000_000_000.0e82),
+                  "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
                 }
               ],
               "credits" => [
                 %{
                   "address" => "thibault",
                   "metadata" => %{},
-                  "amount" => round(1_000_000_000_000.0e82)
+                  "amount" => round(1_000_000_000_000.0e82),
+                  "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
                 }
               ],
-              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
               "idempotency_token" => UUID.generate()
             },
             %{genesis: true}

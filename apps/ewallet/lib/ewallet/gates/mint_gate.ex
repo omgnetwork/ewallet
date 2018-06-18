@@ -5,7 +5,7 @@ defmodule EWallet.MintGate do
   examples on how to add value to a token.
   """
   alias EWallet.TransferGate
-  alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, Token}
+  alias EWalletDB.{Repo, Account, Mint, Wallet, Transaction, Token}
   alias Ecto.{UUID, Multi}
 
   def mint_token({:ok, token}, attrs) do
@@ -47,7 +47,7 @@ defmodule EWallet.MintGate do
     })
 
     case res do
-      {:ok, mint, transfer} ->
+      {:ok, mint, transaction} ->
         # Everything went well, do something.
         # response is the response returned by the local ledger (LocalLedger for
         # example).
@@ -80,7 +80,7 @@ defmodule EWallet.MintGate do
           description: description
         })
       end)
-      |> Multi.run(:transfer, fn _ ->
+      |> Multi.run(:transaction, fn _ ->
         TransferGate.get_or_insert(%{
           idempotency_token: idempotency_token,
           from: Wallet.get_genesis().address,
@@ -92,32 +92,32 @@ defmodule EWallet.MintGate do
           payload: attrs
         })
       end)
-      |> Multi.run(:mint_with_transfer, fn %{transfer: transfer, mint: mint} ->
-        Mint.update(mint, %{transfer_uuid: transfer.uuid})
+      |> Multi.run(:mint_with_transaction, fn %{transaction: transaction, mint: mint} ->
+        Mint.update(mint, %{transaction_uuid: transaction.uuid})
       end)
 
     case Repo.transaction(multi) do
       {:ok, result} ->
-        process_with_transfer(result.transfer, result.mint_with_transfer)
+        process_with_transaction(result.transaction, result.mint_with_transaction)
 
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
     end
   end
 
-  defp process_with_transfer(%Transfer{status: "pending"} = transfer, mint) do
-    transfer
+  defp process_with_transaction(%Transaction{status: "pending"} = transaction, mint) do
+    transaction
     |> TransferGate.genesis()
     |> confirm_and_return(mint)
   end
 
-  defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, mint) do
-    confirm_and_return(transfer, mint)
+  defp process_with_transaction(%Transaction{status: "confirmed"} = transaction, mint) do
+    confirm_and_return(transaction, mint)
   end
 
-  defp process_with_transfer(%Transfer{status: "failed"} = transfer, mint) do
+  defp process_with_transaction(%Transaction{status: "failed"} = transaction, mint) do
     confirm_and_return(
-      {:error, transfer.error_code, transfer.error_description || transfer.error_data},
+      {:error, transaction.error_code, transaction.error_description || transaction.error_data},
       mint
     )
   end
@@ -125,8 +125,8 @@ defmodule EWallet.MintGate do
   defp confirm_and_return({:error, code, description}, mint),
     do: {:error, code, description, mint}
 
-  defp confirm_and_return(transfer, mint) do
+  defp confirm_and_return(transaction, mint) do
     mint = Mint.confirm(mint)
-    {:ok, mint, transfer}
+    {:ok, mint, transaction}
   end
 end
