@@ -5,7 +5,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
-      response = unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+
       auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
 
       expected = %{
@@ -32,7 +34,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       role = Role.get_by_name("admin")
       _membership = insert(:membership, %{user: user, role: role, account: account})
 
-      response = unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+
       auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
 
       expected = %{
@@ -54,7 +58,10 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
     test "returns an error if the given email does not exist" do
       response =
-        unauthenticated_request("/admin.login", %{email: "wrong_email@example.com", password: @password})
+        unauthenticated_request("/admin.login", %{
+          email: "wrong_email@example.com",
+          password: @password
+        })
 
       expected = %{
         "version" => @expected_version,
@@ -71,7 +78,8 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "returns an error if the given password is incorrect" do
-      response = unauthenticated_request("/admin.login", %{email: @user_email, password: "wrong_password"})
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: "wrong_password"})
 
       expected = %{
         "version" => @expected_version,

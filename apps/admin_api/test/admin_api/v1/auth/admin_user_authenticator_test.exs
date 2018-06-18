@@ -19,7 +19,9 @@ defmodule AdminAPI.Web.V1.AdminUserAuthenticatorTest do
     end
 
     test "returns conn with authenticated:false if both email and password are invalid" do
-      conn = AdminUserAuthenticator.authenticate(build_conn(), "wrong@example.com", "wrong_password")
+      conn =
+        AdminUserAuthenticator.authenticate(build_conn(), "wrong@example.com", "wrong_password")
+
       assert_error(conn)
     end
 

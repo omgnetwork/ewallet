@@ -21,7 +21,10 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
     |> handle_error(auth[:auth_error])
   end
 
-  defp handle_auth_result(%{authenticated: true, auth_scheme: :admin, admin_user: admin_user} = auth, conn) do
+  defp handle_auth_result(
+         %{authenticated: true, auth_scheme: :admin, admin_user: admin_user} = auth,
+         conn
+       ) do
     conn
     |> assign(:authenticated, true)
     |> assign(:auth_scheme, :admin)

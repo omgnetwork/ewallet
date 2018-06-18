@@ -1,5 +1,5 @@
 defmodule AdminAPI.V1.AdminUserAuthenticator do
-  @doc """
+  @moduledoc """
   Perform authentication with the given email and password.
   It returns the associated user if authenticated, `false` otherwise.
   """

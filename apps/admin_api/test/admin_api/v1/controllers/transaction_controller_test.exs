@@ -291,7 +291,8 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     end
 
     test "returns 'transaction:id_not_found' if the given ID was not found" do
-      response = admin_user_request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
+      response =
+        admin_user_request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

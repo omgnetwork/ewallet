@@ -16,9 +16,9 @@ defmodule AdminAPI.V1.AdminUserAuth do
          true <- scheme in ["OMGAdmin"],
          {:ok, decoded} <- Base.decode64(content),
          [user_id, auth_token] <- String.split(decoded, ":", parts: 2) do
-        auth
-        |> Map.put(:auth_user_id, user_id)
-        |> Map.put(:auth_auth_token, auth_token)
+      auth
+      |> Map.put(:auth_user_id, user_id)
+      |> Map.put(:auth_auth_token, auth_token)
     else
       _ ->
         auth

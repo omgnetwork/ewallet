@@ -20,9 +20,9 @@ defmodule EWalletAPI.V1.ClientAuth do
          true <- scheme in ["Basic", "OMGClient"],
          {:ok, decoded} <- Base.decode64(content),
          [key, token] <- String.split(decoded, ":", parts: 2) do
-        auth
-        |> Map.put(:auth_api_key, key)
-        |> Map.put(:auth_auth_token, token)
+      auth
+      |> Map.put(:auth_api_key, key)
+      |> Map.put(:auth_auth_token, token)
     else
       _ ->
         auth

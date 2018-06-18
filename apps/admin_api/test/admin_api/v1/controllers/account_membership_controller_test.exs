@@ -58,7 +58,9 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "returns account:id_not_found error if account id could not be found" do
-      assert admin_user_request("/account.get_users", %{account_id: "acc_12345678901234567890123456"}) ==
+      assert admin_user_request("/account.get_users", %{
+               account_id: "acc_12345678901234567890123456"
+             }) ==
                %{
                  "success" => false,
                  "version" => "1",

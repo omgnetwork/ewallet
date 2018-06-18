@@ -8,7 +8,8 @@ defmodule EWalletAPI.V1.Plug.ClientAuthPlugTest do
       conn = invoke_conn(@api_key, @auth_token)
 
       refute conn.halted
-      assert conn.assigns[:authenticated] == :client
+      assert conn.assigns[:authenticated] == true
+      assert conn.assigns[:auth_scheme] == :client
       assert conn.assigns.user.username == @username
     end
 

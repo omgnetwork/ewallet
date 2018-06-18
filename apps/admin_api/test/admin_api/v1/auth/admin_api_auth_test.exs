@@ -4,6 +4,7 @@ defmodule AdminAPI.Web.V1.AdminAPIAuthTest do
 
   def authenticate(scheme, user_id, token) do
     encoded_key = Base.encode64(user_id <> ":" <> token)
+
     AdminAPIAuth.authenticate(%{
       http_headers: [{"authorization", "#{scheme} #{encoded_key}"}]
     })

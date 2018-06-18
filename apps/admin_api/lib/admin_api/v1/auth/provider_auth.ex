@@ -16,9 +16,9 @@ defmodule AdminAPI.V1.ProviderAuth do
          true <- scheme in ["Basic", "OMGProvider"],
          {:ok, decoded} <- Base.decode64(content),
          [access, secret] <- String.split(decoded, ":", parts: 2) do
-        auth
-        |> Map.put(:auth_access_key, access)
-        |> Map.put(:auth_secret_key, secret)
+      auth
+      |> Map.put(:auth_access_key, access)
+      |> Map.put(:auth_secret_key, secret)
     else
       _ ->
         auth

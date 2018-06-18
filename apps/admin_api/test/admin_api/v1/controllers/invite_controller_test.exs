@@ -81,7 +81,10 @@ defmodule AdminAPI.V1.InviteControllerTest do
 
       # Missing passwords
       response =
-        unauthenticated_request("/invite.accept", %{"email" => user.email, "token" => invite.token})
+        unauthenticated_request("/invite.accept", %{
+          "email" => user.email,
+          "token" => invite.token
+        })
 
       refute response["success"]
       assert response["data"]["object"] == "error"
