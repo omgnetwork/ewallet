@@ -49,29 +49,19 @@ class TokenDetailPage extends Component {
     this.setState({ mintTokenModalOpen: true })
   }
   renderTopBar = user => {
-    return (
-      <TopBar
-        title={user.id}
-        breadcrumbItems={['User', user.id]}
-        buttons={[
-          <Button size='small' onClick={this.onClickMintTopen}>
-            <span>Mint Token</span>
-          </Button>
-        ]}
-      />
-    )
+    return <TopBar title={user.id} breadcrumbItems={['User', user.id]} buttons={[]} />
   }
   renderDetail = user => {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Symbol:</b> <span>{user.symbol}</span>
+          <b>Id:</b> <span>{user.id}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Decimal:</b> <span>{Math.log10(user.subunit_to_unit)}</span>
+          <b>Email:</b> <span>{user.email || '-'}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>ID:</b> <span>{user.id}</span>
+          <b>Provider Id:</b> <span>{user.provider_user_id}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b> <span>{moment(user.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
@@ -82,29 +72,44 @@ class TokenDetailPage extends Component {
       </Section>
     )
   }
-  renderUserDetailContainer = token => {
+  renderWallet = wallet => {
+    return (
+      wallet && (
+        <Section title='BALANCE'>
+          <DetailGroup>
+            <b>Wallet Address:</b> <span>{wallet.address}</span>
+          </DetailGroup>
+          {wallet.balances.map(balance => {
+            return (
+              <DetailGroup key={balance.token.id}>
+                <b>{balance.token.name}</b>{' '}
+                <span>{balance.amount / balance.token.subunit_to_unit}</span>
+              </DetailGroup>
+            )
+          })}
+        </Section>
+      )
+    )
+  }
+  renderUserDetailContainer = (user, wallet) => {
     const accountId = this.props.match.params.accountId
     return (
       <DetailLayout backPath={`/${accountId}/users`}>
         <ContentContainer>
-          {this.renderTopBar(token)}
+          {this.renderTopBar(user)}
           <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(token)}</DetailContainer>
+            <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>
+            <DetailContainer>{this.renderDetail(user)}</DetailContainer>
           </ContentDetailContainer>
         </ContentContainer>
-        <MintTokenModal
-          token={token}
-          onRequestClose={this.onRequestClose}
-          open={this.state.mintTokenModalOpen}
-        />
       </DetailLayout>
     )
   }
 
-  renderUserDetailPage = ({ user }) => {
+  renderUserDetailPage = ({ user, wallet }) => {
     return (
       <UserDetailContainer>
-        {user ? this.renderUserDetailContainer(user) : 'loading'}
+        {user ? this.renderUserDetailContainer(user, wallet) : 'loading'}
       </UserDetailContainer>
     )
   }
