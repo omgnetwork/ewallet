@@ -5,7 +5,7 @@ defmodule LocalLedgerDB.Wallet do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Wallet, Transaction}
+  alias LocalLedgerDB.{Repo, Wallet, Entry}
   alias LocalLedger.{EctoBatchStream}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
@@ -16,8 +16,8 @@ defmodule LocalLedgerDB.Wallet do
     field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
 
     has_many(
-      :transactions,
-      Transaction,
+      :entries,
+      Entry,
       foreign_key: :wallet_address,
       references: :address
     )

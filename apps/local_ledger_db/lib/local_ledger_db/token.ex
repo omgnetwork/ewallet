@@ -6,7 +6,7 @@ defmodule LocalLedgerDB.Token do
   use Ecto.Schema
   import Ecto.Changeset
   alias Ecto.UUID
-  alias LocalLedgerDB.{Repo, Token, Transaction}
+  alias LocalLedgerDB.{Repo, Token, Entry}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -16,8 +16,8 @@ defmodule LocalLedgerDB.Token do
     field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
 
     has_many(
-      :transactions,
-      Transaction,
+      :entries,
+      Entry,
       foreign_key: :token_id,
       references: :id
     )
