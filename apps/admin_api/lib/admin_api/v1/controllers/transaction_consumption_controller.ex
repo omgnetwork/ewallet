@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.TransactionConsumptionController do
   use AdminAPI, :controller
-  use EWallet.Web.Embedder
+  alias EWallet.Web.Embedder
+  @behaviour EWallet.Web.Embedder
   import AdminAPI.V1.ErrorHandler
 
   alias EWallet.{
@@ -13,11 +14,11 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
-  @embeddable [:account, :token, :transaction, :transaction_request, :user]
+  def embeddable(), do: [:account, :token, :transaction, :transaction_request, :user]
 
-  # The fields in `@embeddable` that are embedded regardless of the request.
+  # The fields returned by `embeddable/0` are embedded regardless of the request.
   # These fields must be one of the schema's association names.
-  @always_embed [:token]
+  def always_embed(), do: [:token]
 
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do
@@ -56,7 +57,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     dispatch_confirm_event(consumption)
 
     render(conn, :transaction_consumption, %{
-      transaction_consumption: embed(consumption, conn.body_params["embed"])
+      transaction_consumption: Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
     })
   end
 

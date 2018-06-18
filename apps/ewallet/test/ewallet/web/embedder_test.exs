@@ -5,13 +5,14 @@ defmodule EWallet.Web.EmbedderTest do
   alias EWalletDB.Account
 
   defmodule TestModule do
-    use EWallet.Web.Embedder
+    @behaviour EWallet.Web.Embedder
+    alias EWallet.Web.Embedder
 
-    @embeddable [:wallets, :tokens]
-    @always_embed [:wallets]
+    def embeddable(), do: [:wallets, :tokens]
+    def always_embed(), do: [:wallets]
 
     def call_embed(record, embeds) do
-      embed(record, embeds)
+      Embedder.embed(__MODULE__, record, embeds)
     end
   end
 
