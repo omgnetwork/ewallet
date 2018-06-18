@@ -23,7 +23,7 @@ defmodule LocalLedgerDB.Transaction do
   def credit_type, do: @credit
   def debit_type, do: @debit
 
-  schema "transaction" do
+  schema "entry" do
     field(:amount, LocalLedger.Types.Integer)
     field(:type, :string)
 
@@ -46,7 +46,7 @@ defmodule LocalLedgerDB.Transaction do
     belongs_to(
       :entry,
       Entry,
-      foreign_key: :entry_uuid,
+      foreign_key: :transaction_uuid,
       references: :uuid,
       type: Ecto.UUID
     )

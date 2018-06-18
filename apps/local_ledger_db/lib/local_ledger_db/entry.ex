@@ -9,7 +9,7 @@ defmodule LocalLedgerDB.Entry do
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
-  schema "entry" do
+  schema "transaction" do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
     field(:idempotency_token, :string)
@@ -17,7 +17,7 @@ defmodule LocalLedgerDB.Entry do
     has_many(
       :transactions,
       Transaction,
-      foreign_key: :entry_uuid,
+      foreign_key: :transaction_uuid,
       references: :uuid
     )
 
