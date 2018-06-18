@@ -92,7 +92,7 @@ defmodule EWallet.TransferTest do
       {:ok, transfer} = TransferGate.get_or_insert(attrs)
       transfer = TransferGate.process(transfer)
 
-      assert transfer.local_ledger_transaction_uuid != nil
+      assert transfer.local_ledger_uuid != nil
       assert transfer.status == Transaction.confirmed()
     end
 
@@ -121,12 +121,12 @@ defmodule EWallet.TransferTest do
       {:ok, transfer_1} = TransferGate.get_or_insert(attrs)
       transfer_1 = TransferGate.process(transfer_1)
 
-      assert transfer_1.local_ledger_transaction_uuid != nil
+      assert transfer_1.local_ledger_uuid != nil
       assert transfer_1.status == Transaction.confirmed()
 
       transfer_2 = TransferGate.process(transfer_1)
 
-      assert transfer_2.local_ledger_transaction_uuid != nil
+      assert transfer_2.local_ledger_uuid != nil
       assert transfer_2.status == Transaction.confirmed()
       assert transfer_1.uuid == transfer_2.uuid
       assert Transaction |> Repo.all() |> length() == 3
@@ -139,7 +139,7 @@ defmodule EWallet.TransferTest do
       transfer = TransferGate.genesis(transfer)
 
       assert transfer.status == Transaction.confirmed()
-      assert transfer.local_ledger_transaction_uuid != nil
+      assert transfer.local_ledger_uuid != nil
     end
   end
 end

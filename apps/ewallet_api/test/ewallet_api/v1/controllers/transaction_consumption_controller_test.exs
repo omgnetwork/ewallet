@@ -107,7 +107,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transaction.to_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.bob_wallet.address
-      assert inserted_transaction.local_ledger_transaction_uuid != nil
+      assert inserted_transaction.local_ledger_uuid != nil
     end
 
     test "returns same transaction request consumption when idempotency token is the same",
@@ -262,7 +262,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert inserted_transaction.to_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.bob_wallet.address
-      assert inserted_transaction.local_ledger_transaction_uuid != nil
+      assert inserted_transaction.local_ledger_uuid != nil
 
       assert_receive %Broadcast{
         event: "transaction_consumption_finalized",

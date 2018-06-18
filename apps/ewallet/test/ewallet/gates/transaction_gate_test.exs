@@ -56,7 +56,7 @@ defmodule EWallet.TransactionGateTest do
           to_token_uuid: token.uuid,
           metadata: metadata,
           payload: attrs,
-          local_ledger_transaction_uuid: response["local_ledger_transaction_uuid"],
+          local_ledger_uuid: response["local_ledger_uuid"],
           error_code: response["code"],
           error_description: response["description"],
           error_data: nil,
@@ -72,7 +72,7 @@ defmodule EWallet.TransactionGateTest do
       {idempotency_token, inserted_transaction, attrs} =
         insert_transaction_with_addresses(%{
           metadata: %{some: "data"},
-          response: %{"local_ledger_transaction_uuid" => "from cached ledger"},
+          response: %{"local_ledger_uuid" => "from cached ledger"},
           status: Transaction.confirmed()
         })
 
@@ -84,7 +84,7 @@ defmodule EWallet.TransactionGateTest do
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
       assert transaction.status == Transaction.confirmed()
-      assert transaction.local_ledger_transaction_uuid == "from cached ledger"
+      assert transaction.local_ledger_uuid == "from cached ledger"
     end
 
     test "returns the transaction ledger response when idempotency token is present and
@@ -188,7 +188,7 @@ defmodule EWallet.TransactionGateTest do
                "idempotency_token" => idempotency_token
              }
 
-      assert transaction.local_ledger_transaction_uuid != nil
+      assert transaction.local_ledger_uuid != nil
       assert transaction.metadata == %{"some" => "data"}
     end
 
@@ -272,7 +272,7 @@ defmodule EWallet.TransactionGateTest do
           to_token_uuid: inserted_token.uuid,
           metadata: metadata,
           payload: attrs,
-          local_ledger_transaction_uuid: response["local_ledger_transaction_uuid"],
+          local_ledger_uuid: response["local_ledger_uuid"],
           error_code: response["code"],
           error_description: response["description"],
           error_data: nil,
@@ -288,7 +288,7 @@ defmodule EWallet.TransactionGateTest do
       {idempotency_token, inserted_transaction, attrs} =
         insert_debit_credit_transaction(%{
           metadata: %{some: "data"},
-          response: %{"local_ledger_transaction_uuid" => "from cached ledger"},
+          response: %{"local_ledger_uuid" => "from cached ledger"},
           status: Transaction.confirmed()
         })
 
@@ -300,7 +300,7 @@ defmodule EWallet.TransactionGateTest do
       assert inserted_transaction.id == transaction.id
       assert transaction.idempotency_token == idempotency_token
       assert transaction.status == Transaction.confirmed()
-      assert transaction.local_ledger_transaction_uuid != nil
+      assert transaction.local_ledger_uuid != nil
     end
 
     test "returns the transaction ledger response when idempotency token is present and
@@ -421,7 +421,7 @@ defmodule EWallet.TransactionGateTest do
                "account_id" => inserted_account.id
              }
 
-      assert transaction.local_ledger_transaction_uuid != nil
+      assert transaction.local_ledger_uuid != nil
       assert transaction.metadata == %{"some" => "data"}
     end
 
