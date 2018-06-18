@@ -65,7 +65,8 @@ defmodule EWalletDB.TransactionTest do
       {:ok, inserted_transaction} =
         :transaction |> params_for(idempotency_token: "123") |> Transaction.insert()
 
-      {:ok, transaction} = :transaction |> params_for(idempotency_token: "123") |> Transaction.insert()
+      {:ok, transaction} =
+        :transaction |> params_for(idempotency_token: "123") |> Transaction.insert()
 
       assert inserted_transaction == transaction
       assert Transaction |> Repo.all() |> length() == 1

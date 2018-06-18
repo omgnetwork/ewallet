@@ -317,18 +317,22 @@ defmodule LocalLedger.TransactionTest do
           Transaction.insert(
             %{
               "metadata" => %{},
-              "debits" => [%{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 50,
-                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }],
-              "credits" => [%{
-                "address" => "sirn",
-                "metadata" => %{},
-                "amount" => 50,
-                "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }],
+              "debits" => [
+                %{
+                  "address" => "mederic",
+                  "metadata" => %{},
+                  "amount" => 50,
+                  "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+                }
+              ],
+              "credits" => [
+                %{
+                  "address" => "sirn",
+                  "metadata" => %{},
+                  "amount" => 50,
+                  "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+                }
+              ],
               "idempotency_token" => UUID.generate()
             },
             %{genesis: false}
@@ -340,18 +344,22 @@ defmodule LocalLedger.TransactionTest do
       Transaction.insert(
         %{
           "metadata" => %{},
-          "debits" => [%{
-            "address" => "mederic",
-            "metadata" => %{},
-            "amount" => 100,
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-          }],
-          "credits" => [%{
-            "address" => "thibault",
-            "metadata" => %{},
-            "amount" => 100,
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-          }],
+          "debits" => [
+            %{
+              "address" => "mederic",
+              "metadata" => %{},
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+            }
+          ],
+          "credits" => [
+            %{
+              "address" => "thibault",
+              "metadata" => %{},
+              "amount" => 100,
+              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+            }
+          ],
           "idempotency_token" => UUID.generate()
         },
         %{genesis: false},
