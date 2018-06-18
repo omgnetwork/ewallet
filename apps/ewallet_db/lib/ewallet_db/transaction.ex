@@ -1,13 +1,13 @@
-defmodule EWalletDB.Transfer do
+defmodule EWalletDB.Transaction do
   @moduledoc """
-  Ecto Schema representing transfers.
+  Ecto Schema representing transactions.
   """
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.{UUID, Multi}
   import EWalletDB.Validator
-  alias EWalletDB.{Repo, Transfer, Wallet, Token}
+  alias EWalletDB.{Repo, Transaction, Wallet, Token}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -26,7 +26,7 @@ defmodule EWalletDB.Transfer do
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "transaction" do
-    external_id(prefix: "tfr_")
+    external_id(prefix: "txn_")
 
     field(:idempotency_token, :string)
     field(:from_amount, EWalletDB.Types.Integer)
@@ -81,8 +81,8 @@ defmodule EWalletDB.Transfer do
     timestamps()
   end
 
-  defp changeset(%Transfer{} = transfer, attrs) do
-    transfer
+  defp changeset(%Transaction{} = transaction, attrs) do
+    transaction
     |> cast(attrs, [
       :idempotency_token,
       :status,
@@ -123,30 +123,30 @@ defmodule EWalletDB.Transfer do
   end
 
   @doc """
-  Gets all transfers for the given address.
+  Gets all transactions for the given address.
   """
   def all_for_address(address) do
-    from(t in Transfer, where: t.from == ^address or t.to == ^address)
+    from(t in Transaction, where: t.from == ^address or t.to == ^address)
   end
 
   @doc """
-  Gets a transfer with the given idempotency token, inserts a new one if not found.
+  Gets a transaction with the given idempotency token, inserts a new one if not found.
   """
   def get_or_insert(%{idempotency_token: idempotency_token} = attrs) do
     case get_by_idempotency_token(idempotency_token) do
       nil ->
         insert(attrs)
 
-      transfer ->
-        {:ok, transfer}
+      transaction ->
+        {:ok, transaction}
     end
   end
 
   @doc """
-  Gets a transfer.
+  Gets a transaction.
   """
-  @spec get(ExternalID.t()) :: %Transfer{} | nil
-  @spec get(ExternalID.t(), keyword()) :: %Transfer{} | nil
+  @spec get(ExternalID.t()) :: %Transaction{} | nil
+  @spec get(ExternalID.t(), keyword()) :: %Transaction{} | nil
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do
@@ -156,11 +156,11 @@ defmodule EWalletDB.Transfer do
   def get(_id, _opts), do: nil
 
   @doc """
-  Get a transfer using one or more fields.
+  Get a transaction using one or more fields.
   """
-  @spec get_by(keyword() | map(), keyword()) :: %Transfer{} | nil
+  @spec get_by(keyword() | map(), keyword()) :: %Transaction{} | nil
   def get_by(map, opts \\ []) do
-    query = Transfer |> Repo.get_by(map)
+    query = Transaction |> Repo.get_by(map)
 
     case opts[:preload] do
       nil -> query
@@ -169,10 +169,10 @@ defmodule EWalletDB.Transfer do
   end
 
   @doc """
-  Helper function to get a transfer with an idempotency token and loads all the required
+  Helper function to get a transaction with an idempotency token and loads all the required
   associations.
   """
-  @spec get_by_idempotency_token(String.t()) :: %Transfer{} | nil
+  @spec get_by_idempotency_token(String.t()) :: %Transaction{} | nil
   def get_by_idempotency_token(idempotency_token) do
     get_by(
       %{
@@ -183,31 +183,31 @@ defmodule EWalletDB.Transfer do
   end
 
   @doc """
-  Inserts a transfer and ignores the conflicts on idempotency token, then retrieves the transfer
+  Inserts a transaction and ignores the conflicts on idempotency token, then retrieves the transaction
   using the passed idempotency token.
   """
   def insert(attrs) do
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
-    changeset = changeset(%Transfer{}, attrs)
+    changeset = changeset(%Transaction{}, attrs)
 
     Multi.new()
-    |> Multi.insert(:transfer, changeset, opts)
-    |> Multi.run(:transfer_1, fn %{transfer: transfer} ->
-      case get(transfer.id, preload: [:from_wallet, :to_wallet, :token]) do
+    |> Multi.insert(:transaction, changeset, opts)
+    |> Multi.run(:transaction_1, fn %{transaction: transaction} ->
+      case get(transaction.id, preload: [:from_wallet, :to_wallet, :token]) do
         nil ->
-          {:ok, get_by_idempotency_token(transfer.idempotency_token)}
+          {:ok, get_by_idempotency_token(transaction.idempotency_token)}
 
-        transfer ->
-          {:ok, transfer}
+        transaction ->
+          {:ok, transaction}
       end
     end)
     |> Repo.transaction()
     |> case do
-      {:ok, %{transfer: _transfer, transfer_1: nil}} ->
+      {:ok, %{transaction: _transaction, transaction_1: nil}} ->
         {:error, :inserted_transaction_could_not_be_loaded}
 
-      {:ok, %{transfer: _transfer, transfer_1: transfer_1}} ->
-        {:ok, transfer_1}
+      {:ok, %{transaction: _transaction, transaction_1: transaction_1}} ->
+        {:ok, transaction_1}
 
       {:error, _failed_operation, failed_value, _changes_so_far} ->
         {:error, failed_value}
@@ -215,19 +215,19 @@ defmodule EWalletDB.Transfer do
   end
 
   @doc """
-  Confirms a transfer and saves the ledger's response.
+  Confirms a transaction and saves the ledger's response.
   """
-  def confirm(transfer, entry_uuid) do
-    transfer
+  def confirm(transaction, entry_uuid) do
+    transaction
     |> changeset(%{status: @confirmed, entry_uuid: entry_uuid})
     |> Repo.update()
     |> handle_update_result()
   end
 
   @doc """
-  Sets a transfer as failed and saves the ledger's response.
+  Sets a transaction as failed and saves the ledger's response.
   """
-  def fail(transfer, error_code, error_description) when is_map(error_description) do
+  def fail(transaction, error_code, error_description) when is_map(error_description) do
     do_fail(
       %{
         status: @failed,
@@ -235,11 +235,11 @@ defmodule EWalletDB.Transfer do
         error_description: nil,
         error_data: error_description
       },
-      transfer
+      transaction
     )
   end
 
-  def fail(transfer, error_code, error_description) do
+  def fail(transaction, error_code, error_description) do
     do_fail(
       %{
         status: @failed,
@@ -247,36 +247,36 @@ defmodule EWalletDB.Transfer do
         error_description: error_description,
         error_data: nil
       },
-      transfer
+      transaction
     )
   end
 
-  defp do_fail(%{error_code: error_code} = data, transfer) when is_atom(error_code) do
+  defp do_fail(%{error_code: error_code} = data, transaction) when is_atom(error_code) do
     data
     |> Map.put(:error_code, Atom.to_string(error_code))
-    |> do_fail(transfer)
+    |> do_fail(transaction)
   end
 
-  defp do_fail(data, transfer) do
-    transfer
+  defp do_fail(data, transaction) do
+    transaction
     |> changeset(data)
     |> Repo.update()
     |> handle_update_result()
   end
 
-  defp handle_update_result({:ok, transfer}) do
-    Repo.preload(transfer, [:from_wallet, :to_wallet, :token])
+  defp handle_update_result({:ok, transaction}) do
+    Repo.preload(transaction, [:from_wallet, :to_wallet, :token])
   end
 
   defp handle_update_result(error), do: error
 
   def get_error(nil), do: nil
 
-  def get_error(transfer) do
-    {transfer.error_code, transfer.error_description || transfer.error_data}
+  def get_error(transaction) do
+    {transaction.error_code, transaction.error_description || transaction.error_data}
   end
 
-  def failed?(transfer) do
-    transfer.status == @failed
+  def failed?(transaction) do
+    transaction.status == @failed
   end
 end

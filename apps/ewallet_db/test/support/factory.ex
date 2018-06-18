@@ -19,7 +19,7 @@ defmodule EWalletDB.Factory do
     Role,
     TransactionRequest,
     TransactionConsumption,
-    Transfer,
+    Transaction,
     User,
     Wallet
   }
@@ -132,7 +132,7 @@ defmodule EWalletDB.Factory do
     %Mint{
       amount: 100_000,
       token_uuid: insert(:token).uuid,
-      transfer_uuid: insert(:transfer).uuid
+      transaction_uuid: insert(:transaction).uuid
     }
   end
 
@@ -176,8 +176,8 @@ defmodule EWalletDB.Factory do
     }
   end
 
-  def transfer_factory do
-    %Transfer{
+  def transaction_factory do
+    %Transaction{
       idempotency_token: UUID.generate(),
       payload: %{example: "Payload"},
       metadata: %{some: "metadata"},

@@ -29,7 +29,7 @@ defmodule LocalLedgerDB.Transaction do
   Validate the transaction and associated entries. cast_assoc will take care of
   setting the tranasction_uuid on all the entries.
   """
-  def changeset(%Transaction{} = Transaction, attrs) do
+  def changeset(%Transaction{} = transaction, attrs) do
     transaction
     |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :idempotency_token])
     |> validate_required([:idempotency_token, :metadata, :encrypted_metadata])

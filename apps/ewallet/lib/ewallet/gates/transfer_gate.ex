@@ -3,7 +3,7 @@ defmodule EWallet.TransferGate do
   Handles the logic for a transfer of value between two addresses.
   """
   alias EWallet.TransferFormatter
-  alias LocalLedger.Entry
+  alias LocalLedger.Transaction
   alias EWalletDB.{Token, Transfer}
 
   @doc """
@@ -64,7 +64,7 @@ defmodule EWallet.TransferGate do
   def process(transfer) do
     transfer
     |> TransferFormatter.format()
-    |> Entry.insert(%{genesis: false})
+    |> Transaction.insert(%{genesis: false})
     |> update_transfer(transfer)
   end
 
@@ -86,7 +86,7 @@ defmodule EWallet.TransferGate do
   def genesis(transfer) do
     transfer
     |> TransferFormatter.format()
-    |> Entry.insert(%{genesis: true})
+    |> Transaction.insert(%{genesis: true})
     |> update_transfer(transfer)
   end
 
