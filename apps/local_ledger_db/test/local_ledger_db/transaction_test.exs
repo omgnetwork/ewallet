@@ -198,6 +198,18 @@ defmodule LocalLedgerDB.TransactionTest do
       assert wallets == %{"tok_BTC_789" => 300, "tok_KNC_456" => 100, "tok_OMG_123" => 700}
     end
 
+    test "works even if the wallet only had debits" do
+      {:ok, balance} = :wallet |> build |> Repo.insert()
+      {:ok, omg} = :token |> build(id: "tok_OMG_123") |> Repo.insert()
+
+      transfer(balance, omg, 100, Transaction.debit_type())
+      transfer(balance, omg, 300, Transaction.debit_type())
+      transfer(balance, omg, 500, Transaction.debit_type())
+
+      wallets = Transaction.calculate_all_balances(balance.address)
+      assert wallets == %{"tok_OMG_123" => -900}
+    end
+
     test "returns the correct balance for the specified token" do
       {:ok, balance} = :wallet |> build |> Repo.insert()
       {:ok, omg} = :token |> build(id: "tok_OMG_123") |> Repo.insert()
