@@ -62,8 +62,12 @@ defmodule EWalletDB.ExchangePair do
   defp changeset(exchange_pair, attrs) do
     exchange_pair
     |> cast(attrs, [:name, :rate, :reversible])
-    |> validate_required(:name)
+    |> validate_required([:name, :rate, :reversible])
     |> unique_constraint(:name)
+    |> unique_constraint(
+      :from_token,
+      name: "exchange_pair_from_token_uuid_to_token_uuid_reversible_index"
+    )
   end
 
   @doc """
@@ -136,4 +140,24 @@ defmodule EWalletDB.ExchangePair do
   """
   @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def restore(exchange_pair), do: SoftDelete.restore(exchange_pair)
+
+  @doc """
+  Retrieves an exchange pair using `from_token` and `to_token`.
+
+  Also returns the pair if it reversibly-matches `from_token` and `to_token` and is reversible.
+  """
+  @spec get_exchangable_pair(%EWalletDB.Token{}, %EWalletDB.Token{}) ::
+          {:ok, %__MODULE__{}, boolean()} | {:error, :exchange_pair_not_found}
+  def get_exchangable_pair(from_token, to_token) do
+    cond do
+      pair = %__MODULE__{} = get_by(from_token: from_token, to_token: to_token) ->
+        {:ok, pair, false}
+
+      pair = %__MODULE__{} = get_by(from_token: from_token, to_token: to_token, reversible: true) ->
+        {:ok, pair, true}
+
+      true ->
+        {:error, :exchange_pair_not_found}
+    end
+  end
 end
