@@ -95,11 +95,10 @@ class CreateTransactionModal extends Component {
         this.props.onRequestClose()
         this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
       } else {
-        console.log(result)
         this.setState({ submitting: false, error: result.data.data.description })
       }
-    } catch (errror) {
-      this.setState({ submitting: false })
+    } catch (error) {
+      this.setState({ submitting: false, error })
     }
   }
   onSelect = item => {
@@ -131,7 +130,7 @@ class CreateTransactionModal extends Component {
           />
           <InputLabel>Token</InputLabel>
           <Select
-            normalPlaceholder='TOKEN'
+            normalPlaceholder='Token'
             onSelect={this.onSelect}
             options={this.props.wallet.balances.map(b => ({
               ...{
