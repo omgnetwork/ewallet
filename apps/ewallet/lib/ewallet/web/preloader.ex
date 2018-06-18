@@ -17,11 +17,24 @@ defmodule EWallet.Web.Preloader do
   def to_query(queryable, _), do: queryable
 
   @doc """
-  Preloads associations into the given record(s).
+  Preloads associations into the given record.
   """
-  @spec preload(Ecto.Schema.t() | Ecto.Schema.t(), atom() | [atom()]) ::
-          Ecto.Schema.t() | [Ecto.Schema.t()]
-  def preload(record, preloads) do
-    Repo.preload(record, List.wrap(preloads))
+  @spec preload_one(map, atom() | [atom()]) :: Ecto.Schema.t() | {:error, nil}
+  def preload_one(record, preloads) when is_map(record) do
+    case Repo.preload(record, List.wrap(preloads)) do
+      nil -> {:error, nil}
+      %{} = result -> result
+    end
+  end
+
+  @doc """
+  Preloads associations into the given records.
+  """
+  @spec preload_all(list(Ecto.Schema.t()), atom() | [atom()]) :: [Ecto.Schema.t()] | {:error, nil}
+  def preload_all(record, preloads) do
+    case Repo.preload(record, List.wrap(preloads)) do
+      nil -> {:error, nil}
+      result when is_list(result) -> result
+    end
   end
 end

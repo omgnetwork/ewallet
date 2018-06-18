@@ -58,15 +58,11 @@ defmodule AdminAPI.V1.CategoryController do
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns.admin_user.id, id),
          %Category{} = category <- Category.get_by(id: id),
-         %Category{} = category <- Preloader.preload(category, @preload_fields) do
+         %Category{} = category <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, code} ->
         handle_error(conn, code)
-
-      changeset when is_list(changeset) ->
-        # preloader returned more then one record
-        handle_error(conn, :internal_server_error)
 
       nil ->
         handle_error(conn, :category_id_not_found)
@@ -79,15 +75,11 @@ defmodule AdminAPI.V1.CategoryController do
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns.admin_user.id, nil),
          {:ok, category} <- Category.insert(attrs),
-         %Category{} = category <- Preloader.preload(category, @preload_fields) do
+         %Category{} = category <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
-
-      changeset when is_list(changeset) ->
-        # preloader returned more then one record
-        handle_error(conn, :internal_server_error)
 
       {:error, code} ->
         handle_error(conn, code)
@@ -101,15 +93,11 @@ defmodule AdminAPI.V1.CategoryController do
     with :ok <- permit(:update, conn.assigns.admin_user.id, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, updated} <- Category.update(original, attrs),
-         %Category{} = updated <- Preloader.preload(updated, @preload_fields) do
+         %Category{} = updated <- Preloader.preload_one(updated, @preload_fields) do
       render(conn, :category, %{category: updated})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
-
-      changeset when is_list(changeset) ->
-        # preloader returned more then one record
-        handle_error(conn, :internal_server_error)
 
       {:error, code} ->
         handle_error(conn, code)
@@ -124,15 +112,11 @@ defmodule AdminAPI.V1.CategoryController do
   def delete(conn, %{"id" => id}) do
     with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, deleted} = Category.delete(category),
-         %Category{} = deleted <- Preloader.preload(deleted, @preload_fields) do
+         %Category{} = deleted <- Preloader.preload_one(deleted, @preload_fields) do
       render(conn, :category, %{category: deleted})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
-
-      changeset when is_list(changeset) ->
-        # preloader returned more then one record
-        handle_error(conn, :internal_server_error)
 
       {:error, code} ->
         handle_error(conn, code)
