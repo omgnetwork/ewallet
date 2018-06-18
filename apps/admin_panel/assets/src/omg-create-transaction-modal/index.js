@@ -144,7 +144,6 @@ class CreateTransactionModal extends Component {
           <BalanceTokenLabel>Balance: {this.state.selectedToken ? this.state.selectedToken.amount / _.get(this.state.selectedToken, 'token.subunit_to_unit') : '-'} </BalanceTokenLabel>
           <InputLabel>Amount</InputLabel>
           <Input
-            normalPlaceholder='1,000,000'
             value={this.state.amount}
             onChange={this.onChangeAmount}
             type='number'
