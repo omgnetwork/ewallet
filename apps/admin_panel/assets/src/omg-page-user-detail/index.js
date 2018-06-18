@@ -21,7 +21,7 @@ const ContentDetailContainer = styled.div`
   display: flex;
 `
 const DetailContainer = styled.div`
-  flex: 1 1 auto;
+  flex: 0 1 50%;
   :first-child {
     margin-right: 20px;
   }
@@ -76,21 +76,23 @@ class TokenDetailPage extends Component {
   }
   renderWallet = wallet => {
     return (
-      wallet && (
-        <Section title='BALANCE'>
-          <DetailGroup>
-            <b>Wallet Address:</b> <span>{wallet.address}</span>
-          </DetailGroup>
-          {wallet.balances.map(balance => {
-            return (
-              <DetailGroup key={balance.token.id}>
-                <b>{balance.token.name}</b>{' '}
-                <span>{balance.amount / balance.token.subunit_to_unit}</span>
-              </DetailGroup>
-            )
-          })}
-        </Section>
-      )
+      <Section title='BALANCE'>
+        {wallet ? (
+          <div>
+            <DetailGroup>
+              <b>Wallet Address:</b> <span>{wallet.address}</span>
+            </DetailGroup>
+            {wallet.balances.map(balance => {
+              return (
+                <DetailGroup key={balance.token.id}>
+                  <b>{balance.token.name}</b>{' '}
+                  <span>{balance.amount / balance.token.subunit_to_unit}</span>
+                </DetailGroup>
+              )
+            })}
+          </div>
+        ) : 'loading'}
+      </Section>
     )
   }
   renderUserDetailContainer = (user, wallet) => {
