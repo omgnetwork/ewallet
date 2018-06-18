@@ -85,8 +85,10 @@ defmodule EWallet.MintGate do
           idempotency_token: idempotency_token,
           from: Wallet.get_genesis().address,
           to: Account.get_primary_wallet(account).address,
-          token_id: token.id,
-          amount: amount,
+          from_amount: amount,
+          from_token_id: token.id,
+          to_amount: amount,
+          to_token_id: token.id,
           metadata: attrs["metadata"] || %{},
           encrypted_metadata: attrs["encrypted_metadata"] || %{},
           payload: attrs

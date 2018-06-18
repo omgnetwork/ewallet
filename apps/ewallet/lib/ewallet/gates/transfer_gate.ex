@@ -15,8 +15,10 @@ defmodule EWallet.TransferGate do
       idempotency_token: "84bafebf-9776-4cb0-a7f7-8b1e5c7ec830",
       from: "c4f829d0-fe85-4b4c-a326-0c46f26b47c5",
       to: "f084d20b-6aa7-4231-803f-a0d8d938f939",
-      token_id: "f7ef021b-95bf-45c8-990f-743ca99d742a",
-      amount: 10,
+      from_amount: 10,
+      from_token_id: "tok_OMG_1234567890990f743ca99d742a",
+      to_amount: 10,
+      to_token_id: "tok_OMG_1234567890990f743ca99d742a",
       metadata: %{},
       encrypted_metadata: %{},
       payload: %{}
@@ -35,17 +37,17 @@ defmodule EWallet.TransferGate do
           idempotency_token: _,
           from: _,
           to: _,
-          token_id: _,
-          amount: _,
+          from_amount: _,
+          from_token_id: _,
+          to_amount: _,
+          from_token_id: _,
           payload: _
         } = attrs
       ) do
     attrs
     |> Map.put(:type, Transaction.internal())
-    |> Map.put(:from_amount, attrs.amount)
-    |> Map.put(:from_token_uuid, Token.get_by(id: attrs.token_id).uuid)
-    |> Map.put(:to_amount, attrs.amount)
-    |> Map.put(:to_token_uuid, Token.get_by(id: attrs.token_id).uuid)
+    |> Map.put(:from_token_uuid, Token.get_by(id: attrs.from_token_id).uuid)
+    |> Map.put(:to_token_uuid, Token.get_by(id: attrs.to_token_id).uuid)
     |> Transaction.get_or_insert()
   end
 
