@@ -92,11 +92,11 @@ defmodule EWalletDB.TransactionTest do
     test "confirms a transaction" do
       {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
       assert inserted_transaction.status == Transaction.pending()
-      ledger_txn_uuid = UUID.generate()
-      transaction = Transaction.confirm(inserted_transaction, ledger_txn_uuid)
+      local_ledger_uuid = UUID.generate()
+      transaction = Transaction.confirm(inserted_transaction, local_ledger_uuid)
       assert transaction.id == inserted_transaction.id
       assert transaction.status == Transaction.confirmed()
-      assert transaction.local_ledger_transaction_uuid == ledger_txn_uuid
+      assert transaction.local_ledger_uuid == local_ledger_uuid
     end
   end
 

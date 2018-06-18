@@ -38,7 +38,7 @@ defmodule EWalletDB.Transaction do
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
     # Response returned by ledger
-    field(:local_ledger_transaction_uuid, :string)
+    field(:local_ledger_uuid, :string)
     field(:error_code, :string)
     field(:error_description, :string)
     field(:error_data, :map)
@@ -89,7 +89,7 @@ defmodule EWalletDB.Transaction do
       :type,
       :payload,
       :metadata,
-      :local_ledger_transaction_uuid,
+      :local_ledger_uuid,
       :error_code,
       :error_description,
       :error_data,
@@ -118,7 +118,7 @@ defmodule EWalletDB.Transaction do
     |> validate_from_wallet_identifier()
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
-    |> validate_exclusive([:local_ledger_transaction_uuid, :error_code])
+    |> validate_exclusive([:local_ledger_uuid, :error_code])
     |> validate_immutable(:idempotency_token)
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:from_token)
@@ -222,9 +222,9 @@ defmodule EWalletDB.Transaction do
   @doc """
   Confirms a transaction and saves the ledger's response.
   """
-  def confirm(transaction, ledger_txn_uuid) do
+  def confirm(transaction, local_ledger_uuid) do
     transaction
-    |> changeset(%{status: @confirmed, local_ledger_transaction_uuid: ledger_txn_uuid})
+    |> changeset(%{status: @confirmed, local_ledger_uuid: local_ledger_uuid})
     |> Repo.update()
     |> handle_update_result()
   end

@@ -109,7 +109,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.to_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.account_wallet.address
-      assert inserted_transaction.local_ledger_transaction_uuid != nil
+      assert inserted_transaction.local_ledger_uuid != nil
     end
 
     test "fails to consume and return an insufficient funds error", meta do
@@ -359,7 +359,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.to_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.bob_wallet.address
       assert inserted_transaction.from == meta.account_wallet.address
-      assert inserted_transaction.local_ledger_transaction_uuid != nil
+      assert inserted_transaction.local_ledger_uuid != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",
@@ -455,7 +455,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.bob_wallet.address
-      assert inserted_transaction.local_ledger_transaction_uuid != nil
+      assert inserted_transaction.local_ledger_uuid != nil
 
       assert_receive %Phoenix.Socket.Broadcast{
         event: "transaction_consumption_finalized",

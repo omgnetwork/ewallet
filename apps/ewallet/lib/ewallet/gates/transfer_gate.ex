@@ -93,7 +93,7 @@ defmodule EWallet.TransferGate do
     |> update_transfer(transfer)
   end
 
-  defp update_transfer(_, %Transaction{local_ledger_transaction_uuid: local_ledger_uuid,
+  defp update_transfer(_, %Transaction{local_ledger_uuid: local_ledger_uuid,
                                        error_code: error_code} = transfer)
        when local_ledger_uuid != nil
        when error_code != nil do
