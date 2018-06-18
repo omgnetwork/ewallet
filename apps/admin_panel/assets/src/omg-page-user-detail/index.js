@@ -41,15 +41,6 @@ class TokenDetailPage extends Component {
     history: PropTypes.object,
     theme: PropTypes.object
   }
-  state = {
-    mintTokenModalOpen: false
-  }
-  onRequestClose = () => {
-    this.setState({ mintTokenModalOpen: false })
-  }
-  onClickMintTopen = e => {
-    this.setState({ mintTokenModalOpen: true })
-  }
   renderTopBar = user => {
     return <TopBar title={user.id} breadcrumbItems={['User', user.id]} buttons={[]} />
   }

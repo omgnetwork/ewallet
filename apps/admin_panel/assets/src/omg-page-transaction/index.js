@@ -10,7 +10,7 @@ import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
-const AccountPageContainer = styled.div`
+const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
@@ -34,7 +34,7 @@ const columns = [
   { key: 'status', title: 'STATUS', sort: true }
 ]
 
-class AccountPage extends Component {
+class TransactionPage extends Component {
   static propTypes = {
     location: PropTypes.object
   }
@@ -54,7 +54,7 @@ class AccountPage extends Component {
     this.setState({ exportModalOpen: false })
   }
 
-  renderExportButton = () => {
+  renderCreateTransactionButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
         <Icon name='Export' />
@@ -93,10 +93,10 @@ class AccountPage extends Component {
   }
   renderTransactionPage = ({ transactions, loadingStatus }) => {
     return (
-      <AccountPageContainer>
+      <TransactionPageContainer>
         <TopNavigation
           title={'Transaction'}
-          // buttons={[this.renderExportButton()]}
+          buttons={[this.renderCreateTransactionButton()]}
         />
         <SortableTable
           dataSource={transactions}
@@ -109,7 +109,7 @@ class AccountPage extends Component {
           onRequestClose={this.onRequestCloseCreateAccount}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
-      </AccountPageContainer>
+      </TransactionPageContainer>
     )
   }
   render () {
@@ -124,4 +124,4 @@ class AccountPage extends Component {
   }
 }
 
-export default withRouter(AccountPage)
+export default withRouter(TransactionPage)
