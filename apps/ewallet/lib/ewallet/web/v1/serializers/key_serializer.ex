@@ -12,7 +12,7 @@ defmodule EWallet.Web.V1.KeySerializer do
   end
 
   def serialize(%Key{} = key) do
-    key = Preloader.preload_one(key, :account)
+    {:ok, key} = Preloader.preload_one(key, :account)
 
     %{
       object: "key",

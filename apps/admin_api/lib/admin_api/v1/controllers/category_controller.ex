@@ -58,7 +58,7 @@ defmodule AdminAPI.V1.CategoryController do
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns.admin_user.id, id),
          %Category{} = category <- Category.get_by(id: id),
-         %Category{} = category <- Preloader.preload_one(category, @preload_fields) do
+         {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, code} ->
@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.CategoryController do
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns.admin_user.id, nil),
          {:ok, category} <- Category.insert(attrs),
-         %Category{} = category <- Preloader.preload_one(category, @preload_fields) do
+         {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, %{} = changeset} ->
@@ -93,7 +93,7 @@ defmodule AdminAPI.V1.CategoryController do
     with :ok <- permit(:update, conn.assigns.admin_user.id, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, updated} <- Category.update(original, attrs),
-         %Category{} = updated <- Preloader.preload_one(updated, @preload_fields) do
+         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
       render(conn, :category, %{category: updated})
     else
       {:error, %{} = changeset} ->
@@ -112,7 +112,7 @@ defmodule AdminAPI.V1.CategoryController do
   def delete(conn, %{"id" => id}) do
     with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, deleted} = Category.delete(category),
-         %Category{} = deleted <- Preloader.preload_one(deleted, @preload_fields) do
+         {:ok, deleted} <- Preloader.preload_one(deleted, @preload_fields) do
       render(conn, :category, %{category: deleted})
     else
       {:error, %{} = changeset} ->

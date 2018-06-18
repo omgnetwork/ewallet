@@ -19,22 +19,23 @@ defmodule EWallet.Web.Preloader do
   @doc """
   Preloads associations into the given record.
   """
-  @spec preload_one(map, atom() | [atom()]) :: Ecto.Schema.t() | {:error, nil}
+  @spec preload_one(map, atom() | [atom()]) :: {:ok, Ecto.Schema.t()} | {:error, nil}
   def preload_one(record, preloads) when is_map(record) do
     case Repo.preload(record, List.wrap(preloads)) do
       nil -> {:error, nil}
-      %{} = result -> result
+      %{} = result -> {:ok, result}
     end
   end
 
   @doc """
   Preloads associations into the given records.
   """
-  @spec preload_all(list(Ecto.Schema.t()), atom() | [atom()]) :: [Ecto.Schema.t()] | {:error, nil}
+  @spec preload_all(list(Ecto.Schema.t()), atom() | [atom()]) ::
+          {:ok, [Ecto.Schema.t()]} | {:error, nil}
   def preload_all(record, preloads) do
     case Repo.preload(record, List.wrap(preloads)) do
       nil -> {:error, nil}
-      result when is_list(result) -> result
+      result when is_list(result) -> {:ok, result}
     end
   end
 end

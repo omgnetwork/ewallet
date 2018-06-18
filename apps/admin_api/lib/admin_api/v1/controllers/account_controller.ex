@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.AccountController do
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns.admin_user.id, id),
          %Account{} = account <- Account.get_by(id: id),
-         account <- Preloader.preload_one(account, @preload_fields) do
+         {:ok, account} <- Preloader.preload_one(account, @preload_fields) do
       render(conn, :account, %{account: account})
     else
       {:error, code} ->
@@ -88,7 +88,7 @@ defmodule AdminAPI.V1.AccountController do
     with :ok <- permit(:create, conn.assigns.admin_user.id, parent.id),
          attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
          {:ok, account} <- Account.insert(attrs),
-         account <- Preloader.preload_one(account, @preload_fields) do
+         {:ok, account} <- Preloader.preload_one(account, @preload_fields) do
       render(conn, :account, %{account: account})
     else
       {:error, %{} = changeset} ->
@@ -108,7 +108,7 @@ defmodule AdminAPI.V1.AccountController do
     with :ok <- permit(:update, conn.assigns.admin_user.id, account_id),
          %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
          {:ok, updated} <- Account.update(original, attrs),
-         updated <- Preloader.preload_one(updated, @preload_fields) do
+         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
       render(conn, :account, %{account: updated})
     else
       {:error, %{} = changeset} ->
@@ -128,7 +128,7 @@ defmodule AdminAPI.V1.AccountController do
     with :ok <- permit(:update, conn.assigns.admin_user.id, id),
          %{} = account <- Account.get(id) || {:error, :account_id_not_found},
          %{} = saved <- Account.store_avatar(account, attrs),
-         %{} = saved <- Preloader.preload_one(saved, @preload_fields) do
+         {:ok, saved} <- Preloader.preload_one(saved, @preload_fields) do
       render(conn, :account, %{account: saved})
     else
       nil ->
