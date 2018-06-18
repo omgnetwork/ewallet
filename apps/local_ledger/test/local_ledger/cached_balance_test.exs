@@ -230,7 +230,7 @@ defmodule LocalLedger.CachedBalanceTest do
              }
     end
 
-    test "uses the cached balance and adds the transactions that happened after", %{
+    test "uses the cached balance and adds the entries that happened after", %{
       token_1: token_1,
       token_2: token_2,
       wallet: wallet

@@ -1,7 +1,7 @@
-defmodule LocalLedger.Entry.Validator do
+defmodule LocalLedger.Transaction.Validator do
   @moduledoc """
   This module is used to validate that the total of debits minus the total of
-  credits for an entry is equal to 0.
+  credits for a transaction is equal to 0.
   """
   alias LocalLedger.Errors.{InvalidAmountError, AmountIsZeroError, SameAddressError}
 
@@ -17,7 +17,7 @@ defmodule LocalLedger.Entry.Validator do
   end
 
   @doc """
-  Sum the incoming transactions and ensure debit - credit = 0. If not, raise
+  Sum the incoming entries and ensure debit - credit = 0. If not, raise
   an InvalidAmountError exception.
   """
   def validate_zero_sum({debits, credits} = attrs) do
