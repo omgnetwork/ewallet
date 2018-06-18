@@ -27,9 +27,11 @@ const SortableTableContainer = styled.div`
     white-space: nowrap;
   }
 `
-class AccountPage extends Component {
+class UsersPage extends Component {
   static propTypes = {
-    location: PropTypes.object
+    location: PropTypes.object,
+    history: PropTypes.object,
+    match: PropTypes.object
   }
   constructor (props) {
     super(props)
@@ -82,6 +84,10 @@ class AccountPage extends Component {
     }
     return data
   }
+  onClickRow = (data, index) => e => {
+    const { params } = this.props.match
+    this.props.history.push(`/${params.accountId}/user/${data.id}`)
+  }
   renderUserPage = ({ users, loadingStatus }) => {
     return (
       <UserPageContainer>
@@ -115,4 +121,4 @@ class AccountPage extends Component {
   }
 }
 
-export default withRouter(AccountPage)
+export default withRouter(UsersPage)

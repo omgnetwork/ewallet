@@ -6,6 +6,9 @@ export const usersReducer = createReducer(
     'USERS/REQUEST/SUCCESS': (state, action) => {
       return _.keyBy(action.users, 'id')
     },
+    'USER/REQUEST/SUCCESS': (state, action) => {
+      return { ...state, ...{ [action.user.id]: action.user } }
+    },
     'USER/CREATE/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.user.id]: action.user } }
     },

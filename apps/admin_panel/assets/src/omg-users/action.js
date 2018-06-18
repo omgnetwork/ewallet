@@ -29,3 +29,17 @@ export const getUsers = () => async dispatch => {
     return dispatch({ type: 'USERS/REQUEST/FAILED', error })
   }
 }
+
+export const getUserById = id => async dispatch => {
+  try {
+    const result = await userService.getUserById(id)
+    if (result.data.success) {
+      dispatch({ type: 'USER/REQUEST/SUCCESS', user: result.data.data })
+    } else {
+      dispatch({ type: 'USER/REQUEST/FAILED', error: result.data.data })
+    }
+    return result
+  } catch (error) {
+    return dispatch({ type: 'USER/REQUEST/FAILED', error })
+  }
+}
