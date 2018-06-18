@@ -25,11 +25,12 @@ defmodule EWalletDB.Transfer do
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
-  schema "transfer" do
+  schema "transaction" do
     external_id(prefix: "tfr_")
 
     field(:idempotency_token, :string)
-    field(:amount, EWalletDB.Types.Integer)
+    field(:from_amount, EWalletDB.Types.Integer)
+    field(:to_amount, EWalletDB.Types.Integer)
     # pending -> confirmed
     field(:status, :string, default: @pending)
     # internal / external
@@ -46,9 +47,17 @@ defmodule EWalletDB.Transfer do
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     belongs_to(
-      :token,
+      :from_token,
       Token,
-      foreign_key: :token_uuid,
+      foreign_key: :from_token_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :to_token,
+      Token,
+      foreign_key: :to_token_uuid,
       references: :uuid,
       type: UUID
     )
