@@ -174,6 +174,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
     account_id_not_found: %{
       code: "user:account_id_not_found",
       description: "There is no account corresponding to the provided account_id"
+    },
+    exchange_pair_not_found: %{
+      code: "exchange:pair_not_found",
+      description: "There is no exchange pair corresponding to the provided tokens"
+    },
+    exchange_invalid_rate: %{
+      code: "exchange:invalid_rate",
+      description: "The exchange is attempted with an invalid rate"
     }
   }
 
