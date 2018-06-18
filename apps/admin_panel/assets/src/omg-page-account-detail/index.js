@@ -27,7 +27,7 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 
-const enhnace = compose(withTheme, withRouter)
+const enhance = compose(withTheme, withRouter)
 class AccountDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
@@ -143,4 +143,4 @@ class AccountDetailPage extends Component {
   }
 }
 
-export default enhnace(AccountDetailPage)
+export default enhance(AccountDetailPage)

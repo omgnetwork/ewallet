@@ -10,9 +10,6 @@ import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 const UserSettingContainer = styled.div`
   padding-top: 20px;
-  /* button {
-    margin-top: 40px;
-  } */
   h2 {
     margin-bottom: 30px;
   }

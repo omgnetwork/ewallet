@@ -55,6 +55,15 @@ const BalanceTokenLabel = styled.div`
   color: ${props => props.theme.colors.B100};
   margin-top: 5px;
 `
+const Error = styled.div`
+  color: ${props => props.theme.colors.R400};
+  text-align: center;
+  padding: 10px 0;
+  overflow: hidden;
+  max-height: ${props => (props.error ? '50px' : 0)};
+  opacity: ${props => (props.error ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity;
+`
 
 class CreateTransactionModal extends Component {
   static propTypes = {
@@ -86,7 +95,8 @@ class CreateTransactionModal extends Component {
         this.props.onRequestClose()
         this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
       } else {
-        this.setState({ submitting: false })
+        console.log(result)
+        this.setState({ submitting: false, error: result.data.data.description })
       }
     } catch (errror) {
       this.setState({ submitting: false })
@@ -109,19 +119,19 @@ class CreateTransactionModal extends Component {
           <h4>Transfer Token</h4>
           <InputLabel>From</InputLabel>
           <Input
-            normalPlaceholder='acc_01cfda0qygekaqgxc7qsvwc83h'
+            normalPlaceholder='acc_0x000000000000000'
             value={this.props.wallet.address}
             disabled
           />
           <InputLabel>To Address</InputLabel>
           <Input
-            normalPlaceholder='acc_01cfda0qygekaqgxc7qsvwc83h'
+            normalPlaceholder='acc_0x000000000000000'
             value={this.state.toAddress}
             onChange={this.onChangeInputToAddress}
           />
           <InputLabel>Token</InputLabel>
           <Select
-            normalPlaceholder='OMG'
+            normalPlaceholder='TOKEN'
             onSelect={this.onSelect}
             options={this.props.wallet.balances.map(b => ({
               ...{
@@ -144,7 +154,7 @@ class CreateTransactionModal extends Component {
               Transfer
             </Button>
           </ButtonContainer>
-          <div>{this.state.error}</div>
+          <Error error={this.state.error}>{this.state.error}</Error>
         </Form>
       </Modal>
     )

@@ -33,7 +33,7 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 
-const enhnace = compose(
+const enhance = compose(
   withTheme,
   withRouter
 )
@@ -137,4 +137,4 @@ class TokenDetailPage extends Component {
   }
 }
 
-export default enhnace(TokenDetailPage)
+export default enhance(TokenDetailPage)
