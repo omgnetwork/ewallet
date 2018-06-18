@@ -3,9 +3,9 @@ defmodule EWalletAPI.V1.TransactionController do
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.WalletFetcher
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWalletDB.{Transfer, User, Repo}
+  alias EWalletDB.{Transaction, User, Repo}
 
-  @preload_fields [:token]
+  @preload_fields [:from_token, :to_token]
   @mapped_fields %{"created_at" => "inserted_at"}
   @search_fields [:id, :idempotency_token, :status, :from, :to]
   @sort_fields [:id, :status, :from, :to, :inserted_at, :updated_at]
@@ -16,7 +16,7 @@ defmodule EWalletAPI.V1.TransactionController do
   Gets the list of ALL transactions.
   Allows sorting, filtering and pagination.
   """
-  def all(conn, attrs), do: query_records_and_respond(Transfer, attrs, conn)
+  def all(conn, attrs), do: query_records_and_respond(Transaction, attrs, conn)
 
   @doc """
   Server endpoint
@@ -37,7 +37,7 @@ defmodule EWalletAPI.V1.TransactionController do
       attrs = clean_address_search_terms(user, attrs)
 
       wallet.address
-      |> Transfer.all_for_address()
+      |> Transaction.all_for_address()
       |> query_records_and_respond(attrs, conn)
     else
       error when is_atom(error) -> handle_error(conn, error)
@@ -64,7 +64,7 @@ defmodule EWalletAPI.V1.TransactionController do
         |> clean_address_search_terms(attrs)
 
       wallet.address
-      |> Transfer.all_for_address()
+      |> Transaction.all_for_address()
       |> query_records_and_respond(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)

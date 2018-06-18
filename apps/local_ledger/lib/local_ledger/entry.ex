@@ -9,12 +9,26 @@ defmodule LocalLedger.Entry do
   Get or insert the given token and all the given addresses before
   building a map representation usable by the LocalLedgerDB schemas.
   """
-  def build_all({debits, credits}, token) do
-    {:ok, token} = Token.get_or_insert(token)
-    sending = format(token, debits, Entry.debit_type())
-    receiving = format(token, credits, Entry.credit_type())
+  def build_all({debits, credits}) do
+    debits = format(debits, Entry.debit_type())
+    credits = format(credits, Entry.credit_type())
 
-    sending ++ receiving
+    debits ++ credits
+  end
+
+  # Build a list of wallet maps with the required details for DB insert.
+  defp format(entries, type) do
+    Enum.map(entries, fn attrs ->
+      {:ok, token} = Token.get_or_insert(attrs["token"])
+      {:ok, wallet} = Wallet.get_or_insert(attrs)
+
+      %{
+        type: type,
+        amount: attrs["amount"],
+        token_id: token.id,
+        wallet_address: wallet.address
+      }
+    end)
   end
 
   @doc """
@@ -26,20 +40,6 @@ defmodule LocalLedger.Entry do
       entry[:type] == Entry.debit_type()
     end)
     |> Enum.map(fn entry -> entry[:wallet_address] end)
-  end
-
-  # Build a list of wallet maps with the required details for DB insert.
-  defp format(token, wallets, type) do
-    Enum.map(wallets, fn attrs ->
-      {:ok, wallet} = Wallet.get_or_insert(attrs)
-
-      %{
-        type: type,
-        amount: attrs["amount"],
-        token_id: token.id,
-        wallet_address: wallet.address
-      }
-    end)
   end
 
   @doc """

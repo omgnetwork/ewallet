@@ -83,10 +83,10 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     }
 
     case TransactionGate.process_with_addresses(attrs) do
-      {:ok, transfer, _, _} ->
+      {:ok, transaction, _, _} ->
         # Expires the request if it has reached the max number of consumptions (only CONFIRMED
         # SUCCESSFUL) consumptions are accounted for.
-        consumption = TransactionConsumption.confirm(consumption, transfer)
+        consumption = TransactionConsumption.confirm(consumption, transaction)
 
         request = consumption.transaction_request
         {:ok, request} = TransactionRequest.expire_if_max_consumption(request)
@@ -98,8 +98,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
 
         {:ok, consumption}
 
-      {:error, transfer, code, description} ->
-        consumption = TransactionConsumption.fail(consumption, transfer)
+      {:error, transaction, code, description} ->
+        consumption = TransactionConsumption.fail(consumption, transaction)
         {:error, consumption, code, description}
     end
   end

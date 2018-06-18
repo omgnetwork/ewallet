@@ -33,7 +33,7 @@ defmodule LocalLedgerDB.Transaction do
     transaction
     |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :idempotency_token])
     |> validate_required([:idempotency_token, :metadata, :encrypted_metadata])
-    |> cast_assoc(:transactions, required: true)
+    |> cast_assoc(:entries, required: true)
     |> unique_constraint(:idempotency_token)
     |> put_change(:encryption_version, Cloak.version())
   end

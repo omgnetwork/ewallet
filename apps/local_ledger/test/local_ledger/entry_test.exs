@@ -16,7 +16,8 @@ defmodule LocalLedger.EntryTest do
         %{
           "address" => "omisego.test.sender1",
           "metadata" => %{},
-          "amount" => 100
+          "amount" => 100,
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         }
       ]
 
@@ -24,14 +25,13 @@ defmodule LocalLedger.EntryTest do
         %{
           "address" => "omisego.test.receiver1",
           "metadata" => %{},
-          "amount" => 100
+          "amount" => 100,
+          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         }
       ]
 
-      token = %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
       incoming_entries = {debits, credits}
-
-      formatted_entries = Entry.build_all(incoming_entries, token)
+      formatted_entries = Entry.build_all(incoming_entries)
 
       assert formatted_entries == [
                %{

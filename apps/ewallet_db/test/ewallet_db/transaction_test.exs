@@ -37,7 +37,7 @@ defmodule EWalletDB.TransactionTest do
 
   describe "insert/1" do
     test_insert_generate_uuid(Transaction, :uuid)
-    test_insert_generate_external_id(Transaction, :id, "tfr_")
+    test_insert_generate_external_id(Transaction, :id, "txn_")
     test_insert_generate_timestamps(Transaction)
     test_insert_prevent_blank(Transaction, :payload)
     test_insert_prevent_blank(Transaction, :idempotency_token)
@@ -51,7 +51,10 @@ defmodule EWalletDB.TransactionTest do
         |> params_for()
         |> Transaction.insert()
 
-      transactions = Transaction |> Repo.all() |> Repo.preload([:from_wallet, :to_wallet, :token])
+      transactions =
+        Transaction
+        |> Repo.all()
+        |> Repo.preload([:from_wallet, :to_wallet, :from_token, :to_token])
 
       assert transactions == [transaction]
     end
@@ -75,8 +78,10 @@ defmodule EWalletDB.TransactionTest do
 
       assert changeset.errors == [
                idempotency_token: {"can't be blank", [validation: :required]},
-               amount: {"can't be blank", [validation: :required]},
-               token_uuid: {"can't be blank", [validation: :required]},
+               from_amount: {"can't be blank", [validation: :required]},
+               from_token_uuid: {"can't be blank", [validation: :required]},
+               to_amount: {"can't be blank", [validation: :required]},
+               to_token_uuid: {"can't be blank", [validation: :required]},
                to: {"can't be blank", [validation: :required]},
                from: {"can't be blank", [validation: :required]}
              ]
@@ -87,11 +92,11 @@ defmodule EWalletDB.TransactionTest do
     test "confirms a transaction" do
       {:ok, inserted_transaction} = :transaction |> params_for() |> Transaction.get_or_insert()
       assert inserted_transaction.status == Transaction.pending()
-      entry_uuid = UUID.generate()
-      transaction = Transaction.confirm(inserted_transaction, entry_uuid)
+      ledger_txn_uuid = UUID.generate()
+      transaction = Transaction.confirm(inserted_transaction, ledger_txn_uuid)
       assert transaction.id == inserted_transaction.id
       assert transaction.status == Transaction.confirmed()
-      assert transaction.entry_uuid == entry_uuid
+      assert transaction.local_ledger_transaction_uuid == ledger_txn_uuid
     end
   end
 

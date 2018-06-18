@@ -2,16 +2,16 @@ defmodule EWallet.TransferGate do
   @moduledoc """
   Handles the logic for a transfer of value between two addresses.
   """
-  alias EWallet.TransferFormatter
-  alias LocalLedger.Transaction
-  alias EWalletDB.{Token, Transfer}
+  alias EWallet.TransactionFormatter
+  alias EWalletDB.{Token, Transaction}
+  alias LocalLedger.Transaction, as: LedgerTransaction
 
   @doc """
   Gets or inserts a transfer using the given idempotency token and other given attributes.
 
   ## Examples
 
-    res = Transactions.Transfer.get_or_insert(%{
+    res = TransferGate.get_or_insert(%{
       idempotency_token: "84bafebf-9776-4cb0-a7f7-8b1e5c7ec830",
       from: "c4f829d0-fe85-4b4c-a326-0c46f26b47c5",
       to: "f084d20b-6aa7-4231-803f-a0d8d938f939",
@@ -41,9 +41,12 @@ defmodule EWallet.TransferGate do
         } = attrs
       ) do
     attrs
-    |> Map.put(:type, Transfer.internal())
-    |> Map.put(:token_uuid, Token.get_by(id: attrs.token_id).uuid)
-    |> Transfer.get_or_insert()
+    |> Map.put(:type, Transaction.internal())
+    |> Map.put(:from_amount, attrs.amount)
+    |> Map.put(:from_token_uuid, Token.get_by(id: attrs.token_id).uuid)
+    |> Map.put(:to_amount, attrs.amount)
+    |> Map.put(:to_token_uuid, Token.get_by(id: attrs.token_id).uuid)
+    |> Transaction.get_or_insert()
   end
 
   @doc """
@@ -51,7 +54,7 @@ defmodule EWallet.TransferGate do
 
   ## Examples
 
-    res = Transactions.Transfer.process(transfer)
+    res = TransferGate.process(transfer)
 
     case res do
       {:ok, transfer} ->
@@ -63,8 +66,8 @@ defmodule EWallet.TransferGate do
   """
   def process(transfer) do
     transfer
-    |> TransferFormatter.format()
-    |> Transaction.insert(%{genesis: false})
+    |> TransactionFormatter.format()
+    |> LedgerTransaction.insert(%{genesis: false})
     |> update_transfer(transfer)
   end
 
@@ -73,7 +76,7 @@ defmodule EWallet.TransferGate do
 
   ## Examples
 
-    res = Transactions.Transfer.genesis(transfer)
+    res = TransferGate.genesis(transfer)
 
     case res do
       {:ok, transfer} ->
@@ -85,22 +88,23 @@ defmodule EWallet.TransferGate do
   """
   def genesis(transfer) do
     transfer
-    |> TransferFormatter.format()
-    |> Transaction.insert(%{genesis: true})
+    |> TransactionFormatter.format()
+    |> LedgerTransaction.insert(%{genesis: true})
     |> update_transfer(transfer)
   end
 
-  defp update_transfer(_, %Transfer{entry_uuid: entry_uuid, error_code: error_code} = transfer)
-       when entry_uuid != nil
+  defp update_transfer(_, %Transaction{local_ledger_transaction_uuid: local_ledger_uuid,
+                                       error_code: error_code} = transfer)
+       when local_ledger_uuid != nil
        when error_code != nil do
     transfer
   end
 
-  defp update_transfer({:ok, entry}, transfer) do
-    Transfer.confirm(transfer, entry.uuid)
+  defp update_transfer({:ok, tranasction}, transfer) do
+    Transaction.confirm(transfer, tranasction.uuid)
   end
 
   defp update_transfer({:error, code, description}, transfer) do
-    Transfer.fail(transfer, code, description)
+    Transaction.fail(transfer, code, description)
   end
 end

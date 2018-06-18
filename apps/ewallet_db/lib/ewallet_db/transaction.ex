@@ -38,7 +38,7 @@ defmodule EWalletDB.Transaction do
     # Payload received from client
     field(:payload, EWalletDB.Encrypted.Map)
     # Response returned by ledger
-    field(:entry_uuid, :string)
+    field(:local_ledger_transaction_uuid, :string)
     field(:error_code, :string)
     field(:error_description, :string)
     field(:error_data, :map)
@@ -89,13 +89,15 @@ defmodule EWalletDB.Transaction do
       :type,
       :payload,
       :metadata,
-      :entry_uuid,
+      :local_ledger_transaction_uuid,
       :error_code,
       :error_description,
       :error_data,
       :encrypted_metadata,
-      :amount,
-      :token_uuid,
+      :from_amount,
+      :from_token_uuid,
+      :to_amount,
+      :to_token_uuid,
       :to,
       :from
     ])
@@ -104,8 +106,10 @@ defmodule EWalletDB.Transaction do
       :status,
       :type,
       :payload,
-      :amount,
-      :token_uuid,
+      :from_amount,
+      :from_token_uuid,
+      :to_amount,
+      :to_token_uuid,
       :to,
       :from,
       :metadata,
@@ -114,10 +118,11 @@ defmodule EWalletDB.Transaction do
     |> validate_from_wallet_identifier()
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
-    |> validate_exclusive([:entry_uuid, :error_code])
+    |> validate_exclusive([:local_ledger_transaction_uuid, :error_code])
     |> validate_immutable(:idempotency_token)
     |> unique_constraint(:idempotency_token)
-    |> assoc_constraint(:token)
+    |> assoc_constraint(:from_token)
+    |> assoc_constraint(:to_token)
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
   end
@@ -178,7 +183,7 @@ defmodule EWalletDB.Transaction do
       %{
         idempotency_token: idempotency_token
       },
-      preload: [:from_wallet, :to_wallet, :token]
+      preload: [:from_wallet, :to_wallet, :from_token, :to_token]
     )
   end
 
@@ -193,7 +198,7 @@ defmodule EWalletDB.Transaction do
     Multi.new()
     |> Multi.insert(:transaction, changeset, opts)
     |> Multi.run(:transaction_1, fn %{transaction: transaction} ->
-      case get(transaction.id, preload: [:from_wallet, :to_wallet, :token]) do
+      case get(transaction.id, preload: [:from_wallet, :to_wallet, :from_token, :to_token]) do
         nil ->
           {:ok, get_by_idempotency_token(transaction.idempotency_token)}
 
@@ -217,9 +222,9 @@ defmodule EWalletDB.Transaction do
   @doc """
   Confirms a transaction and saves the ledger's response.
   """
-  def confirm(transaction, entry_uuid) do
+  def confirm(transaction, ledger_txn_uuid) do
     transaction
-    |> changeset(%{status: @confirmed, entry_uuid: entry_uuid})
+    |> changeset(%{status: @confirmed, local_ledger_transaction_uuid: ledger_txn_uuid})
     |> Repo.update()
     |> handle_update_result()
   end
@@ -265,7 +270,7 @@ defmodule EWalletDB.Transaction do
   end
 
   defp handle_update_result({:ok, transaction}) do
-    Repo.preload(transaction, [:from_wallet, :to_wallet, :token])
+    Repo.preload(transaction, [:from_wallet, :to_wallet, :from_token, :to_token])
   end
 
   defp handle_update_result(error), do: error

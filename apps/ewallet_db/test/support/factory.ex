@@ -177,14 +177,16 @@ defmodule EWalletDB.Factory do
   end
 
   def transaction_factory do
+    token = insert(:token)
+
     %Transaction{
       idempotency_token: UUID.generate(),
       payload: %{example: "Payload"},
       metadata: %{some: "metadata"},
       from_amount: 100,
-      from_token: insert(:token),
+      from_token: token,
       from_wallet: insert(:wallet),
-      to_token: insert(:token),
+      to_token: token,
       to_amount: 100,
       to_wallet: insert(:wallet)
     }
