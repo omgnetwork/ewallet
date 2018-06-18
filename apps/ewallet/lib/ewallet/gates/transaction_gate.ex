@@ -21,7 +21,7 @@ defmodule EWallet.TransactionGate do
 
   ## Examples
 
-    res = Transaction.process_with_addresses(%{
+    res = TransactionGate.process_with_addresses(%{
       "from_address" => "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c",
       "to_address" => "4aa07691-2f99-4cb1-b36c-50763e2d2ba8",
       "token_id" => "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
@@ -124,8 +124,10 @@ defmodule EWallet.TransactionGate do
       idempotency_token: idempotency_token,
       from: from.address,
       to: to.address,
-      token_id: token.id,
-      amount: amount,
+      from_amount: amount,
+      from_token_id: token.id,
+      to_amount: amount,
+      to_token_id: token.id,
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       payload: attrs

@@ -1,4 +1,4 @@
-defmodule EWallet.TransferTest do
+defmodule EWallet.TransferGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.TransferGate
   alias EWalletDB.{Repo, Token, Account, Transaction}
@@ -21,8 +21,10 @@ defmodule EWallet.TransferTest do
       idempotency_token: UUID.generate(),
       from: from.address,
       to: to.address,
-      token_id: token.id,
-      amount: 100 * token.subunit_to_unit,
+      from_amount: 100 * token.subunit_to_unit,
+      from_token_id: token.id,
+      to_amount: 100 * token.subunit_to_unit,
+      to_token_id: token.id,
       metadata: %{},
       payload: %{}
     }
@@ -97,7 +99,11 @@ defmodule EWallet.TransferTest do
     end
 
     test "does not insert an entry and fails the transfer when transaction failed", attrs do
-      attrs = Map.put(attrs, :amount, 1_000_000)
+      attrs =
+        attrs
+        |> Map.put(:from_amount, 1_000_000)
+        |> Map.put(:to_amount, 1_000_000)
+
       {:ok, transfer} = TransferGate.get_or_insert(attrs)
       transfer = TransferGate.process(transfer)
 
@@ -109,7 +115,7 @@ defmodule EWallet.TransferTest do
                "address" => attrs[:from],
                "amount_to_debit" => 1_000_000,
                "current_amount" => 100_000,
-               "token_id" => attrs[:token_id]
+               "token_id" => attrs[:from_token_id]
              }
 
       assert transfer.status == Transaction.failed()
