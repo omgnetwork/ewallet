@@ -1,8 +1,8 @@
-defmodule EWallet.Web.V1.SocketClientAuth do
+defmodule EWalletAPI.V1.ClientAuth do
   @moduledoc """
   This module takes care of authenticating a client for websocket connections.
   """
-  alias EWallet.Web.V1.ClientAuth
+  alias EWalletDB.{User, AuthToken, APIKey}
 
   def authenticate(params) do
     %{}
@@ -15,13 +15,16 @@ defmodule EWallet.Web.V1.SocketClientAuth do
     headers = Enum.into(params.http_headers, %{})
     header = headers["authorization"]
 
-    case ClientAuth.parse_header(header) do
-      {:ok, key, token} ->
+    with header when not is_nil(header) <- header,
+         [scheme, content] <- String.split(header, " ", parts: 2),
+         true <- scheme in ["Basic", "OMGClient"],
+         {:ok, decoded} <- Base.decode64(content),
+         [key, token] <- String.split(decoded, ":", parts: 2) do
         auth
         |> Map.put(:auth_api_key, key)
         |> Map.put(:auth_auth_token, token)
-
-      {:error, :invalid_auth_scheme} ->
+    else
+      _ ->
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :invalid_auth_scheme)
@@ -34,14 +37,14 @@ defmodule EWallet.Web.V1.SocketClientAuth do
   defp authenticate_client(auth) do
     api_key = auth[:auth_api_key]
 
-    case ClientAuth.authenticate_client(api_key, :ewallet_api) do
-      {:ok, account} ->
-        Map.put(auth, :account, account)
-
-      {:error, :invalid_api_key} ->
+    case APIKey.authenticate(api_key, :ewallet_api) do
+      false ->
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :invalid_api_key)
+
+      account ->
+        Map.put(auth, :account, account)
     end
   end
 
@@ -51,16 +54,21 @@ defmodule EWallet.Web.V1.SocketClientAuth do
   defp authenticate_token(auth) do
     auth_token = auth[:auth_auth_token]
 
-    case ClientAuth.authenticate_token(auth_token, :ewallet_api) do
-      {:ok, user} ->
+    case AuthToken.authenticate(auth_token, :ewallet_api) do
+      %User{} = user ->
         auth
-        |> Map.put(:authenticated, :client)
+        |> Map.put(:authenticated, true)
         |> Map.put(:user, user)
 
-      {:error, code} ->
+      false ->
         auth
         |> Map.put(:authenticated, false)
-        |> Map.put(:auth_error, code)
+        |> Map.put(:auth_error, :auth_token_not_found)
+
+      :token_expired ->
+        auth
+        |> Map.put(:authenticated, false)
+        |> Map.put(:auth_error, :auth_token_expired)
     end
   end
 end

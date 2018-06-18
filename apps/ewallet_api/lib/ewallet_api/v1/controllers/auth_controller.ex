@@ -1,13 +1,13 @@
 defmodule EWalletAPI.V1.AuthController do
   use EWalletAPI, :controller
-  alias EWalletAPI.V1.Plug.ClientAuth
+  alias EWalletAPI.V1.Plug.ClientAuthPlug
 
   @doc """
   Invalidates the authentication token used in this request.
   """
   def logout(conn, _attrs) do
     conn
-    |> ClientAuth.expire_token()
+    |> ClientAuthPlug.expire_token()
     |> respond()
   end
 

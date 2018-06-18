@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
 
   describe "/api_key.create" do
     test "responds with an API key on success" do
-      response = admin_user_request("/api_key.create", %{owner_app: "some_app"})
+      response = admin_user_request("/api_key.create", %{})
       api_key = get_last_inserted(APIKey)
 
       assert response == %{
@@ -100,27 +100,10 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                  "id" => api_key.id,
                  "key" => api_key.key,
                  "account_id" => Account.get_master_account().id,
-                 "owner_app" => "some_app",
+                 "owner_app" => "ewallet_api",
                  "created_at" => Date.to_iso8601(api_key.inserted_at),
                  "updated_at" => Date.to_iso8601(api_key.updated_at),
                  "deleted_at" => Date.to_iso8601(api_key.deleted_at)
-               }
-             }
-    end
-
-    test "returns error if owner_app is not provided" do
-      response = admin_user_request("/api_key.create", %{owner_app: nil})
-
-      assert response == %{
-               "version" => "1",
-               "success" => false,
-               "data" => %{
-                 "object" => "error",
-                 "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided `owner_app` can't be blank.",
-                 "messages" => %{
-                   "owner_app" => ["required"]
-                 }
                }
              }
     end
@@ -147,21 +130,6 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                "data" => %{
                  "code" => "api_key:not_found",
                  "description" => "The API key could not be found",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
-    end
-
-    test "responds with an error if the given id is used for making the deletion request" do
-      response = admin_user_request("/api_key.delete", %{id: @api_key_id})
-
-      assert response == %{
-               "version" => "1",
-               "success" => false,
-               "data" => %{
-                 "code" => "client:invalid_parameter",
-                 "description" => "The given API key is being used for this request",
                  "messages" => nil,
                  "object" => "error"
                }

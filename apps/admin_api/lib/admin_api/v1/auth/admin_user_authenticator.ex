@@ -17,17 +17,18 @@ defmodule AdminAPI.V1.AdminUserAuthenticator do
     case Crypto.verify_password(password, password_hash) do
       true ->
         conn
-        |> assign(:authenticated, :user)
-        |> assign(:user, user)
+        |> assign(:authenticated, true)
+        |> assign(:auth_scheme, :admin)
+        |> assign(:admin_user, user)
 
       _ ->
-        assign(conn, :authenticated, false)
+        handle_fail_auth(conn, :invalid_login_credentials)
     end
   end
 
   def authenticate(conn, _user, _password) do
     Crypto.fake_verify()
-    assign(conn, :authenticated, false)
+    handle_fail_auth(conn, :invalid_login_credentials)
   end
 
   @doc """
@@ -36,9 +37,12 @@ defmodule AdminAPI.V1.AdminUserAuthenticator do
   def expire_token(conn) do
     token_string = conn.private[:auth_auth_token]
     AuthToken.expire(token_string, :admin_api)
+    handle_fail_auth(conn, :auth_token_expired)
+  end
 
+  defp handle_fail_auth(conn, error) do
     conn
     |> assign(:authenticated, false)
-    |> assign(:user, nil)
+    |> assign(:auth_error, error)
   end
 end

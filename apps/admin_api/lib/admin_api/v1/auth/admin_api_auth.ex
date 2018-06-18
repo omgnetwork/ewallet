@@ -18,8 +18,6 @@ defmodule AdminAPI.V1.AdminAPIAuth do
     case get_authorization_header(params) do
       nil ->
         auth
-        |> Map.put(:authenticated, false)
-        |> Map.put(:auth_error, :invalid_auth_scheme)
 
       header ->
         [scheme, _content] = String.split(header, " ", parts: 2)
@@ -33,8 +31,6 @@ defmodule AdminAPI.V1.AdminAPIAuth do
   defp get_authorization_header(headers) do
     headers["authorization"]
   end
-
-  defp do_authenticate(%{authenticated: false} = auth), do: auth
 
   defp do_authenticate(%{auth_scheme_name: "OMGAdmin"} = auth) do
     auth
@@ -52,5 +48,11 @@ defmodule AdminAPI.V1.AdminAPIAuth do
     auth
     |> Map.put(:auth_scheme, :provider)
     |> ProviderAuth.authenticate()
+  end
+
+  defp do_authenticate(auth) do
+    auth
+    |> Map.put(:authenticated, false)
+    |> Map.put(:auth_error, :invalid_auth_scheme)
   end
 end

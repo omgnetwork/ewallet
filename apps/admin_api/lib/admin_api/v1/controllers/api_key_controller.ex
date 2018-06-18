@@ -46,15 +46,12 @@ defmodule AdminAPI.V1.APIKeyController do
   @doc """
   Creates a new API key. Currently API keys are assigned to the master account only.
   """
-  def create(conn, %{"owner_app" => owner_app}) do
-    # Convert the owner_app to atom key to be consistent with other attrs
-    # that are processed inside `APIKey.insert/1`
-    %{owner_app: owner_app}
+  def create(conn, _attrs) do
+    # Admin API doesn't use API Keys anymore. Defaulting to :ewallet_api.
+    %{owner_app: "ewallet_api"}
     |> APIKey.insert()
     |> respond_single(conn)
   end
-
-  def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
   # Respond when the API key is saved successfully
   defp respond_single({:ok, api_key}, conn) do

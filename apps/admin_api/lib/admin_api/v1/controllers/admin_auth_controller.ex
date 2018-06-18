@@ -41,7 +41,7 @@ defmodule AdminAPI.V1.AdminAuthController do
 
   def switch_account(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp respond_with_token(%{assigns: %{authenticated: :user}} = conn) do
+  defp respond_with_token(%{assigns: %{authenticated: true}} = conn) do
     {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api)
     render_token(conn, auth_token)
   end

@@ -10,7 +10,7 @@ defmodule AdminAPI.V1.AdminUserAuth do
     |> authenticate_token()
   end
 
-  def parse_header(auth) do
+  defp parse_header(auth) do
     with header when not is_nil(header) <- auth[:auth_header],
          [scheme, content] <- String.split(header, " ", parts: 2),
          true <- scheme in ["OMGAdmin"],
@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.AdminUserAuth do
         |> Map.put(:auth_user_id, user_id)
         |> Map.put(:auth_auth_token, auth_token)
     else
-      {:error, :invalid_auth_scheme} ->
+      _ ->
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :invalid_auth_scheme)

@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.ProviderAuth do
         |> Map.put(:auth_access_key, access)
         |> Map.put(:auth_secret_key, secret)
     else
-      {:error, :invalid_auth_scheme} ->
+      _ ->
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :invalid_auth_scheme)
@@ -40,7 +40,7 @@ defmodule AdminAPI.V1.ProviderAuth do
         |> Map.put(:authenticated, true)
         |> Map.put(:key, key)
 
-      :error ->
+      false ->
         auth
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :invalid_access_secret_key)
