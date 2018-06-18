@@ -143,7 +143,7 @@ defmodule EWallet.TransactionGate do
   end
 
   defp process_with_transaction(%Transaction{status: "failed"} = transaction, _wallets, _token) do
-    {:error, transaction, transaction.error_code, transaction.error_description
-             || transaction.error_data}
+    {:error, transaction, transaction.error_code,
+     transaction.error_description || transaction.error_data}
   end
 end
