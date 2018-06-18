@@ -1,488 +1,162 @@
 defmodule LocalLedger.EntryTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
-  alias LocalLedger.Entry
-  alias LocalLedgerDB.{Repo, Transaction}
   alias Ecto.Adapters.SQL.Sandbox
+  alias LocalLedger.Entry
+  alias LocalLedgerDB.{Repo, Transaction, Errors.InsufficientFundsError}
   alias Ecto.UUID
 
   setup do
     :ok = Sandbox.checkout(Repo)
   end
 
-  describe "#all" do
-    test "returns all entries" do
-      {:ok, inserted_entry} = :entry |> build |> Repo.insert()
-
-      {:ok, transaction} =
-        :transaction
-        |> build(entry_uuid: inserted_entry.uuid)
-        |> Repo.insert()
-
-      {:ok, entries} = Entry.all()
-      entry = Enum.at(entries, 0)
-      assert entry.uuid == inserted_entry.uuid
-      assert entry.transactions == [transaction]
-    end
-  end
-
-  describe "#get" do
-    test "returns the specified entry" do
-      {:ok, inserted_entry} = :entry |> build |> Repo.insert()
-
-      {:ok, transaction} =
-        :transaction
-        |> build(entry_uuid: inserted_entry.uuid)
-        |> Repo.insert()
-
-      {:ok, entry} = Entry.get(inserted_entry.uuid)
-      assert entry.uuid == inserted_entry.uuid
-      assert entry.transactions == [transaction]
-    end
-  end
-
-  describe "#insert" do
-    defp debits do
-      [
+  describe "#build_all" do
+    test "builds and formats the entries" do
+      debits = [
         %{
-          "address" => "o",
+          "address" => "omisego.test.sender1",
           "metadata" => %{},
           "amount" => 100
-        },
-        %{
-          "address" => "sirn",
-          "metadata" => %{},
-          "amount" => 200
         }
       ]
-    end
 
-    def credits do
-      [
+      credits = [
         %{
-          "address" => "thibault",
+          "address" => "omisego.test.receiver1",
           "metadata" => %{},
-          "amount" => 150
-        },
-        %{
-          "address" => "mederic",
-          "metadata" => %{},
-          "amount" => 150
+          "amount" => 100
         }
       ]
+
+      token = %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
+      incoming_entries = {debits, credits}
+
+      formatted_entries = Entry.build_all(incoming_entries, token)
+
+      assert formatted_entries == [
+               %{
+                 type: LocalLedgerDB.Entry.debit_type(),
+                 amount: 100,
+                 token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+                 wallet_address: "omisego.test.sender1"
+               },
+               %{
+                 type: LocalLedgerDB.Entry.credit_type(),
+                 amount: 100,
+                 token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+                 wallet_address: "omisego.test.receiver1"
+               }
+             ]
     end
+  end
 
-    def genesis do
-      {:ok, entry} =
-        Entry.insert(
-          %{
-            "metadata" => %{},
-            "debits" => debits(),
-            "credits" => credits(),
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "idempotency_token" => UUID.generate()
-          },
-          %{genesis: true}
-        )
-
-      entry
-    end
-
-    def get_current_balance(address) do
-      Transaction.calculate_current_amount(address, "tok_OMG_01cbepz0mhzb042vwgaqv17cjy")
-    end
-
-    test "inserts an entry and four transactions when genesis" do
-      entry = genesis()
-
-      assert entry != nil
-      assert length(entry.transactions) == 4
-      assert get_current_balance("o") == -100
-      assert get_current_balance("sirn") == -200
-      assert get_current_balance("thibault") == 150
-      assert get_current_balance("mederic") == 150
-    end
-
-    test "inserts an entry and four transactions when the debit wallets have
-          enough funds" do
-      genesis()
-
-      {:ok, entry} =
-        Entry.insert(
-          %{
-            "metadata" => %{},
-            "debits" => [
-              %{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 100
-              }
-            ],
-            "credits" => [
-              %{
-                "address" => "thibault",
-                "metadata" => %{},
-                "amount" => 100
-              }
-            ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "idempotency_token" => UUID.generate()
-          },
-          %{genesis: false}
-        )
-
-      assert entry != nil
-      assert length(entry.transactions) == 2
-      assert get_current_balance("mederic") == 50
-      assert get_current_balance("thibault") == 250
-    end
-
-    test "returns the same entry when the idempotency token is already in the DB" do
-      genesis_entry = genesis()
-
-      {status, entry} =
-        Entry.insert(
-          %{
-            "metadata" => %{},
-            "debits" => [
-              %{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 100
-              }
-            ],
-            "credits" => [
-              %{
-                "address" => "thibault",
-                "metadata" => %{},
-                "amount" => 100
-              }
-            ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "idempotency_token" => genesis_entry.idempotency_token
-          },
-          %{genesis: false}
-        )
-
-      assert status == :ok
-      assert entry.uuid == genesis_entry.uuid
-    end
-
-    test "returns a 'same address' error when the from/to addresses are identical" do
-      genesis()
-
-      res =
-        Entry.insert(
-          %{
-            "metadata" => %{},
-            "debits" => [
-              %{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 200
-              }
-            ],
-            "credits" => [
-              %{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 200
-              }
-            ],
-            "token" => %{
-              "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-              "metadata" => %{}
-            },
-            "idempotency_token" => UUID.generate()
-          },
-          %{genesis: false}
-        )
-
-      assert res == {
-               :error,
-               :same_address,
-               "Found identical addresses in senders and receivers: mederic."
-             }
-    end
-
-    test "returns an 'insufficient_funds' error when the debit wallets don't have enough funds" do
-      genesis()
-
-      {:error, :insufficient_funds, _} =
-        Entry.insert(
-          %{
-            "metadata" => %{},
-            "debits" => [
-              %{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 200
-              }
-            ],
-            "credits" => [
-              %{
-                "address" => "thibault",
-                "metadata" => %{},
-                "amount" => 200
-              }
-            ],
-            "token" => %{
-              "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-              "metadata" => %{}
-            },
-            "idempotency_token" => UUID.generate()
-          },
-          %{genesis: false}
-        )
-    end
-
-    test "returns an 'invalid_amount' error when amount is invalid (debit != credit)" do
-      genesis()
-
-      {:error, :invalid_amount, _} =
-        Entry.insert(
-          %{
-            "metadata" => %{},
-            "debits" => [
-              %{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 200
-              }
-            ],
-            "credits" => [
-              %{
-                "address" => "thibault",
-                "metadata" => %{},
-                "amount" => 100
-              }
-            ],
-            "token" => %{
-              "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-              "metadata" => %{}
-            },
-            "idempotency_token" => UUID.generate()
-          },
-          %{genesis: false}
-        )
-    end
-
-    test "returns an 'amount_is_zero' error when amount is 0" do
-      genesis()
-
-      {:error, :amount_is_zero, _} =
-        Entry.insert(
-          %{
-            "metadata" => %{},
-            "debits" => [
-              %{
-                "address" => "mederic",
-                "metadata" => %{},
-                "amount" => 0
-              }
-            ],
-            "credits" => [
-              %{
-                "address" => "thibault",
-                "metadata" => %{},
-                "amount" => 0
-              }
-            ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "idempotency_token" => UUID.generate()
-          },
-          %{genesis: false}
-        )
-    end
-
-    test "updates the wallets one after the other with two inserts happening
-          at the same time" do
-      genesis()
-      pid = self()
-
-      assert get_current_balance("mederic") == 150
-      assert get_current_balance("thibault") == 150
-      assert get_current_balance("sirn") == -200
-
-      {:ok, new_pid} =
-        Task.start_link(fn ->
-          Sandbox.allow(Repo, pid, self())
-          assert_receive :select_for_update, 5000
-
-          assert get_current_balance("mederic") == 50
-          assert get_current_balance("thibault") == 250
-          assert get_current_balance("sirn") == -200
-
-          # this should block until the other transaction commit
-          Entry.insert(
-            %{
-              "metadata" => %{},
-              "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 50}],
-              "credits" => [%{"address" => "sirn", "metadata" => %{}, "amount" => 50}],
-              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-              "idempotency_token" => UUID.generate()
-            },
-            %{genesis: false}
-          )
-
-          send(pid, :updated)
-        end)
-
-      Entry.insert(
+  describe "#get_addresses" do
+    test "returns the list of debit addresses" do
+      entries = [
         %{
-          "metadata" => %{},
-          "debits" => [%{"address" => "mederic", "metadata" => %{}, "amount" => 100}],
-          "credits" => [%{"address" => "thibault", "metadata" => %{}, "amount" => 100}],
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-          "idempotency_token" => UUID.generate()
+          type: LocalLedgerDB.Entry.debit_type(),
+          amount: 100,
+          token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+          wallet_address: "omisego.test.sender1"
         },
-        %{genesis: false},
-        fn ->
-          send(new_pid, :select_for_update)
-        end
-      )
-
-      assert_receive :updated, 5000
-      assert get_current_balance("mederic") == 0
-      assert get_current_balance("thibault") == 250
-      assert get_current_balance("sirn") == -150
-    end
-
-    test "raises an InsufficientFundsError with two inserts happening at the
-          same time and not enough funds" do
-      genesis()
-      pid = self()
-
-      assert get_current_balance("mederic") == 150
-      assert get_current_balance("thibault") == 150
-      assert get_current_balance("sirn") == -200
-
-      {:ok, new_pid} =
-        Task.start_link(fn ->
-          Sandbox.allow(Repo, pid, self())
-          assert_receive :select_for_update, 5000
-
-          # this should block until the other transaction commit
-          {res, error, _} =
-            Entry.insert(
-              %{
-                "metadata" => %{},
-                "debits" => [
-                  %{
-                    "address" => "mederic",
-                    "metadata" => %{},
-                    "amount" => 100
-                  }
-                ],
-                "credits" => [
-                  %{
-                    "address" => "sirn",
-                    "metadata" => %{},
-                    "amount" => 100
-                  }
-                ],
-                "token" => %{
-                  "id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-                  "metadata" => %{}
-                },
-                "idempotency_token" => UUID.generate()
-              },
-              %{genesis: false}
-            )
-
-          assert res == :error
-          assert error == :insufficient_funds
-          send(pid, :updated)
-        end)
-
-      send(new_pid, :select_for_update)
-
-      Entry.insert(
         %{
-          "metadata" => %{},
-          "debits" => [
-            %{
-              "address" => "mederic",
-              "metadata" => %{},
-              "amount" => 100
-            }
-          ],
-          "credits" => [
-            %{
-              "address" => "thibault",
-              "metadata" => %{},
-              "amount" => 100
-            }
-          ],
-          "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-          "idempotency_token" => UUID.generate()
-        },
-        %{genesis: false}
-      )
+          type: LocalLedgerDB.Entry.credit_type(),
+          amount: 100,
+          token_id: "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
+          wallet_address: "omisego.test.receiver1"
+        }
+      ]
 
-      assert_receive :updated, 5000
-      assert get_current_balance("mederic") == 50
-      assert get_current_balance("thibault") == 250
-      assert get_current_balance("sirn") == -200
+      addresses = Entry.get_addresses(entries)
+      assert addresses == ["omisego.test.sender1"]
     end
+  end
 
-    test "handles integers up to 1 trillion * 1e18" do
-      {:ok, entry} =
-        Entry.insert(
+  describe "#check_funds" do
+    defp init_debit_wallets(amount_1, amount_2) do
+      {:ok, token} = :token |> build |> Repo.insert()
+      {:ok, wallet_1} = :wallet |> build(address: "test1") |> Repo.insert()
+      {:ok, wallet_2} = :wallet |> build(address: "test2") |> Repo.insert()
+      {:ok, wallet_3} = :wallet |> build(address: "test3") |> Repo.insert()
+
+      Transaction.insert(%{
+        metadata: %{},
+        idempotency_token: UUID.generate(),
+        entries: [
           %{
-            "metadata" => %{},
-            "debits" => [
-              %{
-                "address" => "o",
-                "metadata" => %{},
-                "amount" => 1_000_000_000_000_000_000_000_000_000_000
-              }
-            ],
-            "credits" => [
-              %{
-                "address" => "thibault",
-                "metadata" => %{},
-                "amount" => 1_000_000_000_000_000_000_000_000_000_000
-              }
-            ],
-            "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-            "idempotency_token" => UUID.generate()
+            type: LocalLedgerDB.Entry.credit_type(),
+            amount: amount_1,
+            token_id: token.id,
+            wallet_address: wallet_1.address
           },
-          %{genesis: true}
-        )
+          %{
+            type: LocalLedgerDB.Entry.credit_type(),
+            amount: amount_2,
+            token_id: token.id,
+            wallet_address: wallet_2.address
+          }
+        ]
+      })
 
-      assert entry != nil
-      assert length(entry.transactions) == 2
-      assert get_current_balance("o") == -1_000_000_000_000_000_000_000_000_000_000
-      assert get_current_balance("thibault") == 1_000_000_000_000_000_000_000_000_000_000
+      {token, wallet_1, wallet_2, wallet_3}
     end
 
-    test "fails for integers above 1 trillion * 1e81" do
-      assert_raise Postgrex.Error, fn ->
-        {:ok, _} =
-          Entry.insert(
-            %{
-              "metadata" => %{},
-              "debits" => [
-                %{
-                  "address" => "o",
-                  "metadata" => %{},
-                  "amount" => round(1_000_000_000_000.0e82)
-                }
-              ],
-              "credits" => [
-                %{
-                  "address" => "thibault",
-                  "metadata" => %{},
-                  "amount" => round(1_000_000_000_000.0e82)
-                }
-              ],
-              "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}},
-              "idempotency_token" => UUID.generate()
-            },
-            %{genesis: true}
-          )
+    test "raises an InsufficientFundsError if one of the debit wallets does
+          not have enough funds" do
+      {token, wallet_1, wallet_2, wallet_3} = init_debit_wallets(80, 100)
+
+      entries = [
+        %{
+          type: LocalLedgerDB.Entry.debit_type(),
+          amount: 100,
+          token_id: token.id,
+          wallet_address: wallet_1.address
+        },
+        %{
+          type: LocalLedgerDB.Entry.debit_type(),
+          amount: 100,
+          token_id: token.id,
+          wallet_address: wallet_2.address
+        },
+        %{
+          type: LocalLedgerDB.Entry.credit_type(),
+          amount: 200,
+          token_id: token.id,
+          wallet_address: wallet_3.address
+        }
+      ]
+
+      assert_raise InsufficientFundsError, fn ->
+        Entry.check_balance(entries)
       end
+    end
+
+    test "returns :ok when all the debit wallets have enough funds" do
+      {token, wallet_1, wallet_2, wallet_3} = init_debit_wallets(200, 100)
+
+      entries = [
+        %{
+          type: LocalLedgerDB.Entry.debit_type(),
+          amount: 100,
+          token_id: token.id,
+          wallet_address: wallet_1.address
+        },
+        %{
+          type: LocalLedgerDB.Entry.debit_type(),
+          amount: 100,
+          token_id: token.id,
+          wallet_address: wallet_2.address
+        },
+        %{
+          type: LocalLedgerDB.Entry.credit_type(),
+          amount: 100,
+          token_id: token.id,
+          wallet_address: wallet_3.address
+        }
+      ]
+
+      res = Entry.check_balance(entries)
+      assert res == :ok
     end
   end
 end

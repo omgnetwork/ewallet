@@ -1,7 +1,7 @@
 defmodule LocalLedger.Wallet do
   @moduledoc """
   This module is an interface to the LocalLedgerDB schema (Balance, CachedBalance
-  and Transaction) and contains the logic needed to lock a list of addresses.
+  and Entry) and contains the logic needed to lock a list of addresses.
   """
   alias LocalLedger.CachedBalance
   alias LocalLedgerDB.{Repo, Wallet}
