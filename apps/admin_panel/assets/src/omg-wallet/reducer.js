@@ -6,6 +6,9 @@ export const walletsReducer = createReducer(
     'WALLETS/REQUEST/SUCCESS': (state, action) => {
       return {...state, ..._.keyBy(action.wallets, 'address')}
     },
+    'USER_WALLETS/REQUEST/SUCCESS': (state, action) => {
+      return {...state, ..._.keyBy(action.wallets, 'address')}
+    },
     'WALLET/REQUEST/SUCCESS': (state, { wallet }) => {
       return { ...state, ...{ [wallet.address]: wallet } }
     },

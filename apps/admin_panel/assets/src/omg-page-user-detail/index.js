@@ -4,15 +4,17 @@ import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
-import { Button } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
-import MintTokenModal from '../omg-mint-token-modal'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
+  b {
+    width: 150px;
+    display: inline-block;
+  }
 `
 const ContentDetailContainer = styled.div`
   margin-top: 50px;

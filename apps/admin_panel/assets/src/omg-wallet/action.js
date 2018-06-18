@@ -18,7 +18,7 @@ export const getWalletsByAccountId = ({ accountId, search }) => async dispatch =
   }
 }
 export const getWalletsByUserId = ({ userId, search }) => async dispatch => {
-  dispatch({ type: 'WALLETS/REQUEST/INITIATED' })
+  dispatch({ type: 'USER_WALLETS/REQUEST/INITIATED' })
   try {
     const result = await walletService.getWalletsByUserId({
       per: 1000,
@@ -27,12 +27,12 @@ export const getWalletsByUserId = ({ userId, search }) => async dispatch => {
       userId
     })
     if (result.data.success) {
-      return dispatch({ type: 'WALLETS/REQUEST/SUCCESS', wallets: result.data.data.data })
+      return dispatch({ type: 'USER_WALLETS/REQUEST/SUCCESS', wallets: result.data.data.data })
     } else {
-      return dispatch({ type: 'WALLETS/REQUEST/FAILED', error: result.data.data })
+      return dispatch({ type: 'USER_WALLETS/REQUEST/FAILED', error: result.data.data })
     }
   } catch (error) {
-    return dispatch({ type: 'WALLETS/REQUEST/FAILED', error })
+    return dispatch({ type: 'USER_WALLETS/REQUEST/FAILED', error })
   }
 }
 
