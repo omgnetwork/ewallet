@@ -14,7 +14,7 @@ defmodule EWalletDB.TransactionConsumption do
     Token,
     TransactionRequest,
     Wallet,
-    Transfer,
+    Transaction,
     Account
   }
 
@@ -48,9 +48,9 @@ defmodule EWalletDB.TransactionConsumption do
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     belongs_to(
-      :transfer,
-      Transfer,
-      foreign_key: :transfer_uuid,
+      :transaction,
+      Transaction,
+      foreign_key: :transaction_uuid,
       references: :uuid,
       type: UUID
     )
@@ -145,16 +145,16 @@ defmodule EWalletDB.TransactionConsumption do
 
   def confirmed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :confirmed_at, :transfer_uuid])
-    |> validate_required([:status, :confirmed_at, :transfer_uuid])
-    |> assoc_constraint(:transfer)
+    |> cast(attrs, [:status, :confirmed_at, :transaction_uuid])
+    |> validate_required([:status, :confirmed_at, :transaction_uuid])
+    |> assoc_constraint(:transaction)
   end
 
   def failed_changeset(%TransactionConsumption{} = consumption, attrs) do
     consumption
-    |> cast(attrs, [:status, :failed_at, :transfer_uuid])
-    |> validate_required([:status, :failed_at, :transfer_uuid])
-    |> assoc_constraint(:transfer)
+    |> cast(attrs, [:status, :failed_at, :transaction_uuid])
+    |> validate_required([:status, :failed_at, :transaction_uuid])
+    |> assoc_constraint(:transaction)
   end
 
   def expired_changeset(%TransactionConsumption{} = consumption, attrs) do
@@ -296,19 +296,19 @@ defmodule EWalletDB.TransactionConsumption do
   end
 
   @doc """
-  Confirms a consumption and saves the transfer ID.
+  Confirms a consumption and saves the transaction ID.
   """
-  @spec confirm(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
-  def confirm(consumption, transfer) do
-    state_transition(consumption, @confirmed, transfer.uuid)
+  @spec confirm(%TransactionConsumption{}, %Transaction{}) :: %TransactionConsumption{}
+  def confirm(consumption, transaction) do
+    state_transition(consumption, @confirmed, transaction.uuid)
   end
 
   @doc """
-  Fails a consumption and saves the transfer ID.
+  Fails a consumption and saves the transaction ID.
   """
-  @spec fail(%TransactionConsumption{}, %Transfer{}) :: %TransactionConsumption{}
-  def fail(consumption, transfer) do
-    state_transition(consumption, @failed, transfer.uuid)
+  @spec fail(%TransactionConsumption{}, %Transaction{}) :: %TransactionConsumption{}
+  def fail(consumption, transaction) do
+    state_transition(consumption, @failed, transaction.uuid)
   end
 
   @spec expired?(%TransactionConsumption{}) :: true | false
@@ -325,14 +325,14 @@ defmodule EWalletDB.TransactionConsumption do
     Enum.member?([@rejected, @confirmed, @failed, @expired], consumption.status)
   end
 
-  defp state_transition(consumption, status, transfer_uuid \\ nil) do
+  defp state_transition(consumption, status, transaction_uuid \\ nil) do
     fun = String.to_existing_atom("#{status}_changeset")
     timestamp_column = String.to_existing_atom("#{status}_at")
 
     data =
       %{
         status: status,
-        transfer_uuid: transfer_uuid
+        transaction_uuid: transaction_uuid
       }
       |> Map.put(timestamp_column, NaiveDateTime.utc_now())
 

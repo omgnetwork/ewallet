@@ -99,13 +99,13 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
     }
 
     case MintGate.insert(mint_data) do
-      {:ok, mint, transfer} ->
+      {:ok, mint, transaction} ->
         writer.success("""
             Token ID  : #{token.id}
             Amount (subunit) : #{mint.amount}
             Confirmed?       : #{mint.confirmed}
-            From address     : #{transfer.from || '<not set>'}
-            To address       : #{transfer.to || '<not set>'}
+            From address     : #{transaction.from || '<not set>'}
+            To address       : #{transaction.to || '<not set>'}
         """)
       {:error, changeset} ->
         writer.error("    #{token.symbol} could not be minted:")
