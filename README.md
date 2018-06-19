@@ -41,15 +41,9 @@ Current (a.k.a staging): The most up-to-date version of the eWallet. We work wit
 
 **The URLs below are OmiseGO testing and sample eWallets. The eWallet is not a centralized service and no one should actually use those in production.**
 
-<<<<<<< HEAD
--   eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/docs) / [current](https://ewallet.staging.omisego.io/api/docs)
+-   eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/client/docs) /  [current](https://ewallet.staging.omisego.io/api/client/docs)
 
--   Admin Web API Docs: [stable](https://ewallet.demo.omisego.io/admin/api/docs) / [current](https://ewallet.staging.omisego.io/admin/api/docs)
-=======
-- eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/client/docs) /  [current](https://ewallet.staging.omisego.io/api/client/docs)
-
-- Admin Web API Docs: [stable](https://ewallet.demo.omisego.io/api/admin/docs) / [current](https://ewallet.staging.omisego.io/api/admin/docs)
->>>>>>> Refactor API path
+-   Admin Web API Docs: [stable](https://ewallet.demo.omisego.io/api/admin/docs) / [current](https://ewallet.staging.omisego.io/api/admin/docs)
 
 -   SDKs:
 
@@ -299,15 +293,10 @@ If Swagger UI is not enough, you can start communicating with the web APIs using
 
 If you wish to use the HTTP-RPC web APIs directly, here are the OpenAPI specifications containing all the available endpoints and how to interact with them. You can access those interactive documentations on any running eWallet application, including the ones you deploy yourself! The eWallet API docs live under `/api/client/docs` and the Admin API ones under `/api/admin/docs`.
 
-<<<<<<< HEAD
--   [eWallet API](https://ewallet.demo.omisego.io/api/docs)
--   [Admin API](https://ewallet.demo.omisego.io/admin/api/docs)
-=======
-- [eWallet API](https://ewallet.demo.omisego.io/api/client/docs)
-- [Admin API](https://ewallet.demo.omisego.io/api/admin/docs)
->>>>>>> Refactor API path
+-   [eWallet API](https://ewallet.demo.omisego.io/api/client/docs)
+-   [Admin API](https://ewallet.demo.omisego.io/api/admin/docs)
 
-When using the eWallet API, be sure to have `/api` at the end of your base URL (e.g. `https://yourdomain.com/api/client`). For the Admin API, it should include `/api/admin` (e.g. `https://yourdomain.com/api/admin`).
+When using the eWallet API, be sure to have `/api/client` at the end of your base URL (e.g. `https://yourdomain.com/api/client`). For the Admin API, it should include `/api/admin` (e.g. `https://yourdomain.com/api/admin`).
 
 ### Server SDKs
 
