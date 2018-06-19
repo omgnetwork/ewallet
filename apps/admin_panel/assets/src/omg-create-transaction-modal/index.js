@@ -4,7 +4,10 @@ import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from 'react-modal'
 import { createTransaction } from '../omg-transaction/action'
+import { getWalletsByAccountId } from '../omg-wallet/action'
 import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import { withRouter } from 'react-router-dom'
 const customStyles = {
   content: {
     top: '50%',
@@ -64,12 +67,19 @@ const Error = styled.div`
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
-
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { createTransaction, getWalletsByAccountId }
+  )
+)
 class CreateTransactionModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    wallet: PropTypes.object
+    wallet: PropTypes.object,
+    match: PropTypes.object
   }
   state = {
     amount: '',
@@ -92,6 +102,7 @@ class CreateTransactionModal extends Component {
         amount: Number(this.state.amount * this.state.selectedToken.token.subunit_to_unit)
       })
       if (result.data.success) {
+        this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
         this.props.onRequestClose()
         this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
       } else {
@@ -140,13 +151,15 @@ class CreateTransactionModal extends Component {
               ...b
             }))}
           />
-          <BalanceTokenLabel>Balance: {this.state.selectedToken ? this.state.selectedToken.amount / _.get(this.state.selectedToken, 'token.subunit_to_unit') : '-'} </BalanceTokenLabel>
+          <BalanceTokenLabel>
+            Balance:{' '}
+            {this.state.selectedToken
+              ? this.state.selectedToken.amount /
+                _.get(this.state.selectedToken, 'token.subunit_to_unit')
+              : '-'}{' '}
+          </BalanceTokenLabel>
           <InputLabel>Amount</InputLabel>
-          <Input
-            value={this.state.amount}
-            onChange={this.onChangeAmount}
-            type='number'
-          />
+          <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
           <ButtonContainer>
             <Button size='small' type='submit' loading={this.state.submitting}>
               Transfer
@@ -159,7 +172,4 @@ class CreateTransactionModal extends Component {
   }
 }
 
-export default connect(
-  null,
-  { createTransaction }
-)(CreateTransactionModal)
+export default enhance(CreateTransactionModal)
