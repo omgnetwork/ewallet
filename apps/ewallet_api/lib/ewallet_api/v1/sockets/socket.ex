@@ -4,7 +4,7 @@ defmodule EWalletAPI.V1.Socket do
   channels to which providers/clients can connect to listen and receive events.
   """
   use Phoenix.Socket
-  alias EWallet.Web.V1.SocketClientAuth
+  alias EWalletAPI.V1.ClientAuth
 
   channel("account:*", EWalletAPI.V1.AccountChannel)
   channel("user:*", EWalletAPI.V1.UserChannel)
@@ -15,9 +15,7 @@ defmodule EWalletAPI.V1.Socket do
   transport(:websocket, Phoenix.Transports.WebSocket)
 
   def connect(params, socket) do
-    client_auth = SocketClientAuth.authenticate(params)
-
-    case client_auth do
+    case ClientAuth.authenticate(params) do
       %{authenticated: :client} = client_auth ->
         {:ok, assign(socket, :auth, client_auth)}
 

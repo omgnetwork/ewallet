@@ -5,7 +5,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
-      response = client_request("/admin.login", %{email: @user_email, password: @password})
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+
       auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
 
       expected = %{
@@ -32,7 +34,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       role = Role.get_by_name("admin")
       _membership = insert(:membership, %{user: user, role: role, account: account})
 
-      response = client_request("/admin.login", %{email: @user_email, password: @password})
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+
       auth_token = AuthToken |> get_last_inserted() |> Repo.preload([:user, :account])
 
       expected = %{
@@ -54,7 +58,10 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
     test "returns an error if the given email does not exist" do
       response =
-        client_request("/admin.login", %{email: "wrong_email@example.com", password: @password})
+        unauthenticated_request("/admin.login", %{
+          email: "wrong_email@example.com",
+          password: @password
+        })
 
       expected = %{
         "version" => @expected_version,
@@ -71,7 +78,8 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "returns an error if the given password is incorrect" do
-      response = client_request("/admin.login", %{email: @user_email, password: "wrong_password"})
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: "wrong_password"})
 
       expected = %{
         "version" => @expected_version,
@@ -88,31 +96,31 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "returns :invalid_parameter if email is blank" do
-      response = client_request("/admin.login", %{email: "", password: @password})
+      response = unauthenticated_request("/admin.login", %{email: "", password: @password})
       refute response["success"]
       assert response["data"]["code"] == "user:invalid_login_credentials"
     end
 
     test "returns :invalid_parameter if password is blank" do
-      response = client_request("/admin.login", %{email: @user_email, password: ""})
+      response = unauthenticated_request("/admin.login", %{email: @user_email, password: ""})
       refute response["success"]
       assert response["data"]["code"] == "user:invalid_login_credentials"
     end
 
     test "returns :invalid_parameter if email is missing" do
-      response = client_request("/admin.login", %{email: nil, password: @password})
+      response = unauthenticated_request("/admin.login", %{email: nil, password: @password})
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
     test "returns :invalid_parameter if password is missing" do
-      response = client_request("/admin.login", %{email: @user_email, password: nil})
+      response = unauthenticated_request("/admin.login", %{email: @user_email, password: nil})
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
     test "returns :invalid_parameter if both email and password are missing" do
-      response = client_request("/admin.login", %{foo: "bar"})
+      response = unauthenticated_request("/admin.login", %{foo: "bar"})
       refute response["success"]
       refute response["success"]
       assert response["data"]["code"] == "client:invalid_parameter"
@@ -127,7 +135,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       # User belongs to the master account and has access to the sub account
       # just created
       response =
-        user_request("/auth_token.switch_account", %{
+        admin_user_request("/auth_token.switch_account", %{
           "account_id" => account.id
         })
 
@@ -142,7 +150,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       account = insert(:account)
 
       response =
-        user_request("/auth_token.switch_account", %{
+        admin_user_request("/auth_token.switch_account", %{
           "account_id" => account.id
         })
 
@@ -152,7 +160,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
     test "returns :account_not_found when the account does not exist" do
       response =
-        user_request("/auth_token.switch_account", %{
+        admin_user_request("/auth_token.switch_account", %{
           "account_id" => "123"
         })
 
@@ -162,7 +170,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
     test "returns :invalid_parameter when account_id is not sent" do
       response =
-        user_request("/auth_token.switch_account", %{
+        admin_user_request("/auth_token.switch_account", %{
           "fake" => "123"
         })
 
@@ -170,23 +178,9 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
     end
 
-    test "returns :invalid_api_key if client credentials are invalid" do
-      response =
-        user_request(
-          "/auth_token.switch_account",
-          %{
-            "account_id" => "123"
-          },
-          api_key: "bad_api_key"
-        )
-
-      refute response["success"]
-      assert response["data"]["code"] == "client:invalid_api_key"
-    end
-
     test "returns :auth_token_not_found if user credentials are invalid" do
       response =
-        user_request(
+        admin_user_request(
           "/auth_token.switch_account",
           %{
             "account_id" => "123"
@@ -201,7 +195,7 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
 
   describe "/me.logout" do
     test "responds success with empty response when successful" do
-      response = user_request("/me.logout")
+      response = admin_user_request("/me.logout")
 
       expected = %{
         "version" => @expected_version,
@@ -213,10 +207,10 @@ defmodule AdminAPI.V1.AdminAuthControllerTest do
     end
 
     test "prevents following calls from using the same credentials" do
-      response1 = user_request("/me.logout")
+      response1 = admin_user_request("/me.logout")
       assert response1["success"]
 
-      response2 = user_request("/me.logout")
+      response2 = admin_user_request("/me.logout")
       refute response2["success"]
       assert response2["data"]["code"] == "user:auth_token_expired"
     end

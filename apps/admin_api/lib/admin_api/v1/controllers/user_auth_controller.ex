@@ -1,7 +1,6 @@
 defmodule AdminAPI.V1.UserAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.Web.V1.ClientAuth
   alias EWalletDB.{AuthToken, User}
 
   @doc """
@@ -32,7 +31,7 @@ defmodule AdminAPI.V1.UserAuthController do
   Invalidates the authentication token used in this request.
   """
   def logout(conn, %{"auth_token" => auth_token}) do
-    auth_token |> ClientAuth.expire_token(:ewallet_api)
+    auth_token |> AuthToken.expire(:ewallet_api)
 
     respond(conn)
   end

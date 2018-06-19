@@ -97,8 +97,10 @@ defmodule EWalletDB.KeyTest do
       })
       |> Key.insert()
 
-      auth_account = Key.authenticate("access123", "secret321")
-      assert auth_account.uuid == account.uuid
+      {res, key} = Key.authenticate("access123", "secret321")
+      assert res == :ok
+      assert %Key{} = key
+      assert key.account.uuid == account.uuid
     end
 
     test "returns nil if access_key and/or secret_key do not match" do

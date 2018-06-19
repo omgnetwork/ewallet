@@ -28,7 +28,7 @@ defmodule AdminAPI.V1.MintControllerTest do
         })
 
       response =
-        user_request("/token.get_mints", %{
+        admin_user_request("/token.get_mints", %{
           "id" => token.id,
           "sort_by" => "asc",
           "sort" => "created_at"
@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.MintControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = user_request("/token.get_mints", attrs)
+      response = admin_user_request("/token.get_mints", attrs)
 
       mints = response["data"]["data"]
 
@@ -97,7 +97,7 @@ defmodule AdminAPI.V1.MintControllerTest do
       token = insert(:token)
 
       response =
-        user_request("/token.mint", %{
+        admin_user_request("/token.mint", %{
           id: token.id,
           amount: 1_000_000 * token.subunit_to_unit
         })
@@ -114,7 +114,7 @@ defmodule AdminAPI.V1.MintControllerTest do
 
     test "fails to mint a non existing token" do
       response =
-        user_request("/token.mint", %{
+        admin_user_request("/token.mint", %{
           id: "123",
           amount: 1_000_000
         })
@@ -128,7 +128,7 @@ defmodule AdminAPI.V1.MintControllerTest do
       token = insert(:token)
 
       response =
-        user_request("/token.mint", %{
+        admin_user_request("/token.mint", %{
           id: token.id,
           amount: "abc"
         })
@@ -143,7 +143,7 @@ defmodule AdminAPI.V1.MintControllerTest do
       token = insert(:token)
 
       response =
-        user_request("/token.mint", %{
+        admin_user_request("/token.mint", %{
           id: token.id,
           amount: 0
         })
@@ -162,7 +162,7 @@ defmodule AdminAPI.V1.MintControllerTest do
       token = insert(:token)
 
       response =
-        user_request("/token.mint", %{
+        admin_user_request("/token.mint", %{
           id: token.id,
           amount: -1
         })
