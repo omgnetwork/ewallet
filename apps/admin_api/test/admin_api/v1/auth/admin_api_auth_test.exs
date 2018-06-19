@@ -54,8 +54,18 @@ defmodule AdminAPI.Web.V1.AdminAPIAuthTest do
       assert auth.auth_secret_key == meta.key.secret_key
     end
 
-    test "fails to authenticate with invalid sheme" do
+    test "fails to authenticate with invalid sheme and data" do
       auth = authenticate("OMGFake", "one", "two")
+
+      assert auth.authenticated == false
+      assert auth.auth_error == :invalid_auth_scheme
+    end
+
+    test "fails to authenticate with invalid sheme" do
+      auth =
+        AdminAPIAuth.authenticate(%{
+          http_headers: [{"authorization", "SomeAuth"}]
+        })
 
       assert auth.authenticated == false
       assert auth.auth_error == :invalid_auth_scheme
