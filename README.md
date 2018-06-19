@@ -307,7 +307,7 @@ If you wish to use the HTTP-RPC web APIs directly, here are the OpenAPI specific
 - [Admin API](https://ewallet.demo.omisego.io/api/admin/docs)
 >>>>>>> Refactor API path
 
-When using the eWallet API, be sure to have `/api` at the end of your base URL (e.g. `https://yourdomain.com/api`). For the Admin API, it should include `/api/admin` (e.g. `https://yourdomain.com/api/admin`).
+When using the eWallet API, be sure to have `/api` at the end of your base URL (e.g. `https://yourdomain.com/api/client`). For the Admin API, it should include `/api/admin` (e.g. `https://yourdomain.com/api/admin`).
 
 ### Server SDKs
 
