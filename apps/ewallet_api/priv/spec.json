@@ -2,7 +2,7 @@
   "openapi" : "3.0.0",
   "info" : {
     "title" : "eWallet API",
-    "description" : "This is the documentation for eWallet API.\n\nTwo kinds of endpoints can be found in this document: the server endpoints and the client (mobile ) endpoints.\n\nAll API calls that modify the database need to be done from the server for security purposes, while retrieval calls can be made from the client (considered unsafe, 'never trust the client').\n\nBoth server and client calls are authorized using the 'Authorization' HTTP header with the following format:\n\n- Server: `Authorization=OMGServer Base64(access_key:secret_key)`\n- Client: `Authorization=OMGClient Base64(api_key:authentication_token)`\n\nDue to HTTP-RPC nature, the API will always return a `200` HTTP status, including on errors. Only in case of an internal server error that `500` will be returned.\n\nError codes are available in [html](./errors), [json](./errors.json) and [yaml](./errors.yaml) formats.\n",
+    "description" : "This is the documentation for eWallet API.\n\nTwo kinds of endpoints can be found in this document: the server endpoints and the client (mobile ) endpoints.\n\nAll API calls that modify the database need to be done from the server for security purposes, while retrieval calls can be made from the client (considered unsafe, 'never trust the client').\n\nBoth server and client calls are authorized using the 'Authorization' HTTP header with the following format:\n\n- Server: `Authorization=OMGProvider Base64(access_key:secret_key)`\n- Client: `Authorization=OMGClient Base64(api_key:authentication_token)`\n\nDue to HTTP-RPC nature, the API will always return a `200` HTTP status, including on errors. Only in case of an internal server error that `500` will be returned.\n\nError codes are available in [html](./errors), [json](./errors.json) and [yaml](./errors.yaml) formats.\n",
     "contact" : {
       "name" : "OmiseGO",
       "email" : "thibault@omisego.co"
@@ -39,45 +39,10 @@
     "description" : "Resources related to global settings of the wallet."
   } ],
   "paths" : {
-    "/login" : {
+    "/me.logout" : {
       "post" : {
         "tags" : [ "Session" ],
-        "summary" : "Server - Login an existing user. The provider can call this to get an authentication token for a specific user.",
-        "operationId" : "login",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/ProviderIdBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a single authentication token",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/AuthenticationTokenResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/logout" : {
-      "post" : {
-        "tags" : [ "Session" ],
-        "summary" : "Client - Expires a user's authentication_token.",
+        "summary" : "Expires a user's authentication_token.",
         "operationId" : "logout",
         "responses" : {
           "200" : {
@@ -106,137 +71,10 @@
         } ]
       }
     },
-    "/user.create" : {
-      "post" : {
-        "tags" : [ "User" ],
-        "summary" : "Server - Create a new user",
-        "operationId" : "user_create",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/UserBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a single user",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UserResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/user.update" : {
-      "post" : {
-        "tags" : [ "User" ],
-        "summary" : "Server - Update an existing user",
-        "operationId" : "user_update",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/UserBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a single user",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UserResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/user.get" : {
-      "post" : {
-        "tags" : [ "User" ],
-        "summary" : "Server - Get an existing user. The provider can call this to get any user from its id.",
-        "operationId" : "user_get",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/ProviderIdBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a single user",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UserResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
     "/me.get" : {
       "post" : {
         "tags" : [ "User" ],
-        "summary" : "Client - Get the user corresponding to the provided authentication token.",
+        "summary" : "Get the user corresponding to the provided authentication token.",
         "operationId" : "me_get",
         "responses" : {
           "200" : {
@@ -265,46 +103,11 @@
         } ]
       }
     },
-    "/user.list_wallets" : {
+    "/me.get_wallets" : {
       "post" : {
         "tags" : [ "Wallet" ],
-        "summary" : "Server - Get a user's wallets. The provider can call this to get the wallets of any user with its id.",
-        "operationId" : "user_list_wallets",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/ProviderIdBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of wallets.",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MultipleWalletsResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/me.list_wallets" : {
-      "post" : {
-        "tags" : [ "Wallet" ],
-        "summary" : "Client - Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.",
-        "operationId" : "me_list_wallets",
+        "summary" : "Get the wallets of a specific user. The client can call this to get the wallets of the user corresponding to the authentication_token provided.",
+        "operationId" : "me_get_wallets",
         "responses" : {
           "200" : {
             "description" : "Returns a list of wallets.",
@@ -332,80 +135,10 @@
         } ]
       }
     },
-    "/transaction.all" : {
+    "/me.get_transactions" : {
       "post" : {
         "tags" : [ "Transaction" ],
-        "summary" : "Server - Get the list of transactions.",
-        "operationId" : "get_all_transactions",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/TransactionsBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of transactions",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionsResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/user.list_transactions" : {
-      "post" : {
-        "tags" : [ "Transaction" ],
-        "summary" : "Server - Get the list of transactions for a specific provider_user_id.",
-        "operationId" : "get_all_transactions_for_user",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/UserTransactionsBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of transactions",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionsResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/me.list_transactions" : {
-      "post" : {
-        "tags" : [ "Transaction" ],
-        "summary" : "Client - Get the list of transactions for the current user.",
+        "summary" : "Get the list of transactions for the current user.",
         "operationId" : "get_current_user_transactions",
         "requestBody" : {
           "$ref" : "#/components/requestBodies/CurrentUserTransactionsBody"
@@ -437,160 +170,11 @@
         } ]
       }
     },
-    "/user.credit_wallet" : {
-      "post" : {
-        "tags" : [ "Transaction" ],
-        "summary" : "Server - Credit the wallet of a user, i.e. put funds into the user's wallet. The provider can call this to credit the wallet of an existing user corresponding to the provider_user_id provided.",
-        "operationId" : "user_credit_wallet",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/BalanceAdjustmentBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of wallets.",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MultipleWalletsResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/user.debit_wallet" : {
-      "post" : {
-        "tags" : [ "Transaction" ],
-        "summary" : "Server - Debit the wallet of a user, i.e. take funds away from the user's wallet. The provider can call this to debit the wallet of an existing user corresponding to the provider_user_id provided.",
-        "operationId" : "user_debit_wallet",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/BalanceAdjustmentBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of wallets.",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MultipleWalletsResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/transfer" : {
-      "post" : {
-        "tags" : [ "Transaction" ],
-        "summary" : "Server - Transfer the specified amount between two wallets.",
-        "operationId" : "transfer",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/TransferBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of wallets.",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MultipleWalletsResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
     "/me.transfer" : {
       "post" : {
         "tags" : [ "Transaction" ],
-        "summary" : "Client - Transfer the specified amount to a wallet.",
+        "summary" : "Transfer the specified amount to a wallet.",
         "operationId" : "me_transfer",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
         "requestBody" : {
           "$ref" : "#/components/requestBodies/ClientTransferBody"
         },
@@ -621,129 +205,10 @@
         } ]
       }
     },
-    "/transaction_request.create" : {
-      "post" : {
-        "tags" : [ "TransactionRequest" ],
-        "summary" : "Server - Create a new transaction request.",
-        "description" : "This is a server call only.",
-        "operationId" : "transaction_request_create",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/ServerCreateTransactionRequestBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Transaction request response",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionRequestResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/transaction_request.get" : {
-      "post" : {
-        "tags" : [ "TransactionRequest" ],
-        "summary" : "Server - Get a transaction request.",
-        "description" : "This is a server call only.",
-        "operationId" : "transaction_request_get",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/GetTransactionRequestBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Transaction request response",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionRequestResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/transaction_request.consume" : {
-      "post" : {
-        "tags" : [ "TransactionRequest" ],
-        "summary" : "Server - Consume a transaction request.",
-        "description" : "This is a server call only.",
-        "operationId" : "transaction_request_consume",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/ServerConsumeTransactionRequestBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Transaction request consumption response",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionConsumptionResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
     "/me.create_transaction_request" : {
       "post" : {
         "tags" : [ "TransactionRequest" ],
-        "summary" : "Client - Create a new transaction request.",
+        "summary" : "Create a new transaction request.",
         "description" : "This is a client call only.",
         "operationId" : "create_transaction_request",
         "requestBody" : {
@@ -779,7 +244,7 @@
     "/me.get_transaction_request" : {
       "post" : {
         "tags" : [ "TransactionRequest" ],
-        "summary" : "Client - Get a transaction request.",
+        "summary" : "Get a transaction request.",
         "description" : "This is a client call only.",
         "operationId" : "get_transaction_request",
         "requestBody" : {
@@ -815,20 +280,9 @@
     "/me.consume_transaction_request" : {
       "post" : {
         "tags" : [ "TransactionRequest" ],
-        "summary" : "Client - Consume a transaction request.",
+        "summary" : "Consume a transaction request.",
         "description" : "This is a client call only.",
         "operationId" : "consume_transaction_request",
-        "parameters" : [ {
-          "name" : "Idempotency-Token",
-          "in" : "header",
-          "description" : "The idempotency token for the request",
-          "required" : true,
-          "style" : "simple",
-          "explode" : false,
-          "schema" : {
-            "type" : "string"
-          }
-        } ],
         "requestBody" : {
           "$ref" : "#/components/requestBodies/ClientConsumeTransactionRequestBody"
         },
@@ -859,82 +313,10 @@
         } ]
       }
     },
-    "/transaction_consumption.approve" : {
-      "post" : {
-        "tags" : [ "TransactionConsumption" ],
-        "summary" : "Server - Approve a consumption.",
-        "description" : "This is a server call only.",
-        "operationId" : "transaction_consumption_approve",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/ConsumptionConfirmationRequestBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Transaction request consumption response",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionConsumptionResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
-    "/transaction_consumption.reject" : {
-      "post" : {
-        "tags" : [ "TransactionConsumption" ],
-        "summary" : "Server - Reject a consumption.",
-        "description" : "This is a server call only.",
-        "operationId" : "transaction_consumption_reject",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/ConsumptionConfirmationRequestBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Transaction request consumption response",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionConsumptionResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
     "/me.approve_transaction_consumption" : {
       "post" : {
         "tags" : [ "TransactionConsumption" ],
-        "summary" : "Client - Approve a consumption.",
+        "summary" : "Approve a consumption.",
         "description" : "This is a client call only.",
         "operationId" : "approve_transaction_consumption",
         "requestBody" : {
@@ -970,7 +352,7 @@
     "/me.reject_transaction_consumption" : {
       "post" : {
         "tags" : [ "TransactionConsumption" ],
-        "summary" : "Client - Reject a consumption.",
+        "summary" : "Reject a consumption.",
         "description" : "This is a client call only.",
         "operationId" : "reject_transaction_consumption",
         "requestBody" : {
@@ -1003,42 +385,10 @@
         } ]
       }
     },
-    "/get_settings" : {
-      "post" : {
-        "tags" : [ "Setting" ],
-        "summary" : "Server - Get the global settings.",
-        "operationId" : "get_settings",
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of settings",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/SettingResponse"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ServerAuth" : [ ]
-        } ]
-      }
-    },
     "/me.get_settings" : {
       "post" : {
         "tags" : [ "Setting" ],
-        "summary" : "Client - Get the global settings.",
+        "summary" : "Get the global settings.",
         "operationId" : "me_get_settings",
         "responses" : {
           "200" : {
@@ -1099,7 +449,10 @@
             "type" : "string"
           },
           "data" : {
-            "type" : "array"
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
           }
         },
         "description" : "The object schema for an unpaginated list",
@@ -1115,7 +468,10 @@
             "type" : "string"
           },
           "data" : {
-            "type" : "array"
+            "type" : "array",
+            "items" : {
+              "type" : "object"
+            }
           },
           "pagination" : {
             "$ref" : "#/components/schemas/PaginatedListSchema_pagination"
@@ -1292,7 +648,10 @@
             "type" : "string"
           },
           "balances" : {
-            "$ref" : "#/components/schemas/BalanceSchema"
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BalanceSchema"
+            }
           }
         },
         "description" : "The object schema for a wallet",
@@ -1377,7 +736,10 @@
             "$ref" : "#/components/schemas/AccountSchema"
           },
           "balances" : {
-            "$ref" : "#/components/schemas/BalanceSchema"
+            "type" : "array",
+            "items" : {
+              "$ref" : "#/components/schemas/BalanceSchema"
+            }
           }
         },
         "description" : "The object schema for a wallet",
@@ -2189,19 +1551,6 @@
         }
       }
     },
-    "parameters" : {
-      "IdempotencyToken" : {
-        "name" : "Idempotency-Token",
-        "in" : "header",
-        "description" : "The idempotency token for the request",
-        "required" : true,
-        "style" : "simple",
-        "explode" : false,
-        "schema" : {
-          "type" : "string"
-        }
-      }
-    },
     "requestBodies" : {
       "UserBody" : {
         "description" : "The parameters to use for creating or updating a user",
@@ -2444,8 +1793,11 @@
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "amount", "to_address", "token_id" ],
+              "required" : [ "amount", "idempotency_token", "to_address", "token_id" ],
               "properties" : {
+                "idempotency_token" : {
+                  "type" : "string"
+                },
                 "from_address" : {
                   "type" : "string"
                 },
@@ -2467,6 +1819,7 @@
                 }
               },
               "example" : {
+                "idempotency_token" : "dfdgr",
                 "from_address" : "81e75f46-ee14-4e4c-a1e5-cddcb26dce9c",
                 "to_address" : "4aa07691-2f99-4cb1-b36c-50763e2d2ba8",
                 "token_id" : "tok_BTC_01cbffybmtbbb449r05zgfct2h",
@@ -2768,8 +2121,11 @@
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "formatted_transaction_request_id" ],
+              "required" : [ "formatted_transaction_request_id", "idempotency_token" ],
               "properties" : {
+                "idempotency_token" : {
+                  "type" : "string"
+                },
                 "formatted_transaction_request_id" : {
                   "type" : "string"
                 },
@@ -2794,6 +2150,7 @@
                 }
               },
               "example" : {
+                "idempotency_token" : "3unr3u3",
                 "formatted_transaction_request_id" : "txn_01cbfg5m2ee06kzm8tbysfmmw5",
                 "correlation_id" : "123",
                 "token_id" : "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
@@ -2828,12 +2185,6 @@
       }
     },
     "securitySchemes" : {
-      "ServerAuth" : {
-        "type" : "apiKey",
-        "description" : "OMGServer Base64(access_key:secret_key)",
-        "name" : "Authorization",
-        "in" : "header"
-      },
       "ClientAuth" : {
         "type" : "apiKey",
         "description" : "OMGClient Base64(api_key:authentication_token)",

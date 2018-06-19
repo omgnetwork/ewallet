@@ -272,8 +272,12 @@ All set! Start playing around with the API using the Swagger UI below to learn m
 
 ## Web APIs Interactive Documentation
 
--   Admin API: [http://localhost:4000/api/admin/docs](http://localhost:4000/api/admin/docs)
--   eWallet API: [http://localhost:4000/api/client/docs](http://localhost:4000/api/client/docs)
+- Admin API: [http://localhost:4000/api/admin/docs](http://localhost:4000/api/admin/docs)
+  - Admin API yaml: [http://localhost:4000/api/admin/docs.yaml](http://localhost:4000/api/admin/docs.yaml)
+  - Admin API json: [http://localhost:4000/api/admin/docs.json](http://localhost:4000/api/admin/docs.json)
+- eWallet API: [http://localhost:4000/api/client/docs](http://localhost:4000/api/client/docs)
+  - eWallet API yaml: [http://localhost:4000/api/client/docs.yaml](http://localhost:4000/api/client/docs.yaml)
+  - eWallet API json: [http://localhost:4000/api/client/docs.json](http://localhost:4000/api/client/docs.json)
 
 ## Making your first requests
 
@@ -423,3 +427,7 @@ See [how you can help](.github/CONTRIBUTING.md).
 # License
 
 The OmiseGO eWallet is released under the [Apache License](https://www.apache.org/licenses/LICENSE-2.0).
+
+## API clients
+
+Please refer to [api_specs.md](docs/api_specs.md) on how to generate your API client libraries.
