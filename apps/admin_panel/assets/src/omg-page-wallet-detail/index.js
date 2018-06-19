@@ -49,7 +49,7 @@ class TokenDetailPage extends Component {
   onRequestClose = () => {
     this.setState({ createTransactionModalOpen: false })
   }
-  onClickMintTopen = e => {
+  onClickCreateTransaction = e => {
     this.setState({ createTransactionModalOpen: true })
   }
   renderTopBar = wallet => {
@@ -58,7 +58,7 @@ class TokenDetailPage extends Component {
         title={wallet.name}
         breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
-          <Button size='small' onClick={this.onClickMintTopen} key='transfer'>
+          <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
             <span>Transfer</span>
           </Button>
         ]}

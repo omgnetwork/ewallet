@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { selectWallets, selectWalletsLoadingStatus } from './selector'
+import { selectWalletsByAccountId, selectWalletsLoadingStatus } from './selector'
 import { getWalletsByAccountId } from './action'
 class WalletProvider extends Component {
   static propTypes = {
@@ -39,7 +39,7 @@ class WalletProvider extends Component {
 export default connect(
   (state, props) => {
     return {
-      wallets: selectWallets(state, props.search),
+      wallets: selectWalletsByAccountId(state, props.search, props.accountId),
       walletsLoadingStatus: selectWalletsLoadingStatus(state)
     }
   },
