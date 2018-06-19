@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from 'react-modal'
-import { createTransaction } from '../omg-transaction/action'
+import { transfer } from '../omg-transaction/action'
 import { getWalletsByAccountId } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -71,7 +71,7 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { createTransaction, getWalletsByAccountId }
+    { transfer, getWalletsByAccountId }
   )
 )
 class CreateTransactionModal extends Component {
@@ -81,10 +81,8 @@ class CreateTransactionModal extends Component {
     wallet: PropTypes.object,
     match: PropTypes.object
   }
-  state = {
-    amount: '',
-    toAddress: ''
-  }
+  state = {}
+
   onChangeInputToAddress = e => {
     this.setState({ toAddress: e.target.value })
   }
@@ -95,7 +93,7 @@ class CreateTransactionModal extends Component {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
-      const result = await this.props.createTransaction({
+      const result = await this.props.transfer({
         fromAddress: this.props.wallet.address,
         toAddress: this.state.toAddress,
         tokenId: this.state.selectedToken.token.id,
@@ -104,7 +102,11 @@ class CreateTransactionModal extends Component {
       if (result.data.success) {
         this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
         this.props.onRequestClose()
-        this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
+        this.setState({
+          submitting: false,
+          amount: 0,
+          toAddress: ''
+        })
       } else {
         this.setState({ submitting: false, error: result.data.data.description })
       }
