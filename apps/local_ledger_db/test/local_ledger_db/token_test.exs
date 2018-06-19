@@ -68,7 +68,7 @@ defmodule LocalLedgerDB.TokenTest do
     {:ok, results} = SQL.query(Repo, "SELECT encrypted_metadata FROM token", [])
 
     row = Enum.at(results.rows, 0)
-    assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+    assert <<1, 10, "AES.GCM.V1", _::binary>> = Enum.at(row, 0)
   end
 
   describe "#get_or_insert" do

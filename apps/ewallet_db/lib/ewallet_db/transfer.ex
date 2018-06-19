@@ -35,7 +35,7 @@ defmodule EWalletDB.Transfer do
     # internal / external
     field(:type, :string, default: @internal)
     # Payload received from client
-    field(:payload, Cloak.EncryptedMapField)
+    field(:payload, EWalletDB.Encrypted.Map)
     # Response returned by ledger
     field(:entry_uuid, :string)
     field(:error_code, :string)
@@ -43,8 +43,7 @@ defmodule EWalletDB.Transfer do
     field(:error_data, :map)
 
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
-    field(:encryption_version, :binary)
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     belongs_to(
       :token,
@@ -112,7 +111,6 @@ defmodule EWalletDB.Transfer do
     |> assoc_constraint(:token)
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
-    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
