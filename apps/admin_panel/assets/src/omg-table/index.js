@@ -8,10 +8,11 @@ import withDropdownState from '../omg-uikit/dropdown/withDropdownState'
 import styled from 'styled-components'
 
 export const ThContent = styled.div`
-    padding: 4px 10px;
-    display: block;
-    position: relative;
-  }
+  padding: 4px 10px;
+  letter-spacing: 1px;
+  font-size: 10px;
+  font-weight: 600;
+  color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
 `
 const TableContainer = styled.div`
   table {
@@ -48,13 +49,6 @@ const TableContainer = styled.div`
       white-space: nowrap;
       padding: 8px 0;
       cursor: pointer;
-      ${ThContent} {
-        padding: 4px 10px;
-        letter-spacing: 1px;
-        font-size: 10px;
-        font-weight: 600;
-        color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
-      }
       :not(:last-child) {
         ${ThContent} {
           border-right: 1px solid ${props => props.theme.colors.S400};
@@ -172,7 +166,8 @@ class SortableTable extends PureComponent {
     const sortKeys = _.uniq([mainSort, ..._.keys(sortQuery)])
     const sortOrders = _.uniq([sortQuery[mainSort], ..._.values(sortQuery)])
     return shouldFilter
-      ? _.chain(this.props.dataSource)
+      ? _
+          .chain(this.props.dataSource)
           .filter(d => {
             return _.reduce(
               filterQuery,
@@ -220,10 +215,7 @@ class SortHeader extends React.Component {
   }
   render () {
     return (
-      <th
-        key={`col-header-${this.props.col.key}`}
-        onClick={this.onClickSort}
-      >
+      <th key={`col-header-${this.props.col.key}`} onClick={this.onClickSort}>
         <ThContent active={this.props.active}>
           <span>{this.props.col.title}</span>{' '}
           {this.props.sortOrder === 'asc' ? <Icon name='Arrow-Up' /> : <Icon name='Arrow-Down' />}

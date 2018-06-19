@@ -35,7 +35,7 @@ defmodule AdminAPI.V1.CategoryController do
   Retrieves a list of categories.
   """
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns.user.id, nil) do
+    with :ok <- permit(:all, conn.assigns.admin_user.id, nil) do
       categories =
         Category
         |> Preloader.to_query(@preload_fields)
@@ -60,7 +60,7 @@ defmodule AdminAPI.V1.CategoryController do
   Retrieves a specific category by its id.
   """
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns.user.id, id),
+    with :ok <- permit(:get, conn.assigns.admin_user.id, id),
          %Category{} = category <- Category.get_by(id: id),
          %Category{} = category <- Preloader.preload(category, @preload_fields) do
       render(conn, :category, %{category: category})
@@ -77,7 +77,7 @@ defmodule AdminAPI.V1.CategoryController do
   Creates a new category.
   """
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns.user.id, nil),
+    with :ok <- permit(:create, conn.assigns.admin_user.id, nil),
          {:ok, category} <- Category.insert(attrs),
          %Category{} = category <- Preloader.preload(category, @preload_fields) do
       render(conn, :category, %{category: category})
@@ -94,7 +94,7 @@ defmodule AdminAPI.V1.CategoryController do
   Updates the category if all required parameters are provided.
   """
   def update(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:update, conn.assigns.user.id, id),
+    with :ok <- permit(:update, conn.assigns.admin_user.id, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, updated} <- Category.update(original, attrs),
          %Category{} = updated <- Preloader.preload(updated, @preload_fields) do

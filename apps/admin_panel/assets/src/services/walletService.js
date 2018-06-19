@@ -13,11 +13,25 @@ export function getWallets ({ per, sort, query, ...rest }) {
   })
 }
 
-export function getWallet (id) {
+export function getWalletsByAccountId ({ accountId, per, sort, query, ...rest }) {
   return authenticatedRequest({
-    path: '/wallet.all',
+    path: '/account.get_wallets',
     data: {
-      address: id
+      per_page: per,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      search_term: query,
+      ...rest,
+      id: accountId
+    }
+  })
+}
+
+export function getWallet (address) {
+  return authenticatedRequest({
+    path: '/wallet.get',
+    data: {
+      address
     }
   })
 }

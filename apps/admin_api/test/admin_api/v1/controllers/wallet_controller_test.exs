@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
-      response = user_request("/wallet.all")
+      response = admin_user_request("/wallet.all")
 
       # Asserts return data
       assert response["success"]
@@ -34,7 +34,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = user_request("/wallet.all", attrs)
+      response = admin_user_request("/wallet.all", attrs)
       wallets = response["data"]["data"]
 
       assert response["success"]
@@ -48,7 +48,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
   describe "/account.get_wallets" do
     test "returns a list of wallets and pagination data for the specified account" do
       {:ok, account} = :account |> params_for() |> Account.insert()
-      response = user_request("/account.get_wallets", %{"id" => account.id})
+      response = admin_user_request("/account.get_wallets", %{"id" => account.id})
 
       # Asserts return data
       assert response["success"]
@@ -88,7 +88,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = user_request("/account.get_wallets", attrs)
+      response = admin_user_request("/account.get_wallets", attrs)
       wallets = response["data"]["data"]
 
       assert response["success"]
@@ -107,7 +107,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
   describe "/user.get_wallets" do
     test "returns a list of wallets and pagination data for the specified user" do
       {:ok, user} = :user |> params_for() |> User.insert()
-      response = user_request("/user.get_wallets", %{"id" => user.id})
+      response = admin_user_request("/user.get_wallets", %{"id" => user.id})
 
       # Asserts return data
       assert response["success"]
@@ -140,7 +140,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = user_request("/user.get_wallets", attrs)
+      response = admin_user_request("/user.get_wallets", attrs)
       wallets = response["data"]["data"]
 
       assert response["success"]
@@ -293,7 +293,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       wallets = insert_list(3, :wallet)
       # Pick the 2nd inserted wallet
       target = Enum.at(wallets, 1)
-      response = user_request("/wallet.get", %{"address" => target.address})
+      response = admin_user_request("/wallet.get", %{"address" => target.address})
 
       assert response["success"]
       assert response["data"]["object"] == "wallet"
@@ -301,7 +301,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
     end
 
     test "returns 'wallet:address_not_found' if the given ID was not found" do
-      response = user_request("/wallet.get", %{"address" => "wrong_address"})
+      response = admin_user_request("/wallet.get", %{"address" => "wrong_address"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -312,7 +312,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
     end
 
     test "returns 'client:invalid_parameter' if id was not provided" do
-      response = user_request("/wallet.get", %{"not_id" => "wallet_id"})
+      response = admin_user_request("/wallet.get", %{"not_id" => "wallet_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -326,7 +326,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       account = insert(:account)
 
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "primary",
           account_id: account.id
@@ -347,7 +347,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert Wallet |> Repo.all() |> length() == 3
 
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "secondary",
           account_id: account.id
@@ -369,7 +369,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert Wallet |> Repo.all() |> length() == 3
 
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "burn",
           account_id: account.id
@@ -390,7 +390,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       user = insert(:user)
 
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "primary",
           user_id: user.id
@@ -411,7 +411,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert Wallet |> Repo.all() |> length() == 3
 
       response_1 =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "secondary",
           user_id: user.id
@@ -424,7 +424,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       assert response_1["data"]["name"] == "MyWallet"
 
       response_2 =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet2",
           identifier: "secondary",
           user_id: user.id
@@ -446,7 +446,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       user = insert(:user)
 
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "burn",
           user_id: user.id
@@ -467,7 +467,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       user = insert(:user)
 
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "secondary",
           account_id: account.id,
@@ -487,7 +487,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test "fails to insert a new wallet if no account or user is specified" do
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet",
           identifier: "burn"
         })
@@ -508,7 +508,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test "returns insert error when attrs are invalid" do
       response =
-        user_request("/wallet.create", %{
+        admin_user_request("/wallet.create", %{
           name: "MyWallet"
         })
 

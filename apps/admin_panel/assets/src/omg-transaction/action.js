@@ -1,5 +1,27 @@
 import * as transactionService from '../services/transactionService'
-export const createTransaction = () => async dispatch => {}
+export const createTransaction = ({
+  fromAddress,
+  toAddress,
+  tokenId,
+  amount
+}) => async dispatch => {
+  try {
+    const result = await transactionService.createTransaction({
+      fromAddress,
+      toAddress,
+      tokenId,
+      amount
+    })
+    if (result.data.success) {
+      dispatch({ type: 'TRANSACTION/CREATE/SUCCESS', transaction: result.data.data })
+    } else {
+      dispatch({ type: 'TRANSACTION/CREATE/FAILED', error: result.data.data })
+    }
+    return result
+  } catch (error) {
+    return dispatch({ type: 'TRANSACTION/CREATE/FAILED', error })
+  }
+}
 
 export const getTransactions = search => async dispatch => {
   dispatch({ type: 'TRANSACTIONS/REQUEST/INITIATED' })

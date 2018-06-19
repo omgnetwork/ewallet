@@ -6,7 +6,7 @@ import { Avatar, Icon } from '../omg-uikit'
 import styled from 'styled-components'
 import { compose } from 'recompose'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 const AvatarDropdownContainer = styled.div`
   position: relative;
 `
@@ -71,13 +71,13 @@ class ProfileAvatarDropdown extends Component {
     this.props.history.push(`/login`)
   }
 
-  renderAvatar = () => {
-    return <StyledAvatar onClick={this.props.onClickButton} />
+  renderAvatar = (currentUser) => {
+    return <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} />
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {
     return (
       <AvatarDropdownContainer>
-        {this.renderAvatar()}
+        {this.renderAvatar(currentUser)}
         {this.props.open && (
           <DropdownBoxStyled>
             <div>

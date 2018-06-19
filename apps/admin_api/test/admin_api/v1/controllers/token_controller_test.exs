@@ -5,7 +5,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
   describe "/token.all" do
     test "returns a list of tokens and pagination data" do
-      response = user_request("/token.all")
+      response = admin_user_request("/token.all")
 
       # Asserts return data
       assert response["success"]
@@ -49,7 +49,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = user_request("/token.all", attrs)
+      response = admin_user_request("/token.all", attrs)
       tokens = response["data"]["data"]
 
       assert response["success"]
@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
       tokens = insert_list(3, :token)
       # Pick the 2nd inserted token
       target = Enum.at(tokens, 1)
-      response = user_request("/token.get", %{"id" => target.id})
+      response = admin_user_request("/token.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "token"
@@ -73,7 +73,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     end
 
     test "returns 'token:id_not_found' if the given ID was not found" do
-      response = user_request("/token.get", %{"id" => "wrong_id"})
+      response = admin_user_request("/token.get", %{"id" => "wrong_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     end
 
     test "returns 'client:invalid_parameter' if id was not provided" do
-      response = user_request("/token.get", %{"not_id" => "token_id"})
+      response = admin_user_request("/token.get", %{"not_id" => "token_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -97,7 +97,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test "returns the stats for a token" do
       token = insert(:token)
       _mints = insert_list(3, :mint, token_uuid: token.uuid, amount: 100_000)
-      response = user_request("/token.stats", %{"id" => token.id})
+      response = admin_user_request("/token.stats", %{"id" => token.id})
 
       assert response["success"]
 
@@ -112,7 +112,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
     test "return token_not_found for non existing tokens" do
       token = insert(:token)
       _mints = insert_list(3, :mint, token_uuid: token.uuid)
-      response = user_request("/token.stats", %{"id" => "fale"})
+      response = admin_user_request("/token.stats", %{"id" => "fale"})
 
       assert response["success"] == false
 
@@ -128,7 +128,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
   describe "/token.create" do
     test "inserts a new token" do
       response =
-        user_request("/token.create", %{
+        admin_user_request("/token.create", %{
           symbol: "BTC",
           name: "Bitcoin",
           description: "desc",
@@ -149,7 +149,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
     test "inserts a new token with no minting if amount is nil" do
       response =
-        user_request("/token.create", %{
+        admin_user_request("/token.create", %{
           symbol: "BTC",
           name: "Bitcoin",
           description: "desc",
@@ -167,7 +167,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
     test "inserts a new token with no minting if amount is a string" do
       response =
-        user_request("/token.create", %{
+        admin_user_request("/token.create", %{
           symbol: "BTC",
           name: "Bitcoin",
           description: "desc",
@@ -185,7 +185,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
     test "fails a new token with no minting if amount is 0" do
       response =
-        user_request("/token.create", %{
+        admin_user_request("/token.create", %{
           symbol: "BTC",
           name: "Bitcoin",
           description: "desc",
@@ -203,7 +203,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
     test "mints the given amount of tokens" do
       response =
-        user_request("/token.create", %{
+        admin_user_request("/token.create", %{
           symbol: "BTC",
           name: "Bitcoin",
           description: "desc",
@@ -222,7 +222,7 @@ defmodule AdminAPI.V1.TokenControllerTest do
 
     test "returns insert error when attrs are invalid" do
       response =
-        user_request("/token.create", %{
+        admin_user_request("/token.create", %{
           name: "Bitcoin",
           description: "desc",
           subunit_to_unit: 100

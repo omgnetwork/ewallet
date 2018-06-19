@@ -34,16 +34,16 @@ const enhance = compose(connect(null, { switchAccount }), withRouter, withClickO
 const EnhancedAccountSelectorMenuClickOutside = enhance(
   class extends Component {
     static propTypes = {
-      closeWitchAccountTab: PropTypes.func,
+      closeSwitchAccountTab: PropTypes.func,
       location: PropTypes.object,
       history: PropTypes.object,
       switchAccount: PropTypes.func
     }
     handleClickOutside = () => {
-      this.props.closeWitchAccountTab()
+      this.props.closeSwitchAccountTab()
     }
     onKeyDown = e => {
-      if (e.keyCode === 27) this.props.closeWitchAccountTab()
+      if (e.keyCode === 27) this.props.closeSwitchAccountTab()
     }
     onClickAccountItem = account => e => {
       this.props.history.push(`/${account.id}/dashboard`)
@@ -76,7 +76,7 @@ class AppLayout extends Component {
     switchAccount: false
   }
 
-  closeWitchAccountTab = () => {
+  closeSwitchAccountTab = () => {
     this.setState({ switchAccount: false })
   }
   onClickSwitchAccount = () => {
@@ -91,7 +91,7 @@ class AppLayout extends Component {
         />
         {this.state.switchAccount && (
           <EnhancedAccountSelectorMenuClickOutside
-            closeWitchAccountTab={this.closeWitchAccountTab}
+            closeSwitchAccountTab={this.closeSwitchAccountTab}
           />
         )}
         <ContentContainer>

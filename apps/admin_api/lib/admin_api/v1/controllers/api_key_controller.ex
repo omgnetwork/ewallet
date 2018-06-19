@@ -46,15 +46,12 @@ defmodule AdminAPI.V1.APIKeyController do
   @doc """
   Creates a new API key. Currently API keys are assigned to the master account only.
   """
-  def create(conn, %{"owner_app" => owner_app}) do
-    # Convert the owner_app to atom key to be consistent with other attrs
-    # that are processed inside `APIKey.insert/1`
-    %{owner_app: owner_app}
+  def create(conn, _attrs) do
+    # Admin API doesn't use API Keys anymore. Defaulting to :ewallet_api.
+    %{owner_app: "ewallet_api"}
     |> APIKey.insert()
     |> respond_single(conn)
   end
-
-  def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
   # Respond when the API key is saved successfully
   defp respond_single({:ok, api_key}, conn) do
@@ -70,8 +67,7 @@ defmodule AdminAPI.V1.APIKeyController do
   Soft-deletes an existing API key by its id.
   """
   def delete(conn, %{"id" => id}) do
-    with false <- self_delete?(id, conn),
-         %APIKey{} = key <- APIKey.get(id) do
+    with %APIKey{} = key <- APIKey.get(id) do
       do_delete(conn, key)
     else
       true ->
@@ -83,10 +79,6 @@ defmodule AdminAPI.V1.APIKeyController do
   end
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
-
-  defp self_delete?(id, conn) do
-    if id == conn.assigns.api_key_id, do: true, else: false
-  end
 
   defp do_delete(conn, %APIKey{} = key) do
     case APIKey.delete(key) do

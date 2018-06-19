@@ -1066,8 +1066,6 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
-      requestBody:
-        $ref: '#/components/requestBodies/APIKeyCreateBody'
       responses:
         '200':
           $ref: "#/components/responses/APIKeyResponse"
@@ -4142,19 +4140,6 @@ components:
               search_term: ""
               sort_by: "created_at"
               sort_dir: "asc"
-    APIKeyCreateBody:
-      description: The parameters to use for creating an API key
-      required: true
-      content:
-        application/vnd.omisego.v1+json:
-          schema:
-            properties:
-              owner_app:
-                type: string
-            required:
-              - owner_app
-            example:
-              owner_app: "admin_api"
     APIKeyDeleteBody:
       description: The parameters to use for deleting an API key
       required: true

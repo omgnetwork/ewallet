@@ -1,14 +1,15 @@
-defmodule EWalletAPI.V1.Plug.ClientAuthTest do
+defmodule EWalletAPI.V1.Plug.ClientAuthPlugTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletAPI.V1.Plug.ClientAuth
+  alias EWalletAPI.V1.Plug.ClientAuthPlug
   alias EWalletDB.AuthToken
 
-  describe "ClientAuth.call/2" do
+  describe "ClientAuthPlug.call/2" do
     test "assigns user if api key and auth token are correct" do
       conn = invoke_conn(@api_key, @auth_token)
 
       refute conn.halted
-      assert conn.assigns[:authenticated] == :client
+      assert conn.assigns[:authenticated] == true
+      assert conn.assigns[:auth_scheme] == :client
       assert conn.assigns.user.username == @username
     end
 
@@ -39,9 +40,9 @@ defmodule EWalletAPI.V1.Plug.ClientAuthTest do
     end
   end
 
-  describe "ClientAuth.call/2 with invalid auth scheme" do
+  describe "ClientAuthPlug.call/2 with invalid auth scheme" do
     test "halts with :invalid_auth_scheme if auth header is not provided" do
-      conn = build_conn() |> ClientAuth.call([])
+      conn = build_conn() |> ClientAuthPlug.call([])
       assert_error(conn, "client:invalid_auth_scheme")
     end
 
@@ -54,20 +55,20 @@ defmodule EWalletAPI.V1.Plug.ClientAuthTest do
       conn =
         build_conn()
         |> put_auth_header("OMGClient", "not_colon_separated_base64")
-        |> ClientAuth.call([])
+        |> ClientAuthPlug.call([])
 
       assert_error(conn, "client:invalid_auth_scheme")
     end
   end
 
-  describe "ClientAuth.expire_token/1" do
+  describe "ClientAuthPlug.expire_token/1" do
     test "expires auth token from the given connection successfully" do
       assert AuthToken.authenticate(@auth_token, :ewallet_api)
 
       conn =
         @api_key
         |> invoke_conn(@auth_token)
-        |> ClientAuth.expire_token()
+        |> ClientAuthPlug.expire_token()
 
       # Not using `ClientAuthTest.assert_error/2` because it does not follow
       # the typical unauthenticated flow. Expiring a token should be treated
@@ -84,7 +85,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuthTest do
   defp invoke_conn(type, api_key, auth_token) do
     build_conn()
     |> put_auth_header(type, api_key, auth_token)
-    |> ClientAuth.call([])
+    |> ClientAuthPlug.call([])
   end
 
   defp assert_error(conn, error_code) do
