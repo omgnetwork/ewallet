@@ -16,11 +16,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
 
   defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
 
-  defp join_as(_request, %{authenticated: :provider}, socket) do
-    {:ok, socket}
-  end
-
-  defp join_as(request, %{authenticated: :client, user: user}, socket) do
+  defp join_as(request, %{authenticated: true, user: user}, socket) do
     user
     |> User.addresses()
     |> Enum.member?(request.wallet_address)

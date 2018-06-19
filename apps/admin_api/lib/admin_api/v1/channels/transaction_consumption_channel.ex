@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.TransactionConsumptionChannel do
   Represents the transaction consumption channel.
   """
   use Phoenix.Channel
-  alias EWalletDB.{User, TransactionConsumption}
+  alias EWalletDB.TransactionConsumption
 
   def join(
         "transaction_consumption:" <> consumption_id,
@@ -22,17 +22,7 @@ defmodule AdminAPI.V1.TransactionConsumptionChannel do
 
   defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
 
-  defp join_as(_consumption, %{authenticated: :provider}, socket) do
+  defp join_as(_consumption, %{authenticated: true}, socket) do
     {:ok, socket}
-  end
-
-  defp join_as(consumption, %{authenticated: :client, user: user}, socket) do
-    user
-    |> User.addresses()
-    |> Enum.member?(consumption.wallet_address)
-    |> case do
-      true -> {:ok, socket}
-      false -> {:error, :forbidden_channel}
-    end
   end
 end
