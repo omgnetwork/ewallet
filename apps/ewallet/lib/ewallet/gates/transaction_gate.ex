@@ -128,6 +128,7 @@ defmodule EWallet.TransactionGate do
       from_token_id: token.id,
       to_amount: amount,
       to_token_id: token.id,
+      exchange_account_id: nil,
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       payload: attrs

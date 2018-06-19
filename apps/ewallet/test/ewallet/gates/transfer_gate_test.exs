@@ -25,6 +25,7 @@ defmodule EWallet.TransferGateTest do
       from_token_id: token.id,
       to_amount: 100 * token.subunit_to_unit,
       to_token_id: token.id,
+      exchange_account_id: nil,
       metadata: %{},
       payload: %{}
     }
@@ -89,7 +90,7 @@ defmodule EWallet.TransferGateTest do
     end
   end
 
-  describe "process/1" do
+  describe "process/1 for same token transactions" do
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
       {:ok, transfer} = TransferGate.get_or_insert(attrs)
       transfer = TransferGate.process(transfer)
@@ -136,6 +137,24 @@ defmodule EWallet.TransferGateTest do
       assert transfer_2.status == Transaction.confirmed()
       assert transfer_1.uuid == transfer_2.uuid
       assert Transaction |> Repo.all() |> length() == 3
+    end
+  end
+
+  describe "process/1 for cross-token transactions" do
+    test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
+      account = Account.get_master_account()
+      to_token = insert(:token)
+      mint!(to_token)
+
+      {:ok, transfer} =
+        attrs
+        |> Map.merge(%{to_token_id: to_token.id, exchange_account_id: account.id})
+        |> TransferGate.get_or_insert()
+
+      transfer = TransferGate.process(transfer)
+
+      assert transfer.local_ledger_uuid != nil
+      assert transfer.status == Transaction.confirmed()
     end
   end
 

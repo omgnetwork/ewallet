@@ -7,7 +7,7 @@ defmodule EWalletDB.Transaction do
   import Ecto.{Changeset, Query}
   alias Ecto.{UUID, Multi}
   import EWalletDB.Validator
-  alias EWalletDB.{Repo, Transaction, Wallet, Token}
+  alias EWalletDB.{Account, Repo, Token, Transaction, Wallet}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -78,6 +78,14 @@ defmodule EWalletDB.Transaction do
       type: :string
     )
 
+    belongs_to(
+      :exchange_account,
+      Account,
+      foreign_key: :exchange_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
     timestamps()
   end
 
@@ -98,6 +106,7 @@ defmodule EWalletDB.Transaction do
       :from_token_uuid,
       :to_amount,
       :to_token_uuid,
+      :exchange_account_uuid,
       :to,
       :from
     ])
@@ -120,11 +129,17 @@ defmodule EWalletDB.Transaction do
     |> validate_inclusion(:type, @types)
     |> validate_exclusive([:local_ledger_uuid, :error_code])
     |> validate_immutable(:idempotency_token)
+    |> validate_exchange_transaction(attrs)
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
+    |> assoc_constraint(:exchange_account)
+  end
+
+  defp validate_exchange_transaction(changeset, _attrs) do
+    changeset
   end
 
   @doc """
