@@ -81,8 +81,8 @@ class TransactionPage extends Component {
     if (key === 'fromToToken') {
       return (
         <div>
-          {rows.from.amount / rows.from.token.subunit_to_unit} - {rows.from.token.symbol}
-          <br /> {rows.to.amount / rows.from.token.subunit_to_unit} - {rows.to.token.symbol}
+          <div>- {(rows.from.amount / rows.from.token.subunit_to_unit).toLocaleString()} {rows.from.token.symbol}</div>
+          <div>+ {(rows.to.amount / rows.from.token.subunit_to_unit).toLocaleString()} {rows.to.token.symbol}</div>
         </div>
       )
     }
@@ -94,10 +94,7 @@ class TransactionPage extends Component {
   renderTransactionPage = ({ transactions, loadingStatus }) => {
     return (
       <TransactionPageContainer>
-        <TopNavigation
-          title={'Transaction'}
-          buttons={[this.renderCreateTransactionButton()]}
-        />
+        <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />
         <SortableTable
           dataSource={transactions}
           columns={columns}

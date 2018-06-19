@@ -77,7 +77,7 @@ class TokenDetailPage extends Component {
               return (
                 <DetailGroup key={balance.token.id}>
                   <b>{balance.token.name}</b>{' '}
-                  <span>{balance.amount / balance.token.subunit_to_unit}</span>
+                  <span>{(balance.amount / balance.token.subunit_to_unit).toLocaleString()}</span>
                 </DetailGroup>
               )
             })}
