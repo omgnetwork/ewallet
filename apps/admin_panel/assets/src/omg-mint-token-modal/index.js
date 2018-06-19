@@ -4,7 +4,10 @@ import styled from 'styled-components'
 import Modal from 'react-modal'
 import { Button, Input, Icon } from '../omg-uikit'
 import { mintToken } from '../omg-token/action'
+import { getWalletsByAccountId } from '../omg-wallet/action'
 import { connect } from 'react-redux'
+import { withRouter } from 'react-router-dom'
+import { compose } from 'recompose'
 const customStyles = {
   content: {
     top: '50%',
@@ -45,12 +48,22 @@ const ButtonsContainer = styled.div`
     }
   }
 `
+
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { mintToken, getWalletsByAccountId }
+  )
+)
 class MintTokenModal extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     token: PropTypes.string,
-    mintToken: PropTypes.func.isRequired
+    mintToken: PropTypes.func.isRequired,
+    getWalletsByAccountId: PropTypes.func.isRequired,
+    match: PropTypes.object
   }
   state = { amount: 0 }
   onChangeAmount = e => {
@@ -61,9 +74,10 @@ class MintTokenModal extends PureComponent {
     this.setState({ submitStatus: 'SUBMITTED' })
     const result = await this.props.mintToken({
       id: this.props.token.id,
-      amount: this.state.amount
+      amount: this.state.amount * this.props.token.subunit_to_unit
     })
     if (result.data.success) {
+      this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
       this.props.onRequestClose()
       this.setState({ submitStatus: 'SUCCESS', amount: 0 })
     } else {
@@ -107,7 +121,4 @@ class MintTokenModal extends PureComponent {
   }
 }
 
-export default connect(
-  null,
-  { mintToken }
-)(MintTokenModal)
+export default enhance(MintTokenModal)
