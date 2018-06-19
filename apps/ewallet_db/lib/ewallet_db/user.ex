@@ -33,8 +33,7 @@ defmodule EWalletDB.User do
     field(:password_hash, :string)
     field(:provider_user_id, :string)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
-    field(:encryption_version, :binary)
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
 
     belongs_to(
@@ -103,7 +102,6 @@ defmodule EWalletDB.User do
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
     |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
-    |> put_change(:encryption_version, Cloak.version())
     |> validate_by_roles(attrs)
   end
 

@@ -11,8 +11,7 @@ defmodule LocalLedgerDB.Entry do
 
   schema "entry" do
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
-    field(:encryption_version, :binary)
+    field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
     field(:idempotency_token, :string)
 
     has_many(
@@ -31,11 +30,10 @@ defmodule LocalLedgerDB.Entry do
   """
   def changeset(%Entry{} = entry, attrs) do
     entry
-    |> cast(attrs, [:metadata, :encrypted_metadata, :encryption_version, :idempotency_token])
+    |> cast(attrs, [:metadata, :encrypted_metadata, :idempotency_token])
     |> validate_required([:idempotency_token, :metadata, :encrypted_metadata])
     |> cast_assoc(:transactions, required: true)
     |> unique_constraint(:idempotency_token)
-    |> put_change(:encryption_version, Cloak.version())
   end
 
   @doc """
