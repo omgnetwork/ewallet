@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
     table_name = schema.__schema__(:source)
     uuid = record.uuid
 
-    repo.transaction fn ->
+    repo.transaction(fn ->
       query =
         schema
         |> where(uuid: ^uuid)
@@ -78,20 +78,21 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
           :noop
 
         row ->
-          IO.puts "Updating #{table_name} #{uuid}..."
+          IO.puts("Updating #{table_name} #{uuid}...")
+
           row
           |> force_changes(fields)
           |> repo.update()
       end
-    end
+    end)
 
     migrate_each(t, repo, schema, fields)
   end
 
   defp force_changes(row, fields) do
-    Enum.reduce fields, Ecto.Changeset.change(row), fn field, changeset ->
+    Enum.reduce(fields, Ecto.Changeset.change(row), fn field, changeset ->
       Ecto.Changeset.force_change(changeset, field, Map.get(row, field))
-    end
+    end)
   end
 
   #
