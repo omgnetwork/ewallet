@@ -58,17 +58,20 @@ class MintTokenModal extends PureComponent {
   }
   onSubmit = async e => {
     e.preventDefault()
+    this.setState({ submitStatus: 'SUBMITTED' })
     const result = await this.props.mintToken({
       id: this.props.token.id,
       amount: this.state.amount
     })
     if (result.data.success) {
       this.props.onRequestClose()
+      this.setState({ submitStatus: 'SUCCESS', amount: 0 })
+    } else {
+      this.setState({ submitStatus: 'FAILED', amount: 0 })
     }
   }
   onRequestClose = e => {
     this.props.onRequestClose()
-    this.setState({ amount: 0 })
   }
   render () {
     return (
@@ -89,7 +92,12 @@ class MintTokenModal extends PureComponent {
             onChange={this.onChangeAmount}
           />
           <ButtonsContainer>
-            <Button styleType='primary' size='small' type='submit'>
+            <Button
+              styleType='primary'
+              size='small'
+              type='submit'
+              loading={this.state.submitStatus === 'SUBMITTED'}
+            >
               Mint
             </Button>
           </ButtonsContainer>
@@ -99,4 +107,7 @@ class MintTokenModal extends PureComponent {
   }
 }
 
-export default connect(null, { mintToken })(MintTokenModal)
+export default connect(
+  null,
+  { mintToken }
+)(MintTokenModal)
