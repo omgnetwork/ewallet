@@ -87,7 +87,6 @@ defmodule LocalLedger.Transaction do
         callback \\ nil
       ) do
     {debits, credits}
-    |> Validator.validate_different_addresses()
     |> Validator.validate_zero_sum()
     |> Validator.validate_positive_amounts()
     |> Entry.build_all()
@@ -101,9 +100,6 @@ defmodule LocalLedger.Transaction do
 
     e in AmountIsZeroError ->
       {:error, :amount_is_zero, e.message}
-
-    e in SameAddressError ->
-      {:error, :same_address, e.message}
   end
 
   # Lock all the DEBIT addresses to ensure the truthness of the wallets
