@@ -11,6 +11,8 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
 
   import Ecto.Query
 
+  alias Ecto.Changeset
+
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
   @migration_spec [
     ewallet_db: [
@@ -90,8 +92,8 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
   end
 
   defp force_changes(row, fields) do
-    Enum.reduce(fields, Ecto.Changeset.change(row), fn field, changeset ->
-      Ecto.Changeset.force_change(changeset, field, Map.get(row, field))
+    Enum.reduce(fields, Changeset.change(row), fn field, changeset ->
+      Changeset.force_change(changeset, field, Map.get(row, field))
     end)
   end
 
