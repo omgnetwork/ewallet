@@ -2,7 +2,7 @@ defmodule EWalletDB.Repo.Migrations.MoveLedgerResponseIntoSpecificFields do
   use Ecto.Migration
   import Ecto.Query
   alias EWalletDB.Repo
-  alias Cloak.EncryptedMapField
+  alias EWalletDB.Encrypted
 
   def up do
     alter table(:transfer) do
@@ -20,7 +20,7 @@ defmodule EWalletDB.Repo.Migrations.MoveLedgerResponseIntoSpecificFields do
 
     for [uuid, ledger_response] <- Repo.all(query) do
       if ledger_response != nil do
-        {:ok, ledger_response} = EncryptedMapField.load(ledger_response)
+        {:ok, ledger_response} = Encrypted.Map.load(ledger_response)
         description = get_data_or_description(ledger_response["description"], :description)
         data = get_data_or_description(ledger_response["description"], :data)
 
