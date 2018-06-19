@@ -68,6 +68,9 @@ class TokenDetailPage extends Component {
           <b>Decimal:</b> <span>{Math.log10(token.subunit_to_unit)}</span>
         </DetailGroup>
         <DetailGroup>
+          <b>Subunit To Unit:</b> <span>{token.subunit_to_unit.toLocaleString()}</span>
+        </DetailGroup>
+        <DetailGroup>
           <b>ID:</b> <span>{token.id}</span>
         </DetailGroup>
         <DetailGroup>
