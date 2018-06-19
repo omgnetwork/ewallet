@@ -19,15 +19,15 @@ defmodule EWalletDB.Repo.Migrations.AddCrossTokenSupportToTransfers do
                                   scale: 0,
                                   null: true
 
-      add :from_token_uuid, references(:token, column: :uuid, type: :uuid),
-                                   null: true
+      add :from_token_uuid, references(:token, column: :uuid, type: :uuid), null: true
 
       add :to_amount, :decimal, precision: 81,
                                 scale: 0,
                                 null: true
 
-      add :to_token_uuid, references(:token, column: :uuid, type: :uuid),
-                                 null: true
+      add :to_token_uuid, references(:token, column: :uuid, type: :uuid), null: true
+
+      add :exchange_account_uuid, references(:account, column: :uuid, type: :uuid), null: true
     end
   end
 
