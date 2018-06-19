@@ -31,7 +31,8 @@ defmodule EWallet.Exchange.CalculatorTest do
       assert calculation.from_token.uuid == eth.uuid
       assert calculation.to_amount == 10
       assert calculation.to_token.uuid == omg.uuid
-      assert calculation.actual_rate == 1 / pair.rate # Because we're using a reversed pair
+      # Asseting `1 / rate` because we're using a reversed pair
+      assert calculation.actual_rate == 1 / pair.rate
       assert calculation.pair.uuid == pair.uuid
     end
 
@@ -75,7 +76,8 @@ defmodule EWallet.Exchange.CalculatorTest do
       assert calculation.from_token.uuid == eth.uuid
       assert calculation.to_amount == 100
       assert calculation.to_token.uuid == omg.uuid
-      assert calculation.actual_rate == 1 / pair.rate # Because we're using a reversed pair
+      # Asseting `1 / rate` because we're using a reversed pair
+      assert calculation.actual_rate == 1 / pair.rate
       assert calculation.pair.uuid == pair.uuid
     end
   end
@@ -102,7 +104,8 @@ defmodule EWallet.Exchange.CalculatorTest do
       omg = insert(:token)
       _ = insert(:exchange_pair, from_token: eth, to_token: omg, rate: 10.0, reversible: false)
 
-      {result, code} = Calculator.calculate(10, eth, 1000, omg) # Using false rate of 100.0
+      # Using false rate of 100.0
+      {result, code} = Calculator.calculate(10, eth, 1000, omg)
 
       assert result == :error
       assert code == :exchange_invalid_rate
