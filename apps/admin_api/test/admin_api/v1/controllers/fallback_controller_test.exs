@@ -14,7 +14,7 @@ defmodule AdminAPI.V1.FallbackControllerTest do
         }
       }
 
-      assert client_request("/not_found") == expected
+      assert unauthenticated_request("/not_found") == expected
     end
 
     test "returns correct error response for user-authenticated requests" do
@@ -29,7 +29,7 @@ defmodule AdminAPI.V1.FallbackControllerTest do
         }
       }
 
-      assert user_request("/not_found") == expected
+      assert admin_user_request("/not_found") == expected
     end
   end
 end

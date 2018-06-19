@@ -1,12 +1,12 @@
-defmodule EWallet.Web.V1.SocketClientAuthTest do
+defmodule EWalletAPI.V1.ClientAuthTest do
   use EWallet.LocalLedgerCase, async: true
-  alias EWallet.Web.V1.SocketClientAuth
+  alias EWalletAPI.V1.ClientAuth
   alias EWalletDB.AuthToken
 
   def auth_header(key, token) do
     encoded_key = Base.encode64(key <> ":" <> token)
 
-    SocketClientAuth.authenticate(%{
+    ClientAuth.authenticate(%{
       http_headers: %{
         "authorization" => "OMGClient #{encoded_key}"
       }
@@ -28,7 +28,7 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
       auth = auth_header(meta.api_key.key, meta.auth_token.token)
 
       assert auth.authenticated
-      assert auth[:authenticated] == :client
+      assert auth[:authenticated] == true
       assert auth[:account] != nil
       assert auth[:user] != nil
     end
@@ -81,7 +81,7 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
 
     test "halts with :invalid_auth_scheme if auth header is not provided" do
       auth =
-        SocketClientAuth.authenticate(%{
+        ClientAuth.authenticate(%{
           http_headers: %{}
         })
 
@@ -93,7 +93,7 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
 
     test "halts with :invalid_auth_scheme if auth header is not a valid auth scheme" do
       auth =
-        SocketClientAuth.authenticate(%{
+        ClientAuth.authenticate(%{
           http_headers: %{
             "authorization" => "InvalidScheme abc"
           }
@@ -107,7 +107,7 @@ defmodule EWallet.Web.V1.SocketClientAuthTest do
 
     test "halts with :invalid_auth_scheme if auth header is invalid" do
       auth =
-        SocketClientAuth.authenticate(%{
+        ClientAuth.authenticate(%{
           http_headers: %{
             "authorization" => "OMGClient not_colon_separated_base64"
           }

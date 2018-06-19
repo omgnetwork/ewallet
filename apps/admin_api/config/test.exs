@@ -1,8 +1,5 @@
 use Mix.Config
 
-# General application configuration
-config :admin_api, enable_client_auth: true
-
 # We don't run a server during test. If one is required,
 # you can enable the server option below.
 config :admin_api, AdminAPI.Endpoint,

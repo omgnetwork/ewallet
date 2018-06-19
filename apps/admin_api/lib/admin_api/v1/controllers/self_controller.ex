@@ -9,14 +9,14 @@ defmodule AdminAPI.V1.SelfController do
   Retrieves the currently authenticated user.
   """
   def get(conn, _attrs) do
-    render(conn, :user, %{user: conn.assigns.user})
+    render(conn, :user, %{user: conn.assigns.admin_user})
   end
 
   @doc """
   Updates the user if all required parameters are provided.
   """
   def update(conn, attrs) do
-    case User.update_without_password(conn.assigns.user, attrs) do
+    case User.update_without_password(conn.assigns.admin_user, attrs) do
       {:ok, %User{} = user} ->
         render(conn, :user, %{user: user})
 
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.SelfController do
   Uploads an image as avatar for the current user.
   """
   def upload_avatar(conn, %{"avatar" => _} = attrs) do
-    case conn.assigns.user do
+    case conn.assigns.admin_user do
       nil ->
         respond_single(nil, conn)
 
@@ -47,7 +47,7 @@ defmodule AdminAPI.V1.SelfController do
   Retrieves the upper-most account that the given user has membership in.
   """
   def get_account(conn, _attrs) do
-    case User.get_account(conn.assigns.user) do
+    case User.get_account(conn.assigns.admin_user) do
       %Account{} = account ->
         render(conn, AccountView, :account, %{account: account})
 
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.SelfController do
   """
   def get_accounts(conn, attrs) do
     accounts =
-      conn.assigns.user
+      conn.assigns.admin_user
       |> User.query_accounts()
       |> Paginator.paginate_attrs(attrs)
 

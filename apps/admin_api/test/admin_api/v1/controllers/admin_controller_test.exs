@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
 
   describe "/admin.all" do
     test "returns a list of admins and pagination data" do
-      response = user_request("/admin.all")
+      response = admin_user_request("/admin.all")
 
       # Asserts return data
       assert response["success"]
@@ -38,7 +38,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = user_request("/admin.all", attrs)
+      response = admin_user_request("/admin.all", attrs)
       admins = response["data"]["data"]
 
       assert response["success"]
@@ -56,7 +56,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
       admin = insert(:admin, %{email: "admin@omise.co"})
       _membership = insert(:membership, %{user: admin, account: account, role: role})
 
-      response = user_request("/admin.get", %{"id" => admin.id})
+      response = admin_user_request("/admin.get", %{"id" => admin.id})
 
       assert response["success"]
       assert response["data"]["object"] == "user"
@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
 
     test "returns 'user:id_not_found' if the given ID is not an admin" do
       user = insert(:user)
-      response = user_request("/admin.get", %{"id" => user.id})
+      response = admin_user_request("/admin.get", %{"id" => user.id})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID was not found" do
-      response = user_request("/admin.get", %{"id" => UUID.generate()})
+      response = admin_user_request("/admin.get", %{"id" => UUID.generate()})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -87,7 +87,7 @@ defmodule AdminAPI.V1.AdminControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID format is invalid" do
-      response = user_request("/admin.get", %{"id" => "not_valid_id_format"})
+      response = admin_user_request("/admin.get", %{"id" => "not_valid_id_format"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

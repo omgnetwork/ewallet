@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.Socket do
   channels to which providers/clients can connect to listen and receive events.
   """
   use Phoenix.Socket
-  alias EWallet.Web.V1.SocketProviderAuth
+  alias AdminAPI.V1.AdminAPIAuth
 
   channel("account:*", AdminAPI.V1.AccountChannel)
   channel("user:*", AdminAPI.V1.UserChannel)
@@ -15,11 +15,9 @@ defmodule AdminAPI.V1.Socket do
   transport(:websocket, Phoenix.Transports.WebSocket)
 
   def connect(params, socket) do
-    provider_auth = SocketProviderAuth.authenticate(params)
-
-    case provider_auth do
-      %{authenticated: :provider} = provider_auth ->
-        {:ok, assign(socket, :auth, provider_auth)}
+    case AdminAPIAuth.authenticate(params) do
+      %{authenticated: true} = auth ->
+        {:ok, assign(socket, :auth, auth)}
 
       _ ->
         :error

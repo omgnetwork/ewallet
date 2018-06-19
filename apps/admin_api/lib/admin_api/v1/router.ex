@@ -1,15 +1,10 @@
 defmodule AdminAPI.V1.Router do
   use AdminAPI, :router
-  alias AdminAPI.V1.{ClientAuthPlug, AdminAPIAuthPlug}
+  alias AdminAPI.V1.AdminAPIAuthPlug
 
   # Pipeline for plugs to apply for all endpoints
   pipeline :api do
     plug(:accepts, ["json"])
-  end
-
-  # Pipeline for endpoints that require client authentication
-  pipeline :client_api do
-    plug(ClientAuthPlug)
   end
 
   # Pipeline for endpoints that require user authentication or provider
@@ -107,9 +102,11 @@ defmodule AdminAPI.V1.Router do
     post("/me.logout", AdminAuthController, :logout)
   end
 
-  # Public endpoints (still protected by API key)
+  # Public endpoints and Fallback endpoints.
+  # Gandles all remaining routes
+  # that are not handled by the scopes above.
   scope "/", AdminAPI.V1 do
-    pipe_through([:api, :client_api])
+    pipe_through([:api])
 
     post("/admin.login", AdminAuthController, :login)
     post("/invite.accept", InviteController, :accept)
@@ -120,12 +117,7 @@ defmodule AdminAPI.V1.Router do
 
     post("/status", StatusController, :index)
     post("/status.server_error", StatusController, :server_error)
-  end
 
-  # Fallback endpoints. Handles all remaining routes
-  # that are not handled by the scopes above.
-  scope "/", AdminAPI.V1 do
-    pipe_through([:api])
     match(:*, "/*path", FallbackController, :not_found)
   end
 end
