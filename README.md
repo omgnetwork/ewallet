@@ -41,9 +41,15 @@ Current (a.k.a staging): The most up-to-date version of the eWallet. We work wit
 
 **The URLs below are OmiseGO testing and sample eWallets. The eWallet is not a centralized service and no one should actually use those in production.**
 
+<<<<<<< HEAD
 -   eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/docs) / [current](https://ewallet.staging.omisego.io/api/docs)
 
 -   Admin Web API Docs: [stable](https://ewallet.demo.omisego.io/admin/api/docs) / [current](https://ewallet.staging.omisego.io/admin/api/docs)
+=======
+- eWallet Web API Docs: [stable](https://ewallet.demo.omisego.io/api/client/docs) /  [current](https://ewallet.staging.omisego.io/api/client/docs)
+
+- Admin Web API Docs: [stable](https://ewallet.demo.omisego.io/api/admin/docs) / [current](https://ewallet.staging.omisego.io/api/admin/docs)
+>>>>>>> Refactor API path
 
 -   SDKs:
 
@@ -272,8 +278,8 @@ All set! Start playing around with the API using the Swagger UI below to learn m
 
 ## Web APIs Interactive Documentation
 
--   Admin API: [http://localhost:4000/admin/api/docs](http://localhost:4000/admin/api/docs)
--   eWallet API: [http://localhost:4000/api/docs](http://localhost:4000/api/docs)
+-   Admin API: [http://localhost:4000/api/admin/docs](http://localhost:4000/api/admin/docs)
+-   eWallet API: [http://localhost:4000/api/client/docs](http://localhost:4000/api/client/docs)
 
 ## Making your first requests
 
@@ -291,12 +297,17 @@ If Swagger UI is not enough, you can start communicating with the web APIs using
 
 ### HTTP-RPC WEB APIs
 
-If you wish to use the HTTP-RPC web APIs directly, here are the OpenAPI specifications containing all the available endpoints and how to interact with them. You can access those interactive documentations on any running eWallet application, including the ones you deploy yourself! The eWallet API docs live under `/api/docs` and the Admin API ones under `/admin/api/docs`.
+If you wish to use the HTTP-RPC web APIs directly, here are the OpenAPI specifications containing all the available endpoints and how to interact with them. You can access those interactive documentations on any running eWallet application, including the ones you deploy yourself! The eWallet API docs live under `/api/client/docs` and the Admin API ones under `/api/admin/docs`.
 
+<<<<<<< HEAD
 -   [eWallet API](https://ewallet.demo.omisego.io/api/docs)
 -   [Admin API](https://ewallet.demo.omisego.io/admin/api/docs)
+=======
+- [eWallet API](https://ewallet.demo.omisego.io/api/client/docs)
+- [Admin API](https://ewallet.demo.omisego.io/api/admin/docs)
+>>>>>>> Refactor API path
 
-When using the eWallet API, be sure to have `/api` at the end of your base URL (e.g. `https://yourdomain.com/api`). For the Admin API, it should include `/admin/api` (e.g. `https://yourdomain.com/admin/api`).
+When using the eWallet API, be sure to have `/api` at the end of your base URL (e.g. `https://yourdomain.com/api`). For the Admin API, it should include `/api/admin` (e.g. `https://yourdomain.com/api/admin`).
 
 ### Server SDKs
 

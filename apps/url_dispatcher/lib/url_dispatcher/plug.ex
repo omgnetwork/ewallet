@@ -15,8 +15,8 @@ defmodule UrlDispatcher.Plug do
     |> json(%{status: true})
   end
 
-  defp handle_request("/api" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
-  defp handle_request("/admin/api" <> _, conn), do: AdminAPI.Endpoint.call(conn, [])
+  defp handle_request("/api/client" <> _, conn), do: EWalletAPI.Endpoint.call(conn, [])
+  defp handle_request("/api/admin" <> _, conn), do: AdminAPI.Endpoint.call(conn, [])
   defp handle_request("/admin" <> _, conn), do: AdminPanel.Endpoint.call(conn, [])
 
   defp handle_request("/public" <> _, conn) do

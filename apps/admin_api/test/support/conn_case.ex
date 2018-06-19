@@ -48,7 +48,7 @@ defmodule AdminAPI.ConnCase do
   @provider_user_id "test_provider_user_id"
   @auth_token "test_auth_token"
 
-  @base_dir "admin/api/"
+  @base_dir "api/admin/"
 
   using do
     quote do
