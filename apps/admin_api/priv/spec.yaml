@@ -71,7 +71,7 @@ tags:
   - name: API Access
     description: Resources related to API access.
 servers:
-  - url: /admin/api
+  - url: /api/admin
 
 paths:
   ######################################

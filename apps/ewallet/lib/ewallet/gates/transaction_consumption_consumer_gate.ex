@@ -121,7 +121,8 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
 
     case transaction do
       {:ok, res} -> res
-      {:error, error} -> {:error, error}
+      {:error, _changeset} = error -> error
+      {:error, _, changeset, _} -> {:error, changeset}
     end
   end
 

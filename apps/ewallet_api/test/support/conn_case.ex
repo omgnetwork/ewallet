@@ -36,7 +36,7 @@ defmodule EWalletAPI.ConnCase do
   @username "test_username"
   @provider_user_id "test_provider_user_id"
 
-  @base_dir "api/"
+  @base_dir "api/client"
 
   using do
     quote do

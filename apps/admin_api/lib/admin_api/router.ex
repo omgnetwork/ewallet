@@ -1,9 +1,9 @@
 defmodule AdminAPI.Router do
   use AdminAPI, :router
-  use EWallet.Web.APIDocs, scope: "/admin/api"
+  use EWallet.Web.APIDocs, scope: "/api/admin"
   alias AdminAPI.{StatusController, VersionedRouter}
 
-  scope "/admin/api" do
+  scope "/api/admin" do
     get("/", StatusController, :status)
     forward("/", VersionedRouter)
   end

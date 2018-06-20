@@ -21,16 +21,7 @@ defmodule AdminAPI.V1.UserChannel do
 
   defp join_as(nil, _auth, _socket), do: {:error, :channel_not_found}
 
-  defp join_as(_user, %{authenticated: :provider}, socket) do
+  defp join_as(_user, %{authenticated: true}, socket) do
     {:ok, socket}
-  end
-
-  defp join_as(user, %{authenticated: :client, user: auth_user}, socket) do
-    same_user? = auth_user.id == user.id || auth_user.provider_user_id == user.provider_user_id
-
-    case same_user? do
-      true -> {:ok, socket}
-      false -> {:error, :forbidden_channel}
-    end
   end
 end

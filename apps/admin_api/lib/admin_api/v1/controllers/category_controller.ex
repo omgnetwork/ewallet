@@ -27,10 +27,6 @@ defmodule AdminAPI.V1.CategoryController do
   # If the request provides different names, map it via `@mapped_fields` first.
   @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
-  defp permit(action, user_id, category_id) do
-    Bodyguard.permit(CategoryPolicy, action, user_id, category_id)
-  end
-
   @doc """
   Retrieves a list of categories.
   """
@@ -62,7 +58,7 @@ defmodule AdminAPI.V1.CategoryController do
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns.admin_user.id, id),
          %Category{} = category <- Category.get_by(id: id),
-         %Category{} = category <- Preloader.preload(category, @preload_fields) do
+         {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, code} ->
@@ -79,7 +75,7 @@ defmodule AdminAPI.V1.CategoryController do
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns.admin_user.id, nil),
          {:ok, category} <- Category.insert(attrs),
-         %Category{} = category <- Preloader.preload(category, @preload_fields) do
+         {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
     else
       {:error, %{} = changeset} ->
@@ -97,7 +93,7 @@ defmodule AdminAPI.V1.CategoryController do
     with :ok <- permit(:update, conn.assigns.admin_user.id, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, updated} <- Category.update(original, attrs),
-         %Category{} = updated <- Preloader.preload(updated, @preload_fields) do
+         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
       render(conn, :category, %{category: updated})
     else
       {:error, %{} = changeset} ->
@@ -116,7 +112,7 @@ defmodule AdminAPI.V1.CategoryController do
   def delete(conn, %{"id" => id}) do
     with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, deleted} = Category.delete(category),
-         %Category{} = deleted <- Preloader.preload(deleted, @preload_fields) do
+         {:ok, deleted} <- Preloader.preload_one(deleted, @preload_fields) do
       render(conn, :category, %{category: deleted})
     else
       {:error, %{} = changeset} ->
@@ -128,4 +124,10 @@ defmodule AdminAPI.V1.CategoryController do
   end
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  @spec permit(:all | :create | :get | :update, any(), any()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, user_id, category_id) do
+    Bodyguard.permit(CategoryPolicy, action, user_id, category_id)
+  end
 end
