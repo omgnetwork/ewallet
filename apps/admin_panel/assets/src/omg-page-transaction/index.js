@@ -81,8 +81,14 @@ class TransactionPage extends Component {
     if (key === 'fromToToken') {
       return (
         <div>
-          <div>- {(rows.from.amount / rows.from.token.subunit_to_unit).toLocaleString()} {rows.from.token.symbol}</div>
-          <div>+ {(rows.to.amount / rows.from.token.subunit_to_unit).toLocaleString()} {rows.to.token.symbol}</div>
+          <div>
+            - {(rows.from.amount / rows.from.token.subunit_to_unit).toLocaleString()}{' '}
+            {rows.from.token.symbol}
+          </div>
+          <div>
+            + {(rows.to.amount / rows.from.token.subunit_to_unit).toLocaleString()}{' '}
+            {rows.to.token.symbol}
+          </div>
         </div>
       )
     }
