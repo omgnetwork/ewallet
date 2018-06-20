@@ -5,6 +5,7 @@ import { selectAlerts } from './selector'
 import { TransitionGroup, CSSTransition } from 'react-transition-group'
 import styled from 'styled-components'
 import { clearAlert } from '../omg-alert/action'
+import { Icon } from '../omg-uikit'
 const AlertContainer = styled.div`
   position: fixed;
   top: 15px;
@@ -15,13 +16,33 @@ const AlertContainer = styled.div`
   z-index: 1000;
 `
 const AlertItemContainer = styled.div`
-  border: 1px solid ${props => props.type === 'error' ? '#FC7166' : '#65d2bb;'};
+  border: 1px solid ${props => (props.type === 'error' ? '#FC7166' : '#65d2bb;')};
   border-radius: 2px;
-  background-color: ${props => props.type === 'error' ? '#FFEFED' : '#e8fbf7'};
+  background-color: ${props => (props.type === 'error' ? '#FFEFED' : '#e8fbf7')};
   padding: 10px;
   font-size: 12px;
   color: ${props => props.theme.colors.B300};
   margin-bottom: 5px;
+`
+const SuccessCheckmark = styled.div`
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  text-align: center;
+  display: inline-block;
+  background-color: #0EBF9A;
+  vertical-align: middle;
+  position: relative;
+  margin-right: 10px;
+  i {
+    position: absolute;
+    top: 50%;
+    transform:translateY(-50%);
+    color: white;
+    left: 0;
+    right: 0;
+    margin: 0 auto;
+  }
 `
 class AlertItem extends Component {
   static propTypes = {
@@ -62,6 +83,9 @@ class Alert extends Component {
                 classNames='fade'
               >
                 <AlertItem id={alert.id} clearAlert={this.props.clearAlert} type={alert.type}>
+                  <SuccessCheckmark>
+                    <Icon name='Checkmark' />
+                  </SuccessCheckmark>
                   {alert.text}
                 </AlertItem>
               </CSSTransition>

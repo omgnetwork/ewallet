@@ -13,9 +13,9 @@ export function getAllTransactions ({ per, sort, query, ...rest }) {
   })
 }
 
-export function createTransaction ({ fromAddress, toAddress, tokenId, amount }) {
+export function transfer ({ fromAddress, toAddress, tokenId, amount }) {
   return authenticatedRequest({
-    path: '/transaction.create',
+    path: '/transfer',
     data: {
       from_address: fromAddress,
       to_address: toAddress,

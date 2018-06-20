@@ -1,12 +1,12 @@
 import * as transactionService from '../services/transactionService'
-export const createTransaction = ({
+export const transfer = ({
   fromAddress,
   toAddress,
   tokenId,
   amount
 }) => async dispatch => {
   try {
-    const result = await transactionService.createTransaction({
+    const result = await transactionService.transfer({
       fromAddress,
       toAddress,
       tokenId,
