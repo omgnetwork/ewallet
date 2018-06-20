@@ -20,7 +20,6 @@ class WalletProvider extends Component {
       })
     }
   }
-
   componentDidMount = () => {
     if (this.props.walletsLoadingStatus === 'DEFAULT') {
       this.props.getWalletsByAccountId({

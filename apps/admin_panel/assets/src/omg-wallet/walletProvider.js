@@ -8,18 +8,12 @@ class WalletProvider extends Component {
     render: PropTypes.func,
     walletAddress: PropTypes.string,
     getWalletById: PropTypes.func,
-    wallet: PropTypes.object,
-    pooling: PropTypes.bool
+    wallet: PropTypes.object
   }
 
   componentDidMount = () => {
     if (!this.props.wallet) {
       this.props.getWalletById(this.props.walletAddress)
-    }
-    if (this.props.pooling) {
-      setInterval(() => {
-        this.props.getWalletById(this.props.walletAddress)
-      }, 5000)
     }
   }
   render () {

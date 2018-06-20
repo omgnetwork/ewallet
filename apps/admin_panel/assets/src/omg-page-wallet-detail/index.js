@@ -136,7 +136,6 @@ class TokenDetailPage extends Component {
       <WalletProvider
         render={this.renderWalletDetailPage}
         walletAddress={this.props.match.params.walletAddress}
-        polling
         {...this.state}
       />
     )
