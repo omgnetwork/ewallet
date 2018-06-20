@@ -12,7 +12,7 @@ defmodule AdminAPI.V1.AccountChannel do
 
   def join(_, _, _), do: {:error, :invalid_parameter}
 
-  defp join_as(account_id, %{authenticated: :provider}, socket) do
+  defp join_as(account_id, %{authenticated: true}, socket) do
     account_id |> Account.get() |> respond(socket)
   end
 

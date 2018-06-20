@@ -16,7 +16,7 @@ defmodule EWalletAPI.V1.Socket do
 
   def connect(params, socket) do
     case ClientAuth.authenticate(params) do
-      %{authenticated: :client} = client_auth ->
+      %{authenticated: true} = client_auth ->
         {:ok, assign(socket, :auth, client_auth)}
 
       _ ->
