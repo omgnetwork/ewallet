@@ -85,7 +85,7 @@ defmodule EWallet.TransferGate do
     transaction
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: false})
-    |> update_transfer(transaction)
+    |> update_transaction(transaction)
   end
 
   @doc """
@@ -107,7 +107,7 @@ defmodule EWallet.TransferGate do
     transaction
     |> TransactionFormatter.format()
     |> LedgerTransaction.insert(%{genesis: true})
-    |> update_transfer(transaction)
+    |> update_transaction(transaction)
   end
 
   defp update_transaction(
