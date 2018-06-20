@@ -32,7 +32,7 @@ module.exports = {
       _: 'lodash'
     }),
     new DefinePlugin({
-      BACKEND_URL: JSON.stringify(process.env.BACKEND_URL || '/admin/api/')
+      BACKEND_URL: JSON.stringify(process.env.BACKEND_URL || '/api/admin/')
     })
     // new MiniCssExtractPlugin({
     //   // Options similar to the same options in webpackOptions.output

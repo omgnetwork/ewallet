@@ -2,8 +2,8 @@ defmodule EWalletDB.Repo.Reporters.SeedsReporter do
   def run(writer, args) do
     base_url = Application.get_env(:ewallet_db, :base_url) || "https://example.com"
     admin_panel_url = base_url <> "/admin"
-    admin_api_swagger_ui_url = base_url <> "/admin/api/docs"
-    ewallet_swagger_ui_url = base_url <> "/api/docs"
+    admin_api_swagger_ui_url = base_url <> "/api/admin/docs"
+    ewallet_swagger_ui_url = base_url <> "/api/client/docs"
 
     admin_id = args[:seeded_admin_user_id]
     admin_email = args[:seeded_admin_user_email]

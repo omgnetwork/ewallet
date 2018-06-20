@@ -6,7 +6,7 @@ The eWallet API offers a websocket interface for real-time communication. Curren
 
 Before diving into the details of how websockets can be used, here is a sample flow. First, we initialize a socket connection and join a channel. Then, we wait for an event to be received before leaving the channel.
 
-1. Initialize socket connection by sending a request to `/api/socket`.
+1. Initialize socket connection by sending a request to `/api/client/socket`.
 
 2. Join a channel (`"transaction_request:some_id"`)
 
@@ -79,21 +79,21 @@ Now, let's learn more about each step.
 
 ## Connecting to the websocket interface
 
-The websocket interface of the eWallet API is available at `/api/socket`. Use the websocket protocol (with SSL, `wss`) to connect.
+The websocket interface of the eWallet API is available at `/api/client/socket`. Use the websocket protocol (with SSL, `wss`) to connect.
 
 Full URL:
 ```
-wss://EWALLET_URL/api/socket
+wss://EWALLET_URL/api/client/socket
 ```
 
 Example URL:
 ```
-wss://ewallet.demo.omisego.io/api/socket
+wss://ewallet.demo.omisego.io/api/client/socket
 ```
 
 __If you're not using a library, you will need to send a `GET` HTTP request with the appropriate headers to upgrade it into a websocket connection See [here](https://tools.ietf.org/html/rfc6455#section-1.3) for more details.__
 
-In order to connect to a websocket, you must provide the same `Authorization` header you would for the [eWallet HTTP API](https://ewallet.demo.omisego.io/api/docs.ui):
+In order to connect to a websocket, you must provide the same `Authorization` header you would for the [eWallet HTTP API](https://ewallet.demo.omisego.io/api/client/docs.ui):
 
 For authentication from servers:
 ```
@@ -199,7 +199,7 @@ Potential events:
 
 ## Errors
 
-The potential errors are listed [here](https://ewallet.demo.omisego.io/api/errors.ui).
+The potential errors are listed [here](https://ewallet.demo.omisego.io/api/client/errors.ui).
 
 ## Events
 

@@ -19,13 +19,13 @@ defmodule UrlDispatcher.PlugTest do
     end
 
     test "returns a 200 response when requesting /api" do
-      conn = request("/api")
+      conn = request("/api/client")
       refute conn.halted
       assert conn.status == 200
     end
 
-    test "returns a 200 response when requesting /admin/api" do
-      conn = request("/admin/api")
+    test "returns a 200 response when requesting /api/admin" do
+      conn = request("/api/admin")
       refute conn.halted
       assert conn.status == 200
     end

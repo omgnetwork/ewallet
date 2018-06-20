@@ -17,7 +17,7 @@ That's the simple version. Transaction requests come with a bunch of options to 
 
 When creating transaction requests, a certain number of fields are optional but allow the configuration of the request. Walking through those fields is a good way to get a better understanding.
 
-See [the Swagger doc](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/transaction_request_create) for more details.
+See [the Swagger doc](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/transaction_request_create) for more details.
 
 Here is the model attributes when creating transaction requests:
 
@@ -95,15 +95,15 @@ encrypted_metadata:
 
 Here is the flow used in the sample OMGShop application:
 
-1. Alice using [the OMGShop iOS application](https://github.com/omisego/sample-ios) generates a transaction request. The endpoint called is [/me.create_transaction_request](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/create_transaction_request). The `id` of that is embedded in a QR Code and displayed on the screen of the device.
+1. Alice using [the OMGShop iOS application](https://github.com/omisego/sample-ios) generates a transaction request. The endpoint called is [/me.create_transaction_request](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/create_transaction_request). The `id` of that is embedded in a QR Code and displayed on the screen of the device.
 
-2. Bob uses the scan feature in OMGShop on his own device to scan the QR Code. The app uses [/me.get_transaction_request](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/get_transaction_request) to get the details of the request.
+2. Bob uses the scan feature in OMGShop on his own device to scan the QR Code. The app uses [/me.get_transaction_request](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/get_transaction_request) to get the details of the request.
 
-3. Bob can then see what kind of request he just scanned. Is it going to send or receive money, the amount, and so on. He can then decide to consume the request using [/me.consume_transaction_request](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/consume_transaction_request).
+3. Bob can then see what kind of request he just scanned. Is it going to send or receive money, the amount, and so on. He can then decide to consume the request using [/me.consume_transaction_request](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/consume_transaction_request).
 
 4. The path can now have two different outputs. If the request does not require confirmation (`require_confirmation=false`), the consumption will be finalized and an actual transaction will be generated.
 
-5. If a confirmation is required (for example, Alice was sending money and wants to see who is trying to get her money and approve it), Alice's app needs to be listening to websocket events. By joining the websocket channel `transaction_request:{alice_transaction_request_id}`, she will receive events such as `transaction_consumption_request`. When receiving those events, she can then [approve](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/approve_transaction_consumption) or [reject](https://ewallet.demo.omisego.io/api/docs.ui#/TransactionRequest/reject_transaction_consumption) it.
+5. If a confirmation is required (for example, Alice was sending money and wants to see who is trying to get her money and approve it), Alice's app needs to be listening to websocket events. By joining the websocket channel `transaction_request:{alice_transaction_request_id}`, she will receive events such as `transaction_consumption_request`. When receiving those events, she can then [approve](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/approve_transaction_consumption) or [reject](https://ewallet.demo.omisego.io/api/client/docs.ui#/TransactionRequest/reject_transaction_consumption) it.
 
 6. Bob's app should be listening to the `transaction_consumption:{bob_consumption_id}` in order to know if it was approved or rejected by Alice. He will receive a `transaction_consumption_finalized` with either a confirmed consumption, or a rejected one (or potentially a failed one if the sender didn't have enough funds).
 
