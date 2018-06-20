@@ -13,12 +13,10 @@ defmodule LocalLedgerDB.Repo.Migrations.SwapNameBetweenEntryAndTransaction do
     # Add new indices
     create unique_index(:transaction, [:idempotency_token])
     create index(:transaction, [:metadata], using: "gin")
-    create index(:transaction, [:encryption_version])
 
     # Remove old indices after the new ones are added
     drop index(:transaction, [:idempotency_token], name: :entry_idempotency_token_index)
     drop index(:transaction, [:metadata], name: :entry_metadata_index)
-    drop index(:transaction, [:encryption_version], name: :entry_encryption_version_index)
 
     # Add new constraints
     alter table(:entry) do
@@ -45,12 +43,10 @@ defmodule LocalLedgerDB.Repo.Migrations.SwapNameBetweenEntryAndTransaction do
     # Add new indices
     create unique_index(:entry, [:idempotency_token])
     create index(:entry, [:metadata], using: "gin")
-    create index(:entry, [:encryption_version])
 
     # Remove old indices after the new ones are added
     drop index(:entry, [:idempotency_token], name: :transaction_idempotency_token_index)
     drop index(:entry, [:metadata], name: :transaction_metadata_index)
-    drop index(:entry, [:encryption_version], name: :transaction_encryption_version_index)
 
     # Add new constraints
     alter table(:transaction) do

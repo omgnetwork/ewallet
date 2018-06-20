@@ -53,6 +53,6 @@ defmodule LocalLedgerDB.TransactionTest do
     {:ok, results} = SQL.query(Repo, "SELECT encrypted_metadata FROM transaction", [])
 
     row = Enum.at(results.rows, 0)
-    assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+    assert <<1, 10, "AES.GCM.V1", _::binary>> = Enum.at(row, 0)
   end
 end
