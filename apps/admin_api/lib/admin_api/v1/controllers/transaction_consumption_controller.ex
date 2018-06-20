@@ -14,11 +14,11 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
-  def embeddable(), do: [:account, :token, :transaction, :transaction_request, :user]
+  def embeddable, do: [:account, :token, :transaction, :transaction_request, :user]
 
   # The fields returned by `embeddable/0` are embedded regardless of the request.
   # These fields must be one of the schema's association names.
-  def always_embed(), do: [:token]
+  def always_embed, do: [:token]
 
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do

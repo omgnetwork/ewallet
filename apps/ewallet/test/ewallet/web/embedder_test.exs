@@ -8,8 +8,8 @@ defmodule EWallet.Web.EmbedderTest do
     @behaviour EWallet.Web.Embedder
     alias EWallet.Web.Embedder
 
-    def embeddable(), do: [:wallets, :tokens]
-    def always_embed(), do: [:wallets]
+    def embeddable, do: [:wallets, :tokens]
+    def always_embed, do: [:wallets]
 
     def call_embed(record, embeds) do
       Embedder.embed(__MODULE__, record, embeds)
