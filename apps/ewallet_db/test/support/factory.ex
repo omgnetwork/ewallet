@@ -55,7 +55,6 @@ defmodule EWalletDB.Factory do
       name: sequence("name"),
       identifier: Wallet.primary(),
       user: insert(:user),
-      token: nil,
       metadata: %{}
     }
   end

@@ -7,7 +7,7 @@ defmodule EWalletDB.Wallet do
   import EWalletDB.Validator
   alias Ecto.UUID
   alias ExULID.ULID
-  alias EWalletDB.{Repo, Account, Wallet, Token, User}
+  alias EWalletDB.{Repo, Account, Wallet, User}
 
   @genesis "genesis"
   @burn "burn"
@@ -23,7 +23,6 @@ defmodule EWalletDB.Wallet do
   @cast_attrs [
     :address,
     :account_uuid,
-    :token_uuid,
     :user_uuid,
     :metadata,
     :encrypted_metadata,
@@ -44,14 +43,6 @@ defmodule EWalletDB.Wallet do
       :user,
       User,
       foreign_key: :user_uuid,
-      references: :uuid,
-      type: UUID
-    )
-
-    belongs_to(
-      :token,
-      Token,
-      foreign_key: :token_uuid,
       references: :uuid,
       type: UUID
     )
@@ -101,7 +92,6 @@ defmodule EWalletDB.Wallet do
     changeset
     |> unique_constraint(:address)
     |> assoc_constraint(:account)
-    |> assoc_constraint(:token)
     |> assoc_constraint(:user)
     |> unique_constraint(:unique_account_name, name: :wallet_account_uuid_name_index)
     |> unique_constraint(:unique_user_name, name: :wallet_user_uuid_name_index)
