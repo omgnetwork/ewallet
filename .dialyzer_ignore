@@ -26,8 +26,7 @@ Function run/1 has no local return
 Function configure_no_halt/1 will never be called
 Callback info about the 'Elixir.Mix.Task' behaviour is not available
 Function run/1 has no local return
-apps/ewallet_db/lib/ewallet_db/account.ex:122: The pattern 'invalid' can never match the type #{'avatar':=_}
-apps/ewallet_db/lib/ewallet_db/account.ex:122: The pattern #{'__struct__':='Elixir.Ecto.Changeset'} can never match the type #{'__struct__':='Elixir.EWalletDB.Account', _=>_}
-apps/ewallet_db/lib/ewallet_db/user.ex:112: The pattern 'invalid' can never match the type #{'avatar':=_}
-apps/ewallet_db/lib/ewallet_db/user.ex:112: The pattern #{'__struct__':='Elixir.Ecto.Changeset'} can never match the type #{'__struct__':='Elixir.EWalletDB.User', _=>_}
-apps/admin_api/lib/admin_api/mailer.ex:5: Function deliver/1 only terminates with explicit exception
+The pattern #{'__struct__':='Elixir.Ecto.Changeset'} can never match the type #{'__struct__':='Elixir.EWalletDB.Account', _=>_}
+The pattern 'invalid' can never match the type #{'avatar':=_}
+The pattern #{'__struct__':='Elixir.Ecto.Changeset'} can never match the type #{'__struct__':='Elixir.EWalletDB.User', _=>_}
+Function deliver/1 only terminates with explicit exception
