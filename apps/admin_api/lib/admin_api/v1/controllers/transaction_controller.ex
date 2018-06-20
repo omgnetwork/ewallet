@@ -8,6 +8,7 @@ defmodule AdminAPI.V1.TransactionController do
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWallet.WalletFetcher
   alias EWalletDB.{Repo, Transfer, User}
+  alias Ecto.Changeset
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -172,6 +173,10 @@ defmodule AdminAPI.V1.TransactionController do
 
   defp respond_single({:error, _transfer, code, description}, conn) do
     handle_error(conn, code, description)
+  end
+
+  defp respond_single({:error, %Changeset{} = changeset}, conn) do
+    handle_error(conn, :invalid_parameter, changeset)
   end
 
   defp respond_single({:error, code}, conn) do

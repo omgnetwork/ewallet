@@ -342,6 +342,31 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       assert response["data"]["status"] == "confirmed"
     end
 
+    test "returns :invalid_parameter when the sending address is a burn balance" do
+      token = insert(:token)
+      wallet_1 = insert(:wallet, identifier: "burn")
+      wallet_2 = insert(:wallet, identifier: "primary")
+
+      response =
+        admin_user_request("/transaction.create", %{
+          "idempotency_token" => "123",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "token_id" => token.id,
+          "amount" => 1_000_000
+        })
+
+      assert response["success"] == false
+
+      assert response["data"] == %{
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided `from` can't be the address of a burn wallet.",
+               "messages" => %{"from" => ["burn_wallet_as_sender_not_allowed"]},
+               "object" => "error"
+             }
+    end
+
     test "returns transaction:insufficient_funds when the sending address does not have enough funds" do
       token = insert(:token)
       wallet_1 = insert(:wallet)
@@ -469,7 +494,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
              }
     end
 
-    test "returns : when amount is invalid" do
+    test "returns :invalid_parameter when amount is invalid" do
       token = insert(:token)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
