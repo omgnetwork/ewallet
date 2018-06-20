@@ -94,11 +94,9 @@ defmodule EWallet.TransactionRequestGate do
           {:ok, TransactionRequest.t()} | {:error, Atom.t()}
   def create(
         %User{} = user,
-        %{
-          "address" => address
-        } = attrs
+        attrs
       ) do
-    with {:ok, wallet} <- WalletFetcher.get(user, address) do
+    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]) do
       create(wallet, attrs)
     else
       error -> error
@@ -109,8 +107,6 @@ defmodule EWallet.TransactionRequestGate do
         %Wallet{} = wallet,
         %{
           "type" => _,
-          "correlation_id" => _,
-          "amount" => _,
           "token_id" => token_id
         } = attrs
       ) do

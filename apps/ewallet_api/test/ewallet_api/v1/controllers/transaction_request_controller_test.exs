@@ -66,9 +66,56 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
       response =
         client_request("/me.create_transaction_request", %{
           type: "send",
+          token_id: token.id
+        })
+
+      request = TransactionRequest |> Repo.all() |> Enum.at(0)
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "object" => "transaction_request",
+                 "amount" => nil,
+                 "address" => wallet.address,
+                 "correlation_id" => nil,
+                 "id" => request.id,
+                 "formatted_id" => request.id,
+                 "socket_topic" => "transaction_request:#{request.id}",
+                 "token_id" => token.id,
+                 "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "allow_amount_override" => true,
+                 "require_confirmation" => false,
+                 "consumption_lifetime" => nil,
+                 "metadata" => %{},
+                 "encrypted_metadata" => %{},
+                 "expiration_date" => nil,
+                 "expiration_reason" => nil,
+                 "expired_at" => nil,
+                 "max_consumptions" => nil,
+                 "max_consumptions_per_user" => nil,
+                 "current_consumptions_count" => 0,
+                 "type" => "send",
+                 "status" => "valid",
+                 "user_id" => user.id,
+                 "user" => user |> UserSerializer.serialize() |> stringify_keys(),
+                 "account_id" => nil,
+                 "account" => nil,
+                 "created_at" => Date.to_iso8601(request.inserted_at),
+                 "updated_at" => Date.to_iso8601(request.updated_at)
+               }
+             }
+    end
+
+    test "creates a transaction request with nil address" do
+      user = get_test_user()
+      token = insert(:token)
+      wallet = User.get_primary_wallet(user)
+
+      response =
+        client_request("/me.create_transaction_request", %{
+          type: "send",
           token_id: token.id,
-          correlation_id: nil,
-          amount: nil,
           address: nil
         })
 
