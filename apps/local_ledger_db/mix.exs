@@ -37,9 +37,11 @@ defmodule LocalLedgerDB.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1.6"},
-      {:salty, github: "omisego/salty"},
-      {:cloak, "~> 0.3.3"},
-      {:ex_machina, "~> 2.2", only: :test}
+      {:cloak, "~> 0.7.0-alpha"},
+      {:ex_machina, "~> 2.2", only: :test},
+
+      # cloak optional dependencies
+      {:salty, github: "omisego/salty", branch: "cloak-0.7.0"},
     ]
   end
 

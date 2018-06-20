@@ -38,8 +38,7 @@ defmodule EWalletDB.Wallet do
     field(:name, :string)
     field(:identifier, :string)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, Cloak.EncryptedMapField, default: %{})
-    field(:encryption_version, :binary)
+    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     belongs_to(
       :user,
@@ -108,7 +107,6 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_name, name: :wallet_user_uuid_name_index)
     |> unique_constraint(:unique_account_identifier, name: :wallet_account_uuid_identifier_index)
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
-    |> put_change(:encryption_version, Cloak.version())
   end
 
   def all_for(%Account{} = account) do

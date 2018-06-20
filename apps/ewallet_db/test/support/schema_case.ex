@@ -515,7 +515,7 @@ defmodule EWalletDB.SchemaCase do
 
         {:ok, results} = SQL.query(EWalletDB.Repo, "SELECT #{field} FROM \"#{table}\"", [])
         row = Enum.at(results.rows, 0)
-        assert <<"SBX", 1, _::binary>> = Enum.at(row, 0)
+        assert <<1, 10, "AES.GCM.V1", _::binary>> = Enum.at(row, 0)
         assert Map.get(record, field) == %{"something" => "cool"}
       end
     end
