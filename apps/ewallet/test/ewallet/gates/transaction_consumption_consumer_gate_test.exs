@@ -417,6 +417,36 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       {res, consumption} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
+          "idempotency_token" => "123"
+        })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.transaction_request_uuid == meta.request.uuid
+      assert consumption.amount == meta.request.amount
+      assert consumption.wallet_address == meta.sender_wallet.address
+
+      {res, consumption} =
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
+          "formatted_transaction_request_id" => meta.request.id,
+          "idempotency_token" => "123"
+        })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.transaction_request_uuid == meta.request.uuid
+      assert consumption.amount == meta.request.amount
+      assert consumption.wallet_address == meta.sender_wallet.address
+    end
+
+    test "consumes the receive request and transfer the appropriate amount of token with min
+    nil params (and is idempotent)",
+         meta do
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+
+      {res, consumption} =
+        TransactionConsumptionConsumerGate.consume(meta.sender, %{
+          "formatted_transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
           "address" => nil,
