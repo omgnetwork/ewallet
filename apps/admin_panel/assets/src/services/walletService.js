@@ -27,6 +27,20 @@ export function getWalletsByAccountId ({ accountId, per, sort, query, ...rest })
   })
 }
 
+export function getWalletsByUserId ({ userId, per, sort, query, ...rest }) {
+  return authenticatedRequest({
+    path: '/user.get_wallets',
+    data: {
+      per_page: per,
+      sort_by: sort.by,
+      sort_dir: sort.dir,
+      search_term: query,
+      ...rest,
+      id: userId
+    }
+  })
+}
+
 export function getWallet (address) {
   return authenticatedRequest({
     path: '/wallet.get',
@@ -35,3 +49,4 @@ export function getWallet (address) {
     }
   })
 }
+
