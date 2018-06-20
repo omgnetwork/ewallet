@@ -15,11 +15,11 @@ class WalletProvider extends Component {
   componentDidMount = () => {
     if (!this.props.wallet) {
       this.props.getWalletById(this.props.walletAddress)
-      if (this.props.pooling) {
-        setInterval(() => {
-          this.props.getWalletById(this.props.walletAddress)
-        }, 5000)
-      }
+    }
+    if (this.props.pooling) {
+      setInterval(() => {
+        this.props.getWalletById(this.props.walletAddress)
+      }, 5000)
     }
   }
   render () {
