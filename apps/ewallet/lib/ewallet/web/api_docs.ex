@@ -45,6 +45,7 @@ defmodule EWallet.Web.APIDocs do
         get("/docs", Controller, :forward, private: %{redirect_to: api_scope <> "/docs.ui"})
         get("/docs.ui", Controller, :ui)
         get("/docs.yaml", Controller, :yaml)
+        get("/docs.json", Controller, :json)
 
         get("/errors", Controller, :forward, private: %{redirect_to: api_scope <> "/errors.ui"})
         get("/errors.ui", Controller, :errors_ui)

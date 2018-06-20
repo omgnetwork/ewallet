@@ -1,7 +1,7 @@
 defmodule EWallet.Web.APIDocs.Controller do
   @moduledoc false
   use EWallet, :controller
-
+  alias Phoenix.Controller
   plug(:put_layout, false)
 
   @doc false
@@ -34,6 +34,18 @@ defmodule EWallet.Web.APIDocs.Controller do
   end
 
   @doc false
+  @spec json(Plug.Conn.t(), map) :: Plug.Conn.t()
+  def json(conn, _attrs) do
+    spec_path =
+      conn
+      |> get_otp_app()
+      |> Application.app_dir()
+      |> Path.join("priv/spec.json")
+
+    send_file(conn, 200, spec_path)
+  end
+
+  @doc false
   @spec errors_ui(Plug.Conn.t(), map) :: Plug.Conn.t()
   def errors_ui(conn, _attrs) do
     render(
@@ -56,7 +68,9 @@ defmodule EWallet.Web.APIDocs.Controller do
   @doc false
   @spec errors_json(Plug.Conn.t(), map) :: Plug.Conn.t()
   def errors_json(conn, _attrs) do
-    json(conn, get_errors(conn))
+    conn
+    |> put_resp_content_type("application/json")
+    |> Controller.json(get_errors(conn))
   end
 
   defp get_otp_app(conn), do: endpoint_module(conn).config(:otp_app)
