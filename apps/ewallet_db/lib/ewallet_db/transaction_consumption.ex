@@ -311,7 +311,7 @@ defmodule EWalletDB.TransactionConsumption do
     state_transition(consumption, @failed, transfer.uuid)
   end
 
-  @spec expired?(%TransactionConsumption{}) :: true | false
+  @spec expired?(%TransactionConsumption{}) :: boolean()
   def expired?(consumption) do
     consumption.status == @expired
   end
@@ -320,7 +320,7 @@ defmodule EWalletDB.TransactionConsumption do
     Enum.member?([@confirmed, @rejected], consumption.status)
   end
 
-  @spec finalized?(%TransactionConsumption{}) :: true | false
+  @spec finalized?(%TransactionConsumption{}) :: boolean()
   def finalized?(consumption) do
     Enum.member?([@rejected, @confirmed, @failed, @expired], consumption.status)
   end

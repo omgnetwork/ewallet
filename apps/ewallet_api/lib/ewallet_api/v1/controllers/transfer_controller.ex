@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.TransferController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.{ErrorHandler}
-  alias EWallet.{BalanceFetcher, TransactionGate, WalletFetcher}
-  alias EWalletAPI.V1.{WalletView, TransactionView}
+  alias EWallet.{TransactionGate, WalletFetcher}
+  alias EWalletAPI.V1.TransactionView
 
   def transfer_for_user(
         conn,
@@ -45,36 +45,9 @@ defmodule EWalletAPI.V1.TransferController do
     |> render(:transaction, %{transaction: transfer})
   end
 
-  defp respond_with({:ok, _transfer, wallets, token}, :wallets, conn) do
-    wallets =
-      Enum.map(wallets, fn wallet ->
-        case BalanceFetcher.get(token.id, wallet) do
-          {:ok, address} -> address
-          error -> error
-        end
-      end)
-
-    case Enum.find(wallets, fn e -> match?({:error, _code, _description}, e) end) do
-      nil -> respond({:ok, wallets}, conn)
-      error -> error
-    end
-  end
-
   defp respond_with({:error, code}, _, conn), do: handle_error(conn, code)
 
   defp respond_with({:error, _transfer, code, description}, _, conn) do
     handle_error(conn, code, description)
   end
-
-  defp respond({:ok, wallets}, conn) do
-    conn
-    |> put_view(WalletView)
-    |> render(:wallets, %{wallets: wallets})
-  end
-
-  defp respond({:error, code, description}, conn) do
-    handle_error(conn, code, description)
-  end
-
-  defp respond({:error, code}, conn), do: handle_error(conn, code)
 end

@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.TransferController do
   use AdminAPI, :controller
   import AdminAPI.V1.{ErrorHandler}
   alias EWallet.{BalanceFetcher, TransactionGate}
-  alias AdminAPI.V1.{WalletView, TransactionView}
+  alias AdminAPI.V1.WalletView
 
   def transfer(
         conn,
@@ -47,19 +47,11 @@ defmodule AdminAPI.V1.TransferController do
 
   defp credit_or_debit(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp respond_with({:ok, transfer, _balances, _token}, :transfer, conn) do
-    conn
-    |> put_view(TransactionView)
-    |> render(:transaction, %{transaction: transfer})
-  end
-
   defp respond_with({:ok, _transfer, wallets, token}, :wallets, conn) do
     wallets =
       Enum.map(wallets, fn wallet ->
-        case BalanceFetcher.get(token.id, wallet) do
-          {:ok, address} -> address
-          error -> error
-        end
+        {:ok, address} = BalanceFetcher.get(token.id, wallet)
+        address
       end)
 
     case Enum.find(wallets, fn e -> match?({:error, _code, _description}, e) end) do
@@ -79,10 +71,4 @@ defmodule AdminAPI.V1.TransferController do
     |> put_view(WalletView)
     |> render(:wallets, %{wallets: wallets})
   end
-
-  defp respond({:error, code, description}, conn) do
-    handle_error(conn, code, description)
-  end
-
-  defp respond({:error, code}, conn), do: handle_error(conn, code)
 end
