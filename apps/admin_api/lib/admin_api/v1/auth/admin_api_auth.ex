@@ -26,8 +26,7 @@ defmodule AdminAPI.V1.AdminAPIAuth do
       |> Map.put(:auth_scheme_name, scheme)
       |> Map.put(:auth_header, header)
     else
-      error ->
-
+      _error ->
         auth
     end
   end
