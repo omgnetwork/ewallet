@@ -204,7 +204,8 @@ defmodule EWalletDB.Factory do
       from_user: nil,
       from_account: insert(:account),
       to_user: insert(:user),
-      to_account: nil
+      to_account: nil,
+      exchange_account_id: nil
     }
   end
 
