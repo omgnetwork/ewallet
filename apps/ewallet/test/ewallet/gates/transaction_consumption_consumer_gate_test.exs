@@ -414,29 +414,31 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
          meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
-      {res, consumption} =
+      {res, consumption1} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
           "idempotency_token" => "123"
         })
 
       assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.transaction_request_uuid == meta.request.uuid
-      assert consumption.amount == meta.request.amount
-      assert consumption.wallet_address == meta.sender_wallet.address
+      assert %TransactionConsumption{} = consumption1
+      assert consumption1.transaction_request_uuid == meta.request.uuid
+      assert consumption1.amount == meta.request.amount
+      assert consumption1.wallet_address == meta.sender_wallet.address
 
-      {res, consumption} =
+      {res, consumption2} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
           "idempotency_token" => "123"
         })
 
       assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.transaction_request_uuid == meta.request.uuid
-      assert consumption.amount == meta.request.amount
-      assert consumption.wallet_address == meta.sender_wallet.address
+      assert %TransactionConsumption{} = consumption2
+      assert consumption2.transaction_request_uuid == meta.request.uuid
+      assert consumption2.amount == meta.request.amount
+      assert consumption2.wallet_address == meta.sender_wallet.address
+
+      assert consumption1.uuid == consumption2.uuid
     end
 
     test "consumes the receive request and transfer the appropriate amount of token with min
