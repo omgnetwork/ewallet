@@ -88,19 +88,19 @@ defmodule LocalLedger.Transaction do
       ) do
     entries
     |> Validator.validate_different_addresses()
-    |> Validator.validate_zero_sum()
     |> Validator.validate_positive_amounts()
+    |> Validator.validate_zero_sum()
     |> Entry.build_all()
     |> locked_insert(metadata, idempotency_token, genesis, callback)
   rescue
     e in SameAddressError ->
       {:error, :same_address, e.message}
 
-    e in InvalidAmountError ->
-      {:error, :invalid_amount, e.message}
-
     e in AmountNotPositiveError ->
       {:error, :amount_is_zero, e.message}
+
+    e in InvalidAmountError ->
+      {:error, :invalid_amount, e.message}
 
     e in InsufficientFundsError ->
       {:error, :insufficient_funds, e.message}
