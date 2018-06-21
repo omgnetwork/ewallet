@@ -67,8 +67,8 @@ defmodule EWalletDB.Repo.Seeds.CategorySampleSeed do
   end
 
   defp get_account_names(category) do
+    {:ok, category} = Preloader.preload_one(category, :accounts)
     category
-    |> Preloader.preload(:accounts)
     |> Map.fetch!(:accounts)
     |> Enum.map(fn(a) -> a.name end)
     |> Enum.join(", ")

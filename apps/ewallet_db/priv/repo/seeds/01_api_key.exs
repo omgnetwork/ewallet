@@ -19,7 +19,7 @@ defmodule EWalletDB.Repo.Seeds.APIKeySeed do
 
     case APIKey.insert(data) do
       {:ok, api_key} ->
-        api_key = Preloader.preload(api_key, :account)
+        {:ok, api_key} = Preloader.preload_one(api_key, :account)
 
         writer.success("""
           Account Name : #{api_key.account.name}
