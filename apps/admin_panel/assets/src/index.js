@@ -2,16 +2,9 @@ import { render } from 'react-dom'
 import App from './app'
 import React from 'react'
 import socket from '../src/socket/connector'
-import * as sessonService from '../src/services/sessionService'
-import * as headerGenerator from './utils/headerGenerator'
+import createHeaders from './utils/headerGenerator'
 socket.connect({
-  http_headers: {
-    ...headerGenerator.createAuthenticationHeader({
-      auth: true,
-      accessToken: sessonService.getAccessToken()
-    }),
-    ...{ Accept: 'application/vnd.omisego.v1+json' }
-  }
+  http_headers: createHeaders({ auth: true })
 })
 render(<App />, document.getElementById('app'))
 
