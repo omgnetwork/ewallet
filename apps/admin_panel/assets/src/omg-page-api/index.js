@@ -56,6 +56,9 @@ const KeySection = styled.div`
   }
 `
 const KeySectionEwallet = KeySection.extend`
+  td {
+    color: ${props => props.theme.colors.B200};
+  }
 `
 const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
