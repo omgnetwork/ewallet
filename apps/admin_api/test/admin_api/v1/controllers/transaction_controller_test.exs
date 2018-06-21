@@ -469,7 +469,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
              }
     end
 
-    test "returns : when amount is invalid" do
+    test "returns :invalid_parameter when amount is invalid" do
       token = insert(:token)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)

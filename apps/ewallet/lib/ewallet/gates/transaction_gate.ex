@@ -45,7 +45,6 @@ defmodule EWallet.TransactionGate do
         to,
         exchange_account,
         %{
-          "amount" => amount,
           "idempotency_token" => idempotency_token
         } = attrs
       ) do
@@ -62,12 +61,15 @@ defmodule EWallet.TransactionGate do
       from_token_uuid: from.from_token.uuid,
       to_token_uuid: to.to_token.uuid,
       exchange_account: exchange_account,
-      amount: amount,
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       payload: attrs,
       type: Transaction.internal()
     })
+  end
+
+  def get_or_insert(_, _, _, _) do
+    {:error, :invalid_parameter}
   end
 
   def update_transaction(

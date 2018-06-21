@@ -153,7 +153,7 @@ defmodule AdminAPI.V1.TransactionController do
     render(conn, :transaction, %{transaction: transaction})
   end
 
-  defp respond_single({:ok, transaction, _wallets, _token}, conn) do
+  defp respond_single({:ok, transaction}, conn) do
     render(conn, :transaction, %{transaction: transaction})
   end
 

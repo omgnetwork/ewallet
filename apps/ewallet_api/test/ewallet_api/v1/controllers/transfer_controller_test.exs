@@ -6,7 +6,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
   alias EWallet.BalanceFetcher
 
   describe "/me.transfer" do
-    test "returns idempotency error if header is not specified" do
+    test "returns idempotency error if not given" do
       wallet1 = User.get_primary_wallet(get_test_user())
       wallet2 = insert(:wallet)
       token = insert(:token)
@@ -171,7 +171,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
              }
     end
 
-    test "returns from_address_not_found when no wallet found for the 'from_address'" do
+    test "returns wallet_not_found when no wallet found for the 'from_address'" do
       wallet = insert(:wallet)
       token = insert(:token)
 

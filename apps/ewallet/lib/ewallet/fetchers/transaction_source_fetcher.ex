@@ -39,6 +39,10 @@ defmodule EWallet.TransactionSourceFetcher do
          from_wallet_address: wallet.address
        }}
     else
+      {:error, :user_wallet_not_found} ->
+        {:error, :from_address_not_found}
+      {:error, :user_wallet_mismatch} ->
+        {:error, :from_address_mismatch}
       error -> error
     end
   end
@@ -57,6 +61,10 @@ defmodule EWallet.TransactionSourceFetcher do
          from_wallet_address: wallet.address
        }}
     else
+      {:error, :account_wallet_not_found} ->
+        {:error, :from_address_not_found}
+      {:error, :account_wallet_mismatch} ->
+        {:error, :from_address_mismatch}
       error -> error
     end
   end
@@ -80,6 +88,8 @@ defmodule EWallet.TransactionSourceFetcher do
            }}
       end
     else
+      {:error, :wallet_not_found} ->
+        {:error, :from_address_not_found}
       error -> error
     end
   end
@@ -121,6 +131,10 @@ defmodule EWallet.TransactionSourceFetcher do
          to_wallet_address: wallet.address
        }}
     else
+      {:error, :account_wallet_not_found} ->
+        {:error, :to_address_not_found}
+      {:error, :account_wallet_mismatch} ->
+        {:error, :to_address_mismatch}
       error -> error
     end
   end
@@ -134,6 +148,10 @@ defmodule EWallet.TransactionSourceFetcher do
          to_wallet_address: wallet.address
        }}
     else
+      {:error, :user_wallet_not_found} ->
+        {:error, :to_address_not_found}
+      {:error, :user_wallet_mismatch} ->
+        {:error, :to_address_mismatch}
       error -> error
     end
   end
@@ -149,6 +167,10 @@ defmodule EWallet.TransactionSourceFetcher do
          to_wallet_address: wallet.address
        }}
     else
+      {:error, :user_wallet_not_found} ->
+        {:error, :to_address_not_found}
+      {:error, :user_wallet_mismatch} ->
+        {:error, :to_address_mismatch}
       error -> error
     end
   end
@@ -172,6 +194,8 @@ defmodule EWallet.TransactionSourceFetcher do
            }}
       end
     else
+      {:error, :wallet_not_found} ->
+        {:error, :to_address_not_found}
       error -> error
     end
   end
