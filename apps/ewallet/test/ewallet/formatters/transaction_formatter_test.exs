@@ -3,24 +3,12 @@ defmodule EWallet.TransactionFormatterTest do
   alias EWallet.TransactionFormatter
   alias EWalletDB.Account
 
-  defp count_entries(formatted) do
-    Enum.count(formatted["debits"]) + Enum.count(formatted["credits"])
-  end
-
   defp has_entry?(formatted, type, address, amount, token) do
-    entries =
-      case type do
-        :debit -> formatted["debits"]
-        :credit -> formatted["credits"]
-      end
+    entries = formatted["entries"]
 
-    has_entry?(entries, address, amount, token)
-  end
-
-  defp has_entry?(entries, address, amount, token) do
-    assert Enum.any?(entries, fn debit ->
-             debit["address"] == address && debit["amount"] == amount &&
-               debit["token"]["id"] == token.id
+    assert Enum.any?(entries, fn entry ->
+             entry["type"] == Atom.to_string(type) && entry["address"] == address &&
+               entry["amount"] == amount && entry["token"]["id"] == token.id
            end)
   end
 
@@ -32,8 +20,9 @@ defmodule EWallet.TransactionFormatterTest do
                %{
                  "idempotency_token" => transaction.idempotency_token,
                  "metadata" => transaction.metadata,
-                 "debits" => [
+                 "entries" => [
                    %{
+                     "type" => "debit",
                      "address" => transaction.from_wallet.address,
                      "amount" => transaction.from_amount,
                      "token" => %{
@@ -41,10 +30,9 @@ defmodule EWallet.TransactionFormatterTest do
                        "metadata" => transaction.from_token.metadata
                      },
                      "metadata" => transaction.from_wallet.metadata
-                   }
-                 ],
-                 "credits" => [
+                   },
                    %{
+                     "type" => "credit",
                      "address" => transaction.to_wallet.address,
                      "amount" => transaction.to_amount,
                      "token" => %{
@@ -81,7 +69,7 @@ defmodule EWallet.TransactionFormatterTest do
 
       assert has_entry?(formatted, :debit, from_wallet.address, 10000, omg)
       assert has_entry?(formatted, :credit, to_wallet.address, 10000, omg)
-      assert count_entries(formatted) == 2
+      assert Enum.count(formatted["entries"]) == 2
     end
   end
 
@@ -111,7 +99,7 @@ defmodule EWallet.TransactionFormatterTest do
       assert has_entry?(formatted, :credit, exchange_wallet.address, 10000, omg)
       assert has_entry?(formatted, :debit, exchange_wallet.address, 10000, eth)
       assert has_entry?(formatted, :credit, to_wallet.address, 10000, eth)
-      assert count_entries(formatted) == 4
+      assert Enum.count(formatted["entries"]) == 4
     end
   end
 end

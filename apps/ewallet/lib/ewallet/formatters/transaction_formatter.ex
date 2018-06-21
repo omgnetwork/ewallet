@@ -1,97 +1,66 @@
 defmodule EWallet.TransactionFormatter do
   @moduledoc """
-  Format a transaction the way LocalLedger expects it.
+  Converts an eWallet's transaction into a LocalLedger's transaction and entries.
   """
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, Transaction}
   alias EWalletDB.Helpers.Preloader
+  alias LocalLedgerDB.Entry
 
-  def format(%{from_token: %{uuid: from}, to_token: %{uuid: to}} = transaction) when from == to do
-    same_token_transaction(transaction)
-  end
-
-  def format(%{from_token: %{uuid: from}, to_token: %{uuid: to}} = transaction) when from != to do
-    cross_token_transaction(transaction)
-  end
-
-  defp same_token_transaction(transaction) do
+  @doc """
+  Formats a transaction the way LocalLedger expects it.
+  """
+  @spec format(%Transaction{}) :: map()
+  def format(transaction) do
     %{
       "idempotency_token" => transaction.idempotency_token,
       "metadata" => transaction.metadata,
-      "debits" => [
-        %{
-          "address" => transaction.from_wallet.address,
-          "amount" => transaction.from_amount,
-          "token" => %{
-            "id" => transaction.from_token.id,
-            "metadata" => transaction.from_token.metadata
-          },
-          "metadata" => transaction.from_wallet.metadata
-        }
-      ],
-      "credits" => [
-        %{
-          "address" => transaction.to_wallet.address,
-          "amount" => transaction.to_amount,
-          "token" => %{
-            "id" => transaction.to_token.id,
-            "metadata" => transaction.to_token.metadata
-          },
-          "metadata" => transaction.to_wallet.metadata
-        }
-      ]
+      "entries" => entries(transaction)
     }
   end
 
-  def cross_token_transaction(transaction) do
+  # Entries for a same-token transfer
+  defp entries(%{from_token: %{uuid: from}, to_token: %{uuid: to}} = txn) when from == to do
+    [
+      entry(:debit, txn.from_wallet, txn.from_amount, txn.from_token),
+      entry(:credit, txn.to_wallet, txn.to_amount, txn.to_token)
+    ]
+  end
+
+  # Entries for a cross-token transfer/exchange
+  defp entries(%{from_token: %{uuid: from}, to_token: %{uuid: to}} = txn) when from != to do
     exchange_wallet =
-      transaction
+      txn
       |> Preloader.preload(:exchange_account)
       |> Map.get(:exchange_account)
       |> Account.get_primary_wallet()
 
+    [
+      entry(:debit, txn.from_wallet, txn.from_amount, txn.from_token),
+      entry(:credit, exchange_wallet, txn.from_amount, txn.from_token),
+      entry(:debit, exchange_wallet, txn.to_amount, txn.to_token),
+      entry(:credit, txn.to_wallet, txn.to_amount, txn.to_token)
+    ]
+  end
+
+  # A generic entry builder
+  defp entry(:debit, wallet, amount, token) do
+    entry(Entry.debit_type(), wallet, amount, token)
+  end
+
+  defp entry(:credit, wallet, amount, token) do
+    entry(Entry.credit_type(), wallet, amount, token)
+  end
+
+  defp entry(type, wallet, amount, token) do
     %{
-      "idempotency_token" => transaction.idempotency_token,
-      "metadata" => transaction.metadata,
-      "debits" => [
-        %{
-          "address" => transaction.from_wallet.address,
-          "amount" => transaction.from_amount,
-          "token" => %{
-            "id" => transaction.from_token.id,
-            "metadata" => transaction.from_token.metadata
-          },
-          "metadata" => transaction.from_wallet.metadata
-        },
-        %{
-          "address" => exchange_wallet.address,
-          "amount" => transaction.to_amount,
-          "token" => %{
-            "id" => transaction.to_token.id,
-            "metadata" => transaction.to_token.metadata
-          },
-          "metadata" => exchange_wallet.metadata
-        }
-      ],
-      "credits" => [
-        %{
-          "address" => exchange_wallet.address,
-          "amount" => transaction.from_amount,
-          "token" => %{
-            "id" => transaction.from_token.id,
-            "metadata" => transaction.from_token.metadata
-          },
-          "metadata" => exchange_wallet.metadata
-        },
-        %{
-          "address" => transaction.to_wallet.address,
-          "amount" => transaction.to_amount,
-          "token" => %{
-            "id" => transaction.to_token.id,
-            "metadata" => transaction.to_token.metadata
-          },
-          "metadata" => transaction.to_wallet.metadata
-        }
-      ]
+      "type" => type,
+      "address" => wallet.address,
+      "amount" => amount,
+      "token" => %{
+        "id" => token.id,
+        "metadata" => token.metadata
+      },
+      "metadata" => wallet.metadata
     }
   end
 end
