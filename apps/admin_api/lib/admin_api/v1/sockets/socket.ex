@@ -17,13 +17,8 @@ defmodule AdminAPI.V1.Socket do
   def connect(params, socket) do
     case AdminAPIAuth.authenticate(params) do
       %{authenticated: true} = auth ->
-
-
         {:ok, assign(socket, :auth, auth)}
-
       auth ->
-
-
         :error
     end
   end
