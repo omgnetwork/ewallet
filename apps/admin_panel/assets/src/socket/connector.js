@@ -19,10 +19,18 @@ class SocketConnector {
   getConnectionStatus () {
     return this.connected
   }
-  subscribe (topic, handler) {
-    this.socket.channel(topic, msg => {
-      handler(msg)
+  subscribe (channelToSubscribe, topics = [], handler = () => {}) {
+    const channel = this.socket.channel(channelToSubscribe)
+    topics.forEach(topic => {
+      channel.on(topic, handler)
     })
+    channel
+      .join()
+      .receive('ok', ({ messages }) => console.log('joined channel:', channelToSubscribe, messages))
+      .receive('error', ({ reason }) =>
+        console.log('failed to join channel:', channelToSubscribe, reason)
+      )
+      .receive('timeout', () => console.log('Networking issue. Still waiting...'))
   }
 }
 export default SocketConnector
