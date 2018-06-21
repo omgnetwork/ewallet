@@ -13,7 +13,7 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
     ]
   end
 
-  def run(writer, args) do
+  def run(writer, _args) do
     admin_email = @seed_data[:admin_email]
 
     user = User.get_by_email(admin_email)

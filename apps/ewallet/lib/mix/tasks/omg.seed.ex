@@ -60,6 +60,7 @@ defmodule Mix.Tasks.Omg.Seed do
     case System.get_env("E2E_ENABLED") do
       "true" ->
         [{:ewallet_db, :seeds_test}]
+
       _ ->
         IO.puts(@e2e_disabled_warning)
         []
