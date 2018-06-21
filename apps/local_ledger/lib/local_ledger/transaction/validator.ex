@@ -6,6 +6,13 @@ defmodule LocalLedger.Transaction.Validator do
   alias LocalLedger.Errors.{InvalidAmountError, AmountNotPositiveError, SameAddressError}
   alias LocalLedgerDB.Entry
 
+  @doc """
+  Validates that the incoming entries are of different addresses
+  except if the address is being associated with a different token.
+
+  If not, it raises a `SameAddressError` exception.
+  """
+  @spec validate_different_addresses(list()) :: list() | no_return()
   def validate_different_addresses(entries) do
     identical_addresses =
       entries
@@ -31,9 +38,11 @@ defmodule LocalLedger.Transaction.Validator do
   end
 
   @doc """
-  Sum the incoming entries and ensure debit - credit = 0. If not, raise
-  an InvalidAmountError exception.
+  Validates that the incoming entries have debit - credit = 0.
+
+  If not, it raises an `InvalidAmountError` exception.
   """
+  @spec validate_zero_sum(list()) :: list() | no_return()
   def validate_zero_sum(entries) do
     entries_by_token = split_by_token(entries)
 
@@ -69,6 +78,12 @@ defmodule LocalLedger.Transaction.Validator do
     end)
   end
 
+  @doc """
+  Validates that all incoming entry amounts are greater than zero.
+
+  If not, it raises an `AmountNotPositiveError` exception.
+  """
+  @spec validate_positive_amounts(list()) :: list() | no_return()
   def validate_positive_amounts(entries) do
     case Enum.all?(entries, fn entry -> entry["amount"] > 0 end) do
       true -> entries

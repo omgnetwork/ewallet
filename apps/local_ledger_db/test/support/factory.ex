@@ -8,11 +8,11 @@ defmodule LocalLedgerDB.Factory do
 
   def token_factory do
     %Token{
-      id: "tok_OMG_123",
+      id: sequence("tok_OMG_"),
       metadata: %{
         external_id: %{
           app: "EWallet",
-          uuid: "123"
+          uuid: sequence("uuid")
         }
       }
     }
@@ -20,11 +20,11 @@ defmodule LocalLedgerDB.Factory do
 
   def wallet_factory do
     %Wallet{
-      address: "address",
+      address: sequence("address"),
       metadata: %{
         external_id: %{
           app: "EWallet",
-          uuid: "123"
+          uuid: sequence("uuid")
         }
       }
     }
