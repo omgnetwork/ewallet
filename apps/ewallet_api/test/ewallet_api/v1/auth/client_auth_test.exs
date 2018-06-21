@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
     encoded_key = Base.encode64(key <> ":" <> token)
 
     ClientAuth.authenticate(%{
-      http_headers: %{
+      headers: %{
         "authorization" => "OMGClient #{encoded_key}"
       }
     })
@@ -82,7 +82,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
     test "halts with :invalid_auth_scheme if auth header is not provided" do
       auth =
         ClientAuth.authenticate(%{
-          http_headers: %{}
+          headers: %{}
         })
 
       assert auth.authenticated == false
@@ -94,7 +94,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
     test "halts with :invalid_auth_scheme if auth header is not a valid auth scheme" do
       auth =
         ClientAuth.authenticate(%{
-          http_headers: %{
+          headers: %{
             "authorization" => "InvalidScheme abc"
           }
         })
@@ -108,7 +108,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
     test "halts with :invalid_auth_scheme if auth header is invalid" do
       auth =
         ClientAuth.authenticate(%{
-          http_headers: %{
+          headers: %{
             "authorization" => "OMGClient not_colon_separated_base64"
           }
         })

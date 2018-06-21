@@ -5,7 +5,7 @@ import socket from '../src/socket/connector'
 import * as sessonService from '../src/services/sessionService'
 import * as headerGenerator from './utils/headerGenerator'
 socket.connect({
-  http_headers: {
+  headers: {
     ...headerGenerator.createAuthenticationHeader({
       auth: true,
       accessToken: sessonService.getAccessToken()

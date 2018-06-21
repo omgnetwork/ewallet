@@ -12,7 +12,7 @@ defmodule EWalletAPI.V1.ClientAuth do
   end
 
   defp parse_header(auth, params) do
-    headers = Enum.into(params.http_headers, %{})
+    headers = Enum.into(params.headers, %{})
     header = headers["authorization"]
 
     with header when not is_nil(header) <- header,

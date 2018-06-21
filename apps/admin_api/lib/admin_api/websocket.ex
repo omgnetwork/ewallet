@@ -32,7 +32,7 @@ defmodule AdminAPI.WebSocket do
 
   ## Callbacks
 
-  import Plug.Conn, only: [get_req_header: 2, send_resp: 3]
+  import Plug.Conn, only: [fetch_query_params: 1, send_resp: 3]
 
   require Logger
 
@@ -41,7 +41,11 @@ defmodule AdminAPI.WebSocket do
 
   @doc false
   def init(%Plug.Conn{method: "GET"} = conn, opts) do
-    with accept <- Enum.at(get_req_header(conn, "accept"), 0),
+    with conn <- fetch_query_params(conn),
+         params <- Map.put_new(conn.params, "headers", conn.req_headers),
+         params <- Map.delete(params, "vsn"),
+         headers when not is_nil(headers) <- params["headers"],
+         accept when not is_nil(accept) <- headers["Accept"],
          {:ok, endpoint, serializer} <-
            EWallet.Web.WebSocket.get_endpoint(
              conn,
@@ -49,7 +53,7 @@ defmodule AdminAPI.WebSocket do
              :admin_api,
              &ErrorHandler.handle_error/2
            ) do
-      EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer)
+      EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer, params)
     else
       _error ->
         conn = send_resp(conn, 403, "")
