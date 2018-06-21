@@ -58,7 +58,7 @@ defmodule EWallet.LocalLedgerCase do
     master_account = Account.get_master_account()
     master_wallet = Account.get_primary_wallet(master_account)
 
-    {:ok, transaction, _wallets, _token} =
+    {:ok, transaction} =
       TransactionGate.create(%{
         "from_address" => master_wallet.address,
         "to_address" => wallet.address,

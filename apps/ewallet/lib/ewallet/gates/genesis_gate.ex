@@ -14,7 +14,7 @@ defmodule EWallet.GenesisGate do
       idempotency_token: idempotency_token,
       from: Wallet.get_genesis().address,
       to: Account.get_primary_wallet(account).address,
-      to_account_uuid: Account.get_primary_wallet(account).uuid,
+      to_account_uuid: account.uuid,
       from_token_uuid: token.uuid,
       to_token_uuid: token.uuid,
       from_amount: amount,

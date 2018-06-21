@@ -3,16 +3,18 @@ defmodule EWallet.TransactionGate do
   Handles the logic for a transaction of value from an account to a user. Delegates the
   actual transaction to EWallet.TransactionGate once the wallets have been loaded.
   """
-  alias EWallet.{TransactionSourceFetcher, TransactionFormatter}
+  alias EWallet.{TransactionSourceFetcher, TokenFetcher, TransactionFormatter, AmountFetcher}
   alias EWalletDB.{Transaction, Token, Account}
   alias LocalLedger.Transaction, as: LedgerTransaction
 
   def create(%{"token_id" => token_id} = attrs) do
     with {:ok, from} <- TransactionSourceFetcher.fetch_from(attrs),
          {:ok, to} <- TransactionSourceFetcher.fetch_to(attrs),
-         {:ok, from} <- TokenFetcher.fetch_from(attrs),
-         {:ok, to} <- TokenFetcher.fetch_to(attrs),
-         %Account{} = exchange_account <- Account.get(attrs["exchange_account_id"]) || :exchange_account_not_found,
+         {:ok, from} <- TokenFetcher.fetch_from(attrs, from),
+         {:ok, to} <- TokenFetcher.fetch_to(attrs, to),
+         {:ok, from} <- AmountFetcher.fetch_from(attrs, from),
+         {:ok, to} <- AmountFetcher.fetch_to(attrs, to),
+         {:ok, exchange_account} <- TokenFetcher.fetch_exchange_account(attrs),
          {:ok, transaction} <- get_or_insert(from, to, exchange_account, attrs) do
       process_with_transaction(transaction)
     else
@@ -50,14 +52,21 @@ defmodule EWallet.TransactionGate do
        ) do
     Transaction.get_or_insert(%{
       idempotency_token: idempotency_token,
-      from_account: from[:from_account],
-      from_user: from[:from_user],
-      from_wallet: from.from_wallet,
-      from_token: from.from_token,
-      to_account: to[:to_account],
-      to_user: to[:to_user],
-      to_wallet: to.to_wallet,
-      to_token: to.to_token,
+
+      from_account_uuid: from[:from_account_uuid],
+      from_user_uuid: from[:from_user_uuid],
+      to_account_uuid: to[:to_account_uuid],
+      to_user_uuid: to[:to_user_uuid],
+
+      from: from.from_wallet_address,
+      to: to.to_wallet_address,
+
+      from_amount: from.from_amount,
+      to_amount: to.to_amount,
+
+      from_token_uuid: from.from_token.uuid,
+      to_token_uuid: to.to_token.uuid,
+
       exchange_account: exchange_account,
       amount: amount,
       metadata: attrs["metadata"] || %{},

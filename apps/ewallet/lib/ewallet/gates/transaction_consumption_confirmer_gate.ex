@@ -82,7 +82,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     }
 
     case TransactionGate.create(attrs) do
-      {:ok, transaction, _, _} ->
+      {:ok, transaction} ->
         # Expires the request if it has reached the max number of consumptions (only CONFIRMED
         # SUCCESSFUL) consumptions are accounted for.
         consumption = TransactionConsumption.confirm(consumption, transaction)
