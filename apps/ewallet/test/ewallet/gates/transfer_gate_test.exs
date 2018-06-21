@@ -140,7 +140,7 @@ defmodule EWallet.TransferGateTest do
     end
   end
 
-  describe "process/1 for cross-token transactions" do
+  describe "process/1" do
     test "inserts an entry and confirms the transfer when transaction succeeded", attrs do
       account = Account.get_master_account()
       to_token = insert(:token)
