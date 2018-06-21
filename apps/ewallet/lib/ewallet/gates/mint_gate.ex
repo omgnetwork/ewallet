@@ -5,7 +5,7 @@ defmodule EWallet.MintGate do
   examples on how to add value to a token.
   """
   alias EWallet.GenesisGate
-  alias EWalletDB.{Repo, Account, Mint, Wallet, Transaction, Token}
+  alias EWalletDB.{Repo, Account, Mint, Token}
   alias Ecto.{UUID, Multi}
 
   def mint_token({:ok, token}, attrs) do

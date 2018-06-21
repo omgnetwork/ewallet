@@ -142,7 +142,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def transfer!(from, to, token, amount) do
-    {:ok, transaction, _wallets, _token} =
+    {:ok, transaction} =
       TransactionGate.create(%{
         "from_address" => from,
         "to_address" => to,

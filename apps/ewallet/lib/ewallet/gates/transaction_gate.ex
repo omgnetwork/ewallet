@@ -4,10 +4,10 @@ defmodule EWallet.TransactionGate do
   actual transaction to EWallet.TransactionGate once the wallets have been loaded.
   """
   alias EWallet.{TransactionSourceFetcher, TokenFetcher, TransactionFormatter, AmountFetcher}
-  alias EWalletDB.{Transaction, Token, Account}
+  alias EWalletDB.Transaction
   alias LocalLedger.Transaction, as: LedgerTransaction
 
-  def create(%{"token_id" => token_id} = attrs) do
+  def create(attrs) do
     with {:ok, from} <- TransactionSourceFetcher.fetch_from(attrs),
          {:ok, to} <- TransactionSourceFetcher.fetch_to(attrs),
          {:ok, from} <- TokenFetcher.fetch_from(attrs, from),
@@ -22,8 +22,6 @@ defmodule EWallet.TransactionGate do
       error -> error
     end
   end
-
-  def create(_), do: {:error, :invalid_parameter}
 
   def process_with_transaction(%Transaction{status: "pending"} = transaction) do
     transaction
