@@ -53,7 +53,7 @@ class Table extends Component {
   renderColumns = () => {
     return this.props.columnRenderer
       ? this.props.columns.map(x => this.props.columnRenderer(x))
-      : this.props.columns.map(x => <th>{x.title}</th>)
+      : this.props.columns.map(x => <th key={x.key}>{x.title}</th>)
   }
   renderHeaderRows = () => {
     return <tr>{this.props.loading ? this.renderLoadingColumns() : this.renderColumns()}</tr>
