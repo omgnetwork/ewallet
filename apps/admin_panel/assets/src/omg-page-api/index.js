@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button, Table } from '../omg-uikit'
+import { Button, Table, Switch } from '../omg-uikit'
 import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
 import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { generateApiKey } from '../omg-api-keys/action.js'
+import { generateApiKey, disableApiKey, loadApiKeys } from '../omg-api-keys/action'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -72,10 +72,17 @@ const columns = [
   { key: 'secret', title: 'Secret' },
   { key: 'status', title: 'Status' }
 ]
-const enhance = compose(connect(null, { generateApiKey }))
+const enhance = compose(
+  connect(
+    null,
+    { generateApiKey, disableApiKey, loadApiKeys }
+  )
+)
 class ApiKeyPage extends Component {
   static propTypes = {
-    generateApiKey: PropTypes.func
+    generateApiKey: PropTypes.func,
+    disableApiKey: PropTypes.func,
+    loadApiKeys: PropTypes.func
   }
   state = {
     adminModalOpen: false,
@@ -94,12 +101,30 @@ class ApiKeyPage extends Component {
     this.props.generateApiKey(owner)
     this.onRequestClose()
   }
+  onClickSwitch = id => async e => {
+    const result = await this.props.disableApiKey(id)
+    if (result.data.success) {
+      this.props.loadApiKeys()
+    }
+  }
+  rowRenderer = (key, data, rows) => {
+    if (key === 'status') {
+      return (
+        <div>
+          <Switch open={data === 'enabled'} onClick={this.onClickSwitch(rows.key)} />
+        </div>
+      )
+    }
+    return data
+  }
   renderAdminApiKey = (apiKeysRows, loadingStatus) => {
     return (
       <KeySection>
         <h3>Admin API Key</h3>
         <p>
-        The Admin API key is used to authenticate an API and allows that specific API to access various admin-related functions such as creating new minted tokens, mint more tokens, create and manage accounts, create new API keys, etc.
+          The Admin API key is used to authenticate an API and allows that specific API to access
+          various admin-related functions such as creating new minted tokens, mint more tokens,
+          create and manage accounts, create new API keys, etc.
         </p>
         <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
           <span>Generate Key</span>
@@ -118,13 +143,16 @@ class ApiKeyPage extends Component {
       <KeySectionEwallet>
         <h3>E-Wallet API Key</h3>
         <p>
-        The eWallet API key is used to authenticate an API and allows that specific API to access various user-related functions, e.g. make transfers with the user's wallets, list a user's transactions, create transaction requests, etc.
+          The eWallet API key is used to authenticate an API and allows that specific API to access
+          various user-related functions, e.g. make transfers with the user's wallets, list a user's
+          transactions, create transaction requests, etc.
         </p>
         <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
           <span>Generate Key</span>
         </Button>
         <Table
           rows={apiKeysRows}
+          rowRenderer={this.rowRenderer}
           columns={columns}
           perPage={99999}
           loading={loadingStatus === 'DEFAULT'}
