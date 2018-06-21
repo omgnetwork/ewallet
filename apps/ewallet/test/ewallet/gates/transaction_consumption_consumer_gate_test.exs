@@ -414,31 +414,31 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
          meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
-      {res, consumption1} =
+      {res, consumption_1} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
           "idempotency_token" => "123"
         })
 
       assert res == :ok
-      assert %TransactionConsumption{} = consumption1
-      assert consumption1.transaction_request_uuid == meta.request.uuid
-      assert consumption1.amount == meta.request.amount
-      assert consumption1.wallet_address == meta.sender_wallet.address
+      assert %TransactionConsumption{} = consumption_1
+      assert consumption_1.transaction_request_uuid == meta.request.uuid
+      assert consumption_1.amount == meta.request.amount
+      assert consumption_1.wallet_address == meta.sender_wallet.address
 
-      {res, consumption2} =
+      {res, consumption_2} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
           "idempotency_token" => "123"
         })
 
       assert res == :ok
-      assert %TransactionConsumption{} = consumption2
-      assert consumption2.transaction_request_uuid == meta.request.uuid
-      assert consumption2.amount == meta.request.amount
-      assert consumption2.wallet_address == meta.sender_wallet.address
+      assert %TransactionConsumption{} = consumption_2
+      assert consumption_2.transaction_request_uuid == meta.request.uuid
+      assert consumption_2.amount == meta.request.amount
+      assert consumption_2.wallet_address == meta.sender_wallet.address
 
-      assert consumption1.uuid == consumption2.uuid
+      assert consumption_1.uuid == consumption_2.uuid
     end
 
     test "consumes the receive request and transfer the appropriate amount of token with min
@@ -446,7 +446,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
          meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
-      {res, consumption} =
+      {res, consumption_1} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
@@ -458,12 +458,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.transaction_request_uuid == meta.request.uuid
-      assert consumption.amount == meta.request.amount
-      assert consumption.wallet_address == meta.sender_wallet.address
+      assert %TransactionConsumption{} = consumption_1
+      assert consumption_1.transaction_request_uuid == meta.request.uuid
+      assert consumption_1.amount == meta.request.amount
+      assert consumption_1.wallet_address == meta.sender_wallet.address
 
-      {res, consumption} =
+      {res, consumption_2} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
@@ -475,10 +475,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.transaction_request_uuid == meta.request.uuid
-      assert consumption.amount == meta.request.amount
-      assert consumption.wallet_address == meta.sender_wallet.address
+      assert %TransactionConsumption{} = consumption_2
+      assert consumption_2.transaction_request_uuid == meta.request.uuid
+      assert consumption_2.amount == meta.request.amount
+      assert consumption_2.wallet_address == meta.sender_wallet.address
+
+      assert consumption_1.uuid == consumption_2.uuid
     end
 
     test "fails to consume with insufficient funds (and is idempotent)", meta do
@@ -492,7 +494,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           amount: 100_000 * meta.token.subunit_to_unit
         )
 
-      {res, consumption, error, _error_data} =
+      {res, consumption_1, error, _error_data} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
@@ -504,11 +506,11 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :error
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "failed"
+      assert %TransactionConsumption{} = consumption_1
+      assert consumption_1.status == "failed"
       assert error == "insufficient_funds"
 
-      {res, consumption, error, _error_data} =
+      {res, consumption_2, error, _error_data} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
@@ -520,9 +522,11 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :error
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "failed"
+      assert %TransactionConsumption{} = consumption_2
+      assert consumption_2.status == "failed"
       assert error == "insufficient_funds"
+
+      assert consumption_1.uuid == consumption_2.uuid
     end
 
     test "consumes an account receive request and transfer the appropriate amount of token with min
@@ -616,7 +620,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           max_consumptions_per_user: 1
         )
 
-      {res, consumption} =
+      {res, consumption_1} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => request.id,
           "correlation_id" => nil,
@@ -628,7 +632,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :ok
-      assert consumption.status == "confirmed"
+      assert consumption_1.status == "confirmed"
 
       {res, consumption_2} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
@@ -643,7 +647,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       assert res == :ok
       assert consumption_2.status == "confirmed"
-      assert consumption.uuid == consumption_2.uuid
+
+      assert consumption_1.uuid == consumption_2.uuid
     end
 
     test "returns a 'max_consumptions_per_user_reached' error if the maximum number of
@@ -1079,7 +1084,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           require_confirmation: true
         })
 
-      {res, consumption} =
+      {res, consumption_1} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => request.id,
           "correlation_id" => "123",
@@ -1091,9 +1096,9 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :ok
-      assert consumption.status == "pending"
+      assert consumption_1.status == "pending"
 
-      {res, consumption} =
+      {res, consumption_2} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => request.id,
           "correlation_id" => "123",
@@ -1105,7 +1110,9 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :ok
-      assert consumption.status == "pending"
+      assert consumption_2.status == "pending"
+
+      assert consumption_1.uuid == consumption_2.uuid
     end
 
     test "sets an expiration date for consumptions if there is a consumption lifetime provided",
