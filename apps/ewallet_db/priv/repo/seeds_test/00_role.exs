@@ -1,3 +1,4 @@
+# credo:disable-for-this-file
 defmodule EWalletDB.Repo.Seeds.RoleSeed do
   alias EWalletDB.Role
 
