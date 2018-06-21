@@ -9,8 +9,7 @@ defmodule LocalLedger.Transaction do
     Entry,
     Wallet,
     Errors.InvalidAmountError,
-    Errors.AmountIsZeroError,
-    Errors.SameAddressError
+    Errors.AmountIsZeroError
   }
 
   alias LocalLedger.Transaction.Validator
