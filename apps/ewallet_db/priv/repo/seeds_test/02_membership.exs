@@ -24,7 +24,7 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
       nil ->
         case Membership.assign(user, account, role) do
         {:ok, membership} ->
-            membership = Preloader.preload(membership, [:user, :account, :role])
+            {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
             writer.success("""
               Email        : #{membership.user.email}
               Account Name : #{membership.account.name}
@@ -39,7 +39,7 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
             writer.error("  Unknown error.")
         end
       %Membership{} = membership ->
-        membership = Preloader.preload(membership, [:user, :account, :role])
+        {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
         writer.warn("""
           Email        : #{membership.user.email}
           Account Name : #{membership.account.name}
