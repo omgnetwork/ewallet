@@ -42,7 +42,7 @@ defmodule EWallet.LocalLedgerCase do
 
   def transfer!(from, to, token, amount) do
     {:ok, transaction, _wallets, _token} =
-      TransactionGate.process_with_addresses(%{
+      TransactionGate.create(%{
         "from_address" => from,
         "to_address" => to,
         "token_id" => token.id,
@@ -59,7 +59,7 @@ defmodule EWallet.LocalLedgerCase do
     master_wallet = Account.get_primary_wallet(master_account)
 
     {:ok, transaction, _wallets, _token} =
-      TransactionGate.process_with_addresses(%{
+      TransactionGate.create(%{
         "from_address" => master_wallet.address,
         "to_address" => wallet.address,
         "token_id" => token.id,

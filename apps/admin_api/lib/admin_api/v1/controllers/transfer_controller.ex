@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.TransferController do
       when idempotency_token != nil and from_address != nil
       when to_address != nil and token_id != nil and is_integer(amount) do
     attrs
-    |> TransactionGate.process_with_addresses()
+    |> TransactionGate.create()
     |> respond_with(:wallets, conn)
   end
 

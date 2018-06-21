@@ -25,7 +25,7 @@ defmodule EWalletAPI.V1.TransferController do
   defp transfer_from_wallet({:ok, from_wallet}, conn, attrs) do
     attrs
     |> Map.put("from_address", from_wallet.address)
-    |> TransactionGate.process_with_addresses()
+    |> TransactionGate.create()
     |> respond_with(:transaction, conn)
   end
 
