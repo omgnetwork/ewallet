@@ -4,12 +4,12 @@ defmodule EWallet.GenesisGate do
   alias LocalLedger.Transaction, as: LedgerTransaction
 
   def create(%{
-    idempotency_token: idempotency_token,
-    account: account,
-    token: token,
-    amount: amount,
-    attrs: attrs
-  }) do
+        idempotency_token: idempotency_token,
+        account: account,
+        token: token,
+        amount: amount,
+        attrs: attrs
+      }) do
     Transaction.get_or_insert(%{
       idempotency_token: idempotency_token,
       from: Wallet.get_genesis().address,

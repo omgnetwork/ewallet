@@ -78,13 +78,17 @@ defmodule EWalletDB.TransactionTest do
       assert res == :error
 
       assert changeset.errors == [
-               idempotency_token: {"can't be blank", [validation: :required]},
-               from_amount: {"can't be blank", [validation: :required]},
-               from_token_uuid: {"can't be blank", [validation: :required]},
-               to_amount: {"can't be blank", [validation: :required]},
-               to_token_uuid: {"can't be blank", [validation: :required]},
-               to: {"can't be blank", [validation: :required]},
-               from: {"can't be blank", [validation: :required]}
+               {[:to_account_uuid, :to_user_uuid],
+                {"can't all be blank", [validation: :required_exclusive]}},
+               {%{from: "genesis", from_account_uuid: nil, from_user_uuid: nil},
+                {"can't all be blank", [validation: :required_exclusive]}},
+               {:idempotency_token, {"can't be blank", [validation: :required]}},
+               {:from_token_uuid, {"can't be blank", [validation: :required]}},
+               {:to_token_uuid, {"can't be blank", [validation: :required]}},
+               {:from_amount, {"can't be blank", [validation: :required]}},
+               {:to_amount, {"can't be blank", [validation: :required]}},
+               {:to, {"can't be blank", [validation: :required]}},
+               {:from, {"can't be blank", [validation: :required]}}
              ]
     end
   end

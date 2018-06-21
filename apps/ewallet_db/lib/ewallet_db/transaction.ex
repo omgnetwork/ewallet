@@ -7,7 +7,7 @@ defmodule EWalletDB.Transaction do
   import Ecto.{Changeset, Query}
   alias Ecto.{UUID, Multi}
   import EWalletDB.Validator
-  alias EWalletDB.{Account, Repo, Token, Transaction, Wallet}
+  alias EWalletDB.{Account, Repo, Token, Transaction, Wallet, User}
 
   @pending "pending"
   @confirmed "confirmed"

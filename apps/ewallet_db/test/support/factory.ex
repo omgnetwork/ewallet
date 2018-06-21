@@ -196,11 +196,15 @@ defmodule EWalletDB.Factory do
       payload: %{example: "Payload"},
       metadata: %{some: "metadata"},
       from_amount: 100,
-      from_token: token,
-      from_wallet: insert(:wallet),
-      to_token: token,
       to_amount: 100,
-      to_wallet: insert(:wallet)
+      from_token: token,
+      to_token: token,
+      from_wallet: insert(:wallet),
+      to_wallet: insert(:wallet),
+      from_user: nil,
+      from_account: insert(:account),
+      to_user: insert(:user),
+      to_account: nil
     }
   end
 

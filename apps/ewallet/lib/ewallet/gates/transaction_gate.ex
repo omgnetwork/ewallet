@@ -38,35 +38,31 @@ defmodule EWallet.TransactionGate do
   end
 
   def process_with_transaction(%Transaction{status: "failed"} = transaction) do
-    {:error, transaction, transaction.error_code, transaction.error_description || transaction.error_data}
+    {:error, transaction, transaction.error_code,
+     transaction.error_description || transaction.error_data}
   end
 
   def get_or_insert(
-         from,
-         to,
-         exchange_account,
-         %{
-           "amount" => amount,
-           "idempotency_token" => idempotency_token
-         } = attrs
-       ) do
+        from,
+        to,
+        exchange_account,
+        %{
+          "amount" => amount,
+          "idempotency_token" => idempotency_token
+        } = attrs
+      ) do
     Transaction.get_or_insert(%{
       idempotency_token: idempotency_token,
-
       from_account_uuid: from[:from_account_uuid],
       from_user_uuid: from[:from_user_uuid],
       to_account_uuid: to[:to_account_uuid],
       to_user_uuid: to[:to_user_uuid],
-
       from: from.from_wallet_address,
       to: to.to_wallet_address,
-
       from_amount: from.from_amount,
       to_amount: to.to_amount,
-
       from_token_uuid: from.from_token.uuid,
       to_token_uuid: to.to_token.uuid,
-
       exchange_account: exchange_account,
       amount: amount,
       metadata: attrs["metadata"] || %{},
@@ -77,11 +73,11 @@ defmodule EWallet.TransactionGate do
   end
 
   def update_transaction(
-         _,
-         %Transaction{local_ledger_uuid: local_ledger_uuid, error_code: error_code} = transaction
-       )
-       when local_ledger_uuid != nil
-       when error_code != nil do
+        _,
+        %Transaction{local_ledger_uuid: local_ledger_uuid, error_code: error_code} = transaction
+      )
+      when local_ledger_uuid != nil
+      when error_code != nil do
     transaction
   end
 

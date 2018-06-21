@@ -37,14 +37,22 @@ defmodule EWallet.TokenFetcher do
     end
   end
 
-  def fetch_exchange_account(%{"from_token_id" => from_token_id, "to_token_id" => to_token_id, "exchange_account_id" => exchange_account_id} = attrs) do
+  def fetch_exchange_account(
+        %{
+          "from_token_id" => from_token_id,
+          "to_token_id" => to_token_id,
+          "exchange_account_id" => exchange_account_id
+        } = attrs
+      ) do
     case from_token_id == to_token_id do
       true ->
         {:ok, nil}
+
       false ->
         case Account.get(attrs["exchange_account_id"]) do
           nil ->
             {:error, :exchange_account_not_found}
+
           account ->
             {:ok, account}
         end
