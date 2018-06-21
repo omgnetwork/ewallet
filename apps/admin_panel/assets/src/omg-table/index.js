@@ -38,6 +38,7 @@ const TableContainer = styled.div`
     td {
       padding: 10px;
       vertical-align: top;
+      color: ${props => props.theme.colors.B200};
       :first-child {
         padding-left: 10px;
       }
