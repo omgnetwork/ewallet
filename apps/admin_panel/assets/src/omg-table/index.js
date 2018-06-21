@@ -136,7 +136,7 @@ class SortableTable extends PureComponent {
       return null
     }
     return (
-      <th>
+      <th key={col.key}>
         <ThContent>{col.title}</ThContent>
       </th>
     )
