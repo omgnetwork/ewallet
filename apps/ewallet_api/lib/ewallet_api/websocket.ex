@@ -43,6 +43,7 @@ defmodule EWalletAPI.WebSocket do
   def init(%Plug.Conn{method: "GET"} = conn, opts) do
     with conn <- fetch_query_params(conn),
          params <- Map.put_new(conn.params, "headers", conn.req_headers),
+         params <- Map.delete(params, "vsn"),
          headers when not is_nil(headers) <- params["headers"],
          accept when not is_nil(accept) <- headers["Accept"],
          {:ok, endpoint, serializer} <-
@@ -51,9 +52,13 @@ defmodule EWalletAPI.WebSocket do
              accept,
              :ewallet_api,
              &ErrorHandler.handle_error/2
-           ) do
-      EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer, params)
+           ),
+        {:ok, _conn, {_module, {_socket, _opts}}} = res <- EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer, params) do
+          res
     else
+      {:error, conn} ->
+        conn = send_resp(conn, 403, "")
+        {:error, conn}
       _error ->
         conn = send_resp(conn, 403, "")
         {:error, conn}

@@ -58,8 +58,7 @@ defmodule EWallet.Web.WebSocket do
            Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params) do
       {:ok, conn, {__MODULE__, {socket, opts}}}
     else
-
-      _error ->
+      error ->
         {:error, conn}
     end
   end

@@ -52,9 +52,13 @@ defmodule AdminAPI.WebSocket do
              accept,
              :admin_api,
              &ErrorHandler.handle_error/2
-           ) do
-      EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer, params)
+           ),
+        {:ok, _conn, {_module, {_socket, _opts}}} = res <- EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer, params) do
+          res
     else
+      {:error, conn} ->
+        conn = send_resp(conn, 403, "")
+        {:error, conn}
       _error ->
         conn = send_resp(conn, 403, "")
         {:error, conn}
