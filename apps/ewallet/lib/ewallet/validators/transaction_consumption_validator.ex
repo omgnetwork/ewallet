@@ -70,7 +70,7 @@ defmodule EWallet.TransactionConsumptionValidator do
 
       false ->
         case amount do
-          nil -> {:ok, request, request.amount}
+          nil -> {:ok, request.amount}
           _amount -> {:error, :unauthorized_amount_override}
         end
     end
