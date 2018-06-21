@@ -1,3 +1,2 @@
 import { Socket } from 'phoenix'
-const socket = new Socket('/socket', { params: { userToken: '123' } })
-socket.connect()
+export default new Socket('ws://localhost:4000/api/admin/socket')
