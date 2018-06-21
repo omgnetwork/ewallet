@@ -45,12 +45,14 @@ defmodule LocalLedger.TransactionTest do
     defp debits do
       [
         %{
+          "type" => Entry.debit_type(),
           "address" => "o",
           "metadata" => %{},
           "amount" => 100,
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         },
         %{
+          "type" => Entry.debit_type(),
           "address" => "sirn",
           "metadata" => %{},
           "amount" => 200,
@@ -62,12 +64,14 @@ defmodule LocalLedger.TransactionTest do
     def credits do
       [
         %{
+          "type" => Entry.credit_type(),
           "address" => "thibault",
           "metadata" => %{},
           "amount" => 150,
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
         },
         %{
+          "type" => Entry.credit_type(),
           "address" => "mederic",
           "metadata" => %{},
           "amount" => 150,
@@ -81,8 +85,7 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => debits(),
-            "credits" => credits(),
+            "entries" => debits() ++ credits(),
             "idempotency_token" => UUID.generate()
           },
           %{genesis: true}
@@ -106,7 +109,7 @@ defmodule LocalLedger.TransactionTest do
       assert get_current_balance("mederic") == 150
     end
 
-    test "inserts a transaction and four entries when the debit wallets have
+    test "inserts a transaction and two entries when the debit wallets have
           enough funds" do
       genesis()
 
@@ -114,16 +117,16 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => [
+            "entries" => [
               %{
+                "type" => Entry.debit_type(),
                 "address" => "mederic",
                 "metadata" => %{},
                 "amount" => 100,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }
-            ],
-            "credits" => [
+              },
               %{
+                "type" => Entry.credit_type(),
                 "address" => "thibault",
                 "metadata" => %{},
                 "amount" => 100,
@@ -148,16 +151,16 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => [
+            "entries" => [
               %{
+                "type" => Entry.debit_type(),
                 "address" => "mederic",
                 "metadata" => %{},
                 "amount" => 100,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }
-            ],
-            "credits" => [
+              },
               %{
+                "type" => Entry.credit_type(),
                 "address" => "thibault",
                 "metadata" => %{},
                 "amount" => 100,
@@ -180,16 +183,16 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => [
+            "entries" => [
               %{
+                "type" => Entry.debit_type(),
                 "address" => "mederic",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }
-            ],
-            "credits" => [
+              },
               %{
+                "type" => Entry.credit_type(),
                 "address" => "mederic",
                 "metadata" => %{},
                 "amount" => 200,
@@ -215,16 +218,16 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => [
+            "entries" => [
               %{
+                "type" => Entry.debit_type(),
                 "address" => "mederic",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }
-            ],
-            "credits" => [
+              },
               %{
+                "type" => Entry.credit_type(),
                 "address" => "thibault",
                 "metadata" => %{},
                 "amount" => 200,
@@ -244,16 +247,16 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => [
+            "entries" => [
               %{
+                "type" => Entry.debit_type(),
                 "address" => "mederic",
                 "metadata" => %{},
                 "amount" => 200,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }
-            ],
-            "credits" => [
+              },
               %{
+                "type" => Entry.credit_type(),
                 "address" => "thibault",
                 "metadata" => %{},
                 "amount" => 100,
@@ -273,16 +276,16 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => [
+            "entries" => [
               %{
+                "type" => Entry.debit_type(),
                 "address" => "mederic",
                 "metadata" => %{},
                 "amount" => 0,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }
-            ],
-            "credits" => [
+              },
               %{
+                "type" => Entry.credit_type(),
                 "address" => "thibault",
                 "metadata" => %{},
                 "amount" => 0,
@@ -317,16 +320,16 @@ defmodule LocalLedger.TransactionTest do
           Transaction.insert(
             %{
               "metadata" => %{},
-              "debits" => [
+              "entries" => [
                 %{
+                  "type" => Entry.debit_type(),
                   "address" => "mederic",
                   "metadata" => %{},
                   "amount" => 50,
                   "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-                }
-              ],
-              "credits" => [
+                },
                 %{
+                  "type" => Entry.credit_type(),
                   "address" => "sirn",
                   "metadata" => %{},
                   "amount" => 50,
@@ -344,16 +347,16 @@ defmodule LocalLedger.TransactionTest do
       Transaction.insert(
         %{
           "metadata" => %{},
-          "debits" => [
+          "entries" => [
             %{
+              "type" => Entry.debit_type(),
               "address" => "mederic",
               "metadata" => %{},
               "amount" => 100,
               "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-            }
-          ],
-          "credits" => [
+            },
             %{
+              "type" => Entry.credit_type(),
               "address" => "thibault",
               "metadata" => %{},
               "amount" => 100,
@@ -393,16 +396,16 @@ defmodule LocalLedger.TransactionTest do
             Transaction.insert(
               %{
                 "metadata" => %{},
-                "debits" => [
+                "entries" => [
                   %{
+                    "type" => Entry.debit_type(),
                     "address" => "mederic",
                     "metadata" => %{},
                     "amount" => 100,
                     "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-                  }
-                ],
-                "credits" => [
+                  },
                   %{
+                    "type" => Entry.credit_type(),
                     "address" => "sirn",
                     "metadata" => %{},
                     "amount" => 100,
@@ -424,16 +427,16 @@ defmodule LocalLedger.TransactionTest do
       Transaction.insert(
         %{
           "metadata" => %{},
-          "debits" => [
+          "entries" => [
             %{
+              "type" => Entry.debit_type(),
               "address" => "mederic",
               "metadata" => %{},
               "amount" => 100,
               "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-            }
-          ],
-          "credits" => [
+            },
             %{
+              "type" => Entry.credit_type(),
               "address" => "thibault",
               "metadata" => %{},
               "amount" => 100,
@@ -456,16 +459,16 @@ defmodule LocalLedger.TransactionTest do
         Transaction.insert(
           %{
             "metadata" => %{},
-            "debits" => [
+            "entries" => [
               %{
+                "type" => Entry.debit_type(),
                 "address" => "o",
                 "metadata" => %{},
                 "amount" => 1_000_000_000_000_000_000_000_000_000_000,
                 "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-              }
-            ],
-            "credits" => [
+              },
               %{
+                "type" => Entry.credit_type(),
                 "address" => "thibault",
                 "metadata" => %{},
                 "amount" => 1_000_000_000_000_000_000_000_000_000_000,
@@ -489,16 +492,16 @@ defmodule LocalLedger.TransactionTest do
           Transaction.insert(
             %{
               "metadata" => %{},
-              "debits" => [
+              "entries" => [
                 %{
+                  "type" => Entry.debit_type(),
                   "address" => "o",
                   "metadata" => %{},
                   "amount" => round(1_000_000_000_000.0e82),
                   "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-                }
-              ],
-              "credits" => [
+                },
                 %{
+                  "type" => Entry.credit_type(),
                   "address" => "thibault",
                   "metadata" => %{},
                   "amount" => round(1_000_000_000_000.0e82),

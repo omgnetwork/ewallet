@@ -12,17 +12,16 @@ defmodule LocalLedger.EntryTest do
 
   describe "#build_all" do
     test "builds and formats the entries" do
-      debits = [
+      incoming_entries = [
         %{
+          "type" => LocalLedgerDB.Entry.debit_type(),
           "address" => "omisego.test.sender1",
           "metadata" => %{},
           "amount" => 100,
           "token" => %{"id" => "tok_OMG_01cbepz0mhzb042vwgaqv17cjy", "metadata" => %{}}
-        }
-      ]
-
-      credits = [
+        },
         %{
+          "type" => LocalLedgerDB.Entry.credit_type(),
           "address" => "omisego.test.receiver1",
           "metadata" => %{},
           "amount" => 100,
@@ -30,7 +29,6 @@ defmodule LocalLedger.EntryTest do
         }
       ]
 
-      incoming_entries = {debits, credits}
       formatted_entries = Entry.build_all(incoming_entries)
 
       assert formatted_entries == [

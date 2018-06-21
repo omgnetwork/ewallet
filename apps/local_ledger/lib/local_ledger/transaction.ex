@@ -9,7 +9,8 @@ defmodule LocalLedger.Transaction do
     Entry,
     Wallet,
     Errors.InvalidAmountError,
-    Errors.AmountIsZeroError
+    Errors.AmountNotPositiveError,
+    Errors.SameAddressError
   }
 
   alias LocalLedger.Transaction.Validator
@@ -55,7 +56,8 @@ defmodule LocalLedger.Transaction do
       from an address which does not have enough funds.
     - InvalidAmountError: This error will be raised if the sum of all debits
       and credits in this transaction is not equal to 0.
-    - AmountIsZeroError: This error will be raised if any of the provided amount is equal to 0.
+    - AmountNotPositiveError: This error will be raised if any of the provided amount
+      is less than or equal to 0.
 
   ## Examples
 
@@ -78,27 +80,30 @@ defmodule LocalLedger.Transaction do
   def insert(
         %{
           "metadata" => metadata,
-          "debits" => debits,
-          "credits" => credits,
+          "entries" => entries,
           "idempotency_token" => idempotency_token
         },
         %{genesis: genesis},
         callback \\ nil
       ) do
-    {debits, credits}
+    entries
+    |> Validator.validate_different_addresses()
     |> Validator.validate_zero_sum()
     |> Validator.validate_positive_amounts()
     |> Entry.build_all()
     |> locked_insert(metadata, idempotency_token, genesis, callback)
   rescue
-    e in InsufficientFundsError ->
-      {:error, :insufficient_funds, e.message}
+    e in SameAddressError ->
+      {:error, :same_address, e.message}
 
     e in InvalidAmountError ->
       {:error, :invalid_amount, e.message}
 
-    e in AmountIsZeroError ->
+    e in AmountNotPositiveError ->
       {:error, :amount_is_zero, e.message}
+
+    e in InsufficientFundsError ->
+      {:error, :insufficient_funds, e.message}
   end
 
   # Lock all the DEBIT addresses to ensure the truthness of the wallets
