@@ -41,9 +41,12 @@ defmodule EWallet.TransactionSourceFetcher do
     else
       {:error, :user_wallet_not_found} ->
         {:error, :from_address_not_found}
+
       {:error, :user_wallet_mismatch} ->
         {:error, :from_address_mismatch}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -63,9 +66,12 @@ defmodule EWallet.TransactionSourceFetcher do
     else
       {:error, :account_wallet_not_found} ->
         {:error, :from_address_not_found}
+
       {:error, :account_wallet_mismatch} ->
         {:error, :from_address_mismatch}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -90,7 +96,9 @@ defmodule EWallet.TransactionSourceFetcher do
     else
       {:error, :wallet_not_found} ->
         {:error, :from_address_not_found}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -133,9 +141,12 @@ defmodule EWallet.TransactionSourceFetcher do
     else
       {:error, :account_wallet_not_found} ->
         {:error, :to_address_not_found}
+
       {:error, :account_wallet_mismatch} ->
         {:error, :to_address_mismatch}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -150,9 +161,12 @@ defmodule EWallet.TransactionSourceFetcher do
     else
       {:error, :user_wallet_not_found} ->
         {:error, :to_address_not_found}
+
       {:error, :user_wallet_mismatch} ->
         {:error, :to_address_mismatch}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -169,9 +183,12 @@ defmodule EWallet.TransactionSourceFetcher do
     else
       {:error, :user_wallet_not_found} ->
         {:error, :to_address_not_found}
+
       {:error, :user_wallet_mismatch} ->
         {:error, :to_address_mismatch}
-      error -> error
+
+      error ->
+        error
     end
   end
 
@@ -196,7 +213,9 @@ defmodule EWallet.TransactionSourceFetcher do
     else
       {:error, :wallet_not_found} ->
         {:error, :to_address_not_found}
-      error -> error
+
+      error ->
+        error
     end
   end
 

@@ -37,13 +37,11 @@ defmodule EWallet.TokenFetcher do
     end
   end
 
-  def fetch_exchange_account(
-        %{
-          "from_token_id" => from_token_id,
-          "to_token_id" => to_token_id,
-          "exchange_account_id" => exchange_account_id
-        }
-      ) do
+  def fetch_exchange_account(%{
+        "from_token_id" => from_token_id,
+        "to_token_id" => to_token_id,
+        "exchange_account_id" => exchange_account_id
+      }) do
     case from_token_id == to_token_id do
       true ->
         {:ok, nil}
