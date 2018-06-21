@@ -11,6 +11,7 @@ import Avatar from '../omg-uikit/avatar'
 import RatioBar from '../omg-uikit/ratioBar'
 import Breadcrumb from '../omg-uikit/breadcrumb'
 import Select from '../omg-uikit/select'
+import Switch from '../omg-uikit/switch'
 export {
   Input,
   Button,
@@ -25,5 +26,6 @@ export {
   Avatar,
   RatioBar,
   Breadcrumb,
-  Select
+  Select,
+  Switch
 }

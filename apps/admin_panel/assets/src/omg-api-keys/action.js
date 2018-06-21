@@ -15,6 +15,22 @@ export const generateApiKey = owner => async dispatch => {
     dispatch({ type: 'API_KEY/CREATE/FAILED' })
   }
 }
+export const disableApiKey = id => async dispatch => {
+  try {
+    const result = await apikeyService.deleteApiKeyById(id)
+    if (result.data.success) {
+      dispatch({
+        type: 'API_KEY/DISABLE/SUCCESS',
+        apiKey: result.data.data
+      })
+    } else {
+      dispatch({ type: 'API_KEY/DISABLE/FAILED' })
+    }
+    return result
+  } catch (error) {
+    dispatch({ type: 'API_KEY/DISABLE/FAILED' })
+  }
+}
 
 export const loadApiKeys = () => async dispatch => {
   try {
