@@ -57,18 +57,18 @@ defmodule EWallet.TransactionFormatterTest do
           :transaction,
           # From
           from_wallet: from_wallet,
-          from_amount: 10000,
+          from_amount: 100,
           from_token: omg,
           # To
           to_wallet: to_wallet,
-          to_amount: 10000,
+          to_amount: 100,
           to_token: omg
         )
 
       formatted = TransactionFormatter.format(transaction)
 
-      assert has_entry?(formatted, :debit, from_wallet.address, 10000, omg)
-      assert has_entry?(formatted, :credit, to_wallet.address, 10000, omg)
+      assert has_entry?(formatted, :debit, from_wallet.address, 100, omg)
+      assert has_entry?(formatted, :credit, to_wallet.address, 100, omg)
       assert Enum.count(formatted["entries"]) == 2
     end
   end
@@ -85,20 +85,20 @@ defmodule EWallet.TransactionFormatterTest do
       transaction =
         insert(:transaction, %{
           from_wallet: from_wallet,
-          from_amount: 10000,
+          from_amount: 100,
           from_token: omg,
           to_wallet: to_wallet,
-          to_amount: 10000,
+          to_amount: 100,
           to_token: eth,
           exchange_account: exchange_account
         })
 
       formatted = TransactionFormatter.format(transaction)
 
-      assert has_entry?(formatted, :debit, from_wallet.address, 10000, omg)
-      assert has_entry?(formatted, :credit, exchange_wallet.address, 10000, omg)
-      assert has_entry?(formatted, :debit, exchange_wallet.address, 10000, eth)
-      assert has_entry?(formatted, :credit, to_wallet.address, 10000, eth)
+      assert has_entry?(formatted, :debit, from_wallet.address, 100, omg)
+      assert has_entry?(formatted, :credit, exchange_wallet.address, 100, omg)
+      assert has_entry?(formatted, :debit, exchange_wallet.address, 100, eth)
+      assert has_entry?(formatted, :credit, to_wallet.address, 100, eth)
       assert Enum.count(formatted["entries"]) == 4
     end
   end

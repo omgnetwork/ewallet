@@ -1,4 +1,7 @@
 defmodule EWallet.Exchange do
+  @moduledoc """
+  Provides exchange functionalities.
+  """
   alias EWallet.Exchange.Calculation
   alias EWalletDB.{ExchangePair, Token}
 
@@ -42,11 +45,11 @@ defmodule EWallet.Exchange do
   # Same-token: valid if `from_amount` and `to_amount` to be equal
   def validate(from_amount, %{uuid: from_token} = token, to_amount, %{uuid: to_token})
       when from_token == to_token do
-    cond do
-      from_amount == to_amount ->
+    case from_amount == to_amount do
+      true ->
         {:ok, build_result(from_amount, token, to_amount, token, 1, nil)}
 
-      true ->
+      false ->
         {:error, :exchange_invalid_rate}
     end
   end

@@ -70,7 +70,7 @@ defmodule LocalLedger.Transaction.ValidatorTest do
     test "raises InvalidAmountError if entries don't add up to zero", meta do
       entries = [
         entry(:debit, meta.bob, 10, meta.omg),
-        entry(:credit, meta.alice, 99999, meta.omg)
+        entry(:credit, meta.alice, 999, meta.omg)
       ]
 
       assert_raise InvalidAmountError, fn ->
@@ -83,7 +83,7 @@ defmodule LocalLedger.Transaction.ValidatorTest do
         entry(:debit, meta.alice, 10, meta.omg),
         entry(:credit, meta.bob, 10, meta.omg),
         entry(:debit, meta.bob, 10, meta.eth),
-        entry(:credit, meta.alice, 99999, meta.eth)
+        entry(:credit, meta.alice, 999, meta.eth)
       ]
 
       assert_raise InvalidAmountError, fn ->
