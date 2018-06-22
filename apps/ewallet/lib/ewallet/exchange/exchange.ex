@@ -6,6 +6,28 @@ defmodule EWallet.Exchange do
   @typep non_neg_or_nil() :: non_neg_integer() | nil
 
   @doc """
+  Retrieves the exchange rate of the given token pair.
+
+  Returns `{:ok, rate, pair}` if the exchange pair is found.
+
+  If the returned pair is a reversed pair, the returned `rate` is already inverted.
+  """
+  def get_rate(from_token, to_token) do
+    case ExchangePair.fetch_exchangable_pair(from_token, to_token) do
+      {:ok, pair, :direct} ->
+        # Direct pair. Return the rate directly.
+        {:ok, pair.rate, pair}
+
+      {:ok, pair, :reversed} ->
+        # Reversed pair. Return the inverted rate.
+        {:ok, 1 / pair.rate, pair}
+
+      {:error, _} = error ->
+        error
+    end
+  end
+
+  @doc """
   Validates that the given `from_amount` and `to_amount` matches the exchange pair.
 
   For same-token transactions, it returns `true` if `from_amount` and `to_amount` are equal,
@@ -105,28 +127,6 @@ defmodule EWallet.Exchange do
       {:ok, rate, pair} ->
         to_amount = from_amount * rate
         {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
-
-      {:error, _} = error ->
-        error
-    end
-  end
-
-  @doc """
-  Retrieves the exchange rate of the given token pair.
-
-  Returns `{:ok, rate, pair}` if the exchange pair is found.
-
-  If the returned pair is a reversed pair, the returned `rate` is already inverted.
-  """
-  def get_rate(from_token, to_token) do
-    case ExchangePair.fetch_exchangable_pair(from_token, to_token) do
-      {:ok, pair, :direct} ->
-        # Direct pair. Return the rate directly.
-        {:ok, pair.rate, pair}
-
-      {:ok, pair, :reversed} ->
-        # Reversed pair. Return the inverted rate.
-        {:ok, 1 / pair.rate, pair}
 
       {:error, _} = error ->
         error
