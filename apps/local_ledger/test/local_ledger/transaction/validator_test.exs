@@ -33,7 +33,7 @@ defmodule LocalLedger.Transaction.ValidatorTest do
       assert Validator.validate_different_addresses(entries) == entries
     end
 
-    test "raises entries if two entries have the same address but different tokens", meta do
+    test "returns entries if two entries have the same address but different tokens", meta do
       entries = [
         entry(:debit, meta.alice, 100, meta.omg),
         entry(:credit, meta.bob, 100, meta.omg),
