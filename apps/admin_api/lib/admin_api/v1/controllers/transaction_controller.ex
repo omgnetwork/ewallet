@@ -90,24 +90,11 @@ defmodule AdminAPI.V1.TransactionController do
   @doc """
   Creates a transaction.
   """
-  def create(
-        conn,
-        %{
-          "idempotency_token" => idempotency_token,
-          "from_address" => from_address,
-          "to_address" => to_address,
-          "token_id" => token_id,
-          "amount" => amount
-        } = attrs
-      )
-      when idempotency_token != nil and from_address != nil and to_address != nil and
-             token_id != nil and is_integer(amount) do
+  def create(conn, attrs) do
     attrs
-    |> TransactionGate.process_with_addresses()
+    |> TransactionGate.create()
     |> respond_single(conn)
   end
-
-  def create(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp contains_illegal_from_and_to?(terms) do
     !is_nil(terms["from"]) && !is_nil(terms["to"])
@@ -166,7 +153,7 @@ defmodule AdminAPI.V1.TransactionController do
     render(conn, :transaction, %{transaction: transaction})
   end
 
-  defp respond_single({:ok, transaction, _wallets, _token}, conn) do
+  defp respond_single({:ok, transaction}, conn) do
     render(conn, :transaction, %{transaction: transaction})
   end
 

@@ -4,8 +4,8 @@ defmodule EWallet.MintGate do
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
   examples on how to add value to a token.
   """
-  alias EWallet.TransferGate
-  alias EWalletDB.{Repo, Account, Mint, Wallet, Transaction, Token}
+  alias EWallet.GenesisGate
+  alias EWalletDB.{Repo, Account, Mint, Token}
   alias Ecto.{UUID, Multi}
 
   def mint_token({:ok, token}, attrs) do
@@ -81,18 +81,12 @@ defmodule EWallet.MintGate do
         })
       end)
       |> Multi.run(:transaction, fn _ ->
-        TransferGate.get_or_insert(%{
+        GenesisGate.create(%{
           idempotency_token: idempotency_token,
-          from: Wallet.get_genesis().address,
-          to: Account.get_primary_wallet(account).address,
-          from_amount: amount,
-          from_token_id: token.id,
-          to_amount: amount,
-          to_token_id: token.id,
-          exchange_account_id: nil,
-          metadata: attrs["metadata"] || %{},
-          encrypted_metadata: attrs["encrypted_metadata"] || %{},
-          payload: attrs
+          amount: amount,
+          token: token,
+          account: account,
+          attrs: attrs
         })
       end)
       |> Multi.run(:mint_with_transaction, fn %{transaction: transaction, mint: mint} ->
@@ -101,35 +95,10 @@ defmodule EWallet.MintGate do
 
     case Repo.transaction(multi) do
       {:ok, result} ->
-        process_with_transaction(result.transaction, result.mint_with_transaction)
+        GenesisGate.process_with_transaction(result.transaction, result.mint_with_transaction)
 
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
     end
-  end
-
-  defp process_with_transaction(%Transaction{status: "pending"} = transaction, mint) do
-    transaction
-    |> TransferGate.genesis()
-    |> confirm_and_return(mint)
-  end
-
-  defp process_with_transaction(%Transaction{status: "confirmed"} = transaction, mint) do
-    confirm_and_return(transaction, mint)
-  end
-
-  defp process_with_transaction(%Transaction{status: "failed"} = transaction, mint) do
-    confirm_and_return(
-      {:error, transaction.error_code, transaction.error_description || transaction.error_data},
-      mint
-    )
-  end
-
-  defp confirm_and_return({:error, code, description}, mint),
-    do: {:error, code, description, mint}
-
-  defp confirm_and_return(transaction, mint) do
-    mint = Mint.confirm(mint)
-    {:ok, mint, transaction}
   end
 end

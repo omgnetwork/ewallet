@@ -7,7 +7,7 @@ defmodule EWalletDB.Transaction do
   import Ecto.{Changeset, Query}
   alias Ecto.{UUID, Multi}
   import EWalletDB.Validator
-  alias EWalletDB.{Account, Repo, Token, Transaction, Wallet}
+  alias EWalletDB.{Account, Repo, Token, Transaction, Wallet, User}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -79,6 +79,38 @@ defmodule EWalletDB.Transaction do
     )
 
     belongs_to(
+      :from_account,
+      Account,
+      foreign_key: :from_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :to_account,
+      Account,
+      foreign_key: :to_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :from_user,
+      User,
+      foreign_key: :from_user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :to_user,
+      User,
+      foreign_key: :to_user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
       :exchange_account,
       Account,
       foreign_key: :exchange_account_uuid,
@@ -103,9 +135,13 @@ defmodule EWalletDB.Transaction do
       :error_data,
       :encrypted_metadata,
       :from_amount,
-      :from_token_uuid,
       :to_amount,
+      :from_token_uuid,
       :to_token_uuid,
+      :from_account_uuid,
+      :to_account_uuid,
+      :from_user_uuid,
+      :to_user_uuid,
       :exchange_account_uuid,
       :to,
       :from
@@ -115,10 +151,10 @@ defmodule EWalletDB.Transaction do
       :status,
       :type,
       :payload,
-      :from_amount,
       :from_token_uuid,
-      :to_amount,
       :to_token_uuid,
+      :from_amount,
+      :to_amount,
       :to,
       :from,
       :metadata,
@@ -128,9 +164,16 @@ defmodule EWalletDB.Transaction do
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
     |> validate_exclusive([:local_ledger_uuid, :error_code])
+    |> validate_required_exclusive(%{from_account_uuid: nil, from_user_uuid: nil, from: "genesis"})
+    |> validate_required_exclusive([:to_account_uuid, :to_user_uuid])
     |> validate_immutable(:idempotency_token)
     |> validate_exchange_transaction(attrs)
     |> unique_constraint(:idempotency_token)
+    |> assoc_constraint(:from_account)
+    |> assoc_constraint(:to_user)
+    |> assoc_constraint(:from_user)
+    |> assoc_constraint(:to_account)
+    |> assoc_constraint(:to_token)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
     |> assoc_constraint(:to_wallet)
