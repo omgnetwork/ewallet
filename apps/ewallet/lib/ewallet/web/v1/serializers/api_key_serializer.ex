@@ -21,6 +21,7 @@ defmodule EWallet.Web.V1.APIKeySerializer do
       key: api_key.key,
       account_id: api_key.account.id,
       owner_app: api_key.owner_app,
+      expired: api_key.expired,
       created_at: Date.to_iso8601(api_key.inserted_at),
       updated_at: Date.to_iso8601(api_key.updated_at),
       deleted_at: Date.to_iso8601(api_key.deleted_at)

@@ -3,6 +3,7 @@ defmodule AdminAPI.V1.APIKeyController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.APIKey
+  alias Ecto.Changeset
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -47,10 +48,30 @@ defmodule AdminAPI.V1.APIKeyController do
   Creates a new API key. Currently API keys are assigned to the master account only.
   """
   def create(conn, _attrs) do
-    # Admin API doesn't use API Keys anymore. Defaulting to :ewallet_api.
+    # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
     %{owner_app: "ewallet_api"}
     |> APIKey.insert()
     |> respond_single(conn)
+  end
+
+  @doc """
+  Update an API key.
+  """
+  def update(conn, %{"id" => id} = attrs) do
+    with %APIKey{} = api_key <- APIKey.get(id) || :api_key_not_found,
+         {:ok, api_key} <- APIKey.update(api_key, attrs) do
+      render(conn, :api_key, %{api_key: api_key})
+    else
+      error when is_atom(error) ->
+        handle_error(conn, error)
+
+      {:error, %Changeset{} = changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
+    end
+  end
+
+  def update(conn, _attrs) do
+    handle_error(conn, :invalid_parameter)
   end
 
   # Respond when the API key is saved successfully

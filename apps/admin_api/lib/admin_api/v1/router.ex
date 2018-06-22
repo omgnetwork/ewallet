@@ -88,6 +88,7 @@ defmodule AdminAPI.V1.Router do
 
     post("/api_key.all", APIKeyController, :all)
     post("/api_key.create", APIKeyController, :create)
+    post("/api_key.update", APIKeyController, :update)
     post("/api_key.delete", APIKeyController, :delete)
 
     post("/settings.all", SettingsController, :get_settings)
