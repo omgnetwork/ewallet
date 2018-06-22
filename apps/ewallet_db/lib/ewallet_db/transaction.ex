@@ -5,8 +5,8 @@ defmodule EWalletDB.Transaction do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  alias Ecto.{UUID, Multi}
   import EWalletDB.Validator
+  alias Ecto.{UUID, Multi}
   alias EWalletDB.{Account, Repo, Token, Transaction, Wallet}
 
   @pending "pending"
@@ -129,17 +129,12 @@ defmodule EWalletDB.Transaction do
     |> validate_inclusion(:type, @types)
     |> validate_exclusive([:local_ledger_uuid, :error_code])
     |> validate_immutable(:idempotency_token)
-    |> validate_exchange_transaction(attrs)
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
     |> assoc_constraint(:to_wallet)
     |> assoc_constraint(:from_wallet)
     |> assoc_constraint(:exchange_account)
-  end
-
-  defp validate_exchange_transaction(changeset, _attrs) do
-    changeset
   end
 
   @doc """

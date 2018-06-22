@@ -4,9 +4,10 @@ defmodule EWallet.TransactionGate do
   actual transfer to EWallet.TransferGate once the wallets have been loaded.
   """
   alias EWallet.{
-    TransferGate,
-    CreditDebitRecordFetcher,
     AddressRecordFetcher,
+    CreditDebitRecordFetcher,
+    Exchange,
+    TransferGate,
     WalletCreditDebitAssigner,
     WalletFetcher
   }
@@ -49,6 +50,8 @@ defmodule EWallet.TransactionGate do
         } = attrs
       ) do
     with {:ok, from, to, token} <- AddressRecordFetcher.fetch(attrs),
+         {:ok, amount} <- Map.fetch(attrs, "amount"),
+         {:ok, _calculation} <- Exchange.validate(amount, token, amount, token),
          {:ok, transaction} <- get_or_insert_transaction(from, to, token, attrs) do
       process_with_transaction(transaction, [from, to], token)
     else
@@ -95,6 +98,8 @@ defmodule EWallet.TransactionGate do
         } = attrs
       ) do
     with {:ok, account, user, token} <- CreditDebitRecordFetcher.fetch(attrs),
+         {:ok, amount} <- Map.fetch(attrs, "amount"),
+         {:ok, _calculation} <- Exchange.validate(amount, token, amount, token),
          {:ok, from, to} <-
            WalletCreditDebitAssigner.assign(%{
              account: account,

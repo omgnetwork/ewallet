@@ -152,16 +152,16 @@ defmodule EWalletDB.ExchangePair do
   Note that a reversed exchange pair needs to have `reversible: true` in order to be returned.
   """
   @spec fetch_exchangable_pair(%Token{}, %Token{}, keyword()) ::
-          {:ok, %__MODULE__{}, boolean()} | {:error, :exchange_pair_not_found}
+          {:ok, %__MODULE__{}, :direct | :reversed} | {:error, :exchange_pair_not_found}
   def fetch_exchangable_pair(%{uuid: from}, %{uuid: to}, opts \\ []) do
     case get_by([from_token_uuid: from, to_token_uuid: to], opts) do
       %__MODULE__{} = pair ->
-        {:ok, pair, false}
+        {:ok, pair, :direct}
 
       nil ->
         case get_by([from_token_uuid: to, to_token_uuid: from, reversible: true], opts) do
           %__MODULE__{} = pair ->
-            {:ok, pair, true}
+            {:ok, pair, :reversed}
 
           nil ->
             {:error, :exchange_pair_not_found}

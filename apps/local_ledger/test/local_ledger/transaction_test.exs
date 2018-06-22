@@ -98,7 +98,7 @@ defmodule LocalLedger.TransactionTest do
       Entry.calculate_current_amount(address, "tok_OMG_01cbepz0mhzb042vwgaqv17cjy")
     end
 
-    test "inserts a transaction and four entries when genesis" do
+    test "inserts a transaction and two entries when genesis" do
       transaction = genesis()
 
       assert transaction != nil
@@ -109,8 +109,7 @@ defmodule LocalLedger.TransactionTest do
       assert get_current_balance("mederic") == 150
     end
 
-    test "inserts a transaction and two entries when the debit wallets have
-          enough funds" do
+    test "inserts a transaction and two entries when the debit wallets have enough funds" do
       genesis()
 
       {:ok, transaction} =
