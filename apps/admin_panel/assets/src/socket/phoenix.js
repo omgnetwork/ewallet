@@ -288,7 +288,6 @@ class Push {
     if (this.hasReceived(status)) {
       callback(this.receivedResp.response)
     }
-
     this.recHooks.push({ status, callback })
     return this
   }
@@ -340,6 +339,7 @@ class Push {
     this.refEvent = this.channel.replyEventName(this.ref)
 
     this.channel.on(this.refEvent, payload => {
+      console.log(this.refEvent)
       this.cancelRefEvent()
       this.cancelTimeout()
       this.receivedResp = payload

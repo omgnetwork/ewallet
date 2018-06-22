@@ -17,6 +17,7 @@
   },
   "globals": {
     "_":  true,
-    "BACKEND_URL": true
+    "BACKEND_URL": true,
+    "WebSocket": true
   }
 }

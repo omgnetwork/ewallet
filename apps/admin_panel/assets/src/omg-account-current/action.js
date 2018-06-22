@@ -16,6 +16,7 @@ export const loadCurrentAccount = accountId => async (dispatch, getState, { sock
     }
     return result
   } catch (error) {
+    console.log(error)
     return dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/FAILED', error })
   }
 }
