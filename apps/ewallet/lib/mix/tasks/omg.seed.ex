@@ -57,11 +57,11 @@ defmodule Mix.Tasks.Omg.Seed do
   end
 
   defp seed_spec(["--test" | _t]) do
-    case System.get_env("E2E_ENABLED") do
-      "true" ->
+    case Regex.match?(~r/^(t(rue)?|y(es)?|on|1)$/, System.get_env("E2E_ENABLED")) do
+      true ->
         [{:ewallet_db, :seeds_test}]
 
-      _ ->
+      false ->
         IO.puts(@e2e_disabled_warning)
         []
     end
