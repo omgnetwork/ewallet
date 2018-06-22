@@ -78,7 +78,7 @@ class Table extends Component {
     return source.map((d, i) => {
       return (
         <tr
-          key={`row-${i}-${d}`}
+          key={d.key || d.id}
           ref={row => (this.row = row)}
           onClick={this.props.onClickRow(d, i)}
         >

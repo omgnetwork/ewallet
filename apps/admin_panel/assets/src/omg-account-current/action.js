@@ -1,24 +1,37 @@
-
 import { setCurrentAccount } from '../services/sessionService'
 import * as settingService from '../services/settingService'
 import * as accountService from '../services/accountService'
-export const loadCurrentAccount = accountId => async dispatch => {
+export const loadCurrentAccount = accountId => async (dispatch, getState, { socket }) => {
   dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/INITIATED' })
   try {
     const result = await accountService.getAccountById(accountId)
     if (result.data.success) {
-      return dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/SUCCESS', currentAccount: result.data.data })
+      socket.subscribe(`account:${result.data.data.id}`, [
+        'transaction_consumption_request',
+        'transaction_consumption_finalized'
+      ])
+      dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/SUCCESS', currentAccount: result.data.data })
     } else {
-      return dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/FAILED', error: result.data.data })
+      dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/FAILED', error: result.data.data })
     }
+    return result
   } catch (error) {
     return dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/FAILED', error })
   }
 }
 
-export const updateCurrentAccount = ({ accountId, name, description, avatar }) => async dispatch => {
+export const updateCurrentAccount = ({
+  accountId,
+  name,
+  description,
+  avatar
+}) => async dispatch => {
   try {
-    const resultUpdateAccount = await settingService.updateAccountInfo({ id: accountId, name, description })
+    const resultUpdateAccount = await settingService.updateAccountInfo({
+      id: accountId,
+      name,
+      description
+    })
     if (resultUpdateAccount.data.success) {
       if (avatar) {
         const resultUploadAvatar = await accountService.uploadAccountAvatar({
@@ -26,13 +39,19 @@ export const updateCurrentAccount = ({ accountId, name, description, avatar }) =
           avatar
         })
         if (resultUploadAvatar.data.success) {
-          dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/SUCCESS', currentAccount: resultUploadAvatar.data.data })
+          dispatch({
+            type: 'CURRENT_ACCOUNT/UPDATE/SUCCESS',
+            currentAccount: resultUploadAvatar.data.data
+          })
         } else {
           dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/FAILED', error: resultUploadAvatar.data.data })
         }
         return resultUploadAvatar
       } else {
-        dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/SUCCESS', currentAccount: resultUpdateAccount.data.data })
+        dispatch({
+          type: 'CURRENT_ACCOUNT/UPDATE/SUCCESS',
+          currentAccount: resultUpdateAccount.data.data
+        })
       }
       return resultUpdateAccount
     } else {
