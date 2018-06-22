@@ -24,6 +24,10 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:unauthorized",
       description: "The user is not allowed to perform the requested operation"
     },
+    access_key_unauthorized: %{
+      code: "key:unauthorized",
+      description: "The current access key is not allowed to perform the requested operation"
+    },
     invalid_reset_token: %{
       code: "forget_password:token_not_found",
       description: "There are no password reset requests corresponding to the provided token"

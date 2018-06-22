@@ -5,10 +5,6 @@ defmodule AdminAPI.V1.AdminAuthController do
   alias EWallet.AccountPolicy
   alias EWalletDB.{AuthToken, Account}
 
-  defp permit(action, user_id, account_id) do
-    Bodyguard.permit(AccountPolicy, action, user_id, account_id)
-  end
-
   @doc """
   Authenticates a user with the given email and password.
   Returns with a newly generated authentication token if auth is successful.
@@ -28,7 +24,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   def switch_account(conn, %{"account_id" => account_id}) do
     with token <- conn.private.auth_auth_token,
          %Account{} = account <- Account.get(account_id) || {:error, :account_not_found},
-         :ok <- permit(:get, conn.assigns.admin_user.id, account.id),
+         :ok <- permit(:get, conn.assigns, account.id),
          %AuthToken{} = token <-
            AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},
          {:ok, token} <- AuthToken.switch_account(token, account) do
@@ -65,5 +61,15 @@ defmodule AdminAPI.V1.AdminAuthController do
     conn
     |> AdminUserAuthenticator.expire_token()
     |> render(:empty_response, %{})
+  end
+
+  @spec permit(:all | :create | :get | :update, any(), any()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, %{admin_user: admin_user}, account_id) do
+    Bodyguard.permit(AccountPolicy, action, admin_user, account_id)
+  end
+
+  defp permit(_action, %{key: _key}, _account_id) do
+    {:error, :access_key_unauthorized}
   end
 end
