@@ -9,21 +9,25 @@ defmodule EWallet.Exchange do
   @typep non_neg_or_nil() :: non_neg_integer() | nil
 
   @doc """
-  Retrieves the exchange rate of the given token pair.
+  Retrieves the exchange rate of the given token pair, adjusted for the `subunit_to_unit`
+  differences of the two tokens.
 
   Returns `{:ok, rate, pair}` if the exchange pair is found.
 
   If the returned pair is a reversed pair, the returned `rate` is already inverted.
   """
+  @spec get_rate(%Token{}, %Token{}) :: {:ok, float(), ExchangePair.t()} | {:error, atom()}
   def get_rate(from_token, to_token) do
+    subunit_scale = to_token.subunit_to_unit / from_token.subunit_to_unit
+
     case ExchangePair.fetch_exchangable_pair(from_token, to_token) do
       {:ok, pair, :direct} ->
         # Direct pair. Return the rate directly.
-        {:ok, pair.rate, pair}
+        {:ok, pair.rate * subunit_scale, pair}
 
       {:ok, pair, :reversed} ->
         # Reversed pair. Return the inverted rate.
-        {:ok, 1 / pair.rate, pair}
+        {:ok, 1 / pair.rate * subunit_scale, pair}
 
       {:error, _} = error ->
         error

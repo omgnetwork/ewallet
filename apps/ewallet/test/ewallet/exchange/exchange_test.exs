@@ -81,6 +81,48 @@ defmodule EWallet.ExchangeTest do
     end
   end
 
+  describe "get_rate/2 for tokens with diiferent subunit_to_unit values" do
+    test "returns the adjusted subunit rate" do
+      omg = insert(:token, subunit_to_unit: 1_000)
+      eth = insert(:token, subunit_to_unit: 1_000_000)
+
+      inserted_pair =
+        insert(
+          :exchange_pair,
+          from_token: omg,
+          to_token: eth,
+          rate: 5.0,
+          reversible: false
+        )
+
+      {res, rate, pair} = Exchange.get_rate(omg, eth)
+
+      assert res == :ok
+      assert rate == 5.0 * (1_000_000 / 1_000)
+      assert pair.uuid == inserted_pair.uuid
+    end
+
+    test "returns the reversed and adjusted subunit rate" do
+      omg = insert(:token, subunit_to_unit: 1_000)
+      eth = insert(:token, subunit_to_unit: 1_000_000)
+
+      inserted_pair =
+        insert(
+          :exchange_pair,
+          from_token: eth,
+          to_token: omg,
+          rate: 5.0,
+          reversible: true
+        )
+
+      {res, rate, pair} = Exchange.get_rate(omg, eth)
+
+      assert res == :ok
+      assert rate == 1 / 5.0 * (1_000_000 / 1_000)
+      assert pair.uuid == inserted_pair.uuid
+    end
+  end
+
   describe "validate/4 with the same token" do
     test "returns {:ok, calculation} if amounts are the same", context do
       {result, calculation} = Exchange.validate(10, context.omg, 10, context.omg)
