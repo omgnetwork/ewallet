@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthWalletControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.Date

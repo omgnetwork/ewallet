@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthTokenControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
   alias EWalletDB.{Repo, Token, Mint}

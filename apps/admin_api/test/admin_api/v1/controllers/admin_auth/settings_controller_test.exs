@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AdminAuthSettingsControllerTest do
+defmodule AdminAPI.V1.AdminAuth.SettingsControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/get_settings" do

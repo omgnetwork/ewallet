@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthTransactionRequestControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, User, Account}
   alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}

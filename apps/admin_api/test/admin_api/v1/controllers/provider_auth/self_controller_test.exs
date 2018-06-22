@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthSelfControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
   import Ecto.Query
   alias EWalletDB.{Membership, Repo}

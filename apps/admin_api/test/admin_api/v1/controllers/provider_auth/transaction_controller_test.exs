@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthTransactionControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.User
 

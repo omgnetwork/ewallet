@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthKeyControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Repo, Account, Key}

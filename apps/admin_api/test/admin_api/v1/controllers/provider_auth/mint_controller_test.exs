@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthMintControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.MintGate
   alias EWallet.Web.Date

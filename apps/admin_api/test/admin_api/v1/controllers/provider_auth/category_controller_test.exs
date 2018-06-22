@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthCategoryControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.Helpers.Preloader
 

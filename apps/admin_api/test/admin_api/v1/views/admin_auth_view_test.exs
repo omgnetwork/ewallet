@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AdminAuthViewTest do
+defmodule AdminAPI.V1.AdminAuth.ViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.{AuthTokenSerializer, AdminAuthView}
 

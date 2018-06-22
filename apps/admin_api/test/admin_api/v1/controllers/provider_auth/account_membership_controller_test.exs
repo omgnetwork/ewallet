@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthAccountMembershipControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWallet.Web.Date

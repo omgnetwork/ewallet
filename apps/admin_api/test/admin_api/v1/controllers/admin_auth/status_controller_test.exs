@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AdminAuthStatusControllerTest do
+defmodule AdminAPI.V1.AdminAuth.StatusControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Poison.Parser
 

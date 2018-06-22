@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthFallbackControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.FallbackControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/not_found" do

@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AdminAuthUserAuthControllerTest do
+defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.AuthToken
 

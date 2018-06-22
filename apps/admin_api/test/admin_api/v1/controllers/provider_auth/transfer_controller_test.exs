@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthTransferControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.TransferControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{User, Token, Account, Transfer}
   alias Ecto.UUID

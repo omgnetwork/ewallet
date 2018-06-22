@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AdminAuthTransactionConsumptionControllerTest do
+defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
   alias EWallet.TestEndpoint

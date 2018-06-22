@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthAccountControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, Repo, User}
 

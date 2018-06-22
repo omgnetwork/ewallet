@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuthAdminControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
 
