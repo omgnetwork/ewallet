@@ -14,7 +14,7 @@ defmodule EWalletDB.Repo.Seeds.KeySampleSeed do
 
     case Key.insert(%{account_uuid: account.uuid}) do
       {:ok, key} ->
-        key = Preloader.preload(key, :account)
+        {:ok, key} = Preloader.preload_one(key, :account)
         writer.success("""
           Account Name : #{key.account.name}
           Account ID   : #{key.account.id}

@@ -30,7 +30,7 @@ defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
       nil ->
         case Account.insert(data) do
           {:ok, account} ->
-            account = Preloader.preload(account, :parent)
+            {:ok, account} = Preloader.preload_one(account, :parent)
             writer.success("""
               Name   : #{account.name}
               ID     : #{account.id}
@@ -44,7 +44,7 @@ defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
             writer.error("  Unknown error.")
         end
       %Account{} = account ->
-        account = Preloader.preload(account, :parent)
+        {:ok, account} = Preloader.preload_one(account, :parent)
         writer.warn("""
           Name   : #{account.name}
           ID     : #{account.id}

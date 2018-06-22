@@ -63,7 +63,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
 
         case Token.insert(data) do
           {:ok, token} ->
-            token = Preloader.preload(token, :account)
+            {:ok, token} = Preloader.preload_one(token, :account)
             writer.success("""
               ID              : #{token.id}
               Subunit to unit : #{token.subunit_to_unit}
@@ -79,7 +79,7 @@ defmodule EWalletDB.Repo.Seeds.TokenSampleSeed do
             writer.error("  Unknown error.")
         end
       %Token{} = token ->
-        token = Preloader.preload(token, :account)
+        {:ok, token} = Preloader.preload_one(token, :account)
         writer.warn("""
           ID              : #{token.id}
           Subunit to unit : #{token.subunit_to_unit}
