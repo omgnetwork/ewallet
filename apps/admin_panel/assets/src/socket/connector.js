@@ -1,4 +1,4 @@
-import { Socket } from 'phoenix'
+import { Socket } from './phoenix'
 
 class SocketConnector {
   constructor (params = {}) {
