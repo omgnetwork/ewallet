@@ -11,10 +11,14 @@ defmodule EWallet.ExchangeTest do
 
   describe "get_rate/2" do
     test "returns the rate and exchange pair", context do
-      inserted_pair = insert(:exchange_pair, from_token: context.omg,
-                                             to_token: context.eth,
-                                             rate: 100.0,
-                                             reversible: false)
+      inserted_pair =
+        insert(
+          :exchange_pair,
+          from_token: context.omg,
+          to_token: context.eth,
+          rate: 100.0,
+          reversible: false
+        )
 
       {res, rate, pair} = Exchange.get_rate(context.omg, context.eth)
 
@@ -23,16 +27,25 @@ defmodule EWallet.ExchangeTest do
       assert pair.uuid == inserted_pair.uuid
     end
 
-    test "returns the direct rate and pair if both direct and reversed rates are found", context do
-      direct_pair = insert(:exchange_pair, from_token: context.omg,
-                                           to_token: context.eth,
-                                           rate: 100.0,
-                                           reversible: false)
+    test "returns the direct rate and pair if both direct and reversed rates are found",
+         context do
+      direct_pair =
+        insert(
+          :exchange_pair,
+          from_token: context.omg,
+          to_token: context.eth,
+          rate: 100.0,
+          reversible: false
+        )
 
-      _reversed_pair = insert(:exchange_pair, from_token: context.eth,
-                                              to_token: context.omg,
-                                              rate: 0.0000009,
-                                              reversible: true)
+      _reversed_pair =
+        insert(
+          :exchange_pair,
+          from_token: context.eth,
+          to_token: context.omg,
+          rate: 0.0000009,
+          reversible: true
+        )
 
       {res, rate, pair} = Exchange.get_rate(context.omg, context.eth)
 
@@ -42,10 +55,14 @@ defmodule EWallet.ExchangeTest do
     end
 
     test "returns the reversed rate and exchange pair", context do
-      inserted_pair = insert(:exchange_pair, from_token: context.omg,
-                                             to_token: context.eth,
-                                             rate: 0.1,
-                                             reversible: true)
+      inserted_pair =
+        insert(
+          :exchange_pair,
+          from_token: context.omg,
+          to_token: context.eth,
+          rate: 0.1,
+          reversible: true
+        )
 
       {res, rate, pair} = Exchange.get_rate(context.eth, context.omg)
 
@@ -55,7 +72,8 @@ defmodule EWallet.ExchangeTest do
       assert pair.uuid == inserted_pair.uuid
     end
 
-    test "returns {:error, :exchange_pair_not_found} if the exchange pair is not found", context do
+    test "returns {:error, :exchange_pair_not_found} if the exchange pair is not found",
+         context do
       {res, code} = Exchange.get_rate(context.omg, context.eth)
 
       assert res == :error
@@ -86,10 +104,14 @@ defmodule EWallet.ExchangeTest do
 
   describe "validate/4 with cross tokens" do
     test "returns {:ok, calculation} if the amounts match the rate", context do
-      pair = insert(:exchange_pair, from_token: context.eth,
-                                    to_token: context.omg,
-                                    rate: 10.0,
-                                    reversible: false)
+      pair =
+        insert(
+          :exchange_pair,
+          from_token: context.eth,
+          to_token: context.omg,
+          rate: 10.0,
+          reversible: false
+        )
 
       {result, calculation} = Exchange.validate(10, context.eth, 100, context.omg)
 
@@ -103,10 +125,14 @@ defmodule EWallet.ExchangeTest do
     end
 
     test "returns an :exchange_invalid_rate error if amounts do not match the rate", context do
-      _ = insert(:exchange_pair, from_token: context.eth,
-                                 to_token: context.omg,
-                                 rate: 10.0,
-                                 reversible: false)
+      _ =
+        insert(
+          :exchange_pair,
+          from_token: context.eth,
+          to_token: context.omg,
+          rate: 10.0,
+          reversible: false
+        )
 
       # Using false rate of 100.0
       {result, code} = Exchange.validate(10, context.eth, 1000, context.omg)
@@ -118,10 +144,14 @@ defmodule EWallet.ExchangeTest do
 
   describe "calculate/4 with a nil `from_amount`" do
     test "returns the calculation using a direct pair", context do
-      pair = insert(:exchange_pair, from_token: context.eth,
-                                    to_token: context.omg,
-                                    rate: 0.1,
-                                    reversible: false)
+      pair =
+        insert(
+          :exchange_pair,
+          from_token: context.eth,
+          to_token: context.omg,
+          rate: 0.1,
+          reversible: false
+        )
 
       {result, calculation} = Exchange.calculate(nil, context.eth, 10, context.omg)
 
@@ -135,10 +165,14 @@ defmodule EWallet.ExchangeTest do
     end
 
     test "returns the calculation using a reversed pair", context do
-      pair = insert(:exchange_pair, from_token: context.omg,
-                                    to_token: context.eth,
-                                    rate: 10.0,
-                                    reversible: true)
+      pair =
+        insert(
+          :exchange_pair,
+          from_token: context.omg,
+          to_token: context.eth,
+          rate: 10.0,
+          reversible: true
+        )
 
       {result, calculation} = Exchange.calculate(nil, context.eth, 10, context.omg)
 
@@ -162,10 +196,14 @@ defmodule EWallet.ExchangeTest do
 
   describe "calculate/4 with a nil `to_amount`" do
     test "returns the calculation using a direct pair", context do
-      pair = insert(:exchange_pair, from_token: context.eth,
-                                    to_token: context.omg,
-                                    rate: 10.0,
-                                    reversible: false)
+      pair =
+        insert(
+          :exchange_pair,
+          from_token: context.eth,
+          to_token: context.omg,
+          rate: 10.0,
+          reversible: false
+        )
 
       {result, calculation} = Exchange.calculate(10, context.eth, nil, context.omg)
 
@@ -179,10 +217,14 @@ defmodule EWallet.ExchangeTest do
     end
 
     test "returns the calculation using a reversed pair", context do
-      pair = insert(:exchange_pair, from_token: context.omg,
-                                    to_token: context.eth,
-                                    rate: 0.1,
-                                    reversible: true)
+      pair =
+        insert(
+          :exchange_pair,
+          from_token: context.omg,
+          to_token: context.eth,
+          rate: 0.1,
+          reversible: true
+        )
 
       {result, calculation} = Exchange.calculate(10, context.eth, nil, context.omg)
 
