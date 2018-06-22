@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
       Repo.delete_all(from(m in Membership, where: m.user_uuid == ^user.uuid))
       Membership.assign(user, account, "admin")
 
-      response =  provider_request("/me.get_accounts")
+      response = provider_request("/me.get_accounts")
 
       refute response["success"]
       assert response["data"]["code"] == "access_key:unauthorized"

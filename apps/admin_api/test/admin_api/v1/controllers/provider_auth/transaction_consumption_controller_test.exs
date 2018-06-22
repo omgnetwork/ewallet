@@ -13,6 +13,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
   }
 
   alias EWallet.TransactionConsumptionScheduler
+  alias AdminAPI.V1.Endpoint
 
   setup do
     {:ok, _} = TestEndpoint.start_link()

@@ -64,9 +64,9 @@ defmodule AdminAPI.V1.SelfController do
   def get_accounts(conn, attrs) do
     with {:ok, current_user} <- permit(:update, conn.assigns) do
       accounts =
-       current_user
-       |> User.query_accounts()
-       |> Paginator.paginate_attrs(attrs)
+        current_user
+        |> User.query_accounts()
+        |> Paginator.paginate_attrs(attrs)
 
       render(conn, AccountView, :accounts, %{accounts: accounts})
     else

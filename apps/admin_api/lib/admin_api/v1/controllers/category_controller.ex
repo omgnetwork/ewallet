@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.CategoryController do
   Retrieves a list of categories.
   """
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns.admin_user.id, nil) do
+    with :ok <- permit(:all, conn.assigns, nil) do
       categories =
         Category
         |> Preloader.to_query(@preload_fields)
@@ -56,7 +56,7 @@ defmodule AdminAPI.V1.CategoryController do
   Retrieves a specific category by its id.
   """
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns.admin_user.id, id),
+    with :ok <- permit(:get, conn.assigns, id),
          %Category{} = category <- Category.get_by(id: id),
          {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
@@ -73,7 +73,7 @@ defmodule AdminAPI.V1.CategoryController do
   Creates a new category.
   """
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns.admin_user.id, nil),
+    with :ok <- permit(:create, conn.assigns, nil),
          {:ok, category} <- Category.insert(attrs),
          {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
       render(conn, :category, %{category: category})
@@ -90,7 +90,7 @@ defmodule AdminAPI.V1.CategoryController do
   Updates the category if all required parameters are provided.
   """
   def update(conn, %{"id" => id} = attrs) do
-    with :ok <- permit(:update, conn.assigns.admin_user.id, id),
+    with :ok <- permit(:update, conn.assigns, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, updated} <- Category.update(original, attrs),
          {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
@@ -127,7 +127,11 @@ defmodule AdminAPI.V1.CategoryController do
 
   @spec permit(:all | :create | :get | :update, any(), any()) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, user_id, category_id) do
-    Bodyguard.permit(CategoryPolicy, action, user_id, category_id)
+  defp permit(action, %{admin_user: admin_user}, category_id) do
+    Bodyguard.permit(CategoryPolicy, action, admin_user, category_id)
+  end
+
+  defp permit(action, %{key: key}, category_id) do
+    Bodyguard.permit(CategoryPolicy, action, key, category_id)
   end
 end

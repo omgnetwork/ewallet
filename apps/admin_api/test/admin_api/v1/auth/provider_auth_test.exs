@@ -1,6 +1,6 @@
 defmodule AdminAPI.Web.V1.ProviderAuthTest do
   use AdminAPI.ConnCase, async: true
-  alias AdminAPI.V1.ProviderAuth.
+  alias AdminAPI.V1.ProviderAuth
 
   def auth_header(access_key, secret_key) do
     encoded_key = Base.encode64(access_key <> ":" <> secret_key)

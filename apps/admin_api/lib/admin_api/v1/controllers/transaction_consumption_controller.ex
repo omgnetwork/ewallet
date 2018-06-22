@@ -35,7 +35,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def reject(conn, attrs), do: confirm(conn, get_actor(conn.assigns), attrs, false)
 
   defp get_actor(%{admin_user: _admin_user}) do
-    # TODO: change this to actually check if the user has admin rights over the
+    # To do -> change this to actually check if the user has admin rights over the
     # owner of the consumption
     Account.get_master_account()
   end

@@ -33,6 +33,7 @@ defmodule AdminAPI.V1.AdminAuthController do
     else
       error when is_atom(error) ->
         render_error(conn, {:error, error})
+
       error ->
         render_error(conn, error)
     end
