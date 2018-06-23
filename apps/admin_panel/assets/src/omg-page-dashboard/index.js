@@ -111,13 +111,12 @@ export default class Dashboard extends Component {
     )
   }
   renderCurrentAccountSection = ({ currentAccount }) => {
-    console.log(currentAccount)
     return (
       <SectionContainer>
         <Section title={currentAccount.name || '...'}>
           <DetailGroup>
             <b>Created date:</b>{' '}
-            <span>{moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+            <span>{currentAccount.created_at ? moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss') : '-'}</span>
           </DetailGroup>
           <DetailGroup>
             <b>ID:</b> <span>{currentAccount.id}</span>
