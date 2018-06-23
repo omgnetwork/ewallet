@@ -1,18 +1,11 @@
 import * as sessionService from '../services/sessionService'
-import createHeaders from '../utils/headerGenerator'
-export const login = ({ email, password, rememberMe }) => async (
-  dispatch,
-  getState,
-  { socket }
-) => {
+export const login = ({ email, password, rememberMe }) => async dispatch => {
   try {
     const sessionResult = await sessionService.login({ email, password })
     const account = sessionService.getCurrentAccountFromLocalStorage()
     if (sessionResult.data.success) {
       sessionService.setAccessToken(sessionResult.data.data)
       if (!account) sessionService.setCurrentAccount(sessionResult.data.data.account)
-      socket.setParams({ headers: createHeaders({ auth: true }) })
-      await socket.connect()
       dispatch({
         type: 'LOGIN/SUCCESS',
         currentUser: sessionResult.data.data.user,

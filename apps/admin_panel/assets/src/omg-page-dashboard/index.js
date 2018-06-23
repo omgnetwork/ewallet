@@ -111,14 +111,33 @@ export default class Dashboard extends Component {
     )
   }
   renderCurrentAccountSection = ({ currentAccount }) => {
+    console.log(currentAccount)
     return (
       <SectionContainer>
         <Section title={currentAccount.name || '...'}>
-          <DetailGroup><b>Created date:</b> <span>{moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss')}</span></DetailGroup>
-          <DetailGroup><b>ID:</b> <span>{currentAccount.id}</span></DetailGroup>
-          <DetailGroup><b>Description:</b> <span>{currentAccount.descrition || '-'}</span></DetailGroup>
-          <DetailGroup><b>Group:</b> <span>{currentAccount.group || '-'}</span></DetailGroup>
-          <DetailGroup><b>Account type:</b> <span>{currentAccount.master ? 'Master' : 'Child'}</span></DetailGroup>
+          <DetailGroup>
+            <b>Created date:</b>{' '}
+            <span>{moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>ID:</b> <span>{currentAccount.id}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>Description:</b> <span>{currentAccount.description || '-'}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>Category:</b> <span>{_.get(currentAccount, 'categories.data[0].name', '-')}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>Account type:</b>{' '}
+            <span>
+              {currentAccount.master === true
+                ? 'Master'
+                : currentAccount.master === false
+                  ? 'Child'
+                  : '-'}
+            </span>
+          </DetailGroup>
         </Section>
         {/* <Section title={'History'} /> */}
       </SectionContainer>
