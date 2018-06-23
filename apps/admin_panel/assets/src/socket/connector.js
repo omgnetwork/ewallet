@@ -124,10 +124,10 @@ class SocketConnector {
     }
   }
   joinChannel (channel) {
-    if (!_.includes(this.queueJoinChannels, channel)) {
+    if (!_.includes(this.queueJoinChannels, channel) && !_.includes(this.joinedChannels, channel)) {
       this.queueJoinChannels.push(channel)
+      this.sendJoinEvent(channel)
     }
-    this.sendJoinEvent(channel)
   }
   leaveChannel (channel) {
     const payload = JSON.stringify({
