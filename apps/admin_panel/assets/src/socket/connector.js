@@ -1,8 +1,9 @@
-import { appendParams } from '../utils/urlBuilder'
+import { appendParams, isAbsoluteURL } from '../utils/urlBuilder'
+import urlJoin from 'url-join'
 class SocketConnector {
-  constructor (params = {}) {
+  constructor (url, params = {}) {
     this.socket = null
-    this.url = 'ws://localhost:4000/api/admin/socket'
+    this.url = this.normalizeUrl(url)
     this.params = params
     this.connected = false
     this.handleOnConnected = () => {}
@@ -13,10 +14,29 @@ class SocketConnector {
       '2': 'DISCONNECTING',
       '3': 'DISCONNECTED'
     }
+    this.joinedChannel = {}
   }
-  open = () => {
+  setParams (params) {
+    this.params = params
+  }
+  normalizeUrl (url) {
+    let normalizedUrl = ''
+    if (!isAbsoluteURL(url)) {
+      const origin =
+        window.location.protocol +
+        '//' +
+        window.location.hostname +
+        (window.location.port ? ':' + window.location.port : '')
+      normalizedUrl = urlJoin(origin, url)
+    } else {
+      normalizedUrl = url
+    }
+    return normalizedUrl.replace('http://', 'ws://').replace('https://', 'wss://')
+  }
+  open = resolve => () => {
     console.log('websocket connected.')
     this.handleOnConnected()
+    resolve(true)
   }
   close = () => {
     this.handleOnDisconnected()
@@ -40,12 +60,14 @@ class SocketConnector {
     this.socket.send(payload)
   }
   connect () {
-    const urlWithAuths = appendParams(this.url, this.params)
-    this.socket = new WebSocket(urlWithAuths)
-    this.socket.addEventListener('open', this.open)
-    this.socket.addEventListener('close', this.close)
-    this.socket.addEventListener('message', this.handleBackendMessage)
-    setInterval(this.heartbeat, this.params.heartbeatInterval || 5000)
+    return new Promise((resolve, reject) => {
+      const urlWithAuths = appendParams(this.url, this.params)
+      this.socket = new WebSocket(urlWithAuths)
+      this.socket.addEventListener('open', this.open(resolve))
+      this.socket.addEventListener('close', this.close)
+      this.socket.addEventListener('message', this.handleBackendMessage)
+      setInterval(this.heartbeat, this.params.heartbeatInterval || 5000)
+    })
   }
   disconnect () {
     this.socket.close()
@@ -58,7 +80,7 @@ class SocketConnector {
   handleBackendMessage (message) {
     const parsedMessage = JSON.parse(message.data)
     if (parsedMessage.event === 'phx_reply' && parsedMessage.topic !== 'phoenix') {
-      console.log('joined channel:', parsedMessage.topic)
+      console.log('joined websocket channel:', parsedMessage.topic)
     }
     return parsedMessage
   }
@@ -66,13 +88,16 @@ class SocketConnector {
     return this.connectionStateMap[this.socket.readyState]
   }
   joinChannel (channel) {
-    const payload = JSON.stringify({
-      topic: channel,
-      event: 'phx_join',
-      ref: '1',
-      data: {}
-    })
-    this.socket.send(payload)
+    if (!this.joinedChannel[channel]) {
+      const payload = JSON.stringify({
+        topic: channel,
+        event: 'phx_join',
+        ref: '1',
+        data: {}
+      })
+      this.socket.send(payload)
+    }
+    this.joinedChannel[channel] = true
   }
   leaveChannel (channel) {
     const payload = JSON.stringify({
@@ -82,6 +107,7 @@ class SocketConnector {
       data: {}
     })
     this.socket.send(payload)
+    delete this.joinedChannel[channel]
   }
 }
 export default SocketConnector

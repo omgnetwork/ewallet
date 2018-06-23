@@ -8,6 +8,7 @@ class AuthenticatedRoute extends Component {
     component: PropTypes.func,
     currentAccount: PropTypes.object
   }
+
   renderRedirectRoute = props => {
     return (
       <Redirect

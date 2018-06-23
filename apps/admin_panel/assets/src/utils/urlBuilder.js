@@ -1,7 +1,3 @@
-import urlJoin from 'url-join'
-export function buildApiURL (apiPath, baseUrl = BACKEND_URL) {
-  return urlJoin(baseUrl, apiPath)
-}
 
 function serialize (obj, parentKey) {
   let queryStr = []
@@ -27,3 +23,7 @@ export function appendParams (url, params) {
   let prefix = url.match(/\?/) ? '&' : '?'
   return `${url}${prefix}${serialize(params)}`
 }
+
+export function isAbsoluteURL (url) {
+  return /^([a-z][a-z\d+\-.]*:)?\/\//i.test(url)
+};

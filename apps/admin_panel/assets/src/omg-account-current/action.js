@@ -13,7 +13,7 @@ export const loadCurrentAccount = accountId => async (dispatch, getState, { sock
     }
     return result
   } catch (error) {
-    console.log(error)
+    console.log('Failed to load current account with error', error)
     return dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/FAILED', error })
   }
 }
@@ -61,7 +61,8 @@ export const updateCurrentAccount = ({
   }
 }
 
-export const switchAccount = accountToSwitch => dispatch => {
+export const switchAccount = accountToSwitch => (dispatch, getState, { socket }) => {
   setCurrentAccount(accountToSwitch)
+  socket.joinChannel(`account:${accountToSwitch.id}`)
   return dispatch({ type: 'CURRENT_ACCOUNT/SWITCH', currentAccount: accountToSwitch })
 }

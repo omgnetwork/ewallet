@@ -2,8 +2,6 @@ const HtmlWebpackPlugin = require('html-webpack-plugin')
 const commonLoaders = require('./commonLoaders')
 const { DefinePlugin, ProvidePlugin } = require('webpack')
 const path = require('path')
-// const MiniCssExtractPlugin = require('mini-css-extract-plugin')
-// const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 module.exports = {
   entry: [path.resolve(__dirname, '../src/index.js')],
   output: {
@@ -14,13 +12,6 @@ module.exports = {
   module: {
     rules: [
       ...commonLoaders
-      // {
-      //   test: /\.css$/,
-      //   use: [
-      //     MiniCssExtractPlugin.loader,
-      //     'css-loader'
-      //   ]
-      // }
     ]
   },
   mode: 'production',
@@ -32,14 +23,8 @@ module.exports = {
       _: 'lodash'
     }),
     new DefinePlugin({
-      BACKEND_URL: JSON.stringify(process.env.BACKEND_URL || '/api/admin/')
+      BACKEND_API_URL: JSON.stringify(process.env.BACKEND_URL || '/api/admin/'),
+      BACKEND_WEBSOCKET_URL: JSON.stringify(process.env.BACKEND_WEBSOCKET_URL || '/api/admin/sockete')
     })
-    // new MiniCssExtractPlugin({
-    //   // Options similar to the same options in webpackOptions.output
-    //   // both options are optional
-    //   filename: '[name].css',
-    //   chunkFilename: '[id].css'
-    // })
-    // new BundleAnalyzerPlugin()
   ]
 }

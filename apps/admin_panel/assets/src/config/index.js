@@ -1,0 +1,2 @@
+export const API_URL = BACKEND_API_URL
+export const WEBSOCKET_URL = BACKEND_WEBSOCKET_URL
