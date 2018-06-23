@@ -109,11 +109,7 @@ class ApiKeyPage extends Component {
   }
   rowRenderer = (key, data, rows) => {
     if (key === 'status') {
-      return (
-        <div>
-          <Switch open={data === 'enabled'} onClick={this.onClickSwitch(rows.key)} />
-        </div>
-      )
+      return <Switch open={data === 'enabled'} onClick={this.onClickSwitch(rows.key)} />
     }
     return data
   }
