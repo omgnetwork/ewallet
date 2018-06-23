@@ -163,7 +163,7 @@ class ApiKeyPage extends Component {
         render={({ apiKeys, loadingStatus }) => {
           const apiKeysRows = apiKeys.map(key => {
             return {
-              key: key.id,
+              id: key.id,
               user: key.account_id,
               created_at: moment(key.created_at).format('ddd, DD/MM/YYYY hh:mm:ss'),
               secret: key.key,

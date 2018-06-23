@@ -74,7 +74,7 @@ class WalletPage extends Component {
     return wallets.map(wallet => {
       return {
         owner: wallet.user_id ? 'User' : 'Account',
-        key: wallet.address,
+        id: wallet.address,
         ...wallet
 
       }

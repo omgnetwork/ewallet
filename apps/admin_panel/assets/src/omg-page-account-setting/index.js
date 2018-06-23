@@ -164,7 +164,7 @@ class AccountSettingPage extends Component {
               render={({ inviteList, loadingStatus }) => {
                 const rows = inviteList.map(invite => {
                   return {
-                    key: invite.id,
+                    id: invite.id,
                     role: invite.account_role,
                     email: invite.email,
                     member: invite.username || '-',
