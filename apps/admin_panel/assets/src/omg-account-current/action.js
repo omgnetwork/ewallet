@@ -6,10 +6,7 @@ export const loadCurrentAccount = accountId => async (dispatch, getState, { sock
   try {
     const result = await accountService.getAccountById(accountId)
     if (result.data.success) {
-      socket.subscribe(`account:${result.data.data.id}`, [
-        'transaction_consumption_request',
-        'transaction_consumption_finalized'
-      ])
+      socket.joinChannel(`account:${result.data.data.id}`)
       dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/SUCCESS', currentAccount: result.data.data })
     } else {
       dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/FAILED', error: result.data.data })

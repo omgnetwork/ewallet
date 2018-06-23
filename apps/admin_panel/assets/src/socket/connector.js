@@ -1,62 +1,87 @@
-function serialize (obj, parentKey) {
-  let queryStr = []
-  for (var key in obj) {
-    if (!obj.hasOwnProperty(key)) {
-      continue
-    }
-    let paramKey = parentKey ? `${parentKey}[${key}]` : key
-    let paramVal = obj[key]
-    if (typeof paramVal === 'object') {
-      queryStr.push(serialize(paramVal, paramKey))
-    } else {
-      queryStr.push(encodeURIComponent(paramKey) + '=' + encodeURIComponent(paramVal))
-    }
-  }
-  return queryStr.join('&')
-}
-
-function appendParams (url, params) {
-  if (Object.keys(params).length === 0) {
-    return url
-  }
-
-  let prefix = url.match(/\?/) ? '&' : '?'
-  return `${url}${prefix}${serialize(params)}`
-}
+import { appendParams } from '../utils/urlBuilder'
 class SocketConnector {
   constructor (params = {}) {
     this.socket = null
     this.url = 'ws://localhost:4000/api/admin/socket'
     this.params = params
     this.connected = false
+    this.handleOnConnected = () => {}
+    this.handleOnDisconnected = () => {}
+    this.connectionStateMap = {
+      '0': 'CONNECTING',
+      '1': 'CONNECTED',
+      '2': 'DISCONNECTING',
+      '3': 'DISCONNECTED'
+    }
+  }
+  open = () => {
+    console.log('websocket connected.')
+    this.handleOnConnected()
+  }
+  close = () => {
+    this.handleOnDisconnected()
+    console.log('websocket disconnected.')
+  }
+  on (event, handler) {
+    switch (event) {
+      case 'connected':
+        return (this.handleOnConnected = handler)
+      case 'disconnected':
+        return (this.handleOnDisconnected = handler)
+    }
+  }
+  heartbeat = () => {
+    const payload = JSON.stringify({
+      topic: 'phoenix',
+      event: 'heartbeat',
+      ref: '1',
+      data: {}
+    })
+    this.socket.send(payload)
   }
   connect () {
-    this.socket = new WebSocket(appendParams(this.url, this.socket))
-    this.socket.addEventListener('open', function (event) {
-      this.connected = true
-      console.log('connected websocket url:', this.url)
-    })
-    this.socket.addEventListener('close', function (event) {
-      this.connected = false
-      console.log('disconnected websocket url:', this.url)
-    })
+    const urlWithAuths = appendParams(this.url, this.params)
+    this.socket = new WebSocket(urlWithAuths)
+    this.socket.addEventListener('open', this.open)
+    this.socket.addEventListener('close', this.close)
+    this.socket.addEventListener('message', this.handleBackendMessage)
+    setInterval(this.heartbeat, this.params.heartbeatInterval || 5000)
   }
   disconnect () {
     this.socket.close()
+    this.socket.removeEventListener('open', this.open)
+    this.socket.removeEventListener('close', this.close)
+    this.socket.removeEventListener('message', this.handleBackendMessage)
+    clearInterval(this.heartbeat)
+    this.handleOnDisconnected()
+  }
+  handleBackendMessage (message) {
+    const parsedMessage = JSON.parse(message.data)
+    if (parsedMessage.event === 'phx_reply' && parsedMessage.topic !== 'phoenix') {
+      console.log('joined channel:', parsedMessage.topic)
+    }
+    return parsedMessage
   }
   getConnectionStatus () {
-    return this.connected
+    return this.connectionStateMap[this.socket.readyState]
   }
-  subscribe (channelToSubscribe, topics = [], handler = () => {}) {
-    // const channel = this.socket.channel(channelToSubscribe)
-    // topics.forEach(topic => {
-    //   channel.on(topic, handler)
-    // })
-    // channel
-    //   .join()
-    //   .receive('ok', () => console.log('joined channel:', channelToSubscribe))
-    //   .receive('error', () => console.log('failed to join channel:', channelToSubscribe))
-    //   .receive('timeout', () => console.log('Networking issue. Still waiting...'))
+  joinChannel (channel) {
+    const payload = JSON.stringify({
+      topic: channel,
+      event: 'phx_join',
+      ref: '1',
+      data: {}
+    })
+    this.socket.send(payload)
+  }
+  leaveChannel (channel) {
+    const payload = JSON.stringify({
+      topic: channel,
+      event: 'phx_leave',
+      ref: '1',
+      data: {}
+    })
+    this.socket.send(payload)
   }
 }
 export default SocketConnector

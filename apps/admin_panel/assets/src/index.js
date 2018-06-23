@@ -7,7 +7,6 @@ import createHeaders from './utils/headerGenerator'
 // INITIATE WEB SOCKET WITH AUTH PARAMETERS
 const socket = new SocketConnector({ headers: createHeaders({ auth: true }) })
 socket.connect()
-
 // CREATE REDUX STORE WITH SOCKET INJECTED
 const store = configureStore({}, { socket })
 
