@@ -28,7 +28,7 @@ defmodule EWalletDB.APIKey do
       type: UUID
     )
 
-    field(:expired, :boolean)
+    field(:expired, :boolean, default: false)
     timestamps()
     soft_delete()
   end
@@ -39,6 +39,12 @@ defmodule EWalletDB.APIKey do
     |> validate_required([:key, :owner_app, :account_uuid])
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
+  end
+
+  defp update_changeset(%APIKey{} = key, attrs) do
+    key
+    |> cast(attrs, [:expired])
+    |> validate_required([:expired])
   end
 
   @doc """
@@ -68,6 +74,15 @@ defmodule EWalletDB.APIKey do
     %APIKey{}
     |> changeset(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Updates an API key with the provided attributes.
+  """
+  def update(%APIKey{} = api_key, attrs) do
+    api_key
+    |> update_changeset(attrs)
+    |> Repo.update()
   end
 
   defp get_master_account_uuid do

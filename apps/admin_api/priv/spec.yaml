@@ -1071,6 +1071,22 @@ paths:
           $ref: "#/components/responses/APIKeyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /api_key.update:
+    post:
+      tags:
+        - API Access
+      summary: Update an API key
+      operationId: api_key_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/APIKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /api_key.delete:
     post:
       tags:
@@ -2744,6 +2760,8 @@ components:
           type: string
         owner_app:
           type: string
+        expired:
+          type: boolean
         account_id:
           type: string
         created_at:
@@ -2761,6 +2779,7 @@ components:
         - id
         - key
         - owner_app
+        - expired
         - account_id
         - created_at
         - updated_at
@@ -2784,6 +2803,7 @@ components:
             id: "api_01ce844d5w9e81snekr5kprvem"
             key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             owner_app: "admin_api"
+            expired: false
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -2816,6 +2836,7 @@ components:
                 id: "api_01ce844d5w9e81snekr5kprvem"
                 key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 owner_app: "admin_api"
+                expired: false
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -4140,6 +4161,23 @@ components:
               search_term: ""
               sort_by: "created_at"
               sort_dir: "asc"
+    APIKeyUpdateBody:
+      description: The parameters to use for updating an API key
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              expired:
+                type: boolean
+            required:
+              - id
+              - expired
+            example:
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              expired: true
     APIKeyDeleteBody:
       description: The parameters to use for deleting an API key
       required: true

@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, APIKey}
+  alias EWalletDB.{Repo, Account, APIKey}
   alias EWalletDB.Helpers.Preloader
 
   describe "/api_key.all" do
@@ -21,6 +21,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                        "key" => api_key1.key,
                        "account_id" => api_key1.account.id,
                        "owner_app" => api_key1.owner_app,
+                       "expired" => false,
                        "created_at" => Date.to_iso8601(api_key1.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key1.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key1.deleted_at)
@@ -31,6 +32,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                        "key" => api_key2.key,
                        "account_id" => api_key2.account.id,
                        "owner_app" => api_key2.owner_app,
+                       "expired" => false,
                        "created_at" => Date.to_iso8601(api_key2.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key2.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key2.deleted_at)
@@ -71,6 +73,7 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                        "key" => api_key.key,
                        "account_id" => api_key.account.id,
                        "owner_app" => api_key.owner_app,
+                       "expired" => false,
                        "created_at" => Date.to_iso8601(api_key.inserted_at),
                        "updated_at" => Date.to_iso8601(api_key.updated_at),
                        "deleted_at" => Date.to_iso8601(api_key.deleted_at)
@@ -101,6 +104,93 @@ defmodule AdminAPI.V1.APIKeyControllerTest do
                  "key" => api_key.key,
                  "account_id" => Account.get_master_account().id,
                  "owner_app" => "ewallet_api",
+                 "expired" => false,
+                 "created_at" => Date.to_iso8601(api_key.inserted_at),
+                 "updated_at" => Date.to_iso8601(api_key.updated_at),
+                 "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+               }
+             }
+    end
+  end
+
+  describe "/api_key.update" do
+    test "disables the API key" do
+      api_key = insert(:api_key) |> Repo.preload(:account)
+      assert api_key.expired == false
+
+      response =
+        admin_user_request("/api_key.update", %{
+          id: api_key.id,
+          expired: false
+        })
+
+      assert response == %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "object" => "api_key",
+                 "id" => api_key.id,
+                 "key" => api_key.key,
+                 "expired" => false,
+                 "account_id" => api_key.account.id,
+                 "owner_app" => api_key.owner_app,
+                 "created_at" => Date.to_iso8601(api_key.inserted_at),
+                 "updated_at" => Date.to_iso8601(api_key.updated_at),
+                 "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+               }
+             }
+    end
+
+    test "enables the API key" do
+      api_key = insert(:api_key, expired: true) |> Repo.preload(:account)
+      assert api_key.expired == true
+
+      response =
+        admin_user_request("/api_key.update", %{
+          id: api_key.id,
+          expired: true
+        })
+
+      assert response == %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "object" => "api_key",
+                 "id" => api_key.id,
+                 "key" => api_key.key,
+                 "expired" => true,
+                 "account_id" => api_key.account.id,
+                 "owner_app" => api_key.owner_app,
+                 "created_at" => Date.to_iso8601(api_key.inserted_at),
+                 "updated_at" => Date.to_iso8601(api_key.updated_at),
+                 "deleted_at" => Date.to_iso8601(api_key.deleted_at)
+               }
+             }
+    end
+
+    test "does not update any other fields" do
+      api_key = insert(:api_key, expired: true) |> Repo.preload(:account)
+      assert api_key.expired == true
+
+      response =
+        admin_user_request("/api_key.update", %{
+          id: api_key.id,
+          expired: true,
+          owner_app: "something",
+          key: "some_key",
+          account_id: "random"
+        })
+
+      assert response == %{
+               "version" => "1",
+               "success" => true,
+               "data" => %{
+                 "object" => "api_key",
+                 "id" => api_key.id,
+                 "key" => api_key.key,
+                 "expired" => true,
+                 "account_id" => api_key.account.id,
+                 "owner_app" => api_key.owner_app,
                  "created_at" => Date.to_iso8601(api_key.inserted_at),
                  "updated_at" => Date.to_iso8601(api_key.updated_at),
                  "deleted_at" => Date.to_iso8601(api_key.deleted_at)
