@@ -30,8 +30,10 @@ module.exports = {
       _: 'lodash'
     }),
     new DefinePlugin({
-      BACKEND_API_URL: JSON.stringify(process.env.BACKEND_API_URL),
-      BACKEND_WEBSOCKET_URL: JSON.stringify(process.env.BACKEND_WEBSOCKET_URL)
+      CONFIG: {
+        BACKEND_API_URL: JSON.stringify(process.env.BACKEND_API_URL),
+        BACKEND_WEBSOCKET_URL: JSON.stringify(process.env.BACKEND_WEBSOCKET_URL)
+      }
     })
   ]
 }

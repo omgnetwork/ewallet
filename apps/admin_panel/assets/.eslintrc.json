@@ -19,6 +19,7 @@
     "_":  true,
     "BACKEND_API_URL": true,
     "BACKEND_WEBSOCKET_URL": true,
+    "CONFIG": true,
     "WebSocket": true
   }
 }
