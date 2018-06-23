@@ -8,7 +8,7 @@ import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { generateApiKey, updateApiKey, loadApiKeys } from '../omg-api-keys/action'
+import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -75,14 +75,13 @@ const columns = [
 const enhance = compose(
   connect(
     null,
-    { generateApiKey, updateApiKey, loadApiKeys }
+    { generateApiKey, updateApiKey }
   )
 )
 class ApiKeyPage extends Component {
   static propTypes = {
     generateApiKey: PropTypes.func,
-    updateApiKey: PropTypes.func,
-    loadApiKeys: PropTypes.func
+    updateApiKey: PropTypes.func
   }
   state = {
     adminModalOpen: false,
@@ -102,10 +101,7 @@ class ApiKeyPage extends Component {
     this.onRequestClose()
   }
   onClickSwitch = ({ id, expired }) => async e => {
-    const result = await this.props.updateApiKey({ id, expired })
-    if (result.data.success) {
-      this.props.loadApiKeys()
-    }
+    this.props.updateApiKey({ id, expired })
   }
   rowRenderer = (key, data, rows) => {
     if (key === 'expired') {
