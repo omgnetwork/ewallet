@@ -33,7 +33,229 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   end
 
   describe "/me.consume_transaction_request" do
+    test "consumes a request with amount and transfers the appropriate amount of tokens", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          allow_amount_override: false,
+          amount: 1 * meta.token.subunit_to_unit,
+          correlation_id: "tBUI9WCJ",
+          encrypted_metadata: %{"a_key" => "a_value"},
+          metadata: %{"a_key" => "a_value"},
+          require_confirmation: false,
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          type: "send"
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          address: nil,
+          encrypted_metadata: %{"a_key" => "a_value"},
+          formatted_transaction_request_id: transaction_request.id,
+          idempotency_token: "JXcTFKJK",
+          metadata: %{"a_key" => "a_value"},
+          token_id: meta.token.id
+        })
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "address" => meta.bob_wallet.address,
+                 "amount" => 1 * meta.token.subunit_to_unit,
+                 "correlation_id" => nil,
+                 "id" => inserted_consumption.id,
+                 "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+                 "idempotency_token" => "JXcTFKJK",
+                 "object" => "transaction_consumption",
+                 "status" => "confirmed",
+                 "token_id" => meta.token.id,
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "transaction_request_id" => transaction_request.id,
+                 "transaction_request" =>
+                   request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
+                 "transaction_id" => inserted_transfer.id,
+                 "transaction" =>
+                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                 "user_id" => meta.bob.id,
+                 "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
+                 "encrypted_metadata" => %{"a_key" => "a_value"},
+                 "expiration_date" => nil,
+                 "metadata" => %{"a_key" => "a_value"},
+                 "account_id" => nil,
+                 "account" => nil,
+                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "expired_at" => nil
+               }
+             }
+
+      assert inserted_transfer.amount == 1 * meta.token.subunit_to_unit
+      assert inserted_transfer.to == meta.bob_wallet.address
+      assert inserted_transfer.from == meta.alice_wallet.address
+      assert inserted_transfer.entry_uuid != nil
+    end
+
     test "consumes the request and transfers the appropriate amount of tokens", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      set_initial_balance(%{
+        address: meta.bob_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "JXcTFKJK",
+          address: nil,
+          metadata: %{"a_key" => "a_value"},
+          encrypted_metadata: %{"a_key" => "a_value"},
+          formatted_transaction_request_id: transaction_request.id,
+          token_id: meta.token.id
+        })
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "address" => meta.bob_wallet.address,
+                 "amount" => 100_000 * meta.token.subunit_to_unit,
+                 "correlation_id" => nil,
+                 "id" => inserted_consumption.id,
+                 "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+                 "idempotency_token" => "JXcTFKJK",
+                 "object" => "transaction_consumption",
+                 "status" => "confirmed",
+                 "token_id" => meta.token.id,
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "transaction_request_id" => transaction_request.id,
+                 "transaction_request" =>
+                   request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
+                 "transaction_id" => inserted_transfer.id,
+                 "transaction" =>
+                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                 "user_id" => meta.bob.id,
+                 "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
+                 "encrypted_metadata" => %{"a_key" => "a_value"},
+                 "expiration_date" => nil,
+                 "metadata" => %{"a_key" => "a_value"},
+                 "account_id" => nil,
+                 "account" => nil,
+                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "expired_at" => nil
+               }
+             }
+
+      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transfer.to == meta.alice_wallet.address
+      assert inserted_transfer.from == meta.bob_wallet.address
+      assert inserted_transfer.entry_uuid != nil
+    end
+
+    test "consumes the request and transfers the appropriate amount of tokens with min params",
+         meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      set_initial_balance(%{
+        address: meta.bob_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id
+        })
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "address" => meta.bob_wallet.address,
+                 "amount" => 100_000 * meta.token.subunit_to_unit,
+                 "correlation_id" => nil,
+                 "id" => inserted_consumption.id,
+                 "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+                 "idempotency_token" => "123",
+                 "object" => "transaction_consumption",
+                 "status" => "confirmed",
+                 "token_id" => meta.token.id,
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "transaction_request_id" => transaction_request.id,
+                 "transaction_request" =>
+                   request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
+                 "transaction_id" => inserted_transfer.id,
+                 "transaction" =>
+                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                 "user_id" => meta.bob.id,
+                 "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
+                 "encrypted_metadata" => %{},
+                 "expiration_date" => nil,
+                 "metadata" => %{},
+                 "account_id" => nil,
+                 "account" => nil,
+                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "expired_at" => nil
+               }
+             }
+
+      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transfer.to == meta.alice_wallet.address
+      assert inserted_transfer.from == meta.bob_wallet.address
+      assert inserted_transfer.entry_uuid != nil
+    end
+
+    test "consumes the request and transfers the appropriate amount of tokens with min nil params",
+         meta do
       transaction_request =
         insert(
           :transaction_request,
