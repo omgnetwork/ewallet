@@ -14,8 +14,8 @@ class SocketConnector {
       '2': 'DISCONNECTING',
       '3': 'DISCONNECTED'
     }
-    this.queueJoinChannel = []
-    this.joinedChannel = []
+    this.queueJoinChannels = []
+    this.joinedChannels = []
   }
   setParams (params) {
     this.params = params
@@ -37,8 +37,8 @@ class SocketConnector {
   open = resolve => () => {
     console.log('websocket connected.')
     this.handleOnConnected()
-    if (this.queueJoinChannel.length > 0) {
-      this.queueJoinChannel.forEach(channel => {
+    if (this.queueJoinChannels.length > 0) {
+      this.queueJoinChannels.forEach(channel => {
         this.sendJoinEvent(channel)
       })
     }
@@ -83,23 +83,28 @@ class SocketConnector {
     clearInterval(this.sendHeartbeatEvent)
     this.handleOnDisconnected()
   }
+  isJoinEvent (message) {
+    return message.ref === '1' && message.topic !== 'phoenix'
+  }
+  isLeaveEvent (message) {
+    return message.ref === '2' && message.event !== 'phoenix'
+  }
   handleMessage = message => {
     const parsedMessage = JSON.parse(message.data)
-    // JOIN EVENT REF 1
-    if (message.success) {
-      if (message.ref === '1') {
+    if (parsedMessage.success) {
+      if (this.isJoinEvent(parsedMessage)) {
         console.log('joined websocket channel:', parsedMessage.topic)
-        this.joinedChannel.push(_.pull(this.queueJoinChannel, message.topic))
-        // LEAVE EVENT REF 2
-      } else if (message.ref === '2') {
+        _.pull(this.queueJoinChannels, parsedMessage.topic)
+        this.joinedChannels.push(parsedMessage.topic)
+      } else if (this.isLeaveEvent(parsedMessage)) {
         console.log('left websocket channel:', parsedMessage.topic)
-        _.pull(this.joinedChannel, message.topic)
-        _.pull(this.queueJoinChannel, message.topic)
+        _.pull(this.joinedChannels, parsedMessage.topic)
+        _.pull(this.queueJoinChannels, parsedMessage.topic)
       } else {
         // OTHER EVENT
       }
     } else {
-      console.error('websocket event error with response', parsedMessage)
+      console.error('websocket event reply error with response', parsedMessage)
     }
   }
   getConnectionStatus () {
@@ -119,8 +124,8 @@ class SocketConnector {
     }
   }
   joinChannel (channel) {
-    if (this.queueJoinChannel.indexOf[channel] !== -1) {
-      this.queueJoinChannel.push(channel)
+    if (!_.includes(this.queueJoinChannels, channel)) {
+      this.queueJoinChannels.push(channel)
     }
     this.sendJoinEvent(channel)
   }
