@@ -102,7 +102,7 @@ class TransactionPage extends Component {
       <TransactionPageContainer>
         <TopNavigation title={'Transaction'} buttons={[]} />
         <SortableTable
-          dataSource={transactions}
+          dataSource={transactions.map(t => ({ ...t, key: t.id }))}
           columns={columns}
           rowRenderer={this.rowRenderer}
           loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
