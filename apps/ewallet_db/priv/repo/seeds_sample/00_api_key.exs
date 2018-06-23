@@ -14,7 +14,7 @@ defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
 
     case APIKey.insert(%{account_uuid: account.uuid, owner_app: "ewallet_api"}) do
       {:ok, api_key} ->
-        api_key = Preloader.preload(api_key, :account)
+        {:ok, api_key} = Preloader.preload_one(api_key, :account)
         writer.success("""
           Owner app    : #{api_key.owner_app}
           Account Name : #{api_key.account.name}

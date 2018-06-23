@@ -14,7 +14,7 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSampleSeed do
 
     case AuthToken.generate(user, :ewallet_api) do
       {:ok, token} ->
-        token = Preloader.preload(token, :user)
+        {:ok, token} = Preloader.preload_one(token, :user)
         writer.success("""
           Owner app        : #{token.owner_app}
           User ID          : #{token.user.id}

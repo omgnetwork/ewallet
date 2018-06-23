@@ -34,7 +34,7 @@ defmodule EWallet.Seeder.CLI do
   Press Enter to start seeding or `Ctrl+C` twice to exit.
   """
 
-  def run(srcs) do
+  def run(srcs, assume_yes) do
     mods = Seeder.gather_seeds(srcs)
     reporters = Seeder.gather_reporters(srcs)
 
@@ -43,8 +43,10 @@ defmodule EWallet.Seeder.CLI do
       |> Seeder.argsline_for()
       |> process_argsline()
 
-    _ = IO.puts("\n-----\n")
-    _ = IO.gets(@confirm_message)
+    unless assume_yes do
+      _ = IO.puts("\n-----\n")
+      _ = IO.gets(@confirm_message)
+    end
 
     args = run_seeds(mods, args)
     run_reporters(reporters, args)

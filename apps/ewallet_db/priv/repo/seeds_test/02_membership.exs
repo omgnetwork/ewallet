@@ -2,6 +2,10 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
   alias EWalletDB.{Account, Membership, Role, User}
   alias EWallet.Web.Preloader
 
+  @seed_data %{
+    admin_email: System.get_env("E2E_TEST_ADMIN_EMAIL") || "test_admin@example.com",
+  }
+
   def seed do
     [
       run_banner: "Seeding the admin membership",
@@ -9,8 +13,8 @@ defmodule EWalletDB.Repo.Seeds.MembershipSeed do
     ]
   end
 
-  def run(writer, args) do
-    admin_email = args[:admin_email]
+  def run(writer, _args) do
+    admin_email = @seed_data[:admin_email]
 
     user = User.get_by_email(admin_email)
     account = Account.get_master_account()

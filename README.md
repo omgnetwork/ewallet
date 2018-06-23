@@ -173,6 +173,8 @@ To learn more about all the environment variables available for production deplo
 
 ## Running the tests
 
+### Unit tests
+
 Before we start the application, let's try running the tests. Create the test databases:
 
 ```
@@ -226,6 +228,10 @@ Finished in 4.5 seconds
 ```
 
 All the tests should pass. If some tests are failing, double-check you have install all the dependencies. If you keep getting the failures, you can get in touch with us on [Gitter](https://gitter.im/omisego/ewallet)!
+
+### Acceptance tests
+
+Check [this file](/docs/tests/e2e.md) for all informations about acceptance tests.
 
 ## Migrating the development database
 
