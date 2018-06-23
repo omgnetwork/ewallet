@@ -1,4 +1,4 @@
-import { appendParams, isAbsoluteURL } from '../utils/urlBuilder'
+import { appendParams, isAbsoluteURL } from '../utils/url'
 import urlJoin from 'url-join'
 class SocketConnector {
   constructor (url, params = {}) {
