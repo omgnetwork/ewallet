@@ -8,7 +8,7 @@ import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { generateApiKey, disableApiKey, loadApiKeys } from '../omg-api-keys/action'
+import { generateApiKey, updateApiKey, loadApiKeys } from '../omg-api-keys/action'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -70,18 +70,18 @@ const columns = [
   { key: 'created_at', title: 'Created' },
   { key: 'user', title: 'User' },
   { key: 'secret', title: 'Secret' },
-  { key: 'status', title: 'Status' }
+  { key: 'expired', title: 'Status' }
 ]
 const enhance = compose(
   connect(
     null,
-    { generateApiKey, disableApiKey, loadApiKeys }
+    { generateApiKey, updateApiKey, loadApiKeys }
   )
 )
 class ApiKeyPage extends Component {
   static propTypes = {
     generateApiKey: PropTypes.func,
-    disableApiKey: PropTypes.func,
+    updateApiKey: PropTypes.func,
     loadApiKeys: PropTypes.func
   }
   state = {
@@ -101,15 +101,20 @@ class ApiKeyPage extends Component {
     this.props.generateApiKey(owner)
     this.onRequestClose()
   }
-  onClickSwitch = id => async e => {
-    const result = await this.props.disableApiKey(id)
+  onClickSwitch = ({ id, expired }) => async e => {
+    const result = await this.props.updateApiKey({ id, expired })
     if (result.data.success) {
       this.props.loadApiKeys()
     }
   }
   rowRenderer = (key, data, rows) => {
-    if (key === 'status') {
-      return <Switch open={data === 'enabled'} onClick={this.onClickSwitch(rows.key)} />
+    if (key === 'expired') {
+      return (
+        <Switch
+          open={!data}
+          onClick={this.onClickSwitch({ id: rows.key, expired: !rows.expired })}
+        />
+      )
     }
     return data
   }
@@ -161,13 +166,16 @@ class ApiKeyPage extends Component {
     return (
       <ApiKeyProvider
         render={({ apiKeys, loadingStatus }) => {
-          const apiKeysRows = apiKeys.map(key => {
+          const apiKeysRows = apiKeys
+          .filter(key => !key.deleted_at)
+          .map(key => {
             return {
+              key: key.id,
               id: key.id,
               user: key.account_id,
               created_at: moment(key.created_at).format('ddd, DD/MM/YYYY hh:mm:ss'),
               secret: key.key,
-              status: !key.deleted_at ? 'enabled' : 'disabled',
+              expired: key.expired,
               ownerApp: key.owner_app
             }
           })
