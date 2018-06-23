@@ -49,6 +49,7 @@ defmodule EWallet.Web.WebSocket do
         params
       ) do
     {_, opts} = handler.__transport__(transport)
+
     with conn <- code_reload(conn, opts, endpoint),
          conn <- Transport.transport_log(conn, opts[:transport_log]),
          conn <- Transport.force_ssl(conn, handler, endpoint, opts),

@@ -20,7 +20,6 @@ defmodule AdminAPI.V1.AdminAPIAuth do
 
   defp extract_auth_scheme(params, auth) do
     with header when not is_nil(header) <- get_authorization_header(params),
-
          [scheme, _content] <- String.split(header, " ", parts: 2) do
       auth
       |> Map.put(:auth_scheme_name, scheme)

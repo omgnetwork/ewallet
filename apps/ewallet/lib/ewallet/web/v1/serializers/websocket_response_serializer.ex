@@ -56,6 +56,7 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
         decoded
         |> Map.put("payload", decoded["data"])
         |> Message.from_map!()
+
       [join_ref, ref, topic, event, payload | _] ->
         %{
           "topic" => topic,

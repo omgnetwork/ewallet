@@ -53,12 +53,14 @@ defmodule EWalletAPI.WebSocket do
              :ewallet_api,
              &ErrorHandler.handle_error/2
            ),
-        {:ok, _conn, {_module, {_socket, _opts}}} = res <- EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer, params) do
-          res
+         {:ok, _conn, {_module, {_socket, _opts}}} = res <-
+           EWallet.Web.WebSocket.init(conn, opts, endpoint, serializer, params) do
+      res
     else
       {:error, conn} ->
         conn = send_resp(conn, 403, "")
         {:error, conn}
+
       _error ->
         conn = send_resp(conn, 403, "")
         {:error, conn}

@@ -35,8 +35,7 @@ defmodule EWallet.TransactionConsumptionValidator do
           | {:error, Atom.t()}
   def validate_before_confirmation(consumption, owner) do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
-         true <-
-           TransactionRequest.is_owned_by?(request, owner) || :not_transaction_request_owner,
+         true <- TransactionRequest.is_owned_by?(request, owner) || :not_transaction_request_owner,
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
