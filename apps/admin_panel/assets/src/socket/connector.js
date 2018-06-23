@@ -14,7 +14,8 @@ class SocketConnector {
       '2': 'DISCONNECTING',
       '3': 'DISCONNECTED'
     }
-    this.joinedChannel = {}
+    this.queueJoinChannel = []
+    this.joinedChannel = []
   }
   setParams (params) {
     this.params = params
@@ -36,7 +37,12 @@ class SocketConnector {
   open = resolve => () => {
     console.log('websocket connected.')
     this.handleOnConnected()
-    resolve(true)
+    if (this.queueJoinChannel.length > 0) {
+      this.queueJoinChannel.forEach(channel => {
+        this.sendJoinEvent(channel)
+      })
+    }
+    return resolve(true)
   }
   close = () => {
     this.handleOnDisconnected()
@@ -50,7 +56,7 @@ class SocketConnector {
         return (this.handleOnDisconnected = handler)
     }
   }
-  heartbeat = () => {
+  sendHeartbeatEvent = () => {
     const payload = JSON.stringify({
       topic: 'phoenix',
       event: 'heartbeat',
@@ -65,30 +71,42 @@ class SocketConnector {
       this.socket = new WebSocket(urlWithAuths)
       this.socket.addEventListener('open', this.open(resolve))
       this.socket.addEventListener('close', this.close)
-      this.socket.addEventListener('message', this.handleBackendMessage)
-      setInterval(this.heartbeat, this.params.heartbeatInterval || 5000)
+      this.socket.addEventListener('message', this.handleMessage)
+      setInterval(this.sendHeartbeatEvent, this.params.heartbeatInterval || 5000)
     })
   }
   disconnect () {
     this.socket.close()
     this.socket.removeEventListener('open', this.open)
     this.socket.removeEventListener('close', this.close)
-    this.socket.removeEventListener('message', this.handleBackendMessage)
-    clearInterval(this.heartbeat)
+    this.socket.removeEventListener('message', this.handleMessage)
+    clearInterval(this.sendHeartbeatEvent)
     this.handleOnDisconnected()
   }
-  handleBackendMessage (message) {
+  handleMessage = message => {
     const parsedMessage = JSON.parse(message.data)
-    if (parsedMessage.event === 'phx_reply' && parsedMessage.topic !== 'phoenix') {
-      console.log('joined websocket channel:', parsedMessage.topic)
+    // JOIN EVENT REF 1
+    if (message.success) {
+      if (message.ref === '1') {
+        console.log('joined websocket channel:', parsedMessage.topic)
+        this.joinedChannel.push(_.pull(this.queueJoinChannel, message.topic))
+        // LEAVE EVENT REF 2
+      } else if (message.ref === '2') {
+        console.log('left websocket channel:', parsedMessage.topic)
+        _.pull(this.joinedChannel, message.topic)
+        _.pull(this.queueJoinChannel, message.topic)
+      } else {
+        // OTHER EVENT
+      }
+    } else {
+      console.error('websocket event error with response', parsedMessage)
     }
-    return parsedMessage
   }
   getConnectionStatus () {
     return this.connectionStateMap[this.socket.readyState]
   }
-  joinChannel (channel) {
-    if (!this.joinedChannel[channel]) {
+  sendJoinEvent (channel) {
+    if (this.socket) {
       const payload = JSON.stringify({
         topic: channel,
         event: 'phx_join',
@@ -96,18 +114,24 @@ class SocketConnector {
         data: {}
       })
       this.socket.send(payload)
+    } else {
+      console.warn('attempt to send an event while socket is not connected.')
     }
-    this.joinedChannel[channel] = true
+  }
+  joinChannel (channel) {
+    if (this.queueJoinChannel.indexOf[channel] !== -1) {
+      this.queueJoinChannel.push(channel)
+    }
+    this.sendJoinEvent(channel)
   }
   leaveChannel (channel) {
     const payload = JSON.stringify({
       topic: channel,
       event: 'phx_leave',
-      ref: '1',
+      ref: '2',
       data: {}
     })
     this.socket.send(payload)
-    delete this.joinedChannel[channel]
   }
 }
 export default SocketConnector
