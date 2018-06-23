@@ -65,7 +65,13 @@ const InviteButton = styled(Button)`
   padding-left: 40px;
   padding-right: 40px;
 `
-const enhance = compose(withRouter, connect(null, { inviteMember, getListMembers }))
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { inviteMember, getListMembers }
+  )
+)
 class InviteModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
@@ -76,18 +82,18 @@ class InviteModal extends Component {
     location: PropTypes.object
   }
   state = {
-    email: null,
+    email: '',
     role: 'viewer',
-    submitStatus: null
+    submitStatus: ''
   }
   validateEmail = email => {
     return /@/.test(email)
   }
   reset = () => {
     this.setState({
-      email: null,
+      email: '',
       role: 'viewer',
-      submitStatus: null
+      submitStatus: ''
     })
   }
   onRequestClose = () => {
