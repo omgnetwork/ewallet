@@ -410,7 +410,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
   describe "consume/2 with user" do
     test "consumes the receive request and transfer the appropriate amount of token with min
-    params (and is idempotent)", meta do
+    params (and is idempotent)",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {res, consumption_1} =
@@ -441,7 +442,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "consumes the receive request and transfer the appropriate amount of token with min
-    nil params (and is idempotent)", meta do
+    nil params (and is idempotent)",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {res, consumption_1} =
@@ -528,7 +530,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "consumes an account receive request and transfer the appropriate amount of token with min
-    params", meta do
+    params",
+         meta do
       transaction_request =
         insert(
           :transaction_request,
@@ -560,7 +563,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "consumes the receive request and transfer the appropriate amount
-          of token with all params", meta do
+          of token with all params",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {res, consumption} =
@@ -601,7 +605,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "works with reached max_consumptions_per_user is reached but
-          same idempotent token is provided", meta do
+          same idempotent token is provided",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       request =
@@ -647,7 +652,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "returns a 'max_consumptions_per_user_reached' error if the maximum number of
-          consumptions has been reached for the current user", meta do
+          consumptions has been reached for the current user",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       request =
@@ -815,7 +821,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "works and returns the previous consumption with max_consumptions and
-         same idempotency_token", meta do
+         same idempotency_token",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
 
@@ -850,7 +857,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "returns a 'max_consumptions_reached' error if the maximum number of
-          consumptions has been reached", meta do
+          consumptions has been reached",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 1})
 
@@ -989,7 +997,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "proceeds if the maximum number of consumptions hasn't been reached and
-          increment it", meta do
+          increment it",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       {:ok, request} = TransactionRequest.update(meta.request, %{max_consumptions: 2})
 
@@ -1066,7 +1075,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "returns a pending request with no transfer is the request requires confirmation
-         (and is idempotent)", meta do
+         (and is idempotent)",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {:ok, request} =
@@ -1184,7 +1194,8 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "returns an 'unauthorized_amount_override' error if the consumption tries to
-          illegally override the amount", meta do
+          illegally override the amount",
+         meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
 
       {:ok, request} =

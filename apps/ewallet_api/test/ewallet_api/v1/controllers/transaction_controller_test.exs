@@ -93,7 +93,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
     end
 
     test "ignores search terms if both from and to are provided and
-          address does not belong to user", meta do
+          address does not belong to user",
+         meta do
       response =
         client_request("/me.get_transactions", %{
           "sort_by" => "created_at",
