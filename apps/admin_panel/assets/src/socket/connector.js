@@ -5,7 +5,6 @@ class SocketConnector {
     this.socket = null
     this.url = this.normalizeUrl(url)
     this.params = params
-    this.connected = false
     this.handleOnConnected = () => {}
     this.handleOnDisconnected = () => {}
     this.connectionStateMap = {
@@ -37,16 +36,36 @@ class SocketConnector {
   open = resolve => () => {
     console.log('websocket connected.')
     this.handleOnConnected()
+    this.drainQueue()
+    return resolve(true)
+  }
+  drainQueue = () => {
     if (this.queueJoinChannels.length > 0) {
       this.queueJoinChannels.forEach(channel => {
         this.sendJoinEvent(channel)
       })
     }
-    return resolve(true)
+  }
+  addJoinedChannelToQueue = () => {
+    if (this.joinedChannels.length > 0) {
+      this.joinedChannels.forEach(channel => {
+        if (!_.includes(this.queueJoinChannels, channel)) {
+          this.queueJoinChannels.push(channel)
+        }
+      })
+      this.joinedChannels = []
+    }
   }
   close = () => {
     this.handleOnDisconnected()
+    this.socket.removeEventListener('open', this.open)
+    this.socket.removeEventListener('close', this.close)
+    this.socket.removeEventListener('message', this.handleMessage)
+    this.socket = null
+    clearInterval(this.heartbeat)
     console.log('websocket disconnected.')
+    this.addJoinedChannelToQueue()
+    this.reconnect()
   }
   on (event, handler) {
     switch (event) {
@@ -65,6 +84,14 @@ class SocketConnector {
     })
     this.socket.send(payload)
   }
+  async reconnect () {
+    try {
+      console.log('reconnecting websocket...')
+      await this.connect()
+    } catch (error) {
+      setTimeout(this.reconnect, 3000)
+    }
+  }
   connect () {
     return new Promise((resolve, reject) => {
       const urlWithAuths = appendParams(this.url, this.params)
@@ -72,16 +99,11 @@ class SocketConnector {
       this.socket.addEventListener('open', this.open(resolve))
       this.socket.addEventListener('close', this.close)
       this.socket.addEventListener('message', this.handleMessage)
-      setInterval(this.sendHeartbeatEvent, this.params.heartbeatInterval || 5000)
+      this.heartbeat = setInterval(this.sendHeartbeatEvent, this.params.heartbeatInterval || 5000)
     })
   }
   disconnect () {
     this.socket.close()
-    this.socket.removeEventListener('open', this.open)
-    this.socket.removeEventListener('close', this.close)
-    this.socket.removeEventListener('message', this.handleMessage)
-    clearInterval(this.sendHeartbeatEvent)
-    this.handleOnDisconnected()
   }
   isJoinEvent (message) {
     return message.ref === '1' && message.topic !== 'phoenix'
@@ -95,7 +117,9 @@ class SocketConnector {
       if (this.isJoinEvent(parsedMessage)) {
         console.log('joined websocket channel:', parsedMessage.topic)
         _.pull(this.queueJoinChannels, parsedMessage.topic)
-        this.joinedChannels.push(parsedMessage.topic)
+        if (!_.includes(this.joinedChannels, parsedMessage.topic)) {
+          this.joinedChannels.push(parsedMessage.topic)
+        }
       } else if (this.isLeaveEvent(parsedMessage)) {
         console.log('left websocket channel:', parsedMessage.topic)
         _.pull(this.joinedChannels, parsedMessage.topic)
