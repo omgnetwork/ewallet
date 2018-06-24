@@ -1,5 +1,6 @@
 import { appendParams, isAbsoluteURL } from '../utils/url'
 import urlJoin from 'url-join'
+import _ from 'lodash'
 class SocketConnector {
   constructor (url, params = {}) {
     this.socket = null
@@ -7,6 +8,7 @@ class SocketConnector {
     this.params = params
     this.handleOnConnected = () => {}
     this.handleOnDisconnected = () => {}
+    this.WebSocket = WebSocket
     this.connectionStateMap = {
       '0': 'CONNECTING',
       '1': 'CONNECTED',
@@ -33,7 +35,7 @@ class SocketConnector {
     }
     return normalizedUrl.replace('http://', 'ws://').replace('https://', 'wss://')
   }
-  open = resolve => () => {
+  open = (resolve) => () => {
     console.log('websocket connected.')
     this.handleOnConnected()
     this.drainQueue()
@@ -93,7 +95,7 @@ class SocketConnector {
   connect () {
     return new Promise((resolve, reject) => {
       const urlWithAuths = appendParams(this.url, this.params)
-      this.socket = new WebSocket(urlWithAuths)
+      this.socket = new this.WebSocket(urlWithAuths)
       this.socket.addEventListener('open', this.open(resolve))
       this.socket.addEventListener('close', this.close)
       this.socket.addEventListener('message', this.handleMessage)

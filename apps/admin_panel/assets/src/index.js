@@ -7,7 +7,6 @@ import { WEBSOCKET_URL } from './config'
 // INITIATE WEB SOCKET
 const socket = new SocketConnector(WEBSOCKET_URL)
 // CREATE REDUX STORE WITH SOCKET INJECTED
-window._websocket = socket
 const store = configureStore({}, { socket })
 // RENDER APP
 render(<App store={store} />, document.getElementById('app'))
