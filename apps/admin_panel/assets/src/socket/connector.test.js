@@ -5,7 +5,7 @@ describe('websocket', () => {
     constructor () {
       this.events = {}
     }
-    fakeCall = event => {
+    fakeEventListenerCallbackCall = event => {
       if (event === 'open') {
         this.readyState = '1'
       }
@@ -30,7 +30,7 @@ describe('websocket', () => {
     let result = socket.connect().then(result => {
       expect(result).toBe(true)
     })
-    socket.socket.fakeCall('open')
+    socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
   test('should get connection status correctly when disconnected', () => {
@@ -38,17 +38,17 @@ describe('websocket', () => {
       expect(result).toBe(true)
       expect(socket.getConnectionStatus()).toBe('CONNECTED')
     })
-    socket.socket.fakeCall('open')
+    socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
   test('should reconnect when disconnected', () => {
     socket.reconnect = jest.fn()
     let result = socket.connect().then(result => {
-      socket.socket.fakeCall('close')
+      socket.socket.fakeEventListenerCallbackCall('close')
       expect(socket.socket).toBe(null)
       expect(socket.reconnect).toBeCalled()
     })
-    socket.socket.fakeCall('open')
+    socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
   test('should be able to send join event if socket is connected', () => {
@@ -65,7 +65,7 @@ describe('websocket', () => {
       )
       expect(socket.queueJoinChannels.length === 1)
     })
-    socket.socket.fakeCall('open')
+    socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
   test('should send leave event correctly', () => {
@@ -81,7 +81,7 @@ describe('websocket', () => {
         })
       )
     })
-    socket.socket.fakeCall('open')
+    socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
   test('should send heartbeat event correctly', () => {
@@ -97,7 +97,7 @@ describe('websocket', () => {
          })
       )
     })
-    socket.socket.fakeCall('open')
+    socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
 })
