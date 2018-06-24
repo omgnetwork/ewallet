@@ -149,6 +149,8 @@ class SocketConnector {
     if (!_.includes(this.queueJoinChannels, channel) && !_.includes(this.joinedChannels, channel)) {
       this.queueJoinChannels.push(channel)
       this.sendJoinEvent(channel)
+    } else {
+      console.warn('attempt to join an existing channel', channel)
     }
   }
   leaveChannel (channel) {
