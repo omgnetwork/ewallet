@@ -85,8 +85,10 @@ class SocketConnector {
     this.socket.send(payload)
   }
   async reconnect () {
-    console.log('reconnecting websocket...')
-    await this.connect()
+    setTimeout(async () => {
+      console.log('reconnecting websocket...')
+      await this.connect()
+    }, 5000)
   }
   connect () {
     return new Promise((resolve, reject) => {
