@@ -33,10 +33,12 @@ describe('websocket', () => {
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
-  test('should get connection status correctly when disconnected', () => {
+  test('should get connection status correctly when connected', () => {
     let result = socket.connect().then(result => {
       expect(result).toBe(true)
       expect(socket.getConnectionStatus()).toBe('CONNECTED')
+      socket.socket.fakeEventListenerCallbackCall('close')
+      expect(socket.getConnectionStatus()).toBe('DISCONNECTED')
     })
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
