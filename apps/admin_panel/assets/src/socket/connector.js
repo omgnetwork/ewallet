@@ -63,7 +63,6 @@ class SocketConnector {
     this.socket.removeEventListener('open', this.open)
     this.socket.removeEventListener('close', this.close)
     this.socket.removeEventListener('message', this.handleMessage)
-    this.socket = null
     clearInterval(this.heartbeat)
     console.log('websocket disconnected.')
     this.addJoinedChannelToQueue()
@@ -135,17 +134,13 @@ class SocketConnector {
     return this.connectionStateMap[this.socket.readyState]
   }
   sendJoinEvent (channel) {
-    if (this.socket) {
-      const payload = JSON.stringify({
-        topic: channel,
-        event: 'phx_join',
-        ref: '1',
-        data: {}
-      })
-      this.socket.send(payload)
-    } else {
-      console.warn('attempt to send an event while socket is not connected.')
-    }
+    const payload = JSON.stringify({
+      topic: channel,
+      event: 'phx_join',
+      ref: '1',
+      data: {}
+    })
+    this.socket.send(payload)
   }
   joinChannel (channel) {
     if (!_.includes(this.queueJoinChannels, channel) && !_.includes(this.joinedChannels, channel)) {

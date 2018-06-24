@@ -33,7 +33,7 @@ describe('websocket', () => {
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
-  test('should get connection status correctly when connected', () => {
+  test('should get connection status correctly when connected and disconnected', () => {
     let result = socket.connect().then(result => {
       expect(result).toBe(true)
       expect(socket.getConnectionStatus()).toBe('CONNECTED')
@@ -47,8 +47,8 @@ describe('websocket', () => {
     socket.reconnect = jest.fn()
     let result = socket.connect().then(result => {
       socket.socket.fakeEventListenerCallbackCall('close')
-      expect(socket.socket).toBe(null)
       expect(socket.reconnect).toBeCalled()
+      expect(socket.socket.removeEventListener).toBeCalledWith('close', socket.close)
     })
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
