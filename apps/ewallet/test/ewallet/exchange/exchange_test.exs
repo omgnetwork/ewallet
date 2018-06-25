@@ -81,7 +81,7 @@ defmodule EWallet.ExchangeTest do
     end
   end
 
-  describe "get_rate/2 for tokens with diiferent subunit_to_unit values" do
+  describe "get_rate/2 for tokens with different subunit_to_unit values" do
     test "returns the adjusted subunit rate" do
       omg = insert(:token, subunit_to_unit: 1_000)
       eth = insert(:token, subunit_to_unit: 1_000_000)
