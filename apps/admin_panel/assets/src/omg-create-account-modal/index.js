@@ -6,6 +6,7 @@ import CreateAccountStage from './CreateAccountStage'
 import ChooseCategoryStage from './ChooseCategoryStage'
 import CreateSuccessStage from './CreateSuccessStage'
 import { createAccount } from '../omg-account/action'
+import { getCategories } from '../omg-account-category/action'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
 const customStyles = {
@@ -34,7 +35,8 @@ class CreateAccountModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    createAccount: PropTypes.func
+    createAccount: PropTypes.func,
+    getCategories: PropTypes.func
   }
   initialState = {
     submitting: false,
@@ -46,7 +48,10 @@ class CreateAccountModal extends Component {
     error: false
   }
   state = this.initialState
-
+  componentDidMount = () => {
+    // PREFETCH CATEGORIES FOR BETTER EXPERIENCE
+    this.props.getCategories()
+  }
   onSubmit = e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -154,7 +159,8 @@ const enhance = compose(
   connect(
     null,
     {
-      createAccount
+      createAccount,
+      getCategories
     }
   )
 )

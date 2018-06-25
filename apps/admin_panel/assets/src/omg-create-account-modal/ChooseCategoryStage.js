@@ -107,7 +107,7 @@ class ChooseCategoryStage extends Component {
     category: PropTypes.object,
     match: PropTypes.object
   }
-  state = { createNewGroup: false }
+  state = { createNewGroup: false, categoryNameToCreate: '' }
   onClickCreateNewGroup = e => {
     this.setState({ createNewGroup: true })
   }
@@ -147,19 +147,18 @@ class ChooseCategoryStage extends Component {
               <Icon name='Checkmark' />
               <span>None</span>
             </SearchItem>
-            {categories
-              .map(cat => {
-                return (
-                  <SearchItem
-                    onClick={e => this.props.onChooseCategory(cat)}
-                    active={_.get(this.props.category, 'id') === cat.id}
-                    key={cat.id}
-                  >
-                    <Icon name='Checkmark' />
-                    <span>{cat.name}</span>
-                  </SearchItem>
-                )
-              })}
+            {this.props.categories.map(cat => {
+              return (
+                <SearchItem
+                  onClick={e => this.props.onChooseCategory(cat)}
+                  active={_.get(this.props.category, 'id') === cat.id}
+                  key={cat.id}
+                >
+                  <Icon name='Checkmark' />
+                  <span>{cat.name}</span>
+                </SearchItem>
+              )
+            })}
           </SearchResult>
         </SearchContainer>
         <BottomBar>
@@ -185,7 +184,14 @@ class ChooseCategoryStage extends Component {
     )
   }
   render () {
-    return <CategoriesProvider render={this.renderCategories} {...this.props} {...this.state} search={this.state.search} />
+    return (
+      <CategoriesProvider
+        render={this.renderCategories}
+        {...this.props}
+        {...this.state}
+        search={this.state.search}
+      />
+    )
   }
 }
 
