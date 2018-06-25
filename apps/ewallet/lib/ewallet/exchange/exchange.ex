@@ -16,7 +16,9 @@ defmodule EWallet.Exchange do
 
   If the returned pair is a reversed pair, the returned `rate` is already inverted.
   """
-  @spec get_rate(%Token{}, %Token{}) :: {:ok, float(), ExchangePair.t()} | {:error, atom()}
+  @spec get_rate(from_token :: %Token{}, to_token :: %Token{}) ::
+          {:ok, float(), ExchangePair.t()} | {:error, atom()}
+
   def get_rate(from_token, to_token) do
     subunit_scale = to_token.subunit_to_unit / from_token.subunit_to_unit
 
@@ -37,28 +39,29 @@ defmodule EWallet.Exchange do
   @doc """
   Validates that the given `from_amount` and `to_amount` matches the exchange pair.
 
-  For same-token transactions, it returns `true` if `from_amount` and `to_amount` are equal,
+  For same-token transactions, returns `true` if `from_amount` and `to_amount` are equal,
   otherwise returns `false`.
 
-  For cross-token transactions, it returns `true` if the amounts match the rate
+  For cross-token transactions, returns `true` if the amounts match the rate
   of the exchange pair, otherwise returns `false`.
   """
-  @spec validate(non_neg_or_nil(), %Token{}, non_neg_or_nil(), %Token{}) ::
-          {:ok, Calculation.t()} | {:error, atom()}
+  @spec validate(
+          from_amount :: non_neg_or_nil(),
+          from_token :: %Token{},
+          to_amount :: non_neg_or_nil(),
+          to_token :: %Token{}
+        ) :: {:ok, Calculation.t()} | {:error, atom()}
 
-  # Same-token: valid if `from_amount` and `to_amount` to be equal
-  def validate(from_amount, %{uuid: from_token_uuid} = token, to_amount, %{uuid: to_token_uuid})
-      when from_token_uuid == to_token_uuid do
-    case from_amount == to_amount do
-      true ->
-        {:ok, build_result(from_amount, token, to_amount, token, 1, nil)}
-
-      false ->
-        {:error, :exchange_invalid_rate}
-    end
+  # Same-token: valid if `from_amount` and `to_amount` to be equal, error if not.
+  def validate(amount, %{uuid: uuid} = token, amount, %{uuid: uuid}) do
+    {:ok, build_result(amount, token, amount, token, 1, nil)}
   end
 
-  # Cross-token: valid if amounts match the exchange rate
+  def validate(_, %{uuid: uuid}, _, %{uuid: uuid}) do
+    {:error, :exchange_invalid_rate}
+  end
+
+  # Cross-token: valid if the amounts match the exchange rate.
   def validate(from_amount, from_token, to_amount, to_token) do
     case get_rate(from_token, to_token) do
       {:ok, rate, pair} ->
@@ -84,40 +87,30 @@ defmodule EWallet.Exchange do
   If both `from_amount` and `to_amount` are given, `{:error, :invalid_parameter, description}`
   error is returned.
   """
-  @spec calculate(non_neg_or_nil(), %Token{}, non_neg_or_nil(), %Token{}) ::
-          {:ok, Calculation.t()} | {:error, atom()} | {:error, atom(), String.t()}
+  @spec calculate(
+          from_amount :: non_neg_or_nil(),
+          from_token :: %Token{},
+          fo_amount :: non_neg_or_nil(),
+          to_token :: %Token{}
+        ) :: {:ok, Calculation.t()} | {:error, atom()} | {:error, atom(), String.t()}
+
   # Returns an :invalid_parameter error if both `from_amount` and `to_amount` are missing
   def calculate(nil, _, nil, _) do
     {:error, :invalid_parameter, "an exchange requires from amount, to amount, or both"}
   end
 
-  # Returns an :invalid_parameter error if both `from_amount` and `to_amount` are provided
-  def calculate(from_amount, _, to_amount, _) when from_amount != nil and to_amount != nil do
-    {:error, :invalid_parameter, "unable to calculate if amounts are already provided"}
+  # Same-token: populates `from_amount` into `to_amount`
+  def calculate(nil, %{uuid: uuid} = token, to_amount, %{uuid: uuid}) do
+    {:ok, build_result(to_amount, token, to_amount, token, 1, nil)}
   end
 
-  # Calculate same-token transactions
-  def calculate(from_amount, %{uuid: from_token_uuid} = token, to_amount, %{uuid: to_token_uuid})
-      when from_token_uuid == to_token_uuid do
-    cond do
-      is_nil(from_amount) ->
-        {:ok, build_result(to_amount, token, to_amount, token, 1, nil)}
-
-      is_nil(to_amount) ->
-        {:ok, build_result(from_amount, token, from_amount, token, 1, nil)}
-
-      true ->
-        {:error, :invalid_parameter, "unable to calculate if amounts are already provided"}
-    end
-  end
-
-  # Calculate cross-token transactions
-  def calculate(from_amount, from_token, to_amount, to_token) do
-    calculate_cross_token(from_amount, from_token, to_amount, to_token)
+  # Same-token: populates `to_amount` into `from_amount`
+  def calculate(from_amount, %{uuid: uuid} = token, nil, %{uuid: uuid}) do
+    {:ok, build_result(from_amount, token, from_amount, token, 1, nil)}
   end
 
   # Cross-token: calculates for the missing `from_amount`
-  defp calculate_cross_token(nil, from_token, to_amount, to_token) do
+  def calculate(nil, from_token, to_amount, to_token) do
     case get_rate(from_token, to_token) do
       {:ok, rate, pair} ->
         from_amount = to_amount / rate
@@ -129,7 +122,7 @@ defmodule EWallet.Exchange do
   end
 
   # Cross-token: calculates for the missing `to_amount`
-  defp calculate_cross_token(from_amount, from_token, nil, to_token) do
+  def calculate(from_amount, from_token, nil, to_token) do
     case get_rate(from_token, to_token) do
       {:ok, rate, pair} ->
         to_amount = from_amount * rate
@@ -138,6 +131,11 @@ defmodule EWallet.Exchange do
       {:error, _} = error ->
         error
     end
+  end
+
+  # Returns an :invalid_parameter error if both `from_amount` and `to_amount` are provided
+  def calculate(_from_amount, _, _to_amount, _) do
+    {:error, :invalid_parameter, "unable to calculate if amounts are already provided"}
   end
 
   defp build_result(from_amount, from_token, to_amount, to_token, rate, pair) do

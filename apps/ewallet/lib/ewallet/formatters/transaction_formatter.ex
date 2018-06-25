@@ -18,16 +18,16 @@ defmodule EWallet.TransactionFormatter do
     }
   end
 
-  # Entries for a same-token transfer
-  defp entries(%{from_token: %{uuid: from}, to_token: %{uuid: to}} = txn) when from == to do
+  # Prepare entries for the given transaction (for a same-token transfer)
+  defp entries(%{from_token: %{uuid: same_uuid}, to_token: %{uuid: same_uuid}} = txn) do
     [
       entry(:debit, txn.from_wallet, txn.from_amount, txn.from_token),
       entry(:credit, txn.to_wallet, txn.to_amount, txn.to_token)
     ]
   end
 
-  # Entries for a cross-token transfer/exchange
-  defp entries(%{from_token: %{uuid: from}, to_token: %{uuid: to}} = txn) when from != to do
+  # Prepare entries for the given transaction (for a cross-token transfer/exchange)
+  defp entries(txn) do
     exchange_wallet =
       txn
       |> Preloader.preload(:exchange_account)
