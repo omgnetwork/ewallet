@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.AdminAPIAuth do
   end
 
   defp get_authorization_header(headers) do
-    headers["authorization"] || headers["Authorization"]
+    headers["authorization"]
   end
 
   defp do_authenticate(%{auth_scheme_name: "OMGAdmin"} = auth) do

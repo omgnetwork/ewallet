@@ -95,6 +95,18 @@ defmodule EWallet.Web.WebSocket do
     |> Map.fetch(accept)
   end
 
+  def update_headers(conn) do
+    conn.params
+    |> Map.put("headers", normalize_headers(conn.params["headers"] || conn.req_headers))
+    |> Map.delete("vsn")
+  end
+
+  defp normalize_headers(headers) do
+    headers
+    |> Enum.map(fn {name, value} -> {String.downcase(name), value} end)
+    |> Enum.into(%{})
+  end
+
   @doc false
   defdelegate ws_init(attrs), to: WebSocket
   defdelegate ws_handle(opcode, payload, state), to: WebSocket
