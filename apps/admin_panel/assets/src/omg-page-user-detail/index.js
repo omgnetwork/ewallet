@@ -105,8 +105,8 @@ class TokenDetailPage extends Component {
         <ContentContainer>
           {this.renderTopBar(user)}
           <ContentDetailContainer>
-            <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>
             <DetailContainer>{this.renderDetail(user)}</DetailContainer>
+            <DetailContainer>{this.renderWallet(wallet)}</DetailContainer>
           </ContentDetailContainer>
         </ContentContainer>
       </DetailLayout>
