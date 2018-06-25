@@ -12,7 +12,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     TransactionConsumptionFetcher
   }
 
-  alias EWalletDB.{Account, User, TransactionConsumption}
+  alias EWalletDB.{Account, User, TransactionRequest, TransactionConsumption, Wallet}
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
@@ -67,6 +67,41 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def all_for_user(conn, %{}) do
     handle_error(conn, :invalid_parameter, "Parameter 'user_id' is required.")
+  end
+
+  def all_for_transaction_request(
+        conn,
+        %{"transaction_request_id" => transaction_request_id} = attrs
+      ) do
+    with %TransactionRequest{} = transaction_request <-
+           TransactionRequest.get(transaction_request_id) ||
+             {:error, :transaction_request_not_found} do
+      :transaction_request_uuid
+      |> TransactionConsumption.query_all_for(transaction_request.uuid)
+      |> SearchParser.search_with_terms(attrs, @search_fields)
+      |> do_all(conn, attrs)
+    else
+      error -> respond(error, conn)
+    end
+  end
+
+  def all_for_transaction_request(conn, %{}) do
+    handle_error(conn, :invalid_parameter, "Parameter 'transaction_request_id' is required.")
+  end
+
+  def all_for_wallet(conn, %{"address" => address} = attrs) do
+    with %Wallet{} = wallet <- Wallet.get(address) || {:error, :wallet_not_found} do
+      :wallet_address
+      |> TransactionConsumption.query_all_for(wallet.address)
+      |> SearchParser.search_with_terms(attrs, @search_fields)
+      |> do_all(conn, attrs)
+    else
+      error -> respond(error, conn)
+    end
+  end
+
+  def all_for_wallet(conn, %{}) do
+    handle_error(conn, :invalid_parameter, "Parameter 'address' is required.")
   end
 
   def all(conn, attrs) do
