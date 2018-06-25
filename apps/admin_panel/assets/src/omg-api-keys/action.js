@@ -24,11 +24,11 @@ export const disableApiKey = id => async dispatch => {
         apiKey: result.data.data
       })
     } else {
-      dispatch({ type: 'API_KEY/DISABLE/FAILED' })
+      dispatch({ type: 'API_KEY/DISABLE/FAILED', error: result.data.data })
     }
     return result
   } catch (error) {
-    dispatch({ type: 'API_KEY/DISABLE/FAILED' })
+    dispatch({ type: 'API_KEY/DISABLE/FAILED', error })
   }
 }
 export const updateApiKey = ({ id, expired }) => async dispatch => {
