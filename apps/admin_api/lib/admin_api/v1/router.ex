@@ -35,12 +35,11 @@ defmodule AdminAPI.V1.Router do
 
 
     post("/transaction_request.all", TransactionRequestController, :all)
-    post("/transaction_request.get_consumptions", TransactionRequestController, :all)
 
+    post("/transaction_request.get_consumptions", TransactionRequestController, :all)
     post("/account.get_consumptions", TransactionRequestController, :all)
     post("/user.get_consumptions", TransactionRequestController, :all)
     post("/wallet.get_consumptions", TransactionRequestController, :all)
-
     post("/transaction_consumption.get", TransactionConsumptionController, :approve)
 
 

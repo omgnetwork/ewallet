@@ -7,12 +7,17 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
   alias EWallet.Web.V1.{
     AccountSerializer,
     TokenSerializer,
-    UserSerializer
+    UserSerializer,
+    PaginatorSerializer
   }
 
-  alias EWallet.Web.Date
+  alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.TransactionRequest
+
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
+  end
 
   def serialize(%TransactionRequest{} = transaction_request) do
     transaction_request =

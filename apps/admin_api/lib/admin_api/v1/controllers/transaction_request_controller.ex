@@ -1,16 +1,19 @@
 defmodule AdminAPI.V1.TransactionRequestController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
 
   alias EWallet.{
     TransactionRequestGate,
     TransactionRequestFetcher
   }
 
+  alias EWalletDB.TransactionRequest
+
   @mapped_fields %{"created_at" => "inserted_at"}
   @preload_fields [:user, :account, :token, :wallet]
-  @search_fields [:id, :type, :correlation_id, :require_confirmation, :]
-  @sort_fields [:id, :status, :from, :to, :inserted_at, :updated_at]
+  @search_fields [:id, :status, :type, :correlation_id, :expiration_reason]
+  @sort_fields [:id, :status, :type, :correlation_id, :inserted_at, :expired_at]
 
   def all(conn, attrs) do
     TransactionRequest
