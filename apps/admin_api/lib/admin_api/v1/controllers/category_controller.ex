@@ -125,7 +125,7 @@ defmodule AdminAPI.V1.CategoryController do
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update, any(), any()) ::
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, %{admin_user: admin_user}, category_id) do
     Bodyguard.permit(CategoryPolicy, action, admin_user, category_id)

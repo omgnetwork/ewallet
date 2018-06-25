@@ -94,7 +94,7 @@ defmodule AdminAPI.V1.SelfController do
     handle_error(conn, :user_id_not_found)
   end
 
-  @spec permit(:all | :create | :get | :update, any()) ::
+  @spec permit(:all | :create | :get | :update, map()) ::
           {:ok, User.t()} | {:error, any()} | no_return()
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}

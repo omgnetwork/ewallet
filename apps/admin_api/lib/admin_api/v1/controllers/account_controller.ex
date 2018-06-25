@@ -142,7 +142,7 @@ defmodule AdminAPI.V1.AccountController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, any(), any()) ::
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, %{admin_user: admin_user}, account_id) do
     Bodyguard.permit(AccountPolicy, action, admin_user, account_id)
