@@ -98,7 +98,7 @@ defmodule EWallet.Exchange do
 
   # Calculate same-token transactions
   def calculate(from_amount, %{uuid: from_token_uuid} = token, to_amount, %{uuid: to_token_uuid})
-      when from_token == to_token do
+      when from_token_uuid == to_token_uuid do
     cond do
       is_nil(from_amount) ->
         {:ok, build_result(to_amount, token, to_amount, token, 1, nil)}
