@@ -1,13 +1,19 @@
 import { appendParams, isAbsoluteURL } from '../utils/url'
 import urlJoin from 'url-join'
 import _ from 'lodash'
+import CONSTANT from '../constants'
+import uuid from 'uuid/v4'
 class SocketConnector {
   constructor (url, params = {}) {
     this.socket = null
     this.url = this.normalizeUrl(url)
-    this.params = params
+    this.params = Object.assign(params, {
+      heartbeatInterval: 5000,
+      reconnectInterval: 5000
+    })
     this.handleOnConnected = () => {}
     this.handleOnDisconnected = () => {}
+    this.handleOnMessage = () => {}
     this.WebSocket = WebSocket
     this.connectionStateMap = {
       '0': 'CONNECTING',
@@ -15,11 +21,11 @@ class SocketConnector {
       '2': 'DISCONNECTING',
       '3': 'DISCONNECTED'
     }
-    this.queueJoinChannels = []
+    this.queue = []
     this.joinedChannels = []
   }
   setParams (params) {
-    this.params = params
+    this.params = Object.assign(this.params, params)
   }
   normalizeUrl (url) {
     let normalizedUrl = ''
@@ -35,127 +41,160 @@ class SocketConnector {
     }
     return normalizedUrl.replace('http://', 'ws://').replace('https://', 'wss://')
   }
-  open = (resolve) => () => {
+  onConnect = resolve => () => {
     console.log('websocket connected.')
     this.handleOnConnected()
     this.drainQueue()
     return resolve(true)
   }
-  drainQueue = () => {
-    if (this.queueJoinChannels.length > 0) {
-      this.queueJoinChannels.forEach(channel => {
-        this.sendJoinEvent(channel)
-      })
-    }
-  }
-  addJoinedChannelToQueue = () => {
-    if (this.joinedChannels.length > 0) {
-      this.joinedChannels.forEach(channel => {
-        if (!_.includes(this.queueJoinChannels, channel)) {
-          this.queueJoinChannels.push(channel)
-        }
-      })
-      this.joinedChannels = []
-    }
-  }
-  close = () => {
+  onDisconnect = () => {
     this.handleOnDisconnected()
-    this.socket.removeEventListener('open', this.open)
-    this.socket.removeEventListener('close', this.close)
+    this.socket.removeEventListener('open', this.onConnect)
+    this.socket.removeEventListener('close', this.onDisconnect)
     this.socket.removeEventListener('message', this.handleMessage)
     clearInterval(this.heartbeat)
     console.log('websocket disconnected.')
     this.addJoinedChannelToQueue()
     this.reconnect()
   }
+  drainQueue = () => {
+    this.queue.forEach(q => {
+      this.send(q)
+    })
+  }
+  addChannelToJoinedChannels = channel => {
+    if (!this.channelExistInJoinedChannels(this.joinedChannels, channel)) {
+      this.joinedChannels.push(channel)
+    }
+  }
+  addChannelToQueue = channel => {
+    if (!this.channelExistInQueue(this.queue, channel)) {
+      this.queue.push(this.createJoinChannelPayload(channel))
+    }
+  }
+  removeMessageFromQueue = msg => {
+    this.queue = this.queue.filter(q => q.ref !== msg.ref)
+  }
+  removeChannelFromJoinedChannel = channel => {
+    _.pull(this.joinedChannels, channel)
+  }
+  addJoinedChannelToQueue = () => {
+    this.joinedChannels.forEach(channel => {
+      this.addChannelToQueue(channel)
+    })
+    this.joinedChannels = []
+  }
+  channelExistInQueue (queue, channel) {
+    return _.findIndex(queue, e => e.topic === channel) !== -1
+  }
+  channelExistInJoinedChannels (joinedChannels, channel) {
+    return _.includes(joinedChannels, channel)
+  }
+  handleJoinedChannelMessage = msg => {
+    console.log('joined websocket channel:', msg.topic)
+    this.addChannelToJoinedChannels(msg.topic)
+  }
+  handleLeaveChannelMessage = msg => {
+    console.log('left websocket channel:', msg.topic)
+    this.removeChannelFromJoinedChannel(msg.topic)
+  }
+
   on (event, handler) {
     switch (event) {
       case 'connected':
         return (this.handleOnConnected = handler)
       case 'disconnected':
         return (this.handleOnDisconnected = handler)
+      case 'message':
+        return (this.handleOnMessage = handler)
     }
   }
   sendHeartbeatEvent = () => {
-    const payload = JSON.stringify({
-      topic: 'phoenix',
-      event: 'heartbeat',
-      ref: '1',
-      data: {}
+    const payload = this.createPayload({
+      topic: CONSTANT.WEBSOCKET.HEARTBEAT_TOPIC,
+      event: CONSTANT.WEBSOCKET.HEARTBEAT_EVENT
     })
-    this.socket.send(payload)
+    this.send(payload)
   }
   async reconnect () {
     setTimeout(async () => {
       console.log('reconnecting websocket...')
       await this.connect()
-    }, 5000)
+    }, this.params.reconnectInterval)
   }
   connect () {
     return new Promise((resolve, reject) => {
       const urlWithAuths = appendParams(this.url, this.params)
       this.socket = new this.WebSocket(urlWithAuths)
-      this.socket.addEventListener('open', this.open(resolve))
-      this.socket.addEventListener('close', this.close)
+      this.socket.addEventListener('open', this.onConnect(resolve))
+      this.socket.addEventListener('close', this.onDisconnect)
       this.socket.addEventListener('message', this.handleMessage)
-      this.heartbeat = setInterval(this.sendHeartbeatEvent, this.params.heartbeatInterval || 5000)
+      this.heartbeat = setInterval(this.sendHeartbeatEvent, this.params.heartbeatInterval)
     })
   }
   disconnect () {
     this.socket.close()
   }
-  isJoinEvent (message) {
-    return message.ref === '1' && message.topic !== 'phoenix'
-  }
-  isLeaveEvent (message) {
-    return message.ref === '2' && message.event !== 'phoenix'
-  }
   handleMessage = message => {
-    const parsedMessage = JSON.parse(message.data)
-    if (parsedMessage.success) {
-      if (this.isJoinEvent(parsedMessage)) {
-        console.log('joined websocket channel:', parsedMessage.topic)
-        _.pull(this.queueJoinChannels, parsedMessage.topic)
-        if (!_.includes(this.joinedChannels, parsedMessage.topic)) {
-          this.joinedChannels.push(parsedMessage.topic)
-        }
-      } else if (this.isLeaveEvent(parsedMessage)) {
-        console.log('left websocket channel:', parsedMessage.topic)
-        _.pull(this.joinedChannels, parsedMessage.topic)
-        _.pull(this.queueJoinChannels, parsedMessage.topic)
-      } else {
-        // OTHER EVENT
+    const msg = JSON.parse(message.data)
+    const ref = msg.ref
+    const refType = ref.split(':')[0]
+    if (msg.success) {
+      switch (refType) {
+        case CONSTANT.WEBSOCKET.JOIN_CHANNEL_REF:
+          this.handleJoinedChannelMessage(msg)
+          break
+        case CONSTANT.WEBSOCKET.LEAVE_CHANNEL_REF:
+          this.handleLeaveChannelMessage(msg)
+          break
       }
+      this.removeMessageFromQueue(msg)
     } else {
-      console.error('websocket event reply error with response', parsedMessage)
+      console.error('websocket event reply error with response', msg)
     }
+    this.handleOnMessage(msg)
   }
   getConnectionStatus () {
     return this.connectionStateMap[this.socket.readyState]
   }
-  sendJoinEvent (channel) {
-    const payload = JSON.stringify({
-      topic: channel,
-      event: 'phx_join',
-      ref: '1',
-      data: {}
-    })
-    this.socket.send(payload)
-  }
+
   joinChannel (channel) {
-    if (!_.includes(this.queueJoinChannels, channel) && !_.includes(this.joinedChannels, channel)) {
-      this.queueJoinChannels.push(channel)
-      this.sendJoinEvent(channel)
+    const channelExistInQueue = this.channelExistInQueue(this.queue, channel)
+    const channelIsJoined = this.channelExistInJoinedChannels(this.joinedChannels, channel)
+    if (!channelExistInQueue && !channelIsJoined) {
+      const payload = this.createJoinChannelPayload(channel)
+      this.queue.push(payload)
+      this.send(payload)
     }
   }
-  leaveChannel (channel) {
-    const payload = JSON.stringify({
+  leaveChannel = channel => {
+    this.send(this.createLeaveChannelPayload(channel))
+  }
+  createPayload = ({ topic, event, type, data = {} }) => {
+    const payload = {
+      topic,
+      event,
+      ref: `${type}:${uuid()}`,
+      data
+    }
+    return payload
+  }
+  send = payload => {
+    this.socket.send(JSON.stringify(payload))
+  }
+  createJoinChannelPayload (channel) {
+    return this.createPayload({
       topic: channel,
-      event: 'phx_leave',
-      ref: '2',
-      data: {}
+      type: CONSTANT.WEBSOCKET.JOIN_CHANNEL_REF,
+      event: CONSTANT.WEBSOCKET.JOIN_CHANNEL_EVENT
     })
-    this.socket.send(payload)
+  }
+  createLeaveChannelPayload (channel) {
+    return this.createPayload({
+      topic: channel,
+      type: CONSTANT.WEBSOCKET.LEAVE_CHANNEL_REF,
+      event: CONSTANT.WEBSOCKET.LEAVE_CHANNEL_EVENT
+    })
   }
 }
 export default SocketConnector

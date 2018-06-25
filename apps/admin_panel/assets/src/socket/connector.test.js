@@ -23,7 +23,7 @@ describe('websocket', () => {
   }
   socket.WebSocket = MockWebSocket
   afterEach(() => {
-    socket.queueJoinChannels = []
+    socket.queue = []
     socket.joinedChannels = []
   })
   test('connect should return true if websocket is connected', async () => {
@@ -48,39 +48,41 @@ describe('websocket', () => {
     let result = socket.connect().then(result => {
       socket.socket.fakeEventListenerCallbackCall('close')
       expect(socket.reconnect).toBeCalled()
-      expect(socket.socket.removeEventListener).toBeCalledWith('close', socket.close)
+      expect(socket.socket.removeEventListener).toBeCalledWith('close', socket.onDisconnect)
     })
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
   test('should be able to send join event if socket is connected', () => {
     let result = socket.connect().then(result => {
+      socket.send = jest.fn()
       expect(result).toBe(true)
       socket.joinChannel('test_channel')
-      expect(socket.socket.send).toBeCalledWith(
-        JSON.stringify({
+      expect(socket.send).toBeCalledWith(
+        {
           topic: 'test_channel',
           event: 'phx_join',
-          ref: '1',
+          ref: expect.any(String),
           data: {}
-        })
+        }
       )
-      expect(socket.queueJoinChannels.length === 1)
+      expect(socket.queue.length === 1)
     })
     socket.socket.fakeEventListenerCallbackCall('open')
     return result
   })
   test('should send leave event correctly', () => {
     let result = socket.connect().then(result => {
+      socket.send = jest.fn()
       expect(result).toBe(true)
       socket.leaveChannel('test_channel')
-      expect(socket.socket.send).toBeCalledWith(
-        JSON.stringify({
+      expect(socket.send).toBeCalledWith(
+        {
           topic: 'test_channel',
           event: 'phx_leave',
-          ref: '2',
+          ref: expect.any(String),
           data: {}
-        })
+        }
       )
     })
     socket.socket.fakeEventListenerCallbackCall('open')
@@ -88,15 +90,16 @@ describe('websocket', () => {
   })
   test('should send heartbeat event correctly', () => {
     let result = socket.connect().then(result => {
+      socket.send = jest.fn()
       expect(result).toBe(true)
       socket.sendHeartbeatEvent()
-      expect(socket.socket.send).toBeCalledWith(
-         JSON.stringify({
-           topic: 'phoenix',
-           event: 'heartbeat',
-           ref: '1',
-           data: {}
-         })
+      expect(socket.send).toBeCalledWith(
+        {
+          topic: 'phoenix',
+          event: 'heartbeat',
+          ref: expect.any(String),
+          data: {}
+        }
       )
     })
     socket.socket.fakeEventListenerCallbackCall('open')

@@ -114,35 +114,14 @@ class ApiKeyPage extends Component {
     }
     return data
   }
-  renderAdminApiKey = (apiKeysRows, loadingStatus) => {
-    return (
-      <KeySection>
-        <h3>Admin API Key</h3>
-        <p>
-          The Admin API key is used to authenticate an API and allows that specific API to access
-          various admin-related functions such as creating new minted tokens, mint more tokens,
-          create and manage accounts, create new API keys, etc.
-        </p>
-        <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
-          <span>Generate Key</span>
-        </Button>
-        <Table
-          rows={apiKeysRows}
-          columns={columns}
-          perPage={99999}
-          loading={loadingStatus === 'DEFAULT'}
-        />
-      </KeySection>
-    )
-  }
   renderEwalletApiKey = (apiKeysRows, loadingStatus) => {
     return (
       <KeySectionEwallet>
         <h3>E-Wallet API Key</h3>
         <p>
-          The eWallet API key is used to authenticate an API and allows that specific API to access
-          various user-related functions, e.g. make transfers with the user's wallets, list a user's
-          transactions, create transaction requests, etc.
+          eWallet API Keys are used to authenticate clients and allow them to perform various
+          user-related functions (once the user has been logged in), e.g. make transfers with the
+          user's wallets, list a user's transactions, create transaction requests, etc.
         </p>
         <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
           <span>Generate Key</span>
@@ -162,9 +141,7 @@ class ApiKeyPage extends Component {
     return (
       <ApiKeyProvider
         render={({ apiKeys, loadingStatus }) => {
-          const apiKeysRows = apiKeys
-          .filter(key => !key.deleted_at)
-          .map(key => {
+          const apiKeysRows = apiKeys.filter(key => !key.deleted_at).map(key => {
             return {
               key: key.id,
               id: key.id,
@@ -183,24 +160,10 @@ class ApiKeyPage extends Component {
                 secondaryAction={false}
                 types={false}
               />
-              {/* {this.renderAdminApiKey(
-                apiKeysRows.filter(x => x.ownerApp === 'admin_api'),
-                loadingStatus
-              )} */}
               {this.renderEwalletApiKey(
                 apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
                 loadingStatus
               )}
-              <ConfirmationModal
-                open={this.state.adminModalOpen}
-                onRequestClose={this.onRequestClose}
-                onOk={this.onClickOk('admin_api')}
-              >
-                <ConfirmCreateKeyContainer>
-                  <h4>GENERATE ADMIN API KEY</h4>
-                  <p>Are you sure you want to generate admin api key ?</p>
-                </ConfirmCreateKeyContainer>
-              </ConfirmationModal>
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
                 onRequestClose={this.onRequestClose}

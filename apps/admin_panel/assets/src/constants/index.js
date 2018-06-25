@@ -6,5 +6,13 @@ export default {
     FAILED: 'FAILED',
     INITIATED: 'INITIATED',
     DEFAULT: 'DEFAULT'
+  },
+  WEBSOCKET: {
+    JOIN_CHANNEL_REF: 'JOIN_CHANNEL',
+    JOIN_CHANNEL_EVENT: 'phx_join',
+    LEAVE_CHANNEL_REF: 'LEAVE_CHANNEL',
+    LEAVE_CHANNEL_EVENT: 'phx_leave',
+    HEARTBEAT_EVENT: 'heartbeat',
+    HEARTBEAT_TOPIC: 'phoenix'
   }
 }
