@@ -47,8 +47,8 @@ defmodule EWallet.Exchange do
           {:ok, Calculation.t()} | {:error, atom()}
 
   # Same-token: valid if `from_amount` and `to_amount` to be equal
-  def validate(from_amount, %{uuid: from_token} = token, to_amount, %{uuid: to_token})
-      when from_token == to_token do
+  def validate(from_amount, %{uuid: from_token_uuid} = token, to_amount, %{uuid: to_token_uuid})
+      when from_token_uuid == to_token_uuid do
     case from_amount == to_amount do
       true ->
         {:ok, build_result(from_amount, token, to_amount, token, 1, nil)}
@@ -97,7 +97,7 @@ defmodule EWallet.Exchange do
   end
 
   # Calculate same-token transactions
-  def calculate(from_amount, %{uuid: from_token} = token, to_amount, %{uuid: to_token})
+  def calculate(from_amount, %{uuid: from_token_uuid} = token, to_amount, %{uuid: to_token_uuid})
       when from_token == to_token do
     cond do
       is_nil(from_amount) ->
