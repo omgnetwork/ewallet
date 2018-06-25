@@ -139,6 +139,13 @@ const SearchGroup = withRouter(
       state = {
         search: false
       }
+
+      componentDidMount = () => {
+        if (this.input.value) {
+          this.input.focus()
+        }
+      }
+
       handleClickOutside = () => {
         this.input.blur()
         this.setState({ search: false })
@@ -174,6 +181,7 @@ const SearchGroup = withRouter(
             <InlineInput
               registerRef={this.registerRef}
               onPressEscape={this.handleClickOutside}
+              defaultValue={queryString.parse(this.props.location.search).search}
             />
           </SearchGroupContainer>
         )
