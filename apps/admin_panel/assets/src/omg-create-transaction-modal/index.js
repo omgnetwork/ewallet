@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from 'react-modal'
 import { transfer } from '../omg-transaction/action'
-import { getWalletsByAccountId } from '../omg-wallet/action'
+import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
@@ -71,7 +71,7 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { transfer, getWalletsByAccountId }
+    { transfer, getWalletById }
   )
 )
 class CreateTransactionModal extends Component {
@@ -100,7 +100,8 @@ class CreateTransactionModal extends Component {
         amount: Number(this.state.amount * this.state.selectedToken.token.subunit_to_unit)
       })
       if (result.data.success) {
-        this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
+        this.props.getWalletById(this.props.wallet.address)
+        this.props.getWalletById(this.state.toAddress)
         this.props.onRequestClose()
         this.setState({
           submitting: false,
