@@ -99,7 +99,7 @@ class WalletPage extends Component {
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
-            dataSource={this.getRow(wallets)}
+            rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
             loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
             perPage={20}

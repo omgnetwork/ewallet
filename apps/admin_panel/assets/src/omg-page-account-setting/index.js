@@ -173,7 +173,7 @@ class AccountSettingPage extends Component {
                 })
                 return (
                   <SortableTable
-                    dataSource={rows}
+                    rows={rows}
                     columns={columns}
                     perPage={99999}
                     loading={loadingStatus === 'DEFAULT'}

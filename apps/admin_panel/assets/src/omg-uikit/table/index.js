@@ -9,8 +9,8 @@ const StyledPagination = styled(Pagination)`
 `
 const TableContainer = styled.div``
 const LoadingTh = styled.th`
-  padding-right: 10px!important;
-  padding-left: 10px!important;
+  padding-right: 10px !important;
+  padding-left: 10px !important;
 `
 class Table extends Component {
   static propTypes = {
@@ -24,6 +24,7 @@ class Table extends Component {
     loadingColNumber: PropTypes.number,
     loading: PropTypes.bool,
     page: PropTypes.number,
+    pagination: PropTypes.bool,
     perPage: PropTypes.number
   }
   static defaultProps = {
@@ -74,14 +75,13 @@ class Table extends Component {
   renderDataRows = () => {
     const start = (this.props.page - 1) * this.props.perPage
     const end = start + this.props.perPage
-    const source = this.props.perPage ? this.props.rows.slice(start, end) : this.props.rows
+    const source =
+      this.props.perPage && this.props.pagination
+        ? this.props.rows.slice(start, end)
+        : this.props.rows
     return source.map((d, i) => {
       return (
-        <tr
-          key={d.id}
-          ref={row => (this.row = row)}
-          onClick={this.props.onClickRow(d, i)}
-        >
+        <tr key={d.id} ref={row => (this.row = row)} onClick={this.props.onClickRow(d, i)}>
           {this.props.columns
             .filter(c => !c.hide)
             .map((c, j) => (
@@ -103,7 +103,7 @@ class Table extends Component {
           <thead>{this.renderHeaderRows()}</thead>
           <tbody>{this.renderRows()}</tbody>
         </table>
-        {!this.props.loading && (
+        {(!this.props.loading && !this.props.pagination) && (
           <StyledPagination
             itemCounts={this.props.rows.length}
             perPage={this.props.perPage}

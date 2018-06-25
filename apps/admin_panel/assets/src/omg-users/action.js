@@ -13,12 +13,13 @@ export const createUser = ({ name, description, avatar }) => async dispatch => {
   }
 }
 
-export const getUsers = () => async dispatch => {
+export const getUsers = search => async dispatch => {
   dispatch({ type: 'USERS/REQUEST/INITIATED' })
   try {
     const result = await userService.getAllUsers({
-      per: 1000,
-      sort: { by: 'created_at', dir: 'desc' }
+      per: 100,
+      sort: { by: 'created_at', dir: 'desc' },
+      search_term: search
     })
 
     if (result.data.success) {

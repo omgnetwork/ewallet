@@ -120,7 +120,7 @@ class AccountPage extends Component {
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
-            dataSource={this.getRow(accounts)}
+            rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
             loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
             perPage={20}

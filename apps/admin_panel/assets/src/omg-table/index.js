@@ -58,12 +58,21 @@ const TableContainer = styled.div`
     }
   }
 `
+const Navigation = styled.div`
+  display: inline-block;
+  padding: 10px;
+  cursor: ${props => (props.disable ? 'auto' : 'pointer')};
+  opacity: ${props => (props.disable ? 0.3 : 1)}};
+`
+const NavigationContainer = styled.div`
+  text-align: right;
+`
 
 class SortableTable extends PureComponent {
   static propTypes = {
     history: PropTypes.object,
     location: PropTypes.object,
-    dataSource: PropTypes.oneOfType([PropTypes.array]),
+    rows: PropTypes.oneOfType([PropTypes.array]),
     columns: PropTypes.oneOfType([PropTypes.array]),
     loading: PropTypes.bool,
     perPage: PropTypes.number,
@@ -105,6 +114,29 @@ class SortableTable extends PureComponent {
     const searchObject = queryString.parse(this.props.location.search)
     return Number(searchObject.page) || 1
   }
+  onClickPrev = e => {
+    const searchObject = queryString.parse(this.props.location.search)
+    const page = searchObject.page
+    if (page) {
+      this.props.history.push({
+        search: queryString.stringify({
+          ...searchObject,
+          ...{ page: Number(searchObject.page) - 1 }
+        })
+      })
+    }
+  }
+  onClickNext = e => {
+    const searchObject = queryString.parse(this.props.location.search)
+    if (this.props.rows.length >= this.props.perPage) {
+      this.props.history.push({
+        search: queryString.stringify({
+          ...searchObject,
+          ...{ page: Number(searchObject.page || 1) + 1 }
+        })
+      })
+    }
+  }
   columnRenderer = col => {
     const searchObject = queryString.parse(this.props.location.search)
     const key = `sort-${col.key}`
@@ -141,6 +173,7 @@ class SortableTable extends PureComponent {
       </th>
     )
   }
+
   getFilteredData = () => {
     let shouldFilter = this.props.location.search
     const filterQuery = _.reduce(
@@ -168,7 +201,7 @@ class SortableTable extends PureComponent {
     const sortOrders = _.uniq([sortQuery[mainSort], ..._.values(sortQuery)])
     return shouldFilter
       ? _
-          .chain(this.props.dataSource)
+          .chain(this.props.rows)
           .filter(d => {
             return _.reduce(
               filterQuery,
@@ -180,7 +213,7 @@ class SortableTable extends PureComponent {
           })
           .orderBy(sortKeys, sortOrders)
           .value()
-      : this.props.dataSource
+      : this.props.rows
   }
 
   render () {
@@ -199,6 +232,20 @@ class SortableTable extends PureComponent {
           perPage={this.props.perPage}
           {...this.props}
         />
+        <NavigationContainer>
+          <Navigation
+            onClick={this.onClickPrev}
+            disable={Number(queryString.parse(this.props.location.search).page || 1) <= 1}
+          >
+            Prev
+          </Navigation>
+          <Navigation
+            onClick={this.onClickNext}
+            disable={this.props.rows.length < this.props.perPage}
+          >
+            Next
+          </Navigation>
+        </NavigationContainer>
       </TableContainer>
     )
   }

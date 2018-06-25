@@ -99,7 +99,7 @@ class TokenDetailPage extends Component {
           ]}
         />
         <SortableTable
-          dataSource={data}
+          rows={data}
           columns={columns}
           loading={loadingStatus !== 'SUCCESS'}
           perPage={20}

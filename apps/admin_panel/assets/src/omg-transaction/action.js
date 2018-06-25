@@ -1,10 +1,5 @@
 import * as transactionService from '../services/transactionService'
-export const transfer = ({
-  fromAddress,
-  toAddress,
-  tokenId,
-  amount
-}) => async dispatch => {
+export const transfer = ({ fromAddress, toAddress, tokenId, amount }) => async dispatch => {
   try {
     const result = await transactionService.transfer({
       fromAddress,
@@ -23,13 +18,13 @@ export const transfer = ({
   }
 }
 
-export const getTransactions = search => async dispatch => {
-  dispatch({ type: 'TRANSACTIONS/REQUEST/INITIATED' })
+export const getTransactions = ({ page, search, perPage }) => async dispatch => {
   try {
     const result = await transactionService.getAllTransactions({
-      per: 1000,
+      per: perPage,
       sort: { by: 'created_at', dir: 'desc' },
-      search_term: search
+      search_term: search,
+      page
     })
     if (result.data.success) {
       return dispatch({ type: 'TRANSACTIONS/REQUEST/SUCCESS', transactions: result.data.data })

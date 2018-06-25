@@ -15,22 +15,32 @@ const ehance = compose(
     { getTransactions }
   )
 )
-class AccountsProvider extends Component {
+class TransactionsProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
     transactions: PropTypes.array,
     getTransactions: PropTypes.func,
     transactionsLoadingStatus: PropTypes.string,
-    search: PropTypes.string
+    search: PropTypes.string,
+    page: PropTypes.number,
+    perPage: PropTypes.number
   }
-  componentWillReceiveProps = nextProps => {
-    if (this.props.search !== nextProps.search) {
-      this.props.getTransactions(nextProps.search)
+  componentDidUpdate = nextProps => {
+    if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
+      this.props.getTransactions({
+        page: this.props.page,
+        search: this.props.search,
+        perPage: this.props.perPage
+      })
     }
   }
 
   componentDidMount = () => {
-    this.props.getTransactions()
+    this.props.getTransactions({
+      page: this.props.page,
+      search: this.props.search,
+      perPage: this.props.perPage
+    })
   }
   render () {
     return this.props.render({
@@ -39,4 +49,4 @@ class AccountsProvider extends Component {
     })
   }
 }
-export default ehance(AccountsProvider)
+export default ehance(TransactionsProvider)

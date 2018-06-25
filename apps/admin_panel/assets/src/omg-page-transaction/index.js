@@ -102,11 +102,11 @@ class TransactionPage extends Component {
       <TransactionPageContainer>
         <TopNavigation title={'Transaction'} buttons={[]} />
         <SortableTable
-          dataSource={transactions.map(t => ({ ...t, id: t.id }))}
+          rows={transactions.map(t => ({ ...t, id: t.id }))}
           columns={columns}
           rowRenderer={this.rowRenderer}
           perPage={15}
-          loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
+          loading={loadingStatus === 'DEFAULT'}
         />
         <CreateAccountModal
           open={this.state.createAccountModalOpen}
@@ -123,6 +123,8 @@ class TransactionPage extends Component {
         {...this.state}
         {...this.props}
         search={queryString.parse(this.props.location.search).search}
+        perPage={15}
+        page={queryString.parse(this.props.location.search).page}
       />
     )
   }

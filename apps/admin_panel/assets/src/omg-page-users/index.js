@@ -97,7 +97,7 @@ class UsersPage extends Component {
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
-            dataSource={this.getRow(users)}
+            rows={this.getRow(users)}
             columns={this.getColumns(users)}
             loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
             rowRenderer={this.rowRenderer}
