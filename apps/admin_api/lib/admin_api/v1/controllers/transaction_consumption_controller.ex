@@ -7,7 +7,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   alias EWallet.{
     Web.V1.Event,
     TransactionConsumptionConsumerGate,
-    TransactionConsumptionConfirmerGate
+    TransactionConsumptionConfirmerGate,
+    TransactionConsumptionFetcher
   }
 
   alias EWalletDB.{Account, TransactionConsumption}
@@ -19,6 +20,12 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   # The fields returned by `embeddable/0` are embedded regardless of the request.
   # These fields must be one of the schema's association names.
   def always_embed, do: [:token]
+
+  def get(conn, %{"id" => id}) do
+    id
+    |> TransactionConsumptionFetcher.get()
+    |> respond(conn)
+  end
 
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do

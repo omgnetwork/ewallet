@@ -30,30 +30,24 @@ defmodule AdminAPI.V1.Router do
     # Transaction endpoints
     post("/transaction.all", TransactionController, :all)
     post("/transaction.get", TransactionController, :get)
-
-
-
+    post("/transaction.create", TransactionController, :create)
+    post("/user.credit_wallet", TransferController, :credit)
+    post("/user.debit_wallet", TransferController, :debit)
+    post("/transfer", TransferController, :transfer)
 
     post("/transaction_request.all", TransactionRequestController, :all)
+    post("/transaction_request.create", TransactionRequestController, :create)
+    post("/transaction_request.get", TransactionRequestController, :get)
+    post("/transaction_request.consume", TransactionConsumptionController, :consume)
 
     post("/transaction_request.get_consumptions", TransactionRequestController, :all)
     post("/account.get_consumptions", TransactionRequestController, :all)
     post("/user.get_consumptions", TransactionRequestController, :all)
     post("/wallet.get_consumptions", TransactionRequestController, :all)
-    post("/transaction_consumption.get", TransactionConsumptionController, :approve)
 
-
-
-    post("/transaction_request.create", TransactionRequestController, :create)
-    post("/transaction_request.get", TransactionRequestController, :get)
+    post("/transaction_consumption.get", TransactionConsumptionController, :get)
     post("/transaction_consumption.approve", TransactionConsumptionController, :approve)
     post("/transaction_consumption.reject", TransactionConsumptionController, :reject)
-
-    post("/transaction.create", TransactionController, :create)
-    post("/user.credit_wallet", TransferController, :credit)
-    post("/user.debit_wallet", TransferController, :debit)
-    post("/transfer", TransferController, :transfer)
-    post("/transaction_request.consume", TransactionConsumptionController, :consume)
 
     # Category endpoints
     post("/category.all", CategoryController, :all)

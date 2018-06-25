@@ -33,6 +33,39 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     }
   end
 
+  describe "/transaction_consumption.get" do
+    test "returns the transaction request" do
+      transaction_consumption = insert(:transaction_consumption)
+
+      response =
+        admin_user_request("/transaction_consumption.get", %{
+          id: transaction_consumption.id
+        })
+
+      assert response["success"] == true
+      assert response["data"]["id"] == transaction_consumption.id
+    end
+
+    test "returns an error when the request ID is not found" do
+      response =
+        admin_user_request("/transaction_consumption.get", %{
+          id: "123"
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "code" => "transaction_consumption:transaction_consumption_not_found",
+                 "description" =>
+                   "There is no transaction consumption corresponding to the provided ID.",
+                 "messages" => nil,
+                 "object" => "error"
+               }
+             }
+    end
+  end
+
   describe "/transaction_request.consume" do
     test "consumes the request and transfers the appropriate amount of tokens", meta do
       transaction_request =

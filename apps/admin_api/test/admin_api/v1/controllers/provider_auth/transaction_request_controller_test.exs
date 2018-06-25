@@ -53,7 +53,6 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
           }
         })
 
-
       assert response["data"]["data"] |> length() == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
@@ -337,7 +336,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "data" => %{
                  "code" => "transaction_request:transaction_request_not_found",
                  "description" =>
-                   "There is no transaction request corresponding to the provided address",
+                   "There is no transaction request corresponding to the provided ID.",
                  "messages" => nil,
                  "object" => "error"
                }

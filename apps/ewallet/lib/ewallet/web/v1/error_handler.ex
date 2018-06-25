@@ -63,7 +63,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     transaction_request_not_found: %{
       code: "transaction_request:transaction_request_not_found",
-      description: "There is no transaction request corresponding to the provided address"
+      description: "There is no transaction request corresponding to the provided ID."
+    },
+    transaction_consumption_not_found: %{
+      code: "transaction_consumption:transaction_consumption_not_found",
+      description: "There is no transaction consumption corresponding to the provided ID."
     },
     same_address: %{
       code: "transaction:same_address",
