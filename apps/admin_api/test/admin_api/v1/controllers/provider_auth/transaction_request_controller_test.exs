@@ -3,6 +3,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
   alias EWalletDB.{Repo, TransactionRequest, User, Account}
   alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
 
+  describe "/transaction_request.all" do
+
+  end
+
   describe "/transaction_request.create" do
     test "creates a transaction request with all the params" do
       user = get_test_user()

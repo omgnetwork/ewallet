@@ -8,8 +8,8 @@ defmodule AdminAPI.V1.TransactionRequestController do
   }
 
   @mapped_fields %{"created_at" => "inserted_at"}
-  @preload_fields [:from_token, :to_token]
-  @search_fields [:id, :idempotency_token, :status, :from, :to]
+  @preload_fields [:user, :account, :token, :wallet]
+  @search_fields [:id, :type, :correlation_id, :require_confirmation, :]
   @sort_fields [:id, :status, :from, :to, :inserted_at, :updated_at]
 
   def all(conn, attrs) do
@@ -21,15 +21,15 @@ defmodule AdminAPI.V1.TransactionRequestController do
     |> respond_multiple(conn)
   end
 
-  def create(conn, attrs) do
-    attrs
-    |> TransactionRequestGate.create()
-    |> respond(conn)
-  end
-
   def get(conn, %{"formatted_id" => formatted_id}) do
     formatted_id
     |> TransactionRequestFetcher.get()
+    |> respond(conn)
+  end
+
+  def create(conn, attrs) do
+    attrs
+    |> TransactionRequestGate.create()
     |> respond(conn)
   end
 
