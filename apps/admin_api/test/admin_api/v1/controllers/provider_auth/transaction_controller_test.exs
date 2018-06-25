@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.TransactionControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.User
 
@@ -283,7 +283,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       transactions = insert_list(3, :transfer)
       # Pick the 2nd inserted transaction
       target = Enum.at(transactions, 1)
-      response = admin_user_request("/transaction.get", %{"id" => target.id})
+      response = provider_request("/transaction.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "transaction"
@@ -291,8 +291,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     end
 
     test "returns 'transaction:id_not_found' if the given ID was not found" do
-      response =
-        admin_user_request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
+      response = provider_request("/transaction.get", %{"id" => "tfr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -303,7 +302,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
     end
 
     test "returns 'transaction:id_not_found' if the given ID format is invalid" do
-      response = admin_user_request("/transaction.get", %{"id" => "not_valid_id"})
+      response = provider_request("/transaction.get", %{"id" => "not_valid_id"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -329,7 +328,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -348,7 +347,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet, identifier: "primary")
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -373,7 +372,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -400,7 +399,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,
@@ -430,7 +429,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       })
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => "fake",
@@ -453,7 +452,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => "fake",
           "to_address" => wallet_2.address,
@@ -476,7 +475,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
@@ -500,7 +499,7 @@ defmodule AdminAPI.V1.TransactionControllerTest do
       wallet_2 = insert(:wallet)
 
       response =
-        admin_user_request("/transaction.create", %{
+        provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,

@@ -218,8 +218,10 @@ defmodule AdminAPI.ConnCase do
   A helper function that generates a valid provider request
   with given path and data, and return the parsed JSON response.
   """
-  def provider_request(path, data \\ %{}, status \\ :ok)
+  def provider_request(path, data \\ %{}, opts \\ [])
       when is_binary(path) and byte_size(path) > 0 do
+    {status, _opts} = Keyword.pop(opts, :status, :ok)
+
     build_conn()
     |> put_req_header("accept", @header_accept)
     |> put_auth_header("OMGProvider", @access_key, @secret_key)

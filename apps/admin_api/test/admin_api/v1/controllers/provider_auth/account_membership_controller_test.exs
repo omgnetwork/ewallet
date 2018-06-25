@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AccountMembershipControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWallet.Web.Date
@@ -11,7 +11,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       role = insert(:role)
       _ = insert(:membership, %{account: account, user: user, role: role})
 
-      assert admin_user_request("/account.get_users", %{account_id: account.id}) ==
+      assert provider_request("/account.get_users", %{account_id: account.id}) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -46,7 +46,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     test "returns an empty list if account has no users" do
       account = insert(:account)
 
-      assert admin_user_request("/account.get_users", %{account_id: account.id}) ==
+      assert provider_request("/account.get_users", %{account_id: account.id}) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -58,7 +58,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "returns account:id_not_found error if account id could not be found" do
-      assert admin_user_request("/account.get_users", %{
+      assert provider_request("/account.get_users", %{
                account_id: "acc_12345678901234567890123456"
              }) ==
                %{
@@ -74,7 +74,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
     end
 
     test "returns invalid_parameter error if account id is not provided" do
-      assert admin_user_request("/account.get_users", %{}) ==
+      assert provider_request("/account.get_users", %{}) ==
                %{
                  "success" => false,
                  "version" => "1",
@@ -91,7 +91,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
   describe "/account.assign_user" do
     test "returns empty success if assigned with user_id successfully" do
       response =
-        admin_user_request("/account.assign_user", %{
+        provider_request("/account.assign_user", %{
           user_id: insert(:user).id,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -104,7 +104,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns empty success if assigned with email successfully" do
       response =
-        admin_user_request("/account.assign_user", %{
+        provider_request("/account.assign_user", %{
           email: insert(:admin).email,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -117,7 +117,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the email format is invalid" do
       response =
-        admin_user_request("/account.assign_user", %{
+        provider_request("/account.assign_user", %{
           email: "invalid_format",
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -132,7 +132,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given user id does not exist" do
       response =
-        admin_user_request("/account.assign_user", %{
+        provider_request("/account.assign_user", %{
           user_id: UUID.generate(),
           account_id: insert(:account).id,
           role_name: insert(:role).name,
@@ -149,7 +149,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given account id does not exist" do
       response =
-        admin_user_request("/account.assign_user", %{
+        provider_request("/account.assign_user", %{
           user_id: insert(:user).id,
           account_id: "acc_12345678901234567890123456",
           role_name: insert(:role).name,
@@ -166,7 +166,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given role does not exist" do
       response =
-        admin_user_request("/account.assign_user", %{
+        provider_request("/account.assign_user", %{
           user_id: insert(:user).id,
           account_id: insert(:account).id,
           role_name: "invalid_role",
@@ -189,7 +189,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       _membership = insert(:membership, %{account: account, user: user})
 
       response =
-        admin_user_request("/account.unassign_user", %{
+        provider_request("/account.unassign_user", %{
           user_id: user.id,
           account_id: account.id
         })
@@ -203,7 +203,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
       account = insert(:account)
 
       response =
-        admin_user_request("/account.unassign_user", %{
+        provider_request("/account.unassign_user", %{
           user_id: user.id,
           account_id: account.id
         })
@@ -216,7 +216,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given user id does not exist" do
       response =
-        admin_user_request("/account.unassign_user", %{
+        provider_request("/account.unassign_user", %{
           user_id: UUID.generate(),
           account_id: insert(:account).id
         })
@@ -231,7 +231,7 @@ defmodule AdminAPI.V1.AccountMembershipControllerTest do
 
     test "returns an error if the given account id does not exist" do
       response =
-        admin_user_request("/account.unassign_user", %{
+        provider_request("/account.unassign_user", %{
           user_id: insert(:user).id,
           account_id: "acc_12345678901234567890123456"
         })

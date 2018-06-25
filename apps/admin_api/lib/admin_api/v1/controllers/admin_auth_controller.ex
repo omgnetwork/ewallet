@@ -5,10 +5,6 @@ defmodule AdminAPI.V1.AdminAuthController do
   alias EWallet.AccountPolicy
   alias EWalletDB.{AuthToken, Account}
 
-  defp permit(action, user_id, account_id) do
-    Bodyguard.permit(AccountPolicy, action, user_id, account_id)
-  end
-
   @doc """
   Authenticates a user with the given email and password.
   Returns with a newly generated authentication token if auth is successful.
@@ -26,14 +22,18 @@ defmodule AdminAPI.V1.AdminAuthController do
   def login(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   def switch_account(conn, %{"account_id" => account_id}) do
-    with token <- conn.private.auth_auth_token,
-         %Account{} = account <- Account.get(account_id) || {:error, :account_not_found},
-         :ok <- permit(:get, conn.assigns.admin_user.id, account.id),
+    with {:ok, _current_user} <- permit(:update, conn.assigns),
+         token <- conn.private.auth_auth_token,
+         %Account{} = account <- Account.get(account_id) || :account_not_found,
+         :ok <- permit_account(:get, conn.assigns, account.id),
          %AuthToken{} = token <-
-           AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},
+           AuthToken.get_by_token(token, :admin_api) || :auth_token_not_found,
          {:ok, token} <- AuthToken.switch_account(token, account) do
       render_token(conn, token)
     else
+      error when is_atom(error) ->
+        render_error(conn, {:error, error})
+
       error ->
         render_error(conn, error)
     end
@@ -62,8 +62,27 @@ defmodule AdminAPI.V1.AdminAuthController do
   Invalidates the authentication token used in this request.
   """
   def logout(conn, _attrs) do
-    conn
-    |> AdminUserAuthenticator.expire_token()
-    |> render(:empty_response, %{})
+    with {:ok, _current_user} <- permit(:update, conn.assigns) do
+      conn
+      |> AdminUserAuthenticator.expire_token()
+      |> render(:empty_response, %{})
+    else
+      error ->
+        render_error(conn, {:error, error})
+    end
+  end
+
+  @spec permit(:all | :create | :get | :update, any()) ::
+          {:ok, User.t()} | {:error, any()} | no_return()
+  defp permit(_action, %{admin_user: admin_user}) do
+    {:ok, admin_user}
+  end
+
+  defp permit(_action, %{key: _key}) do
+    :access_key_unauthorized
+  end
+
+  defp permit_account(action, %{admin_user: admin_user}, account_id) do
+    Bodyguard.permit(AccountPolicy, action, admin_user, account_id)
   end
 end

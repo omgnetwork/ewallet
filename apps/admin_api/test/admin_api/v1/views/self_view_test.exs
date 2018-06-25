@@ -9,7 +9,7 @@ defmodule AdminAPI.V1.SelfViewTest do
 
       # I prefer to keep this test code duplicate with the `UserView.render/2` test,
       # because in practice they are separate responses.
-      # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
+
       expected = %{
         version: @expected_version,
         success: true,

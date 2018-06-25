@@ -3,16 +3,20 @@ defmodule EWallet.AccountPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWalletDB.User
+  alias EWalletDB.{Key, User}
 
   # Allowed by any role including none
   def authorize(:all, _user_id, nil), do: true
 
   # Fetches the user role then authorize by role
-  def authorize(action, user_id, account_id) do
-    user_id
+  def authorize(action, %User{} = user, account_id) do
+    user.id
     |> User.get_role(account_id)
     |> do_authorize(action)
+  end
+
+  def authorize(action, %Key{} = _key, _account_id) do
+    do_authorize("admin", action)
   end
 
   # Allowed "admin" actions

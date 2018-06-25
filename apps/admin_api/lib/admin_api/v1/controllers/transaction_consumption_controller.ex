@@ -10,7 +10,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     TransactionConsumptionConfirmerGate
   }
 
-  alias EWalletDB.TransactionConsumption
+  alias EWalletDB.{Account, TransactionConsumption}
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.
@@ -31,8 +31,18 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, :invalid_parameter)
   end
 
-  def approve(conn, attrs), do: confirm(conn, conn.assigns.key.account, attrs, true)
-  def reject(conn, attrs), do: confirm(conn, conn.assigns.key.account, attrs, false)
+  def approve(conn, attrs), do: confirm(conn, get_actor(conn.assigns), attrs, true)
+  def reject(conn, attrs), do: confirm(conn, get_actor(conn.assigns), attrs, false)
+
+  defp get_actor(%{admin_user: _admin_user}) do
+    # To do -> change this to actually check if the user has admin rights over the
+    # owner of the consumption
+    Account.get_master_account()
+  end
+
+  defp get_actor(%{key: key}) do
+    key.account
+  end
 
   defp confirm(conn, entity, %{"id" => id}, approved) do
     id

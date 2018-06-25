@@ -1,9 +1,9 @@
-defmodule AdminAPI.V1.SettingsControllerTest do
+defmodule AdminAPI.V1.AdminAuth.SettingsControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/get_settings" do
     test "responds with a list of tokens" do
-      response = provider_request("/settings.all")
+      response = admin_user_request("/settings.all")
 
       assert response["success"]
       assert Map.has_key?(response["data"], "tokens")

@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.SelfControllerTest do
+defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
   import Ecto.Query
   alias EWallet.Web.Date
