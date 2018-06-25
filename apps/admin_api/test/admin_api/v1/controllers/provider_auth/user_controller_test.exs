@@ -1,10 +1,10 @@
-defmodule AdminAPI.V1.UserControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
 
   describe "/user.all" do
     test "returns a list of users and pagination data" do
-      response = admin_user_request("/user.all")
+      response = provider_request("/user.all")
 
       # Asserts return data
       assert response["success"]
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.UserControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = admin_user_request("/user.all", attrs)
+      response = provider_request("/user.all", attrs)
       users = response["data"]["data"]
 
       assert response["success"]
@@ -48,7 +48,7 @@ defmodule AdminAPI.V1.UserControllerTest do
       users = insert_list(3, :user)
       # Pick the 2nd inserted user
       target = Enum.at(users, 1)
-      response = admin_user_request("/user.get", %{"id" => target.id})
+      response = provider_request("/user.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "user"
@@ -56,7 +56,7 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID was not found" do
-      response = admin_user_request("/user.get", %{"id" => "usr_12345678901234567890123456"})
+      response = provider_request("/user.get", %{"id" => "usr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -67,7 +67,7 @@ defmodule AdminAPI.V1.UserControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID format is invalid" do
-      response = admin_user_request("/user.get", %{"id" => "not_uuid"})
+      response = provider_request("/user.get", %{"id" => "not_uuid"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"

@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.WalletControllerTest do
+defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.Date
@@ -170,7 +170,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
       transfer!(master_wallet.address, user_wallet.address, omg, 12_000 * omg.subunit_to_unit)
 
       response =
-        provider_request("/user.get_wallets", %{
+        admin_user_request("/user.get_wallets", %{
           provider_user_id: user.provider_user_id
         })
 
@@ -240,7 +240,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test "Get all user wallets with an invalid parameter should fail" do
       request_data = %{some_invalid_param: "some_invalid_value"}
-      response = provider_request("/user.get_wallets", request_data)
+      response = admin_user_request("/user.get_wallets", request_data)
 
       assert response == %{
                "version" => "1",
@@ -256,7 +256,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test "Get all user wallets with a nil provider_user_id should fail" do
       request_data = %{provider_user_id: nil}
-      response = provider_request("/user.get_wallets", request_data)
+      response = admin_user_request("/user.get_wallets", request_data)
 
       assert response == %{
                "version" => "1",
@@ -273,7 +273,7 @@ defmodule AdminAPI.V1.WalletControllerTest do
 
     test "Get all user wallets with a nil address should fail" do
       request_data = %{address: nil}
-      response = provider_request("/user.get_wallets", request_data)
+      response = admin_user_request("/user.get_wallets", request_data)
 
       assert response == %{
                "version" => "1",

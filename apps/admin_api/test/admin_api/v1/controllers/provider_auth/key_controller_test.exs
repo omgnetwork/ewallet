@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.KeyControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
   alias EWalletDB.{Repo, Account, Key}
@@ -9,7 +9,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
       key_1 = Key |> Repo.get_by(access_key: @access_key) |> Repo.preload([:account])
       key_2 = insert(:key, %{secret_key: "the_secret_key"})
 
-      assert admin_user_request("/access_key.all") ==
+      assert provider_request("/access_key.all") ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.KeyControllerTest do
 
   describe "/access_key.create" do
     test "responds with a key with the secret key" do
-      response = admin_user_request("/access_key.create")
+      response = provider_request("/access_key.create")
       key = get_last_inserted(Key)
 
       # Cannot do `assert response == %{...}` because we don't know the value of `secret_key`.
@@ -89,20 +89,20 @@ defmodule AdminAPI.V1.KeyControllerTest do
   describe "/access_key.delete" do
     test "responds with an empty success if provided a key id" do
       key = insert(:key)
-      response = admin_user_request("/access_key.delete", %{id: key.id})
+      response = provider_request("/access_key.delete", %{id: key.id})
 
       assert response == %{"version" => "1", "success" => true, "data" => %{}}
     end
 
     test "responds with an empty success if provided an access_key" do
       key = insert(:key)
-      response = admin_user_request("/access_key.delete", %{access_key: key.access_key})
+      response = provider_request("/access_key.delete", %{access_key: key.access_key})
 
       assert response == %{"version" => "1", "success" => true, "data" => %{}}
     end
 
     test "responds with an error if the provided id is not found" do
-      response = admin_user_request("/access_key.delete", %{id: "wrong_id"})
+      response = provider_request("/access_key.delete", %{id: "wrong_id"})
 
       assert response == %{
                "version" => "1",

@@ -2,7 +2,7 @@ defmodule AdminAPI.VersionedRouterTest do
   use AdminAPI.ConnCase, async: true
 
   # Potential candidate to be moved to a shared library
-  # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
+
   describe "versioned router" do
     test "accepts v1+json requests" do
       response =

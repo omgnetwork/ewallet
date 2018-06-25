@@ -1,10 +1,10 @@
-defmodule AdminAPI.V1.AccountControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Account, Repo, User}
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
-      response = admin_user_request("/account.all")
+      response = provider_request("/account.all")
 
       # Asserts return data
       assert response["success"]
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
         "sort_dir" => "desc"
       }
 
-      response = admin_user_request("/account.all", attrs)
+      response = provider_request("/account.all", attrs)
       accounts = response["data"]["data"]
 
       assert response["success"]
@@ -48,7 +48,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       accounts = insert_list(3, :account)
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)
-      response = admin_user_request("/account.get", %{"id" => target.id})
+      response = provider_request("/account.get", %{"id" => target.id})
 
       assert response["success"]
       assert response["data"]["object"] == "account"
@@ -57,26 +57,20 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     # The user should not know any information about the account it doesn't have access to.
     # So even the account is not found, the user is unauthorized to know that.
-    test "returns 'user:unauthorized' if the given ID is in correct format but not found" do
-      response = admin_user_request("/account.get", %{"id" => "acc_00000000000000000000000000"})
+    test "returns 'account:id_not_found' if the given ID is in correct format but not found" do
+      response = provider_request("/account.get", %{"id" => "acc_00000000000000000000000000"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
-
-      assert response["data"]["description"] ==
-               "The user is not allowed to perform the requested operation"
+      assert response["data"]["code"] == "account:id_not_found"
     end
 
-    test "returns 'client:invalid_parameter' if the given ID is not in the correct format" do
-      response = admin_user_request("/account.get", %{"id" => "invalid_format"})
+    test "returns 'account:id_not_found' if the given ID is not in the correct format" do
+      response = provider_request("/account.get", %{"id" => "invalid_format"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
-
-      assert response["data"]["description"] ==
-               "The user is not allowed to perform the requested operation"
+      assert response["data"]["code"] == "account:id_not_found"
     end
   end
 
@@ -91,7 +85,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
         encrypted_metadata: %{something: "secret"}
       }
 
-      response = admin_user_request("/account.create", request_data)
+      response = provider_request("/account.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "account"
@@ -111,7 +105,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
         encrypted_metadata: %{something: "secret"}
       }
 
-      response = admin_user_request("/account.create", request_data)
+      response = provider_request("/account.create", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "account"
@@ -124,7 +118,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
     test "returns an error if account name is not provided" do
       parent = User.get_account(get_test_admin())
       request_data = %{name: "", parent_id: parent.id}
-      response = admin_user_request("/account.create", request_data)
+      response = provider_request("/account.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -144,7 +138,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
           description: "updated_description"
         })
 
-      response = admin_user_request("/account.update", request_data)
+      response = provider_request("/account.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "account"
@@ -163,7 +157,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
         category_ids: [category.id]
       }
 
-      response = admin_user_request("/account.update", request_data)
+      response = provider_request("/account.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "account"
@@ -173,7 +167,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:account, %{id: nil})
-      response = admin_user_request("/account.update", request_data)
+      response = provider_request("/account.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -183,14 +177,11 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
     test "returns a 'user:unauthorized' error if id is invalid" do
       request_data = params_for(:account, %{id: "invalid_format"})
-      response = admin_user_request("/account.update", request_data)
+      response = provider_request("/account.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
-
-      assert response["data"]["description"] ==
-               "The user is not allowed to perform the requested operation"
+      assert response["data"]["code"] == "account:id_not_found"
     end
   end
 
@@ -199,7 +190,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => account.id,
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
@@ -227,7 +218,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => account.id,
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
@@ -238,7 +229,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
 
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => account.id,
           "avatar" => nil
         })
@@ -253,7 +244,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => account.id,
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
@@ -264,7 +255,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
 
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => account.id,
           "avatar" => ""
         })
@@ -279,7 +270,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       account = insert(:account)
 
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => account.id,
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
@@ -290,7 +281,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert response["success"]
 
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => account.id,
           "avatar" => "null"
         })
@@ -301,9 +292,9 @@ defmodule AdminAPI.V1.AccountControllerTest do
       assert account.avatar == nil
     end
 
-    test "returns 'user:unauthorized' if the given account ID was not found" do
+    test "returns 'account:id_not_found' if the given account ID was not found" do
       response =
-        admin_user_request("/account.upload_avatar", %{
+        provider_request("/account.upload_avatar", %{
           "id" => "fake",
           "avatar" => %Plug.Upload{
             path: "test/support/assets/test.jpg",
@@ -313,10 +304,7 @@ defmodule AdminAPI.V1.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
-
-      assert response["data"]["description"] ==
-               "The user is not allowed to perform the requested operation"
+      assert response["data"]["code"] == "account:id_not_found"
     end
   end
 end

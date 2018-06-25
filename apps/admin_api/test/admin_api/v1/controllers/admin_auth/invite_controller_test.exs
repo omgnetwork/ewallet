@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.InviteControllerTest do
+defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
 
