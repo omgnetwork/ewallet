@@ -28,3 +28,9 @@ export function deleteApiKeyById (id) {
     data: { id }
   })
 }
+export function updateApiKey ({ id, expired }) {
+  return authenticatedRequest({
+    path: '/api_key.update',
+    data: { id, expired }
+  })
+}

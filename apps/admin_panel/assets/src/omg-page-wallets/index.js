@@ -73,8 +73,10 @@ class WalletPage extends Component {
   getRow = wallets => {
     return wallets.map(wallet => {
       return {
-        ...{ owner: wallet.user_id ? 'User' : 'Account' },
+        owner: wallet.user_id ? 'User' : 'Account',
+        id: wallet.address,
         ...wallet
+
       }
     })
   }

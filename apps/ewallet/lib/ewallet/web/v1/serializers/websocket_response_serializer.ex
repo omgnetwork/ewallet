@@ -51,9 +51,15 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   def decode!(message, _opts) do
     decoded = Poison.decode!(message)
 
-    decoded
-    |> Map.put("payload", decoded["data"])
-    |> Message.from_map!()
+    case decoded do
+      %{} = decoded ->
+        decoded
+        |> Map.put("payload", decoded["data"])
+        |> Message.from_map!()
+
+      _ ->
+        build_error(:websocket_format_error)
+    end
   end
 
   defp build_message(%Reply{} = reply) do

@@ -2,13 +2,13 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button, Table } from '../omg-uikit'
+import { Button, Table, Switch } from '../omg-uikit'
 import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
 import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { generateApiKey } from '../omg-api-keys/action.js'
+import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -56,6 +56,9 @@ const KeySection = styled.div`
   }
 `
 const KeySectionEwallet = KeySection.extend`
+  td {
+    color: ${props => props.theme.colors.B200};
+  }
 `
 const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
@@ -67,12 +70,18 @@ const columns = [
   { key: 'created_at', title: 'Created' },
   { key: 'user', title: 'User' },
   { key: 'secret', title: 'Secret' },
-  { key: 'status', title: 'Status' }
+  { key: 'expired', title: 'Status' }
 ]
-const enhance = compose(connect(null, { generateApiKey }))
+const enhance = compose(
+  connect(
+    null,
+    { generateApiKey, updateApiKey }
+  )
+)
 class ApiKeyPage extends Component {
   static propTypes = {
-    generateApiKey: PropTypes.func
+    generateApiKey: PropTypes.func,
+    updateApiKey: PropTypes.func
   }
   state = {
     adminModalOpen: false,
@@ -91,37 +100,35 @@ class ApiKeyPage extends Component {
     this.props.generateApiKey(owner)
     this.onRequestClose()
   }
-  renderAdminApiKey = (apiKeysRows, loadingStatus) => {
-    return (
-      <KeySection>
-        <h3>Admin API Key</h3>
-        <p>
-        The Admin API key is used to authenticate an API and allows that specific API to access various admin-related functions such as creating new minted tokens, mint more tokens, create and manage accounts, create new API keys, etc.
-        </p>
-        <Button size='small' onClick={this.onClickCreateAdminKey} styleType={'secondary'}>
-          <span>Generate Key</span>
-        </Button>
-        <Table
-          rows={apiKeysRows}
-          columns={columns}
-          perPage={99999}
-          loading={loadingStatus === 'DEFAULT'}
+  onClickSwitch = ({ id, expired }) => async e => {
+    this.props.updateApiKey({ id, expired })
+  }
+  rowRenderer = (key, data, rows) => {
+    if (key === 'expired') {
+      return (
+        <Switch
+          open={!data}
+          onClick={this.onClickSwitch({ id: rows.key, expired: !rows.expired })}
         />
-      </KeySection>
-    )
+      )
+    }
+    return data
   }
   renderEwalletApiKey = (apiKeysRows, loadingStatus) => {
     return (
       <KeySectionEwallet>
         <h3>E-Wallet API Key</h3>
         <p>
-        The eWallet API key is used to authenticate an API and allows that specific API to access various user-related functions, e.g. make transfers with the user's wallets, list a user's transactions, create transaction requests, etc.
+          eWallet API Keys are used to authenticate clients and allow them to perform various
+          user-related functions (once the user has been logged in), e.g. make transfers with the
+          user's wallets, list a user's transactions, create transaction requests, etc.
         </p>
         <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
           <span>Generate Key</span>
         </Button>
         <Table
           rows={apiKeysRows}
+          rowRenderer={this.rowRenderer}
           columns={columns}
           perPage={99999}
           loading={loadingStatus === 'DEFAULT'}
@@ -134,13 +141,14 @@ class ApiKeyPage extends Component {
     return (
       <ApiKeyProvider
         render={({ apiKeys, loadingStatus }) => {
-          const apiKeysRows = apiKeys.map(key => {
+          const apiKeysRows = apiKeys.filter(key => !key.deleted_at).map(key => {
             return {
               key: key.id,
+              id: key.id,
               user: key.account_id,
               created_at: moment(key.created_at).format('ddd, DD/MM/YYYY hh:mm:ss'),
               secret: key.key,
-              status: !key.deleted_at ? 'enabled' : 'disabled',
+              expired: key.expired,
               ownerApp: key.owner_app
             }
           })
@@ -152,24 +160,10 @@ class ApiKeyPage extends Component {
                 secondaryAction={false}
                 types={false}
               />
-              {/* {this.renderAdminApiKey(
-                apiKeysRows.filter(x => x.ownerApp === 'admin_api'),
-                loadingStatus
-              )} */}
               {this.renderEwalletApiKey(
                 apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
                 loadingStatus
               )}
-              <ConfirmationModal
-                open={this.state.adminModalOpen}
-                onRequestClose={this.onRequestClose}
-                onOk={this.onClickOk('admin_api')}
-              >
-                <ConfirmCreateKeyContainer>
-                  <h4>GENERATE ADMIN API KEY</h4>
-                  <p>Are you sure you want to generate admin api key ?</p>
-                </ConfirmCreateKeyContainer>
-              </ConfirmationModal>
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
                 onRequestClose={this.onRequestClose}

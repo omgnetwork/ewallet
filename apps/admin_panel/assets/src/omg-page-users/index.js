@@ -99,7 +99,7 @@ class UsersPage extends Component {
           <SortableTable
             dataSource={this.getRow(users)}
             columns={this.getColumns(users)}
-            loading={loadingStatus === 'DEFAULT'}
+            loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
           />

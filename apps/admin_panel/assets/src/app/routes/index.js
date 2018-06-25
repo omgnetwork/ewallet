@@ -11,7 +11,7 @@ import AccountPage from '../../omg-page-account'
 import DashboardPage from '../../omg-page-dashboard'
 import TokenPage from '../../omg-page-token'
 import TransactionPage from '../../omg-page-transaction'
-import BalancePage from '../../omg-page-balance'
+import WalletPage from '../../omg-page-wallets'
 import AccountDetailPage from '../../omg-page-account-detail'
 import AccountSettingPage from '../../omg-page-account-setting'
 import UserSettingPage from '../../omg-page-user-setting'
@@ -35,7 +35,7 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/accounts' exact component={AccountPage} />\
       <AuthenticatedRoute path='/:accountId/token' exact component={TokenPage} />
       <AuthenticatedRoute path='/:accountId/token/:viewTokenId' exact component={TokenDetailPage} />
-      <AuthenticatedRoute path='/:accountId/wallets' exact component={BalancePage} />
+      <AuthenticatedRoute path='/:accountId/wallets' exact component={WalletPage} />
       <AuthenticatedRoute path='/:accountId/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/:accountId/api' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/:accountId/setting' exact component={AccountSettingPage} />

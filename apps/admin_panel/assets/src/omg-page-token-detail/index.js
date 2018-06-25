@@ -51,7 +51,7 @@ class TokenDetailPage extends Component {
         title={token.name}
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
-          <Button size='small' onClick={this.onClickMintTopen}>
+          <Button size='small' onClick={this.onClickMintTopen} key='mint'>
             <span>Mint Token</span>
           </Button>
         ]}

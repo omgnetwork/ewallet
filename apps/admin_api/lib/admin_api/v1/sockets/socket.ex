@@ -19,7 +19,7 @@ defmodule AdminAPI.V1.Socket do
       %{authenticated: true} = auth ->
         {:ok, assign(socket, :auth, auth)}
 
-      _ ->
+      _auth ->
         :error
     end
   end

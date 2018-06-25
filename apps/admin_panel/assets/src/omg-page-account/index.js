@@ -83,7 +83,8 @@ class AccountPage extends Component {
     return accounts.map(d => {
       return {
         ...d,
-        avatar: d.avatar.thumb
+        avatar: d.avatar.thumb,
+        key: d.id
       }
     })
   }
@@ -121,7 +122,7 @@ class AccountPage extends Component {
           <SortableTable
             dataSource={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
-            loading={loadingStatus === 'DEFAULT'}
+            loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
             perPage={20}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}

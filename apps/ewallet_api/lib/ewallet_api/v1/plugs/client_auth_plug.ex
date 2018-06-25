@@ -14,7 +14,7 @@ defmodule EWalletAPI.V1.Plug.ClientAuthPlug do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    %{http_headers: conn.req_headers}
+    %{headers: conn.req_headers}
     |> ClientAuth.authenticate()
     |> handle_auth_result(conn)
   end

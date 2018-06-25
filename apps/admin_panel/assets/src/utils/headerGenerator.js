@@ -1,7 +1,7 @@
 import CONSTANT from '../constants'
 import localStorage from '../utils/localStorage'
 import btoa from 'btoa'
-function createAuthenticationHeader ({ auth, accessToken }) {
+export function createAuthenticationHeader ({ auth, accessToken }) {
   const createAuthorizationHeader = key => ({ Authorization: `OMGAdmin ${btoa(key)}` })
   return auth
     ? createAuthorizationHeader(`${accessToken.user_id}:${accessToken.authentication_token}`)

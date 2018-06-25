@@ -54,6 +54,7 @@
     "jest": "^22.4.3",
     "json-loader": "^0.5.4",
     "mini-css-extract-plugin": "^0.4.0",
+    "mock-socket": "^7.1.0",
     "moment": "^2.22.1",
     "postcss-loader": "^1.2.2",
     "prop-types": "^15.6.1",

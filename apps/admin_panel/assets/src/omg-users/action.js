@@ -1,5 +1,4 @@
 import * as userService from '../services/userService'
-import * as walletService from '../services/walletService'
 export const createUser = ({ name, description, avatar }) => async dispatch => {
   try {
     const resultCreateUser = await userService.createUser({ name, description })
@@ -15,6 +14,7 @@ export const createUser = ({ name, description, avatar }) => async dispatch => {
 }
 
 export const getUsers = () => async dispatch => {
+  dispatch({ type: 'USERS/REQUEST/INITIATED' })
   try {
     const result = await userService.getAllUsers({
       per: 1000,

@@ -36,15 +36,16 @@ class CreateAccountModal extends Component {
     onRequestClose: PropTypes.func,
     createAccount: PropTypes.func
   }
-  state = {
+  initialState = {
     submitting: false,
     stage: 'create',
     name: '',
     description: '',
     avatar: '',
     category: {},
-    error: null
+    error: false
   }
+  state = this.initialState
 
   onSubmit = e => {
     e.preventDefault()
@@ -76,16 +77,7 @@ class CreateAccountModal extends Component {
     this.resetState()
   }
   resetState = () => {
-    this.setState({
-      stage: 'create',
-      name: '',
-      description: '',
-      avatar: '',
-      avatarPath: '',
-      error: '',
-      category: '',
-      submitting: false
-    })
+    this.setState(this.initialState)
   }
   onRequestClose = () => {
     this.resetState()
