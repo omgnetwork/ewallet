@@ -60,7 +60,7 @@ class MintTokenModal extends PureComponent {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    token: PropTypes.string,
+    token: PropTypes.object,
     mintToken: PropTypes.func.isRequired,
     getWalletsByAccountId: PropTypes.func.isRequired,
     match: PropTypes.object

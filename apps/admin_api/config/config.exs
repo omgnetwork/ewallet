@@ -87,7 +87,11 @@ config :cors_plug,
 
 # Maps an accept header to the respective router version.
 config :admin_api, :api_versions, %{
-  "application/vnd.omisego.v1+json" => AdminAPI.V1.Router
+  "application/vnd.omisego.v1+json" => %{
+    router: AdminAPI.V1.Router,
+    endpoint: AdminAPI.V1.Endpoint,
+    websocket_serializer: EWallet.Web.V1.WebsocketResponseSerializer
+  }
 }
 
 # Maps accept header to an extension type so Phoenix knows

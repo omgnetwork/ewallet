@@ -29,7 +29,7 @@ export const createAccount = ({ name, description, avatar, category }) => async 
 }
 
 export const getAccounts = search => async dispatch => {
-  // dispatch({ type: 'ACCOUNTS/REQUEST/INITIATED' })
+  dispatch({ type: 'ACCOUNTS/REQUEST/INITIATED' })
   try {
     const result = await accountService.getAllAccounts({
       per: 100,

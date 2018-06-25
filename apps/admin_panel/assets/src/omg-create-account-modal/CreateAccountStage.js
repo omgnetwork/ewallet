@@ -55,7 +55,7 @@ export default class CreateAccountStage extends Component {
     onChangeInputName: PropTypes.func,
     onChangeInputDescription: PropTypes.func,
     onChangeAvatar: PropTypes.func,
-    error: PropTypes.string,
+    error: PropTypes.bool,
     avatar: PropTypes.string,
     category: PropTypes.object
   }

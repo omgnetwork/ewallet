@@ -12,7 +12,7 @@ defmodule AdminAPI.V1.AdminAPIAuth do
     # a plug to assign data to conn.
     auth = %{}
 
-    params.http_headers
+    (params["headers"] || params[:headers])
     |> Enum.into(%{})
     |> extract_auth_scheme(auth)
     |> do_authenticate()
@@ -25,7 +25,8 @@ defmodule AdminAPI.V1.AdminAPIAuth do
       |> Map.put(:auth_scheme_name, scheme)
       |> Map.put(:auth_header, header)
     else
-      _error -> auth
+      _error ->
+        auth
     end
   end
 

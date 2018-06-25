@@ -10,7 +10,7 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   def init(opts), do: opts
 
   def call(conn, _opts) do
-    %{http_headers: conn.req_headers}
+    %{headers: conn.req_headers}
     |> AdminAPIAuth.authenticate()
     |> handle_auth_result(conn)
   end

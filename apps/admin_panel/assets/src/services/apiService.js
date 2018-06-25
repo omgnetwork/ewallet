@@ -1,10 +1,9 @@
 import axios from 'axios'
-import { buildApiURL } from '../utils/urlBuilder'
 import createHeader from '../utils/headerGenerator'
-
+import { API_URL } from '../config'
+import urlJoin from 'url-join'
 export function request ({ path, data, headers }) {
-  const url = buildApiURL(path)
-  return axios.post(url, data, { headers })
+  return axios.post(urlJoin(API_URL, path), data, { headers })
 }
 export function authenticatedRequest ({ path, data }) {
   const headers = createHeader({ auth: true })
