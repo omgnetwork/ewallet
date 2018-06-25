@@ -33,12 +33,7 @@ const uploadAvatar = async ({ avatar, accountId }) => async dispatch => {
   }
   return resultUploadAvatar
 }
-export const updateCurrentAccount = ({
-  accountId,
-  name,
-  description,
-  avatar
-}) => async dispatch => {
+export const updateCurrentAccount = ({ accountId, name, description, avatar }) => async dispatch => {
   try {
     const resultUpdateAccount = await settingService.updateAccountInfo({
       id: accountId,
