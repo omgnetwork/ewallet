@@ -8,11 +8,11 @@ export const generateApiKey = owner => async dispatch => {
         apiKey: result.data.data
       })
     } else {
-      dispatch({ type: 'API_KEY/CREATE/FAILED' })
+      dispatch({ type: 'API_KEY/CREATE/FAILED', error: result.data.data })
     }
     return result
   } catch (error) {
-    dispatch({ type: 'API_KEY/CREATE/FAILED' })
+    dispatch({ type: 'API_KEY/CREATE/FAILED', error })
   }
 }
 export const disableApiKey = id => async dispatch => {
@@ -40,11 +40,11 @@ export const updateApiKey = ({ id, expired }) => async dispatch => {
         apiKey: result.data.data
       })
     } else {
-      dispatch({ type: 'API_KEY/UPDATE/FAILED' })
+      dispatch({ type: 'API_KEY/UPDATE/FAILED', error: result.data.data })
     }
     return result
   } catch (error) {
-    dispatch({ type: 'API_KEY/UPDATE/FAILED' })
+    dispatch({ type: 'API_KEY/UPDATE/FAILED', error })
   }
 }
 
@@ -60,10 +60,10 @@ export const loadApiKeys = () => async dispatch => {
         apiKeys: result.data.data.data
       })
     } else {
-      dispatch({ type: 'API_KEY/REQUEST/FAILED' })
+      dispatch({ type: 'API_KEY/REQUEST/FAILED', error: result.data.data })
     }
     return result
   } catch (error) {
-    dispatch({ type: 'API_KEY/REQUEST/FAILED' })
+    dispatch({ type: 'API_KEY/REQUEST/FAILED', error })
   }
 }

@@ -90,14 +90,6 @@ class SocketConnector {
   channelExistInJoinedChannels (joinedChannels, channel) {
     return _.includes(joinedChannels, channel)
   }
-  handleJoinedChannelMessage = msg => {
-    console.log('joined websocket channel:', msg.topic)
-    this.addChannelToJoinedChannels(msg.topic)
-  }
-  handleLeaveChannelMessage = msg => {
-    console.log('left websocket channel:', msg.topic)
-    this.removeChannelFromJoinedChannel(msg.topic)
-  }
 
   on (event, handler) {
     switch (event) {
@@ -142,10 +134,12 @@ class SocketConnector {
     if (msg.success) {
       switch (refType) {
         case CONSTANT.WEBSOCKET.JOIN_CHANNEL_REF:
-          this.handleJoinedChannelMessage(msg)
+          console.log('joined websocket channel:', msg.topic)
+          this.addChannelToJoinedChannels(msg.topic)
           break
         case CONSTANT.WEBSOCKET.LEAVE_CHANNEL_REF:
-          this.handleLeaveChannelMessage(msg)
+          console.log('left websocket channel:', msg.topic)
+          this.removeChannelFromJoinedChannel(msg.topic)
           break
       }
       this.removeMessageFromQueue(msg)

@@ -18,6 +18,21 @@ export const loadCurrentAccount = accountId => async (dispatch, getState, { sock
   }
 }
 
+const uploadAvatar = async ({ avatar, accountId }) => async dispatch => {
+  const resultUploadAvatar = await accountService.uploadAccountAvatar({
+    accountId,
+    avatar
+  })
+  if (resultUploadAvatar.data.success) {
+    dispatch({
+      type: 'CURRENT_ACCOUNT/UPDATE/SUCCESS',
+      currentAccount: resultUploadAvatar.data.data
+    })
+  } else {
+    dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/FAILED', error: resultUploadAvatar.data.data })
+  }
+  return resultUploadAvatar
+}
 export const updateCurrentAccount = ({
   accountId,
   name,
@@ -31,31 +46,18 @@ export const updateCurrentAccount = ({
       description
     })
     if (resultUpdateAccount.data.success) {
-      if (avatar) {
-        const resultUploadAvatar = await accountService.uploadAccountAvatar({
-          accountId,
-          avatar
-        })
-        if (resultUploadAvatar.data.success) {
-          dispatch({
-            type: 'CURRENT_ACCOUNT/UPDATE/SUCCESS',
-            currentAccount: resultUploadAvatar.data.data
-          })
-        } else {
-          dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/FAILED', error: resultUploadAvatar.data.data })
-        }
-        return resultUploadAvatar
-      } else {
+      if (!avatar) {
         dispatch({
           type: 'CURRENT_ACCOUNT/UPDATE/SUCCESS',
           currentAccount: resultUpdateAccount.data.data
         })
+        return resultUpdateAccount
       }
-      return resultUpdateAccount
+      const resultUploadAvatar = await uploadAvatar({ accountId, avatar })(dispatch)
+      return resultUploadAvatar
     } else {
       dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/FAILED', error: resultUpdateAccount.data.data })
     }
-    return resultUpdateAccount
   } catch (error) {
     dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/FAILED', error })
   }
