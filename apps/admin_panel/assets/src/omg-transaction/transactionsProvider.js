@@ -30,9 +30,7 @@ class AccountsProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.transactionsLoadingStatus === 'DEFAULT') {
-      this.props.getTransactions()
-    }
+    this.props.getTransactions()
   }
   render () {
     return this.props.render({

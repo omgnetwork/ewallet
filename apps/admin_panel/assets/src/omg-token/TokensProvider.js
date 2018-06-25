@@ -33,9 +33,7 @@ class TokensProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.tokensLoadingStatus === 'DEFAULT') {
-      this.props.loadTokens()
-    }
+    this.props.loadTokens()
   }
   render () {
     return this.props.render({

@@ -18,9 +18,7 @@ class UsersProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.usersLoadingStatus === 'DEFAULT') {
-      this.props.getUsers()
-    }
+    this.props.getUsers()
   }
   render () {
     return this.props.render({

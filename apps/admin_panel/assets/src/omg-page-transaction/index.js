@@ -105,6 +105,7 @@ class TransactionPage extends Component {
           dataSource={transactions.map(t => ({ ...t, id: t.id }))}
           columns={columns}
           rowRenderer={this.rowRenderer}
+          perPage={15}
           loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
         />
         <CreateAccountModal
