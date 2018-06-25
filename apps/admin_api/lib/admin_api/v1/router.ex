@@ -40,11 +40,27 @@ defmodule AdminAPI.V1.Router do
     post("/transaction_request.get", TransactionRequestController, :get)
     post("/transaction_request.consume", TransactionConsumptionController, :consume)
 
-    post("/transaction_request.get_consumptions", TransactionRequestController, :all)
-    post("/account.get_consumptions", TransactionRequestController, :all)
-    post("/user.get_consumptions", TransactionRequestController, :all)
-    post("/wallet.get_consumptions", TransactionRequestController, :all)
+    post(
+      "/account.get_transaction_consumptions",
+      TransactionConsumptionController,
+      :all_for_account
+    )
 
+    post("/user.get_transaction_consumptions", TransactionConsumptionController, :all_for_user)
+
+    post(
+      "/wallet.get_transaction_consumptions",
+      TransactionConsumptionController,
+      :all_for_wallet
+    )
+
+    post(
+      "/transaction_request.get_transaction_consumptions",
+      TransactionConsumptionController,
+      :all_for_transaction_request
+    )
+
+    post("/transaction_consumption.all", TransactionConsumptionController, :all)
     post("/transaction_consumption.get", TransactionConsumptionController, :get)
     post("/transaction_consumption.approve", TransactionConsumptionController, :approve)
     post("/transaction_consumption.reject", TransactionConsumptionController, :reject)

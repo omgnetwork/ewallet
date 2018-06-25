@@ -36,7 +36,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
     |> respond(conn)
   end
 
-  # Respond with a list of transactions
+  # Respond with a list of transaction requests
   defp respond_multiple(%Paginator{} = paged_transaction_requests, conn) do
     render(conn, :transaction_requests, %{transaction_requests: paged_transaction_requests})
   end

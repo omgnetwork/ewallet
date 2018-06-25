@@ -44,6 +44,17 @@ defmodule EWallet.Web.SearchParser do
 
   def to_query(queryable, _, _, _), do: queryable
 
+  @spec search_with_terms(Ecto.Queryable.t(), map(), [atom()]) :: Ecto.Queryable.t()
+  @spec search_with_terms(Ecto.Queryable.t(), map(), [atom()], map()) :: Ecto.Queryable.t()
+  def search_with_terms(queryable, terms, fields, mapping \\ %{})
+
+  def search_with_terms(queryable, %{"search_terms" => terms}, fields, mapping)
+      when terms != nil do
+    to_query(queryable, %{"search_terms" => terms}, fields, mapping)
+  end
+
+  def search_with_terms(queryable, _, _, _), do: queryable
+
   defp map_field(original, mapping) do
     case mapping[original] do
       nil -> original

@@ -13,4 +13,12 @@ defmodule AdminAPI.V1.TransactionConsumptionView do
     |> TransactionConsumptionSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
+  def render("transaction_consumptions.json", %{
+        transaction_consumptions: transaction_consumptions
+      }) do
+    transaction_consumptions
+    |> TransactionConsumptionSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
+  end
 end

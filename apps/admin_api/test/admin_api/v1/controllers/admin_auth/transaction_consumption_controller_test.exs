@@ -33,8 +33,390 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     }
   end
 
+  describe "/transaction_consumption.all" do
+    setup do
+      user = get_test_user()
+      account = Account.get_master_account()
+
+      tc_1 = insert(:transaction_consumption, user_uuid: user.uuid, status: "pending")
+      tc_2 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
+      tc_3 = insert(:transaction_consumption, account_uuid: account.uuid, status: "confirmed")
+
+      %{
+        user: user,
+        tc_1: tc_1,
+        tc_2: tc_2,
+        tc_3: tc_3
+      }
+    end
+
+    test "returns all the transaction_consumptions", meta do
+      response =
+        admin_user_request("/transaction_consumption.all", %{
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      transfers = [
+        meta.tc_1,
+        meta.tc_2,
+        meta.tc_3
+      ]
+
+      assert length(response["data"]["data"]) == length(transfers)
+
+      # All transfers made during setup should exist in the response
+      assert Enum.all?(transfers, fn transfer ->
+               Enum.any?(response["data"]["data"], fn data ->
+                 transfer.id == data["id"]
+               end)
+             end)
+    end
+
+    test "returns all the transaction_consumptions for a specific status", meta do
+      response =
+        admin_user_request("/transaction_consumption.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_terms" => %{
+            "status" => "pending"
+          }
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_1.id,
+               meta.tc_2.id
+             ]
+    end
+
+    test "returns all transaction_consumptions filtered", meta do
+      response =
+        admin_user_request("/transaction_consumption.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_term" => "pending"
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_1.id,
+               meta.tc_2.id
+             ]
+    end
+
+    test "returns all transaction_consumptions sorted and paginated", meta do
+      response =
+        admin_user_request("/transaction_consumption.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 2,
+          "page" => 1
+        })
+
+      assert response["data"]["data"] |> length() == 2
+      transaction_1 = Enum.at(response["data"]["data"], 0)
+      transaction_2 = Enum.at(response["data"]["data"], 1)
+      assert transaction_2["created_at"] > transaction_1["created_at"]
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_1.id,
+               meta.tc_2.id
+             ]
+    end
+  end
+
+  describe "/account.get_transaction_consumptions" do
+    setup do
+      user = get_test_user()
+      account = Account.get_master_account()
+
+      tc_1 = insert(:transaction_consumption, user_uuid: user.uuid, status: "pending")
+      tc_2 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
+      tc_3 = insert(:transaction_consumption, account_uuid: account.uuid, status: "confirmed")
+
+      %{
+        user: user,
+        account: account,
+        tc_1: tc_1,
+        tc_2: tc_2,
+        tc_3: tc_3
+      }
+    end
+
+    test "returns :invalid_parameter when account_id is not provided" do
+      response =
+        admin_user_request("/account.get_transaction_consumptions", %{
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Parameter 'account_id' is required.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "returns :account_id_not_found when user_id is not provided" do
+      response =
+        admin_user_request("/account.get_transaction_consumptions", %{
+          "account_id" => "fake",
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "messages" => nil,
+                 "object" => "error",
+                 "code" => "account:id_not_found",
+                 "description" => "There is no account corresponding to the provided id"
+               }
+             }
+    end
+
+    test "returns all the transaction_consumptions for an account", meta do
+      response =
+        admin_user_request("/account.get_transaction_consumptions", %{
+          "account_id" => meta.account.id,
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      transfers = [
+        meta.tc_2,
+        meta.tc_3
+      ]
+
+      assert length(response["data"]["data"]) == 2
+
+      # All transfers made during setup should exist in the response
+      assert Enum.all?(transfers, fn transfer ->
+               Enum.any?(response["data"]["data"], fn data ->
+                 transfer.id == data["id"]
+               end)
+             end)
+    end
+
+    test "returns all the transaction_consumptions for a specific status", meta do
+      response =
+        admin_user_request("/account.get_transaction_consumptions", %{
+          "account_id" => meta.account.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_terms" => %{
+            "status" => "pending"
+          }
+        })
+
+      assert response["data"]["data"] |> length() == 1
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id
+             ]
+    end
+
+    test "ignores the search_term parameter", meta do
+      response =
+        admin_user_request("/account.get_transaction_consumptions", %{
+          "account_id" => meta.account.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_term" => "pending"
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
+    end
+
+    test "returns all transaction_consumptions sorted and paginated", meta do
+      response =
+        admin_user_request("/account.get_transaction_consumptions", %{
+          "account_id" => meta.account.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 2,
+          "page" => 1
+        })
+
+      assert response["data"]["data"] |> length() == 2
+      transaction_1 = Enum.at(response["data"]["data"], 0)
+      transaction_2 = Enum.at(response["data"]["data"], 1)
+      assert transaction_2["created_at"] > transaction_1["created_at"]
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
+    end
+  end
+
+  describe "/user.get_transaction_consumptions" do
+    setup do
+      user = get_test_user()
+      account = Account.get_master_account()
+
+      tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
+      tc_2 = insert(:transaction_consumption, user_uuid: user.uuid, status: "pending")
+      tc_3 = insert(:transaction_consumption, user_uuid: user.uuid, status: "confirmed")
+
+      %{
+        user: user,
+        account: account,
+        tc_1: tc_1,
+        tc_2: tc_2,
+        tc_3: tc_3
+      }
+    end
+
+    test "returns :invalid_parameter when user_id is not provided" do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert response == %{
+               "data" => %{
+                 "code" => "client:invalid_parameter",
+                 "description" => "Parameter 'user_id' is required.",
+                 "messages" => nil,
+                 "object" => "error"
+               },
+               "success" => false,
+               "version" => "1"
+             }
+    end
+
+    test "returns :user_id_not_found when user_id is not provided" do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "user_id" => "fake",
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "messages" => nil,
+                 "object" => "error",
+                 "code" => "user:id_not_found",
+                 "description" => "There is no user corresponding to the provided id"
+               }
+             }
+    end
+
+    test "returns all the transaction_consumptions for a user", meta do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "user_id" => meta.user.id,
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert length(response["data"]["data"]) == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
+    end
+
+    test "returns all the transaction_consumptions for a specific status", meta do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "user_id" => meta.user.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_terms" => %{
+            "status" => "pending"
+          }
+        })
+
+      assert response["data"]["data"] |> length() == 1
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id
+             ]
+    end
+
+    test "ignores the search_term parameter", meta do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "user_id" => meta.user.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_term" => "pending"
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
+    end
+
+    test "returns all transaction_consumptions sorted and paginated", meta do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "user_id" => meta.user.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 2,
+          "page" => 1
+        })
+
+      assert response["data"]["data"] |> length() == 2
+      transaction_1 = Enum.at(response["data"]["data"], 0)
+      transaction_2 = Enum.at(response["data"]["data"], 1)
+      assert transaction_2["created_at"] > transaction_1["created_at"]
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
+    end
+  end
+
   describe "/transaction_consumption.get" do
-    test "returns the transaction request" do
+    test "returns the transaction consumption" do
       transaction_consumption = insert(:transaction_consumption)
 
       response =
