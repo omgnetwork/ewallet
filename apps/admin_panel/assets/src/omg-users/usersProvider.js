@@ -9,16 +9,25 @@ class UsersProvider extends Component {
     users: PropTypes.array,
     getUsers: PropTypes.func,
     usersLoadingStatus: PropTypes.string,
-    search: PropTypes.string
+    search: PropTypes.string,
+    page: PropTypes.number,
+    perPage: PropTypes.number
+  }
+  getUser = () => {
+    this.props.getUsers({
+      page: this.props.page,
+      search: this.props.search,
+      perPage: this.props.perPage
+    })
   }
   componentWillReceiveProps = nextProps => {
-    if (this.props.search !== nextProps.search) {
-      this.props.getUsers(nextProps.search)
+    if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
+      this.getUser()
     }
   }
 
   componentDidMount = () => {
-    this.props.getUsers()
+    this.getUser()
   }
   render () {
     return this.props.render({
