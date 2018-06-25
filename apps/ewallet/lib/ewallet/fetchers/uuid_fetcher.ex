@@ -2,13 +2,15 @@ defmodule EWallet.UUIDFetcher do
   @moduledoc """
   Module responsible for turning external IDs into internal UUIDs.
   """
-  alias EWalletDB.{Account, User}
+  alias EWalletDB.{Account, Token, User}
 
   # Add more mappings if you wish to use this fetcher for other schemas.
   @mappings %{
     "account_id" => {Account, :id, "account_uuid"},
     "user_id" => {User, :id, "user_uuid"},
-    "provider_user_id" => {User, :provider_user_id, "user_uuid"}
+    "provider_user_id" => {User, :provider_user_id, "user_uuid"},
+    "from_token_id" => {Token, :id, "from_token_uuid"},
+    "to_token_id" => {Token, :id, "to_token_uuid"},
   }
 
   @doc """
