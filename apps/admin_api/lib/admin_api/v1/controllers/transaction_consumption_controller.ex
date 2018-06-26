@@ -50,7 +50,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
-  def all_for_account(conn, %{}) do
+  def all_for_account(conn, _) do
     handle_error(conn, :invalid_parameter, "Parameter 'account_id' is required.")
   end
 
@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
-  def all_for_user(conn, %{}) do
+  def all_for_user(conn, _) do
     handle_error(conn, :invalid_parameter, "Parameter 'user_id' is required.")
   end
 
@@ -85,7 +85,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
-  def all_for_transaction_request(conn, %{}) do
+  def all_for_transaction_request(conn, _) do
     handle_error(conn, :invalid_parameter, "Parameter 'transaction_request_id' is required.")
   end
 
@@ -100,7 +100,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
-  def all_for_wallet(conn, %{}) do
+  def all_for_wallet(conn, _) do
     handle_error(conn, :invalid_parameter, "Parameter 'address' is required.")
   end
 
