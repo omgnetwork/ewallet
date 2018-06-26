@@ -1,43 +1,33 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { getTransactions } from './action'
-import { compose } from 'recompose'
+import { getWalletsByAccountId } from './action'
 import CONSTANT from '../constants'
-const ehance = compose(
-  connect(
-    null,
-    { getTransactions }
-  )
-)
-class TransactionsProvider extends Component {
+class WalletsProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
-    getTransactions: PropTypes.func,
+    wallets: PropTypes.array,
+    getWalletsByAccountId: PropTypes.func,
+    walletsLoadingStatus: PropTypes.string,
     search: PropTypes.string,
     page: PropTypes.number,
-    perPage: PropTypes.number,
+    accountId: PropTypes.string,
     onFetchComplete: PropTypes.func
   }
   state = {
-    loadingStatus: 'DEFAULT',
-    transactions: []
-  }
-  componentDidUpdate = nextProps => {
-    if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
-      this.fetch()
-    }
+    wallets: []
   }
   fetch = async () => {
     try {
-      const { transactions, error } = await this.props.getTransactions({
-        page: this.props.page || 1,
+      const { wallets, error } = await this.props.getWalletsByAccountId({
+        accountId: this.props.accountId,
         search: this.props.search,
+        page: this.props.page || 1,
         perPage: this.props.perPage
       })
-      if (transactions) {
+      if (wallets) {
         this.setState({
-          transactions,
+          wallets,
           loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
         })
         this.props.onFetchComplete()
@@ -48,16 +38,23 @@ class TransactionsProvider extends Component {
       this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, error: e })
     }
   }
-
-  componentDidMount = async () => {
+  componentWillReceiveProps = nextProps => {
+    if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
+      this.fetch()
+    }
+  }
+  componentDidMount = () => {
     this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
     this.fetch()
   }
   render () {
     return this.props.render({
-      transactions: this.state.transactions,
+      wallets: this.state.wallets,
       loadingStatus: this.state.loadingStatus
     })
   }
 }
-export default ehance(TransactionsProvider)
+export default connect(
+  null,
+  { getWalletsByAccountId }
+)(WalletsProvider)

@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
-import WalletsProvider from '../omg-wallet/walletsProvider'
+import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -114,7 +114,7 @@ class WalletPage extends Component {
 
   render () {
     return (
-      <WalletsProvider
+      <WalletsFetcher
         render={this.renderWalletPage}
         {...this.state}
         {...this.props}
