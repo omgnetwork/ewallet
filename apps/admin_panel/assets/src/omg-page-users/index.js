@@ -75,7 +75,7 @@ class UsersPage extends Component {
     return users.map(d => {
       return {
         ...d,
-        avatar: d.avatar.thumb
+        avatar: _.get(d, 'avatar.thumb')
       }
     })
   }

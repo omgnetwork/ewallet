@@ -85,7 +85,7 @@ class AccountPage extends Component {
     return accounts.map(d => {
       return {
         ...d,
-        avatar: d.avatar.thumb,
+        avatar: _.get(d, 'avatar.thumb'),
         key: d.id
       }
     })
