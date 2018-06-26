@@ -5,6 +5,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
   alias EWallet.Web.V1.ErrorSerializer
+  alias EWallet.AmountFormatter
   alias EWalletDB.Token
 
   @errors %{
@@ -250,8 +251,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
       data = %{
         "address" => address,
-        "current_amount" => float_to_binary(current_amount / token.subunit_to_unit),
-        "amount_to_debit" => float_to_binary(amount_to_debit / token.subunit_to_unit),
+        "current_amount" => AmountFormatter.format(current_amount, token.subunit_to_unit),
+        "amount_to_debit" => AmountFormatter.format(amount_to_debit, token.subunit_to_unit),
         "token_id" => token.id
       }
 
@@ -339,10 +340,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
   defp stringify_field({key, _}) do
     "`" <> to_string(key) <> "`"
-  end
-
-  defp float_to_binary(value) do
-    :erlang.float_to_binary(value, [:compact, {:decimals, 1}])
   end
 
   defp error_fields(changeset) do
