@@ -905,12 +905,12 @@ paths:
   #   TRANSACTION REQUESTS   #
   ############################
   # Endpoint to list all transaction requests
-  /transaction_requests.all:
+  /transaction_request.all:
     post:
       tags:
         - TransactionRequest
       summary: Get the list of transaction requests
-      operationId: transaction_requests_all
+      operationId: transaction_request_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -981,7 +981,7 @@ paths:
       tags:
         - Account
       summary: Get the list of transaction consumptions for an account
-      operationId: transaction_consumptions_all_for_account
+      operationId: account_get_consumptions
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -997,7 +997,7 @@ paths:
       tags:
         - User
       summary: Get the list of transaction consumptions for a user
-      operationId: transaction_consumptions_all_for_user
+      operationId: user_get_consumptions
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -1013,7 +1013,7 @@ paths:
       tags:
         - Wallet
       summary: Get the list of transaction consumptions for a wallet
-      operationId: transaction_consumptions_all_for_wallet
+      operationId: wallet_get_consumptions
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -1029,7 +1029,7 @@ paths:
       tags:
         - TransactionRequest
       summary: Get the list of transaction consumptions for a transaction request
-      operationId: transaction_consumptions_all_for_transaction_request
+      operationId: transaction_request_get_consumptions
       security:
         - ProviderAuth: []
         - AdminAuth: []
@@ -1041,12 +1041,12 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
   # Endpoint to list all consumptions
-  /transaction_consumptions.all:
+  /transaction_consumption.all:
     post:
       tags:
         - TransactionConsumption
       summary: Get the list of transaction consumptions
-      operationId: transaction_consumptions_all
+      operationId: transaction_consumption_all
       security:
         - ProviderAuth: []
         - AdminAuth: []
