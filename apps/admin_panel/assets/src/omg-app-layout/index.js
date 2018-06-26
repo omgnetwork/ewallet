@@ -48,6 +48,9 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
       history: PropTypes.object,
       switchAccount: PropTypes.func
     }
+    state = {
+      searchValue: ''
+    }
     handleClickOutside = () => {
       this.props.closeSwitchAccountTab()
     }
@@ -59,15 +62,23 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
       this.handleClickOutside()
       this.props.switchAccount(account)
     }
+
+    onSearchChange = e => {
+      this.setState({ searchValue: e.target.value })
+    }
+
     render () {
       return (
         <AccountsFetcher
+          query={{ search: this.state.searchValue, perPage: 20, page: 1 }}
           render={({ accounts }) => {
             return (
               <AccountSelectorMenu
                 accounts={accounts}
                 onClickAccountItem={this.onClickAccountItem}
                 onKeyDown={this.onKeyDown}
+                onSearchChange={this.onSearchChange}
+                searchValue={this.state.searchValue}
               />
             )
           }}
@@ -97,7 +108,7 @@ class AppLayout extends Component {
   render () {
     return (
       <Container>
-        <LoadingBar style={{ backgroundColor: '#1A56F0' }} />
+        <LoadingBar style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
         <SideNav
           switchAccount={this.state.switchAccount}
           onClickSwitchAccount={this.onClickSwitchAccount}

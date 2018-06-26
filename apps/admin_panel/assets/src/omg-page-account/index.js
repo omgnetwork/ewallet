@@ -5,12 +5,11 @@ import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
-import AccountFetcher from '../omg-account/accountsFetcher'
+import AccountsFetcher from '../omg-account/accountsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import { store } from '../store'
 const AccountPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -114,7 +113,7 @@ class AccountPage extends Component {
     }
     return data
   }
-  renderAccountPage = ({ data: accounts, loadingStatus, pagination, fetch }) => {
+  renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
         <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
@@ -122,7 +121,7 @@ class AccountPage extends Component {
           <SortableTable
             rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
-            loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
+            loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
@@ -142,7 +141,7 @@ class AccountPage extends Component {
 
   render () {
     return (
-      <AccountFetcher
+      <AccountsFetcher
         render={this.renderAccountPage}
         {...this.state}
         {...this.props}

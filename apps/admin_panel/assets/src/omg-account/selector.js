@@ -1,9 +1,5 @@
-export const selectAccounts = (state, search) => {
-  return _.values(state.accounts)
-  .filter(x => {
-    const reg = new RegExp(search)
-    return reg.test(x.name) || reg.test(x.description)
-  })
+export const selectAccounts = state => {
+  return _.values(state.accounts) || []
 }
 export const selectAccountsCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(accountId => {
