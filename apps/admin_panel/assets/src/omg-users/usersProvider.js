@@ -13,21 +13,21 @@ class UsersProvider extends Component {
     page: PropTypes.number,
     perPage: PropTypes.number
   }
-  getUser = () => {
+  fetch = () => {
     this.props.getUsers({
       page: this.props.page,
       search: this.props.search,
       perPage: this.props.perPage
     })
   }
-  componentWillReceiveProps = nextProps => {
+  componentDidUpdate = nextProps => {
     if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
-      this.getUser()
+      this.fetch()
     }
   }
 
   componentDidMount = () => {
-    this.getUser()
+    this.fetch()
   }
   render () {
     return this.props.render({
