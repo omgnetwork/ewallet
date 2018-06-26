@@ -35,7 +35,7 @@ export const mintToken = ({ id, amount }) => async dispatch => {
   }
 }
 
-export const loadTokens = ({ search, page, perPage }) => async dispatch => {
+export const getTokens = ({ search, page, perPage }) => async dispatch => {
   dispatch({ type: 'TOKENS/REQUEST/INITIATED' })
   try {
     const result = await tokenSerivce.getAllTokens({

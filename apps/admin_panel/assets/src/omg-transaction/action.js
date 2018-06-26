@@ -29,7 +29,7 @@ export const getTransactions = ({ page, search, perPage }) => async dispatch => 
     if (result.data.success) {
       return dispatch({
         type: 'TRANSACTIONS/REQUEST/SUCCESS',
-        transactions: result.data.data.data,
+        data: result.data.data.data,
         pagination: result.data.data.pagination
       })
     } else {

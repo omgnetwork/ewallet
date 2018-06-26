@@ -91,7 +91,7 @@ class TransactionPage extends Component {
     }
     return data
   }
-  renderTransactionPage = ({ transactions, loadingStatus, pagination }) => {
+  renderTransactionPage = ({ data: transactions, loadingStatus, pagination }) => {
     return (
       <TransactionPageContainer>
         <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />

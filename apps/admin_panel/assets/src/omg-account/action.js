@@ -40,7 +40,7 @@ export const getAccounts = ({ page, perPage, search }) => async dispatch => {
     if (result.data.success) {
       return dispatch({
         type: 'ACCOUNTS/REQUEST/SUCCESS',
-        accounts: result.data.data.data,
+        data: result.data.data.data,
         pagination: result.data.data.pagination
       })
     } else {

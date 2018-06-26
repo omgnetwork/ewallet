@@ -112,7 +112,7 @@ class AccountPage extends Component {
     }
     return data
   }
-  renderAccountPage = ({ accounts, loadingStatus, pagination }) => {
+  renderAccountPage = ({ data: accounts, loadingStatus, pagination }) => {
     return (
       <AccountPageContainer>
         <TopNavigation

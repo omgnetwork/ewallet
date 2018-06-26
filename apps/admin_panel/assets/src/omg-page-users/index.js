@@ -89,7 +89,7 @@ class UsersPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/user/${data.id}`)
   }
-  renderUserPage = ({ users, loadingStatus, pagination }) => {
+  renderUserPage = ({ data: users, loadingStatus, pagination }) => {
     return (
       <UserPageContainer>
         <TopNavigation title={'Users'} />
