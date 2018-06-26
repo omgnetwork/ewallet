@@ -91,7 +91,7 @@ class TransactionPage extends Component {
     }
     return data
   }
-  renderTransactionPage = ({ transactions, loadingStatus }) => {
+  renderTransactionPage = ({ transactions, loadingStatus, pagination }) => {
     return (
       <TransactionPageContainer>
         <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />
@@ -101,6 +101,8 @@ class TransactionPage extends Component {
           rowRenderer={this.rowRenderer}
           perPage={15}
           loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
+          isFirstPage={pagination.is_first_page}
+          isLastPage={pagination.is_last_page}
         />
 
         <CreateTransactionModal
@@ -119,7 +121,7 @@ class TransactionPage extends Component {
         render={this.renderTransactionPage}
         search={queryString.parse(this.props.location.search).search}
         perPage={15}
-        page={queryString.parse(this.props.location.search).page}
+        page={Number(queryString.parse(this.props.location.search).page)}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
     )

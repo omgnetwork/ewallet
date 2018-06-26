@@ -10,7 +10,7 @@ const ehance = compose(
     { getTransactions }
   )
 )
-class TransactionsProvider extends Component {
+class TransactionsFetcher extends Component {
   static propTypes = {
     render: PropTypes.func,
     getTransactions: PropTypes.func,
@@ -21,7 +21,8 @@ class TransactionsProvider extends Component {
   }
   state = {
     loadingStatus: 'DEFAULT',
-    transactions: []
+    transactions: [],
+    pagination: {}
   }
   componentDidUpdate = nextProps => {
     if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
@@ -30,7 +31,7 @@ class TransactionsProvider extends Component {
   }
   fetch = async () => {
     try {
-      const { transactions, error } = await this.props.getTransactions({
+      const { transactions, error, pagination } = await this.props.getTransactions({
         page: this.props.page || 1,
         search: this.props.search,
         perPage: this.props.perPage
@@ -38,7 +39,8 @@ class TransactionsProvider extends Component {
       if (transactions) {
         this.setState({
           transactions,
-          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
+          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+          pagination
         })
         this.props.onFetchComplete()
       } else {
@@ -56,8 +58,9 @@ class TransactionsProvider extends Component {
   render () {
     return this.props.render({
       transactions: this.state.transactions,
-      loadingStatus: this.state.loadingStatus
+      loadingStatus: this.state.loadingStatus,
+      pagination: this.state.pagination
     })
   }
 }
-export default ehance(TransactionsProvider)
+export default ehance(TransactionsFetcher)

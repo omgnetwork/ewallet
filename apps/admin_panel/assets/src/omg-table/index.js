@@ -77,7 +77,9 @@ class SortableTable extends PureComponent {
     loading: PropTypes.bool,
     perPage: PropTypes.number,
     rowRenderer: PropTypes.func,
-    onClickRow: PropTypes.func
+    onClickRow: PropTypes.func,
+    isLastPage: PropTypes.bool,
+    isFirstPage: PropTypes.bool
   }
 
   onSelectFilter = (col, item) => {
@@ -115,9 +117,8 @@ class SortableTable extends PureComponent {
     return Number(searchObject.page) || 1
   }
   onClickPrev = e => {
-    const searchObject = queryString.parse(this.props.location.search)
-    const page = searchObject.page
-    if (page) {
+    if (!this.props.isFirstPage) {
+      const searchObject = queryString.parse(this.props.location.search)
       this.props.history.push({
         search: queryString.stringify({
           ...searchObject,
@@ -127,8 +128,8 @@ class SortableTable extends PureComponent {
     }
   }
   onClickNext = e => {
-    const searchObject = queryString.parse(this.props.location.search)
-    if (this.props.rows.length >= this.props.perPage) {
+    if (!this.props.isLastPage) {
+      const searchObject = queryString.parse(this.props.location.search)
       this.props.history.push({
         search: queryString.stringify({
           ...searchObject,
@@ -235,13 +236,13 @@ class SortableTable extends PureComponent {
         <NavigationContainer>
           <Navigation
             onClick={this.onClickPrev}
-            disable={Number(queryString.parse(this.props.location.search).page || 1) <= 1}
+            disable={this.props.isFirstPage}
           >
             Prev
           </Navigation>
           <Navigation
             onClick={this.onClickNext}
-            disable={this.props.rows.length < this.props.perPage}
+            disable={this.props.isLastPage}
           >
             Next
           </Navigation>
