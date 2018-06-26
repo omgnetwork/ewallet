@@ -17,7 +17,7 @@ export const getUsers = ({ search, page, perPage }) => async dispatch => {
   dispatch({ type: 'USERS/REQUEST/INITIATED' })
   try {
     const result = await userService.getAllUsers({
-      per: perPage,
+      perPage: perPage,
       page,
       sort: { by: 'created_at', dir: 'desc' },
       search_term: search

@@ -36,7 +36,11 @@ class CreateAccountModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     createAccount: PropTypes.func,
-    getCategories: PropTypes.func
+    getCategories: PropTypes.func,
+    onCreateAccount: PropTypes.func
+  }
+  static defaultProps = {
+    onCreateAccount: _.noop
   }
   initialState = {
     submitting: false,
@@ -71,6 +75,7 @@ class CreateAccountModal extends Component {
     })
     if (result.data.success) {
       this.setState({ stage: 'finished' })
+      this.props.onCreateAccount()
     } else {
       this.setState({
         error: result.data.data.description,

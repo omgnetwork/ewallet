@@ -10,6 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import { store } from '../store'
 const AccountPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -44,6 +45,7 @@ class AccountPage extends Component {
       exportModalOpen: false
     }
   }
+
   onClickCreateAccount = () => {
     this.setState({ createAccountModalOpen: true })
   }
@@ -112,19 +114,15 @@ class AccountPage extends Component {
     }
     return data
   }
-  renderAccountPage = ({ data: accounts, loadingStatus, pagination }) => {
+  renderAccountPage = ({ data: accounts, loadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation
-          title={'Account'}
-          buttons={[this.renderCreateAccountButton()]}
-        />
+        <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
             loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
-            perPage={20}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
@@ -135,6 +133,7 @@ class AccountPage extends Component {
         <CreateAccountModal
           open={this.state.createAccountModalOpen}
           onRequestClose={this.onRequestCloseCreateAccount}
+          onCreateAccount={fetch}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </AccountPageContainer>
@@ -147,9 +146,11 @@ class AccountPage extends Component {
         render={this.renderAccountPage}
         {...this.state}
         {...this.props}
-        search={queryString.parse(this.props.location.search).search}
-        perPage={20}
-        page={queryString.parse(this.props.location.search).page}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
     )

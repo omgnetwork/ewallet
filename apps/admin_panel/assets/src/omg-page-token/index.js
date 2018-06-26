@@ -89,6 +89,7 @@ class TokenDetailPage extends Component {
         id: token.id
       }
     })
+
     return (
       <TokenDetailPageContainer>
         <TopNavigation

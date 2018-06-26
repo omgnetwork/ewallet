@@ -21,7 +21,7 @@ export const getTransactions = ({ page, search, perPage }) => async dispatch => 
   dispatch({ type: 'TRANSACTIONS/REQUEST/INITIATED' })
   try {
     const result = await transactionService.getAllTransactions({
-      per: perPage,
+      perPage: perPage,
       sort: { by: 'created_at', dir: 'desc' },
       search_term: search,
       page

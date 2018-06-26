@@ -100,7 +100,7 @@ class UsersPage extends Component {
             loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
-            perPage={20}
+
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation

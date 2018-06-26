@@ -3,7 +3,7 @@ export const getWalletsByAccountId = ({ accountId, search, page, perPage }) => a
   dispatch({ type: 'WALLETS/REQUEST/INITIATED' })
   try {
     const result = await walletService.getWalletsByAccountId({
-      per: perPage,
+      perPage: perPage,
       sort: { by: 'created_at', dir: 'asc' },
       search_term: search,
       accountId,
@@ -23,7 +23,7 @@ export const getWalletsByUserId = ({ userId, search }) => async dispatch => {
   dispatch({ type: 'USER_WALLETS/REQUEST/INITIATED' })
   try {
     const result = await walletService.getWalletsByUserId({
-      per: 1000,
+      perPage: 1000,
       sort: { by: 'created_at', dir: 'asc' },
       search_term: search,
       userId

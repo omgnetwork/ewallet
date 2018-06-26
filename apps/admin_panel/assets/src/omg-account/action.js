@@ -28,11 +28,12 @@ export const createAccount = ({ name, description, avatar, category }) => async 
   }
 }
 
-export const getAccounts = ({ page, perPage, search }) => async dispatch => {
+export const getAccounts = ({ page, perPage, search, cacheKey }) => async dispatch => {
   dispatch({ type: 'ACCOUNTS/REQUEST/INITIATED' })
+
   try {
     const result = await accountService.getAllAccounts({
-      per: perPage,
+      perPage: perPage,
       page,
       sort: { by: 'created_at', dir: 'desc' },
       search_term: search
@@ -41,7 +42,8 @@ export const getAccounts = ({ page, perPage, search }) => async dispatch => {
       return dispatch({
         type: 'ACCOUNTS/REQUEST/SUCCESS',
         data: result.data.data.data,
-        pagination: result.data.data.pagination
+        pagination: result.data.data.pagination,
+        cacheKey
       })
     } else {
       return dispatch({ type: 'ACCOUNTS/REQUEST/FAILED', error: result.data.data })

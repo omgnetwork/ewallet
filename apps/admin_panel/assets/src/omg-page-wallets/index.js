@@ -101,7 +101,7 @@ class WalletPage extends Component {
             rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
             loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
-            perPage={20}
+
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}

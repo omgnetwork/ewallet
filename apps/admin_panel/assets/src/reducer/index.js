@@ -16,6 +16,7 @@ import { transactionsReducer, transactionsLoadingStatusReducer } from '../omg-tr
 import { walletsReducer, walletsLoadingStatusReducer } from '../omg-wallet/reducer'
 import {categoriesLoadingStatusReducer, categoriesReducer} from '../omg-account-category/reducer'
 import { loadingBarReducer } from 'react-redux-loading-bar'
+import {cacheReducer} from '../omg-cache/reducer'
 export default combineReducers({
   app: appReducer,
   loadingBar: loadingBarReducer,
@@ -40,5 +41,6 @@ export default combineReducers({
   wallets: walletsReducer,
   walletsLoadingStatus: walletsLoadingStatusReducer,
   categories: categoriesReducer,
-  categoriesLoadingStatus: categoriesLoadingStatusReducer
+  categoriesLoadingStatus: categoriesLoadingStatusReducer,
+  cacheQueries: cacheReducer
 })

@@ -39,7 +39,7 @@ export const getTokens = ({ search, page, perPage }) => async dispatch => {
   dispatch({ type: 'TOKENS/REQUEST/INITIATED' })
   try {
     const result = await tokenSerivce.getAllTokens({
-      per: perPage,
+      perPage: perPage,
       page,
       sort: { by: 'created_at', dir: 'desc' }
     })
