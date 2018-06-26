@@ -10,11 +10,19 @@ defmodule EWalletDB.WalletTest do
   describe "Wallet.insert/1" do
     test_insert_ok(Wallet, :address, "an_address")
 
+    test "generates a wallet address if not given" do
+      {res, wallet} =
+        :wallet
+        |> params_for(address: nil)
+        |> Wallet.insert()
+
+        assert res == :ok
+        assert String.length(wallet.address) > 0
+    end
+
     test_insert_generate_uuid(Wallet, :uuid)
-    test_insert_generate_uuid(Wallet, :address)
     test_insert_generate_timestamps(Wallet)
 
-    test_insert_prevent_blank(Wallet, :address)
     test_insert_prevent_all_blank(Wallet, [:account, :user])
     test_insert_prevent_duplicate(Wallet, :address)
     test_default_metadata_fields(Wallet, "wallet")

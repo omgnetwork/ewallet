@@ -517,10 +517,9 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
                "description" =>
-                 "Invalid parameter provided `account_id`, `user_id` can't all be blank. `address` can't be blank. `identifier` can't be blank.",
+                 "Invalid parameter provided `account_id`, `user_id` can't all be blank. `identifier` can't be blank.",
                "messages" => %{
                  "account_id, user_id" => ["required_exclusive"],
-                 "address" => ["required"],
                  "identifier" => ["required"]
                },
                "object" => "error"
