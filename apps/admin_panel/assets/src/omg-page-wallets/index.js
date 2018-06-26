@@ -106,6 +106,7 @@ class WalletPage extends Component {
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
+            navigation
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />

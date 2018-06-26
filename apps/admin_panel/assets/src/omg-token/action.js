@@ -35,15 +35,20 @@ export const mintToken = ({ id, amount }) => async dispatch => {
   }
 }
 
-export const loadTokens = () => async dispatch => {
+export const loadTokens = ({ search, page, perPage }) => async dispatch => {
   dispatch({ type: 'TOKENS/REQUEST/INITIATED' })
   try {
     const result = await tokenSerivce.getAllTokens({
-      per: 1000,
+      per: perPage,
+      page,
       sort: { by: 'created_at', dir: 'desc' }
     })
     if (result.data.success) {
-      return dispatch({ type: 'TOKENS/REQUEST/SUCCESS', tokens: result.data.data.data })
+      return dispatch({
+        type: 'TOKENS/REQUEST/SUCCESS',
+        tokens: result.data.data.data,
+        pagination: result.data.data.pagination
+      })
     } else {
       return dispatch({ type: 'TOKENS/REQUEST/FAILED', error: result.data.data })
     }

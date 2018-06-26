@@ -103,6 +103,7 @@ class TransactionPage extends Component {
           loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
           isFirstPage={pagination.is_first_page}
           isLastPage={pagination.is_last_page}
+          navigation
         />
 
         <CreateTransactionModal

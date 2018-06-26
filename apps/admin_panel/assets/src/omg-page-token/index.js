@@ -27,7 +27,8 @@ class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    scrollTopContentContainer: PropTypes.func
   }
   state = {
     createTokenModalOpen: false,
@@ -78,7 +79,7 @@ class TokenDetailPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/token/${data.id}`)
   }
-  renderTokenDetailPage = ({ tokens, loadingStatus }) => {
+  renderTokenDetailPage = ({ tokens, loadingStatus, pagination }) => {
     const data = tokens.map(token => {
       return {
         key: token.id,
@@ -93,8 +94,6 @@ class TokenDetailPage extends Component {
         <TopNavigation
           title={'Token'}
           buttons={[
-            // this.renderExportButton(),
-            // this.renderTransferToken(),
             this.renderMintTokenButton()
           ]}
         />
@@ -105,6 +104,9 @@ class TokenDetailPage extends Component {
           perPage={20}
           onClickRow={this.onClickRow}
           rowRenderer={this.rowRenderer}
+          isFirstPage={pagination.is_first_page}
+          isLastPage={pagination.is_last_page}
+          navigation
         />
 
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
@@ -121,7 +123,11 @@ class TokenDetailPage extends Component {
       <TokenProvider
         render={this.renderTokenDetailPage}
         {...this.state}
+        {...this.props}
         search={queryString.parse(this.props.location.search).search}
+        perPage={20}
+        page={queryString.parse(this.props.location.search).page}
+        onFetchComplete={this.props.scrollTopContentContainer}
       />
     )
   }
