@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { getWalletsByAccountId } from './action'
 import CONSTANT from '../constants'
-class WalletsProvider extends Component {
+import {selectWallets} from './selector'
+class WalletsFetcher extends Component {
   static propTypes = {
     render: PropTypes.func,
     wallets: PropTypes.array,
@@ -38,7 +39,7 @@ class WalletsProvider extends Component {
       this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, error: e })
     }
   }
-  componentWillReceiveProps = nextProps => {
+  componentDidUpdate = nextProps => {
     if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
       this.fetch()
     }
@@ -49,7 +50,7 @@ class WalletsProvider extends Component {
   }
   render () {
     return this.props.render({
-      wallets: this.state.wallets,
+      wallets: selectWallets({wallets: this.state.wallets}, this.props.search),
       loadingStatus: this.state.loadingStatus
     })
   }
@@ -57,4 +58,4 @@ class WalletsProvider extends Component {
 export default connect(
   null,
   { getWalletsByAccountId }
-)(WalletsProvider)
+)(WalletsFetcher)

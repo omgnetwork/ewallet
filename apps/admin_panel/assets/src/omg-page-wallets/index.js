@@ -115,9 +115,11 @@ class WalletPage extends Component {
   render () {
     return (
       <WalletsFetcher
-        render={this.renderWalletPage}
         {...this.state}
         {...this.props}
+        render={this.renderWalletPage}
+        perPage={20}
+        page={queryString.parse(this.props.location.search).page}
         accountId={this.props.match.params.accountId}
         search={queryString.parse(this.props.location.search).search}
       />
