@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Icon, Input, PlainButton } from '../omg-uikit'
-import CategoriesProvider from '../omg-account-category/categoriesProvider'
+import CategoriesFetcher from '../omg-account-category/categoriesFetcher'
 import { connect } from 'react-redux'
 import { createCategory } from '../omg-account-category/action'
 import { withRouter } from 'react-router-dom'
@@ -127,7 +127,8 @@ class ChooseCategoryStage extends Component {
   onChangeInputSearch = e => {
     this.setState({ search: e.target.value })
   }
-  renderCategories = ({ categories, loadingStatus }) => {
+  renderCategories = ({ data: categories, loadingStatus, cachedCategories }) => {
+    const cat = loadingStatus === 'SUCCESS' ? categories : cachedCategories
     return (
       <CategoryContainer>
         <TopBar>
@@ -147,7 +148,7 @@ class ChooseCategoryStage extends Component {
               <Icon name='Checkmark' />
               <span>None</span>
             </SearchItem>
-            {this.props.categories.map(cat => {
+            {cat.map(cat => {
               return (
                 <SearchItem
                   onClick={e => this.props.onChooseCategory(cat)}
@@ -185,11 +186,12 @@ class ChooseCategoryStage extends Component {
   }
   render () {
     return (
-      <CategoriesProvider
+      <CategoriesFetcher
         render={this.renderCategories}
         {...this.props}
         {...this.state}
         search={this.state.search}
+        perPage={100}
       />
     )
   }

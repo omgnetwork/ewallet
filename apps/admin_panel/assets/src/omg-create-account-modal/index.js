@@ -50,7 +50,7 @@ class CreateAccountModal extends Component {
   state = this.initialState
   componentDidMount = () => {
     // PREFETCH CATEGORIES FOR BETTER EXPERIENCE
-    this.props.getCategories()
+    this.props.getCategories({})
   }
   onSubmit = e => {
     e.preventDefault()

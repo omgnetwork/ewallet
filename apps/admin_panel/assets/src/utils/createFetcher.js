@@ -2,9 +2,8 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import CONSTANT from '../constants'
-export const createFetcher = reducer =>
-  connect(
-    null,
+export const createFetcher = (reducer, selectors) =>
+  connect(selectors,
     { dispatcher: reducer }
   )(
     class Fetcher extends Component {
@@ -30,7 +29,8 @@ export const createFetcher = reducer =>
           const { data, pagination, error } = await this.props.dispatcher({
             page: this.props.page,
             search: this.props.search,
-            perPage: this.props.perPage
+            perPage: this.props.perPage,
+            ...this.props
           })
           if (data) {
             this.setState({
@@ -49,6 +49,7 @@ export const createFetcher = reducer =>
 
       render () {
         return this.props.render({
+          ...this.props,
           data: this.state.data,
           loadingStatus: this.state.loadingStatus,
           pagination: this.state.pagination

@@ -46,13 +46,14 @@ export const getTokens = ({ search, page, perPage }) => async dispatch => {
     if (result.data.success) {
       return dispatch({
         type: 'TOKENS/REQUEST/SUCCESS',
-        tokens: result.data.data.data,
+        data: result.data.data.data,
         pagination: result.data.data.pagination
       })
     } else {
       return dispatch({ type: 'TOKENS/REQUEST/FAILED', error: result.data.data })
     }
   } catch (error) {
+    console.log(error)
     return dispatch({ type: 'TOKENS/REQUEST/FAILED', error })
   }
 }

@@ -79,7 +79,7 @@ class TokenDetailPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/token/${data.id}`)
   }
-  renderTokenDetailPage = ({ tokens, loadingStatus, pagination }) => {
+  renderTokenDetailPage = ({ data: tokens, loadingStatus, pagination }) => {
     const data = tokens.map(token => {
       return {
         key: token.id,
