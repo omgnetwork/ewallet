@@ -39,7 +39,6 @@ defmodule AdminAPI.V1.AdminUserAuth do
         auth
         |> Map.put(:authenticated, true)
         |> Map.put(:admin_user, admin_user)
-        |> Map.put(:account, User.get_highest_account(admin_user))
 
       false ->
         auth

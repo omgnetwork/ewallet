@@ -155,7 +155,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
         })
 
       refute response["success"]
-      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "returns :account_not_found when the account does not exist" do

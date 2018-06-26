@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.ErrorHandler do
       description: "There is no user corresponding to the provided id"
     },
     unauthorized: %{
-      code: "user:unauthorized",
+      code: "unauthorized",
       description: "The user is not allowed to perform the requested operation"
     },
     access_key_unauthorized: %{

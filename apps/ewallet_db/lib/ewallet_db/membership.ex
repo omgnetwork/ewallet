@@ -10,7 +10,6 @@ defmodule EWalletDB.Membership do
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
-
   schema "membership" do
     belongs_to(
       :user,
@@ -61,6 +60,12 @@ defmodule EWalletDB.Membership do
   """
   def all_by_user(user) do
     Repo.all(from(m in Membership, where: m.user_uuid == ^user.uuid))
+  end
+
+  def all_by_user_and_role(user, role) do
+    Repo.all(
+      from(m in Membership, where: m.user_uuid == ^user.uuid and m.role_uuid == ^role.uuid)
+    )
   end
 
   @doc """

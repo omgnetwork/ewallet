@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.AccountPolicy
+  alias EWallet.{AccountPolicy, AccountFetcher}
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.{Account, User}
 
@@ -28,13 +28,14 @@ defmodule AdminAPI.V1.AccountController do
   @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   @doc """
-  Retrieves a list of accounts.
+  Retrieves a list of accounts based on current account for users.
   """
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
          # Get the highest level account for current key or current user
-         %Account{} = account <- get_highest_account(conn.assigns),
+         %Account{} = account <- AccountFetcher.get_highest_account(conn.assigns),
          descendants_uuids <- Account.get_all_descendants_uuids(account) do
+      # Get all the accounts the current accessor has access to
       Account
       |> Account.where_in(descendants_uuids)
       |> Preloader.to_query(@preload_fields)
@@ -147,16 +148,6 @@ defmodule AdminAPI.V1.AccountController do
   @spec permit(:all | :create | :get | :update, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
-    IO.inspect(action)
-    IO.inspect(account_id)
     Bodyguard.permit(AccountPolicy, action, params, account_id)
-  end
-
-  def get_highest_account(%{admin_user: admin_user}) do
-    User.get_highest_account(admin_user)
-  end
-
-  def get_highest_account(%{key: key}) do
-    key.account
   end
 end

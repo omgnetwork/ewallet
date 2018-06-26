@@ -392,12 +392,15 @@ defmodule EWalletDB.Account do
   end
 
   def get_all_descendants(account_uuids) when is_list(account_uuids) do
-    binary_account_uuids = Enum.map(account_uuids, fn account_uuid ->
-      {:ok, binary_uuid} = UUID.dump(account_uuid)
-      binary_uuid
-    end)
+    binary_account_uuids =
+      Enum.map(account_uuids, fn account_uuid ->
+        {:ok, binary_uuid} = UUID.dump(account_uuid)
+        binary_uuid
+      end)
 
-    {:ok, result} = Repo.query("
+    {:ok, result} =
+      Repo.query(
+        "
       WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
         SELECT ta.uuid, ta.id, ta.name, ta.parent_uuid, 0 AS depth, ta.uuid::TEXT AS path
         FROM account AS ta WHERE ta.uuid = ANY($1)
@@ -407,7 +410,10 @@ defmodule EWalletDB.Account do
        FROM accounts_cte AS p, account AS c WHERE c.parent_uuid = p.uuid
       )
       SELECT DISTINCT * FROM accounts_cte AS a
-      ", [binary_account_uuids])
+      ",
+        [binary_account_uuids]
+      )
+
     load_accounts(result)
   end
 
