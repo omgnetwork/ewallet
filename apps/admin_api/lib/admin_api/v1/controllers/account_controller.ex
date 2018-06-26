@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AccountController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.AccountPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, User}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -31,15 +31,17 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a list of accounts.
   """
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil) do
-      accounts =
-        Account
-        |> Preloader.to_query(@preload_fields)
-        |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
-        |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-        |> Paginator.paginate_attrs(attrs)
-
-      case accounts do
+    with :ok <- permit(:all, conn.assigns, nil),
+         # Get the highest level account for current key or current user
+         %Account{} = account <- get_highest_account(conn.assigns),
+         descendants_uuids <- Account.get_all_descendants_uuids(account) do
+      Account
+      |> Account.where_in(descendants_uuids)
+      |> Preloader.to_query(@preload_fields)
+      |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> case do
         %Paginator{} = paginator ->
           render(conn, :accounts, %{accounts: paginator})
 
@@ -144,11 +146,17 @@ defmodule AdminAPI.V1.AccountController do
 
   @spec permit(:all | :create | :get | :update, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, %{admin_user: admin_user}, account_id) do
-    Bodyguard.permit(AccountPolicy, action, admin_user, account_id)
+  defp permit(action, params, account_id) do
+    IO.inspect(action)
+    IO.inspect(account_id)
+    Bodyguard.permit(AccountPolicy, action, params, account_id)
   end
 
-  defp permit(action, %{key: key}, account_id) do
-    Bodyguard.permit(AccountPolicy, action, key, account_id)
+  def get_highest_account(%{admin_user: admin_user}) do
+    User.get_highest_account(admin_user)
+  end
+
+  def get_highest_account(%{key: key}) do
+    key.account
   end
 end

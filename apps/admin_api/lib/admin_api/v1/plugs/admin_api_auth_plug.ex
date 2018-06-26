@@ -22,22 +22,24 @@ defmodule AdminAPI.V1.AdminAPIAuthPlug do
   end
 
   defp handle_auth_result(
-         %{authenticated: true, auth_scheme: :admin, admin_user: admin_user} = auth,
+         %{authenticated: true, auth_scheme: :admin, admin_user: admin_user, account: account} = auth,
          conn
        ) do
     conn
     |> assign(:authenticated, true)
     |> assign(:auth_scheme, :admin)
     |> assign(:admin_user, admin_user)
+    |> assign(:account, account)
     |> put_private(:auth_user_id, auth[:auth_user_id])
     |> put_private(:auth_auth_token, auth[:auth_auth_token])
   end
 
-  defp handle_auth_result(%{authenticated: true, auth_scheme: :provider, key: key} = auth, conn) do
+  defp handle_auth_result(%{authenticated: true, auth_scheme: :provider, key: key, account: account} = auth, conn) do
     conn
     |> assign(:authenticated, true)
     |> assign(:auth_scheme, :provider)
     |> assign(:key, key)
+    |> assign(:account, account)
     |> put_private(:auth_access_key, auth[:auth_access_key])
     |> put_private(:auth_secret_key, auth[:auth_secret_key])
   end

@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.{UserSerializer, AccountSerializer}
-  alias EWalletDB.{Repo, AuthToken, Membership, Role}
+  alias EWalletDB.{Repo, AuthToken, Membership, Role, Account}
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
@@ -130,7 +130,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
   describe "/auth_token.switch_account" do
     test "switches the account" do
       user = get_test_admin()
-      account = insert(:account)
+      account = insert(:account, parent: Account.get_master_account())
 
       # User belongs to the master account and has access to the sub account
       # just created

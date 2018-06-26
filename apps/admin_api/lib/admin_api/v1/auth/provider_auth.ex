@@ -39,6 +39,7 @@ defmodule AdminAPI.V1.ProviderAuth do
         auth
         |> Map.put(:authenticated, true)
         |> Map.put(:key, key)
+        |> Map.put(:account, key.account)
 
       false ->
         auth

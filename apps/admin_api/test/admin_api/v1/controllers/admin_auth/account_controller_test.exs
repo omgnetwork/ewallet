@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Account, Repo, User}
+  alias EWalletDB.{Account, Repo, User, Role, Membership}
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -40,6 +40,57 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert Enum.at(accounts, 0)["name"] == "Matched 3"
       assert Enum.at(accounts, 1)["name"] == "Matched 2"
       assert Enum.at(accounts, 2)["name"] == "Matched 1"
+    end
+
+    test "returns a list of accounts that the current user can access" do
+      master = Account.get_master_account()
+      user = get_test_admin()
+      {:ok, _m} = Membership.unassign(user, master)
+
+      role = Role.get_by_name("admin")
+
+      acc_1 = insert(:account, parent: master, name: "Account 1")
+      acc_2 = insert(:account, parent: acc_1, name: "Account 2")
+      acc_3 = insert(:account, parent: acc_2, name: "Account 3")
+      _acc_4 = insert(:account, parent: acc_3, name: "Account 4")
+      _acc_5 = insert(:account, parent: acc_3, name: "Account 5")
+
+      # We add user to acc_2, so he should have access to
+      # acc_2 and its descendants: acc_3, acc_4, acc_5
+      {:ok, _m} = Membership.assign(user, acc_2, role)
+
+      response = admin_user_request("/account.all", %{})
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 4
+      assert Enum.at(accounts, 0)["name"] == "Account 2"
+      assert Enum.at(accounts, 1)["name"] == "Account 3"
+      assert Enum.at(accounts, 2)["name"] == "Account 4"
+      assert Enum.at(accounts, 3)["name"] == "Account 5"
+    end
+
+    test "returns only one account if the user is at the last level" do
+      master = Account.get_master_account()
+      user = get_test_admin()
+      {:ok, _m} = Membership.unassign(user, master)
+
+      role = Role.get_by_name("admin")
+
+      acc_1 = insert(:account, parent: master, name: "Account 1")
+      acc_2 = insert(:account, parent: acc_1, name: "Account 2")
+      acc_3 = insert(:account, parent: acc_2, name: "Account 3")
+      _acc_4 = insert(:account, parent: acc_3, name: "Account 4")
+      acc_5 = insert(:account, parent: acc_3, name: "Account 5")
+
+      {:ok, _m} = Membership.assign(user, acc_5, role)
+
+      response = admin_user_request("/account.all", %{})
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 1
+      assert Enum.at(accounts, 0)["name"] == "Account 5"
     end
   end
 
@@ -82,7 +133,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
   describe "/account.create" do
     test "creates a new account and returns it" do
-      parent = User.get_account(get_test_admin())
+      parent = User.get_highest_account(get_test_admin())
 
       request_data = %{
         parent_id: parent.id,
@@ -122,7 +173,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     end
 
     test "returns an error if account name is not provided" do
-      parent = User.get_account(get_test_admin())
+      parent = User.get_highest_account(get_test_admin())
       request_data = %{name: "", parent_id: parent.id}
       response = admin_user_request("/account.create", request_data)
 
@@ -134,7 +185,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
   describe "/account.update" do
     test "updates the given account" do
-      account = User.get_account(get_test_admin())
+      account = User.get_highest_account(get_test_admin())
 
       # Prepare the update data while keeping only id the same
       request_data =

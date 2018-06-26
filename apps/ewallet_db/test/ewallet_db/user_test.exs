@@ -280,7 +280,7 @@ defmodule EWalletDB.UserTest do
       role = insert(:role, %{name: "role_name"})
 
       insert(:membership, %{user: user, account: mid_account, role: role})
-      account = User.get_account(user)
+      account = User.get_highest_account(user)
 
       assert account.id == mid_account.id
     end

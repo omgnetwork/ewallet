@@ -10,6 +10,7 @@ defmodule EWalletDB.Membership do
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
+
   schema "membership" do
     belongs_to(
       :user,

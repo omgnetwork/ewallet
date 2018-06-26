@@ -182,7 +182,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
   describe "/me.get_account" do
     test "responds with an account" do
-      account = User.get_account(get_test_admin())
+      account = User.get_highest_account(get_test_admin())
 
       assert admin_user_request("/me.get_account") ==
                %{

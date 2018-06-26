@@ -428,11 +428,11 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the upper-most account that the given user has membership in.
   """
-  def get_account(user) do
+  def get_highest_account(user) do
     query =
       from(
         [q, child] in query_accounts(user),
-        order_by: [asc: child.depth, desc: child.inserted_at],
+        order_by: [asc: child.depth],
         limit: 1
       )
 
