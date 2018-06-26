@@ -39,7 +39,7 @@ export const getWalletsByUserId = ({ userId, search }) => async dispatch => {
       userId
     })
     if (result.data.success) {
-      return dispatch({ type: 'USER_WALLETS/REQUEST/SUCCESS', wallets: result.data.data })
+      return dispatch({ type: 'USER_WALLETS/REQUEST/SUCCESS', data: result.data.data.data })
     } else {
       return dispatch({ type: 'USER_WALLETS/REQUEST/FAILED', error: result.data.data })
     }
