@@ -7,7 +7,7 @@ defmodule EWalletAPI.V1.ClientAuthTest do
     encoded_key = Base.encode64(key <> ":" <> token)
 
     ClientAuth.authenticate(%{
-      headers: %{
+      "headers" => %{
         "authorization" => "OMGClient #{encoded_key}"
       }
     })
