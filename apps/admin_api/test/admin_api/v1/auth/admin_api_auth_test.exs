@@ -6,11 +6,7 @@ defmodule AdminAPI.Web.V1.AdminAPIAuthTest do
     encoded_key = Base.encode64(user_id <> ":" <> token)
 
     AdminAPIAuth.authenticate(%{
-<<<<<<< HEAD
-      headers: [{"authorization", "#{scheme} #{encoded_key}"}]
-=======
       "headers" => [{"authorization", "#{scheme} #{encoded_key}"}]
->>>>>>> develop
     })
   end
 

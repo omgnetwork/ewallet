@@ -18,16 +18,8 @@ defmodule EWalletAPI.V1.ClientAuth do
     |> authenticate_token()
   end
 
-<<<<<<< HEAD
-  defp parse_header(auth, params) do
-    headers = Enum.into(params.headers, %{})
-    header = headers["authorization"]
-
-    with header when not is_nil(header) <- header,
-=======
   defp parse_header(headers, auth) do
     with header when not is_nil(header) <- headers["authorization"],
->>>>>>> develop
          [scheme, content] <- String.split(header, " ", parts: 2),
          true <- scheme in ["Basic", "OMGClient"],
          {:ok, decoded} <- Base.decode64(content),

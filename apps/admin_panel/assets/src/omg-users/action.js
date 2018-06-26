@@ -13,11 +13,7 @@ export const createUser = ({ name, description, avatar }) => async dispatch => {
   }
 }
 
-<<<<<<< HEAD
 export const getUsers = ({ search, page, perPage, cacheKey }) => async dispatch => {
-=======
-export const getUsers = () => async dispatch => {
->>>>>>> develop
   dispatch({ type: 'USERS/REQUEST/INITIATED' })
   try {
     const result = await userService.getAllUsers({
