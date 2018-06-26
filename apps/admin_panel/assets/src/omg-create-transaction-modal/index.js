@@ -131,7 +131,10 @@ class CreateTransactionModal extends Component {
         this.props.getWalletById(this.state.toAddress)
         this.onRequestClose()
       } else {
-        this.setState({ submitting: false, error: result.error.description || result.error.message})
+        this.setState({
+          submitting: false,
+          error: result.error.description || result.error.message
+        })
       }
     } catch (e) {
       this.setState({ submitting: false, error: e.message })

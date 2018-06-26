@@ -2,10 +2,9 @@ import React, { PureComponent } from 'react'
 
 import styled from 'styled-components'
 import { Icon, Input } from '../omg-uikit'
-import { Link } from 'react-router-dom'
+import { Link, withRouter } from 'react-router-dom'
 import clickOutside from '../enhancer/clickOutside'
 import PropTypes from 'prop-types'
-import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 const TopNavigationContainer = styled.div`
   padding: 20px 0;
@@ -116,17 +115,24 @@ const SearchGroupContainer = styled.form`
   vertical-align: middle;
   i {
     vertical-align: baseline;
+    display: inline-block;
+  }
+  i[name="Search"] {
+    transform: ${props => (props.search ? 'translate3d(0,0,0)' : 'translate3d(150px,0,0)')};
+    transition: transform 0.2s;
   }
 `
 const InlineInput = styled(Input)`
   display: inline-block;
-  input:focus {
-    margin-right:10px;
-    width: 150px;   
-  }
-  input {
-    width: 0px;
-    transition: 0.2s ease-in-out;
+  width: 150px;
+  transform: ${props => (props.search ? 'scale3d(1,1,1)' : 'scale3d(0,1,1)')};
+  overflow: hidden;
+  transition: transform 0.2s;
+`
+const CloseIconInputContainer = styled.div`
+  i {
+    font-size: 10px;
+    cursor: pointer;
   }
 `
 const SearchGroup = withRouter(
@@ -137,7 +143,7 @@ const SearchGroup = withRouter(
         history: PropTypes.object
       }
       state = {
-        search: false
+        searching: false
       }
 
       componentDidMount = () => {
@@ -148,11 +154,20 @@ const SearchGroup = withRouter(
 
       handleClickOutside = () => {
         this.input.blur()
-        this.setState({ search: false })
+        this.setState({ searching: false })
       }
       onClickSearch = e => {
         this.input.focus()
-        this.setState({ search: true })
+        this.setState({ searching: true })
+      }
+      removeSearchQueryParams = () => {}
+      onClickRemoveSearch = e => {
+        this.input.blur()
+        this.setState({ searching: false })
+        this.input.value = ''
+        const search = queryString.parse(this.props.location.search)
+        delete search['search']
+        this.props.history.push({ search: queryString.stringify(search) })
       }
       onSearch = e => {
         e.preventDefault()
@@ -171,17 +186,23 @@ const SearchGroup = withRouter(
       }
       render () {
         return (
-          <SearchGroupContainer onSubmit={this.onSearch} noValidate>
+          <SearchGroupContainer onSubmit={this.onSearch} noValidate search={this.state.searching}>
             <Icon
               name='Search'
               button
-              hoverable={!this.state.search}
+              hoverable={!this.state.searching}
               onClick={this.onClickSearch}
             />
             <InlineInput
+              search={this.state.searching}
               registerRef={this.registerRef}
               onPressEscape={this.handleClickOutside}
               defaultValue={queryString.parse(this.props.location.search).search}
+              suffix={
+                <CloseIconInputContainer onClick={this.onClickRemoveSearch}>
+                  <Icon name='Close' />
+                </CloseIconInputContainer>
+              }
             />
           </SearchGroupContainer>
         )
