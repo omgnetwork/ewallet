@@ -39,9 +39,12 @@ class CreateAccountModal extends Component {
     getCategories: PropTypes.func,
     onCreateAccount: PropTypes.func
   }
+<<<<<<< HEAD
   static defaultProps = {
     onCreateAccount: _.noop
   }
+=======
+>>>>>>> develop
   initialState = {
     submitting: false,
     stage: 'create',
@@ -50,12 +53,18 @@ class CreateAccountModal extends Component {
     avatar: '',
     category: {},
     error: false
+<<<<<<< HEAD
   }
   state = this.initialState
   componentDidMount = () => {
     // PREFETCH CATEGORIES FOR BETTER EXPERIENCE
     this.props.getCategories({})
   }
+=======
+  }
+  state = this.initialState
+
+>>>>>>> develop
   onSubmit = e => {
     e.preventDefault()
     this.setState({ submitting: true })

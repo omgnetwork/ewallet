@@ -5,17 +5,29 @@ defmodule EWalletAPI.V1.ClientAuth do
   alias EWalletDB.{User, AuthToken, APIKey}
 
   def authenticate(params) do
-    %{}
-    |> parse_header(params)
+    # auth is an agnostic replacement for the conn being passed around
+    # in plugs. This is a map created here and filled with authentication
+    # details that will be used either in socket auth directly or through
+    # a plug to assign data to conn.
+    auth = %{}
+
+    (params["headers"] || params[:headers])
+    |> Enum.into(%{})
+    |> parse_header(auth)
     |> authenticate_client()
     |> authenticate_token()
   end
 
+<<<<<<< HEAD
   defp parse_header(auth, params) do
     headers = Enum.into(params.headers, %{})
     header = headers["authorization"]
 
     with header when not is_nil(header) <- header,
+=======
+  defp parse_header(headers, auth) do
+    with header when not is_nil(header) <- headers["authorization"],
+>>>>>>> develop
          [scheme, content] <- String.split(header, " ", parts: 2),
          true <- scheme in ["Basic", "OMGClient"],
          {:ok, decoded} <- Base.decode64(content),

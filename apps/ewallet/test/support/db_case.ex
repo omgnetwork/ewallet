@@ -9,6 +9,7 @@ defmodule EWallet.DBCase do
     quote do
       use ExUnit.Case
       import EWallet.DBCase
+      import EWalletDB.Factory
       alias Ecto.Adapters.SQL.Sandbox
       alias EWalletDB.Repo
 

@@ -128,7 +128,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def mint!(token, amount \\ 1_000_000) do
-    {:ok, mint, _transfer} =
+    {:ok, mint, _transaction} =
       MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
         "token_id" => token.id,
@@ -142,7 +142,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def transfer!(from, to, token, amount) do
-    {:ok, transfer, _wallets, _token} =
+    {:ok, transaction, _wallets, _token} =
       TransactionGate.process_with_addresses(%{
         "from_address" => from,
         "to_address" => to,
@@ -152,7 +152,7 @@ defmodule EWalletAPI.ConnCase do
         "idempotency_token" => UUID.generate()
       })
 
-    transfer
+    transaction
   end
 
   @doc """

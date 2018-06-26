@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
           "description" => "desc."
         })
 
-      inserted_mint = Repo.preload(inserted_mint, [:account, :token, :transfer])
+      inserted_mint = Repo.preload(inserted_mint, [:account, :token, :transaction])
 
       {:ok, _, _} =
         MintGate.insert(%{
@@ -51,8 +51,8 @@ defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
         "token" => inserted_mint.token |> TokenSerializer.serialize() |> stringify_keys(),
         "token_id" => inserted_mint.token.id,
         "transaction" =>
-          inserted_mint.transfer |> TransactionSerializer.serialize() |> stringify_keys(),
-        "transaction_id" => inserted_mint.transfer.id,
+          inserted_mint.transaction |> TransactionSerializer.serialize() |> stringify_keys(),
+        "transaction_id" => inserted_mint.transaction.id,
         "created_at" => Date.to_iso8601(inserted_mint.inserted_at),
         "updated_at" => Date.to_iso8601(inserted_mint.updated_at)
       })

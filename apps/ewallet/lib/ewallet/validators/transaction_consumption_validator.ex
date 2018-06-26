@@ -80,7 +80,7 @@ defmodule EWallet.TransactionConsumptionValidator do
           {:ok, Token.t()}
           | {:error, Atom.t()}
   def get_and_validate_token(request, token_id) do
-    with request <- request |> Repo.preload(:token),
+    with request <- Repo.preload(request, :token),
          true <- !is_nil(token_id) || {:ok, request.token},
          %Token{} = token <- Token.get(token_id) || :token_not_found,
          true <- request.token_uuid == token.uuid || :invalid_token_provided do

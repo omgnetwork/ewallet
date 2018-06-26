@@ -82,7 +82,15 @@ class Table extends Component {
         : this.props.rows
     return source.map((d, i) => {
       return (
+<<<<<<< HEAD
         <tr key={d.id} ref={row => (this.row = row)} onClick={this.props.onClickRow(d, i)}>
+=======
+        <tr
+          key={d.id}
+          ref={row => (this.row = row)}
+          onClick={this.props.onClickRow(d, i)}
+        >
+>>>>>>> develop
           {this.props.columns
             .filter(c => !c.hide)
             .map((c, j) => (

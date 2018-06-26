@@ -1,6 +1,6 @@
 # LocalLedgerDB
 
-LocalLedgerDB is the database layer for LocalLedger. It contains the Ecto schemas needed to record transactions in a DEB model (Double Entry Bookkeeping).
+LocalLedgerDB is the database layer for LocalLedger. It contains the Ecto schemas needed to record transactions and entries in a DEB model (Double Entry Bookkeeping).
 
 ## Installation
 

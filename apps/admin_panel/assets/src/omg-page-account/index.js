@@ -85,7 +85,11 @@ class AccountPage extends Component {
     return accounts.map(d => {
       return {
         ...d,
+<<<<<<< HEAD
         avatar: _.get(d, 'avatar.thumb'),
+=======
+        avatar: d.avatar.thumb,
+>>>>>>> develop
         key: d.id
       }
     })
@@ -121,7 +125,12 @@ class AccountPage extends Component {
           <SortableTable
             rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
+<<<<<<< HEAD
             loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
+=======
+            loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
+            perPage={20}
+>>>>>>> develop
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}

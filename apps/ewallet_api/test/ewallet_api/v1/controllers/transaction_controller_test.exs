@@ -10,46 +10,46 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
     wallet_3 = insert(:wallet)
     wallet_4 = insert(:wallet, user: user, identifier: "secondary")
 
-    transfer_1 =
-      insert(:transfer, %{
+    transaction_1 =
+      insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_2,
         status: "confirmed"
       })
 
-    transfer_2 =
-      insert(:transfer, %{
+    transaction_2 =
+      insert(:transaction, %{
         from_wallet: wallet_2,
         to_wallet: wallet_1,
         status: "confirmed"
       })
 
-    transfer_3 =
-      insert(:transfer, %{
+    transaction_3 =
+      insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_3,
         status: "confirmed"
       })
 
-    transfer_4 =
-      insert(:transfer, %{
+    transaction_4 =
+      insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_2,
         status: "pending"
       })
 
-    transfer_5 = insert(:transfer, %{status: "confirmed"})
-    transfer_6 = insert(:transfer, %{status: "pending"})
+    transaction_5 = insert(:transaction, %{status: "confirmed"})
+    transaction_6 = insert(:transaction, %{status: "pending"})
 
-    transfer_7 =
-      insert(:transfer, %{
+    transaction_7 =
+      insert(:transaction, %{
         from_wallet: wallet_4,
         to_wallet: wallet_2,
         status: "confirmed"
       })
 
-    transfer_8 =
-      insert(:transfer, %{
+    transaction_8 =
+      insert(:transaction, %{
         from_wallet: wallet_4,
         to_wallet: wallet_3,
         status: "pending"
@@ -61,14 +61,14 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       wallet_2: wallet_2,
       wallet_3: wallet_3,
       wallet_4: wallet_4,
-      transfer_1: transfer_1,
-      transfer_2: transfer_2,
-      transfer_3: transfer_3,
-      transfer_4: transfer_4,
-      transfer_5: transfer_5,
-      transfer_6: transfer_6,
-      transfer_7: transfer_7,
-      transfer_8: transfer_8
+      transaction_1: transaction_1,
+      transaction_2: transaction_2,
+      transaction_3: transaction_3,
+      transaction_4: transaction_4,
+      transaction_5: transaction_5,
+      transaction_6: transaction_6,
+      transaction_7: transaction_7,
+      transaction_8: transaction_8
     }
   end
 
@@ -86,10 +86,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
           t["id"]
         end)
 
-      assert Enum.member?(ids, meta.transfer_1.id)
-      assert Enum.member?(ids, meta.transfer_2.id)
-      assert Enum.member?(ids, meta.transfer_3.id)
-      assert Enum.member?(ids, meta.transfer_4.id)
+      assert Enum.member?(ids, meta.transaction_1.id)
+      assert Enum.member?(ids, meta.transaction_2.id)
+      assert Enum.member?(ids, meta.transaction_3.id)
+      assert Enum.member?(ids, meta.transaction_4.id)
     end
 
     test "ignores search terms if both from and to are provided and
@@ -110,10 +110,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_1.id,
-               meta.transfer_2.id,
-               meta.transfer_3.id,
-               meta.transfer_4.id
+               meta.transaction_1.id,
+               meta.transaction_2.id,
+               meta.transaction_3.id,
+               meta.transaction_4.id
              ]
     end
 
@@ -131,7 +131,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_3.id
+               meta.transaction_3.id
              ]
     end
 
@@ -148,7 +148,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_3.id
+               meta.transaction_3.id
              ]
     end
 
@@ -164,10 +164,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_4.id,
-               meta.transfer_3.id,
-               meta.transfer_2.id,
-               meta.transfer_1.id
+               meta.transaction_4.id,
+               meta.transaction_3.id,
+               meta.transaction_2.id,
+               meta.transaction_1.id
              ]
     end
 
@@ -182,7 +182,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_4.id
+               meta.transaction_4.id
              ]
     end
 
@@ -198,7 +198,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_3.id
+               meta.transaction_3.id
              ]
     end
   end

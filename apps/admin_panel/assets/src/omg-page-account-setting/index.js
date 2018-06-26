@@ -68,8 +68,12 @@ class AccountSettingPage extends Component {
       inviteModalOpen: false,
       name: '',
       description: '',
+<<<<<<< HEAD
       avatar: '',
       submitStatus: 'DEFAULT'
+=======
+      avatar: ''
+>>>>>>> develop
     }
   }
   componentWillReceiveProps = props => {

@@ -28,9 +28,14 @@ export const createAccount = ({ name, description, avatar, category }) => async 
   }
 }
 
+<<<<<<< HEAD
 export const getAccounts = ({ page, perPage, search, cacheKey }) => async dispatch => {
   dispatch({ type: 'ACCOUNTS/REQUEST/INITIATED' })
 
+=======
+export const getAccounts = search => async dispatch => {
+  dispatch({ type: 'ACCOUNTS/REQUEST/INITIATED' })
+>>>>>>> develop
   try {
     const result = await accountService.getAllAccounts({
       perPage: perPage,

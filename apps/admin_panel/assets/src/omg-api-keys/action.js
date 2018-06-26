@@ -51,7 +51,11 @@ export const updateApiKey = ({ id, expired }) => async dispatch => {
 export const loadApiKeys = () => async dispatch => {
   try {
     const result = await apikeyService.getAllApikey({
+<<<<<<< HEAD
       perPage: 1000,
+=======
+      per: 1000,
+>>>>>>> develop
       sort: { by: 'created_at', dir: 'desc' }
     })
     if (result.data.success) {

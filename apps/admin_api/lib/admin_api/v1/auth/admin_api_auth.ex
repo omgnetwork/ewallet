@@ -18,8 +18,8 @@ defmodule AdminAPI.V1.AdminAPIAuth do
     |> do_authenticate()
   end
 
-  defp extract_auth_scheme(params, auth) do
-    with header when not is_nil(header) <- get_authorization_header(params),
+  defp extract_auth_scheme(headers, auth) do
+    with header when not is_nil(header) <- headers["authorization"],
          [scheme, _content] <- String.split(header, " ", parts: 2) do
       auth
       |> Map.put(:auth_scheme_name, scheme)
@@ -28,10 +28,6 @@ defmodule AdminAPI.V1.AdminAPIAuth do
       _error ->
         auth
     end
-  end
-
-  defp get_authorization_header(headers) do
-    headers["authorization"]
   end
 
   defp do_authenticate(%{auth_scheme_name: "OMGAdmin"} = auth) do

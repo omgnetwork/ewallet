@@ -3,6 +3,107 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
   alias EWalletDB.{Repo, TransactionRequest, User, Account}
   alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
 
+  describe "/transaction_request.all" do
+    setup do
+      user = get_test_user()
+      account = Account.get_master_account()
+
+      tr_1 = insert(:transaction_request, user_uuid: user.uuid, status: "valid")
+      tr_2 = insert(:transaction_request, account_uuid: account.uuid, status: "valid")
+      tr_3 = insert(:transaction_request, account_uuid: account.uuid, status: "expired")
+
+      %{
+        user: user,
+        tr_1: tr_1,
+        tr_2: tr_2,
+        tr_3: tr_3
+      }
+    end
+
+    test "returns all the transaction_requests", meta do
+      response =
+        provider_request("/transaction_request.all", %{
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      transfers = [
+        meta.tr_1,
+        meta.tr_2,
+        meta.tr_3
+      ]
+
+      assert length(response["data"]["data"]) == length(transfers)
+
+      # All transfers made during setup should exist in the response
+      assert Enum.all?(transfers, fn transfer ->
+               Enum.any?(response["data"]["data"], fn data ->
+                 transfer.id == data["id"]
+               end)
+             end)
+    end
+
+    test "returns all the transaction_requests for a specific status", meta do
+      response =
+        provider_request("/transaction_request.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_terms" => %{
+            "status" => "valid"
+          }
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tr_1.id,
+               meta.tr_2.id
+             ]
+    end
+
+    test "returns all transaction_requests filtered", meta do
+      response =
+        provider_request("/transaction_request.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_term" => "valid"
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tr_1.id,
+               meta.tr_2.id
+             ]
+    end
+
+    test "returns all transaction_requests sorted and paginated", meta do
+      response =
+        provider_request("/transaction_request.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 2,
+          "page" => 1
+        })
+
+      assert response["data"]["data"] |> length() == 2
+      transaction_1 = Enum.at(response["data"]["data"], 0)
+      transaction_2 = Enum.at(response["data"]["data"], 1)
+      assert transaction_2["created_at"] > transaction_1["created_at"]
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tr_1.id,
+               meta.tr_2.id
+             ]
+    end
+  end
+
   describe "/transaction_request.create" do
     test "creates a transaction request with all the params" do
       user = get_test_user()
@@ -235,7 +336,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "data" => %{
                  "code" => "transaction_request:transaction_request_not_found",
                  "description" =>
-                   "There is no transaction request corresponding to the provided address",
+                   "There is no transaction request corresponding to the provided ID.",
                  "messages" => nil,
                  "object" => "error"
                }

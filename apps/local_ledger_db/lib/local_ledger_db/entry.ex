@@ -1,133 +1,166 @@
 defmodule LocalLedgerDB.Entry do
   @moduledoc """
-  Ecto Schema representing entries. An entry is used to group a set of
-  transactions (debits/credits).
+  Ecto Schema representing entries. An entry is either a debit or credit
+  and "moves" values around.
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Entry, Transaction}
+
+  alias LocalLedgerDB.{
+    Transaction,
+    Repo,
+    Token,
+    Wallet,
+    Entry,
+    Errors.InsufficientFundsError
+  }
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
+  @credit "credit"
+  @debit "debit"
+  @types [@credit, @debit]
+
+  def credit_type, do: @credit
+  def debit_type, do: @debit
 
   schema "entry" do
-    field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, LocalLedgerDB.Encrypted.Map, default: %{})
-    field(:idempotency_token, :string)
+    field(:amount, LocalLedger.Types.Integer)
+    field(:type, :string)
 
-    has_many(
-      :transactions,
+    belongs_to(
+      :token,
+      Token,
+      foreign_key: :token_id,
+      references: :id,
+      type: :string
+    )
+
+    belongs_to(
+      :wallet,
+      Wallet,
+      foreign_key: :wallet_address,
+      references: :address,
+      type: :string
+    )
+
+    belongs_to(
+      :transaction,
       Transaction,
-      foreign_key: :entry_uuid,
-      references: :uuid
+      foreign_key: :transaction_uuid,
+      references: :uuid,
+      type: Ecto.UUID
     )
 
     timestamps()
   end
 
   @doc """
-  Validate the entry and associated transactions. cast_assoc will take care of
-  setting the entry_uuid on all the transactions.
+  Validate the entry attributes. This changeset is only used through the
+  "cast_assoc" method in the Entry schema module.
   """
   def changeset(%Entry{} = entry, attrs) do
     entry
-    |> cast(attrs, [:metadata, :encrypted_metadata, :idempotency_token])
-    |> validate_required([:idempotency_token, :metadata, :encrypted_metadata])
-    |> cast_assoc(:transactions, required: true)
-    |> unique_constraint(:idempotency_token)
+    |> cast(attrs, [:amount, :type, :token_id, :wallet_address, :transaction_uuid])
+    |> validate_required([:amount, :type, :token_id, :wallet_address])
+    |> validate_inclusion(:type, @types)
+    |> foreign_key_constraint(:token_id)
+    |> foreign_key_constraint(:wallet_address)
+    |> foreign_key_constraint(:transaction_uuid)
   end
 
   @doc """
-  Retrieve all entries.
+  Ensure that the given address has enough funds, else raise an
+  InsufficientFundsError exception.
   """
-  def all do
-    Repo.all(
+  def check_balance(%{amount: amount_to_debit, token_id: token_id, address: address} = attrs) do
+    current_amount = calculate_current_amount(address, token_id)
+
+    unless current_amount - amount_to_debit >= 0 do
+      raise InsufficientFundsError,
+        message: InsufficientFundsError.error_message(current_amount, attrs)
+    end
+
+    :ok
+  end
+
+  @doc """
+  Calculate the total wallets for all the specified tokens associated
+  with the given address.
+  """
+  def calculate_all_balances(address, options \\ %{}) do
+    options = Map.put_new(options, :token_id, :all)
+    credits = sum(address, Entry.credit_type(), options)
+    debits = sum(address, Entry.debit_type(), options)
+
+    credits |> subtract(debits) |> format()
+  end
+
+  defp subtract(credits, debits) do
+    tokens = Enum.uniq(Map.keys(credits) ++ Map.keys(debits))
+
+    Enum.map(tokens, fn token ->
+      {token, (credits[token] || 0) - (debits[token] || 0)}
+    end)
+  end
+
+  defp format(wallets), do: Enum.into(wallets, %{})
+
+  defp sum(address, type, options) do
+    address
+    |> build_sum_query(type, options)
+    |> Repo.all()
+    |> Enum.into(%{}, fn {k, v} -> {k, Decimal.to_integer(v)} end)
+  end
+
+  defp build_sum_query(address, type, %{token_id: id, since: since, upto: upto}) do
+    address
+    |> build_sum_query(type, %{token_id: id})
+    |> where([e], e.inserted_at > ^since)
+    |> where([e], e.inserted_at <= ^upto)
+  end
+
+  defp build_sum_query(address, type, %{token_id: id, since: since}) do
+    address
+    |> build_sum_query(type, %{token_id: id})
+    |> where([e], e.inserted_at > ^since)
+  end
+
+  defp build_sum_query(address, type, %{token_id: id, upto: upto}) do
+    address
+    |> build_sum_query(type, %{token_id: id})
+    |> where([e], e.inserted_at <= ^upto)
+  end
+
+  defp build_sum_query(address, type, %{token_id: :all}) do
+    Entry
+    |> where([e], e.wallet_address == ^address and e.type == ^type)
+    |> group_by([e], e.token_id)
+    |> select([e, _], {e.token_id, sum(e.amount)})
+  end
+
+  defp build_sum_query(address, type, %{token_id: id}) do
+    address
+    |> build_sum_query(type, %{token_id: :all})
+    |> where([e], e.token_id == ^id)
+  end
+
+  @doc """
+  Sum up all debit and credits for the given address/token_id combo before
+  substracting one from the other.
+  """
+  def calculate_current_amount(address, token_id) do
+    credit = sum_entries_amount(address, token_id, @credit) || Decimal.new(0)
+    debit = sum_entries_amount(address, token_id, @debit) || Decimal.new(0)
+    Decimal.to_integer(credit) - Decimal.to_integer(debit)
+  end
+
+  defp sum_entries_amount(address, token_id, type) do
+    Repo.one(
       from(
         e in Entry,
-        join: t in assoc(e, :transactions),
-        preload: [transactions: t]
+        where: e.wallet_address == ^address and e.type == ^type and e.token_id == ^token_id,
+        select: sum(e.amount)
       )
     )
-  end
-
-  @doc """
-  Retrieve a specific entry and preload the associated transactions.
-  """
-  def one(uuid) do
-    Repo.one!(
-      from(
-        e in Entry,
-        join: t in assoc(e, :transactions),
-        where: e.uuid == ^uuid,
-        preload: [transactions: t]
-      )
-    )
-  end
-
-  @doc """
-  Get a entry using one or more fields.
-  """
-  @spec get_by(keyword() | map(), keyword()) :: %Entry{} | nil
-  def get_by(map, opts \\ []) do
-    query = Entry |> Repo.get_by(map)
-
-    case opts[:preload] do
-      nil -> query
-      preload -> Repo.preload(query, preload)
-    end
-  end
-
-  @doc """
-  Helper function to get a entry with an idempotency token and loads all the required
-  associations.
-  """
-  @spec get_by_idempotency_token(String.t()) :: %Entry{} | nil
-  def get_by_idempotency_token(idempotency_token) do
-    get_by(
-      %{
-        idempotency_token: idempotency_token
-      },
-      preload: [:transactions]
-    )
-  end
-
-  def get_or_insert(%{idempotency_token: idempotency_token} = attrs) do
-    case get_by_idempotency_token(idempotency_token) do
-      nil ->
-        insert(attrs)
-
-      entry ->
-        {:ok, entry}
-    end
-  end
-
-  @doc """
-  Insert an entry and its transactions.
-  """
-  def insert(attrs) do
-    opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
-
-    %Entry{}
-    |> changeset(attrs)
-    |> do_insert(opts)
-  end
-
-  defp do_insert(changeset, opts) do
-    case Repo.insert(changeset, opts) do
-      {:ok, entry} ->
-        entry.idempotency_token
-        |> get_by_idempotency_token()
-        |> handle_retrieval_result()
-
-      changeset ->
-        changeset
-    end
-  end
-
-  defp handle_retrieval_result(nil) do
-    {:error, :inserted_transaction_could_not_be_loaded}
-  end
-
-  defp handle_retrieval_result(entry) do
-    {:ok, entry}
   end
 end

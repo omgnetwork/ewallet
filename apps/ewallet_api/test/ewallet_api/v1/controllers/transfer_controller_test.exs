@@ -1,6 +1,6 @@
 defmodule EWalletAPI.V1.TransferControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{User, Transfer}
+  alias EWalletDB.{User, Transaction}
   alias Ecto.UUID
   alias EWallet.Web.Date
   alias EWallet.BalanceFetcher
@@ -60,19 +60,19 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       {:ok, b2} = BalanceFetcher.get(token.id, wallet2)
       assert List.first(b2.balances).amount == 100 * token.subunit_to_unit
 
-      transfer = get_last_inserted(Transfer)
+      transaction = get_last_inserted(Transaction)
 
       assert response == %{
                "success" => true,
                "version" => "1",
                "data" => %{
                  "object" => "transaction",
-                 "id" => transfer.id,
-                 "idempotency_token" => transfer.idempotency_token,
+                 "id" => transaction.id,
+                 "idempotency_token" => transaction.idempotency_token,
                  "from" => %{
                    "object" => "transaction_source",
-                   "address" => transfer.from,
-                   "amount" => transfer.amount,
+                   "address" => transaction.from,
+                   "amount" => transaction.from_amount,
                    "token_id" => token.id,
                    "token" => %{
                      "name" => token.name,
@@ -88,8 +88,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  },
                  "to" => %{
                    "object" => "transaction_source",
-                   "address" => transfer.to,
-                   "amount" => transfer.amount,
+                   "address" => transaction.to,
+                   "amount" => transaction.to_amount,
                    "token_id" => token.id,
                    "token" => %{
                      "name" => token.name,
@@ -107,11 +107,11 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                    "object" => "exchange",
                    "rate" => 1
                  },
-                 "metadata" => transfer.metadata || %{},
-                 "encrypted_metadata" => transfer.encrypted_metadata || %{},
-                 "status" => transfer.status,
-                 "created_at" => Date.to_iso8601(transfer.inserted_at),
-                 "updated_at" => Date.to_iso8601(transfer.updated_at)
+                 "metadata" => transaction.metadata || %{},
+                 "encrypted_metadata" => transaction.encrypted_metadata || %{},
+                 "status" => transaction.status,
+                 "created_at" => Date.to_iso8601(transaction.inserted_at),
+                 "updated_at" => Date.to_iso8601(transaction.updated_at)
                }
              }
     end
@@ -291,8 +291,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         amount: 100_000
       })
 
-      transfer = get_last_inserted(Transfer)
-      assert transfer.from == wallet1.address
+      transaction = get_last_inserted(Transaction)
+      assert transaction.from == wallet1.address
     end
 
     test "returns an invalid_parameter error if a parameter is missing" do
