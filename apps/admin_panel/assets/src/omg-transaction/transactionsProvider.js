@@ -37,21 +37,21 @@ class TransactionsProvider extends Component {
   }
   fetch = async () => {
     try {
-      const result = this.props.getTransactions({
+      const { transactions, error } = await this.props.getTransactions({
         page: this.props.page,
         search: this.props.search,
         perPage: this.props.perPage
       })
-      if (result.transactions) {
+      if (transactions) {
         this.setState({
-          transactions: result.transactions.data,
+          transactions: transactions.data,
           loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
         })
       } else {
-        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, error })
       }
-    } catch (error) {
-      this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+    } catch (e) {
+      this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, error: e })
     }
   }
 
