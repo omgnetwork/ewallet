@@ -80,16 +80,23 @@ class CreateTransactionModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     walletAddress: PropTypes.string,
+    getWalletById: PropTypes.func,
     match: PropTypes.object
   }
-  state = { fromAddress: this.props.walletAddress, toAddress: '' }
+  initialState = {
+    submitting: false,
+    amount: 0,
+    toAddress: '',
+    error: null
+  }
+  state = this.initialState
   componentWillReceiveProps = nextProps => {
     if (this.state.fromAddress !== nextProps.walletAddress) {
       this.setState({ fromAddress: nextProps.walletAddress })
     }
   }
   onChangeInputFromAddress = e => {
-    this.setState({ fromAddress: e.target.value })
+    this.setState({ fromAddress: e.target.value, selectedToken: null, searchTokenValue: '' })
   }
   onChangeInputToAddress = e => {
     this.setState({ toAddress: e.target.value })
@@ -97,36 +104,51 @@ class CreateTransactionModal extends Component {
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
+  onChangeSearchToken = e => {
+    this.setState({ searchTokenValue: e.target.value, selectedToken: null })
+  }
+  onSelectTokenSelect = token => {
+    this.setState({ searchTokenValue: token.value, selectedToken: token })
+  }
+
+  onFocusSelect = () => {
+    this.setState({ searchTokenValue: '', selectedToken: null })
+  }
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
       const result = await this.props.transfer({
-        fromAddress: this.props.walletAddress,
+        fromAddress: this.state.fromAddress,
         toAddress: this.state.toAddress,
-        tokenId: this.state.selectedToken.token.id,
-        amount: Number(this.state.amount * this.state.selectedToken.token.subunit_to_unit)
+        tokenId: _.get(this.state.selectedToken, 'token.id'),
+        amount: this.state.amount * _.get(this.state.selectedToken, 'token.subunit_to_unit')
       })
-      if (result.data.success) {
+      if (result.success) {
         this.props.getWalletById(this.state.fromAddress)
         this.props.getWalletById(this.state.toAddress)
-        this.props.onRequestClose()
-        this.setState({
-          submitting: false,
-          amount: 0,
-          toAddress: ''
-        })
+        this.onRequestClose()
       } else {
-        this.setState({ submitting: false, error: result.data.data.description })
+        this.setState({ submitting: false, error: result.data.description })
       }
     } catch (error) {
       this.setState({ submitting: false, error })
     }
   }
-  onSelect = item => {
-    this.setState({ selectedToken: item })
+  onRequestClose = () => {
+    this.props.onRequestClose()
+    this.setState(this.initialState)
   }
 
+  getBalanceOfSelectedToken = () => {
+    if (_.get(this.state.selectedToken, 'amount') === 0) {
+      return 0
+    }
+    return (
+      _.get(this.state.selectedToken, 'amount') /
+        _.get(this.state.selectedToken, 'token.subunit_to_unit') || '-'
+    )
+  }
   render () {
     return (
       <Modal
@@ -157,7 +179,10 @@ class CreateTransactionModal extends Component {
                 <InputLabel>Token</InputLabel>
                 <Select
                   normalPlaceholder='Token'
-                  onSelect={this.onSelect}
+                  onSelectItem={this.onSelectTokenSelect}
+                  onChange={this.onChangeSearchToken}
+                  value={this.state.searchTokenValue}
+                  onFocus={this.onFocusSelect}
                   options={
                     wallet
                       ? wallet.balances.map(b => ({
@@ -170,13 +195,7 @@ class CreateTransactionModal extends Component {
                       : []
                   }
                 />
-                <BalanceTokenLabel>
-                  Balance:{' '}
-                  {this.state.selectedToken
-                    ? (this.state.selectedToken.amount /
-                      _.get(this.state.selectedToken, 'token.subunit_to_unit'))
-                    : '-'}{' '}
-                </BalanceTokenLabel>
+                <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken()}</BalanceTokenLabel>
                 <InputLabel>Amount</InputLabel>
                 <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
                 <ButtonContainer>

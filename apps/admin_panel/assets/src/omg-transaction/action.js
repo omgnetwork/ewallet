@@ -13,7 +13,7 @@ export const transfer = ({ fromAddress, toAddress, tokenId, amount }) => async d
     } else {
       dispatch({ type: 'TRANSACTION/CREATE/FAILED', error: result.data.data })
     }
-    return result
+    return result.data
   } catch (error) {
     return dispatch({ type: 'TRANSACTION/CREATE/FAILED', error })
   }
@@ -28,7 +28,6 @@ export const getTransactions = ({ page, search, perPage }) => async dispatch => 
       search_term: search,
       page
     })
-    console.log('xxxxxx')
     dispatch(hideLoading())
     if (result.data.success) {
       return dispatch({ type: 'TRANSACTIONS/REQUEST/SUCCESS', transactions: result.data.data })
