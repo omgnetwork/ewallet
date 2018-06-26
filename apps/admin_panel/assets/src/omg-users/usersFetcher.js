@@ -16,6 +16,7 @@ class UsersFetcher extends Component {
   }
   state = { users: [], loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT }
   componentDidMount = () => {
+    this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
     this.fetch()
   }
   componentDidUpdate = nextProps => {
@@ -47,7 +48,7 @@ class UsersFetcher extends Component {
   render () {
     return this.props.render({
       users: this.state.users,
-      loadingStatus: this.state.usersLoadingStatus
+      loadingStatus: this.state.loadingStatus
     })
   }
 }
