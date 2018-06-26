@@ -39,8 +39,8 @@ defmodule EWallet.Web.V1.MintSerializer do
       token: TokenSerializer.serialize(mint.token),
       account_id: Assoc.get(mint, [:account, :id]),
       account: AccountSerializer.serialize(mint.account),
-      transaction_id: Assoc.get(mint, [:transfer, :id]),
-      transaction: TransactionSerializer.serialize(mint.transfer),
+      transaction_id: Assoc.get(mint, [:transaction, :id]),
+      transaction: TransactionSerializer.serialize(mint.transaction),
       created_at: Date.to_iso8601(mint.inserted_at),
       updated_at: Date.to_iso8601(mint.updated_at)
     }

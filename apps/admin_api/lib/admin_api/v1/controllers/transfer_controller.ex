@@ -47,7 +47,7 @@ defmodule AdminAPI.V1.TransferController do
 
   defp credit_or_debit(conn, _type, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  defp respond_with({:ok, _transfer, wallets, token}, :wallets, conn) do
+  defp respond_with({:ok, _transaction, wallets, token}, :wallets, conn) do
     wallets =
       Enum.map(wallets, fn wallet ->
         {:ok, address} = BalanceFetcher.get(token.id, wallet)
@@ -62,7 +62,7 @@ defmodule AdminAPI.V1.TransferController do
 
   defp respond_with({:error, code}, _, conn), do: handle_error(conn, code)
 
-  defp respond_with({:error, _transfer, code, description}, _, conn) do
+  defp respond_with({:error, _transaction, code, description}, _, conn) do
     handle_error(conn, code, description)
   end
 

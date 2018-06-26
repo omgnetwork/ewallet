@@ -50,11 +50,11 @@ defmodule LocalLedgerDB.WalletTest do
     end
 
     test "prevents creation of a wallet with an address already in DB" do
-      {:ok, _} = :wallet |> build |> Repo.insert()
+      {:ok, inserted_wallet} = :wallet |> build |> Repo.insert()
 
       {:error, wallet} =
         %Wallet{}
-        |> Wallet.changeset(string_params_for(:wallet))
+        |> Wallet.changeset(string_params_for(:wallet, address: inserted_wallet.address))
         |> Repo.insert()
 
       assert wallet.errors == [address: {"has already been taken", []}]
@@ -182,9 +182,18 @@ defmodule LocalLedgerDB.WalletTest do
 
     test "returns the existing wallet without error if already existing" do
       assert Repo.all(Wallet) == []
-      inserted_wallet = :wallet |> string_params_for |> Wallet.insert()
-      wallet = :wallet |> string_params_for |> Wallet.insert()
 
+      {:ok, inserted_wallet} =
+        :wallet
+        |> string_params_for()
+        |> Wallet.insert()
+
+      {res, wallet} =
+        :wallet
+        |> string_params_for(address: inserted_wallet.address)
+        |> Wallet.insert()
+
+      assert res == :ok
       assert inserted_wallet == wallet
     end
 
@@ -212,7 +221,7 @@ defmodule LocalLedgerDB.WalletTest do
           assert_receive :select_for_update, 5000
 
           Repo.transaction(fn ->
-            # this should block until the other transaction commit
+            # this should block until the other entry commit
             wallet = Wallet.get(wallet_1.address)
             changeset = Wallet.changeset(wallet, %{metadata: %{desc: "Blocked"}})
             Repo.update!(changeset)

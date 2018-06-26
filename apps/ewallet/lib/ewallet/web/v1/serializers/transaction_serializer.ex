@@ -5,18 +5,15 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
   alias EWallet.Web.{Date, Paginator}
-  alias EWalletDB.Transfer
+  alias EWalletDB.Transaction
   alias EWalletDB.Helpers.{Assoc, Preloader}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
 
-  def serialize(%Transfer{} = transaction) do
-    transaction = Preloader.preload(transaction, [:token])
-
-    token_id = Assoc.get(transaction, [:token, :id])
-    token = TokenSerializer.serialize(transaction.token)
+  def serialize(%Transaction{} = transaction) do
+    transaction = Preloader.preload(transaction, [:from_token, :to_token])
 
     # credo:disable-for-next-line
     %{
@@ -26,16 +23,16 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       from: %{
         object: "transaction_source",
         address: transaction.from,
-        amount: transaction.amount,
-        token_id: token_id,
-        token: token
+        amount: transaction.from_amount,
+        token_id: Assoc.get(transaction, [:from_token, :id]),
+        token: TokenSerializer.serialize(transaction.from_token)
       },
       to: %{
         object: "transaction_source",
         address: transaction.to,
-        amount: transaction.amount,
-        token_id: token_id,
-        token: token
+        amount: transaction.to_amount,
+        token_id: Assoc.get(transaction, [:to_token, :id]),
+        token: TokenSerializer.serialize(transaction.to_token)
       },
       exchange: %{
         object: "exchange",

@@ -27,7 +27,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
         :account,
         :token,
         :transaction_request,
-        :transfer,
+        :transaction,
         :user
       ])
 
@@ -40,8 +40,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       token: TokenSerializer.serialize(consumption.token),
       correlation_id: consumption.correlation_id,
       idempotency_token: consumption.idempotency_token,
-      transaction_id: Assoc.get(consumption, [:transfer, :id]),
-      transaction: TransactionSerializer.serialize(consumption.transfer),
+      transaction_id: Assoc.get(consumption, [:transaction, :id]),
+      transaction: TransactionSerializer.serialize(consumption.transaction),
       user_id: Assoc.get(consumption, [:user, :id]),
       user: UserSerializer.serialize(consumption.user),
       account_id: Assoc.get(consumption, [:account, :id]),

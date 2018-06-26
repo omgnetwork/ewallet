@@ -168,9 +168,9 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "confirm/2" do
     test "confirms the consumption" do
       consumption = insert(:transaction_consumption)
-      transfer = insert(:transfer)
+      transaction = insert(:transaction)
       assert consumption.status == "pending"
-      consumption = TransactionConsumption.confirm(consumption, transfer)
+      consumption = TransactionConsumption.confirm(consumption, transaction)
       assert consumption.status == "confirmed"
     end
   end
@@ -178,9 +178,9 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "fail/2" do
     test "fails the consumption" do
       consumption = insert(:transaction_consumption)
-      transfer = insert(:transfer)
+      transaction = insert(:transaction)
       assert consumption.status == "pending"
-      consumption = TransactionConsumption.fail(consumption, transfer)
+      consumption = TransactionConsumption.fail(consumption, transaction)
       assert consumption.status == "failed"
     end
   end

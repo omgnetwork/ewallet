@@ -4,7 +4,7 @@ defmodule LocalLedger.CachedBalance do
   wallets and serves as an interface to retrieve the current balances (which will either be
   loaded from a cached balance or computed - or both).
   """
-  alias LocalLedgerDB.{Wallet, CachedBalance, Transaction}
+  alias LocalLedgerDB.{Wallet, CachedBalance, Entry}
 
   @doc """
   Cache all the wallets balances using a batch stream mechanism for retrieval (1000 at a time). This
@@ -45,7 +45,7 @@ defmodule LocalLedger.CachedBalance do
 
   defp calculate_amounts(computed_balance, wallet) do
     wallet.address
-    |> Transaction.calculate_all_balances(%{
+    |> Entry.calculate_all_balances(%{
       since: computed_balance.computed_at
     })
     |> add_amounts(computed_balance.amounts)
@@ -84,7 +84,7 @@ defmodule LocalLedger.CachedBalance do
     computed_at = NaiveDateTime.utc_now()
 
     wallet.address
-    |> Transaction.calculate_all_balances(%{upto: computed_at})
+    |> Entry.calculate_all_balances(%{upto: computed_at})
     |> insert(wallet, computed_at)
   end
 
@@ -92,7 +92,7 @@ defmodule LocalLedger.CachedBalance do
     computed_at = NaiveDateTime.utc_now()
 
     wallet.address
-    |> Transaction.calculate_all_balances(%{
+    |> Entry.calculate_all_balances(%{
       since: computed_balance.computed_at,
       upto: computed_at
     })

@@ -7,8 +7,9 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
 
   describe "serialize/1 for single transaction" do
     test "serializes into correct V1 transaction format" do
-      transaction = insert(:transfer)
-      token = Token.get_by(uuid: transaction.token_uuid)
+      transaction = insert(:transaction)
+      from_token = Token.get_by(uuid: transaction.from_token_uuid)
+      to_token = Token.get_by(uuid: transaction.to_token_uuid)
 
       expected = %{
         object: "transaction",
@@ -17,16 +18,16 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         from: %{
           object: "transaction_source",
           address: transaction.from,
-          amount: transaction.amount,
-          token_id: token.id,
-          token: TokenSerializer.serialize(token)
+          amount: transaction.from_amount,
+          token_id: from_token.id,
+          token: TokenSerializer.serialize(from_token)
         },
         to: %{
           object: "transaction_source",
           address: transaction.to,
-          amount: transaction.amount,
-          token_id: token.id,
-          token: TokenSerializer.serialize(token)
+          amount: transaction.to_amount,
+          token_id: to_token.id,
+          token: TokenSerializer.serialize(to_token)
         },
         exchange: %{
           object: "exchange",

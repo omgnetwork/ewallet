@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.TransactionController do
   alias EWallet.TransactionGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWallet.WalletFetcher
-  alias EWalletDB.{Repo, Transfer, User}
+  alias EWalletDB.{Repo, Transaction, User}
   alias Ecto.Changeset
 
   # The field names to be mapped into DB column names.
@@ -20,7 +20,7 @@ defmodule AdminAPI.V1.TransactionController do
 
   # The fields that should be preloaded.
   # Note that these values *must be in the schema associations*.
-  @preload_fields [:token]
+  @preload_fields [:from_token, :to_token]
 
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
@@ -37,7 +37,7 @@ defmodule AdminAPI.V1.TransactionController do
   Retrieves a list of transactions.
   """
   # def all(conn, attrs) do
-  #   Transfer
+  #   Transaction
   #   |> Preloader.to_query(@preload_fields)
   #   |> SearchParser.to_query(attrs, @search_fields)
   #   |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
@@ -45,7 +45,7 @@ defmodule AdminAPI.V1.TransactionController do
   #   |> respond_multiple(conn)
   # end
 
-  def all(conn, attrs), do: query_records_and_respond(Transfer, attrs, conn)
+  def all(conn, attrs), do: query_records_and_respond(Transaction, attrs, conn)
 
   @doc """
   Server endpoint
@@ -66,7 +66,7 @@ defmodule AdminAPI.V1.TransactionController do
       attrs = clean_address_search_terms(user, attrs)
 
       wallet.address
-      |> Transfer.all_for_address()
+      |> Transaction.all_for_address()
       |> query_records_and_respond(attrs, conn)
     else
       error when is_atom(error) -> handle_error(conn, error)
@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.TransactionController do
   Retrieves a specific transaction by its id.
   """
   def get(conn, %{"id" => id}) do
-    Transfer
+    Transaction
     |> Preloader.to_query(@preload_fields)
     |> Repo.get_by(id: id)
     |> respond_single(conn)
@@ -163,7 +163,7 @@ defmodule AdminAPI.V1.TransactionController do
   end
 
   # Respond with a single transaction
-  defp respond_single(%Transfer{} = transaction, conn) do
+  defp respond_single(%Transaction{} = transaction, conn) do
     render(conn, :transaction, %{transaction: transaction})
   end
 
@@ -171,7 +171,7 @@ defmodule AdminAPI.V1.TransactionController do
     render(conn, :transaction, %{transaction: transaction})
   end
 
-  defp respond_single({:error, _transfer, code, description}, conn) do
+  defp respond_single({:error, _transaction, code, description}, conn) do
     handle_error(conn, code, description)
   end
 

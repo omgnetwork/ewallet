@@ -7,7 +7,7 @@ defmodule EWalletDB.Mint do
   import Ecto.{Query, Changeset}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Mint, Token, Transfer, Account}
+  alias EWalletDB.{Repo, Mint, Token, Transaction, Account}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 
@@ -35,9 +35,9 @@ defmodule EWalletDB.Mint do
     )
 
     belongs_to(
-      :transfer,
-      Transfer,
-      foreign_key: :transfer_uuid,
+      :transaction,
+      Transaction,
+      foreign_key: :transaction_uuid,
       references: :uuid,
       type: UUID
     )
@@ -52,17 +52,17 @@ defmodule EWalletDB.Mint do
     |> validate_number(:amount, greater_than: 0)
     |> assoc_constraint(:token)
     |> assoc_constraint(:account)
-    |> assoc_constraint(:transfer)
+    |> assoc_constraint(:transaction)
     |> foreign_key_constraint(:token_uuid)
     |> foreign_key_constraint(:account_uuid)
-    |> foreign_key_constraint(:transfer_uuid)
+    |> foreign_key_constraint(:transaction_uuid)
   end
 
   defp update_changeset(%Mint{} = mint, attrs) do
     mint
-    |> cast(attrs, [:transfer_uuid])
-    |> validate_required([:transfer_uuid])
-    |> assoc_constraint(:transfer)
+    |> cast(attrs, [:transaction_uuid])
+    |> validate_required([:transaction_uuid])
+    |> assoc_constraint(:transaction)
   end
 
   def query_by_token(token, query \\ Mint) do
