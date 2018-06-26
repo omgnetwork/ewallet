@@ -106,7 +106,7 @@ class TransactionPage extends Component {
           columns={columns}
           rowRenderer={this.rowRenderer}
           perPage={15}
-          loading={loadingStatus === 'DEFAULT'}
+          loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
         />
         <CreateAccountModal
           open={this.state.createAccountModalOpen}

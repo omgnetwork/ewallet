@@ -15,6 +15,7 @@ const ehance = compose(
     { getTransactions }
   )
 )
+import CONSTANT from '../constants'
 class TransactionsProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
@@ -25,27 +26,43 @@ class TransactionsProvider extends Component {
     page: PropTypes.number,
     perPage: PropTypes.number
   }
+  state = {
+    loadingStatus: 'DEFAULT',
+    transactions: []
+  }
   componentDidUpdate = nextProps => {
     if (this.props.search !== nextProps.search || this.props.page !== nextProps.page) {
-      this.props.getTransactions({
+      this.fetch()
+    }
+  }
+  fetch = async () => {
+    try {
+      const result = this.props.getTransactions({
         page: this.props.page,
         search: this.props.search,
         perPage: this.props.perPage
       })
+      if (result.transactions) {
+        this.setState({
+          transactions: result.transactions.data,
+          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
+        })
+      } else {
+        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+      }
+    } catch (error) {
+      this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
     }
   }
 
-  componentDidMount = () => {
-    this.props.getTransactions({
-      page: this.props.page,
-      search: this.props.search,
-      perPage: this.props.perPage
-    })
+  componentDidMount = async () => {
+    this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
+    this.fetch()
   }
   render () {
     return this.props.render({
-      transactions: this.props.transactions,
-      loadingStatus: this.props.transactionsLoadingStatus
+      transactions: this.state.transactions,
+      loadingStatus: this.state.loadingStatus
     })
   }
 }

@@ -220,6 +220,7 @@ class SortableTable extends PureComponent {
     return (
       <TableContainer>
         <Table
+          {...this.props}
           columns={this.props.columns}
           rows={this.getFilteredData()}
           columnRenderer={this.columnRenderer}
@@ -230,7 +231,6 @@ class SortableTable extends PureComponent {
           loading={this.props.loading}
           page={this.getPage()}
           perPage={this.props.perPage}
-          {...this.props}
         />
         <NavigationContainer>
           <Navigation
