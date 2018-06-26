@@ -25,6 +25,8 @@ defmodule EWalletDB.Account do
 
     field(:name, :string)
     field(:description, :string)
+    field(:depth, :integer, virtual: true)
+    field(:path, :string, virtual: true)
     field(:relative_depth, :integer, virtual: true)
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:metadata, :map, default: %{})
@@ -337,6 +339,86 @@ defmodule EWalletDB.Account do
       on: a.uuid == account_tree.uuid,
       select: account_tree.depth
     )
+  end
+
+  def get_all_descendants_uuids(account) do
+    query_family_uuids(account, "
+      WITH RECURSIVE accounts_cte(uuid, parent_uuid, depth) AS (
+        SELECT ta.uuid, ta.parent_uuid, $1::INT AS depth
+        FROM account AS ta WHERE ta.uuid = $2
+      UNION ALL
+       SELECT c.uuid, c.parent_uuid, p.depth + 1 AS depth
+       FROM accounts_cte AS p, account AS c WHERE c.parent_uuid = p.uuid
+      )
+      SELECT uuid FROM accounts_cte AS a ORDER BY depth ASC
+      ")
+  end
+
+  def get_all_ancestors_uuids(account) do
+    query_family_uuids(account, "
+      WITH RECURSIVE accounts_cte(uuid, parent_uuid, depth) AS (
+        SELECT ta.uuid, ta.parent_uuid, $1::INT AS depth
+        FROM account AS ta WHERE ta.uuid = $2
+      UNION ALL
+       SELECT c.uuid, c.parent_uuid, p.depth - 1 AS depth
+       FROM accounts_cte AS p, account AS c WHERE c.uuid = p.parent_uuid
+      )
+      SELECT uuid FROM accounts_cte AS a ORDER BY depth ASC
+      ")
+  end
+
+  defp query_family_uuids(account, query) do
+    depth = get_depth(account.uuid)
+    {:ok, binary_uuid} = Ecto.UUID.dump(account.uuid)
+    {:ok, result} = EWalletDB.Repo.query(query, [depth, binary_uuid])
+    Enum.map(result.rows, fn uuid ->
+      {:ok, uuid} = Ecto.UUID.load(Enum.at(uuid, 0))
+      uuid
+    end)
+  end
+
+  def get_all_descendants(account) do
+    query_family_tree(account, "
+      WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
+        SELECT ta.uuid, ta.id, ta.name, ta.parent_uuid, $1::INT AS depth, ta.uuid::TEXT AS path
+        FROM account AS ta WHERE ta.uuid = $2
+      UNION ALL
+       SELECT c.uuid, c.id, c.name, c.parent_uuid, p.depth + 1 AS depth,
+              (p.path || '->' || c.uuid::TEXT)
+       FROM accounts_cte AS p, account AS c WHERE c.parent_uuid = p.uuid
+      )
+      SELECT * FROM accounts_cte AS a ORDER BY depth ASC
+      ")
+  end
+
+  def get_all_ancestors(account) do
+    query_family_tree(account, "
+      WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
+        SELECT ta.uuid, ta.id, ta.name, ta.parent_uuid, $1::INT AS depth, ta.uuid::TEXT AS path
+        FROM account AS ta WHERE ta.uuid = $2
+      UNION ALL
+       SELECT c.uuid, c.id, c.name, c.parent_uuid, p.depth - 1 AS depth,
+              (p.path || '<-' || c.uuid::TEXT)
+       FROM accounts_cte AS p, account AS c WHERE c.uuid = p.parent_uuid
+      )
+      SELECT * FROM accounts_cte AS a ORDER BY depth ASC
+    ")
+  end
+
+  defp query_family_tree(account, query) do
+    depth = get_depth(account.uuid)
+    {:ok, binary_uuid} = Ecto.UUID.dump(account.uuid)
+    {:ok, result} = EWalletDB.Repo.query(query, [depth, binary_uuid])
+    load_accounts(result)
+  end
+
+  defp load_accounts(query_result) do
+    Enum.map(query_result.rows, fn row ->
+      Account
+      |> EWalletDB.Repo.load({query_result.columns, row})
+      |> Map.put(:depth, Enum.at(row, 4))
+      |> Map.put(:path, Enum.at(row, 5))
+    end)
   end
 
   def add_category(account, category) do
