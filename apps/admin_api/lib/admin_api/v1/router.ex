@@ -39,21 +39,6 @@ defmodule AdminAPI.V1.Router do
     post("/transaction_request.create", TransactionRequestController, :create)
     post("/transaction_request.get", TransactionRequestController, :get)
     post("/transaction_request.consume", TransactionConsumptionController, :consume)
-
-    post(
-      "/account.get_transaction_consumptions",
-      TransactionConsumptionController,
-      :all_for_account
-    )
-
-    post("/user.get_transaction_consumptions", TransactionConsumptionController, :all_for_user)
-
-    post(
-      "/wallet.get_transaction_consumptions",
-      TransactionConsumptionController,
-      :all_for_wallet
-    )
-
     post(
       "/transaction_request.get_transaction_consumptions",
       TransactionConsumptionController,
@@ -79,6 +64,11 @@ defmodule AdminAPI.V1.Router do
     post("/account.update", AccountController, :update)
     post("/account.upload_avatar", AccountController, :upload_avatar)
     post("/account.get_wallets", WalletController, :all_for_account)
+    post(
+      "/account.get_transaction_consumptions",
+      TransactionConsumptionController,
+      :all_for_account
+    )
 
     # Account membership endpoints
     post("/account.get_users", AccountMembershipController, :get_users)
@@ -94,11 +84,17 @@ defmodule AdminAPI.V1.Router do
     post("/user.update", UserController, :update)
     post("/user.get_wallets", WalletController, :all_for_user)
     post("/user.get_transactions", TransactionController, :all_for_user)
+    post("/user.get_transaction_consumptions", TransactionConsumptionController, :all_for_user)
 
     # Wallet endpoints
     post("/wallet.all", WalletController, :all)
     post("/wallet.get", WalletController, :get)
     post("/wallet.create", WalletController, :create)
+    post(
+      "/wallet.get_transaction_consumptions",
+      TransactionConsumptionController,
+      :all_for_wallet
+    )
 
     # Admin endpoints
     post("/admin.all", AdminController, :all)
