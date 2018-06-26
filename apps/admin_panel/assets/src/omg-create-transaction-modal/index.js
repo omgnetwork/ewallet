@@ -80,14 +80,17 @@ class CreateTransactionModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     walletAddress: PropTypes.string,
-    getWalletById: PropTypes.func,
-    match: PropTypes.object
+    getWalletById: PropTypes.func
   }
   initialState = {
     submitting: false,
     amount: 0,
+    fromAddress: '',
     toAddress: '',
+    searchTokenValue: '',
+    selectedToken: '',
     error: null
+
   }
   state = this.initialState
   componentWillReceiveProps = nextProps => {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectWalletsByAccountId, selectWalletsLoadingStatus } from './selector'
 import { getWalletsByAccountId } from './action'
-class WalletProvider extends Component {
+class WalletsProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
     wallets: PropTypes.array,
@@ -41,4 +41,4 @@ export default connect(
     }
   },
   { getWalletsByAccountId }
-)(WalletProvider)
+)(WalletsProvider)
