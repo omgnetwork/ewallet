@@ -30,7 +30,7 @@ class TransactionsProvider extends Component {
   fetch = async () => {
     try {
       const { transactions, error } = await this.props.getTransactions({
-        page: this.props.page,
+        page: this.props.page || 1,
         search: this.props.search,
         perPage: this.props.perPage
       })
