@@ -47,7 +47,7 @@ defmodule EWalletAPI.V1.TransferController do
 
   defp respond_with({:error, code}, _, conn), do: handle_error(conn, code)
 
-  defp respond_with({:error, _transfer, code, description}, _, conn) do
+  defp respond_with({:error, _transaction, code, description}, _, conn) do
     handle_error(conn, code, description)
   end
 end
