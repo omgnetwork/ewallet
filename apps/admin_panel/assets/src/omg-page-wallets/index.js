@@ -90,7 +90,7 @@ class WalletPage extends Component {
     }
     return data
   }
-  renderWalletPage = ({ wallets, loadingStatus, pagination = {} }) => {
+  renderWalletPage = ({ data: wallets, loadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
         <TopNavigation

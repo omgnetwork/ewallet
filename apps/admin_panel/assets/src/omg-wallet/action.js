@@ -9,9 +9,8 @@ export const getWalletsByAccountId = ({ accountId, search, page, perPage }) => a
       accountId,
       page
     })
-
     if (result.data.success) {
-      return dispatch({ type: 'WALLETS/REQUEST/SUCCESS', wallets: result.data.data.data, pagination: result.data.data.pagination })
+      return dispatch({ type: 'WALLETS/REQUEST/SUCCESS', data: result.data.data.data, pagination: result.data.data.pagination })
     } else {
       return dispatch({ type: 'WALLETS/REQUEST/FAILED', error: result.data.data })
     }

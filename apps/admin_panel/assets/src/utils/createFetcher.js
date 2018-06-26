@@ -35,7 +35,7 @@ export const createFetcher = (reducer, selectors) => {
         }
       }
       fetch = async () => {
-        this.props.dispatcher({ ...this.props.query, cacheKey: this.props.cacheKey })
+        this.props.dispatcher({ ...this.props, ...this.props.query })
       }
 
       render () {

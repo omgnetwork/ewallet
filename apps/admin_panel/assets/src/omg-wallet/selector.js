@@ -10,6 +10,14 @@ export const selectWalletsByAccountId = (state, search, accountId) => {
     return wallet.account_id === accountId && (reg.test(wallet.name) || reg.test(wallet.address))
   })
 }
+export const selectWalletsCachedQuery = state => cacheKey => {
+  return _.get(state.cacheQueries[cacheKey], 'ids', []).map(tokenId => {
+    return selectWalletById(tokenId)(state)
+  })
+}
+export const selectWalletsCachedQueryPagination = state => cacheKey => {
+  return _.get(state.cacheQueries[cacheKey], 'pagination', {})
+}
 export const selectWalletsLoadingStatus = state => state.walletsLoadingStatus
 export const selectWalletById = id => state => state.wallets[id]
 export const selectWalletByUserId = userId => state => {
