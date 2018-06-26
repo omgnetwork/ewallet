@@ -30,7 +30,7 @@ defmodule EWalletDB.ExchangePairTest do
     test "returns {:ok, pair, :direct} if the tokens match a direct pair" do
       omg = insert(:token)
       eth = insert(:token)
-      inserted_pair = insert(:exchange_pair, from_token: omg, to_token: eth, reversible: false)
+      inserted_pair = insert(:exchange_pair, from_token: omg, to_token: eth)
 
       {res, pair, direction} = ExchangePair.fetch_exchangable_pair(omg, eth)
 
@@ -39,36 +39,11 @@ defmodule EWalletDB.ExchangePairTest do
       assert direction == :direct
     end
 
-    test "returns {:ok, pair, :reversed} if the tokens match a reversed pair" do
-      omg = insert(:token)
-      eth = insert(:token)
-      inserted_pair = insert(:exchange_pair, from_token: omg, to_token: eth, reversible: true)
-
-      {res, pair, direction} = ExchangePair.fetch_exchangable_pair(eth, omg)
-
-      assert res == :ok
-      assert pair.uuid == inserted_pair.uuid
-      assert direction == :reversed
-    end
-
     test "returns {:error, :exchange_pair_not_found} if a pair could not be found" do
       omg = insert(:token)
       eth = insert(:token)
 
       {res, code} = ExchangePair.fetch_exchangable_pair(omg, eth)
-
-      assert res == :error
-      assert code == :exchange_pair_not_found
-    end
-
-    test "returns {:error, :exchange_pair_not_found} if a reversed pair is found
-          but is not reversible" do
-      omg = insert(:token)
-      eth = insert(:token)
-      _ = insert(:exchange_pair, from_token: omg, to_token: eth, reversible: false)
-
-      {:ok, _, _} = ExchangePair.fetch_exchangable_pair(omg, eth)
-      {res, code} = ExchangePair.fetch_exchangable_pair(eth, omg)
 
       assert res == :error
       assert code == :exchange_pair_not_found

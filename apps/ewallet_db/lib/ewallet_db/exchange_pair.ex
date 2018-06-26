@@ -14,13 +14,11 @@ defmodule EWalletDB.ExchangePair do
     name: "AAA/BBB",
     from_token: AAA,
     to_token: BBB,
-    rate: 2.00,
-    reversible: true
+    rate: 2.00
   }
   ```
 
   The struct above means that 1 AAA can be exchanged for 2 AAA.
-  Also, because of `reversible: true`, 2 BBB can be exchanged for 1 AAA.
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
@@ -37,7 +35,6 @@ defmodule EWalletDB.ExchangePair do
 
     field(:name, :string)
     field(:rate, :float)
-    field(:reversible, :boolean)
 
     belongs_to(
       :from_token,
@@ -61,12 +58,12 @@ defmodule EWalletDB.ExchangePair do
 
   defp changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast(attrs, [:name, :rate, :reversible])
-    |> validate_required([:name, :rate, :reversible])
+    |> cast(attrs, [:name, :rate])
+    |> validate_required([:name, :rate])
     |> unique_constraint(:name)
     |> unique_constraint(
       :from_token,
-      name: "exchange_pair_from_token_uuid_to_token_uuid_reversible_index"
+      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_index"
     )
   end
 
@@ -145,27 +142,18 @@ defmodule EWalletDB.ExchangePair do
   @doc """
   Retrieves an exchange pair using `from_token` and `to_token`.
 
-  If a direct exchange pair is found, `{:ok, pair, true}` is returned.
-  If a reversed exchange pair is found, `{:ok, pair, false}` is returned.
+  If an exchange pair is found, `{:ok, pair, true}` is returned.
   If an exchange pair could not be found, `{:error, :exchange_pair_not_found}` is returned.
-
-  Note that a reversed exchange pair needs to have `reversible: true` in order to be returned.
   """
   @spec fetch_exchangable_pair(%Token{}, %Token{}, keyword()) ::
-          {:ok, %__MODULE__{}, :direct | :reversed} | {:error, :exchange_pair_not_found}
+          {:ok, %__MODULE__{}, :direct} | {:error, :exchange_pair_not_found}
   def fetch_exchangable_pair(%{uuid: from}, %{uuid: to}, opts \\ []) do
     case get_by([from_token_uuid: from, to_token_uuid: to], opts) do
       %__MODULE__{} = pair ->
         {:ok, pair, :direct}
 
       nil ->
-        case get_by([from_token_uuid: to, to_token_uuid: from, reversible: true], opts) do
-          %__MODULE__{} = pair ->
-            {:ok, pair, :reversed}
-
-          nil ->
-            {:error, :exchange_pair_not_found}
-        end
+        {:error, :exchange_pair_not_found}
     end
   end
 end

@@ -9,13 +9,15 @@ defmodule EWalletDB.Repo.Migrations.CreateExchangePairTable do
       add :from_token_uuid, references(:token, column: :uuid, type: :uuid)
       add :to_token_uuid, references(:token, column: :uuid, type: :uuid)
       add :rate, :float, null: false
-      add :reversible, :boolean, null: false
 
       timestamps()
       add :deleted_at, :naive_datetime
     end
 
     create unique_index(:exchange_pair, [:id])
-    create unique_index(:exchange_pair, [:from_token_uuid, :to_token_uuid, :reversible])
+
+    # This allows for only one pair `from_token`, `to_token` and `deleted_at: null`,
+    # and still allows for multiple deleted pairs.
+    create unique_index(:exchange_pair, [:from_token_uuid, :to_token_uuid, :deleted_at])
   end
 end
