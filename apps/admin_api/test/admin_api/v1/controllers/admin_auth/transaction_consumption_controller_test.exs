@@ -656,7 +656,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns :address_not_found when address is not provided" do
       response =
         admin_user_request("/wallet.get_transaction_consumptions", %{
-          "address" => "fake",
+          "address" => "fake-0000-0000-0000",
           "sort_by" => "created",
           "sort_dir" => "asc"
         })

@@ -433,7 +433,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
         admin_user_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
-          "to_address" => "fake",
+          "to_address" => "fake-0000-0000-0000",
           "token_id" => token.id,
           "amount" => 1_000_000
         })
@@ -455,7 +455,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       response =
         admin_user_request("/transaction.create", %{
           "idempotency_token" => "123",
-          "from_address" => "fake",
+          "from_address" => "fake-0000-0000-0000",
           "to_address" => wallet_2.address,
           "token_id" => token.id,
           "amount" => 1_000_000
