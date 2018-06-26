@@ -117,9 +117,11 @@ class UsersPage extends Component {
         {...this.state}
         {...this.props}
         render={this.renderUserPage}
-        search={queryString.parse(this.props.location.search).search}
-        perPage={20}
-        page={queryString.parse(this.props.location.search).page}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
     )

@@ -5,7 +5,7 @@ import {
   selectWalletsCachedQuery,
   selectWalletsCachedQueryPagination
 } from './selector'
-export default createFetcher(getWalletsByAccountId, (state, props) => ({
+export default createFetcher('wallets', getWalletsByAccountId, (state, props) => ({
   loadingStatus: selectWalletsLoadingStatus(state),
   data: selectWalletsCachedQuery(state)(props.cacheKey),
   pagination: selectWalletsCachedQueryPagination(state)(props.cacheKey)

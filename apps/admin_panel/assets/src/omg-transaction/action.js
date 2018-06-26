@@ -17,7 +17,7 @@ export const transfer = ({ fromAddress, toAddress, tokenId, amount }) => async d
   }
 }
 
-export const getTransactions = ({ page, search, perPage }) => async dispatch => {
+export const getTransactions = ({ page, search, perPage, cacheKey }) => async dispatch => {
   dispatch({ type: 'TRANSACTIONS/REQUEST/INITIATED' })
   try {
     const result = await transactionService.getAllTransactions({
@@ -30,7 +30,8 @@ export const getTransactions = ({ page, search, perPage }) => async dispatch => 
       return dispatch({
         type: 'TRANSACTIONS/REQUEST/SUCCESS',
         data: result.data.data.data,
-        pagination: result.data.data.pagination
+        pagination: result.data.data.pagination,
+        cacheKey
       })
     } else {
       return dispatch({ type: 'TRANSACTIONS/REQUEST/FAILED', error: result.data.data })

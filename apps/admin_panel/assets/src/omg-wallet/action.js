@@ -1,5 +1,11 @@
 import * as walletService from '../services/walletService'
-export const getWalletsByAccountId = ({ accountId, search, page, perPage }) => async dispatch => {
+export const getWalletsByAccountId = ({
+  accountId,
+  search,
+  page,
+  perPage,
+  cacheKey
+}) => async dispatch => {
   dispatch({ type: 'WALLETS/REQUEST/INITIATED' })
   try {
     const result = await walletService.getWalletsByAccountId({
@@ -10,7 +16,12 @@ export const getWalletsByAccountId = ({ accountId, search, page, perPage }) => a
       page
     })
     if (result.data.success) {
-      return dispatch({ type: 'WALLETS/REQUEST/SUCCESS', data: result.data.data.data, pagination: result.data.data.pagination })
+      return dispatch({
+        type: 'WALLETS/REQUEST/SUCCESS',
+        data: result.data.data.data,
+        pagination: result.data.data.pagination,
+        cacheKey
+      })
     } else {
       return dispatch({ type: 'WALLETS/REQUEST/FAILED', error: result.data.data })
     }

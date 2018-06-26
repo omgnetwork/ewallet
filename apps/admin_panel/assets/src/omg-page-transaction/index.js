@@ -120,10 +120,11 @@ class TransactionPage extends Component {
         {...this.state}
         {...this.props}
         render={this.renderTransactionPage}
-        search={queryString.parse(this.props.location.search).search}
-        perPage={15}
-        page={Number(queryString.parse(this.props.location.search).page || 1)}
-        onFetchComplete={this.props.scrollTopContentContainer}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
       />
     )
   }

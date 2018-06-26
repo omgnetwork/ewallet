@@ -5,7 +5,7 @@ import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
-import TokenFetcher from '../omg-token/TokensFetcher'
+import TokenFetcher from '../omg-token/tokensFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -125,9 +125,11 @@ class TokenDetailPage extends Component {
         render={this.renderTokenDetailPage}
         {...this.state}
         {...this.props}
-        search={queryString.parse(this.props.location.search).search}
-        perPage={20}
-        page={queryString.parse(this.props.location.search).page}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />
     )

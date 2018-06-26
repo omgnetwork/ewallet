@@ -1,11 +1,10 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import CONSTANT from '../constants'
 import { withProps, compose } from 'recompose'
-export const createFetcher = (reducer, selectors) => {
+export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(
-    withProps(props => ({ cacheKey: JSON.stringify(props.query) })),
+    withProps(props => ({ cacheKey: `${entity}:${JSON.stringify(props.query)}` })),
     connect(
       selectors,
       { dispatcher: reducer }
@@ -15,15 +14,16 @@ export const createFetcher = (reducer, selectors) => {
     class Fetcher extends Component {
       static propTypes = {
         render: PropTypes.func,
-        search: PropTypes.string,
-        page: PropTypes.number,
-        perPage: PropTypes.number,
+        query: PropTypes.shape({
+          page: PropTypes.number,
+          perPage: PropTypes.number,
+          search: PropTypes.string
+        }),
         onFetchComplete: PropTypes.func,
         loadingStatus: PropTypes.string,
         cacheKey: PropTypes.string,
         data: PropTypes.array,
-        pagination: PropTypes.object,
-        query: PropTypes.object
+        pagination: PropTypes.object
       }
       componentDidMount = () => {
         this.fetch()
