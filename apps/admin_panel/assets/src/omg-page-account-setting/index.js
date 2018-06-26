@@ -49,7 +49,10 @@ const InviteButton = styled(Button)`
 const enhance = compose(
   withRouter,
   currentAccountProviderHoc,
-  connect(null, { updateCurrentAccount })
+  connect(
+    null,
+    { updateCurrentAccount }
+  )
 )
 class AccountSettingPage extends Component {
   static propTypes = {
@@ -65,7 +68,8 @@ class AccountSettingPage extends Component {
       inviteModalOpen: false,
       name: '',
       description: '',
-      avatar: ''
+      avatar: '',
+      submitStatus: 'DEFAULT'
     }
   }
   componentWillReceiveProps = props => {
@@ -101,14 +105,23 @@ class AccountSettingPage extends Component {
   }
   onClickUpdateAccount = async e => {
     e.preventDefault()
-    const result = await this.props.updateCurrentAccount({
-      accountId: this.props.match.params.accountId,
-      name: this.state.name,
-      description: this.state.description,
-      avatar: this.state.image
-    })
-    if (result.data.success) {
-      this.setState({ image: null })
+    this.setState({ submitStatus: 'SUBMITTING' })
+    try {
+      const result = await this.props.updateCurrentAccount({
+        accountId: this.props.match.params.accountId,
+        name: this.state.name,
+        description: this.state.description,
+        avatar: this.state.image
+      })
+
+      if (result.data.success) {
+        this.setState({ image: null })
+        this.setState({ submitStatus: 'SUBMITTED' })
+      } else {
+        this.setState({ submitStatus: 'FAILED' })
+      }
+    } catch (error) {
+      this.setState({ submitStatus: 'FAILED' })
     }
   }
 
@@ -130,7 +143,12 @@ class AccountSettingPage extends Component {
   render () {
     return (
       <AccountSettingContainer>
-        <TopNavigation title='Account Setting' buttons={[this.renderInviteButton()]} secondaryAction={false} types={false} />
+        <TopNavigation
+          title='Account Setting'
+          buttons={[this.renderInviteButton()]}
+          secondaryAction={false}
+          types={false}
+        />
         <ContentContainer>
           <ProfileSection>
             {this.props.loadingStatus === 'SUCCESS' && (
@@ -153,7 +171,12 @@ class AccountSettingPage extends Component {
                   prefill
                 />
                 {/* <Input prefill placeholder={'Group'} value={this.state.group} /> */}
-                <Button size='small' type='submit' key={'save'}>
+                <Button
+                  size='small'
+                  type='submit'
+                  key={'save'}
+                  loading={this.state.submitStatus === 'SUBMITTING'}
+                >
                   <span>Save Change</span>
                 </Button>
               </form>
