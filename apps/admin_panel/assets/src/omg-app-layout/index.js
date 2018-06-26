@@ -12,6 +12,7 @@ import { withRouter } from 'react-router-dom'
 import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
 import ReactDOM from 'react-dom'
+import LoadingBar from 'react-redux-loading-bar'
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -96,6 +97,7 @@ class AppLayout extends Component {
   render () {
     return (
       <Container>
+        <LoadingBar style={{ backgroundColor: '#1A56F0' }} />
         <SideNav
           switchAccount={this.state.switchAccount}
           onClickSwitchAccount={this.onClickSwitchAccount}
@@ -105,7 +107,7 @@ class AppLayout extends Component {
             closeSwitchAccountTab={this.closeSwitchAccountTab}
           />
         )}
-        <ContentContainer innerRef={contentContainer => this.contentContainer = contentContainer}>
+        <ContentContainer innerRef={contentContainer => (this.contentContainer = contentContainer)}>
           <TopBar />
           <Content>
             {React.cloneElement(this.props.children, {

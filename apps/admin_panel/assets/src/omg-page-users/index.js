@@ -31,7 +31,8 @@ class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
     history: PropTypes.object,
-    match: PropTypes.object
+    match: PropTypes.object,
+    scrollTopContentContainer: PropTypes.func
   }
   constructor (props) {
     super(props)
@@ -119,6 +120,7 @@ class UsersPage extends Component {
         search={queryString.parse(this.props.location.search).search}
         perPage={20}
         page={queryString.parse(this.props.location.search).page}
+        onFetchComplete={this.props.scrollTopContentContainer}
       />
     )
   }

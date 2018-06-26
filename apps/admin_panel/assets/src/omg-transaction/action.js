@@ -1,4 +1,5 @@
 import * as transactionService from '../services/transactionService'
+import { showLoading, hideLoading } from 'react-redux-loading-bar'
 export const transfer = ({ fromAddress, toAddress, tokenId, amount }) => async dispatch => {
   try {
     const result = await transactionService.transfer({
@@ -19,6 +20,7 @@ export const transfer = ({ fromAddress, toAddress, tokenId, amount }) => async d
 }
 
 export const getTransactions = ({ page, search, perPage }) => async dispatch => {
+  dispatch(showLoading())
   try {
     const result = await transactionService.getAllTransactions({
       per: perPage,
@@ -26,12 +28,15 @@ export const getTransactions = ({ page, search, perPage }) => async dispatch => 
       search_term: search,
       page
     })
+    console.log('xxxxxx')
+    dispatch(hideLoading())
     if (result.data.success) {
       return dispatch({ type: 'TRANSACTIONS/REQUEST/SUCCESS', transactions: result.data.data })
     } else {
       return dispatch({ type: 'TRANSACTIONS/REQUEST/FAILED', error: result.data.data })
     }
   } catch (error) {
+    dispatch(hideLoading())
     return dispatch({ type: 'TRANSACTIONS/REQUEST/FAILED', error })
   }
 }
