@@ -5,7 +5,7 @@ import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
-import TransactionsProvider from '../omg-transaction/transactionsProvider'
+import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
@@ -119,10 +119,10 @@ class TransactionPage extends Component {
   }
   render () {
     return (
-      <TransactionsProvider
-        render={this.renderTransactionPage}
+      <TransactionsFetcher
         {...this.state}
         {...this.props}
+        render={this.renderTransactionPage}
         search={queryString.parse(this.props.location.search).search}
         perPage={15}
         page={queryString.parse(this.props.location.search).page}

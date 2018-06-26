@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
-import UsersProvider from '../omg-users/usersProvider'
+import UsersFetcher from '../omg-users/usersFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -112,10 +112,10 @@ class UsersPage extends Component {
 
   render () {
     return (
-      <UsersProvider
-        render={this.renderUserPage}
+      <UsersFetcher
         {...this.state}
         {...this.props}
+        render={this.renderUserPage}
         search={queryString.parse(this.props.location.search).search}
         perPage={20}
         page={queryString.parse(this.props.location.search).page}
