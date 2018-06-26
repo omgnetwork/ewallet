@@ -15,6 +15,8 @@ defmodule EWalletDB.Wallet do
   @primary "primary"
   @secondary "secondary"
 
+  @genesis_address "gnis000000000000"
+
   def genesis, do: @genesis
   def burn, do: @burn
   def primary, do: @primary
@@ -158,7 +160,7 @@ defmodule EWalletDB.Wallet do
   Returns the genesis wallet.
   """
   def get_genesis do
-    case get(@genesis) do
+    case get(@genesis_address) do
       nil ->
         {:ok, genesis} = insert_genesis()
         genesis
@@ -172,12 +174,14 @@ defmodule EWalletDB.Wallet do
   Inserts a genesis.
   """
   def insert_genesis do
-    changeset = changeset(%Wallet{}, %{address: @genesis, name: @genesis, identifier: @genesis})
+    changeset =
+      changeset(%Wallet{}, %{address: @genesis_address, name: @genesis, identifier: @genesis})
+
     opts = [on_conflict: :nothing, conflict_target: :address]
 
     case Repo.insert(changeset, opts) do
       {:ok, _wallet} ->
-        {:ok, get(@genesis)}
+        {:ok, get(@genesis_address)}
 
       {:error, changeset} ->
         {:error, changeset}
