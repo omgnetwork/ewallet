@@ -28,9 +28,10 @@ export const createFetcher = (reducer, selectors) => {
       componentDidMount = () => {
         this.fetch()
       }
-      componentDidUpdate = nextProps => {
+      componentDidUpdate = async nextProps => {
         if (this.props.cacheKey !== nextProps.cacheKey) {
-          this.fetch()
+          await this.fetch()
+          this.props.onFetchComplete()
         }
       }
       fetch = async () => {
