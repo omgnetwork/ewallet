@@ -57,7 +57,8 @@ class UserSettingPage extends Component {
     currentUser: PropTypes.object
   }
   state = {
-    email: ''
+    email: '',
+    submitStatus: 'DEFAULT'
   }
   componentWillReceiveProps = props => {
     this.setInitialCurrentUserState()
@@ -82,10 +83,20 @@ class UserSettingPage extends Component {
   }
   onClickUpdateAccount = async e => {
     e.preventDefault()
-    this.props.updateCurrentUser({
-      email: this.state.email,
-      avatar: this.state.image
-    })
+    try {
+      this.setState({submitStatus: 'SUBMITTING'})
+      const result = await this.props.updateCurrentUser({
+        email: this.state.email,
+        avatar: this.state.image
+      })
+      if (result.success) {
+        this.setState({submitStatus: 'SUBMITTED'})
+      } else {
+        this.setState({submitStatus: 'FAILED'})
+      }
+    } catch (error) {
+      this.setState({submitStatus: 'FAILED'})
+    }
   }
   render () {
     return (
@@ -111,7 +122,7 @@ class UserSettingPage extends Component {
                 <div>Password</div>
                 <a>Change password</a>
               </ChangePasswordContainer> */}
-              <Button size='small' type='submit' key={'save'}>
+              <Button size='small' type='submit' key={'save'} loading={this.state.submitStatus === 'SUBMITTING'}>
                 Save Change
               </Button>
             </InputsContainer>
