@@ -3,18 +3,19 @@ defmodule EWallet.AmountFormatter do
   A string formatter for amounts
   """
   def format(amount, subunit_to_unit) do
-    float_amount = amount / subunit_to_unit
-
-    float_amount
-    |> float_to_binary(to_decimals(subunit_to_unit))
+    subunit_to_unit
+    |> to_decimals()
+    |> float_to_binary(amount / subunit_to_unit)
     |> String.replace_trailing(".0", "")
   end
 
-  defp float_to_binary(value, decimals) do
+  defp float_to_binary(decimals, value) do
     :erlang.float_to_binary(value, [:compact, {:decimals, decimals}])
   end
 
   defp to_decimals(subunit_to_unit) do
-    Kernel.trunc(:math.log10(subunit_to_unit))
+    subunit_to_unit
+    |> :math.log10()
+    |> Kernel.trunc()
   end
 end
