@@ -72,14 +72,15 @@ class SortableTable extends PureComponent {
   static propTypes = {
     history: PropTypes.object,
     location: PropTypes.object,
-    rows: PropTypes.oneOfType([PropTypes.array]),
-    columns: PropTypes.oneOfType([PropTypes.array]),
+    rows: PropTypes.array,
+    columns: PropTypes.array,
     loading: PropTypes.bool,
     perPage: PropTypes.number,
     rowRenderer: PropTypes.func,
     onClickRow: PropTypes.func,
     isLastPage: PropTypes.bool,
-    isFirstPage: PropTypes.bool
+    isFirstPage: PropTypes.bool,
+    navigation: PropTypes.bool
   }
 
   onSelectFilter = (col, item) => {
@@ -233,20 +234,16 @@ class SortableTable extends PureComponent {
           page={this.getPage()}
           perPage={this.props.perPage}
         />
-        <NavigationContainer>
-          <Navigation
-            onClick={this.onClickPrev}
-            disable={this.props.isFirstPage}
-          >
-            Prev
-          </Navigation>
-          <Navigation
-            onClick={this.onClickNext}
-            disable={this.props.isLastPage}
-          >
-            Next
-          </Navigation>
-        </NavigationContainer>
+        {this.props.navigation && (
+          <NavigationContainer>
+            <Navigation onClick={this.onClickPrev} disable={this.props.isFirstPage}>
+              Prev
+            </Navigation>
+            <Navigation onClick={this.onClickNext} disable={this.props.isLastPage}>
+              Next
+            </Navigation>
+          </NavigationContainer>
+        )}
       </TableContainer>
     )
   }

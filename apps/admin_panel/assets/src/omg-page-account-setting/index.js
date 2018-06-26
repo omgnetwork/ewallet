@@ -178,6 +178,7 @@ class AccountSettingPage extends Component {
                     perPage={99999}
                     loading={loadingStatus === 'DEFAULT'}
                     loadingRowNumber={7}
+                    navigation={false}
                   />
                 )
               }}
