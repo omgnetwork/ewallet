@@ -278,7 +278,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "data" => %{
                  "code" => "transaction_request:transaction_request_not_found",
                  "description" =>
-                   "There is no transaction request corresponding to the provided address",
+                   "There is no transaction request corresponding to the provided ID.",
                  "messages" => nil,
                  "object" => "error"
                }

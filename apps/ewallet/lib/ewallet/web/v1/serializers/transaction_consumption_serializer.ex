@@ -3,18 +3,23 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
   Serializes transaction request consumption data into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.Date
+  alias EWallet.Web.{Date, Paginator}
 
   alias EWallet.Web.V1.{
     AccountSerializer,
     TokenSerializer,
     TransactionSerializer,
     TransactionRequestSerializer,
-    UserSerializer
+    UserSerializer,
+    PaginatorSerializer
   }
 
   alias EWalletDB.TransactionConsumption
   alias EWalletDB.Helpers.{Assoc, Preloader}
+
+  def serialize(%Paginator{} = paginator) do
+    PaginatorSerializer.serialize(paginator, &serialize/1)
+  end
 
   def serialize(%TransactionConsumption{} = consumption) do
     consumption =
