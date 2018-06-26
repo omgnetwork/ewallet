@@ -14,7 +14,7 @@ class UsersFetcher extends Component {
     perPage: PropTypes.number,
     onFetchComplete: PropTypes.func
   }
-  state = { users: [], loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT }
+  state = { users: [], loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT, pagination: {} }
   componentDidMount = () => {
     this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
     this.fetch()
@@ -26,15 +26,16 @@ class UsersFetcher extends Component {
   }
   fetch = async () => {
     try {
-      const { users, error } = await this.props.getUsers({
+      const { users, pagination, error } = await this.props.getUsers({
         page: this.props.page,
         search: this.props.search,
         perPage: this.props.perPage
       })
       if (users) {
         this.setState({
-          users: users.data,
-          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
+          users,
+          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+          pagination
         })
         this.props.onFetchComplete()
       } else {
@@ -48,7 +49,8 @@ class UsersFetcher extends Component {
   render () {
     return this.props.render({
       users: this.state.users,
-      loadingStatus: this.state.loadingStatus
+      loadingStatus: this.state.loadingStatus,
+      pagination: this.state.pagination
     })
   }
 }

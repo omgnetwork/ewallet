@@ -90,12 +90,11 @@ class WalletPage extends Component {
     }
     return data
   }
-  renderWalletPage = ({ wallets, loadingStatus }) => {
+  renderWalletPage = ({ wallets, loadingStatus, pagination = {} }) => {
     return (
       <WalletPageContainer>
         <TopNavigation
           title={'Wallets'}
-          // buttons={[this.renderExportButton()]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
@@ -105,6 +104,8 @@ class WalletPage extends Component {
             perPage={20}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
+            isFirstPage={pagination.is_first_page}
+            isLastPage={pagination.is_last_page}
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />

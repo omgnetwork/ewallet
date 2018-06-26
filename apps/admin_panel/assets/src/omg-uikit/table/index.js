@@ -34,6 +34,7 @@ class Table extends Component {
     loadingColNumber: 5,
     page: 1,
     perPage: 1000,
+    pagination: false,
     onClickRow: () => {}
   }
 

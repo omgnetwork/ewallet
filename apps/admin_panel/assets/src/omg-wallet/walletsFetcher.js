@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { getWalletsByAccountId } from './action'
 import CONSTANT from '../constants'
-import {selectWallets} from './selector'
+import { selectWallets } from './selector'
 class WalletsFetcher extends Component {
   static propTypes = {
     render: PropTypes.func,
@@ -16,11 +16,13 @@ class WalletsFetcher extends Component {
     onFetchComplete: PropTypes.func
   }
   state = {
-    wallets: []
+    wallets: [],
+    pagination: {},
+    loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT
   }
   fetch = async () => {
     try {
-      const { wallets, error } = await this.props.getWalletsByAccountId({
+      const { wallets, pagination, error } = await this.props.getWalletsByAccountId({
         accountId: this.props.accountId,
         search: this.props.search,
         page: this.props.page || 1,
@@ -29,7 +31,8 @@ class WalletsFetcher extends Component {
       if (wallets) {
         this.setState({
           wallets,
-          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
+          loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+          pagination
         })
         this.props.onFetchComplete()
       } else {
@@ -50,8 +53,9 @@ class WalletsFetcher extends Component {
   }
   render () {
     return this.props.render({
-      wallets: selectWallets({wallets: this.state.wallets}, this.props.search),
-      loadingStatus: this.state.loadingStatus
+      wallets: selectWallets({ wallets: this.state.wallets }, this.props.search),
+      loadingStatus: this.state.loadingStatus,
+      pagination: this.state.pagination
     })
   }
 }

@@ -24,7 +24,11 @@ export const getUsers = ({ search, page, perPage }) => async dispatch => {
     })
 
     if (result.data.success) {
-      return dispatch({ type: 'USERS/REQUEST/SUCCESS', users: result.data.data })
+      return dispatch({
+        type: 'USERS/REQUEST/SUCCESS',
+        users: result.data.data.data,
+        pagination: result.data.data.pagination
+      })
     } else {
       return dispatch({ type: 'USERS/REQUEST/FAILED', error: result.data.data })
     }

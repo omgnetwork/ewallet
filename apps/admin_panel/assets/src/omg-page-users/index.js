@@ -89,13 +89,10 @@ class UsersPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/user/${data.id}`)
   }
-  renderUserPage = ({ users, loadingStatus }) => {
+  renderUserPage = ({ users, loadingStatus, pagination }) => {
     return (
       <UserPageContainer>
-        <TopNavigation
-          title={'Users'}
-          // buttons={[this.renderExportButton()]}
-        />
+        <TopNavigation title={'Users'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(users)}
@@ -104,6 +101,8 @@ class UsersPage extends Component {
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             perPage={20}
+            isFirstPage={pagination.is_first_page}
+            isLastPage={pagination.is_last_page}
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
