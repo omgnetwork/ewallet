@@ -736,7 +736,7 @@ paths:
   /user.get_transactions:
     post:
       tags:
-        - Transaction
+        - User
       summary: Get the list of transactions for the given user
       operationId: get_all_transactions_for_user
       requestBody:
@@ -976,7 +976,7 @@ paths:
   ############################
   # TRANSACTION CONSUMPTIONS #
   ############################
-  /account.get_consumptions:
+  /account.get_transaction_consumptions:
     post:
       tags:
         - Account
@@ -992,7 +992,7 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /user.get_consumptions:
+  /user.get_transaction_consumptions:
     post:
       tags:
         - User
@@ -1008,7 +1008,7 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /wallet.get_consumptions:
+  /wallet.get_transaction_consumptions:
     post:
       tags:
         - Wallet
@@ -1024,7 +1024,7 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /transaction_request.get_consumptions:
+  /transaction_request.get_transaction_consumptions:
     post:
       tags:
         - TransactionRequest
@@ -4459,7 +4459,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              transaction_request_id:
+              formatted_transaction_request_id:
                 type: string
               page:
                 type: integer
@@ -4475,9 +4475,9 @@ components:
                 type: string
                 enum: ["asc", "desc"]
             required:
-              - transaction_request_id
+              - formatted_transaction_request_id
             example:
-              transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+              formatted_transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
               page: 1
               per_page: 10
               search_terms: {}

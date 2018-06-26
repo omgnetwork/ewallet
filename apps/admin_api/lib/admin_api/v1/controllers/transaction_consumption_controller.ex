@@ -9,7 +9,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     Web.V1.Event,
     TransactionConsumptionConsumerGate,
     TransactionConsumptionConfirmerGate,
-    TransactionConsumptionFetcher
+    TransactionConsumptionFetcher,
+    UserFetcher
   }
 
   alias EWalletDB.{Account, User, TransactionRequest, TransactionConsumption, Wallet}
@@ -54,27 +55,31 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, :invalid_parameter, "Parameter 'account_id' is required.")
   end
 
-  def all_for_user(conn, %{"user_id" => user_id} = attrs) do
-    with %User{} = user <- User.get(user_id) || {:error, :user_id_not_found} do
+  def all_for_user(conn, attrs) do
+    with {:ok, %User{} = user} <- UserFetcher.get(attrs) do
       :user_uuid
       |> TransactionConsumption.query_all_for(user.uuid)
       |> SearchParser.search_with_terms(attrs, @search_fields)
       |> do_all(conn, attrs)
     else
-      error -> respond(error, conn)
-    end
-  end
+      {:error, :invalid_parameter} ->
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Parameter 'user_id' or 'provider_user_id' is required."
+        )
 
-  def all_for_user(conn, _) do
-    handle_error(conn, :invalid_parameter, "Parameter 'user_id' is required.")
+      error ->
+        respond(error, conn)
+    end
   end
 
   def all_for_transaction_request(
         conn,
-        %{"transaction_request_id" => transaction_request_id} = attrs
+        %{"formatted_transaction_request_id" => formatted_transaction_request_id} = attrs
       ) do
     with %TransactionRequest{} = transaction_request <-
-           TransactionRequest.get(transaction_request_id) ||
+           TransactionRequest.get(formatted_transaction_request_id) ||
              {:error, :transaction_request_not_found} do
       :transaction_request_uuid
       |> TransactionConsumption.query_all_for(transaction_request.uuid)
@@ -86,7 +91,11 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_transaction_request(conn, _) do
-    handle_error(conn, :invalid_parameter, "Parameter 'transaction_request_id' is required.")
+    handle_error(
+      conn,
+      :invalid_parameter,
+      "Parameter 'formatted_transaction_request_id' is required."
+    )
   end
 
   def all_for_wallet(conn, %{"address" => address} = attrs) do
