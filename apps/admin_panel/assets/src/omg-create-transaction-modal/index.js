@@ -79,7 +79,7 @@ class CreateTransactionModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    walletAddress: PropTypes.string,
+    fromAddress: PropTypes.string,
     getWalletById: PropTypes.func
   }
   initialState = {
@@ -90,12 +90,11 @@ class CreateTransactionModal extends Component {
     searchTokenValue: '',
     selectedToken: '',
     error: null
-
   }
   state = this.initialState
   componentWillReceiveProps = nextProps => {
-    if (this.state.fromAddress !== nextProps.walletAddress) {
-      this.setState({ fromAddress: nextProps.walletAddress })
+    if (this.state.fromAddress !== nextProps.fromAddress && nextProps.fromAddress !== undefined) {
+      this.setState({ fromAddress: nextProps.fromAddress })
     }
   }
   onChangeInputFromAddress = e => {
@@ -132,7 +131,7 @@ class CreateTransactionModal extends Component {
         this.props.getWalletById(this.state.toAddress)
         this.onRequestClose()
       } else {
-        this.setState({ submitting: false, error: result.data.description })
+        this.setState({ submitting: false, error: result.description })
       }
     } catch (error) {
       this.setState({ submitting: false, error })
