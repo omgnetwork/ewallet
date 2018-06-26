@@ -36,7 +36,8 @@ const columns = [
 
 class TransactionPage extends Component {
   static propTypes = {
-    location: PropTypes.object
+    location: PropTypes.object,
+    scrollTopContentContainer: PropTypes.func
   }
   state = {
     createAccountModalOpen: false
@@ -125,6 +126,7 @@ class TransactionPage extends Component {
         search={queryString.parse(this.props.location.search).search}
         perPage={15}
         page={queryString.parse(this.props.location.search).page}
+        onFetchComplete={this.props.scrollTopContentContainer}
       />
     )
   }

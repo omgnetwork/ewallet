@@ -16,7 +16,8 @@ class TransactionsProvider extends Component {
     getTransactions: PropTypes.func,
     search: PropTypes.string,
     page: PropTypes.number,
-    perPage: PropTypes.number
+    perPage: PropTypes.number,
+    onFetchComplete: PropTypes.func
   }
   state = {
     loadingStatus: 'DEFAULT',
@@ -39,6 +40,8 @@ class TransactionsProvider extends Component {
           transactions: transactions.data,
           loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
         })
+        console.log(this.props)
+        this.props.onFetchComplete()
       } else {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, error })
       }

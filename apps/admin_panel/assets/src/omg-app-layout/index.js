@@ -11,6 +11,7 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
+import ReactDOM from 'react-dom'
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -30,7 +31,14 @@ const ContentContainer = styled.div`
 const Content = styled.div`
   padding: 0 7%;
 `
-const enhance = compose(connect(null, { switchAccount }), withRouter, withClickOutsideEnhancer)
+const enhance = compose(
+  connect(
+    null,
+    { switchAccount }
+  ),
+  withRouter,
+  withClickOutsideEnhancer
+)
 const EnhancedAccountSelectorMenuClickOutside = enhance(
   class extends Component {
     static propTypes = {
@@ -82,6 +90,9 @@ class AppLayout extends Component {
   onClickSwitchAccount = () => {
     this.setState({ switchAccount: true })
   }
+  scrollTopContentContainer = () => {
+    ReactDOM.findDOMNode(this.contentContainer).scrollTo(0, 0)
+  }
   render () {
     return (
       <Container>
@@ -94,9 +105,13 @@ class AppLayout extends Component {
             closeSwitchAccountTab={this.closeSwitchAccountTab}
           />
         )}
-        <ContentContainer>
+        <ContentContainer innerRef={contentContainer => this.contentContainer = contentContainer}>
           <TopBar />
-          <Content>{this.props.children}</Content>
+          <Content>
+            {React.cloneElement(this.props.children, {
+              scrollTopContentContainer: this.scrollTopContentContainer
+            })}
+          </Content>
         </ContentContainer>
         <Alert />
       </Container>
