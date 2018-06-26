@@ -13,4 +13,10 @@ defmodule AdminAPI.V1.TransactionRequestView do
     |> TransactionRequestSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)
   end
+
+  def render("transaction_requests.json", %{transaction_requests: transaction_requests}) do
+    transaction_requests
+    |> TransactionRequestSerializer.serialize()
+    |> ResponseSerializer.serialize(success: true)
+  end
 end

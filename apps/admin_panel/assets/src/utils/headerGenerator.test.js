@@ -2,7 +2,7 @@ import createHeaders from './headerGenerator'
 import btoa from 'btoa'
 describe('headerGenerator', () => {
   const currentAccountId = 'account_id'
-  const accessToken = {userId: 'test1',authentication_token: 'test2'}
+  const accessToken = {userId: 'test1', authentication_token: 'test2'}
   test('function createHeaders should return correct header for [authenticated] request', () => {
     const header = createHeaders({
       auth: true,

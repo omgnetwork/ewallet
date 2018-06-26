@@ -237,6 +237,10 @@ defmodule EWalletDB.TransactionConsumption do
     end
   end
 
+  @spec query_all_for(Atom.t() | String.t(), any()) :: Ecto.Query.t()
+  def query_all_for(field_name, value),
+    do: where(TransactionConsumption, [t], field(t, ^field_name) == ^value)
+
   @doc """
   Get all confirmed transaction consumptions.
   """
@@ -311,7 +315,7 @@ defmodule EWalletDB.TransactionConsumption do
     state_transition(consumption, @failed, transfer.uuid)
   end
 
-  @spec expired?(%TransactionConsumption{}) :: true | false
+  @spec expired?(%TransactionConsumption{}) :: boolean()
   def expired?(consumption) do
     consumption.status == @expired
   end
@@ -320,7 +324,7 @@ defmodule EWalletDB.TransactionConsumption do
     Enum.member?([@confirmed, @rejected], consumption.status)
   end
 
-  @spec finalized?(%TransactionConsumption{}) :: true | false
+  @spec finalized?(%TransactionConsumption{}) :: boolean()
   def finalized?(consumption) do
     Enum.member?([@rejected, @confirmed, @failed, @expired], consumption.status)
   end

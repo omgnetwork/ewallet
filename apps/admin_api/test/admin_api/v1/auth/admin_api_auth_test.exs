@@ -6,7 +6,7 @@ defmodule AdminAPI.Web.V1.AdminAPIAuthTest do
     encoded_key = Base.encode64(user_id <> ":" <> token)
 
     AdminAPIAuth.authenticate(%{
-      http_headers: [{"authorization", "#{scheme} #{encoded_key}"}]
+      "headers" => [{"authorization", "#{scheme} #{encoded_key}"}]
     })
   end
 
@@ -64,7 +64,7 @@ defmodule AdminAPI.Web.V1.AdminAPIAuthTest do
     test "fails to authenticate with invalid sheme" do
       auth =
         AdminAPIAuth.authenticate(%{
-          http_headers: [{"authorization", "SomeAuth"}]
+          headers: [{"authorization", "SomeAuth"}]
         })
 
       assert auth.authenticated == false

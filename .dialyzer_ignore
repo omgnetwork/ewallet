@@ -11,8 +11,22 @@ Unknown type 'Elixir.Ecto.UUID':t/0
 Unknown type 'Elixir.Integer':t/0
 Unknown type 'Elixir.List':t/0
 Unknown type 'Elixir.Map':t/0
+Unknown type 'Elixir.Balance':t/0
+Unknown type 'Elixir.EWalletDB.Token':t/0
+Unknown type 'Elixir.EWalletDB.TransactionConsumption':t/0
+Unknown type 'Elixir.EWalletDB.TransactionRequest':t/0
+Unknown type 'Elixir.EWalletDB.User':t/0
+Unknown type 'Elixir.EWalletDB.Wallet':t/0
+Unknown type 'Elixir.ExternalID':t/0
+Unknown type 'Elixir.LocalLedgerDB.Wallet':t/0
+Unknown type 'Elixir.UUID':t/0
+Unknown type 'Elixir.User':t/0
 Function 'iex_running?'/0 will never be called
 Function run/1 has no local return
 Function configure_no_halt/1 will never be called
 Callback info about the 'Elixir.Mix.Task' behaviour is not available
 Function run/1 has no local return
+The pattern #{'__struct__':='Elixir.Ecto.Changeset'} can never match the type #{'__struct__':='Elixir.EWalletDB.Account', _=>_}
+The pattern 'invalid' can never match the type #{'avatar':=_}
+The pattern #{'__struct__':='Elixir.Ecto.Changeset'} can never match the type #{'__struct__':='Elixir.EWalletDB.User', _=>_}
+Function deliver/1 only terminates with explicit exception

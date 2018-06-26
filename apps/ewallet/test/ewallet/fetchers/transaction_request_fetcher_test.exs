@@ -3,7 +3,6 @@ defmodule EWallet.TransactionRequestFetcherTest do
   alias EWallet.{TransactionRequestGate, TransactionRequestFetcher}
   alias EWalletDB.{User, TransactionRequest}
 
-  # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
     {:ok, account} = :account |> params_for() |> Account.insert()

@@ -14,15 +14,19 @@ defmodule Mix.Tasks.Omg.Seed do
   @shortdoc "Create initial seed data"
   @start_apps [:logger, :crypto, :ssl, :postgrex, :ecto, :cloak]
   @repo_apps [:ewallet_db, :local_ledger_db]
+  @e2e_disabled_warning """
+  Test seeds can only be ran if the environment variable `E2E_ENABLED` is set to `true`
+  """
 
   def run(args) do
     spec = seed_spec(args)
+    assume_yes = assume_yes?(args)
 
     Enum.each(@start_apps, &Application.ensure_all_started/1)
     Logger.configure(level: :info)
 
     Enum.each(@repo_apps, &ensure_started/1)
-    CLI.run(spec)
+    CLI.run(spec, assume_yes)
   end
 
   #
@@ -52,7 +56,28 @@ defmodule Mix.Tasks.Omg.Seed do
     seed_spec(t) ++ [{:ewallet_db, :seeds_sample}]
   end
 
+  defp seed_spec(["--test" | _t]) do
+    case Regex.match?(~r/^(t(rue)?|y(es)?|on|1)$/, System.get_env("E2E_ENABLED")) do
+      true ->
+        [{:ewallet_db, :seeds_test}]
+
+      false ->
+        IO.puts(@e2e_disabled_warning)
+        []
+    end
+  end
+
   defp seed_spec([_ | t]) do
     seed_spec(t)
   end
+
+  defp assume_yes?([]), do: false
+
+  defp assume_yes?(["-y" | _t]), do: true
+
+  defp assume_yes?(["--yes" | _t]), do: true
+
+  defp assume_yes?(["--assume_yes" | _t]), do: true
+
+  defp assume_yes?([_ | t]), do: assume_yes?(t)
 end

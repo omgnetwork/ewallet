@@ -62,7 +62,10 @@ class AccountSettingPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      inviteModalOpen: false
+      inviteModalOpen: false,
+      name: '',
+      description: '',
+      avatar: ''
     }
   }
   componentWillReceiveProps = props => {
@@ -141,14 +144,12 @@ class AccountSettingPage extends Component {
                   prefill
                   placeholder={'Name'}
                   value={this.state.name}
-                  defaultValue={this.props.currentAccount.name}
                   onChange={this.onChangeName}
                 />
                 <Input
                   placeholder={'Description'}
                   value={this.state.description}
                   onChange={this.onChangeDescription}
-                  defaultValue={this.props.currentAccount.description}
                   prefill
                 />
                 {/* <Input prefill placeholder={'Group'} value={this.state.group} /> */}
@@ -163,7 +164,7 @@ class AccountSettingPage extends Component {
               render={({ inviteList, loadingStatus }) => {
                 const rows = inviteList.map(invite => {
                   return {
-                    key: invite.id,
+                    id: invite.id,
                     role: invite.account_role,
                     email: invite.email,
                     member: invite.username || '-',

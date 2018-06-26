@@ -32,7 +32,7 @@ defmodule EWallet.Web.WebSocket do
 
   ## Callbacks
 
-  import Plug.Conn, only: [fetch_query_params: 1, send_resp: 3, assign: 3]
+  import Plug.Conn, only: [send_resp: 3, assign: 3]
 
   require Logger
 
@@ -45,22 +45,22 @@ defmodule EWallet.Web.WebSocket do
         %Plug.Conn{method: "GET"} = conn,
         {_global_endpoint, handler, transport},
         endpoint,
-        serializer
+        serializer,
+        params
       ) do
     {_, opts} = handler.__transport__(transport)
 
     with conn <- code_reload(conn, opts, endpoint),
-         conn <- fetch_query_params(conn),
          conn <- Transport.transport_log(conn, opts[:transport_log]),
          conn <- Transport.force_ssl(conn, handler, endpoint, opts),
          conn <- Transport.check_origin(conn, handler, endpoint, opts),
          %{halted: false} = conn <- conn,
-         params <- conn.params |> Map.put_new(:http_headers, conn.req_headers),
          {:ok, socket} <-
            Transport.connect(endpoint, handler, transport, __MODULE__, serializer, params) do
       {:ok, conn, {__MODULE__, {socket, opts}}}
     else
-      _error -> :error
+      _error ->
+        {:error, conn}
     end
   end
 
@@ -93,6 +93,18 @@ defmodule EWallet.Web.WebSocket do
     app
     |> Application.get_env(:api_versions)
     |> Map.fetch(accept)
+  end
+
+  def update_headers(conn) do
+    conn.params
+    |> Map.put("headers", normalize_headers(conn.params["headers"] || conn.req_headers))
+    |> Map.delete("vsn")
+  end
+
+  defp normalize_headers(headers) do
+    headers
+    |> Enum.map(fn {name, value} -> {String.downcase(name), value} end)
+    |> Enum.into(%{})
   end
 
   @doc false

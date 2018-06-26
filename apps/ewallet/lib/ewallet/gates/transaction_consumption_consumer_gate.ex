@@ -99,11 +99,9 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
           {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
   def consume(
         %User{} = user,
-        %{
-          "address" => address
-        } = attrs
+        attrs
       ) do
-    with {:ok, wallet} <- WalletFetcher.get(user, address) do
+    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]) do
       consume(wallet, attrs)
     else
       error -> error
@@ -121,7 +119,8 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
 
     case transaction do
       {:ok, res} -> res
-      {:error, error} -> {:error, error}
+      {:error, _changeset} = error -> error
+      {:error, _, changeset, _} -> {:error, changeset}
     end
   end
 

@@ -8,6 +8,7 @@ import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
+import {LoadingSkeleton} from '../omg-uikit'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -29,6 +30,11 @@ const DetailContainer = styled.div`
 const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
+`
+const LoadingContainer = styled.div`
+  div {
+    margin-bottom: 1em;
+  }
 `
 
 const enhance = compose(
@@ -77,12 +83,18 @@ class TokenDetailPage extends Component {
               return (
                 <DetailGroup key={balance.token.id}>
                   <b>{balance.token.name}</b>{' '}
-                  <span>{balance.amount / balance.token.subunit_to_unit}</span>
+                  <span>{(balance.amount / balance.token.subunit_to_unit).toLocaleString()}</span>
                 </DetailGroup>
               )
             })}
           </div>
-        ) : 'loading'}
+        ) : (
+          <LoadingContainer>
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+            <LoadingSkeleton />
+          </LoadingContainer>
+        ) }
       </Section>
     )
   }

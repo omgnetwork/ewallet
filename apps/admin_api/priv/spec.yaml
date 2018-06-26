@@ -904,6 +904,23 @@ paths:
   ############################
   #   TRANSACTION REQUESTS   #
   ############################
+  # Endpoint to list all transaction requests
+  /transaction_request.all:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Get the list of transaction requests
+      operationId: transaction_request_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionRequestAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionRequestsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   # Endpoint to create a transaction request
   /transaction_request.create:
     post:
@@ -955,6 +972,109 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+
+  ############################
+  # TRANSACTION CONSUMPTIONS #
+  ############################
+  /account.get_consumptions:
+    post:
+      tags:
+        - Account
+      summary: Get the list of transaction consumptions for an account
+      operationId: account_get_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionConsumptionAllForAccountBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.get_consumptions:
+    post:
+      tags:
+        - User
+      summary: Get the list of transaction consumptions for a user
+      operationId: user_get_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionConsumptionAllForUserBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /wallet.get_consumptions:
+    post:
+      tags:
+        - Wallet
+      summary: Get the list of transaction consumptions for a wallet
+      operationId: wallet_get_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionConsumptionAllForWalletBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /transaction_request.get_consumptions:
+    post:
+      tags:
+        - TransactionRequest
+      summary: Get the list of transaction consumptions for a transaction request
+      operationId: transaction_request_get_consumptions
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionConsumptionAllForTransactionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to list all consumptions
+  /transaction_consumption.all:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Get the list of transaction consumptions
+      operationId: transaction_consumption_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionConsumptionAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get a consumption
+  /transaction_consumption.get:
+    post:
+      tags:
+        - TransactionConsumption
+      summary: Get a consumption.
+      description: This is a server call only.
+      operationId: transaction_consumption_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/GetConsumptionRequestBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionConsumptionResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   # Endpoint to approve a consumption
   /transaction_consumption.approve:
     post:
@@ -965,6 +1085,7 @@ paths:
       operationId: transaction_consumption_approve
       security:
         - ProviderAuth: []
+        - AdminAuth: []
       requestBody:
         $ref: '#/components/requestBodies/ConsumptionConfirmationRequestBody'
       responses:
@@ -1066,6 +1187,22 @@ paths:
       security:
         - ProviderAuth: []
         - AdminAuth: []
+      responses:
+        '200':
+          $ref: "#/components/responses/APIKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /api_key.update:
+    post:
+      tags:
+        - API Access
+      summary: Update an API key
+      operationId: api_key_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/APIKeyUpdateBody'
       responses:
         '200':
           $ref: "#/components/responses/APIKeyResponse"
@@ -2348,6 +2485,60 @@ components:
     ######################################
     #     TRANSACTION REQUEST SCHEMAS    #
     ######################################
+    TransactionRequestsResponseSchema:
+      description: "The response schema for a list of transaction requests"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransactionRequestSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "transaction_request"
+                id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+                formatted_id: "data|txr_01cbfg8mafdnbthgb9e68nd9y9"
+                socket_topic: "transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9"
+                type: "send"
+                amount: 100
+                status: "valid"
+                correlation_id: "123"
+                token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+                token: null
+                address: "3a560be5-15d1-4463-9ec2-02bc8ded7120"
+                user_id: "usr_01cbfg922kzmhvw04xvqn17qbd"
+                account_id: "acc_01cbfg9b5hn05rszm3na8jac7f"
+                require_confirmation: true
+                max_consumptions: 3
+                max_consumptions_per_user: null
+                consumption_lifetime: 1000
+                expiration_reason: null
+                allow_amount_override: false
+                metadata: {}
+                encrypted_metadata: {}
+                expiration_date: "2018-01-01T00:00:00Z"
+                expired_at: "2018-01-01T00:00:00Z"
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T00:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
     # Schema for transaction request response body
     TransactionRequestSchema:
       description: "The response schema for a transaction request"
@@ -2466,6 +2657,68 @@ components:
             expired_at: "2018-01-01T00:00:00Z"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T00:00:00Z"
+
+
+    ######################################
+    #     TRANSACTION REQUEST SCHEMAS    #
+    ######################################
+    TransactionConsumptionsResponseSchema:
+      description: "The response schema for a list of transaction consumptions"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/TransactionConsumptionSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "transaction_consumption"
+                id: "txc_01cbfg9qtdken61agxhx6wvj9h"
+                socket_topic: "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h"
+                status: "confirmed"
+                amount: 100
+                token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+                token: {}
+                correlation_id: "7e9c0be5-15d1-4463-9ec2-02bc8ded7120"
+                idempotency_token: "7831c0be5-15d1-4463-9ec2-02bc8ded7120"
+                transaction_id: "txn_01cbfga8g0dgwcfc7xh6ks1njt"
+                transaction: {}
+                user_id: "usr_01cbfgak47ng6x72vbwjca6j4v"
+                user: {}
+                account_id: "acc_01cbfgatsanznvzffqsekta5f0"
+                account: {}
+                transaction_request_id: "txr_01cbfgb66cby8wp5wpq6n4pm0h"
+                transaction_request: {}
+                address: "5555cer3-15d1-4463-9ec2-02bc8ded7120"
+                metadata: {}
+                encrypted_metadata: {}
+                expiration_date: null
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T00:00:00Z"
+                approved_at: "2018-01-01T00:00:00Z"
+                rejected_at: null
+                confirmed_at: "2018-01-01T00:00:00Z"
+                failed_at: null
+                expired_at: null
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
     # Schema for transaction request consumption response body
     TransactionConsumptionSchema:
       description: "The schema for a transaction request consumption"
@@ -2744,6 +2997,8 @@ components:
           type: string
         owner_app:
           type: string
+        expired:
+          type: boolean
         account_id:
           type: string
         created_at:
@@ -2761,6 +3016,7 @@ components:
         - id
         - key
         - owner_app
+        - expired
         - account_id
         - created_at
         - updated_at
@@ -2784,6 +3040,7 @@ components:
             id: "api_01ce844d5w9e81snekr5kprvem"
             key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
             owner_app: "admin_api"
+            expired: false
             account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
@@ -2816,6 +3073,7 @@ components:
                 id: "api_01ce844d5w9e81snekr5kprvem"
                 key: "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ"
                 owner_app: "admin_api"
+                expired: false
                 account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
                 created_at: "2018-01-01T00:00:00Z"
                 updated_at: "2018-01-01T10:00:00Z"
@@ -3988,6 +4246,35 @@ components:
               amount: 100
               correlation_id: "123"
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
+    TransactionRequestAllBody:
+      description: The parameters to use for listing the transaction requests
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              search_terms: {}
+              sort_by: "created_at"
+              sort_dir: "desc"
     GetTransactionRequestBody:
       description: Get a transaction request using the specified ID.
       required: true
@@ -4044,6 +4331,171 @@ components:
               address: "2ae52683-68d8-4af6-94d7-5ed4c34ecf1a"
               metadata: {}
               encrypted_metadata: {}
+    TransactionConsumptionAllBody:
+      description: The parameters to use for listing the consumptions
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "created_at"
+              sort_dir: "desc"
+    TransactionConsumptionAllForAccountBody:
+      description: The parameters to use for listing the consumptions for an account
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              account_id:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            required:
+              - account_id
+            example:
+              account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+              page: 1
+              per_page: 10
+              search_terms: {}
+              sort_by: "created_at"
+              sort_dir: "desc"
+    TransactionConsumptionAllForUserBody:
+      description: The parameters to use for listing the consumptions for a user
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              user_id:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            required:
+              - user_id
+            example:
+              user_id: "usr_02cbfg6v9thrc3sd9m1v4gazjv"
+              page: 1
+              per_page: 10
+              search_terms: {}
+              sort_by: "created_at"
+              sort_dir: "desc"
+    TransactionConsumptionAllForWalletBody:
+      description: The parameters to use for listing the consumptions for a wallet
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              address:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            required:
+              - address
+            example:
+              address: "232454354"
+              page: 1
+              per_page: 10
+              search_terms: {}
+              sort_by: "created_at"
+              sort_dir: "desc"
+    TransactionConsumptionAllForTransactionRequestBody:
+      description: The parameters to use for listing the consumptions for a transaction request
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              transaction_request_id:
+                type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_terms:
+                type: object
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            required:
+              - transaction_request_id
+            example:
+              transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+              page: 1
+              per_page: 10
+              search_terms: {}
+              sort_by: "created_at"
+              sort_dir: "desc"
+    GetConsumptionRequestBody:
+      description: Get a consumption using the specified ID.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "txc_01abfg5m2ee06kzm8tbysfmmw5"
     ConsumptionConfirmationRequestBody:
       description: Approve or reject a consumption using the specified ID.
       required: true
@@ -4140,6 +4592,23 @@ components:
               search_term: ""
               sort_by: "created_at"
               sort_dir: "asc"
+    APIKeyUpdateBody:
+      description: The parameters to use for updating an API key
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              expired:
+                type: boolean
+            required:
+              - id
+              - expired
+            example:
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              expired: true
     APIKeyDeleteBody:
       description: The parameters to use for deleting an API key
       required: true
@@ -4298,6 +4767,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/MultipleWalletsSchema'
+
     ######################################
     #        TRANSACTION RESPONSES       #
     ######################################
@@ -4317,6 +4787,12 @@ components:
     ######################################
     #   TRANSACTION REQUEST RESPONSES    #
     ######################################
+    TransactionRequestsResponse:
+      description: "Returns a list of transaction requests"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionRequestsResponseSchema'
     # Schema for transaction request response body
     TransactionRequestResponse:
       description: Transaction request response
@@ -4324,9 +4800,19 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TransactionRequestSchema'
+
+    ######################################
+    # TRANSACTION CONSUMPTIONS RESPONSES #
+    ######################################
+    TransactionConsumptionsResponse:
+      description: "Returns a list of transaction consumptions"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionConsumptionsResponseSchema'
     # Schema for transaction request response body
     TransactionConsumptionResponse:
-      description: Transaction request consumption response
+      description: "Transaction request consumption response"
       content:
         application/vnd.omisego.v1+json:
           schema:

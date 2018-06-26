@@ -23,9 +23,5 @@ defmodule EWalletAPI.V1.SelfController do
     render(conn, :wallets, %{addresses: [addresses]})
   end
 
-  defp respond({:error, code, description}, conn) do
-    handle_error(conn, code, description)
-  end
-
   defp respond({:error, code}, conn), do: handle_error(conn, code)
 end

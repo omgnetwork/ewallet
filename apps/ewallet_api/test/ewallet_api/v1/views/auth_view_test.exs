@@ -4,7 +4,7 @@ defmodule EWalletAPI.V1.AuthViewTest do
 
   describe "EWalletAPI.V1.AuthView.render/2" do
     # Potential candidate to be moved to a shared library
-    # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
+
     test "renders auth_token.json with correct structure" do
       auth_token = insert(:auth_token)
 

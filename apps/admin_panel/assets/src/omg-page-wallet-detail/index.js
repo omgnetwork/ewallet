@@ -75,10 +75,14 @@ class TokenDetailPage extends Component {
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Account Owner:</b> <span><a>{_.get(wallet, 'account.name', '-')}</a></span>
+          <b>Account Owner:</b>{' '}
+          <span>
+            <a>{_.get(wallet, 'account.name', '-')}</a>
+          </span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created date:</b> <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Created date:</b>{' '}
+          <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Last update:</b> <span>{moment(wallet.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
@@ -92,7 +96,8 @@ class TokenDetailPage extends Component {
         {wallet.balances.map(balance => {
           return (
             <DetailGroup key={balance.token.id}>
-              <b>{balance.token.name}</b> <span>{balance.amount / balance.token.subunit_to_unit}</span>
+              <b>{balance.token.name}</b>{' '}
+              <span>{(balance.amount / balance.token.subunit_to_unit).toLocaleString()}</span>
             </DetailGroup>
           )
         })}

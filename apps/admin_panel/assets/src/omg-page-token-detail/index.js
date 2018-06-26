@@ -51,7 +51,7 @@ class TokenDetailPage extends Component {
         title={token.name}
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
-          <Button size='small' onClick={this.onClickMintTopen}>
+          <Button size='small' onClick={this.onClickMintTopen} key='mint'>
             <span>Mint Token</span>
           </Button>
         ]}
@@ -66,6 +66,9 @@ class TokenDetailPage extends Component {
         </DetailGroup>
         <DetailGroup>
           <b>Decimal:</b> <span>{Math.log10(token.subunit_to_unit)}</span>
+        </DetailGroup>
+        <DetailGroup>
+          <b>Subunit To Unit:</b> <span>{token.subunit_to_unit.toLocaleString()}</span>
         </DetailGroup>
         <DetailGroup>
           <b>ID:</b> <span>{token.id}</span>

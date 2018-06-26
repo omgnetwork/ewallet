@@ -7,7 +7,7 @@ defmodule EWalletAPI.ErrorViewTest do
 
   describe "EWalletAPI.ErrorView.render/2" do
     # Potential candidate to be moved to a shared library
-    # credo:disable-for-next-line Credo.Check.Design.DuplicatedCode
+
     test "renders 500.json with correct structure given a custom description" do
       assigns = %{
         reason: %{

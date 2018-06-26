@@ -27,15 +27,11 @@ defmodule AdminAPI.V1.AccountController do
   # If the request provides different names, map it via `@mapped_fields` first.
   @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
-  defp permit(action, user_id, account_id) do
-    Bodyguard.permit(AccountPolicy, action, user_id, account_id)
-  end
-
   @doc """
   Retrieves a list of accounts.
   """
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns.admin_user.id, nil) do
+    with :ok <- permit(:all, conn.assigns, nil) do
       accounts =
         Account
         |> Preloader.to_query(@preload_fields)
@@ -63,9 +59,9 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a specific account by its id.
   """
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns.admin_user.id, id),
+    with :ok <- permit(:get, conn.assigns, id),
          %Account{} = account <- Account.get_by(id: id),
-         account <- Preloader.preload(account, @preload_fields) do
+         {:ok, account} <- Preloader.preload_one(account, @preload_fields) do
       render(conn, :account, %{account: account})
     else
       {:error, code} ->
@@ -89,10 +85,10 @@ defmodule AdminAPI.V1.AccountController do
         Account.get_master_account()
       end
 
-    with :ok <- permit(:create, conn.assigns.admin_user.id, parent.id),
+    with :ok <- permit(:create, conn.assigns, parent.id),
          attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
          {:ok, account} <- Account.insert(attrs),
-         account <- Preloader.preload(account, @preload_fields) do
+         {:ok, account} <- Preloader.preload_one(account, @preload_fields) do
       render(conn, :account, %{account: account})
     else
       {:error, %{} = changeset} ->
@@ -109,10 +105,10 @@ defmodule AdminAPI.V1.AccountController do
   The requesting user must have write permission on the given account.
   """
   def update(conn, %{"id" => account_id} = attrs) do
-    with :ok <- permit(:update, conn.assigns.admin_user.id, account_id),
+    with :ok <- permit(:update, conn.assigns, account_id),
          %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
          {:ok, updated} <- Account.update(original, attrs),
-         updated <- Preloader.preload(updated, @preload_fields) do
+         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
       render(conn, :account, %{account: updated})
     else
       {:error, %{} = changeset} ->
@@ -129,17 +125,30 @@ defmodule AdminAPI.V1.AccountController do
   Uploads an image as avatar for a specific account.
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    with :ok <- permit(:update, conn.assigns.admin_user.id, id),
+    with :ok <- permit(:update, conn.assigns, id),
          %{} = account <- Account.get(id) || {:error, :account_id_not_found},
          %{} = saved <- Account.store_avatar(account, attrs),
-         %{} = saved <- Preloader.preload(saved, @preload_fields) do
+         {:ok, saved} <- Preloader.preload_one(saved, @preload_fields) do
       render(conn, :account, %{account: saved})
     else
-      {:error, %{} = changeset} ->
+      nil ->
+        handle_error(conn, :invalid_parameter)
+
+      changeset when is_map(changeset) ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
         handle_error(conn, code)
     end
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, %{admin_user: admin_user}, account_id) do
+    Bodyguard.permit(AccountPolicy, action, admin_user, account_id)
+  end
+
+  defp permit(action, %{key: key}, account_id) do
+    Bodyguard.permit(AccountPolicy, action, key, account_id)
   end
 end

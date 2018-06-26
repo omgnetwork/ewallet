@@ -14,13 +14,7 @@ defmodule EWalletAPI.StatusController do
   end
 
   defp local_ledger do
-    case Status.check() do
-      :ok ->
-        true
-
-      _ ->
-        false
-    end
+    :ok == Status.check()
   end
 
   defp node_count do

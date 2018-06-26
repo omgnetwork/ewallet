@@ -63,7 +63,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     transaction_request_not_found: %{
       code: "transaction_request:transaction_request_not_found",
-      description: "There is no transaction request corresponding to the provided address"
+      description: "There is no transaction request corresponding to the provided ID."
+    },
+    transaction_consumption_not_found: %{
+      code: "transaction_consumption:transaction_consumption_not_found",
+      description: "There is no transaction consumption corresponding to the provided ID."
     },
     same_address: %{
       code: "transaction:same_address",
@@ -130,6 +134,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     websocket_connect_error: %{
       code: "websocket:connect_error",
       description: "Connection to websocket failed."
+    },
+    websocket_format_error: %{
+      code: "websocket:invalid_format",
+      description: "The websocket payload could not be decoded."
     },
     token_not_found: %{
       code: "token:token_not_found",
