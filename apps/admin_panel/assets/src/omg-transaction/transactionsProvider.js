@@ -40,7 +40,6 @@ class TransactionsProvider extends Component {
           transactions: transactions.data,
           loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS
         })
-        console.log(this.props)
         this.props.onFetchComplete()
       } else {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, error })
