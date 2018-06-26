@@ -8,6 +8,7 @@ import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import WalletProvider from '../omg-wallet/walletProvider'
 const customStyles = {
   content: {
     top: '50%',
@@ -78,11 +79,18 @@ class CreateTransactionModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    wallet: PropTypes.object,
+    walletAddress: PropTypes.string,
     match: PropTypes.object
   }
-  state = {}
-
+  state = { fromAddress: this.props.walletAddress, toAddress: '' }
+  componentWillReceiveProps = nextProps => {
+    if (this.state.fromAddress !== nextProps.walletAddress) {
+      this.setState({ fromAddress: nextProps.walletAddress })
+    }
+  }
+  onChangeInputFromAddress = e => {
+    this.setState({ fromAddress: e.target.value })
+  }
   onChangeInputToAddress = e => {
     this.setState({ toAddress: e.target.value })
   }
@@ -94,13 +102,13 @@ class CreateTransactionModal extends Component {
     this.setState({ submitting: true })
     try {
       const result = await this.props.transfer({
-        fromAddress: this.props.wallet.address,
+        fromAddress: this.props.walletAddress,
         toAddress: this.state.toAddress,
         tokenId: this.state.selectedToken.token.id,
         amount: Number(this.state.amount * this.state.selectedToken.token.subunit_to_unit)
       })
       if (result.data.success) {
-        this.props.getWalletById(this.props.wallet.address)
+        this.props.getWalletById(this.state.fromAddress)
         this.props.getWalletById(this.state.toAddress)
         this.props.onRequestClose()
         this.setState({
@@ -127,49 +135,60 @@ class CreateTransactionModal extends Component {
         onRequestClose={this.props.onRequestClose}
         contentLabel='create account modal'
       >
-        <Form onSubmit={this.onSubmit} noValidate>
-          <Icon name='Close' onClick={this.props.onRequestClose} />
-          <h4>Transfer Token</h4>
-          <InputLabel>From</InputLabel>
-          <Input
-            normalPlaceholder='acc_0x000000000000000'
-            value={this.props.wallet.address}
-            disabled
-          />
-          <InputLabel>To Address</InputLabel>
-          <Input
-            normalPlaceholder='acc_0x000000000000000'
-            value={this.state.toAddress}
-            onChange={this.onChangeInputToAddress}
-          />
-          <InputLabel>Token</InputLabel>
-          <Select
-            normalPlaceholder='Token'
-            onSelect={this.onSelect}
-            options={this.props.wallet.balances.map(b => ({
-              ...{
-                key: b.token.id,
-                value: `${b.token.name} (${b.token.symbol})`
-              },
-              ...b
-            }))}
-          />
-          <BalanceTokenLabel>
-            Balance:{' '}
-            {this.state.selectedToken
-              ? this.state.selectedToken.amount /
-                _.get(this.state.selectedToken, 'token.subunit_to_unit')
-              : '-'}{' '}
-          </BalanceTokenLabel>
-          <InputLabel>Amount</InputLabel>
-          <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
-          <ButtonContainer>
-            <Button size='small' type='submit' loading={this.state.submitting}>
-              Transfer
-            </Button>
-          </ButtonContainer>
-          <Error error={this.state.error}>{this.state.error}</Error>
-        </Form>
+        <WalletProvider
+          walletAddress={this.state.fromAddress}
+          render={({ wallet }) => {
+            return (
+              <Form onSubmit={this.onSubmit} noValidate>
+                <Icon name='Close' onClick={this.props.onRequestClose} />
+                <h4>Transfer Token</h4>
+                <InputLabel>From</InputLabel>
+                <Input
+                  normalPlaceholder='acc_0x000000000000000'
+                  value={this.state.fromAddress}
+                  onChange={this.onChangeInputFromAddress}
+                />
+                <InputLabel>To Address</InputLabel>
+                <Input
+                  normalPlaceholder='acc_0x000000000000000'
+                  value={this.state.toAddress}
+                  onChange={this.onChangeInputToAddress}
+                />
+                <InputLabel>Token</InputLabel>
+                <Select
+                  normalPlaceholder='Token'
+                  onSelect={this.onSelect}
+                  options={
+                    wallet
+                      ? wallet.balances.map(b => ({
+                        ...{
+                          key: b.token.id,
+                          value: `${b.token.name} (${b.token.symbol})`
+                        },
+                        ...b
+                      }))
+                      : []
+                  }
+                />
+                <BalanceTokenLabel>
+                  Balance:{' '}
+                  {this.state.selectedToken
+                    ? (this.state.selectedToken.amount /
+                      _.get(this.state.selectedToken, 'token.subunit_to_unit'))
+                    : '-'}{' '}
+                </BalanceTokenLabel>
+                <InputLabel>Amount</InputLabel>
+                <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
+                <ButtonContainer>
+                  <Button size='small' type='submit' loading={this.state.submitting}>
+                    Transfer
+                  </Button>
+                </ButtonContainer>
+                <Error error={this.state.error}>{this.state.error}</Error>
+              </Form>
+            )
+          }}
+        />
       </Modal>
     )
   }

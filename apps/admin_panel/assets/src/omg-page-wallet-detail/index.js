@@ -116,7 +116,7 @@ class TokenDetailPage extends Component {
           </ContentDetailContainer>
         </ContentContainer>
         <CreateTransactionModal
-          wallet={wallet}
+          walletAddress={wallet.address}
           onRequestClose={this.onRequestClose}
           open={this.state.createTransactionModalOpen}
         />
