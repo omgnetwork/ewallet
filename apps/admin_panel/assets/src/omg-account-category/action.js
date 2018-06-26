@@ -7,7 +7,7 @@ export const createCategory = ({ name, description, accountId }) => async dispat
       accountId
     })
     if (result.data.success) {
-      dispatch({ type: 'CATEGORY/CREATE/SUCCESS', category: result.data.data })
+      dispatch({ type: 'CATEGORY/CREATE/SUCCESS', category: result.data.data.data })
     } else {
       dispatch({ type: 'CATEGORY/CREATE/FAILED', error: result.data.data })
     }

@@ -5,7 +5,7 @@ import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
-import TokenProvider from '../omg-token/TokensProvider'
+import TokenFetcher from '../omg-token/TokensFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -120,7 +120,7 @@ class TokenDetailPage extends Component {
 
   render () {
     return (
-      <TokenProvider
+      <TokenFetcher
         render={this.renderTokenDetailPage}
         {...this.state}
         {...this.props}

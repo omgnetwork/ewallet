@@ -6,7 +6,7 @@ import PropTypes from 'prop-types'
 import AccountSelectorMenu from './AccountSelectorMenu'
 import withClickOutsideEnhancer from '../enhancer/clickOutside'
 import { compose } from 'recompose'
-import AccountsProvider from '../omg-account/accountsProvider'
+import AccountsFetcher from '../omg-account/accountsFetcher'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { switchAccount } from '../omg-account-current/action'
@@ -61,7 +61,7 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
     }
     render () {
       return (
-        <AccountsProvider
+        <AccountsFetcher
           render={({ accounts }) => {
             return (
               <AccountSelectorMenu
