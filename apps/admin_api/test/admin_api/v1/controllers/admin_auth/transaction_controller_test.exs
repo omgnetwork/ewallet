@@ -375,9 +375,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["success"] == true
       assert response["data"]["object"] == "transaction"
 
-      assert response["data"]["from"]["token_id"] == token_1.id
-      assert response["data"]["from"]["account"]["id"] == token_1.id
-       == %{
+      assert response["data"]["from"] == %{
                "address" => wallet_1.address,
                "amount" => 1_000,
                "object" => "transaction_source",
