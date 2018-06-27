@@ -25,7 +25,7 @@ class WalletProvider extends Component {
 export default connect(
   (state, props) => {
     return {
-      wallet: selectWalletById(props.walletAddress)(state)
+      wallet: selectWalletById(state)(props.walletAddress)
     }
   },
   { getWalletById }

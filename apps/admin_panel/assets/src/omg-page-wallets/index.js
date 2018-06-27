@@ -37,11 +37,24 @@ class WalletPage extends Component {
     super(props)
     this.state = {
       createAccountModalOpen: false,
-      exportModalOpen: false
+      exportModalOpen: false,
+      loadMoreTime: 1
     }
   }
+
+  componentWillReceiveProps = nextProps => {
+    const search = queryString.parse(this.props.location.search).search
+    const nextSearch = queryString.parse(nextProps.location.search).search
+    if (search !== nextSearch) {
+      this.setState({ loadMoreTime: 1 })
+    }
+  }
+
   onClickExport = () => {
     this.setState({ exportModalOpen: true })
+  }
+  onClickLoadMore = e => {
+    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
 
   onRequestCloseExport = () => {
@@ -76,7 +89,6 @@ class WalletPage extends Component {
         owner: wallet.user_id ? 'User' : 'Account',
         id: wallet.address,
         ...wallet
-
       }
     })
   }
@@ -90,23 +102,21 @@ class WalletPage extends Component {
     }
     return data
   }
-  renderWalletPage = ({ data: wallets, loadingStatus, pagination }) => {
+  renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation
-          title={'Wallets'}
-        />
+        <TopNavigation title={'Wallets'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
-            loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
-
+            loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
+            onClickLoadMore={this.onClickLoadMore}
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
@@ -122,7 +132,7 @@ class WalletPage extends Component {
         accountId={this.props.match.params.accountId}
         render={this.renderWalletPage}
         query={{
-          page: queryString.parse(this.props.location.search).page,
+          page: this.state.loadMoreTime,
           perPage: 15,
           search: queryString.parse(this.props.location.search).search
         }}

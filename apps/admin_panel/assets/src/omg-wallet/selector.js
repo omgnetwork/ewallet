@@ -13,14 +13,14 @@ export const selectWalletsByAccountId = (state, search, accountId) => {
 }
 export const selectWalletsCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(tokenId => {
-    return selectWalletById(tokenId)(state)
+    return selectWalletById(state)(tokenId)
   })
 }
 export const selectWalletsCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
 export const selectWalletsLoadingStatus = state => state.walletsLoadingStatus
-export const selectWalletById = id => state => state.wallets[id]
+export const selectWalletById = state => id => state.wallets[id]
 export const selectWalletByUserId = userId => state => {
   return _.values(state.wallets).find(wallet => {
     return wallet.user_id === userId

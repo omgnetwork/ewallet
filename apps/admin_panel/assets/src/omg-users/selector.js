@@ -16,7 +16,7 @@ export const selectUsersCachedQuery = state => cacheKey => {
     return selectGetUserById(state)(tokenId)
   })
 }
-export const selectUsersAllPagesCachedQuery = createSelectAllPagesCachedQuery(selectGetUserById)
+
 export const selectUsersCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
@@ -29,4 +29,7 @@ export const selectUserWithWallet = userId =>
   })
 
 export const selectUsersLoadingStatus = state => state.usersLoadingStatus
+
 export const selectGetUserById = state => id => state.users[id]
+
+export const selectUsersAllPagesCachedQuery = createSelectAllPagesCachedQuery(selectGetUserById)

@@ -42,14 +42,20 @@ class UsersPage extends Component {
       loadMoreTime: 1
     }
   }
-  componentWillReceiveProps = (nextProps) => {
+  componentWillReceiveProps = nextProps => {
     const search = queryString.parse(this.props.location.search).search
     const nextSearch = queryString.parse(nextProps.location.search).search
     if (search !== nextSearch) {
-      this.setState({loadMoreTime: 1})
+      this.setState({ loadMoreTime: 1 })
     }
   }
-
+  onClickRow = (data, index) => e => {
+    const { params } = this.props.match
+    this.props.history.push(`/${params.accountId}/user/${data.id}`)
+  }
+  onClickLoadMore = e => {
+    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
+  }
   onClickExport = () => {
     this.setState({ exportModalOpen: true })
   }
@@ -94,13 +100,7 @@ class UsersPage extends Component {
     }
     return data
   }
-  onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/user/${data.id}`)
-  }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
-  }
+
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
     return (
       <UserPageContainer>

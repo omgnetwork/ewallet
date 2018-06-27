@@ -32,8 +32,17 @@ class TokenDetailPage extends Component {
   }
   state = {
     createTokenModalOpen: false,
-    exportModalOpen: false
+    exportModalOpen: false,
+    loadMoreTime: 1
   }
+  componentWillReceiveProps = nextProps => {
+    const search = queryString.parse(this.props.location.search).search
+    const nextSearch = queryString.parse(nextProps.location.search).search
+    if (search !== nextSearch) {
+      this.setState({ loadMoreTime: 1 })
+    }
+  }
+
   onClickCreateToken = () => {
     this.setState({ createTokenModalOpen: true })
   }
@@ -45,6 +54,10 @@ class TokenDetailPage extends Component {
   }
   onRequestCloseExport = () => {
     this.setState({ exportModalOpen: false })
+  }
+
+  onClickLoadMore = e => {
+    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
 
   renderExportButton = () => {
@@ -79,7 +92,7 @@ class TokenDetailPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/token/${data.id}`)
   }
-  renderTokenDetailPage = ({ data: tokens, loadingStatus, pagination }) => {
+  renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination }) => {
     const data = tokens.map(token => {
       return {
         key: token.id,
@@ -101,13 +114,14 @@ class TokenDetailPage extends Component {
         <SortableTable
           rows={data}
           columns={columns}
-          loading={loadingStatus !== 'SUCCESS'}
+          loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
           perPage={20}
           onClickRow={this.onClickRow}
           rowRenderer={this.rowRenderer}
           isFirstPage={pagination.is_first_page}
           isLastPage={pagination.is_last_page}
           navigation
+          onClickLoadMore={this.onClickLoadMore}
         />
 
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
@@ -126,7 +140,7 @@ class TokenDetailPage extends Component {
         {...this.state}
         {...this.props}
         query={{
-          page: queryString.parse(this.props.location.search).page,
+          page: this.state.loadMoreTime,
           perPage: 15,
           search: queryString.parse(this.props.location.search).search
         }}
