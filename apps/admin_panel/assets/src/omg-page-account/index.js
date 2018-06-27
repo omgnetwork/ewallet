@@ -21,6 +21,10 @@ const AccountPageContainer = styled.div`
   th:first-child {
     width: 50%;
   }
+  th:nth-child(2),
+  th:nth-child(3) {
+    width: 25%;
+  }
 `
 const SortableTableContainer = styled.div`
   position: relative;
