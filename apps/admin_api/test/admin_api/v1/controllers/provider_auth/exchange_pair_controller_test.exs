@@ -56,7 +56,8 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
     end
 
     test "returns 'exchange:pair_id_not_found' if the given ID was not found" do
-      response = provider_request("/exchange_pair.get", %{"id" => "exg_12345678901234567890123456"})
+      response =
+        provider_request("/exchange_pair.get", %{"id" => "exg_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
