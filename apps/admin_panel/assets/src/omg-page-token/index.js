@@ -114,7 +114,7 @@ class TokenDetailPage extends Component {
         <SortableTable
           rows={data}
           columns={columns}
-          loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
+          loadingStatus={individualLoadingStatus}
           perPage={20}
           onClickRow={this.onClickRow}
           rowRenderer={this.rowRenderer}

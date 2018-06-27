@@ -8,10 +8,6 @@ const StyledPagination = styled(Pagination)`
   margin: 20px auto;
 `
 const TableContainer = styled.div``
-const LoadingTh = styled.th`
-  padding-right: 10px !important;
-  padding-left: 10px !important;
-`
 class Table extends Component {
   static propTypes = {
     columns: PropTypes.array,
@@ -46,9 +42,9 @@ class Table extends Component {
   renderLoadingColumns = () => {
     return new Array(this.props.loadingColNumber).fill().map((x, i) => {
       return (
-        <LoadingTh key={`col-header-${i}`}>
+        <th key={`col-header-${i}`}>
           <LoadingSkeleton height={'25px'} />
-        </LoadingTh>
+        </th>
       )
     })
   }

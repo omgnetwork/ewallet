@@ -16,8 +16,15 @@ const ApiKeyContainer = styled.div`
     margin-bottom: 20px;
   }
   table {
-    width: 100%;
+    width: 1000px;
     text-align: left;
+    th:first-child {
+      width: 25%;
+    }
+    th:nth-child(2),
+    th:nth-child(3) {
+      width: 25%;
+    }
     thead {
       tr {
         background-color: ${props => props.theme.colors.S200};
@@ -45,7 +52,6 @@ const ApiKeyContainer = styled.div`
   }
 `
 const KeySection = styled.div`
-  max-width: 700px;
   h3 {
     font-size: 18px;
     font-weight: 400;
@@ -56,6 +62,10 @@ const KeySection = styled.div`
   }
 `
 const KeySectionEwallet = KeySection.extend`
+  width: 100%;
+  h3,p {
+    max-width: 800px;
+  }
   td {
     color: ${props => props.theme.colors.B200};
   }

@@ -199,7 +199,7 @@ class AccountSettingPage extends Component {
                     rows={rows}
                     columns={columns}
                     perPage={99999}
-                    loading={loadingStatus === 'DEFAULT'}
+                    loadingStatus={loadingStatus}
                     loadingRowNumber={7}
                     navigation={false}
                   />

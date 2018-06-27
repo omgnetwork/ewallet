@@ -102,6 +102,7 @@ class UsersPage extends Component {
   }
 
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
+    console.log(individualLoadingStatus)
     return (
       <UserPageContainer>
         <TopNavigation title={'Users'} />
@@ -109,7 +110,7 @@ class UsersPage extends Component {
           <SortableTable
             rows={this.getRow(users)}
             columns={this.getColumns(users)}
-            loading={individualLoadingStatus === 'INITIATED'}
+            loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
@@ -133,7 +134,7 @@ class UsersPage extends Component {
         render={this.renderUserPage}
         query={{
           page: this.state.loadMoreTime,
-          perPage: 15,
+          perPage: 5,
           search: queryString.parse(this.props.location.search).search
         }}
       />

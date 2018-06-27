@@ -28,9 +28,6 @@ const AccountPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
-  table {
-    opacity: ${props => props.loadingStatus === 'SUCCESS' ? 1 : 0.5};
-  }
 `
 const NameColumn = styled.div`
   > span {
@@ -130,7 +127,6 @@ class AccountPage extends Component {
     return data
   }
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetchAll }) => {
-    console.log(individualLoadingStatus)
     return (
       <AccountPageContainer>
         <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
@@ -138,9 +134,7 @@ class AccountPage extends Component {
           <SortableTable
             rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
-            loading={
-              individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'
-            }
+            loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}

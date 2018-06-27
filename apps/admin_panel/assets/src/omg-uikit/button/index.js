@@ -29,6 +29,7 @@ export default class Button extends PureComponent {
 
   render () {
     const Button = buttonMapStyle[this.props.styleType]
+
     return (
       <Button
         onClick={this.props.onClick}

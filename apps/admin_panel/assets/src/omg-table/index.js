@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Table, Icon } from '../omg-uikit'
+import { Table, Icon, Button } from '../omg-uikit'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
@@ -14,10 +14,18 @@ export const ThContent = styled.div`
   font-weight: 600;
   color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
 `
+const LoadMoreButton = styled(Button)`
+  padding-top: 5px;
+  padding-bottom: 5px;
+  i {
+    margin-right: 5px;
+  }
+`
 const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
+    opacity: ${props => (props.loading ? 0.5 : 1)};
     thead {
       tr {
         border-top: 1px solid ${props => props.theme.colors.S400};
@@ -58,14 +66,9 @@ const TableContainer = styled.div`
     }
   }
 `
-const Navigation = styled.div`
-  display: inline-block;
-  padding: 10px;
-  cursor: ${props => (props.disable ? 'auto' : 'pointer')};
-  opacity: ${props => (props.disable ? 0.3 : 1)}};
-`
 const NavigationContainer = styled.div`
-  text-align: right;
+  text-align: center;
+  padding-top: 40px;
 `
 
 class SortableTable extends PureComponent {
@@ -74,7 +77,7 @@ class SortableTable extends PureComponent {
     location: PropTypes.object,
     rows: PropTypes.array,
     columns: PropTypes.array,
-    loading: PropTypes.bool,
+    loadingStatus: PropTypes.bool,
     perPage: PropTypes.number,
     rowRenderer: PropTypes.func,
     onClickRow: PropTypes.func,
@@ -213,7 +216,9 @@ class SortableTable extends PureComponent {
 
   render () {
     return (
-      <TableContainer>
+      <TableContainer
+        loading={this.props.loadingStatus === 'PENDING' || this.props.loadingStatus === 'INITIATED'}
+      >
         <Table
           {...this.props}
           columns={this.props.columns}
@@ -223,18 +228,27 @@ class SortableTable extends PureComponent {
           rowRenderer={this.props.rowRenderer}
           onClickRow={this.props.onClickRow}
           onClickPagination={this.onClickPagination}
-          loading={this.props.loading}
+          loading={
+            this.props.loadingStatus === 'INITIATED' || this.props.loadingStatus === 'DEFAULT'
+          }
           pagination={this.props.pagination}
           page={this.getPage()}
           perPage={this.props.perPage}
         />
-        {this.props.navigation && (
-          <NavigationContainer>
-            <Navigation onClick={this.props.onClickLoadMore} disable={this.props.isLastPage}>
-              Load More...
-            </Navigation>
-          </NavigationContainer>
-        )}
+        {this.props.navigation &&
+          this.props.loadingStatus !== 'INITIATED' && (
+            <NavigationContainer>
+              <LoadMoreButton
+                styleType='secondary'
+                onClick={this.props.onClickLoadMore}
+                disabled={this.props.isLastPage}
+                size='small'
+              >
+                <Icon name='Chevron-Down' />
+                <span>Load More...</span>
+              </LoadMoreButton>
+            </NavigationContainer>
+          )}
       </TableContainer>
     )
   }
@@ -268,7 +282,7 @@ class SortHeader extends React.Component {
   }
 }
 const FilterHeader = withDropdownState(
-  class extends React.Component {
+  class FilterHeader extends React.Component {
     static propTypes = {
       filterOptions: PropTypes.array,
       onClickButton: PropTypes.func,

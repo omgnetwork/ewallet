@@ -110,7 +110,7 @@ class WalletPage extends Component {
           <SortableTable
             rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
-            loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
+            loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}

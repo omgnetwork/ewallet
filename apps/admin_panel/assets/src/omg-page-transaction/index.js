@@ -196,7 +196,7 @@ class TransactionPage extends Component {
           columns={columns}
           rowRenderer={this.rowRenderer}
           perPage={15}
-          loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
+          loadingStatus={individualLoadingStatus}
           isFirstPage={pagination.is_first_page}
           isLastPage={pagination.is_last_page}
           navigation
