@@ -187,8 +187,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransferControllerTest do
                  "code" => "transaction:insufficient_funds",
                  "description" =>
                    "The specified wallet (#{wallet1.address}) does not " <>
-                     "contain enough funds. Available: 0.0 #{token.id} - " <>
-                     "Attempted debit: 100000.0 #{token.id}",
+                     "contain enough funds. Available: 0 #{token.id} - " <>
+                     "Attempted debit: 100000 #{token.id}",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -517,8 +517,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransferControllerTest do
                  "code" => "transaction:insufficient_funds",
                  "description" =>
                    "The specified wallet (#{user_wallet.address})" <>
-                     " does not contain enough funds. Available: 0.0 " <>
-                     "#{token.id} - Attempted debit: 1000.0 " <> "#{token.id}",
+                     " does not contain enough funds. Available: 0 " <>
+                     "#{token.id} - Attempted debit: 1000 " <> "#{token.id}",
                  "messages" => nil,
                  "object" => "error"
                }

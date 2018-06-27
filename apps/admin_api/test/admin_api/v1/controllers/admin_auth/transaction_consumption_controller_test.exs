@@ -900,9 +900,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                  "messages" => nil,
                  "code" => "transaction:insufficient_funds",
                  "description" =>
-                   "The specified wallet (#{meta.account_wallet.address}) does not contain enough funds. Available: 0.0 #{
+                   "The specified wallet (#{meta.account_wallet.address}) does not contain enough funds. Available: 0 #{
                      meta.token.id
-                   } - Attempted debit: 100000.0 #{meta.token.id}"
+                   } - Attempted debit: 100000 #{meta.token.id}"
                }
              }
 
