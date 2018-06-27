@@ -79,16 +79,19 @@ a {
 
 /* global css style for transition group  */
 .fade-enter {
-  opacity: 0.01;
+  opacity: 0!important;
+  transition: opacity 0.3s ease-in;
 }
 .fade-enter-active {
-  opacity: 1;
-  transition: opacity 0.1s ease-in;
+  opacity: 1!important;
+  transition: opacity 0.3s ease-in;
 }
 .fade-exit {
-  opacity: 1;
+  opacity: 0!important; 
+  transition: opacity 0.3s ease-in;
 }
 .fade-exit-active {
-  opacity: 0.01;
-  transition: opacity 0.1s ease-in;
+  transition: opacity 0.3s ease-in;
+  opacity: 0!important;
+  transition: opacity 0.3s ease-in;
 }

@@ -217,7 +217,7 @@ class SortableTable extends PureComponent {
   render () {
     return (
       <TableContainer
-        loading={this.props.loadingStatus === 'PENDING' || this.props.loadingStatus === 'INITIATED'}
+        loading={this.props.loadingStatus === 'PENDING'}
       >
         <Table
           {...this.props}

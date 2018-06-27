@@ -25,6 +25,9 @@ const TransactionPageContainer = styled.div`
       text-overflow: ellipsis;
     }
   }
+  td:nth-child(1) {
+    width: 30%;
+  }
   td:nth-child(3) {
     width: 20%;
   }
@@ -39,11 +42,15 @@ const TransactionIdContainer = styled.div`
     margin-right: 5px;
   }
 `
-const StatusContainer = TransactionIdContainer.extend`
+const StatusContainer = styled.div`
+  white-space: nowrap;
+  span {
+    vertical-align: middle;
+  }
   i {
+    color: ${props => props.theme.colors.BL400};
     color: white;
     font-size: 10px;
-    margin: 0;
   }
 `
 const Sign = styled.span`

@@ -17,8 +17,14 @@ const UserPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  th:first-child {
-    width: 50%;
+  td:first-child {
+    width: 40%;
+  }
+  td:nth-child(2),
+  td:nth-child(3),
+  td:nth-child(4),
+   {
+    width: 20%;
   }
 `
 const SortableTableContainer = styled.div`

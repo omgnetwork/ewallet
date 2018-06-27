@@ -19,7 +19,14 @@ const columns = [
   { key: 'email', title: 'EMAIL', sort: true },
   { key: 'since', title: 'MEMBER SINCE', sort: true }
 ]
-const AccountSettingContainer = styled.div``
+const AccountSettingContainer = styled.div`
+  td:first-child {
+    width: 10%;
+  }
+  td:nth-child(3) {
+    width: 40%;
+  }
+`
 const ProfileSection = styled.div`
   min-width: 250px;
   max-width: 30%;

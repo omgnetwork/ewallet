@@ -18,11 +18,11 @@ const AccountPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  th:first-child {
+  td:first-child {
     width: 50%;
   }
-  th:nth-child(2),
-  th:nth-child(3) {
+  td:nth-child(2),
+  td:nth-child(3) {
     width: 25%;
   }
 `

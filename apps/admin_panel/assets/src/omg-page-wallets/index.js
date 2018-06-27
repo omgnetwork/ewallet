@@ -16,13 +16,14 @@ const WalletPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  /* th:first-child, td:first-child {
-    width: 200px;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  } */
+  td:first-child {
+    width: 40%;
+  }
+  td:nth-child(2),
+  td:nth-child(3),
+  td:nth-child(4) {
+    width: 20%;
+  }
 `
 const SortableTableContainer = styled.div`
   position: relative;

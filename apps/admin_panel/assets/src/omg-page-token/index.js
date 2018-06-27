@@ -17,6 +17,13 @@ const TokenDetailPageContainer = styled.div`
   > div {
     flex: 1;
   }
+  td:first-child {
+    width: 50%;
+  }
+  td:nth-child(2),
+  td:nth-child(3) {
+    width: 25%;
+  }
 `
 const columns = [
   { key: 'token', title: 'TOKEN NAME', sort: true },

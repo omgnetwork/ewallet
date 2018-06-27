@@ -3,11 +3,13 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { LoadingSkeleton } from '../../omg-uikit'
 import Pagination from './Pagination'
-
+import Fade from '../../omg-transition/Fade'
 const StyledPagination = styled(Pagination)`
   margin: 20px auto;
 `
-const TableContainer = styled.div``
+const TableContainer = styled.div`
+  position: relative;
+`
 class Table extends Component {
   static propTypes = {
     columns: PropTypes.array,
@@ -40,18 +42,26 @@ class Table extends Component {
     }
   }
   renderLoadingColumns = () => {
-    return new Array(this.props.loadingColNumber).fill().map((x, i) => {
-      return (
-        <th key={`col-header-${i}`}>
-          <LoadingSkeleton height={'25px'} />
-        </th>
-      )
-    })
+    return (
+      <tr>
+        {new Array(this.props.loadingColNumber).fill().map((x, i) => {
+          return (
+            <th key={`col-header-${i}`}>
+              <LoadingSkeleton height={'25px'} />
+            </th>
+          )
+        })}
+      </tr>
+    )
   }
   renderColumns = () => {
-    return this.props.columnRenderer
-      ? this.props.columns.map(x => this.props.columnRenderer(x))
-      : this.props.columns.map(x => <th key={x.key}>{x.title}</th>)
+    return (
+      <tr>
+        {this.props.columnRenderer
+          ? this.props.columns.map(x => this.props.columnRenderer(x))
+          : this.props.columns.map(x => <th key={x.key}>{x.title}</th>)}
+      </tr>
+    )
   }
   renderHeaderRows = () => {
     return <tr>{this.props.loading ? this.renderLoadingColumns() : this.renderColumns()}</tr>
@@ -90,24 +100,39 @@ class Table extends Component {
       )
     })
   }
-  renderRows = () => {
-    return this.props.loading ? this.renderLoadingRows() : this.renderDataRows()
-  }
   render () {
     return (
       <TableContainer innerRef={table => (this.table = table)}>
-        <table>
-          <thead>{this.renderHeaderRows()}</thead>
-          <tbody>{this.renderRows()}</tbody>
-        </table>
-        {(!this.props.loading && this.props.pagination) && (
-          <StyledPagination
-            itemCounts={this.props.rows.length}
-            perPage={this.props.perPage}
-            activeKey={this.props.page}
-            onClickPagination={this.onClickPagination}
-          />
-        )}
+        <Fade in={this.props.loading} timeout={300} key={'loadung'} unmountOnExit>
+          {state => {
+            return (
+              <table style={{ position: 'absolute', background: 'white' }}>
+                {/* <thead>{this.renderLoadingColumns()}</thead> */}
+                <tbody>{this.renderLoadingRows()}</tbody>
+              </table>
+            )
+          }}
+        </Fade>
+        <Fade in={!this.props.loading} timeout={300} key={'data'} unmountOnExit appear>
+          {state => {
+            return (
+              <table>
+                <thead>{this.renderColumns()}</thead>
+                <tbody>{this.renderDataRows()}</tbody>
+              </table>
+            )
+          }}
+        </Fade>
+
+        {!this.props.loading &&
+          this.props.pagination && (
+            <StyledPagination
+              itemCounts={this.props.rows.length}
+              perPage={this.props.perPage}
+              activeKey={this.props.page}
+              onClickPagination={this.onClickPagination}
+            />
+          )}
       </TableContainer>
     )
   }

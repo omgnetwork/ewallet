@@ -18,11 +18,11 @@ const ApiKeyContainer = styled.div`
   table {
     width: 1000px;
     text-align: left;
-    th:first-child {
+    td:first-child {
       width: 25%;
     }
-    th:nth-child(2),
-    th:nth-child(3) {
+    td:nth-child(2),
+    td:nth-child(3) {
       width: 25%;
     }
     thead {
