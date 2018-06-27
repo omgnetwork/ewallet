@@ -8,7 +8,7 @@ export const transfer = ({ fromAddress, toAddress, tokenId, amount }) => async d
       amount
     })
     if (result.data.success) {
-      return dispatch({ type: 'TRANSACTION/CREATE/SUCCESS', transaction: result.data.data })
+      return dispatch({ type: 'TRANSACTION/CREATE/SUCCESS', data: result.data.data })
     } else {
       return dispatch({ type: 'TRANSACTION/CREATE/FAILED', error: result.data.data })
     }
