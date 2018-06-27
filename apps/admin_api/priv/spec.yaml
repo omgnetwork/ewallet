@@ -56,6 +56,8 @@ tags:
     description: Resources related to users.
   - name: Token
     description: Resources related to tokens.
+  - name: ExchangePair
+    description: Resources related to exchange pairs.
   - name: Category
     description: Resources related to categories.
   - name: Account
@@ -292,6 +294,90 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/TokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  #####################################
+  #      EXCHANGE PAIR ENDPOINTS      #
+  #####################################
+  /exchange_pair.all:
+    post:
+      tags:
+        - ExchangePair
+      summary: Get the list of exchange pairs
+      operationId: exchange_pair_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ExchangePairAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/ExchangePairsResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /exchange_pair.get:
+    post:
+      tags:
+        - ExchangePair
+      summary: Get the a specific exchange pair by its id
+      operationId: exchange_pair_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ExchangePairGetBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/ExchangePairResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /exchange_pair.create:
+    post:
+      tags:
+        - ExchangePair
+      summary: Create a new exchange pair
+      operationId: exchange_pair_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ExchangePairCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/ExchangePairResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /exchange_pair.update:
+    post:
+      tags:
+        - ExchangePair
+      summary: Update an existing exchange pair by its id
+      operationId: exchange_pair_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ExchangePairUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/ExchangePairResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /exchange_pair.delete:
+    post:
+      tags:
+        - ExchangePair
+      summary: Delete an exchange pair by its id
+      operationId: exchange_pair_delete
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/ExchangePairDeleteBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/ExchangePairResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -736,7 +822,7 @@ paths:
   /user.get_transactions:
     post:
       tags:
-        - Transaction
+        - User
       summary: Get the list of transactions for the given user
       operationId: get_all_transactions_for_user
       requestBody:
@@ -976,7 +1062,7 @@ paths:
   ############################
   # TRANSACTION CONSUMPTIONS #
   ############################
-  /account.get_consumptions:
+  /account.get_transaction_consumptions:
     post:
       tags:
         - Account
@@ -992,7 +1078,7 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /user.get_consumptions:
+  /user.get_transaction_consumptions:
     post:
       tags:
         - User
@@ -1008,7 +1094,7 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /wallet.get_consumptions:
+  /wallet.get_transaction_consumptions:
     post:
       tags:
         - Wallet
@@ -1024,7 +1110,7 @@ paths:
           $ref: "#/components/responses/TransactionConsumptionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /transaction_request.get_consumptions:
+  /transaction_request.get_transaction_consumptions:
     post:
       tags:
         - TransactionRequest
@@ -1657,6 +1743,139 @@ components:
                   transaction: {}
                   created_at: "2018-01-01T00:00:00Z"
                   updated_at: "2018-01-01T00:00:00Z"
+              pagination:
+                per_page: 10
+                current_page: 1
+                is_first_page: true
+                is_last_page: true
+
+    ######################################
+    #        EXCHANGE PAIR SCHEMAS       #
+    ######################################
+    ExchangePairSchema:
+      description: "The object schema for an exchange pair"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        from_token_id:
+          type: string
+        from_token:
+          $ref: '#/components/schemas/TokenSchema'
+        to_token_id:
+          type: string
+        to_token:
+          $ref: '#/components/schemas/TokenSchema'
+        rate:
+          type: float
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - name
+        - from_token_id
+        - from_token
+        - to_token_id
+        - to_token
+        - rate
+        - created_at
+        - updated_at
+    ExchangePairResponseSchema:
+      description: "The response schema for an exchange pair"
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              $ref: '#/components/schemas/ExchangePairSchema'
+          required:
+            - data
+          example:
+            version: "1"
+            success: true
+            data:
+              object: "exchange_pair"
+              id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+              name: "ETH/OMG"
+              from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+              from_token:
+                object: "token"
+                id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+                symbol: "ABC"
+                name: "Ethereum"
+                subunit_to_unit: 100
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+              to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+              to_token:
+                object: "token"
+                id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+                symbol: "OMG"
+                name: "OmiseGO"
+                subunit_to_unit: 100
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+              rate: 0.017
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T10:00:00Z"
+    ExchangePairsResponseSchema:
+      description: "The response schema for a list of exchange pairs"
+      allOf:
+        - $ref: '#/components/schemas/BaseResponseSchema'
+        - type: object
+          properties:
+            data:
+              type: object
+              allOf:
+                - $ref: '#/components/schemas/PaginatedListSchema'
+                - type: object
+                  properties:
+                    data:
+                      type: array
+                      items:
+                        $ref: '#/components/schemas/ExchangePairSchema'
+          required:
+            - data
+          example:
+            version: "1"
+            success: true
+            data:
+              object: "list"
+              data:
+                - object: "exchange_pair"
+                  id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+                  name: "ETH/OMG"
+                  from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+                  from_token:
+                    object: "token"
+                    id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+                    symbol: "ABC"
+                    name: "Ethereum"
+                    subunit_to_unit: 100
+                    created_at: "2018-01-01T00:00:00Z"
+                    updated_at: "2018-01-01T10:00:00Z"
+                  to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+                  to_token:
+                    object: "token"
+                    id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+                    symbol: "OMG"
+                    name: "OmiseGO"
+                    subunit_to_unit: 100
+                    created_at: "2018-01-01T00:00:00Z"
+                    updated_at: "2018-01-01T10:00:00Z"
+                  rate: 0.017
+                  created_at: "2018-01-01T00:00:00Z"
+                  updated_at: "2018-01-01T10:00:00Z"
               pagination:
                 per_page: 10
                 current_page: 1
@@ -3287,7 +3506,6 @@ components:
                 id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
                 amount: 1000
 
-
     ######################################
     #               MINT BODIES          #
     ######################################
@@ -3320,6 +3538,106 @@ components:
               search_term: ""
               sort_by: "field_name"
               sort_dir: "asc"
+
+    ######################################
+    #        EXCHANGE PAIR BODIES        #
+    ######################################
+    ExchangePairAllBody:
+      description: The parameters to use for listing the exchange pairs
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    ExchangePairGetBody:
+      description: The parameters to use for retrieving a specific exchange pair by its id
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+    ExchangePairCreateBody:
+        description: The parameters to create an exchange pair.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                name:
+                  type: string
+                from_token_id:
+                  type: string
+                to_token_id:
+                  type: string
+                rate:
+                  type: float
+              required:
+                - name
+                - from_token_id
+                - to_token_id
+                - rate
+              example:
+                name: "ETH/OMG"
+                from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+                to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+                rate: 0.017
+    ExchangePairUpdateBody:
+        description: The parameters to update an exchange pair.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+                name:
+                  type: string
+                rate:
+                  type: float
+              required:
+                - id
+              example:
+                id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+                name: "ETH/OMG updated name"
+                rate: 0.099
+    ExchangePairDeleteBody:
+        description: The parameters to delete an exchange pair.
+        required: true
+        content:
+          application/vnd.omisego.v1+json:
+            schema:
+              properties:
+                id:
+                  type: string
+              required:
+                - id
+              example:
+                id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
 
     ###########################################
     #         CATEGORY REQUEST BODIES         #
@@ -4459,7 +4777,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              transaction_request_id:
+              formatted_transaction_request_id:
                 type: string
               page:
                 type: integer
@@ -4475,9 +4793,9 @@ components:
                 type: string
                 enum: ["asc", "desc"]
             required:
-              - transaction_request_id
+              - formatted_transaction_request_id
             example:
-              transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
+              formatted_transaction_request_id: "txr_01cbfg8mafdnbthgb9e68nd9y9"
               page: 1
               per_page: 10
               search_terms: {}
@@ -4697,6 +5015,22 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/MintsResponseSchema'
+
+    ######################################
+    #       EXCHANGE PAIR RESPONSES      #
+    ######################################
+    ExchangePairResponse:
+      description: "Returns a single exchange pair"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/ExchangePairResponseSchema'
+    ExchangePairsResponse:
+      description: "Returns a list of exchange pairs"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/ExchangePairsResponseSchema'
 
     ######################################
     #          CATEGORY RESPONSES        #
