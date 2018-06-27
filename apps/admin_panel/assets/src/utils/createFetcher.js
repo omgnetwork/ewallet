@@ -42,7 +42,7 @@ export const createFetcher = (entity, reducer, selectors) => {
         super(props)
         this.fetchDebounce = _.debounce(this.fetch, 300, {
           leading: true,
-          trailing: false
+          trailing: true
         })
       }
       static getDerivedStateFromProps (props, state) {

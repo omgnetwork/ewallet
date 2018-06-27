@@ -103,7 +103,7 @@ class AppLayout extends Component {
     this.setState({ switchAccount: true })
   }
   scrollTopContentContainer = () => {
-    ReactDOM.findDOMNode(this.contentContainer).scrollTo(0, 0)
+    this.contentContainer.scrollTo(0, 0)
   }
   render () {
     return (
