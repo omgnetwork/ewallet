@@ -93,6 +93,7 @@ defmodule EWalletDB.Wallet do
 
   defp shared_changeset(changeset) do
     changeset
+    |> validate_immutable(:address)
     |> unique_constraint(:address)
     |> assoc_constraint(:account)
     |> assoc_constraint(:user)
