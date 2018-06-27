@@ -40,8 +40,11 @@ const TransactionIdContainer = styled.div`
   }
 `
 const StatusContainer = TransactionIdContainer.extend`
-  i {
+  i[name=Close] {
     color: red;
+  }
+  i[name=Checkmark] {
+    color: green;
   }
 `
 const Sign = styled.span`
@@ -124,7 +127,7 @@ class TransactionPage extends Component {
     if (key === 'status') {
       return (
         <StatusContainer>
-          <Icon name='Close' /> <span>{data}</span>
+          {data === 'failed' ? <Icon name='Close' /> : <Icon name='Checkmark' />} <span>{data}</span>
         </StatusContainer>
       )
     }
@@ -151,7 +154,7 @@ class TransactionPage extends Component {
       )
     }
     if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      return moment(data).format('DD/MM/YYYY hh:mm:ss')
     }
     return data
   }
