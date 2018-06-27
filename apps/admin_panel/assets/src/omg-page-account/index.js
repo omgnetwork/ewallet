@@ -130,6 +130,7 @@ class AccountPage extends Component {
     return data
   }
   renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetchAll }) => {
+    console.log(individualLoadingStatus)
     return (
       <AccountPageContainer>
         <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />

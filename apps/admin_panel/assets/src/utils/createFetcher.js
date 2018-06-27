@@ -45,19 +45,13 @@ export const createFetcher = (entity, reducer, selectors) => {
           trailing: true
         })
       }
-      static getDerivedStateFromProps (props, state) {
-        const diff = _.differenceBy(props.data, state.data, d => d.id)
-        if (diff.length > 0) {
-          return { loadingStatus: CONSTANT.LOADING_STATUS.PENDING, data: props.data }
-        }
-        return null
-      }
       componentDidMount = () => {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
         this.fetch()
       }
       componentDidUpdate = async nextProps => {
         if (this.props.cacheKey !== nextProps.cacheKey) {
+          this.fetched = false
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.PENDING })
           await this.fetchDebounce()
         }
@@ -73,24 +67,36 @@ export const createFetcher = (entity, reducer, selectors) => {
               cacheKey: `${JSON.stringify({ ...this.props.query, page, entity })}`
             })
           })
-          Promise.all(promises)
+          await Promise.all(promises)
+          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS, data: this.props.data })
         } catch (error) {
           console.log('cannot fetch all cache query with error', error)
         }
       }
       fetch = async () => {
         try {
-          const result = await this.props.dispatcher({ ...this.props, ...this.props.query })
-          if (result.data) {
-            this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS })
-            this.props.onFetchComplete()
-          } else {
-            this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
-          }
+          this.props.dispatcher({ ...this.props, ...this.props.query }).then(result => {
+            this.fetched = true
+            if (result.data) {
+              this.setState({
+                loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+                data: this.props.data
+              })
+              this.props.onFetchComplete()
+            } else {
+              this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+            }
+            this.setState({ data: this.props.data })
+          })
+          setTimeout(() => {
+            if (!this.fetched) {
+              this.setState({ data: this.props.data })
+              console.log('fetching data taking too long... using cached data.')
+            }
+          }, 3000)
         } catch (error) {
-          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: this.props.data })
         }
-        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS })
       }
 
       render () {
