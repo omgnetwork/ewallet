@@ -1,72 +1,135 @@
 defmodule LocalLedger.Transaction do
   @moduledoc """
-  This module is responsible for preparing and formatting the transactions
-  before they are passed to an entry to be inserted in the database.
+  This module is an interface to the LocalLedgerDB schemas and contains the logic
+  needed to insert valid transactions and entries.
   """
-  alias LocalLedgerDB.{Wallet, Token, Transaction}
+  alias LocalLedgerDB.{Repo, Transaction, Errors.InsufficientFundsError}
+
+  alias LocalLedger.{
+    Entry,
+    Wallet,
+    Errors.InvalidAmountError,
+    Errors.AmountNotPositiveError,
+    Errors.SameAddressError
+  }
+
+  alias LocalLedger.Transaction.Validator
 
   @doc """
-  Get or insert the given token and all the given addresses before
-  building a map representation usable by the LocalLedgerDB schemas.
+  Retrieve all transactions from the database.
   """
-  def build_all({debits, credits}, token) do
-    {:ok, token} = Token.get_or_insert(token)
-    sending = format(token, debits, Transaction.debit_type())
-    receiving = format(token, credits, Transaction.credit_type())
-
-    sending ++ receiving
+  def all do
+    {:ok, Transaction.all()}
   end
 
   @doc """
-  Extract the list of DEBIT addresses.
+  Retrieve a specific transaction from the database.
   """
-  def get_addresses(transactions) do
-    transactions
-    |> Enum.filter(fn transaction ->
-      transaction[:type] == Transaction.debit_type()
-    end)
-    |> Enum.map(fn transaction -> transaction[:wallet_address] end)
+  def get(id) do
+    {:ok, Transaction.one(id)}
   end
 
-  # Build a list of wallet maps with the required details for DB insert.
-  defp format(token, wallets, type) do
-    Enum.map(wallets, fn attrs ->
-      {:ok, wallet} = Wallet.get_or_insert(attrs)
+  @doc """
+  Retrieve a specific transaction based on a correlation ID from the database.
+  """
+  def get_by_idempotency_token(idempotency_token) do
+    {:ok, Transaction.get_by_idempotency_token(idempotency_token)}
+  end
+
+  @doc """
+  Insert a new transaction and the associated entries. If they are not already
+  present, a new token and new wallets will be created.
+
+  ## Parameters
+
+    - attrs: a map containing the following keys
+      - metadata: a map containing metadata for this transaction
+      - debits: a list of debit entries to process (see example)
+      - credits: a list of credit entries to process (see example)
+      - token: the token associated with this transaction
+    - genesis (boolean, default to false): if set to true, this argument will
+      allow the debit wallets to go into the negative.
+
+  ## Errors
+
+    - InsufficientFundsError: This error will be raised if a debit is requested
+      from an address which does not have enough funds.
+    - InvalidAmountError: This error will be raised if the sum of all debits
+      and credits in this transaction is not equal to 0.
+    - AmountNotPositiveError: This error will be raised if any of the provided amount
+      is less than or equal to 0.
+
+  ## Examples
+
+      Transaction.insert(%{
+        metadata: %{},
+        debits: [%{
+          address: "an_address",
+          amount: 100,
+          metadata: %{}
+        }],
+        credits: [%{
+          address: "another_address",
+          amount: 100,
+          metadata: %{}
+        }],
+        idempotency_token: "123"
+      })
+
+  """
+  def insert(
+        %{
+          "metadata" => metadata,
+          "entries" => entries,
+          "idempotency_token" => idempotency_token
+        },
+        %{genesis: genesis},
+        callback \\ nil
+      ) do
+    entries
+    |> Validator.validate_different_addresses()
+    |> Validator.validate_positive_amounts()
+    |> Validator.validate_zero_sum()
+    |> Entry.build_all()
+    |> locked_insert(metadata, idempotency_token, genesis, callback)
+  rescue
+    e in SameAddressError ->
+      {:error, :same_address, e.message}
+
+    e in AmountNotPositiveError ->
+      {:error, :amount_is_zero, e.message}
+
+    e in InvalidAmountError ->
+      {:error, :invalid_amount, e.message}
+
+    e in InsufficientFundsError ->
+      {:error, :insufficient_funds, e.message}
+  end
+
+  # Lock all the DEBIT addresses to ensure the truthness of the wallets
+  # amounts, before inserting one transaction and the associated entries.
+  # If the genesis argument is passed as true, the balance check will be
+  # skipped.
+  defp locked_insert(entries, metadata, idempotency_token, genesis, callback) do
+    addresses = Entry.get_addresses(entries)
+
+    Wallet.lock(addresses, fn ->
+      if callback, do: callback.()
+
+      Entry.check_balance(entries, %{genesis: genesis})
 
       %{
-        type: type,
-        amount: attrs["amount"],
-        token_id: token.id,
-        wallet_address: wallet.address
+        idempotency_token: idempotency_token,
+        entries: entries,
+        metadata: metadata
       }
-    end)
-  end
+      |> Transaction.get_or_insert()
+      |> case do
+        {:ok, transaction} ->
+          transaction
 
-  @doc """
-  Match when genesis is set to true and does... nothing.
-  """
-  def check_balance(_, %{genesis: true}) do
-    :ok
-  end
-
-  @doc """
-  Match when genesis is false and run the wallet check.
-  """
-  def check_balance(transactions, %{genesis: _}) do
-    check_balance(transactions)
-  end
-
-  @doc """
-  Check the current wallet amount for each DEBIT transaction.
-  """
-  def check_balance(transactions) do
-    Enum.each(transactions, fn transaction ->
-      if transaction[:type] == Transaction.debit_type() do
-        Transaction.check_balance(%{
-          amount: transaction[:amount],
-          token_id: transaction[:token_id],
-          address: transaction[:wallet_address]
-        })
+        {:error, error} ->
+          Repo.rollback(error)
       end
     end)
   end

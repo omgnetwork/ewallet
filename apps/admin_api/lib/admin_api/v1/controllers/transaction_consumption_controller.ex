@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def always_embed, do: [:token]
 
   @mapped_fields %{"created_at" => "inserted_at"}
-  @preload_fields [:account, :user, :wallet, :token, :transaction_request, :transfer]
+  @preload_fields [:account, :user, :wallet, :token, :transaction_request, :transaction]
   @search_fields [:id, :status, :correlation_id, :idempotency_token]
   @sort_fields [
     :id,

@@ -1,6 +1,6 @@
 defmodule LocalLedgerDB.Errors.InsufficientFundsError do
   defexception message: "This wallet does not contain enough funds
-                         for this transaction."
+                         for this entry."
 
   def error_message(current_amount, %{
         amount: amount_to_debit,

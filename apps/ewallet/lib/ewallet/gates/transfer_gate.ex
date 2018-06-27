@@ -2,28 +2,31 @@ defmodule EWallet.TransferGate do
   @moduledoc """
   Handles the logic for a transfer of value between two addresses.
   """
-  alias EWallet.TransferFormatter
-  alias LocalLedger.Entry
-  alias EWalletDB.{Token, Transfer}
+  alias EWallet.TransactionFormatter
+  alias EWalletDB.{Account, Token, Transaction}
+  alias LocalLedger.Transaction, as: LedgerTransaction
 
   @doc """
-  Gets or inserts a transfer using the given idempotency token and other given attributes.
+  Gets or inserts a transaction using the given idempotency token and other given attributes.
 
   ## Examples
 
-    res = Transactions.Transfer.get_or_insert(%{
+    res = TransferGate.get_or_insert(%{
       idempotency_token: "84bafebf-9776-4cb0-a7f7-8b1e5c7ec830",
       from: "c4f829d0-fe85-4b4c-a326-0c46f26b47c5",
       to: "f084d20b-6aa7-4231-803f-a0d8d938f939",
-      token_id: "f7ef021b-95bf-45c8-990f-743ca99d742a",
-      amount: 10,
+      from_amount: 10,
+      from_token_id: "tok_OMG_1234567890990f743ca99d742a",
+      to_amount: 10,
+      to_token_id: "tok_OMG_1234567890990f743ca99d742a",
+      exchange_account_id: nil,
       metadata: %{},
       encrypted_metadata: %{},
       payload: %{}
     })
 
     case res do
-      {:ok, transfer} ->
+      {:ok, transaction} ->
         # Everything went well, do something.
       {:error, changeset} ->
         # Something went wrong with the Transfer insert.
@@ -35,72 +38,88 @@ defmodule EWallet.TransferGate do
           idempotency_token: _,
           from: _,
           to: _,
-          token_id: _,
-          amount: _,
+          from_amount: _,
+          from_token_id: _,
+          to_amount: _,
+          from_token_id: _,
+          exchange_account_id: _,
           payload: _
         } = attrs
       ) do
     attrs
-    |> Map.put(:type, Transfer.internal())
-    |> Map.put(:token_uuid, Token.get_by(id: attrs.token_id).uuid)
-    |> Transfer.get_or_insert()
+    |> Map.put(:type, Transaction.internal())
+    |> Map.put(:from_token_uuid, Token.get_by(id: attrs.from_token_id).uuid)
+    |> Map.put(:to_token_uuid, Token.get_by(id: attrs.to_token_id).uuid)
+    |> Map.put(
+      :exchange_account_uuid,
+      case attrs.exchange_account_id do
+        nil ->
+          nil
+
+        id ->
+          case Account.get(id) do
+            %Account{uuid: uuid} -> uuid
+            _ -> nil
+          end
+      end
+    )
+    |> Transaction.get_or_insert()
   end
 
   @doc """
-  Process a transfer and sends the transaction to the ledger(s).
+  Process a transaction and sends the transaction to the ledger(s).
 
   ## Examples
 
-    res = Transactions.Transfer.process(transfer)
+    res = TransferGate.process(transaction)
 
     case res do
-      {:ok, transfer} ->
+      {:ok, transaction} ->
         # Everything went well, do something.
       {:error, code, description} ->
-        # Something went wrong with the transfer processing.
+        # Something went wrong with the transaction processing.
     end
 
   """
-  def process(transfer) do
-    transfer
-    |> TransferFormatter.format()
-    |> Entry.insert(%{genesis: false})
-    |> update_transfer(transfer)
+  def process(transaction) do
+    transaction
+    |> TransactionFormatter.format()
+    |> LedgerTransaction.insert(%{genesis: false})
+    |> update_transaction(transaction)
   end
 
   @doc """
-  Process a genesis transfer and sends the transaction to the ledger(s).
+  Process a genesis transaction and sends the transaction to the ledger(s).
 
   ## Examples
 
-    res = Transactions.Transfer.genesis(transfer)
+    res = TransferGate.genesis(transaction)
 
     case res do
-      {:ok, transfer} ->
+      {:ok, transaction} ->
         # Everything went well, do something.
       {:error, code, description} ->
-        # Something went wrong with the transfer processing.
+        # Something went wrong with the transaction processing.
     end
 
   """
-  def genesis(transfer) do
-    transfer
-    |> TransferFormatter.format()
-    |> Entry.insert(%{genesis: true})
-    |> update_transfer(transfer)
+  def genesis(transaction) do
+    transaction
+    |> TransactionFormatter.format()
+    |> LedgerTransaction.insert(%{genesis: true})
+    |> update_transaction(transaction)
   end
 
-  defp update_transfer(_, %Transfer{entry_uuid: entry_uuid, error_code: error_code} = transfer)
-       when entry_uuid != nil
-       when error_code != nil do
-    transfer
+  defp update_transaction(_, %Transaction{local_ledger_uuid: uuid, error_code: code} = txn)
+       when uuid != nil or code != nil do
+    txn
   end
 
-  defp update_transfer({:ok, entry}, transfer) do
-    Transfer.confirm(transfer, entry.uuid)
+  defp update_transaction({:ok, tranasction}, transaction) do
+    Transaction.confirm(transaction, tranasction.uuid)
   end
 
-  defp update_transfer({:error, code, description}, transfer) do
-    Transfer.fail(transfer, code, description)
+  defp update_transaction({:error, code, description}, transaction) do
+    Transaction.fail(transaction, code, description)
   end
 end

@@ -69,15 +69,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   end
 
   defp error_code(consumption) do
-    consumption = Preloader.preload(consumption, :transfer)
+    consumption = Preloader.preload(consumption, :transaction)
 
     case consumption.status do
       "failed" ->
-        transfer = consumption.transfer
+        transaction = consumption.transaction
 
         %{
-          code: transfer.error_code,
-          description: transfer.error_description || transfer.error_data
+          code: transaction.error_code,
+          description: transaction.error_description || transaction.error_data
         }
 
       "expired" ->

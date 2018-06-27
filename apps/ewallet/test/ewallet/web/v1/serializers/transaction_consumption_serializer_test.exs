@@ -20,7 +20,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
       consumption =
         TransactionConsumption.get(
           request.id,
-          preload: [:token, :transfer, :transaction_request, :user]
+          preload: [:token, :transaction, :transaction_request, :user]
         )
 
       expected = %{
@@ -33,8 +33,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         token: TokenSerializer.serialize(consumption.token),
         correlation_id: consumption.correlation_id,
         idempotency_token: consumption.idempotency_token,
-        transaction_id: Assoc.get(consumption, [:transfer, :id]),
-        transaction: TransactionSerializer.serialize(consumption.transfer),
+        transaction_id: Assoc.get(consumption, [:transaction, :id]),
+        transaction: TransactionSerializer.serialize(consumption.transaction),
         user_id: Assoc.get(consumption, [:user, :id]),
         user: UserSerializer.serialize(consumption.user),
         account_id: nil,

@@ -8,11 +8,11 @@ defmodule LocalLedgerDB.Factory do
 
   def token_factory do
     %Token{
-      id: "tok_OMG_123",
+      id: sequence("tok_OMG_"),
       metadata: %{
         external_id: %{
           app: "EWallet",
-          uuid: "123"
+          uuid: sequence("uuid")
         }
       }
     }
@@ -20,18 +20,18 @@ defmodule LocalLedgerDB.Factory do
 
   def wallet_factory do
     %Wallet{
-      address: "address",
+      address: sequence("address"),
       metadata: %{
         external_id: %{
           app: "EWallet",
-          uuid: "123"
+          uuid: sequence("uuid")
         }
       }
     }
   end
 
-  def entry_factory do
-    %Entry{
+  def transaction_factory do
+    %Transaction{
       idempotency_token: UUID.generate(),
       metadata: %{
         merchant_id: "123"
@@ -39,36 +39,36 @@ defmodule LocalLedgerDB.Factory do
     }
   end
 
-  def empty_transaction_factory do
+  def empty_entry_factory do
     %{
       amount: 150,
-      type: Transaction.credit_type()
+      type: Entry.credit_type()
     }
   end
 
   def credit_factory do
-    %Transaction{
+    %Entry{
       amount: 150,
-      type: Transaction.credit_type(),
-      entry_uuid: insert(:entry).uuid
+      type: Entry.credit_type(),
+      transaction_uuid: insert(:transaction).uuid
     }
   end
 
   def debit_factory do
-    %Transaction{
+    %Entry{
       amount: 150,
-      type: Transaction.debit_type(),
-      entry_uuid: insert(:entry).uuid
+      type: Entry.debit_type(),
+      transaction_uuid: insert(:transaction).uuid
     }
   end
 
-  def transaction_factory do
-    %Transaction{
+  def entry_factory do
+    %Entry{
       amount: 10_000,
-      type: Transaction.credit_type(),
+      type: Entry.credit_type(),
       token_id: insert(:token).id,
       wallet_address: insert(:wallet).address,
-      entry_uuid: insert(:entry).uuid
+      transaction_uuid: insert(:transaction).uuid
     }
   end
 end

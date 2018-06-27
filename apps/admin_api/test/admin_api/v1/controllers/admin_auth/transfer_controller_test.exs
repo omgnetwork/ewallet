@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.TransferControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{User, Token, Account, Transfer}
+  alias EWalletDB.{User, Token, Account, Transaction}
   alias Ecto.UUID
   alias EWallet.Web.Date
   alias EWallet.Web.V1.UserSerializer
@@ -59,9 +59,9 @@ defmodule AdminAPI.V1.AdminAuth.TransferControllerTest do
           encrypted_metadata: %{something: "secret"}
         })
 
-      transfer = get_last_inserted(Transfer)
-      assert transfer.metadata == %{"something" => "interesting"}
-      assert transfer.encrypted_metadata == %{"something" => "secret"}
+      transaction = get_last_inserted(Transaction)
+      assert transaction.metadata == %{"something" => "interesting"}
+      assert transaction.encrypted_metadata == %{"something" => "secret"}
 
       assert response == %{
                "success" => true,
@@ -359,9 +359,9 @@ defmodule AdminAPI.V1.AdminAuth.TransferControllerTest do
                }
              }
 
-      transfer = get_last_inserted(Transfer)
-      assert transfer.metadata == %{"something" => "interesting"}
-      assert transfer.encrypted_metadata == %{"something" => "secret"}
+      transaction = get_last_inserted(Transaction)
+      assert transaction.metadata == %{"something" => "interesting"}
+      assert transaction.encrypted_metadata == %{"something" => "secret"}
     end
 
     test "returns invalid_parameter when the provider_user_id is missing" do
@@ -610,9 +610,9 @@ defmodule AdminAPI.V1.AdminAuth.TransferControllerTest do
                }
              }
 
-      transfer = get_last_inserted(Transfer)
-      assert transfer.metadata == %{"something" => "interesting"}
-      assert transfer.encrypted_metadata == %{"something" => "secret"}
+      transaction = get_last_inserted(Transaction)
+      assert transaction.metadata == %{"something" => "interesting"}
+      assert transaction.encrypted_metadata == %{"something" => "secret"}
     end
   end
 end
