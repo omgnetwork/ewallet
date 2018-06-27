@@ -15,7 +15,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_version: %{
       code: "client:invalid_version",
       description: "Invalid API version",
-      template: "Invalid API version Given: '{accept}'."
+      template: "Invalid API version Given: '%{accept}'."
     },
     invalid_parameter: %{
       code: "client:invalid_parameter",
@@ -52,9 +52,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
       template:
-        "The specified wallet ({address}) does not contain enough funds. " <>
-          "Available: {current_amount} {token_id} - Attempted debit: " <>
-          "{amount_to_debit} {token_id}"
+        "The specified wallet (%{address}) does not contain enough funds. " <>
+          "Available: %{current_amount} %{token_id} - Attempted debit: " <>
+          "%{amount_to_debit} %{token_id}"
     },
     inserted_transaction_could_not_be_loaded: %{
       code: "db:inserted_transaction_could_not_be_loaded",
@@ -71,7 +71,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     same_address: %{
       code: "transaction:same_address",
-      description: "Found identical addresses in senders and receivers: {address}."
+      description: "Found identical addresses in senders and receivers: %{address}."
     },
     from_address_not_found: %{
       code: "user:from_address_not_found",
@@ -310,14 +310,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
   defp build_template(data, template) do
     Enum.reduce(data, template, fn {k, v}, desc ->
-      String.replace(desc, "{#{k}}", "#{v}")
+      String.replace(desc, "%{#{k}}", "#{v}")
     end)
   end
 
   defp stringify_errors(changeset, description) do
-    Enum.reduce(changeset.errors, description, fn {field, {description, _values}}, acc ->
+    Enum.reduce(changeset.errors, description, fn {field, {description, values}}, acc ->
       field = field |> stringify_field() |> replace_uuids()
-      acc <> " " <> field <> " " <> description <> "."
+      acc <> " " <> field <> " " <> build_template(values, description) <> "."
     end)
   end
 
@@ -347,12 +347,17 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
   defp error_fields(changeset) do
     errors =
-      traverse_errors(changeset, fn {_message, opts} ->
-        validation = Keyword.get(opts, :validation)
+      traverse_errors(changeset, fn {message, opts} ->
+        case opts do
+          [] ->
+            message
 
-        # Maps Ecto.changeset validation to be more meaningful
-        # to send to the client.
-        Map.get(@validation_mapping, validation, validation)
+          _ ->
+            validation = Keyword.get(opts, :validation)
+            # Maps Ecto.changeset validation to be more meaningful
+            # to send to the client.
+            Map.get(@validation_mapping, validation, validation)
+        end
       end)
 
     errors
