@@ -159,7 +159,7 @@ class CreateTransactionModal extends Component {
       <Modal
         isOpen={this.props.open}
         style={customStyles}
-        onRequestClose={this.props.onRequestClose}
+        onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
       >
         <WalletProvider
