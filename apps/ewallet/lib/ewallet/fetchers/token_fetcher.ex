@@ -4,40 +4,26 @@ defmodule EWallet.TokenFetcher do
   """
   alias EWalletDB.{Account, Token}
 
-  def fetch_from(%{"token_id" => token_id}, from) do
+  def fetch(%{"token_id" => token_id}, from, to) do
     with %Token{} = token <- Token.get_by(id: token_id) do
-      from = Map.put(from, :from_token, token)
-      {:ok, from}
+      {:ok, Map.put(from, :from_token, token), Map.put(to, :to_token, token)}
     else
       _error -> {:error, :token_not_found}
     end
   end
 
-  def fetch_from(%{"from_token_id" => from_token_id}, from) do
-    with %Token{} = token <- Token.get_by(id: from_token_id) do
-      from = Map.put(from, :from_token, token)
-      {:ok, from}
+  def fetch(%{"from_token_id" => from_token_id, "to_token_id" => to_token_id}, from, to) do
+    with %Token{} = from_token <- Token.get_by(id: from_token_id) || :from_token_not_found,
+         %Token{} = to_token <- Token.get_by(id: to_token_id) || :to_token_not_found do
+      {:ok, Map.put(from, :from_token, from_token), Map.put(to, :to_token, to_token)}
     else
-      _error -> {:error, :from_token_not_found}
+      error -> {:error, error}
     end
   end
 
-  def fetch_to(%{"token_id" => token_id}, to) do
-    with %Token{} = token <- Token.get_by(id: token_id) do
-      to = Map.put(to, :to_token, token)
-      {:ok, to}
-    else
-      _error -> {:error, :token_not_found}
-    end
-  end
-
-  def fetch_to(%{"to_token_id" => to_token_id}, to) do
-    with %Token{} = token <- Token.get_by(id: to_token_id) do
-      to = Map.put(to, :to_token, token)
-      {:ok, to}
-    else
-      _error -> {:error, :to_token_not_found}
-    end
+  def fetch(_, _from, _to) do
+    {:error, :invalid_parameter,
+     "'token_id' or a pair 'from_token_id'/'to_token_id' is required."}
   end
 
   def fetch_exchange_account(%{
@@ -55,7 +41,7 @@ defmodule EWallet.TokenFetcher do
             {:error, :exchange_account_not_found}
 
           account ->
-            {:ok, account}
+            {:ok, account.uuid}
         end
     end
   end

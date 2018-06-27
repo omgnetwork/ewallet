@@ -511,7 +511,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided",
+               "description" => "'amount' is not a number: fake",
                "messages" => nil,
                "object" => "error"
              }

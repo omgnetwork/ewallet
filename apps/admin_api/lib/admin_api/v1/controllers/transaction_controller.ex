@@ -162,6 +162,10 @@ defmodule AdminAPI.V1.TransactionController do
     handle_error(conn, code, description)
   end
 
+  defp respond_single({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
   defp respond_single({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end

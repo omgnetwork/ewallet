@@ -10,12 +10,10 @@ defmodule EWallet.TransactionGate do
   def create(attrs) do
     with {:ok, from} <- TransactionSourceFetcher.fetch_from(attrs),
          {:ok, to} <- TransactionSourceFetcher.fetch_to(attrs),
-         {:ok, from} <- TokenFetcher.fetch_from(attrs, from),
-         {:ok, to} <- TokenFetcher.fetch_to(attrs, to),
-         {:ok, from} <- AmountFetcher.fetch_from(attrs, from),
-         {:ok, to} <- AmountFetcher.fetch_to(attrs, to),
-         {:ok, exchange_account} <- TokenFetcher.fetch_exchange_account(attrs),
-         {:ok, transaction} <- get_or_insert(from, to, exchange_account, attrs) do
+         {:ok, from, to} <- TokenFetcher.fetch(attrs, from, to),
+         {:ok, from, to} <- AmountFetcher.fetch(attrs, from, to),
+         {:ok, exchange_account_uuid} <- TokenFetcher.fetch_exchange_account(attrs),
+         {:ok, transaction} <- get_or_insert(from, to, exchange_account_uuid, attrs) do
       process_with_transaction(transaction)
     else
       error when is_atom(error) -> {:ok, error}
@@ -43,7 +41,7 @@ defmodule EWallet.TransactionGate do
   def get_or_insert(
         from,
         to,
-        exchange_account,
+        exchange_account_uuid,
         %{
           "idempotency_token" => idempotency_token
         } = attrs
@@ -60,7 +58,7 @@ defmodule EWallet.TransactionGate do
       to_amount: to.to_amount,
       from_token_uuid: from.from_token.uuid,
       to_token_uuid: to.to_token.uuid,
-      exchange_account: exchange_account,
+      exchange_account_uuid: exchange_account_uuid,
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       payload: attrs,
