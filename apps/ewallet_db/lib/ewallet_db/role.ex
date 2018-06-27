@@ -4,13 +4,14 @@ defmodule EWalletDB.Role do
   """
   use Ecto.Schema
   import Ecto.Changeset
-  alias Ecto.UUID
+  alias Ecto.{UUID, Query}
   alias EWalletDB.{Repo, Membership, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "role" do
     field(:name, :string)
+    field(:priority, :integer)
     field(:display_name, :string)
 
     many_to_many(
@@ -25,8 +26,8 @@ defmodule EWalletDB.Role do
 
   defp changeset(%Role{} = key, attrs) do
     key
-    |> cast(attrs, [:name, :display_name])
-    |> validate_required(:name)
+    |> cast(attrs, [:priority, :name, :display_name])
+    |> validate_required([:name, :priority])
     |> unique_constraint(:name)
   end
 
@@ -34,6 +35,15 @@ defmodule EWalletDB.Role do
   Creates a new role with the passed attributes.
   """
   def insert(attrs) do
+    last_role = Role |> Query.last(:inserted_at) |> Repo.one()
+
+    attrs = case last_role do
+      nil ->
+        Map.put(attrs, :priority, 0)
+      role ->
+        Map.put(attrs, :priority, role.priority + 1)
+    end
+
     %Role{}
     |> changeset(attrs)
     |> Repo.insert()

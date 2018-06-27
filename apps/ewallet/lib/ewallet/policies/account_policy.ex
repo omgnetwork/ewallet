@@ -3,6 +3,7 @@ defmodule EWallet.AccountPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
+  alias EWallet.Helper
   alias EWalletDB.{Account, Membership, Role}
 
   # Allowed for any role, filtering is
@@ -53,13 +54,10 @@ defmodule EWallet.AccountPolicy do
          ancestors_uuids <- Enum.map(ancestors, fn ancestor -> ancestor.uuid end),
          membership_accounts_uuids <-
            Enum.map(memberships, fn membership -> membership.account_uuid end) do
-      case intersect(ancestors_uuids, membership_accounts_uuids) do
+      case Helper.intersect(ancestors_uuids, membership_accounts_uuids) do
         [] -> false
         _ -> true
       end
     end
   end
-
-  # Move this to a helper!
-  defp intersect(a, b), do: a -- a -- b
 end

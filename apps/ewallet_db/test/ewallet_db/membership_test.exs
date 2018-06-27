@@ -76,6 +76,10 @@ defmodule EWalletDB.MembershipTest do
       assert res == :error
       assert reason == :role_not_found
     end
+
+    test "prevents a user from being assigned if he is already an ancestor" do
+
+    end
   end
 
   describe "Membership.unassign/2" do

@@ -126,7 +126,8 @@ defmodule EWalletDB.Factory do
   def role_factory do
     %Role{
       name: sequence("role"),
-      display_name: "Role display name"
+      display_name: "Role display name",
+      priority: sequence("")
     }
   end
 
