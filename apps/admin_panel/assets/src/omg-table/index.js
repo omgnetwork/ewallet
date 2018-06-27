@@ -80,7 +80,9 @@ class SortableTable extends PureComponent {
     onClickRow: PropTypes.func,
     isLastPage: PropTypes.bool,
     isFirstPage: PropTypes.bool,
-    navigation: PropTypes.bool
+    navigation: PropTypes.bool,
+    onClickLoadMore: PropTypes.func,
+    pagination: PropTypes.bool
   }
 
   onSelectFilter = (col, item) => {
@@ -103,13 +105,14 @@ class SortableTable extends PureComponent {
   }
   onClickSort = col => {
     const searchObject = queryString.parse(this.props.location.search)
-    const key = `sort-${col.key}`
-    const sortOrder = searchObject[key]
+    const sortOrderKey = 'sort-order'
+    const sortByKey = 'sort-by'
+    const sortOrder = searchObject[sortOrderKey]
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        ...{ [key]: sortOrder === 'asc' ? 'desc' : 'asc' },
-        ...{ 'main-sort': col.key }
+        ...{ [sortOrderKey]: sortOrder === 'asc' ? 'desc' : 'asc' },
+        ...{ [sortByKey]: col.key }
       })
     })
   }
@@ -139,19 +142,18 @@ class SortableTable extends PureComponent {
       })
     }
   }
+
   columnRenderer = col => {
     const searchObject = queryString.parse(this.props.location.search)
-    const key = `sort-${col.key}`
-    const sortOrder = searchObject[key]
     const filter = searchObject[`filter-${col.key}`]
     if (col.sort) {
       return (
         <SortHeader
           key={col.key}
           col={col}
-          active={searchObject['main-sort'] === col.key}
+          active={searchObject['sort-by'] === col.key}
+          sortOrder={searchObject['sort-order']}
           onClickSort={this.onClickSort}
-          sortOrder={sortOrder}
         />
       )
     }
@@ -189,19 +191,9 @@ class SortableTable extends PureComponent {
       },
       {}
     )
-    const sortQuery = _.reduce(
-      queryString.parse(this.props.location.search),
-      (prev, curr, key) => {
-        const split = key.split('-')
-        if (split[0] === 'sort') prev[split[1]] = curr
-        return prev
-      },
-      {}
-    )
-    const mainSort = queryString.parse(this.props.location.search)['main-sort']
-    const sortKeys = _.uniq([mainSort, ..._.keys(sortQuery)])
-    const sortOrders = _.uniq([sortQuery[mainSort], ..._.values(sortQuery)])
-    return shouldFilter
+    const sortBy = [queryString.parse(this.props.location.search)['sort-by']]
+    const sortOrder = [queryString.parse(this.props.location.search)['sort-order']]
+    const result = shouldFilter
       ? _
           .chain(this.props.rows)
           .filter(d => {
@@ -213,9 +205,10 @@ class SortableTable extends PureComponent {
               true
             )
           })
-          .orderBy(sortKeys, sortOrders)
+          .orderBy(sortBy, sortOrder)
           .value()
       : this.props.rows
+    return result
   }
 
   render () {
@@ -226,21 +219,19 @@ class SortableTable extends PureComponent {
           columns={this.props.columns}
           rows={this.getFilteredData()}
           columnRenderer={this.columnRenderer}
-          rowRenderer={this.props.rowRenderer}
           onClickColumn={this.onClickColumn}
+          rowRenderer={this.props.rowRenderer}
           onClickRow={this.props.onClickRow}
           onClickPagination={this.onClickPagination}
           loading={this.props.loading}
+          pagination={this.props.pagination}
           page={this.getPage()}
           perPage={this.props.perPage}
         />
         {this.props.navigation && (
           <NavigationContainer>
-            <Navigation onClick={this.onClickPrev} disable={this.props.isFirstPage}>
-              Prev
-            </Navigation>
-            <Navigation onClick={this.onClickNext} disable={this.props.isLastPage}>
-              Next
+            <Navigation onClick={this.props.onClickLoadMore} disable={this.props.isLastPage}>
+              Load More...
             </Navigation>
           </NavigationContainer>
         )}
@@ -264,7 +255,13 @@ class SortHeader extends React.Component {
       <th key={`col-header-${this.props.col.key}`} onClick={this.onClickSort}>
         <ThContent active={this.props.active}>
           <span>{this.props.col.title}</span>{' '}
-          {this.props.sortOrder === 'asc' ? <Icon name='Arrow-Up' /> : <Icon name='Arrow-Down' />}
+          {this.props.active ? (
+            this.props.sortOrder === 'asc' ? (
+              <Icon name='Arrow-Up' />
+            ) : (
+              <Icon name='Arrow-Down' />
+            )
+          ) : null}
         </ThContent>
       </th>
     )

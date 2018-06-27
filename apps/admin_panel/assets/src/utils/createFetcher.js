@@ -5,7 +5,7 @@ import { withProps, compose } from 'recompose'
 import CONSTANT from '../constants'
 export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(
-    withProps(props => ({ cacheKey: `${entity}:${JSON.stringify(props.query)}` })),
+    withProps(props => ({ cacheKey: `${JSON.stringify({ ...props.query, entity })}` })),
     connect(
       selectors,
       { dispatcher: reducer }
@@ -34,11 +34,12 @@ export const createFetcher = (entity, reducer, selectors) => {
       constructor (props) {
         super(props)
         this.fetchDebounce = _.debounce(this.fetch, 300, {
-          'leading': true,
-          'trailing': false
+          leading: true,
+          trailing: false
         })
       }
       componentDidMount = () => {
+        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
         this.fetch()
       }
       componentDidUpdate = async nextProps => {
@@ -46,9 +47,20 @@ export const createFetcher = (entity, reducer, selectors) => {
           await this.fetchDebounce()
         }
       }
+      fetchAll = async () => {
+        const page = this.props.query.page
+        const promises = new Array(page).fill().map((page, index) => {
+          return this.props.dispatcher({
+            ...this.props,
+            ...this.props.query,
+            page: index + 1,
+            cacheKey: `${JSON.stringify({ ...this.props.query, page: index + 1, entity })}`
+          })
+        })
+        Promise.all(promises)
+      }
       fetch = async () => {
         try {
-          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
           const result = await this.props.dispatcher({ ...this.props, ...this.props.query })
           if (result.data) {
             this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS })
@@ -67,7 +79,8 @@ export const createFetcher = (entity, reducer, selectors) => {
           ...this.props,
           ...this.props.query,
           individualLoadingStatus: this.state.loadingStatus,
-          fetch: this.fetch
+          fetch: this.fetch,
+          fetchAll: this.fetchAll
         })
       }
     }

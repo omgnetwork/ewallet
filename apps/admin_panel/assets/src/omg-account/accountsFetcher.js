@@ -2,13 +2,13 @@ import { createFetcher } from '../utils/createFetcher'
 import { getAccounts } from './action'
 import {
   selectAccountsLoadingStatus,
-  selectAccountsCachedQuery,
+  selectAccountsAllPagesCachedQuery,
   selectAccountsCachedQueryPagination,
   selectAccounts
 } from './selector'
 export default createFetcher('accounts', getAccounts, (state, props) => ({
   loadingStatus: selectAccountsLoadingStatus(state),
-  data: selectAccountsCachedQuery(state)(props.cacheKey),
+  data: selectAccountsAllPagesCachedQuery(state)(props.cacheKey),
   pagination: selectAccountsCachedQueryPagination(state)(props.cacheKey),
   accounts: selectAccounts(state)
 }))

@@ -104,7 +104,7 @@ class Table extends Component {
           <thead>{this.renderHeaderRows()}</thead>
           <tbody>{this.renderRows()}</tbody>
         </table>
-        {(!this.props.loading && !this.props.pagination) && (
+        {(!this.props.loading && this.props.pagination) && (
           <StyledPagination
             itemCounts={this.props.rows.length}
             perPage={this.props.perPage}
