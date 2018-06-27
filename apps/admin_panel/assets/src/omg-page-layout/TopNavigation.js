@@ -148,7 +148,7 @@ const SearchGroup = withRouter(
 
       componentDidMount = () => {
         if (this.input.value) {
-          this.input.focus()
+          this.setState({ searching: true })
         }
       }
 

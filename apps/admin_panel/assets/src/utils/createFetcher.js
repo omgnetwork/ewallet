@@ -31,7 +31,7 @@ export const createFetcher = (entity, reducer, selectors) => {
         cacheKey: PropTypes.string,
         data: PropTypes.array,
         pagination: PropTypes.object,
-        queriesByEntity: PropTypes.string
+        queriesByEntity: PropTypes.array
       }
       static defaultProps = {
         onFetchComplete: _.noop
@@ -48,8 +48,9 @@ export const createFetcher = (entity, reducer, selectors) => {
       static getDerivedStateFromProps (props, state) {
         const diff = _.differenceBy(props.data, state.data, d => d.id)
         if (diff.length > 0) {
-          return { data: props.data }
+          return { loadingStatus: CONSTANT.LOADING_STATUS.PENDING, data: props.data }
         }
+        return null
       }
       componentDidMount = () => {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
@@ -87,7 +88,6 @@ export const createFetcher = (entity, reducer, selectors) => {
             this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
           }
         } catch (error) {
-          console.log(error)
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
         }
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS })

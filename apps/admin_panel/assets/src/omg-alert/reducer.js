@@ -32,7 +32,6 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState(`Update user setting successfully.`)]
   },
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
-    console.log(transaction)
     return [...state, createAlertState(`Transfer successfully.`)]
   }
 

@@ -15,7 +15,9 @@ export const selectTokensCachedQueryPagination = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'pagination', {})
 }
 export const selectTokensLoadingStatus = state => state.tokensLoadingStatus
-export const selectGetTokenById = state => id => state.tokens[id]
+export const selectGetTokenById = state => id => {
+  return state.tokens[id]
+}
 
 export const selectTokensAllPagesCachedQuery = createSelectAllPagesCachedQuery(
   selectGetTokenById

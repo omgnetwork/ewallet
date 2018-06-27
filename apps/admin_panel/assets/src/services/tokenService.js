@@ -31,3 +31,10 @@ export function mintToken ({ id, amount }) {
     data: { id, amount: Number(amount) }
   })
 }
+
+export function getTokenById (id) {
+  return authenticatedRequest({
+    path: '/token.get',
+    data: { id }
+  })
+}

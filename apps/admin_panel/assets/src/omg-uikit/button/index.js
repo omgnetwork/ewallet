@@ -40,7 +40,7 @@ export default class Button extends PureComponent {
         styleType={this.props.styleType}
         type={this.props.type}
       >
-        <ReactLoading className='loading' type='bars' color='white' height='30px' width='30px' />
+        <ReactLoading className='loading' type='bars' color='white' height={30} width={30} />
         <Content loading={this.props.loading}>{this.props.children}</Content>
       </Button>
     )

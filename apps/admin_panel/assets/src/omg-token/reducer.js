@@ -5,8 +5,11 @@ export const tokensReducer = createReducer(
     'TOKENS/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, ..._.keyBy(data, 'id') }
     },
-    'TOKEN/CREATE/SUCCESS': (state, { token }) => {
-      return { ...state, [token.id]: token }
+    'TOKEN/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, [data.id]: data }
+    },
+    'TOKEN/CREATE/SUCCESS': (state, { data }) => {
+      return { ...state, [data.id]: data }
     },
     'CURRENT_ACCOUNT/SWITCH': () => {
       return {}

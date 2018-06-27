@@ -59,3 +59,17 @@ export const getTokens = ({ search, page, perPage, cacheKey }) => async dispatch
     return dispatch({ type: 'TOKENS/REQUEST/FAILED', error })
   }
 }
+
+export const getTokenById = id => async dispatch => {
+  try {
+    const result = await tokenSerivce.getTokenById(id)
+    if (result.data.success) {
+      dispatch({ type: 'TOKEN/REQUEST/SUCCESS', data: result.data.data })
+    } else {
+      dispatch({ type: 'TOKEN/REQUEST/FAILED', error: result.data.data })
+    }
+    return result
+  } catch (error) {
+    return dispatch({ type: 'TOKEN/REQUEST/FAILED', error })
+  }
+}
