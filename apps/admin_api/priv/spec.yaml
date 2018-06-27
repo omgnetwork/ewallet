@@ -1772,8 +1772,6 @@ components:
           $ref: '#/components/schemas/TokenSchema'
         rate:
           type: float
-        reversible:
-          type: boolean
         created_at:
           type: string
           format: date-time
@@ -1789,7 +1787,6 @@ components:
         - to_token_id
         - to_token
         - rate
-        - reversible
         - created_at
         - updated_at
     ExchangePairResponseSchema:
@@ -3599,20 +3596,16 @@ components:
                   type: string
                 rate:
                   type: float
-                reversible:
-                  type: boolean
               required:
                 - name
                 - from_token_id
                 - to_token_id
                 - rate
-                - reversible
               example:
                 name: "ETH/OMG"
                 from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
                 to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
                 rate: 0.017
-                reversible: true
     ExchangePairUpdateBody:
         description: The parameters to update an exchange pair.
         required: true
@@ -3626,15 +3619,12 @@ components:
                   type: string
                 rate:
                   type: float
-                reversible:
-                  type: boolean
               required:
                 - id
               example:
                 id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
                 name: "ETH/OMG updated name"
                 rate: 0.099
-                reversible: false
     ExchangePairDeleteBody:
         description: The parameters to delete an exchange pair.
         required: true

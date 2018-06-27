@@ -80,14 +80,12 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
 
   describe "/exchange_pair.create" do
     test "creates a new exchange pair and returns it" do
-      request_data =
-        %{
-          name: "Test exchange pair",
-          from_token_id: insert(:token).id,
-          to_token_id: insert(:token).id,
-          rate: 2.00,
-          reversible: true
-        }
+      request_data = %{
+        name: "Test exchange pair",
+        from_token_id: insert(:token).id,
+        to_token_id: insert(:token).id,
+        rate: 2.00
+      }
 
       response = admin_user_request("/exchange_pair.create", request_data)
 
@@ -97,7 +95,6 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       assert response["data"]["from_token_id"] == request_data.from_token_id
       assert response["data"]["to_token_id"] == request_data.to_token_id
       assert response["data"]["rate"] == 2.00
-      assert response["data"]["reversible"] == true
     end
 
     test "returns an error if a required parameter is not provided" do

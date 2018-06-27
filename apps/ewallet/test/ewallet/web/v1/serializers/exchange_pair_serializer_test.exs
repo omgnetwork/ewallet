@@ -17,7 +17,6 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
         to_token_id: exchange_pair.to_token.id,
         to_token: TokenSerializer.serialize(exchange_pair.to_token),
         rate: exchange_pair.rate,
-        reversible: exchange_pair.reversible,
         created_at: Date.to_iso8601(exchange_pair.inserted_at),
         updated_at: Date.to_iso8601(exchange_pair.updated_at)
       }
@@ -51,7 +50,6 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             to_token_id: exchange_pair1.to_token.id,
             to_token: TokenSerializer.serialize(exchange_pair1.to_token),
             rate: exchange_pair1.rate,
-            reversible: exchange_pair1.reversible,
             created_at: Date.to_iso8601(exchange_pair1.inserted_at),
             updated_at: Date.to_iso8601(exchange_pair1.updated_at)
           },
@@ -64,7 +62,6 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             to_token_id: exchange_pair2.to_token.id,
             to_token: TokenSerializer.serialize(exchange_pair2.to_token),
             rate: exchange_pair2.rate,
-            reversible: exchange_pair2.reversible,
             created_at: Date.to_iso8601(exchange_pair2.inserted_at),
             updated_at: Date.to_iso8601(exchange_pair2.updated_at)
           }
