@@ -15,7 +15,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_version: %{
       code: "client:invalid_version",
       description: "Invalid API version",
-      template: "Invalid API version Given: '{accept}'."
+      template: "Invalid API version Given: '%{accept}'."
     },
     invalid_parameter: %{
       code: "client:invalid_parameter",
@@ -52,9 +52,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
       template:
-        "The specified wallet ({address}) does not contain enough funds. " <>
-          "Available: {current_amount} {token_id} - Attempted debit: " <>
-          "{amount_to_debit} {token_id}"
+        "The specified wallet (%{address}) does not contain enough funds. " <>
+          "Available: %{current_amount} %{token_id} - Attempted debit: " <>
+          "%{amount_to_debit} %{token_id}"
     },
     inserted_transaction_could_not_be_loaded: %{
       code: "db:inserted_transaction_could_not_be_loaded",
@@ -71,7 +71,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     same_address: %{
       code: "transaction:same_address",
-      description: "Found identical addresses in senders and receivers: {address}."
+      description: "Found identical addresses in senders and receivers: %{address}."
     },
     from_address_not_found: %{
       code: "user:from_address_not_found",
@@ -310,14 +310,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
   defp build_template(data, template) do
     Enum.reduce(data, template, fn {k, v}, desc ->
-      String.replace(desc, "{#{k}}", "#{v}")
+      String.replace(desc, "%{#{k}}", "#{v}")
     end)
   end
 
   defp stringify_errors(changeset, description) do
     Enum.reduce(changeset.errors, description, fn {field, {description, values}}, acc ->
       field = field |> stringify_field() |> replace_uuids()
-      acc <> " " <> field <> " " <> replace_placeholders(description, values) <> "."
+      acc <> " " <> field <> " " <> build_template(values, description) <> "."
     end)
   end
 
@@ -365,12 +365,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
       {key |> replace_uuids() |> stringify_field(), value}
     end)
     |> Enum.into(%{})
-  end
-
-  defp replace_placeholders(string, values) do
-    Enum.reduce(values, string, fn {key, value}, acc ->
-      String.replace(acc, "%{#{key}}", "#{value}")
-    end)
   end
 
   defp replace_uuids(field) do
