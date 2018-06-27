@@ -123,7 +123,7 @@ paths:
       security:
         - ClientAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/ClientTransactionBody'
+        $ref: '#/components/requestBodies/CreateTransactionBody'
       responses:
         '200':
           $ref: "#/components/responses/TransactionResponse"
@@ -1338,9 +1338,9 @@ components:
               amount: 100
               metadata: {}
               encrypted_metadata: {}
-    ClientTransactionBody:
+    CreateTransactionBody:
       description: |
-        The parameters for making a transfer to a specific address.
+        The parameters for making a transfer.
         The from_address is optional, if specified it must belong to the current user.
         If not specified, the user's primary wallet will be used.
       required: true
@@ -1354,8 +1354,22 @@ components:
                 type: string
               to_address:
                 type: string
+              to_account_id:
+                type: string
+              to_user_id:
+                type: string
+              to_provider_user_id:
+                type: string
+              from_token_id:
+                type: string
+              to_token_id:
+                type: string
               token_id:
                 type: string
+              from_amount:
+                type: integer
+              to_amount:
+                type: integer
               amount:
                 type: integer
               metadata:

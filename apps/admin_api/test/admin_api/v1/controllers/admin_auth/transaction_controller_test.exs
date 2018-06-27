@@ -379,6 +379,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                "address" => wallet_1.address,
                "amount" => 1_000,
                "object" => "transaction_source",
+               "account" => nil,
+               "account_id" => nil,
+               "user" => nil,
+               "user_id" => nil,
                "token" => %{
                  "encrypted_metadata" => %{},
                  "metadata" => %{},
@@ -397,6 +401,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                "address" => wallet_2.address,
                "amount" => 2_000,
                "object" => "transaction_source",
+               "account" => nil,
+               "account_id" => nil,
+               "user" => nil,
+               "user_id" => nil,
                "token" => %{
                  "encrypted_metadata" => %{},
                  "metadata" => %{},

@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.TransactionController do
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.{WalletFetcher, TransactionGate}
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWalletDB.{Transaction, User, Repo}
+  alias EWalletDB.{Transaction, User, Repo, Account}
 
   @preload_fields [:from_token, :to_token]
   @mapped_fields %{"created_at" => "inserted_at"}
@@ -72,7 +72,27 @@ defmodule EWalletAPI.V1.TransactionController do
   end
 
   def create(conn, attrs) do
+    allowed = [
+      "idempotency_token",
+      "from_address",
+      "to_address",
+      "to_account_id",
+      "to_user_id",
+      "to_provider_user_id",
+      "from_token_id",
+      "to_token_id",
+      "token_id",
+      "from_amount",
+      "to_amount",
+      "amount",
+      "metadata",
+      "encrypted_metadata"
+    ]
+
     attrs
+    |> Enum.filter(fn {k, _v} -> Enum.member?(allowed, k) end)
+    |> Enum.into(%{})
+    |> Map.put("exchange_account_id", Account.get_master_account().id)
     |> Map.put("from_user_id", conn.assigns.user.id)
     |> TransactionGate.create()
     |> respond(conn)
@@ -131,6 +151,10 @@ defmodule EWalletAPI.V1.TransactionController do
 
   defp respond({:ok, transaction}, conn) do
     render(conn, :transaction, %{transaction: transaction})
+  end
+
+  defp respond({:error, code, description}, conn) do
+    handle_error(conn, code, description)
   end
 
   defp respond({:error, code}, conn), do: handle_error(conn, code)

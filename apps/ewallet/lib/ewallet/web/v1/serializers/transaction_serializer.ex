@@ -13,7 +13,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   end
 
   def serialize(%Transaction{} = transaction) do
-    transaction = Preloader.preload(transaction, [:from_token, :to_token])
+    transaction = Preloader.preload(transaction, [:from_token, :to_token, :from_account, :to_account])
 
     # credo:disable-for-next-line
     %{
@@ -22,6 +22,10 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       idempotency_token: transaction.idempotency_token,
       from: %{
         object: "transaction_source",
+        user_id: Assoc.get(transaction, [:from_user, :user_id]),
+        user: TokenSerializer.serialize(transaction.to_user),
+        account_id: Assoc.get(transaction, [:from_account, :account_id]),
+        account: TokenSerializer.serialize(transaction.to_account),
         address: transaction.from,
         amount: transaction.from_amount,
         token_id: Assoc.get(transaction, [:from_token, :id]),
@@ -29,6 +33,10 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       },
       to: %{
         object: "transaction_source",
+        user_id: Assoc.get(transaction, [:to_user, :user_id]),
+        user: TokenSerializer.serialize(transaction.to_user),
+        account_id: Assoc.get(transaction, [:to_account, :account_id]),
+        account: TokenSerializer.serialize(transaction.to_account),
         address: transaction.to,
         amount: transaction.to_amount,
         token_id: Assoc.get(transaction, [:to_token, :id]),

@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.User
+  alias EWallet.Web.Date
+  alias EWalletDB.{User, Account}
 
   # credo:disable-for-next-line
   setup do
@@ -339,6 +340,83 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["success"]
       assert response["data"]["object"] == "transaction"
       assert response["data"]["status"] == "confirmed"
+    end
+
+    test "create a transaction with exchange" do
+      account = Account.get_master_account()
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+      wallet_1 = insert(:wallet)
+      wallet_2 = insert(:wallet)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 2_000_000
+      })
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => account.id,
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["from"] == %{
+               "address" => wallet_1.address,
+               "amount" => 1_000,
+               "object" => "transaction_source",
+               "account" => nil,
+               "account_id" => nil,
+               "user" => nil,
+               "user_id" => nil,
+               "token" => %{
+                 "encrypted_metadata" => %{},
+                 "metadata" => %{},
+                 "name" => token_1.name,
+                 "object" => "token",
+                 "subunit_to_unit" => token_1.subunit_to_unit,
+                 "symbol" => token_1.symbol,
+                 "created_at" => Date.to_iso8601(token_1.inserted_at),
+                 "id" => token_1.id,
+                 "updated_at" => Date.to_iso8601(token_1.updated_at)
+               },
+               "token_id" => token_1.id
+             }
+
+      assert response["data"]["to"] == %{
+               "address" => wallet_2.address,
+               "amount" => 2_000,
+               "object" => "transaction_source",
+               "account" => nil,
+               "account_id" => nil,
+               "user" => nil,
+               "user_id" => nil,
+               "token" => %{
+                 "encrypted_metadata" => %{},
+                 "metadata" => %{},
+                 "name" => token_2.name,
+                 "object" => "token",
+                 "subunit_to_unit" => token_2.subunit_to_unit,
+                 "symbol" => token_2.symbol,
+                 "created_at" => Date.to_iso8601(token_2.inserted_at),
+                 "id" => token_2.id,
+                 "updated_at" => Date.to_iso8601(token_2.updated_at)
+               },
+               "token_id" => token_2.id
+             }
     end
 
     test "returns :invalid_parameter when the sending address is a burn balance" do

@@ -18,6 +18,10 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.from,
             amount: transaction.from_amount,
+            account: nil,
+            account_id: nil,
+            user: nil,
+            user_id: nil,
             token_id: transaction.from_token.id,
             token: TokenSerializer.serialize(transaction.from_token)
           },
@@ -25,6 +29,10 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.to,
             amount: transaction.to_amount,
+            account: nil,
+            account_id: nil,
+            user: nil,
+            user_id: nil,
             token_id: transaction.to_token.id,
             token: TokenSerializer.serialize(transaction.to_token)
           },

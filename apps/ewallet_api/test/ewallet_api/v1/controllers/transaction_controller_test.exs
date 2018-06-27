@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
   use EWalletAPI.ConnCase, async: false
   alias EWallet.Web.Date
   alias EWallet.BalanceFetcher
-  alias EWalletDB.{User, Transaction}
+  alias EWalletDB.{User, Transaction, Account}
   alias Ecto.UUID
 
   # credo:disable-for-next-line
@@ -274,6 +274,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                    "object" => "transaction_source",
                    "address" => transaction.from,
                    "amount" => transaction.from_amount,
+                   "account" => nil,
+                   "account_id" => nil,
+                   "user" => nil,
+                   "user_id" => nil,
                    "token_id" => token.id,
                    "token" => %{
                      "name" => token.name,
@@ -291,6 +295,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                    "object" => "transaction_source",
                    "address" => transaction.to,
                    "amount" => transaction.to_amount,
+                   "account" => nil,
+                   "account_id" => nil,
+                   "user" => nil,
+                   "user_id" => nil,
                    "token_id" => token.id,
                    "token" => %{
                      "name" => token.name,
@@ -364,8 +372,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                  "code" => "transaction:insufficient_funds",
                  "description" =>
                    "The specified wallet (#{wallet1.address}) does not " <>
-                     "contain enough funds. Available: 0.0 #{token.id} - " <>
-                     "Attempted debit: 100000.0 #{token.id}",
+                     "contain enough funds. Available: 0 #{token.id} - " <>
+                     "Attempted debit: 100000 #{token.id}",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -514,6 +522,184 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                  "object" => "error"
                }
              }
+    end
+  end
+
+  describe "/me.create_transaction with exchange" do
+    test "updates the wallets and returns the transaction after exchange with min params" do
+      {:ok, account} =  :account |> params_for() |> Account.insert()
+      wallet_1 = User.get_primary_wallet(get_test_user())
+      wallet_2 =  Account.get_primary_wallet(account)
+      token_1 = insert(:token, subunit_to_unit: 100)
+      token_2 = insert(:token, subunit_to_unit: 1000)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 200_000
+      })
+
+      response =
+        client_request("/me.create_transaction", %{
+          idempotency_token: UUID.generate(),
+          to_account_id: account.id,
+          from_token_id: token_1.id,
+          to_token_id: token_2.id,
+          from_amount: 1_000 * token_1.subunit_to_unit
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["from"]["address"] == wallet_1.address
+      assert response["data"]["from"]["amount"] == 1_000 * token_1.subunit_to_unit
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == wallet_2.address
+      assert response["data"]["to"]["amount"] == 2_000 * token_2.subunit_to_unit
+      assert response["data"]["to"]["token_id"] == token_2.id
+
+      {:ok, b1} = BalanceFetcher.get(token_1.id, wallet_1)
+      assert List.first(b1.balances).amount == (200_000 - 1_000) * token_1.subunit_to_unit
+      {:ok, b2} = BalanceFetcher.get(token_2.id, wallet_2)
+      assert List.first(b2.balances).amount == 2_000 * token_2.subunit_to_unit
+    end
+
+    test "updates the wallets and returns the transaction after exchange with same token" do
+      {:ok, account} =  :account |> params_for() |> Account.insert()
+      wallet_1 = User.get_primary_wallet(get_test_user())
+      wallet_2 =  Account.get_primary_wallet(account)
+      token_1 = insert(:token, subunit_to_unit: 100)
+
+      mint!(token_1)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 200_000
+      })
+
+      response =
+        client_request("/me.create_transaction", %{
+          idempotency_token: UUID.generate(),
+          to_account_id: account.id,
+          from_token_id: token_1.id,
+          to_token_id: token_1.id,
+          from_amount: 1_000 * token_1.subunit_to_unit
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["from"]["address"] == wallet_1.address
+      assert response["data"]["from"]["amount"] == 1_000 * token_1.subunit_to_unit
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == wallet_2.address
+      assert response["data"]["to"]["amount"] == 1_000 * token_1.subunit_to_unit
+      assert response["data"]["to"]["token_id"] == token_1.id
+
+      {:ok, b1} = BalanceFetcher.get(token_1.id, wallet_1)
+      assert List.first(b1.balances).amount == (200_000 - 1_000) * token_1.subunit_to_unit
+      {:ok, b2} = BalanceFetcher.get(token_1.id, wallet_2)
+      assert List.first(b2.balances).amount == 1_000 * token_1.subunit_to_unit
+    end
+
+    test "updates the wallets and returns the transaction after exchange with from_amount" do
+      wallet_1 = User.get_primary_wallet(get_test_user())
+      wallet_2 = insert(:wallet)
+      token_1 = insert(:token, subunit_to_unit: 100)
+      token_2 = insert(:token, subunit_to_unit: 1000)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 200_000
+      })
+
+      response =
+        client_request("/me.create_transaction", %{
+          idempotency_token: UUID.generate(),
+          from_address: wallet_1.address,
+          to_address: wallet_2.address,
+          from_token_id: token_1.id,
+          to_token_id: token_2.id,
+          from_amount: 1_000 * token_1.subunit_to_unit,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      {:ok, b1} = BalanceFetcher.get(token_1.id, wallet_1)
+      assert List.first(b1.balances).amount == (200_000 - 1_000) * token_1.subunit_to_unit
+      {:ok, b2} = BalanceFetcher.get(token_2.id, wallet_2)
+      assert List.first(b2.balances).amount == 2_000 * token_2.subunit_to_unit
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["from"]["address"] == wallet_1.address
+      assert response["data"]["from"]["amount"] == 1_000 * token_1.subunit_to_unit
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == wallet_2.address
+      assert response["data"]["to"]["amount"] == 2_000 * token_2.subunit_to_unit
+      assert response["data"]["to"]["token_id"] == token_2.id
+    end
+
+    test "updates the wallets and returns the transaction after exchange to_amount" do
+      wallet_1 = User.get_primary_wallet(get_test_user())
+      wallet_2 = insert(:wallet)
+      token_1 = insert(:token, subunit_to_unit: 100)
+      token_2 = insert(:token, subunit_to_unit: 1000)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 200_000
+      })
+
+      response =
+        client_request("/me.create_transaction", %{
+          idempotency_token: UUID.generate(),
+          from_address: wallet_1.address,
+          to_address: wallet_2.address,
+          from_token_id: token_1.id,
+          to_token_id: token_2.id,
+          to_amount: 2_000 * token_2.subunit_to_unit,
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      {:ok, b1} = BalanceFetcher.get(token_1.id, wallet_1)
+      assert List.first(b1.balances).amount == (200_000 - 1_000) * token_1.subunit_to_unit
+      {:ok, b2} = BalanceFetcher.get(token_2.id, wallet_2)
+      assert List.first(b2.balances).amount == 2_000 * token_2.subunit_to_unit
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["from"]["address"] == wallet_1.address
+      assert response["data"]["from"]["amount"] == 1_000 * token_1.subunit_to_unit
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == wallet_2.address
+      assert response["data"]["to"]["amount"] == 2_000 * token_2.subunit_to_unit
+      assert response["data"]["to"]["token_id"] == token_2.id
     end
   end
 end

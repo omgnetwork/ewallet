@@ -64,10 +64,10 @@ defmodule EWallet.TransactionSourceFetcher do
          from_wallet_address: wallet.address
        }}
     else
-      {:error, :account_wallet_not_found} ->
+      {:error, :user_wallet_not_found} ->
         {:error, :from_address_not_found}
 
-      {:error, :account_wallet_mismatch} ->
+      {:error, :user_wallet_mismatch} ->
         {:error, :from_address_mismatch}
 
       error ->

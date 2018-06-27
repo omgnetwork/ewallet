@@ -46,6 +46,19 @@ defmodule EWallet.TokenFetcher do
     end
   end
 
+  def fetch_exchange_account(%{
+        "from_token_id" => from_token_id,
+        "to_token_id" => to_token_id,
+      }) do
+    case from_token_id == to_token_id do
+      true ->
+        {:ok, nil}
+
+      false ->
+        {:error, :invalid_parameter, "'exchange_account_id is required.'"}
+    end
+  end
+
   def fetch_exchange_account(_) do
     {:ok, nil}
   end

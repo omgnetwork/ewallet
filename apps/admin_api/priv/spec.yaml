@@ -2128,65 +2128,6 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
-    MultipleWalletsSchema:
-      description: "The response schema for a list of multiple wallets (i.e. transfers)"
-      allOf:
-      - $ref: '#/components/schemas/BaseResponseSchema'
-      - type: object
-        properties:
-          data:
-            type: object
-            allOf:
-              - $ref: '#/components/schemas/UnpaginatedListSchema'
-              - type: object
-                properties:
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/WalletSchema'
-        required:
-          - object
-        example:
-          data:
-            object: list
-            data:
-            - object: "wallet"
-              socket_topic: "wallet:XXX123"
-              address: "XXX123"
-              name: "primary"
-              identifier: "primary"
-              metadata: {}
-              encrypted_metadata: {}
-              user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
-              user: {}
-              account_id: null
-              account: null
-              balances:
-                - amount: 0
-                  token:
-                    object: 'token'
-                    id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-                    symbol: "BTC"
-                    name: "Bitcoin"
-                    subunit_to_unit: 100000000000000000
-            - object: "wallet"
-              socket_topic: "wallet:XXX456"
-              address: "XXX456"
-              name: "primary"
-              identifier: "primary"
-              metadata: {}
-              encrypted_metadata: {}
-              user_id: "usr_02cbfg6v9thrc3sd9m1v4gazjv"
-              user: {}
-              account_id: null
-              account: null
-              balances:
-                - amount: 0
-                  token:
-                    object: 'token'
-                    id: "tok_BTC_01cbffybmtbbb449r05zgfct2h"
-                    symbol: "BTC"
-                    name: "Bitcoin"
 
     ######################################
     #         ADMIN USER SCHEMAS         #
@@ -4011,7 +3952,7 @@ components:
               id: "txn_01ce83x8w4db56f3fcjy4n4qpc"
 
     TransactionCreateBody:
-      description: The parameters for making a transfer from an address to another.
+      description: The parameters for making a transaction from an address to another.
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -4023,10 +3964,35 @@ components:
                 type: string
               to_address:
                 type: string
+
+              from_account_id:
+                type: string
+              to_account_id:
+                type: string
+              from_user_id:
+                type: string
+              to_user_id:
+                type: string
+              from_provider_user_id:
+                type: string
+              to_provider_user_id:
+                type: string
+              from_token_id:
+                type: string
+              to_token_id:
+                type: string
               token_id:
                 type: string
+              from_amount:
+                type: integer
+              to_amount:
+                type: integer
               amount:
                 type: integer
+              exchange_account_id:
+                type: string
+              exchange_account_address:
+                type: string
               metadata:
                 type: object
               encrypted_metadata:
@@ -4648,12 +4614,6 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/WalletsResponseSchema'
-    MultipleWalletsResponse:
-      description: "Returns a list of wallets."
-      content:
-        application/vnd.omisego.v1+json:
-          schema:
-            $ref: '#/components/schemas/MultipleWalletsSchema'
 
     ######################################
     #        TRANSACTION RESPONSES       #
