@@ -17,6 +17,7 @@ const NavigationItem = styled.div`
   white-space: nowrap;
   letter-spacing: 1px;
   font-weight: 600;
+  text-align: left;
   font-size: 12px;
   background-color: ${props => (props.active ? '#30343F' : 'transparent')};
   transition: 0.1s background-color;
@@ -58,25 +59,16 @@ const LoadingLogo = Logo.extend`
   background-repeat: no-repeat;
   animation: ${progress} 1.5s ease-in-out infinite;
 `
-const CurrentAccountDummy = styled.div`
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  left: 0;
-  right: 0;
-  margin: 0 auto;
-  width: 70%;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-`
 const NavigationItemsContainer = styled.div`
   margin-top: 20px;
+  text-align: center;
 `
 const SwitchAccount = styled.div`
-  padding: 15px 30px;
+  padding: 10px 10px;
+  display: inline-block;
   text-align: center;
   font-weight: 300;
+  border: 1px solid ${props => props.theme.colors.B100};
   letter-spacing: 1px;
   white-space: nowrap;
   margin-bottom: 25px;

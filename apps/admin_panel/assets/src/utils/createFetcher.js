@@ -45,16 +45,19 @@ export const createFetcher = (entity, reducer, selectors) => {
           trailing: false
         })
       }
+      static getDerivedStateFromProps (props, state) {
+        const diff = _.differenceBy(props.data, state.data, d => d.id)
+        if (diff.length > 0) {
+          return { data: props.data }
+        }
+      }
       componentDidMount = () => {
         this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.INITIATED })
         this.fetch()
       }
-      componentWillReceiveProps = nextProps => {
-        this.setState({ data: this.props.data })
-      }
-
       componentDidUpdate = async nextProps => {
         if (this.props.cacheKey !== nextProps.cacheKey) {
+          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.PENDING })
           await this.fetchDebounce()
         }
       }
@@ -87,6 +90,7 @@ export const createFetcher = (entity, reducer, selectors) => {
           console.log(error)
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
         }
+        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS })
       }
 
       render () {
@@ -95,7 +99,8 @@ export const createFetcher = (entity, reducer, selectors) => {
           ...this.props.query,
           individualLoadingStatus: this.state.loadingStatus,
           fetch: this.fetch,
-          fetchAll: this.fetchAll
+          fetchAll: this.fetchAll,
+          data: this.state.data
         })
       }
     }

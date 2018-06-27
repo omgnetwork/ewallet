@@ -28,6 +28,9 @@ const AccountPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
+  table {
+    opacity: ${props => props.loadingStatus === 'SUCCESS' ? 1 : 0.5};
+  }
 `
 const NameColumn = styled.div`
   > span {
@@ -130,7 +133,7 @@ class AccountPage extends Component {
     return (
       <AccountPageContainer>
         <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
           <SortableTable
             rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
