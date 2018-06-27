@@ -10,7 +10,7 @@ defmodule EWallet.UUIDFetcher do
     "user_id" => {User, :id, "user_uuid"},
     "provider_user_id" => {User, :provider_user_id, "user_uuid"},
     "from_token_id" => {Token, :id, "from_token_uuid"},
-    "to_token_id" => {Token, :id, "to_token_uuid"},
+    "to_token_id" => {Token, :id, "to_token_uuid"}
   }
 
   @doc """
