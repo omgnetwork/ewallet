@@ -27,55 +27,60 @@ const OptionItem = styled.div`
 `
 export default class Select extends Component {
   static propTypes = {
-    onSelect: PropTypes.func,
-    options: PropTypes.array
+    onSelectItem: PropTypes.func,
+    options: PropTypes.array,
+    value: PropTypes.string,
+    onChange: PropTypes.func,
+    onFocus: PropTypes.func
+  }
+  static defaultProps = {
+    onSelectItem: () => {}
   }
   state = {
-    active: false,
-    value: ''
+    active: false
   }
   registerRef = input => {
     this.input = input
   }
   onFocus = () => {
-    this.setState({ active: true, value: '' })
+    this.setState({ active: true })
+    this.props.onFocus()
   }
   onBlur = e => {
     this.setState({ active: false })
   }
   onClickItem = item => e => {
-    this.setState({ active: false, value: item.value }, () => {
-      this.props.onSelect && this.props.onSelect(item)
+    this.setState({ active: false }, () => {
+      this.props.onSelectItem(item)
     })
   }
-  onChange = e => {
-    this.setState({ value: e.target.value })
-  }
   render () {
+    const filteredOption = this.props.options.filter(option =>
+      new RegExp(this.props.value).test(option.value)
+    )
     return (
       <SelectContainer>
         <Input
           {...this.props}
           onFocus={this.onFocus}
           onBlur={this.onBlur}
-          onChange={this.onChange}
-          value={this.state.value}
+          onChange={this.props.onChange}
+          value={this.props.value}
           registerRef={this.registerRef}
           suffix={this.state.active ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
         />
-        {this.state.active && (
-          <OptionsContainer>
-            {this.props.options
-              .filter(option => new RegExp(this.state.value).test(option.value))
-              .map(option => {
+        {this.state.active &&
+          filteredOption.length > 0 && (
+            <OptionsContainer>
+              {filteredOption.map(option => {
                 return (
                   <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
                     {option.value}
                   </OptionItem>
                 )
               })}
-          </OptionsContainer>
-        )}
+            </OptionsContainer>
+          )}
       </SelectContainer>
     )
   }

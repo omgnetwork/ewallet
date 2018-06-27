@@ -3,9 +3,9 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
-import CreateAccountModal from '../omg-create-account-modal'
+import CreateTransactionModal from '../omg-create-transaction-modal'
 import ExportModal from '../omg-export-modal'
-import TransactionsProvider from '../omg-transaction/transactionsProvider'
+import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
@@ -36,16 +36,17 @@ const columns = [
 
 class TransactionPage extends Component {
   static propTypes = {
-    location: PropTypes.object
+    location: PropTypes.object,
+    scrollTopContentContainer: PropTypes.func
   }
   state = {
-    createAccountModalOpen: false
+    createTransactionModalOpen: false
   }
-  onClickCreateAccount = () => {
-    this.setState({ createAccountModalOpen: true })
+  onClickCreateTransaction = () => {
+    this.setState({ createTransactionModalOpen: true })
   }
-  onRequestCloseCreateAccount = () => {
-    this.setState({ createAccountModalOpen: false })
+  onRequestCloseCreateTransaction = () => {
+    this.setState({ createTransactionModalOpen: false })
   }
   onClickExport = () => {
     this.setState({ exportModalOpen: true })
@@ -56,16 +57,9 @@ class TransactionPage extends Component {
 
   renderCreateTransactionButton = () => {
     return (
-      <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
+      <Button size='small' styleType='primary' onClick={this.onClickCreateTransaction} key={'create'}>
         <Icon name='Export' />
-        <span>Export</span>
-      </Button>
-    )
-  }
-  renderCreateAccountButton = () => {
-    return (
-      <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+        <span>Create Transaction</span>
       </Button>
     )
   }
@@ -97,19 +91,24 @@ class TransactionPage extends Component {
     }
     return data
   }
-  renderTransactionPage = ({ transactions, loadingStatus }) => {
+  renderTransactionPage = ({ data: transactions, loadingStatus, pagination }) => {
     return (
       <TransactionPageContainer>
-        <TopNavigation title={'Transaction'} buttons={[]} />
+        <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />
         <SortableTable
-          dataSource={transactions.map(t => ({ ...t, id: t.id }))}
+          rows={transactions.map(t => ({ ...t, id: t.id }))}
           columns={columns}
           rowRenderer={this.rowRenderer}
+          perPage={15}
           loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
+          isFirstPage={pagination.is_first_page}
+          isLastPage={pagination.is_last_page}
+          navigation
         />
-        <CreateAccountModal
-          open={this.state.createAccountModalOpen}
-          onRequestClose={this.onRequestCloseCreateAccount}
+
+        <CreateTransactionModal
+          onRequestClose={this.onRequestCloseCreateTransaction}
+          open={this.state.createTransactionModalOpen}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </TransactionPageContainer>
@@ -117,11 +116,15 @@ class TransactionPage extends Component {
   }
   render () {
     return (
-      <TransactionsProvider
-        render={this.renderTransactionPage}
+      <TransactionsFetcher
         {...this.state}
         {...this.props}
-        search={queryString.parse(this.props.location.search).search}
+        render={this.renderTransactionPage}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
       />
     )
   }

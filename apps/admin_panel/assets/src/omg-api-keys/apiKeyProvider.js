@@ -26,9 +26,7 @@ class ApiKeyProvider extends Component {
     apiKeysLoadingStatus: PropTypes.string
   }
   componentDidMount = () => {
-    if (this.props.apiKeysLoadingStatus === 'DEFAULT') {
-      this.props.loadApiKeys()
-    }
+    this.props.loadApiKeys()
   }
   render () {
     return this.props.render({

@@ -13,16 +13,23 @@ export const createUser = ({ name, description, avatar }) => async dispatch => {
   }
 }
 
-export const getUsers = () => async dispatch => {
+export const getUsers = ({ search, page, perPage, cacheKey }) => async dispatch => {
   dispatch({ type: 'USERS/REQUEST/INITIATED' })
   try {
     const result = await userService.getAllUsers({
-      per: 1000,
-      sort: { by: 'created_at', dir: 'desc' }
+      perPage: perPage,
+      page,
+      sort: { by: 'created_at', dir: 'desc' },
+      search_term: search
     })
 
     if (result.data.success) {
-      return dispatch({ type: 'USERS/REQUEST/SUCCESS', users: result.data.data.data })
+      return dispatch({
+        type: 'USERS/REQUEST/SUCCESS',
+        data: result.data.data.data,
+        pagination: result.data.data.pagination,
+        cacheKey
+      })
     } else {
       return dispatch({ type: 'USERS/REQUEST/FAILED', error: result.data.data })
     }
