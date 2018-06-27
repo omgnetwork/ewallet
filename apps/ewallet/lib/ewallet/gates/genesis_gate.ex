@@ -1,0 +1,54 @@
+defmodule EWallet.GenesisGate do
+  alias EWallet.{TransactionGate, TransactionFormatter}
+  alias EWalletDB.{Transaction, Wallet, Account, Mint}
+  alias LocalLedger.Transaction, as: LedgerTransaction
+
+  def create(%{
+        idempotency_token: idempotency_token,
+        account: account,
+        token: token,
+        amount: amount,
+        attrs: attrs
+      }) do
+    Transaction.get_or_insert(%{
+      idempotency_token: idempotency_token,
+      from: Wallet.get_genesis().address,
+      to: Account.get_primary_wallet(account).address,
+      to_account_uuid: account.uuid,
+      from_token_uuid: token.uuid,
+      to_token_uuid: token.uuid,
+      from_amount: amount,
+      to_amount: amount,
+      metadata: attrs["metadata"] || %{},
+      encrypted_metadata: attrs["encrypted_metadata"] || %{},
+      payload: attrs
+    })
+  end
+
+  def process_with_transaction(%Transaction{status: "pending"} = transaction, mint) do
+    transaction
+    |> TransactionFormatter.format()
+    |> LedgerTransaction.insert(%{genesis: true})
+    |> TransactionGate.update_transaction(transaction)
+    |> confirm_and_return(mint)
+  end
+
+  def process_with_transaction(%Transaction{status: "confirmed"} = transaction, mint) do
+    confirm_and_return(transaction, mint)
+  end
+
+  def process_with_transaction(%Transaction{status: "failed"} = transaction, mint) do
+    confirm_and_return(
+      {:error, transaction.error_code, transaction.error_description || transaction.error_data},
+      mint
+    )
+  end
+
+  def confirm_and_return({:error, code, description}, mint),
+    do: {:error, code, description, mint}
+
+  def confirm_and_return(transaction, mint) do
+    mint = Mint.confirm(mint)
+    {:ok, mint, transaction}
+  end
+end

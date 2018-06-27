@@ -82,8 +82,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
       "encrypted_metadata" => consumption.encrypted_metadata
     }
 
-    case TransactionGate.process_with_addresses(attrs) do
-      {:ok, transaction, _, _} ->
+    case TransactionGate.create(attrs) do
+      {:ok, transaction} ->
         # Expires the request if it has reached the max number of consumptions (only CONFIRMED
         # SUCCESSFUL) consumptions are accounted for.
         consumption = TransactionConsumption.confirm(consumption, transaction)

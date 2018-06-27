@@ -45,7 +45,7 @@ defmodule EWalletDB.Transaction do
 
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
-
+    
     belongs_to(
       :from_token,
       Token,
@@ -78,6 +78,37 @@ defmodule EWalletDB.Transaction do
       type: :string
     )
 
+    belongs_to(
+      :from_account,
+      Account,
+      foreign_key: :from_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :to_account,
+      Account,
+      foreign_key: :to_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :from_user,
+      User,
+      foreign_key: :from_user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :to_user,
+      User,
+      foreign_key: :to_user_uuid,
+      references: :uuid,
+      type: UUID
+    )
     belongs_to(
       :exchange_account,
       Account,
