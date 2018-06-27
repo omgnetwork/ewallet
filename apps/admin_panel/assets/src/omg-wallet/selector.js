@@ -1,3 +1,4 @@
+import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
 export const selectWallets = (state, search) => {
   return _.values(state.wallets).filter(wallet => {
     const reg = new RegExp(search)
@@ -25,3 +26,7 @@ export const selectWalletByUserId = userId => state => {
     return wallet.user_id === userId
   })
 }
+
+export const selectWalletsAllPagesCachedQuery = createSelectAllPagesCachedQuery(
+  selectWalletById
+)
