@@ -56,7 +56,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_user(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.get(attrs) do
+    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) do
       :user_uuid
       |> TransactionConsumption.query_all_for(user.uuid)
       |> SearchParser.search_with_terms(attrs, @search_fields)

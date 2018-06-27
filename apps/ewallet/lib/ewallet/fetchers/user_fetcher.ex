@@ -4,8 +4,8 @@ defmodule EWallet.UserFetcher do
   """
   alias EWalletDB.{User}
 
-  @spec get(String.t()) :: {:ok, User.t()} | {:error, Atom.t()}
-  def get(%{"user_id" => user_id}) do
+  @spec fetch(String.t()) :: {:ok, User.t()} | {:error, Atom.t()}
+  def fetch(%{"user_id" => user_id}) do
     with %User{} = user <- User.get(user_id) || :user_id_not_found do
       {:ok, user}
     else
@@ -13,8 +13,8 @@ defmodule EWallet.UserFetcher do
     end
   end
 
-  @spec get(String.t()) :: {:ok, User.t()} | {:error, Atom.t()}
-  def get(%{"provider_user_id" => provider_user_id}) do
+  @spec fetch(String.t()) :: {:ok, User.t()} | {:error, Atom.t()}
+  def fetch(%{"provider_user_id" => provider_user_id}) do
     with %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found do
       {:ok, user}
@@ -23,5 +23,5 @@ defmodule EWallet.UserFetcher do
     end
   end
 
-  def get(_), do: {:error, :invalid_parameter}
+  def fetch(_), do: {:error, :invalid_parameter}
 end
