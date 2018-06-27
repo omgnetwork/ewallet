@@ -315,9 +315,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp stringify_errors(changeset, description) do
-    Enum.reduce(changeset.errors, description, fn {field, {description, _values}}, acc ->
+    Enum.reduce(changeset.errors, description, fn {field, {description, values}}, acc ->
       field = field |> stringify_field() |> replace_uuids()
-      acc <> " " <> field <> " " <> description <> "."
+      acc <> " " <> field <> " " <> replace_placeholders(description, values) <> "."
     end)
   end
 
@@ -347,12 +347,17 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
   defp error_fields(changeset) do
     errors =
-      traverse_errors(changeset, fn {_message, opts} ->
-        validation = Keyword.get(opts, :validation)
+      traverse_errors(changeset, fn {message, opts} ->
+        case opts do
+          [] ->
+            message
 
-        # Maps Ecto.changeset validation to be more meaningful
-        # to send to the client.
-        Map.get(@validation_mapping, validation, validation)
+          _ ->
+            validation = Keyword.get(opts, :validation)
+            # Maps Ecto.changeset validation to be more meaningful
+            # to send to the client.
+            Map.get(@validation_mapping, validation, validation)
+        end
       end)
 
     errors
@@ -360,6 +365,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
       {key |> replace_uuids() |> stringify_field(), value}
     end)
     |> Enum.into(%{})
+  end
+
+  defp replace_placeholders(string, values) do
+    Enum.reduce(values, string, fn {key, value}, acc ->
+      String.replace(acc, "%{#{key}}", "#{value}")
+    end)
   end
 
   defp replace_uuids(field) do

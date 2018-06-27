@@ -153,7 +153,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `amount` must be greater than %{number}."
+               "Invalid parameter provided `amount` must be greater than 0."
 
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
@@ -172,7 +172,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `amount` must be greater than %{number}."
+               "Invalid parameter provided `amount` must be greater than 0."
 
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
