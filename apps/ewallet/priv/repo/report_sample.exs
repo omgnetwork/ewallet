@@ -35,7 +35,7 @@ CLI.print("""
   OMGProvider #{Base.encode64(ewallet_key.access_key <> ":" <> ewallet_key.secret_key)}
   ```
 
-  4. Try out Server endpoints such as /login, /user.create, /transfer, etc.
+  4. Try out Server endpoints such as /login, /user.create, etc.
 
   ## Try eWallet API's Client endpoints
 

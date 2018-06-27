@@ -5,7 +5,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
   alias EWallet.Web.Date
   alias EWallet.BalanceFetcher
 
-  describe "/me.transfer" do
+  describe "/me.create_transaction" do
     test "returns idempotency error if header is not specified" do
       wallet1 = User.get_primary_wallet(get_test_user())
       wallet2 = insert(:wallet)
@@ -19,7 +19,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         metadata: %{}
       }
 
-      response = client_request("/me.transfer", request_data)
+      response = client_request("/me.create_transaction", request_data)
 
       assert response == %{
                "success" => false,
@@ -45,7 +45,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       })
 
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
@@ -121,7 +121,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           from_address: wallet.address,
           to_address: wallet.address,
@@ -148,7 +148,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
@@ -176,7 +176,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           from_address: "00000000-0000-0000-0000-000000000000",
           to_address: wallet.address,
@@ -202,7 +202,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
@@ -228,7 +228,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       token = insert(:token)
 
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           from_address: wallet.address,
           to_address: "00000000-0000-0000-0000-000000000000",
@@ -253,7 +253,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       wallet2 = insert(:wallet)
 
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           from_address: wallet1.address,
           to_address: wallet2.address,
@@ -284,7 +284,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         amount: 200_000
       })
 
-      client_request("/me.transfer", %{
+      client_request("/me.create_transaction", %{
         idempotency_token: UUID.generate(),
         to_address: wallet2.address,
         token_id: token.id,
@@ -297,7 +297,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
 
     test "returns an invalid_parameter error if a parameter is missing" do
       response =
-        client_request("/me.transfer", %{
+        client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
           token_id: "an_id",
           amount: 100_000

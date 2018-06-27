@@ -3,26 +3,13 @@ info:
   version: "1.0.0"
   title: eWallet API
   description: >
-    This is the documentation for eWallet API.
+    This is the documentation for the eWallet client API.
 
-
-    Two kinds of endpoints can be found in this document: the server endpoints
-    and the client (mobile ) endpoints.
-
-
-    All API calls that modify the database need to be done from the server
-    for security purposes, while retrieval calls can be made from the client
-    (considered unsafe, 'never trust the client').
-
-
-    Both server and client calls are authorized using the 'Authorization'
+    Client calls are authorized using the 'Authorization'
     HTTP header with the following format:
 
 
-    - Server: `Authorization=OMGProvider Base64(access_key:secret_key)`
-
     - Client: `Authorization=OMGClient Base64(api_key:authentication_token)`
-
 
     Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
     including on errors. Only in case of an internal server error that `500`
@@ -55,7 +42,7 @@ tags:
     description: Resources related to global settings of the wallet.
 
 servers:
-  - url: /api
+  - url: /api/client
 
 paths:
   ######################################
@@ -127,16 +114,16 @@ paths:
           $ref: "#/components/responses/TransactionsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /me.transfer:
+  /me.create_transaction:
     post:
       tags:
         - Transaction
       summary: Transfer the specified amount to a wallet.
-      operationId: me_transfer
+      operationId: me_transaction
       security:
         - ClientAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/ClientTransferBody'
+        $ref: '#/components/requestBodies/ClientTransactionBody'
       responses:
         '200':
           $ref: "#/components/responses/TransactionResponse"
@@ -1320,7 +1307,7 @@ components:
     ######################################
     #       TRANSFER REQUEST BODIES      #
     ######################################
-    TransferBody:
+    TransactionBody:
       description: The parameters for making a transfer from an address to another.
       required: true
       content:
@@ -1351,7 +1338,7 @@ components:
               amount: 100
               metadata: {}
               encrypted_metadata: {}
-    ClientTransferBody:
+    ClientTransactionBody:
       description: |
         The parameters for making a transfer to a specific address.
         The from_address is optional, if specified it must belong to the current user.

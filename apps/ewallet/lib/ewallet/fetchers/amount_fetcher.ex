@@ -1,4 +1,8 @@
 defmodule EWallet.AmountFetcher do
+  @moduledoc """
+  Handles retrieval of amount from params for transactions.
+  """
+
   def fetch_from(%{"amount" => amount}, from) when is_number(amount) do
     {:ok, Map.put(from, :from_amount, amount)}
   end

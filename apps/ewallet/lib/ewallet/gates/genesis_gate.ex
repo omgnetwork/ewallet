@@ -1,4 +1,7 @@
 defmodule EWallet.GenesisGate do
+  @moduledoc """
+  Handle Genesis transactions.
+  """
   alias EWallet.{TransactionGate, TransactionFormatter}
   alias EWalletDB.{Transaction, Wallet, Account, Mint}
   alias LocalLedger.Transaction, as: LedgerTransaction

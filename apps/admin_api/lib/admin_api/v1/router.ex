@@ -31,9 +31,6 @@ defmodule AdminAPI.V1.Router do
     post("/transaction.all", TransactionController, :all)
     post("/transaction.get", TransactionController, :get)
     post("/transaction.create", TransactionController, :create)
-    post("/user.credit_wallet", TransferController, :credit)
-    post("/user.debit_wallet", TransferController, :debit)
-    post("/transfer", TransferController, :transfer)
 
     post("/transaction_request.all", TransactionRequestController, :all)
     post("/transaction_request.create", TransactionRequestController, :create)

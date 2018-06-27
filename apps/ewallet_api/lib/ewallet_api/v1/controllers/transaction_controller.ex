@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.WalletFetcher
+  alias EWallet.{WalletFetcher, TransactionGate}
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.{Transaction, User, Repo}
 
@@ -71,6 +71,13 @@ defmodule EWalletAPI.V1.TransactionController do
     end
   end
 
+  def create(conn, attrs) do
+    attrs
+    |> Map.put("from_user_id", conn.assigns.user.id)
+    |> TransactionGate.create()
+    |> respond(conn)
+  end
+
   defp clean_address_search_terms(user, %{"search_terms" => terms} = attrs) do
     addresses = User.addresses(user)
 
@@ -119,6 +126,16 @@ defmodule EWalletAPI.V1.TransactionController do
   end
 
   defp respond_multiple({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
+  defp respond({:ok, transaction}, conn) do
+    render(conn, :transaction, %{transaction: transaction})
+  end
+
+  defp respond({:error, code}, conn), do: handle_error(conn, code)
+
+  defp respond({:error, _transaction, code, description}, conn) do
     handle_error(conn, code, description)
   end
 end

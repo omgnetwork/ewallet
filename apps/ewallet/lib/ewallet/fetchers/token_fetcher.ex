@@ -1,4 +1,7 @@
 defmodule EWallet.TokenFetcher do
+  @moduledoc """
+  Handles retrieval of tokens from params for transactions.
+  """
   alias EWalletDB.{Account, Token}
 
   def fetch_from(%{"token_id" => token_id}, from) do
