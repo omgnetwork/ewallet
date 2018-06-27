@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AccountController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.{AccountPolicy, AccountFetcher}
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWalletDB.{Account, User}
+  alias EWalletDB.Account
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
