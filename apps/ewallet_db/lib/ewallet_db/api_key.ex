@@ -28,6 +28,14 @@ defmodule EWalletDB.APIKey do
       type: UUID
     )
 
+    belongs_to(
+      :exchange_wallet,
+      Wallet,
+      foreign_key: :exchange_address,
+      references: :address,
+      type: :string
+    )
+
     field(:expired, :boolean, default: false)
     timestamps()
     soft_delete()
@@ -35,15 +43,16 @@ defmodule EWalletDB.APIKey do
 
   defp changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:key, :owner_app, :account_uuid, :expired])
+    |> cast(attrs, [:key, :owner_app, :account_uuid, :expired, :exchange_address])
     |> validate_required([:key, :owner_app, :account_uuid])
     |> unique_constraint(:key)
     |> assoc_constraint(:account)
+    |> assoc_constraint(:exchange_wallet)
   end
 
   defp update_changeset(%APIKey{} = key, attrs) do
     key
-    |> cast(attrs, [:expired])
+    |> cast(attrs, [:expired, :exchange_address])
     |> validate_required([:expired])
   end
 
@@ -110,7 +119,7 @@ defmodule EWalletDB.APIKey do
 
   defp do_authenticate(%{key: expected_key} = api_key, input_key) do
     case Crypto.secure_compare(expected_key, input_key) do
-      true -> Map.get(api_key, :account)
+      true -> api_key
       _ -> false
     end
   end
@@ -126,7 +135,7 @@ defmodule EWalletDB.APIKey do
   """
   def authenticate(api_key, owner_app) when is_atom(owner_app) do
     case get_by_key(api_key, owner_app) do
-      %APIKey{} = api_key -> Map.get(api_key, :account)
+      %APIKey{} = api_key -> api_key
       nil -> false
     end
   end

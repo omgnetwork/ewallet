@@ -47,8 +47,9 @@ defmodule EWalletAPI.V1.ClientAuth do
         |> Map.put(:authenticated, false)
         |> Map.put(:auth_error, :invalid_api_key)
 
-      account ->
-        Map.put(auth, :account, account)
+      api_key ->
+        Map.put(auth, :api_key, api_key)
+        Map.put(auth, :account, api_key.account)
     end
   end
 

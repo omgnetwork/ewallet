@@ -3,12 +3,28 @@ defmodule EWalletAPI.V1.TransactionController do
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.{WalletFetcher, TransactionGate}
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWalletDB.{Transaction, User, Repo, Account}
+  alias EWalletDB.{Transaction, User, Repo, Account, APIKey}
 
   @preload_fields [:from_token, :to_token]
   @mapped_fields %{"created_at" => "inserted_at"}
   @search_fields [:id, :idempotency_token, :status, :from, :to]
   @sort_fields [:id, :status, :from, :to, :inserted_at, :updated_at]
+  @allowed_fields [
+    "idempotency_token",
+    "from_address",
+    "to_address",
+    "to_account_id",
+    "to_user_id",
+    "to_provider_user_id",
+    "from_token_id",
+    "to_token_id",
+    "token_id",
+    "from_amount",
+    "to_amount",
+    "amount",
+    "metadata",
+    "encrypted_metadata"
+  ]
 
   @doc """
   Server endpoint
@@ -72,30 +88,23 @@ defmodule EWalletAPI.V1.TransactionController do
   end
 
   def create(conn, attrs) do
-    allowed = [
-      "idempotency_token",
-      "from_address",
-      "to_address",
-      "to_account_id",
-      "to_user_id",
-      "to_provider_user_id",
-      "from_token_id",
-      "to_token_id",
-      "token_id",
-      "from_amount",
-      "to_amount",
-      "amount",
-      "metadata",
-      "encrypted_metadata"
-    ]
-
     attrs
-    |> Enum.filter(fn {k, _v} -> Enum.member?(allowed, k) end)
+    |> Enum.filter(fn {k, _v} -> Enum.member?(@allowed_fields, k) end)
     |> Enum.into(%{})
-    |> Map.put("exchange_account_id", Account.get_master_account().id)
+    |> Map.put("exchange_wallet_address", get_exchange_address(conn.assigns))
     |> Map.put("from_user_id", conn.assigns.user.id)
     |> TransactionGate.create()
     |> respond(conn)
+  end
+
+  defp get_exchange_address(%APIKey{exchange_address: exchange_address}) when not is_nil(exchange_address) do
+    exchange_address
+  end
+
+  defp get_exchange_address(_) do
+    Account.get_master_account()
+    |> Account.get_primary_wallet()
+    |> Map.get(:address)
   end
 
   defp clean_address_search_terms(user, %{"search_terms" => terms} = attrs) do

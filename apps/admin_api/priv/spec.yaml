@@ -3991,7 +3991,7 @@ components:
                 type: integer
               exchange_account_id:
                 type: string
-              exchange_account_address:
+              exchange_wallet_address:
                 type: string
               metadata:
                 type: object

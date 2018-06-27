@@ -490,7 +490,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided"
+               "description" => "'idempotency_token' is required."
              }
     end
 

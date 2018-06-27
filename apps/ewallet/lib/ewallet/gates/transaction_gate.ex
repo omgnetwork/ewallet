@@ -3,7 +3,7 @@ defmodule EWallet.TransactionGate do
   Handles the logic for a transaction of value from an account to a user. Delegates the
   actual transaction to EWallet.TransactionGate once the wallets have been loaded.
   """
-  alias EWallet.{TransactionSourceFetcher, TokenFetcher, TransactionFormatter, AmountFetcher}
+  alias EWallet.{TransactionSourceFetcher, TokenFetcher, TransactionFormatter, AmountFetcher, AccountFetcher}
   alias EWalletDB.Transaction
   alias LocalLedger.Transaction, as: LedgerTransaction
 
@@ -12,8 +12,8 @@ defmodule EWallet.TransactionGate do
          {:ok, to} <- TransactionSourceFetcher.fetch_to(attrs),
          {:ok, from, to} <- TokenFetcher.fetch(attrs, from, to),
          {:ok, from, to} <- AmountFetcher.fetch(attrs, from, to),
-         {:ok, exchange_account_uuid} <- TokenFetcher.fetch_exchange_account(attrs),
-         {:ok, transaction} <- get_or_insert(from, to, exchange_account_uuid, attrs) do
+         {:ok, from} <- AccountFetcher.fetch_exchange_account(attrs, from),
+         {:ok, transaction} <- get_or_insert(from, to, attrs) do
       process_with_transaction(transaction)
     else
       error when is_atom(error) -> {:ok, error}
@@ -41,7 +41,6 @@ defmodule EWallet.TransactionGate do
   def get_or_insert(
         from,
         to,
-        exchange_account_uuid,
         %{
           "idempotency_token" => idempotency_token
         } = attrs
@@ -58,7 +57,8 @@ defmodule EWallet.TransactionGate do
       to_amount: to.to_amount,
       from_token_uuid: from.from_token.uuid,
       to_token_uuid: to.to_token.uuid,
-      exchange_account_uuid: exchange_account_uuid,
+      exchange_account_uuid: from[:exchange_account_uuid],
+      exchange_wallet_address: from[:exchange_wallet_address],
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       payload: attrs,
@@ -66,8 +66,8 @@ defmodule EWallet.TransactionGate do
     })
   end
 
-  def get_or_insert(_, _, _, _) do
-    {:error, :invalid_parameter}
+  def get_or_insert(_, _, _) do
+    {:error, :invalid_parameter, "'idempotency_token' is required."}
   end
 
   def update_transaction(

@@ -227,7 +227,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided",
+                 "description" => "'idempotency_token' is required.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -528,7 +528,8 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
   describe "/me.create_transaction with exchange" do
     test "updates the wallets and returns the transaction after exchange with min params" do
       {:ok, account} =  :account |> params_for() |> Account.insert()
-      wallet_1 = User.get_primary_wallet(get_test_user())
+      user = get_test_user()
+      wallet_1 = User.get_primary_wallet(user)
       wallet_2 =  Account.get_primary_wallet(account)
       token_1 = insert(:token, subunit_to_unit: 100)
       token_2 = insert(:token, subunit_to_unit: 1000)
@@ -556,10 +557,14 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert response["success"] == true
       assert response["data"]["object"] == "transaction"
 
+      assert response["data"]["from"]["account_id"] == nil
+      assert response["data"]["from"]["user_id"] == user.id
       assert response["data"]["from"]["address"] == wallet_1.address
       assert response["data"]["from"]["amount"] == 1_000 * token_1.subunit_to_unit
       assert response["data"]["from"]["token_id"] == token_1.id
 
+      assert response["data"]["to"]["user_id"] == nil
+      assert response["data"]["to"]["account_id"] == account.id
       assert response["data"]["to"]["address"] == wallet_2.address
       assert response["data"]["to"]["amount"] == 2_000 * token_2.subunit_to_unit
       assert response["data"]["to"]["token_id"] == token_2.id

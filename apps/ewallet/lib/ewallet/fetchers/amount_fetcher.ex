@@ -52,9 +52,14 @@ defmodule EWallet.AmountFetcher do
   defp do_fetch(from_amount, to_amount, from, to) do
     case Exchange.calculate(from_amount, from[:from_token], to_amount, to[:to_token]) do
       {:ok, calculation} ->
-        {:ok, Map.put(from, :from_amount, calculation.from_amount),
-         Map.put(to, :to_amount, calculation.to_amount)}
+        from =
+          from
+          |> Map.put(:from_amount, calculation.from_amount)
+          |> Map.put(:actual_rate, calculation.actual_rate)
+          |> Map.put(:calculated_at, calculation.calculated_at)
+          |> Map.put(:pair_uuid, calculation.pair.uuid)
 
+        {:ok, from, Map.put(to, :to_amount, calculation.to_amount)}
       error ->
         error
     end
