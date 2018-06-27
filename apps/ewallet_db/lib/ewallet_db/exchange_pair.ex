@@ -58,6 +58,19 @@ defmodule EWalletDB.ExchangePair do
 
   defp changeset(exchange_pair, attrs) do
     exchange_pair
+    |> cast(attrs, [:name, :from_token_uuid, :to_token_uuid, :rate])
+    |> validate_required([:name, :rate])
+    |> assoc_constraint(:from_token)
+    |> assoc_constraint(:to_token)
+    |> unique_constraint(:name)
+    |> unique_constraint(
+      :from_token,
+      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_index"
+    )
+  end
+
+  defp update_changeset(exchange_pair, attrs) do
+    exchange_pair
     |> cast(attrs, [:name, :rate])
     |> validate_required([:name, :rate])
     |> unique_constraint(:name)
@@ -117,7 +130,7 @@ defmodule EWalletDB.ExchangePair do
   @spec update(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def update(exchange_pair, attrs) do
     exchange_pair
-    |> changeset(attrs)
+    |> update_changeset(attrs)
     |> Repo.update()
   end
 
