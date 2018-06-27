@@ -20,8 +20,9 @@ defmodule EWalletDB.TokenTest do
       {:ok, token} = :token |> params_for(id: nil, symbol: "OMG") |> Token.insert()
 
       assert "tok_OMG_" <> ulid = token.id
-      # A ULID has 26 characters
+      # A ULID has 26 characters and are lower cases
       assert String.length(ulid) == 26
+      assert ulid == String.downcase(ulid)
     end
 
     test "allow subunit to be set between 0 and 1.0e18" do
