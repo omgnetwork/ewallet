@@ -40,21 +40,35 @@ const TransactionIdContainer = styled.div`
   }
 `
 const StatusContainer = TransactionIdContainer.extend`
-  i[name=Close] {
-    color: red;
-  }
-  i[name=Checkmark] {
-    color: green;
+  i {
+    color: white;
+    font-size: 10px;
+    margin: 0;
   }
 `
 const Sign = styled.span`
   width: 10px;
   display: inline-block;
+  vertical-align: middle;
 `
 const FromToContainer = styled.div`
   > div:first-child {
     white-space: nowrap;
-    margin-bottom: 5px;
+    margin-bottom: 10px;
+    span {
+      vertical-align: middle;
+    }
+  }
+`
+const MarkContainer = styled.div`
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background-color: ${props => (props.status === 'failed' ? '#FC7166' : '#0EBF9A')};
+  display: inline-block;
+  text-align: center;
+  line-height: 18px;
+  margin-right: 5px;
   }
 `
 const columns = [
@@ -127,7 +141,16 @@ class TransactionPage extends Component {
     if (key === 'status') {
       return (
         <StatusContainer>
-          {data === 'failed' ? <Icon name='Close' /> : <Icon name='Checkmark' />} <span>{data}</span>
+          {data === 'failed' ? (
+            <MarkContainer status='failed'>
+              <Icon name='Close' />
+            </MarkContainer>
+          ) : (
+            <MarkContainer status='success'>
+              <Icon name='Checkmark' />
+            </MarkContainer>
+          )}{' '}
+          <span>{data}</span>
         </StatusContainer>
       )
     }
@@ -143,12 +166,18 @@ class TransactionPage extends Component {
       return (
         <FromToContainer>
           <div>
-            <Sign>-</Sign>{(rows.from.amount / rows.from.token.subunit_to_unit).toLocaleString()}{' '}
-            {rows.from.token.symbol}
+            <Sign>-</Sign>
+            <span>
+              {(rows.from.amount / rows.from.token.subunit_to_unit).toLocaleString()}{' '}
+              {rows.from.token.symbol}
+            </span>
           </div>
           <div>
-            <Sign>+</Sign>{(rows.to.amount / rows.from.token.subunit_to_unit).toLocaleString()}{' '}
-            {rows.to.token.symbol}
+            <Sign>+</Sign>
+            <span>
+              {(rows.to.amount / rows.from.token.subunit_to_unit).toLocaleString()}{' '}
+              {rows.to.token.symbol}
+            </span>
           </div>
         </FromToContainer>
       )

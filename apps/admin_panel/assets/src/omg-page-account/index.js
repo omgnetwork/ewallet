@@ -163,7 +163,7 @@ class AccountPage extends Component {
         {...this.props}
         query={{
           page: this.state.loadMoreTime,
-          perPage: 5,
+          perPage: 10,
           search: queryString.parse(this.props.location.search).search
         }}
       />
