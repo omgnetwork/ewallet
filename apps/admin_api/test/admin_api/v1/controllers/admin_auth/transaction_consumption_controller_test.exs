@@ -295,7 +295,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when user_id is not provided" do
+    test "returns :invalid_parameter when user_id or provider_user_id is not provided" do
       response =
         admin_user_request("/user.get_transaction_consumptions", %{
           "sort_by" => "created",
@@ -305,7 +305,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Parameter 'user_id' is required.",
+                 "description" => "Parameter 'user_id' or 'provider_user_id' is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -314,7 +314,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :user_id_not_found when user_id is not provided" do
+    test "returns :user_id_not_found when user_id is not valid" do
       response =
         admin_user_request("/user.get_transaction_consumptions", %{
           "user_id" => "fake",
@@ -334,10 +334,50 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns all the transaction_consumptions for a user", meta do
+    test "returns :provider_user_id_not_found when provider_user_id is not valid" do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "provider_user_id" => "fake",
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert response == %{
+               "success" => false,
+               "version" => "1",
+               "data" => %{
+                 "messages" => nil,
+                 "object" => "error",
+                 "code" => "user:provider_user_id_not_found",
+                 "description" =>
+                   "There is no user corresponding to the provided provider_user_id"
+               }
+             }
+    end
+
+    test "returns all the transaction_consumptions for a user when given a user_id", meta do
       response =
         admin_user_request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert length(response["data"]["data"]) == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
+    end
+
+    test "returns all the transaction_consumptions for a user when given a provider_user_id",
+         meta do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "provider_user_id" => meta.user.provider_user_id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -444,7 +484,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when transaction_request_id is not provided" do
+    test "returns :invalid_parameter when formatted_transaction_request_id is not provided" do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
           "sort_by" => "created",
@@ -454,7 +494,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Parameter 'transaction_request_id' is required.",
+                 "description" => "Parameter 'formatted_transaction_request_id' is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -463,10 +503,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :transaction_request_id_not_found when transaction_request_id is not provided" do
+    test "returns :transaction_request_id_not_found when formatted_transaction_request_id is not valid" do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
-          "transaction_request_id" => "fake",
+          "formatted_transaction_request_id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -487,7 +527,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns all the transaction_consumptions for a transaction_request", meta do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
-          "transaction_request_id" => meta.transaction_request.id,
+          "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -505,7 +545,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns all the transaction_consumptions for a specific status", meta do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
-          "transaction_request_id" => meta.transaction_request.id,
+          "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -525,7 +565,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "ignores the search_term parameter", meta do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
-          "transaction_request_id" => meta.transaction_request.id,
+          "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_term" => "pending"
@@ -544,7 +584,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
-          "transaction_request_id" => meta.transaction_request.id,
+          "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -860,9 +900,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                  "messages" => nil,
                  "code" => "transaction:insufficient_funds",
                  "description" =>
-                   "The specified wallet (#{meta.account_wallet.address}) does not contain enough funds. Available: 0.0 #{
+                   "The specified wallet (#{meta.account_wallet.address}) does not contain enough funds. Available: 0 #{
                      meta.token.id
-                   } - Attempted debit: 100000.0 #{meta.token.id}"
+                   } - Attempted debit: 100000 #{meta.token.id}"
                }
              }
 

@@ -385,9 +385,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"] == %{
                "code" => "transaction:insufficient_funds",
                "description" =>
-                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0.0 #{
+                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0 #{
                    token.id
-                 } - Attempted debit: 10000.0 #{token.id}",
+                 } - Attempted debit: 10000 #{token.id}",
                "messages" => nil,
                "object" => "error"
              }
