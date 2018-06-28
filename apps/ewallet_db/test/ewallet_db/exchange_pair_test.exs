@@ -12,6 +12,24 @@ defmodule EWalletDB.ExchangePairTest do
     test_insert_prevent_blank(ExchangePair, :name)
     test_insert_prevent_blank(ExchangePair, :rate)
     test_insert_generate_timestamps(ExchangePair)
+
+    test "prevents setting exchange rate to 0" do
+      params = params_for(:exchange_pair, rate: 0)
+      {res, changeset} = ExchangePair.insert(params)
+
+      assert res == :error
+      assert changeset.errors ==
+        [rate: {"must be greater than %{number}", [validation: :number, number: 0]}]
+    end
+
+    test "prevents setting exchange rate to a negative number" do
+      params = params_for(:exchange_pair, rate: -1)
+      {res, changeset} = ExchangePair.insert(params)
+
+      assert res == :error
+      assert changeset.errors ==
+        [rate: {"must be greater than %{number}", [validation: :number, number: 0]}]
+    end
   end
 
   describe "deleted?/1" do

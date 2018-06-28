@@ -60,6 +60,7 @@ defmodule EWalletDB.ExchangePair do
     exchange_pair
     |> cast(attrs, [:name, :from_token_uuid, :to_token_uuid, :rate])
     |> validate_required([:name, :rate])
+    |> validate_number(:rate, greater_than: 0)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
     |> unique_constraint(:name)
