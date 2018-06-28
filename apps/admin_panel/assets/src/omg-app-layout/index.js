@@ -6,11 +6,13 @@ import PropTypes from 'prop-types'
 import AccountSelectorMenu from './AccountSelectorMenu'
 import withClickOutsideEnhancer from '../enhancer/clickOutside'
 import { compose } from 'recompose'
-import AccountsProvider from '../omg-account/accountsProvider'
+import AccountsFetcher from '../omg-account/accountsFetcher'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
+import ReactDOM from 'react-dom'
+import LoadingBar from 'react-redux-loading-bar'
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -30,7 +32,14 @@ const ContentContainer = styled.div`
 const Content = styled.div`
   padding: 0 7%;
 `
-const enhance = compose(connect(null, { switchAccount }), withRouter, withClickOutsideEnhancer)
+const enhance = compose(
+  connect(
+    null,
+    { switchAccount }
+  ),
+  withRouter,
+  withClickOutsideEnhancer
+)
 const EnhancedAccountSelectorMenuClickOutside = enhance(
   class extends Component {
     static propTypes = {
@@ -38,6 +47,9 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
       location: PropTypes.object,
       history: PropTypes.object,
       switchAccount: PropTypes.func
+    }
+    state = {
+      searchValue: ''
     }
     handleClickOutside = () => {
       this.props.closeSwitchAccountTab()
@@ -50,15 +62,23 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
       this.handleClickOutside()
       this.props.switchAccount(account)
     }
+
+    onSearchChange = e => {
+      this.setState({ searchValue: e.target.value })
+    }
+
     render () {
       return (
-        <AccountsProvider
+        <AccountsFetcher
+          query={{ search: this.state.searchValue, perPage: 20, page: 1 }}
           render={({ accounts }) => {
             return (
               <AccountSelectorMenu
                 accounts={accounts}
                 onClickAccountItem={this.onClickAccountItem}
                 onKeyDown={this.onKeyDown}
+                onSearchChange={this.onSearchChange}
+                searchValue={this.state.searchValue}
               />
             )
           }}
@@ -82,9 +102,13 @@ class AppLayout extends Component {
   onClickSwitchAccount = () => {
     this.setState({ switchAccount: true })
   }
+  scrollTopContentContainer = () => {
+    ReactDOM.findDOMNode(this.contentContainer).scrollTo(0, 0)
+  }
   render () {
     return (
       <Container>
+        <LoadingBar style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
         <SideNav
           switchAccount={this.state.switchAccount}
           onClickSwitchAccount={this.onClickSwitchAccount}
@@ -94,9 +118,13 @@ class AppLayout extends Component {
             closeSwitchAccountTab={this.closeSwitchAccountTab}
           />
         )}
-        <ContentContainer>
+        <ContentContainer innerRef={contentContainer => (this.contentContainer = contentContainer)}>
           <TopBar />
-          <Content>{this.props.children}</Content>
+          <Content>
+            {React.cloneElement(this.props.children, {
+              scrollTopContentContainer: this.scrollTopContentContainer
+            })}
+          </Content>
         </ContentContainer>
         <Alert />
       </Container>

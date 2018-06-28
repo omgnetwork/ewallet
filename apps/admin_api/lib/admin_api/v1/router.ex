@@ -19,10 +19,18 @@ defmodule AdminAPI.V1.Router do
 
     post("/auth_token.switch_account", AdminAuthController, :switch_account)
 
+    # Exchange pair endpoints
+    post("/exchange_pair.all", ExchangePairController, :all)
+    post("/exchange_pair.get", ExchangePairController, :get)
+    post("/exchange_pair.create", ExchangePairController, :create)
+    post("/exchange_pair.update", ExchangePairController, :update)
+    post("/exchange_pair.delete", ExchangePairController, :delete)
+
     # Token endpoints
     post("/token.all", TokenController, :all)
     post("/token.get", TokenController, :get)
     post("/token.create", TokenController, :create)
+    post("/token.update", TokenController, :update)
     post("/token.stats", TokenController, :stats)
     post("/token.get_mints", MintController, :all_for_token)
     post("/token.mint", MintController, :mint)

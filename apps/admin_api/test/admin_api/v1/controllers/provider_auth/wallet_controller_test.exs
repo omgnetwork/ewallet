@@ -22,14 +22,14 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
     end
 
     test "returns a list of wallets according to search_term, sort_by and sort_direction" do
-      insert(:wallet, %{address: "XYZ1"})
-      insert(:wallet, %{address: "XYZ3"})
-      insert(:wallet, %{address: "XYZ2"})
-      insert(:wallet, %{address: "ZZZ1"})
+      insert(:wallet, %{address: "aaaa111111111111"})
+      insert(:wallet, %{address: "aaaa333333333333"})
+      insert(:wallet, %{address: "aaaa222222222222"})
+      insert(:wallet, %{address: "bbbb111111111111"})
 
       attrs = %{
         # Search is case-insensitive
-        "search_term" => "xYz",
+        "search_term" => "aAa",
         "sort_by" => "address",
         "sort_dir" => "desc"
       }
@@ -39,9 +39,9 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       assert response["success"]
       assert Enum.count(wallets) == 3
-      assert Enum.at(wallets, 0)["address"] == "XYZ3"
-      assert Enum.at(wallets, 1)["address"] == "XYZ2"
-      assert Enum.at(wallets, 2)["address"] == "XYZ1"
+      assert Enum.at(wallets, 0)["address"] == "aaaa333333333333"
+      assert Enum.at(wallets, 1)["address"] == "aaaa222222222222"
+      assert Enum.at(wallets, 2)["address"] == "aaaa111111111111"
     end
   end
 
@@ -76,10 +76,30 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
     test "returns a list of wallets according to sort_by and sort_direction" do
       account = insert(:account)
-      insert(:wallet, %{account: account, address: "XYZ1", identifier: "secondary_1"})
-      insert(:wallet, %{account: account, address: "XYZ3", identifier: "secondary_2"})
-      insert(:wallet, %{account: account, address: "XYZ2", identifier: "secondary_3"})
-      insert(:wallet, %{account: account, address: "ZZZ1", identifier: "secondary_4"})
+
+      insert(:wallet, %{
+        account: account,
+        address: "aaaa111111111111",
+        identifier: "secondary_1"
+      })
+
+      insert(:wallet, %{
+        account: account,
+        address: "aaaa333333333333",
+        identifier: "secondary_2"
+      })
+
+      insert(:wallet, %{
+        account: account,
+        address: "aaaa222222222222",
+        identifier: "secondary_3"
+      })
+
+      insert(:wallet, %{
+        account: account,
+        address: "bbbb111111111111",
+        identifier: "secondary_4"
+      })
 
       attrs = %{
         "id" => account.id,
@@ -93,10 +113,10 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       assert response["success"]
       assert Enum.count(wallets) == 4
-      assert Enum.at(wallets, 0)["address"] == "ZZZ1"
-      assert Enum.at(wallets, 1)["address"] == "XYZ3"
-      assert Enum.at(wallets, 2)["address"] == "XYZ2"
-      assert Enum.at(wallets, 3)["address"] == "XYZ1"
+      assert Enum.at(wallets, 0)["address"] == "bbbb111111111111"
+      assert Enum.at(wallets, 1)["address"] == "aaaa333333333333"
+      assert Enum.at(wallets, 2)["address"] == "aaaa222222222222"
+      assert Enum.at(wallets, 3)["address"] == "aaaa111111111111"
 
       Enum.each(wallets, fn wallet ->
         assert wallet["account_id"] == account.id
@@ -129,10 +149,10 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
     test "returns a list of wallets according to sort_by and sort_direction" do
       user = insert(:user)
-      insert(:wallet, %{user: user, address: "XYZ1", identifier: "secondary_1"})
-      insert(:wallet, %{user: user, address: "XYZ3", identifier: "secondary_2"})
-      insert(:wallet, %{user: user, address: "XYZ2", identifier: "secondary_3"})
-      insert(:wallet, %{user: user, address: "ZZZ1", identifier: "secondary_4"})
+      insert(:wallet, %{user: user, address: "aaaa111111111111", identifier: "secondary_1"})
+      insert(:wallet, %{user: user, address: "aaaa333333333333", identifier: "secondary_2"})
+      insert(:wallet, %{user: user, address: "aaaa222222222222", identifier: "secondary_3"})
+      insert(:wallet, %{user: user, address: "bbbb111111111111", identifier: "secondary_4"})
 
       attrs = %{
         "id" => user.id,
@@ -145,10 +165,10 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       assert response["success"]
       assert Enum.count(wallets) == 4
-      assert Enum.at(wallets, 0)["address"] == "ZZZ1"
-      assert Enum.at(wallets, 1)["address"] == "XYZ3"
-      assert Enum.at(wallets, 2)["address"] == "XYZ2"
-      assert Enum.at(wallets, 3)["address"] == "XYZ1"
+      assert Enum.at(wallets, 0)["address"] == "bbbb111111111111"
+      assert Enum.at(wallets, 1)["address"] == "aaaa333333333333"
+      assert Enum.at(wallets, 2)["address"] == "aaaa222222222222"
+      assert Enum.at(wallets, 3)["address"] == "aaaa111111111111"
 
       Enum.each(wallets, fn wallet ->
         assert wallet["user_id"] == user.id
@@ -301,7 +321,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
     end
 
     test "returns 'wallet:address_not_found' if the given ID was not found" do
-      response = provider_request("/wallet.get", %{"address" => "wrong_address"})
+      response = provider_request("/wallet.get", %{"address" => "fake-0000-0000-0000"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
@@ -524,10 +544,9 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
                "description" =>
-                 "Invalid parameter provided `account_id`, `user_id` can't all be blank. `address` can't be blank. `identifier` can't be blank.",
+                 "Invalid parameter provided `account_id`, `user_id` can't all be blank. `identifier` can't be blank.",
                "messages" => %{
                  "account_id, user_id" => ["required_exclusive"],
-                 "address" => ["required"],
                  "identifier" => ["required"]
                },
                "object" => "error"

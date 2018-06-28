@@ -190,7 +190,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           token_id: token.id,
           correlation_id: nil,
           amount: nil,
-          address: "fake"
+          address: "fake000000000000"
         })
 
       assert response == %{

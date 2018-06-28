@@ -157,7 +157,7 @@ export default class Dashboard extends Component {
             <Section title={'Token Status'}>
               <RatioBar
                 title='TOKEN PROPORTION'
-                dataSource={[
+                rows={[
                   { percent: 20, content: 'transaction', color: '#A4C4F8' },
                   { percent: 80, content: 'transaction', color: 'rgba(0,0,0,0.7)' }
                 ]}

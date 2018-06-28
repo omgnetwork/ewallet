@@ -1,10 +1,10 @@
 import { authenticatedRequest, authenticatedMultipartRequest } from './apiService'
 
-export function getAllAdmins ({ per, sort, query, ...rest }) {
+export function getAllAdmins ({ perPage, sort, query, ...rest }) {
   return authenticatedRequest({
     path: '/admin.all',
     data: {
-      per_page: per,
+      per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
       search_term: query,

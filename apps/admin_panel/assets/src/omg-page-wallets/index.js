@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
-import WalletsProvider from '../omg-wallet/walletsProvider'
+import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -90,21 +90,23 @@ class WalletPage extends Component {
     }
     return data
   }
-  renderWalletPage = ({ wallets, loadingStatus }) => {
+  renderWalletPage = ({ data: wallets, loadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
         <TopNavigation
           title={'Wallets'}
-          // buttons={[this.renderExportButton()]}
         />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
-            dataSource={this.getRow(wallets)}
+            rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
             loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
-            perPage={20}
+
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
+            isFirstPage={pagination.is_first_page}
+            isLastPage={pagination.is_last_page}
+            navigation
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
@@ -114,12 +116,16 @@ class WalletPage extends Component {
 
   render () {
     return (
-      <WalletsProvider
-        render={this.renderWalletPage}
+      <WalletsFetcher
         {...this.state}
         {...this.props}
         accountId={this.props.match.params.accountId}
-        search={queryString.parse(this.props.location.search).search}
+        render={this.renderWalletPage}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
       />
     )
   }

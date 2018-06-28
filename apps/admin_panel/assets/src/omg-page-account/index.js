@@ -5,7 +5,7 @@ import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
-import AccountProvider from '../omg-account/accountsProvider'
+import AccountsFetcher from '../omg-account/accountsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -34,7 +34,8 @@ class AccountPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    scrollTopContentContainer: PropTypes.func
   }
   constructor (props) {
     super(props)
@@ -43,6 +44,7 @@ class AccountPage extends Component {
       exportModalOpen: false
     }
   }
+
   onClickCreateAccount = () => {
     this.setState({ createAccountModalOpen: true })
   }
@@ -83,7 +85,7 @@ class AccountPage extends Component {
     return accounts.map(d => {
       return {
         ...d,
-        avatar: d.avatar.thumb,
+        avatar: _.get(d, 'avatar.thumb'),
         key: d.id
       }
     })
@@ -111,26 +113,26 @@ class AccountPage extends Component {
     }
     return data
   }
-  renderAccountPage = ({ accounts, loadingStatus }) => {
+  renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
-        <TopNavigation
-          title={'Account'}
-          buttons={[this.renderCreateAccountButton()]}
-        />
+        <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
-            dataSource={this.getRow(accounts)}
+            rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
-            loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
-            perPage={20}
+            loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
+            isFirstPage={pagination.is_first_page}
+            isLastPage={pagination.is_last_page}
+            navigation
           />
         </SortableTableContainer>
         <CreateAccountModal
           open={this.state.createAccountModalOpen}
           onRequestClose={this.onRequestCloseCreateAccount}
+          onCreateAccount={fetch}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </AccountPageContainer>
@@ -139,11 +141,16 @@ class AccountPage extends Component {
 
   render () {
     return (
-      <AccountProvider
+      <AccountsFetcher
         render={this.renderAccountPage}
         {...this.state}
         {...this.props}
-        search={queryString.parse(this.props.location.search).search}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
+        onFetchComplete={this.props.scrollTopContentContainer}
       />
     )
   }

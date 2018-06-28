@@ -124,6 +124,8 @@ defmodule EWalletDB.Transaction do
       :metadata,
       :encrypted_metadata
     ])
+    |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
+    |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_from_wallet_identifier()
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)

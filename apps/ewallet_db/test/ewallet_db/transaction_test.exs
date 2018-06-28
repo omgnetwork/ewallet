@@ -87,6 +87,26 @@ defmodule EWalletDB.TransactionTest do
                from: {"can't be blank", [validation: :required]}
              ]
     end
+
+    test "succeed with from_amount < 100_000_000_000_000_000_000_000_000_000_000_000" do
+      {res, transaction} =
+        :transaction
+        |> params_for(from_amount: 99_999_999_999_999_999_999_999_999_999_999_999)
+        |> Transaction.insert()
+
+      assert res == :ok
+      assert transaction.from_amount == 99_999_999_999_999_999_999_999_999_999_999_999
+    end
+
+    test "succeed with to_amount < 100_000_000_000_000_000_000_000_000_000_000_000" do
+      {res, transaction} =
+        :transaction
+        |> params_for(to_amount: 99_999_999_999_999_999_999_999_999_999_999_999)
+        |> Transaction.insert()
+
+      assert res == :ok
+      assert transaction.to_amount == 99_999_999_999_999_999_999_999_999_999_999_999
+    end
   end
 
   describe "confirm/2" do
@@ -133,6 +153,36 @@ defmodule EWalletDB.TransactionTest do
       assert transaction.error_code == "error"
       assert transaction.error_description == nil
       assert transaction.error_data == %{}
+    end
+
+    test "fails when from_amount is >= 100_000_000_000_000_000_000_000_000_000_000_000 (max 35 digits)" do
+      {res, error} =
+        :transaction
+        |> params_for(from_amount: 100_000_000_000_000_000_000_000_000_000_000_000)
+        |> Transaction.insert()
+
+      assert res == :error
+
+      assert error.errors == [
+               from_amount:
+                 {"must be less than %{number}",
+                  [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
+             ]
+    end
+
+    test "fails when to_amount is >= 100_000_000_000_000_000_000_000_000_000_000_000 (max 35 digits)" do
+      {res, error} =
+        :transaction
+        |> params_for(to_amount: 100_000_000_000_000_000_000_000_000_000_000_000)
+        |> Transaction.insert()
+
+      assert res == :error
+
+      assert error.errors == [
+               to_amount:
+                 {"must be less than %{number}",
+                  [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
+             ]
     end
   end
 end

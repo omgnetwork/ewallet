@@ -26,6 +26,7 @@ defmodule EWalletDB.Factory do
   }
 
   alias EWalletDB.Helpers.Crypto
+  alias EWalletDB.Types.WalletAddress
   alias Ecto.UUID
   alias ExULID.ULID
 
@@ -60,9 +61,11 @@ defmodule EWalletDB.Factory do
   end
 
   def wallet_factory do
+    {:ok, address} = WalletAddress.generate()
+
     %Wallet{
-      address: sequence("address"),
-      name: sequence("name"),
+      address: address,
+      name: sequence("Wallet name"),
       identifier: Wallet.primary(),
       user: insert(:user),
       metadata: %{}

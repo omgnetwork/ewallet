@@ -32,7 +32,8 @@ defmodule EWallet.Umbrella.Mixfile do
       {:credo, "~> 0.9.2", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:excoveralls, "~> 0.8", only: :test, runtime: false},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
+      {:dialyxir, "~> 0.5", only: [:dev], runtime: false},
+      {:decimal, "~> 1.0"}
     ]
   end
 

@@ -368,7 +368,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
     end
 
     test "returns transaction:insufficient_funds when the sending address does not have enough funds" do
-      token = insert(:token)
+      token = insert(:token, subunit_to_unit: 100)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
 
@@ -378,7 +378,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,
-          "amount" => 1_000_000
+          "amount" => 1_234_567
         })
 
       assert response["success"] == false
@@ -386,9 +386,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"] == %{
                "code" => "transaction:insufficient_funds",
                "description" =>
-                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0.0 #{
+                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0 #{
                    token.id
-                 } - Attempted debit: 10000.0 #{token.id}",
+                 } - Attempted debit: 12345.67 #{token.id}",
                "messages" => nil,
                "object" => "error"
              }
@@ -433,7 +433,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
         admin_user_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
-          "to_address" => "fake",
+          "to_address" => "fake-0000-0000-0000",
           "token_id" => token.id,
           "amount" => 1_000_000
         })
@@ -455,7 +455,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       response =
         admin_user_request("/transaction.create", %{
           "idempotency_token" => "123",
-          "from_address" => "fake",
+          "from_address" => "fake-0000-0000-0000",
           "to_address" => wallet_2.address,
           "token_id" => token.id,
           "amount" => 1_000_000

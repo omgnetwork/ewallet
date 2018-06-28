@@ -163,8 +163,8 @@ defmodule EWalletAPI.V1.TransferControllerTest do
                  "code" => "transaction:insufficient_funds",
                  "description" =>
                    "The specified wallet (#{wallet1.address}) does not " <>
-                     "contain enough funds. Available: 0.0 #{token.id} - " <>
-                     "Attempted debit: 100000.0 #{token.id}",
+                     "contain enough funds. Available: 0 #{token.id} - " <>
+                     "Attempted debit: 100000 #{token.id}",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -178,7 +178,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response =
         client_request("/me.transfer", %{
           idempotency_token: UUID.generate(),
-          from_address: "00000000-0000-0000-0000-000000000000",
+          from_address: "none000000000000",
           to_address: wallet.address,
           token_id: token.id,
           amount: 100_000
@@ -231,7 +231,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         client_request("/me.transfer", %{
           idempotency_token: UUID.generate(),
           from_address: wallet.address,
-          to_address: "00000000-0000-0000-0000-000000000000",
+          to_address: "none000000000000",
           token_id: token.id,
           amount: 100_000
         })
