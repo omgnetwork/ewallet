@@ -6,15 +6,15 @@ defmodule EWallet.TransactionSourceFetcher do
   alias EWalletDB.{Repo, Account, User}
 
   def fetch_from(%{"from_account_id" => _, "from_user_id" => _}) do
-    {:error, :from_account_id_and_from_user_id_exclusive}
+    {:error, :invalid_parameter, "'from_account_id' and 'from_user_id' are exclusive"}
   end
 
   def fetch_from(%{"from_account_id" => _, "from_provider_user_id" => _}) do
-    {:error, :from_account_id_and_from_provider_user_id_exclusive}
+    {:error, :invalid_parameter, "'from_account_id' and 'from_provider_user_id' are exclusive"}
   end
 
   def fetch_from(%{"from_user_id" => _, "from_provider_user_id" => _}) do
-    {:error, :from_user_id_and_from_provider_user_id_exclusive}
+    {:error, :invalid_parameter, "'from_user_id' and 'from_provider_user_id' are exclusive"}
   end
 
   def fetch_from(%{"from_account_id" => from_account_id, "from_address" => from_address}) do
@@ -26,7 +26,14 @@ defmodule EWallet.TransactionSourceFetcher do
          from_wallet_address: wallet.address
        }}
     else
-      error -> error
+      {:error, :account_wallet_not_found} ->
+        {:error, :from_address_not_found}
+
+      {:error, :account_wallet_mismatch} ->
+        {:error, :from_address_mismatch}
+
+      error ->
+        error
     end
   end
 
@@ -119,15 +126,15 @@ defmodule EWallet.TransactionSourceFetcher do
   end
 
   def fetch_to(%{"to_account_id" => _, "to_user_id" => _}) do
-    {:error, :to_account_id_and_to_user_id_exclusive}
+    {:error, :invalid_parameter, "to_account_id_and_to_user_id_exclusive"}
   end
 
   def fetch_to(%{"to_account_id" => _, "to_provider_user_id" => _}) do
-    {:error, :to_account_id_and_to_provider_user_id_exclusive}
+    {:error, :invalid_parameter, "to_account_id_and_to_provider_user_id_exclusive"}
   end
 
   def fetch_to(%{"to_user_id" => _, "to_provider_user_id" => _}) do
-    {:error, :to_user_id_and_to_provider_user_id_exclusive}
+    {:error, :invalid_parameter, "to_user_id_and_to_provider_user_id_exclusive"}
   end
 
   def fetch_to(%{"to_account_id" => to_account_id, "to_address" => to_address}) do
