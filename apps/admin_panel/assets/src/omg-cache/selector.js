@@ -1,6 +1,5 @@
 export const selectCacheQueriesByEntity = entity => state => {
   return _.keys(state.cacheQueries).reduce((prev, curr) => {
-    console.log(curr)
     const keyObj = JSON.parse(curr)
     if (keyObj.entity === entity) {
       prev.push(curr)

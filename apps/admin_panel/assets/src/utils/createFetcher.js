@@ -40,6 +40,7 @@ export const createFetcher = (entity, reducer, selectors) => {
 
       constructor (props) {
         super(props)
+        this.fetched = {}
         this.fetchDebounce = _.debounce(this.fetch, 300, {
           leading: true,
           trailing: true
@@ -51,7 +52,7 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       componentDidUpdate = async nextProps => {
         if (this.props.cacheKey !== nextProps.cacheKey) {
-          this.fetched = false
+          delete this.fetched[nextProps.cacheKey]
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.PENDING })
           await this.fetchDebounce()
         }
@@ -82,7 +83,7 @@ export const createFetcher = (entity, reducer, selectors) => {
       fetch = async () => {
         try {
           this.props.dispatcher({ ...this.props, ...this.getQuery() }).then(result => {
-            this.fetched = true
+            this.fetched[this.props.cacheKey] = true
             if (result.data) {
               this.setState({
                 loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
@@ -92,10 +93,9 @@ export const createFetcher = (entity, reducer, selectors) => {
             } else {
               this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
             }
-            this.setState({ data: this.props.data })
           })
           setTimeout(() => {
-            if (!this.fetched) {
+            if (!this.fetched[this.props.cacheKey]) {
               this.setState({ data: this.props.data })
               console.log('fetching data taking too long... using cached data.')
             }

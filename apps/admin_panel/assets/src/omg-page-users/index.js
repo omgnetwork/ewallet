@@ -131,7 +131,6 @@ class UsersPage extends Component {
   }
 
   renderUserPage = ({ data: users, individualLoadingStatus, pagination }) => {
-    console.log(individualLoadingStatus)
     return (
       <UserPageContainer>
         <TopNavigation title={'Users'} />

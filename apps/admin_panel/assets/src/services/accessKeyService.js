@@ -5,6 +5,7 @@ export function getAllAccessKey ({ perPage, page, search, sort }) {
     path: '/access_key.all',
     data: {
       per_page: perPage,
+      page,
       sort_by: sort.by,
       sort_dir: sort.dir,
       search_term: search

@@ -12,6 +12,8 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
 import { generateAccessKey } from '../omg-access-key/action'
+import queryString from 'query-string'
+import { withRouter } from 'react-router-dom'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -67,18 +69,19 @@ const KeyContainer = styled.div`
 `
 
 const columnsApiKey = [
-  { key: 'key', title: 'Key' },
-  { key: 'user', title: 'Create by' },
-  { key: 'created_at', title: 'Date' },
-  { key: 'status', title: 'Status' }
+  { key: 'key', title: 'KEY' },
+  { key: 'user', title: 'CREATE BY' },
+  { key: 'created_at', title: 'CREATED DATE' },
+  { key: 'status', title: 'STATUS' }
 ]
 const columnsAccessKey = [
-  { key: 'key', title: 'Key' },
-  { key: 'user', title: 'Create by' },
-  { key: 'created_at', title: 'Date' },
-  { key: 'status_access', title: 'Status' }
+  { key: 'key', title: 'KEY' },
+  { key: 'user', title: 'CREATE BY' },
+  { key: 'created_at', title: 'CREATED DATE' },
+  { key: 'status_access', title: 'STATUS' }
 ]
 const enhance = compose(
+  withRouter,
   connect(
     null,
     { generateApiKey, updateApiKey, generateAccessKey }
@@ -88,7 +91,8 @@ class ApiKeyPage extends Component {
   static propTypes = {
     generateApiKey: PropTypes.func,
     generateAccessKey: PropTypes.func,
-    updateApiKey: PropTypes.func
+    updateApiKey: PropTypes.func,
+    location: PropTypes.object
   }
   state = {
     accessModalOpen: false,
@@ -113,13 +117,15 @@ class ApiKeyPage extends Component {
   onClickCreateEwalletKey = e => {
     this.setState({ ewalletModalOpen: true })
   }
-  onClickOkCreateEwalletKey = e => {
-    this.props.generateApiKey()
+  onClickOkCreateEwalletKey = fetch => async e => {
+    await this.props.generateApiKey()
+    fetch()
     this.onRequestClose()
   }
-  onClickOkCreateAccessKey = async e => {
+  onClickOkCreateAccessKey = fetch => async e => {
     this.setState({ submitStatus: 'SUBMITTING' })
     const { data } = await this.props.generateAccessKey()
+    fetch()
     this.setState({
       privateKey: data.secret_key,
       publicKey: data.access_key,
@@ -165,10 +171,10 @@ class ApiKeyPage extends Component {
     return (
       <ApiKeysFetcher
         query={{
-          page: 1,
+          page: queryString.parse(this.props.location.search)['api_key_page'],
           perPage: 5
         }}
-        render={({ data, loadingStatus }) => {
+        render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
             return {
               key: key.id,
@@ -180,7 +186,7 @@ class ApiKeyPage extends Component {
             }
           })
           return (
-            <KeySection>
+            <KeySection style={{ marginTop: '20px' }}>
               <h3>E-Wallet API Key</h3>
               <p>
                 eWallet API Keys are used to authenticate clients and allow them to perform various
@@ -191,18 +197,22 @@ class ApiKeyPage extends Component {
                 <span>Generate Key</span>
               </Button>
               <Table
+                loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowRenderer}
                 columns={columnsApiKey}
                 perPage={99999}
                 loadingColNumber={4}
-                loading={loadingStatus === 'DEFAULT'}
+                loadingStatus={individualLoadingStatus}
                 navigation
+                pageEntity='api_key_page'
+                isFirstPage={pagination.is_first_page}
+                isLastPage={pagination.is_last_page}
               />
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
                 onRequestClose={this.onRequestClose}
-                onOk={this.onClickOkCreateEwalletKey}
+                onOk={this.onClickOkCreateEwalletKey(fetch)}
               >
                 <ConfirmCreateKeyContainer>
                   <h4>Generate e-wallet key</h4>
@@ -219,10 +229,10 @@ class ApiKeyPage extends Component {
     return (
       <AccessKeyFetcher
         query={{
-          page: 1,
+          page: queryString.parse(this.props.location.search)['access_key_page'],
           perPage: 5
         }}
-        render={({ data, loadingStatus, pagination }) => {
+        render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
             return {
               key: key.access_key,
@@ -244,18 +254,20 @@ class ApiKeyPage extends Component {
                 <span>Generate Key</span>
               </Button>
               <Table
+                loadingRowNumber={6}
                 rows={apiKeysRows}
                 rowRenderer={this.rowRenderer}
                 columns={columnsAccessKey}
-                loading={loadingStatus === 'DEFAULT'}
+                loadingStatus={individualLoadingStatus}
                 navigation
                 isFirstPage={pagination.is_first_page}
                 isLastPage={pagination.is_last_page}
+                pageEntity='access_key_page'
               />
               <ConfirmationModal
                 open={this.state.accessModalOpen}
                 onRequestClose={this.onRequestClose}
-                onOk={this.onClickOkCreateAccessKey}
+                onOk={this.onClickOkCreateAccessKey(fetch)}
                 closeTimeoutMS={0}
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >

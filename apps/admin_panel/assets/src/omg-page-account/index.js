@@ -127,7 +127,7 @@ class AccountPage extends Component {
     }
     return data
   }
-  renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetchAll }) => {
+  renderAccountPage = ({ data: accounts, individualLoadingStatus, pagination, fetch }) => {
     return (
       <AccountPageContainer>
         <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
@@ -147,7 +147,7 @@ class AccountPage extends Component {
         <CreateAccountModal
           open={this.state.createAccountModalOpen}
           onRequestClose={this.onRequestCloseCreateAccount}
-          onCreateAccount={fetchAll}
+          onCreateAccount={fetch}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </AccountPageContainer>
