@@ -3,6 +3,7 @@ defmodule EWallet.AmountFetcher do
   Handles retrieval of amount from params for transactions.
   """
   alias EWallet.Exchange
+  alias EWalletDB.Helpers.Assoc
 
   def fetch(%{"amount" => _, "from_token_id" => _, "to_token_id" => _}, _, _) do
     {:error, :invalid_parameter,
@@ -57,9 +58,10 @@ defmodule EWallet.AmountFetcher do
           |> Map.put(:from_amount, calculation.from_amount)
           |> Map.put(:actual_rate, calculation.actual_rate)
           |> Map.put(:calculated_at, calculation.calculated_at)
-          |> Map.put(:pair_uuid, calculation.pair.uuid)
+          |> Map.put(:pair_uuid, Assoc.get(calculation, [:pair, :uuid]))
 
         {:ok, from, Map.put(to, :to_amount, calculation.to_amount)}
+
       error ->
         error
     end

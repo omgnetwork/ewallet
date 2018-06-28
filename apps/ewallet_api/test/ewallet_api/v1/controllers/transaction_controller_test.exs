@@ -1,6 +1,5 @@
 defmodule EWalletAPI.V1.TransactionControllerTest do
   use EWalletAPI.ConnCase, async: false
-  alias EWallet.Web.Date
   alias EWallet.BalanceFetcher
   alias EWalletDB.{User, Transaction, Account}
   alias Ecto.UUID
@@ -235,12 +234,15 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
     end
 
     test "updates the wallets and returns the transaction" do
-      wallet1 = User.get_primary_wallet(get_test_user())
-      wallet2 = insert(:wallet)
+      user_1 = get_test_user()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
       token = insert(:token)
 
       set_initial_balance(%{
-        address: wallet1.address,
+        address: wallet_1.address,
         token: token,
         amount: 200_000
       })
@@ -248,81 +250,32 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       response =
         client_request("/me.create_transaction", %{
           idempotency_token: UUID.generate(),
-          from_address: wallet1.address,
-          to_address: wallet2.address,
+          from_address: wallet_1.address,
+          to_address: wallet_2.address,
           token_id: token.id,
           amount: 100 * token.subunit_to_unit,
           metadata: %{something: "interesting"},
           encrypted_metadata: %{something: "secret"}
         })
 
-      {:ok, b1} = BalanceFetcher.get(token.id, wallet1)
+      {:ok, b1} = BalanceFetcher.get(token.id, wallet_1)
       assert List.first(b1.balances).amount == (200_000 - 100) * token.subunit_to_unit
-      {:ok, b2} = BalanceFetcher.get(token.id, wallet2)
+      {:ok, b2} = BalanceFetcher.get(token.id, wallet_2)
       assert List.first(b2.balances).amount == 100 * token.subunit_to_unit
 
       transaction = get_last_inserted(Transaction)
 
-      assert response == %{
-               "success" => true,
-               "version" => "1",
-               "data" => %{
-                 "object" => "transaction",
-                 "id" => transaction.id,
-                 "idempotency_token" => transaction.idempotency_token,
-                 "from" => %{
-                   "object" => "transaction_source",
-                   "address" => transaction.from,
-                   "amount" => transaction.from_amount,
-                   "account" => nil,
-                   "account_id" => nil,
-                   "user" => nil,
-                   "user_id" => nil,
-                   "token_id" => token.id,
-                   "token" => %{
-                     "name" => token.name,
-                     "object" => "token",
-                     "subunit_to_unit" => token.subunit_to_unit,
-                     "id" => token.id,
-                     "symbol" => token.symbol,
-                     "metadata" => %{},
-                     "encrypted_metadata" => %{},
-                     "created_at" => Date.to_iso8601(token.inserted_at),
-                     "updated_at" => Date.to_iso8601(token.updated_at)
-                   }
-                 },
-                 "to" => %{
-                   "object" => "transaction_source",
-                   "address" => transaction.to,
-                   "amount" => transaction.to_amount,
-                   "account" => nil,
-                   "account_id" => nil,
-                   "user" => nil,
-                   "user_id" => nil,
-                   "token_id" => token.id,
-                   "token" => %{
-                     "name" => token.name,
-                     "object" => "token",
-                     "subunit_to_unit" => 100,
-                     "id" => token.id,
-                     "symbol" => token.symbol,
-                     "metadata" => %{},
-                     "encrypted_metadata" => %{},
-                     "created_at" => Date.to_iso8601(token.inserted_at),
-                     "updated_at" => Date.to_iso8601(token.updated_at)
-                   }
-                 },
-                 "exchange" => %{
-                   "object" => "exchange",
-                   "rate" => 1
-                 },
-                 "metadata" => transaction.metadata || %{},
-                 "encrypted_metadata" => transaction.encrypted_metadata || %{},
-                 "status" => transaction.status,
-                 "created_at" => Date.to_iso8601(transaction.inserted_at),
-                 "updated_at" => Date.to_iso8601(transaction.updated_at)
-               }
-             }
+      assert response["data"]["from"]["address"] == transaction.from
+      assert response["data"]["from"]["amount"] == transaction.from_amount
+      assert response["data"]["from"]["account_id"] == nil
+      assert response["data"]["from"]["user_id"] == user_1.id
+      assert response["data"]["from"]["token_id"] == token.id
+
+      assert response["data"]["to"]["address"] == transaction.to
+      assert response["data"]["to"]["amount"] == transaction.to_amount
+      assert response["data"]["to"]["account_id"] == nil
+      assert response["data"]["to"]["user_id"] == user_2.id
+      assert response["data"]["to"]["token_id"] == token.id
     end
 
     test "returns a 'same_address' error when the addresses are the same" do
@@ -527,10 +480,10 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
 
   describe "/me.create_transaction with exchange" do
     test "updates the wallets and returns the transaction after exchange with min params" do
-      {:ok, account} =  :account |> params_for() |> Account.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
       user = get_test_user()
       wallet_1 = User.get_primary_wallet(user)
-      wallet_2 =  Account.get_primary_wallet(account)
+      wallet_2 = Account.get_primary_wallet(account)
       token_1 = insert(:token, subunit_to_unit: 100)
       token_2 = insert(:token, subunit_to_unit: 1000)
 
@@ -576,9 +529,9 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
     end
 
     test "updates the wallets and returns the transaction after exchange with same token" do
-      {:ok, account} =  :account |> params_for() |> Account.insert()
+      {:ok, account} = :account |> params_for() |> Account.insert()
       wallet_1 = User.get_primary_wallet(get_test_user())
-      wallet_2 =  Account.get_primary_wallet(account)
+      wallet_2 = Account.get_primary_wallet(account)
       token_1 = insert(:token, subunit_to_unit: 100)
 
       mint!(token_1)

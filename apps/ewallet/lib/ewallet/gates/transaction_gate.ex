@@ -3,7 +3,14 @@ defmodule EWallet.TransactionGate do
   Handles the logic for a transaction of value from an account to a user. Delegates the
   actual transaction to EWallet.TransactionGate once the wallets have been loaded.
   """
-  alias EWallet.{TransactionSourceFetcher, TokenFetcher, TransactionFormatter, AmountFetcher, AccountFetcher}
+  alias EWallet.{
+    TransactionSourceFetcher,
+    TokenFetcher,
+    TransactionFormatter,
+    AmountFetcher,
+    AccountFetcher
+  }
+
   alias EWalletDB.Transaction
   alias LocalLedger.Transaction, as: LedgerTransaction
 

@@ -13,7 +13,15 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   end
 
   def serialize(%Transaction{} = transaction) do
-    transaction = Preloader.preload(transaction, [:from_token, :to_token, :from_user, :to_user, :from_account, :to_account])
+    transaction =
+      Preloader.preload(transaction, [
+        :from_token,
+        :to_token,
+        :from_user,
+        :to_user,
+        :from_account,
+        :to_account
+      ])
 
     %{
       object: "transaction",

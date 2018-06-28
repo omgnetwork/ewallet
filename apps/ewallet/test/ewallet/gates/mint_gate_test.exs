@@ -24,6 +24,24 @@ defmodule EWallet.MintGateTest do
       assert transaction.status == "confirmed"
     end
 
+    test "inserts a new confirmed mint with big number" do
+      {:ok, btc} = :token |> params_for(symbol: "BTC") |> Token.insert()
+
+      {res, mint, transaction} =
+        MintGate.insert(%{
+          "idempotency_token" => UUID.generate(),
+          "token_id" => btc.id,
+          "amount" => :math.pow(1, 39),
+          "description" => "Minting 10_000 #{btc.symbol}",
+          "metadata" => %{}
+        })
+
+      assert res == :ok
+      assert mint != nil
+      assert mint.confirmed == true
+      assert transaction.status == "confirmed"
+    end
+
     test "fails to insert a new mint when the data is invalid" do
       {:ok, token} = Token.insert(params_for(:token))
 

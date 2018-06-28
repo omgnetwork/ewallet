@@ -112,6 +112,25 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint.token_uuid == token.uuid
     end
 
+    test "mints an existing token with a big number" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: :math.pow(1, 39)
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "mint"
+      assert Mint.get(response["data"]["id"]) != nil
+      assert mint != nil
+      assert mint.amount == :math.pow(1, 39)
+      assert mint.token_uuid == token.uuid
+    end
+
     test "fails to mint a non existing token" do
       response =
         admin_user_request("/token.mint", %{

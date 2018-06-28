@@ -97,7 +97,8 @@ defmodule EWalletAPI.V1.TransactionController do
     |> respond(conn)
   end
 
-  defp get_exchange_address(%APIKey{exchange_address: exchange_address}) when not is_nil(exchange_address) do
+  defp get_exchange_address(%APIKey{exchange_address: exchange_address})
+       when not is_nil(exchange_address) do
     exchange_address
   end
 
