@@ -6,20 +6,13 @@ info:
     This is the documentation for eWallet Admin API.
 
 
-    All calls must be user-authenticated or provider-authenticate. That is, the client must first
+    All calls must be user-authenticated or provider-authenticated. That is, the client must first
     authenticate with the API using the user's email and password.
     On successful authentication, the API returns an authentication token
     (i.e. `authentication_token`).
 
     Once a valid `authentication_token` is received, use the given auth token
     to make subsequent calls to the API via HTTP header:
-
-
-    ```
-    Authorization=OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
-    ```
-
-    or, if client authentication is disabled (the default):
 
     ```
     Authorization=OMGAdmin Base64(user_id:authentication_token)
@@ -29,7 +22,7 @@ info:
 
     ```
     Authorization=OMGProvider Base64(access_key:secret_key)
-
+    ```
 
     Due to HTTP-RPC nature, the API will always return a `200` HTTP status,
     including on errors. Only in case of an internal server error that `500`
@@ -4957,16 +4950,11 @@ components:
   #          SECURITY SCHEMES          #
   ######################################
   securitySchemes:
-    ClientAuth:
-      type: apiKey
-      in: header
-      name: Authorization
-      description: OMGAdmin Base64(api_key_id:api_key)
     AdminAuth:
       type: apiKey
       in: header
       name: Authorization
-      description: OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)
+      description: OMGAdmin Base64(user_id:authentication_token)
     ProviderAuth:
       type: apiKey
       in: header
