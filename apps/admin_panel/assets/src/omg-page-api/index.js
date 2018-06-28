@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button, Table, Switch } from '../omg-uikit'
+import { Button, Table, Switch, Icon } from '../omg-uikit'
 import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
 import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
@@ -76,11 +76,23 @@ const ConfirmCreateKeyContainer = styled.div`
     padding-bottom: 10px;
   }
 `
+const KeyContainer = styled.div`
+  white-space: nowrap;
+  span {
+    vertical-align: middle;
+  }
+  i {
+    color: ${props => props.theme.colors.BL400};
+    margin-right: 5px;
+  }
+`
+
 const columns = [
-  { key: 'created_at', title: 'Created' },
+  { key: 'secret', title: 'Key' },
   { key: 'user', title: 'User' },
-  { key: 'secret', title: 'Secret' },
+  { key: 'created_at', title: 'Created' },
   { key: 'expired', title: 'Status' }
+
 ]
 const enhance = compose(
   connect(
@@ -120,6 +132,13 @@ class ApiKeyPage extends Component {
           open={!data}
           onClick={this.onClickSwitch({ id: rows.key, expired: !rows.expired })}
         />
+      )
+    }
+    if (key === 'secret') {
+      return (
+        <KeyContainer>
+          <Icon name='Wallet' /> <span>{data}</span>
+        </KeyContainer>
       )
     }
     return data
