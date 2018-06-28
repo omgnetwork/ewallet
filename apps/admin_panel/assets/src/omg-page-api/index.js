@@ -230,6 +230,7 @@ class ApiKeyPage extends Component {
                 columns={columnsApiKey}
                 perPage={99999}
                 loadingColNumber={4}
+                loading={loadingStatus === 'DEFAULT'}
               />
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
@@ -271,7 +272,12 @@ class ApiKeyPage extends Component {
               <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
                 <span>Generate Key</span>
               </Button>
-              <Table rows={apiKeysRows} rowRenderer={this.rowRenderer} columns={columnsAccessKey} />
+              <Table
+                rows={apiKeysRows}
+                rowRenderer={this.rowRenderer}
+                columns={columnsAccessKey}
+                loading={loadingStatus === 'DEFAULT'}
+              />
               <ConfirmationModal
                 open={this.state.accessModalOpen}
                 onRequestClose={this.onRequestClose}

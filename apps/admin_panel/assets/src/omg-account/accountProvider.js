@@ -2,27 +2,24 @@ import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectGetAccountById, selectAccountsLoadingStatus } from './selector'
-import { getAccounts } from './action'
+import { getAccountById } from './action'
 class AccountsProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
     accountId: PropTypes.string,
     account: PropTypes.object,
-    getAccounts: PropTypes.func,
+    getAccountById: PropTypes.func,
     accountsLoadingStatus: PropTypes.string
   }
   componentDidMount = () => {
-    if (this.props.accountsLoadingStatus === 'DEFAULT') {
-      this.props.getAccounts()
-    }
+    this.props.getAccountById(this.props.accountId)
   }
   render () {
-    return this.props.render({ account: this.props.account, loadingStatus: this.props.accountsLoadingStatus })
+    return this.props.render({ account: this.props.account })
   }
 }
 export default connect((state, props) => {
   return {
-    account: selectGetAccountById(state)(props.accountId),
-    accountsLoadingStatus: selectAccountsLoadingStatus(state)
+    account: selectGetAccountById(state)(props.accountId)
   }
-}, { getAccounts })(AccountsProvider)
+}, { getAccountById })(AccountsProvider)
