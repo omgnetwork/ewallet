@@ -122,7 +122,7 @@ class SideNavigation extends PureComponent {
       { icon: 'Wallet', to: '/wallets', text: 'WALLET' },
       { icon: 'Transaction', to: '/transaction', text: 'TRANSACTION' },
       { icon: 'Transaction', to: '/consumptions', text: 'CONSUMPTION' },
-      { icon: 'Transaction', to: '/transaction_requests', text: 'REQUEST' },
+      { icon: 'Transaction', to: '/requests', text: 'REQUEST' },
       { icon: 'Key', to: '/api', text: 'API' },
       { icon: 'People', to: '/users', text: 'USERS' },
       { icon: 'Setting', to: '/setting', text: 'SETTING' }

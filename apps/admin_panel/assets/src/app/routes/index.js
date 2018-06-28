@@ -47,7 +47,7 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/wallet/:walletAddress' exact component={WalletDetailPage} />
       <AuthenticatedRoute path='/:accountId/user/:userId' exact component={UserDetailPage} />
       <AuthenticatedRoute path='/:accountId/consumptions' exact component={ReqestConsumptionPage} />
-      <AuthenticatedRoute path='/:accountId/transaction_requests' exact component={TransactionRequestPage} />
+      <AuthenticatedRoute path='/:accountId/requests' exact component={TransactionRequestPage} />
     </Switch>
   </Router>
 )

@@ -5,7 +5,7 @@ import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
-import ConsumptionFetcher from '../omg-transaction-request/consumptionsFetcher'
+import TransactionRequestsFetcher from '../omg-transaction-request/transactionRequestsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
@@ -125,7 +125,7 @@ class TransactionRequestsPage extends Component {
 
   render () {
     return (
-      <ConsumptionFetcher
+      <TransactionRequestsFetcher
         render={this.renderTransactionRequestsPage}
         {...this.state}
         {...this.props}
