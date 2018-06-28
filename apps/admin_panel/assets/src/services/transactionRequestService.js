@@ -43,14 +43,14 @@ export function createTransactionRequest ({
     data: {
       type,
       token_id: tokenId,
-      amount,
+      amount: Number(amount) || undefined,
       correlation_id: correlationId,
       address,
       account_id: accountId,
       provider_user_id: providerUserId,
       require_confirmation: requireConfirmation,
-      max_consumption: maxConsumption,
-      max_consumptionPerUser: maxConsumptionPerUser,
+      max_consumption: Number(maxConsumption) || undefined,
+      max_consumptionPerUser: Number(maxConsumptionPerUser) || undefined,
       expiration_date: expirationDate,
       allow_amount_overide: allowAmountOveride
     }

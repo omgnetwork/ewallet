@@ -3,7 +3,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
-import CreateAccountModal from '../omg-create-account-modal'
+import CreateTransactionRequestModal from '../omg-create-transaction-request-modal'
 import ExportModal from '../omg-export-modal'
 import TransactionRequestsFetcher from '../omg-transaction-request/transactionRequestsFetcher'
 import { withRouter } from 'react-router-dom'
@@ -44,15 +44,21 @@ class TransactionRequestsPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createAccountModalOpen: false,
+      createTransactionRequestModalOpen: false,
       exportModalOpen: false,
       loadMoreTime: 1
     }
   }
-  renderCreateAccountButton = () => {
+  onClickCreateRequest = e => {
+    this.setState({ createTransactionRequestModalOpen: true })
+  }
+  onRequestClose = () => {
+    this.setState({ createTransactionRequestModalOpen: false })
+  }
+  renderCreateTransactionRequestButton = () => {
     return (
-      <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
+      <Button size='small' onClick={this.onClickCreateRequest} key={'create'}>
+        <Icon name='Plus' /> <span>Create Request</span>
       </Button>
     )
   }
@@ -96,11 +102,22 @@ class TransactionRequestsPage extends Component {
     }
     return data
   }
-  renderTransactionRequestsPage = ({ data: transactionRequests, individualLoadingStatus, pagination, fetch }) => {
+  renderTransactionRequestsPage = ({
+    data: transactionRequests,
+    individualLoadingStatus,
+    pagination,
+    fetch
+  }) => {
     return (
       <TransactionRequestsPageContainer>
-        <TopNavigation title={'Transaction Requests'} buttons={[]} />
-        <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
+        <TopNavigation
+          title={'Transaction Requests'}
+          buttons={[this.renderCreateTransactionRequestButton()]}
+        />
+        <SortableTableContainer
+          innerRef={table => (this.table = table)}
+          loadingStatus={individualLoadingStatus}
+        >
           <SortableTable
             rows={this.getRow(transactionRequests)}
             columns={this.getColumns(transactionRequests)}
@@ -113,9 +130,9 @@ class TransactionRequestsPage extends Component {
             onClickLoadMore={this.onClickLoadMore}
           />
         </SortableTableContainer>
-        <CreateAccountModal
-          open={this.state.createAccountModalOpen}
-          onRequestClose={this.onRequestCloseCreateAccount}
+        <CreateTransactionRequestModal
+          open={this.state.createTransactionRequestModalOpen}
+          onRequestClose={this.onRequestClose}
           onCreateAccount={fetch}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />

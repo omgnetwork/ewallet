@@ -101,15 +101,16 @@ a {
 }
 
 /* react modal */
-.ReactModal__Overlay {
+.ReactModal__Overlay.react-modal-overlay {
   position: fixed;
   top:0;
   left: 0;
   bottom: 0;
   right:0;
+  background-color: rgba(0,0,0,0.5);
 }
 
-.ReactModal__Content {
+.ReactModal__Content.react-modal {
   background-color: white;
   border: none;
   border-radius: 4px;
@@ -125,17 +126,13 @@ a {
   position: absolute;
 }
 
-.ReactModal__Content--after-open {
+.ReactModal__Content--after-open.react-modal {
   opacity: 1;
   transform: translate3d(-50%,-50%,0);
   
 }
 
-.ReactModal__Content--before-close {
+.ReactModal__Content--before-close.react-modal {
   opacity: 0;
   transform: translate3d(-50%,-40%,0);
-}
-
-.ReactModal__Overlay {
-  background-color: rgba(0,0,0,0.5);
 }
