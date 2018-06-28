@@ -8,6 +8,7 @@ defmodule AdminAPI.V1.InviteController do
   @doc """
   Validates the user's invite token and activates the user.
   """
+  @spec accept(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def accept(conn, %{
         "email" => email,
         "token" => token,
