@@ -36,6 +36,18 @@ export const createFetcher = (entity, reducer, selectors) => {
       static defaultProps = {
         onFetchComplete: _.noop
       }
+      static getDerivedStateFromProps = (nextProps, state) => {
+        const intersectItems = _.intersectionBy(state.data, nextProps.data, d => d.id)
+        for (let item of intersectItems) {
+          const matchItem = _.find(nextProps.data, d => d.id === item.id)
+          if (item.updated_at !== matchItem.updated_at) {
+            return {
+              data: nextProps.data
+            }
+          }
+        }
+        return null
+      }
       state = { loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT, data: [] }
 
       constructor (props) {
@@ -106,6 +118,7 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
 
       render () {
+        console.log(this.state)
         return this.props.render({
           ...this.props,
           ...this.getQuery(),

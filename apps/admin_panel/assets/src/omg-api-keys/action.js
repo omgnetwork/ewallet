@@ -35,16 +35,15 @@ export const updateApiKey = ({ id, expired }) => async dispatch => {
   try {
     const result = await apikeyService.updateApiKey({ id, expired })
     if (result.data.success) {
-      dispatch({
+      return dispatch({
         type: 'API_KEY/UPDATE/SUCCESS',
-        apiKey: result.data.data
+        data: result.data.data
       })
     } else {
-      dispatch({ type: 'API_KEY/UPDATE/FAILED', error: result.data.data })
+      return dispatch({ type: 'API_KEY/UPDATE/FAILED', error: result.data.data })
     }
-    return result
   } catch (error) {
-    dispatch({ type: 'API_KEY/UPDATE/FAILED', error })
+    return dispatch({ type: 'API_KEY/UPDATE/FAILED', error })
   }
 }
 

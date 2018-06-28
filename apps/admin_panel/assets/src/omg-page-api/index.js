@@ -133,15 +133,16 @@ class ApiKeyPage extends Component {
     })
     this.onRequestClose()
   }
-  onClickSwitch = ({ id, expired }) => async e => {
-    this.props.updateApiKey({ id, expired })
+  onClickSwitch = ({ id, expired, fetch }) => async e => {
+    await this.props.updateApiKey({ id, expired })
+    // fetch()
   }
-  rowRenderer = (key, data, rows) => {
+  rowRenderer = fetch => (key, data, rows) => {
     if (key === 'status') {
       return (
         <Switch
           open={!data}
-          onClick={this.onClickSwitch({ id: rows.key, expired: !rows.expired })}
+          onClick={this.onClickSwitch({ id: rows.key, expired: !rows.status, fetch })}
         />
       )
     }
@@ -181,8 +182,8 @@ class ApiKeyPage extends Component {
               id: key.id,
               user: key.account_id,
               created_at: key.created_at,
-              expired: key.expired,
-              ownerApp: key.owner_app
+              status: key.expired,
+              updated_at: key.updated_at
             }
           })
           return (
@@ -199,7 +200,7 @@ class ApiKeyPage extends Component {
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
-                rowRenderer={this.rowRenderer}
+                rowRenderer={this.rowRenderer(fetch)}
                 columns={columnsApiKey}
                 perPage={99999}
                 loadingColNumber={4}
@@ -256,7 +257,7 @@ class ApiKeyPage extends Component {
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
-                rowRenderer={this.rowRenderer}
+                rowRenderer={this.rowRenderer()}
                 columns={columnsAccessKey}
                 loadingStatus={individualLoadingStatus}
                 navigation
