@@ -95,7 +95,11 @@ class SortableTable extends PureComponent {
     isFirstPage: PropTypes.bool,
     navigation: PropTypes.bool,
     onClickLoadMore: PropTypes.func,
-    pagination: PropTypes.bool
+    pagination: PropTypes.bool,
+    pageEntity: PropTypes.string
+  }
+  static defaultProps = {
+    pageEntity: 'page'
   }
 
   onSelectFilter = (col, item) => {
@@ -131,7 +135,7 @@ class SortableTable extends PureComponent {
   }
   getPage = () => {
     const searchObject = queryString.parse(this.props.location.search)
-    return Number(searchObject.page) || 1
+    return Number(searchObject[this.props.pageEntity]) || 1
   }
   onClickPrev = e => {
     if (!this.props.isFirstPage) {
@@ -139,7 +143,7 @@ class SortableTable extends PureComponent {
       this.props.history.push({
         search: queryString.stringify({
           ...searchObject,
-          ...{ page: Number(searchObject.page) - 1 }
+          ...{ [this.props.pageEntity]: Number(searchObject[this.props.pageEntity]) - 1 }
         })
       })
     }
@@ -150,7 +154,7 @@ class SortableTable extends PureComponent {
       this.props.history.push({
         search: queryString.stringify({
           ...searchObject,
-          ...{ page: Number(searchObject.page || 1) + 1 }
+          ...{ [this.props.pageEntity]: Number(searchObject[this.props.pageEntity] || 1) + 1 }
         })
       })
     }

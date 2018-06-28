@@ -16,7 +16,7 @@ export const generateAccessKey = () => async dispatch => {
     return dispatch({ type: 'ACCESS_KEY/CREATE/FAILED', error })
   }
 }
-export const getAccessKeys = ({ page, perPage, search }) => async dispatch => {
+export const getAccessKeys = ({ page, perPage, search, cacheKey }) => async dispatch => {
   try {
     const result = await accessKeyService.getAllAccessKey({
       perPage,
@@ -27,7 +27,9 @@ export const getAccessKeys = ({ page, perPage, search }) => async dispatch => {
     if (result.data.success) {
       return dispatch({
         type: 'ACCESS_KEY/REQUEST/SUCCESS',
-        data: result.data.data.data
+        data: result.data.data.data,
+        pagination: result.data.data.pagination,
+        cacheKey
       })
     } else {
       return dispatch({ type: 'ACCESS_KEY/REQUEST/FAILED', error: result.data.data })

@@ -5,7 +5,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Switch, Icon } from '../omg-uikit'
 import Table from '../omg-table'
 import ApiKeysFetcher from '../omg-api-keys/apiKeysFetcher'
-import AccessKeyProvider from '../omg-access-key/accessKeyProvider'
+import AccessKeyFetcher from '../omg-access-key/accessKeysFetcher'
 import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
@@ -197,6 +197,7 @@ class ApiKeyPage extends Component {
                 perPage={99999}
                 loadingColNumber={4}
                 loading={loadingStatus === 'DEFAULT'}
+                navigation
               />
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
@@ -216,12 +217,12 @@ class ApiKeyPage extends Component {
   }
   renderAccessKey = () => {
     return (
-      <ApiKeysFetcher
+      <AccessKeyFetcher
         query={{
           page: 1,
           perPage: 5
         }}
-        render={({ data, loadingStatus }) => {
+        render={({ data, loadingStatus, pagination }) => {
           const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
             return {
               key: key.access_key,
@@ -247,6 +248,9 @@ class ApiKeyPage extends Component {
                 rowRenderer={this.rowRenderer}
                 columns={columnsAccessKey}
                 loading={loadingStatus === 'DEFAULT'}
+                navigation
+                isFirstPage={pagination.is_first_page}
+                isLastPage={pagination.is_last_page}
               />
               <ConfirmationModal
                 open={this.state.accessModalOpen}
@@ -293,7 +297,7 @@ class ApiKeyPage extends Component {
           types={false}
         />
         {this.renderEwalletApiKey()}
-        {/* {this.renderAccessKey()} */}
+        {this.renderAccessKey()}
       </ApiKeyContainer>
     )
   }
