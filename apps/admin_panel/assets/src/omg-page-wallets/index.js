@@ -25,6 +25,16 @@ const WalletPageContainer = styled.div`
     width: 20%;
   }
 `
+const WalletAddressContainer = styled.div`
+  white-space: nowrap;
+  span {
+    vertical-align: middle;
+  }
+  i {
+    color: ${props => props.theme.colors.BL400};
+    margin-right: 5px;
+  }
+`
 const SortableTableContainer = styled.div`
   position: relative;
 `
@@ -100,6 +110,13 @@ class WalletPage extends Component {
   rowRenderer (key, data, rows) {
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+    }
+    if (key === 'address') {
+      return (
+        <WalletAddressContainer>
+          <Icon name='Wallet' /> <span>{data}</span>
+        </WalletAddressContainer>
+      )
     }
     return data
   }

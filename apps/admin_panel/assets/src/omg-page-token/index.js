@@ -2,12 +2,13 @@ import React, { Component } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
-import { Button, Icon } from '../omg-uikit'
+import { Button, Icon, Avatar } from '../omg-uikit'
 import CreateTokenModal from '../omg-create-token-modal'
 import ExportModal from '../omg-export-modal'
 import TokenFetcher from '../omg-token/tokensFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { NameColumn } from '../omg-page-account'
 import moment from 'moment'
 import queryString from 'query-string'
 const TokenDetailPageContainer = styled.div`
@@ -93,6 +94,13 @@ class TokenDetailPage extends Component {
     if (key === 'created') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
+    if (key === 'token') {
+      return (
+        <NameColumn>
+          <Avatar image={rows.avatar} /> <span>{data}</span>
+        </NameColumn>
+      )
+    }
     return data
   }
   onClickRow = (data, index) => e => {
@@ -112,12 +120,7 @@ class TokenDetailPage extends Component {
 
     return (
       <TokenDetailPageContainer>
-        <TopNavigation
-          title={'Token'}
-          buttons={[
-            this.renderMintTokenButton()
-          ]}
-        />
+        <TopNavigation title={'Token'} buttons={[this.renderMintTokenButton()]} />
         <SortableTable
           rows={data}
           columns={columns}

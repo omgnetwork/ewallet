@@ -29,7 +29,7 @@ const AccountPageContainer = styled.div`
 const SortableTableContainer = styled.div`
   position: relative;
 `
-const NameColumn = styled.div`
+export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
   }
