@@ -33,7 +33,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:ok, %{from_amount: 1}, %{to_amount: 1}}
+      assert res == {:ok, %{from_amount: 1}, %{to_amount: 1}, %{}}
     end
 
     test "returns an error if amount is not an integer (float)" do
@@ -75,7 +75,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:ok, %{from_amount: 1}, %{to_amount: 1}}
+      assert res == {:ok, %{from_amount: 1}, %{to_amount: 1}, %{}}
     end
 
     test "sets from_amount only when sending nil to_amount with exchange pair" do
@@ -83,7 +83,7 @@ defmodule EWallet.AmountFetcherTest do
       token_2 = insert(:token)
       pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
-      {res, from, to} =
+      {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
             "from_amount" => 1,
@@ -95,10 +95,10 @@ defmodule EWallet.AmountFetcherTest do
 
       assert res == :ok
       assert from[:from_amount] == 1
-      assert from[:actual_rate] == 2
-      assert from[:calculated_at] != nil
-      assert from[:pair_uuid] == pair.uuid
       assert to[:to_amount] == 2
+      assert exchange[:actual_rate] == 2
+      assert exchange[:calculated_at] != nil
+      assert exchange[:pair_uuid] == pair.uuid
     end
 
     test "sets from_amount only when sending nil to_amount without exchange pair" do
@@ -123,7 +123,7 @@ defmodule EWallet.AmountFetcherTest do
       token_2 = insert(:token)
       pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
-      {res, from, to} =
+      {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
             "from_amount" => 1
@@ -134,10 +134,10 @@ defmodule EWallet.AmountFetcherTest do
 
       assert res == :ok
       assert from[:from_amount] == 1
-      assert from[:actual_rate] == 2
-      assert from[:calculated_at] != nil
-      assert from[:pair_uuid] == pair.uuid
       assert to[:to_amount] == 2
+      assert exchange[:actual_rate] == 2
+      assert exchange[:calculated_at] != nil
+      assert exchange[:pair_uuid] == pair.uuid
     end
 
     test "sets from_amount only when not sending to_amount without exchange pair" do
@@ -161,7 +161,7 @@ defmodule EWallet.AmountFetcherTest do
       token_2 = insert(:token)
       pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
-      {res, from, to} =
+      {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
             "from_amount" => nil,
@@ -173,10 +173,10 @@ defmodule EWallet.AmountFetcherTest do
 
       assert res == :ok
       assert from[:from_amount] == 1
-      assert from[:actual_rate] == 2
-      assert from[:calculated_at] != nil
-      assert from[:pair_uuid] == pair.uuid
       assert to[:to_amount] == 2
+      assert exchange[:actual_rate] == 2
+      assert exchange[:calculated_at] != nil
+      assert exchange[:pair_uuid] == pair.uuid
     end
 
     test "sets to_amount only when sending nil from_amount without exchange pair" do
@@ -201,7 +201,7 @@ defmodule EWallet.AmountFetcherTest do
       token_2 = insert(:token)
       pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
-      {res, from, to} =
+      {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
             "to_amount" => 2
@@ -212,10 +212,10 @@ defmodule EWallet.AmountFetcherTest do
 
       assert res == :ok
       assert from[:from_amount] == 1
-      assert from[:actual_rate] == 2
-      assert from[:calculated_at] != nil
-      assert from[:pair_uuid] == pair.uuid
       assert to[:to_amount] == 2
+      assert exchange[:actual_rate] == 2
+      assert exchange[:calculated_at] != nil
+      assert exchange[:pair_uuid] == pair.uuid
     end
 
     test "sets to_amount only when not sending from_amount without exchange rate" do

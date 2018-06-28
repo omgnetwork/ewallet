@@ -1,7 +1,7 @@
 defmodule EWallet.TransactionGateTest do
   use EWallet.LocalLedgerCase, async: true
   import EWalletDB.Factory
-  alias EWallet.TransactionGate
+  alias EWallet.{TransactionGate, BalanceFetcher}
   alias EWalletDB.{User, Token, Transaction, Account}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
@@ -13,7 +13,7 @@ defmodule EWallet.TransactionGateTest do
     transfer!(master_wallet.address, address, token, amount * token.subunit_to_unit)
   end
 
-  describe "process_with_addresses/1" do
+  describe "create/1" do
     def insert_addresses_records do
       {:ok, user1} = User.insert(params_for(:user))
       {:ok, user2} = User.insert(params_for(:user))
@@ -223,6 +223,64 @@ defmodule EWallet.TransactionGateTest do
       assert transaction.from == wallet1.address
       assert transaction.to == wallet2.address
       assert token.id == token.id
+    end
+  end
+
+  describe "create/1 with exchange" do
+    test "exchanges funds between two users" do
+      account = Account.get_master_account()
+      wallet = Account.get_primary_wallet(account)
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      initialize_wallet(wallet_1, 200_000, token_1)
+
+      {:ok, transaction} =
+        TransactionGate.create(%{
+          "idempotency_token" => UUID.generate(),
+          "from_user_id" => user_1.id,
+          "to_user_id" => user_2.id,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "from_amount" => 100 * token_1.subunit_to_unit,
+          "exchange_account_id" => account.id,
+          "metadata" => %{something: "interesting"},
+          "encrypted_metadata" => %{something: "secret"}
+        })
+
+      {:ok, b1} = BalanceFetcher.get(token_1.id, wallet_1)
+      assert List.first(b1.balances).amount == (200_000 - 100) * token_1.subunit_to_unit
+      {:ok, b2} = BalanceFetcher.get(token_2.id, wallet_2)
+      assert List.first(b2.balances).amount == 200 * token_2.subunit_to_unit
+
+      assert transaction.from == wallet_1.address
+      assert transaction.to == wallet_2.address
+
+      assert transaction.from_user_uuid == user_1.uuid
+      assert transaction.to_user_uuid == user_2.uuid
+
+      assert transaction.from_account_uuid == nil
+      assert transaction.to_account_uuid == nil
+
+      assert transaction.from_token_uuid == token_1.uuid
+      assert transaction.to_token_uuid == token_2.uuid
+
+      assert transaction.from_amount == 100 * token_1.subunit_to_unit
+      assert transaction.to_amount == 200 * token_2.subunit_to_unit
+
+      assert transaction.rate == 2
+      assert transaction.exchange_pair_uuid == pair.uuid
+      assert transaction.exchange_account_uuid == account.uuid
+      assert transaction.exchange_wallet_address == wallet.address
     end
   end
 end

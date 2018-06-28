@@ -18,12 +18,12 @@ defmodule EWallet.TransactionGate do
     with {:ok, from} <- TransactionSourceFetcher.fetch_from(attrs),
          {:ok, to} <- TransactionSourceFetcher.fetch_to(attrs),
          {:ok, from, to} <- TokenFetcher.fetch(attrs, from, to),
-         {:ok, from, to} <- AmountFetcher.fetch(attrs, from, to),
-         {:ok, from} <- AccountFetcher.fetch_exchange_account(attrs, from),
-         {:ok, transaction} <- get_or_insert(from, to, attrs) do
+         {:ok, from, to, exchange} <- AmountFetcher.fetch(attrs, from, to),
+         {:ok, exchange} <- AccountFetcher.fetch_exchange_account(attrs, exchange),
+         {:ok, transaction} <- get_or_insert(from, to, exchange, attrs) do
       process_with_transaction(transaction)
     else
-      error when is_atom(error) -> {:ok, error}
+      error when is_atom(error) -> {:error, error}
       error -> error
     end
   end
@@ -48,6 +48,7 @@ defmodule EWallet.TransactionGate do
   def get_or_insert(
         from,
         to,
+        exchange,
         %{
           "idempotency_token" => idempotency_token
         } = attrs
@@ -64,11 +65,11 @@ defmodule EWallet.TransactionGate do
       to_amount: to.to_amount,
       from_token_uuid: from.from_token.uuid,
       to_token_uuid: to.to_token.uuid,
-      rate: from[:actual_rate],
-      calculated_at: from[:calculated_at],
-      exchange_pair_uuid: from[:pair_uuid],
-      exchange_account_uuid: from[:exchange_account_uuid],
-      exchange_wallet_address: from[:exchange_wallet_address],
+      rate: exchange[:actual_rate],
+      calculated_at: exchange[:calculated_at],
+      exchange_pair_uuid: exchange[:pair_uuid],
+      exchange_account_uuid: exchange[:exchange_account_uuid],
+      exchange_wallet_address: exchange[:exchange_wallet_address],
       metadata: attrs["metadata"] || %{},
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       payload: attrs,
@@ -76,7 +77,7 @@ defmodule EWallet.TransactionGate do
     })
   end
 
-  def get_or_insert(_, _, _) do
+  def get_or_insert(_, _, _, _) do
     {:error, :invalid_parameter, "'idempotency_token' is required."}
   end
 

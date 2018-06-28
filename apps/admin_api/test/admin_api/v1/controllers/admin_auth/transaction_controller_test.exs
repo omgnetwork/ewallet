@@ -425,6 +425,30 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["to"]["token_id"] == token_2.id
     end
 
+    test "returns an error when doing exchange with invalid exchange_account_id" do
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      response =
+        admin_user_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => "fake",
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "account:id_not_found"
+    end
+
     test "returns :invalid_parameter when the sending address is a burn balance" do
       token = insert(:token)
       wallet_1 = insert(:wallet, identifier: "burn")

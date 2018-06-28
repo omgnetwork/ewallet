@@ -11,7 +11,7 @@ defmodule EWallet.AmountFetcher do
   end
 
   def fetch(%{"amount" => amount}, from, to) when is_integer(amount) do
-    {:ok, Map.put(from, :from_amount, amount), Map.put(to, :to_amount, amount)}
+    {:ok, Map.put(from, :from_amount, amount), Map.put(to, :to_amount, amount), %{}}
   end
 
   def fetch(%{"amount" => amount}, _from, _to) do
@@ -20,7 +20,7 @@ defmodule EWallet.AmountFetcher do
 
   def fetch(%{"from_amount" => from_amount, "to_amount" => to_amount}, from, to)
       when is_number(from_amount) and is_number(to_amount) do
-    {:ok, Map.put(from, :from_amount, from_amount), Map.put(to, :to_amount, to_amount)}
+    {:ok, Map.put(from, :from_amount, from_amount), Map.put(to, :to_amount, to_amount), %{}}
   end
 
   def fetch(%{"from_amount" => from_amount, "to_amount" => to_amount}, from, to)
@@ -53,14 +53,14 @@ defmodule EWallet.AmountFetcher do
   defp do_fetch(from_amount, to_amount, from, to) do
     case Exchange.calculate(from_amount, from[:from_token], to_amount, to[:to_token]) do
       {:ok, calculation} ->
-        from =
-          from
-          |> Map.put(:from_amount, calculation.from_amount)
+        exchange =
+          %{}
           |> Map.put(:actual_rate, calculation.actual_rate)
           |> Map.put(:calculated_at, calculation.calculated_at)
           |> Map.put(:pair_uuid, Assoc.get(calculation, [:pair, :uuid]))
 
-        {:ok, from, Map.put(to, :to_amount, calculation.to_amount)}
+        {:ok, Map.put(from, :from_amount, calculation.from_amount),
+         Map.put(to, :to_amount, calculation.to_amount), exchange}
 
       error ->
         error
