@@ -37,12 +37,14 @@ defmodule EWalletDB.Role do
   def insert(attrs) do
     last_role = Role |> Query.last(:inserted_at) |> Repo.one()
 
-    attrs = case last_role do
-      nil ->
-        Map.put(attrs, :priority, 0)
-      role ->
-        Map.put(attrs, :priority, role.priority + 1)
-    end
+    attrs =
+      case last_role do
+        nil ->
+          Map.put(attrs, :priority, 0)
+
+        role ->
+          Map.put(attrs, :priority, role.priority + 1)
+      end
 
     %Role{}
     |> changeset(attrs)
