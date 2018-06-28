@@ -9,6 +9,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import { selectWallets } from '../omg-wallet/selector'
 const WalletPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -95,13 +96,19 @@ class WalletPage extends Component {
     ]
   }
   getRow = wallets => {
-    return wallets.map(wallet => {
-      return {
-        owner: wallet.user_id ? 'User' : 'Account',
-        id: wallet.address,
-        ...wallet
-      }
-    })
+    // WALLET API DOESN'T HAVE SEACH TERM, SO WE FILTER AGAIN
+    return selectWallets(
+      {
+        wallets: wallets.map(wallet => {
+          return {
+            owner: wallet.user_id ? 'User' : 'Account',
+            id: wallet.address,
+            ...wallet
+          }
+        })
+      },
+      queryString.parse(this.props.location.search).search
+    )
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
