@@ -118,7 +118,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       response =
         admin_user_request("/token.mint", %{
           id: token.id,
-          amount: :math.pow(1, 39)
+          amount: :math.pow(10, 35)
         })
 
       mint = Mint |> Repo.all() |> Enum.at(0)
@@ -127,7 +127,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["object"] == "mint"
       assert Mint.get(response["data"]["id"]) != nil
       assert mint != nil
-      assert mint.amount == :math.pow(1, 39)
+      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000
       assert mint.token_uuid == token.uuid
     end
 

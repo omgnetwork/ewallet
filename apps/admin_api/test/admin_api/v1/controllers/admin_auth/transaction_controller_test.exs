@@ -352,7 +352,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       set_initial_balance(%{
         address: wallet_1.address,
         token: token,
-        amount: 999_999_999_999_999_999_999_999_999_999_999_999_999_999
+        amount: 999_999_999_999_999_999_999_999_999
       })
 
       response =
@@ -361,15 +361,14 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,
-          "amount" => 99_999_999_999_999_999_999_999_999_999_999_999_999_999
+          "amount" => 99_999_999_999_999_999_999_999_999
         })
 
       assert response["success"]
       assert response["data"]["object"] == "transaction"
       assert response["data"]["status"] == "confirmed"
 
-      assert response["data"]["from"]["amount"] ==
-               99_999_999_999_999_999_999_999_999_999_999_999_999_999
+      assert response["data"]["from"]["amount"] == 99_999_999_999_999_999_999_999_999
     end
 
     test "create a transaction with exchange" do
