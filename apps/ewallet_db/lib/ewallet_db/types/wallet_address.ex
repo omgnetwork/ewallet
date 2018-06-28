@@ -12,6 +12,7 @@ defmodule EWalletDB.Types.WalletAddress do
   a schema field that autogenerates the wallet address.
   """
   @behaviour Ecto.Type
+  alias EWalletDB.Helpers.UUID
   alias Ecto.Schema
 
   # 4-char letters, 12-digit integers
@@ -44,14 +45,21 @@ defmodule EWalletDB.Types.WalletAddress do
   """
   @spec cast(String.t()) :: {:ok, String.t()} | :error
   def cast(address) do
-    address =
-      address
-      |> String.replace(~r/[^A-Za-z0-9]/, "")
-      |> String.downcase()
+    # We still want to support the old UUID format.
+    case UUID.valid?(address) do
+      true ->
+        {:ok, address}
 
-    case String.match?(address, ~r/^[a-z0-9]{4}[0-9]{12}$/) do
-      true -> {:ok, address}
-      _ -> :error
+      _ ->
+        address =
+          address
+          |> String.replace(~r/[^A-Za-z0-9]/, "")
+          |> String.downcase()
+
+        case String.match?(address, ~r/^[a-z0-9]{4}[0-9]{12}$/) do
+          true -> {:ok, address}
+          _ -> :error
+        end
     end
   end
 

@@ -30,7 +30,7 @@ defmodule EWalletDB.Repo.Reporters.SeedsSampleReporter do
     OMGProvider #{Base.encode64(ewallet_key_access <> ":" <> ewallet_key_secret)}
     ```
 
-    4. Try out Server endpoints such as /login, /user.create, /transfer, etc.
+    4. Try out Server endpoints such as /login, /user.create, etc.
 
     ## Try eWallet API's Client endpoints
 

@@ -8,6 +8,7 @@ defmodule EWalletDB.Wallet do
   import EWalletDB.Validator
   alias Ecto.UUID
   alias ExULID.ULID
+  alias EWalletDB.Types.WalletAddress
   alias EWalletDB.{Repo, Account, Wallet, User}
 
   @genesis "genesis"
@@ -119,7 +120,13 @@ defmodule EWalletDB.Wallet do
   def get(nil), do: nil
 
   def get(address) do
-    Repo.get_by(Wallet, address: address)
+    case WalletAddress.cast(address) do
+      {:ok, address} ->
+        Repo.get_by(Wallet, address: address)
+
+      :error ->
+        nil
+    end
   end
 
   @doc """
