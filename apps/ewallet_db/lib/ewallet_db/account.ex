@@ -352,43 +352,24 @@ defmodule EWalletDB.Account do
     |> Enum.member?(descendant_id)
   end
 
-  @spec get_all_descendants_uuids(%Account{}) :: List.t()
+  @spec get_all_descendants_uuids(%Account{} | List.t()) :: List.t()
+  def get_all_descendants_uuids(account_uuids) when is_list(account_uuids) do
+    account_uuids
+    |> get_all_descendants()
+    |> Enum.map(fn account -> account.uuid end)
+  end
+
   def get_all_descendants_uuids(account) do
-    query_family_uuids(account, "
-      WITH RECURSIVE accounts_cte(uuid, parent_uuid, depth) AS (
-        SELECT ta.uuid, ta.parent_uuid, $1::INT AS depth
-        FROM account AS ta WHERE ta.uuid = $2
-      UNION ALL
-       SELECT c.uuid, c.parent_uuid, p.depth + 1 AS depth
-       FROM accounts_cte AS p, account AS c WHERE c.parent_uuid = p.uuid
-      )
-      SELECT uuid FROM accounts_cte AS a ORDER BY depth ASC
-      ")
+    account
+    |> get_all_descendants()
+    |> Enum.map(fn account -> account.uuid end)
   end
 
   @spec get_all_ancestors_uuids(%Account{}) :: List.t()
   def get_all_ancestors_uuids(account) do
-    query_family_uuids(account, "
-      WITH RECURSIVE accounts_cte(uuid, parent_uuid, depth) AS (
-        SELECT ta.uuid, ta.parent_uuid, $1::INT AS depth
-        FROM account AS ta WHERE ta.uuid = $2
-      UNION ALL
-       SELECT c.uuid, c.parent_uuid, p.depth - 1 AS depth
-       FROM accounts_cte AS p, account AS c WHERE c.uuid = p.parent_uuid
-      )
-      SELECT uuid FROM accounts_cte AS a ORDER BY depth ASC
-      ")
-  end
-
-  defp query_family_uuids(account, query) do
-    depth = get_depth(account.uuid)
-    {:ok, binary_uuid} = UUID.dump(account.uuid)
-    {:ok, result} = Repo.query(query, [depth, binary_uuid])
-
-    Enum.map(result.rows, fn uuid ->
-      {:ok, uuid} = UUID.load(Enum.at(uuid, 0))
-      uuid
-    end)
+    account
+    |> get_all_ancestors()
+    |> Enum.map(fn account -> account.uuid end)
   end
 
   def get_all_descendants(account_uuids) when is_list(account_uuids) do
@@ -402,14 +383,15 @@ defmodule EWalletDB.Account do
       Repo.query(
         "
       WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
-        SELECT ta.uuid, ta.id, ta.name, ta.parent_uuid, 0 AS depth, ta.uuid::TEXT AS path
-        FROM account AS ta WHERE ta.uuid = ANY($1)
+        SELECT current_account.uuid, current_account.id, current_account.name,
+               current_account.parent_uuid, 0 AS depth, current_account.uuid::TEXT AS path
+        FROM account AS current_account WHERE current_account.uuid = ANY($1)
       UNION ALL
-       SELECT c.uuid, c.id, c.name, c.parent_uuid, p.depth,
-              (p.path || '->' || c.uuid::TEXT)
-       FROM accounts_cte AS p, account AS c WHERE c.parent_uuid = p.uuid
+       SELECT child.uuid, child.id, child.name, child.parent_uuid, parent.depth,
+              (parent.path || '->' || child.uuid::TEXT)
+       FROM accounts_cte AS parent, account AS child WHERE child.parent_uuid = parent.uuid
       )
-      SELECT DISTINCT * FROM accounts_cte AS a
+      SELECT DISTINCT * FROM accounts_cte
       ",
         [binary_account_uuids]
       )
@@ -419,35 +401,37 @@ defmodule EWalletDB.Account do
 
   @spec get_all_descendants(%Account{}) :: List.t()
   def get_all_descendants(%Account{} = account) do
-    query_family_tree(account, "
+    get_family_tree(account, "
       WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
-        SELECT ta.uuid, ta.id, ta.name, ta.parent_uuid, $1::INT AS depth, ta.uuid::TEXT AS path
-        FROM account AS ta WHERE ta.uuid = $2
+        SELECT current_account.uuid, current_account.id, current_account.name,
+               current_account.parent_uuid, $1::INT AS depth, current_account.uuid::TEXT AS path
+        FROM account AS current_account WHERE current_account.uuid = $2
       UNION ALL
-       SELECT c.uuid, c.id, c.name, c.parent_uuid, p.depth + 1 AS depth,
-              (p.path || '->' || c.uuid::TEXT)
-       FROM accounts_cte AS p, account AS c WHERE c.parent_uuid = p.uuid
+       SELECT child.uuid, child.id, child.name, child.parent_uuid, parent.depth + 1 AS depth,
+              (parent.path || '->' || child.uuid::TEXT)
+       FROM accounts_cte AS parent, account AS child WHERE child.parent_uuid = parent.uuid
       )
-      SELECT * FROM accounts_cte AS a ORDER BY depth ASC
+      SELECT * FROM accounts_cte ORDER BY depth ASC
       ")
   end
 
   @spec get_all_ancestors(%Account{}) :: List.t()
   def get_all_ancestors(account) do
-    query_family_tree(account, "
+    get_family_tree(account, "
       WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
-        SELECT ta.uuid, ta.id, ta.name, ta.parent_uuid, $1::INT AS depth, ta.uuid::TEXT AS path
-        FROM account AS ta WHERE ta.uuid = $2
+        SELECT current_account.uuid, current_account.id, current_account.name,
+               current_account.parent_uuid, $1::INT AS depth, current_account.uuid::TEXT AS path
+        FROM account AS current_account WHERE current_account.uuid = $2
       UNION ALL
-       SELECT c.uuid, c.id, c.name, c.parent_uuid, p.depth - 1 AS depth,
-              (p.path || '<-' || c.uuid::TEXT)
-       FROM accounts_cte AS p, account AS c WHERE c.uuid = p.parent_uuid
+       SELECT child.uuid, child.id, child.name, child.parent_uuid, parent.depth - 1 AS depth,
+              (parent.path || '<-' || child.uuid::TEXT)
+       FROM accounts_cte AS parent, account AS child WHERE child.uuid = parent.parent_uuid
       )
-      SELECT * FROM accounts_cte AS a ORDER BY depth ASC
+      SELECT * FROM accounts_cte ORDER BY depth ASC
     ")
   end
 
-  defp query_family_tree(account, query) do
+  defp get_family_tree(account, query) do
     depth = get_depth(account.uuid)
     {:ok, binary_uuid} = UUID.dump(account.uuid)
     {:ok, result} = Repo.query(query, [depth, binary_uuid])

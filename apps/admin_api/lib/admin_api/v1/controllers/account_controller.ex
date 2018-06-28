@@ -1,7 +1,8 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{AccountPolicy, AccountFetcher}
+  alias AdminAPI.V1.AccountHelper
+  alias EWallet.AccountPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.Account
 
@@ -32,12 +33,10 @@ defmodule AdminAPI.V1.AccountController do
   """
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
-         # Get the highest level account for current key or current user
-         %Account{} = account <- AccountFetcher.get_highest_account(conn.assigns),
-         descendants_uuids <- Account.get_all_descendants_uuids(account) do
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
       # Get all the accounts the current accessor has access to
       Account
-      |> Account.where_in(descendants_uuids)
+      |> Account.where_in(account_uuids)
       |> Preloader.to_query(@preload_fields)
       |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)

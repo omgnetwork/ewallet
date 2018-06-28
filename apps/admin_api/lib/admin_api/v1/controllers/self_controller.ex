@@ -50,7 +50,7 @@ defmodule AdminAPI.V1.SelfController do
   """
   def get_account(conn, _attrs) do
     with {:ok, current_user} <- permit(:update, conn.assigns),
-         %Account{} = acc <- User.get_highest_account(current_user) || :user_account_not_found do
+         %Account{} = acc <- User.get_account(current_user) || :user_account_not_found do
       render(conn, AccountView, :account, %{account: acc})
     else
       error ->

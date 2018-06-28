@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
 
   describe "/account.create" do
     test "creates a new account and returns it" do
-      parent = User.get_highest_account(get_test_admin())
+      parent = User.get_account(get_test_admin())
 
       request_data = %{
         parent_id: parent.id,
@@ -116,7 +116,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
     end
 
     test "returns an error if account name is not provided" do
-      parent = User.get_highest_account(get_test_admin())
+      parent = User.get_account(get_test_admin())
       request_data = %{name: "", parent_id: parent.id}
       response = provider_request("/account.create", request_data)
 
@@ -128,7 +128,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
 
   describe "/account.update" do
     test "updates the given account" do
-      account = User.get_highest_account(get_test_admin())
+      account = User.get_account(get_test_admin())
 
       # Prepare the update data while keeping only id the same
       request_data =

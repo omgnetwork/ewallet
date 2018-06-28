@@ -70,7 +70,7 @@ defmodule EWalletDB.AuthToken do
   then returns the auth token string.
   """
   def generate(%User{} = user, owner_app) when is_atom(owner_app) do
-    account = User.get_highest_account(user)
+    account = User.get_account(user)
 
     attrs = %{
       owner_app: Atom.to_string(owner_app),
