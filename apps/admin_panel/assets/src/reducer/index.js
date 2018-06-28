@@ -9,20 +9,23 @@ import {
 import { currentUserReducer, currentUserLoadingStatusReducer } from '../omg-user-current/reducer'
 import { inviteListReducer, inviteListLoadingStatusReducer } from '../omg-invite/reducer'
 import { apiKeysReducer, apiKeysLoadingStatusReducer } from '../omg-api-keys/reducer'
+import { accessKeyReducer, accessKeyLoadingStatusReducer } from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
 import { tokensReducer, tokensLoadingStatusReducer } from '../omg-token/reducer'
 import { usersReducer, usersLoadingStatusReducer } from '../omg-users/reducer'
 import { transactionsReducer, transactionsLoadingStatusReducer } from '../omg-transaction/reducer'
 import { walletsReducer, walletsLoadingStatusReducer } from '../omg-wallet/reducer'
-import {categoriesLoadingStatusReducer, categoriesReducer} from '../omg-account-category/reducer'
+import { categoriesLoadingStatusReducer, categoriesReducer } from '../omg-account-category/reducer'
 import { loadingBarReducer } from 'react-redux-loading-bar'
-import {cacheReducer} from '../omg-cache/reducer'
+import { cacheReducer } from '../omg-cache/reducer'
 export default combineReducers({
   app: appReducer,
   loadingBar: loadingBarReducer,
   session: sessionReducer,
   accounts: accountsReducer,
   accountsLoadingStatus: accountsLoadingStatusReducer,
+  accessKeys: accessKeyReducer,
+  accessKeysLoadingStatus: accessKeyLoadingStatusReducer,
   currentAccount: currentAccountReducer,
   currentAccountLoadingStatus: currentAccountLoadingStatusReducer,
   currentUser: currentUserReducer,

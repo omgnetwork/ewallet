@@ -129,7 +129,7 @@ class AccountDetailPage extends Component {
   renderAccountDetailPage = ({ account, loadingStatus }) => {
     return (
       <AccountDetailContainer>
-        {loadingStatus === 'SUCCESS' ? this.renderAccountDetailContainer(account) : 'loading'}
+        {account ? this.renderAccountDetailContainer(account) : 'loading'}
       </AccountDetailContainer>
     )
   }

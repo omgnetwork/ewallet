@@ -18,7 +18,7 @@ export const loadCurrentAccount = accountId => async (dispatch, getState, { sock
   }
 }
 
-const uploadAvatar = async ({ avatar, accountId }) => async dispatch => {
+const uploadAvatar = ({ avatar, accountId }) => async dispatch => {
   const resultUploadAvatar = await accountService.uploadAccountAvatar({
     accountId,
     avatar
@@ -54,6 +54,7 @@ export const updateCurrentAccount = ({ accountId, name, description, avatar }) =
       dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/FAILED', error: resultUpdateAccount.data.data })
     }
   } catch (error) {
+    console.log(error)
     dispatch({ type: 'CURRENT_ACCOUNT/UPDATE/FAILED', error })
   }
 }

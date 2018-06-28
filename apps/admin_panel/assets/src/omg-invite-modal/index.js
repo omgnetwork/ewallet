@@ -2,26 +2,12 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { RadioButton, Input, Button, Icon } from '../omg-uikit'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import { connect } from 'react-redux'
 import { inviteMember, getListMembers } from '../omg-invite/action'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: 0
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
+
 const InviteModalContainer = styled.form`
   padding: 50px;
   width: 400px;
@@ -140,7 +126,6 @@ class InviteModal extends Component {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
-        style={customStyles}
         contentLabel='invite modal'
         shouldCloseOnOverlayClick={false}
       >

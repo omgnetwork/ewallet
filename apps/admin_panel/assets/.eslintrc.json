@@ -2,14 +2,16 @@
   "extends": [
     "standard",
     "standard-react",
-    "standard-jsx"
+    "standard-jsx",
+    "plugin:react/recommended"
   ],
   "parser": "babel-eslint",
   "rules": {
     "react/jsx-no-bind": 0,
     "no-return-assign": 0,
     "react/jsx-closing-bracket-location": 2,
-    "react/no-unused-prop-types": 1
+    "react/no-unused-prop-types": 1,
+    "react/sort-comp": 1
   },
   "env": {
     "jquery": true,
