@@ -37,6 +37,7 @@ defmodule LocalLedgerDB.Mixfile do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1.6"},
+      {:poison, "~> 3.1"},
       {:cloak, "~> 0.7.0-alpha"},
       {:ex_machina, "~> 2.2", only: :test},
 

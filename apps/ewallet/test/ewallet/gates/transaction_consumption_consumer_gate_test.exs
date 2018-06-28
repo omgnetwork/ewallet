@@ -179,7 +179,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "account_id" => meta.account.id,
-          "address" => "fake"
+          "address" => "fake-0000-0000-0000"
         })
 
       assert res == {:error, :account_wallet_not_found}
@@ -321,7 +321,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "idempotency_token" => "123",
           "token_id" => nil,
           "provider_user_id" => meta.sender.provider_user_id,
-          "address" => "fake"
+          "address" => "fake-0000-0000-0000"
         })
 
       assert res == {:error, :user_wallet_not_found}
@@ -385,7 +385,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil,
-          "address" => "fake"
+          "address" => "fake-0000-0000-0000"
         })
 
       assert res == {:error, :wallet_not_found}
@@ -1324,7 +1324,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "formatted_transaction_request_id" => meta.request.id,
           "correlation_id" => nil,
           "amount" => nil,
-          "address" => "fake",
+          "address" => "fake-0000-0000-0000",
           "metadata" => nil,
           "idempotency_token" => "123",
           "token_id" => nil
