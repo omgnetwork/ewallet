@@ -52,7 +52,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions", meta do
       response =
-        admin_user_request("/transaction_consumption.all", %{
+        provider_request("/transaction_consumption.all", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a specific status", meta do
       response =
-        admin_user_request("/transaction_consumption.all", %{
+        provider_request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -95,7 +95,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all transaction_consumptions filtered", meta do
       response =
-        admin_user_request("/transaction_consumption.all", %{
+        provider_request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_term" => "pending"
@@ -113,7 +113,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        admin_user_request("/transaction_consumption.all", %{
+        provider_request("/transaction_consumption.all", %{
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -154,7 +154,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :invalid_parameter when account_id is not provided" do
       response =
-        admin_user_request("/account.get_transaction_consumptions", %{
+        provider_request("/account.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -173,7 +173,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :account_id_not_found when user_id is not provided" do
       response =
-        admin_user_request("/account.get_transaction_consumptions", %{
+        provider_request("/account.get_transaction_consumptions", %{
           "account_id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -193,7 +193,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for an account", meta do
       response =
-        admin_user_request("/account.get_transaction_consumptions", %{
+        provider_request("/account.get_transaction_consumptions", %{
           "account_id" => meta.account.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -216,7 +216,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a specific status", meta do
       response =
-        admin_user_request("/account.get_transaction_consumptions", %{
+        provider_request("/account.get_transaction_consumptions", %{
           "account_id" => meta.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -236,7 +236,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "ignores the search_term parameter", meta do
       response =
-        admin_user_request("/account.get_transaction_consumptions", %{
+        provider_request("/account.get_transaction_consumptions", %{
           "account_id" => meta.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -255,7 +255,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        admin_user_request("/account.get_transaction_consumptions", %{
+        provider_request("/account.get_transaction_consumptions", %{
           "account_id" => meta.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -297,7 +297,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :invalid_parameter when user_id or provider_user_id is not provided" do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -316,7 +316,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :user_id_not_found when user_id is not valid" do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "user_id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -336,7 +336,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :provider_user_id_not_found when provider_user_id is not valid" do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "provider_user_id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -357,7 +357,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a user when given a user_id", meta do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -376,7 +376,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     test "returns all the transaction_consumptions for a user when given a provider_user_id",
          meta do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "provider_user_id" => meta.user.provider_user_id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -394,7 +394,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a specific status", meta do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -414,7 +414,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "ignores the search_term parameter", meta do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -433,7 +433,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        admin_user_request("/user.get_transaction_consumptions", %{
+        provider_request("/user.get_transaction_consumptions", %{
           "user_id" => meta.user.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -486,7 +486,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :invalid_parameter when formatted_transaction_request_id is not provided" do
       response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
+        provider_request("/transaction_request.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -505,7 +505,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :transaction_request_id_not_found when formatted_transaction_request_id is not valid" do
       response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
+        provider_request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -526,7 +526,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a transaction_request", meta do
       response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
+        provider_request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -544,7 +544,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a specific status", meta do
       response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
+        provider_request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -564,7 +564,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "ignores the search_term parameter", meta do
       response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
+        provider_request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -583,7 +583,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
+        provider_request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => meta.transaction_request.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -636,7 +636,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :invalid_parameter when address is not provided" do
       response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
+        provider_request("/wallet.get_transaction_consumptions", %{
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -655,7 +655,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns :address_not_found when address is not provided" do
       response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
+        provider_request("/wallet.get_transaction_consumptions", %{
           "address" => "fake-0000-0000-0000",
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -675,7 +675,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a wallet", meta do
       response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
+        provider_request("/wallet.get_transaction_consumptions", %{
           "address" => meta.wallet.address,
           "sort_by" => "created",
           "sort_dir" => "asc"
@@ -693,7 +693,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all the transaction_consumptions for a specific status", meta do
       response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
+        provider_request("/wallet.get_transaction_consumptions", %{
           "address" => meta.wallet.address,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -713,7 +713,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "ignores the search_term parameter", meta do
       response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
+        provider_request("/wallet.get_transaction_consumptions", %{
           "address" => meta.wallet.address,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -732,7 +732,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
+        provider_request("/wallet.get_transaction_consumptions", %{
           "address" => meta.wallet.address,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
@@ -759,7 +759,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       transaction_consumption = insert(:transaction_consumption)
 
       response =
-        admin_user_request("/transaction_consumption.get", %{
+        provider_request("/transaction_consumption.get", %{
           id: transaction_consumption.id
         })
 
@@ -769,7 +769,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
 
     test "returns an error when the request ID is not found" do
       response =
-        admin_user_request("/transaction_consumption.get", %{
+        provider_request("/transaction_consumption.get", %{
           id: "123"
         })
 
