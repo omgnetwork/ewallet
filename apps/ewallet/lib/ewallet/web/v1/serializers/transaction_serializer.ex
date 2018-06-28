@@ -3,7 +3,15 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   Serializes token(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer, UserSerializer, AccountSerializer}
+
+  alias EWallet.Web.V1.{
+    PaginatorSerializer,
+    TokenSerializer,
+    UserSerializer,
+    AccountSerializer,
+    ExchangePairSerializer
+  }
+
   alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Transaction
   alias EWalletDB.Helpers.{Assoc, Preloader}
@@ -20,7 +28,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         :from_user,
         :to_user,
         :from_account,
-        :to_account
+        :to_account,
+        :exchange_pair
       ])
 
     %{
@@ -51,7 +60,10 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       },
       exchange: %{
         object: "exchange",
-        rate: 1
+        rate: transaction.rate || 1,
+        calculated_at: transaction.calculated_at,
+        exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
+        exchange_pair: ExchangePairSerializer.serialize(transaction.exchange_pair)
       },
       metadata: transaction.metadata || %{},
       encrypted_metadata: transaction.encrypted_metadata || %{},

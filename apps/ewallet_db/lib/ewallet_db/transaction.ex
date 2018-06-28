@@ -44,7 +44,7 @@ defmodule EWalletDB.Transaction do
     field(:error_data, :map)
 
     field(:rate, :float)
-    field(:calculated_at, :float)
+    field(:calculated_at, :naive_datetime)
 
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
@@ -164,7 +164,10 @@ defmodule EWalletDB.Transaction do
       :exchange_account_uuid,
       :exchange_wallet_address,
       :to,
-      :from
+      :from,
+      :rate,
+      :exchange_pair_uuid,
+      :calculated_at
     ])
     |> validate_required([
       :idempotency_token,

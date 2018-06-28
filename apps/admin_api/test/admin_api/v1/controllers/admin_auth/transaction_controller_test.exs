@@ -385,7 +385,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       mint!(token_1)
       mint!(token_2)
 
-      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
       set_initial_balance(%{
         address: wallet_1.address,
@@ -406,6 +406,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
       assert response["success"] == true
       assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["exchange"]["rate"] == 2
+      assert response["data"]["exchange"]["calculated_at"] != nil
+      assert response["data"]["exchange"]["exchange_pair_id"] == pair.id
+      assert response["data"]["exchange"]["exchange_pair"]["id"] == pair.id
 
       assert response["data"]["from"]["address"] == wallet_1.address
       assert response["data"]["from"]["amount"] == 1_000
