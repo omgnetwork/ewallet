@@ -98,7 +98,7 @@ defmodule EWalletDB.Token do
     case get_field(changeset, :id) do
       nil ->
         symbol = get_field(changeset, :symbol)
-        ulid = ULID.generate()
+        ulid = ULID.generate() |> String.downcase()
         put_change(changeset, :id, build_id(symbol, ulid, opts))
 
       _ ->
