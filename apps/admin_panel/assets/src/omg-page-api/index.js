@@ -72,11 +72,20 @@ const KeySection = styled.div`
 `
 const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
+  padding: 30px;
   h4 {
     padding-bottom: 10px;
   }
   p {
     font-size: 12px;
+  }
+  input {
+    border: 1px solid #1a56f0;
+    border-radius: 2px;
+    background-color: #ffffff;
+    width: 370px;
+    padding: 5px;
+    margin-top: 20px;
   }
 `
 const KeyContainer = styled.div`
@@ -124,7 +133,17 @@ class ApiKeyPage extends Component {
     ewalletModalOpen: false
   }
   onRequestClose = () => {
-    this.setState({ accessModalOpen: false, ewalletModalOpen: false })
+    this.setState({
+      accessModalOpen: false,
+      ewalletModalOpen: false
+    })
+  }
+  onRequestCloseShowPrivateKey = () => {
+    this.setState({
+      privateKey: '',
+      publicKey: '',
+      submitStatus: 'DEFAULT'
+    })
   }
   onClickCreateAccessKey = e => {
     this.setState({ accessModalOpen: true })
@@ -136,8 +155,14 @@ class ApiKeyPage extends Component {
     this.props.generateApiKey()
     this.onRequestClose()
   }
-  onClickOkCreateAccessKey = e => {
-    this.props.generateAccessKey()
+  onClickOkCreateAccessKey = async e => {
+    this.setState({ submitStatus: 'SUBMITTING' })
+    const { data } = await this.props.generateAccessKey()
+    this.setState({
+      privateKey: data.secret_key,
+      publicKey: data.access_key,
+      submitStatus: 'SUCCESS'
+    })
     this.onRequestClose()
   }
   onClickSwitch = ({ id, expired }) => async e => {
@@ -205,7 +230,6 @@ class ApiKeyPage extends Component {
                 columns={columnsApiKey}
                 perPage={99999}
                 loadingColNumber={4}
-                loading={loadingStatus === 'DEFAULT'}
               />
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
@@ -247,20 +271,33 @@ class ApiKeyPage extends Component {
               <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
                 <span>Generate Key</span>
               </Button>
-              <Table
-                rows={apiKeysRows}
-                rowRenderer={this.rowRenderer}
-                columns={columnsAccessKey}
-                loading={loadingStatus === 'DEFAULT'}
-              />
+              <Table rows={apiKeysRows} rowRenderer={this.rowRenderer} columns={columnsAccessKey} />
               <ConfirmationModal
                 open={this.state.accessModalOpen}
                 onRequestClose={this.onRequestClose}
                 onOk={this.onClickOkCreateAccessKey}
+                closeTimeoutMS={0}
+                loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
                   <h4>Generate Access key</h4>
                   <p>Are you sure you want to generate acesss key ?</p>
+                </ConfirmCreateKeyContainer>
+              </ConfirmationModal>
+              <ConfirmationModal
+                open={this.state.submitStatus === 'SUCCESS'}
+                onRequestClose={this.onRequestCloseShowPrivateKey}
+                onOk={this.onRequestCloseShowPrivateKey}
+                confirmText='Got it!'
+                cancel={false}
+              >
+                <ConfirmCreateKeyContainer>
+                  <h4>Your secret key</h4>
+                  <p style={{ maxWidth: 300 }}>
+                    Please copy and keep this secret key private. Secret key will use to open your
+                    encrypted information.
+                  </p>
+                  <input value={this.state.privateKey} spellCheck='false' />
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
             </KeySection>

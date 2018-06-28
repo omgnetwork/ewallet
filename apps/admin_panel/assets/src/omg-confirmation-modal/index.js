@@ -5,7 +5,6 @@ import Modal from '../omg-modal'
 import { Button, PlainButton } from '../omg-uikit'
 
 const ContentContainer = styled.div`
-  padding: 40px;
 `
 const ConfirmationModalContainer = styled.div`
   position: relative;
@@ -24,7 +23,13 @@ class ConfirmationModal extends PureComponent {
     children: PropTypes.node,
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    onOk: PropTypes.func
+    onOk: PropTypes.func,
+    cancel: PropTypes.bool,
+    confirmText: PropTypes.string,
+    loading: PropTypes.bool
+  }
+  static defaultProps = {
+    cancel: true
   }
 
   render () {
@@ -37,13 +42,14 @@ class ConfirmationModal extends PureComponent {
         closeTimeoutMS={300}
         className='react-modal'
         overlayClassName='react-modal-overlay'
+        {...this.props}
       >
         <ConfirmationModalContainer>
           <ContentContainer>{this.props.children}</ContentContainer>
           <ButtonsContainer>
-            <PlainButton onClick={this.props.onRequestClose}>Cancel</PlainButton>
-            <Button styleType='primary' size='small' onClick={this.props.onOk}>
-              Confirm
+            {this.props.cancel && <PlainButton onClick={this.props.onRequestClose}>Cancel</PlainButton>}
+            <Button styleType='primary' size='small' onClick={this.props.onOk} loading={this.props.loading}>
+              {this.props.confirmText || 'Confirm' }
             </Button>
           </ButtonsContainer>
         </ConfirmationModalContainer>
