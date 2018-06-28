@@ -118,7 +118,6 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
 
       render () {
-        console.log(this.state)
         return this.props.render({
           ...this.props,
           ...this.getQuery(),

@@ -64,7 +64,6 @@ class MintTokenModal extends PureComponent {
       amount: this.state.amount * this.props.token.subunit_to_unit
     })
     if (result.data.success) {
-      this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
       this.props.onRequestClose()
       this.setState({ submitStatus: 'SUCCESS', amount: 0 })
     } else {

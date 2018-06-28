@@ -107,7 +107,7 @@ class TokenDetailPage extends Component {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/token/${data.id}`)
   }
-  renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination }) => {
+  renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
     const data = tokens.map(token => {
       return {
         key: token.id,
@@ -138,6 +138,7 @@ class TokenDetailPage extends Component {
         <CreateTokenModal
           open={this.state.createTokenModalOpen}
           onRequestClose={this.onRequestCloseCreateToken}
+          onFetchSuccess={fetch}
         />
       </TokenDetailPageContainer>
     )

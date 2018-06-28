@@ -122,7 +122,7 @@ class CreateTransactionModal extends Component {
         })
       }
     } catch (e) {
-      this.setState({ submitting: false, error: e.message })
+      this.setState({ error: JSON.stringify(e.message) })
     }
   }
   onRequestClose = () => {
