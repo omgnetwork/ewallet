@@ -87,7 +87,7 @@ class SortableTable extends PureComponent {
     location: PropTypes.object,
     rows: PropTypes.array,
     columns: PropTypes.array,
-    loadingStatus: PropTypes.bool,
+    loadingStatus: PropTypes.string,
     perPage: PropTypes.number,
     rowRenderer: PropTypes.func,
     onClickRow: PropTypes.func,

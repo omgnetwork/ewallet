@@ -13,6 +13,7 @@ import { accessKeyReducer, accessKeyLoadingStatusReducer } from '../omg-access-k
 import { alertsReducer } from '../omg-alert/reducer'
 import { tokensReducer, tokensLoadingStatusReducer } from '../omg-token/reducer'
 import { usersReducer, usersLoadingStatusReducer } from '../omg-users/reducer'
+import { consumptionsReducer, consumptionsLoadingStatusReducer } from '../omg-consumption/reducer'
 import { transactionsReducer, transactionsLoadingStatusReducer } from '../omg-transaction/reducer'
 import { walletsReducer, walletsLoadingStatusReducer } from '../omg-wallet/reducer'
 import { categoriesLoadingStatusReducer, categoriesReducer } from '../omg-account-category/reducer'
@@ -28,6 +29,8 @@ export default combineReducers({
   accessKeysLoadingStatus: accessKeyLoadingStatusReducer,
   currentAccount: currentAccountReducer,
   currentAccountLoadingStatus: currentAccountLoadingStatusReducer,
+  consumptions: consumptionsReducer,
+  consumptionsLoadingStatus: consumptionsLoadingStatusReducer,
   currentUser: currentUserReducer,
   currentUserLoadingStatus: currentUserLoadingStatusReducer,
   inviteList: inviteListReducer,

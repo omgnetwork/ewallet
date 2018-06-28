@@ -109,23 +109,15 @@ class Table extends Component {
         loading={this.props.loading}
       >
         <Fade in={this.props.loading} timeout={300} key={'loading'} unmountOnExit>
-          {state => {
-            return (
-              <table style={{ position: 'absolute', background: 'white' }}>
-                <tbody>{this.renderLoadingRows()}</tbody>
-              </table>
-            )
-          }}
+          <table style={{ position: 'absolute', background: 'white' }}>
+            <tbody>{this.renderLoadingRows()}</tbody>
+          </table>
         </Fade>
         <Fade in={!this.props.loading} timeout={300} key={'data'} unmountOnExit appear>
-          {state => {
-            return (
-              <table>
-                <thead>{this.renderColumns()}</thead>
-                <tbody>{this.renderDataRows()}</tbody>
-              </table>
-            )
-          }}
+          <table>
+            <thead>{this.renderColumns()}</thead>
+            <tbody>{this.renderDataRows()}</tbody>
+          </table>
         </Fade>
 
         {!this.props.loading &&
