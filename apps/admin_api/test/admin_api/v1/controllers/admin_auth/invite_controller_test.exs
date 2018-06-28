@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["description"] == "The provided passwords do not match"
     end
 
-    test "returns :passwords_mismatch error if the password has less than 8 characters" do
+    test "returns client:invalid_parameter error if the password has less than 8 characters" do
       invite = insert(:invite)
       user = insert(:admin, %{invite: invite})
       response = request(user.email, invite.token, "short", "short")

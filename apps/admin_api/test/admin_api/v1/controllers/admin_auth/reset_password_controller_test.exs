@@ -130,7 +130,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end
 
-    test "returns a token_not_found error when the password is too short" do
+    test "returns a client:invalid_parameter error when the password is too short" do
       user = insert(:admin)
       request = ForgetPasswordRequest.generate(user)
 
