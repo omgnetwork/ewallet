@@ -2,8 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import { Button, Table, Switch, Icon } from '../omg-uikit'
-import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
+import { Button, Switch, Icon } from '../omg-uikit'
+import Table from '../omg-table'
+import ApiKeysFetcher from '../omg-api-keys/apiKeysFetcher'
 import AccessKeyProvider from '../omg-access-key/accessKeyProvider'
 import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
@@ -17,48 +18,9 @@ const ApiKeyContainer = styled.div`
     margin-top: 20px;
     margin-bottom: 20px;
   }
-  table {
-    width: 1000px;
-    text-align: left;
-    td:nth-child(4) {
-      width: 10%;
-    }
-    thead {
-      tr {
-        background-color: ${props => props.theme.colors.S200};
-        border: 1px solid ${props => props.theme.colors.S400};
-        padding: 20px 0;
-        th {
-          color: ${props => props.theme.colors.B200};
-          white-space: nowrap;
-          padding: 5px 15px;
-        }
-      }
-    }
-    * {
-      vertical-align: middle;
-    }
-    tbody tr:hover {
-      background-color: ${props => props.theme.colors.S100};
-    }
-    td {
-      padding: 8px 15px;
-      vertical-align: top;
-      border-bottom: 1px solid ${props => props.theme.colors.S300};
-      white-space: nowrap;
-    }
-  }
 `
 const KeySection = styled.div`
   position: relative;
-  :not(:first-child) {
-    margin-top: 50px;
-  }
-  h3 {
-    font-size: 18px;
-    font-weight: 400;
-    margin-bottom: 20px;
-  }
   p {
     color: ${props => props.theme.colors.B100};
   }
@@ -201,9 +163,13 @@ class ApiKeyPage extends Component {
   }
   renderEwalletApiKey = () => {
     return (
-      <ApiKeyProvider
-        render={({ apiKeys, loadingStatus }) => {
-          const apiKeysRows = apiKeys.filter(key => !key.deleted_at).map(key => {
+      <ApiKeysFetcher
+        query={{
+          page: 1,
+          perPage: 5
+        }}
+        render={({ data, loadingStatus }) => {
+          const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
             return {
               key: key.id,
               id: key.id,
@@ -250,7 +216,11 @@ class ApiKeyPage extends Component {
   }
   renderAccessKey = () => {
     return (
-      <AccessKeyProvider
+      <ApiKeysFetcher
+        query={{
+          page: 1,
+          perPage: 5
+        }}
         render={({ data, loadingStatus }) => {
           const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
             return {
@@ -262,7 +232,7 @@ class ApiKeyPage extends Component {
             }
           })
           return (
-            <KeySection>
+            <KeySection style={{ marginTop: '50px' }}>
               <h3>Access Key</h3>
               <p>
                 Access Keys are used to gain access to everything. user-related functions (once the
@@ -323,7 +293,7 @@ class ApiKeyPage extends Component {
           types={false}
         />
         {this.renderEwalletApiKey()}
-        {this.renderAccessKey()}
+        {/* {this.renderAccessKey()} */}
       </ApiKeyContainer>
     )
   }

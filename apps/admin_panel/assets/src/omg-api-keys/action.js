@@ -48,21 +48,24 @@ export const updateApiKey = ({ id, expired }) => async dispatch => {
   }
 }
 
-export const loadApiKeys = () => async dispatch => {
+export const getApiKeys = ({ page, perPage, search, cacheKey }) => async dispatch => {
   try {
     const result = await apikeyService.getAllApikey({
-      perPage: 1000,
-      sort: { by: 'created_at', dir: 'desc' }
+      perPage,
+      page,
+      sort: { by: 'created_at', dir: 'desc' },
+      search
     })
     if (result.data.success) {
-      dispatch({
+      return dispatch({
         type: 'API_KEY/REQUEST/SUCCESS',
-        apiKeys: result.data.data.data
+        data: result.data.data.data,
+        cacheKey,
+        pagination: result.data.data.pagination
       })
     } else {
-      dispatch({ type: 'API_KEY/REQUEST/FAILED', error: result.data.data })
+      return dispatch({ type: 'API_KEY/REQUEST/FAILED', error: result.data.data })
     }
-    return result
   } catch (error) {
     dispatch({ type: 'API_KEY/REQUEST/FAILED', error })
   }

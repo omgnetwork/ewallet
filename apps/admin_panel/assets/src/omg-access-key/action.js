@@ -16,11 +16,13 @@ export const generateAccessKey = () => async dispatch => {
     return dispatch({ type: 'ACCESS_KEY/CREATE/FAILED', error })
   }
 }
-export const getAccessKeys = () => async dispatch => {
+export const getAccessKeys = ({ page, perPage, search }) => async dispatch => {
   try {
     const result = await accessKeyService.getAllAccessKey({
-      perPage: 1000,
-      sort: { by: 'created_at', dir: 'desc' }
+      perPage,
+      page,
+      sort: { by: 'created_at', dir: 'desc' },
+      search
     })
     if (result.data.success) {
       return dispatch({
