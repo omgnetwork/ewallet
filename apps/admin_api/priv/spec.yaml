@@ -239,6 +239,23 @@ paths:
         '500':
           $ref: "#/components/responses/InternalServerError"
   # Endpoint to create a new token
+  /token.update:
+    post:
+      tags:
+        - Token
+      summary: Update an existing token
+      operationId: token_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TokenUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to create a new token
   /token.stats:
     post:
       tags:
@@ -3436,69 +3453,102 @@ components:
               id: "tok_abc_01cbfge9qhmsdbjyb7a8e8pxt3"
     # Request body for creating a token
     TokenCreateBody:
-        description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
-        required: true
-        content:
-          application/vnd.omisego.v1+json:
-            schema:
-              properties:
-                name:
-                  type: string
-                symbol:
-                  type: string
-                description:
-                  type: string
-                subunit_to_unit:
-                  type: integer
-                amount:
-                  type: integer
-                iso_code:
-                  type: string
-                short_symbol:
-                  type: string
-                subunit:
-                  type: string
-                symbol_first:
-                  type: boolean
-                html_entity:
-                  type: string
-                iso_numeric:
-                  type: string
-                smallest_denomination:
-                  type: integer
-                metadata:
-                  type: object
-                encrypted_metadata:
-                  type: object
-              required:
-                - name
-                - symbol
-                - description
-                - subunit_to_unit
-              example:
-                symbol: "BTC"
-                name: "Bitcoin"
-                description: "desc"
-                subunit_to_unit: 100
+      description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              name:
+                type: string
+              symbol:
+                type: string
+              description:
+                type: string
+              subunit_to_unit:
+                type: integer
+              amount:
+                type: integer
+              iso_code:
+                type: string
+              short_symbol:
+                type: string
+              subunit:
+                type: string
+              symbol_first:
+                type: boolean
+              html_entity:
+                type: string
+              iso_numeric:
+                type: string
+              smallest_denomination:
+                type: integer
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            required:
+              - name
+              - symbol
+              - description
+              - subunit_to_unit
+            example:
+              symbol: "BTC"
+              name: "Bitcoin"
+              description: "desc"
+              subunit_to_unit: 100
+    # Request body for updating a token
+    TokenUpdateBody:
+      description: The parameters to update a token.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              description:
+                type: string
+              iso_code:
+                type: string
+              short_symbol:
+                type: string
+              symbol_first:
+                type: boolean
+              html_entity:
+                type: string
+              iso_numeric:
+                type: string
+              metadata:
+                type: object
+              encrypted_metadata:
+                type: object
+            required:
+              - id
+            example:
+              id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+              name: "Bitcoin v2"
+              description: "an awesome updated description"
     # Request body for minting a token
     TokenMintBody:
-        description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
-        required: true
-        content:
-          application/vnd.omisego.v1+json:
-            schema:
-              properties:
-                id:
-                  type: string
-                amount:
-                  type: integer
-              required:
-                - id
-                - amount
-              example:
-                id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
-                amount: 1000
-
+      description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              amount:
+                type: integer
+            required:
+              - id
+              - amount
+            example:
+              id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+              amount: 1000
     ######################################
     #               MINT BODIES          #
     ######################################

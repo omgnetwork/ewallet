@@ -64,6 +64,54 @@ defmodule EWalletDB.TokenTest do
     end
   end
 
+  describe "update/2" do
+    test "updates an existing token correctly" do
+      {:ok, token} =
+        :token
+        |> params_for(
+          name: "OmiseGO",
+          symbol: "OMG",
+          iso_code: "OMG",
+          description: "some description",
+          short_symbol: "OM",
+          symbol_first: true,
+          html_entity: "some html entity",
+          iso_numeric: "100",
+          metadata: %{a_key: "a_value"},
+          encrypted_metadata: %{a_key: "a_value"}
+        )
+        |> Token.insert()
+
+      {:ok, updated_token} =
+        Token.update(token, %{
+          name: "OmiseGO updated",
+          iso_code: "OMG updated",
+          description: "some updated description",
+          short_symbol: "OM updated",
+          symbol_first: false,
+          html_entity: "some updated html entity",
+          iso_numeric: "100 updated",
+          encrypted_metadata: %{}
+        })
+
+      assert updated_token.name == "OmiseGO updated"
+      assert updated_token.iso_code == "OMG updated"
+      assert updated_token.description == "some updated description"
+      assert updated_token.short_symbol == "OM updated"
+      assert updated_token.symbol_first == false
+      assert updated_token.html_entity == "some updated html entity"
+      assert updated_token.iso_numeric == "100 updated"
+      assert updated_token.metadata == %{"a_key" => "a_value"}
+      assert updated_token.encrypted_metadata == %{}
+    end
+
+    test "Fails to update if name is nil" do
+      {:ok, token} = :token |> params_for() |> Token.insert()
+      {res, _error} = Token.update(token, %{name: nil})
+      assert res == :error
+    end
+  end
+
   describe "all/0" do
     test "returns all existing tokens" do
       assert Enum.empty?(Token.all())

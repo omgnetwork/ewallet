@@ -239,4 +239,51 @@ defmodule AdminAPI.V1.ProviderAuth.TokenControllerTest do
       assert inserted == nil
     end
   end
+
+  describe "/token.update" do
+    test "updates an existing token" do
+      token = insert(:token)
+
+      response =
+        provider_request("/token.update", %{
+          id: token.id,
+          name: "updated name",
+          description: "updated description",
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+      assert response["data"]["name"] == "updated name"
+      assert response["data"]["metadata"] == %{"something" => "interesting"}
+      assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
+    end
+
+    test "Raises invalid_parameter error if id is missing" do
+      response = provider_request("/token.update", %{name: "Bitcoin"})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "client:invalid_parameter",
+               "description" => "Invalid parameter provided: 'id' is required",
+               "messages" => nil
+             }
+    end
+
+    test "Raises token_not_found error if the token can't be found" do
+      response = provider_request("/token.update", %{id: "fake", name: "Bitcoin"})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "token:token_not_found",
+               "description" => "There is no token matching the provided token_id.",
+               "messages" => nil
+             }
+    end
+  end
 end
