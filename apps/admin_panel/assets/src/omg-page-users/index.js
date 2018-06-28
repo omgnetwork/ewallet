@@ -21,10 +21,15 @@ const UserPageContainer = styled.div`
     width: 40%;
   }
   td:nth-child(2),
-  td:nth-child(3),
-  td:nth-child(4),
-   {
+  td:nth-child(4) {
     width: 20%;
+  }
+  td:nth-child(3) {
+    width: 200px;
+    max-width: 200px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `
 const SortableTableContainer = styled.div`
