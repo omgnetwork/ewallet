@@ -15,6 +15,7 @@ import { tokensReducer, tokensLoadingStatusReducer } from '../omg-token/reducer'
 import { usersReducer, usersLoadingStatusReducer } from '../omg-users/reducer'
 import { consumptionsReducer, consumptionsLoadingStatusReducer } from '../omg-consumption/reducer'
 import { transactionsReducer, transactionsLoadingStatusReducer } from '../omg-transaction/reducer'
+import { transactionRequestsReducer, transactionRequestsLoadingStatusReducer } from '../omg-transaction-request/reducer'
 import { walletsReducer, walletsLoadingStatusReducer } from '../omg-wallet/reducer'
 import { categoriesLoadingStatusReducer, categoriesReducer } from '../omg-account-category/reducer'
 import { loadingBarReducer } from 'react-redux-loading-bar'
@@ -40,6 +41,8 @@ export default combineReducers({
   alerts: alertsReducer,
   tokens: tokensReducer,
   tokensLoadingStatus: tokensLoadingStatusReducer,
+  transactionRequests: transactionRequestsReducer,
+  transactionRequestsLoadingStatus: transactionRequestsLoadingStatusReducer,
   users: usersReducer,
   usersLoadingStatus: usersLoadingStatusReducer,
   transactions: transactionsReducer,

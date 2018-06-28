@@ -18,6 +18,9 @@ const TransactionRequestsPageContainer = styled.div`
   > div {
     flex: 1;
   }
+  td {
+    white-space: nowrap;
+  }
   td:first-child {
     width: 50%;
   }
@@ -48,6 +51,14 @@ class TransactionRequestsPage extends Component {
       exportModalOpen: false,
       loadMoreTime: 1
     }
+    this.columns = [
+      { key: 'id', title: 'REQUEST ID', sort: true },
+      { key: 'type', title: 'TYPE', sort: true },
+      { key: 'amount', title: 'AMOUNT', sort: true },
+      { key: 'created_by', title: 'CREATED BY' },
+      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'require_confirmation', title: 'CONFIRMATION' }
+    ]
   }
   onClickCreateRequest = e => {
     this.setState({ createTransactionRequestModalOpen: true })
@@ -62,34 +73,26 @@ class TransactionRequestsPage extends Component {
       </Button>
     )
   }
-  getColumns = accounts => {
-    return [
-      { key: 'name', title: 'NAME', sort: true },
-      { key: 'description', title: 'DESCRIPTION', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'avatar', title: 'AVATAR', hide: true }
-    ]
-  }
-  getRow = accounts => {
-    return accounts.map(d => {
-      return {
-        ...d,
-        avatar: _.get(d, 'avatar.thumb'),
-        key: d.id
-      }
-    })
-  }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/account/${data.id}`)
   }
   rowRenderer (key, data, rows) {
+    if (key === 'require_confirmation') {
+      return data ? 'true' : 'false'
+    }
     if (key === 'name') {
       return (
         <NameColumn>
           <Avatar image={rows.avatar} /> <span>{data}</span>
         </NameColumn>
       )
+    }
+    if (key === 'amount') {
+      return `${(data || 0).toLocaleString()} ${rows.token.symbol}`
+    }
+    if (key === 'created_by') {
+      return rows.user_id || rows.account.name || rows.account_id
     }
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
@@ -119,8 +122,8 @@ class TransactionRequestsPage extends Component {
           loadingStatus={individualLoadingStatus}
         >
           <SortableTable
-            rows={this.getRow(transactionRequests)}
-            columns={this.getColumns(transactionRequests)}
+            rows={transactionRequests}
+            columns={this.columns}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
