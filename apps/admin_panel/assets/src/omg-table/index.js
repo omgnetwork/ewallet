@@ -25,7 +25,7 @@ const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
-    
+
     thead {
       tr {
         border-top: 1px solid ${props => props.theme.colors.S400};
@@ -68,8 +68,17 @@ const TableContainer = styled.div`
   }
 `
 const NavigationContainer = styled.div`
-  text-align: center;
+  text-align: right;
   padding-top: 40px;
+  > button {
+    padding: 5px 10px;
+    :hover {
+
+    }
+  }
+  > button:first-child {
+    margin-right: 5px;
+  }
 `
 
 class SortableTable extends PureComponent {
@@ -214,12 +223,22 @@ class SortableTable extends PureComponent {
       : this.props.rows
     return result
   }
-
+  renderLoadMore = () => {
+    return (
+      <LoadMoreButton
+        styleType='secondary'
+        onClick={this.props.onClickLoadMore}
+        disabled={this.props.isLastPage}
+        size='small'
+      >
+        <Icon name='Chevron-Down' />
+        <span>Load More...</span>
+      </LoadMoreButton>
+    )
+  }
   render () {
     return (
-      <TableContainer
-        loading={this.props.loadingStatus === 'PENDING'}
-      >
+      <TableContainer loading={this.props.loadingStatus === 'PENDING'}>
         <Table
           {...this.props}
           columns={this.props.columns}
@@ -239,15 +258,12 @@ class SortableTable extends PureComponent {
         {this.props.navigation &&
           this.props.loadingStatus !== 'INITIATED' && (
             <NavigationContainer>
-              <LoadMoreButton
-                styleType='secondary'
-                onClick={this.props.onClickLoadMore}
-                disabled={this.props.isLastPage}
-                size='small'
-              >
-                <Icon name='Chevron-Down' />
-                <span>Load More...</span>
-              </LoadMoreButton>
+              <Button onClick={this.onClickPrev} styleType='secondary' disabled={this.props.isFirstPage}>
+                <Icon name='Chevron-Left' />
+              </Button>
+              <Button onClick={this.onClickNext} styleType='secondary' disabled={this.props.isLastPage}>
+                <Icon name='Chevron-Right' />
+              </Button>
             </NavigationContainer>
           )}
       </TableContainer>

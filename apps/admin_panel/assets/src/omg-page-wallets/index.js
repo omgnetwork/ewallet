@@ -43,7 +43,8 @@ class WalletPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    scrollTopContentContainer: PropTypes.func
   }
   constructor (props) {
     super(props)
@@ -157,10 +158,11 @@ class WalletPage extends Component {
         accountId={this.props.match.params.accountId}
         render={this.renderWalletPage}
         query={{
-          page: this.state.loadMoreTime,
+          page: queryString.parse(this.props.location.search).page,
           perPage: 15,
           search: queryString.parse(this.props.location.search).search
         }}
+        onFetchComplete={this.props.scrollTopContentContainer}
       />
     )
   }

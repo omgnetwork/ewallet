@@ -56,15 +56,21 @@ export const createFetcher = (entity, reducer, selectors) => {
           await this.fetchDebounce()
         }
       }
+      getQuery = () => {
+        if (!_.get(this.props.query, 'page')) {
+          return { ...this.props.query, page: 1 }
+        }
+        return this.props.query
+      }
       fetchAll = async () => {
         try {
           const promises = this.props.queriesByEntity.map(query => {
             const { page } = JSON.parse(query)
             return this.props.dispatcher({
               ...this.props,
-              ...this.props.query,
+              ...this.getQuery(),
               page,
-              cacheKey: `${JSON.stringify({ ...this.props.query, page, entity })}`
+              cacheKey: `${JSON.stringify({ ...this.getQuery(), page, entity })}`
             })
           })
           await Promise.all(promises)
@@ -75,7 +81,7 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       fetch = async () => {
         try {
-          this.props.dispatcher({ ...this.props, ...this.props.query }).then(result => {
+          this.props.dispatcher({ ...this.props, ...this.getQuery() }).then(result => {
             this.fetched = true
             if (result.data) {
               this.setState({
@@ -102,7 +108,7 @@ export const createFetcher = (entity, reducer, selectors) => {
       render () {
         return this.props.render({
           ...this.props,
-          ...this.props.query,
+          ...this.getQuery(),
           individualLoadingStatus: this.state.loadingStatus,
           fetch: this.fetch,
           fetchAll: this.fetchAll,

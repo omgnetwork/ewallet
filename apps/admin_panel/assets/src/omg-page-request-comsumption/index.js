@@ -126,7 +126,7 @@ class RequestConsumtionPage extends Component {
         {...this.state}
         {...this.props}
         query={{
-          page: queryString.parse(this.props.location.search).page,
+          page: page: queryString.parse(this.props.location.search).page,
           perPage: 15,
           search: queryString.parse(this.props.location.search).search
         }}
