@@ -82,7 +82,11 @@ defmodule EWalletDB.Token do
       :metadata,
       :encrypted_metadata
     ])
-    |> validate_number(:subunit_to_unit, greater_than: 0, less_than_or_equal_to: 1.0e18)
+    |> validate_number(
+      :subunit_to_unit,
+      greater_than: 0,
+      less_than_or_equal_to: 1_000_000_000_000_000_000
+    )
     |> validate_immutable(:symbol)
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)

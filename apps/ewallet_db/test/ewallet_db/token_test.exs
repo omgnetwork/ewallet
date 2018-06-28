@@ -26,13 +26,15 @@ defmodule EWalletDB.TokenTest do
     end
 
     test "allow subunit to be set between 0 and 1.0e18" do
-      {:ok, token} = :token |> params_for(subunit_to_unit: 1.0e18) |> Token.insert()
+      {:ok, token} =
+        :token |> params_for(subunit_to_unit: 1_000_000_000_000_000_000) |> Token.insert()
 
       assert token.subunit_to_unit == 1_000_000_000_000_000_000
     end
 
     test "fails to insert when subunit is equal to 1.0e19" do
-      {:error, error} = :token |> params_for(subunit_to_unit: 1.0e19) |> Token.insert()
+      {:error, error} =
+        :token |> params_for(subunit_to_unit: 10_000_000_000_000_000_000) |> Token.insert()
 
       assert error.errors == [
                subunit_to_unit:
@@ -51,7 +53,8 @@ defmodule EWalletDB.TokenTest do
     end
 
     test "fails to insert when subunit is superior to 1.0e18" do
-      {:error, error} = :token |> params_for(subunit_to_unit: 1.0e82) |> Token.insert()
+      {:error, error} =
+        :token |> params_for(subunit_to_unit: 100_000_000_000_000_000_000_000) |> Token.insert()
 
       assert error.errors == [
                subunit_to_unit:
