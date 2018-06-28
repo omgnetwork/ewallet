@@ -419,9 +419,9 @@ defmodule EWallet.TransactionSourceFetcherTest do
       assert res == :error
       assert data == :to_address_not_found
     end
-    end
+  end
 
-    describe "fetch_to/1 with address" do
+  describe "fetch_to/1 with address" do
     test "returns error when wallet is not found" do
       {res, data} =
         TransactionSourceFetcher.fetch_to(%{
