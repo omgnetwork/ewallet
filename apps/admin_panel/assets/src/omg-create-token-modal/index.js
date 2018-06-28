@@ -2,25 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Button, Icon } from '../omg-uikit'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import { createToken } from '../omg-token/action'
 import { connect } from 'react-redux'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: 0,
-    overflow: 'hidden'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
 const Form = styled.form`
   padding: 50px;
   width: 250px;
@@ -88,7 +72,6 @@ class CreateTokenModal extends Component {
     return (
       <Modal
         isOpen={this.props.open}
-        style={customStyles}
         onRequestClose={this.props.onRequestClose}
         contentLabel='create account modal'
       >

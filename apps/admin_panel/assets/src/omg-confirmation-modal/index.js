@@ -1,27 +1,15 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import { Button, PlainButton } from '../omg-uikit'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
+
 const ContentContainer = styled.div`
   padding: 40px;
 `
 const ConfirmationModalContainer = styled.div`
   position: relative;
+  padding: 40px;
 `
 const ButtonsContainer = styled.div`
   text-align: right;
@@ -44,9 +32,11 @@ class ConfirmationModal extends PureComponent {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
-        style={customStyles}
         contentLabel='confirmation modal'
         shouldCloseOnOverlayClick={false}
+        closeTimeoutMS={300}
+        className='react-modal'
+        overlayClassName='react-modal-overlay'
       >
         <ConfirmationModalContainer>
           <ContentContainer>{this.props.children}</ContentContainer>

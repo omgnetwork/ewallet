@@ -99,3 +99,43 @@ a {
   opacity: 0!important;
   transition: opacity 0.3s ease-in;
 }
+
+/* react modal */
+.ReactModal__Overlay {
+  position: fixed;
+  top:0;
+  left: 0;
+  bottom: 0;
+  right:0;
+}
+
+.ReactModal__Content {
+  background-color: white;
+  border: none;
+  border-radius: 4px;
+  opacity: 0;
+  transition: 0.2s;
+  transform: translate3d(-50%,-40%,0);
+  top: 50%;
+  left: 50%;
+  right: auto;
+  bottom: auto;
+  margin-right: -50%;
+  border: none;
+  position: absolute;
+}
+
+.ReactModal__Content--after-open {
+  opacity: 1;
+  transform: translate3d(-50%,-50%,0);
+  
+}
+
+.ReactModal__Content--before-close {
+  opacity: 0;
+  transform: translate3d(-50%,-40%,0);
+}
+
+.ReactModal__Overlay {
+  background-color: rgba(0,0,0,0.5);
+}

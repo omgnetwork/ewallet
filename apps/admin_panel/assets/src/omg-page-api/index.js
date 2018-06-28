@@ -4,11 +4,13 @@ import styled from 'styled-components'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import { Button, Table, Switch, Icon } from '../omg-uikit'
 import ApiKeyProvider from '../omg-api-keys/apiKeyProvider'
+import AccessKeyProvider from '../omg-access-key/accessKeyProvider'
 import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
+import { generateAccessKey } from '../omg-access-key/action'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -18,12 +20,8 @@ const ApiKeyContainer = styled.div`
   table {
     width: 1000px;
     text-align: left;
-    td:first-child {
-      width: 25%;
-    }
-    td:nth-child(2),
-    td:nth-child(3) {
-      width: 25%;
+    td:nth-child(4) {
+      width: 10%;
     }
     thead {
       tr {
@@ -97,45 +95,56 @@ const KeyContainer = styled.div`
   }
 `
 
-const columns = [
-  { key: 'secret', title: 'Key' },
+const columnsApiKey = [
+  { key: 'key', title: 'Key' },
   { key: 'user', title: 'Create by' },
   { key: 'created_at', title: 'Date' },
-  { key: 'expired', title: 'Status' }
+  { key: 'status', title: 'Status' }
+]
+const columnsAccessKey = [
+  { key: 'key', title: 'Key' },
+  { key: 'user', title: 'Create by' },
+  { key: 'created_at', title: 'Date' },
+  { key: 'status_access', title: 'Status' }
 ]
 const enhance = compose(
   connect(
     null,
-    { generateApiKey, updateApiKey }
+    { generateApiKey, updateApiKey, generateAccessKey }
   )
 )
 class ApiKeyPage extends Component {
   static propTypes = {
     generateApiKey: PropTypes.func,
+    generateAccessKey: PropTypes.func,
     updateApiKey: PropTypes.func
   }
   state = {
-    adminModalOpen: false,
+    accessModalOpen: false,
     ewalletModalOpen: false
   }
   onRequestClose = () => {
-    this.setState({ adminModalOpen: false, ewalletModalOpen: false })
+    this.setState({ accessModalOpen: false, ewalletModalOpen: false })
   }
-  onClickCreateAdminKey = e => {
-    this.setState({ adminModalOpen: true })
+  onClickCreateAccessKey = e => {
+    this.setState({ accessModalOpen: true })
   }
   onClickCreateEwalletKey = e => {
     this.setState({ ewalletModalOpen: true })
   }
-  onClickOk = owner => e => {
-    this.props.generateApiKey(owner)
+  onClickOkCreateEwalletKey = e => {
+    this.props.generateApiKey()
+    this.onRequestClose()
+  }
+  onClickOkCreateAccessKey = e => {
+    this.props.generateAccessKey()
     this.onRequestClose()
   }
   onClickSwitch = ({ id, expired }) => async e => {
     this.props.updateApiKey({ id, expired })
   }
   rowRenderer = (key, data, rows) => {
-    if (key === 'expired') {
+    if (key === 'status') {
       return (
         <Switch
           open={!data}
@@ -143,7 +152,10 @@ class ApiKeyPage extends Component {
         />
       )
     }
-    if (key === 'secret') {
+    if (key === 'status_access') {
+      return data ? 'enabled' : 'disabled'
+    }
+    if (key === 'key') {
       return (
         <KeyContainer>
           <Icon name='Key' /> <span>{data}</span>
@@ -157,54 +169,12 @@ class ApiKeyPage extends Component {
         </KeyContainer>
       )
     }
+    if (key === 'created_at') {
+      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+    }
     return data
   }
-  renderEwalletApiKey = (apiKeysRows, loadingStatus) => {
-    return (
-      <KeySection>
-        <h3>E-Wallet API Key</h3>
-        <p>
-          eWallet API Keys are used to authenticate clients and allow them to perform various
-          user-related functions (once the user has been logged in), e.g. make transfers with the
-          user's wallets, list a user's transactions, create transaction requests, etc.
-        </p>
-        <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
-          <span>Generate Key</span>
-        </Button>
-        <Table
-          rows={apiKeysRows}
-          rowRenderer={this.rowRenderer}
-          columns={columns}
-          perPage={99999}
-          loading={loadingStatus === 'DEFAULT'}
-        />
-      </KeySection>
-    )
-  }
-  renderAccessKey = (apiKeysRows, loadingStatus) => {
-    return (
-      <KeySection>
-        <h3>Access Key</h3>
-        <p>
-          eWallet API Keys are used to authenticate clients and allow them to perform various
-          user-related functions (once the user has been logged in), e.g. make transfers with the
-          user's wallets, list a user's transactions, create transaction requests, etc.
-        </p>
-        <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
-          <span>Generate Key</span>
-        </Button>
-        <Table
-          rows={apiKeysRows}
-          rowRenderer={this.rowRenderer}
-          columns={columns}
-          perPage={99999}
-          loading={loadingStatus === 'DEFAULT'}
-        />
-      </KeySection>
-    )
-  }
-
-  render () {
+  renderEwalletApiKey = () => {
     return (
       <ApiKeyProvider
         render={({ apiKeys, loadingStatus }) => {
@@ -213,42 +183,105 @@ class ApiKeyPage extends Component {
               key: key.id,
               id: key.id,
               user: key.account_id,
-              created_at: moment(key.created_at).format('ddd, DD/MM/YYYY hh:mm:ss'),
-              secret: key.key,
+              created_at: key.created_at,
               expired: key.expired,
               ownerApp: key.owner_app
             }
           })
           return (
-            <ApiKeyContainer>
-              <TopNavigation
-                title={'Manage API Keys'}
-                buttons={null}
-                secondaryAction={false}
-                types={false}
+            <KeySection>
+              <h3>E-Wallet API Key</h3>
+              <p>
+                eWallet API Keys are used to authenticate clients and allow them to perform various
+                user-related functions (once the user has been logged in), e.g. make transfers with
+                the user's wallets, list a user's transactions, create transaction requests, etc.
+              </p>
+              <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
+                <span>Generate Key</span>
+              </Button>
+              <Table
+                rows={apiKeysRows}
+                rowRenderer={this.rowRenderer}
+                columns={columnsApiKey}
+                perPage={99999}
+                loadingColNumber={4}
+                loading={loadingStatus === 'DEFAULT'}
               />
-              {this.renderEwalletApiKey(
-                apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
-                loadingStatus
-              )}
-              {this.renderAccessKey(
-                apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
-                loadingStatus
-              )}
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
                 onRequestClose={this.onRequestClose}
-                onOk={this.onClickOk('ewallet_api')}
+                onOk={this.onClickOkCreateEwalletKey}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Generate e-wallet Api key</h4>
-                  <p>Are you sure you want to generate ewallet api key ?</p>
+                  <h4>Generate e-wallet key</h4>
+                  <p>Are you sure you want to generate e-wallet key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
-            </ApiKeyContainer>
+            </KeySection>
           )
         }}
       />
+    )
+  }
+  renderAccessKey = () => {
+    return (
+      <AccessKeyProvider
+        render={({ data, loadingStatus }) => {
+          const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
+            return {
+              key: key.access_key,
+              id: key.access_key,
+              user: key.account_id,
+              created_at: key.created_at,
+              status_access: key.deleted_at
+            }
+          })
+          return (
+            <KeySection>
+              <h3>Access Key</h3>
+              <p>
+                Access Keys are used to gain access to everything. user-related functions (once the
+                user has been logged in), e.g. make transfers with the user's wallets, list a user's
+                transactions, create transaction requests, etc.
+              </p>
+              <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
+                <span>Generate Key</span>
+              </Button>
+              <Table
+                rows={apiKeysRows}
+                rowRenderer={this.rowRenderer}
+                columns={columnsAccessKey}
+                loading={loadingStatus === 'DEFAULT'}
+              />
+              <ConfirmationModal
+                open={this.state.accessModalOpen}
+                onRequestClose={this.onRequestClose}
+                onOk={this.onClickOkCreateAccessKey}
+              >
+                <ConfirmCreateKeyContainer>
+                  <h4>Generate Access key</h4>
+                  <p>Are you sure you want to generate acesss key ?</p>
+                </ConfirmCreateKeyContainer>
+              </ConfirmationModal>
+            </KeySection>
+          )
+        }}
+      />
+    )
+  }
+
+  render () {
+    return (
+      <ApiKeyContainer>
+        <TopNavigation
+          title={'Manage API Keys'}
+          buttons={null}
+          secondaryAction={false}
+          types={false}
+        />
+        {this.renderEwalletApiKey()}
+        {this.renderAccessKey()}
+      </ApiKeyContainer>
     )
   }
 }
