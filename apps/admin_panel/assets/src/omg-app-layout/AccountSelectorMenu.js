@@ -45,13 +45,9 @@ class AccountSelectorMenu extends Component {
     accounts: PropTypes.array.isRequired,
     onClickAccountItem: PropTypes.func,
     location: PropTypes.object,
-    onKeyDown: PropTypes.func
-  }
-  state = {
-    searchValue: ''
-  }
-  onSearchChange = e => {
-    this.setState({ searchValue: e.target.value })
+    onKeyDown: PropTypes.func,
+    onSearchChange: PropTypes.func,
+    searchValue: PropTypes.string
   }
 
   render () {
@@ -59,12 +55,12 @@ class AccountSelectorMenu extends Component {
       <Container {...this.props} onKeyDown={this.props.onKeyDown}>
         <SearchContainer>
           <Icon name='Search' />
-          <InputSearch autoFocus onChange={this.onSearchChange} value={this.state.searchValue} />
+          <InputSearch autoFocus onChange={this.props.onSearchChange} value={this.props.searchValue} />
         </SearchContainer>
         <AccountsContainer>
           {this.props.accounts
           .filter(account => {
-            const seachText = this.state.searchValue
+            const seachText = this.props.searchValue
             const reg = new RegExp(seachText)
             return seachText ? (reg.test(account.name) || reg.test(account.description)) : true
           })

@@ -9,6 +9,14 @@ export const selectUsers = (state, search) => {
 export const selectUser = userId => state => {
   return state.users[userId]
 }
+export const selectUsersCachedQuery = state => cacheKey => {
+  return _.get(state.cacheQueries[cacheKey], 'ids', []).map(tokenId => {
+    return selectGetUserById(state)(tokenId)
+  })
+}
+export const selectUsersCachedQueryPagination = state => cacheKey => {
+  return _.get(state.cacheQueries[cacheKey], 'pagination', {})
+}
 export const selectUserWithWallet = userId =>
   createSelector(selectUser(userId), selectWalletByUserId(userId), (user, wallet) => {
     return {

@@ -105,17 +105,23 @@ class InviteModal extends Component {
     this.setState({ submitStatus: 'ATTEMPT_TO_SUBMIT' })
     if (this.validateEmail(this.state.email)) {
       this.setState({ submitStatus: 'SUBMITTED' })
-      const accountId = this.props.match.params.accountId
-      const result = await this.props.inviteMember({
-        email: this.state.email,
-        role: this.state.role,
-        accountId,
-        redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
-      })
-      if (result.data.success) {
-        this.props.getListMembers(accountId)
-        this.setState({ submitStatus: 'SUCCESS' })
-        this.onRequestClose()
+      try {
+        const accountId = this.props.match.params.accountId
+        const result = await this.props.inviteMember({
+          email: this.state.email,
+          role: this.state.role,
+          accountId,
+          redirectUrl: window.location.href.replace(this.props.location.pathname, '/invite/')
+        })
+        if (result.data.success) {
+          this.props.getListMembers(accountId)
+          this.setState({ submitStatus: 'SUCCESS' })
+          this.onRequestClose()
+        } else {
+          this.setState({ submitStatus: 'FAILED' })
+        }
+      } catch (error) {
+        this.setState({ submitStatus: 'FAILED' })
       }
     }
   }

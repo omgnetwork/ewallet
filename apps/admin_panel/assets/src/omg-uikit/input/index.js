@@ -8,6 +8,8 @@ const Container = styled.div`
 `
 const InnerContainer = styled.div`
   position: relative;
+  display: inline-block;
+  width: 100%;
 `
 
 const Placeholder = styled.span`
@@ -66,7 +68,6 @@ const Success = styled.div`
 `
 const Suffix = styled.div`
   position: absolute;
-  pointer-events: none;
   right: 10px;
   bottom: 0;
   padding-bottom: 5px;

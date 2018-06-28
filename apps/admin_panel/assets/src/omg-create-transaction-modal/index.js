@@ -4,10 +4,11 @@ import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from 'react-modal'
 import { transfer } from '../omg-transaction/action'
-import { getWalletsByAccountId } from '../omg-wallet/action'
+import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import WalletProvider from '../omg-wallet/walletProvider'
 const customStyles = {
   content: {
     top: '50%',
@@ -71,104 +72,147 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { transfer, getWalletsByAccountId }
+    { transfer, getWalletById }
   )
 )
 class CreateTransactionModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    wallet: PropTypes.object,
-    match: PropTypes.object
+    fromAddress: PropTypes.string,
+    getWalletById: PropTypes.func
   }
-  state = {}
-
+  initialState = {
+    submitting: false,
+    amount: 0,
+    fromAddress: '',
+    toAddress: '',
+    searchTokenValue: '',
+    selectedToken: '',
+    error: null
+  }
+  state = this.initialState
+  componentWillReceiveProps = nextProps => {
+    if (this.state.fromAddress !== nextProps.fromAddress && nextProps.fromAddress !== undefined) {
+      this.setState({ fromAddress: nextProps.fromAddress })
+    }
+  }
+  onChangeInputFromAddress = e => {
+    this.setState({ fromAddress: e.target.value, selectedToken: null, searchTokenValue: '' })
+  }
   onChangeInputToAddress = e => {
     this.setState({ toAddress: e.target.value })
   }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
+  onChangeSearchToken = e => {
+    this.setState({ searchTokenValue: e.target.value, selectedToken: null })
+  }
+  onSelectTokenSelect = token => {
+    this.setState({ searchTokenValue: token.value, selectedToken: token })
+  }
+
+  onFocusSelect = () => {
+    this.setState({ searchTokenValue: '', selectedToken: null })
+  }
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
       const result = await this.props.transfer({
-        fromAddress: this.props.wallet.address,
+        fromAddress: this.state.fromAddress,
         toAddress: this.state.toAddress,
-        tokenId: this.state.selectedToken.token.id,
-        amount: Number(this.state.amount * this.state.selectedToken.token.subunit_to_unit)
+        tokenId: _.get(this.state.selectedToken, 'token.id'),
+        amount: this.state.amount * _.get(this.state.selectedToken, 'token.subunit_to_unit')
       })
-      if (result.data.success) {
-        this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
-        this.props.onRequestClose()
+      if (result.success) {
+        this.props.getWalletById(this.state.fromAddress)
+        this.props.getWalletById(this.state.toAddress)
+        this.onRequestClose()
+      } else {
         this.setState({
           submitting: false,
-          amount: 0,
-          toAddress: ''
+          error: result.error.description || result.error.message
         })
-      } else {
-        this.setState({ submitting: false, error: result.data.data.description })
       }
-    } catch (error) {
-      this.setState({ submitting: false, error })
+    } catch (e) {
+      this.setState({ submitting: false, error: e.message })
     }
   }
-  onSelect = item => {
-    this.setState({ selectedToken: item })
+  onRequestClose = () => {
+    this.props.onRequestClose()
+    this.setState(this.initialState)
   }
 
+  getBalanceOfSelectedToken = () => {
+    if (_.get(this.state.selectedToken, 'amount') === 0) {
+      return 0
+    }
+    return (
+      _.get(this.state.selectedToken, 'amount') /
+        _.get(this.state.selectedToken, 'token.subunit_to_unit') || '-'
+    )
+  }
   render () {
     return (
       <Modal
         isOpen={this.props.open}
         style={customStyles}
-        onRequestClose={this.props.onRequestClose}
+        onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
       >
-        <Form onSubmit={this.onSubmit} noValidate>
-          <Icon name='Close' onClick={this.props.onRequestClose} />
-          <h4>Transfer Token</h4>
-          <InputLabel>From</InputLabel>
-          <Input
-            normalPlaceholder='acc_0x000000000000000'
-            value={this.props.wallet.address}
-            disabled
-          />
-          <InputLabel>To Address</InputLabel>
-          <Input
-            normalPlaceholder='acc_0x000000000000000'
-            value={this.state.toAddress}
-            onChange={this.onChangeInputToAddress}
-          />
-          <InputLabel>Token</InputLabel>
-          <Select
-            normalPlaceholder='Token'
-            onSelect={this.onSelect}
-            options={this.props.wallet.balances.map(b => ({
-              ...{
-                key: b.token.id,
-                value: `${b.token.name} (${b.token.symbol})`
-              },
-              ...b
-            }))}
-          />
-          <BalanceTokenLabel>
-            Balance:{' '}
-            {this.state.selectedToken
-              ? this.state.selectedToken.amount /
-                _.get(this.state.selectedToken, 'token.subunit_to_unit')
-              : '-'}{' '}
-          </BalanceTokenLabel>
-          <InputLabel>Amount</InputLabel>
-          <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
-          <ButtonContainer>
-            <Button size='small' type='submit' loading={this.state.submitting}>
-              Transfer
-            </Button>
-          </ButtonContainer>
-          <Error error={this.state.error}>{this.state.error}</Error>
-        </Form>
+        <WalletProvider
+          walletAddress={this.state.fromAddress}
+          render={({ wallet }) => {
+            return (
+              <Form onSubmit={this.onSubmit} noValidate>
+                <Icon name='Close' onClick={this.props.onRequestClose} />
+                <h4>Transfer Token</h4>
+                <InputLabel>From</InputLabel>
+                <Input
+                  normalPlaceholder='acc_0x000000000000000'
+                  value={this.state.fromAddress}
+                  onChange={this.onChangeInputFromAddress}
+                />
+                <InputLabel>To Address</InputLabel>
+                <Input
+                  normalPlaceholder='acc_0x000000000000000'
+                  value={this.state.toAddress}
+                  onChange={this.onChangeInputToAddress}
+                />
+                <InputLabel>Token</InputLabel>
+                <Select
+                  normalPlaceholder='Token'
+                  onSelectItem={this.onSelectTokenSelect}
+                  onChange={this.onChangeSearchToken}
+                  value={this.state.searchTokenValue}
+                  onFocus={this.onFocusSelect}
+                  options={
+                    wallet
+                      ? wallet.balances.map(b => ({
+                        ...{
+                          key: b.token.id,
+                          value: `${b.token.name} (${b.token.symbol})`
+                        },
+                        ...b
+                      }))
+                      : []
+                  }
+                />
+                <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken()}</BalanceTokenLabel>
+                <InputLabel>Amount</InputLabel>
+                <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
+                <ButtonContainer>
+                  <Button size='small' type='submit' loading={this.state.submitting}>
+                    Transfer
+                  </Button>
+                </ButtonContainer>
+                <Error error={this.state.error}>{this.state.error}</Error>
+              </Form>
+            )
+          }}
+        />
       </Modal>
     )
   }
