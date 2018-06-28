@@ -71,7 +71,7 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
       return (
         <AccountsFetcher
           query={{ search: this.state.searchValue, perPage: 20, page: 1 }}
-          render={({ accounts }) => {
+          render={({ data: accounts }) => {
             return (
               <AccountSelectorMenu
                 accounts={accounts}
