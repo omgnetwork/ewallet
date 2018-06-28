@@ -21,6 +21,9 @@ const TransactionRequestsPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
+  td:nth-child(2) {
+    text-transform: capitalize;
+  }
   td:first-child {
     width: 50%;
   }
@@ -35,6 +38,9 @@ const SortableTableContainer = styled.div`
 export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
+  }
+  i[name="Request"] {
+    color: ${props => props.theme.colors.BL400};
   }
 `
 class TransactionRequestsPage extends Component {
@@ -79,12 +85,12 @@ class TransactionRequestsPage extends Component {
   }
   rowRenderer (key, data, rows) {
     if (key === 'require_confirmation') {
-      return data ? 'true' : 'false'
+      return data ? <Icon name='Checked' /> : <Icon name='Close' />
     }
-    if (key === 'name') {
+    if (key === 'id') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} /> <span>{data}</span>
+          <Icon name='Request' /> <span>{data}</span>
         </NameColumn>
       )
     }
@@ -99,9 +105,6 @@ class TransactionRequestsPage extends Component {
     }
     if (key === 'updated_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
-    }
-    if (key === 'avatar') {
-      return null
     }
     return data
   }
