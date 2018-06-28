@@ -25,7 +25,7 @@ const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
-    opacity: ${props => (props.loading ? 0.5 : 1)};
+    
     thead {
       tr {
         border-top: 1px solid ${props => props.theme.colors.S400};
@@ -44,6 +44,7 @@ const TableContainer = styled.div`
       cursor: pointer;
     }
     td {
+      opacity: ${props => (props.loading ? 0.6 : 1)};
       padding: 10px;
       vertical-align: top;
       color: ${props => props.theme.colors.B200};

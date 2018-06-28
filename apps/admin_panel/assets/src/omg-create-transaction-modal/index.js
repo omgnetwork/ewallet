@@ -126,7 +126,7 @@ class CreateTransactionModal extends Component {
         tokenId: _.get(this.state.selectedToken, 'token.id'),
         amount: this.state.amount * _.get(this.state.selectedToken, 'token.subunit_to_unit')
       })
-      if (result.success) {
+      if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
         this.props.getWalletById(this.state.toAddress)
         this.onRequestClose()

@@ -140,7 +140,7 @@ class UsersPage extends Component {
         render={this.renderUserPage}
         query={{
           page: this.state.loadMoreTime,
-          perPage: 5,
+          perPage: 15,
           search: queryString.parse(this.props.location.search).search
         }}
       />
