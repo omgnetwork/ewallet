@@ -111,6 +111,48 @@ defmodule EWalletDB.MembershipTest do
       assert length(Membership.all_by_user(user)) == 2
     end
 
+    test "returns {:error, :user_already_has_rights} when the user has two more
+          powerful roles in ancestors" do
+      user = insert(:user)
+      level_0 = Account.get_master_account()
+      level_1 = insert(:account, parent: level_0)
+      level_2 = insert(:account, parent: level_1)
+      level_3 = insert(:account, parent: level_2)
+      admin = insert(:role, name: "admin", priority: 0)
+      viewer = insert(:role, name: "viewer", priority: 1)
+      grunt = insert(:role, name: "grunt", priority: 2)
+
+      {:ok, _membership} = Membership.assign(user, level_0, viewer)
+      {:ok, _membership} = Membership.assign(user, level_2, admin)
+      {res, reason} = Membership.assign(user, level_3, grunt)
+
+      assert res == :error
+      assert reason == :user_already_has_rights
+    end
+
+    test "returns {:ok, membership} when the user has two less powerful roles
+          in ancestors" do
+      user = insert(:user)
+      level_0 = Account.get_master_account()
+      level_1 = insert(:account, parent: level_0)
+      level_2 = insert(:account, parent: level_1)
+      level_3 = insert(:account, parent: level_2)
+      admin = insert(:role, name: "admin", priority: 0)
+      viewer = insert(:role, name: "viewer", priority: 1)
+      grunt = insert(:role, name: "grunt", priority: 2)
+
+      {:ok, _membership} = Membership.assign(user, level_0, grunt)
+      {:ok, _membership} = Membership.assign(user, level_2, viewer)
+      {res, membership} = Membership.assign(user, level_3, admin)
+
+      assert res == :ok
+      assert membership.user_uuid == user.uuid
+      assert membership.account_uuid == level_3.uuid
+      assert membership.role_uuid == admin.uuid
+
+      assert length(Membership.all_by_user(user)) == 3
+    end
+
     test "returns {:ok, membership} when user has more powerful role
           in descendant" do
       user = insert(:user)
@@ -242,7 +284,6 @@ defmodule EWalletDB.MembershipTest do
     end
 
     test "prevents a user from being assigned if he is already an ancestor" do
-
     end
   end
 

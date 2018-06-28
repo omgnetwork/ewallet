@@ -6,7 +6,7 @@ defmodule EWalletDB.Membership do
   import Ecto.Changeset
   import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Membership, Role, User}
+  alias EWalletDB.{Repo, Account, Membership, Role, User, MembershipChecker}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -84,13 +84,14 @@ defmodule EWalletDB.Membership do
   def assign(%User{} = user, %Account{} = account, %Role{} = role) do
     case get_by_user_and_account(user, account) do
       nil ->
-        case allowed?(user, account, role) do
+        case MembershipChecker.allowed?(user, account, role) do
           true ->
             insert(%{
               account_uuid: account.uuid,
               user_uuid: user.uuid,
               role_uuid: role.uuid
             })
+
           false ->
             {:error, :user_already_has_rights}
         end
@@ -128,47 +129,4 @@ defmodule EWalletDB.Membership do
   defp delete(%Membership{} = membership) do
     Repo.delete(membership)
   end
-
-  defp allowed?(user, account, role) do
-    ancestors = Account.get_all_ancestors(account)
-    memberships = Membership.all_by_user(user, [:role, :account])
-
-    ancestors_uuids = Enum.map(ancestors, fn ancestor -> ancestor.uuid end)
-    membership_accounts_uuids = Enum.map(memberships, fn membership -> membership.account_uuid end)
-
-    case intersect(ancestors_uuids, membership_accounts_uuids) do
-      [] ->
-        descendants = Account.get_all_descendants(account)
-        descendants_uuids = Enum.map(descendants, fn descendant -> descendant.uuid end)
-          case intersect(descendants_uuids, membership_accounts_uuids) do
-            [] ->
-              true
-            matching_descendant_uuids ->
-              Enum.map(matching_descendant_uuids, fn matching_descendant_uuid ->
-                membership = Enum.find(memberships, fn membership ->
-                  membership.account_uuid == matching_descendant_uuid
-                end)
-
-                case role.priority <= membership.role.priority do
-                  true ->
-                    unassign(user, membership.account)
-                    true
-                  false ->
-                    true
-                end
-              end)
-
-              true
-          end
-
-      [matching_ancestor_uuid] ->
-        membership = Enum.find(memberships, fn membership ->
-          membership.account_uuid == matching_ancestor_uuid
-        end)
-
-        role.priority <= membership.role.priority
-    end
-  end
-
-  defp intersect(a, b), do: a -- a -- b
 end
