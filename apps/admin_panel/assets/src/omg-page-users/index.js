@@ -33,6 +33,16 @@ const SortableTableContainer = styled.div`
     white-space: nowrap;
   }
 `
+const UserIdContainer = styled.div`
+  white-space: nowrap;
+  span {
+    vertical-align: middle;
+  }
+  i {
+    margin-right: 5px;
+    color: ${props => props.theme.colors.BL400};
+  }
+`
 class UsersPage extends Component {
   static propTypes = {
     location: PropTypes.object,
@@ -104,6 +114,14 @@ class UsersPage extends Component {
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
+    if (key === 'id') {
+      return (
+        <UserIdContainer>
+          <Icon name='Profile' /> <span>{data}</span>
+        </UserIdContainer>
+      )
+    }
+
     return data
   }
 

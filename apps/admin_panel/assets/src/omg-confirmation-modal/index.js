@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Modal from 'react-modal'
-import {Button} from '../omg-uikit'
+import { Button, PlainButton } from '../omg-uikit'
 const customStyles = {
   content: {
     top: '50%',
@@ -11,20 +11,19 @@ const customStyles = {
     bottom: 'auto',
     marginRight: '-50%',
     transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: '40px 30px 30px 30px'
+    border: 'none'
   },
   overlay: {
     backgroundColor: 'rgba(0,0,0,0.5)'
   }
 }
+const ContentContainer = styled.div`
+  padding: 40px;
+`
 const ConfirmationModalContainer = styled.div`
   position: relative;
 `
 const ButtonsContainer = styled.div`
-  padding-top: 25px;
-  margin-top: 20px;
-  border-top: 1px solid ${props => props.theme.colors.S400};
   text-align: right;
   button {
     :not(:last-child) {
@@ -50,10 +49,12 @@ class ConfirmationModal extends PureComponent {
         shouldCloseOnOverlayClick={false}
       >
         <ConfirmationModalContainer>
-          {this.props.children}
+          <ContentContainer>{this.props.children}</ContentContainer>
           <ButtonsContainer>
-            <Button styleType='secondary' size='small' onClick={this.props.onRequestClose}>Cancel</Button>
-            <Button styleType='primary' size='small' onClick={this.props.onOk}>Confirm</Button>
+            <PlainButton onClick={this.props.onRequestClose}>Cancel</PlainButton>
+            <Button styleType='primary' size='small' onClick={this.props.onOk}>
+              Confirm
+            </Button>
           </ButtonsContainer>
         </ConfirmationModalContainer>
       </Modal>

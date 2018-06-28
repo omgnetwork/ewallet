@@ -9,6 +9,7 @@ const StyledPagination = styled(Pagination)`
 `
 const TableContainer = styled.div`
   position: relative;
+  min-height: ${props => props.height}px;
 `
 class Table extends Component {
   static propTypes = {
@@ -102,12 +103,11 @@ class Table extends Component {
   }
   render () {
     return (
-      <TableContainer innerRef={table => (this.table = table)}>
-        <Fade in={this.props.loading} timeout={300} key={'loadung'} unmountOnExit>
+      <TableContainer innerRef={table => (this.table = table)} height={this.props.loadingRowNumber * 40}>
+        <Fade in={this.props.loading} timeout={300} key={'loading'} unmountOnExit>
           {state => {
             return (
               <table style={{ position: 'absolute', background: 'white' }}>
-                {/* <thead>{this.renderLoadingColumns()}</thead> */}
                 <tbody>{this.renderLoadingRows()}</tbody>
               </table>
             )

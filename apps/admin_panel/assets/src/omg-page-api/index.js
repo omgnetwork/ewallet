@@ -52,6 +52,10 @@ const ApiKeyContainer = styled.div`
   }
 `
 const KeySection = styled.div`
+  position: relative;
+  :not(:first-child) {
+    margin-top: 50px;
+  }
   h3 {
     font-size: 18px;
     font-weight: 400;
@@ -60,10 +64,8 @@ const KeySection = styled.div`
   p {
     color: ${props => props.theme.colors.B100};
   }
-`
-const KeySectionEwallet = KeySection.extend`
-  width: 100%;
-  h3,p {
+  h3,
+  p {
     max-width: 800px;
   }
   td {
@@ -75,6 +77,9 @@ const ConfirmCreateKeyContainer = styled.div`
   h4 {
     padding-bottom: 10px;
   }
+  p {
+    font-size: 12px;
+  }
 `
 const KeyContainer = styled.div`
   white-space: nowrap;
@@ -82,17 +87,21 @@ const KeyContainer = styled.div`
     vertical-align: middle;
   }
   i {
-    color: ${props => props.theme.colors.BL400};
     margin-right: 5px;
+  }
+  i[name="Key"] {
+    color: ${props => props.theme.colors.BL400};
+  }
+  i[name="People"] {
+    color: inherit;
   }
 `
 
 const columns = [
   { key: 'secret', title: 'Key' },
-  { key: 'user', title: 'User' },
-  { key: 'created_at', title: 'Created' },
+  { key: 'user', title: 'Create by' },
+  { key: 'created_at', title: 'Date' },
   { key: 'expired', title: 'Status' }
-
 ]
 const enhance = compose(
   connect(
@@ -137,7 +146,14 @@ class ApiKeyPage extends Component {
     if (key === 'secret') {
       return (
         <KeyContainer>
-          <Icon name='Wallet' /> <span>{data}</span>
+          <Icon name='Key' /> <span>{data}</span>
+        </KeyContainer>
+      )
+    }
+    if (key === 'user') {
+      return (
+        <KeyContainer>
+          <Icon name='Profile' /> <span>{data}</span>
         </KeyContainer>
       )
     }
@@ -145,7 +161,7 @@ class ApiKeyPage extends Component {
   }
   renderEwalletApiKey = (apiKeysRows, loadingStatus) => {
     return (
-      <KeySectionEwallet>
+      <KeySection>
         <h3>E-Wallet API Key</h3>
         <p>
           eWallet API Keys are used to authenticate clients and allow them to perform various
@@ -162,7 +178,29 @@ class ApiKeyPage extends Component {
           perPage={99999}
           loading={loadingStatus === 'DEFAULT'}
         />
-      </KeySectionEwallet>
+      </KeySection>
+    )
+  }
+  renderAccessKey = (apiKeysRows, loadingStatus) => {
+    return (
+      <KeySection>
+        <h3>Access Key</h3>
+        <p>
+          eWallet API Keys are used to authenticate clients and allow them to perform various
+          user-related functions (once the user has been logged in), e.g. make transfers with the
+          user's wallets, list a user's transactions, create transaction requests, etc.
+        </p>
+        <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
+          <span>Generate Key</span>
+        </Button>
+        <Table
+          rows={apiKeysRows}
+          rowRenderer={this.rowRenderer}
+          columns={columns}
+          perPage={99999}
+          loading={loadingStatus === 'DEFAULT'}
+        />
+      </KeySection>
     )
   }
 
@@ -193,13 +231,17 @@ class ApiKeyPage extends Component {
                 apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
                 loadingStatus
               )}
+              {this.renderAccessKey(
+                apiKeysRows.filter(x => x.ownerApp === 'ewallet_api'),
+                loadingStatus
+              )}
               <ConfirmationModal
                 open={this.state.ewalletModalOpen}
                 onRequestClose={this.onRequestClose}
                 onOk={this.onClickOk('ewallet_api')}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>GENERATE EWALLET API KEY</h4>
+                  <h4>Generate e-wallet Api key</h4>
                   <p>Are you sure you want to generate ewallet api key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>

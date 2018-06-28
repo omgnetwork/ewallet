@@ -78,6 +78,10 @@ a {
 
 
 /* global css style for transition group  */
+
+.fade {
+  z-index: 2;
+}
 .fade-enter {
   opacity: 0!important;
   transition: opacity 0.3s ease-in;
