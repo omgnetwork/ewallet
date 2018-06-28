@@ -98,9 +98,13 @@ defmodule EWalletDB.Invite do
   """
   def accept(invite, password) do
     invite = Repo.preload(invite, :user)
-    {:ok, _user} = User.update(invite.user, %{invite_uuid: nil, password: password})
-    delete(invite)
-  end
 
-  defp delete(invite), do: Repo.delete(invite)
+    case User.update(invite.user, %{invite_uuid: nil, password: password}) do
+      {:ok, _user} ->
+        Repo.delete(invite)
+
+      error ->
+        error
+    end
+  end
 end
