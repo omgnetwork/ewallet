@@ -15,7 +15,7 @@ export function getAllTransactions ({ perPage, sort, query, ...rest }) {
 
 export function transfer ({ fromAddress, toAddress, tokenId, amount }) {
   return authenticatedRequest({
-    path: '/transfer',
+    path: '/transaction.create',
     data: {
       from_address: fromAddress,
       to_address: toAddress,

@@ -2,6 +2,7 @@ defmodule EWalletDB.WalletTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.{Wallet, Account, User}
   alias EWalletDB.Types.WalletAddress
+  alias Ecto.UUID
 
   describe "Wallet factory" do
     test_has_valid_factory(Wallet)
@@ -132,6 +133,15 @@ defmodule EWalletDB.WalletTest do
     test "returns nil if the wallet address does not exist" do
       {:ok, address} = WalletAddress.generate()
       assert Wallet.get(address) == nil
+    end
+
+    test "returns nil if the wallet address is a UUID" do
+      wallet = insert(:wallet, address: UUID.generate())
+      assert Wallet.get(wallet.address).uuid == wallet.uuid
+    end
+
+    test "returns nil if the wallet address is not valid" do
+      assert Wallet.get("something") == nil
     end
   end
 

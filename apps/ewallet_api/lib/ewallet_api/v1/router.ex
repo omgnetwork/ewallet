@@ -21,6 +21,7 @@ defmodule EWalletAPI.V1.Router do
 
     post("/me.create_transaction_request", TransactionRequestController, :create_for_user)
     post("/me.get_transaction_request", TransactionRequestController, :get)
+    post("/me.create_transaction", TransactionController, :create)
 
     post(
       "/me.approve_transaction_consumption",
@@ -31,7 +32,6 @@ defmodule EWalletAPI.V1.Router do
     post("/me.reject_transaction_consumption", TransactionConsumptionController, :reject_for_user)
 
     post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
-    post("/me.transfer", TransferController, :transfer_for_user)
 
     post("/me.logout", AuthController, :logout)
   end

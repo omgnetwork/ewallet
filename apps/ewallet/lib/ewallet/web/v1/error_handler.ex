@@ -82,6 +82,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:from_address_mismatch",
       description: "The provided wallet address does not belong to the current user."
     },
+    to_address_mismatch: %{
+      code: "user:to_address_mismatch",
+      description: "The provided wallet address does not belong to the current user."
+    },
     to_address_not_found: %{
       code: "user:to_address_not_found",
       description: "No wallet found for the provided to_address."
@@ -144,6 +148,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "token:token_not_found",
       description: "There is no token matching the provided token_id."
     },
+    from_token_not_found: %{
+      code: "token:from_token_not_found",
+      description: "There is no token matching the provided from_token_id."
+    },
+    to_token_not_found: %{
+      code: "token:to_token_not_found",
+      description: "There is no token matching the provided to_token_id."
+    },
     user_wallet_mismatch: %{
       code: "user:user_wallet_mismatch",
       description: "The provided wallet does not belong to the current user"
@@ -155,6 +167,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_access_secret_key: %{
       code: "client:invalid_access_secret_key",
       description: "Invalid access and/or secret key"
+    },
+    user_id_not_found: %{
+      code: "user:id_not_found",
+      description: "There is no user corresponding to the provided id"
     },
     provider_user_id_not_found: %{
       code: "user:provider_user_id_not_found",
@@ -187,6 +203,18 @@ defmodule EWallet.Web.V1.ErrorHandler do
     exchange_invalid_rate: %{
       code: "exchange:invalid_rate",
       description: "The exchange is attempted with an invalid rate"
+    },
+    exchange_address_not_account: %{
+      code: "exchange:exchange_wallet_not_owned_by_account",
+      description: "The specified exchange_wallet is not owned by an account."
+    },
+    exchange_account_id_not_found: %{
+      code: "exchange:account_id_not_found",
+      description: "No account was found with the given exchange_account_id param."
+    },
+    exchange_account_wallet_not_found: %{
+      code: "exchange:account_wallet_not_found",
+      description: "No wallet was found with the given exchange_wallet_address param."
     }
   }
 
