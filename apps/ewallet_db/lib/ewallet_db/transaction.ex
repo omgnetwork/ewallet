@@ -7,7 +7,7 @@ defmodule EWalletDB.Transaction do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.{UUID, Multi}
-  alias EWalletDB.{Account, Repo, Token, Transaction, Wallet}
+  alias EWalletDB.{Account, User, Repo, Token, Transaction, Wallet, ExchangePair}
 
   @pending "pending"
   @confirmed "confirmed"
@@ -43,6 +43,9 @@ defmodule EWalletDB.Transaction do
     field(:error_description, :string)
     field(:error_data, :map)
 
+    field(:rate, :float)
+    field(:calculated_at, :naive_datetime)
+
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
@@ -58,6 +61,14 @@ defmodule EWalletDB.Transaction do
       :to_token,
       Token,
       foreign_key: :to_token_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :exchange_pair,
+      ExchangePair,
+      foreign_key: :exchange_pair_uuid,
       references: :uuid,
       type: UUID
     )
@@ -79,11 +90,51 @@ defmodule EWalletDB.Transaction do
     )
 
     belongs_to(
+      :from_account,
+      Account,
+      foreign_key: :from_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :to_account,
+      Account,
+      foreign_key: :to_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :from_user,
+      User,
+      foreign_key: :from_user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :to_user,
+      User,
+      foreign_key: :to_user_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
       :exchange_account,
       Account,
       foreign_key: :exchange_account_uuid,
       references: :uuid,
       type: UUID
+    )
+
+    belongs_to(
+      :exchange_wallet,
+      Wallet,
+      foreign_key: :exchange_wallet_address,
+      references: :address,
+      type: :string
     )
 
     timestamps()
@@ -102,13 +153,21 @@ defmodule EWalletDB.Transaction do
       :error_description,
       :error_data,
       :encrypted_metadata,
-      :from_amount,
+      :from_account_uuid,
+      :to_account_uuid,
+      :from_user_uuid,
+      :to_user_uuid,
       :from_token_uuid,
-      :to_amount,
       :to_token_uuid,
+      :from_amount,
+      :to_amount,
       :exchange_account_uuid,
+      :exchange_wallet_address,
       :to,
-      :from
+      :from,
+      :rate,
+      :exchange_pair_uuid,
+      :calculated_at
     ])
     |> validate_required([
       :idempotency_token,
@@ -124,6 +183,8 @@ defmodule EWalletDB.Transaction do
       :metadata,
       :encrypted_metadata
     ])
+    |> validate_number(:from_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
+    |> validate_number(:to_amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_from_wallet_identifier()
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)

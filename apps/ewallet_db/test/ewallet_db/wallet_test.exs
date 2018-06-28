@@ -1,6 +1,8 @@
 defmodule EWalletDB.WalletTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.{Wallet, Account, User}
+  alias EWalletDB.Types.WalletAddress
+  alias Ecto.UUID
 
   describe "Wallet factory" do
     test_has_valid_factory(Wallet)
@@ -8,15 +10,23 @@ defmodule EWalletDB.WalletTest do
   end
 
   describe "Wallet.insert/1" do
-    test_insert_ok(Wallet, :address, "an_address")
-
     test_insert_generate_uuid(Wallet, :uuid)
-    test_insert_generate_uuid(Wallet, :address)
     test_insert_generate_timestamps(Wallet)
 
-    test_insert_prevent_blank(Wallet, :address)
+    test "generates a wallet address if not given" do
+      {res, wallet} =
+        :wallet
+        |> params_for(address: nil)
+        |> Wallet.insert()
+
+      assert res == :ok
+      assert String.length(wallet.address) > 0
+    end
+
+    test_insert_ok(Wallet, :address, "abcd999999999999")
+
     test_insert_prevent_all_blank(Wallet, [:account, :user])
-    test_insert_prevent_duplicate(Wallet, :address)
+    test_insert_prevent_duplicate(Wallet, :address, "aaaa123456789012")
     test_default_metadata_fields(Wallet, "wallet")
 
     test "allows insert if provided a user without account_uuid" do
@@ -111,24 +121,35 @@ defmodule EWalletDB.WalletTest do
 
   describe "get/1" do
     test "returns an existing wallet using an address" do
-      :wallet
-      |> params_for(%{address: "wallet_address1234"})
-      |> Wallet.insert()
+      {:ok, inserted} =
+        :wallet
+        |> params_for()
+        |> Wallet.insert()
 
-      wallet = Wallet.get("wallet_address1234")
-      assert wallet.address == "wallet_address1234"
+      wallet = Wallet.get(inserted.address)
+      assert wallet.address == inserted.address
     end
 
     test "returns nil if the wallet address does not exist" do
-      assert Wallet.get("nonexisting_address") == nil
+      {:ok, address} = WalletAddress.generate()
+      assert Wallet.get(address) == nil
+    end
+
+    test "returns nil if the wallet address is a UUID" do
+      wallet = insert(:wallet, address: UUID.generate())
+      assert Wallet.get(wallet.address).uuid == wallet.uuid
+    end
+
+    test "returns nil if the wallet address is not valid" do
+      assert Wallet.get("something") == nil
     end
   end
 
   describe "get_genesis/0" do
     test "inserts the genesis address if not existing" do
-      assert Wallet.get("genesis") == nil
+      assert Wallet.get("gnis000000000000") == nil
       genesis = Wallet.get_genesis()
-      assert Wallet.get("genesis") == genesis
+      assert Wallet.get("gnis000000000000") == genesis
     end
 
     test "returns the existing genesis address if present" do

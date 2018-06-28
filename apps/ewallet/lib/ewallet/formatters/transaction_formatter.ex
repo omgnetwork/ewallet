@@ -2,7 +2,7 @@ defmodule EWallet.TransactionFormatter do
   @moduledoc """
   Converts an eWallet's transaction into a LocalLedger's transaction and entries.
   """
-  alias EWalletDB.{Account, Transaction}
+  alias EWalletDB.Transaction
   alias EWalletDB.Helpers.Preloader
   alias LocalLedgerDB.Entry
 
@@ -30,9 +30,8 @@ defmodule EWallet.TransactionFormatter do
   defp entries(txn) do
     exchange_wallet =
       txn
-      |> Preloader.preload(:exchange_account)
-      |> Map.get(:exchange_account)
-      |> Account.get_primary_wallet()
+      |> Preloader.preload(:exchange_wallet)
+      |> Map.get(:exchange_wallet)
 
     [
       entry(:debit, txn.from_wallet, txn.from_amount, txn.from_token),

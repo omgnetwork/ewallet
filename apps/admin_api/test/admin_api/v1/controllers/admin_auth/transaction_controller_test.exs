@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.User
+  alias EWalletDB.{User, Account}
 
   # credo:disable-for-next-line
   setup do
@@ -342,6 +342,112 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"]["status"] == "confirmed"
     end
 
+    test "creates a transaction when all params are valid with big numbers" do
+      token = insert(:token)
+      mint!(token)
+
+      wallet_1 = insert(:wallet)
+      wallet_2 = insert(:wallet)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token,
+        amount: 999_999_999_999_999_999_999_999_999
+      })
+
+      response =
+        admin_user_request("/transaction.create", %{
+          "idempotency_token" => "123",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "token_id" => token.id,
+          "amount" => 99_999_999_999_999_999_999_999_999
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "transaction"
+      assert response["data"]["status"] == "confirmed"
+
+      assert response["data"]["from"]["amount"] == 99_999_999_999_999_999_999_999_999
+    end
+
+    test "create a transaction with exchange" do
+      account = Account.get_master_account()
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 2_000_000
+      })
+
+      response =
+        admin_user_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => account.id,
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["exchange"]["rate"] == 2
+      assert response["data"]["exchange"]["calculated_at"] != nil
+      assert response["data"]["exchange"]["exchange_pair_id"] == pair.id
+      assert response["data"]["exchange"]["exchange_pair"]["id"] == pair.id
+
+      assert response["data"]["from"]["address"] == wallet_1.address
+      assert response["data"]["from"]["amount"] == 1_000
+      assert response["data"]["from"]["account_id"] == nil
+      assert response["data"]["from"]["user_id"] == user_1.id
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == wallet_2.address
+      assert response["data"]["to"]["amount"] == 2_000
+      assert response["data"]["to"]["account_id"] == nil
+      assert response["data"]["to"]["user_id"] == user_2.id
+      assert response["data"]["to"]["token_id"] == token_2.id
+    end
+
+    test "returns an error when doing exchange with invalid exchange_account_id" do
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      response =
+        admin_user_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => "fake",
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "account:id_not_found"
+    end
+
     test "returns :invalid_parameter when the sending address is a burn balance" do
       token = insert(:token)
       wallet_1 = insert(:wallet, identifier: "burn")
@@ -368,7 +474,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
     end
 
     test "returns transaction:insufficient_funds when the sending address does not have enough funds" do
-      token = insert(:token)
+      token = insert(:token, subunit_to_unit: 100)
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
 
@@ -378,7 +484,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
           "from_address" => wallet_1.address,
           "to_address" => wallet_2.address,
           "token_id" => token.id,
-          "amount" => 1_000_000
+          "amount" => 1_234_567
         })
 
       assert response["success"] == false
@@ -386,9 +492,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["data"] == %{
                "code" => "transaction:insufficient_funds",
                "description" =>
-                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0.0 #{
+                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0 #{
                    token.id
-                 } - Attempted debit: 10000.0 #{token.id}",
+                 } - Attempted debit: 12345.67 #{token.id}",
                "messages" => nil,
                "object" => "error"
              }
@@ -413,7 +519,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided"
+               "description" => "'idempotency_token' is required."
              }
     end
 
@@ -433,7 +539,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
         admin_user_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
-          "to_address" => "fake",
+          "to_address" => "fake-0000-0000-0000",
           "token_id" => token.id,
           "amount" => 1_000_000
         })
@@ -455,7 +561,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       response =
         admin_user_request("/transaction.create", %{
           "idempotency_token" => "123",
-          "from_address" => "fake",
+          "from_address" => "fake-0000-0000-0000",
           "to_address" => wallet_2.address,
           "token_id" => token.id,
           "amount" => 1_000_000
@@ -512,7 +618,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided",
+               "description" => "'amount' is not a number: fake",
                "messages" => nil,
                "object" => "error"
              }

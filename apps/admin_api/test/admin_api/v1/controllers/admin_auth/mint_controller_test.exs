@@ -112,6 +112,25 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint.token_uuid == token.uuid
     end
 
+    test "mints an existing token with a big number" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: :math.pow(10, 35)
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "mint"
+      assert Mint.get(response["data"]["id"]) != nil
+      assert mint != nil
+      assert mint.amount == 100_000_000_000_000_000_000_000_000_000_000_000
+      assert mint.token_uuid == token.uuid
+    end
+
     test "fails to mint a non existing token" do
       response =
         admin_user_request("/token.mint", %{
@@ -153,7 +172,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `amount` must be greater than %{number}."
+               "Invalid parameter provided `amount` must be greater than 0."
 
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end
@@ -172,7 +191,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `amount` must be greater than %{number}."
+               "Invalid parameter provided `amount` must be greater than 0."
 
       assert response["data"]["messages"] == %{"amount" => ["number"]}
     end

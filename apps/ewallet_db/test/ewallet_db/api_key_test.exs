@@ -49,7 +49,7 @@ defmodule EWalletDB.APIKeyTest do
   end
 
   describe "APIKey.authenticate/2" do
-    test "returns the associated account if exists" do
+    test "returns the API key" do
       account = insert(:account)
 
       :api_key
@@ -60,7 +60,7 @@ defmodule EWalletDB.APIKeyTest do
       })
       |> APIKey.insert()
 
-      assert APIKey.authenticate("apikey123", @owner_app).uuid == account.uuid
+      assert APIKey.authenticate("apikey123", @owner_app).account_uuid == account.uuid
     end
 
     test "returns false if API key does not exists" do
@@ -85,7 +85,7 @@ defmodule EWalletDB.APIKeyTest do
   end
 
   describe "APIKey.authenticate/3" do
-    test "returns the account if the api_key_id and api_key matches database" do
+    test "returns the API key if the api_key_id and api_key matches database" do
       account = insert(:account)
 
       {:ok, api_key} =
@@ -97,7 +97,7 @@ defmodule EWalletDB.APIKeyTest do
         })
         |> APIKey.insert()
 
-      assert APIKey.authenticate(api_key.id, api_key.key, @owner_app).uuid == account.uuid
+      assert APIKey.authenticate(api_key.id, api_key.key, @owner_app).account_uuid == account.uuid
     end
 
     test "returns false if API key does not exists" do

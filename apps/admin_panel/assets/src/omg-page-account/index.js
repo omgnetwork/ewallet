@@ -56,6 +56,7 @@ class AccountPage extends Component {
       this.setState({ loadMoreTime: 1 })
     }
   }
+
   onClickCreateAccount = () => {
     this.setState({ createAccountModalOpen: true })
   }

@@ -93,6 +93,23 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
+  @doc """
+  Update an existing Token.
+  """
+  @spec update(Conn.t(), map()) :: map()
+  def update(conn, %{"id" => id} = attrs) do
+    with %Token{} = token <- Token.get(id) || :token_not_found,
+         {:ok, updated} <- Token.update(token, attrs) do
+      respond_single(updated, conn)
+    else
+      error ->
+        handle_error(conn, error)
+    end
+  end
+
+  def update(conn, _),
+    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided: 'id' is required")
+
   # Respond with a list of tokens
   defp respond_multiple(%Paginator{} = paged_tokens, conn) do
     render(conn, :tokens, %{tokens: paged_tokens})

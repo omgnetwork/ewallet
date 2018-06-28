@@ -3,7 +3,15 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   Serializes token(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
+
+  alias EWallet.Web.V1.{
+    PaginatorSerializer,
+    TokenSerializer,
+    UserSerializer,
+    AccountSerializer,
+    ExchangePairSerializer
+  }
+
   alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Transaction
   alias EWalletDB.Helpers.{Assoc, Preloader}
@@ -13,15 +21,27 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   end
 
   def serialize(%Transaction{} = transaction) do
-    transaction = Preloader.preload(transaction, [:from_token, :to_token])
+    transaction =
+      Preloader.preload(transaction, [
+        :from_token,
+        :to_token,
+        :from_user,
+        :to_user,
+        :from_account,
+        :to_account,
+        :exchange_pair
+      ])
 
-    # credo:disable-for-next-line
     %{
       object: "transaction",
       id: transaction.id,
       idempotency_token: transaction.idempotency_token,
       from: %{
         object: "transaction_source",
+        user_id: Assoc.get(transaction, [:from_user, :id]),
+        user: UserSerializer.serialize(transaction.to_user),
+        account_id: Assoc.get(transaction, [:from_account, :id]),
+        account: AccountSerializer.serialize(transaction.to_account),
         address: transaction.from,
         amount: transaction.from_amount,
         token_id: Assoc.get(transaction, [:from_token, :id]),
@@ -29,6 +49,10 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       },
       to: %{
         object: "transaction_source",
+        user_id: Assoc.get(transaction, [:to_user, :id]),
+        user: UserSerializer.serialize(transaction.to_user),
+        account_id: Assoc.get(transaction, [:to_account, :id]),
+        account: AccountSerializer.serialize(transaction.to_account),
         address: transaction.to,
         amount: transaction.to_amount,
         token_id: Assoc.get(transaction, [:to_token, :id]),
@@ -36,7 +60,10 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       },
       exchange: %{
         object: "exchange",
-        rate: 1
+        rate: transaction.rate || 1,
+        calculated_at: transaction.calculated_at,
+        exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
+        exchange_pair: ExchangePairSerializer.serialize(transaction.exchange_pair)
       },
       metadata: transaction.metadata || %{},
       encrypted_metadata: transaction.encrypted_metadata || %{},

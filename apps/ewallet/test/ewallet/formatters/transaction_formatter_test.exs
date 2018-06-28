@@ -90,7 +90,7 @@ defmodule EWallet.TransactionFormatterTest do
           to_wallet: to_wallet,
           to_amount: 100,
           to_token: eth,
-          exchange_account: exchange_account
+          exchange_wallet: exchange_wallet
         })
 
       formatted = TransactionFormatter.format(transaction)

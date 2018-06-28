@@ -3,16 +3,20 @@ defmodule EWalletDB.Wallet do
   Ecto Schema representing wallet.
   """
   use Ecto.Schema
+  use EWalletDB.Types.WalletAddress
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
   alias ExULID.ULID
+  alias EWalletDB.Types.WalletAddress
   alias EWalletDB.{Repo, Account, Wallet, User}
 
   @genesis "genesis"
   @burn "burn"
   @primary "primary"
   @secondary "secondary"
+
+  @genesis_address "gnis000000000000"
 
   def genesis, do: @genesis
   def burn, do: @burn
@@ -33,7 +37,7 @@ defmodule EWalletDB.Wallet do
   schema "wallet" do
     # Wallet does not have an external ID. Use `address` instead.
 
-    field(:address, :string)
+    wallet_address(:address)
     field(:name, :string)
     field(:identifier, :string)
     field(:metadata, :map, default: %{})
@@ -61,7 +65,7 @@ defmodule EWalletDB.Wallet do
   defp changeset(%Wallet{} = wallet, attrs) do
     wallet
     |> cast(attrs, @cast_attrs)
-    |> validate_required([:address, :name, :identifier])
+    |> validate_required([:name, :identifier])
     |> validate_format(
       :identifier,
       ~r/#{@genesis}|#{@burn}|#{@burn}_.|#{@primary}|#{@secondary}_.*/
@@ -73,7 +77,7 @@ defmodule EWalletDB.Wallet do
   defp secondary_changeset(%Wallet{} = wallet, attrs) do
     wallet
     |> cast(attrs, @cast_attrs)
-    |> validate_required([:address, :name, :identifier])
+    |> validate_required([:name, :identifier])
     |> validate_format(:identifier, ~r/#{@secondary}_.*/)
     |> validate_required_exclusive([:account_uuid, :user_uuid])
     |> shared_changeset()
@@ -82,7 +86,7 @@ defmodule EWalletDB.Wallet do
   defp burn_changeset(%Wallet{} = wallet, attrs) do
     wallet
     |> cast(attrs, @cast_attrs)
-    |> validate_required([:address, :name, :identifier, :account_uuid])
+    |> validate_required([:name, :identifier, :account_uuid])
     |> validate_format(:identifier, ~r/#{@burn}|#{@burn}_.*/)
     |> validate_required_exclusive([:account_uuid, :user_uuid])
     |> shared_changeset()
@@ -90,6 +94,7 @@ defmodule EWalletDB.Wallet do
 
   defp shared_changeset(changeset) do
     changeset
+    |> validate_immutable(:address)
     |> unique_constraint(:address)
     |> assoc_constraint(:account)
     |> assoc_constraint(:user)
@@ -115,7 +120,13 @@ defmodule EWalletDB.Wallet do
   def get(nil), do: nil
 
   def get(address) do
-    Repo.get_by(Wallet, address: address)
+    case WalletAddress.cast(address) do
+      {:ok, address} ->
+        Repo.get_by(Wallet, address: address)
+
+      :error ->
+        nil
+    end
   end
 
   @doc """
@@ -123,10 +134,6 @@ defmodule EWalletDB.Wallet do
   A UUID is generated as the address if address is not specified.
   """
   def insert(attrs) do
-    attrs =
-      attrs
-      |> Map.put_new_lazy(:address, &UUID.generate/0)
-
     %Wallet{}
     |> changeset(attrs)
     |> Repo.insert()
@@ -134,7 +141,6 @@ defmodule EWalletDB.Wallet do
 
   def insert_secondary_or_burn(%{"identifier" => identifier} = attrs) do
     attrs
-    |> Map.put_new_lazy("address", &UUID.generate/0)
     |> Map.put("identifier", build_identifier(identifier))
     |> insert_secondary_or_burn(identifier)
   end
@@ -162,7 +168,7 @@ defmodule EWalletDB.Wallet do
   Returns the genesis wallet.
   """
   def get_genesis do
-    case get(@genesis) do
+    case get(@genesis_address) do
       nil ->
         {:ok, genesis} = insert_genesis()
         genesis
@@ -176,12 +182,14 @@ defmodule EWalletDB.Wallet do
   Inserts a genesis.
   """
   def insert_genesis do
-    changeset = changeset(%Wallet{}, %{address: @genesis, name: @genesis, identifier: @genesis})
+    changeset =
+      changeset(%Wallet{}, %{address: @genesis_address, name: @genesis, identifier: @genesis})
+
     opts = [on_conflict: :nothing, conflict_target: :address]
 
     case Repo.insert(changeset, opts) do
       {:ok, _wallet} ->
-        {:ok, get(@genesis)}
+        {:ok, get(@genesis_address)}
 
       {:error, changeset} ->
         {:error, changeset}

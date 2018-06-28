@@ -36,7 +36,7 @@ defmodule EWalletAPI.V1.WalletChannelTest do
       {res, code} =
         "test"
         |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(WalletChannel, "address:123")
+        |> subscribe_and_join(WalletChannel, "address:none000000000000")
 
       assert res == :error
       assert code == :channel_not_found

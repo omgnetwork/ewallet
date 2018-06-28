@@ -5,6 +5,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
   alias EWallet.Web.V1.ErrorSerializer
+  alias EWallet.AmountFormatter
   alias EWalletDB.Token
 
   @errors %{
@@ -15,7 +16,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_version: %{
       code: "client:invalid_version",
       description: "Invalid API version",
-      template: "Invalid API version Given: '{accept}'."
+      template: "Invalid API version Given: '%{accept}'."
     },
     invalid_parameter: %{
       code: "client:invalid_parameter",
@@ -52,9 +53,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
       template:
-        "The specified wallet ({address}) does not contain enough funds. " <>
-          "Available: {current_amount} {token_id} - Attempted debit: " <>
-          "{amount_to_debit} {token_id}"
+        "The specified wallet (%{address}) does not contain enough funds. " <>
+          "Available: %{current_amount} %{token_id} - Attempted debit: " <>
+          "%{amount_to_debit} %{token_id}"
     },
     inserted_transaction_could_not_be_loaded: %{
       code: "db:inserted_transaction_could_not_be_loaded",
@@ -71,7 +72,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     same_address: %{
       code: "transaction:same_address",
-      description: "Found identical addresses in senders and receivers: {address}."
+      description: "Found identical addresses in senders and receivers: %{address}."
     },
     from_address_not_found: %{
       code: "user:from_address_not_found",
@@ -79,6 +80,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     from_address_mismatch: %{
       code: "user:from_address_mismatch",
+      description: "The provided wallet address does not belong to the current user."
+    },
+    to_address_mismatch: %{
+      code: "user:to_address_mismatch",
       description: "The provided wallet address does not belong to the current user."
     },
     to_address_not_found: %{
@@ -143,6 +148,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "token:token_not_found",
       description: "There is no token matching the provided token_id."
     },
+    from_token_not_found: %{
+      code: "token:from_token_not_found",
+      description: "There is no token matching the provided from_token_id."
+    },
+    to_token_not_found: %{
+      code: "token:to_token_not_found",
+      description: "There is no token matching the provided to_token_id."
+    },
     user_wallet_mismatch: %{
       code: "user:user_wallet_mismatch",
       description: "The provided wallet does not belong to the current user"
@@ -154,6 +167,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invalid_access_secret_key: %{
       code: "client:invalid_access_secret_key",
       description: "Invalid access and/or secret key"
+    },
+    user_id_not_found: %{
+      code: "user:id_not_found",
+      description: "There is no user corresponding to the provided id"
     },
     provider_user_id_not_found: %{
       code: "user:provider_user_id_not_found",
@@ -175,6 +192,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:account_id_not_found",
       description: "There is no account corresponding to the provided account_id"
     },
+    exchange_pair_id_not_found: %{
+      code: "exchange:pair_id_not_found",
+      description: "There is no exchange pair corresponding to the provided id"
+    },
     exchange_pair_not_found: %{
       code: "exchange:pair_not_found",
       description: "There is no exchange pair corresponding to the provided tokens"
@@ -182,6 +203,18 @@ defmodule EWallet.Web.V1.ErrorHandler do
     exchange_invalid_rate: %{
       code: "exchange:invalid_rate",
       description: "The exchange is attempted with an invalid rate"
+    },
+    exchange_address_not_account: %{
+      code: "exchange:exchange_wallet_not_owned_by_account",
+      description: "The specified exchange_wallet is not owned by an account."
+    },
+    exchange_account_id_not_found: %{
+      code: "exchange:account_id_not_found",
+      description: "No account was found with the given exchange_account_id param."
+    },
+    exchange_account_wallet_not_found: %{
+      code: "exchange:account_wallet_not_found",
+      description: "No wallet was found with the given exchange_wallet_address param."
     }
   }
 
@@ -250,8 +283,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
       data = %{
         "address" => address,
-        "current_amount" => float_to_binary(current_amount / token.subunit_to_unit),
-        "amount_to_debit" => float_to_binary(amount_to_debit / token.subunit_to_unit),
+        "current_amount" => AmountFormatter.format(current_amount, token.subunit_to_unit),
+        "amount_to_debit" => AmountFormatter.format(amount_to_debit, token.subunit_to_unit),
         "token_id" => token.id
       }
 
@@ -310,14 +343,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
 
   defp build_template(data, template) do
     Enum.reduce(data, template, fn {k, v}, desc ->
-      String.replace(desc, "{#{k}}", "#{v}")
+      String.replace(desc, "%{#{k}}", "#{v}")
     end)
   end
 
   defp stringify_errors(changeset, description) do
-    Enum.reduce(changeset.errors, description, fn {field, {description, _values}}, acc ->
+    Enum.reduce(changeset.errors, description, fn {field, {description, values}}, acc ->
       field = field |> stringify_field() |> replace_uuids()
-      acc <> " " <> field <> " " <> description <> "."
+      acc <> " " <> field <> " " <> build_template(values, description) <> "."
     end)
   end
 
@@ -341,18 +374,19 @@ defmodule EWallet.Web.V1.ErrorHandler do
     "`" <> to_string(key) <> "`"
   end
 
-  defp float_to_binary(value) do
-    :erlang.float_to_binary(value, [:compact, {:decimals, 1}])
-  end
-
   defp error_fields(changeset) do
     errors =
-      traverse_errors(changeset, fn {_message, opts} ->
-        validation = Keyword.get(opts, :validation)
+      traverse_errors(changeset, fn {message, opts} ->
+        case opts do
+          [] ->
+            message
 
-        # Maps Ecto.changeset validation to be more meaningful
-        # to send to the client.
-        Map.get(@validation_mapping, validation, validation)
+          _ ->
+            validation = Keyword.get(opts, :validation)
+            # Maps Ecto.changeset validation to be more meaningful
+            # to send to the client.
+            Map.get(@validation_mapping, validation, validation)
+        end
       end)
 
     errors

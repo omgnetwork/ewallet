@@ -82,7 +82,11 @@ defmodule EWalletDB.Token do
       :metadata,
       :encrypted_metadata
     ])
-    |> validate_number(:subunit_to_unit, greater_than: 0, less_than_or_equal_to: 1.0e18)
+    |> validate_number(
+      :subunit_to_unit,
+      greater_than: 0,
+      less_than_or_equal_to: 1_000_000_000_000_000_000
+    )
     |> validate_immutable(:symbol)
     |> unique_constraint(:symbol)
     |> unique_constraint(:iso_code)
@@ -94,11 +98,35 @@ defmodule EWalletDB.Token do
     |> set_id(prefix: "tok_")
   end
 
+  defp update_changeset(%Token{} = token, attrs) do
+    token
+    |> cast(attrs, [
+      :iso_code,
+      :name,
+      :description,
+      :short_symbol,
+      :symbol_first,
+      :html_entity,
+      :iso_numeric,
+      :metadata,
+      :encrypted_metadata
+    ])
+    |> validate_required([
+      :name,
+      :metadata,
+      :encrypted_metadata
+    ])
+    |> unique_constraint(:iso_code)
+    |> unique_constraint(:name)
+    |> unique_constraint(:short_symbol)
+    |> unique_constraint(:iso_numeric)
+  end
+
   defp set_id(changeset, opts) do
     case get_field(changeset, :id) do
       nil ->
         symbol = get_field(changeset, :symbol)
-        ulid = ULID.generate()
+        ulid = ULID.generate() |> String.downcase()
         put_change(changeset, :id, build_id(symbol, ulid, opts))
 
       _ ->
@@ -136,6 +164,15 @@ defmodule EWalletDB.Token do
       {:error, changeset} ->
         {:error, changeset}
     end
+  end
+
+  @doc """
+  Update an existing token with the passed attributes.
+  """
+  def update(token, attrs) do
+    token
+    |> update_changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """
