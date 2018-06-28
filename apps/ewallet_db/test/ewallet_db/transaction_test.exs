@@ -162,10 +162,12 @@ defmodule EWalletDB.TransactionTest do
         |> Transaction.insert()
 
       assert res == :error
+
       assert error.errors == [
-        from_amount: {"must be less than %{number}",
-         [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
-      ]
+               from_amount:
+                 {"must be less than %{number}",
+                  [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
+             ]
     end
 
     test "fails when to_amount is >= 100_000_000_000_000_000_000_000_000_000_000_000 (max 35 digits)" do
@@ -175,10 +177,12 @@ defmodule EWalletDB.TransactionTest do
         |> Transaction.insert()
 
       assert res == :error
+
       assert error.errors == [
-        to_amount: {"must be less than %{number}",
-         [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
-      ]
+               to_amount:
+                 {"must be less than %{number}",
+                  [validation: :number, number: 100_000_000_000_000_000_000_000_000_000_000_000]}
+             ]
     end
   end
 end
