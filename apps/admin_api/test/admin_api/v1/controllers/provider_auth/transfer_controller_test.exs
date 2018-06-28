@@ -202,7 +202,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransferControllerTest do
       response =
         provider_request("/transfer", %{
           idempotency_token: UUID.generate(),
-          from_address: "00000000-0000-0000-0000-000000000000",
+          from_address: "fake-0000-0000-0000",
           to_address: wallet.address,
           token_id: token.id,
           amount: 100_000,
@@ -229,7 +229,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransferControllerTest do
         provider_request("/transfer", %{
           idempotency_token: UUID.generate(),
           from_address: wallet.address,
-          to_address: "00000000-0000-0000-0000-000000000000",
+          to_address: "fake-0000-0000-0000",
           token_id: token.id,
           amount: 100_000,
           metadata: %{}

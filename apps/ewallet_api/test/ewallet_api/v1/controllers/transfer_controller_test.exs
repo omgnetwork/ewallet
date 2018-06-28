@@ -178,7 +178,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
       response =
         client_request("/me.transfer", %{
           idempotency_token: UUID.generate(),
-          from_address: "00000000-0000-0000-0000-000000000000",
+          from_address: "none000000000000",
           to_address: wallet.address,
           token_id: token.id,
           amount: 100_000
@@ -231,7 +231,7 @@ defmodule EWalletAPI.V1.TransferControllerTest do
         client_request("/me.transfer", %{
           idempotency_token: UUID.generate(),
           from_address: wallet.address,
-          to_address: "00000000-0000-0000-0000-000000000000",
+          to_address: "none000000000000",
           token_id: token.id,
           amount: 100_000
         })

@@ -62,7 +62,7 @@ defmodule EWallet.WalletCreditDebitAssignerTest do
       {res, code} =
         WalletCreditDebitAssigner.assign(%{
           account: meta.account,
-          account_address: "invalid_address",
+          account_address: "none-0000-0000-0000",
           user: meta.user,
           user_address: nil,
           type: TransactionGate.debit_type()
@@ -110,7 +110,7 @@ defmodule EWallet.WalletCreditDebitAssignerTest do
           account: meta.account,
           account_address: nil,
           user: meta.user,
-          user_address: "invalid_address",
+          user_address: "none-0000-0000-0000",
           type: TransactionGate.debit_type()
         })
 

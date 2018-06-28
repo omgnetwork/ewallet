@@ -36,7 +36,7 @@ defmodule EWallet.AddressRecordFetcherTest do
 
       res =
         AddressRecordFetcher.fetch(%{
-          "from_address" => "123",
+          "from_address" => "none-0000-0000-0000",
           "to_address" => User.get_primary_wallet(inserted_user).address,
           "token_id" => inserted_token.id
         })
@@ -51,7 +51,7 @@ defmodule EWallet.AddressRecordFetcherTest do
       res =
         AddressRecordFetcher.fetch(%{
           "from_address" => User.get_primary_wallet(inserted_user).address,
-          "to_address" => "123",
+          "to_address" => "none-0000-0000-0000",
           "token_id" => inserted_token.id
         })
 
