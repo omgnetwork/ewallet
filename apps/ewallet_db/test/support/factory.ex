@@ -22,7 +22,8 @@ defmodule EWalletDB.Factory do
     TransactionConsumption,
     Transaction,
     User,
-    Wallet
+    Wallet,
+    AccountUser
   }
 
   alias EWalletDB.Helpers.Crypto
@@ -155,6 +156,13 @@ defmodule EWalletDB.Factory do
       name: sequence("account"),
       description: sequence("description for account"),
       parent: Account.get_master_account()
+    }
+  end
+
+  def account_user_factory do
+    %AccountUser{
+      account_uuid: Account.get_master_account().uuid,
+      user_uuid: insert(:user).uuid
     }
   end
 
