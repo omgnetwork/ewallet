@@ -381,7 +381,10 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       wallets = Repo.all(Wallet)
       assert length(wallets) == 4
-      assert Enum.at(wallets, 3).address == response["data"]["address"]
+
+      assert Enum.any?(wallets, fn wallet ->
+               wallet.address == response["data"]["address"]
+             end)
     end
 
     test "inserts a new burn wallet for an account" do
@@ -403,7 +406,10 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       wallets = Repo.all(Wallet)
       assert length(wallets) == 4
-      assert Enum.at(wallets, 3).address == response["data"]["address"]
+
+      assert Enum.any?(wallets, fn wallet ->
+               wallet.address == response["data"]["address"]
+             end)
     end
 
     test "fails to insert a primary wallet for a user" do
@@ -458,8 +464,14 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       wallets = Repo.all(Wallet)
       assert length(wallets) == 5
-      assert Enum.at(wallets, 3).address == response_1["data"]["address"]
-      assert Enum.at(wallets, 4).address == response_2["data"]["address"]
+
+      assert Enum.any?(wallets, fn wallet ->
+               wallet.address == response_1["data"]["address"]
+             end)
+
+      assert Enum.any?(wallets, fn wallet ->
+               wallet.address == response_2["data"]["address"]
+             end)
     end
 
     test "fails to insert a burn wallet for a user" do
