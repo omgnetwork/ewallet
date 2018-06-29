@@ -47,16 +47,15 @@ defmodule EWalletDB.ExchangePairTest do
   end
 
   describe "fetch_exchangable_pair/3" do
-    test "returns {:ok, pair, :direct} if the tokens match a direct pair" do
+    test "returns {:ok, pair} if the tokens match a pair" do
       omg = insert(:token)
       eth = insert(:token)
       inserted_pair = insert(:exchange_pair, from_token: omg, to_token: eth)
 
-      {res, pair, direction} = ExchangePair.fetch_exchangable_pair(omg, eth)
+      {res, pair} = ExchangePair.fetch_exchangable_pair(omg, eth)
 
       assert res == :ok
       assert pair.uuid == inserted_pair.uuid
-      assert direction == :direct
     end
 
     test "returns {:error, :exchange_pair_not_found} if a pair could not be found" do
