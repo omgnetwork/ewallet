@@ -24,7 +24,7 @@ const AlertItemContainer = styled.div`
   color: ${props => props.theme.colors.B300};
   margin-bottom: 5px;
 `
-const SuccessCheckmark = styled.div`
+const SuccessChecked = styled.div`
   border-radius: 50%;
   width: 20px;
   height: 20px;
@@ -83,9 +83,9 @@ class Alert extends Component {
                 classNames='fade'
               >
                 <AlertItem id={alert.id} clearAlert={this.props.clearAlert} type={alert.type}>
-                  <SuccessCheckmark>
-                    <Icon name='Checkmark' />
-                  </SuccessCheckmark>
+                  <SuccessChecked>
+                    <Icon name='Checked' />
+                  </SuccessChecked>
                   {alert.text}
                 </AlertItem>
               </CSSTransition>
