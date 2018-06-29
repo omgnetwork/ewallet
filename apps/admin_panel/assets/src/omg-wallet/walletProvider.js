@@ -12,8 +12,11 @@ class WalletProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (!this.props.wallet) {
-      this.props.getWalletById(this.props.walletAddress)
+    this.props.getWalletById(this.props.walletAddress)
+  }
+  componentWillReceiveProps = nextProps => {
+    if (nextProps.walletAddress !== this.props.walletAddress) {
+      this.props.getWalletById(nextProps.walletAddress)
     }
   }
   render () {

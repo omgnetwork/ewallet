@@ -65,7 +65,11 @@ class CreateTransactionModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
-    getWalletById: PropTypes.func
+    getWalletById: PropTypes.func,
+    onCreateTransaction: PropTypes.func
+  }
+  static defaultProps = {
+    onCreateTransaction: PropTypes.func
   }
   initialState = {
     submitting: false,
@@ -111,6 +115,7 @@ class CreateTransactionModal extends Component {
         tokenId: _.get(this.state.selectedToken, 'token.id'),
         amount: this.state.amount * _.get(this.state.selectedToken, 'token.subunit_to_unit')
       })
+      this.props.onCreateTransaction()
       if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
         this.props.getWalletById(this.state.toAddress)

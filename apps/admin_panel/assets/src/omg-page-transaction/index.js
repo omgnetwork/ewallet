@@ -194,7 +194,7 @@ class TransactionPage extends Component {
     }
     return data
   }
-  renderTransactionPage = ({ data: transactions, individualLoadingStatus, pagination }) => {
+  renderTransactionPage = ({ data: transactions, individualLoadingStatus, pagination, fetch }) => {
     return (
       <TransactionPageContainer>
         <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />
@@ -213,6 +213,7 @@ class TransactionPage extends Component {
         <CreateTransactionModal
           onRequestClose={this.onRequestCloseCreateTransaction}
           open={this.state.createTransactionModalOpen}
+          onCreateTransaction={fetch}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </TransactionPageContainer>
