@@ -113,8 +113,8 @@ defmodule EWallet.Exchange do
   def calculate(nil, from_token, to_amount, to_token) do
     case get_rate(from_token, to_token) do
       {:ok, rate, pair} ->
-        from_amount = to_amount / rate
-        {:ok, build_result(from_amount, from_token, from_amount * rate, to_token, rate, pair)}
+        from_amount = Decimal.div(to_amount, rate)
+        {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
 
       {:error, _} = error ->
         error
@@ -125,7 +125,7 @@ defmodule EWallet.Exchange do
   def calculate(from_amount, from_token, nil, to_token) do
     case get_rate(from_token, to_token) do
       {:ok, rate, pair} ->
-        to_amount = from_amount * rate
+        to_amount = Decimal.mult(from_amount, rate)
         {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
 
       {:error, _} = error ->
