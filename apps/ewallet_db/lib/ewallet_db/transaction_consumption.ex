@@ -15,8 +15,11 @@ defmodule EWalletDB.TransactionConsumption do
     TransactionRequest,
     Wallet,
     Transaction,
-    Account
+    Account,
+    ExchangePair
   }
+
+  alias EWalletDB.Helpers.Assoc
 
   @pending "pending"
   @confirmed "confirmed"
@@ -32,6 +35,9 @@ defmodule EWalletDB.TransactionConsumption do
     external_id(prefix: "txc_")
 
     field(:amount, EWalletDB.Types.Integer)
+    field(:estimated_consumption_amount, EWalletDB.Types.Integer)
+    field(:estimated_request_amount, EWalletDB.Types.Integer)
+    field(:estimated_rate, :float)
     field(:correlation_id, :string)
     field(:idempotency_token, :string)
 
@@ -42,6 +48,10 @@ defmodule EWalletDB.TransactionConsumption do
     field(:confirmed_at, :naive_datetime)
     field(:failed_at, :naive_datetime)
     field(:expired_at, :naive_datetime)
+    field(:estimated_at, :naive_datetime)
+
+    field(:error_code, :string)
+    field(:error_description, :string)
 
     field(:expiration_date, :naive_datetime)
     field(:metadata, :map, default: %{})
@@ -51,6 +61,14 @@ defmodule EWalletDB.TransactionConsumption do
       :transaction,
       Transaction,
       foreign_key: :transaction_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :exchange_pair,
+      ExchangePair,
+      foreign_key: :exchange_pair_uuid,
       references: :uuid,
       type: UUID
     )
@@ -95,6 +113,22 @@ defmodule EWalletDB.TransactionConsumption do
       type: :string
     )
 
+    belongs_to(
+      :exchange_account,
+      Account,
+      foreign_key: :exchange_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :exchange_wallet,
+      Wallet,
+      foreign_key: :exchange_wallet_address,
+      references: :address,
+      type: :string
+    )
+
     timestamps()
   end
 
@@ -102,6 +136,8 @@ defmodule EWalletDB.TransactionConsumption do
     consumption
     |> cast(attrs, [
       :amount,
+      :estimated_request_amount,
+      :estimated_consumption_amount,
       :idempotency_token,
       :correlation_id,
       :user_uuid,
@@ -111,11 +147,15 @@ defmodule EWalletDB.TransactionConsumption do
       :token_uuid,
       :metadata,
       :encrypted_metadata,
-      :expiration_date
+      :expiration_date,
+      :exchange_account_uuid,
+      :exchange_wallet_address,
+      :exchange_pair_uuid,
+      :estimated_at,
+      :estimated_rate
     ])
     |> validate_required([
       :status,
-      :amount,
       :idempotency_token,
       :transaction_request_uuid,
       :wallet_address,
@@ -129,6 +169,7 @@ defmodule EWalletDB.TransactionConsumption do
     |> assoc_constraint(:transaction_request)
     |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
+    |> assoc_constraint(:exchange_pair)
   end
 
   def approved_changeset(%TransactionConsumption{} = consumption, attrs) do
@@ -155,6 +196,12 @@ defmodule EWalletDB.TransactionConsumption do
     |> cast(attrs, [:status, :failed_at, :transaction_uuid])
     |> validate_required([:status, :failed_at, :transaction_uuid])
     |> assoc_constraint(:transaction)
+  end
+
+  def transaction_failure_changeset(%TransactionConsumption{} = consumption, attrs) do
+    consumption
+    |> cast(attrs, [:status, :failed_at, :error_code, :error_description])
+    |> validate_required([:status, :failed_at, :error_code])
   end
 
   def expired_changeset(%TransactionConsumption{} = consumption, attrs) do
@@ -186,6 +233,15 @@ defmodule EWalletDB.TransactionConsumption do
     case opts[:preload] do
       nil -> query
       preload -> Repo.preload(query, preload)
+    end
+  end
+
+  def get_final_amount(consumption) do
+    consumption = Repo.preload(consumption, [:transaction, :transaction_request])
+
+    case consumption.transaction_request.type do
+      "send" -> Assoc.get(consumption, [:transaction, :to_amount])
+      "receive" -> Assoc.get(consumption, [:transaction, :from_amount])
     end
   end
 
@@ -311,9 +367,30 @@ defmodule EWalletDB.TransactionConsumption do
   Fails a consumption and saves the transaction ID.
   """
   @spec fail(%TransactionConsumption{}, %Transaction{}) :: %TransactionConsumption{}
-  def fail(consumption, transaction) do
+  def fail(consumption, %Transaction{} = transaction) do
     state_transition(consumption, @failed, transaction.uuid)
   end
+
+  def fail(consumption, error_code, error_description) do
+    data =
+      %{
+        status: @failed,
+        error_code: Atom.to_string(error_code),
+        error_description: error_description
+      }
+      |> Map.put(:failed_at, NaiveDateTime.utc_now())
+
+    {:ok, consumption} =
+      consumption
+      |> transaction_failure_changeset(data)
+      |> Repo.update()
+
+    consumption
+  end
+
+  # def fail(consumption, code) do
+  #   state_transition(consumption, @failed, nil)
+  # end
 
   @spec expired?(%TransactionConsumption{}) :: boolean()
   def expired?(consumption) do

@@ -458,8 +458,6 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       wallets = Repo.all(Wallet)
       assert length(wallets) == 5
-      assert Enum.at(wallets, 3).address == response_1["data"]["address"]
-      assert Enum.at(wallets, 4).address == response_2["data"]["address"]
     end
 
     test "fails to insert a burn wallet for a user" do

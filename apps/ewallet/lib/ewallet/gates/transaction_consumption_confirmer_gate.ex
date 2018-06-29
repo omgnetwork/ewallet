@@ -12,7 +12,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     TransactionConsumptionValidator
   }
 
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption}
+  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Helpers.Assoc}
 
   @spec approve_and_confirm(TransactionRequest.t(), TransactionConsumption.t()) ::
           {:ok, TransactionConsumption.t()}
@@ -21,7 +21,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   def approve_and_confirm(request, consumption) do
     consumption
     |> TransactionConsumption.approve()
-    |> transfer(request.type)
+    |> transfer(request)
   end
 
   @spec confirm(UUID.t(), Boolean.t(), Map.t()) ::
@@ -48,7 +48,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
         true ->
           consumption
           |> TransactionConsumption.approve()
-          |> transfer(request.type)
+          |> transfer(request)
 
         false ->
           consumption = TransactionConsumption.reject(consumption)
@@ -59,27 +59,112 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     end
   end
 
-  defp transfer(consumption, "send") do
-    from = consumption.transaction_request.wallet_address
-    to = consumption.wallet.address
-    transfer(consumption, from, to)
+  defp transfer(
+         %TransactionConsumption{token_uuid: from_token_uuid} = consumption,
+         %{type: "send", token_uuid: to_token_uuid} = request
+       )
+       when from_token_uuid == to_token_uuid do
+    do_transfer(consumption, request, %{
+      from: %{
+        address: request.wallet_address,
+        token_id: consumption.token.id,
+        amount: consumption.amount || request.amount
+      },
+      to: %{
+        address: consumption.wallet_address,
+        token_id: consumption.token.id,
+        amount: consumption.amount || request.amount
+      }
+    })
   end
 
-  defp transfer(consumption, "receive") do
-    from = consumption.wallet.address
-    to = consumption.transaction_request.wallet_address
-    transfer(consumption, from, to)
+  defp transfer(
+         %TransactionConsumption{token_uuid: _from_token_uuid} = consumption,
+         %{type: "send", token_uuid: _to_token_uuid} = request
+       ) do
+    do_transfer(consumption, request, %{
+      from: %{
+        address: request.wallet_address,
+        token_id: request.token.id,
+        amount: request.amount
+      },
+      to: %{
+        address: consumption.wallet_address,
+        token_id: consumption.token.id,
+        amount: consumption.amount
+      }
+    })
   end
 
-  defp transfer(consumption, from, to) do
+  defp transfer(
+         %TransactionConsumption{token_uuid: from_token_uuid} = consumption,
+         %{type: "receive", token_uuid: to_token_uuid} = request
+       )
+       when from_token_uuid == to_token_uuid do
+    do_transfer(consumption, request, %{
+      from: %{
+        address: consumption.wallet_address,
+        token_id: consumption.token.id,
+        amount: consumption.amount || request.amount
+      },
+      to: %{
+        address: request.wallet_address,
+        token_id: consumption.token.id,
+        amount: consumption.amount || request.amount
+      }
+    })
+  end
+
+  defp transfer(
+         %TransactionConsumption{token_uuid: _from_token_uuid} = consumption,
+         %{type: "receive", token_uuid: _to_token_uuid} = request
+       ) do
+    do_transfer(consumption, request, %{
+      from: %{
+        address: consumption.wallet_address,
+        token_id: consumption.token.id,
+        amount: consumption.amount
+      },
+      to: %{
+        address: request.wallet_address,
+        token_id: request.token.id,
+        amount: request.amount
+      }
+    })
+  end
+
+  defp transfer(consumption, %{type: "receive"} = request) do
+    do_transfer(consumption, request, %{
+      from: %{
+        address: consumption.wallet_address,
+        token_id: consumption.token.id,
+        amount: consumption.amount
+      },
+      to: %{
+        address: request.wallet_address,
+        token_id: request.token.id,
+        amount: request.amount
+      }
+    })
+  end
+
+  defp do_transfer(consumption, request, data) do
     attrs = %{
       "idempotency_token" => consumption.idempotency_token,
-      "from_address" => from,
-      "to_address" => to,
-      "token_id" => consumption.token.id,
-      "amount" => consumption.amount,
+      "from_address" => data[:from][:address],
+      "to_address" => data[:to][:address],
+      "from_token_id" => data[:from][:token_id],
+      "to_token_id" => data[:to][:token_id],
+      "from_amount" => data[:from][:amount],
+      "to_amount" => data[:to][:amount],
       "metadata" => consumption.metadata,
-      "encrypted_metadata" => consumption.encrypted_metadata
+      "encrypted_metadata" => consumption.encrypted_metadata,
+      "exchange_account_id" =>
+        Assoc.get(request, [:exchange_account, :id]) ||
+          Assoc.get(consumption, [:exchange_account, :id]),
+      "exchange_wallet_address" =>
+        Assoc.get(request, [:exchange_wallet, :address]) ||
+          Assoc.get(consumption, [:exchange_wallet, :address])
     }
 
     case TransactionGate.create(attrs) do
@@ -97,6 +182,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
           |> Map.put(:transaction_request, request)
 
         {:ok, consumption}
+
+      {:error, code} ->
+        consumption = TransactionConsumption.fail(consumption, code, nil)
+        {:error, consumption, code}
+
+      {:error, code, description} ->
+        consumption = TransactionConsumption.fail(consumption, code, description)
+        {:error, consumption, code, description}
 
       {:error, transaction, code, description} ->
         consumption = TransactionConsumption.fail(consumption, transaction)
