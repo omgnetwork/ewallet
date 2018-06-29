@@ -24,7 +24,7 @@ export const getConsumptions = ({ page, perPage, search, cacheKey }) => async di
   }
 }
 
-export const getConsumptionById = id => async dispatch => {
+export const getConsumptionById = ({ id }) => async dispatch => {
   dispatch({ type: 'CONSUMPTION/REQUEST/INITIATED' })
   try {
     const result = await consumptionService.getConsumptionById(id)

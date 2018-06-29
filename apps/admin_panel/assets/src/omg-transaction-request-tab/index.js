@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import TabPanel from './TabPanel'
 import SortableTable from '../omg-table'
-import ConsumtionFetcher from '../omg-consumption/consumptionsFetcher'
+import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consumptionByTransactionIdFetcher'
 import TransactionRequestProvider from '../omg-transaction-request/transactionRequestProvider'
 import { Icon } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
@@ -89,7 +89,8 @@ class TransactionRequestPanel extends Component {
   }
   renderActivityList = () => {
     return (
-      <ConsumtionFetcher
+      <ConsumptionFetcherByTransactionIdFetcher
+        id={queryString.parse(this.props.location.search)['show-request-tab']}
         render={({ data, individualLoadingStatus, pagination }) => {
           return (
             <div>
@@ -106,7 +107,11 @@ class TransactionRequestPanel extends Component {
             </div>
           )
         }}
-        query={{ page: 1, perPage: 10 }}
+        query={{
+          page: 1,
+          perPage: 10,
+          uniqueId: queryString.parse(this.props.location.search)['show-request-tab']
+        }}
       />
     )
   }
@@ -115,7 +120,6 @@ class TransactionRequestPanel extends Component {
       <TransactionRequestProvider
         transactionRequestId={queryString.parse(this.props.location.search)['show-request-tab']}
         render={({ transactionRequest }) => {
-          console.log(transactionRequest)
           return (
             <TransactionReqeustPropertiesContainer>
               <QR data={transactionRequest.id} />

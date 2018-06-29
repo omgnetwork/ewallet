@@ -125,24 +125,30 @@ export const getTransactionRequestConsumptions = ({
   page,
   sort,
   search,
-  id
+  id,
+  cacheKey
 }) => async dispatch => {
   dispatch({ type: 'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/INITIATED' })
   try {
     const result = await transactionRequestService.getTransactionRequestConsumptions({
       perPage,
       page,
-      sort,
+      sort: { by: 'created_at', dir: 'desc' },
       search,
       id
     })
     if (result.data.success) {
       return dispatch({
         type: 'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/SUCCESS',
-        data: result.data.data
+        data: result.data.data.data,
+        pagination: result.data.data.pagination,
+        cacheKey
       })
     } else {
-      return dispatch({ type: 'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/FAILED', error: result.data.data })
+      return dispatch({
+        type: 'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/FAILED',
+        error: result.data.data
+      })
     }
   } catch (error) {
     console.log(error)
