@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule AdminAPI.V1.AccountChannelTest do
-  use AdminAPI.ChannelCase
+  use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.AccountChannel
 
   describe "join/3 as provider" do

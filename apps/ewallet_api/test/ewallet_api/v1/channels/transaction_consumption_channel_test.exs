@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule EWalletAPI.V1.TransactionConsumptionChannelTest do
-  use EWalletAPI.ChannelCase
+  use EWalletAPI.ChannelCase, async: false
   alias EWalletAPI.V1.TransactionConsumptionChannel
   alias EWalletDB.User
 
