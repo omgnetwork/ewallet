@@ -144,7 +144,7 @@ class TransactionRequestsPage extends Component {
         <CreateTransactionRequestModal
           open={this.state.createTransactionRequestModalOpen}
           onRequestClose={this.onRequestClose}
-          onCreateAccount={fetch}
+          onCreateTransactionRequest={fetch}
         />
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </TransactionRequestsPageContainer>

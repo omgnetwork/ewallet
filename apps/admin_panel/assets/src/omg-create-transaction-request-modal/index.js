@@ -73,15 +73,16 @@ const InputLabel = styled.div`
   }
 `
 
-class CreateTokenModal extends Component {
+class CreateTransactionRequestModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     createTransactionRequest: PropTypes.func,
     primaryWallet: PropTypes.object,
-    match: PropTypes.object
+    match: PropTypes.object,
+    onCreateTransactionRequest: PropTypes.func
   }
-  state = { selectedToken: {} }
+  state = { selectedToken: {}, onCreateTransactionRequest: _.noop }
   onRequestClose = () => {
     this.setState({})
     this.props.onRequestClose()
@@ -99,6 +100,7 @@ class CreateTokenModal extends Component {
       })
       if (result.data) {
         this.onRequestClose()
+        this.props.onCreateTransactionRequest()
       } else {
         this.setState({
           submitting: false,
@@ -332,4 +334,4 @@ class CreateTokenModal extends Component {
 export default withRouter(connect(
   state => ({ primaryWallet: selectPrimaryWalletCurrentAccount(state) }),
   { createTransactionRequest }
-)(CreateTokenModal))
+)(CreateTransactionRequestModal))
