@@ -82,26 +82,30 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       fetch = async () => {
         try {
-          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.PENDING }, () => {
-            this.props.dispatcher({ ...this.props, ...this.getQuery() }).then(result => {
-              this.fetched[this.props.cacheKey] = true
-              if (result.data) {
-                this.setState({
-                  loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
-                  data: this.props.data
-                })
-                this.props.onFetchComplete()
-              } else {
-                this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
-              }
-            })
-            setTimeout(() => {
-              if (!this.fetched[this.props.cacheKey]) {
-                this.setState({ data: this.props.data })
-                console.log('fetching data taking too long... using cached data.')
-              }
-            }, 3000)
+          this.setState(oldState => ({
+            loadingStatus:
+              oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED
+                ? CONSTANT.LOADING_STATUS.INITIATED
+                : CONSTANT.LOADING_STATUS.PENDING
+          }))
+          this.props.dispatcher({ ...this.props, ...this.getQuery() }).then(result => {
+            this.fetched[this.props.cacheKey] = true
+            if (result.data) {
+              this.setState({
+                loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
+                data: this.props.data
+              })
+              this.props.onFetchComplete()
+            } else {
+              this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
+            }
           })
+          setTimeout(() => {
+            if (!this.fetched[this.props.cacheKey]) {
+              this.setState({ data: this.props.data })
+              console.log('fetching data taking too long... using cached data.')
+            }
+          }, 3000)
         } catch (error) {
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: this.props.data })
         }
@@ -114,7 +118,10 @@ export const createFetcher = (entity, reducer, selectors) => {
           individualLoadingStatus: this.state.loadingStatus,
           fetch: this.fetch,
           fetchAll: this.fetchAll,
-          data: this.state.loadingStatus === 'SUCCESS' ? this.props.data : this.state.data
+          data:
+            this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
+              ? this.props.data
+              : this.state.data
         })
       }
     }
