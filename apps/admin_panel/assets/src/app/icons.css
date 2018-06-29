@@ -5,6 +5,7 @@ src: url(data:application/x-font-ttf;charset=utf-8;base64,d09GRgABAAAAADKUAAsAAA
   font-style: normal;
 }
 
+
 [class^="icon-omisego"], [class*=" icon-omisego"] {
   /* use !important to prevent issues with browser extensions that change fonts */
   font-family: 'omisego-icons' !important;
@@ -55,7 +56,7 @@ src: url(data:application/x-font-ttf;charset=utf-8;base64,d09GRgABAAAAADKUAAsAAA
 .icon-omisego_Camera:before {
   content: "\e905";
 }
-.icon-omisego_Checkmark:before {
+.icon-omisego_Checked:before {
   content: "\e906";
 }
 .icon-omisego_Chevron-Down:before {

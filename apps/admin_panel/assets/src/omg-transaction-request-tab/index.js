@@ -8,8 +8,11 @@ import TransactionRequestProvider from '../omg-transaction-request/transactionRe
 import { Icon } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
-import QRCode from 'qrcode'
+import QR from './QrCode'
 import moment from 'moment'
+import { connect } from 'react-redux'
+import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
+import { compose } from 'recompose'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -25,6 +28,11 @@ const PanelContainer = styled.div`
     top: 25px;
     cursor: pointer;
   }
+`
+const ContentContainer = styled.div`
+  height: calc(100vh - 190px);
+  overflow: auto;
+
 `
 const TransactionReqeustPropertiesContainer = styled.div`
   > img {
@@ -53,49 +61,78 @@ const SubDetailTitle = styled.div`
     }
   }
 `
-class QR extends Component {
-  static propTypes = {
-    data: PropTypes.object
+const ConfirmButton = styled.button`
+  display: inline-block;
+  background-color: white;
+  border-radius: 2px;
+  padding: 5px 10px;
+  color: ${props => props.theme.colors.B200};
+  line-height: 10px;
+  i {
+    font-size: 10px;
   }
-  state = {}
-  componentDidMount = async () => {
-    const dataUrl = await QRCode.toDataURL(this.props.data)
-    this.setState({ dataUrl })
-  }
-  componentDidUpdate = async nextProps => {
-    if (this.props.data !== nextProps.data) {
-      const dataUrl = await QRCode.toDataURL(this.props.data)
-      this.setState({ dataUrl })
-    }
-  }
-  render () {
-    return <img src={this.state.dataUrl} />
-  }
-}
+`
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { approveConsumptionById, rejectConsumptionById }
+  )
+)
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    rejectConsumptionById: PropTypes.func,
+    approveConsumptionById: PropTypes.func
   }
   constructor (props) {
     super(props)
     this.columns = [
-
       { key: 'amount', title: 'AMOUNT', sort: true },
       { key: 'to', title: 'TO' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'status', title: 'CONFIRMATION' }
     ]
   }
+  onClickConfirm = id => e => {
+    this.props.approveConsumptionById(id)
+  }
+  onClickReject = id => e => {
+    this.props.rejectConsumptionById(id)
+  }
   rowRenderer = (key, data, rows) => {
     if (key === 'amount') {
-      return <div>{data || 0} {_.get(rows, 'token.symbol')}</div>
+      return (
+        <div>
+          {((data || 0) / _.get(rows, 'token.subunit_to_unit')).toLocaleString()}{' '}
+          {_.get(rows, 'token.symbol')}
+        </div>
+      )
     }
     if (key === 'created_at') {
       return moment(data).format('DD/MM hh:mm:ss')
     }
     if (key === 'to') {
       return <div>{rows.user_id || _.get(rows, 'account.name')}</div>
+    }
+
+    if (key === 'status') {
+      switch (data) {
+        case 'pending':
+          return (
+            <div>
+              <ConfirmButton onClick={this.onClickConfirm(rows.id)}>
+                <Icon name='Checked' />
+              </ConfirmButton>
+              <ConfirmButton onClick={this.onClickReject(rows.id)}>
+                <Icon name='Close' />
+              </ConfirmButton>
+            </div>
+          )
+        default:
+          return data
+      }
     }
     return data
   }
@@ -105,7 +142,7 @@ class TransactionRequestPanel extends Component {
         id={queryString.parse(this.props.location.search)['show-request-tab']}
         render={({ data, individualLoadingStatus, pagination }) => {
           return (
-            <div>
+            <ContentContainer>
               <SortableTable
                 rows={data}
                 columns={this.columns}
@@ -117,12 +154,12 @@ class TransactionRequestPanel extends Component {
                 navigation
                 pageEntity={'page-activity'}
               />
-            </div>
+            </ContentContainer>
           )
         }}
         query={{
           page: queryString.parse(this.props.location.search)['page-activity'],
-          perPage: 10,
+          perPage: Math.floor(window.innerHeight / 60),
           uniqueId: queryString.parse(this.props.location.search)['show-request-tab']
         }}
       />
@@ -130,46 +167,42 @@ class TransactionRequestPanel extends Component {
   }
   renderProperties = transactionRequest => {
     return (
-      <TransactionRequestProvider
-        transactionRequestId={queryString.parse(this.props.location.search)['show-request-tab']}
-        render={({ transactionRequest }) => {
-          return (
-            <TransactionReqeustPropertiesContainer>
-              <QR data={transactionRequest.id} />
-              <div>
-                <b>Type:</b> {transactionRequest.type}
-              </div>
-              <div>
-                <b>Token ID:</b> {_.get(transactionRequest, 'token.id')}
-              </div>
-              <div>
-                <b>Amount:</b> {transactionRequest.amount || 0} {_.get(transactionRequest, 'token.symbol')}
-              </div>
-              <div>
-                <b>address:</b> {transactionRequest.address}
-              </div>
-              <div>
-                <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
-              </div>
-              <div>
-                <b>Max Consumptions:</b> {transactionRequest.max_consumtions || '-'}
-              </div>
-              <div>
-                <b>Max Consumptions User:</b> {transactionRequest.max_consumptionPerUser || '-'}
-              </div>
-              <div>
-                <b>Expiry Date:</b> {transactionRequest.expiration_date}
-              </div>
-              <div>
-                <b>Allow Override:</b> {transactionRequest.allow_amount_overide ? 'Yes' : 'No'}
-              </div>
-              <div>
-                <b>Coorelation ID:</b> {transactionRequest.correlation_id}
-              </div>
-            </TransactionReqeustPropertiesContainer>
-          )
-        }}
-      />
+      <TransactionReqeustPropertiesContainer>
+        <QR data={transactionRequest.id} />
+        <div>
+          <b>Type:</b> {transactionRequest.type}
+        </div>
+        <div>
+          <b>Token ID:</b> {_.get(transactionRequest, 'token.id')}
+        </div>
+        <div>
+          <b>Amount:</b>{' '}
+          {(transactionRequest.amount || 0) /
+                  _.get(transactionRequest, 'token.subunit_to_unit')}{' '}
+          {_.get(transactionRequest, 'token.symbol')}
+        </div>
+        <div>
+          <b>address:</b> {transactionRequest.address}
+        </div>
+        <div>
+          <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
+        </div>
+        <div>
+          <b>Max Consumptions:</b> {transactionRequest.max_consumtions || '-'}
+        </div>
+        <div>
+          <b>Max Consumptions User:</b> {transactionRequest.max_consumptionPerUser || '-'}
+        </div>
+        <div>
+          <b>Expiry Date:</b> {transactionRequest.expiration_date}
+        </div>
+        <div>
+          <b>Allow Override:</b> {transactionRequest.allow_amount_overide ? 'Yes' : 'No'}
+        </div>
+        <div>
+          <b>Coorelation ID:</b> {transactionRequest.correlation_id}
+        </div>
+      </TransactionReqeustPropertiesContainer>
     )
   }
   onClickClose = () => {
@@ -199,7 +232,8 @@ class TransactionRequestPanel extends Component {
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>
-                Request to {tq.type} {tq.amount || 0} {_.get(tq, 'token.symbol')}
+                Request to {tq.type} {(tq.amount || 0) / _.get(tq, 'token.subunit_to_unit')}{' '}
+                {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>
                 <span>{tq.id}</span> | <span>{tq.type}</span> |{' '}
@@ -231,4 +265,4 @@ class TransactionRequestPanel extends Component {
   }
 }
 
-export default withRouter(TransactionRequestPanel)
+export default enhance(TransactionRequestPanel)

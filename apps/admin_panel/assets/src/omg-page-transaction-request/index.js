@@ -90,7 +90,7 @@ class TransactionRequestsPage extends Component {
   }
   rowRenderer (key, data, rows) {
     if (key === 'require_confirmation') {
-      return data ? <Icon name='Checked' /> : <Icon name='Close' />
+      return data ? 'Yes' : 'No'
     }
     if (key === 'id') {
       return (

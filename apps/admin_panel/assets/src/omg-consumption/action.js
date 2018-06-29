@@ -45,8 +45,9 @@ export const getConsumptionById = ({ id }) => async dispatch => {
 export const approveConsumptionById = id => async dispatch => {
   dispatch({ type: 'CONSUMPTION/APPROVE/INITIATED' })
   try {
-    const result = await consumptionService.getConsumptionById(id)
+    const result = await consumptionService.approveConsumptionById(id)
     if (result.data.success) {
+      console.log(result)
       return dispatch({
         type: 'CONSUMPTION/APPROVE/SUCCESS',
         data: result.data.data
@@ -63,7 +64,7 @@ export const approveConsumptionById = id => async dispatch => {
 export const rejectConsumptionById = id => async dispatch => {
   dispatch({ type: 'CONSUMPTION/REJECT/INITIATED' })
   try {
-    const result = await consumptionService.getConsumptionById(id)
+    const result = await consumptionService.rejectConsumptionById(id)
     if (result.data.success) {
       return dispatch({
         type: 'CONSUMPTION/REJECT/SUCCESS',

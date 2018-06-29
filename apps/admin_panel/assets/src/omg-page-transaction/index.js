@@ -154,7 +154,7 @@ class TransactionPage extends Component {
             </MarkContainer>
           ) : (
             <MarkContainer status='success'>
-              <Icon name='Checkmark' />
+              <Icon name='Checked' />
             </MarkContainer>
           )}{' '}
           <span>{data}</span>

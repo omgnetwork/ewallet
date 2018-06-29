@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
-import { Button, Icon, Avatar } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
 import ConsumptionFetcher from '../omg-consumption/consumptionsFetcher'
@@ -18,8 +18,8 @@ const ConsumptionPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  td:first-child {
-    width: 50%;
+  td {
+    white-space: nowrap;
   }
   td:nth-child(2),
   td:nth-child(3) {
@@ -28,6 +28,9 @@ const ConsumptionPageContainer = styled.div`
 `
 const SortableTableContainer = styled.div`
   position: relative;
+  i[name="Consumption"] {
+    color: ${props => props.theme.colors.BL400};
+  }
 `
 export const NameColumn = styled.div`
   > span {
@@ -48,6 +51,14 @@ class ConsumptionPage extends Component {
       exportModalOpen: false,
       loadMoreTime: 1
     }
+    this.columns = [
+      { key: 'id', title: 'REQUEST ID', sort: true },
+      { key: 'type', title: 'TYPE', sort: true },
+      { key: 'amount', title: 'AMOUNT', sort: true },
+      { key: 'created_by', title: 'TO' },
+      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'require_confirmation', title: 'CONFIRMATION' }
+    ]
   }
   renderCreateAccountButton = () => {
     return (
@@ -56,43 +67,35 @@ class ConsumptionPage extends Component {
       </Button>
     )
   }
-  getColumns = accounts => {
-    return [
-      { key: 'name', title: 'NAME', sort: true },
-      { key: 'description', title: 'DESCRIPTION', sort: true },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'avatar', title: 'AVATAR', hide: true }
-    ]
-  }
-  getRow = accounts => {
-    return accounts.map(d => {
-      return {
-        ...d,
-        avatar: _.get(d, 'avatar.thumb'),
-        key: d.id
-      }
-    })
-  }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/account/${data.id}`)
   }
   rowRenderer (key, data, rows) {
-    if (key === 'name') {
+    if (key === 'require_confirmation') {
+      return data ? 'Yes' : 'No'
+    }
+    if (key === 'id') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} /> <span>{data}</span>
+          <Icon name='Consumption' /> <span>{data}</span>
         </NameColumn>
       )
+    }
+    if (key === 'type') {
+      return _.get(rows, 'transaction_request.type')
+    }
+    if (key === 'amount') {
+      return `${(data / rows.token.subunit_to_unit || 0).toLocaleString()} ${rows.token.symbol}`
+    }
+    if (key === 'created_by') {
+      return rows.user_id || rows.account.name || rows.account_id
     }
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
     if (key === 'updated_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
-    }
-    if (key === 'avatar') {
-      return null
     }
     return data
   }
@@ -102,8 +105,8 @@ class ConsumptionPage extends Component {
         <TopNavigation title={'Consumptions'} buttons={[]} />
         <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
           <SortableTable
-            rows={this.getRow(consumptions)}
-            columns={this.getColumns(consumptions)}
+            rows={consumptions}
+            columns={this.columns}
             loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}

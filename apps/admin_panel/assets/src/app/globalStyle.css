@@ -136,3 +136,6 @@ a {
   opacity: 0;
   transform: translate3d(-50%,-40%,0);
 }
+.icon-omisego_Checked:before {
+  content: "\e906";
+}
