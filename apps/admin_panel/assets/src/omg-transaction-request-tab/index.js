@@ -30,8 +30,12 @@ const PanelContainer = styled.div`
   }
 `
 const ContentContainer = styled.div`
-  height: calc(100vh - 190px);
+  height: calc(100vh - 160px);
   overflow: auto;
+  table tr td {
+    height: 22px;
+    vertical-align: middle;
+  }
 
 `
 const TransactionReqeustPropertiesContainer = styled.div`
@@ -64,12 +68,25 @@ const SubDetailTitle = styled.div`
 const ConfirmButton = styled.button`
   display: inline-block;
   background-color: white;
+  cursor: pointer;
   border-radius: 2px;
-  padding: 5px 10px;
-  color: ${props => props.theme.colors.B200};
+  padding: 4px 10px;
   line-height: 10px;
+  color: ${props => props.theme.colors.B200};
   i {
     font-size: 10px;
+  }
+`
+const ConfirmButtonApprove = ConfirmButton.extend`
+  :hover {
+    color: #16826b;
+    background-color: #dcfaf4;
+  }
+`
+const ConfirmButtonReject = ConfirmButton.extend`
+  :hover {
+    color: #d51404;
+    background-color: #ffefed;
   }
 `
 const enhance = compose(
@@ -86,8 +103,10 @@ class TransactionRequestPanel extends Component {
     rejectConsumptionById: PropTypes.func,
     approveConsumptionById: PropTypes.func
   }
+
   constructor (props) {
     super(props)
+    this.state = {}
     this.columns = [
       { key: 'amount', title: 'AMOUNT', sort: true },
       { key: 'to', title: 'TO' },
@@ -95,8 +114,9 @@ class TransactionRequestPanel extends Component {
       { key: 'status', title: 'CONFIRMATION' }
     ]
   }
-  onClickConfirm = id => e => {
-    this.props.approveConsumptionById(id)
+  onClickConfirm = id => async e => {
+    const result = await this.props.approveConsumptionById(id)
+    console.log(result)
   }
   onClickReject = id => e => {
     this.props.rejectConsumptionById(id)
@@ -122,16 +142,25 @@ class TransactionRequestPanel extends Component {
         case 'pending':
           return (
             <div>
-              <ConfirmButton onClick={this.onClickConfirm(rows.id)}>
+              <ConfirmButtonApprove onClick={this.onClickConfirm(rows.id)}>
                 <Icon name='Checked' />
-              </ConfirmButton>
-              <ConfirmButton onClick={this.onClickReject(rows.id)}>
+              </ConfirmButtonApprove>
+              <ConfirmButtonReject onClick={this.onClickReject(rows.id)}>
                 <Icon name='Close' />
-              </ConfirmButton>
+              </ConfirmButtonReject>
             </div>
           )
+        case 'confirmed': {
+          return 'Confirmed'
+        }
+        case 'failed': {
+          return 'Failed'
+        }
+        case 'rejected': {
+          return 'Rejected'
+        }
         default:
-          return data
+          return <span>{data}</span>
       }
     }
     return data
@@ -140,6 +169,7 @@ class TransactionRequestPanel extends Component {
     return (
       <ConsumptionFetcherByTransactionIdFetcher
         id={queryString.parse(this.props.location.search)['show-request-tab']}
+        delayLoad={this.state.delayLoad}
         render={({ data, individualLoadingStatus, pagination }) => {
           return (
             <ContentContainer>
@@ -159,7 +189,7 @@ class TransactionRequestPanel extends Component {
         }}
         query={{
           page: queryString.parse(this.props.location.search)['page-activity'],
-          perPage: Math.floor(window.innerHeight / 60),
+          perPage: Math.floor(window.innerHeight / 65),
           uniqueId: queryString.parse(this.props.location.search)['show-request-tab']
         }}
       />
@@ -177,8 +207,7 @@ class TransactionRequestPanel extends Component {
         </div>
         <div>
           <b>Amount:</b>{' '}
-          {(transactionRequest.amount || 0) /
-                  _.get(transactionRequest, 'token.subunit_to_unit')}{' '}
+          {(transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')}{' '}
           {_.get(transactionRequest, 'token.symbol')}
         </div>
         <div>

@@ -36,7 +36,15 @@ export const createFetcher = (entity, reducer, selectors) => {
       static defaultProps = {
         onFetchComplete: _.noop
       }
-      state = { loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT, data: [] }
+
+      static getDerivedStateFromProps (props, state) {
+        const intersec = _.intersectionBy(props.data, state.data, d => d.id)
+        if (intersec.length && state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
+          return { data: props.data }
+        }
+        return null
+      }
+      state = { loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT, data: this.props.data }
 
       constructor (props) {
         super(props)
