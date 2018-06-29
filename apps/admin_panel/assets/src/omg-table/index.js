@@ -99,6 +99,7 @@ class SortableTable extends PureComponent {
   static defaultProps = {
     pageEntity: 'page'
   }
+
   constructor (props) {
     super(props)
     this._onClickPrev = _.throttle(this.onClickPrev, 500, {
@@ -275,6 +276,7 @@ class SortableTable extends PureComponent {
                 onClick={this._onClickPrev}
                 styleType='secondary'
                 disabled={this.props.isFirstPage}
+                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
               >
                 <Icon name='Chevron-Left' />
               </Button>
@@ -282,6 +284,7 @@ class SortableTable extends PureComponent {
                 onClick={this._onClickNext}
                 styleType='secondary'
                 disabled={this.props.isLastPage}
+                style={{ pointerEvent: this.props.loadingStatus !== 'SUCCESS' ? 'none' : 'auto' }}
               >
                 <Icon name='Chevron-Right' />
               </Button>

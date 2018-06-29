@@ -60,7 +60,6 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       componentDidUpdate = async nextProps => {
         if (this.props.cacheKey !== nextProps.cacheKey) {
-          delete this.fetched[nextProps.cacheKey]
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.PENDING })
           await this.fetchDebounce()
         }
@@ -108,12 +107,6 @@ export const createFetcher = (entity, reducer, selectors) => {
               this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
             }
           })
-          setTimeout(() => {
-            if (!this.fetched[this.props.cacheKey]) {
-              this.setState({ data: this.props.data })
-              console.log('fetching data taking too long... using cached data.')
-            }
-          }, 3000)
         } catch (error) {
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: this.props.data })
         }
