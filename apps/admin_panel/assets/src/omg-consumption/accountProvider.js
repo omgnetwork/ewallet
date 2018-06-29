@@ -1,7 +1,7 @@
 import { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { selectGetAccountById, selectAccountsLoadingStatus } from './selector'
+import { selectGetAccountById } from './selector'
 import { getAccountById } from './action'
 class AccountsProvider extends Component {
   static propTypes = {
