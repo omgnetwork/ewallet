@@ -9,6 +9,7 @@ import { Icon } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import QRCode from 'qrcode'
+import moment from 'moment'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -79,13 +80,24 @@ class TransactionRequestPanel extends Component {
   constructor (props) {
     super(props)
     this.columns = [
-      { key: 'id', title: 'REQUEST ID', sort: true },
-      { key: 'type', title: 'TYPE', sort: true },
+
       { key: 'amount', title: 'AMOUNT', sort: true },
-      { key: 'created_by', title: 'CREATED BY' },
+      { key: 'to', title: 'TO' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'require_confirmation', title: 'CONFIRMATION' }
+      { key: 'status', title: 'CONFIRMATION' }
     ]
+  }
+  rowRenderer = (key, data, rows) => {
+    if (key === 'amount') {
+      return <div>{data || 0} {_.get(rows, 'token.symbol')}</div>
+    }
+    if (key === 'created_at') {
+      return moment(data).format('DD/MM hh:mm:ss')
+    }
+    if (key === 'to') {
+      return <div>{rows.user_id || _.get(rows, 'account.name')}</div>
+    }
+    return data
   }
   renderActivityList = () => {
     return (
@@ -103,12 +115,13 @@ class TransactionRequestPanel extends Component {
                 isFirstPage={pagination.is_first_page}
                 isLastPage={pagination.is_last_page}
                 navigation
+                pageEntity={'page-activity'}
               />
             </div>
           )
         }}
         query={{
-          page: 1,
+          page: queryString.parse(this.props.location.search)['page-activity'],
           perPage: 10,
           uniqueId: queryString.parse(this.props.location.search)['show-request-tab']
         }}
@@ -130,7 +143,7 @@ class TransactionRequestPanel extends Component {
                 <b>Token ID:</b> {_.get(transactionRequest, 'token.id')}
               </div>
               <div>
-                <b>Amount:</b> {transactionRequest.amount || 0}
+                <b>Amount:</b> {transactionRequest.amount || 0} {_.get(transactionRequest, 'token.symbol')}
               </div>
               <div>
                 <b>address:</b> {transactionRequest.address}
@@ -163,6 +176,7 @@ class TransactionRequestPanel extends Component {
     const searchObject = queryString.parse(this.props.location.search)
     delete searchObject['active-tab']
     delete searchObject['show-request-tab']
+    delete searchObject['page-activity']
     this.props.history.push({
       search: queryString.stringify(searchObject)
     })

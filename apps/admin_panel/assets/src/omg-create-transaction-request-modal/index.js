@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Button, Icon, RadioButton } from '../omg-uikit'
+import { Input, Button, Icon, RadioButton, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createTransactionRequest } from '../omg-transaction-request/action'
 import { connect } from 'react-redux'
+import TokensFetcher from '../omg-token/tokensFetcher'
+import WalletsFetcher from '../omg-wallet/walletsFetcher'
+import { selectPrimaryWalletCurrentAccount } from '../omg-wallet/selector'
+import {withRouter} from 'react-router-dom'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -32,6 +36,9 @@ const InnerContainer = styled.div`
   text-align: center;
 `
 const StyledInput = styled(Input)`
+  margin-top: 10px;
+`
+const StyledSelect = styled(Select)`
   margin-top: 10px;
 `
 const StyledRadioButton = styled(RadioButton)`
@@ -70,9 +77,11 @@ class CreateTokenModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    createTransactionRequest: PropTypes.func
+    createTransactionRequest: PropTypes.func,
+    primaryWallet: PropTypes.object,
+    match: PropTypes.object
   }
-  state = {}
+  state = { selectedToken: {} }
   onRequestClose = () => {
     this.setState({})
     this.props.onRequestClose()
@@ -83,7 +92,10 @@ class CreateTokenModal extends Component {
     try {
       const result = await this.props.createTransactionRequest({
         ...this.state,
-        type: this.state.type ? 'send' : 'recieve'
+        type: this.state.type ? 'send' : 'receive',
+        amount: this.state.amount * _.get(this.state.selectedToken, 'subunit_to_unit'),
+        tokenId: this.state.selectedToken.id,
+        address: this.state.address || this.props.primaryWallet.address
       })
       if (result.data) {
         this.onRequestClose()
@@ -103,8 +115,14 @@ class CreateTokenModal extends Component {
   onRadioChange = key => bool => e => {
     this.setState({ [key]: bool })
   }
+  onChangeSearchToken = e => {
+    this.setState({ searchTokenValue: e.target.value, selectedToken: {} })
+  }
+  onSelectTokenSelect = token => {
+    this.setState({ searchTokenValue: token.value, selectedToken: token })
+  }
 
-  render () {
+  render = () => {
     return (
       <Modal
         isOpen={this.props.open}
@@ -185,12 +203,31 @@ class CreateTokenModal extends Component {
               />
             </InputLabelContainer>
             <InputLabelContainer>
-              <InputLabel>Token Id </InputLabel>
-              <StyledInput
-                normalPlaceholder='tk-0x00000000'
-                autofocus
-                value={this.state.tokenId}
-                onChange={this.onChange('tokenId')}
+              <InputLabel>Token</InputLabel>
+              <TokensFetcher
+                render={({ individualLoadingStatus, data }) => {
+                  return (
+                    <StyledSelect
+                      normalPlaceholder='tk-0x00000000'
+                      autofocus
+                      value={this.state.selectedToken.name}
+                      onSelectItem={this.onSelectTokenSelect}
+                      onChange={this.onChangeSearchToken}
+                      options={
+                        individualLoadingStatus === 'SUCCESS'
+                          ? data.map(b => ({
+                            ...{
+                              key: b.id,
+                              value: `${b.name} (${b.symbol})`
+                            },
+                            ...b
+                          }))
+                          : []
+                      }
+                    />
+                  )
+                }}
+                query={{ page: 1, perPage: 10, search: this.state.tokenId }}
               />
             </InputLabelContainer>
             <InputLabelContainer>
@@ -221,11 +258,18 @@ class CreateTokenModal extends Component {
               <InputLabel>
                 Wallet address <span>( Optional )</span>
               </InputLabel>
-              <StyledInput
-                normalPlaceholder='0x00000000'
-                autofocus
-                value={this.state.address}
-                onChange={this.onChange('address')}
+              <WalletsFetcher
+                accountId={this.props.match.params.accountId}
+                render={() => {
+                  return (
+                    <StyledInput
+                      normalPlaceholder='0x00000000'
+                      autofocus
+                      value={this.state.address}
+                      onChange={this.onChange('address')}
+                    />
+                  )
+                }}
               />
             </InputLabelContainer>
             <InputLabelContainer>
@@ -285,7 +329,7 @@ class CreateTokenModal extends Component {
   }
 }
 
-export default connect(
-  null,
+export default withRouter(connect(
+  state => ({ primaryWallet: selectPrimaryWalletCurrentAccount(state) }),
   { createTransactionRequest }
-)(CreateTokenModal)
+)(CreateTokenModal))

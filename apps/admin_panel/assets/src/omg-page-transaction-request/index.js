@@ -100,7 +100,7 @@ class TransactionRequestsPage extends Component {
       )
     }
     if (key === 'amount') {
-      return `${(data || 0).toLocaleString()} ${rows.token.symbol}`
+      return `${(data / rows.token.subunit_to_unit || 0).toLocaleString()} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
       return rows.user_id || rows.account.name || rows.account_id

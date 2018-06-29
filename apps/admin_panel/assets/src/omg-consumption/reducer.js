@@ -6,6 +6,9 @@ export const consumptionsReducer = createReducer(
     'CONSUMPTIONS/REQUEST/SUCCESS': (state, action) => {
       return { ...state, ..._.keyBy(action.data, 'id') }
     },
+    'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
+      return { ...state, ..._.keyBy(action.data, 'id') }
+    },
     'CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     },

@@ -73,7 +73,6 @@ const NavigationContainer = styled.div`
   > button {
     padding: 5px 10px;
     :hover {
-
     }
   }
   > button:first-child {
@@ -100,6 +99,17 @@ class SortableTable extends PureComponent {
   }
   static defaultProps = {
     pageEntity: 'page'
+  }
+  constructor (props) {
+    super(props)
+    this._onClickPrev = _.throttle(this.onClickPrev, 500, {
+      leading: true,
+      trailing: true
+    })
+    this._onClickNext = _.throttle(this.onClickNext, 500, {
+      leading: true,
+      trailing: true
+    })
   }
 
   onSelectFilter = (col, item) => {
@@ -262,10 +272,18 @@ class SortableTable extends PureComponent {
         {this.props.navigation &&
           this.props.loadingStatus !== 'INITIATED' && (
             <NavigationContainer>
-              <Button onClick={this.onClickPrev} styleType='secondary' disabled={this.props.isFirstPage}>
+              <Button
+                onClick={this._onClickPrev}
+                styleType='secondary'
+                disabled={this.props.isFirstPage}
+              >
                 <Icon name='Chevron-Left' />
               </Button>
-              <Button onClick={this.onClickNext} styleType='secondary' disabled={this.props.isLastPage}>
+              <Button
+                onClick={this._onClickNext}
+                styleType='secondary'
+                disabled={this.props.isLastPage}
+              >
                 <Icon name='Chevron-Right' />
               </Button>
             </NavigationContainer>
