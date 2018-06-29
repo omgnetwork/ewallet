@@ -13,7 +13,7 @@ defmodule AdminAPI.ChannelCase do
   of the test unless the test case is marked as async.
   """
 
-  use ExUnit.CaseTemplate
+  use ExUnit.CaseTemplate, async: false
   alias Ecto.Adapters.SQL.Sandbox
 
   using do
