@@ -86,3 +86,5 @@ export function getTransactionRequestById (id) {
     data: { formatted_id: id }
   })
 }
+
+window.consume = consumeTransactionRequest

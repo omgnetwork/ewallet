@@ -12,6 +12,8 @@ import { withRouter } from 'react-router-dom'
 import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
+import TransactionRequestPanel from '../omg-transaction-request-tab'
+import queryString from 'query-string'
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -90,7 +92,8 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
 
 class AppLayout extends Component {
   static propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
+    location: PropTypes.object
   }
   state = {
     switchAccount: false
@@ -106,6 +109,7 @@ class AppLayout extends Component {
     this.contentContainer.scrollTo(0, 0)
   }
   render () {
+    const searchObject = queryString.parse(this.props.location.search)
     return (
       <Container>
         <LoadingBar style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
@@ -127,6 +131,9 @@ class AppLayout extends Component {
           </Content>
         </ContentContainer>
         <Alert />
+        {searchObject['show-request-tab'] && (
+          <TransactionRequestPanel />
+        )}
       </Container>
     )
   }

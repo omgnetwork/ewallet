@@ -7,7 +7,9 @@ export const selectTransactionRequestsCachedQuery = state => cacheKey => {
   })
 }
 
-export const selectGetTransactionRequestById = state => id => state.transactionRequests[id]
+export const selectGetTransactionRequestById = state => id => {
+  return state.transactionRequests[id] || {}
+}
 
 export const selectTransactionRequestsLoadingStatus = state => state.transactionRequestsLoadingStatus
 

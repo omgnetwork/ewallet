@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
-import { Button, Icon, Avatar } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import CreateTransactionRequestModal from '../omg-create-transaction-request-modal'
 import ExportModal from '../omg-export-modal'
 import TransactionRequestsFetcher from '../omg-transaction-request/transactionRequestsFetcher'
@@ -80,8 +80,13 @@ class TransactionRequestsPage extends Component {
     )
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/account/${data.id}`)
+    const searchObject = queryString.parse(this.props.location.search)
+    this.props.history.push({
+      search: queryString.stringify({
+        ...searchObject,
+        [`show-request-tab`]: data.id
+      })
+    })
   }
   rowRenderer (key, data, rows) {
     if (key === 'require_confirmation') {
