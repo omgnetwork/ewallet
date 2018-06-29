@@ -215,6 +215,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",
       description: "No wallet was found with the given exchange_wallet_address param."
+    },
+    exchange_not_allowed: %{
+      code: "exchange:not_allowed",
+      description: "Exchange consumptions cannot be made through the client API."
     }
   }
 

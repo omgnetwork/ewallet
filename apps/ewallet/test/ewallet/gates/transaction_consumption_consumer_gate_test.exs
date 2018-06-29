@@ -1228,7 +1228,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert error == :unauthorized_amount_override
     end
 
-    test "returns an error if the tokens are different without pair", meta do
+    test "returns an error for user consumption with different tokens", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       different_token = insert(:token)
 
@@ -1244,7 +1244,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :error
-      assert error == :exchange_pair_not_found
+      assert error == :exchange_not_allowed
     end
 
     test "returns an error if the consumption tries to set an amount equal to 0", meta do

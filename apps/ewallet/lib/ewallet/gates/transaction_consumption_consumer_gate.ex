@@ -147,6 +147,24 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
           {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
   def consume(
         %User{} = user,
+        %{
+          "formatted_transaction_request_id" => formatted_transaction_request_id,
+          "token_id" => token_id
+        } = attrs
+      )
+      when not is_nil(token_id) do
+    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]),
+         {:ok, request} <- TransactionRequestFetcher.get(formatted_transaction_request_id),
+         true <- request.token.id == token_id || :exchange_not_allowed do
+      consume(wallet, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error -> error
+    end
+  end
+
+  def consume(
+        %User{} = user,
         attrs
       ) do
     with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]) do
@@ -234,8 +252,24 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     end
   end
 
-  defp get_calculation(%TransactionRequest{type: "send", amount: nil} = request, amount, token) do
-    with {:ok, calculation} <- Exchange.calculate(nil, request.token, amount, token) do
+  defp get_calculation(%TransactionRequest{allow_amount_override: true} = request, nil, token) do
+    do_calculation(request.type, request.amount, request.token, nil, token)
+  end
+
+  defp get_calculation(%TransactionRequest{allow_amount_override: true} = request, amount, token) do
+    do_calculation(request.type, nil, request.token, amount, token)
+  end
+
+  defp get_calculation(
+         %TransactionRequest{allow_amount_override: false} = request,
+         _amount,
+         token
+       ) do
+    do_calculation(request.type, request.amount, request.token, nil, token)
+  end
+
+  defp do_calculation("send", request_amount, request_token, amount, token) do
+    with {:ok, calculation} <- Exchange.calculate(request_amount, request_token, amount, token) do
       {:ok, calculation,
        %{
          request_amount: calculation.from_amount,
@@ -246,36 +280,8 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     end
   end
 
-  defp get_calculation(
-         %TransactionRequest{type: "send", amount: request_amount} = request,
-         nil,
-         token
-       ) do
-    with {:ok, calculation} <- Exchange.calculate(request_amount, request.token, nil, token) do
-      {:ok, calculation,
-       %{
-         request_amount: calculation.from_amount,
-         consumption_amount: calculation.to_amount
-       }}
-    else
-      error -> error
-    end
-  end
-
-  defp get_calculation(
-         %TransactionRequest{type: "send", amount: request_amount} = _request,
-         amount,
-         _token
-       ) do
-    {:ok, %{},
-     %{
-       request_amount: request_amount,
-       consumption_amount: amount
-     }}
-  end
-
-  defp get_calculation(%TransactionRequest{type: "receive", amount: nil} = request, amount, token) do
-    with {:ok, calculation} <- Exchange.calculate(amount, token, nil, request.token) do
+  defp do_calculation("receive", request_amount, request_token, amount, token) do
+    with {:ok, calculation} <- Exchange.calculate(amount, token, request_amount, request_token) do
       {:ok, calculation,
        %{
          request_amount: calculation.to_amount,
@@ -284,33 +290,5 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     else
       error -> error
     end
-  end
-
-  defp get_calculation(
-         %TransactionRequest{type: "receive", amount: request_amount} = request,
-         nil,
-         token
-       ) do
-    with {:ok, calculation} <- Exchange.calculate(nil, token, request_amount, request.token) do
-      {:ok, calculation,
-       %{
-         request_amount: calculation.to_amount,
-         consumption_amount: calculation.from_amount
-       }}
-    else
-      error -> error
-    end
-  end
-
-  defp get_calculation(
-         %TransactionRequest{type: "receive", amount: request_amount} = _request,
-         amount,
-         _token
-       ) do
-    {:ok, %{},
-     %{
-       request_amount: request_amount,
-       consumption_amount: amount
-     }}
   end
 end

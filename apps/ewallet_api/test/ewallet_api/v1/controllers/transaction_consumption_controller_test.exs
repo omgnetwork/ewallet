@@ -537,5 +537,39 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                }
              }
     end
+
+    test "fails to consume a comsumption that involves exchange",
+         meta do
+      account = Account.get_master_account()
+      token_2 = insert(:token)
+      insert(:exchange_pair, from_token: meta.token, to_token: token_2)
+      mint!(token_2)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit,
+          exchange_account_uuid: account.uuid
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          token_id: token_2.id
+        })
+
+      assert response["success"] == false
+    end
   end
 end

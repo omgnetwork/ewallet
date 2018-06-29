@@ -68,12 +68,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
       from: %{
         address: request.wallet_address,
         token_id: consumption.token.id,
-        amount: consumption.amount || request.amount
+        amount: consumption.estimated_request_amount
       },
       to: %{
         address: consumption.wallet_address,
         token_id: consumption.token.id,
-        amount: consumption.amount || request.amount
+        amount: consumption.estimated_consumption_amount
       }
     })
   end
@@ -86,12 +86,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
       from: %{
         address: request.wallet_address,
         token_id: request.token.id,
-        amount: request.amount
+        amount: consumption.estimated_request_amount
       },
       to: %{
         address: consumption.wallet_address,
         token_id: consumption.token.id,
-        amount: consumption.amount
+        amount: consumption.estimated_consumption_amount
       }
     })
   end
@@ -105,12 +105,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
       from: %{
         address: consumption.wallet_address,
         token_id: consumption.token.id,
-        amount: consumption.amount || request.amount
+        amount: consumption.estimated_consumption_amount
       },
       to: %{
         address: request.wallet_address,
         token_id: consumption.token.id,
-        amount: consumption.amount || request.amount
+        amount: consumption.estimated_request_amount
       }
     })
   end
@@ -123,12 +123,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
       from: %{
         address: consumption.wallet_address,
         token_id: consumption.token.id,
-        amount: consumption.amount
+        amount: consumption.estimated_consumption_amount
       },
       to: %{
         address: request.wallet_address,
         token_id: request.token.id,
-        amount: request.amount
+        amount: consumption.estimated_request_amount
       }
     })
   end
