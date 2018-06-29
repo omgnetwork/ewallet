@@ -2,12 +2,13 @@ import * as transactionRequestService from '../services/transactionRequestServic
 
 export const getTransactionRequests = ({ page, perPage, search, cacheKey }) => async dispatch => {
   dispatch({ type: 'TRANSACTION_REQUEST/REQUEST/INITIATED' })
+  console.log(search)
   try {
     const result = await transactionRequestService.getTransactionRequests({
       perPage: perPage,
       page,
       sort: { by: 'created_at', dir: 'desc' },
-      search_term: search
+      search
     })
     if (result.data.success) {
       return dispatch({
