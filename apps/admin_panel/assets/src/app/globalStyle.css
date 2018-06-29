@@ -83,21 +83,21 @@ a {
   z-index: 2;
 }
 .fade-enter {
-  opacity: 0!important;
-  transition: opacity 0.3s ease-in;
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
 }
 .fade-enter-active {
-  opacity: 1!important;
-  transition: opacity 0.3s ease-in;
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
 }
 .fade-exit {
-  opacity: 0!important; 
-  transition: opacity 0.3s ease-in;
+  opacity: 0; 
+  transition: opacity 0.2s ease-in;
 }
 .fade-exit-active {
-  transition: opacity 0.3s ease-in;
-  opacity: 0!important;
-  transition: opacity 0.3s ease-in;
+  transition: opacity 0.2s ease-in;
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
 }
 
 /* react modal */
