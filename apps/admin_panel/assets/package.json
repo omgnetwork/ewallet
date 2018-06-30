@@ -36,6 +36,7 @@
     "babel-preset-env": "^1.4.0",
     "btoa": "^1.1.2",
     "chart.js": "^2.7.2",
+    "copy-to-clipboard": "^3.0.8",
     "css-loader": "^0.26.1",
     "dotenv": "^5.0.1",
     "dotenv-webpack": "^1.5.5",

@@ -10,6 +10,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import { selectWallets } from '../omg-wallet/selector'
+import Copy from '../omg-copy'
 const WalletPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -31,9 +32,16 @@ const WalletAddressContainer = styled.div`
   span {
     vertical-align: middle;
   }
-  i {
+  i[name="Wallet"] {
     color: ${props => props.theme.colors.BL400};
     margin-right: 5px;
+  }
+  i[name="Copy"] {
+    margin-left: 5px;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const SortableTableContainer = styled.div`
@@ -122,7 +130,7 @@ class WalletPage extends Component {
     if (key === 'address') {
       return (
         <WalletAddressContainer>
-          <Icon name='Wallet' /> <span>{data}</span>
+          <Icon name='Wallet' /> <span>{data}</span> <Copy data={data} />
         </WalletAddressContainer>
       )
     }

@@ -22,7 +22,8 @@ const Container = styled.div`
 const SideNav = styled(SideNavigation)`
   display: inline-block;
   vertical-align: top;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
+  max-width : 240px;
 `
 
 const ContentContainer = styled.div`

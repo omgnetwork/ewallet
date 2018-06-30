@@ -7,6 +7,9 @@ export const alertsReducer = createReducer([], {
   'ALERTS/CLEAR': (state, { id }) => {
     return state.filter(alert => alert.id !== id)
   },
+  'COPY_TO_CLIPBAORD': (state, { data }) => {
+    return [...state, createAlertState(`Copied ${data} to clipboard.`)]
+  },
   'API_KEY/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Api key has successfully created.')]
   },
@@ -37,8 +40,7 @@ export const alertsReducer = createReducer([], {
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
     return [...state, createAlertState(`Transfer successfully.`)]
   },
-  'TRANSACTION_REQUEST/CREATE/SUCCESS': (state) => {
+  'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
     return [...state, createAlertState(`Transaction request has successfully created.`)]
   }
-
 })
