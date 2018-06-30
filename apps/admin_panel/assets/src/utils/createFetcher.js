@@ -40,11 +40,15 @@ export const createFetcher = (entity, reducer, selectors) => {
       static getDerivedStateFromProps (props, state) {
         const intersec = _.intersectionBy(props.data, state.data, d => d.id)
         if (intersec.length && state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
-          return { data: props.data }
+          return { data: props.data, pagination: props.pagination }
         }
         return null
       }
-      state = { loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT, data: this.props.data }
+      state = {
+        loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT,
+        data: this.props.data,
+        pagination: this.props.pagination
+      }
 
       constructor (props) {
         super(props)
@@ -100,7 +104,8 @@ export const createFetcher = (entity, reducer, selectors) => {
             if (result.data) {
               this.setState({
                 loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
-                data: this.props.data
+                data: this.props.data,
+                pagination: this.props.pagination
               })
               this.props.onFetchComplete()
             } else {
@@ -108,7 +113,11 @@ export const createFetcher = (entity, reducer, selectors) => {
             }
           })
         } catch (error) {
-          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: this.props.data })
+          this.setState({
+            loadingStatus: CONSTANT.LOADING_STATUS.FAILED,
+            data: this.props.data,
+            pagination: this.props.pagination
+          })
         }
       }
 
@@ -122,7 +131,11 @@ export const createFetcher = (entity, reducer, selectors) => {
           data:
             this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
               ? this.props.data
-              : this.state.data
+              : this.state.data,
+          pagination:
+            this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
+              ? this.props.pagination
+              : this.state.pagination
         })
       }
     }
