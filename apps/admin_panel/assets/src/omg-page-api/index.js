@@ -14,6 +14,7 @@ import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
 import { generateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
+import Copy from '../omg-copy'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -52,6 +53,11 @@ const ConfirmCreateKeyContainer = styled.div`
     width: 370px;
     padding: 5px;
     margin-top: 5px;
+    margin-right: 5px;
+  }
+  i {
+    color: ${props => props.theme.colors.S500};
+    cursor: pointer;
   }
 `
 const KeyContainer = styled.div`
@@ -302,11 +308,11 @@ class ApiKeyPage extends Component {
                   </p>
                   <InputContainer>
                     <InputLabel>Private key</InputLabel>
-                    <input value={this.state.privateKey} spellCheck='false' />
+                    <input value={this.state.privateKey} spellCheck='false' /><Copy data={this.state.privateKey} />
                   </InputContainer>
                   <InputContainer>
                     <InputLabel>Public Key</InputLabel>
-                    <input value={this.state.publicKey} spellCheck='false' />
+                    <input value={this.state.publicKey} spellCheck='false' /><Copy data={this.state.privateKey} />
                   </InputContainer>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>

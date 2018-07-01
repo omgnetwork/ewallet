@@ -57,7 +57,7 @@ class ConsumptionPage extends Component {
       { key: 'amount', title: 'AMOUNT', sort: true },
       { key: 'created_by', title: 'TO' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'require_confirmation', title: 'CONFIRMATION' }
+      { key: 'status', title: 'STATUS' }
     ]
   }
   renderCreateAccountButton = () => {
