@@ -10,7 +10,7 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { formatNumber } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
-
+import WalletsFetcher from '../omg-wallet/walletsFetcher.js'
 const Form = styled.form`
   padding: 50px;
   width: 350px;
@@ -154,26 +154,41 @@ class CreateTransactionModal extends Component {
         onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
       >
-        <WalletProvider
-          walletAddress={this.state.fromAddress}
-          render={({ wallet }) => {
-            return (
-              <Form onSubmit={this.onSubmit} noValidate>
-                <Icon name='Close' onClick={this.props.onRequestClose} />
-                <h4>Transfer Token</h4>
-                <InputLabel>From</InputLabel>
+        <Form onSubmit={this.onSubmit} noValidate>
+          <Icon name='Close' onClick={this.props.onRequestClose} />
+          <h4>Transfer Token</h4>
+          <InputLabel>From Address</InputLabel>
+          <WalletsFetcher
+            query={{}}
+            page={1}
+            perpage={5}
+            render={() => {
+              return (
                 <Input
                   normalPlaceholder='acc_0x000000000000000'
                   value={this.state.fromAddress}
                   onChange={this.onChangeInputFromAddress}
                 />
-                <InputLabel>To Address</InputLabel>
+              )
+            }}
+          />
+          <InputLabel>To Address</InputLabel>
+          <WalletsFetcher
+            render={() => {
+              return (
                 <Input
                   normalPlaceholder='acc_0x000000000000000'
                   value={this.state.toAddress}
                   onChange={this.onChangeInputToAddress}
                 />
-                <InputLabel>Token</InputLabel>
+              )
+            }}
+          />
+          <InputLabel>Token</InputLabel>
+          <WalletProvider
+            walletAddress={this.state.fromAddress}
+            render={({ wallet }) => {
+              return (
                 <Select
                   normalPlaceholder='Token'
                   onSelectItem={this.onSelectTokenSelect}
@@ -192,19 +207,19 @@ class CreateTransactionModal extends Component {
                       : []
                   }
                 />
-                <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken()}</BalanceTokenLabel>
-                <InputLabel>Amount</InputLabel>
-                <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
-                <ButtonContainer>
-                  <Button size='small' type='submit' loading={this.state.submitting}>
-                    Transfer
-                  </Button>
-                </ButtonContainer>
-                <Error error={this.state.error}>{this.state.error}</Error>
-              </Form>
-            )
-          }}
-        />
+              )
+            }}
+          />
+          <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken()}</BalanceTokenLabel>
+          <InputLabel>Amount</InputLabel>
+          <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
+          <ButtonContainer>
+            <Button size='small' type='submit' loading={this.state.submitting}>
+              Transfer
+            </Button>
+          </ButtonContainer>
+          <Error error={this.state.error}>{this.state.error}</Error>
+        </Form>
       </Modal>
     )
   }
