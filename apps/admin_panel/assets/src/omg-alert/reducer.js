@@ -15,7 +15,8 @@ export const alertsReducer = createReducer([], {
         <div>
           Copied <b>{data}</b> to clipboard.
         </div>
-      )
+      , 'success')
+
     ]
   },
   'API_KEY/CREATE/SUCCESS': state => {

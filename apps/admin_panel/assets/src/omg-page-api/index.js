@@ -54,10 +54,15 @@ const ConfirmCreateKeyContainer = styled.div`
     padding: 5px;
     margin-top: 5px;
     margin-right: 5px;
+    color: ${props => props.theme.colors.B100};
   }
-  i {
-    color: ${props => props.theme.colors.S500};
+  i[name="Copy"] {
+    margin-left: 5px;
     cursor: pointer;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const KeyContainer = styled.div`
@@ -163,7 +168,7 @@ class ApiKeyPage extends Component {
       )
     }
     if (key === 'status_access') {
-      return data ? 'enabled' : 'disabled'
+      return data ? 'disabled' : 'enabled'
     }
     if (key === 'key') {
       return (
@@ -250,7 +255,7 @@ class ApiKeyPage extends Component {
           perPage: 5
         }}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
+          const apiKeysRows = data.map(key => {
             return {
               key: key.access_key,
               id: key.access_key,
