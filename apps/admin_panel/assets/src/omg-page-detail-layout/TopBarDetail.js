@@ -37,9 +37,9 @@ export default class TopBarDetail extends Component {
           <Breadcrumb items={this.props.breadcrumbItems} />
         </TopBarTitle>
         <TopBarAction>
-          <Button styleType='ghost' size='small'>
+          {/* <Button styleType='ghost' size='small'>
             <Icon name='Export' />Export
-          </Button>
+          </Button> */}
           {this.props.buttons}
         </TopBarAction>
       </TopBar>

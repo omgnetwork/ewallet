@@ -10,6 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import { formatNumber } from '../utils/formatter'
 const ConsumptionPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -86,7 +87,7 @@ class ConsumptionPage extends Component {
       return _.get(rows, 'transaction_request.type')
     }
     if (key === 'amount') {
-      return `${(data / rows.token.subunit_to_unit || 0).toLocaleString()} ${rows.token.symbol}`
+      return `${formatNumber(data / rows.token.subunit_to_unit || 0)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
       return rows.user_id || rows.account.name || rows.account_id
@@ -102,7 +103,7 @@ class ConsumptionPage extends Component {
   renderConsumptionPage = ({ data: consumptions, individualLoadingStatus, pagination, fetch }) => {
     return (
       <ConsumptionPageContainer>
-        <TopNavigation title={'Consumptions'} buttons={[]} />
+        <TopNavigation title={'Transaction Consumptions'} buttons={[]} />
         <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
           <SortableTable
             rows={consumptions}

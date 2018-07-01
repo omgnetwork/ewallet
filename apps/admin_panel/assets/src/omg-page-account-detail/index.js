@@ -27,7 +27,10 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 
-const enhance = compose(withTheme, withRouter)
+const enhance = compose(
+  withTheme,
+  withRouter
+)
 class AccountDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
@@ -129,7 +132,7 @@ class AccountDetailPage extends Component {
   renderAccountDetailPage = ({ account, loadingStatus }) => {
     return (
       <AccountDetailContainer>
-        {account ? this.renderAccountDetailContainer(account) : 'loading'}
+        {account && this.renderAccountDetailContainer(account)}
       </AccountDetailContainer>
     )
   }

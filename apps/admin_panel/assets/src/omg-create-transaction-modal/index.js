@@ -8,6 +8,7 @@ import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import { formatNumber } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
 
 const Form = styled.form`
@@ -69,7 +70,7 @@ class CreateTransactionModal extends Component {
     onCreateTransaction: PropTypes.func
   }
   static defaultProps = {
-    onCreateTransaction: PropTypes.func
+    onCreateTransaction: _.noop
   }
   initialState = {
     submitting: false,
@@ -139,10 +140,12 @@ class CreateTransactionModal extends Component {
     if (_.get(this.state.selectedToken, 'amount') === 0) {
       return 0
     }
-    return (
-      _.get(this.state.selectedToken, 'amount') /
-        _.get(this.state.selectedToken, 'token.subunit_to_unit') || '-'
-    )
+    return this.state.selectedToken
+      ? formatNumber(
+          _.get(this.state.selectedToken, 'amount') /
+            _.get(this.state.selectedToken, 'token.subunit_to_unit')
+        )
+      : '-'
   }
   render () {
     return (

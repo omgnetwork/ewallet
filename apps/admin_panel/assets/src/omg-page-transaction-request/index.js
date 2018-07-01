@@ -10,6 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import { formatNumber } from '../utils/formatter'
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -100,7 +101,7 @@ class TransactionRequestsPage extends Component {
       )
     }
     if (key === 'amount') {
-      return `${(data / rows.token.subunit_to_unit || 0).toLocaleString()} ${rows.token.symbol}`
+      return `${formatNumber(data / rows.token.subunit_to_unit || 0)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
       return rows.user_id || rows.account.name || rows.account_id

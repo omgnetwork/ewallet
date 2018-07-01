@@ -10,6 +10,7 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
+import { formatNumber } from '../utils/formatter'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -97,7 +98,7 @@ class TokenDetailPage extends Component {
           return (
             <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b>{' '}
-              <span>{(balance.amount / balance.token.subunit_to_unit).toLocaleString()}</span>
+              <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span>
             </DetailGroup>
           )
         })}

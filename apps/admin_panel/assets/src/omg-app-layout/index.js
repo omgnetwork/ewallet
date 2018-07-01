@@ -113,7 +113,7 @@ class AppLayout extends Component {
     const searchObject = queryString.parse(this.props.location.search)
     return (
       <Container>
-        <LoadingBar style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
+        <LoadingBar updateTime={300} style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
         <SideNav
           switchAccount={this.state.switchAccount}
           onClickSwitchAccount={this.onClickSwitchAccount}

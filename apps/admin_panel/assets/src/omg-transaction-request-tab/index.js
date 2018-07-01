@@ -13,6 +13,7 @@ import moment from 'moment'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
+import { formatNumber } from '../utils/formatter'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -36,7 +37,6 @@ const ContentContainer = styled.div`
     height: 22px;
     vertical-align: middle;
   }
-
 `
 const TransactionReqeustPropertiesContainer = styled.div`
   > img {
@@ -125,7 +125,7 @@ class TransactionRequestPanel extends Component {
     if (key === 'amount') {
       return (
         <div>
-          {((data || 0) / _.get(rows, 'token.subunit_to_unit')).toLocaleString()}{' '}
+          {formatNumber(data || 0) / _.get(rows, 'token.subunit_to_unit')}{' '}
           {_.get(rows, 'token.symbol')}
         </div>
       )
@@ -207,7 +207,8 @@ class TransactionRequestPanel extends Component {
         </div>
         <div>
           <b>Amount:</b>{' '}
-          {(transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')}{' '}
+          {formatNumber(transactionRequest.amount || 0) /
+            _.get(transactionRequest, 'token.subunit_to_unit')}{' '}
           {_.get(transactionRequest, 'token.symbol')}
         </div>
         <div>
@@ -261,7 +262,8 @@ class TransactionRequestPanel extends Component {
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>
-                Request to {tq.type} {(tq.amount || 0) / _.get(tq, 'token.subunit_to_unit')}{' '}
+                Request to {tq.type}{' '}
+                {formatNumber((tq.amount || 0) / _.get(tq, 'token.subunit_to_unit'))}{' '}
                 {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>
