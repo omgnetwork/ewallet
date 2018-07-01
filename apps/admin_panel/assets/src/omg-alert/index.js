@@ -72,7 +72,7 @@ class AlertItem extends Component {
   componentDidMount = () => {
     setTimeout(() => {
       this.props.clearAlert(this.props.id)
-    }, 199999)
+    }, 5000)
   }
 
   render () {
