@@ -2,6 +2,15 @@ defmodule EWalletDB.CategoryTest do
   use EWalletDB.SchemaCase
   alias EWalletDB.Category
 
+  defp insert_category(accounts) do
+    account_ids = Enum.map(accounts, fn account -> account.id end)
+
+    :category
+    |> params_for()
+    |> Map.put(:account_ids, account_ids)
+    |> Category.insert()
+  end
+
   describe "Category factory" do
     test_has_valid_factory(Category)
   end
@@ -39,12 +48,7 @@ defmodule EWalletDB.CategoryTest do
     test "associates the account if it's been added to account_ids" do
       # Prepare 4 accounts. We will start off the category with 2, add 1, and leave one behind.
       [acc1, acc2, acc3, _not_used] = insert_list(4, :account)
-
-      {:ok, category} =
-        :category
-        |> params_for()
-        |> Map.put(:account_ids, [acc1.id, acc2.id])
-        |> Category.insert()
+      {:ok, category} = insert_category([acc1, acc2])
 
       # Make sure that the category has 2 accounts
       assert_accounts(category, [acc1, acc2])
@@ -58,12 +62,7 @@ defmodule EWalletDB.CategoryTest do
 
     test "removes the account if it's no longer in the account_ids" do
       [acc1, acc2] = insert_list(2, :account)
-
-      {:ok, category} =
-        :category
-        |> params_for()
-        |> Map.put(:account_ids, [acc1.id, acc2.id])
-        |> Category.insert()
+      {:ok, category} = insert_category([acc1, acc2])
 
       # Make sure that the category has 2 accounts
       assert_accounts(category, [acc1, acc2])
@@ -77,12 +76,7 @@ defmodule EWalletDB.CategoryTest do
 
     test "removes all accounts if account_ids is an empty list" do
       [acc1, acc2] = insert_list(2, :account)
-
-      {:ok, category} =
-        :category
-        |> params_for()
-        |> Map.put(:account_ids, [acc1.id, acc2.id])
-        |> Category.insert()
+      {:ok, category} = insert_category([acc1, acc2])
 
       # Make sure that the category has 2 accounts
       assert_accounts(category, [acc1, acc2])
@@ -96,12 +90,7 @@ defmodule EWalletDB.CategoryTest do
 
     test "does nothing if account_ids is nil" do
       [acc1, acc2] = insert_list(2, :account)
-
-      {:ok, category} =
-        :category
-        |> params_for()
-        |> Map.put(:account_ids, [acc1.id, acc2.id])
-        |> Category.insert()
+      {:ok, category} = insert_category([acc1, acc2])
 
       # Make sure that the category has 2 accounts
       assert_accounts(category, [acc1, acc2])
@@ -134,6 +123,20 @@ defmodule EWalletDB.CategoryTest do
 
   describe "delete/1" do
     test_delete_causes_record_deleted(Category)
+
+    test "returns :category_not_empty error if the category has associated accounts" do
+      account = insert(:account)
+      {:ok, category} = insert_category([account])
+
+      # Make sure that the category has an account
+      assert_accounts(category, [account])
+
+      {res, code} = Category.delete(category)
+
+      assert res == :error
+      assert code == :category_not_empty
+      refute category.id |> Category.get() |> Category.deleted?()
+    end
   end
 
   describe "restore/1" do

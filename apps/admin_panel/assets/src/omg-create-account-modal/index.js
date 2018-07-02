@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import styled from 'styled-components'
 import CreateAccountStage from './CreateAccountStage'
 import ChooseCategoryStage from './ChooseCategoryStage'
@@ -9,22 +9,7 @@ import { createAccount } from '../omg-account/action'
 import { getCategories } from '../omg-account-category/action'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: 0,
-    overflow: 'hidden'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
+
 const CreateAccountContainer = styled.div`
   position: relative;
   text-align: center;
@@ -151,7 +136,6 @@ class CreateAccountModal extends Component {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
-        style={customStyles}
         contentLabel='create account modal'
         shouldCloseOnOverlayClick={false}
       >

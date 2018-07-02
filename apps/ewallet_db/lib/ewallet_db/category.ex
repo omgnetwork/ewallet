@@ -115,10 +115,23 @@ defmodule EWalletDB.Category do
   def deleted?(category), do: SoftDelete.deleted?(category)
 
   @doc """
-  Soft-deletes the given category.
+  Soft-deletes the given category. The operation fails if the category
+  has one more more accounts associated.
   """
-  @spec delete(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def delete(category), do: SoftDelete.delete(category)
+  @spec delete(%__MODULE__{}) ::
+          {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()} | {:error, atom()}
+  def delete(category) do
+    empty? =
+      category
+      |> Repo.preload(:accounts)
+      |> Map.get(:accounts)
+      |> Enum.empty?()
+
+    case empty? do
+      true -> SoftDelete.delete(category)
+      false -> {:error, :category_not_empty}
+    end
+  end
 
   @doc """
   Restores the given category from soft-delete.
