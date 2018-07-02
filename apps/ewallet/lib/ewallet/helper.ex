@@ -21,6 +21,13 @@ defmodule EWallet.Helper do
     ArgumentError -> atom_list
   end
 
+  def string_to_integer(string) do
+    String.to_integer(string, 10)
+  catch
+    _error ->
+      {:error, :invalid_number, "String number is not a valid number: #{string}"}
+  end
+
   @doc """
   Checks if all `elements` exist within the `enumerable`.
 

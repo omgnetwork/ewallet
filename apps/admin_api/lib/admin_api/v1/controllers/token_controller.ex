@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.MintGate
+  alias EWallet.{MintGate, Helper}
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, Token, Mint}
   alias Plug.Conn
@@ -82,15 +82,25 @@ defmodule AdminAPI.V1.TokenController do
       |> Map.put("account_uuid", Account.get_master_account().uuid)
       |> Token.insert()
 
-    case attrs["amount"] do
-      amount when is_number(amount) and amount > 0 ->
-        inserted_token
-        |> MintGate.mint_token(%{"amount" => amount})
-        |> respond_single(conn)
+    create_with_mint(attrs["amount"], inserted_token, conn)
+  end
 
-      _ ->
-        respond_single(inserted_token, conn)
-    end
+  defp create_with_mint({:error, error_code, description}, _token, conn) do
+    handle_error(conn, error_code, description)
+  end
+  defp create_with_mint(amount, token, conn) when is_number(amount) and amount > 0 do
+    token
+    |> MintGate.mint_token(%{"amount" => amount})
+    |> respond_single(conn)
+  end
+  defp create_with_mint(amount, token, conn) when is_binary(amount) do
+    amount
+    |> Helper.string_to_integer()
+    |> create_with_mint(token, conn)
+  end
+
+  defp create_with_mint(_amount, token, conn) do
+    respond_single(token, conn)
   end
 
   @doc """
