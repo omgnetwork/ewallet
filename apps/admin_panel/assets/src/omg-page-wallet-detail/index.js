@@ -99,7 +99,7 @@ class TokenDetailPage extends Component {
           return (
             <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b>{' '}
-              <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span>
+              <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span> {balance.token.symbol}
             </DetailGroup>
           )
         })}

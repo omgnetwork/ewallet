@@ -69,7 +69,7 @@ class AccountDetailPage extends Component {
               return (
                 <WalletCointainter>
                   <DetailGroup >
-                    <b>Address: </b>
+                    <b>Address</b>
                     <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link>
                     {' '} ( <span>{wallet.name}</span> )
                   </DetailGroup>
