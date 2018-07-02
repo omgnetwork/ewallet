@@ -3534,6 +3534,8 @@ components:
                   type: string
                 rate:
                   type: float
+                create_opposite:
+                  type: boolean
               required:
                 - name
                 - from_token_id
@@ -3544,6 +3546,7 @@ components:
                 from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
                 to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
                 rate: 0.017
+                create_opposite: false
     ExchangePairUpdateBody:
         description: The parameters to update an exchange pair.
         required: true
