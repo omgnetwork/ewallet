@@ -7,9 +7,14 @@ const DetailLayoutContainer = styled.div`
   padding: 20px 0;
   display: flex;
   align-items: flex-start;
-  div > i {
+`
+const Back = styled.div`
+  font-size: 24px;
+  margin-top: 18px;
+  margin-right: 20px;
+  cursor: pointer;
+  i {
     font-size: 24px;
-    margin-top: 18px;
     margin-right: 20px;
     cursor: pointer;
   }
@@ -25,9 +30,9 @@ export default withRouter(
     render () {
       return (
         <DetailLayoutContainer>
-          <div onClick={this.props.history.goBack}>
+          <Back onClick={this.props.history.goBack}>
             <Icon name='Arrow-Left' />
-          </div>
+          </Back>
           {this.props.children}
         </DetailLayoutContainer>
       )

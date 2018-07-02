@@ -4,7 +4,7 @@ import styled, { withTheme } from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
-import { Button } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
@@ -32,13 +32,17 @@ const DetailContainer = styled.div`
 const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
+  button {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
 `
 
 const enhance = compose(
   withTheme,
   withRouter
 )
-class TokenDetailPage extends Component {
+class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
@@ -60,7 +64,7 @@ class TokenDetailPage extends Component {
         breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <span>Transfer</span>
+            <Icon name='Transfer' /><span>Transfer</span>
           </Button>
         ]}
       />
@@ -144,4 +148,4 @@ class TokenDetailPage extends Component {
   }
 }
 
-export default enhance(TokenDetailPage)
+export default enhance(WalletDetaillPage)

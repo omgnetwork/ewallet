@@ -26,6 +26,11 @@ const WalletPageContainer = styled.div`
   td:nth-child(4) {
     width: 20%;
   }
+  tr:hover {
+    i[name="Copy"] {
+      visibility: visible;
+    }
+  }
 `
 const WalletAddressContainer = styled.div`
   white-space: nowrap;
@@ -37,6 +42,7 @@ const WalletAddressContainer = styled.div`
     margin-right: 5px;
   }
   i[name="Copy"] {
+    visibility: hidden;
     margin-left: 5px;
     color: ${props => props.theme.colors.S500};
     :hover {
