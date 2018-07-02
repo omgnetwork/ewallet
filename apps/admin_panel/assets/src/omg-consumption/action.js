@@ -1,5 +1,5 @@
 import * as consumptionService from '../services/consumptionService'
-
+import { selectGetConsumptionById } from '../omg-consumption/selector'
 export const getConsumptions = ({ page, perPage, search, cacheKey }) => async dispatch => {
   dispatch({ type: 'CONSUMPTIONS/REQUEST/INITIATED' })
   try {
@@ -42,18 +42,22 @@ export const getConsumptionById = ({ id }) => async dispatch => {
   }
 }
 
-export const approveConsumptionById = id => async dispatch => {
+export const approveConsumptionById = id => async (dispatch, getState) => {
   dispatch({ type: 'CONSUMPTION/APPROVE/INITIATED' })
   try {
     const result = await consumptionService.approveConsumptionById(id)
     if (result.data.success) {
-      console.log(result)
       return dispatch({
         type: 'CONSUMPTION/APPROVE/SUCCESS',
         data: result.data.data
       })
     } else {
-      return dispatch({ type: 'CONSUMPTION/APPROVE/FAILED', error: result.data.data })
+      console.log('xxxx')
+      return dispatch({
+        type: 'CONSUMPTION/APPROVE/FAILED',
+        error: result.data.data,
+        data: selectGetConsumptionById(getState())(id)
+      })
     }
   } catch (error) {
     console.log(error)
@@ -71,7 +75,7 @@ export const rejectConsumptionById = id => async dispatch => {
         data: result.data.data
       })
     } else {
-      return dispatch({ type: 'CONSUMPTION/REJECT/FAILED', error: result.data.data })
+      return dispatch({ type: 'CONSUMPTION/REJECT/FAILED', data: result.data.data })
     }
   } catch (error) {
     console.log(error)

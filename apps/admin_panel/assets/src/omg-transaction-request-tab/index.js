@@ -20,7 +20,7 @@ const PanelContainer = styled.div`
   right: 0;
   width: 550px;
   background-color: white;
-  padding: 40px 20px;
+  padding: 40px 30px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
   > i {
     position: absolute;
@@ -41,12 +41,11 @@ const ContentContainer = styled.div`
     max-width: 100px;
     width: 100px;
 
-    >div {
+    > div {
       white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
   }
 `
 const TransactionReqeustPropertiesContainer = styled.div`
@@ -127,7 +126,6 @@ class TransactionRequestPanel extends Component {
   }
   onClickConfirm = id => async e => {
     const result = await this.props.approveConsumptionById(id)
-    console.log(result)
   }
   onClickReject = id => e => {
     this.props.rejectConsumptionById(id)
@@ -218,8 +216,9 @@ class TransactionRequestPanel extends Component {
         </div>
         <div>
           <b>Amount:</b>{' '}
-          {formatNumber((transactionRequest.amount || 0) /
-            _.get(transactionRequest, 'token.subunit_to_unit'))}{' '}
+          {formatNumber(
+            (transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')
+          )}{' '}
           {_.get(transactionRequest, 'token.symbol')}
         </div>
         <div>

@@ -7,7 +7,7 @@ export const selectConsumptionsCachedQuery = state => cacheKey => {
     return selectGetConsumptionById(state)(id)
   })
 }
-export const selectGetConsumptionById = state => id => state.consumptions[id]
+export const selectGetConsumptionById = state => id => state.consumptions[id] || {}
 
 export const selectConsumptionsAllPagesCachedQuery = createSelectAllPagesCachedQuery(
   selectGetConsumptionById

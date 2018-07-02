@@ -58,7 +58,7 @@ class ConsumptionPage extends Component {
       { key: 'amount', title: 'AMOUNT', sort: true },
       { key: 'created_by', title: 'TO' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'status', title: 'STATUS' }
+      { key: 'status', title: 'STATUS', sort: true }
     ]
   }
   renderCreateAccountButton = () => {
@@ -69,8 +69,13 @@ class ConsumptionPage extends Component {
     )
   }
   onClickRow = (data, index) => e => {
-    const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/account/${data.id}`)
+    const searchObject = queryString.parse(this.props.location.search)
+    this.props.history.push({
+      search: queryString.stringify({
+        ...searchObject,
+        [`show-consumption-tab`]: data.id
+      })
+    })
   }
   rowRenderer (key, data, rows) {
     if (key === 'require_confirmation') {

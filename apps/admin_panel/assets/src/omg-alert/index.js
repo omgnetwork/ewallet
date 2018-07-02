@@ -30,7 +30,6 @@ const AlertItemContainer = styled.div`
   white-space: nowrap;
   b {
     color: ${props => props.theme.colors.B400};
-    font-weight: 600;
   }
 `
 

@@ -14,6 +14,7 @@ import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
 import queryString from 'query-string'
+import ConsumptionPanel from '../omg-consumption-panel'
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -134,6 +135,9 @@ class AppLayout extends Component {
         <Alert />
         {searchObject['show-request-tab'] && (
           <TransactionRequestPanel />
+        )}
+        {searchObject['show-consumption-tab'] && (
+        <ConsumptionPanel />
         )}
       </Container>
     )

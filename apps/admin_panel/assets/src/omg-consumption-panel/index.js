@@ -1,22 +1,21 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import TransactionRequestProvider from '../omg-transaction-request/transactionRequestProvider'
-import { Icon } from '../omg-uikit'
+import ConsumptionProvider from '../omg-consumption/consumptionProvider'
+import { Icon, Button } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
-import QR from '../QrCode'
-import moment from 'moment'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
+import { formatNumber } from '../utils/formatter'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
   width: 550px;
   background-color: white;
-  padding: 40px 20px;
+  padding: 40px 30px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
   > i {
     position: absolute;
@@ -26,29 +25,23 @@ const PanelContainer = styled.div`
     cursor: pointer;
   }
 `
-const ContentContainer = styled.div`
-  height: calc(100vh - 160px);
-  overflow: auto;
-  table tr td {
-    height: 22px;
-    vertical-align: middle;
-  }
-
+const AdditionalTransactionRequestContainer = styled.div`
+  margin-top: 20px;
 `
-const TransactionReqeustPropertiesContainer = styled.div`
-  > img {
-    width: 150px;
-    height: 150px;
-    border: 1px solid ${props => props.theme.colors.BL400};
-    margin-bottom: 30px;
-    margin-top: 30px;
-  }
-  > div {
+const InformationItem = styled.div`
+  color: ${props => props.theme.colors.B200};
+  :not(:last-child) {
     margin-bottom: 10px;
   }
-  b {
-    font-weight: 600;
-    color: ${props => props.theme.colors.B200};
+`
+const ActionContainer = styled.div`
+  padding: 20px;
+  border-radius: 4px;
+  border: 1px solid ${props => props.theme.colors.S400};
+  button {
+    margin-right: 20px;
+    width: 100px;
+    margin-top: 10px;
   }
 `
 const SubDetailTitle = styled.div`
@@ -72,44 +65,96 @@ const enhance = compose(
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    approveConsumptionById: PropTypes.func,
+    rejectConsumptionById: PropTypes.func
   }
 
   constructor (props) {
     super(props)
     this.state = {}
-    this.columns = [
-      { key: 'amount', title: 'AMOUNT', sort: true },
-      { key: 'to', title: 'TO' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'status', title: 'CONFIRMATION' }
-    ]
   }
   onClickClose = () => {
     const searchObject = queryString.parse(this.props.location.search)
-    delete searchObject['active-tab']
-    delete searchObject['show-request-tab']
-    delete searchObject['page-activity']
+    delete searchObject['show-consumption-tab']
     this.props.history.push({
       search: queryString.stringify(searchObject)
     })
   }
   render = () => {
     return (
-      <TransactionRequestProvider
-        transactionRequestId={queryString.parse(this.props.location.search)['show-request-tab']}
-        render={({ transactionRequest: tq }) => {
+      <ConsumptionProvider
+        consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
+        render={({ consumption }) => {
+          const tq = consumption.transaction_request || {}
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
-              <h4>
-                Request to {tq.type} {(tq.amount || 0) / _.get(tq, 'token.subunit_to_unit')}{' '}
-                {_.get(tq, 'token.symbol')}
-              </h4>
+              <h4>Consumption</h4>
               <SubDetailTitle>
-                <span>{tq.id}</span> | <span>{tq.type}</span> |{' '}
-                <span>{tq.user_id || _.get(tq, 'account.name')}</span>
+                <span>{consumption.id}</span> | <span>{tq.type}</span> |{' '}
+                <span>{consumption.user_id || _.get(consumption, 'account.name')}</span>
               </SubDetailTitle>
+              <ActionContainer>
+                <InformationItem>
+                  <b>Request:</b> <span>{tq.id}</span>
+                </InformationItem>
+                <InformationItem>
+                  <b>Type:</b> <span>{tq.type}</span>
+                </InformationItem>
+                <InformationItem>
+                  <b>Token:</b> <span>{_.get(tq, 'token.name')}</span>
+                </InformationItem>
+                <InformationItem>
+                  <b>Amount:</b>{' '}
+                  <span>{formatNumber(consumption.amount / _.get(tq, 'token.subunit_to_unit'))} {_.get(tq, 'token.symbol')}</span>
+                </InformationItem>
+                <InformationItem>
+                  <b>Status:</b> <span>{consumption.status}</span>
+                </InformationItem>
+                {consumption.status === 'pending' && (
+                  <InformationItem>
+                    <Button onClick={() => this.props.approveConsumptionById(consumption.id)}>Approve</Button>
+                    <Button onClick={() => this.props.rejectConsumptionById(consumption.id)} styleType='secondary'>
+                      Reject
+                    </Button>
+                  </InformationItem>
+                )}
+              </ActionContainer>
+              <AdditionalTransactionRequestContainer>
+                <InformationItem>
+                  <b>Type:</b> {tq.type}
+                </InformationItem>
+                <InformationItem>
+                  <b>Token ID:</b> {_.get(tq, 'token.id')}
+                </InformationItem>
+                <InformationItem>
+                  <b>Amount:</b>{' '}
+                  {formatNumber((tq.amount || 0) / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                  {_.get(tq, 'token.symbol')}
+                </InformationItem>
+                <InformationItem>
+                  <b>address:</b> {tq.address}
+                </InformationItem>
+                <InformationItem>
+                  <b>Confirmation:</b> {tq.require_confirmation ? 'Yes' : 'No'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Max Consumptions:</b> {tq.max_consumtions || '-'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Max Consumptions User:</b> {tq.max_consumptionPerUser || '-'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Expiry Date:</b> {tq.expiration_date}
+                </InformationItem>
+                <InformationItem>
+                  <b>Allow Override:</b> {tq.allow_amount_overide ? 'Yes' : 'No'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Coorelation ID:</b> {tq.correlation_id}
+                </InformationItem>
+              </AdditionalTransactionRequestContainer>
             </PanelContainer>
           )
         }}

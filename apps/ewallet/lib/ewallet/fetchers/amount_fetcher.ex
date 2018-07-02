@@ -10,7 +10,7 @@ defmodule EWallet.AmountFetcher do
      "'amount' not allowed when exchanging values. Use from_amount and/or to_amount."}
   end
 
-  def fetch(%{"amount" => amount}, from, to) when is_integer(amount) do
+  def fetch(%{"amount" => amount}, from, to) when is_number(amount) do
     {:ok, Map.put(from, :from_amount, amount), Map.put(to, :to_amount, amount), %{}}
   end
 
