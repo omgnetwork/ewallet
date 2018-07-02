@@ -151,12 +151,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   defp do_transfer(consumption, request, data) do
     attrs = %{
       "idempotency_token" => consumption.idempotency_token,
-      "from_address" => data[:from][:address],
-      "to_address" => data[:to][:address],
-      "from_token_id" => data[:from][:token_id],
-      "to_token_id" => data[:to][:token_id],
-      "from_amount" => data[:from][:amount],
-      "to_amount" => data[:to][:amount],
+      "from_address" => data.from.address,
+      "to_address" => data.to.address,
+      "from_token_id" => data.from.token_id,
+      "to_token_id" => data.to.token_id,
+      "from_amount" => data.from.amount,
+      "to_amount" => data.to.amount,
       "metadata" => consumption.metadata,
       "encrypted_metadata" => consumption.encrypted_metadata,
       "exchange_account_id" =>
