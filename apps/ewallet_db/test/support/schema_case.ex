@@ -453,19 +453,21 @@ defmodule EWalletDB.SchemaCase do
   @doc """
   Test schema's update/2 prevents changing of the given field
   """
-  defmacro test_update_prevents_changing(schema, field) do
+  defmacro test_update_prevents_changing(schema, field, old \\ "old", new \\ "new") do
     quote do
       test "prevents changing of #{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
+        old = unquote(old)
+        new = unquote(new)
 
         {res, original} =
           schema
           |> get_factory
-          |> params_for(%{field => "old_value"})
+          |> params_for(%{field => old})
           |> schema.insert()
 
-        {res, changeset} = schema.update(original, %{field => "new_value"})
+        {res, changeset} = schema.update(original, %{field => new})
 
         assert res == :error
         assert changeset.errors == [{field, {"can't be changed", []}}]
