@@ -25,6 +25,7 @@ defmodule EWalletDB.ExchangePair do
   use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   import EWalletDB.Helpers.Preloader
+  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Token}
 
@@ -59,20 +60,12 @@ defmodule EWalletDB.ExchangePair do
   defp changeset(exchange_pair, attrs) do
     exchange_pair
     |> cast(attrs, [:name, :from_token_uuid, :to_token_uuid, :rate])
-    |> validate_required([:name, :rate])
+    |> validate_required([:name, :from_token_uuid, :to_token_uuid, :rate])
+    |> validate_different_values(:from_token_uuid, :to_token_uuid)
+    |> validate_immutable(:from_token_uuid)
+    |> validate_immutable(:to_token_uuid)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
-    |> unique_constraint(:name)
-    |> unique_constraint(
-      :from_token,
-      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_index"
-    )
-  end
-
-  defp update_changeset(exchange_pair, attrs) do
-    exchange_pair
-    |> cast(attrs, [:name, :rate])
-    |> validate_required([:name, :rate])
     |> unique_constraint(:name)
     |> unique_constraint(
       :from_token,
@@ -130,7 +123,7 @@ defmodule EWalletDB.ExchangePair do
   @spec update(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def update(exchange_pair, attrs) do
     exchange_pair
-    |> update_changeset(attrs)
+    |> changeset(attrs)
     |> Repo.update()
   end
 
