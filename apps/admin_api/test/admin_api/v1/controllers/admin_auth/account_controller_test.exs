@@ -64,10 +64,10 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       assert response["success"]
       assert Enum.count(accounts) == 4
-      assert Enum.at(accounts, 0)["name"] == "Account 2"
-      assert Enum.at(accounts, 1)["name"] == "Account 3"
-      assert Enum.at(accounts, 2)["name"] == "Account 4"
-      assert Enum.at(accounts, 3)["name"] == "Account 5"
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 2" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 3" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 4" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 5" end)
     end
 
     test "returns only one account if the user is at the last level" do
@@ -96,7 +96,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
   describe "/account.get" do
     test "returns an account by the given account's external ID if the user has
-          and indirect membership" do
+          an indirect membership" do
       account = insert(:account)
       accounts = insert_list(3, :account, parent: account)
       # Pick the 2nd inserted account
