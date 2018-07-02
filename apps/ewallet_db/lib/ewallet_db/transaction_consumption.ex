@@ -237,6 +237,7 @@ defmodule EWalletDB.TransactionConsumption do
     end
   end
 
+  @spec get_final_amount(%TransactionConsumption{}) :: Integer.t() | nil
   def get_final_amount(consumption) do
     consumption = Repo.preload(consumption, [:transaction, :transaction_request])
 
@@ -392,10 +393,6 @@ defmodule EWalletDB.TransactionConsumption do
 
     consumption
   end
-
-  # def fail(consumption, code) do
-  #   state_transition(consumption, @failed, nil)
-  # end
 
   @spec expired?(%TransactionConsumption{}) :: boolean()
   def expired?(consumption) do
