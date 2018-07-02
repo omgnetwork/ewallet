@@ -18,7 +18,7 @@ const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
-  min-width: 550px;
+  width: 550px;
   background-color: white;
   padding: 40px 20px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
@@ -36,6 +36,17 @@ const ContentContainer = styled.div`
   table tr td {
     height: 22px;
     vertical-align: middle;
+  }
+  td:first-child {
+    max-width: 100px;
+    width: 100px;
+
+    >div {
+      white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    }
+
   }
 `
 const TransactionReqeustPropertiesContainer = styled.div`
