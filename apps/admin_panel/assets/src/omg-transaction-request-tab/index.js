@@ -6,7 +6,7 @@ import SortableTable from '../omg-table'
 import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consumptionByTransactionIdFetcher'
 import TransactionRequestProvider from '../omg-transaction-request/transactionRequestProvider'
 import { Icon } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import QR from './QrCode'
 import moment from 'moment'
@@ -125,9 +125,11 @@ class TransactionRequestPanel extends Component {
     ]
   }
   onClickConfirm = id => async e => {
-    const result = await this.props.approveConsumptionById(id)
+    e.stopPropagation()
+    await this.props.approveConsumptionById(id)
   }
   onClickReject = id => e => {
+    e.stopPropagation()
     this.props.rejectConsumptionById(id)
   }
   rowRenderer = (key, data, rows) => {
@@ -174,11 +176,19 @@ class TransactionRequestPanel extends Component {
     }
     return data
   }
+  onClickRow = (data, index) => e => {
+    const searchObject = queryString.parse(this.props.location.search)
+    this.props.history.push({
+      search: queryString.stringify({
+        ...searchObject,
+        [`show-consumption-tab`]: data.id
+      })
+    })
+  }
   renderActivityList = () => {
     return (
       <ConsumptionFetcherByTransactionIdFetcher
         id={queryString.parse(this.props.location.search)['show-request-tab']}
-        delayLoad={this.state.delayLoad}
         render={({ data, individualLoadingStatus, pagination }) => {
           return (
             <ContentContainer>

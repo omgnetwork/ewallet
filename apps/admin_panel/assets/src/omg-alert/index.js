@@ -61,6 +61,9 @@ const SuccessChecked = styled.div`
     margin: 0 auto;
   }
 `
+const ErrorChecked = SuccessChecked.extend`
+  background-color: #EF3526;
+`
 class AlertItem extends Component {
   static propTypes = {
     id: PropTypes.string,
@@ -86,7 +89,9 @@ class AlertItem extends Component {
       ),
       error: (
         <AlertItemError>
-          <i>!</i>
+          <ErrorChecked>
+            <i>!</i>
+          </ErrorChecked>
           {this.props.children}
         </AlertItemError>
 

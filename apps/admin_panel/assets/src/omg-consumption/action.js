@@ -1,13 +1,14 @@
 import * as consumptionService from '../services/consumptionService'
 import { selectGetConsumptionById } from '../omg-consumption/selector'
-export const getConsumptions = ({ page, perPage, search, cacheKey }) => async dispatch => {
+export const getConsumptions = ({ page, perPage, search, cacheKey, searchTerms }) => async dispatch => {
   dispatch({ type: 'CONSUMPTIONS/REQUEST/INITIATED' })
   try {
     const result = await consumptionService.getConsumptions({
       perPage: perPage,
       page,
       sort: { by: 'created_at', dir: 'desc' },
-      search_term: search
+      search,
+      searchTerms
     })
     if (result.data.success) {
       return dispatch({
@@ -24,7 +25,7 @@ export const getConsumptions = ({ page, perPage, search, cacheKey }) => async di
   }
 }
 
-export const getConsumptionById = ({ id }) => async dispatch => {
+export const getConsumptionById = (id) => async dispatch => {
   dispatch({ type: 'CONSUMPTION/REQUEST/INITIATED' })
   try {
     const result = await consumptionService.getConsumptionById(id)

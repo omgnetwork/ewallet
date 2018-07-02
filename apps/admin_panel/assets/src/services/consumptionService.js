@@ -1,5 +1,5 @@
 import { authenticatedRequest } from './apiService'
-export function getConsumptions ({ perPage, page, sort, search }) {
+export function getConsumptions ({ perPage, page, sort, search, searchTerms }) {
   return authenticatedRequest({
     path: '/transaction_consumption.all',
     data: {
@@ -7,7 +7,8 @@ export function getConsumptions ({ perPage, page, sort, search }) {
       page: Number(page) || 1,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: search
+      search_term: search,
+      search_terms: searchTerms
     }
   })
 }

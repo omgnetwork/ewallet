@@ -16,7 +16,9 @@ export const consumptionsReducer = createReducer(
       return { ...state, ...{ [action.data.id]: action.data } }
     },
     'CONSUMPTION/APPROVE/FAILED': (state, action) => {
-      return { ...state, ...{ [action.data.id]: {...action.data, status: 'failed'} } }
+      return action.data
+        ? { ...state, ...{ [action.data.id]: { ...action.data, status: 'failed' } } }
+        : state
     },
     'CONSUMPTION/REJECT/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }

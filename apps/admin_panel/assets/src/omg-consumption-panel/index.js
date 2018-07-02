@@ -3,12 +3,13 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import ConsumptionProvider from '../omg-consumption/consumptionProvider'
 import { Icon, Button } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
 import { formatNumber } from '../utils/formatter'
+import moment from 'moment'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -27,6 +28,10 @@ const PanelContainer = styled.div`
 `
 const AdditionalTransactionRequestContainer = styled.div`
   margin-top: 20px;
+  h5 {
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
 `
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
@@ -67,7 +72,8 @@ class TransactionRequestPanel extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     approveConsumptionById: PropTypes.func,
-    rejectConsumptionById: PropTypes.func
+    rejectConsumptionById: PropTypes.func,
+    match: PropTypes.object
   }
 
   constructor (props) {
@@ -87,6 +93,7 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
+          console.log(consumption)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
@@ -97,44 +104,82 @@ class TransactionRequestPanel extends Component {
               </SubDetailTitle>
               <ActionContainer>
                 <InformationItem>
-                  <b>Request:</b> <span>{tq.id}</span>
+                  <b>Request:</b>{' '}
+                  <span>
+                    <Link
+                      to={`/${this.props.match.params.accountId}/consumptions?show-request-tab=${
+                        tq.id
+                      }`}
+                    >
+                      {tq.id}
+                    </Link>
+                  </span>
                 </InformationItem>
                 <InformationItem>
                   <b>Type:</b> <span>{tq.type}</span>
+                </InformationItem>
+                <InformationItem>
+                  <b>Requester Address::</b> {tq.address}
+                </InformationItem>
+                <InformationItem>
+                  <b>Consumer Address:</b> {consumption.address}
                 </InformationItem>
                 <InformationItem>
                   <b>Token:</b> <span>{_.get(tq, 'token.name')}</span>
                 </InformationItem>
                 <InformationItem>
                   <b>Amount:</b>{' '}
-                  <span>{formatNumber(consumption.amount / _.get(tq, 'token.subunit_to_unit'))} {_.get(tq, 'token.symbol')}</span>
+                  <span>
+                    {formatNumber(consumption.amount / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                    {_.get(tq, 'token.symbol')}
+                  </span>
                 </InformationItem>
                 <InformationItem>
                   <b>Status:</b> <span>{consumption.status}</span>
                 </InformationItem>
+                {consumption.approved_at && (
+                  <InformationItem>
+                    <b>Approved Date:</b>{' '}
+                    <span>
+                      {moment(consumption.approved_at).format('ddd, DD/MM/YYYY hh:mm:ss')}
+                    </span>
+                  </InformationItem>
+                )}
+                {consumption.rejected_at && (
+                  <InformationItem>
+                    <b>Rejected At:</b>{' '}
+                    <span>
+                      {moment(consumption.rejected_at).format('ddd, DD/MM/YYYY hh:mm:ss')}
+                    </span>
+                  </InformationItem>
+                )}
+                {consumption.expired_at && (
+                  <InformationItem>
+                    <b>Expired At:</b>{' '}
+                    <span>{moment(consumption.expired_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
+                  </InformationItem>
+                )}
                 {consumption.status === 'pending' && (
                   <InformationItem>
-                    <Button onClick={() => this.props.approveConsumptionById(consumption.id)}>Approve</Button>
-                    <Button onClick={() => this.props.rejectConsumptionById(consumption.id)} styleType='secondary'>
+                    <Button onClick={() => this.props.approveConsumptionById(consumption.id)}>
+                      Approve
+                    </Button>
+                    <Button
+                      onClick={() => this.props.rejectConsumptionById(consumption.id)}
+                      styleType='secondary'
+                    >
                       Reject
                     </Button>
                   </InformationItem>
                 )}
+                <InformationItem />
               </ActionContainer>
               <AdditionalTransactionRequestContainer>
-                <InformationItem>
-                  <b>Type:</b> {tq.type}
-                </InformationItem>
-                <InformationItem>
-                  <b>Token ID:</b> {_.get(tq, 'token.id')}
-                </InformationItem>
+                <h5>ADDITIONAL REQUEST DETAILS</h5>
                 <InformationItem>
                   <b>Amount:</b>{' '}
                   {formatNumber((tq.amount || 0) / _.get(tq, 'token.subunit_to_unit'))}{' '}
                   {_.get(tq, 'token.symbol')}
-                </InformationItem>
-                <InformationItem>
-                  <b>address:</b> {tq.address}
                 </InformationItem>
                 <InformationItem>
                   <b>Confirmation:</b> {tq.require_confirmation ? 'Yes' : 'No'}
@@ -146,13 +191,13 @@ class TransactionRequestPanel extends Component {
                   <b>Max Consumptions User:</b> {tq.max_consumptionPerUser || '-'}
                 </InformationItem>
                 <InformationItem>
-                  <b>Expiry Date:</b> {tq.expiration_date}
+                  <b>Expiry Date:</b> {tq.expiration_date || '-'}
                 </InformationItem>
                 <InformationItem>
                   <b>Allow Override:</b> {tq.allow_amount_overide ? 'Yes' : 'No'}
                 </InformationItem>
                 <InformationItem>
-                  <b>Coorelation ID:</b> {tq.correlation_id}
+                  <b>Coorelation ID:</b> {tq.correlation_id || '-'}
                 </InformationItem>
               </AdditionalTransactionRequestContainer>
             </PanelContainer>

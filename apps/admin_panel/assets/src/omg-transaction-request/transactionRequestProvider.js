@@ -12,7 +12,7 @@ class TransactionRequestProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (!this.props.transactionRequest) {
+    if (_.isEmpty(this.props.transactionRequest)) {
       this.props.getTransactionRequestById(this.props.transactionRequestId)
     }
   }

@@ -22,9 +22,11 @@ const ConsumptionPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(2),
   td:nth-child(3) {
-    width: 25%;
+    width: 150px;
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
 `
 const SortableTableContainer = styled.div`
@@ -141,7 +143,7 @@ class ConsumptionPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 10,
-          search: queryString.parse(this.props.location.search).search
+          searchTerms: {id: queryString.parse(this.props.location.search).search}
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

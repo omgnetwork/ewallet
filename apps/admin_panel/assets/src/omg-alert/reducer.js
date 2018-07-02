@@ -49,6 +49,12 @@ export const alertsReducer = createReducer([], {
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
     return [...state, createAlertState(`Transfer successfully.`, 'success')]
   },
+  'CONSUMPTION/APPROVE/SUCCESS': (state, { data }) => {
+    return [...state, createAlertState(`Approved consumption ${data.id} successfully.`, 'success')]
+  },
+  'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
     return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
   }
