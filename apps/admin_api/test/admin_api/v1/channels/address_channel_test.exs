@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule AdminAPI.V1.WalletChannelTest do
-  use AdminAPI.ChannelCase
+  use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.WalletChannel
 
   describe "join/3 as provider" do
@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.WalletChannelTest do
       {res, code} =
         "test"
         |> socket(%{auth: %{authenticated: true, account: account}})
-        |> subscribe_and_join(WalletChannel, "address:123")
+        |> subscribe_and_join(WalletChannel, "address:none000000000000")
 
       assert res == :error
       assert code == :channel_not_found

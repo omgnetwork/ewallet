@@ -4,8 +4,8 @@ defmodule EWallet.MintGate do
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
   examples on how to add value to a token.
   """
-  alias EWallet.TransferGate
-  alias EWalletDB.{Repo, Account, Mint, Wallet, Transfer, Token}
+  alias EWallet.GenesisGate
+  alias EWalletDB.{Repo, Account, Mint, Token}
   alias Ecto.{UUID, Multi}
 
   def mint_token({:ok, token}, attrs) do
@@ -23,6 +23,7 @@ defmodule EWallet.MintGate do
     |> insert()
     |> case do
       {:ok, mint, _entry} -> {:ok, mint, token}
+      {:error, code, description} -> {:error, code, description}
       {:error, changeset} -> {:error, changeset}
     end
   end
@@ -33,9 +34,7 @@ defmodule EWallet.MintGate do
   @doc """
   Insert a new mint for a token, adding more value to it which can then be
   given to users.
-
   ## Examples
-
     res = MintGate.insert(%{
       "idempotency_token" => idempotency_token,
       "token_id" => token_id,
@@ -44,16 +43,17 @@ defmodule EWallet.MintGate do
       "metadata" => %{probably: "something useful. Or not."},
       "encrypted_metadata" => %{something: "secret."},
     })
-
     case res do
-      {:ok, mint, transfer} ->
+      {:ok, mint, transaction} ->
         # Everything went well, do something.
         # response is the response returned by the local ledger (LocalLedger for
         # example).
+      {:error, code, description} ->
+        # Something went wrong on the other side (LocalLedger maybe) and the
+        # insert failed.
       {:error, changeset} ->
         # Something went wrong, check the errors in the changeset!
     end
-
   """
   def insert(
         %{
@@ -76,56 +76,25 @@ defmodule EWallet.MintGate do
           description: description
         })
       end)
-      |> Multi.run(:transfer, fn _ ->
-        TransferGate.get_or_insert(%{
+      |> Multi.run(:transaction, fn _ ->
+        GenesisGate.create(%{
           idempotency_token: idempotency_token,
-          from: Wallet.get_genesis().address,
-          to: Account.get_primary_wallet(account).address,
-          token_id: token.id,
           amount: amount,
-          metadata: attrs["metadata"] || %{},
-          encrypted_metadata: attrs["encrypted_metadata"] || %{},
-          payload: attrs
+          token: token,
+          account: account,
+          attrs: attrs
         })
       end)
-      |> Multi.run(:mint_with_transfer, fn %{transfer: transfer, mint: mint} ->
-        Mint.update(mint, %{transfer_uuid: transfer.uuid})
+      |> Multi.run(:mint_with_transaction, fn %{transaction: transaction, mint: mint} ->
+        Mint.update(mint, %{transaction_uuid: transaction.uuid})
       end)
 
     case Repo.transaction(multi) do
       {:ok, result} ->
-        process_with_transfer(result.transfer, result.mint_with_transfer)
-
-      {:error, _changeset} = error ->
-        error
+        GenesisGate.process_with_transaction(result.transaction, result.mint_with_transaction)
 
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
     end
-  end
-
-  defp process_with_transfer(%Transfer{status: "pending"} = transfer, mint) do
-    transfer
-    |> TransferGate.genesis()
-    |> confirm_and_return(mint)
-  end
-
-  defp process_with_transfer(%Transfer{status: "confirmed"} = transfer, mint) do
-    confirm_and_return(transfer, mint)
-  end
-
-  defp process_with_transfer(%Transfer{status: "failed"} = transfer, mint) do
-    confirm_and_return(
-      {:error, transfer.error_code, transfer.error_description || transfer.error_data},
-      mint
-    )
-  end
-
-  defp confirm_and_return({:error, code, description}, mint),
-    do: {:error, code, description, mint}
-
-  defp confirm_and_return(transfer, mint) do
-    mint = Mint.confirm(mint)
-    {:ok, mint, transfer}
   end
 end

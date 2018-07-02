@@ -5,7 +5,7 @@ defmodule EWallet.TransactionConsumptionFetcher do
   All functions here are only meant to load and format data related to
   transaction consumptions.
   """
-  alias EWalletDB.{TransactionConsumption, Transfer}
+  alias EWalletDB.{TransactionConsumption, Transaction}
 
   @spec get(UUID.t()) ::
           {:ok, TransactionConsumption.t()}
@@ -41,27 +41,29 @@ defmodule EWallet.TransactionConsumptionFetcher do
         :wallet,
         :token,
         :transaction_request,
-        :transfer
+        :transaction,
+        :exchange_account,
+        :exchange_wallet
       ]
     )
   end
 
   defp return_idempotent(nil), do: {:ok, nil}
 
-  defp return_idempotent(%TransactionConsumption{transfer: nil} = consumption) do
+  defp return_idempotent(%TransactionConsumption{transaction: nil} = consumption) do
     {:idempotent_call, consumption}
   end
 
-  defp return_idempotent(%TransactionConsumption{transfer: transfer} = consumption) do
-    return_transfer_result(consumption, failed_transfer: Transfer.failed?(transfer))
+  defp return_idempotent(%TransactionConsumption{transaction: transaction} = consumption) do
+    return_transaction_result(consumption, failed_transaction: Transaction.failed?(transaction))
   end
 
-  defp return_transfer_result(consumption, failed_transfer: true) do
-    {code, description} = Transfer.get_error(consumption.transfer)
+  defp return_transaction_result(consumption, failed_transaction: true) do
+    {code, description} = Transaction.get_error(consumption.transaction)
     {:error, consumption, code, description}
   end
 
-  defp return_transfer_result(consumption, failed_transfer: false) do
+  defp return_transaction_result(consumption, failed_transaction: false) do
     {:idempotent_call, consumption}
   end
 end

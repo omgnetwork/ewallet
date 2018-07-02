@@ -1,6 +1,6 @@
 defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transfer, Account}
+  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transaction, Account}
   alias EWallet.TestEndpoint
   alias EWallet.Web.Date
   alias Phoenix.Socket.Broadcast
@@ -66,7 +66,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
       request = TransactionRequest.get(transaction_request.id, preload: [:token])
 
       assert response == %{
@@ -74,7 +74,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "address" => meta.bob_wallet.address,
-                 "amount" => 1 * meta.token.subunit_to_unit,
+                 "amount" => nil,
+                 "estimated_consumption_amount" => 1 * meta.token.subunit_to_unit,
+                 "estimated_request_amount" => 1 * meta.token.subunit_to_unit,
+                 "finalized_request_amount" => 1 * meta.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 1 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
@@ -86,9 +90,9 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-                 "transaction_id" => inserted_transfer.id,
+                 "transaction_id" => inserted_transaction.id,
                  "transaction" =>
-                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                   inserted_transaction |> TransactionSerializer.serialize() |> stringify_keys(),
                  "user_id" => meta.bob.id,
                  "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
                  "encrypted_metadata" => %{"a_key" => "a_value"},
@@ -105,10 +109,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transfer.amount == 1 * meta.token.subunit_to_unit
-      assert inserted_transfer.to == meta.bob_wallet.address
-      assert inserted_transfer.from == meta.alice_wallet.address
-      assert inserted_transfer.entry_uuid != nil
+      assert inserted_transaction.from_amount == 1 * meta.token.subunit_to_unit
+      assert inserted_transaction.to_amount == 1 * meta.token.subunit_to_unit
+      assert inserted_transaction.to == meta.bob_wallet.address
+      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
     end
 
     test "consumes the request and transfers the appropriate amount of tokens", meta do
@@ -139,7 +144,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
       request = TransactionRequest.get(transaction_request.id, preload: [:token])
 
       assert response == %{
@@ -147,7 +152,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "address" => meta.bob_wallet.address,
-                 "amount" => 100_000 * meta.token.subunit_to_unit,
+                 "amount" => nil,
+                 "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
@@ -159,9 +168,9 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-                 "transaction_id" => inserted_transfer.id,
+                 "transaction_id" => inserted_transaction.id,
                  "transaction" =>
-                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                   inserted_transaction |> TransactionSerializer.serialize() |> stringify_keys(),
                  "user_id" => meta.bob.id,
                  "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
                  "encrypted_metadata" => %{"a_key" => "a_value"},
@@ -178,10 +187,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transfer.to == meta.alice_wallet.address
-      assert inserted_transfer.from == meta.bob_wallet.address
-      assert inserted_transfer.entry_uuid != nil
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.to == meta.alice_wallet.address
+      assert inserted_transaction.from == meta.bob_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
     end
 
     test "consumes the request and transfers the appropriate amount of tokens with min params",
@@ -209,7 +219,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
       request = TransactionRequest.get(transaction_request.id, preload: [:token])
 
       assert response == %{
@@ -217,7 +227,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "address" => meta.bob_wallet.address,
-                 "amount" => 100_000 * meta.token.subunit_to_unit,
+                 "amount" => nil,
+                 "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
@@ -229,9 +243,9 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-                 "transaction_id" => inserted_transfer.id,
+                 "transaction_id" => inserted_transaction.id,
                  "transaction" =>
-                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                   inserted_transaction |> TransactionSerializer.serialize() |> stringify_keys(),
                  "user_id" => meta.bob.id,
                  "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
                  "encrypted_metadata" => %{},
@@ -248,10 +262,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transfer.to == meta.alice_wallet.address
-      assert inserted_transfer.from == meta.bob_wallet.address
-      assert inserted_transfer.entry_uuid != nil
+      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.to == meta.alice_wallet.address
+      assert inserted_transaction.from == meta.bob_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
     end
 
     test "consumes the request and transfers the appropriate amount of tokens with min nil params",
@@ -284,7 +299,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
       request = TransactionRequest.get(transaction_request.id, preload: [:token])
 
       assert response == %{
@@ -292,7 +307,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "address" => meta.bob_wallet.address,
-                 "amount" => 100_000 * meta.token.subunit_to_unit,
+                 "amount" => nil,
+                 "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
@@ -304,9 +323,9 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "transaction_request_id" => transaction_request.id,
                  "transaction_request" =>
                    request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
-                 "transaction_id" => inserted_transfer.id,
+                 "transaction_id" => inserted_transaction.id,
                  "transaction" =>
-                   inserted_transfer |> TransactionSerializer.serialize() |> stringify_keys(),
+                   inserted_transaction |> TransactionSerializer.serialize() |> stringify_keys(),
                  "user_id" => meta.bob.id,
                  "user" => meta.bob |> UserSerializer.serialize() |> stringify_keys(),
                  "encrypted_metadata" => %{},
@@ -323,10 +342,13 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                }
              }
 
-      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transfer.to == meta.alice_wallet.address
-      assert inserted_transfer.from == meta.bob_wallet.address
-      assert inserted_transfer.entry_uuid != nil
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == meta.token.uuid
+      assert inserted_transaction.to == meta.alice_wallet.address
+      assert inserted_transaction.from == meta.bob_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
     end
 
     test "returns same transaction request consumption when idempotency token is the same",
@@ -359,7 +381,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption.id
@@ -376,12 +398,12 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption_2 = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transfer_2 = Repo.get(Transfer, inserted_consumption.transfer_uuid)
+      inserted_transaction_2 = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
       assert response["success"] == true
       assert response["data"]["id"] == inserted_consumption_2.id
       assert inserted_consumption.uuid == inserted_consumption_2.uuid
-      assert inserted_transfer.uuid == inserted_transfer_2.uuid
+      assert inserted_transaction.uuid == inserted_transaction_2.uuid
     end
 
     test "sends socket confirmation when require_confirmation and approved between users", meta do
@@ -473,12 +495,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
       assert response["data"]["approved_at"] != nil
       assert response["data"]["confirmed_at"] != nil
 
-      # Check that a transfer was inserted
-      inserted_transfer = Repo.get_by(Transfer, id: response["data"]["transaction_id"])
-      assert inserted_transfer.amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transfer.to == meta.alice_wallet.address
-      assert inserted_transfer.from == meta.bob_wallet.address
-      assert inserted_transfer.entry_uuid != nil
+      # Check that a transaction was inserted
+      inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == meta.token.uuid
+      assert inserted_transaction.to == meta.alice_wallet.address
+      assert inserted_transaction.from == meta.bob_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
 
       assert_receive %Broadcast{
         event: "transaction_consumption_finalized",
@@ -515,6 +540,40 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
                  "object" => "error"
                }
              }
+    end
+
+    test "fails to consume a comsumption that involves exchange",
+         meta do
+      account = Account.get_master_account()
+      token_2 = insert(:token)
+      insert(:exchange_pair, from_token: meta.token, to_token: token_2)
+      mint!(token_2)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit,
+          exchange_account_uuid: account.uuid
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        client_request("/me.consume_transaction_request", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          token_id: token_2.id
+        })
+
+      assert response["success"] == false
     end
   end
 end

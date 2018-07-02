@@ -111,12 +111,12 @@ class TokenDetailPage extends Component {
         <ContentContainer>
           {this.renderTopBar(wallet)}
           <ContentDetailContainer>
-            <DetailContainer>{this.renderBalances(wallet)}</DetailContainer>
             <DetailContainer>{this.renderDetail(wallet)}</DetailContainer>
+            <DetailContainer>{this.renderBalances(wallet)}</DetailContainer>
           </ContentDetailContainer>
         </ContentContainer>
         <CreateTransactionModal
-          wallet={wallet}
+          fromAddress={wallet.address}
           onRequestClose={this.onRequestClose}
           open={this.state.createTransactionModalOpen}
         />

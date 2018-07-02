@@ -4,11 +4,12 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import ExportModal from '../omg-export-modal'
-import WalletsProvider from '../omg-wallet/walletsProvider'
+import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import { selectWallets } from '../omg-wallet/selector'
 const WalletPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -16,13 +17,24 @@ const WalletPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  /* th:first-child, td:first-child {
-    width: 200px;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  } */
+  td:first-child {
+    width: 40%;
+  }
+  td:nth-child(2),
+  td:nth-child(3),
+  td:nth-child(4) {
+    width: 20%;
+  }
+`
+const WalletAddressContainer = styled.div`
+  white-space: nowrap;
+  span {
+    vertical-align: middle;
+  }
+  i {
+    color: ${props => props.theme.colors.BL400};
+    margin-right: 5px;
+  }
 `
 const SortableTableContainer = styled.div`
   position: relative;
@@ -31,17 +43,31 @@ class WalletPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
-    location: PropTypes.object
+    location: PropTypes.object,
+    scrollTopContentContainer: PropTypes.func
   }
   constructor (props) {
     super(props)
     this.state = {
       createAccountModalOpen: false,
-      exportModalOpen: false
+      exportModalOpen: false,
+      loadMoreTime: 1
     }
   }
+
+  componentWillReceiveProps = nextProps => {
+    const search = queryString.parse(this.props.location.search).search
+    const nextSearch = queryString.parse(nextProps.location.search).search
+    if (search !== nextSearch) {
+      this.setState({ loadMoreTime: 1 })
+    }
+  }
+
   onClickExport = () => {
     this.setState({ exportModalOpen: true })
+  }
+  onClickLoadMore = e => {
+    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
 
   onRequestCloseExport = () => {
@@ -71,14 +97,19 @@ class WalletPage extends Component {
     ]
   }
   getRow = wallets => {
-    return wallets.map(wallet => {
-      return {
-        owner: wallet.user_id ? 'User' : 'Account',
-        id: wallet.address,
-        ...wallet
-
-      }
-    })
+    // WALLET API DOESN'T HAVE SEACH TERM, SO WE FILTER AGAIN
+    return selectWallets(
+      {
+        wallets: wallets.map(wallet => {
+          return {
+            owner: wallet.user_id ? 'User' : 'Account',
+            id: wallet.address,
+            ...wallet
+          }
+        })
+      },
+      queryString.parse(this.props.location.search).search
+    )
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
@@ -88,23 +119,30 @@ class WalletPage extends Component {
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
+    if (key === 'address') {
+      return (
+        <WalletAddressContainer>
+          <Icon name='Wallet' /> <span>{data}</span>
+        </WalletAddressContainer>
+      )
+    }
     return data
   }
-  renderWalletPage = ({ wallets, loadingStatus }) => {
+  renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation
-          title={'Wallets'}
-          // buttons={[this.renderExportButton()]}
-        />
+        <TopNavigation title={'Wallets'} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
-            dataSource={this.getRow(wallets)}
+            rows={this.getRow(wallets)}
             columns={this.getColumns(wallets)}
-            loading={loadingStatus === 'DEFAULT' || loadingStatus === 'INITIATED'}
-            perPage={20}
+            loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
+            isFirstPage={pagination.is_first_page}
+            isLastPage={pagination.is_last_page}
+            navigation
+            onClickLoadMore={this.onClickLoadMore}
           />
         </SortableTableContainer>
         <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
@@ -114,12 +152,17 @@ class WalletPage extends Component {
 
   render () {
     return (
-      <WalletsProvider
-        render={this.renderWalletPage}
+      <WalletsFetcher
         {...this.state}
         {...this.props}
         accountId={this.props.match.params.accountId}
-        search={queryString.parse(this.props.location.search).search}
+        render={this.renderWalletPage}
+        query={{
+          page: queryString.parse(this.props.location.search).page,
+          perPage: 15,
+          search: queryString.parse(this.props.location.search).search
+        }}
+        onFetchComplete={this.props.scrollTopContentContainer}
       />
     )
   }

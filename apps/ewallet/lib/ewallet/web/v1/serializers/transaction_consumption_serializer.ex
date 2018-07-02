@@ -27,21 +27,28 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
         :account,
         :token,
         :transaction_request,
-        :transfer,
+        :transaction,
         :user
       ])
+
+    final_consumption_amount = TransactionConsumption.get_final_amount(consumption)
+    final_request_amount = get_final_request_amount(consumption, final_consumption_amount)
 
     %{
       object: "transaction_consumption",
       id: consumption.id,
       socket_topic: "transaction_consumption:#{consumption.id}",
       amount: consumption.amount,
+      estimated_request_amount: consumption.estimated_request_amount,
+      estimated_consumption_amount: consumption.estimated_consumption_amount,
+      finalized_request_amount: final_request_amount,
+      finalized_consumption_amount: final_consumption_amount,
       token_id: consumption.token.id,
       token: TokenSerializer.serialize(consumption.token),
       correlation_id: consumption.correlation_id,
       idempotency_token: consumption.idempotency_token,
-      transaction_id: Assoc.get(consumption, [:transfer, :id]),
-      transaction: TransactionSerializer.serialize(consumption.transfer),
+      transaction_id: Assoc.get(consumption, [:transaction, :id]),
+      transaction: TransactionSerializer.serialize(consumption.transaction),
       user_id: Assoc.get(consumption, [:user, :id]),
       user: UserSerializer.serialize(consumption.user),
       account_id: Assoc.get(consumption, [:account, :id]),
@@ -65,4 +72,10 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
 
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
+  defp get_final_request_amount(_consumption, nil), do: nil
+
+  defp get_final_request_amount(consumption, _amount) do
+    consumption.estimated_request_amount
+  end
 end

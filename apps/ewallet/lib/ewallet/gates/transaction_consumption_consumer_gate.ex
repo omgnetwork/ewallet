@@ -10,12 +10,21 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     TransactionRequestFetcher,
     TransactionConsumptionFetcher,
     TransactionConsumptionValidator,
-    TransactionConsumptionConfirmerGate
+    TransactionConsumptionConfirmerGate,
+    Exchange
   }
 
   alias EWallet.Web.V1.Event
 
-  alias EWalletDB.{Repo, Wallet, Account, User, TransactionRequest, TransactionConsumption}
+  alias EWalletDB.{
+    Repo,
+    Wallet,
+    Account,
+    User,
+    TransactionRequest,
+    TransactionConsumption,
+    Helpers.Assoc
+  }
 
   @spec consume(Map.t()) :: {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
   def consume(
@@ -28,6 +37,24 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
          %User{} = user <-
            User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
+         {:ok, wallet} <- WalletFetcher.get(user, address),
+         wallet <- Map.put(wallet, :account_id, account.id) do
+      consume(wallet, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error -> error
+    end
+  end
+
+  def consume(
+        %{
+          "account_id" => account_id,
+          "user_id" => user_id,
+          "address" => address
+        } = attrs
+      ) do
+    with %Account{} = account <- Account.get(account_id) || :account_id_not_found,
+         %User{} = user <- User.get(user_id) || :provider_user_id_not_found,
          {:ok, wallet} <- WalletFetcher.get(user, address),
          wallet <- Map.put(wallet, :account_id, account.id) do
       consume(wallet, attrs)
@@ -74,7 +101,28 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     end
   end
 
+  def consume(
+        %{
+          "user_id" => user_id,
+          "address" => address
+        } = attrs
+      ) do
+    with %User{} = user <- User.get(user_id) || :provider_user_id_not_found,
+         {:ok, wallet} <- WalletFetcher.get(user, address) do
+      consume(wallet, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error -> error
+    end
+  end
+
   def consume(%{"provider_user_id" => _} = attrs) do
+    attrs
+    |> Map.put("address", nil)
+    |> consume()
+  end
+
+  def consume(%{"user_id" => _} = attrs) do
     attrs
     |> Map.put("address", nil)
     |> consume()
@@ -97,6 +145,24 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
 
   @spec consume(User.t() | Balance.t(), Map.t()) ::
           {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
+  def consume(
+        %User{} = user,
+        %{
+          "formatted_transaction_request_id" => formatted_transaction_request_id,
+          "token_id" => token_id
+        } = attrs
+      )
+      when not is_nil(token_id) do
+    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]),
+         {:ok, request} <- TransactionRequestFetcher.get(formatted_transaction_request_id),
+         true <- request.token.id == token_id || :exchange_client_not_allowed do
+      consume(wallet, attrs)
+    else
+      error when is_atom(error) -> {:error, error}
+      error -> error
+    end
+  end
+
   def consume(
         %User{} = user,
         attrs
@@ -160,18 +226,69 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
   end
 
   defp insert(wallet, token, request, amount, attrs) do
-    TransactionConsumption.insert(%{
-      correlation_id: attrs["correlation_id"],
-      idempotency_token: attrs["idempotency_token"],
-      amount: amount,
-      user_uuid: wallet.user_uuid,
-      account_uuid: wallet.account_uuid,
-      token_uuid: token.uuid,
-      transaction_request_uuid: request.uuid,
-      wallet_address: wallet.address,
-      expiration_date: TransactionRequest.expiration_from_lifetime(request),
-      metadata: attrs["metadata"] || %{},
-      encrypted_metadata: attrs["encrypted_metadata"] || %{}
-    })
+    case get_calculation(request, amount, token) do
+      {:ok, calculation, amounts} ->
+        TransactionConsumption.insert(%{
+          correlation_id: attrs["correlation_id"],
+          idempotency_token: attrs["idempotency_token"],
+          amount: amount,
+          user_uuid: wallet.user_uuid,
+          account_uuid: wallet.account_uuid,
+          token_uuid: token.uuid,
+          transaction_request_uuid: request.uuid,
+          wallet_address: wallet.address,
+          expiration_date: TransactionRequest.expiration_from_lifetime(request),
+          exchange_pair_uuid: Assoc.get(calculation, [:pair, :uuid]),
+          estimated_request_amount: amounts[:request_amount],
+          estimated_consumption_amount: amounts[:consumption_amount],
+          estimated_at: Map.get(calculation, :calculated_at),
+          estimated_rate: Map.get(calculation, :actual_rate),
+          metadata: attrs["metadata"] || %{},
+          encrypted_metadata: attrs["encrypted_metadata"] || %{}
+        })
+
+      error ->
+        error
+    end
+  end
+
+  defp get_calculation(%TransactionRequest{allow_amount_override: true} = request, nil, token) do
+    do_calculation(request.type, request.amount, request.token, nil, token)
+  end
+
+  defp get_calculation(%TransactionRequest{allow_amount_override: true} = request, amount, token) do
+    do_calculation(request.type, nil, request.token, amount, token)
+  end
+
+  defp get_calculation(
+         %TransactionRequest{allow_amount_override: false} = request,
+         _amount,
+         token
+       ) do
+    do_calculation(request.type, request.amount, request.token, nil, token)
+  end
+
+  defp do_calculation("send", request_amount, request_token, amount, token) do
+    with {:ok, calculation} <- Exchange.calculate(request_amount, request_token, amount, token) do
+      {:ok, calculation,
+       %{
+         request_amount: calculation.from_amount,
+         consumption_amount: calculation.to_amount
+       }}
+    else
+      error -> error
+    end
+  end
+
+  defp do_calculation("receive", request_amount, request_token, amount, token) do
+    with {:ok, calculation} <- Exchange.calculate(amount, token, request_amount, request_token) do
+      {:ok, calculation,
+       %{
+         request_amount: calculation.to_amount,
+         consumption_amount: calculation.from_amount
+       }}
+    else
+      error -> error
+    end
   end
 end

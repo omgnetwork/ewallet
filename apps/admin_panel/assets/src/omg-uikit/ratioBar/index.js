@@ -44,13 +44,13 @@ const RatioDetailItem = styled.div`
 `
 export default class RatioBar extends Component {
   static propTypes = {
-    dataSource: PropTypes.array.isRequired,
+    rows: PropTypes.array.isRequired,
     title: PropTypes.string
   }
   renderBar = () => {
     return (
       <TransactionBar>
-        {this.props.dataSource.map((d, i) => (
+        {this.props.rows.map((d, i) => (
           <BarItem width={d.percent} color={d.color} key={i} />
       ))}
       </TransactionBar>
@@ -60,7 +60,7 @@ export default class RatioBar extends Component {
     return (
       <RatioBarDetailContainer>
         <RatioDetailItem>{this.props.title}</RatioDetailItem>
-        {this.props.dataSource.map((d, i) => (
+        {this.props.rows.map((d, i) => (
           <RatioDetailItem key={i}>
             <BoxRatio color={d.color} /> <span>{d.content}</span>
           </RatioDetailItem>

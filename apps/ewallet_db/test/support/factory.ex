@@ -10,6 +10,7 @@ defmodule EWalletDB.Factory do
     APIKey,
     AuthToken,
     Category,
+    ExchangePair,
     ForgetPasswordRequest,
     Invite,
     Key,
@@ -19,12 +20,13 @@ defmodule EWalletDB.Factory do
     Role,
     TransactionRequest,
     TransactionConsumption,
-    Transfer,
+    Transaction,
     User,
     Wallet
   }
 
   alias EWalletDB.Helpers.Crypto
+  alias EWalletDB.Types.WalletAddress
   alias Ecto.UUID
   alias ExULID.ULID
 
@@ -49,10 +51,21 @@ defmodule EWalletDB.Factory do
     }
   end
 
+  def exchange_pair_factory do
+    %ExchangePair{
+      name: sequence("Exchange pair name"),
+      rate: 1.0,
+      from_token: insert(:token),
+      to_token: insert(:token)
+    }
+  end
+
   def wallet_factory do
+    {:ok, address} = WalletAddress.generate()
+
     %Wallet{
-      address: sequence("address"),
-      name: sequence("name"),
+      address: address,
+      name: sequence("Wallet name"),
       identifier: Wallet.primary(),
       user: insert(:user),
       metadata: %{}
@@ -132,7 +145,7 @@ defmodule EWalletDB.Factory do
     %Mint{
       amount: 100_000,
       token_uuid: insert(:token).uuid,
-      transfer_uuid: insert(:transfer).uuid
+      transaction_uuid: insert(:transaction).uuid
     }
   end
 
@@ -176,15 +189,20 @@ defmodule EWalletDB.Factory do
     }
   end
 
-  def transfer_factory do
-    %Transfer{
+  def transaction_factory do
+    token = insert(:token)
+
+    %Transaction{
       idempotency_token: UUID.generate(),
       payload: %{example: "Payload"},
       metadata: %{some: "metadata"},
-      amount: 100,
-      token: insert(:token),
+      from_amount: 100,
+      from_token: token,
       from_wallet: insert(:wallet),
-      to_wallet: insert(:wallet)
+      to_token: token,
+      to_amount: 100,
+      to_wallet: insert(:wallet),
+      exchange_account: nil
     }
   end
 

@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Icon, Input, PlainButton } from '../omg-uikit'
-import CategoriesProvider from '../omg-account-category/categoriesProvider'
+import CategoriesFetcher from '../omg-account-category/categoriesFetcher'
 import { connect } from 'react-redux'
 import { createCategory } from '../omg-account-category/action'
 import { withRouter } from 'react-router-dom'
@@ -107,7 +107,7 @@ class ChooseCategoryStage extends Component {
     category: PropTypes.object,
     match: PropTypes.object
   }
-  state = { createNewGroup: false }
+  state = { createNewGroup: false, categoryNameToCreate: '' }
   onClickCreateNewGroup = e => {
     this.setState({ createNewGroup: true })
   }
@@ -127,7 +127,8 @@ class ChooseCategoryStage extends Component {
   onChangeInputSearch = e => {
     this.setState({ search: e.target.value })
   }
-  renderCategories = ({ categories, loadingStatus }) => {
+  renderCategories = ({ data: categories, loadingStatus, cachedCategories }) => {
+    const cat = loadingStatus === 'SUCCESS' ? categories : cachedCategories
     return (
       <CategoryContainer>
         <TopBar>
@@ -147,19 +148,18 @@ class ChooseCategoryStage extends Component {
               <Icon name='Checkmark' />
               <span>None</span>
             </SearchItem>
-            {categories
-              .map(cat => {
-                return (
-                  <SearchItem
-                    onClick={e => this.props.onChooseCategory(cat)}
-                    active={_.get(this.props.category, 'id') === cat.id}
-                    key={cat.id}
-                  >
-                    <Icon name='Checkmark' />
-                    <span>{cat.name}</span>
-                  </SearchItem>
-                )
-              })}
+            {cat.map(cat => {
+              return (
+                <SearchItem
+                  onClick={e => this.props.onChooseCategory(cat)}
+                  active={_.get(this.props.category, 'id') === cat.id}
+                  key={cat.id}
+                >
+                  <Icon name='Checkmark' />
+                  <span>{cat.name}</span>
+                </SearchItem>
+              )
+            })}
           </SearchResult>
         </SearchContainer>
         <BottomBar>
@@ -185,7 +185,15 @@ class ChooseCategoryStage extends Component {
     )
   }
   render () {
-    return <CategoriesProvider render={this.renderCategories} {...this.props} {...this.state} search={this.state.search} />
+    return (
+      <CategoriesFetcher
+        render={this.renderCategories}
+        {...this.props}
+        {...this.state}
+        search={this.state.search}
+        perPage={100}
+      />
+    )
   }
 }
 

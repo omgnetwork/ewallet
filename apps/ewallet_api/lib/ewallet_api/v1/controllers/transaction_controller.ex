@@ -1,14 +1,25 @@
 defmodule EWalletAPI.V1.TransactionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.WalletFetcher
+  alias EWallet.{WalletFetcher, TransactionGate}
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWalletDB.{Transfer, User, Repo}
+  alias EWalletDB.{Transaction, User, Repo}
 
-  @preload_fields [:token]
+  @preload_fields [:from_token, :to_token]
   @mapped_fields %{"created_at" => "inserted_at"}
   @search_fields [:id, :idempotency_token, :status, :from, :to]
   @sort_fields [:id, :status, :from, :to, :inserted_at, :updated_at]
+  @allowed_fields [
+    "idempotency_token",
+    "from_address",
+    "to_address",
+    "to_account_id",
+    "to_provider_user_id",
+    "token_id",
+    "amount",
+    "metadata",
+    "encrypted_metadata"
+  ]
 
   @doc """
   Server endpoint
@@ -16,7 +27,7 @@ defmodule EWalletAPI.V1.TransactionController do
   Gets the list of ALL transactions.
   Allows sorting, filtering and pagination.
   """
-  def all(conn, attrs), do: query_records_and_respond(Transfer, attrs, conn)
+  def all(conn, attrs), do: query_records_and_respond(Transaction, attrs, conn)
 
   @doc """
   Server endpoint
@@ -37,7 +48,7 @@ defmodule EWalletAPI.V1.TransactionController do
       attrs = clean_address_search_terms(user, attrs)
 
       wallet.address
-      |> Transfer.all_for_address()
+      |> Transaction.all_for_address()
       |> query_records_and_respond(attrs, conn)
     else
       error when is_atom(error) -> handle_error(conn, error)
@@ -64,11 +75,20 @@ defmodule EWalletAPI.V1.TransactionController do
         |> clean_address_search_terms(attrs)
 
       wallet.address
-      |> Transfer.all_for_address()
+      |> Transaction.all_for_address()
       |> query_records_and_respond(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
     end
+  end
+
+  def create(conn, attrs) do
+    attrs
+    |> Enum.filter(fn {k, _v} -> Enum.member?(@allowed_fields, k) end)
+    |> Enum.into(%{})
+    |> Map.put("from_user_id", conn.assigns.user.id)
+    |> TransactionGate.create()
+    |> respond(conn)
   end
 
   defp clean_address_search_terms(user, %{"search_terms" => terms} = attrs) do
@@ -119,6 +139,20 @@ defmodule EWalletAPI.V1.TransactionController do
   end
 
   defp respond_multiple({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
+  defp respond({:ok, transaction}, conn) do
+    render(conn, :transaction, %{transaction: transaction})
+  end
+
+  defp respond({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
+  defp respond({:error, code}, conn), do: handle_error(conn, code)
+
+  defp respond({:error, _transaction, code, description}, conn) do
     handle_error(conn, code, description)
   end
 end

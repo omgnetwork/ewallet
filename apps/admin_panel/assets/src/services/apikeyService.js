@@ -1,10 +1,10 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAllApikey ({ per, sort, query, ...rest }) {
+export function getAllApikey ({ perPage, sort, query, ...rest }) {
   return authenticatedRequest({
     path: '/api_key.all',
     data: {
-      per_page: per,
+      per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
       search_term: query,

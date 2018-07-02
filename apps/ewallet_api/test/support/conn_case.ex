@@ -88,6 +88,10 @@ defmodule EWalletAPI.ConnCase do
     :ok
   end
 
+  def stringify_keys(%NaiveDateTime{} = value) do
+    Date.to_iso8601(value)
+  end
+
   def stringify_keys(map) when is_map(map) do
     for {key, val} <- map, into: %{}, do: {convert_key(key), stringify_keys(val)}
   end
@@ -128,7 +132,7 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def mint!(token, amount \\ 1_000_000) do
-    {:ok, mint, _transfer} =
+    {:ok, mint, _transaction} =
       MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
         "token_id" => token.id,
@@ -142,8 +146,8 @@ defmodule EWalletAPI.ConnCase do
   end
 
   def transfer!(from, to, token, amount) do
-    {:ok, transfer, _wallets, _token} =
-      TransactionGate.process_with_addresses(%{
+    {:ok, transaction} =
+      TransactionGate.create(%{
         "from_address" => from,
         "to_address" => to,
         "token_id" => token.id,
@@ -152,7 +156,7 @@ defmodule EWalletAPI.ConnCase do
         "idempotency_token" => UUID.generate()
       })
 
-    transfer
+    transaction
   end
 
   @doc """

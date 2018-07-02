@@ -98,7 +98,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
-          "address" => "fake"
+          "address" => "fake-0000-0000-0000"
         })
 
       assert res == {:error, :account_wallet_not_found}
@@ -218,7 +218,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => meta.user.provider_user_id,
-          "address" => "fake"
+          "address" => "fake-0000-0000-0000"
         })
 
       assert res == {:error, :user_wallet_not_found}
@@ -274,7 +274,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "address" => "fake"
+          "address" => "fake-0000-0000-0000"
         })
 
       assert res == {:error, :wallet_not_found}
@@ -348,7 +348,7 @@ defmodule EWallet.TransactionRequestGateTest do
           "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil,
-          "address" => "fake"
+          "address" => "fake-0000-0000-0000"
         })
 
       assert error == :user_wallet_not_found

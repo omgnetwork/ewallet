@@ -1,5 +1,5 @@
 import React, { PureComponent } from 'react'
-import { Table, Icon } from '../omg-uikit'
+import { Table, Icon, Button } from '../omg-uikit'
 import { withRouter } from 'react-router'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
@@ -14,10 +14,18 @@ export const ThContent = styled.div`
   font-weight: 600;
   color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.B100)};
 `
+const LoadMoreButton = styled(Button)`
+  padding-top: 5px;
+  padding-bottom: 5px;
+  i {
+    margin-right: 5px;
+  }
+`
 const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
+
     thead {
       tr {
         border-top: 1px solid ${props => props.theme.colors.S400};
@@ -36,6 +44,7 @@ const TableContainer = styled.div`
       cursor: pointer;
     }
     td {
+      opacity: ${props => (props.loading ? 0.6 : 1)};
       padding: 10px;
       vertical-align: top;
       color: ${props => props.theme.colors.B200};
@@ -58,17 +67,39 @@ const TableContainer = styled.div`
     }
   }
 `
+const NavigationContainer = styled.div`
+  text-align: right;
+  padding-top: 40px;
+  > button {
+    padding: 5px 10px;
+    :hover {
+
+    }
+  }
+  > button:first-child {
+    margin-right: 5px;
+  }
+`
 
 class SortableTable extends PureComponent {
   static propTypes = {
     history: PropTypes.object,
     location: PropTypes.object,
-    dataSource: PropTypes.oneOfType([PropTypes.array]),
-    columns: PropTypes.oneOfType([PropTypes.array]),
-    loading: PropTypes.bool,
+    rows: PropTypes.array,
+    columns: PropTypes.array,
+    loadingStatus: PropTypes.bool,
     perPage: PropTypes.number,
     rowRenderer: PropTypes.func,
-    onClickRow: PropTypes.func
+    onClickRow: PropTypes.func,
+    isLastPage: PropTypes.bool,
+    isFirstPage: PropTypes.bool,
+    navigation: PropTypes.bool,
+    onClickLoadMore: PropTypes.func,
+    pagination: PropTypes.bool,
+    pageEntity: PropTypes.string
+  }
+  static defaultProps = {
+    pageEntity: 'page'
   }
 
   onSelectFilter = (col, item) => {
@@ -91,33 +122,55 @@ class SortableTable extends PureComponent {
   }
   onClickSort = col => {
     const searchObject = queryString.parse(this.props.location.search)
-    const key = `sort-${col.key}`
-    const sortOrder = searchObject[key]
+    const sortOrderKey = 'sort-order'
+    const sortByKey = 'sort-by'
+    const sortOrder = searchObject[sortOrderKey]
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        ...{ [key]: sortOrder === 'asc' ? 'desc' : 'asc' },
-        ...{ 'main-sort': col.key }
+        ...{ [sortOrderKey]: sortOrder === 'asc' ? 'desc' : 'asc' },
+        ...{ [sortByKey]: col.key }
       })
     })
   }
   getPage = () => {
     const searchObject = queryString.parse(this.props.location.search)
-    return Number(searchObject.page) || 1
+    return Number(searchObject[this.props.pageEntity]) || 1
   }
+  onClickPrev = e => {
+    if (!this.props.isFirstPage) {
+      const searchObject = queryString.parse(this.props.location.search)
+      this.props.history.push({
+        search: queryString.stringify({
+          ...searchObject,
+          ...{ [this.props.pageEntity]: Number(searchObject[this.props.pageEntity]) - 1 }
+        })
+      })
+    }
+  }
+  onClickNext = e => {
+    if (!this.props.isLastPage) {
+      const searchObject = queryString.parse(this.props.location.search)
+      this.props.history.push({
+        search: queryString.stringify({
+          ...searchObject,
+          ...{ [this.props.pageEntity]: Number(searchObject[this.props.pageEntity] || 1) + 1 }
+        })
+      })
+    }
+  }
+
   columnRenderer = col => {
     const searchObject = queryString.parse(this.props.location.search)
-    const key = `sort-${col.key}`
-    const sortOrder = searchObject[key]
     const filter = searchObject[`filter-${col.key}`]
     if (col.sort) {
       return (
         <SortHeader
           key={col.key}
           col={col}
-          active={searchObject['main-sort'] === col.key}
+          active={searchObject['sort-by'] === col.key}
+          sortOrder={searchObject['sort-order']}
           onClickSort={this.onClickSort}
-          sortOrder={sortOrder}
         />
       )
     }
@@ -141,6 +194,7 @@ class SortableTable extends PureComponent {
       </th>
     )
   }
+
   getFilteredData = () => {
     let shouldFilter = this.props.location.search
     const filterQuery = _.reduce(
@@ -154,21 +208,11 @@ class SortableTable extends PureComponent {
       },
       {}
     )
-    const sortQuery = _.reduce(
-      queryString.parse(this.props.location.search),
-      (prev, curr, key) => {
-        const split = key.split('-')
-        if (split[0] === 'sort') prev[split[1]] = curr
-        return prev
-      },
-      {}
-    )
-    const mainSort = queryString.parse(this.props.location.search)['main-sort']
-    const sortKeys = _.uniq([mainSort, ..._.keys(sortQuery)])
-    const sortOrders = _.uniq([sortQuery[mainSort], ..._.values(sortQuery)])
-    return shouldFilter
+    const sortBy = [queryString.parse(this.props.location.search)['sort-by']]
+    const sortOrder = [queryString.parse(this.props.location.search)['sort-order']]
+    const result = shouldFilter
       ? _
-          .chain(this.props.dataSource)
+          .chain(this.props.rows)
           .filter(d => {
             return _.reduce(
               filterQuery,
@@ -178,27 +222,54 @@ class SortableTable extends PureComponent {
               true
             )
           })
-          .orderBy(sortKeys, sortOrders)
+          .orderBy(sortBy, sortOrder)
           .value()
-      : this.props.dataSource
+      : this.props.rows
+    return result
   }
-
+  renderLoadMore = () => {
+    return (
+      <LoadMoreButton
+        styleType='secondary'
+        onClick={this.props.onClickLoadMore}
+        disabled={this.props.isLastPage}
+        size='small'
+      >
+        <Icon name='Chevron-Down' />
+        <span>Load More...</span>
+      </LoadMoreButton>
+    )
+  }
   render () {
     return (
-      <TableContainer>
+      <TableContainer loading={this.props.loadingStatus === 'PENDING'}>
         <Table
+          {...this.props}
           columns={this.props.columns}
           rows={this.getFilteredData()}
           columnRenderer={this.columnRenderer}
-          rowRenderer={this.props.rowRenderer}
           onClickColumn={this.onClickColumn}
+          rowRenderer={this.props.rowRenderer}
           onClickRow={this.props.onClickRow}
           onClickPagination={this.onClickPagination}
-          loading={this.props.loading}
+          loading={
+            this.props.loadingStatus === 'INITIATED' || this.props.loadingStatus === 'DEFAULT'
+          }
+          pagination={this.props.pagination}
           page={this.getPage()}
           perPage={this.props.perPage}
-          {...this.props}
         />
+        {this.props.navigation &&
+          this.props.loadingStatus !== 'INITIATED' && (
+            <NavigationContainer>
+              <Button onClick={this.onClickPrev} styleType='secondary' disabled={this.props.isFirstPage}>
+                <Icon name='Chevron-Left' />
+              </Button>
+              <Button onClick={this.onClickNext} styleType='secondary' disabled={this.props.isLastPage}>
+                <Icon name='Chevron-Right' />
+              </Button>
+            </NavigationContainer>
+          )}
       </TableContainer>
     )
   }
@@ -219,14 +290,20 @@ class SortHeader extends React.Component {
       <th key={`col-header-${this.props.col.key}`} onClick={this.onClickSort}>
         <ThContent active={this.props.active}>
           <span>{this.props.col.title}</span>{' '}
-          {this.props.sortOrder === 'asc' ? <Icon name='Arrow-Up' /> : <Icon name='Arrow-Down' />}
+          {this.props.active ? (
+            this.props.sortOrder === 'asc' ? (
+              <Icon name='Arrow-Up' />
+            ) : (
+              <Icon name='Arrow-Down' />
+            )
+          ) : null}
         </ThContent>
       </th>
     )
   }
 }
 const FilterHeader = withDropdownState(
-  class extends React.Component {
+  class FilterHeader extends React.Component {
     static propTypes = {
       filterOptions: PropTypes.array,
       onClickButton: PropTypes.func,

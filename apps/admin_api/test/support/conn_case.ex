@@ -18,6 +18,7 @@ defmodule AdminAPI.ConnCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
+  alias EWallet.Web.Date
   alias EWalletDB.{Repo, User, Account, Key}
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.Helpers.Crypto
@@ -131,6 +132,10 @@ defmodule AdminAPI.ConnCase do
     :ok
   end
 
+  def stringify_keys(%NaiveDateTime{} = value) do
+    Date.to_iso8601(value)
+  end
+
   def stringify_keys(map) when is_map(map) do
     for {key, val} <- map, into: %{}, do: {convert_key(key), stringify_keys(val)}
   end
@@ -155,7 +160,7 @@ defmodule AdminAPI.ConnCase do
   end
 
   def mint!(token, amount \\ 1_000_000) do
-    {:ok, mint, _transfer} =
+    {:ok, mint, _transaction} =
       MintGate.insert(%{
         "idempotency_token" => UUID.generate(),
         "token_id" => token.id,
@@ -187,8 +192,8 @@ defmodule AdminAPI.ConnCase do
   end
 
   def transfer!(from, to, token, amount) do
-    {:ok, transfer, _wallets, _token} =
-      TransactionGate.process_with_addresses(%{
+    {:ok, transaction} =
+      TransactionGate.create(%{
         "from_address" => from,
         "to_address" => to,
         "token_id" => token.id,
@@ -197,7 +202,7 @@ defmodule AdminAPI.ConnCase do
         "idempotency_token" => UUID.generate()
       })
 
-    transfer
+    transaction
   end
 
   @doc """

@@ -1,12 +1,12 @@
 defmodule AdminAPI.V1.TransactionViewTest do
   use AdminAPI.ViewCase, :v1
   alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.TokenSerializer
   alias AdminAPI.V1.TransactionView
 
   describe "AdminAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct response structure" do
-      transaction = insert(:transfer)
-      token = transaction.token
+      transaction = insert(:transaction)
 
       expected = %{
         version: @expected_version,
@@ -18,40 +18,35 @@ defmodule AdminAPI.V1.TransactionViewTest do
           from: %{
             object: "transaction_source",
             address: transaction.from,
-            amount: transaction.amount,
-            token_id: token.id,
-            token: %{
-              object: "token",
-              id: token.id,
-              symbol: token.symbol,
-              name: token.name,
-              metadata: %{},
-              encrypted_metadata: %{},
-              subunit_to_unit: token.subunit_to_unit,
-              created_at: Date.to_iso8601(token.inserted_at),
-              updated_at: Date.to_iso8601(token.updated_at)
-            }
+            amount: transaction.from_amount,
+            account: nil,
+            account_id: nil,
+            user: nil,
+            user_id: nil,
+            token_id: transaction.from_token.id,
+            token: TokenSerializer.serialize(transaction.from_token)
           },
           to: %{
             object: "transaction_source",
             address: transaction.to,
-            amount: transaction.amount,
-            token_id: token.id,
-            token: %{
-              object: "token",
-              id: token.id,
-              symbol: token.symbol,
-              name: token.name,
-              metadata: %{},
-              encrypted_metadata: %{},
-              subunit_to_unit: token.subunit_to_unit,
-              created_at: Date.to_iso8601(token.inserted_at),
-              updated_at: Date.to_iso8601(token.updated_at)
-            }
+            amount: transaction.to_amount,
+            account: nil,
+            account_id: nil,
+            user: nil,
+            user_id: nil,
+            token_id: transaction.to_token.id,
+            token: TokenSerializer.serialize(transaction.to_token)
           },
           exchange: %{
             object: "exchange",
-            rate: 1
+            rate: 1,
+            calculated_at: nil,
+            exchange_pair: nil,
+            exchange_pair_id: nil,
+            exchange_account: nil,
+            exchange_account_id: nil,
+            exchange_wallet: nil,
+            exchange_wallet_address: nil
           },
           metadata: %{some: "metadata"},
           encrypted_metadata: %{},
@@ -65,10 +60,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
     end
 
     test "renders transactions.json with correct response structure" do
-      transaction1 = insert(:transfer)
-      token1 = transaction1.token
-      transaction2 = insert(:transfer)
-      token2 = transaction2.token
+      transaction1 = insert(:transaction)
+      transaction2 = insert(:transaction)
 
       paginator = %Paginator{
         data: [transaction1, transaction2],
@@ -93,40 +86,35 @@ defmodule AdminAPI.V1.TransactionViewTest do
               from: %{
                 object: "transaction_source",
                 address: transaction1.from,
-                amount: transaction1.amount,
-                token_id: token1.id,
-                token: %{
-                  object: "token",
-                  id: token1.id,
-                  symbol: token1.symbol,
-                  name: token1.name,
-                  metadata: %{},
-                  encrypted_metadata: %{},
-                  subunit_to_unit: token1.subunit_to_unit,
-                  created_at: Date.to_iso8601(token1.inserted_at),
-                  updated_at: Date.to_iso8601(token1.updated_at)
-                }
+                amount: transaction1.from_amount,
+                account: nil,
+                account_id: nil,
+                user: nil,
+                user_id: nil,
+                token_id: transaction1.from_token.id,
+                token: TokenSerializer.serialize(transaction1.from_token)
               },
               to: %{
                 object: "transaction_source",
                 address: transaction1.to,
-                amount: transaction1.amount,
-                token_id: token1.id,
-                token: %{
-                  object: "token",
-                  id: token1.id,
-                  symbol: token1.symbol,
-                  name: token1.name,
-                  metadata: %{},
-                  encrypted_metadata: %{},
-                  subunit_to_unit: token1.subunit_to_unit,
-                  created_at: Date.to_iso8601(token1.inserted_at),
-                  updated_at: Date.to_iso8601(token1.updated_at)
-                }
+                amount: transaction1.to_amount,
+                account: nil,
+                account_id: nil,
+                user: nil,
+                user_id: nil,
+                token_id: transaction1.to_token.id,
+                token: TokenSerializer.serialize(transaction1.to_token)
               },
               exchange: %{
                 object: "exchange",
-                rate: 1
+                rate: 1,
+                calculated_at: nil,
+                exchange_pair: nil,
+                exchange_pair_id: nil,
+                exchange_account: nil,
+                exchange_account_id: nil,
+                exchange_wallet: nil,
+                exchange_wallet_address: nil
               },
               metadata: %{some: "metadata"},
               encrypted_metadata: %{},
@@ -141,40 +129,35 @@ defmodule AdminAPI.V1.TransactionViewTest do
               from: %{
                 object: "transaction_source",
                 address: transaction2.from,
-                amount: transaction2.amount,
-                token_id: token2.id,
-                token: %{
-                  object: "token",
-                  id: token2.id,
-                  symbol: token2.symbol,
-                  name: token2.name,
-                  metadata: %{},
-                  encrypted_metadata: %{},
-                  subunit_to_unit: token2.subunit_to_unit,
-                  created_at: Date.to_iso8601(token2.inserted_at),
-                  updated_at: Date.to_iso8601(token2.updated_at)
-                }
+                amount: transaction2.from_amount,
+                account: nil,
+                account_id: nil,
+                user: nil,
+                user_id: nil,
+                token_id: transaction2.from_token.id,
+                token: TokenSerializer.serialize(transaction2.from_token)
               },
               to: %{
                 object: "transaction_source",
                 address: transaction2.to,
-                amount: transaction2.amount,
-                token_id: token2.id,
-                token: %{
-                  object: "token",
-                  id: token2.id,
-                  symbol: token2.symbol,
-                  name: token2.name,
-                  metadata: %{},
-                  encrypted_metadata: %{},
-                  subunit_to_unit: token2.subunit_to_unit,
-                  created_at: Date.to_iso8601(token2.inserted_at),
-                  updated_at: Date.to_iso8601(token2.updated_at)
-                }
+                amount: transaction2.to_amount,
+                account: nil,
+                account_id: nil,
+                user: nil,
+                user_id: nil,
+                token_id: transaction2.to_token.id,
+                token: TokenSerializer.serialize(transaction2.to_token)
               },
               exchange: %{
                 object: "exchange",
-                rate: 1
+                rate: 1,
+                calculated_at: nil,
+                exchange_pair: nil,
+                exchange_pair_id: nil,
+                exchange_account: nil,
+                exchange_account_id: nil,
+                exchange_wallet: nil,
+                exchange_wallet_address: nil
               },
               metadata: %{some: "metadata"},
               encrypted_metadata: %{},

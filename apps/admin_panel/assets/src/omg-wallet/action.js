@@ -1,15 +1,27 @@
 import * as walletService from '../services/walletService'
-export const getWalletsByAccountId = ({ accountId, search }) => async dispatch => {
+export const getWalletsByAccountId = ({
+  accountId,
+  search,
+  page,
+  perPage,
+  cacheKey
+}) => async dispatch => {
   dispatch({ type: 'WALLETS/REQUEST/INITIATED' })
   try {
     const result = await walletService.getWalletsByAccountId({
-      per: 1000,
+      perPage: perPage,
       sort: { by: 'created_at', dir: 'asc' },
       search_term: search,
-      accountId
+      accountId,
+      page
     })
     if (result.data.success) {
-      return dispatch({ type: 'WALLETS/REQUEST/SUCCESS', wallets: result.data.data.data })
+      return dispatch({
+        type: 'WALLETS/REQUEST/SUCCESS',
+        data: result.data.data.data,
+        pagination: result.data.data.pagination,
+        cacheKey
+      })
     } else {
       return dispatch({ type: 'WALLETS/REQUEST/FAILED', error: result.data.data })
     }
@@ -21,13 +33,13 @@ export const getWalletsByUserId = ({ userId, search }) => async dispatch => {
   dispatch({ type: 'USER_WALLETS/REQUEST/INITIATED' })
   try {
     const result = await walletService.getWalletsByUserId({
-      per: 1000,
+      perPage: 1000,
       sort: { by: 'created_at', dir: 'asc' },
       search_term: search,
       userId
     })
     if (result.data.success) {
-      return dispatch({ type: 'USER_WALLETS/REQUEST/SUCCESS', wallets: result.data.data.data })
+      return dispatch({ type: 'USER_WALLETS/REQUEST/SUCCESS', data: result.data.data.data })
     } else {
       return dispatch({ type: 'USER_WALLETS/REQUEST/FAILED', error: result.data.data })
     }

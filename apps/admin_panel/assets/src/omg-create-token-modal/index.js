@@ -2,25 +2,9 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Button, Icon } from '../omg-uikit'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import { createToken } from '../omg-token/action'
 import { connect } from 'react-redux'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: 0,
-    overflow: 'hidden'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
 const Form = styled.form`
   padding: 50px;
   width: 250px;
@@ -45,19 +29,32 @@ const Form = styled.form`
 const ButtonContainer = styled.div`
   text-align: center;
 `
+const Error = styled.div`
+  color: ${props => props.theme.colors.R400};
+  text-align: center;
+  padding: 10px 0;
+  overflow: hidden;
+  max-height: ${props => (props.error ? '50px' : 0)};
+  opacity: ${props => (props.error ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity;
+`
 
 class CreateTokenModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    createToken: PropTypes.func
+    createToken: PropTypes.func,
+    onFetchSuccess: PropTypes.func
   }
-  state = {
+  initialState = {
     name: '',
     symbol: '',
     amount: 0,
-    decimal: 18
+    decimal: 18,
+    error: '',
+    submitting: false
   }
+  state = this.initialState
   onChangeInputName = e => {
     this.setState({ name: e.target.value })
   }
@@ -70,30 +67,42 @@ class CreateTokenModal extends Component {
   onChangeDecimal = e => {
     this.setState({ decimal: e.target.value })
   }
+  onRequestClose = () => {
+    this.setState(this.initialState)
+    this.props.onRequestClose()
+  }
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
-    const result = await this.props.createToken({
-      name: this.state.name,
-      symbol: this.state.symbol,
-      amount: this.state.amount,
-      decimal: this.state.decimal
-    })
-    if (result.data.success) {
-      this.props.onRequestClose()
-      this.setState({ submitting: false, name: '', symbol: '', amount: 0, decimal: 18 })
+    try {
+      const result = await this.props.createToken({
+        name: this.state.name,
+        symbol: this.state.symbol,
+        amount: this.state.amount,
+        decimal: this.state.decimal
+      })
+      if (result.data) {
+        this.onRequestClose()
+        this.props.onFetchSuccess()
+      } else {
+        this.setState({
+          submitting: false,
+          error: result.error.description || result.error.message
+        })
+      }
+    } catch (e) {
+      this.setState({ submitting: false, error: e })
     }
   }
   render () {
     return (
       <Modal
         isOpen={this.props.open}
-        style={customStyles}
-        onRequestClose={this.props.onRequestClose}
+        onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
       >
         <Form onSubmit={this.onSubmit} noValidate>
-          <Icon name='Close' onClick={this.props.onRequestClose} />
+          <Icon name='Close' onClick={this.onRequestClose} />
           <h4>Create Token</h4>
           <Input
             placeholder='Token name'
@@ -122,11 +131,14 @@ class CreateTokenModal extends Component {
               Create Token
             </Button>
           </ButtonContainer>
-          <div>{this.state.error}</div>
+          <Error error={this.state.error}>{this.state.error}</Error>
         </Form>
       </Modal>
     )
   }
 }
 
-export default connect(null, { createToken })(CreateTokenModal)
+export default connect(
+  null,
+  { createToken }
+)(CreateTokenModal)

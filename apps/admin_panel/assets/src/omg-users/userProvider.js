@@ -19,9 +19,7 @@ class UserProvider extends Component {
     if (!this.props.user) {
       this.props.getUserById(this.props.userId)
     }
-    if (_.isEmpty(this.props.wallet)) {
-      this.props.getWalletsByUserId({ userId: this.props.userId })
-    }
+    this.props.getWalletsByUserId({ userId: this.props.userId })
   }
   render () {
     return this.props.render({

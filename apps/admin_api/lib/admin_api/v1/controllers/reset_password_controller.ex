@@ -4,6 +4,7 @@ defmodule AdminAPI.V1.ResetPasswordController do
   alias AdminAPI.{Mailer, ForgetPasswordEmail}
   alias EWalletDB.{User, ForgetPasswordRequest}
 
+  @spec reset(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def reset(conn, %{"email" => email, "redirect_url" => redirect_url}) do
     case User.get_by_email(email) do
       nil ->
@@ -23,6 +24,7 @@ defmodule AdminAPI.V1.ResetPasswordController do
 
   def reset(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(
         conn,
         %{

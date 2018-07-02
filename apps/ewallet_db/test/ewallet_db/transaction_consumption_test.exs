@@ -133,7 +133,6 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test_insert_generate_uuid(TransactionConsumption, :uuid)
     test_insert_generate_external_id(TransactionConsumption, :id, "txc_")
     test_insert_generate_timestamps(TransactionConsumption)
-    test_insert_prevent_blank(TransactionConsumption, :amount)
     test_insert_prevent_blank(TransactionConsumption, :idempotency_token)
     test_insert_prevent_blank(TransactionConsumption, :transaction_request_uuid)
     test_insert_prevent_blank(TransactionConsumption, :wallet_address)
@@ -168,9 +167,9 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "confirm/2" do
     test "confirms the consumption" do
       consumption = insert(:transaction_consumption)
-      transfer = insert(:transfer)
+      transaction = insert(:transaction)
       assert consumption.status == "pending"
-      consumption = TransactionConsumption.confirm(consumption, transfer)
+      consumption = TransactionConsumption.confirm(consumption, transaction)
       assert consumption.status == "confirmed"
     end
   end
@@ -178,9 +177,9 @@ defmodule EWalletDB.TransactionConsumptionTest do
   describe "fail/2" do
     test "fails the consumption" do
       consumption = insert(:transaction_consumption)
-      transfer = insert(:transfer)
+      transaction = insert(:transaction)
       assert consumption.status == "pending"
-      consumption = TransactionConsumption.fail(consumption, transfer)
+      consumption = TransactionConsumption.fail(consumption, transaction)
       assert consumption.status == "failed"
     end
   end

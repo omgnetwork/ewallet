@@ -244,7 +244,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
           token_id: token.id,
           correlation_id: nil,
           amount: nil,
-          address: "fake"
+          address: "FAKE-0000-0000-0000"
         })
 
       assert response == %{

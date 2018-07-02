@@ -65,7 +65,7 @@ class AccountDetailPage extends Component {
     return (
       <Section title='TRANSACTION INFORMATION'>
         <RatioBar
-          dataSource={[
+          rows={[
             { percent: 20, content: 'transaction', color: this.props.theme.colors.B100 },
             { percent: 30, content: 'transaction', color: this.props.theme.colors.S500 }
           ]}
@@ -129,7 +129,7 @@ class AccountDetailPage extends Component {
   renderAccountDetailPage = ({ account, loadingStatus }) => {
     return (
       <AccountDetailContainer>
-        {loadingStatus === 'SUCCESS' ? this.renderAccountDetailContainer(account) : 'loading'}
+        {account ? this.renderAccountDetailContainer(account) : 'loading'}
       </AccountDetailContainer>
     )
   }

@@ -4,7 +4,12 @@ export const transactionsReducer = createReducer(
   {},
   {
     'TRANSACTIONS/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.transactions.data, 'id') }
+      return { ...state, ..._.keyBy(action.data, 'id') }
+    }
+  },
+  {
+    'TRANSACTION/CREATE/SUCCESS': (state, action) => {
+      return { ...state, [action.data.id]: action.data }
     }
   }
 )

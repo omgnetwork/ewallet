@@ -1,29 +1,15 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import styled from 'styled-components'
 import CreateAccountStage from './CreateAccountStage'
 import ChooseCategoryStage from './ChooseCategoryStage'
 import CreateSuccessStage from './CreateSuccessStage'
 import { createAccount } from '../omg-account/action'
+import { getCategories } from '../omg-account-category/action'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: 0,
-    overflow: 'hidden'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
+
 const CreateAccountContainer = styled.div`
   position: relative;
   text-align: center;
@@ -34,8 +20,14 @@ class CreateAccountModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    createAccount: PropTypes.func
+    createAccount: PropTypes.func,
+    getCategories: PropTypes.func,
+    onCreateAccount: PropTypes.func
   }
+  static defaultProps = {
+    onCreateAccount: _.noop
+  }
+
   initialState = {
     submitting: false,
     stage: 'create',
@@ -46,7 +38,10 @@ class CreateAccountModal extends Component {
     error: false
   }
   state = this.initialState
-
+  componentDidMount = () => {
+    // PREFETCH CATEGORIES FOR BETTER EXPERIENCE
+    this.props.getCategories({})
+  }
   onSubmit = e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -66,6 +61,7 @@ class CreateAccountModal extends Component {
     })
     if (result.data.success) {
       this.setState({ stage: 'finished' })
+      this.props.onCreateAccount()
     } else {
       this.setState({
         error: result.data.data.description,
@@ -140,7 +136,6 @@ class CreateAccountModal extends Component {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
-        style={customStyles}
         contentLabel='create account modal'
         shouldCloseOnOverlayClick={false}
       >
@@ -154,7 +149,8 @@ const enhance = compose(
   connect(
     null,
     {
-      createAccount
+      createAccount,
+      getCategories
     }
   )
 )

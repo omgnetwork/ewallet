@@ -38,9 +38,9 @@ defmodule LocalLedgerDB.TokenTest do
   end
 
   test "prevents creation of a token with an id already in DB" do
-    {:ok, _} = :token |> build |> Repo.insert()
+    {:ok, inserted_token} = :token |> build |> Repo.insert()
 
-    params = string_params_for(:token)
+    params = string_params_for(:token, id: inserted_token.id)
 
     {:error, token} =
       %Token{}
@@ -175,13 +175,17 @@ defmodule LocalLedgerDB.TokenTest do
     test "returns the existing token without error if already existing" do
       assert Repo.all(Token) == []
 
-      inserted_token =
+      {:ok, inserted_token} =
         :token
-        |> string_params_for
+        |> string_params_for()
         |> Token.insert()
 
-      token = :token |> string_params_for |> Token.insert()
+      {res, token} =
+        :token
+        |> string_params_for(id: inserted_token.id)
+        |> Token.insert()
 
+      assert res == :ok
       assert inserted_token == token
     end
 

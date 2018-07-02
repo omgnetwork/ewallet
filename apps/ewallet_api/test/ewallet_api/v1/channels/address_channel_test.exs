@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule EWalletAPI.V1.WalletChannelTest do
-  use EWalletAPI.ChannelCase
+  use EWalletAPI.ChannelCase, async: false
   alias EWalletAPI.V1.WalletChannel
 
   describe "join/3 as client" do
@@ -36,7 +36,7 @@ defmodule EWalletAPI.V1.WalletChannelTest do
       {res, code} =
         "test"
         |> socket(%{auth: %{authenticated: true, user: user}})
-        |> subscribe_and_join(WalletChannel, "address:123")
+        |> subscribe_and_join(WalletChannel, "address:none000000000000")
 
       assert res == :error
       assert code == :channel_not_found

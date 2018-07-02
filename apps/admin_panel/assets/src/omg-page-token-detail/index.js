@@ -104,7 +104,7 @@ class TokenDetailPage extends Component {
   renderTokenDetailPage = ({ token, loadingStatus }) => {
     return (
       <AccountDetailContainer>
-        {loadingStatus === 'SUCCESS' ? this.renderAccountDetailContainer(token) : 'loading'}
+        {token ? this.renderAccountDetailContainer(token) : 'loading'}
       </AccountDetailContainer>
     )
   }

@@ -29,13 +29,13 @@ CLI.print("""
 
   1. Browse to `#{ewallet_swagger_ui_url}`
   2. Click the `Authorize` button
-  3. Use the value below for `ServerAuth`:
+  3. Use the value below for `ProviderAuth`:
 
   ```
   OMGProvider #{Base.encode64(ewallet_key.access_key <> ":" <> ewallet_key.secret_key)}
   ```
 
-  4. Try out Server endpoints such as /login, /user.create, /transfer, etc.
+  4. Try out Server endpoints such as /login, /user.create, etc.
 
   ## Try eWallet API's Client endpoints
 

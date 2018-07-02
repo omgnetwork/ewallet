@@ -25,7 +25,7 @@ defmodule EWallet.WalletFetcherTest do
     end
 
     test "returns 'user_wallet_not_found' if the address is not found", meta do
-      {:error, error} = WalletFetcher.get(meta.user, "fake")
+      {:error, error} = WalletFetcher.get(meta.user, "fake-0000-0000-0000")
       assert error == :user_wallet_not_found
     end
 
@@ -36,7 +36,7 @@ defmodule EWallet.WalletFetcherTest do
     end
 
     test "returns 'account_wallet_not_found' if the address is not found", meta do
-      {:error, error} = WalletFetcher.get(meta.account, "fake")
+      {:error, error} = WalletFetcher.get(meta.account, "fake-0000-0000-0000")
       assert error == :account_wallet_not_found
     end
 

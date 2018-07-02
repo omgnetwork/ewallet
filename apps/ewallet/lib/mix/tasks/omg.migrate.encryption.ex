@@ -22,7 +22,7 @@ defmodule Mix.Tasks.Omg.Migrate.Encryption do
         EWalletDB.Token,
         EWalletDB.TransactionConsumption,
         EWalletDB.TransactionRequest,
-        EWalletDB.Transfer,
+        EWalletDB.Transaction,
         EWalletDB.User,
         EWalletDB.Wallet
       ]

@@ -130,6 +130,29 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end
 
+    test "returns a client:invalid_parameter error when the password is too short" do
+      user = insert(:admin)
+      request = ForgetPasswordRequest.generate(user)
+
+      assert user.password_hash != Crypto.hash_password("password")
+
+      response =
+        unauthenticated_request("/admin.update_password", %{
+          email: user.email,
+          token: request.token,
+          password: "short",
+          password_confirmation: "short"
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `password` must be 8 characters or more."
+
+      assert ForgetPasswordRequest |> Repo.all() |> length() == 1
+    end
+
     test "returns an invalid parameter error when the email is not sent" do
       user = insert(:admin)
       request = ForgetPasswordRequest.generate(user)

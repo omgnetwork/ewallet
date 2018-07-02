@@ -3,43 +3,74 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   Serializes token(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
+
+  alias EWallet.Web.V1.{
+    PaginatorSerializer,
+    TokenSerializer,
+    UserSerializer,
+    AccountSerializer,
+    ExchangePairSerializer,
+    WalletSerializer
+  }
+
   alias EWallet.Web.{Date, Paginator}
-  alias EWalletDB.Transfer
+  alias EWalletDB.Transaction
   alias EWalletDB.Helpers.{Assoc, Preloader}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
 
-  def serialize(%Transfer{} = transaction) do
-    transaction = Preloader.preload(transaction, [:token])
+  def serialize(%Transaction{} = transaction) do
+    transaction =
+      Preloader.preload(transaction, [
+        :from_token,
+        :to_token,
+        :from_user,
+        :to_user,
+        :from_account,
+        :to_account,
+        :exchange_pair,
+        :exchange_account,
+        :exchange_wallet
+      ])
 
-    token_id = Assoc.get(transaction, [:token, :id])
-    token = TokenSerializer.serialize(transaction.token)
-
-    # credo:disable-for-next-line
     %{
       object: "transaction",
       id: transaction.id,
       idempotency_token: transaction.idempotency_token,
       from: %{
         object: "transaction_source",
+        user_id: Assoc.get(transaction, [:from_user, :id]),
+        user: UserSerializer.serialize(transaction.to_user),
+        account_id: Assoc.get(transaction, [:from_account, :id]),
+        account: AccountSerializer.serialize(transaction.to_account),
         address: transaction.from,
-        amount: transaction.amount,
-        token_id: token_id,
-        token: token
+        amount: transaction.from_amount,
+        token_id: Assoc.get(transaction, [:from_token, :id]),
+        token: TokenSerializer.serialize(transaction.from_token)
       },
       to: %{
         object: "transaction_source",
+        user_id: Assoc.get(transaction, [:to_user, :id]),
+        user: UserSerializer.serialize(transaction.to_user),
+        account_id: Assoc.get(transaction, [:to_account, :id]),
+        account: AccountSerializer.serialize(transaction.to_account),
         address: transaction.to,
-        amount: transaction.amount,
-        token_id: token_id,
-        token: token
+        amount: transaction.to_amount,
+        token_id: Assoc.get(transaction, [:to_token, :id]),
+        token: TokenSerializer.serialize(transaction.to_token)
       },
       exchange: %{
         object: "exchange",
-        rate: 1
+        rate: transaction.rate || 1,
+        calculated_at: transaction.calculated_at,
+        exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
+        exchange_pair: ExchangePairSerializer.serialize(transaction.exchange_pair),
+        exchange_account_id: Assoc.get(transaction, [:exchange_account, :id]),
+        exchange_account: AccountSerializer.serialize(transaction.exchange_account),
+        exchange_wallet_address: Assoc.get(transaction, [:exchange_wallet, :address]),
+        exchange_wallet: WalletSerializer.serialize_without_balances(transaction.exchange_wallet)
       },
       metadata: transaction.metadata || %{},
       encrypted_metadata: transaction.encrypted_metadata || %{},

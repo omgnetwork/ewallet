@@ -25,10 +25,10 @@ defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
 
         args ++ [{:seeded_ewallet_api_key, api_key.key}]
       {:error, changeset} ->
-        writer.error("  Admin Panel API key could not be inserted:")
+        writer.error("  API key could not be inserted:")
         writer.print_errors(changeset)
       _ ->
-        writer.error("  Admin Panel API key could not be inserted:")
+        writer.error("  API key could not be inserted:")
         writer.error("  Unknown error.")
     end
   end

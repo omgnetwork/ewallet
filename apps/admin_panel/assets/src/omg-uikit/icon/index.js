@@ -32,6 +32,7 @@ export default class Icon extends Component {
         hoverable={this.props.hoverable}
         button={this.props.button}
         onClick={this.props.onClick}
+        name={this.props.name}
       />
     )
   }

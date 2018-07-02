@@ -4,10 +4,13 @@ export const accountsReducer = createReducer(
   {},
   {
     'ACCOUNTS/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.accounts.data, 'id') }
+      return { ...state, ..._.keyBy(action.data, 'id') }
     },
     'ACCOUNT/CREATE/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.account.id]: action.account } }
+    },
+    'ACCOUNT/REQUEST/SUCCESS': (state, action) => {
+      return { ...state, ...{ [action.data.id]: action.data } }
     },
     'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.currentAccount.id]: action.currentAccount } }

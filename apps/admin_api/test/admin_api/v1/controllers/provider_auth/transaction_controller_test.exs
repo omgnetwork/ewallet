@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.User
+  alias EWalletDB.{User, Account}
 
   # credo:disable-for-next-line
   setup do
@@ -10,46 +10,46 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
     wallet_3 = insert(:wallet)
     wallet_4 = insert(:wallet, user: user, identifier: "secondary")
 
-    transfer_1 =
-      insert(:transfer, %{
+    transaction_1 =
+      insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_2,
         status: "confirmed"
       })
 
-    transfer_2 =
-      insert(:transfer, %{
+    transaction_2 =
+      insert(:transaction, %{
         from_wallet: wallet_2,
         to_wallet: wallet_1,
         status: "confirmed"
       })
 
-    transfer_3 =
-      insert(:transfer, %{
+    transaction_3 =
+      insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_3,
         status: "confirmed"
       })
 
-    transfer_4 =
-      insert(:transfer, %{
+    transaction_4 =
+      insert(:transaction, %{
         from_wallet: wallet_1,
         to_wallet: wallet_2,
         status: "pending"
       })
 
-    transfer_5 = insert(:transfer, %{status: "confirmed"})
-    transfer_6 = insert(:transfer, %{status: "pending"})
+    transaction_5 = insert(:transaction, %{status: "confirmed"})
+    transaction_6 = insert(:transaction, %{status: "pending"})
 
-    transfer_7 =
-      insert(:transfer, %{
+    transaction_7 =
+      insert(:transaction, %{
         from_wallet: wallet_4,
         to_wallet: wallet_2,
         status: "confirmed"
       })
 
-    transfer_8 =
-      insert(:transfer, %{
+    transaction_8 =
+      insert(:transaction, %{
         from_wallet: wallet_4,
         to_wallet: wallet_3,
         status: "pending"
@@ -61,14 +61,14 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       wallet_2: wallet_2,
       wallet_3: wallet_3,
       wallet_4: wallet_4,
-      transfer_1: transfer_1,
-      transfer_2: transfer_2,
-      transfer_3: transfer_3,
-      transfer_4: transfer_4,
-      transfer_5: transfer_5,
-      transfer_6: transfer_6,
-      transfer_7: transfer_7,
-      transfer_8: transfer_8
+      transaction_1: transaction_1,
+      transaction_2: transaction_2,
+      transaction_3: transaction_3,
+      transaction_4: transaction_4,
+      transaction_5: transaction_5,
+      transaction_6: transaction_6,
+      transaction_7: transaction_7,
+      transaction_8: transaction_8
     }
   end
 
@@ -80,23 +80,23 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
           "sort_dir" => "asc"
         })
 
-      transfers = [
-        meta.transfer_1,
-        meta.transfer_2,
-        meta.transfer_3,
-        meta.transfer_4,
-        meta.transfer_5,
-        meta.transfer_6,
-        meta.transfer_7,
-        meta.transfer_8
+      transactions = [
+        meta.transaction_1,
+        meta.transaction_2,
+        meta.transaction_3,
+        meta.transaction_4,
+        meta.transaction_5,
+        meta.transaction_6,
+        meta.transaction_7,
+        meta.transaction_8
       ]
 
-      assert length(response["data"]["data"]) == length(transfers)
+      assert length(response["data"]["data"]) == length(transactions)
 
-      # All transfers made during setup should exist in the response
-      assert Enum.all?(transfers, fn transfer ->
+      # All transactions made during setup should exist in the response
+      assert Enum.all?(transactions, fn transaction ->
                Enum.any?(response["data"]["data"], fn data ->
-                 transfer.id == data["id"]
+                 transaction.id == data["id"]
                end)
              end)
     end
@@ -117,10 +117,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_1.id,
-               meta.transfer_3.id,
-               meta.transfer_4.id,
-               meta.transfer_7.id
+               meta.transaction_1.id,
+               meta.transaction_3.id,
+               meta.transaction_4.id,
+               meta.transaction_7.id
              ]
     end
 
@@ -137,9 +137,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_4.id,
-               meta.transfer_6.id,
-               meta.transfer_8.id
+               meta.transaction_4.id,
+               meta.transaction_6.id,
+               meta.transaction_8.id
              ]
     end
 
@@ -160,8 +160,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_1.id,
-               meta.transfer_2.id
+               meta.transaction_1.id,
+               meta.transaction_2.id
              ]
     end
   end
@@ -180,10 +180,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_1.id,
-               meta.transfer_2.id,
-               meta.transfer_3.id,
-               meta.transfer_4.id
+               meta.transaction_1.id,
+               meta.transaction_2.id,
+               meta.transaction_3.id,
+               meta.transaction_4.id
              ]
     end
 
@@ -198,8 +198,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       ids = Enum.map(response["data"]["data"], fn t -> t["id"] end)
       assert length(ids) == 2
-      assert Enum.member?(ids, meta.transfer_7.id)
-      assert Enum.member?(ids, meta.transfer_8.id)
+      assert Enum.member?(ids, meta.transaction_7.id)
+      assert Enum.member?(ids, meta.transaction_8.id)
     end
 
     test "returns an 'user:user_wallet_mismatch' error with provider_user_id and invalid address",
@@ -234,10 +234,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_4.id,
-               meta.transfer_3.id,
-               meta.transfer_2.id,
-               meta.transfer_1.id
+               meta.transaction_4.id,
+               meta.transaction_3.id,
+               meta.transaction_2.id,
+               meta.transaction_1.id
              ]
     end
 
@@ -253,7 +253,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_4.id
+               meta.transaction_4.id
              ]
     end
 
@@ -272,15 +272,15 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.transfer_1.id,
-               meta.transfer_2.id
+               meta.transaction_1.id,
+               meta.transaction_2.id
              ]
     end
   end
 
   describe "/transaction.get" do
     test "returns an transaction by the given transaction's ID" do
-      transactions = insert_list(3, :transfer)
+      transactions = insert_list(3, :transaction)
       # Pick the 2nd inserted transaction
       target = Enum.at(transactions, 1)
       response = provider_request("/transaction.get", %{"id" => target.id})
@@ -341,6 +341,54 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"]["status"] == "confirmed"
     end
 
+    test "create a transaction with exchange" do
+      account = Account.get_master_account()
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token_1,
+        amount: 2_000_000
+      })
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => account.id,
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["from"]["address"] == wallet_1.address
+      assert response["data"]["from"]["amount"] == 1_000
+      assert response["data"]["from"]["account_id"] == nil
+      assert response["data"]["from"]["user_id"] == user_1.id
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == wallet_2.address
+      assert response["data"]["to"]["amount"] == 2_000
+      assert response["data"]["to"]["account_id"] == nil
+      assert response["data"]["to"]["user_id"] == user_2.id
+      assert response["data"]["to"]["token_id"] == token_2.id
+    end
+
     test "returns :invalid_parameter when the sending address is a burn balance" do
       token = insert(:token)
       wallet_1 = insert(:wallet, identifier: "burn")
@@ -385,9 +433,9 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"] == %{
                "code" => "transaction:insufficient_funds",
                "description" =>
-                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0.0 #{
+                 "The specified wallet (#{wallet_1.address}) does not contain enough funds. Available: 0 #{
                    token.id
-                 } - Attempted debit: 10000.0 #{token.id}",
+                 } - Attempted debit: 10000 #{token.id}",
                "messages" => nil,
                "object" => "error"
              }
@@ -412,11 +460,11 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided"
+               "description" => "'idempotency_token' is required."
              }
     end
 
-    test "returns user:to_address_not_found when from_address does not exist" do
+    test "returns wallet:to_address_not_found when from_address does not exist" do
       token = insert(:token)
       mint!(token)
 
@@ -432,7 +480,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
         provider_request("/transaction.create", %{
           "idempotency_token" => "123",
           "from_address" => wallet_1.address,
-          "to_address" => "fake",
+          "to_address" => "fake-0000-0000-0000",
           "token_id" => token.id,
           "amount" => 1_000_000
         })
@@ -440,7 +488,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["success"] == false
 
       assert response["data"] == %{
-               "code" => "user:to_address_not_found",
+               "code" => "wallet:to_address_not_found",
                "description" => "No wallet found for the provided to_address.",
                "messages" => nil,
                "object" => "error"
@@ -454,7 +502,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       response =
         provider_request("/transaction.create", %{
           "idempotency_token" => "123",
-          "from_address" => "fake",
+          "from_address" => "fake-0000-0000-0000",
           "to_address" => wallet_2.address,
           "token_id" => token.id,
           "amount" => 1_000_000
@@ -511,7 +559,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided",
+               "description" => "'amount' is not a number: fake",
                "messages" => nil,
                "object" => "error"
              }

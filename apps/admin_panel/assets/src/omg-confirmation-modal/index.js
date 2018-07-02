@@ -1,30 +1,16 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import Modal from 'react-modal'
-import {Button} from '../omg-uikit'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: '40px 30px 30px 30px'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
+import Modal from '../omg-modal'
+import { Button, PlainButton } from '../omg-uikit'
+
+const ContentContainer = styled.div`
+`
 const ConfirmationModalContainer = styled.div`
   position: relative;
+  padding: 40px;
 `
 const ButtonsContainer = styled.div`
-  padding-top: 25px;
-  margin-top: 20px;
-  border-top: 1px solid ${props => props.theme.colors.S400};
   text-align: right;
   button {
     :not(:last-child) {
@@ -37,7 +23,13 @@ class ConfirmationModal extends PureComponent {
     children: PropTypes.node,
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
-    onOk: PropTypes.func
+    onOk: PropTypes.func,
+    cancel: PropTypes.bool,
+    confirmText: PropTypes.string,
+    loading: PropTypes.bool
+  }
+  static defaultProps = {
+    cancel: true
   }
 
   render () {
@@ -45,15 +37,20 @@ class ConfirmationModal extends PureComponent {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
-        style={customStyles}
         contentLabel='confirmation modal'
         shouldCloseOnOverlayClick={false}
+        closeTimeoutMS={300}
+        className='react-modal'
+        overlayClassName='react-modal-overlay'
+        {...this.props}
       >
         <ConfirmationModalContainer>
-          {this.props.children}
+          <ContentContainer>{this.props.children}</ContentContainer>
           <ButtonsContainer>
-            <Button styleType='secondary' size='small' onClick={this.props.onRequestClose}>Cancel</Button>
-            <Button styleType='primary' size='small' onClick={this.props.onOk}>Confirm</Button>
+            {this.props.cancel && <PlainButton onClick={this.props.onRequestClose}>Cancel</PlainButton>}
+            <Button styleType='primary' size='small' onClick={this.props.onOk} loading={this.props.loading}>
+              {this.props.confirmText || 'Confirm' }
+            </Button>
           </ButtonsContainer>
         </ConfirmationModalContainer>
       </Modal>

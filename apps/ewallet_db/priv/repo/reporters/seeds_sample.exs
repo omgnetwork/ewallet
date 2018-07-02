@@ -6,8 +6,6 @@ defmodule EWalletDB.Repo.Reporters.SeedsSampleReporter do
 
     admin_id = args[:seeded_admin_user_id]
     admin_auth_token = args[:seeded_admin_auth_token]
-    admin_api_key = args[:seeded_admin_api_key]
-    admin_api_key_id = args[:seeded_admin_api_key_id]
 
     ewallet_key_access = args[:seeded_ewallet_key_access]
     ewallet_key_secret = args[:seeded_ewallet_key_secret]
@@ -26,13 +24,13 @@ defmodule EWalletDB.Repo.Reporters.SeedsSampleReporter do
 
     1. Browse to `#{ewallet_swagger_ui_url}`
     2. Click the `Authorize` button
-    3. Use the value below for `ServerAuth`:
+    3. Use the value below for `ProviderAuth`:
 
     ```
     OMGProvider #{Base.encode64(ewallet_key_access <> ":" <> ewallet_key_secret)}
     ```
 
-    4. Try out Server endpoints such as /login, /user.create, /transfer, etc.
+    4. Try out Server endpoints such as /login, /user.create, etc.
 
     ## Try eWallet API's Client endpoints
 
@@ -46,26 +44,14 @@ defmodule EWalletDB.Repo.Reporters.SeedsSampleReporter do
 
     4. Try out Client endpoints such as /me.get, /me.list_transactions, /me.logout, etc.
 
-    ## Try Admin API's Client endpoints
-
-    1. Browse to `#{admin_api_swagger_ui_url}`
-    2. Click the `Authorize` button
-    3. Use the value below for `ClientAuth`:
-
-    ```
-    OMGAdmin #{Base.encode64(admin_api_key_id <> ":" <> admin_api_key)}
-    ```
-
-    4. Try out Client endpoints such as /login, /password.reset, /password.update, etc.
-
     ## Try Admin API's User endpoints
 
     1. Browse to `#{admin_api_swagger_ui_url}`
     2. Click the `Authorize` button
-    3. Use the value below for `UserAuth`:
+    3. Use the value below for `AdminAuth`:
 
     ```
-    OMGAdmin #{Base.encode64(admin_api_key_id <> ":" <> admin_api_key <> ":" <> admin_id <> ":" <> admin_auth_token)}
+    OMGAdmin #{Base.encode64(admin_id <> ":" <> admin_auth_token)}
     ```
 
     4. Try out User endpoints such as /account.create, /account.assign_user, /access_key.create, etc.

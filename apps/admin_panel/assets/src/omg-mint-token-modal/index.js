@@ -1,27 +1,14 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import { Button, Input, Icon } from '../omg-uikit'
 import { mintToken } from '../omg-token/action'
 import { getWalletsByAccountId } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
+
 const MintTokenModalContainer = styled.form`
   position: relative;
   width: 350px;
@@ -77,7 +64,6 @@ class MintTokenModal extends PureComponent {
       amount: this.state.amount * this.props.token.subunit_to_unit
     })
     if (result.data.success) {
-      this.props.getWalletsByAccountId({ accountId: this.props.match.params.accountId })
       this.props.onRequestClose()
       this.setState({ submitStatus: 'SUCCESS', amount: 0 })
     } else {
@@ -92,7 +78,6 @@ class MintTokenModal extends PureComponent {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.onRequestClose}
-        style={customStyles}
         contentLabel='mint token modal'
       >
         <MintTokenModalContainer onSubmit={this.onSubmit}>
