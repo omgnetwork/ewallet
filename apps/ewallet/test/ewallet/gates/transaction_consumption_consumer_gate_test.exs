@@ -1244,7 +1244,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :error
-      assert error == :exchange_not_allowed
+      assert error == :exchange_client_not_allowed
     end
 
     test "returns an error if the consumption tries to set an amount equal to 0", meta do
