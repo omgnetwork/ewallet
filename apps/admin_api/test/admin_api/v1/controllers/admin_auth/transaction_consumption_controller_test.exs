@@ -829,7 +829,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                  "amount" => nil,
                  "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
                  "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
-                 "finalized_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
@@ -912,7 +913,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["success"] == true
 
       assert response["data"]["amount"] == nil
-      assert response["data"]["finalized_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
       assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
       assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
       assert response["data"]["token_id"] == token_2.id
@@ -990,7 +992,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["success"] == true
 
       assert response["data"]["amount"] == 400_000 * token_2.subunit_to_unit
-      assert response["data"]["finalized_amount"] == 400_000 * token_2.subunit_to_unit
+      assert response["data"]["finalized_request_amount"] == 200_000 * meta.token.subunit_to_unit
+      assert response["data"]["finalized_consumption_amount"] == 400_000 * token_2.subunit_to_unit
       assert response["data"]["estimated_request_amount"] == 200_000 * meta.token.subunit_to_unit
       assert response["data"]["estimated_consumption_amount"] == 400_000 * token_2.subunit_to_unit
       assert response["data"]["token_id"] == token_2.id
