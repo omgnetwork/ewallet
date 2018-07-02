@@ -13,7 +13,6 @@ import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 const AccountDetailContainer = styled.div`
   padding: 20px 0;
-
 `
 const ContentDetailContainer = styled.div`
   margin-top: 50px;
@@ -40,15 +39,14 @@ class AccountDetailPage extends Component {
   renderDetail = account => {
     return (
       <Section title='DETAILS'>
-
         <DetailGroup>
           <b>ID:</b> {account.id}
         </DetailGroup>
         <DetailGroup>
-          <b>Description:</b> {account.description}
+          <b>Description:</b> {account.description || '-'}
         </DetailGroup>
         <DetailGroup>
-          <b>Category:</b> {_.get(account.categories, 'data[0].name')}
+          <b>Category:</b> {_.get(account.categories, 'data[0].name', '-')}
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
@@ -69,14 +67,16 @@ class AccountDetailPage extends Component {
               return (
                 <div>
                   <DetailGroup key={wallet.id}>
-                    <b>Wallet address</b>{' '}
-                    <span>{wallet.address}</span>
+                    <b>{wallet.address}</b>
                   </DetailGroup>
-                  {wallet.balances.map(balance => {
+                  {wallet.balances.filter(b => b.amount).map(balance => {
                     return (
                       <DetailGroup key={balance.token.id}>
-                        <b>{balance.token.name}</b>{' '}
-                        <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span>
+                        <b>{balance.token.name}</b>
+                        <span>
+                          {formatNumber(balance.amount / balance.token.subunit_to_unit)}
+                        </span>{' '}
+                        <span>{balance.token.symbol}</span>
                       </DetailGroup>
                     )
                   })}
