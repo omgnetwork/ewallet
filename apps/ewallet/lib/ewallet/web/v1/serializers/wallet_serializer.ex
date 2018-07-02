@@ -53,6 +53,29 @@ defmodule EWallet.Web.V1.WalletSerializer do
     }
   end
 
+  def serialize_without_balances(%Wallet{} = wallet) do
+    wallet = Preloader.preload(wallet, [:user, :account])
+
+    %{
+      object: "wallet",
+      socket_topic: "wallet:#{wallet.address}",
+      address: wallet.address,
+      name: wallet.name,
+      identifier: wallet.identifier,
+      metadata: wallet.metadata,
+      encrypted_metadata: wallet.encrypted_metadata,
+      user_id: Assoc.get(wallet, [:user, :id]),
+      user: UserSerializer.serialize(wallet.user),
+      account_id: Assoc.get(wallet, [:account, :id]),
+      account: AccountSerializer.serialize(wallet.account),
+      balances: nil,
+      created_at: Date.to_iso8601(wallet.inserted_at),
+      updated_at: Date.to_iso8601(wallet.updated_at)
+    }
+  end
+
+  def serialize_without_balances(_), do: nil
+
   defp serialize_balances(balances) do
     Enum.map(balances, &BalanceSerializer.serialize/1)
   end

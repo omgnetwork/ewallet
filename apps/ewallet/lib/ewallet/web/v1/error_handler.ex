@@ -78,16 +78,24 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:from_address_not_found",
       description: "No wallet found for the provided from_address."
     },
-    from_address_mismatch: %{
+    user_from_address_mismatch: %{
       code: "user:from_address_mismatch",
       description: "The provided wallet address does not belong to the current user."
     },
-    to_address_mismatch: %{
+    user_to_address_mismatch: %{
       code: "user:to_address_mismatch",
       description: "The provided wallet address does not belong to the current user."
     },
+    account_from_address_mismatch: %{
+      code: "account:from_address_mismatch",
+      description: "The provided wallet address does not belong to the given account."
+    },
+    account_to_address_mismatch: %{
+      code: "account:to_address_mismatch",
+      description: "The provided wallet address does not belong to the given account."
+    },
     to_address_not_found: %{
-      code: "user:to_address_not_found",
+      code: "wallet:to_address_not_found",
       description: "No wallet found for the provided to_address."
     },
     wallet_address_not_found: %{

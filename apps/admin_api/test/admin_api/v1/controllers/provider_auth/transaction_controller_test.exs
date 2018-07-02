@@ -464,7 +464,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
              }
     end
 
-    test "returns user:to_address_not_found when from_address does not exist" do
+    test "returns wallet:to_address_not_found when from_address does not exist" do
       token = insert(:token)
       mint!(token)
 
@@ -488,7 +488,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["success"] == false
 
       assert response["data"] == %{
-               "code" => "user:to_address_not_found",
+               "code" => "wallet:to_address_not_found",
                "description" => "No wallet found for the provided to_address.",
                "messages" => nil,
                "object" => "error"

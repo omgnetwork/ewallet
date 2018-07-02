@@ -402,7 +402,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "user:to_address_not_found",
+                 "code" => "wallet:to_address_not_found",
                  "description" => "No wallet found for the provided to_address.",
                  "messages" => nil,
                  "object" => "error"

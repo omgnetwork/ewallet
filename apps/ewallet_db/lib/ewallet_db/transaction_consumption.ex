@@ -5,7 +5,7 @@ defmodule EWalletDB.TransactionConsumption do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  alias Ecto.UUID
+  alias Ecto.{Changeset, UUID}
 
   alias EWalletDB.{
     TransactionConsumption,
@@ -161,6 +161,7 @@ defmodule EWalletDB.TransactionConsumption do
       :wallet_address,
       :token_uuid
     ])
+    # , less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_number(:amount, greater_than: 0)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)
@@ -369,6 +370,10 @@ defmodule EWalletDB.TransactionConsumption do
   @spec fail(%TransactionConsumption{}, %Transaction{}) :: %TransactionConsumption{}
   def fail(consumption, %Transaction{} = transaction) do
     state_transition(consumption, @failed, transaction.uuid)
+  end
+
+  def fail(consumption, %Changeset{} = _changeset) do
+    fail(consumption, :invalid_parameter, nil)
   end
 
   def fail(consumption, error_code, error_description) do

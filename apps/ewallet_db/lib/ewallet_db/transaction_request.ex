@@ -136,6 +136,7 @@ defmodule EWalletDB.TransactionRequest do
       :wallet_address
     ])
     |> validate_amount_if_disallow_override()
+    |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:correlation_id)
