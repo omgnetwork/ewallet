@@ -8,8 +8,8 @@ import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
-import {LoadingSkeleton} from '../omg-uikit'
-import {formatNumber} from '../utils/formatter'
+import { LoadingSkeleton } from '../omg-uikit'
+import { formatNumber } from '../utils/formatter'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -95,7 +95,7 @@ class TokenDetailPage extends Component {
             <LoadingSkeleton />
             <LoadingSkeleton />
           </LoadingContainer>
-        ) }
+        )}
       </Section>
     )
   }
@@ -117,7 +117,7 @@ class TokenDetailPage extends Component {
   renderUserDetailPage = ({ user, wallet }) => {
     return (
       <UserDetailContainer>
-        {user ? this.renderUserDetailContainer(user, wallet) : 'loading'}
+        {user ? this.renderUserDetailContainer(user, wallet) : null}
       </UserDetailContainer>
     )
   }

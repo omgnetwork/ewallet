@@ -125,7 +125,7 @@ class TransactionRequestPanel extends Component {
     if (key === 'amount') {
       return (
         <div>
-          {formatNumber(data || 0) / _.get(rows, 'token.subunit_to_unit')}{' '}
+          {formatNumber((data || 0) / _.get(rows, 'token.subunit_to_unit'))}{' '}
           {_.get(rows, 'token.symbol')}
         </div>
       )
@@ -207,8 +207,8 @@ class TransactionRequestPanel extends Component {
         </div>
         <div>
           <b>Amount:</b>{' '}
-          {formatNumber(transactionRequest.amount || 0) /
-            _.get(transactionRequest, 'token.subunit_to_unit')}{' '}
+          {formatNumber((transactionRequest.amount || 0) /
+            _.get(transactionRequest, 'token.subunit_to_unit'))}{' '}
           {_.get(transactionRequest, 'token.symbol')}
         </div>
         <div>

@@ -54,7 +54,7 @@ const ConfirmCreateKeyContainer = styled.div`
     padding: 5px;
     margin-top: 5px;
     margin-right: 5px;
-    color: ${props => props.theme.colors.B100};
+    color: ${props => props.theme.colors.B300};
   }
   i[name="Copy"] {
     margin-left: 5px;

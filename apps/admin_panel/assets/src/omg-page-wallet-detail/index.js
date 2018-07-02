@@ -128,7 +128,7 @@ class TokenDetailPage extends Component {
   renderWalletDetailPage = ({ wallet }) => {
     return (
       <WalletDetailContainer>
-        {wallet ? this.renderWalletDetailContainer(wallet) : 'loading'}
+        {wallet ? this.renderWalletDetailContainer(wallet) : null}
       </WalletDetailContainer>
     )
   }
