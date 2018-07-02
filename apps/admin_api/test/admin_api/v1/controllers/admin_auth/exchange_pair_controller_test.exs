@@ -80,22 +80,57 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
   end
 
   describe "/exchange_pair.create" do
-    test "creates a new exchange pair and returns it" do
+    test "creates a new exchange pair and returns it in a list" do
       request_data = %{
         name: "Test exchange pair",
         from_token_id: insert(:token).id,
         to_token_id: insert(:token).id,
-        rate: 2.00
+        rate: 2.0
       }
 
       response = admin_user_request("/exchange_pair.create", request_data)
 
       assert response["success"] == true
-      assert response["data"]["object"] == "exchange_pair"
-      assert response["data"]["name"] == request_data.name
-      assert response["data"]["from_token_id"] == request_data.from_token_id
-      assert response["data"]["to_token_id"] == request_data.to_token_id
-      assert response["data"]["rate"] == 2.00
+      assert response["data"]["object"] == "list"
+
+      pair = Enum.at(response["data"]["data"], 0)
+
+      assert pair["object"] == "exchange_pair"
+      assert pair["name"] == request_data.name
+      assert pair["from_token_id"] == request_data.from_token_id
+      assert pair["to_token_id"] == request_data.to_token_id
+      assert pair["rate"] == 2.0
+    end
+
+    test "creates a new exchange pair along with its opposite and returns them in a list" do
+      request_data = %{
+        name: "Test exchange pair",
+        from_token_id: insert(:token).id,
+        to_token_id: insert(:token).id,
+        rate: 2.0,
+        create_opposite_pair: true
+      }
+
+      response = admin_user_request("/exchange_pair.create", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "list"
+
+      pair = Enum.at(response["data"]["data"], 0)
+
+      assert pair["object"] == "exchange_pair"
+      assert pair["name"] == request_data.name
+      assert pair["from_token_id"] == request_data.from_token_id
+      assert pair["to_token_id"] == request_data.to_token_id
+      assert pair["rate"] == 2.0
+
+      opposite = Enum.at(response["data"]["data"], 1)
+
+      assert opposite["object"] == "exchange_pair"
+      assert opposite["name"] == request_data.name <> " (opposite pair)"
+      assert opposite["from_token_id"] == request_data.to_token_id
+      assert opposite["to_token_id"] == request_data.from_token_id
+      assert opposite["rate"] == 1 / 2.0
     end
 
     test "returns an error if a required parameter is not provided" do
@@ -116,12 +151,11 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       assert exchange_pair.rate != 999.99
 
       # Prepare the update data while keeping only id the same
-      request_data =
-        params_for(:exchange_pair, %{
-          id: exchange_pair.id,
-          name: "updated name",
-          rate: 999.99
-        })
+      request_data = %{
+        id: exchange_pair.id,
+        name: "updated name",
+        rate: 999.99
+      }
 
       response = provider_request("/exchange_pair.update", request_data)
 
