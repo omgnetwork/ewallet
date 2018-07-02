@@ -139,3 +139,7 @@ a {
 .icon-omisego_Checked:before {
   content: "\e906";
 }
+a {
+  color: #1A56F0;
+  cursor: pointer;
+}

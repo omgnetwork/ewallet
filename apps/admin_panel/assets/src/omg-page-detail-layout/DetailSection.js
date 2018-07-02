@@ -27,14 +27,12 @@ const DetailContainer = styled.div`
 `
 export const DetailGroup = styled.div`
   margin-top: 15px;
+  color: ${props => props.theme.colors.B200};
   b {
     font-weight: 600;
     color: ${props => props.theme.colors.B400};
     width: 150px;
     display: inline-block;
-  }
-  span {
-    color: ${props => props.theme.colors.B200};
   }
   h5 {
     font-weight: 400;

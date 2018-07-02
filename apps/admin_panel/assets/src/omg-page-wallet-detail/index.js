@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
 import { Button } from '../omg-uikit'
@@ -67,6 +67,7 @@ class TokenDetailPage extends Component {
     )
   }
   renderDetail = wallet => {
+    const accountId = this.props.match.params.accountId
     return (
       <Section title='DETAILS'>
         <DetailGroup>
@@ -77,9 +78,9 @@ class TokenDetailPage extends Component {
         </DetailGroup>
         <DetailGroup>
           <b>Account Owner:</b>{' '}
-          <span>
-            <a>{_.get(wallet, 'account.name', '-')}</a>
-          </span>
+          <Link to={`/${accountId}/account/${wallet.account.id}`}>
+            {_.get(wallet, 'account.name', '-')}
+          </Link>
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b>{' '}

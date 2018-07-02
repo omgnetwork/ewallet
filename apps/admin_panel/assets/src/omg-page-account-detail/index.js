@@ -1,9 +1,8 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import AccountProvider from '../omg-account/accountProvider'
-import { Table, RatioBar } from '../omg-uikit'
 import WalletsFetcherByAccountId from '../omg-wallet/walletsFetcher'
 import { compose } from 'recompose'
 import { formatNumber } from '../utils/formatter'
@@ -22,7 +21,9 @@ const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
 `
-
+const WalletCointainter = styled.div`
+  margin-bottom: 40px;
+`
 const enhance = compose(
   withTheme,
   withRouter
@@ -58,6 +59,7 @@ class AccountDetailPage extends Component {
     )
   }
   renderWallets = () => {
+    const accountId = this.props.match.params.accountId
     return (
       <Section title='WALLETS'>
         <WalletsFetcherByAccountId
@@ -65,9 +67,11 @@ class AccountDetailPage extends Component {
           render={({ data, individualLoadingStatus }) => {
             return data.map(wallet => {
               return (
-                <div>
-                  <DetailGroup key={wallet.id}>
-                    <b>{wallet.address}</b>
+                <WalletCointainter>
+                  <DetailGroup >
+                    <b>Address: </b>
+                    <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link>
+                    {' '} ( <span>{wallet.name}</span> )
                   </DetailGroup>
                   {wallet.balances.filter(b => b.amount).map(balance => {
                     return (
@@ -80,22 +84,10 @@ class AccountDetailPage extends Component {
                       </DetailGroup>
                     )
                   })}
-                </div>
+                </WalletCointainter>
               )
             })
           }}
-        />
-      </Section>
-    )
-  }
-  renderTransactionRatio = account => {
-    return (
-      <Section title='TRANSACTION INFORMATION'>
-        <RatioBar
-          rows={[
-            { percent: 20, content: 'transaction', color: this.props.theme.colors.B100 },
-            { percent: 30, content: 'transaction', color: this.props.theme.colors.S500 }
-          ]}
         />
       </Section>
     )

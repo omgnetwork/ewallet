@@ -62,6 +62,9 @@ const LoadingLogo = Logo.extend`
 `
 const NavigationItemsContainer = styled.div`
   margin-top: 20px;
+  a {
+    color: inherit;
+  }
 `
 const SwitchAccountButton = styled.button`
   padding: 5px 15px;
