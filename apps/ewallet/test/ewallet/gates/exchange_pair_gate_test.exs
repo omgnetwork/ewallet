@@ -35,7 +35,7 @@ defmodule EWallet.ExchangePairGateTest do
           "rate" => 2.0,
           "from_token_id" => eth.id,
           "to_token_id" => omg.id,
-          "create_opposite_pair" => true
+          "create_opposite" => true
         })
 
       assert res == :ok

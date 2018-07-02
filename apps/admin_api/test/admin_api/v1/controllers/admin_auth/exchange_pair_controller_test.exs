@@ -108,7 +108,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
         from_token_id: insert(:token).id,
         to_token_id: insert(:token).id,
         rate: 2.0,
-        create_opposite_pair: true
+        create_opposite: true
       }
 
       response = admin_user_request("/exchange_pair.create", request_data)

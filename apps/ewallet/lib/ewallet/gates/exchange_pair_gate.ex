@@ -31,7 +31,7 @@ defmodule EWallet.ExchangePairGate do
   end
 
   # Only inserts the opposite pair if explicitly requested
-  defp insert(:opposite, %{"create_opposite_pair" => true} = attrs) do
+  defp insert(:opposite, %{"create_opposite" => true} = attrs) do
     opposite_attrs =
       attrs
       |> Map.put("name", attrs["name"] <> " (opposite pair)")
