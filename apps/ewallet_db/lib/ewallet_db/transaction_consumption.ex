@@ -161,7 +161,11 @@ defmodule EWalletDB.TransactionConsumption do
       :wallet_address,
       :token_uuid
     ])
-    |> validate_number(:amount, greater_than: 0, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
+    |> validate_number(
+      :amount,
+      greater_than: 0,
+      less_than: 100_000_000_000_000_000_000_000_000_000_000_000
+    )
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:idempotency_token)
     |> unique_constraint(:correlation_id)
