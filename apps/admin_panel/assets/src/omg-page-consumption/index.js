@@ -142,7 +142,7 @@ class ConsumptionPage extends Component {
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 10,
+          perPage: Math.floor(window.innerHeight / 65),
           searchTerms: {id: queryString.parse(this.props.location.search).search}
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

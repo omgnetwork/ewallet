@@ -5,8 +5,8 @@ import TabPanel from './TabPanel'
 import SortableTable from '../omg-table'
 import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consumptionByTransactionIdFetcher'
 import TransactionRequestProvider from '../omg-transaction-request/transactionRequestProvider'
-import { Icon } from '../omg-uikit'
-import { withRouter, Link } from 'react-router-dom'
+import { Icon, Button, Select, Input } from '../omg-uikit'
+import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import QR from './QrCode'
 import moment from 'moment'
@@ -217,7 +217,16 @@ class TransactionRequestPanel extends Component {
   renderProperties = transactionRequest => {
     return (
       <TransactionReqeustPropertiesContainer>
-        <QR data={transactionRequest.id} />
+        <div>
+          <div>
+            <QR data={transactionRequest.id} />
+          </div>
+          <div>
+            <Input normalPlaceholder='wallet' />
+            <Input normalPlaceholder='amount' />
+            <Button>Consume</Button>
+          </div>
+        </div>
         <div>
           <b>Type:</b> {transactionRequest.type}
         </div>
