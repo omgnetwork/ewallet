@@ -16,8 +16,8 @@ defmodule EWallet.TransactionConsumptionValidator do
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, amount} <- validate_amount(request, amount),
          {:ok, _wallet} <- validate_max_consumptions_per_user(request, wallet),
-         {:ok, tokens} <- get_and_validate_token(request, token_id) do
-      {:ok, request, tokens, amount}
+         {:ok, token} <- get_and_validate_token(request, token_id) do
+      {:ok, request, token, amount}
     else
       error when is_binary(error) ->
         {:error, String.to_existing_atom(error)}
