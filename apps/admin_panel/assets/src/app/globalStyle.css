@@ -133,7 +133,7 @@ a {
 }
 
 .ReactModal__Content--before-close.react-modal {
-  opacity: 0;
+  opacity: 0.1;
   transform: translate3d(-50%,-40%,0);
 }
 .icon-omisego_Checked:before {

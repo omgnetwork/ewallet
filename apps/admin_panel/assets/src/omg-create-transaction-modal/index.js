@@ -123,7 +123,6 @@ class CreateTransactionModal extends Component {
         tokenId: _.get(this.state.selectedToken, 'token.id'),
         amount: this.state.amount * _.get(this.state.selectedToken, 'token.subunit_to_unit')
       })
-      this.props.onCreateTransaction()
       if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
         this.props.getWalletById(this.state.toAddress)
@@ -134,6 +133,7 @@ class CreateTransactionModal extends Component {
           error: result.error.description || result.error.message
         })
       }
+      this.props.onCreateTransaction()
     } catch (e) {
       this.setState({ error: JSON.stringify(e.message) })
     }
