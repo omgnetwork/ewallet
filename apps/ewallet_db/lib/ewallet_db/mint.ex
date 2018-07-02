@@ -49,7 +49,11 @@ defmodule EWalletDB.Mint do
     mint
     |> cast(attrs, [:description, :amount, :account_uuid, :token_uuid, :confirmed])
     |> validate_required([:amount, :token_uuid])
-    |> validate_number(:amount, greater_than: 0, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
+    |> validate_number(
+      :amount,
+      greater_than: 0,
+      less_than: 100_000_000_000_000_000_000_000_000_000_000_000
+    )
     |> assoc_constraint(:token)
     |> assoc_constraint(:account)
     |> assoc_constraint(:transaction)

@@ -22,10 +22,37 @@ defmodule EWallet.Helper do
   end
 
   def string_to_integer(string) do
-    String.to_integer(string, 10)
-  catch
-    _error ->
-      {:error, :invalid_number, "String number is not a valid number: #{string}"}
+    case Integer.parse(string, 10) do
+      {amount, ""} ->
+        {:ok, amount}
+
+      _ ->
+        {:error, :invalid_parameter, "String number is not a valid number: '#{string}'."}
+    end
+  end
+
+  def strings_to_integers(strings) do
+    amounts =
+      Enum.map(strings, fn string ->
+        case Integer.parse(string, 10) do
+          {amount, ""} ->
+            {:ok, amount}
+
+          _ ->
+            :error
+        end
+      end)
+
+    case Enum.any?(amounts, fn amount -> amount == :error end) do
+      true ->
+        formatted_strings = Enum.join(strings, ", ")
+
+        {:error, :invalid_parameter,
+         "String numbers are not valid numbers: '#{formatted_strings}'."}
+
+      false ->
+        amounts
+    end
   end
 
   @doc """

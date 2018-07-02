@@ -6,7 +6,7 @@ defmodule EWallet.TransactionRequestGate do
 
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
-  alias EWallet.{WalletFetcher, TransactionRequestFetcher}
+  alias EWallet.{WalletFetcher, TransactionRequestFetcher, Helper}
   alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account}
 
   @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
@@ -181,24 +181,13 @@ defmodule EWallet.TransactionRequestGate do
   end
 
   defp insert(token, wallet, attrs) do
-    require_confirmation =
-      if(
-        is_nil(attrs["require_confirmation"]),
-        do: false,
-        else: attrs["require_confirmation"]
-      )
-
-    allow_amount_override =
-      if(
-        is_nil(attrs["allow_amount_override"]),
-        do: true,
-        else: attrs["allow_amount_override"]
-      )
+    require_confirmation = default_to_if_nil(attrs["require_confirmation"], false)
+    allow_amount_override = default_to_if_nil(attrs["allow_amount_override"], true)
 
     TransactionRequest.insert(%{
       type: attrs["type"],
       correlation_id: attrs["correlation_id"],
-      amount: attrs["amount"],
+      amount: get_integer_or_string_amount(attrs["amount"]),
       user_uuid: wallet.user_uuid,
       account_uuid: wallet.account_uuid,
       token_uuid: token.uuid,
@@ -215,4 +204,19 @@ defmodule EWallet.TransactionRequestGate do
       exchange_wallet_address: attrs["exchange_wallet_address"]
     })
   end
+
+  defp default_to_if_nil(field, default) when is_nil(field), do: default
+  defp default_to_if_nil(field, _default), do: field
+
+  defp get_integer_or_string_amount(amount) when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} ->
+        amount
+
+      error ->
+        error
+    end
+  end
+
+  defp get_integer_or_string_amount(amount), do: amount
 end

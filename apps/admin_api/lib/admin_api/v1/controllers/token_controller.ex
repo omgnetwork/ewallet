@@ -88,11 +88,17 @@ defmodule AdminAPI.V1.TokenController do
   defp create_with_mint({:error, error_code, description}, _token, conn) do
     handle_error(conn, error_code, description)
   end
+
+  defp create_with_mint({:ok, amount}, token, conn) when is_number(amount) and amount > 0 do
+    create_with_mint(amount, token, conn)
+  end
+
   defp create_with_mint(amount, token, conn) when is_number(amount) and amount > 0 do
     token
     |> MintGate.mint_token(%{"amount" => amount})
     |> respond_single(conn)
   end
+
   defp create_with_mint(amount, token, conn) when is_binary(amount) do
     amount
     |> Helper.string_to_integer()
