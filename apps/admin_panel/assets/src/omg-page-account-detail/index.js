@@ -4,23 +4,20 @@ import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import AccountProvider from '../omg-account/accountProvider'
 import { Table, RatioBar } from '../omg-uikit'
+import WalletsFetcherByAccountId from '../omg-wallet/walletsFetcher'
 import { compose } from 'recompose'
+import { formatNumber } from '../utils/formatter'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 const AccountDetailContainer = styled.div`
   padding: 20px 0;
+
 `
 const ContentDetailContainer = styled.div`
   margin-top: 50px;
   display: flex;
-`
-const DetailContainer = styled.div`
-  flex: 1 1 auto;
-  :first-child {
-    margin-right: 20px;
-  }
 `
 const ContentContainer = styled.div`
   display: inline-block;
@@ -43,24 +40,51 @@ class AccountDetailPage extends Component {
   renderDetail = account => {
     return (
       <Section title='DETAILS'>
-        <DetailGroup>
-          <b>Created:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
-        </DetailGroup>
+
         <DetailGroup>
           <b>ID:</b> {account.id}
         </DetailGroup>
         <DetailGroup>
-          <b>Description:</b> <span>{account.description}</span>
+          <b>Description:</b> {account.description}
         </DetailGroup>
         <DetailGroup>
-          <b>Category:</b> <span>{_.get(account.categories, 'data[0].name')}</span>
-        </DetailGroup>
-        {/* <DetailGroup>
-          <b>Category:</b> <span>{account.description}</span>
+          <b>Category:</b> {_.get(account.categories, 'data[0].name')}
         </DetailGroup>
         <DetailGroup>
-          <b>Coins:</b> <span>{account.description}</span>
-        </DetailGroup> */}
+          <b>Created date:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
+        </DetailGroup>
+        <DetailGroup>
+          <b>Last update:</b> {moment(account.updated_at).format('DD/MM/YYYY hh:mm:ss')}
+        </DetailGroup>
+      </Section>
+    )
+  }
+  renderWallets = () => {
+    return (
+      <Section title='WALLETS'>
+        <WalletsFetcherByAccountId
+          accountId={this.props.match.params.accountId}
+          render={({ data, individualLoadingStatus }) => {
+            return data.map(wallet => {
+              return (
+                <div>
+                  <DetailGroup key={wallet.id}>
+                    <b>Wallet address</b>{' '}
+                    <span>{wallet.address}</span>
+                  </DetailGroup>
+                  {wallet.balances.map(balance => {
+                    return (
+                      <DetailGroup key={balance.token.id}>
+                        <b>{balance.token.name}</b>{' '}
+                        <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span>
+                      </DetailGroup>
+                    )
+                  })}
+                </div>
+              )
+            })
+          }}
+        />
       </Section>
     )
   }
@@ -76,41 +100,6 @@ class AccountDetailPage extends Component {
       </Section>
     )
   }
-  renderHistory = account => {
-    const column = [
-      { key: 'date', title: 'DATE' },
-      {
-        key: 'admin',
-        title: 'ADMIN'
-      },
-      {
-        key: 'action',
-        title: 'ACTION'
-      }
-    ]
-    const data = [
-      {
-        date: 'a,b,c',
-        admin: 'c',
-        action: 'remove omg from omg'
-      },
-      {
-        date: 'a,b,c',
-        admin: 'c',
-        action: 'remove omg from omg'
-      },
-      {
-        date: 'a,b,c',
-        admin: 'c',
-        action: 'remove omg from omg'
-      }
-    ]
-    return (
-      <Section title='HISTORY'>
-        <Table columns={column} rows={data} />
-      </Section>
-    )
-  }
   renderAccountDetailContainer = account => {
     const accountId = this.props.match.params.accountId
     return (
@@ -118,11 +107,8 @@ class AccountDetailPage extends Component {
         <ContentContainer>
           {this.renderTopBar(account)}
           <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(account)}</DetailContainer>
-            {/* <DetailContainer>
-              {this.renderTransactionRatio(account)}
-              {this.renderHistory(account)}
-            </DetailContainer> */}
+            {this.renderDetail(account)}
+            {this.renderWallets()}
           </ContentDetailContainer>
         </ContentContainer>
       </DetailLayout>

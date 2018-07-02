@@ -30,6 +30,8 @@ export const DetailGroup = styled.div`
   b {
     font-weight: 600;
     color: ${props => props.theme.colors.B400};
+    width: 150px;
+    display: inline-block;
   }
   span {
     color: ${props => props.theme.colors.B200};
