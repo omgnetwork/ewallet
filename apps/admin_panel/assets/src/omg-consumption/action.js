@@ -52,7 +52,6 @@ export const approveConsumptionById = id => async (dispatch, getState) => {
         data: result.data.data
       })
     } else {
-      console.log('xxxx')
       return dispatch({
         type: 'CONSUMPTION/APPROVE/FAILED',
         error: result.data.data,
