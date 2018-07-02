@@ -214,19 +214,19 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     exchange_address_not_account: %{
       code: "exchange:exchange_wallet_not_owned_by_account",
-      description: "The specified exchange_wallet is not owned by an account."
+      description: "The specified exchange_wallet is not owned by an account"
     },
     exchange_account_id_not_found: %{
       code: "exchange:account_id_not_found",
-      description: "No account was found with the given exchange_account_id param."
+      description: "No account was found with the given exchange_account_id param"
+    },
+      exchange_client_not_allowed: %{
+      code: "exchange:not_allowed",
+      description: "Exchange consumptions cannot be made through the client API"
     },
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",
-      description: "No wallet was found with the given exchange_wallet_address param."
-    },
-    exchange_client_not_allowed: %{
-      code: "exchange:not_allowed",
-      description: "Exchange consumptions cannot be made through the client API."
+      description: "No wallet was found with the given exchange_wallet_address param"
     }
   }
 

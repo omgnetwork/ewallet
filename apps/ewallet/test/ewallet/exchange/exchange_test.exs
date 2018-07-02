@@ -22,7 +22,7 @@ defmodule EWallet.ExchangeTest do
       {res, rate, pair} = Exchange.get_rate(context.omg, context.eth)
 
       assert res == :ok
-      assert rate == 100.0
+      assert Decimal.equal?(rate, Decimal.new(100.0))
       assert pair.uuid == inserted_pair.uuid
     end
 
@@ -45,13 +45,13 @@ defmodule EWallet.ExchangeTest do
           :exchange_pair,
           from_token: omg,
           to_token: eth,
-          rate: 5.0
+          rate: 5
         )
 
       {res, rate, pair} = Exchange.get_rate(omg, eth)
 
       assert res == :ok
-      assert rate == 5.0 * (1_000_000 / 1_000)
+      assert Decimal.equal?(rate, Decimal.mult(5, Decimal.div(1_000_000, 1_000)))
       assert pair.uuid == inserted_pair.uuid
     end
   end
@@ -70,10 +70,13 @@ defmodule EWallet.ExchangeTest do
     end
 
     test "returns a {:error, :exchange_invalid_rate} if amounts are different", context do
-      {result, code} = Exchange.validate(10, context.omg, 100, context.omg)
+      {result, code, description} = Exchange.validate(10, context.omg, 100, context.omg)
 
       assert result == :error
       assert code == :exchange_invalid_rate
+
+      assert description ==
+               "expected the same 'from_amount' and 'to_amount' when given the same token, got 10 and 100"
     end
   end
 
@@ -108,10 +111,13 @@ defmodule EWallet.ExchangeTest do
         )
 
       # Using false rate of 100.0
-      {result, code} = Exchange.validate(10, context.eth, 1000, context.omg)
+      {result, code, description} = Exchange.validate(10, context.eth, 1000, context.omg)
 
       assert result == :error
       assert code == :exchange_invalid_rate
+
+      assert description ==
+               "expected 'from_amount' to be 10 and 'to_amount' to be 100, got 10 and 1000"
     end
   end
 
@@ -134,6 +140,25 @@ defmodule EWallet.ExchangeTest do
       assert calculation.to_token.uuid == context.omg.uuid
       assert calculation.actual_rate == pair.rate
       assert calculation.pair.uuid == pair.uuid
+    end
+
+    test "returns :exchange_amounts_too_small if an amount is less than or equal to zero",
+         context do
+      _pair =
+        insert(
+          :exchange_pair,
+          from_token: context.eth,
+          to_token: context.omg,
+          rate: 0.1
+        )
+
+      {result, code, description} = Exchange.calculate(1, context.eth, nil, context.omg)
+
+      assert result == :error
+      assert code == :exchange_amounts_too_small
+
+      assert description ==
+               "expected the 'from_amount' and 'to_amount' to be greater than zero, got 1 and 0"
     end
 
     test "returns an :exchange_pair_not_found error if the pair is not found", context do
@@ -163,6 +188,25 @@ defmodule EWallet.ExchangeTest do
       assert calculation.to_token.uuid == context.omg.uuid
       assert calculation.actual_rate == pair.rate
       assert calculation.pair.uuid == pair.uuid
+    end
+
+    test "returns :exchange_amounts_too_small if an amount is less than or equal to zero",
+         context do
+      _pair =
+        insert(
+          :exchange_pair,
+          from_token: context.eth,
+          to_token: context.omg,
+          rate: 10
+        )
+
+      {result, code, description} = Exchange.calculate(nil, context.eth, 1, context.omg)
+
+      assert result == :error
+      assert code == :exchange_amounts_too_small
+
+      assert description ==
+               "expected the 'from_amount' and 'to_amount' to be greater than zero, got 0 and 1"
     end
   end
 

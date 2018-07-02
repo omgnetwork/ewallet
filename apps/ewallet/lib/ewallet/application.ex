@@ -2,7 +2,8 @@ defmodule EWallet.Application do
   @moduledoc false
   use Application
 
-  @precision 38
+  @decimal_precision 38
+  @decimal_rounding :half_even
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -21,7 +22,8 @@ defmodule EWallet.Application do
 
   defp set_decimal_context do
     Decimal.get_context()
-    |> Map.put(:precision, @precision)
+    |> Map.put(:precision, @decimal_precision)
+    |> Map.put(:rounding, @decimal_rounding)
     |> Decimal.set_context()
   end
 end

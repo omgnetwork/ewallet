@@ -20,8 +20,9 @@ defmodule EWallet.Exchange do
   def get_rate(from_token, to_token) do
     case ExchangePair.fetch_exchangable_pair(from_token, to_token) do
       {:ok, pair} ->
+        rate = Decimal.new(pair.rate)
         subunit_scale = Decimal.div(to_token.subunit_to_unit, from_token.subunit_to_unit)
-        {:ok, Decimal.mult(pair.rate, subunit_scale), pair}
+        {:ok, Decimal.mult(rate, subunit_scale), pair}
 
       {:error, _} = error ->
         error
@@ -38,30 +39,51 @@ defmodule EWallet.Exchange do
   of the exchange pair, otherwise returns `false`.
   """
   @spec validate(
-          from_amount :: non_neg_or_nil(),
+          from_amount :: non_neg_or_nil() | Decimal.t(),
           from_token :: %Token{},
-          to_amount :: non_neg_or_nil(),
+          to_amount :: non_neg_or_nil() | Decimal.t(),
           to_token :: %Token{}
         ) :: {:ok, Calculation.t()} | {:error, atom()}
 
-  # Same-token: valid if `from_amount` and `to_amount` to be equal, error if not.
-  def validate(amount, %{uuid: uuid} = token, amount, %{uuid: uuid}) do
-    {:ok, build_result(amount, token, amount, token, 1, nil)}
+  # Converts `from_amount` and `to_amount` to Decimal before operating on them
+  def validate(from_amount, from_token, to_amount, to_token) when is_number(from_amount) do
+    validate(Decimal.new(from_amount), from_token, to_amount, to_token)
   end
 
-  def validate(_, %{uuid: uuid}, _, %{uuid: uuid}) do
-    {:error, :exchange_invalid_rate}
+  def validate(from_amount, from_token, to_amount, to_token) when is_number(to_amount) do
+    validate(from_amount, from_token, Decimal.new(to_amount), to_token)
+  end
+
+  # Same-token: valid if `from_amount` and `to_amount` to be equal, error if not.
+  def validate(amount, %{uuid: uuid} = token, amount, %{uuid: uuid}) do
+    {:ok, build_result(amount, token, amount, token, Decimal.new(1), nil)}
+  end
+
+  def validate(from_amount, %{uuid: uuid}, to_amount, %{uuid: uuid}) do
+    {:error, :exchange_invalid_rate,
+     "expected the same 'from_amount' and 'to_amount' when given the same token, " <>
+       "got #{from_amount} and #{to_amount}"}
   end
 
   # Cross-token: valid if the amounts match the exchange rate.
   def validate(from_amount, from_token, to_amount, to_token) do
-    case get_rate(from_token, to_token) do
-      {:ok, rate, pair} ->
-        if to_amount == from_amount * rate do
-          {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
-        else
-          {:error, :exchange_invalid_rate}
-        end
+    with {:ok, rate, pair} <- get_rate(from_token, to_token),
+         expected_to_amount <- Decimal.mult(from_amount, rate),
+         {:ok, expected_to_amount} <- normalize(expected_to_amount),
+         true <-
+           Decimal.equal?(to_amount, expected_to_amount) ||
+             {:error, :exchange_invalid_rate, expected_to_amount} do
+      {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
+    else
+      {:error, :exchange_amounts_too_small, expected_to_amount} ->
+        {:error, :exchange_amounts_too_small,
+         "expected the 'from_amount' and 'to_amount' to be greater than zero, " <>
+           "got #{from_amount} and #{expected_to_amount}"}
+
+      {:error, :exchange_invalid_rate, expected_to_amount} ->
+        {:error, :exchange_invalid_rate,
+         "expected 'from_amount' to be #{from_amount} and 'to_amount' to be #{expected_to_amount}, " <>
+           "got #{from_amount} and #{to_amount}"}
 
       {:error, _} = error ->
         error
@@ -80,9 +102,9 @@ defmodule EWallet.Exchange do
   error is returned.
   """
   @spec calculate(
-          from_amount :: non_neg_or_nil(),
+          from_amount :: non_neg_or_nil() | Decimal.t(),
           from_token :: %Token{},
-          fo_amount :: non_neg_or_nil(),
+          fo_amount :: non_neg_or_nil() | Decimal.t(),
           to_token :: %Token{}
         ) :: {:ok, Calculation.t()} | {:error, atom()} | {:error, atom(), String.t()}
 
@@ -91,36 +113,55 @@ defmodule EWallet.Exchange do
     {:error, :invalid_parameter, "an exchange requires from amount, to amount, or both"}
   end
 
+  # Converts `from_amount` and `to_amount` to Decimal before operating on them
+  def calculate(from_amount, from_token, to_amount, to_token) when is_number(from_amount) do
+    calculate(Decimal.new(from_amount), from_token, to_amount, to_token)
+  end
+
+  def calculate(from_amount, from_token, to_amount, to_token) when is_number(to_amount) do
+    calculate(from_amount, from_token, Decimal.new(to_amount), to_token)
+  end
+
   # Same-token: populates `from_amount` into `to_amount`
   def calculate(nil, %{uuid: uuid} = token, to_amount, %{uuid: uuid}) do
-    {:ok, build_result(to_amount, token, to_amount, token, 1, nil)}
+    {:ok, build_result(to_amount, token, to_amount, token, Decimal.new(1), nil)}
   end
 
   # Same-token: populates `to_amount` into `from_amount`
   def calculate(from_amount, %{uuid: uuid} = token, nil, %{uuid: uuid}) do
-    {:ok, build_result(from_amount, token, from_amount, token, 1, nil)}
+    {:ok, build_result(from_amount, token, from_amount, token, Decimal.new(1), nil)}
   end
 
   # Cross-token: calculates for the missing `from_amount`
   def calculate(nil, from_token, to_amount, to_token) do
-    case get_rate(from_token, to_token) do
-      {:ok, rate, pair} ->
-        from_amount = Decimal.div(to_amount, rate)
-        {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
+    with {:ok, rate, pair} <- get_rate(from_token, to_token),
+         from_amount <- Decimal.div(to_amount, rate),
+         {:ok, from_amount} <- normalize(from_amount) do
+      {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
+    else
+      {:error, :exchange_amounts_too_small, from_amount} ->
+        {:error, :exchange_amounts_too_small,
+         "expected the 'from_amount' and 'to_amount' to be greater than zero, " <>
+           "got #{from_amount} and #{to_amount}"}
 
-      {:error, _} = error ->
+      error ->
         error
     end
   end
 
   # Cross-token: calculates for the missing `to_amount`
   def calculate(from_amount, from_token, nil, to_token) do
-    case get_rate(from_token, to_token) do
-      {:ok, rate, pair} ->
-        to_amount = Decimal.mult(from_amount, rate)
-        {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
+    with {:ok, rate, pair} <- get_rate(from_token, to_token),
+         to_amount <- Decimal.mult(from_amount, rate),
+         {:ok, to_amount} <- normalize(to_amount) do
+      {:ok, build_result(from_amount, from_token, to_amount, to_token, rate, pair)}
+    else
+      {:error, :exchange_amounts_too_small, to_amount} ->
+        {:error, :exchange_amounts_too_small,
+         "expected the 'from_amount' and 'to_amount' to be greater than zero, " <>
+           "got #{from_amount} and #{to_amount}"}
 
-      {:error, _} = error ->
+      error ->
         error
     end
   end
@@ -130,13 +171,27 @@ defmodule EWallet.Exchange do
     {:error, :invalid_parameter, "unable to calculate if amounts are already provided"}
   end
 
+  # Round the subunit amount to integer. Returns :error if the result is 0 or lower,
+  # the exchange amounts should never be 0 or less.
+  defp normalize(amount) do
+    rounded = Decimal.round(amount, 0)
+    zero = Decimal.new(0)
+
+    case greater_than(rounded, zero) do
+      true -> {:ok, rounded}
+      false -> {:error, :exchange_amounts_too_small, rounded}
+    end
+  end
+
+  defp greater_than(left, right), do: Decimal.compare(left, right) == Decimal.new(1)
+
   defp build_result(from_amount, from_token, to_amount, to_token, rate, pair) do
     %Calculation{
-      from_amount: from_amount,
+      from_amount: Decimal.to_integer(from_amount),
       from_token: from_token,
-      to_amount: to_amount,
+      to_amount: Decimal.to_integer(to_amount),
       to_token: to_token,
-      actual_rate: rate,
+      actual_rate: Decimal.to_float(rate),
       pair: pair,
       calculated_at: NaiveDateTime.utc_now()
     }
