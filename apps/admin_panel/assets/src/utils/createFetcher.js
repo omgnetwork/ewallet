@@ -69,10 +69,7 @@ export const createFetcher = (entity, reducer, selectors) => {
         }
       }
       getQuery = () => {
-        if (!_.get(this.props.query, 'page')) {
-          return { ...this.props.query, page: 1 }
-        }
-        return this.props.query
+        return { page: 1, perPage: 10, ...this.props.query }
       }
       fetchAll = async () => {
         try {

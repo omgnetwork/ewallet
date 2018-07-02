@@ -104,9 +104,9 @@ class WalletPage extends Component {
   }
   getColumns = wallets => {
     return [
+      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
       { key: 'owner', title: 'OWNER TYPE', sort: true },
-      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true }
     ]
   }
@@ -133,10 +133,17 @@ class WalletPage extends Component {
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
+    if (key === 'identifier') {
+      return (
+        <WalletAddressContainer>
+          <Icon name='Wallet' /> <span>{data}</span>
+        </WalletAddressContainer>
+      )
+    }
     if (key === 'address') {
       return (
         <WalletAddressContainer>
-          <Icon name='Wallet' /> <span>{data}</span> <Copy data={data} />
+          <span>{data}</span> <Copy data={data} />
         </WalletAddressContainer>
       )
     }

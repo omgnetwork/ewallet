@@ -34,7 +34,8 @@ export default class Select extends Component {
     onFocus: PropTypes.func
   }
   static defaultProps = {
-    onSelectItem: () => {}
+    onSelectItem: _.noop,
+    onFocus: _.noop
   }
   state = {
     active: false

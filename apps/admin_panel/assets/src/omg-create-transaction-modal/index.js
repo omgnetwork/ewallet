@@ -10,10 +10,10 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { formatNumber } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
-import WalletsFetcher from '../omg-wallet/walletsFetcher.js'
+import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 const Form = styled.form`
   padding: 50px;
-  width: 350px;
+  width: 400px;
   > i {
     position: absolute;
     right: 15px;
@@ -102,10 +102,17 @@ class CreateTransactionModal extends Component {
   onSelectTokenSelect = token => {
     this.setState({ searchTokenValue: token.value, selectedToken: token })
   }
+  onSelectFromAddressSelect = item => {
+    this.setState({ fromAddress: item.key })
+  }
+  onSelectToAddressSelect = item => {
+    this.setState({ toAddress: item.key })
+  }
 
   onFocusSelect = () => {
     this.setState({ searchTokenValue: '', selectedToken: null })
   }
+
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -158,28 +165,40 @@ class CreateTransactionModal extends Component {
           <Icon name='Close' onClick={this.props.onRequestClose} />
           <h4>Transfer Token</h4>
           <InputLabel>From Address</InputLabel>
-          <WalletsFetcher
-            query={{}}
-            page={1}
-            perpage={5}
-            render={() => {
+          <AllWalletsFetcher
+            query={{ search: this.state.fromAddress }}
+            render={({ data }) => {
               return (
-                <Input
+                <Select
                   normalPlaceholder='acc_0x000000000000000'
+                  onSelectItem={this.onSelectFromAddressSelect}
                   value={this.state.fromAddress}
                   onChange={this.onChangeInputFromAddress}
+                  options={data.map(d => {
+                    return {
+                      key: d.address,
+                      value: `${d.address} ( ${_.get(d, 'account.name') || _.get(d, 'user.username') || _.get(d, 'user.email')} )`
+                    }
+                  })}
                 />
               )
             }}
           />
           <InputLabel>To Address</InputLabel>
-          <WalletsFetcher
-            render={() => {
+          <AllWalletsFetcher
+            render={({ data }) => {
               return (
-                <Input
+                <Select
                   normalPlaceholder='acc_0x000000000000000'
+                  onSelectItem={this.onSelectToAddressSelect}
                   value={this.state.toAddress}
                   onChange={this.onChangeInputToAddress}
+                  options={data.map(d => {
+                    return {
+                      key: d.address,
+                      value: `${d.address} ( ${_.get(d, 'account.name') || _.get(d, 'user.username') || _.get(d, 'user.email')} )`
+                    }
+                  })}
                 />
               )
             }}
