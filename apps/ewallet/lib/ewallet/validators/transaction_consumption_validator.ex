@@ -4,7 +4,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   expiration.
   """
   alias EWallet.Web.V1.Event
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token}
+  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair}
 
   @spec validate_before_consumption(TransactionRequest.t(), any(), nil | keyword() | map()) ::
           {:ok, TransactionRequest.t(), Token.t(), integer()}
@@ -63,34 +63,52 @@ defmodule EWallet.TransactionConsumptionValidator do
 
   @spec validate_amount(TransactionRequest.t(), Integer.t()) ::
           {:ok, TransactionRequest.t()} | {:error, :unauthorized_amount_override}
-  def validate_amount(request, amount) do
-    case request.allow_amount_override do
-      true ->
-        {:ok, amount || request.amount}
+  def validate_amount(%TransactionRequest{amount: nil} = _request, nil) do
+    {:error, :invalid_parameter, "'amount' is required for transaction consumption."}
+  end
 
-      false ->
-        case amount do
-          nil -> {:ok, request.amount}
-          _amount -> {:error, :unauthorized_amount_override}
-        end
+  def validate_amount(%TransactionRequest{amount: _amount} = _request, nil) do
+    {:ok, nil}
+  end
+
+  def validate_amount(%TransactionRequest{allow_amount_override: true} = _request, amount) do
+    {:ok, amount}
+  end
+
+  def validate_amount(%TransactionRequest{allow_amount_override: false} = _request, amount)
+      when not is_nil(amount) do
+    {:error, :unauthorized_amount_override}
+  end
+
+  @spec get_and_validate_token(TransactionRequest.t(), String.t()) ::
+          {:ok, Token.t()}
+          | {:error, Atom.t()}
+  def get_and_validate_token(%TransactionRequest{token_uuid: nil} = _request, nil) do
+    {:error, :invalid_parameter,
+     "'token_id' is required since the transaction request does not specify any."}
+  end
+
+  def get_and_validate_token(%TransactionRequest{token_uuid: _token_uuid} = request, nil) do
+    {:ok, Repo.preload(request, :token).token}
+  end
+
+  def get_and_validate_token(%{token_uuid: nil} = _request, token_id) do
+    case Token.get(token_id) do
+      nil ->
+        {:error, :token_not_found}
+
+      token ->
+        {:ok, token}
     end
   end
 
-  @spec get_and_validate_token(TransactionRequest.t(), UUID.t()) ::
-          {:ok, Token.t()}
-          | {:error, Atom.t()}
   def get_and_validate_token(request, token_id) do
-    with request <- Repo.preload(request, :token),
-         true <- !is_nil(token_id) || {:ok, request.token},
-         %Token{} = token <- Token.get(token_id) || :token_not_found,
-         true <- request.token_uuid == token.uuid || :invalid_token_provided do
+    with %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
+         request_token <- Repo.preload(request, :token).token,
+         {:ok, _pair, _} <- fetch_pair(request.type, request_token.uuid, token.uuid) do
       {:ok, token}
     else
-      error when is_atom(error) ->
-        {:error, error}
-
-      res ->
-        res
+      error -> error
     end
   end
 
@@ -106,6 +124,27 @@ defmodule EWallet.TransactionConsumptionValidator do
       {:error, :max_consumptions_per_user_reached}
     else
       _ -> {:ok, wallet}
+    end
+  end
+
+  defp fetch_pair(_type, request_token_uuid, consumption_token_uuid)
+       when request_token_uuid == consumption_token_uuid do
+    {:ok, nil, nil}
+  end
+
+  defp fetch_pair(type, request_token_uuid, consumption_token_uuid) do
+    case type do
+      "send" ->
+        ExchangePair.fetch_exchangable_pair(
+          %{uuid: request_token_uuid},
+          %{uuid: consumption_token_uuid}
+        )
+
+      "receive" ->
+        ExchangePair.fetch_exchangable_pair(
+          %{uuid: consumption_token_uuid},
+          %{uuid: request_token_uuid}
+        )
     end
   end
 end

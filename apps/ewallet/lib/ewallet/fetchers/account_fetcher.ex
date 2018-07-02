@@ -31,14 +31,13 @@ defmodule EWallet.AccountFetcher do
           "exchange_account_id" => exchange_account_id
         } = attrs,
         exchange
-      ) do
-    with %Account{} = account <- Account.get(exchange_account_id) || :account_id_not_found,
+      )
+      when not is_nil(exchange_account_id) do
+    with %Account{} = account <-
+           Account.get(exchange_account_id) || :exchange_account_id_not_found,
          {:ok, wallet} <- WalletFetcher.get(account, attrs["exchange_wallet_address"]) do
       return_from(exchange, account, wallet)
     else
-      {:error, :account_id_not_found} ->
-        {:error, :exchange_account_id_not_found}
-
       error ->
         error
     end
@@ -51,7 +50,8 @@ defmodule EWallet.AccountFetcher do
           "exchange_wallet_address" => exchange_wallet_address
         },
         exchange
-      ) do
+      )
+      when not is_nil(exchange_wallet_address) do
     case from_token_id == to_token_id do
       true ->
         {:ok, nil}

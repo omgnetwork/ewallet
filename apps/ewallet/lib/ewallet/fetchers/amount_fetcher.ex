@@ -5,7 +5,12 @@ defmodule EWallet.AmountFetcher do
   alias EWallet.Exchange
   alias EWalletDB.Helpers.Assoc
 
-  def fetch(%{"amount" => _, "from_token_id" => _, "to_token_id" => _}, _, _) do
+  def fetch(
+        %{"amount" => amount, "from_token_id" => from_token_id, "to_token_id" => to_token_id},
+        _,
+        _
+      )
+      when not is_nil(amount) and not is_nil(from_token_id) and not is_nil(to_token_id) do
     {:error, :invalid_parameter,
      "'amount' not allowed when exchanging values. Use from_amount and/or to_amount."}
   end

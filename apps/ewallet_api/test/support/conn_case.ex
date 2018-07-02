@@ -88,6 +88,10 @@ defmodule EWalletAPI.ConnCase do
     :ok
   end
 
+  def stringify_keys(%NaiveDateTime{} = value) do
+    Date.to_iso8601(value)
+  end
+
   def stringify_keys(map) when is_map(map) do
     for {key, val} <- map, into: %{}, do: {convert_key(key), stringify_keys(val)}
   end

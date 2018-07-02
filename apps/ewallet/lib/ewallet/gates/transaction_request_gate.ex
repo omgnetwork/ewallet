@@ -32,6 +32,24 @@ defmodule EWallet.TransactionRequestGate do
   def create(
         %{
           "account_id" => account_id,
+          "user_id" => user_id,
+          "address" => address
+        } = attrs
+      ) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
+         %User{} = user <- User.get(user_id) || {:error, :provider_user_id_not_found},
+         {:ok, wallet} <- WalletFetcher.get(user, address),
+         wallet <- Map.put(wallet, :account_uuid, account.uuid),
+         {:ok, transaction_request} <- create(wallet, attrs) do
+      TransactionRequestFetcher.get(transaction_request.id)
+    else
+      error -> error
+    end
+  end
+
+  def create(
+        %{
+          "account_id" => account_id,
           "address" => address
         } = attrs
       ) do
@@ -68,7 +86,29 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
+  def create(
+        %{
+          "user_id" => user_id,
+          "address" => address
+        } = attrs
+      ) do
+    with %User{} = user <- User.get(user_id) || {:error, :provider_user_id_not_found},
+         {:ok, wallet} <- WalletFetcher.get(user, address),
+         {:ok, transaction_request} <- create(wallet, attrs) do
+      TransactionRequestFetcher.get(transaction_request.id)
+    else
+      error when is_atom(error) -> {:error, error}
+      error -> error
+    end
+  end
+
   def create(%{"provider_user_id" => _} = attrs) do
+    attrs
+    |> Map.put("address", nil)
+    |> create()
+  end
+
+  def create(%{"user_id" => _} = attrs) do
     attrs
     |> Map.put("address", nil)
     |> create()
@@ -170,7 +210,9 @@ defmodule EWallet.TransactionRequestGate do
       encrypted_metadata: attrs["encrypted_metadata"] || %{},
       expiration_date: attrs["expiration_date"],
       max_consumptions: attrs["max_consumptions"],
-      max_consumptions_per_user: attrs["max_consumptions_per_user"]
+      max_consumptions_per_user: attrs["max_consumptions_per_user"],
+      exchange_account_id: attrs["exchange_account_id"],
+      exchange_wallet_address: attrs["exchange_wallet_address"]
     })
   end
 end
