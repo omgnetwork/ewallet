@@ -18,6 +18,7 @@ defmodule EWallet.MintGate do
       {:ok, amount} ->
         attrs = Map.put(attrs, "amount", amount)
         mint_token(token, attrs)
+
       error ->
         error
     end
