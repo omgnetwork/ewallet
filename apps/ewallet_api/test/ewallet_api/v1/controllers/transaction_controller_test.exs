@@ -278,6 +278,51 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert response["data"]["to"]["token_id"] == token.id
     end
 
+    test "updates the wallets and returns the transaction with string amounts" do
+      user_1 = get_test_user()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+
+      token = insert(:token)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token,
+        amount: 200_000
+      })
+
+      response =
+        client_request("/me.create_transaction", %{
+          idempotency_token: UUID.generate(),
+          from_address: wallet_1.address,
+          to_address: wallet_2.address,
+          token_id: token.id,
+          amount: "10000",
+          metadata: %{something: "interesting"},
+          encrypted_metadata: %{something: "secret"}
+        })
+
+      {:ok, b1} = BalanceFetcher.get(token.id, wallet_1)
+      assert List.first(b1.balances).amount == (200_000 - 100) * token.subunit_to_unit
+      {:ok, b2} = BalanceFetcher.get(token.id, wallet_2)
+      assert List.first(b2.balances).amount == 100 * token.subunit_to_unit
+
+      transaction = get_last_inserted(Transaction)
+
+      assert response["data"]["from"]["address"] == transaction.from
+      assert response["data"]["from"]["amount"] == transaction.from_amount
+      assert response["data"]["from"]["account_id"] == nil
+      assert response["data"]["from"]["user_id"] == user_1.id
+      assert response["data"]["from"]["token_id"] == token.id
+
+      assert response["data"]["to"]["address"] == transaction.to
+      assert response["data"]["to"]["amount"] == transaction.to_amount
+      assert response["data"]["to"]["account_id"] == nil
+      assert response["data"]["to"]["user_id"] == user_2.id
+      assert response["data"]["to"]["token_id"] == token.id
+    end
+
     test "returns a 'same_address' error when the addresses are the same" do
       wallet = User.get_primary_wallet(get_test_user())
       token = insert(:token)

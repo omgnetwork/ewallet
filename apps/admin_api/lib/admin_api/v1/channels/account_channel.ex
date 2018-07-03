@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AccountChannel do
   @moduledoc """
   Represents the account channel.
   """
-  use Phoenix.Channel
+  use Phoenix.Channel, async: false
   alias EWalletDB.Account
 
   def join("account:" <> account_id, _params, %{assigns: %{auth: auth}} = socket) do

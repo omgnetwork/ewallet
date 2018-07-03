@@ -3,6 +3,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   Handles all validations for a transaction request, including amount and
   expiration.
   """
+  alias EWallet.Helper
   alias EWallet.Web.V1.Event
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair}
 
@@ -69,6 +70,17 @@ defmodule EWallet.TransactionConsumptionValidator do
 
   def validate_amount(%TransactionRequest{amount: _amount} = _request, nil) do
     {:ok, nil}
+  end
+
+  def validate_amount(%TransactionRequest{allow_amount_override: true} = _request, amount)
+      when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} ->
+        {:ok, amount}
+
+      error ->
+        error
+    end
   end
 
   def validate_amount(%TransactionRequest{allow_amount_override: true} = _request, amount) do

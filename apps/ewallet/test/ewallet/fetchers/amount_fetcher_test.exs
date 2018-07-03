@@ -59,7 +59,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "'amount' is not a number: fake"}
+      assert res == {:error, :invalid_parameter, "String number is not a valid number: 'fake'."}
     end
   end
 
@@ -246,8 +246,7 @@ defmodule EWallet.AmountFetcherTest do
         )
 
       assert res ==
-               {:error, :invalid_parameter,
-                "'from_amount' / 'to_amount' are not valid: fake / fake"}
+               {:error, :invalid_parameter, "String numbers are not valid numbers: 'fake, fake'."}
     end
 
     test "returns an error when sending invalid from_amount" do
@@ -260,8 +259,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res ==
-               {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+      assert res == {:error, :invalid_parameter, "String number is not a valid number: 'fake'."}
     end
 
     test "returns an error when sending invalid to_amount" do
@@ -274,8 +272,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res ==
-               {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+      assert res == {:error, :invalid_parameter, "String number is not a valid number: 'fake'."}
     end
 
     test "returns an error when sending nil to_amount" do
