@@ -80,12 +80,18 @@ class WalletDetaillPage extends Component {
         <DetailGroup>
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
-        <DetailGroup>
+        { wallet.account && <DetailGroup>
           <b>Account Owner:</b>{' '}
           <Link to={`/${accountId}/account/${wallet.account.id}`}>
             {_.get(wallet, 'account.name', '-')}
           </Link>
-        </DetailGroup>
+        </DetailGroup>}
+        { wallet.user && <DetailGroup>
+          <b>User:</b>{' '}
+          <Link to={`/${accountId}/user/${wallet.user.id}`}>
+            {_.get(wallet, 'user.id', '-')}
+          </Link>
+        </DetailGroup>}
         <DetailGroup>
           <b>Created date:</b>{' '}
           <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>

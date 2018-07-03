@@ -75,11 +75,10 @@ export const getWalletById = id => async dispatch => {
   try {
     const result = await walletService.getWallet(id)
     if (result.data.success) {
-      dispatch({ type: 'WALLET/REQUEST/SUCCESS', wallet: result.data.data })
+      return dispatch({ type: 'WALLET/REQUEST/SUCCESS', wallet: result.data.data })
     } else {
-      dispatch({ type: 'WALLET/REQUEST/FAILED', error: result.data.data })
+      return dispatch({ type: 'WALLET/REQUEST/FAILED', error: result.data.data })
     }
-    return result
   } catch (error) {
     return dispatch({ type: 'WALLET/REQUEST/FAILED', error })
   }
