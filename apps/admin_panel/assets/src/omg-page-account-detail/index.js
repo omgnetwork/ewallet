@@ -11,11 +11,13 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 const AccountDetailContainer = styled.div`
-  padding: 20px 0;
 `
 const ContentDetailContainer = styled.div`
   margin-top: 50px;
   display: flex;
+  > div {
+    flex:  0 1 50%;
+  }
 `
 const ContentContainer = styled.div`
   display: inline-block;
@@ -63,15 +65,16 @@ class AccountDetailPage extends Component {
     return (
       <Section title='WALLETS'>
         <WalletsFetcherByAccountId
-          accountId={this.props.match.params.accountId}
+          query={{ accountId: this.props.match.params.viewAccountId }}
           render={({ data, individualLoadingStatus }) => {
             return data.map(wallet => {
               return (
                 <WalletCointainter>
-                  <DetailGroup >
+                  <DetailGroup>
                     <b>Address</b>
-                    <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link>
-                    {' '} ( <span>{wallet.name}</span> )
+                    <Link to={`/${accountId}/wallet/${wallet.address}`}>
+                      {wallet.address}
+                    </Link> ( <span>{wallet.name}</span> )
                   </DetailGroup>
                   {wallet.balances.filter(b => b.amount).map(balance => {
                     return (
