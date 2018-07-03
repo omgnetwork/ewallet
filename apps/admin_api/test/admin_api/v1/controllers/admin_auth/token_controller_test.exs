@@ -98,7 +98,6 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       token = insert(:token)
       _mints = insert_list(3, :mint, token_uuid: token.uuid, amount: 100_000)
       response = admin_user_request("/token.stats", %{"id" => token.id})
-
       assert response["success"]
 
       assert response["data"] == %{
@@ -176,11 +175,8 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
         })
 
       mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"]
-      assert response["data"]["object"] == "token"
-      assert Token.get(response["data"]["id"]) != nil
       assert mint == nil
+      assert response["success"] == false
     end
 
     test "mints the given amount of tokens" do

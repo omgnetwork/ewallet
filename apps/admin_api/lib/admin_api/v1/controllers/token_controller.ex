@@ -76,37 +76,34 @@ defmodule AdminAPI.V1.TokenController do
   Creates a new Token.
   """
   @spec create(Conn.t(), map()) :: map()
-  def create(conn, attrs) do
-    inserted_token =
-      attrs
-      |> Map.put("account_uuid", Account.get_master_account().uuid)
-      |> Token.insert()
-
-    create_with_mint(attrs["amount"], inserted_token, conn)
-  end
-
-  defp create_with_mint({:error, error_code, description}, _token, conn) do
-    handle_error(conn, error_code, description)
-  end
-
-  defp create_with_mint({:ok, amount}, token, conn) when is_number(amount) and amount > 0 do
-    create_with_mint(amount, token, conn)
-  end
-
-  defp create_with_mint(amount, token, conn) when is_number(amount) and amount > 0 do
-    token
+  def create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0  do
+    attrs
+    |> Map.put("account_uuid", Account.get_master_account().uuid)
+    |> Token.insert()
     |> MintGate.mint_token(%{"amount" => amount})
     |> respond_single(conn)
   end
 
-  defp create_with_mint(amount, token, conn) when is_binary(amount) do
-    amount
-    |> Helper.string_to_integer()
-    |> create_with_mint(token, conn)
+  def create(conn, %{"amount" => amount} = attrs) when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} ->
+        attrs = Map.put(attrs, "amount", amount)
+        create(conn, attrs)
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+    end
   end
 
-  defp create_with_mint(_amount, token, conn) do
-    respond_single(token, conn)
+  def create(conn, attrs) do
+    case attrs["amount"] do
+      nil ->
+        attrs
+        |> Map.put("account_uuid", Account.get_master_account().uuid)
+        |> Token.insert()
+        |> respond_single(conn)
+      amount ->
+        handle_error(conn, :invalid_parameter, "Invalid amount provided: '#{amount}'")
+    end
   end
 
   @doc """

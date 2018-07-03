@@ -184,7 +184,7 @@ defmodule AdminAPI.V1.ProviderAuth.TokenControllerTest do
       assert mint.confirmed == true
     end
 
-    test "fails a new token with no minting if amount is 0" do
+    test "fails to create new token with no minting if amount is 0" do
       response =
         provider_request("/token.create", %{
           symbol: "BTC",
@@ -195,11 +195,10 @@ defmodule AdminAPI.V1.ProviderAuth.TokenControllerTest do
         })
 
       mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"]
-      assert response["data"]["object"] == "token"
-      assert Token.get(response["data"]["id"]) != nil
       assert mint == nil
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid amount provided: '0'"
     end
 
     test "mints the given amount of tokens" do

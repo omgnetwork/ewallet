@@ -151,7 +151,8 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
-         {:ok, transaction_request} <- insert(token, wallet, attrs) do
+         {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
+         {:ok, transaction_request} <- insert(token, wallet, amount, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -180,14 +181,14 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  defp insert(token, wallet, attrs) do
+  defp insert(token, wallet, amount, attrs) do
     require_confirmation = default_to_if_nil(attrs["require_confirmation"], false)
     allow_amount_override = default_to_if_nil(attrs["allow_amount_override"], true)
 
     TransactionRequest.insert(%{
       type: attrs["type"],
       correlation_id: attrs["correlation_id"],
-      amount: get_integer_or_string_amount(attrs["amount"]),
+      amount: amount,
       user_uuid: wallet.user_uuid,
       account_uuid: wallet.account_uuid,
       token_uuid: token.uuid,
@@ -209,14 +210,8 @@ defmodule EWallet.TransactionRequestGate do
   defp default_to_if_nil(field, _default), do: field
 
   defp get_integer_or_string_amount(amount) when is_binary(amount) do
-    case Helper.string_to_integer(amount) do
-      {:ok, amount} ->
-        amount
-
-      error ->
-        error
-    end
+    Helper.string_to_integer(amount)
   end
 
-  defp get_integer_or_string_amount(amount), do: amount
+  defp get_integer_or_string_amount(amount), do: {:ok, amount}
 end
