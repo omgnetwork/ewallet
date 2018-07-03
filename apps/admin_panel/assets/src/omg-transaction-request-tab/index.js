@@ -95,7 +95,8 @@ const QrContainer = styled.div`
 const InputsContainer = styled.div`
   flex: 1 1 auto;
   padding: 20px;
-  > div {
+  text-align: right;
+  > div:not(:last-child) {
     margin-bottom: 20px;
   }
 `
@@ -164,7 +165,17 @@ const InputLabel = styled.div`
   font-weight: 400;
   color: ${props => (props.disabled ? props.theme.colors.S400 : props.theme.colors.B300)};
 `
-const InputLabelContainer = styled.div``
+const InputLabelContainer = styled.div`
+  text-align: left;
+`
+const ExpiredContainer = styled.div`
+  background-color: ${props => props.theme.colors.S200};
+  color: ${props => props.theme.colors.S500};
+  border-radius: 4px;
+  padding: 5px 10px;
+  margin-top: 40px;
+  text-align: center;
+`
 const enhance = compose(
   withRouter,
   connect(
@@ -294,6 +305,16 @@ class TransactionRequestPanel extends Component {
     }
     return data
   }
+  getExpiredReason = reason => {
+    switch (reason) {
+      case 'max_consumptions_reached':
+        return 'Max consumptions reached.'
+      case 'expired_transaction_request':
+        return 'Transaction Expired.'
+      default:
+        return 'Expired.'
+    }
+  }
   renderActivityList = () => {
     return (
       <ConsumptionFetcherByTransactionIdFetcher
@@ -405,7 +426,7 @@ class TransactionRequestPanel extends Component {
                 )
               }}
             />
-            <Button disabled={!valid}>Consume</Button>
+            {transactionRequest.expiration_reason ? <ExpiredContainer>{this.getExpiredReason(transactionRequest.expiration_reason)}</ExpiredContainer> : <Button disabled={!valid}>Consume</Button>}
           </InputsContainer>
         </ConsumeActionContainer>
         <AdditionalRequestDataContainer>
