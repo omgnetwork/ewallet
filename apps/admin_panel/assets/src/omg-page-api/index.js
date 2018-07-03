@@ -295,7 +295,7 @@ class ApiKeyPage extends Component {
               >
                 <ConfirmCreateKeyContainer>
                   <h4>Generate Access key</h4>
-                  <p>Are you sure you want to generate acesss key ?</p>
+                  <p>Are you sure you want to generate access key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
               <ConfirmationModal

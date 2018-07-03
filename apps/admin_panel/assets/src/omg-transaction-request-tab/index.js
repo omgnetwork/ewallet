@@ -120,6 +120,10 @@ const AdditionalRequestDataContainer = styled.div`
   > div {
     margin-bottom: 10px;
   }
+  h5 {
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
 `
 const ConfirmButton = styled.button`
   display: inline-block;
@@ -158,7 +162,7 @@ const InputLabel = styled.div`
   margin-top: 20px;
   font-size: 14px;
   font-weight: 400;
-  color: ${props => props.disabled ? props.theme.colors.S400 : props.theme.colors.S200};
+  color: ${props => (props.disabled ? props.theme.colors.S400 : props.theme.colors.B300)};
 `
 const InputLabelContainer = styled.div``
 const enhance = compose(
@@ -405,6 +409,7 @@ class TransactionRequestPanel extends Component {
           </InputsContainer>
         </ConsumeActionContainer>
         <AdditionalRequestDataContainer>
+          <h5>ADDITIONAL REQUEST DETAILS</h5>
           <InformationItem>
             <b>Type:</b> {transactionRequest.type}
           </InformationItem>
@@ -431,13 +436,13 @@ class TransactionRequestPanel extends Component {
             <b>Max Consumptions User:</b> {transactionRequest.max_consumptionPerUser || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Expiry Date:</b> {transactionRequest.expiration_date}
+            <b>Expiry Date:</b> {transactionRequest.expiration_date || '-'}
           </InformationItem>
           <InformationItem>
             <b>Allow Override:</b> {transactionRequest.allow_amount_overide ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Coorelation ID:</b> {transactionRequest.correlation_id}
+            <b>Coorelation ID:</b> {transactionRequest.correlation_id || '-'}
           </InformationItem>
         </AdditionalRequestDataContainer>
       </TransactionReqeustPropertiesContainer>
