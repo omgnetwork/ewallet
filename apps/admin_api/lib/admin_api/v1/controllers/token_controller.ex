@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.TokenController do
   Creates a new Token.
   """
   @spec create(Conn.t(), map()) :: map()
-  def create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0  do
+  def create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
     attrs
     |> Map.put("account_uuid", Account.get_master_account().uuid)
     |> Token.insert()
@@ -89,6 +89,7 @@ defmodule AdminAPI.V1.TokenController do
       {:ok, amount} ->
         attrs = Map.put(attrs, "amount", amount)
         create(conn, attrs)
+
       {:error, code, description} ->
         handle_error(conn, code, description)
     end
@@ -101,6 +102,7 @@ defmodule AdminAPI.V1.TokenController do
         |> Map.put("account_uuid", Account.get_master_account().uuid)
         |> Token.insert()
         |> respond_single(conn)
+
       amount ->
         handle_error(conn, :invalid_parameter, "Invalid amount provided: '#{amount}'")
     end
