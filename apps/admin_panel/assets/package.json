@@ -59,6 +59,7 @@
     "moment": "^2.22.1",
     "postcss-loader": "^1.2.2",
     "prop-types": "^15.6.1",
+    "qrcode": "^1.2.0",
     "query-string": "^6.0.0",
     "raw-loader": "^0.5.1",
     "react": "^16.2.0",
