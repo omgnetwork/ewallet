@@ -98,8 +98,7 @@ class TransactionRequestPanel extends Component {
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>Consumption</h4>
               <SubDetailTitle>
-                <span>{consumption.id}</span> | <span>{tq.type}</span> |{' '}
-                <span>{consumption.user_id || _.get(consumption, 'account.name')}</span>
+                <span>{consumption.id}</span> | <span>{tq.type}</span>
               </SubDetailTitle>
               <ActionContainer>
                 <InformationItem>
