@@ -183,6 +183,9 @@ class TransactionRequestPanel extends Component {
                   <b>Confirmation:</b> {tq.require_confirmation ? 'Yes' : 'No'}
                 </InformationItem>
                 <InformationItem>
+                  <b>Consumptions Count:</b> {tq.current_consumptions_count}
+                </InformationItem>
+                <InformationItem>
                   <b>Max Consumptions:</b> {tq.max_consumtions || '-'}
                 </InformationItem>
                 <InformationItem>

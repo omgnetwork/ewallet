@@ -37,7 +37,8 @@ export function createTransactionRequest ({
   maxConsumption,
   maxConsumptionPerUser,
   expirationDate,
-  allowAmountOverride
+  allowAmountOverride,
+  consumptionLifetime
 }) {
   return authenticatedRequest({
     path: '/transaction_request.create',
@@ -53,7 +54,8 @@ export function createTransactionRequest ({
       max_consumptions: Number(maxConsumption) || undefined,
       max_consumptions_per_user: Number(maxConsumptionPerUser) || undefined,
       expiration_date: expirationDate,
-      allow_amount_override: allowAmountOverride
+      allow_amount_override: allowAmountOverride,
+      consumption_lifetime: Number(consumptionLifetime)
     }
   })
 }
