@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.Category
   alias EWalletDB.Helpers.Preloader
 
   describe "/category.all" do
@@ -148,7 +149,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided"
     end
 
-    test "returns a 'user:unauthorized' error if id is invalid" do
+    test "returns an 'unauthorized' error if id is invalid" do
       request_data = params_for(:category, %{id: "invalid_format"})
       response = admin_user_request("/category.update", request_data)
 
@@ -169,6 +170,29 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["success"] == true
       assert response["data"]["object"] == "category"
       assert response["data"]["id"] == category.id
+    end
+
+    test "responds with an error if the category has one or more associated accounts" do
+      account = insert(:account)
+
+      {:ok, category} =
+        :category
+        |> insert()
+        |> Category.update(%{account_ids: [account.id]})
+
+      response = admin_user_request("/category.delete", %{id: category.id})
+
+      assert response ==
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "category:not_empty",
+                   "description" => "The category has one or more accounts associated",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
     end
 
     test "responds with an error if the provided id is not found" do

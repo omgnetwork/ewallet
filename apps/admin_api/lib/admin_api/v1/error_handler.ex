@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.ErrorHandler do
       description: "There is no account assigned to the provided user"
     },
     unauthorized: %{
-      code: "user:unauthorized",
+      code: "unauthorized",
       description: "The user is not allowed to perform the requested operation"
     },
     access_key_unauthorized: %{
@@ -83,6 +83,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     category_id_not_found: %{
       code: "category:id_not_found",
       description: "There is no category corresponding to the provided id"
+    },
+    category_not_empty: %{
+      code: "category:not_empty",
+      description: "The category has one or more accounts associated"
     }
   }
 

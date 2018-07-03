@@ -176,6 +176,12 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, code, description)
   end
 
+  defp respond({:error, %TransactionConsumption{} = consumption, code}, conn) do
+    dispatch_confirm_event(consumption)
+    handle_error(conn, code)
+  end
+
+  defp respond({:error, code, description}, conn), do: handle_error(conn, code, description)
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
 
   defp respond({:error, changeset}, conn) do

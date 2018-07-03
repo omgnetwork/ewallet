@@ -6,7 +6,7 @@ defmodule EWalletDB.Membership do
   import Ecto.Changeset
   import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Membership, Role, User}
+  alias EWalletDB.{Repo, Account, Membership, Role, User, MembershipChecker}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -58,8 +58,14 @@ defmodule EWalletDB.Membership do
   @doc """
   Retrieves all memberships for the given user.
   """
-  def all_by_user(user) do
-    Repo.all(from(m in Membership, where: m.user_uuid == ^user.uuid))
+  def all_by_user(user, preload \\ []) do
+    Repo.all(from(m in Membership, where: m.user_uuid == ^user.uuid, preload: ^preload))
+  end
+
+  def all_by_user_and_role(user, role) do
+    Repo.all(
+      from(m in Membership, where: m.user_uuid == ^user.uuid and m.role_uuid == ^role.uuid)
+    )
   end
 
   @doc """
@@ -78,11 +84,17 @@ defmodule EWalletDB.Membership do
   def assign(%User{} = user, %Account{} = account, %Role{} = role) do
     case get_by_user_and_account(user, account) do
       nil ->
-        insert(%{
-          account_uuid: account.uuid,
-          user_uuid: user.uuid,
-          role_uuid: role.uuid
-        })
+        case MembershipChecker.allowed?(user, account, role) do
+          true ->
+            insert(%{
+              account_uuid: account.uuid,
+              user_uuid: user.uuid,
+              role_uuid: role.uuid
+            })
+
+          false ->
+            {:error, :user_already_has_rights}
+        end
 
       existing ->
         update(existing, %{role_uuid: role.uuid})

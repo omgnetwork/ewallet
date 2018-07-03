@@ -47,6 +47,10 @@ const AccountPageContainer = styled.div`
       color: ${props => props.theme.colors.B300};
     }
   }
+  td:nth-child(2),
+  td:nth-child(3) {
+    width: 25%;
+  }
 `
 const SortableTableContainer = styled.div`
   position: relative;

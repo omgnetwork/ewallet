@@ -75,6 +75,19 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["description"] == "The provided passwords do not match"
     end
 
+    test "returns client:invalid_parameter error if the password has less than 8 characters" do
+      invite = insert(:invite)
+      user = insert(:admin, %{invite: invite})
+      response = request(user.email, invite.token, "short", "short")
+
+      refute response["success"]
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `password` must be 8 characters or more."
+    end
+
     test "returns :invalid_parameter error if a required parameter is missing" do
       invite = insert(:invite)
       user = insert(:admin, %{invite: invite})
@@ -89,7 +102,9 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+
+      assert response["data"]["description"] ==
+               "'email', 'token', 'password', 'password_confirmation' are required"
     end
   end
 end

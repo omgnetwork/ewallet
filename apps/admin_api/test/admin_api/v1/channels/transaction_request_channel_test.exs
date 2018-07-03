@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule AdminAPI.V1.TransactionRequestChannelTest do
-  use AdminAPI.ChannelCase
+  use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.TransactionRequestChannel
 
   describe "join/3 as provider" do

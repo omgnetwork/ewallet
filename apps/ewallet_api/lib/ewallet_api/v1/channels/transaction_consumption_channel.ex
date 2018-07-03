@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   @moduledoc """
   Represents the transaction consumption channel.
   """
-  use Phoenix.Channel
+  use Phoenix.Channel, async: false
   alias EWalletDB.{User, TransactionConsumption}
 
   def join(

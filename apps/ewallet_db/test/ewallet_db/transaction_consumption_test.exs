@@ -133,7 +133,6 @@ defmodule EWalletDB.TransactionConsumptionTest do
     test_insert_generate_uuid(TransactionConsumption, :uuid)
     test_insert_generate_external_id(TransactionConsumption, :id, "txc_")
     test_insert_generate_timestamps(TransactionConsumption)
-    test_insert_prevent_blank(TransactionConsumption, :amount)
     test_insert_prevent_blank(TransactionConsumption, :idempotency_token)
     test_insert_prevent_blank(TransactionConsumption, :transaction_request_uuid)
     test_insert_prevent_blank(TransactionConsumption, :wallet_address)

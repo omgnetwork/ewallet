@@ -27,26 +27,26 @@ defmodule EWallet.AmountFetcherTest do
       res =
         AmountFetcher.fetch(
           %{
-            "amount" => 1
+            "amount" => 100
           },
           %{},
           %{}
         )
 
-      assert res == {:ok, %{from_amount: 1}, %{to_amount: 1}, %{}}
+      assert res == {:ok, %{from_amount: 100}, %{to_amount: 100}, %{}}
     end
 
     test "returns an error if amount is not an integer (float)" do
       res =
         AmountFetcher.fetch(
           %{
-            "amount" => 1.2
+            "amount" => 100.2
           },
           %{},
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "'amount' is not a number: 1.2"}
+      assert res == {:error, :invalid_parameter, "'amount' is not a number: 100.2"}
     end
 
     test "returns an error if amount is not an integer (string)" do
@@ -59,7 +59,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "'amount' is not a number: fake"}
+      assert res == {:error, :invalid_parameter, "String number is not a valid number: 'fake'."}
     end
   end
 
@@ -68,14 +68,14 @@ defmodule EWallet.AmountFetcherTest do
       res =
         AmountFetcher.fetch(
           %{
-            "from_amount" => 1,
-            "to_amount" => 1
+            "from_amount" => 100,
+            "to_amount" => 100
           },
           %{},
           %{}
         )
 
-      assert res == {:ok, %{from_amount: 1}, %{to_amount: 1}, %{}}
+      assert res == {:ok, %{from_amount: 100}, %{to_amount: 100}, %{}}
     end
 
     test "sets from_amount only when sending nil to_amount with exchange pair" do
@@ -86,7 +86,7 @@ defmodule EWallet.AmountFetcherTest do
       {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
-            "from_amount" => 1,
+            "from_amount" => 100,
             "to_amount" => nil
           },
           %{from_token: token_1},
@@ -94,8 +94,8 @@ defmodule EWallet.AmountFetcherTest do
         )
 
       assert res == :ok
-      assert from[:from_amount] == 1
-      assert to[:to_amount] == 2
+      assert from[:from_amount] == 100
+      assert to[:to_amount] == 200
       assert exchange[:actual_rate] == 2
       assert exchange[:calculated_at] != nil
       assert exchange[:pair_uuid] == pair.uuid
@@ -108,7 +108,7 @@ defmodule EWallet.AmountFetcherTest do
       res =
         AmountFetcher.fetch(
           %{
-            "from_amount" => 1,
+            "from_amount" => 100,
             "to_amount" => nil
           },
           %{from_token: token_1},
@@ -126,15 +126,15 @@ defmodule EWallet.AmountFetcherTest do
       {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
-            "from_amount" => 1
+            "from_amount" => 100
           },
           %{from_token: token_1},
           %{to_token: token_2}
         )
 
       assert res == :ok
-      assert from[:from_amount] == 1
-      assert to[:to_amount] == 2
+      assert from[:from_amount] == 100
+      assert to[:to_amount] == 200
       assert exchange[:actual_rate] == 2
       assert exchange[:calculated_at] != nil
       assert exchange[:pair_uuid] == pair.uuid
@@ -147,7 +147,7 @@ defmodule EWallet.AmountFetcherTest do
       res =
         AmountFetcher.fetch(
           %{
-            "from_amount" => 1
+            "from_amount" => 100
           },
           %{from_token: token_1},
           %{to_token: token_2}
@@ -165,15 +165,15 @@ defmodule EWallet.AmountFetcherTest do
         AmountFetcher.fetch(
           %{
             "from_amount" => nil,
-            "to_amount" => 2
+            "to_amount" => 200
           },
           %{from_token: token_1},
           %{to_token: token_2}
         )
 
       assert res == :ok
-      assert from[:from_amount] == 1
-      assert to[:to_amount] == 2
+      assert from[:from_amount] == 100
+      assert to[:to_amount] == 200
       assert exchange[:actual_rate] == 2
       assert exchange[:calculated_at] != nil
       assert exchange[:pair_uuid] == pair.uuid
@@ -187,7 +187,7 @@ defmodule EWallet.AmountFetcherTest do
         AmountFetcher.fetch(
           %{
             "from_amount" => nil,
-            "to_amount" => 2
+            "to_amount" => 200
           },
           %{from_token: token_1},
           %{to_token: token_2}
@@ -204,15 +204,15 @@ defmodule EWallet.AmountFetcherTest do
       {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
-            "to_amount" => 2
+            "to_amount" => 200
           },
           %{from_token: token_1},
           %{to_token: token_2}
         )
 
       assert res == :ok
-      assert from[:from_amount] == 1
-      assert to[:to_amount] == 2
+      assert from[:from_amount] == 100
+      assert to[:to_amount] == 200
       assert exchange[:actual_rate] == 2
       assert exchange[:calculated_at] != nil
       assert exchange[:pair_uuid] == pair.uuid
@@ -225,7 +225,7 @@ defmodule EWallet.AmountFetcherTest do
       res =
         AmountFetcher.fetch(
           %{
-            "to_amount" => 2
+            "to_amount" => 200
           },
           %{from_token: token_1},
           %{to_token: token_2}
@@ -246,8 +246,7 @@ defmodule EWallet.AmountFetcherTest do
         )
 
       assert res ==
-               {:error, :invalid_parameter,
-                "'from_amount' / 'to_amount' are not valid: fake / fake"}
+               {:error, :invalid_parameter, "String numbers are not valid numbers: 'fake, fake'."}
     end
 
     test "returns an error when sending invalid from_amount" do
@@ -260,8 +259,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res ==
-               {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+      assert res == {:error, :invalid_parameter, "String number is not a valid number: 'fake'."}
     end
 
     test "returns an error when sending invalid to_amount" do
@@ -274,8 +272,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res ==
-               {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+      assert res == {:error, :invalid_parameter, "String number is not a valid number: 'fake'."}
     end
 
     test "returns an error when sending nil to_amount" do

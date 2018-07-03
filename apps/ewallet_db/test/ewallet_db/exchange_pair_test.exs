@@ -12,6 +12,26 @@ defmodule EWalletDB.ExchangePairTest do
     test_insert_prevent_blank(ExchangePair, :name)
     test_insert_prevent_blank(ExchangePair, :rate)
     test_insert_generate_timestamps(ExchangePair)
+
+    test "prevents setting exchange rate to 0" do
+      params = params_for(:exchange_pair, rate: 0)
+      {res, changeset} = ExchangePair.insert(params)
+
+      assert res == :error
+
+      assert changeset.errors ==
+               [rate: {"must be greater than %{number}", [validation: :number, number: 0]}]
+    end
+
+    test "prevents setting exchange rate to a negative number" do
+      params = params_for(:exchange_pair, rate: -1)
+      {res, changeset} = ExchangePair.insert(params)
+
+      assert res == :error
+
+      assert changeset.errors ==
+               [rate: {"must be greater than %{number}", [validation: :number, number: 0]}]
+    end
   end
 
   describe "deleted?/1" do
@@ -27,16 +47,15 @@ defmodule EWalletDB.ExchangePairTest do
   end
 
   describe "fetch_exchangable_pair/3" do
-    test "returns {:ok, pair, :direct} if the tokens match a direct pair" do
+    test "returns {:ok, pair} if the tokens match a pair" do
       omg = insert(:token)
       eth = insert(:token)
       inserted_pair = insert(:exchange_pair, from_token: omg, to_token: eth)
 
-      {res, pair, direction} = ExchangePair.fetch_exchangable_pair(omg, eth)
+      {res, pair} = ExchangePair.fetch_exchangable_pair(omg, eth)
 
       assert res == :ok
       assert pair.uuid == inserted_pair.uuid
-      assert direction == :direct
     end
 
     test "returns {:error, :exchange_pair_not_found} if a pair could not be found" do

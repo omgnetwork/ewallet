@@ -41,7 +41,11 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             rate: 1,
             calculated_at: nil,
             exchange_pair: nil,
-            exchange_pair_id: nil
+            exchange_pair_id: nil,
+            exchange_account: nil,
+            exchange_account_id: nil,
+            exchange_wallet: nil,
+            exchange_wallet_address: nil
           },
           metadata: %{some: "metadata"},
           encrypted_metadata: %{},

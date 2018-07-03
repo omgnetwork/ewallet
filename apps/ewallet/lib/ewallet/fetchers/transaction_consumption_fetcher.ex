@@ -41,7 +41,9 @@ defmodule EWallet.TransactionConsumptionFetcher do
         :wallet,
         :token,
         :transaction_request,
-        :transaction
+        :transaction,
+        :exchange_account,
+        :exchange_wallet
       ]
     )
   end

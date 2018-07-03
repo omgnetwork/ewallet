@@ -21,6 +21,40 @@ defmodule EWallet.Helper do
     ArgumentError -> atom_list
   end
 
+  def string_to_integer(string) do
+    case Integer.parse(string, 10) do
+      {amount, ""} ->
+        {:ok, amount}
+
+      _ ->
+        {:error, :invalid_parameter, "String number is not a valid number: '#{string}'."}
+    end
+  end
+
+  def strings_to_integers(strings) do
+    amounts =
+      Enum.map(strings, fn string ->
+        case Integer.parse(string, 10) do
+          {amount, ""} ->
+            {:ok, amount}
+
+          _ ->
+            :error
+        end
+      end)
+
+    case Enum.any?(amounts, fn amount -> amount == :error end) do
+      true ->
+        formatted_strings = Enum.join(strings, ", ")
+
+        {:error, :invalid_parameter,
+         "String numbers are not valid numbers: '#{formatted_strings}'."}
+
+      false ->
+        amounts
+    end
+  end
+
   @doc """
   Checks if all `elements` exist within the `enumerable`.
 
@@ -31,4 +65,6 @@ defmodule EWallet.Helper do
       Enum.member?(enumerable, element)
     end)
   end
+
+  def intersect(a, b), do: a -- a -- b
 end

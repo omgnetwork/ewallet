@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Account, Repo, User}
+  alias EWalletDB.{Account, Repo, User, Role, Membership}
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do
@@ -41,11 +41,64 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert Enum.at(accounts, 1)["name"] == "Matched 2"
       assert Enum.at(accounts, 2)["name"] == "Matched 1"
     end
+
+    test "returns a list of accounts that the current user can access" do
+      master = Account.get_master_account()
+      user = get_test_admin()
+      {:ok, _m} = Membership.unassign(user, master)
+
+      role = Role.get_by_name("admin")
+
+      acc_1 = insert(:account, parent: master, name: "Account 1")
+      acc_2 = insert(:account, parent: acc_1, name: "Account 2")
+      acc_3 = insert(:account, parent: acc_2, name: "Account 3")
+      _acc_4 = insert(:account, parent: acc_3, name: "Account 4")
+      _acc_5 = insert(:account, parent: acc_3, name: "Account 5")
+
+      # We add user to acc_2, so he should have access to
+      # acc_2 and its descendants: acc_3, acc_4, acc_5
+      {:ok, _m} = Membership.assign(user, acc_2, role)
+
+      response = admin_user_request("/account.all", %{})
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 4
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 2" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 3" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 4" end)
+      assert Enum.any?(accounts, fn account -> account["name"] == "Account 5" end)
+    end
+
+    test "returns only one account if the user is at the last level" do
+      master = Account.get_master_account()
+      user = get_test_admin()
+      {:ok, _m} = Membership.unassign(user, master)
+
+      role = Role.get_by_name("admin")
+
+      acc_1 = insert(:account, parent: master, name: "Account 1")
+      acc_2 = insert(:account, parent: acc_1, name: "Account 2")
+      acc_3 = insert(:account, parent: acc_2, name: "Account 3")
+      _acc_4 = insert(:account, parent: acc_3, name: "Account 4")
+      acc_5 = insert(:account, parent: acc_3, name: "Account 5")
+
+      {:ok, _m} = Membership.assign(user, acc_5, role)
+
+      response = admin_user_request("/account.all", %{})
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 1
+      assert Enum.at(accounts, 0)["name"] == "Account 5"
+    end
   end
 
   describe "/account.get" do
-    test "returns an account by the given account's external ID" do
-      accounts = insert_list(3, :account)
+    test "returns an account by the given account's external ID if the user has
+          an indirect membership" do
+      account = insert(:account)
+      accounts = insert_list(3, :account, parent: account)
       # Pick the 2nd inserted account
       target = Enum.at(accounts, 1)
       response = admin_user_request("/account.get", %{"id" => target.id})
@@ -55,14 +108,46 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["name"] == target.name
     end
 
+    test "returns an account by the given account's external ID if the user has
+          a direct membership" do
+      master = Account.get_master_account()
+      user = get_test_admin()
+      role = Role.get_by_name("admin")
+
+      {:ok, _m} = Membership.unassign(user, master)
+      accounts = insert_list(3, :account)
+
+      # Pick the 2nd inserted account
+      target = Enum.at(accounts, 1)
+      Membership.assign(user, target, role)
+      response = admin_user_request("/account.get", %{"id" => target.id})
+
+      assert response["success"]
+      assert response["data"]["object"] == "account"
+      assert response["data"]["name"] == target.name
+    end
+
+    test "gets unauthorized if the user doesn't have access" do
+      master = Account.get_master_account()
+      user = get_test_admin()
+      {:ok, _m} = Membership.unassign(user, master)
+      accounts = insert_list(3, :account)
+      # Pick the 2nd inserted account
+      target = Enum.at(accounts, 1)
+      response = admin_user_request("/account.get", %{"id" => target.id})
+
+      refute response["success"]
+      assert response["data"]["code"] == "unauthorized"
+    end
+
     # The user should not know any information about the account it doesn't have access to.
     # So even the account is not found, the user is unauthorized to know that.
-    test "returns 'user:unauthorized' if the given ID is in correct format but not found" do
+    test "returns 'unauthorized' if the given ID is in correct format but not found" do
       response = admin_user_request("/account.get", %{"id" => "acc_00000000000000000000000000"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
                "The user is not allowed to perform the requested operation"
@@ -73,7 +158,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
                "The user is not allowed to perform the requested operation"
@@ -181,13 +266,13 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided"
     end
 
-    test "returns a 'user:unauthorized' error if id is invalid" do
+    test "returns a 'unauthorized' error if id is invalid" do
       request_data = params_for(:account, %{id: "invalid_format"})
       response = admin_user_request("/account.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
                "The user is not allowed to perform the requested operation"
@@ -301,7 +386,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert account.avatar == nil
     end
 
-    test "returns 'user:unauthorized' if the given account ID was not found" do
+    test "returns 'unauthorized' if the given account ID was not found" do
       response =
         admin_user_request("/account.upload_avatar", %{
           "id" => "fake",
@@ -313,7 +398,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:unauthorized"
+      assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
                "The user is not allowed to perform the requested operation"

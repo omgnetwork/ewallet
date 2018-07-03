@@ -25,6 +25,7 @@ const TableContainer = styled.div`
   table {
     width: 100%;
     text-align: left;
+
     thead {
       tr {
         border-top: 1px solid ${props => props.theme.colors.S400};

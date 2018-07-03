@@ -6,7 +6,7 @@ defmodule EWalletDB.TransactionRequest do
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  alias Ecto.{UUID, Changeset}
+  alias Ecto.{UUID, Changeset, Query}
 
   alias EWalletDB.{
     Account,
@@ -89,6 +89,22 @@ defmodule EWalletDB.TransactionRequest do
       type: :string
     )
 
+    belongs_to(
+      :exchange_account,
+      Account,
+      foreign_key: :exchange_account_uuid,
+      references: :uuid,
+      type: UUID
+    )
+
+    belongs_to(
+      :exchange_wallet,
+      Wallet,
+      foreign_key: :exchange_wallet_address,
+      references: :address,
+      type: :string
+    )
+
     timestamps()
   end
 
@@ -109,7 +125,9 @@ defmodule EWalletDB.TransactionRequest do
       :expiration_date,
       :metadata,
       :encrypted_metadata,
-      :allow_amount_override
+      :allow_amount_override,
+      :exchange_account_uuid,
+      :exchange_wallet_address
     ])
     |> validate_required([
       :type,
@@ -118,13 +136,15 @@ defmodule EWalletDB.TransactionRequest do
       :wallet_address
     ])
     |> validate_amount_if_disallow_override()
+    |> validate_number(:amount, less_than: 100_000_000_000_000_000_000_000_000_000_000_000)
     |> validate_inclusion(:type, @types)
     |> validate_inclusion(:status, @statuses)
     |> unique_constraint(:correlation_id)
     |> assoc_constraint(:token)
     |> assoc_constraint(:user)
     |> assoc_constraint(:wallet)
-    |> assoc_constraint(:account)
+    |> assoc_constraint(:exchange_account)
+    |> assoc_constraint(:exchange_wallet)
   end
 
   defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do
@@ -192,14 +212,17 @@ defmodule EWalletDB.TransactionRequest do
   Gets a request with a "FOR UPDATE" lock on it. Should be called inside a transaction.
   """
   @spec get_with_lock(ExternalID.t()) :: %TransactionRequest{} | nil
-  def get_with_lock(id) when is_external_id(id) do
+  def get_with_lock(id, preloads \\ [])
+
+  def get_with_lock(id, preloads) when is_external_id(id) do
     TransactionRequest
     |> where([t], t.id == ^id)
     |> lock("FOR UPDATE")
+    |> Query.preload(^preloads)
     |> Repo.one()
   end
 
-  def get_with_lock(_), do: nil
+  def get_with_lock(_, _), do: nil
 
   @doc """
   Touches a request by updating the `updated_at` field.

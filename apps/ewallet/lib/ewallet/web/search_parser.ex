@@ -22,24 +22,24 @@ defmodule EWallet.Web.SearchParser do
   def to_query(queryable, terms, fields, mapping \\ %{})
 
   def to_query(queryable, %{"search_terms" => terms}, fields, mapping) when terms != nil do
-    {_i, query} =
-      Enum.reduce(terms, {0, queryable}, fn {field, value}, {index, query} ->
+    terms
+    |> Enum.reduce(false, fn {field, value}, dynamic ->
+      field =
         field
         |> map_field(mapping)
         |> allowed?(fields)
-        |> build_search_query(index, query, value)
-      end)
 
-    query
+      build_search_query(dynamic, field, value)
+    end)
+    |> handle_dynamic_return(queryable)
   end
 
   def to_query(queryable, %{"search_term" => term}, fields, _mapping) when term != nil do
-    {_i, query} =
-      Enum.reduce(fields, {0, queryable}, fn field, {index, query} ->
-        build_search_query(field, index, query, term)
-      end)
-
-    query
+    fields
+    |> Enum.reduce(false, fn field, dynamic ->
+      build_search_query(dynamic, field, term)
+    end)
+    |> handle_dynamic_return(queryable)
   end
 
   def to_query(queryable, _, _, _), do: queryable
@@ -54,6 +54,12 @@ defmodule EWallet.Web.SearchParser do
   end
 
   def search_with_terms(queryable, _, _, _), do: queryable
+
+  defp handle_dynamic_return(false, queryable), do: queryable
+
+  defp handle_dynamic_return(dynamic, queryable) do
+    from(queryable, where: ^dynamic)
+  end
 
   defp map_field(original, mapping) do
     case mapping[original] do
@@ -78,29 +84,22 @@ defmodule EWallet.Web.SearchParser do
     end
   end
 
-  defp build_search_query(_field, index, query, nil), do: {index, query}
-  defp build_search_query(nil, index, query, _value), do: {index, query}
+  defp build_search_query(dynamic, _field, nil), do: dynamic
+  defp build_search_query(dynamic, nil, _value), do: dynamic
 
-  defp build_search_query(field, index, query, value) do
-    case index do
-      0 -> {index + 1, build_and_search_query(query, field, value)}
-      _ -> {index, build_or_search_query(query, field, value)}
-    end
+  defp build_search_query(false, {field, :uuid}, term) do
+    dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%"))
   end
 
-  defp build_or_search_query(query, {field, :uuid}, term) do
-    from(q in query, or_where: ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%"))
+  defp build_search_query(dynamic, {field, :uuid}, term) do
+    dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%") or ^dynamic)
   end
 
-  defp build_or_search_query(query, field, term) do
-    from(q in query, or_where: ilike(field(q, ^field), ^"%#{term}%"))
+  defp build_search_query(false, field, term) do
+    dynamic([q], ilike(field(q, ^field), ^"%#{term}%"))
   end
 
-  defp build_and_search_query(query, {field, :uuid}, term) do
-    from(q in query, where: ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%"))
-  end
-
-  defp build_and_search_query(query, field, term) do
-    from(q in query, where: ilike(field(q, ^field), ^"%#{term}%"))
+  defp build_search_query(dynamic, field, term) do
+    dynamic([q], ilike(field(q, ^field), ^"%#{term}%") or ^dynamic)
   end
 end

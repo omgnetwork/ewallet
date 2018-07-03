@@ -27,6 +27,7 @@ defmodule AdminAPI.V1.UserController do
   Retrieves a list of users.
   """
   def all(conn, attrs) do
+    # Get all users for current account
     User
     |> SearchParser.to_query(attrs, @search_fields)
     |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
