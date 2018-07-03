@@ -171,14 +171,14 @@ class CreateTransactionRequestModal extends Component {
                 Allow Amount Overide <span>( Optional )</span>
               </InputLabel>
               <StyledRadioButton
-                onClick={this.onRadioChange('allowAmountOveride')(false)}
+                onClick={this.onRadioChange('allowAmountOverride')(false)}
                 label='No'
-                checked={!this.state.allowAmountOveride}
+                checked={!this.state.allowAmountOverride}
               />
               <StyledRadioButton
-                onClick={this.onRadioChange('allowAmountOveride')(true)}
+                onClick={this.onRadioChange('allowAmountOverride')(true)}
                 label='Yes'
-                checked={this.state.allowAmountOveride}
+                checked={this.state.allowAmountOverride}
               />
             </InputLabelContainer>
             <InputLabelContainer>

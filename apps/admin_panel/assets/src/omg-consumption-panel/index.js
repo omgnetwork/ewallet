@@ -193,7 +193,7 @@ class TransactionRequestPanel extends Component {
                   <b>Expiry Date:</b> {tq.expiration_date || '-'}
                 </InformationItem>
                 <InformationItem>
-                  <b>Allow Override:</b> {tq.allow_amount_overide ? 'Yes' : 'No'}
+                  <b>Allow Override:</b> {tq.allow_amount_override ? 'Yes' : 'No'}
                 </InformationItem>
                 <InformationItem>
                   <b>Coorelation ID:</b> {tq.correlation_id || '-'}

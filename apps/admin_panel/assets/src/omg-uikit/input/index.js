@@ -39,6 +39,7 @@ const Input = styled.input`
   }
   :disabled {
     background-color: transparent;
+    color: ${props => props.theme.colors.S400};
   }
   ::placeholder {
     color: ${props => props.theme.colors.S400};

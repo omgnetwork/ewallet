@@ -86,7 +86,7 @@ export const createTransactionRequest = ({
   maxConsumption,
   maxConsumptionPerUser,
   expirationDate,
-  allowAmountOveride
+  allowAmountOverride
 }) => async dispatch => {
   dispatch({ type: 'TRANSACTION_REQUEST/CREATE/INITIATED' })
   try {
@@ -102,7 +102,7 @@ export const createTransactionRequest = ({
       maxConsumption,
       maxConsumptionPerUser,
       expirationDate,
-      allowAmountOveride
+      allowAmountOverride
     })
     if (result.data.success) {
       return dispatch({

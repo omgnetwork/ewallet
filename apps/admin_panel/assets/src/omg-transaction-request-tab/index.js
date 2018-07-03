@@ -15,8 +15,9 @@ import { approveConsumptionById, rejectConsumptionById } from '../omg-consumptio
 import { compose } from 'recompose'
 import { formatNumber } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
-import WalletProvider from '../omg-wallet/walletProvider'
+import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
+import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -101,6 +102,8 @@ const InputsContainer = styled.div`
   }
 `
 const TransactionReqeustPropertiesContainer = styled.div`
+  height: calc(100vh - 160px);
+  overflow: auto;
   b {
     font-weight: 600;
     color: ${props => props.theme.colors.B200};
@@ -173,23 +176,49 @@ const ExpiredContainer = styled.div`
   color: ${props => props.theme.colors.S500};
   border-radius: 4px;
   padding: 5px 10px;
-  margin-top: 40px;
+  margin-top: 32px;
   text-align: center;
 `
 const enhance = compose(
   withRouter,
   connect(
-    null,
+    state => ({
+      selectTransactionRequestById: selectGetTransactionRequestById(state)
+    }),
     { approveConsumptionById, rejectConsumptionById, consumeTransactionRequest }
   )
 )
+const Error = styled.div`
+  color: ${props => props.theme.colors.R400};
+  padding: ${props => (props.error ? '10px 0' : 0)};
+  overflow: hidden;
+  max-height: ${props => (props.error ? '50px' : 0)};
+  opacity: ${props => (props.error ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity;
+  text-align: right;
+`
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
     location: PropTypes.object,
     rejectConsumptionById: PropTypes.func,
     approveConsumptionById: PropTypes.func,
-    consumeTransactionRequest: PropTypes.func
+    consumeTransactionRequest: PropTypes.func,
+    selectTransactionRequestById: PropTypes.func
+  }
+
+  static getDerivedStateFromProps (props, state) {
+    const transactionRequestId = queryString.parse(props.location.search)['show-request-tab']
+    const transactionRequest = props.selectTransactionRequestById(transactionRequestId)
+    if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
+      return {
+        transactionRequestId,
+        amount: transactionRequest.amount / transactionRequest.token.subunit_to_unit,
+        selectedToken: transactionRequest.token,
+        searchTokenValue: `${transactionRequest.token.name} (${transactionRequest.token.symbol})`
+      }
+    }
+    return null
   }
 
   constructor (props) {
@@ -252,14 +281,26 @@ class TransactionRequestPanel extends Component {
       })
     })
   }
-  onSubmitConsume = transactionRequest => e => {
+  onSubmitConsume = transactionRequest => async e => {
     e.preventDefault()
-    this.props.consumeTransactionRequest({
-      formattedTransactionRequestId: transactionRequest.id,
-      tokenId: this.state.selectedToken.id,
-      amount: Number(this.state.amount) * _.get(this.state.selectedToken, 'subunit_to_unit'),
-      address: this.state.consumeAddress
-    })
+    this.setState({ submitStatus: 'SUBMITTING' })
+    try {
+      const result = await this.props.consumeTransactionRequest({
+        formattedTransactionRequestId: transactionRequest.id,
+        tokenId: this.state.selectedToken.id,
+        amount: transactionRequest.allow_amount_override
+          ? Number(this.state.amount) * _.get(this.state.selectedToken, 'subunit_to_unit')
+          : null,
+        address: this.state.consumeAddress
+      })
+      if (result.data) {
+        this.setState({ submitStatus: 'SUCCESS', error: null })
+      } else {
+        this.setState({ submitStatus: 'FAILED', error: result.error.description })
+      }
+    } catch (error) {
+      this.setState({ submitStatus: 'FAILED', error: `${error}` })
+    }
   }
   rowRenderer = (key, data, rows) => {
     if (key === 'amount') {
@@ -386,9 +427,8 @@ class TransactionRequestPanel extends Component {
                 )
               }}
             />
-            <WalletProvider
-              walletAddress={this.state.consumeAddress}
-              render={({ wallet }) => {
+            <TokensFetcher
+              render={({ data }) => {
                 return (
                   <TokenAmountContainer>
                     <InputLabelContainer>
@@ -396,9 +436,9 @@ class TransactionRequestPanel extends Component {
                       <Input
                         normalPlaceholder='1000'
                         onChange={this.onChangeAmount}
-                        state={this.state.amount}
+                        value={this.state.amount}
                         type='number'
-                        disabled={!valid}
+                        disabled={!valid || !transactionRequest.allow_amount_override}
                       />
                     </InputLabelContainer>
                     <InputLabelContainer>
@@ -409,24 +449,29 @@ class TransactionRequestPanel extends Component {
                         onSelectItem={this.onSelectTokenSelect}
                         onChange={this.onChangeSearchToken}
                         value={this.state.searchTokenValue}
-                        options={
-                          wallet
-                            ? wallet.balances.map(b => ({
-                              ...{
-                                key: b.token.id,
-                                value: `${b.token.name} (${b.token.symbol})`
-                              },
-                              ...b
-                            }))
-                            : []
-                        }
+                        options={data.map(token => ({
+                          ...{
+                            key: token.id,
+                            value: `${token.name} (${token.symbol})`
+                          },
+                          ...token
+                        }))}
                       />
                     </InputLabelContainer>
                   </TokenAmountContainer>
                 )
               }}
             />
-            {transactionRequest.expiration_reason ? <ExpiredContainer>{this.getExpiredReason(transactionRequest.expiration_reason)}</ExpiredContainer> : <Button disabled={!valid}>Consume</Button>}
+            {transactionRequest.expiration_reason ? (
+              <ExpiredContainer>
+                {this.getExpiredReason(transactionRequest.expiration_reason)}
+              </ExpiredContainer>
+            ) : (
+              <Button disabled={!valid} loading={this.state.submitStatus === 'SUBMITTING'}>
+                Consume
+              </Button>
+            )}
+            <Error error={this.state.error}>{this.state.error}</Error>
           </InputsContainer>
         </ConsumeActionContainer>
         <AdditionalRequestDataContainer>
@@ -460,7 +505,7 @@ class TransactionRequestPanel extends Component {
             <b>Expiry Date:</b> {transactionRequest.expiration_date || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Allow Override:</b> {transactionRequest.allow_amount_overide ? 'Yes' : 'No'}
+            <b>Allow Override:</b> {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
             <b>Coorelation ID:</b> {transactionRequest.correlation_id || '-'}

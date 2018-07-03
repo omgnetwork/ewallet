@@ -37,7 +37,7 @@ export function createTransactionRequest ({
   maxConsumption,
   maxConsumptionPerUser,
   expirationDate,
-  allowAmountOveride
+  allowAmountOverride
 }) {
   return authenticatedRequest({
     path: '/transaction_request.create',
@@ -53,7 +53,7 @@ export function createTransactionRequest ({
       max_consumptions: Number(maxConsumption) || undefined,
       max_consumptions_per_user: Number(maxConsumptionPerUser) || undefined,
       expiration_date: expirationDate,
-      allow_amount_overide: allowAmountOveride
+      allow_amount_override: allowAmountOverride
     }
   })
 }
@@ -73,7 +73,7 @@ export function consumeTransactionRequest ({
       formatted_transaction_request_id: formattedTransactionRequestId,
       correlation_id: correlationId,
       token_id: tokenId,
-      amount: Number(amount),
+      amount: amount === null ? null : Number(amount),
       provider_user_id: providerUserId,
       address
     }
