@@ -50,8 +50,8 @@ export function createTransactionRequest ({
       account_id: accountId,
       provider_user_id: providerUserId,
       require_confirmation: requireConfirmation,
-      max_consumption: Number(maxConsumption) || undefined,
-      max_consumptionPerUser: Number(maxConsumptionPerUser) || undefined,
+      max_consumptions: Number(maxConsumption) || undefined,
+      max_consumptions_per_user: Number(maxConsumptionPerUser) || undefined,
       expiration_date: expirationDate,
       allow_amount_overide: allowAmountOveride
     }

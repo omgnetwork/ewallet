@@ -158,9 +158,7 @@ const InputLabel = styled.div`
   margin-top: 20px;
   font-size: 14px;
   font-weight: 400;
-  > span {
-    color: ${props => props.disabled ? props.theme.colors.S500 : props.theme.colors.S200};
-  }
+  color: ${props => props.disabled ? props.theme.colors.S400 : props.theme.colors.S200};
 `
 const InputLabelContainer = styled.div``
 const enhance = compose(
@@ -403,7 +401,7 @@ class TransactionRequestPanel extends Component {
                 )
               }}
             />
-            <Button>Consume</Button>
+            <Button disabled={!valid}>Consume</Button>
           </InputsContainer>
         </ConsumeActionContainer>
         <AdditionalRequestDataContainer>
@@ -427,7 +425,7 @@ class TransactionRequestPanel extends Component {
             <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions:</b> {transactionRequest.max_consumtions || '-'}
+            <b>Max Consumptions:</b> {transactionRequest.max_consumptions || '-'}
           </InformationItem>
           <InformationItem>
             <b>Max Consumptions User:</b> {transactionRequest.max_consumptionPerUser || '-'}

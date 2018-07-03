@@ -37,7 +37,7 @@ export default class Button extends PureComponent {
   }
 
   render () {
-    const Button = buttonMapStyle[this.props.styleType][this.props.disabled ? 'normal' : 'disabled']
+    const Button = buttonMapStyle[this.props.styleType][this.props.disabled ? 'disabled' : 'normal']
 
     return (
       <Button
