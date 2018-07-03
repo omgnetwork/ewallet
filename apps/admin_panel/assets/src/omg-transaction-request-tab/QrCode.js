@@ -3,7 +3,7 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 export default class QR extends Component {
   static propTypes = {
-    data: PropTypes.object
+    data: PropTypes.string
   }
   state = {}
   componentDidMount = async () => {

@@ -79,9 +79,9 @@ class ActivityList extends Component {
   constructor (props) {
     super(props)
     this.columns = [
-      { key: 'amount', title: 'AMOUNT', sort: true },
+      { key: 'amount', title: 'AMOUNT' },
       { key: 'to', title: 'TO' },
-      { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'created_at', title: 'CREATED DATE' },
       { key: 'status', title: 'CONFIRMATION' }
     ]
   }
