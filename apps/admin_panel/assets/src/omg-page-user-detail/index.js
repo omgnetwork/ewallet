@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import UserProvider from '../omg-users/userProvider'
 import { compose } from 'recompose'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
@@ -73,18 +73,22 @@ class TokenDetailPage extends Component {
     )
   }
   renderWallet = wallet => {
+    const accountId = this.props.match.params.accountId
     return (
       <Section title='BALANCE'>
         {wallet ? (
           <div>
             <DetailGroup>
-              <b>Wallet Address:</b> <span>{wallet.address}</span>
+              <b>Wallet Address:</b>{' '}
+              <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link> ({' '}
+              <span>{wallet.name}</span> )
             </DetailGroup>
             {wallet.balances.map(balance => {
               return (
                 <DetailGroup key={balance.token.id}>
-                  <b>{balance.token.name}</b>{' '}
-                  <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span>
+                  <b>{balance.token.name}</b>
+                  <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span>{' '}
+                  <span>{balance.token.symbol}</span>
                 </DetailGroup>
               )
             })}
