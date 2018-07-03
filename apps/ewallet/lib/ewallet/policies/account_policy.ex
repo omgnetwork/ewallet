@@ -3,34 +3,61 @@ defmodule EWallet.AccountPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWalletDB.{Key, User}
+  alias EWallet.Helper
+  alias EWalletDB.{Account, Membership, Role}
 
-  # Allowed by any role including none
-  def authorize(:all, _user_id, nil), do: true
+  # Allowed for any role, filtering is
+  # handled at the controller level to only return
+  # allowed records. Should this be handled here?
+  def authorize(:all, _params, nil), do: true
 
-  # Fetches the user role then authorize by role
-  def authorize(action, %User{} = user, account_id) do
-    user.id
-    |> User.get_role(account_id)
-    |> do_authorize(action)
+  # access key have admin rights so we only check that the target is
+  # a descendant of the access key's account.
+  def authorize(_action, %{key: key}, account_id) do
+    Account.descendant?(key.account, account_id)
   end
 
-  def authorize(action, %Key{} = _key, _account_id) do
-    do_authorize("admin", action)
+  def authorize(:get, %{admin_user: user}, account_id) do
+    # We don't care about the role here since both admin and viewer
+    # are able to get accounts. We only care about getting a membership.
+    user
+    |> Membership.all_by_user()
+    |> do_authorize(account_id)
   end
 
-  # Allowed "admin" actions
-  defp do_authorize("admin", _action), do: true
+  def authorize(:create, %{admin_user: user}, account_id) do
+    do_admin_authorize(user, account_id)
+  end
 
-  # Allowed "viewer" actions
-  defp do_authorize("viewer", :all), do: true
-  defp do_authorize("viewer", :get), do: true
+  def authorize(:update, %{admin_user: user}, account_id) do
+    do_admin_authorize(user, account_id)
+  end
 
-  # Forbidden "viewer" actions
-  defp do_authorize("viewer", :create), do: false
-  defp do_authorize("viewer", :update), do: false
-  defp do_authorize("viewer", :delete), do: false
+  def authorize(:delete, %{admin_user: user}, account_id) do
+    do_admin_authorize(user, account_id)
+  end
 
-  # Catch-all: deny everything else
-  defp do_authorize(_role, _action), do: false
+  def do_admin_authorize(user, account_id) do
+    # admin is required to create
+    role = Role.get_by_name("admin")
+
+    user
+    |> Membership.all_by_user_and_role(role)
+    |> do_authorize(account_id)
+  end
+
+  def do_authorize(memberships, account_id) do
+    # optimize this by allowing ancestors to be queried by account_id
+    # move this to another module.
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         ancestors <- Account.get_all_ancestors(account),
+         ancestors_uuids <- Enum.map(ancestors, fn ancestor -> ancestor.uuid end),
+         membership_accounts_uuids <-
+           Enum.map(memberships, fn membership -> membership.account_uuid end) do
+      case Helper.intersect(ancestors_uuids, membership_accounts_uuids) do
+        [] -> false
+        _ -> true
+      end
+    end
+  end
 end

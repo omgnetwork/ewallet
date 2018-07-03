@@ -149,7 +149,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided"
     end
 
-    test "returns a 'user:unauthorized' error if id is invalid" do
+    test "returns an 'unauthorized' error if id is invalid" do
       request_data = params_for(:category, %{id: "invalid_format"})
       response = admin_user_request("/category.update", request_data)
 

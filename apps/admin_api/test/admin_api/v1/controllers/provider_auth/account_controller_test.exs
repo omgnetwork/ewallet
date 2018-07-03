@@ -57,20 +57,20 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
 
     # The user should not know any information about the account it doesn't have access to.
     # So even the account is not found, the user is unauthorized to know that.
-    test "returns 'account:id_not_found' if the given ID is in correct format but not found" do
+    test "returns 'unauthorized' if the given ID is in correct format but not found" do
       response = provider_request("/account.get", %{"id" => "acc_00000000000000000000000000"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test "returns 'account:id_not_found' if the given ID is not in the correct format" do
+    test "returns 'unauthorized' if the given ID is not in the correct format" do
       response = provider_request("/account.get", %{"id" => "invalid_format"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -175,13 +175,13 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       assert response["data"]["description"] == "Invalid parameter provided"
     end
 
-    test "returns a 'user:unauthorized' error if id is invalid" do
+    test "returns a 'unauthorized' error if id is invalid" do
       request_data = params_for(:account, %{id: "invalid_format"})
       response = provider_request("/account.update", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 
@@ -292,7 +292,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       assert account.avatar == nil
     end
 
-    test "returns 'account:id_not_found' if the given account ID was not found" do
+    test "returns 'unauthorized' if the given account ID was not found" do
       response =
         provider_request("/account.upload_avatar", %{
           "id" => "fake",
@@ -304,7 +304,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 end

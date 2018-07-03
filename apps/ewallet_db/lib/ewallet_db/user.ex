@@ -439,6 +439,12 @@ defmodule EWalletDB.User do
     Repo.one(query)
   end
 
+  def get_all_accessible_account_uuids(user) do
+    user
+    |> get_membership_account_uuids()
+    |> Account.get_all_descendants_uuids()
+  end
+
   @doc """
   Retrieves the list of accounts that the given user has membership, including their child accounts.
   """
@@ -448,14 +454,18 @@ defmodule EWalletDB.User do
     |> Repo.all()
   end
 
+  @spec get_membership_account_uuids(%User{}) :: List.t() | no_return()
+  def get_membership_account_uuids(user) do
+    user
+    |> Membership.all_by_user()
+    |> Enum.map(fn m -> Map.fetch!(m, :account_uuid) end)
+  end
+
   @doc """
   Query the list of accounts that the given user has membership, including their child accounts.
   """
   def query_accounts(user) do
-    account_uuids =
-      user
-      |> Membership.all_by_user()
-      |> Enum.map(fn m -> Map.fetch!(m, :account_uuid) end)
+    account_uuids = get_membership_account_uuids(user)
 
     # Traverses down the account tree
     from(

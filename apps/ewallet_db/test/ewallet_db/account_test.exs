@@ -265,6 +265,132 @@ defmodule EWalletDB.AccountTest do
     end
   end
 
+  describe "get_all_descendants_uuids/1" do
+    test "gets the list of descendants sorted by depth for the higher account" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      account_2 = insert(:account, parent: account)
+      account_3 = insert(:account, parent: account_1)
+
+      assert Account.get_all_descendants_uuids(account) == [
+               account.uuid,
+               account_1.uuid,
+               account_2.uuid,
+               account_3.uuid
+             ]
+    end
+
+    test "gets only the given account for the lower child" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      _account_2 = insert(:account, parent: account)
+      account_3 = insert(:account, parent: account_1)
+
+      assert Account.get_all_descendants_uuids(account_3) == [
+               account_3.uuid
+             ]
+    end
+  end
+
+  describe "get_all_descendants/1" do
+    test "gets the list of descendants sorted by depth for the higher account" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      account_2 = insert(:account, parent: account)
+      account_3 = insert(:account, parent: account_1)
+
+      descendants =
+        Enum.map(Account.get_all_descendants(account), fn descendant ->
+          {descendant.uuid, descendant.depth}
+        end)
+
+      assert descendants == [
+               {account.uuid, 0},
+               {account_1.uuid, 1},
+               {account_2.uuid, 1},
+               {account_3.uuid, 2}
+             ]
+    end
+
+    test "gets only the given account for the lower child" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      _account_2 = insert(:account, parent: account)
+      account_3 = insert(:account, parent: account_1)
+
+      descendants =
+        Enum.map(Account.get_all_descendants(account_3), fn descendant ->
+          {descendant.uuid, descendant.depth}
+        end)
+
+      assert descendants == [
+               {account_3.uuid, 2}
+             ]
+    end
+  end
+
+  describe "get_all_ancestors_uuids/1" do
+    test "gets the list of ancestors sorted by depth" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      _account_2 = insert(:account, parent: account)
+      account_3 = insert(:account, parent: account_1)
+
+      assert Account.get_all_ancestors_uuids(account_3) == [
+               account.uuid,
+               account_1.uuid,
+               account_3.uuid
+             ]
+    end
+
+    test "gets only the given account when highest account" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      _account_2 = insert(:account, parent: account)
+      _account_3 = insert(:account, parent: account_1)
+
+      assert Account.get_all_ancestors_uuids(account) == [
+               account.uuid
+             ]
+    end
+  end
+
+  describe "get_all_ancestors/1" do
+    test "gets the list of ancestors sorted by depth" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      _account_2 = insert(:account, parent: account)
+      account_3 = insert(:account, parent: account_1)
+
+      ancestors =
+        Enum.map(Account.get_all_ancestors(account_3), fn descendant ->
+          {descendant.uuid, descendant.depth}
+        end)
+
+      assert ancestors == [
+               {account.uuid, 0},
+               {account_1.uuid, 1},
+               {account_3.uuid, 2}
+             ]
+    end
+
+    test "gets only the given account when highest account" do
+      account = Account.get_master_account()
+      account_1 = insert(:account, parent: account)
+      _account_2 = insert(:account, parent: account)
+      _account_3 = insert(:account, parent: account_1)
+
+      ancestors =
+        Enum.map(Account.get_all_ancestors(account), fn descendant ->
+          {descendant.uuid, descendant.depth}
+        end)
+
+      assert ancestors == [
+               {account.uuid, 0}
+             ]
+    end
+  end
+
   describe "add_category/2" do
     test "returns an account with the added category" do
       [cat1, cat2] = insert_list(2, :category)

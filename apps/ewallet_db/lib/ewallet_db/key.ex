@@ -154,4 +154,8 @@ defmodule EWalletDB.Key do
   Restores the given key from soft-delete.
   """
   def restore(key), do: SoftDelete.restore(key)
+
+  def get_all_accessible_account_uuids(key) do
+    Account.get_all_descendants_uuids(key.account)
+  end
 end
