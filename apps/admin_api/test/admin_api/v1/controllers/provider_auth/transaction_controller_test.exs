@@ -672,14 +672,15 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
           "to_address" => wallet.address,
           "to_amount" => 2_000_000,
           "to_token_id" => token_2.id,
-          "exchange_account_id" => exchange_account.id,
+          "exchange_account_id" => exchange_account.id
         })
 
       assert response["success"] == false
 
       assert response["data"] == %{
                "code" => "transaction:same_address",
-               "description" => "Found identical addresses in senders and receivers: #{wallet.address}.",
+               "description" =>
+                 "Found identical addresses in senders and receivers: #{wallet.address}.",
                "messages" => nil,
                "object" => "error"
              }
