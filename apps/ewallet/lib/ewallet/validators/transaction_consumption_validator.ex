@@ -117,7 +117,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   def get_and_validate_token(request, token_id) do
     with %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
          request_token <- Repo.preload(request, :token).token,
-         {:ok, _pair, _} <- fetch_pair(request.type, request_token.uuid, token.uuid) do
+         {:ok, _pair} <- fetch_pair(request.type, request_token.uuid, token.uuid) do
       {:ok, token}
     else
       error -> error
@@ -141,7 +141,7 @@ defmodule EWallet.TransactionConsumptionValidator do
 
   defp fetch_pair(_type, request_token_uuid, consumption_token_uuid)
        when request_token_uuid == consumption_token_uuid do
-    {:ok, nil, nil}
+    {:ok, nil}
   end
 
   defp fetch_pair(type, request_token_uuid, consumption_token_uuid) do
