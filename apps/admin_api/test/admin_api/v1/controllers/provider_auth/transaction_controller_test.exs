@@ -341,6 +341,35 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"]["status"] == "confirmed"
     end
 
+    test "creates a transaction when all params are valid with big numbers" do
+      token = insert(:token)
+      mint!(token)
+
+      wallet_1 = insert(:wallet)
+      wallet_2 = insert(:wallet)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token,
+        amount: 999_999_999_999_999_999_999_999_999
+      })
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "123",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "token_id" => token.id,
+          "amount" => 99_999_999_999_999_999_999_999_999
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "transaction"
+      assert response["data"]["status"] == "confirmed"
+
+      assert response["data"]["from"]["amount"] == 99_999_999_999_999_999_999_999_999
+    end
+
     test "create a transaction with exchange" do
       account = Account.get_master_account()
       {:ok, user_1} = :user |> params_for() |> User.insert()
@@ -354,7 +383,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       mint!(token_1)
       mint!(token_2)
 
-      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
 
       set_initial_balance(%{
         address: wallet_1.address,
@@ -376,6 +405,11 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["success"] == true
       assert response["data"]["object"] == "transaction"
 
+      assert response["data"]["exchange"]["rate"] == 2
+      assert response["data"]["exchange"]["calculated_at"] != nil
+      assert response["data"]["exchange"]["exchange_pair_id"] == pair.id
+      assert response["data"]["exchange"]["exchange_pair"]["id"] == pair.id
+
       assert response["data"]["from"]["address"] == wallet_1.address
       assert response["data"]["from"]["amount"] == 1_000
       assert response["data"]["from"]["account_id"] == nil
@@ -387,6 +421,128 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"]["to"]["account_id"] == nil
       assert response["data"]["to"]["user_id"] == user_2.id
       assert response["data"]["to"]["token_id"] == token_2.id
+    end
+
+    test "create a transaction with exchange wallet also being the `from` wallet" do
+      exchange_account = Account.get_master_account()
+      exchange_wallet = Account.get_primary_wallet(exchange_account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_wallet = User.get_primary_wallet(user)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => exchange_wallet.address,
+          "to_address" => user_wallet.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => exchange_account.id,
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["exchange"]["rate"] == 2
+      assert response["data"]["exchange"]["calculated_at"] != nil
+      assert response["data"]["exchange"]["exchange_pair_id"] == pair.id
+      assert response["data"]["exchange"]["exchange_pair"]["id"] == pair.id
+
+      assert response["data"]["from"]["address"] == exchange_wallet.address
+      assert response["data"]["from"]["amount"] == 1_000
+      assert response["data"]["from"]["account_id"] == exchange_account.id
+      assert response["data"]["from"]["user_id"] == nil
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == user_wallet.address
+      assert response["data"]["to"]["amount"] == 2_000
+      assert response["data"]["to"]["account_id"] == nil
+      assert response["data"]["to"]["user_id"] == user.id
+      assert response["data"]["to"]["token_id"] == token_2.id
+    end
+
+    test "create a transaction with exchange wallet also being the `to` wallet" do
+      exchange_account = Account.get_master_account()
+      exchange_wallet = Account.get_primary_wallet(exchange_account)
+      {:ok, user} = :user |> params_for() |> User.insert()
+      user_wallet = User.get_primary_wallet(user)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      set_initial_balance(%{
+        address: user_wallet.address,
+        token: token_1,
+        amount: 2_000_000
+      })
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => user_wallet.address,
+          "to_address" => exchange_wallet.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => exchange_account.id,
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction"
+
+      assert response["data"]["exchange"]["rate"] == 2
+      assert response["data"]["exchange"]["calculated_at"] != nil
+      assert response["data"]["exchange"]["exchange_pair_id"] == pair.id
+      assert response["data"]["exchange"]["exchange_pair"]["id"] == pair.id
+
+      assert response["data"]["from"]["address"] == user_wallet.address
+      assert response["data"]["from"]["amount"] == 1_000
+      assert response["data"]["from"]["account_id"] == nil
+      assert response["data"]["from"]["user_id"] == user.id
+      assert response["data"]["from"]["token_id"] == token_1.id
+
+      assert response["data"]["to"]["address"] == exchange_wallet.address
+      assert response["data"]["to"]["amount"] == 2_000
+      assert response["data"]["to"]["account_id"] == exchange_account.id
+      assert response["data"]["to"]["user_id"] == nil
+      assert response["data"]["to"]["token_id"] == token_2.id
+    end
+
+    test "returns an error when doing exchange with invalid exchange_account_id" do
+      {:ok, user_1} = :user |> params_for() |> User.insert()
+      {:ok, user_2} = :user |> params_for() |> User.insert()
+      wallet_1 = User.get_primary_wallet(user_1)
+      wallet_2 = User.get_primary_wallet(user_2)
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "12344",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "from_token_id" => token_1.id,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => "fake",
+          "from_amount" => 1_000
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "exchange:account_id_not_found"
     end
 
     test "returns :invalid_parameter when the sending address is a burn balance" do
@@ -490,6 +646,40 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"] == %{
                "code" => "wallet:to_address_not_found",
                "description" => "No wallet found for the provided to_address.",
+               "messages" => nil,
+               "object" => "error"
+             }
+    end
+
+    test "returns user:same_address when `from` and `to` and exchange wallet are the same address" do
+      exchange_account = Account.get_master_account()
+      wallet = Account.get_primary_wallet(exchange_account)
+
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+
+      mint!(token_1)
+      mint!(token_2)
+
+      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      response =
+        provider_request("/transaction.create", %{
+          "idempotency_token" => "123",
+          "from_address" => wallet.address,
+          "from_amount" => 1_000_000,
+          "from_token_id" => token_1.id,
+          "to_address" => wallet.address,
+          "to_amount" => 2_000_000,
+          "to_token_id" => token_2.id,
+          "exchange_account_id" => exchange_account.id,
+        })
+
+      assert response["success"] == false
+
+      assert response["data"] == %{
+               "code" => "transaction:same_address",
+               "description" => "Found identical addresses in senders and receivers: #{wallet.address}.",
                "messages" => nil,
                "object" => "error"
              }
