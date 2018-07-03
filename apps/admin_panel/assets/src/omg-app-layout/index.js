@@ -13,6 +13,7 @@ import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
 import TransactionRequestPanel from '../omg-transaction-request-tab'
+import TransactionPanel from '../omg-transaction-panel'
 import queryString from 'query-string'
 import ConsumptionPanel from '../omg-consumption-panel'
 const Container = styled.div`
@@ -139,6 +140,10 @@ class AppLayout extends Component {
         {searchObject['show-consumption-tab'] && (
         <ConsumptionPanel />
         )}
+        {searchObject['show-transaction-tab'] && (
+        <TransactionPanel />
+        )}
+
       </Container>
     )
   }

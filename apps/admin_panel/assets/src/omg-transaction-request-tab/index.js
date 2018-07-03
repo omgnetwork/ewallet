@@ -253,11 +253,11 @@ class TransactionRequestPanel extends Component {
           <QrContainer>
             <QR data={transactionRequest.id} />
             <QrTypeContainer>
-              <b>Type:</b>
+              <b>Type : </b>
               <div>{transactionRequest.type}</div>
             </QrTypeContainer>
             <QrTypeContainer>
-              <b>Token:</b>
+              <b>Token  :</b>
               <div>{_.get(transactionRequest, 'token.name')}</div>
             </QrTypeContainer>
           </QrContainer>
@@ -337,41 +337,41 @@ class TransactionRequestPanel extends Component {
         <AdditionalRequestDataContainer>
           <h5>ADDITIONAL REQUEST DETAILS</h5>
           <InformationItem>
-            <b>Type:</b> {transactionRequest.type}
+            <b>Type :</b> {transactionRequest.type}
           </InformationItem>
           <InformationItem>
-            <b>Token ID:</b> {_.get(transactionRequest, 'token.id')}
+            <b>Token ID :</b> {_.get(transactionRequest, 'token.id')}
           </InformationItem>
           <InformationItem>
-            <b>Amount:</b>{' '}
+            <b>Amount :</b>{' '}
             {formatNumber(
               (transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')
             )}{' '}
             {_.get(transactionRequest, 'token.symbol')}
           </InformationItem>
           <InformationItem>
-            <b>address:</b> {transactionRequest.address}
+            <b>address : </b> {transactionRequest.address}
           </InformationItem>
           <InformationItem>
-            <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
+            <b>Confirmation : </b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Consumptions Count:</b> {transactionRequest.current_consumptions_count}
+            <b>Consumptions Count : </b> {transactionRequest.current_consumptions_count}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions:</b> {transactionRequest.max_consumptions || '-'}
+            <b>Max Consumptions : </b> {transactionRequest.max_consumptions || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions User:</b> {transactionRequest.max_consumptions_per_user || '-'}
+            <b>Max Consumptions User : </b> {transactionRequest.max_consumptions_per_user || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Expiry Date:</b> {transactionRequest.expiration_date || '-'}
+            <b>Expiry Date : </b> {transactionRequest.expiration_date || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Allow Amount Override:</b> {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
+            <b>Allow Amount Override : </b> {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Coorelation ID:</b> {transactionRequest.correlation_id || '-'}
+            <b>Coorelation ID : </b> {transactionRequest.correlation_id || '-'}
           </InformationItem>
         </AdditionalRequestDataContainer>
       </TransactionReqeustPropertiesContainer>

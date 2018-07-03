@@ -10,7 +10,7 @@ import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
-import {formatNumber} from '../utils/formatter'
+import { formatNumber } from '../utils/formatter'
 const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -49,7 +49,6 @@ const StatusContainer = styled.div`
     vertical-align: middle;
   }
   i {
-    color: ${props => props.theme.colors.BL400};
     color: white;
     font-size: 10px;
   }
@@ -68,7 +67,7 @@ const FromToContainer = styled.div`
     }
   }
 `
-const MarkContainer = styled.div`
+export const MarkContainer = styled.div`
   height: 20px;
   width: 20px;
   border-radius: 50%;
@@ -97,18 +96,11 @@ const columns = [
 class TransactionPage extends Component {
   static propTypes = {
     location: PropTypes.object,
-    scrollTopContentContainer: PropTypes.func
+    scrollTopContentContainer: PropTypes.func,
+    history: PropTypes.object
   }
   state = {
-    createTransactionModalOpen: false,
-    loadMoreTime: 1
-  }
-  componentWillReceiveProps = nextProps => {
-    const search = queryString.parse(this.props.location.search).search
-    const nextSearch = queryString.parse(nextProps.location.search).search
-    if (search !== nextSearch) {
-      this.setState({ loadMoreTime: 1 })
-    }
+    createTransactionModalOpen: false
   }
   onClickCreateTransaction = () => {
     this.setState({ createTransactionModalOpen: true })
@@ -116,14 +108,14 @@ class TransactionPage extends Component {
   onRequestCloseCreateTransaction = () => {
     this.setState({ createTransactionModalOpen: false })
   }
-  onClickExport = () => {
-    this.setState({ exportModalOpen: true })
-  }
-  onRequestCloseExport = () => {
-    this.setState({ exportModalOpen: false })
-  }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
+  onClickRow = (data, index) => e => {
+    const searchObject = queryString.parse(this.props.location.search)
+    this.props.history.push({
+      search: queryString.stringify({
+        ...searchObject,
+        [`show-transaction-tab`]: data.id
+      })
+    })
   }
   renderCreateTransactionButton = () => {
     return (
@@ -200,7 +192,7 @@ class TransactionPage extends Component {
       <TransactionPageContainer>
         <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />
         <SortableTable
-          rows={transactions.map(t => ({ ...t, id: t.id }))}
+          rows={transactions}
           columns={columns}
           rowRenderer={this.rowRenderer}
           perPage={15}
@@ -208,7 +200,7 @@ class TransactionPage extends Component {
           isFirstPage={pagination.is_first_page}
           isLastPage={pagination.is_last_page}
           navigation
-          onClickLoadMore={this.onClickLoadMore}
+          onClickRow={this.onClickRow}
         />
 
         <CreateTransactionModal
