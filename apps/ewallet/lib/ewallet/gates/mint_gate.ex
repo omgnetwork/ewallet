@@ -4,12 +4,24 @@ defmodule EWallet.MintGate do
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
   examples on how to add value to a token.
   """
-  alias EWallet.GenesisGate
+  alias EWallet.{Helper, GenesisGate}
   alias EWalletDB.{Repo, Account, Mint, Token}
   alias Ecto.{UUID, Multi}
 
   def mint_token({:ok, token}, attrs) do
     mint_token(token, attrs)
+  end
+
+  def mint_token(token, %{"amount" => amount} = attrs)
+      when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} ->
+        attrs = Map.put(attrs, "amount", amount)
+        mint_token(token, attrs)
+
+      error ->
+        error
+    end
   end
 
   def mint_token(token, %{"amount" => amount} = attrs)

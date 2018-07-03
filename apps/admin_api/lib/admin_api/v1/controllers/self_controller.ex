@@ -50,8 +50,8 @@ defmodule AdminAPI.V1.SelfController do
   """
   def get_account(conn, _attrs) do
     with {:ok, current_user} <- permit(:update, conn.assigns),
-         %Account{} = account <- User.get_account(current_user) || :user_account_not_found do
-      render(conn, AccountView, :account, %{account: account})
+         %Account{} = acc <- User.get_account(current_user) || :user_account_not_found do
+      render(conn, AccountView, :account, %{account: acc})
     else
       error ->
         respond_single(error, conn)

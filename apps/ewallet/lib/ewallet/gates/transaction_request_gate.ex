@@ -6,7 +6,7 @@ defmodule EWallet.TransactionRequestGate do
 
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
-  alias EWallet.{WalletFetcher, TransactionRequestFetcher}
+  alias EWallet.{WalletFetcher, TransactionRequestFetcher, Helper}
   alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account}
 
   @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
@@ -151,7 +151,8 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
-         {:ok, transaction_request} <- insert(token, wallet, attrs) do
+         {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
+         {:ok, transaction_request} <- insert(token, wallet, amount, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -180,25 +181,14 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  defp insert(token, wallet, attrs) do
-    require_confirmation =
-      if(
-        is_nil(attrs["require_confirmation"]),
-        do: false,
-        else: attrs["require_confirmation"]
-      )
-
-    allow_amount_override =
-      if(
-        is_nil(attrs["allow_amount_override"]),
-        do: true,
-        else: attrs["allow_amount_override"]
-      )
+  defp insert(token, wallet, amount, attrs) do
+    require_confirmation = default_to_if_nil(attrs["require_confirmation"], false)
+    allow_amount_override = default_to_if_nil(attrs["allow_amount_override"], true)
 
     TransactionRequest.insert(%{
       type: attrs["type"],
       correlation_id: attrs["correlation_id"],
-      amount: attrs["amount"],
+      amount: amount,
       user_uuid: wallet.user_uuid,
       account_uuid: wallet.account_uuid,
       token_uuid: token.uuid,
@@ -215,4 +205,13 @@ defmodule EWallet.TransactionRequestGate do
       exchange_wallet_address: attrs["exchange_wallet_address"]
     })
   end
+
+  defp default_to_if_nil(field, default) when is_nil(field), do: default
+  defp default_to_if_nil(field, _default), do: field
+
+  defp get_integer_or_string_amount(amount) when is_binary(amount) do
+    Helper.string_to_integer(amount)
+  end
+
+  defp get_integer_or_string_amount(amount), do: {:ok, amount}
 end

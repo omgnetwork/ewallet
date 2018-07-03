@@ -133,6 +133,24 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert opposite["rate"] == 1 / 2.0
     end
 
+    test "returns an error if given an exchange rate of 0" do
+      request_data = params_for(:exchange_pair, rate: 0)
+      response = provider_request("/exchange_pair.create", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test "returns an error if given a negative exchange rate" do
+      request_data = params_for(:exchange_pair, rate: -1)
+      response = provider_request("/exchange_pair.create", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
     test "returns an error if a required parameter is not provided" do
       request_data = params_for(:exchange_pair, rate: nil)
       response = provider_request("/exchange_pair.create", request_data)
@@ -185,6 +203,24 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
 
       assert response["data"]["description"] ==
                "There is no exchange pair corresponding to the provided id"
+    end
+
+    test "returns an error if given an exchange rate of 0" do
+      request_data = params_for(:exchange_pair, rate: 0)
+      response = provider_request("/exchange_pair.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test "returns an error if given a negative exchange rate" do
+      request_data = params_for(:exchange_pair, rate: -1)
+      response = provider_request("/exchange_pair.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
   end
 

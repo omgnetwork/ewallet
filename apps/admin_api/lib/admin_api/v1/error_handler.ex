@@ -17,7 +17,7 @@ defmodule AdminAPI.V1.ErrorHandler do
       description: "There is no account assigned to the provided user"
     },
     unauthorized: %{
-      code: "user:unauthorized",
+      code: "unauthorized",
       description: "The user is not allowed to perform the requested operation"
     },
     access_key_unauthorized: %{

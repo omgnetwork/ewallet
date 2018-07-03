@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
   @moduledoc """
   Represents the transaction request channel.
   """
-  use Phoenix.Channel
+  use Phoenix.Channel, async: false
   alias EWalletDB.{User, TransactionRequest}
 
   def join("transaction_request:" <> request_id, _params, %{assigns: %{auth: auth}} = socket) do

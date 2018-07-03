@@ -112,6 +112,25 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint.token_uuid == token.uuid
     end
 
+    test "mints an existing token with string amount" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: "100000000"
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "mint"
+      assert Mint.get(response["data"]["id"]) != nil
+      assert mint != nil
+      assert mint.amount == 1_000_000 * token.subunit_to_unit
+      assert mint.token_uuid == token.uuid
+    end
+
     test "mints an existing token with a big number" do
       token = insert(:token)
 
@@ -155,7 +174,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "invalid_parameter"
+      assert response["data"]["description"] == "String number is not a valid number: 'abc'."
     end
 
     test "fails to mint with mint amount == 0" do

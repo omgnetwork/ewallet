@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AccountController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.AccountHelper
   alias EWallet.AccountPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.Account
@@ -28,18 +29,19 @@ defmodule AdminAPI.V1.AccountController do
   @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   @doc """
-  Retrieves a list of accounts.
+  Retrieves a list of accounts based on current account for users.
   """
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil) do
-      accounts =
-        Account
-        |> Preloader.to_query(@preload_fields)
-        |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
-        |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-        |> Paginator.paginate_attrs(attrs)
-
-      case accounts do
+    with :ok <- permit(:all, conn.assigns, nil),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
+      # Get all the accounts the current accessor has access to
+      Account
+      |> Account.where_in(account_uuids)
+      |> Preloader.to_query(@preload_fields)
+      |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> case do
         %Paginator{} = paginator ->
           render(conn, :accounts, %{accounts: paginator})
 
@@ -144,11 +146,7 @@ defmodule AdminAPI.V1.AccountController do
 
   @spec permit(:all | :create | :get | :update, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, %{admin_user: admin_user}, account_id) do
-    Bodyguard.permit(AccountPolicy, action, admin_user, account_id)
-  end
-
-  defp permit(action, %{key: key}, account_id) do
-    Bodyguard.permit(AccountPolicy, action, key, account_id)
+  defp permit(action, params, account_id) do
+    Bodyguard.permit(AccountPolicy, action, params, account_id)
   end
 end

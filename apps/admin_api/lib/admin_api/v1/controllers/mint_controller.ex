@@ -50,6 +50,7 @@ defmodule AdminAPI.V1.MintController do
       |> MintGate.mint_token(attrs)
       |> respond_single(conn)
     else
+      {:error, code, description} -> handle_error(conn, code, description)
       error -> handle_error(conn, error)
     end
   end
@@ -66,6 +67,10 @@ defmodule AdminAPI.V1.MintController do
   end
 
   # Respond with a single mint
+  defp respond_single({:error, code, description}, conn) do
+    handle_error(conn, code, description)
+  end
+
   defp respond_single({:error, changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end

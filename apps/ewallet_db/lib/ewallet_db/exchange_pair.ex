@@ -64,6 +64,7 @@ defmodule EWalletDB.ExchangePair do
     |> validate_different_values(:from_token_uuid, :to_token_uuid)
     |> validate_immutable(:from_token_uuid)
     |> validate_immutable(:to_token_uuid)
+    |> validate_number(:rate, greater_than: 0)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
     |> unique_constraint(:name)
@@ -148,15 +149,15 @@ defmodule EWalletDB.ExchangePair do
   @doc """
   Retrieves an exchange pair using `from_token` and `to_token`.
 
-  If an exchange pair is found, `{:ok, pair, true}` is returned.
+  If an exchange pair is found, `{:ok, pair}` is returned.
   If an exchange pair could not be found, `{:error, :exchange_pair_not_found}` is returned.
   """
   @spec fetch_exchangable_pair(%Token{}, %Token{}, keyword()) ::
-          {:ok, %__MODULE__{}, :direct} | {:error, :exchange_pair_not_found}
+          {:ok, %__MODULE__{}} | {:error, :exchange_pair_not_found}
   def fetch_exchangable_pair(%{uuid: from}, %{uuid: to}, opts \\ []) do
     case get_by([from_token_uuid: from, to_token_uuid: to], opts) do
       %__MODULE__{} = pair ->
-        {:ok, pair, :direct}
+        {:ok, pair}
 
       nil ->
         {:error, :exchange_pair_not_found}

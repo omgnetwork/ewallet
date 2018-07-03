@@ -82,7 +82,7 @@ defmodule AdminAPI.V1.AdminAuthController do
     :access_key_unauthorized
   end
 
-  defp permit_account(action, %{admin_user: admin_user}, account_id) do
-    Bodyguard.permit(AccountPolicy, action, admin_user, account_id)
+  defp permit_account(action, params, account_id) do
+    Bodyguard.permit(AccountPolicy, action, params, account_id)
   end
 end

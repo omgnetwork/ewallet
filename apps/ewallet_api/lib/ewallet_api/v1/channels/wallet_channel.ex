@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.WalletChannel do
   @moduledoc """
   Represents the address channel.
   """
-  use Phoenix.Channel
+  use Phoenix.Channel, async: false
   alias EWalletDB.{User, Wallet}
 
   def join("address:" <> address, _params, %{assigns: %{auth: auth}} = socket) do
