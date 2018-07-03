@@ -72,6 +72,10 @@ const InputsContainer = styled.div`
   > div:not(:last-child) {
     margin-bottom: 20px;
   }
+  > div:nth-child(3) {
+    margin-top: 32px;
+    margin-bottom: 0;
+  }
 `
 const TransactionReqeustPropertiesContainer = styled.div`
   height: calc(100vh - 160px);
@@ -126,7 +130,6 @@ const ExpiredContainer = styled.div`
   color: ${props => props.theme.colors.S500};
   border-radius: 4px;
   padding: 5px 10px;
-  margin-top: 32px;
   text-align: center;
 `
 const enhance = compose(
@@ -243,6 +246,7 @@ class TransactionRequestPanel extends Component {
 
   renderProperties = transactionRequest => {
     const valid = transactionRequest.status === 'valid'
+    console.log(transactionRequest)
     return (
       <TransactionReqeustPropertiesContainer>
         <ConsumeActionContainer onSubmit={this.onSubmitConsume(transactionRequest)}>
@@ -352,6 +356,9 @@ class TransactionRequestPanel extends Component {
             <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
+            <b>Consumptions Count:</b> {transactionRequest.current_consumptions_count}
+          </InformationItem>
+          <InformationItem>
             <b>Max Consumptions:</b> {transactionRequest.max_consumptions || '-'}
           </InformationItem>
           <InformationItem>
@@ -361,7 +368,7 @@ class TransactionRequestPanel extends Component {
             <b>Expiry Date:</b> {transactionRequest.expiration_date || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Allow Override:</b> {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
+            <b>Allow Amount Override:</b> {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
             <b>Coorelation ID:</b> {transactionRequest.correlation_id || '-'}
