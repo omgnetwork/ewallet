@@ -18,7 +18,7 @@ defmodule EWallet.TransactionFormatter do
     }
   end
 
-  # Prepare entries for the given transaction (for a same-token transfer)
+  # Prepare entries for a same-token transfer
   defp entries(%{from_token: %{uuid: same_uuid}, to_token: %{uuid: same_uuid}} = txn) do
     [
       entry(:debit, txn.from_wallet, txn.from_amount, txn.from_token),
@@ -26,7 +26,29 @@ defmodule EWallet.TransactionFormatter do
     ]
   end
 
-  # Prepare entries for the given transaction (for a cross-token transfer/exchange)
+  # Prepare entries for a cross-token transfer from the exchange wallet
+  defp entries(%{from: same_address, exchange_wallet_address: same_address} = txn) do
+    [
+      # This transfer has only 2 entries because the to-be-exchanged amount
+      # comes from the exchange wallet itself. It only needs to debit the to_token amount
+      # from the exchange wallet and credit it to the `to` wallet.
+      entry(:debit, txn.from_wallet, txn.to_amount, txn.to_token),
+      entry(:credit, txn.to_wallet, txn.to_amount, txn.to_token)
+    ]
+  end
+
+  # Prepare entries for a cross-token transfer to the exchange wallet
+  defp entries(%{to: same_address, exchange_wallet_address: same_address} = txn) do
+    [
+      # This transfer has only 2 entries because the exchanged amount stays in
+      # the exchange wallet itself. It only needs to debit the from_token amount
+      # from the `from` wallet and credit it to the exchange wallet.
+      entry(:debit, txn.from_wallet, txn.from_amount, txn.from_token),
+      entry(:credit, txn.to_wallet, txn.from_amount, txn.from_token)
+    ]
+  end
+
+  # Prepare entries for a cross-token transfer/exchange
   defp entries(txn) do
     exchange_wallet =
       txn
