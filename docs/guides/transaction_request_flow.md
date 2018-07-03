@@ -42,10 +42,10 @@ correlation_id:
   description: "Optional unique identifier to tie a request with your system."
 account_id:
   type: string
-  description: The owner of the given address. Either account_id or provider_user_id needs to be filled.  
+  description: The owner of the given address. Either account_id or provider_user_id needs to be filled.
 provider_user_id:
   type: string
-  description: The owner of the given address. Either account_id or provider_user_id needs to be filled. 
+  description: The owner of the given address. Either account_id or provider_user_id needs to be filled.
 address:
   type: string
   description:
@@ -90,6 +90,17 @@ encrypted_metadata:
   type: object
   default: {}
 ```
+
+## Transaction Consumptions: Understanding the estimated amounts and finalized
+
+When consuming a transaction request, the consumer will receive a consumption right away. If that request didn't require approval, it is finalized right away and the consumption will contain the fields:
+
+- `estimated_request_amount`: An estimate of the amount that will be sent/received in the token specified in the request.
+- `estimated_consumption_amount`: An estimate of the amount that will be sent/received in the token specified in the consumption.
+- `finalized_request_amount`: The actual amount that was sent/received in the currency of the request.
+- `finalized_consumption_amount`: The actual amount that was sent/received in the currency of the consumption.
+
+When an approval is required, however, the consumption received after consumption will be pending, with the `estimated_` amounts set, but no `finalized_` ones yet. Once the request creator has approved it, those amounts will be populated with the actual values of the transaction.
 
 ## Flow
 

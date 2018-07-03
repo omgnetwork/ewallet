@@ -18,6 +18,7 @@ defmodule AdminAPI.ConnCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
+  alias EWallet.Web.Date
   alias EWalletDB.{Repo, User, Account, Key}
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.Helpers.Crypto
@@ -129,6 +130,10 @@ defmodule AdminAPI.ConnCase do
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
     :ok
+  end
+
+  def stringify_keys(%NaiveDateTime{} = value) do
+    Date.to_iso8601(value)
   end
 
   def stringify_keys(map) when is_map(map) do

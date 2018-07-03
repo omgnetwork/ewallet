@@ -209,6 +209,58 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
              }
     end
 
+    test "creates a transaction request with string amount" do
+      user = get_test_user()
+      token = insert(:token)
+      wallet = User.get_primary_wallet(user)
+
+      response =
+        admin_user_request("/transaction_request.create", %{
+          type: "send",
+          token_id: token.id,
+          correlation_id: nil,
+          amount: "1000",
+          address: wallet.address
+        })
+
+      request = TransactionRequest |> Repo.all() |> Enum.at(0)
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "object" => "transaction_request",
+                 "amount" => 1000,
+                 "address" => wallet.address,
+                 "correlation_id" => nil,
+                 "id" => request.id,
+                 "formatted_id" => request.id,
+                 "socket_topic" => "transaction_request:#{request.id}",
+                 "token_id" => token.id,
+                 "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "type" => "send",
+                 "status" => "valid",
+                 "user_id" => user.id,
+                 "user" => user |> UserSerializer.serialize() |> stringify_keys(),
+                 "account_id" => nil,
+                 "account" => nil,
+                 "allow_amount_override" => true,
+                 "require_confirmation" => false,
+                 "consumption_lifetime" => nil,
+                 "metadata" => %{},
+                 "encrypted_metadata" => %{},
+                 "expiration_date" => nil,
+                 "expiration_reason" => nil,
+                 "expired_at" => nil,
+                 "max_consumptions" => nil,
+                 "current_consumptions_count" => 0,
+                 "max_consumptions_per_user" => nil,
+                 "created_at" => Date.to_iso8601(request.inserted_at),
+                 "updated_at" => Date.to_iso8601(request.updated_at)
+               }
+             }
+    end
+
     test "receives an error when the type is invalid" do
       token = insert(:token)
       user = get_test_user()

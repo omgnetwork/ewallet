@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.UserChannel do
   @moduledoc """
   Represents the user channel.
   """
-  use Phoenix.Channel
+  use Phoenix.Channel, async: false
   alias EWalletDB.User
 
   def join(

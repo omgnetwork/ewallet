@@ -9,7 +9,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
     TokenSerializer,
     UserSerializer,
     AccountSerializer,
-    ExchangePairSerializer
+    ExchangePairSerializer,
+    WalletSerializer
   }
 
   alias EWallet.Web.{Date, Paginator}
@@ -29,7 +30,9 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         :to_user,
         :from_account,
         :to_account,
-        :exchange_pair
+        :exchange_pair,
+        :exchange_account,
+        :exchange_wallet
       ])
 
     %{
@@ -63,7 +66,11 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         rate: transaction.rate || 1,
         calculated_at: transaction.calculated_at,
         exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
-        exchange_pair: ExchangePairSerializer.serialize(transaction.exchange_pair)
+        exchange_pair: ExchangePairSerializer.serialize(transaction.exchange_pair),
+        exchange_account_id: Assoc.get(transaction, [:exchange_account, :id]),
+        exchange_account: AccountSerializer.serialize(transaction.exchange_account),
+        exchange_wallet_address: Assoc.get(transaction, [:exchange_wallet, :address]),
+        exchange_wallet: WalletSerializer.serialize_without_balances(transaction.exchange_wallet)
       },
       metadata: transaction.metadata || %{},
       encrypted_metadata: transaction.encrypted_metadata || %{},

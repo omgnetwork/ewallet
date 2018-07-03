@@ -98,7 +98,6 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       token = insert(:token)
       _mints = insert_list(3, :mint, token_uuid: token.uuid, amount: 100_000)
       response = admin_user_request("/token.stats", %{"id" => token.id})
-
       assert response["success"]
 
       assert response["data"] == %{
@@ -165,24 +164,6 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert mint == nil
     end
 
-    test "inserts a new token with no minting if amount is a string" do
-      response =
-        admin_user_request("/token.create", %{
-          symbol: "BTC",
-          name: "Bitcoin",
-          description: "desc",
-          subunit_to_unit: 100,
-          amount: "100"
-        })
-
-      mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"]
-      assert response["data"]["object"] == "token"
-      assert Token.get(response["data"]["id"]) != nil
-      assert mint == nil
-    end
-
     test "fails a new token with no minting if amount is 0" do
       response =
         admin_user_request("/token.create", %{
@@ -194,11 +175,8 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
         })
 
       mint = Mint |> Repo.all() |> Enum.at(0)
-
-      assert response["success"]
-      assert response["data"]["object"] == "token"
-      assert Token.get(response["data"]["id"]) != nil
       assert mint == nil
+      assert response["success"] == false
     end
 
     test "mints the given amount of tokens" do
@@ -209,6 +187,25 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
           description: "desc",
           subunit_to_unit: 100,
           amount: 1_000 * 100
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+      assert Token.get(response["data"]["id"]) != nil
+      assert mint != nil
+      assert mint.confirmed == true
+    end
+
+    test "inserts a new token with minting if amount is a string" do
+      response =
+        admin_user_request("/token.create", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          description: "desc",
+          subunit_to_unit: 100,
+          amount: "100"
         })
 
       mint = Mint |> Repo.all() |> Enum.at(0)
