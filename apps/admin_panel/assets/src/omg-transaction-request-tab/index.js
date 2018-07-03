@@ -14,6 +14,9 @@ import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
 import { formatNumber } from '../utils/formatter'
+import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
+import WalletProvider from '../omg-wallet/walletProvider'
+import { consumeTransactionRequest } from '../omg-transaction-request/action'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -24,10 +27,11 @@ const PanelContainer = styled.div`
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
   > i {
     position: absolute;
-    right: 25px;
+    right: 0;
     color: ${props => props.theme.colors.S500};
-    top: 25px;
+    top: 0;
     cursor: pointer;
+    padding: 20px;
   }
 `
 const ContentContainer = styled.div`
@@ -40,7 +44,15 @@ const ContentContainer = styled.div`
   td:first-child {
     max-width: 100px;
     width: 100px;
-
+    > div {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
+  td:nth-child(2) {
+    max-width: 120px;
+    width: 120px;
     > div {
       white-space: nowrap;
       overflow: hidden;
@@ -48,17 +60,46 @@ const ContentContainer = styled.div`
     }
   }
 `
-const TransactionReqeustPropertiesContainer = styled.div`
-  > img {
-    width: 150px;
-    height: 150px;
-    border: 1px solid ${props => props.theme.colors.BL400};
-    margin-bottom: 30px;
-    margin-top: 30px;
+const ConsumeActionContainer = styled.form`
+  display: flex;
+  margin: 20px 0;
+  border: 1px solid ${props => props.theme.colors.S300};
+  border-radius: 4px;
+  background-color: ${props => props.theme.colors.S100};
+  position: relative;
+`
+const TokenAmountContainer = styled.div`
+  display: flex;
+  > div:first-child {
+    padding-right: 20px;
   }
-  > div {
+`
+const InformationItem = styled.div`
+  color: ${props => props.theme.colors.B200};
+  :not(:last-child) {
     margin-bottom: 10px;
   }
+`
+const QrContainer = styled.div`
+  background-color: white;
+  padding: 20px;
+  > img {
+    width: 100px;
+    height: 100px;
+    margin: -10px;
+  }
+  > div {
+    color: ${props => props.theme.colors.B300};
+  }
+`
+const InputsContainer = styled.div`
+  flex: 1 1 auto;
+  padding: 20px;
+  > div {
+    margin-bottom: 20px;
+  }
+`
+const TransactionReqeustPropertiesContainer = styled.div`
   b {
     font-weight: 600;
     color: ${props => props.theme.colors.B200};
@@ -75,6 +116,11 @@ const SubDetailTitle = styled.div`
     }
   }
 `
+const AdditionalRequestDataContainer = styled.div`
+  > div {
+    margin-bottom: 10px;
+  }
+`
 const ConfirmButton = styled.button`
   display: inline-block;
   background-color: white;
@@ -85,6 +131,15 @@ const ConfirmButton = styled.button`
   color: ${props => props.theme.colors.B200};
   i {
     font-size: 10px;
+  }
+`
+const QrTypeContainer = styled.div`
+  margin-top: 15px;
+  :not(:last-child) {
+    margin-bottom: 10px;
+  }
+  > div {
+    color: ${props => props.theme.colors.B300};
   }
 `
 const ConfirmButtonApprove = ConfirmButton.extend`
@@ -99,11 +154,20 @@ const ConfirmButtonReject = ConfirmButton.extend`
     background-color: #ffefed;
   }
 `
+const InputLabel = styled.div`
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 400;
+  > span {
+    color: ${props => props.disabled ? props.theme.colors.S500 : props.theme.colors.S200};
+  }
+`
+const InputLabelContainer = styled.div``
 const enhance = compose(
   withRouter,
   connect(
     null,
-    { approveConsumptionById, rejectConsumptionById }
+    { approveConsumptionById, rejectConsumptionById, consumeTransactionRequest }
   )
 )
 class TransactionRequestPanel extends Component {
@@ -111,7 +175,8 @@ class TransactionRequestPanel extends Component {
     history: PropTypes.object,
     location: PropTypes.object,
     rejectConsumptionById: PropTypes.func,
-    approveConsumptionById: PropTypes.func
+    approveConsumptionById: PropTypes.func,
+    consumeTransactionRequest: PropTypes.func
   }
 
   constructor (props) {
@@ -131,6 +196,57 @@ class TransactionRequestPanel extends Component {
   onClickReject = id => e => {
     e.stopPropagation()
     this.props.rejectConsumptionById(id)
+  }
+  onChangeWalletInput = e => {
+    this.setState({ consumeAddress: e.target.value })
+  }
+  onChangeAmount = e => {
+    this.setState({ amount: e.target.value })
+  }
+  onSelectWalletAddressSelect = item => {
+    this.setState({ consumeAddress: item.key })
+  }
+  onChangeSearchToken = e => {
+    this.setState({ searchTokenValue: e.target.value, selectedToken: null })
+  }
+  onSelectTokenSelect = token => {
+    this.setState({ searchTokenValue: token.value, selectedToken: token })
+  }
+  onClickRow = (data, index) => e => {
+    const searchObject = queryString.parse(this.props.location.search)
+    this.props.history.push({
+      search: queryString.stringify({
+        ...searchObject,
+        [`show-consumption-tab`]: data.id
+      })
+    })
+  }
+  onClickClose = () => {
+    const searchObject = queryString.parse(this.props.location.search)
+    delete searchObject['active-tab']
+    delete searchObject['show-request-tab']
+    delete searchObject['page-activity']
+    this.props.history.push({
+      search: queryString.stringify(searchObject)
+    })
+  }
+  onClickTab = tab => e => {
+    const searchObject = queryString.parse(this.props.location.search)
+    this.props.history.push({
+      search: queryString.stringify({
+        ...searchObject,
+        [`active-tab`]: tab
+      })
+    })
+  }
+  onSubmitConsume = transactionRequest => e => {
+    e.preventDefault()
+    this.props.consumeTransactionRequest({
+      formattedTransactionRequestId: transactionRequest.id,
+      tokenId: this.state.selectedToken.id,
+      amount: Number(this.state.amount) * _.get(this.state.selectedToken, 'subunit_to_unit'),
+      address: this.state.consumeAddress
+    })
   }
   rowRenderer = (key, data, rows) => {
     if (key === 'amount') {
@@ -176,15 +292,6 @@ class TransactionRequestPanel extends Component {
     }
     return data
   }
-  onClickRow = (data, index) => e => {
-    const searchObject = queryString.parse(this.props.location.search)
-    this.props.history.push({
-      search: queryString.stringify({
-        ...searchObject,
-        [`show-consumption-tab`]: data.id
-      })
-    })
-  }
   renderActivityList = () => {
     return (
       <ConsumptionFetcherByTransactionIdFetcher
@@ -215,73 +322,130 @@ class TransactionRequestPanel extends Component {
     )
   }
   renderProperties = transactionRequest => {
+    const valid = transactionRequest.status === 'valid'
     return (
       <TransactionReqeustPropertiesContainer>
-        <div>
-          <div>
+        <ConsumeActionContainer onSubmit={this.onSubmitConsume(transactionRequest)}>
+          <QrContainer>
             <QR data={transactionRequest.id} />
-          </div>
-          <div>
-            <Input normalPlaceholder='wallet' />
-            <Input normalPlaceholder='amount' />
+            <QrTypeContainer>
+              <b>Type:</b>
+              <div>{transactionRequest.type}</div>
+            </QrTypeContainer>
+            <QrTypeContainer>
+              <b>Token:</b>
+              <div>{_.get(transactionRequest, 'token.name')}</div>
+            </QrTypeContainer>
+          </QrContainer>
+          <InputsContainer>
+            <AllWalletsFetcher
+              query={{ search: this.state.consumeAddress }}
+              render={({ data }) => {
+                return (
+                  <InputLabelContainer>
+                    <InputLabel disabled={!valid}>Wallet</InputLabel>
+                    <Select
+                      disabled={!valid}
+                      normalPlaceholder='acc_0x000000000000000'
+                      onSelectItem={this.onSelectWalletAddressSelect}
+                      value={this.state.consumeAddress}
+                      onChange={this.onChangeWalletInput}
+                      options={data.map(d => {
+                        return {
+                          key: d.address,
+                          value: `${d.address} ( ${_.get(d, 'account.name') ||
+                            _.get(d, 'user.username') ||
+                            _.get(d, 'user.email')} )`
+                        }
+                      })}
+                    />
+                  </InputLabelContainer>
+                )
+              }}
+            />
+            <WalletProvider
+              walletAddress={this.state.consumeAddress}
+              render={({ wallet }) => {
+                return (
+                  <TokenAmountContainer>
+                    <InputLabelContainer>
+                      <InputLabel disabled={!valid}>Amount</InputLabel>
+                      <Input
+                        normalPlaceholder='1000'
+                        onChange={this.onChangeAmount}
+                        state={this.state.amount}
+                        type='number'
+                        disabled={!valid}
+                      />
+                    </InputLabelContainer>
+                    <InputLabelContainer>
+                      <InputLabel disabled={!valid}>Token</InputLabel>
+                      <Select
+                        disabled={!valid}
+                        normalPlaceholder='ETH'
+                        onSelectItem={this.onSelectTokenSelect}
+                        onChange={this.onChangeSearchToken}
+                        value={this.state.searchTokenValue}
+                        options={
+                          wallet
+                            ? wallet.balances.map(b => ({
+                              ...{
+                                key: b.token.id,
+                                value: `${b.token.name} (${b.token.symbol})`
+                              },
+                              ...b
+                            }))
+                            : []
+                        }
+                      />
+                    </InputLabelContainer>
+                  </TokenAmountContainer>
+                )
+              }}
+            />
             <Button>Consume</Button>
-          </div>
-        </div>
-        <div>
-          <b>Type:</b> {transactionRequest.type}
-        </div>
-        <div>
-          <b>Token ID:</b> {_.get(transactionRequest, 'token.id')}
-        </div>
-        <div>
-          <b>Amount:</b>{' '}
-          {formatNumber(
-            (transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')
-          )}{' '}
-          {_.get(transactionRequest, 'token.symbol')}
-        </div>
-        <div>
-          <b>address:</b> {transactionRequest.address}
-        </div>
-        <div>
-          <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
-        </div>
-        <div>
-          <b>Max Consumptions:</b> {transactionRequest.max_consumtions || '-'}
-        </div>
-        <div>
-          <b>Max Consumptions User:</b> {transactionRequest.max_consumptionPerUser || '-'}
-        </div>
-        <div>
-          <b>Expiry Date:</b> {transactionRequest.expiration_date}
-        </div>
-        <div>
-          <b>Allow Override:</b> {transactionRequest.allow_amount_overide ? 'Yes' : 'No'}
-        </div>
-        <div>
-          <b>Coorelation ID:</b> {transactionRequest.correlation_id}
-        </div>
+          </InputsContainer>
+        </ConsumeActionContainer>
+        <AdditionalRequestDataContainer>
+          <InformationItem>
+            <b>Type:</b> {transactionRequest.type}
+          </InformationItem>
+          <InformationItem>
+            <b>Token ID:</b> {_.get(transactionRequest, 'token.id')}
+          </InformationItem>
+          <InformationItem>
+            <b>Amount:</b>{' '}
+            {formatNumber(
+              (transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')
+            )}{' '}
+            {_.get(transactionRequest, 'token.symbol')}
+          </InformationItem>
+          <InformationItem>
+            <b>address:</b> {transactionRequest.address}
+          </InformationItem>
+          <InformationItem>
+            <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
+          </InformationItem>
+          <InformationItem>
+            <b>Max Consumptions:</b> {transactionRequest.max_consumtions || '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Max Consumptions User:</b> {transactionRequest.max_consumptionPerUser || '-'}
+          </InformationItem>
+          <InformationItem>
+            <b>Expiry Date:</b> {transactionRequest.expiration_date}
+          </InformationItem>
+          <InformationItem>
+            <b>Allow Override:</b> {transactionRequest.allow_amount_overide ? 'Yes' : 'No'}
+          </InformationItem>
+          <InformationItem>
+            <b>Coorelation ID:</b> {transactionRequest.correlation_id}
+          </InformationItem>
+        </AdditionalRequestDataContainer>
       </TransactionReqeustPropertiesContainer>
     )
   }
-  onClickClose = () => {
-    const searchObject = queryString.parse(this.props.location.search)
-    delete searchObject['active-tab']
-    delete searchObject['show-request-tab']
-    delete searchObject['page-activity']
-    this.props.history.push({
-      search: queryString.stringify(searchObject)
-    })
-  }
-  onClickTab = tab => e => {
-    const searchObject = queryString.parse(this.props.location.search)
-    this.props.history.push({
-      search: queryString.stringify({
-        ...searchObject,
-        [`active-tab`]: tab
-      })
-    })
-  }
+
   render = () => {
     return (
       <TransactionRequestProvider

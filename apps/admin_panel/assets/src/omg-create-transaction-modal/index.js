@@ -102,13 +102,12 @@ class CreateTransactionModal extends Component {
   onSelectTokenSelect = token => {
     this.setState({ searchTokenValue: token.value, selectedToken: token })
   }
-  onSelectFromAddressSelect = item => {
-    this.setState({ fromAddress: item.key })
-  }
   onSelectToAddressSelect = item => {
     this.setState({ toAddress: item.key })
   }
-
+  onSelectFromAddressSelect = item => {
+    this.setState({ fromAddress: item.key })
+  }
   onFocusSelect = () => {
     this.setState({ searchTokenValue: '', selectedToken: null })
   }

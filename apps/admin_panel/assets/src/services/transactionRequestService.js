@@ -1,4 +1,5 @@
 import { authenticatedRequest } from './apiService'
+import uuid from 'uuid/v4'
 export function getTransactionRequests ({ perPage, page, sort, search }) {
   return authenticatedRequest({
     path: '/transaction_request.all',
@@ -58,23 +59,22 @@ export function createTransactionRequest ({
 }
 
 export function consumeTransactionRequest ({
-  idempotency_token,
-  formatted_transaction_request_id,
-  correlation_id,
-  token_id,
+  formattedTransactionRequestId,
+  correlationId,
+  tokenId,
   amount,
-  provider_user_id,
+  providerUserId,
   address
 }) {
   return authenticatedRequest({
     path: '/transaction_request.consume',
     data: {
-      idempotency_token,
-      formatted_transaction_request_id,
-      correlation_id,
-      token_id,
-      amount,
-      provider_user_id,
+      idempotency_token: uuid(),
+      formatted_transaction_request_id: formattedTransactionRequestId,
+      correlation_id: correlationId,
+      token_id: tokenId,
+      amount: Number(amount),
+      provider_user_id: providerUserId,
       address
     }
   })
@@ -86,5 +86,3 @@ export function getTransactionRequestById (id) {
     data: { formatted_id: id }
   })
 }
-
-window.consume = consumeTransactionRequest

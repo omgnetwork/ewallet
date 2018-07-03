@@ -1,15 +1,24 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
-import { ButtonPrimary } from './primary'
+import { ButtonPrimary, ButtonDisabled } from './primary'
 import { ButtonGhost } from './ghost'
 import { ButtonSecondary } from './secondary'
 import { Content } from './default'
 import ReactLoading from 'react-loading'
 import styled from 'styled-components'
 const buttonMapStyle = {
-  'primary': ButtonPrimary,
-  'ghost': ButtonGhost,
-  'secondary': ButtonSecondary
+  primary: {
+    normal: ButtonPrimary,
+    disabled: ButtonDisabled
+  },
+  ghost: {
+    normal: ButtonGhost,
+    disabled: ButtonGhost
+  },
+  secondary: {
+    normal: ButtonSecondary,
+    disabled: ButtonSecondary
+  }
 }
 export default class Button extends PureComponent {
   static propTypes = {
@@ -20,7 +29,7 @@ export default class Button extends PureComponent {
     loading: PropTypes.bool,
     onClick: PropTypes.func,
     fluid: PropTypes.bool,
-    styleType: PropTypes.oneOf([ 'primary', 'secondary', 'ghost' ]),
+    styleType: PropTypes.oneOf(['primary', 'secondary', 'ghost']),
     type: PropTypes.string
   }
   static defaultProps = {
@@ -28,7 +37,7 @@ export default class Button extends PureComponent {
   }
 
   render () {
-    const Button = buttonMapStyle[this.props.styleType]
+    const Button = buttonMapStyle[this.props.styleType][this.props.disabled ? 'normal' : 'disabled']
 
     return (
       <Button
@@ -59,8 +68,6 @@ export class PlainButton extends PureComponent {
     children: PropTypes.node
   }
   render () {
-    return (
-      <PureButtonText {...this.props}>{this.props.children}</PureButtonText>
-    )
+    return <PureButtonText {...this.props}>{this.props.children}</PureButtonText>
   }
 }

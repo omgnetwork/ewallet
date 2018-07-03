@@ -57,5 +57,8 @@ export const alertsReducer = createReducer([], {
   },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
     return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
+  },
+  'TRANSACTION_REQUEST/CONSUME/SUCCESS': state => {
+    return [...state, createAlertState(`Consumed transaction request.`, 'success')]
   }
 })

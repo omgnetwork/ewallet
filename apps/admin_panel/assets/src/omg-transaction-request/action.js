@@ -43,7 +43,6 @@ export const getTransactionRequestById = id => async dispatch => {
 }
 
 export const consumeTransactionRequest = ({
-  idempotencyToken,
   formattedTransactionRequestId,
   correlationId,
   tokenId,
@@ -54,7 +53,6 @@ export const consumeTransactionRequest = ({
   dispatch({ type: 'TRANSACTION_REQUEST/CONSUME/INITIATED' })
   try {
     const result = await transactionRequestService.consumeTransactionRequest({
-      idempotencyToken,
       formattedTransactionRequestId,
       correlationId,
       tokenId,

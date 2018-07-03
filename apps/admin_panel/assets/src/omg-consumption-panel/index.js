@@ -118,7 +118,7 @@ class TransactionRequestPanel extends Component {
                   <b>Type:</b> <span>{tq.type}</span>
                 </InformationItem>
                 <InformationItem>
-                  <b>Requester Address::</b> {tq.address}
+                  <b>Requester Address:</b> {tq.address}
                 </InformationItem>
                 <InformationItem>
                   <b>Consumer Address:</b> {consumption.address}

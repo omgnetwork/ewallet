@@ -36,6 +36,7 @@ export default class TabPanel extends Component {
           {this.props.data.map(d => {
             return (
               <TabHeader
+                key={d.key}
                 active={this.props.activeTabKey === d.key}
                 onClick={this.props.onClickTab(d.key)}
               >
