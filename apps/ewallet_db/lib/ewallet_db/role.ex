@@ -3,8 +3,8 @@ defmodule EWalletDB.Role do
   Ecto Schema representing user roles.
   """
   use Ecto.Schema
-  import Ecto.Changeset
-  alias Ecto.{UUID, Query}
+  import Ecto.{Query, Changeset}
+  alias Ecto.UUID
   alias EWalletDB.{Repo, Membership, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -35,15 +35,15 @@ defmodule EWalletDB.Role do
   Creates a new role with the passed attributes.
   """
   def insert(attrs) do
-    last_role = Role |> Query.last(:inserted_at) |> Repo.one()
+    highest_priority = Repo.one(from(r in Role, select: max(r.priority)))
 
     attrs =
-      case last_role do
+      case highest_priority do
         nil ->
           Map.put(attrs, :priority, 0)
 
-        role ->
-          Map.put(attrs, :priority, role.priority + 1)
+        highest_priority ->
+          Map.put(attrs, :priority, highest_priority + 1)
       end
 
     %Role{}
