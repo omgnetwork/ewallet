@@ -8,7 +8,12 @@ import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-import { formatNumber } from '../utils/formatter'
+import {
+  formatNumber,
+  formatRecieveAmountToTotal,
+  formatSendAmountToTotal,
+  formatRecieveAmountToTotalNumber
+} from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 const Form = styled.form`
@@ -120,7 +125,10 @@ class CreateTransactionModal extends Component {
         fromAddress: this.state.fromAddress,
         toAddress: this.state.toAddress,
         tokenId: _.get(this.state.selectedToken, 'token.id'),
-        amount: this.state.amount * _.get(this.state.selectedToken, 'token.subunit_to_unit')
+        amount: formatRecieveAmountToTotalNumber(
+          this.state.amount,
+          _.get(this.state.selectedToken, 'token.subunit_to_unit')
+        )
       })
       if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
@@ -143,13 +151,10 @@ class CreateTransactionModal extends Component {
   }
 
   getBalanceOfSelectedToken = () => {
-    if (_.get(this.state.selectedToken, 'amount') === 0) {
-      return 0
-    }
     return this.state.selectedToken
-      ? formatNumber(
-          _.get(this.state.selectedToken, 'amount') /
-            _.get(this.state.selectedToken, 'token.subunit_to_unit')
+      ? formatRecieveAmountToTotal(
+          _.get(this.state.selectedToken, 'amount'),
+          _.get(this.state.selectedToken, 'token.subunit_to_unit')
         )
       : '-'
   }
@@ -176,7 +181,9 @@ class CreateTransactionModal extends Component {
                   options={data.map(d => {
                     return {
                       key: d.address,
-                      value: `${d.address} ( ${_.get(d, 'account.name') || _.get(d, 'user.username') || _.get(d, 'user.email')} )`
+                      value: `${d.address} ( ${_.get(d, 'account.name') ||
+                        _.get(d, 'user.username') ||
+                        _.get(d, 'user.email')} )`
                     }
                   })}
                 />
@@ -195,7 +202,9 @@ class CreateTransactionModal extends Component {
                   options={data.map(d => {
                     return {
                       key: d.address,
-                      value: `${d.address} ( ${_.get(d, 'account.name') || _.get(d, 'user.username') || _.get(d, 'user.email')} )`
+                      value: `${d.address} ( ${_.get(d, 'account.name') ||
+                        _.get(d, 'user.username') ||
+                        _.get(d, 'user.email')} )`
                     }
                   })}
                 />
@@ -217,9 +226,9 @@ class CreateTransactionModal extends Component {
                     wallet
                       ? wallet.balances.map(b => ({
                         ...{
-                          key: b.token.id,
-                          value: `${b.token.name} (${b.token.symbol})`
-                        },
+                            key: b.token.id,
+                            value: `${b.token.name} (${b.token.symbol})`
+                          },
                         ...b
                       }))
                       : []

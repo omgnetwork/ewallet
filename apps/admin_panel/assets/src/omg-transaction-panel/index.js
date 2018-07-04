@@ -6,7 +6,7 @@ import { Icon } from '../omg-uikit'
 import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
-import { formatNumber } from '../utils/formatter'
+import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 import { MarkContainer } from '../omg-page-transaction'
 const PanelContainer = styled.div`
@@ -84,27 +84,27 @@ class TransactionRequestPanel extends Component {
           <Link to='/'>{_.get(transaction, 'address')}</Link>
         </InformationItem>
         {_.get(transaction, 'account') && (
-        <InformationItem>
-          <b>Account : </b>
-          <Link to='/'>{_.get(transaction, 'account.name')}</Link>
-        </InformationItem>
-      )}
+          <InformationItem>
+            <b>Account : </b>
+            <Link to='/'>{_.get(transaction, 'account.name')}</Link>
+          </InformationItem>
+        )}
         {_.get(transaction, 'user') && (
-        <InformationItem>
-          <b>User : </b>
-          <Link to='/'>{_.get(transaction, 'user.id')}</Link>
-        </InformationItem>
-      )}
+          <InformationItem>
+            <b>User : </b>
+            <Link to='/'>{_.get(transaction, 'user.id')}</Link>
+          </InformationItem>
+        )}
         <InformationItem>
           <b>Token : </b>
           <Link to='/'>{_.get(transaction, 'token.name')}</Link>
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
-          {formatNumber(
-          _.get(transaction, 'amount') /
+          {formatRecieveAmountToTotal(
+            _.get(transaction, 'amount'),
             _.get(transaction, 'token.subunit_to_unit')
-        )}{' '}
+          )}{' '}
           {_.get(transaction, 'token.symbol')}
         </InformationItem>
       </TransactionInfoContainer>

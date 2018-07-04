@@ -75,7 +75,7 @@ export function consumeTransactionRequest ({
       formatted_transaction_request_id: formattedTransactionRequestId,
       correlation_id: correlationId,
       token_id: tokenId,
-      amount: amount === null ? null : Number(amount),
+      amount: amount === null ? null : amount,
       provider_user_id: providerUserId,
       address
     }

@@ -8,7 +8,7 @@ import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
-import { formatNumber } from '../utils/formatter'
+import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 const PanelContainer = styled.div`
   height: 100vh;
@@ -128,7 +128,10 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Amount:</b>{' '}
                   <span>
-                    {formatNumber(consumption.amount / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                    {formatRecieveAmountToTotal(
+                      consumption.amount,
+                      _.get(tq, 'token.subunit_to_unit')
+                    )}{' '}
                     {_.get(tq, 'token.symbol')}
                   </span>
                 </InformationItem>
@@ -176,7 +179,7 @@ class TransactionRequestPanel extends Component {
                 <h5>ADDITIONAL REQUEST DETAILS</h5>
                 <InformationItem>
                   <b>Amount:</b>{' '}
-                  {formatNumber((tq.amount || 0) / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                  {formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
                   {_.get(tq, 'token.symbol')}
                 </InformationItem>
                 <InformationItem>

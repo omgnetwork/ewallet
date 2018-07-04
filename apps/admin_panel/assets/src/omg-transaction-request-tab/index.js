@@ -9,7 +9,7 @@ import queryString from 'query-string'
 import QR from './QrCode'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { formatNumber } from '../utils/formatter'
+import { formatRecieveAmountToTotal, formatSendAmountToTotal } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
@@ -164,7 +164,10 @@ class TransactionRequestPanel extends Component {
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
       return {
         transactionRequestId,
-        amount: transactionRequest.amount / transactionRequest.token.subunit_to_unit,
+        amount: formatRecieveAmountToTotal(
+          transactionRequest.amount,
+          transactionRequest.token.subunit_to_unit
+        ),
         selectedToken: transactionRequest.token,
         searchTokenValue: `${transactionRequest.token.name} (${transactionRequest.token.symbol})`
       }
@@ -219,7 +222,10 @@ class TransactionRequestPanel extends Component {
         formattedTransactionRequestId: transactionRequest.id,
         tokenId: this.state.selectedToken.id,
         amount: transactionRequest.allow_amount_override
-          ? Number(this.state.amount) * _.get(this.state.selectedToken, 'subunit_to_unit')
+          ? formatSendAmountToTotal(
+              this.state.amount,
+              _.get(this.state.selectedToken, 'subunit_to_unit')
+            )
           : null,
         address: this.state.consumeAddress
       })
@@ -246,7 +252,6 @@ class TransactionRequestPanel extends Component {
 
   renderProperties = transactionRequest => {
     const valid = transactionRequest.status === 'valid'
-    console.log(transactionRequest)
     return (
       <TransactionReqeustPropertiesContainer>
         <ConsumeActionContainer onSubmit={this.onSubmitConsume(transactionRequest)}>
@@ -257,7 +262,7 @@ class TransactionRequestPanel extends Component {
               <div>{transactionRequest.type}</div>
             </QrTypeContainer>
             <QrTypeContainer>
-              <b>Token  :</b>
+              <b>Token :</b>
               <div>{_.get(transactionRequest, 'token.name')}</div>
             </QrTypeContainer>
           </QrContainer>
@@ -344,8 +349,9 @@ class TransactionRequestPanel extends Component {
           </InformationItem>
           <InformationItem>
             <b>Amount :</b>{' '}
-            {formatNumber(
-              (transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')
+            {formatRecieveAmountToTotal(
+              transactionRequest.amount,
+              _.get(transactionRequest, 'token.subunit_to_unit')
             )}{' '}
             {_.get(transactionRequest, 'token.symbol')}
           </InformationItem>
@@ -368,7 +374,8 @@ class TransactionRequestPanel extends Component {
             <b>Expiry Date : </b> {transactionRequest.expiration_date || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Allow Amount Override : </b> {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
+            <b>Allow Amount Override : </b>{' '}
+            {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
             <b>Coorelation ID : </b> {transactionRequest.correlation_id || '-'}
@@ -388,7 +395,7 @@ class TransactionRequestPanel extends Component {
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>
                 Request to {tq.type}{' '}
-                {formatNumber((tq.amount || 0) / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                {formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
                 {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>

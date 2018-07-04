@@ -10,7 +10,7 @@ import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
-import { formatNumber } from '../utils/formatter'
+import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
 const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -168,14 +168,14 @@ class TransactionPage extends Component {
           <div>
             <Sign>-</Sign>
             <span>
-              {formatNumber(rows.from.amount / rows.from.token.subunit_to_unit)}{' '}
+              {formatRecieveAmountToTotal(rows.from.amount, rows.from.token.subunit_to_unit)}{' '}
               {rows.from.token.symbol}
             </span>
           </div>
           <div>
             <Sign>+</Sign>
             <span>
-              {formatNumber(rows.to.amount / rows.from.token.subunit_to_unit)}{' '}
+              {formatRecieveAmountToTotal(rows.to.amount, rows.from.token.subunit_to_unit)}{' '}
               {rows.to.token.symbol}
             </span>
           </div>

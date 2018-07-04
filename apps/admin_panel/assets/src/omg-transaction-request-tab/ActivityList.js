@@ -6,7 +6,7 @@ import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consump
 import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import { formatNumber } from '../utils/formatter'
+import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
 import { Icon } from '../omg-uikit'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
@@ -106,7 +106,7 @@ class ActivityList extends Component {
     if (key === 'amount') {
       return (
         <div>
-          {formatNumber((data || 0) / _.get(rows, 'token.subunit_to_unit'))}{' '}
+          {formatRecieveAmountToTotal(data, _.get(rows, 'token.subunit_to_unit'))}{' '}
           {_.get(rows, 'token.symbol')}
         </div>
       )

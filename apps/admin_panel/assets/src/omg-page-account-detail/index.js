@@ -5,7 +5,7 @@ import { withRouter, Link } from 'react-router-dom'
 import AccountProvider from '../omg-account/accountProvider'
 import WalletsFetcherByAccountId from '../omg-wallet/walletsFetcher'
 import { compose } from 'recompose'
-import { formatNumber } from '../utils/formatter'
+import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
@@ -81,7 +81,7 @@ class AccountDetailPage extends Component {
                       <DetailGroup key={balance.token.id}>
                         <b>{balance.token.name}</b>
                         <span>
-                          {formatNumber(balance.amount / balance.token.subunit_to_unit)}
+                          {formatRecieveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}
                         </span>{' '}
                         <span>{balance.token.symbol}</span>
                       </DetailGroup>
