@@ -4,11 +4,11 @@ import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createExchangePair } from '../omg-exchange-pair/action'
-import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import TokensFetcher from '../omg-token/tokensFetcher'
+import { selectGetTokenById } from '../omg-token/selector'
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -30,7 +30,7 @@ const Form = styled.form`
     text-align: center;
   }
   h5 {
-    padding:5px 10px;
+    padding: 5px 10px;
     background-color: ${props => props.theme.colors.S300};
     display: inline-block;
     margin-top: 20px;
@@ -46,7 +46,7 @@ const ButtonContainer = styled.div`
 `
 const RateInputContainer = styled.div`
   display: flex;
-  >div:first-child {
+  > div:first-child {
     flex: 1 1 auto;
     margin-right: 30px;
   }
@@ -63,13 +63,12 @@ const Error = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    null,
+    (state, props) => ({ fromTokenPrefill: selectGetTokenById(state)(props.fromTokenId) }),
     { createExchangePair }
   )
 )
 class CreateExchangeRateModal extends Component {
   static propTypes = {
-    open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     fromTokenId: PropTypes.string,
     createExchangePair: PropTypes.func
@@ -77,21 +76,30 @@ class CreateExchangeRateModal extends Component {
   static defaultProps = {
     onCreateTransaction: _.noop
   }
+  static getDerivedStateFromProps (props, state) {
+    if (
+      _.get(state, 'fromToken.id') !== props.fromTokenId &&
+      props.fromTokenId !== undefined
+    ) {
+      this.setState({
+        fromToken: props.fromTokenPrefill,
+        fromTokenSearch: `${props.fromTokenPrefill.name} (${props.fromTokenPrefill.symbol})`
+      })
+    }
+    return null
+  }
   state = {}
-  // static getDerivedStateFromProps (props, state) {
-  //   if (this.state.fromToken.id !== nextProps.fromToken.id && nextProps.fromToken.id !== undefined) {
-  //     this.setState({ fromToken.id: nextProps.fromAddress })
-  //   }
-  //   return null
-  // }
+  onChangeName = e => {
+    this.setState({ name: e.target.value })
+  }
   onChangeRate = type => e => {
-    this.setState({ [`${type}Amount`]: e.target.value })
+    this.setState({ [`${type}Rate`]: e.target.value })
   }
   onChangeSearchToken = type => e => {
     this.setState({ [`${type}Search`]: e.target.value })
   }
   onSelectTokenSelect = type => token => {
-    this.setState({ [`${type}Search`]: token.value, selectedFromToken: token })
+    this.setState({ [`${type}Search`]: token.value, [`${type}Selected`]: token })
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -99,12 +107,12 @@ class CreateExchangeRateModal extends Component {
     try {
       const result = await this.props.createExchangePair({
         name: this.state.name,
-        fromTokenId: this.state.fromAddress,
-        toTokenId: this.state.toAddress,
-        rate: 0.1
+        fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
+        toTokenId: _.get(this.state, 'fromTokenSelected.id'),
+        rate: Number(this.state.fromTokenRate) / Number(this.state.toTokenRate)
       })
       if (result.data) {
-        this.onRequestClose()
+        this.props.onRequestClose()
       } else {
         this.setState({
           submitting: false,
@@ -112,98 +120,107 @@ class CreateExchangeRateModal extends Component {
         })
       }
     } catch (e) {
-      this.setState({ error: JSON.stringify(e.message) })
+      this.setState({ error: JSON.stringify(e.message), submitting: false })
     }
   }
-  onRequestClose = () => {
-    this.props.onRequestClose()
-    this.setState(this.initialState)
+  render () {
+    return (
+      <Form onSubmit={this.onSubmit} noValidate>
+        <Icon name='Close' onClick={this.props.onRequestClose} />
+        <h4>Exchange Rate</h4>
+        <InputLabel>Rate Name</InputLabel>
+        <Input normalPlaceholder='rate name' onChange={this.onChangeName} value={this.state.name} />
+
+        <TokensFetcher
+          render={({ data }) => {
+            return (
+              <Fragment>
+                <h5>From</h5>
+                <RateInputContainer>
+                  <div>
+                    <InputLabel>Token</InputLabel>
+                    <Select
+                      normalPlaceholder='Token'
+                      onSelectItem={this.onSelectTokenSelect('fromToken')}
+                      onChange={this.onChangeSearchToken('fromToken')}
+                      value={this.state.fromTokenSearch}
+                      options={data.map(b => ({
+                        ...{
+                          key: `${b.id}${b.name}${b.symbol}`,
+                          value: `${b.name} (${b.symbol})`
+                        },
+                        ...b
+                      }))}
+                    />
+                  </div>
+                  <div>
+                    <InputLabel>Rate</InputLabel>
+                    <Input
+                      value={this.state.fromTokenRate}
+                      onChange={this.onChangeRate('fromToken')}
+                      type='number'
+                    />
+                  </div>
+                </RateInputContainer>
+                <h5>To</h5>
+                <RateInputContainer>
+                  <div>
+                    <InputLabel>Token</InputLabel>
+                    <Select
+                      normalPlaceholder='Token'
+                      onSelectItem={this.onSelectTokenSelect('toToken')}
+                      onChange={this.onChangeSearchToken('toToken')}
+                      value={this.state.toTokenSearch}
+                      options={data.map(b => ({
+                        ...{
+                          key: `${b.id}${b.name}${b.symbol}`,
+                          value: `${b.name} (${b.symbol})`
+                        },
+                        ...b
+                      }))}
+                    />
+                  </div>
+                  <div>
+                    <InputLabel>Rate</InputLabel>
+                    <Input
+                      value={this.state.toTokenRate}
+                      onChange={this.onChangeRate('toToken')}
+                      type='number'
+                    />
+                  </div>
+                </RateInputContainer>
+              </Fragment>
+            )
+          }}
+        />
+        <ButtonContainer>
+          <Button size='small' type='submit' loading={this.state.submitting}>
+            Create Rate
+          </Button>
+        </ButtonContainer>
+        <Error error={this.state.error}>{this.state.error}</Error>
+      </Form>
+    )
+  }
+}
+
+const EnhancedCreateExchange = enhance(CreateExchangeRateModal)
+
+export default class CreateExchangeModal extends Component {
+  static propTypes = {
+    open: PropTypes.bool,
+    onRequestClose: PropTypes.func,
+    fromTokenId: PropTypes.string
   }
   render () {
     return (
       <Modal
         isOpen={this.props.open}
-        onRequestClose={this.onRequestClose}
+        onRequestClose={this.props.onRequestClose}
         contentLabel='create account modal'
       >
-        <Form onSubmit={this.onSubmit} noValidate>
-          <Icon name='Close' onClick={this.props.onRequestClose} />
-          <h4>Exchange Rate</h4>
-          <InputLabel>Rate Name</InputLabel>
-          <Input normalPlaceholder='rate name' />
-
-          <TokensFetcher
-            render={({ data }) => {
-              return (
-                <Fragment>
-                  <h5>From</h5>
-                  <RateInputContainer>
-                    <div>
-                      <InputLabel>Token</InputLabel>
-                      <Select
-                        normalPlaceholder='Token'
-                        onSelectItem={this.onSelectTokenSelect('fromToken')}
-                        onChange={this.onChangeSearchToken('fromToken')}
-                        value={this.state.fromTokenSearch}
-                        options={data.map(b => ({
-                          ...{
-                            key: b.id,
-                            value: `${b.id}${b.name}${b.symbol}`
-                          },
-                          ...b
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <InputLabel>Rate</InputLabel>
-                      <Input
-                        value={this.state.fromTokenRate}
-                        onChange={this.onChangeRate('fromToken')}
-                        type='number'
-                      />
-                    </div>
-                  </RateInputContainer>
-                  <h5>To</h5>
-                  <RateInputContainer>
-                    <div>
-                      <InputLabel>Token</InputLabel>
-                      <Select
-                        normalPlaceholder='Token'
-                        onSelectItem={this.onSelectTokenSelect('toToken')}
-                        onChange={this.onChangeSearchToken('toToken')}
-                        value={this.state.toTokenSearch}
-                        options={data.map(b => ({
-                          ...{
-                            key: `${b.id}${b.name}${b.symbol}`,
-                            value: `${b.name} (${b.symbol})`
-                          },
-                          ...b
-                        }))}
-                      />
-                    </div>
-                    <div>
-                      <InputLabel>Rate</InputLabel>
-                      <Input
-                        value={this.state.toTokenRate}
-                        onChange={this.onChangeRate('toToken')}
-                        type='number'
-                      />
-                    </div>
-                  </RateInputContainer>
-                </Fragment>
-              )
-            }}
-          />
-          <ButtonContainer>
-            <Button size='small' type='submit' loading={this.state.submitting}>
-              Create Rate
-            </Button>
-          </ButtonContainer>
-          <Error error={this.state.error}>{this.state.error}</Error>
-        </Form>
+        <EnhancedCreateExchange {...this.props} />
       </Modal>
     )
   }
 }
-
-export default enhance(CreateExchangeRateModal)

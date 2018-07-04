@@ -9,11 +9,10 @@ export const createExchangePair = ({ name, toTokenId, fromTokenId, rate }) => as
       rate
     })
     if (result.data.success) {
-      dispatch({ type: 'EXCHANGE_PAIR/CREATE/SUCCESS', data: result.data.data })
+      return dispatch({ type: 'EXCHANGE_PAIR/CREATE/SUCCESS', data: result.data.data })
     } else {
-      dispatch({ type: 'EXCHANGE_PAIR/CREATE/FAILED', error: result.data.data })
+      return dispatch({ type: 'EXCHANGE_PAIR/CREATE/FAILED', error: result.data.data })
     }
-    return result
   } catch (error) {
     return dispatch({ type: 'EXCHANGE_PAIR/CREATE/FAILED', error })
   }
