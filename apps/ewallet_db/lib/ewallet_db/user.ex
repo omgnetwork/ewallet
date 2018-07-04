@@ -225,7 +225,10 @@ defmodule EWalletDB.User do
       Multi.new()
       |> Multi.insert(:user, changeset(%User{}, attrs))
       |> Multi.run(:wallet, fn %{user: user} ->
-        insert_wallet(user, Wallet.primary())
+        case user.provider_user_id do
+          nil -> {:ok, nil}
+          _ -> insert_wallet(user, Wallet.primary())
+        end
       end)
 
     case Repo.transaction(multi) do
