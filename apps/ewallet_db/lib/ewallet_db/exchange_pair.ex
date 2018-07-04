@@ -70,7 +70,7 @@ defmodule EWalletDB.ExchangePair do
     |> unique_constraint(:name)
     |> unique_constraint(
       :from_token,
-      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_index"
+      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_null"
     )
   end
 

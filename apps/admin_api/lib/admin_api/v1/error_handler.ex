@@ -87,6 +87,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     category_not_empty: %{
       code: "category:not_empty",
       description: "The category has one or more accounts associated"
+    },
+    exchange_pair_already_exists: %{
+      code: "exchange:pair_already_exists",
+      description: "The exchange pair for the given tokens already exist"
     }
   }
 

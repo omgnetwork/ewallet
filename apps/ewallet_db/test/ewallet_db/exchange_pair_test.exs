@@ -13,6 +13,25 @@ defmodule EWalletDB.ExchangePairTest do
     test_insert_prevent_blank(ExchangePair, :rate)
     test_insert_generate_timestamps(ExchangePair)
 
+    test "allows inserting existing pairs if the existing pairs are soft-deleted" do
+      {:ok, pair} = :exchange_pair |> insert() |> ExchangePair.delete()
+
+      attrs = %{
+        name: "Test pair",
+        from_token_uuid: pair.from_token_uuid,
+        to_token_uuid: pair.to_token_uuid,
+        rate: 999
+      }
+
+      {res, inserted} = ExchangePair.insert(attrs)
+
+      assert res == :ok
+      assert inserted.name == attrs.name
+      assert inserted.from_token_uuid == attrs.from_token_uuid
+      assert inserted.to_token_uuid == attrs.to_token_uuid
+      assert inserted.rate == attrs.rate
+    end
+
     test "prevents from_token_uuid and to_token_uuid having the same value" do
       omg = insert(:token)
 
@@ -32,6 +51,22 @@ defmodule EWalletDB.ExchangePairTest do
                 {"can't have the same value as `from_token_uuid`",
                  [validation: :different_values]}}
              ]
+    end
+
+    test "prevents inserting of an existing pair" do
+      pair = insert(:exchange_pair)
+
+      attrs = %{
+        name: "Test pair",
+        from_token_uuid: pair.from_token_uuid,
+        to_token_uuid: pair.to_token_uuid,
+        rate: 999
+      }
+
+      {res, changeset} = ExchangePair.insert(attrs)
+
+      assert res == :error
+      assert changeset.errors == [from_token: {"has already been taken", []}]
     end
 
     test "prevents setting exchange rate to 0" do

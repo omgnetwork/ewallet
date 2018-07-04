@@ -26,7 +26,11 @@ defmodule EWallet.ExchangePairGate do
          {:ok, pair} <- ExchangePair.insert(attrs) do
       {:ok, pair}
     else
-      error -> error
+      {:error, %{errors: [from_token: {"has already been taken", []}]}} ->
+        {:error, :exchange_pair_already_exists}
+
+      error ->
+        error
     end
   end
 
