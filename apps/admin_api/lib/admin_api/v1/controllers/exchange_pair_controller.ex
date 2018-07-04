@@ -129,11 +129,7 @@ defmodule AdminAPI.V1.ExchangePairController do
 
   @spec permit(:all | :create | :get | :update, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, %{admin_user: admin_user}, exchange_pair_id) do
-    Bodyguard.permit(ExchangePairPolicy, action, admin_user, exchange_pair_id)
-  end
-
-  defp permit(action, %{key: key}, exchange_pair_id) do
-    Bodyguard.permit(ExchangePairPolicy, action, key, exchange_pair_id)
+  defp permit(action, params, exchange_pair_id) do
+    Bodyguard.permit(ExchangePairPolicy, action, params, exchange_pair_id)
   end
 end
