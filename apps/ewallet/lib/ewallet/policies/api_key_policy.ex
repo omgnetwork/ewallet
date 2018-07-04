@@ -3,7 +3,7 @@ defmodule EWallet.APIKeyPolicy do
   The authorization policy for accounts.
   """
   @behaviour Bodyguard.Policy
-  alias EWalletDB.{Account, Membership}
+  alias EWalletDB.{Account, User}
 
   # API keys can only be managed from the master account,
   # but can be seen and used by any account.
@@ -22,7 +22,8 @@ defmodule EWallet.APIKeyPolicy do
   # Any other action requires the user to have an admin membership
   # on the master account
   def authorize(_action, %{admin_user: user}, _api_key_id) do
-    account = Account.get_master_account()
-    Membership.get_by_user_and_account(user, account) != nil
+    User.master_admin?(user.id)
   end
+
+  def authorize(_, _, _), do: false
 end

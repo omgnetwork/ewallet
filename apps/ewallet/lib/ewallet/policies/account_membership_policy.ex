@@ -23,4 +23,6 @@ defmodule EWallet.AccountMembershipPolicy do
   def authorize(:delete, %{admin_user: user}, account_id) do
     PolicyHelper.admin_authorize(user, account_id)
   end
+
+  def authorize(_, _, _), do: false
 end

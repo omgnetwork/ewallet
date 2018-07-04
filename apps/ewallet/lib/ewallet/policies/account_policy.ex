@@ -5,7 +5,7 @@ defmodule EWallet.AccountPolicy do
   @behaviour Bodyguard.Policy
   alias EWallet.PolicyHelper
   alias EWalletDB.Account
-  
+
   # Allowed for any role, filtering is
   # handled at the controller level to only return
   # allowed records. Should this be handled here?
@@ -25,4 +25,6 @@ defmodule EWallet.AccountPolicy do
   def authorize(_, %{admin_user: user}, account_id) do
     PolicyHelper.admin_authorize(user, account_id)
   end
+
+  def authorize(_, _, _), do: false
 end

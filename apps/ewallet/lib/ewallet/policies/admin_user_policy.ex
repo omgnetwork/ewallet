@@ -32,6 +32,8 @@ defmodule EWallet.AdminUserPolicy do
     PolicyHelper.admin_authorize(admin_user, account_uuids)
   end
 
+  def authorize(_, _, _), do: false
+
   defp membership_account_uuids(user) do
     user
     |> Membership.all_by_user()
