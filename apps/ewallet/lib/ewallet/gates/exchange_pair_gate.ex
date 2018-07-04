@@ -3,21 +3,23 @@ defmodule EWallet.ExchangePairGate do
   Handles the logic for manipulating an exchange pair.
   """
   alias EWallet.UUIDFetcher
-  alias EWalletDB.ExchangePair
+  alias EWalletDB.{ExchangePair, Repo}
 
   @doc """
   Inserts an exchange pair.
   """
-  @spec insert(map()) :: {:ok, [%ExchangePair{}]} | {:error, any()}
+  @spec insert(map()) :: {:ok, [%ExchangePair{}]} | {:error, atom() | Ecto.Changeset.t()}
   def insert(attrs) do
-    with {:ok, direct} <- insert(:direct, attrs),
-         {:ok, opposite} <- insert(:opposite, attrs),
-         pairs <- [direct, opposite],
-         pairs <- Enum.reject(pairs, &is_nil/1) do
-      {:ok, pairs}
-    else
-      error -> error
-    end
+    Repo.transaction(fn ->
+      with {:ok, direct} <- insert(:direct, attrs),
+           {:ok, opposite} <- insert(:opposite, attrs),
+           pairs <- [direct, opposite],
+           pairs <- Enum.reject(pairs, &is_nil/1) do
+        pairs
+      else
+        {:error, error} -> Repo.rollback(error)
+      end
+    end)
   end
 
   # Only inserts the direct pair
