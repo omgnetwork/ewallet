@@ -6,7 +6,7 @@ import { Icon } from '../omg-uikit'
 import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 import { MarkContainer } from '../omg-page-transaction'
 const PanelContainer = styled.div`
@@ -76,28 +76,33 @@ class TransactionRequestPanel extends Component {
     })
   }
   renderTransactionInfo = (transaction, title) => {
+    const address = _.get(transaction, 'address')
+    const accountName = _.get(transaction, 'account.name')
+    const accountId = _.get(transaction, 'account.id')
+    const tokenId = _.get(transaction, 'token.id')
+    const createLink = path => `/${accountId}/${path}`
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
         <InformationItem>
           <b>Wallet Address : </b>
-          <Link to='/'>{_.get(transaction, 'address')}</Link>
+          <Link to={createLink(`wallet/${address}`)}>{address}</Link>
         </InformationItem>
         {_.get(transaction, 'account') && (
           <InformationItem>
             <b>Account : </b>
-            <Link to='/'>{_.get(transaction, 'account.name')}</Link>
+            <Link to={createLink(`account/${accountId}`)}>{accountName}</Link>
           </InformationItem>
         )}
         {_.get(transaction, 'user') && (
           <InformationItem>
             <b>User : </b>
-            <Link to='/'>{_.get(transaction, 'user.id')}</Link>
+            <Link to={createLink(`account/${accountId}`)}>{_.get(transaction, 'user.id')}</Link>
           </InformationItem>
         )}
         <InformationItem>
           <b>Token : </b>
-          <Link to='/'>{_.get(transaction, 'token.name')}</Link>
+          <Link to={createLink(`token/${tokenId}`)}>{_.get(transaction, 'token.name')}</Link>
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
@@ -115,7 +120,6 @@ class TransactionRequestPanel extends Component {
       <TransactionProvider
         transactionId={queryString.parse(this.props.location.search)['show-transaction-tab']}
         render={({ transaction }) => {
-          console.log(transaction)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />

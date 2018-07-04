@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 export const formatNumber = number => {
-  return new BigNumber(number).format()
+  return new BigNumber(number).toFormat()
 }
 
 export const formatSendAmountToTotal = (amount, subUnitToUnit) => {
