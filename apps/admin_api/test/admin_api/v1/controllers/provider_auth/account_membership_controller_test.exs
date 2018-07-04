@@ -159,6 +159,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
+
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation"
     end
@@ -238,6 +239,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
+
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation"
     end

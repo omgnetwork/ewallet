@@ -76,7 +76,8 @@ defmodule AdminAPI.V1.APIKeyController do
       error when is_atom(error) ->
         handle_error(conn, error)
 
-      {:error, code} -> handle_error(conn, code)
+      {:error, code} ->
+        handle_error(conn, code)
 
       {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)

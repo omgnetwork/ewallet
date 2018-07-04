@@ -49,7 +49,7 @@ defmodule AdminAPI.V1.AdminUserController do
   def get(conn, %{"id" => user_id}) do
     with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, user) do
-     respond_single(user, conn)
+      respond_single(user, conn)
     else
       {:error, error} -> handle_error(conn, error)
     end

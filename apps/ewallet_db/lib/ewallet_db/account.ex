@@ -433,7 +433,7 @@ defmodule EWalletDB.Account do
 
     {:ok, result} =
       Repo.query(
-      "
+        "
         WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
           SELECT current_account.uuid, current_account.id, current_account.name,
                  current_account.parent_uuid, 0 AS depth, current_account.uuid::TEXT AS path

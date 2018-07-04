@@ -15,6 +15,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
       {:error, error} -> handle_error(conn, error)
     end
   end
+
   def get_users(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp do_get_users(conn, %Account{} = account) do
