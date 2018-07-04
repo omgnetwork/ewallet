@@ -20,6 +20,7 @@ import { walletsReducer, walletsLoadingStatusReducer } from '../omg-wallet/reduc
 import { categoriesLoadingStatusReducer, categoriesReducer } from '../omg-account-category/reducer'
 import { loadingBarReducer } from 'react-redux-loading-bar'
 import { cacheReducer } from '../omg-cache/reducer'
+import {exchangePairsReducer} from '../omg-exchange-pair/reducer'
 export default combineReducers({
   app: appReducer,
   loadingBar: loadingBarReducer,
@@ -51,5 +52,6 @@ export default combineReducers({
   walletsLoadingStatus: walletsLoadingStatusReducer,
   categories: categoriesReducer,
   categoriesLoadingStatus: categoriesLoadingStatusReducer,
+  exchangePairs: exchangePairsReducer,
   cacheQueries: cacheReducer
 })

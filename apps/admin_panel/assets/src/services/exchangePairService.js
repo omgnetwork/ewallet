@@ -1,6 +1,6 @@
 import { authenticatedRequest } from './apiService'
 
-export function getExchangePairs ({ perPage, sort, search, ...rest }) {
+export function getExchangePairs ({ perPage, sort, search, searchTerms }) {
   return authenticatedRequest({
     path: '/exchange_pair.all',
     data: {
@@ -8,7 +8,7 @@ export function getExchangePairs ({ perPage, sort, search, ...rest }) {
       sort_by: sort.by,
       sort_dir: sort.dir,
       search_term: search,
-      ...rest
+      search_terms: searchTerms
     }
   })
 }
