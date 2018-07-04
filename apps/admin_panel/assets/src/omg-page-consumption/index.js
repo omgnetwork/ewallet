@@ -97,7 +97,7 @@ class ConsumptionPage extends Component {
       return `${formatNumber(data / rows.token.subunit_to_unit || 0)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
-      return rows.user_id || rows.account.name || rows.account_id
+      return rows.user_id || _.get(rows, 'account.name') || rows.account_id
     }
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
