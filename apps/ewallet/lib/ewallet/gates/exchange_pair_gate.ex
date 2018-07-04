@@ -37,7 +37,7 @@ defmodule EWallet.ExchangePairGate do
   end
 
   # Only inserts the opposite pair if explicitly requested
-  defp insert(:opposite, %{"create_opposite" => true} = attrs) do
+  defp insert(:opposite, %{"sync_opposite" => true} = attrs) do
     opposite_attrs =
       attrs
       |> Map.put("name", attrs["name"] <> " (opposite pair)")
@@ -53,14 +53,52 @@ defmodule EWallet.ExchangePairGate do
   @doc """
   Updates an exchange pair.
   """
-  @spec update(String.t(), map()) :: {:ok, %ExchangePair{}} | {:error, any()}
+  @spec update(String.t(), map()) ::
+          {:ok, [%ExchangePair{}]} | {:error, atom() | Ecto.Changeset.t()}
   def update(id, attrs) do
-    with %{} = attrs <- UUIDFetcher.replace_external_ids(attrs),
-         %ExchangePair{} = pair <- ExchangePair.get(id) || {:error, :exchange_pair_id_not_found},
-         {:ok, updated} <- ExchangePair.update(pair, attrs) do
-      {:ok, updated}
-    else
-      error -> error
+    Repo.transaction(fn ->
+      with {:ok, direct} <- update(:direct, id, attrs),
+           {:ok, opposite} <- update(:opposite, direct, attrs),
+           pairs <- [direct, opposite],
+           pairs <- Enum.reject(pairs, &is_nil/1) do
+        pairs
+      else
+        {:error, error} -> Repo.rollback(error)
+      end
+    end)
+  end
+
+  # Only updates the direct pair
+  defp update(:direct, id, attrs) do
+    case ExchangePair.get(id) do
+      nil ->
+        {:error, :exchange_pair_id_not_found}
+
+      pair ->
+        ExchangePair.update(pair, attrs)
     end
+  end
+
+  # Only updates the opposite pair if explicitly requested
+  defp update(:opposite, direct_pair, %{"sync_opposite" => true} = direct_attrs) do
+    case get_opposite_pair(direct_pair) do
+      nil ->
+        {:error, :exchange_opposite_pair_not_found}
+
+      opposite_pair ->
+        case direct_attrs["rate"] do
+          nil ->
+            ExchangePair.touch(opposite_pair)
+
+          rate ->
+            ExchangePair.update(opposite_pair, %{"rate" => 1 / rate})
+        end
+    end
+  end
+
+  defp update(:opposite, _, _), do: {:ok, nil}
+
+  defp get_opposite_pair(pair) do
+    ExchangePair.get_by(from_token_uuid: pair.to_token_uuid, to_token_uuid: pair.from_token_uuid)
   end
 end

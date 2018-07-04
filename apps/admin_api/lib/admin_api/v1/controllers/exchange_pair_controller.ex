@@ -95,9 +95,9 @@ defmodule AdminAPI.V1.ExchangePairController do
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
-         {:ok, updated} <- ExchangePairGate.update(id, attrs),
-         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
-      render(conn, :exchange_pair, %{exchange_pair: updated})
+         {:ok, pairs} <- ExchangePairGate.update(id, attrs),
+         {:ok, pairs} <- Preloader.preload_all(pairs, @preload_fields) do
+      render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)

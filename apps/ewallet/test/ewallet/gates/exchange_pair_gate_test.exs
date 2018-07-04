@@ -1,6 +1,7 @@
 defmodule EWallet.ExchangePairGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.ExchangePairGate
+  alias EWalletDB.{ExchangePair, Repo}
 
   describe "insert/2" do
     test "inserts an exchange pair" do
@@ -25,7 +26,7 @@ defmodule EWallet.ExchangePairGateTest do
       assert Enum.at(pairs, 0).rate == 2.0
     end
 
-    test "inserts an exchange pair along with its opposite pair if requested" do
+    test "inserts an exchange pair and its opposite when sync_opposite: true" do
       eth = insert(:token)
       omg = insert(:token)
 
@@ -35,7 +36,7 @@ defmodule EWallet.ExchangePairGateTest do
           "rate" => 2.0,
           "from_token_id" => eth.id,
           "to_token_id" => omg.id,
-          "create_opposite" => true
+          "sync_opposite" => true
         })
 
       assert res == :ok
@@ -95,6 +96,23 @@ defmodule EWallet.ExchangePairGateTest do
       assert Enum.count(pairs) == 1
       assert Enum.at(pairs, 0).name == "Test pair updated"
       assert Enum.at(pairs, 0).rate == 999
+    end
+
+    test "updates an exchange pair and its opposite when sync_opposite: true" do
+      pair = insert(:exchange_pair)
+      _opposite_pair = insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token)
+
+      {res, pairs} =
+        ExchangePairGate.update(pair.id, %{
+          "name" => "Test pair updated",
+          "rate" => 999,
+          "sync_opposite" => true
+        })
+
+      assert res == :ok
+      assert Enum.count(pairs) == 2
+      assert Enum.any?(pairs, fn p -> p.rate == 999 end)
+      assert Enum.any?(pairs, fn p -> p.rate == 1 / 999 end)
     end
 
     test "rollbacks if an error occurred along the way" do

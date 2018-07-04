@@ -1,5 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
   use AdminAPI.ConnCase, async: true
+  alias EWalletDB.Repo
 
   describe "/exchange_pair.all" do
     test "returns a list of exchange pairs and pagination data" do
@@ -108,7 +109,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
         from_token_id: insert(:token).id,
         to_token_id: insert(:token).id,
         rate: 2.0,
-        create_opposite: true
+        sync_opposite: true
       }
 
       response = admin_user_request("/exchange_pair.create", request_data)
@@ -163,7 +164,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
 
   describe "/exchange_pair.update" do
     test "updates the given exchange pair" do
-      exchange_pair = insert(:exchange_pair)
+      exchange_pair = :exchange_pair |> insert() |> Repo.preload([:from_token, :to_token])
 
       assert exchange_pair.name != "updated name"
       assert exchange_pair.rate != 999.99
@@ -178,9 +179,15 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       response = provider_request("/exchange_pair.update", request_data)
 
       assert response["success"] == true
-      assert response["data"]["object"] == "exchange_pair"
-      assert response["data"]["name"] == "updated name"
-      assert response["data"]["rate"] == 999.99
+      assert response["data"]["object"] == "list"
+
+      pair = Enum.at(response["data"]["data"], 0)
+
+      assert pair["object"] == "exchange_pair"
+      assert pair["name"] == request_data.name
+      assert pair["from_token_id"] == exchange_pair.from_token.id
+      assert pair["to_token_id"] == exchange_pair.to_token.id
+      assert pair["rate"] == 999.99
     end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
