@@ -65,6 +65,4 @@ defmodule EWallet.Helper do
       Enum.member?(enumerable, element)
     end)
   end
-
-  def intersect(a, b), do: a -- a -- b
 end

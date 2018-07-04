@@ -18,7 +18,7 @@ defmodule AdminAPI.V1.ErrorHandler do
     },
     unauthorized: %{
       code: "unauthorized",
-      description: "The user is not allowed to perform the requested operation"
+      description: "You are not allowed to perform the requested operation"
     },
     access_key_unauthorized: %{
       code: "access_key:unauthorized",

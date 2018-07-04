@@ -105,8 +105,8 @@ defmodule AdminAPI.V1.Router do
     )
 
     # Admin endpoints
-    post("/admin.all", AdminController, :all)
-    post("/admin.get", AdminController, :get)
+    post("/admin.all", AdminUserController, :all)
+    post("/admin.get", AdminUserController, :get)
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)

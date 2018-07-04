@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AdminAuth.AdminControllerTest do
+defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
 
@@ -69,10 +69,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "returns 'user:id_not_found' if the given ID was not found" do
@@ -80,10 +77,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "returns 'user:id_not_found' if the given ID format is invalid" do
@@ -91,10 +85,8 @@ defmodule AdminAPI.V1.AdminAuth.AdminControllerTest do
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
+      assert response["data"]["description"] == "You are not allowed to perform the requested operation"
     end
   end
 end

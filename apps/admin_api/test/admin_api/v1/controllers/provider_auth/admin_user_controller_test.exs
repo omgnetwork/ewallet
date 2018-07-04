@@ -63,38 +63,29 @@ defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
       assert response["data"]["email"] == admin.email
     end
 
-    test "returns 'user:id_not_found' if the given ID is not an admin" do
+    test "returns 'unauthorized' if the given ID is not an admin" do
       user = insert(:user)
       response = provider_request("/admin.get", %{"id" => user.id})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test "returns 'user:id_not_found' if the given ID was not found" do
+    test "returns 'unauthorized' if the given ID was not found" do
       response = provider_request("/admin.get", %{"id" => UUID.generate()})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test "returns 'user:id_not_found' if the given ID format is invalid" do
+    test "returns 'unauthorized' if the given ID format is invalid" do
       response = provider_request("/admin.get", %{"id" => "not_valid_id_format"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 end

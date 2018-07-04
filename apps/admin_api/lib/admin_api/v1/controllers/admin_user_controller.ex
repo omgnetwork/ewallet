@@ -1,7 +1,9 @@
-defmodule AdminAPI.V1.AdminController do
+defmodule AdminAPI.V1.AdminUserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.AccountHelper
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
+  alias EWallet.AdminUserPolicy
   alias AdminAPI.V1.UserView
   alias EWalletDB.{User, UserQuery}
 
@@ -25,26 +27,32 @@ defmodule AdminAPI.V1.AdminController do
   @sort_fields [:id, :email, :inserted_at, :updated_at]
 
   @doc """
-  Retrieves a list of admins.
+  Retrieves a list of admins that the current user/key has access to.
   """
   def all(conn, attrs) do
-    User
-    |> UserQuery.where_has_membership()
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
+    with :ok <- permit(:all, conn.assigns, nil),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
+      account_uuids
+      |> UserQuery.where_has_membership_in_accounts(User)
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
   end
 
   @doc """
   Retrieves a specific admin by its id.
   """
-  def get(conn, %{"id" => id}) do
-    query = UserQuery.where_has_membership()
-
-    id
-    |> User.get(query)
-    |> respond_single(conn)
+  def get(conn, %{"id" => user_id}) do
+    with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, user) do
+     respond_single(user, conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
   end
 
   # Respond with a list of admins
@@ -64,5 +72,11 @@ defmodule AdminAPI.V1.AdminController do
   # Responds when the admin is not found
   defp respond_single(nil, conn) do
     handle_error(conn, :user_id_not_found)
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, user) do
+    Bodyguard.permit(AdminUserPolicy, action, params, user)
   end
 end
