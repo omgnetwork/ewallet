@@ -10,6 +10,8 @@ defmodule EWalletDB.ExchangePairTest do
     test_insert_generate_uuid(ExchangePair, :uuid)
     test_insert_generate_external_id(ExchangePair, :id, "exg_")
     test_insert_prevent_blank(ExchangePair, :name)
+    test_insert_prevent_blank(ExchangePair, :from_token_uuid)
+    test_insert_prevent_blank(ExchangePair, :to_token_uuid)
     test_insert_prevent_blank(ExchangePair, :rate)
     test_insert_generate_timestamps(ExchangePair)
 

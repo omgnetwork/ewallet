@@ -115,6 +115,8 @@ defmodule EWallet.ExchangePairGateTest do
       assert Enum.any?(pairs, fn p -> p.rate == 1 / 999 end)
     end
 
+    test "touches the opposite pair if rate did not change when sync_opposite: true"
+
     test "rollbacks if an error occurred along the way" do
       eth = insert(:token)
       omg = insert(:token)
@@ -154,5 +156,12 @@ defmodule EWallet.ExchangePairGateTest do
       assert res == :error
       assert code == :exchange_pair_id_not_found
     end
+  end
+
+  describe "delete/1" do
+    test "deletes the exchange pair"
+    test "updates the exchange pair and its opposite when sync_opposite: true"
+    test "rollbacks if an error occured along the way"
+    test "returns :exchange_pair_id_not_found error if the exchange pair is not found"
   end
 end

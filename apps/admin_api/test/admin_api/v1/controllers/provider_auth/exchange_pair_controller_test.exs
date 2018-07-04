@@ -190,6 +190,8 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert pair["rate"] == 999.99
     end
 
+    test "updates the opposite pair when given sync_opposite: true"
+
     test "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:exchange_pair, %{id: nil})
       response = provider_request("/exchange_pair.update", request_data)
@@ -240,6 +242,8 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["object"] == "exchange_pair"
       assert response["data"]["id"] == exchange_pair.id
     end
+
+    test "deletes the opposite pair when sync_opposite: true"
 
     test "responds with an error if the provided id is not found" do
       response = provider_request("/exchange_pair.delete", %{id: "wrong_id"})
