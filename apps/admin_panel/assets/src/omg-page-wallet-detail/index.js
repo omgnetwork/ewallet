@@ -10,14 +10,10 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
-  b {
-    width: 150px;
-    display: inline-block;
-  }
 `
 const ContentDetailContainer = styled.div`
   margin-top: 40px;
@@ -109,7 +105,7 @@ class WalletDetaillPage extends Component {
           return (
             <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b>{' '}
-              <span>{formatRecieveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}</span> {balance.token.symbol}
+              <span>{formatRecieveAmountToTotal(balance.amount, balance.token.subunit_to_unit)} {balance.token.symbol}</span>
             </DetailGroup>
           )
         })}

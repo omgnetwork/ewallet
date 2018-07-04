@@ -113,7 +113,7 @@ class TokenDetailPage extends Component {
                 {this.renderTopBar(token)}
                 <ContentDetailContainer>
                   <DetailContainer>{this.renderDetail(token)}</DetailContainer>
-                  <DetailContainer>{this.renderExchangeRate(token)}</DetailContainer>
+                  {this.renderExchangeRate(token)}
                 </ContentDetailContainer>
               </ContentContainer>
               <MintTokenModal

@@ -9,7 +9,7 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import { LoadingSkeleton } from '../omg-uikit'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;

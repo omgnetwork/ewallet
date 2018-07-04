@@ -3,7 +3,6 @@ export const selectExchangePairs = state => {
 }
 
 export const selectExchangePairsByFromTokenId = state => fromTokenId => {
-  console.log(_.values(state.exchangePairs).map(x => x))
   return _.values(state.exchangePairs).filter(e => e.from_token_id === fromTokenId)
 }
 

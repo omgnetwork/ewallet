@@ -17,6 +17,18 @@ export const tokensReducer = createReducer(
   }
 )
 
+export const mintedTokenHistoryReducer = createReducer(
+  {},
+  {
+    'TOKEN_HISTORY/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, ..._.keyBy(data, 'id') }
+    },
+    'CURRENT_ACCOUNT/SWITCH': () => {
+      return {}
+    }
+  }
+)
+
 export const tokensLoadingStatusReducer = createReducer('DEFAULT', {
   'TOKENS/REQUEST/INITIATED': (state, action) => 'INITIATED',
   'TOKENS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',

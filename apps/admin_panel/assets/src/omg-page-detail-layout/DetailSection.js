@@ -30,7 +30,7 @@ export const DetailGroup = styled.div`
   color: ${props => props.theme.colors.B200};
   b {
     color: ${props => props.theme.colors.B400};
-    width: 150px;
+    width: 200px;
     display: inline-block;
   }
   h5 {
