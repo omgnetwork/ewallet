@@ -121,6 +121,10 @@ defmodule EWalletDB.ExchangePairTest do
     test_restore_causes_record_undeleted(ExchangePair)
   end
 
+  describe "touch/1" do
+    test "touches the exchange pair's updated_at"
+  end
+
   describe "fetch_exchangable_pair/3" do
     test "returns {:ok, pair} if the tokens match a pair" do
       omg = insert(:token)

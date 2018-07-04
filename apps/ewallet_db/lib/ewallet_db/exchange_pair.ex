@@ -147,6 +147,16 @@ defmodule EWalletDB.ExchangePair do
   def restore(exchange_pair), do: SoftDelete.restore(exchange_pair)
 
   @doc """
+  Touches the given exchange pair and updates `updated_at` to the current date & time.
+  """
+  @spec touch(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def touch(exchange_pair) do
+    exchange_pair
+    |> change()
+    |> Repo.update(force: true)
+  end
+
+  @doc """
   Retrieves an exchange pair using `from_token` and `to_token`.
 
   If an exchange pair is found, `{:ok, pair}` is returned.
