@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
 import { withRouter } from 'react-router-dom'
 import TokenProvider from '../omg-token/TokenProvider'
+import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
 import { compose } from 'recompose'
 import { Button } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
@@ -59,13 +60,17 @@ class TokenDetailPage extends Component {
         title={token.name}
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
-          <Button size='small' styleType='secondary' onClick={this.onClickCreateExchangeRate} key='rate'>
+          <Button
+            size='small'
+            styleType='secondary'
+            onClick={this.onClickCreateExchangeRate}
+            key='rate'
+          >
             <span>Create Rate</span>
           </Button>,
           <Button size='small' onClick={this.onClickMintTopen} key='mint'>
             <span>Mint Token</span>
           </Button>
-
         ]}
       />
     )
@@ -73,6 +78,9 @@ class TokenDetailPage extends Component {
   renderDetail = token => {
     return (
       <Section title='DETAILS'>
+        <DetailGroup>
+          <b>Name:</b> <span>{token.name}</span>
+        </DetailGroup>
         <DetailGroup>
           <b>Symbol:</b> <span>{token.symbol}</span>
         </DetailGroup>
@@ -94,44 +102,59 @@ class TokenDetailPage extends Component {
       </Section>
     )
   }
-  renderAccountDetailContainer = token => {
+  renderAccountDetail = () => {
     const accountId = this.props.match.params.accountId
     return (
-      <DetailLayout backPath={`/${accountId}/token`}>
-        <ContentContainer>
-          {this.renderTopBar(token)}
-          <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(token)}</DetailContainer>
-          </ContentDetailContainer>
-        </ContentContainer>
-        <MintTokenModal
-          token={token}
-          onRequestClose={this.onRequestClose}
-          open={this.state.mintTokenModalOpen}
-        />
-        <ExchangeRateModal
-          onRequestClose={this.onRequestClose}
-          open={this.state.exchangeRateModalOpen}
-        />
-      </DetailLayout>
+      <TokenProvider
+        render={({ token }) => {
+          return token ? (
+            <DetailLayout backPath={`/${accountId}/token`}>
+              <ContentContainer>
+                {this.renderTopBar(token)}
+                <ContentDetailContainer>
+                  <DetailContainer>{this.renderDetail(token)}</DetailContainer>
+                  <DetailContainer>{this.renderExchangeRate(token)}</DetailContainer>
+                </ContentDetailContainer>
+              </ContentContainer>
+              <MintTokenModal
+                token={token}
+                onRequestClose={this.onRequestClose}
+                open={this.state.mintTokenModalOpen}
+              />
+              <ExchangeRateModal
+                onRequestClose={this.onRequestClose}
+                open={this.state.exchangeRateModalOpen}
+                fromTokenId={token.id}
+              />
+            </DetailLayout>
+          ) : null
+        }}
+        tokenId={this.props.match.params.viewTokenId}
+      />
+    )
+  }
+  renderExchangeRate = (token) => {
+    return (
+      <ExchangePairsProvider
+        fromTokenId={this.props.match.params.viewTokenId}
+        render={({ exchangePairs }) => {
+          return exchangePairs.length ? (
+            <DetailContainer>
+              <Section title={`RATES`}>
+                <h5>1 {token.name} :</h5>
+                {exchangePairs.map(pair => {
+                  return <DetailGroup><b>{_.get(pair, 'to_token.name')}</b>{pair.rate} {_.get(pair, 'to_token.symbol')}</DetailGroup>
+                })}
+              </Section>
+            </DetailContainer>
+          ) : null
+        }}
+      />
     )
   }
 
-  renderTokenDetailPage = ({ token, loadingStatus }) => {
-    return (
-      <AccountDetailContainer>
-        {token && this.renderAccountDetailContainer(token)}
-      </AccountDetailContainer>
-    )
-  }
   render () {
-    return (
-      <TokenProvider
-        render={this.renderTokenDetailPage}
-        tokenId={this.props.match.params.viewTokenId}
-        {...this.state}
-      />
-    )
+    return <AccountDetailContainer>{this.renderAccountDetail()}</AccountDetailContainer>
   }
 }
 

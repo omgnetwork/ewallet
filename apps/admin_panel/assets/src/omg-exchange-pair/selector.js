@@ -1,9 +1,10 @@
 export const selectExchangePairs = state => {
-  return _.values(state.exchangePair)
+  return _.values(state.exchangePairs)
 }
 
 export const selectExchangePairsByFromTokenId = state => fromTokenId => {
-  return _.values(state.exchangePair).filter(e => e.frokTokenId === fromTokenId)
+  console.log(_.values(state.exchangePairs).map(x => x))
+  return _.values(state.exchangePairs).filter(e => e.from_token_id === fromTokenId)
 }
 
 export const selectExchangePairCachedQuery = state => cacheKey => {

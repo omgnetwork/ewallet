@@ -63,7 +63,7 @@ const Error = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    (state, props) => ({ fromTokenPrefill: selectGetTokenById(state)(props.fromTokenId) }),
+    (state, props) => ({ fromTokenPrefill: selectGetTokenById(state)(props.fromTokenId)}),
     { createExchangePair }
   )
 )
@@ -81,10 +81,11 @@ class CreateExchangeRateModal extends Component {
       _.get(state, 'fromToken.id') !== props.fromTokenId &&
       props.fromTokenId !== undefined
     ) {
-      this.setState({
-        fromToken: props.fromTokenPrefill,
-        fromTokenSearch: `${props.fromTokenPrefill.name} (${props.fromTokenPrefill.symbol})`
-      })
+      return {
+        fromTokenSelected: props.fromTokenPrefill,
+        fromTokenSearch: `${props.fromTokenPrefill.name} (${props.fromTokenPrefill.symbol})`,
+        fromTokenRate: 1
+      }
     }
     return null
   }
@@ -96,7 +97,7 @@ class CreateExchangeRateModal extends Component {
     this.setState({ [`${type}Rate`]: e.target.value })
   }
   onChangeSearchToken = type => e => {
-    this.setState({ [`${type}Search`]: e.target.value })
+    this.setState({ [`${type}Search`]: e.target.value, [`${type}Selected`]: null })
   }
   onSelectTokenSelect = type => token => {
     this.setState({ [`${type}Search`]: token.value, [`${type}Selected`]: token })
@@ -104,11 +105,12 @@ class CreateExchangeRateModal extends Component {
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
+    console.log(this.state)
     try {
       const result = await this.props.createExchangePair({
         name: this.state.name,
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
-        toTokenId: _.get(this.state, 'fromTokenSelected.id'),
+        toTokenId: _.get(this.state, 'toTokenSelected.id'),
         rate: Number(this.state.fromTokenRate) / Number(this.state.toTokenRate)
       })
       if (result.data) {

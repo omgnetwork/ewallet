@@ -24,6 +24,7 @@ export const getExchangePairs = ({ search, page, perPage, searchTerms }) => asyn
       perPage,
       page,
       search,
+      searchTerms,
       sort: { by: 'created_at', dir: 'desc' }
     })
     if (result.data.success) {
