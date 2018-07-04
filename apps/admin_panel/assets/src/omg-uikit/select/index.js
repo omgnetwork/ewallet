@@ -58,7 +58,7 @@ export default class Select extends Component {
   }
   render () {
     const filteredOption = this.props.options.filter(option => {
-      return fuzzySearch(this.props.value, option.value)
+      return fuzzySearch(this.props.value, option.key)
     })
     return (
       <SelectContainer>

@@ -216,7 +216,7 @@ class CreateTransactionRequest extends Component {
                       individualLoadingStatus === 'SUCCESS'
                         ? data.map(b => ({
                           ...{
-                            key: b.id,
+                            key: `${b.symbol}${b.name}${b.id}`,
                             value: `${b.name} (${b.symbol})`
                           },
                           ...b

@@ -316,7 +316,7 @@ class TransactionRequestPanel extends Component {
                         value={this.state.searchTokenValue}
                         options={data.map(token => ({
                           ...{
-                            key: token.id,
+                            key: `${token.symbol}${token.name}${token.id}`,
                             value: `${token.name} (${token.symbol})`
                           },
                           ...token
