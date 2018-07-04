@@ -2,29 +2,14 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import { Input, Button, Icon, Select } from '../omg-uikit'
-import Modal from 'react-modal'
+import Modal from '../omg-modal'
 import { transfer } from '../omg-transaction/action'
 import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
-const customStyles = {
-  content: {
-    top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    border: 'none',
-    padding: 0,
-    overflow: 'hidden'
-  },
-  overlay: {
-    backgroundColor: 'rgba(0,0,0,0.5)'
-  }
-}
+
 const Form = styled.form`
   padding: 50px;
   width: 350px;
@@ -126,7 +111,7 @@ class CreateTransactionModal extends Component {
         tokenId: _.get(this.state.selectedToken, 'token.id'),
         amount: this.state.amount * _.get(this.state.selectedToken, 'token.subunit_to_unit')
       })
-      if (result.success) {
+      if (result.data) {
         this.props.getWalletById(this.state.fromAddress)
         this.props.getWalletById(this.state.toAddress)
         this.onRequestClose()
@@ -137,7 +122,7 @@ class CreateTransactionModal extends Component {
         })
       }
     } catch (e) {
-      this.setState({ submitting: false, error: e.message })
+      this.setState({ error: JSON.stringify(e.message) })
     }
   }
   onRequestClose = () => {
@@ -158,7 +143,6 @@ class CreateTransactionModal extends Component {
     return (
       <Modal
         isOpen={this.props.open}
-        style={customStyles}
         onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
       >

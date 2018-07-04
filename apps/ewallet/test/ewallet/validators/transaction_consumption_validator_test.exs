@@ -49,7 +49,7 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
 
       assert request.status == "valid"
       assert token.uuid == request.token_uuid
-      assert amount == request.amount
+      assert amount == nil
     end
   end
 
@@ -245,13 +245,24 @@ defmodule EWallet.TransactionConsumptionValidatorTest do
       assert code == :token_not_found
     end
 
-    test "returns a invalid_token_provided error if given a different token" do
+    test "returns a invalid_token_provided error if given a different token without pair" do
       request = insert(:transaction_request)
       token = insert(:token)
 
       {:error, code} = TransactionConsumptionValidator.get_and_validate_token(request, token.id)
 
-      assert code == :invalid_token_provided
+      assert code == :exchange_pair_not_found
+    end
+
+    test "returns a invalid_token_provided error if given a different token with pair" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      _pair = insert(:exchange_pair, from_token: token_1, to_token: token_2)
+      request = insert(:transaction_request, token_uuid: token_1.uuid)
+
+      {:error, code} = TransactionConsumptionValidator.get_and_validate_token(request, token_2.id)
+
+      assert code == :exchange_pair_not_found
     end
 
     test "returns the specified token if valid" do

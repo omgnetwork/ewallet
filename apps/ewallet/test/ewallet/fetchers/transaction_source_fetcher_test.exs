@@ -96,7 +96,7 @@ defmodule EWallet.TransactionSourceFetcherTest do
         })
 
       assert res == :error
-      assert data == :from_address_mismatch
+      assert data == :account_from_address_mismatch
     end
 
     test "returns error when account does not exist" do

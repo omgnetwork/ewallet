@@ -454,7 +454,7 @@ defmodule EWalletDB.User do
     |> Repo.all()
   end
 
-  @spec get_membership_account_uuids(%User{}) :: List.t()
+  @spec get_membership_account_uuids(%User{}) :: List.t() | no_return()
   def get_membership_account_uuids(user) do
     user
     |> Membership.all_by_user()

@@ -52,3 +52,21 @@ export const getAccounts = ({ page, perPage, search, cacheKey }) => async dispat
     return dispatch({ type: 'ACCOUNTS/REQUEST/FAILED', error })
   }
 }
+
+export const getAccountById = id => async dispatch => {
+  dispatch({ type: 'ACCOUNT/REQUEST/INITIATED' })
+  try {
+    const result = await accountService.getAccountById(id)
+    if (result.data.success) {
+      return dispatch({
+        type: 'ACCOUNT/REQUEST/SUCCESS',
+        data: result.data.data
+      })
+    } else {
+      return dispatch({ type: 'ACCOUNT/REQUEST/FAILED', error: result.data.data })
+    }
+  } catch (error) {
+    console.log(error)
+    return dispatch({ type: 'ACCOUNT/REQUEST/FAILED', error })
+  }
+}

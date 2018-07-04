@@ -423,7 +423,10 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption_1
       assert consumption_1.transaction_request_uuid == meta.request.uuid
-      assert consumption_1.amount == meta.request.amount
+
+      assert TransactionConsumption.get_final_amount(consumption_1) ==
+               100_000 * meta.token.subunit_to_unit
+
       assert consumption_1.wallet_address == meta.sender_wallet.address
 
       {res, consumption_2} =
@@ -435,7 +438,10 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption_2
       assert consumption_2.transaction_request_uuid == meta.request.uuid
-      assert consumption_2.amount == meta.request.amount
+
+      assert TransactionConsumption.get_final_amount(consumption_2) ==
+               100_000 * meta.token.subunit_to_unit
+
       assert consumption_2.wallet_address == meta.sender_wallet.address
 
       assert consumption_1.uuid == consumption_2.uuid
@@ -460,7 +466,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption_1
       assert consumption_1.transaction_request_uuid == meta.request.uuid
-      assert consumption_1.amount == meta.request.amount
+      assert consumption_1.amount == nil
       assert consumption_1.wallet_address == meta.sender_wallet.address
 
       {res, consumption_2} =
@@ -477,7 +483,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption_2
       assert consumption_2.transaction_request_uuid == meta.request.uuid
-      assert consumption_2.amount == meta.request.amount
+      assert consumption_2.amount == nil
       assert consumption_2.wallet_address == meta.sender_wallet.address
 
       assert consumption_1.uuid == consumption_2.uuid
@@ -558,7 +564,11 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert res == :ok
       assert %TransactionConsumption{} = consumption
       assert consumption.transaction_request_uuid == transaction_request.uuid
-      assert consumption.amount == meta.request.amount
+      assert consumption.amount == nil
+
+      assert TransactionConsumption.get_final_amount(consumption) ==
+               100_000 * meta.token.subunit_to_unit
+
       assert consumption.wallet_address == meta.sender_wallet.address
     end
 
@@ -1218,7 +1228,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
       assert error == :unauthorized_amount_override
     end
 
-    test "returns an error if the tokens are different", meta do
+    test "returns an error for user consumption with different tokens", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
       different_token = insert(:token)
 
@@ -1234,7 +1244,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == :error
-      assert error == :invalid_token_provided
+      assert error == :exchange_client_not_allowed
     end
 
     test "returns an error if the consumption tries to set an amount equal to 0", meta do
@@ -1301,7 +1311,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           amount: nil
         )
 
-      {error, changeset} =
+      {res, code, desc} =
         TransactionConsumptionConsumerGate.consume(meta.sender, %{
           "formatted_transaction_request_id" => transaction_request.id,
           "correlation_id" => nil,
@@ -1312,8 +1322,9 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
           "token_id" => nil
         })
 
-      assert error == :error
-      assert changeset.errors == [amount: {"can't be blank", [validation: :required]}]
+      assert res == :error
+      assert code == :invalid_parameter
+      assert desc == "'amount' is required for transaction consumption."
     end
 
     test "returns 'user_wallet_not_found' when address is invalid", meta do

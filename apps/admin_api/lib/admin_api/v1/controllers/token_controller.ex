@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.MintGate
+  alias EWallet.{MintGate, Helper}
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, Token, Mint}
   alias Plug.Conn
@@ -76,20 +76,35 @@ defmodule AdminAPI.V1.TokenController do
   Creates a new Token.
   """
   @spec create(Conn.t(), map()) :: map()
-  def create(conn, attrs) do
-    inserted_token =
-      attrs
-      |> Map.put("account_uuid", Account.get_master_account().uuid)
-      |> Token.insert()
+  def create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
+    attrs
+    |> Map.put("account_uuid", Account.get_master_account().uuid)
+    |> Token.insert()
+    |> MintGate.mint_token(%{"amount" => amount})
+    |> respond_single(conn)
+  end
 
+  def create(conn, %{"amount" => amount} = attrs) when is_binary(amount) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} ->
+        attrs = Map.put(attrs, "amount", amount)
+        create(conn, attrs)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+    end
+  end
+
+  def create(conn, attrs) do
     case attrs["amount"] do
-      amount when is_number(amount) and amount > 0 ->
-        inserted_token
-        |> MintGate.mint_token(%{"amount" => amount})
+      nil ->
+        attrs
+        |> Map.put("account_uuid", Account.get_master_account().uuid)
+        |> Token.insert()
         |> respond_single(conn)
 
-      _ ->
-        respond_single(inserted_token, conn)
+      amount ->
+        handle_error(conn, :invalid_parameter, "Invalid amount provided: '#{amount}'")
     end
   end
 

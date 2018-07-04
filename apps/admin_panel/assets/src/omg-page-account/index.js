@@ -18,14 +18,18 @@ const AccountPageContainer = styled.div`
   > div {
     flex: 1;
   }
-  th:first-child {
+  td:first-child {
     width: 50%;
+  }
+  td:nth-child(2),
+  td:nth-child(3) {
+    width: 25%;
   }
 `
 const SortableTableContainer = styled.div`
   position: relative;
 `
-const NameColumn = styled.div`
+export const NameColumn = styled.div`
   > span {
     margin-left: 10px;
   }
@@ -41,7 +45,15 @@ class AccountPage extends Component {
     super(props)
     this.state = {
       createAccountModalOpen: false,
-      exportModalOpen: false
+      exportModalOpen: false,
+      loadMoreTime: 1
+    }
+  }
+  componentWillReceiveProps = nextProps => {
+    const search = queryString.parse(this.props.location.search).search
+    const nextSearch = queryString.parse(nextProps.location.search).search
+    if (search !== nextSearch) {
+      this.setState({ loadMoreTime: 1 })
     }
   }
 
@@ -57,7 +69,9 @@ class AccountPage extends Component {
   onRequestCloseExport = () => {
     this.setState({ exportModalOpen: false })
   }
-
+  onClickLoadMore = e => {
+    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
+  }
   renderExportButton = () => {
     return (
       <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
@@ -117,16 +131,17 @@ class AccountPage extends Component {
     return (
       <AccountPageContainer>
         <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
-        <SortableTableContainer innerRef={table => (this.table = table)}>
+        <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
           <SortableTable
             rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}
-            loading={individualLoadingStatus === 'DEFAULT' || individualLoadingStatus === 'INITIATED'}
+            loadingStatus={individualLoadingStatus}
             rowRenderer={this.rowRenderer}
             onClickRow={this.onClickRow}
             isFirstPage={pagination.is_first_page}
             isLastPage={pagination.is_last_page}
             navigation
+            onClickLoadMore={this.onClickLoadMore}
           />
         </SortableTableContainer>
         <CreateAccountModal
@@ -147,7 +162,7 @@ class AccountPage extends Component {
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 15,
+          perPage: 10,
           search: queryString.parse(this.props.location.search).search
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

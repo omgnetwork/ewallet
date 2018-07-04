@@ -826,7 +826,11 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "address" => meta.account_wallet.address,
-                 "amount" => 100_000 * meta.token.subunit_to_unit,
+                 "amount" => nil,
+                 "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
                  "correlation_id" => nil,
                  "id" => inserted_consumption.id,
                  "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",

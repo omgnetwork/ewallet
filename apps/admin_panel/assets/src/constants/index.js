@@ -5,6 +5,7 @@ export default {
     SUCCESS: 'SUCCESS',
     FAILED: 'FAILED',
     INITIATED: 'INITIATED',
+    PENDING: 'PENDING',
     DEFAULT: 'DEFAULT'
   },
   WEBSOCKET: {

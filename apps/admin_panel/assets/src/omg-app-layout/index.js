@@ -11,16 +11,16 @@ import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
-import ReactDOM from 'react-dom'
 import LoadingBar from 'react-redux-loading-bar'
 const Container = styled.div`
   height: 100%;
   position: relative;
+  display: flex;
 `
 const SideNav = styled(SideNavigation)`
   display: inline-block;
-  width: 220px;
   vertical-align: top;
+  flex: 1 0 auto;
 `
 
 const ContentContainer = styled.div`
@@ -71,7 +71,7 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
       return (
         <AccountsFetcher
           query={{ search: this.state.searchValue, perPage: 20, page: 1 }}
-          render={({ accounts }) => {
+          render={({ data: accounts }) => {
             return (
               <AccountSelectorMenu
                 accounts={accounts}
@@ -103,7 +103,7 @@ class AppLayout extends Component {
     this.setState({ switchAccount: true })
   }
   scrollTopContentContainer = () => {
-    ReactDOM.findDOMNode(this.contentContainer).scrollTo(0, 0)
+    this.contentContainer.scrollTo(0, 0)
   }
   render () {
     return (

@@ -348,8 +348,7 @@ defmodule EWalletDB.Account do
   def descendant?(ancestor, descendant_id) do
     ancestor
     |> get_all_descendants()
-    |> Enum.map(fn descendant -> descendant.id end)
-    |> Enum.member?(descendant_id)
+    |> Enum.any?(fn descendant -> descendant.id == descendant_id end)
   end
 
   @spec get_all_descendants_uuids(%Account{} | List.t()) :: List.t()

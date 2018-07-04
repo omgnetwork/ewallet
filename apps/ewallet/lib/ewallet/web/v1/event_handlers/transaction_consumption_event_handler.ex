@@ -73,11 +73,12 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
 
     case consumption.status do
       "failed" ->
-        transaction = consumption.transaction
-
         %{
-          code: transaction.error_code,
-          description: transaction.error_description || transaction.error_data
+          code: consumption.error_code || Assoc.get(consumption, [:transaction, :error_code]),
+          description:
+            consumption.error_description ||
+              Assoc.get(consumption, [:transaction, :error_description]) ||
+              Assoc.get(consumption, [:transaction, :error_data])
         }
 
       "expired" ->

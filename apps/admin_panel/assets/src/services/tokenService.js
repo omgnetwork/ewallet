@@ -1,14 +1,13 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAllTokens ({ perPage, sort, query, ...rest }) {
+export function getAllTokens ({ perPage, sort, search, ...rest }) {
   return authenticatedRequest({
     path: '/token.all',
     data: {
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      ...rest
+      search_term: search
     }
   })
 }
@@ -29,5 +28,12 @@ export function mintToken ({ id, amount }) {
   return authenticatedRequest({
     path: '/token.mint',
     data: { id, amount: Number(amount) }
+  })
+}
+
+export function getTokenById (id) {
+  return authenticatedRequest({
+    path: '/token.get',
+    data: { id }
   })
 }

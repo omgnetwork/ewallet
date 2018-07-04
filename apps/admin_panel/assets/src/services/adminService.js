@@ -1,4 +1,4 @@
-import { authenticatedRequest, authenticatedMultipartRequest } from './apiService'
+import { authenticatedRequest, authenticatedMultipartRequest, unAuthenticatedRequest } from './apiService'
 
 export function getAllAdmins ({ perPage, sort, query, ...rest }) {
   return authenticatedRequest({
@@ -24,7 +24,7 @@ export function uploadAvatar ({ id, avatar }) {
 }
 
 export function createAdmin ({ resetToken, password, passwordConfirmation, email }) {
-  return authenticatedRequest({
+  return unAuthenticatedRequest({
     path: '/invite.accept',
     data: {
       email,

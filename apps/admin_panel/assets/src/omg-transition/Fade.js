@@ -1,15 +1,18 @@
 import { CSSTransition } from 'react-transition-group'
 import React, { Component } from 'react'
-
+import PropTypes from 'prop-types'
 class Fade extends Component {
-
+  static propTypes = {
+    children: PropTypes.node
+  }
   render () {
     return (
       <CSSTransition
-        key={this.props}
         {...this.props}
-        classNames='example'
-      />
+        classNames='fade'
+      >
+        {this.props.children}
+      </CSSTransition>
     )
   }
 }
