@@ -10,7 +10,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
     UserSerializer,
     AccountSerializer,
     ExchangePairSerializer,
-    WalletSerializer
+    WalletSerializer,
+    ErrorHandler
   }
 
   alias EWallet.Web.{Date, Paginator}
@@ -34,6 +35,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
         :exchange_account,
         :exchange_wallet
       ])
+
+    error = build_error(transaction)
 
     %{
       object: "transaction",
@@ -75,6 +78,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       metadata: transaction.metadata || %{},
       encrypted_metadata: transaction.encrypted_metadata || %{},
       status: transaction.status,
+      error_code: error[:code],
+      error_description: error[:description],
       created_at: Date.to_iso8601(transaction.inserted_at),
       updated_at: Date.to_iso8601(transaction.updated_at)
     }
@@ -82,4 +87,15 @@ defmodule EWallet.Web.V1.TransactionSerializer do
 
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
+  defp build_error(%Transaction{error_code: nil}), do: nil
+
+  defp build_error(%Transaction{error_code: code, error_description: desc, error_data: data})
+       when not is_nil(data) or not is_nil(desc) do
+    ErrorHandler.build_error(code, data || desc, ErrorHandler.errors())
+  end
+
+  defp build_error(%Transaction{error_code: code}) do
+    ErrorHandler.build_error(code, ErrorHandler.errors())
+  end
 end
