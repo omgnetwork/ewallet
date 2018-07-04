@@ -296,10 +296,9 @@ defmodule EWalletDB.UserTest do
       role = insert(:role, %{name: "role_name"})
 
       insert(:membership, %{user: user, account: mid_account, role: role})
-      [account1, account2] = User.get_accounts(user)
-
-      assert account1.uuid == mid_account.uuid
-      assert account2.uuid == sub_account.uuid
+      accounts = user |> User.get_accounts() |> Enum.map(fn account -> account.uuid end)
+      assert Enum.member?(accounts, mid_account.uuid)
+      assert Enum.member?(accounts, sub_account.uuid)
     end
   end
 end
