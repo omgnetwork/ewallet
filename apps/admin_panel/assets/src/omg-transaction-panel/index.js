@@ -80,7 +80,7 @@ class TransactionRequestPanel extends Component {
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
     const tokenId = _.get(transaction, 'token.id')
-    const createLink = path => `/${accountId}/${path}`
+    const createLink = path => `/${accountId}/${path}/${this.props.location.search}`
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>

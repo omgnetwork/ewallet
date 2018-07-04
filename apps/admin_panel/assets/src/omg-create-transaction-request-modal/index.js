@@ -10,7 +10,7 @@ import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import { selectPrimaryWalletCurrentAccount } from '../omg-wallet/selector'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-import { formatSendAmountToTotal } from '../utils/formatter'
+import { formatAmount } from '../utils/formatter'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -97,7 +97,7 @@ class CreateTransactionRequest extends Component {
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
-        amount: formatSendAmountToTotal(
+        amount: formatAmount(
           this.state.amount,
           _.get(this.state.selectedToken, 'subunit_to_unit')
         ),
@@ -218,9 +218,9 @@ class CreateTransactionRequest extends Component {
                       individualLoadingStatus === 'SUCCESS'
                         ? data.map(b => ({
                           ...{
-                              key: b.id,
-                              value: `${b.name} (${b.symbol})`
-                            },
+                            key: b.id,
+                            value: `${b.name} (${b.symbol})`
+                          },
                           ...b
                         }))
                         : []

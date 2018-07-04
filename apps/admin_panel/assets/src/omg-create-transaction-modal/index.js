@@ -9,10 +9,8 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import {
-  formatNumber,
   formatRecieveAmountToTotal,
-  formatSendAmountToTotal,
-  formatRecieveAmountToTotalNumber
+  formatAmount
 } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
@@ -125,7 +123,7 @@ class CreateTransactionModal extends Component {
         fromAddress: this.state.fromAddress,
         toAddress: this.state.toAddress,
         tokenId: _.get(this.state.selectedToken, 'token.id'),
-        amount: formatRecieveAmountToTotalNumber(
+        amount: formatAmount(
           this.state.amount,
           _.get(this.state.selectedToken, 'token.subunit_to_unit')
         )
@@ -226,9 +224,9 @@ class CreateTransactionModal extends Component {
                     wallet
                       ? wallet.balances.map(b => ({
                         ...{
-                            key: b.token.id,
-                            value: `${b.token.name} (${b.token.symbol})`
-                          },
+                          key: b.token.id,
+                          value: `${b.token.name} (${b.token.symbol})`
+                        },
                         ...b
                       }))
                       : []

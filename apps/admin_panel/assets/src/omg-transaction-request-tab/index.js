@@ -9,7 +9,7 @@ import queryString from 'query-string'
 import QR from './QrCode'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { formatRecieveAmountToTotal, formatSendAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal, formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
@@ -222,7 +222,7 @@ class TransactionRequestPanel extends Component {
         formattedTransactionRequestId: transactionRequest.id,
         tokenId: this.state.selectedToken.id,
         amount: transactionRequest.allow_amount_override
-          ? formatSendAmountToTotal(
+          ? formatAmount(
               this.state.amount,
               _.get(this.state.selectedToken, 'subunit_to_unit')
             )
