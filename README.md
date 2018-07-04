@@ -425,6 +425,7 @@ Here are some resources if you want to learn more about how the eWallet works.
 -   [eWallet Entites](/docs/design/entities.md)
 -   [eWallet Components](/docs/design/components.md)
 -   [A closer look at wallets](/docs/design/wallets.md)
+-   [Transactions and entries](/docs/design/transactions_and_entries.md)
 
 # Contributing
 
