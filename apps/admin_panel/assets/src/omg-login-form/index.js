@@ -6,7 +6,6 @@ import PropTypes from 'prop-types'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
 import { login } from '../omg-session/action'
-import { getCurrentAccountFromLocalStorage } from '../services/sessionService'
 const Form = styled.form`
   text-align: left;
   input {

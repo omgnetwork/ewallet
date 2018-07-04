@@ -19,7 +19,7 @@ const UserDetailContainer = styled.div`
   }
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 50px;
+  margin-top: 40px;
   display: flex;
 `
 const DetailContainer = styled.div`

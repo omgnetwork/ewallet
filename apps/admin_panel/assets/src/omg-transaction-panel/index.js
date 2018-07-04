@@ -30,6 +30,9 @@ const InformationItem = styled.div`
   :not(:last-child) {
     margin-bottom: 10px;
   }
+  p {
+    line-height: 1.5;
+  }
 `
 const SubDetailTitle = styled.div`
   margin-top: 10px;
@@ -120,11 +123,10 @@ class TransactionRequestPanel extends Component {
       <TransactionProvider
         transactionId={queryString.parse(this.props.location.search)['show-transaction-tab']}
         render={({ transaction }) => {
-          console.log(transaction)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
-              <h4>Transaction : {transaction.id}</h4>
+              <h4>Transaction {transaction.id}</h4>
               <SubDetailTitle>
                 <span>
                   <MarkContainer status={transaction.status}>
@@ -138,6 +140,11 @@ class TransactionRequestPanel extends Component {
                 </span>{' '}
                 | <span>{moment(transaction.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
               </SubDetailTitle>
+              {_.get(transaction, 'error_description') && (
+                <InformationItem style={{color: '#FC7166'}}>
+                  <p>{_.get(transaction, 'error_description')}</p>
+                </InformationItem>
+              )}
               {this.renderTransactionInfo(transaction.from, 'From')}
               {this.renderTransactionInfo(transaction.to, 'To')}
             </PanelContainer>

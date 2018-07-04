@@ -8,7 +8,7 @@ import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 const PanelContainer = styled.div`
   height: 100vh;
@@ -93,6 +93,7 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
+          console.log(consumption)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
@@ -138,6 +139,11 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Status:</b> <span>{consumption.status}</span>
                 </InformationItem>
+                {_.get(consumption, 'transaction.error_description') && (
+                  <InformationItem style={{color: '#FC7166'}}>
+                    {_.get(consumption, 'transaction.error_description')}
+                  </InformationItem>
+                )}
                 {consumption.approved_at && (
                   <InformationItem>
                     <b>Approved Date:</b>{' '}
@@ -156,7 +162,7 @@ class TransactionRequestPanel extends Component {
                 )}
                 {consumption.expired_at && (
                   <InformationItem>
-                    <b>Expired At:</b>{' '}
+                    <b>Expired Date:</b>{' '}
                     <span>{moment(consumption.expired_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
                   </InformationItem>
                 )}
@@ -173,7 +179,6 @@ class TransactionRequestPanel extends Component {
                     </Button>
                   </InformationItem>
                 )}
-                <InformationItem />
               </ActionContainer>
               <AdditionalTransactionRequestContainer>
                 <h5>ADDITIONAL REQUEST DETAILS</h5>

@@ -5,7 +5,7 @@ import { withRouter, Link } from 'react-router-dom'
 import AccountProvider from '../omg-account/accountProvider'
 import WalletsFetcherByAccountId from '../omg-wallet/walletsFetcher'
 import { compose } from 'recompose'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
@@ -13,7 +13,7 @@ import moment from 'moment'
 const AccountDetailContainer = styled.div`
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 50px;
+  margin-top: 40px;
   display: flex;
   > div {
     flex:  0 1 50%;

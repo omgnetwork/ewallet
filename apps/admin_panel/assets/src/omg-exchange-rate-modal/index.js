@@ -1,0 +1,253 @@
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import { Input, Button, Icon, Select } from '../omg-uikit'
+import Modal from '../omg-modal'
+import { transfer } from '../omg-transaction/action'
+import { getWalletById } from '../omg-wallet/action'
+import { connect } from 'react-redux'
+import { compose } from 'recompose'
+import { withRouter } from 'react-router-dom'
+import {
+  formatRecieveAmountToTotal,
+  formatAmount
+} from '../utils/formatter'
+import WalletProvider from '../omg-wallet/walletProvider'
+import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
+const Form = styled.form`
+  padding: 50px;
+  width: 400px;
+  > i {
+    position: absolute;
+    right: 15px;
+    top: 15px;
+    color: ${props => props.theme.colors.S400};
+    cursor: pointer;
+  }
+  input {
+    margin-top: 5px;
+  }
+  button {
+    margin: 35px 0 0;
+    font-size: 14px;
+  }
+  h4 {
+    text-align: center;
+  }
+`
+const InputLabel = styled.div`
+  margin-top: 20px;
+  font-size: 14px;
+  font-weight: 400;
+`
+const ButtonContainer = styled.div`
+  text-align: center;
+`
+const BalanceTokenLabel = styled.div`
+  font-size: 12px;
+  color: ${props => props.theme.colors.B100};
+  margin-top: 5px;
+`
+const Error = styled.div`
+  color: ${props => props.theme.colors.R400};
+  text-align: center;
+  padding: 10px 0;
+  overflow: hidden;
+  max-height: ${props => (props.error ? '50px' : 0)};
+  opacity: ${props => (props.error ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity;
+`
+const enhance = compose(
+  withRouter,
+  connect(
+    null,
+    { transfer, getWalletById }
+  )
+)
+class CreateTransactionModal extends Component {
+  static propTypes = {
+    open: PropTypes.bool,
+    onRequestClose: PropTypes.func,
+    fromAddress: PropTypes.string,
+    getWalletById: PropTypes.func,
+    onCreateTransaction: PropTypes.func
+  }
+  static defaultProps = {
+    onCreateTransaction: _.noop
+  }
+  initialState = {
+    submitting: false,
+    amount: 0,
+    fromAddress: '',
+    toAddress: '',
+    searchTokenValue: '',
+    selectedToken: '',
+    error: null
+  }
+  state = this.initialState
+  componentWillReceiveProps = nextProps => {
+    if (this.state.fromAddress !== nextProps.fromAddress && nextProps.fromAddress !== undefined) {
+      this.setState({ fromAddress: nextProps.fromAddress })
+    }
+  }
+  onChangeInputFromAddress = e => {
+    this.setState({ fromAddress: e.target.value, selectedToken: null, searchTokenValue: '' })
+  }
+  onChangeInputToAddress = e => {
+    this.setState({ toAddress: e.target.value })
+  }
+  onChangeAmount = e => {
+    this.setState({ amount: e.target.value })
+  }
+  onChangeSearchToken = e => {
+    this.setState({ searchTokenValue: e.target.value, selectedToken: null })
+  }
+  onSelectTokenSelect = token => {
+    this.setState({ searchTokenValue: token.value, selectedToken: token })
+  }
+  onSelectToAddressSelect = item => {
+    this.setState({ toAddress: item.key })
+  }
+  onSelectFromAddressSelect = item => {
+    this.setState({ fromAddress: item.key })
+  }
+  onFocusSelect = () => {
+    this.setState({ searchTokenValue: '', selectedToken: null })
+  }
+
+  onSubmit = async e => {
+    e.preventDefault()
+    this.setState({ submitting: true })
+    try {
+      const result = await this.props.transfer({
+        fromAddress: this.state.fromAddress,
+        toAddress: this.state.toAddress,
+        tokenId: _.get(this.state.selectedToken, 'token.id'),
+        amount: formatAmount(
+          this.state.amount,
+          _.get(this.state.selectedToken, 'token.subunit_to_unit')
+        )
+      })
+      if (result.data) {
+        this.props.getWalletById(this.state.fromAddress)
+        this.props.getWalletById(this.state.toAddress)
+        this.onRequestClose()
+      } else {
+        this.setState({
+          submitting: false,
+          error: result.error.description || result.error.message
+        })
+      }
+      this.props.onCreateTransaction()
+    } catch (e) {
+      this.setState({ error: JSON.stringify(e.message) })
+    }
+  }
+  onRequestClose = () => {
+    this.props.onRequestClose()
+    this.setState(this.initialState)
+  }
+
+  getBalanceOfSelectedToken = () => {
+    return this.state.selectedToken
+      ? formatRecieveAmountToTotal(
+          _.get(this.state.selectedToken, 'amount'),
+          _.get(this.state.selectedToken, 'token.subunit_to_unit')
+        )
+      : '-'
+  }
+  render () {
+    return (
+      <Modal
+        isOpen={this.props.open}
+        onRequestClose={this.onRequestClose}
+        contentLabel='create account modal'
+      >
+        <Form onSubmit={this.onSubmit} noValidate>
+          <Icon name='Close' onClick={this.props.onRequestClose} />
+          <h4>Transfer Token</h4>
+          <InputLabel>From Address</InputLabel>
+          <AllWalletsFetcher
+            query={{ search: this.state.fromAddress }}
+            render={({ data }) => {
+              return (
+                <Select
+                  normalPlaceholder='acc_0x000000000000000'
+                  onSelectItem={this.onSelectFromAddressSelect}
+                  value={this.state.fromAddress}
+                  onChange={this.onChangeInputFromAddress}
+                  options={data.map(d => {
+                    return {
+                      key: d.address,
+                      value: `${d.address} ( ${_.get(d, 'account.name') ||
+                        _.get(d, 'user.username') ||
+                        _.get(d, 'user.email')} )`
+                    }
+                  })}
+                />
+              )
+            }}
+          />
+          <InputLabel>To Address</InputLabel>
+          <AllWalletsFetcher
+            render={({ data }) => {
+              return (
+                <Select
+                  normalPlaceholder='acc_0x000000000000000'
+                  onSelectItem={this.onSelectToAddressSelect}
+                  value={this.state.toAddress}
+                  onChange={this.onChangeInputToAddress}
+                  options={data.map(d => {
+                    return {
+                      key: d.address,
+                      value: `${d.address} ( ${_.get(d, 'account.name') ||
+                        _.get(d, 'user.username') ||
+                        _.get(d, 'user.email')} )`
+                    }
+                  })}
+                />
+              )
+            }}
+          />
+          <InputLabel>Token</InputLabel>
+          <WalletProvider
+            walletAddress={this.state.fromAddress}
+            render={({ wallet }) => {
+              return (
+                <Select
+                  normalPlaceholder='Token'
+                  onSelectItem={this.onSelectTokenSelect}
+                  onChange={this.onChangeSearchToken}
+                  value={this.state.searchTokenValue}
+                  onFocus={this.onFocusSelect}
+                  options={
+                    wallet
+                      ? wallet.balances.map(b => ({
+                        ...{
+                          key: b.token.id,
+                          value: `${b.token.name} (${b.token.symbol})`
+                        },
+                        ...b
+                      }))
+                      : []
+                  }
+                />
+              )
+            }}
+          />
+          <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken()}</BalanceTokenLabel>
+          <InputLabel>Amount</InputLabel>
+          <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
+          <ButtonContainer>
+            <Button size='small' type='submit' loading={this.state.submitting}>
+              Transfer
+            </Button>
+          </ButtonContainer>
+          <Error error={this.state.error}>{this.state.error}</Error>
+        </Form>
+      </Modal>
+    )
+  }
+}
+
+export default enhance(CreateTransactionModal)

@@ -10,13 +10,14 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
+import ExchangeRateModal from '../omg-exchange-rate-modal'
 import { formatNumber } from '../utils/formatter'
 const AccountDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 50px;
+  margin-top: 40px;
   display: flex;
 `
 const DetailContainer = styled.div`
@@ -30,11 +31,6 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 
-const LoadingContainer = styled.div`
-  > div {
-    margin-bottom: 20px;
-  }
-`
 const enhance = compose(
   withTheme,
   withRouter
@@ -49,10 +45,13 @@ class TokenDetailPage extends Component {
     mintTokenModalOpen: false
   }
   onRequestClose = () => {
-    this.setState({ mintTokenModalOpen: false })
+    this.setState({ mintTokenModalOpen: false, exchangeRateModalOpen: false })
   }
   onClickMintTopen = e => {
     this.setState({ mintTokenModalOpen: true })
+  }
+  onClickCreateExchangeRate = e => {
+    this.setState({ exchangeRateModalOpen: true })
   }
   renderTopBar = token => {
     return (
@@ -60,9 +59,13 @@ class TokenDetailPage extends Component {
         title={token.name}
         breadcrumbItems={['Token', `${token.name} (${token.symbol})`]}
         buttons={[
+          <Button size='small' styleType='secondary' onClick={this.onClickCreateExchangeRate} key='rate'>
+            <span>Create Rate</span>
+          </Button>,
           <Button size='small' onClick={this.onClickMintTopen} key='mint'>
             <span>Mint Token</span>
           </Button>
+
         ]}
       />
     )
@@ -105,6 +108,10 @@ class TokenDetailPage extends Component {
           token={token}
           onRequestClose={this.onRequestClose}
           open={this.state.mintTokenModalOpen}
+        />
+        <ExchangeRateModal
+          onRequestClose={this.onRequestClose}
+          open={this.state.exchangeRateModalOpen}
         />
       </DetailLayout>
     )
