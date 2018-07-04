@@ -317,7 +317,7 @@ class ApiKeyPage extends Component {
                   </InputContainer>
                   <InputContainer>
                     <InputLabel>Public Key</InputLabel>
-                    <input value={this.state.publicKey} spellCheck='false' /><Copy data={this.state.privateKey} />
+                    <input value={this.state.publicKey} spellCheck='false' /><Copy data={this.state.publicKey} />
                   </InputContainer>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
