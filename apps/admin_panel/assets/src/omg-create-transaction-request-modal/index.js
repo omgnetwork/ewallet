@@ -98,10 +98,7 @@ class CreateTransactionRequest extends Component {
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
-        amount: formatAmount(
-          this.state.amount,
-          _.get(this.state.selectedToken, 'subunit_to_unit')
-        ),
+        amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: this.state.selectedToken.id,
         address: this.state.address || this.props.primaryWallet.address
       })
@@ -212,7 +209,7 @@ class CreateTransactionRequest extends Component {
                   <StyledSelect
                     normalPlaceholder='tk-0x00000000'
                     autofocus
-                    value={this.state.selectedToken.name}
+                    value={this.state.searchTokenValue}
                     onSelectItem={this.onSelectTokenSelect}
                     onChange={this.onChangeSearchToken}
                     options={
@@ -332,17 +329,22 @@ class CreateTransactionRequest extends Component {
 const EnhancedCreateTransactionRequest = enhance(CreateTransactionRequest)
 export default class CreateTransactionRequestModal extends Component {
   static propTypes = {
-    open: PropTypes.bool
+    open: PropTypes.bool,
+    onRequestClose: PropTypes.func,
+    onCreateTransactionRequest: PropTypes.func
   }
   render = () => {
     return (
       <Modal
         isOpen={this.props.open}
-        onRequestClose={this.onRequestClose}
+        onRequestClose={this.props.onRequestClose}
         contentLabel='create account modal'
         overlayClassName='fuck'
       >
-        <EnhancedCreateTransactionRequest {...this.props} />
+        <EnhancedCreateTransactionRequest
+          onRequestClose={this.props.onRequestClose}
+          onCreateTransactionRequest={this.props.onCreateTransactionRequest}
+        />
       </Modal>
     )
   }
