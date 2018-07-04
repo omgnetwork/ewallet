@@ -87,7 +87,8 @@ class CreateTransactionRequest extends Component {
     createTransactionRequest: PropTypes.func,
     primaryWallet: PropTypes.object,
     match: PropTypes.object,
-    onCreateTransactionRequest: PropTypes.func
+    onCreateTransactionRequest: PropTypes.func,
+    onRequestClose: PropTypes.func
   }
   state = { selectedToken: {}, onCreateTransactionRequest: _.noop }
   onSubmit = async e => {
@@ -105,7 +106,7 @@ class CreateTransactionRequest extends Component {
         address: this.state.address || this.props.primaryWallet.address
       })
       if (result.data) {
-        this.onRequestClose()
+        this.props.onRequestClose()
         this.props.onCreateTransactionRequest()
       } else {
         this.setState({
@@ -331,11 +332,7 @@ class CreateTransactionRequest extends Component {
 const EnhancedCreateTransactionRequest = enhance(CreateTransactionRequest)
 export default class CreateTransactionRequestModal extends Component {
   static propTypes = {
-    open: PropTypes.bool,
-    onRequestClose: PropTypes.func
-  }
-  onRequestClose = () => {
-    this.props.onRequestClose()
+    open: PropTypes.bool
   }
   render = () => {
     return (
@@ -345,7 +342,7 @@ export default class CreateTransactionRequestModal extends Component {
         contentLabel='create account modal'
         overlayClassName='fuck'
       >
-        <EnhancedCreateTransactionRequest />
+        <EnhancedCreateTransactionRequest {...this.props} />
       </Modal>
     )
   }
