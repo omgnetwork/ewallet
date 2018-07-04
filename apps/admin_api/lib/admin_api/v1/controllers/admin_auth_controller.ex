@@ -22,10 +22,10 @@ defmodule AdminAPI.V1.AdminAuthController do
   def login(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   def switch_account(conn, %{"account_id" => account_id}) do
-    with {:ok, _current_user} <- permit(:update, conn.assigns),
+    with {:ok, _current_user} <- permit(:get, conn.assigns),
+         :ok <- permit_account(:get, conn.assigns, account_id),
          token <- conn.private.auth_auth_token,
          %Account{} = account <- Account.get(account_id) || :account_not_found,
-         :ok <- permit_account(:get, conn.assigns, account.id),
          %AuthToken{} = token <-
            AuthToken.get_by_token(token, :admin_api) || :auth_token_not_found,
          {:ok, token} <- AuthToken.switch_account(token, account) do
