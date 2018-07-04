@@ -57,7 +57,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
                }
     end
 
-    test "returns account:id_not_found error if account id could not be found" do
+    test "returns unauthorized error if account id could not be found" do
       assert admin_user_request("/account.get_users", %{
                account_id: "acc_12345678901234567890123456"
              }) ==
@@ -66,8 +66,8 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
                  "version" => "1",
                  "data" => %{
                    "object" => "error",
-                   "code" => "account:id_not_found",
-                   "description" => "There is no account corresponding to the provided id",
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation",
                    "messages" => nil
                  }
                }
@@ -158,10 +158,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "returns an error if the given role does not exist" do
@@ -238,10 +235,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no account corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 end

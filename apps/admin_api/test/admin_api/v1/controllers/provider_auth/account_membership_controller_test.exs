@@ -66,8 +66,8 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                  "version" => "1",
                  "data" => %{
                    "object" => "error",
-                   "code" => "account:id_not_found",
-                   "description" => "There is no account corresponding to the provided id",
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation",
                    "messages" => nil
                  }
                }
@@ -158,10 +158,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-
+      assert response["data"]["code"] == "unauthorized"
       assert response["data"]["description"] ==
-               "There is no account corresponding to the provided id"
+               "You are not allowed to perform the requested operation"
     end
 
     test "returns an error if the given role does not exist" do
@@ -238,10 +237,9 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "account:id_not_found"
-
+      assert response["data"]["code"] == "unauthorized"
       assert response["data"]["description"] ==
-               "There is no account corresponding to the provided id"
+               "You are not allowed to perform the requested operation"
     end
   end
 end
