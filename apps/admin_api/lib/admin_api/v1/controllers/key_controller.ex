@@ -1,6 +1,8 @@
 defmodule AdminAPI.V1.KeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.AccountHelper
+  alias EWallet.KeyPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.Key
 
@@ -27,11 +29,18 @@ defmodule AdminAPI.V1.KeyController do
   Retrieves a list of keys including soft-deleted.
   """
   def all(conn, attrs) do
-    Key
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
+    with :ok <- permit(:all, conn.assigns, nil),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
+      Key
+      |> Key.all_for_account_uuids(account_uuids)
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   # Respond with a list of keys
@@ -47,9 +56,14 @@ defmodule AdminAPI.V1.KeyController do
   Creates a new key. Currently keys are assigned to the master account only.
   """
   def create(conn, _attrs) do
-    %{}
-    |> Key.insert()
-    |> respond_single(conn)
+    with :ok <- permit(:create, conn.assigns, nil) do
+      %{}
+      |> Key.insert()
+      |> respond_single(conn)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   # Respond when the key is saved successfully
@@ -66,13 +80,23 @@ defmodule AdminAPI.V1.KeyController do
   Soft-deletes an existing key.
   """
   def delete(conn, %{"access_key" => access_key}) do
-    key = Key.get(:access_key, access_key)
-    do_delete(conn, key)
+    with :ok <- permit(:delete, conn.assigns, nil) do
+      key = Key.get(:access_key, access_key)
+      do_delete(conn, key)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   def delete(conn, %{"id" => id}) do
-    key = Key.get(id)
-    do_delete(conn, key)
+    with :ok <- permit(:delete, conn.assigns, nil) do
+      key = Key.get(id)
+      do_delete(conn, key)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
@@ -88,4 +112,10 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, key_id) do
+    Bodyguard.permit(KeyPolicy, action, params, key_id)
+  end
 end
