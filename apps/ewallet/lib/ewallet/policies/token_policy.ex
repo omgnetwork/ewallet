@@ -1,11 +1,12 @@
-defmodule EWallet.MintPolicy do
+defmodule EWallet.TokenPolicy do
   @moduledoc """
-  The authorization policy for mints.
+  The authorization policy for tokens.
   """
   @behaviour Bodyguard.Policy
   alias EWalletDB.{Account, User}
 
   def authorize(:all, _user_or_key, _category_id), do: true
+  def authorize(:get, _user_or_key, _category_id), do: true
 
   def authorize(_, %{key: key}, _category_id) do
     Account.get_master_account().uuid == key.account.uuid

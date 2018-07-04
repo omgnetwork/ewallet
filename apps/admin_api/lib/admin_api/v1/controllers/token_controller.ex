@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{MintGate, Helper}
+  alias EWallet.{MintGate, Helper, TokenPolicy}
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, Token, Mint}
   alias Plug.Conn
@@ -33,11 +33,16 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec all(Conn.t(), map() | nil) :: map()
   def all(conn, attrs) do
-    Token
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
+    with :ok <- permit(:all, conn.assigns, nil) do
+      Token
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   @doc """
@@ -45,9 +50,14 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec get(Conn.t(), map()) :: map()
   def get(conn, %{"id" => id}) do
-    id
-    |> Token.get()
-    |> respond_single(conn)
+    with :ok <- permit(:get, conn.assigns, id) do
+      id
+      |> Token.get()
+      |> respond_single(conn)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
@@ -57,7 +67,8 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec stats(Conn.t(), map()) :: Conn.t()
   def stats(conn, %{"id" => id}) do
-    with %Token{} = token <- Token.get(id) || :token_not_found do
+    with :ok <- permit(:get, conn.assigns, id),
+         %Token{} = token <- Token.get(id) || :token_not_found do
       stats = %{
         token: token,
         total_supply: Mint.total_supply_for_token(token)
@@ -65,6 +76,9 @@ defmodule AdminAPI.V1.TokenController do
 
       render(conn, :stats, %{stats: stats})
     else
+      {:error, code} ->
+        handle_error(conn, code)
+
       error ->
         handle_error(conn, error)
     end
@@ -76,7 +90,16 @@ defmodule AdminAPI.V1.TokenController do
   Creates a new Token.
   """
   @spec create(Conn.t(), map()) :: map()
-  def create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
+  def create(conn, attrs) do
+    with :ok <- permit(:create, conn.assigns, nil) do
+      do_create(conn, attrs)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
+  end
+
+  defp do_create(conn, %{"amount" => amount} = attrs) when is_number(amount) and amount > 0 do
     attrs
     |> Map.put("account_uuid", Account.get_master_account().uuid)
     |> Token.insert()
@@ -84,7 +107,7 @@ defmodule AdminAPI.V1.TokenController do
     |> respond_single(conn)
   end
 
-  def create(conn, %{"amount" => amount} = attrs) when is_binary(amount) do
+  defp do_create(conn, %{"amount" => amount} = attrs) when is_binary(amount) do
     case Helper.string_to_integer(amount) do
       {:ok, amount} ->
         attrs = Map.put(attrs, "amount", amount)
@@ -95,7 +118,7 @@ defmodule AdminAPI.V1.TokenController do
     end
   end
 
-  def create(conn, attrs) do
+  defp do_create(conn, attrs) do
     case attrs["amount"] do
       nil ->
         attrs
@@ -113,10 +136,14 @@ defmodule AdminAPI.V1.TokenController do
   """
   @spec update(Conn.t(), map()) :: map()
   def update(conn, %{"id" => id} = attrs) do
-    with %Token{} = token <- Token.get(id) || :token_not_found,
+    with :ok <- permit(:update, conn.assigns, id),
+         %Token{} = token <- Token.get(id) || :token_not_found,
          {:ok, updated} <- Token.update(token, attrs) do
       respond_single(updated, conn)
     else
+      {:error, code} ->
+        handle_error(conn, code)
+
       error ->
         handle_error(conn, error)
     end
@@ -153,5 +180,11 @@ defmodule AdminAPI.V1.TokenController do
 
   defp respond_single(nil, conn) do
     handle_error(conn, :token_id_not_found)
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, token_id) do
+    Bodyguard.permit(TokenPolicy, action, params, token_id)
   end
 end
