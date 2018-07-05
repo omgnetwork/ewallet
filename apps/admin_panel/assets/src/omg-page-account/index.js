@@ -3,6 +3,7 @@ import TopNavigation from '../omg-page-layout/TopNavigation'
 import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon, Avatar } from '../omg-uikit'
+import Copy from '../omg-copy'
 import CreateAccountModal from '../omg-create-account-modal'
 import ExportModal from '../omg-export-modal'
 import AccountsFetcher from '../omg-account/accountsFetcher'
@@ -19,7 +20,32 @@ const AccountPageContainer = styled.div`
     flex: 1;
   }
   td:first-child {
-    width: 50%;
+    width: 30%;
+    max-width: 30%;
+  }
+  td:nth-child(2),
+  td:nth-child(3) {
+    width: 25%;
+  }
+  td {
+    white-space: nowrap;
+  }
+  tr:hover {
+    td:nth-child(2) {
+      i {
+        visibility: visible;
+      }
+    }
+  }
+  i[name="Copy"] {
+    margin-left: 5px;
+    cursor: pointer;
+    visibility: hidden;
+    cursor: pointer;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
   td:nth-child(2),
   td:nth-child(3) {
@@ -90,6 +116,7 @@ class AccountPage extends Component {
   getColumns = accounts => {
     return [
       { key: 'name', title: 'NAME', sort: true },
+      { key: 'id', title: 'ID', sort: true },
       { key: 'description', title: 'DESCRIPTION', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'avatar', title: 'AVATAR', hide: true }
@@ -116,6 +143,13 @@ class AccountPage extends Component {
         </NameColumn>
       )
     }
+    if (key === 'id') {
+      return (
+        <span>
+          <span>{data}</span> <Copy data={data} />
+        </span>
+      )
+    }
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
@@ -131,7 +165,10 @@ class AccountPage extends Component {
     return (
       <AccountPageContainer>
         <TopNavigation title={'Account'} buttons={[this.renderCreateAccountButton()]} />
-        <SortableTableContainer innerRef={table => (this.table = table)} loadingStatus={individualLoadingStatus}>
+        <SortableTableContainer
+          innerRef={table => (this.table = table)}
+          loadingStatus={individualLoadingStatus}
+        >
           <SortableTable
             rows={this.getRow(accounts)}
             columns={this.getColumns(accounts)}

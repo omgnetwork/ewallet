@@ -97,7 +97,7 @@ class TokenDetailPage extends Component {
     if (key === 'token') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={rows.symbol} /> <span>{data}</span>
         </NameColumn>
       )
     }

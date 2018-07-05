@@ -83,33 +83,34 @@ a {
   z-index: 2;
 }
 .fade-enter {
-  opacity: 0!important;
-  transition: opacity 0.3s ease-in;
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
 }
 .fade-enter-active {
-  opacity: 1!important;
-  transition: opacity 0.3s ease-in;
+  opacity: 1;
+  transition: opacity 0.2s ease-in;
 }
 .fade-exit {
-  opacity: 0!important; 
-  transition: opacity 0.3s ease-in;
+  opacity: 0; 
+  transition: opacity 0.2s ease-in;
 }
 .fade-exit-active {
-  transition: opacity 0.3s ease-in;
-  opacity: 0!important;
-  transition: opacity 0.3s ease-in;
+  transition: opacity 0.2s ease-in;
+  opacity: 0;
+  transition: opacity 0.2s ease-in;
 }
 
 /* react modal */
-.ReactModal__Overlay {
+.ReactModal__Overlay.react-modal-overlay {
   position: fixed;
   top:0;
   left: 0;
   bottom: 0;
   right:0;
+  background-color: rgba(0,0,0,0.5);
 }
 
-.ReactModal__Content {
+.ReactModal__Content.react-modal {
   background-color: white;
   border: none;
   border-radius: 4px;
@@ -125,17 +126,23 @@ a {
   position: absolute;
 }
 
-.ReactModal__Content--after-open {
+.ReactModal__Content--after-open.react-modal {
   opacity: 1;
   transform: translate3d(-50%,-50%,0);
   
 }
 
-.ReactModal__Content--before-close {
-  opacity: 0;
+.ReactModal__Content--before-close.react-modal {
+  opacity: 0.1;
   transform: translate3d(-50%,-40%,0);
 }
-
-.ReactModal__Overlay {
-  background-color: rgba(0,0,0,0.5);
+.icon-omisego_Checked:before {
+  content: "\e906";
+}
+a {
+  color: #1A56F0;
+  cursor: pointer;
+}
+b {
+  font-weight: 600;
 }

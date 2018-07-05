@@ -20,6 +20,8 @@ import UserPage from '../../omg-page-users'
 import TokenDetailPage from '../../omg-page-token-detail'
 import WalletDetailPage from '../../omg-page-wallet-detail'
 import UserDetailPage from '../../omg-page-user-detail'
+import ReqestConsumptionPage from '../../omg-page-consumption'
+import TransactionRequestPage from '../../omg-page-transaction-request'
 import { getCurrentAccountFromLocalStorage } from '../../services/sessionService'
 const currentAccount = getCurrentAccountFromLocalStorage()
 const redirectUrl = currentAccount ? `${currentAccount.id}/dashboard` : '/login'
@@ -44,6 +46,8 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/account/:viewAccountId' exact component={AccountDetailPage} />
       <AuthenticatedRoute path='/:accountId/wallet/:walletAddress' exact component={WalletDetailPage} />
       <AuthenticatedRoute path='/:accountId/user/:userId' exact component={UserDetailPage} />
+      <AuthenticatedRoute path='/:accountId/consumptions' exact component={ReqestConsumptionPage} />
+      <AuthenticatedRoute path='/:accountId/requests' exact component={TransactionRequestPage} />
     </Switch>
   </Router>
 )

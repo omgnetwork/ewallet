@@ -36,19 +36,19 @@ export const createFetcher = (entity, reducer, selectors) => {
       static defaultProps = {
         onFetchComplete: _.noop
       }
-      static getDerivedStateFromProps = (nextProps, state) => {
-        const intersectItems = _.intersectionBy(state.data, nextProps.data, d => d.id)
-        for (let item of intersectItems) {
-          const matchItem = _.find(nextProps.data, d => d.id === item.id)
-          if (item.updated_at !== matchItem.updated_at) {
-            return {
-              data: nextProps.data
-            }
-          }
+
+      static getDerivedStateFromProps (props, state) {
+        const intersec = _.intersectionBy(props.data, state.data, d => d.id)
+        if (intersec.length && state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS) {
+          return { data: props.data, pagination: props.pagination }
         }
         return null
       }
-      state = { loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT, data: [] }
+      state = {
+        loadingStatus: CONSTANT.LOADING_STATUS.DEFAULT,
+        data: this.props.data,
+        pagination: this.props.pagination
+      }
 
       constructor (props) {
         super(props)
@@ -64,16 +64,12 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       componentDidUpdate = async nextProps => {
         if (this.props.cacheKey !== nextProps.cacheKey) {
-          delete this.fetched[nextProps.cacheKey]
           this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.PENDING })
           await this.fetchDebounce()
         }
       }
       getQuery = () => {
-        if (!_.get(this.props.query, 'page')) {
-          return { ...this.props.query, page: 1 }
-        }
-        return this.props.query
+        return { page: 1, perPage: 10, ...this.props.query }
       }
       fetchAll = async () => {
         try {
@@ -94,26 +90,31 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       fetch = async () => {
         try {
+          this.setState(oldState => ({
+            loadingStatus:
+              oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED
+                ? CONSTANT.LOADING_STATUS.INITIATED
+                : CONSTANT.LOADING_STATUS.PENDING
+          }))
           this.props.dispatcher({ ...this.props, ...this.getQuery() }).then(result => {
             this.fetched[this.props.cacheKey] = true
             if (result.data) {
               this.setState({
                 loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
-                data: this.props.data
+                data: this.props.data,
+                pagination: this.props.pagination
               })
               this.props.onFetchComplete()
             } else {
               this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
             }
           })
-          setTimeout(() => {
-            if (!this.fetched[this.props.cacheKey]) {
-              this.setState({ data: this.props.data })
-              console.log('fetching data taking too long... using cached data.')
-            }
-          }, 3000)
         } catch (error) {
-          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, data: this.props.data })
+          this.setState({
+            loadingStatus: CONSTANT.LOADING_STATUS.FAILED,
+            data: this.props.data,
+            pagination: this.props.pagination
+          })
         }
       }
 
@@ -124,7 +125,14 @@ export const createFetcher = (entity, reducer, selectors) => {
           individualLoadingStatus: this.state.loadingStatus,
           fetch: this.fetch,
           fetchAll: this.fetchAll,
-          data: this.state.data
+          data:
+            this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
+              ? this.props.data
+              : this.state.data,
+          pagination:
+            this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
+              ? this.props.pagination
+              : this.state.pagination
         })
       }
     }

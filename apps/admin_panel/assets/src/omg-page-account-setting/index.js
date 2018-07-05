@@ -14,10 +14,11 @@ import { compose } from 'recompose'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 const columns = [
-  { key: 'role', title: 'ROLE', sort: true },
-  { key: 'member', title: 'MEMBER NAME', sort: true },
+  { key: 'account_role', title: 'ROLE', sort: true },
+  { key: 'username', title: 'MEMBER NAME', sort: true },
   { key: 'email', title: 'EMAIL', sort: true },
-  { key: 'since', title: 'MEMBER SINCE', sort: true }
+  { key: 'since', title: 'MEMBER SINCE', sort: true },
+  { key: 'status', title: 'STATUS', sort: true }
 ]
 const AccountSettingContainer = styled.div`
   td:first-child {
@@ -79,10 +80,10 @@ class AccountSettingPage extends Component {
       submitStatus: 'DEFAULT'
     }
   }
-  componentWillReceiveProps = props => {
+  componentWillMount = () => {
     this.setInitialAccountState()
   }
-  componentWillMount = () => {
+  componentWillReceiveProps = props => {
     this.setInitialAccountState()
   }
   setInitialAccountState = () => {
@@ -147,6 +148,18 @@ class AccountSettingPage extends Component {
       </InviteButton>
     )
   }
+  rowRenderer = (key, data, rows) => {
+    if (key === 'since') {
+      return moment(data).format('DD/MM/YYYY hh:mm:ss')
+    }
+    if (key === 'username') {
+      return data || '-'
+    }
+    if (key === 'status') {
+      return data === 'active' ? 'Active' : 'Pending'
+    }
+    return data
+  }
   render () {
     return (
       <AccountSettingContainer>
@@ -192,22 +205,14 @@ class AccountSettingPage extends Component {
           <TableSection>
             <InviteListProvider
               render={({ inviteList, loadingStatus }) => {
-                const rows = inviteList.map(invite => {
-                  return {
-                    id: invite.id,
-                    role: invite.account_role,
-                    email: invite.email,
-                    member: invite.username || '-',
-                    since: moment(invite.created_at).format('DD/MM/YYYY hh:mm:ss')
-                  }
-                })
                 return (
                   <SortableTable
-                    rows={rows}
+                    rows={inviteList}
                     columns={columns}
                     perPage={99999}
                     loadingStatus={loadingStatus}
                     loadingRowNumber={7}
+                    rowRenderer={this.rowRenderer}
                     navigation={false}
                   />
                 )
