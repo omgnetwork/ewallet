@@ -54,7 +54,7 @@ class TransactionRequestsPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createTransactionRequestModalOpen: false,
+      createTransactionRequestModalOpen: queryString.parse(this.props.location.search).createRequest || false,
       exportModalOpen: false,
       loadMoreTime: 1
     }

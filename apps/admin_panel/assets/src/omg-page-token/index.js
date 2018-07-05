@@ -39,7 +39,7 @@ class TokenDetailPage extends Component {
     scrollTopContentContainer: PropTypes.func
   }
   state = {
-    createTokenModalOpen: false,
+    createTokenModalOpen: queryString.parse(this.props.location.search).createToken || false,
     exportModalOpen: false,
     loadMoreTime: 1
   }

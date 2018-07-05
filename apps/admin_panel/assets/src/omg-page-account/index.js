@@ -70,7 +70,7 @@ class AccountPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createAccountModalOpen: false,
+      createAccountModalOpen: queryString.parse(props.location.search).createAccount || false,
       exportModalOpen: false,
       loadMoreTime: 1
     }

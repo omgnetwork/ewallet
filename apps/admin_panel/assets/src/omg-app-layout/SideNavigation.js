@@ -122,7 +122,7 @@ class SideNavigation extends PureComponent {
     this.dataLink = [
       { icon: 'Dashboard', to: '/dashboard', text: 'DASHBOARD' },
       { icon: 'Merchant', to: '/accounts', text: 'ACCOUNT' },
-      { icon: 'Token', to: '/token', text: 'TOKEN' },
+      { icon: 'Token', to: '/tokens', text: 'TOKEN' },
       { icon: 'Wallet', to: '/wallets', text: 'WALLET' },
       { icon: 'Transaction', to: '/transaction', text: 'TRANSACTION' },
       { icon: 'Request', to: '/requests', text: 'REQUEST' },

@@ -130,7 +130,7 @@ class CreateTransactionRequest extends Component {
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
-        <Icon name='Close' onClick={this.onRequestClose} />
+        <Icon name='Close' onClick={this.props.onRequestClose} />
         <InnerContainer>
           <h4>Create Transaction Request</h4>
           <InputLabelContainer>
