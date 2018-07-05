@@ -18,7 +18,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
         to_token: TokenSerializer.serialize(exchange_pair.to_token),
         rate: exchange_pair.rate,
         created_at: Date.to_iso8601(exchange_pair.inserted_at),
-        updated_at: Date.to_iso8601(exchange_pair.updated_at)
+        updated_at: Date.to_iso8601(exchange_pair.updated_at),
+        deleted_at: nil
       }
 
       assert ExchangePairSerializer.serialize(exchange_pair) == expected
@@ -51,7 +52,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             to_token: TokenSerializer.serialize(exchange_pair1.to_token),
             rate: exchange_pair1.rate,
             created_at: Date.to_iso8601(exchange_pair1.inserted_at),
-            updated_at: Date.to_iso8601(exchange_pair1.updated_at)
+            updated_at: Date.to_iso8601(exchange_pair1.updated_at),
+            deleted_at: nil
           },
           %{
             object: "exchange_pair",
@@ -63,7 +65,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
             to_token: TokenSerializer.serialize(exchange_pair2.to_token),
             rate: exchange_pair2.rate,
             created_at: Date.to_iso8601(exchange_pair2.inserted_at),
-            updated_at: Date.to_iso8601(exchange_pair2.updated_at)
+            updated_at: Date.to_iso8601(exchange_pair2.updated_at),
+            deleted_at: nil
           }
         ],
         pagination: %{

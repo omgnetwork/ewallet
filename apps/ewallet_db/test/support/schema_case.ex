@@ -532,9 +532,10 @@ defmodule EWalletDB.SchemaCase do
         {:ok, record} =
           schema
           |> get_factory()
-          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> params_for(%{})
           |> schema.insert()
 
+        assert record.deleted_at == nil
         refute schema.deleted?(record)
       end
 
@@ -544,10 +545,13 @@ defmodule EWalletDB.SchemaCase do
         {:ok, record} =
           schema
           |> get_factory()
-          |> params_for(%{deleted_at: nil})
+          |> params_for(%{})
           |> schema.insert()
 
-        refute schema.deleted?(record)
+        {:ok, record} = schema.delete(record)
+
+        assert record.deleted_at != nil
+        assert schema.deleted?(record)
       end
     end
   end
@@ -581,13 +585,15 @@ defmodule EWalletDB.SchemaCase do
         {_, record} =
           schema
           |> get_factory()
-          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> params_for(%{})
           |> schema.insert()
 
         # Makes sure the record is already soft-deleted before testing
-        refute schema.deleted?(record)
+        {:ok, record} = schema.delete(record)
+        assert schema.deleted?(record)
 
         {res, record} = schema.restore(record)
+
         assert res == :ok
         refute schema.deleted?(record)
       end

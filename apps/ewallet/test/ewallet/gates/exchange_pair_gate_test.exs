@@ -57,14 +57,7 @@ defmodule EWallet.ExchangePairGateTest do
       omg = insert(:token)
 
       # Create an opposite pair in advance so the insert will fail when creating the opposite pair
-      {:ok, _} =
-        ExchangePairGate.insert(%{
-          "name" => "Opposite pair",
-          "rate" => 0.5,
-          "from_token_id" => omg.id,
-          "to_token_id" => eth.id,
-          "sync_opposite" => false
-        })
+      _ = insert(:exchange_pair, from_token: omg, to_token: eth)
 
       # This insert should fail and roll back due to conflict with successful insert above
       {res, code} =
@@ -101,8 +94,7 @@ defmodule EWallet.ExchangePairGateTest do
     test "updates an exchange pair and its opposite when sync_opposite: true" do
       pair = insert(:exchange_pair)
 
-      _opposite_pair =
-        insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token)
+      _opposite = insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token)
 
       {res, pairs} =
         ExchangePairGate.update(pair.id, %{
@@ -119,7 +111,14 @@ defmodule EWallet.ExchangePairGateTest do
 
     test "touches the opposite pair even if the value didn't change when sync_opposite: true" do
       pair = insert(:exchange_pair)
-      opposite = insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token, rate: 1 / 1_000)
+
+      opposite =
+        insert(
+          :exchange_pair,
+          from_token: pair.to_token,
+          to_token: pair.from_token,
+          rate: 1 / 1_000
+        )
 
       {res, pairs} =
         ExchangePairGate.update(pair.id, %{
@@ -134,23 +133,13 @@ defmodule EWallet.ExchangePairGateTest do
     end
 
     test "rollbacks if an error occurred along the way" do
-      eth = insert(:token)
-      omg = insert(:token)
-
       # Create a pair without the opposite so an update with `sync_opposite: true` should fail
-      {:ok, [pair]} =
-        ExchangePairGate.insert(%{
-          "name" => "Test pair",
-          "rate" => 0.5,
-          "from_token_id" => eth.id,
-          "to_token_id" => omg.id,
-          "sync_opposite" => false
-        })
+      pair = insert(:exchange_pair, name: "This name should persists", rate: 2.0)
 
       {res, code} =
         ExchangePairGate.update(pair.id, %{
-          "name" => "This pair should rollback",
-          "rate" => 2.0,
+          "name" => "This name should rollback",
+          "rate" => 999,
           "sync_opposite" => true
         })
 
@@ -158,9 +147,9 @@ defmodule EWallet.ExchangePairGateTest do
       assert code == :exchange_opposite_pair_not_found
 
       # Asserts that the updates have been rolled back on the original pair
-      pair = Repo.get(ExchangePair, pair.uuid)
-      assert pair.name == "Test pair"
-      assert pair.rate == 0.5
+      pair = ExchangePair.get(pair.id)
+      assert pair.name == "This name should persists"
+      assert pair.rate == 2.0
     end
 
     test "returns :exchange_pair_id_not_found error if the exchange pair is not found" do
@@ -175,9 +164,49 @@ defmodule EWallet.ExchangePairGateTest do
   end
 
   describe "delete/1" do
-    test "deletes the exchange pair"
-    test "updates the exchange pair and its opposite when sync_opposite: true"
-    test "rollbacks if an error occured along the way"
-    test "returns :exchange_pair_id_not_found error if the exchange pair is not found"
+    test "deletes the exchange pair" do
+      pair = insert(:exchange_pair)
+
+      {res, deleted} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => false})
+
+      assert res == :ok
+      assert Enum.count(deleted) == 1
+      assert Enum.at(deleted, 0).id == pair.id
+      assert deleted |> Enum.at(0) |> ExchangePair.deleted?()
+    end
+
+    test "deletes the exchange pair and its opposite when sync_opposite: true" do
+      pair = insert(:exchange_pair)
+      opposite = insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token)
+
+      {res, deleted} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => true})
+
+      assert res == :ok
+      assert Enum.count(deleted) == 2
+      assert Enum.any?(deleted, fn d -> d.id == pair.id && ExchangePair.deleted?(d) end)
+      assert Enum.any?(deleted, fn d -> d.id == opposite.id && ExchangePair.deleted?(d) end)
+    end
+
+    test "rollbacks if an error occured along the way" do
+      # Create a pair without the opposite so a deletion with `sync_opposite: true` should fail
+      pair = insert(:exchange_pair, name: "Should still exist", rate: 2.0)
+
+      {res, code} = ExchangePairGate.delete(pair.id, %{"sync_opposite" => true})
+
+      assert res == :error
+      assert code == :exchange_opposite_pair_not_found
+
+      # Asserts that the deletion has been rolled back and the inserted pair still exists
+      pair = ExchangePair.get(pair.id)
+      assert pair.name == "Should still exist"
+      assert pair.rate == 2.0
+    end
+
+    test "returns :exchange_pair_id_not_found error if the exchange pair is not found" do
+      {res, code} = ExchangePairGate.delete("wrong_id", %{})
+
+      assert res == :error
+      assert code == :exchange_pair_id_not_found
+    end
   end
 end

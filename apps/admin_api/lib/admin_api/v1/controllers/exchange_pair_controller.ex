@@ -113,11 +113,11 @@ defmodule AdminAPI.V1.ExchangePairController do
   Soft-deletes an existing exchange pair by its id.
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def delete(conn, %{"id" => id}) do
-    with %ExchangePair{} = pair <- ExchangePair.get(id) || {:error, :exchange_pair_id_not_found},
-         {:ok, deleted} = ExchangePair.delete(pair),
-         {:ok, deleted} <- Preloader.preload_one(deleted, @preload_fields) do
-      render(conn, :exchange_pair, %{exchange_pair: deleted})
+  def delete(conn, %{"id" => id} = attrs) do
+    with :ok <- permit(:delete, conn.assigns, id),
+         {:ok, deleted} <- ExchangePairGate.delete(id, attrs),
+         {:ok, deleted} <- Preloader.preload_all(deleted, @preload_fields) do
+      render(conn, :exchange_pairs, %{exchange_pairs: deleted})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)

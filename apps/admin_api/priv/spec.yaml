@@ -1742,6 +1742,10 @@ components:
         updated_at:
           type: string
           format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
       required:
         - object
         - id
@@ -1792,6 +1796,7 @@ components:
               rate: 0.017
               created_at: "2018-01-01T00:00:00Z"
               updated_at: "2018-01-01T10:00:00Z"
+              deleted_at: null
     ExchangePairsResponseSchema:
       description: "The response schema for a list of exchange pairs"
       allOf:
@@ -1840,6 +1845,7 @@ components:
                   rate: 0.017
                   created_at: "2018-01-01T00:00:00Z"
                   updated_at: "2018-01-01T10:00:00Z"
+                  deleted_at: null
               pagination:
                 per_page: 10
                 current_page: 1

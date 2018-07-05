@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.Repo
+  alias EWalletDB.{ExchangePair, Repo}
 
   describe "/exchange_pair.all" do
     test "returns a list of exchange pairs and pagination data" do
@@ -109,7 +109,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       assert pair["rate"] == 2.0
     end
 
-    test "creates a new exchange pair along with its opposite and returns them in a list" do
+    test "creates a new exchange pair along with its opposite when given sync_opposite: true" do
       request_data = insert_params(%{sync_opposite: true})
       response = admin_user_request("/exchange_pair.create", request_data)
 
@@ -212,6 +212,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
 
       assert response["success"] == true
       assert response["data"]["object"] == "list"
+      assert Enum.count(response["data"]["data"]) == 1
 
       pair = Enum.at(response["data"]["data"], 0)
 
@@ -220,6 +221,66 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       assert pair["from_token_id"] == exchange_pair.from_token.id
       assert pair["to_token_id"] == exchange_pair.to_token.id
       assert pair["rate"] == 999.99
+    end
+
+    test "updates the opposite pair when given sync_opposite: true" do
+      exchange_pair =
+        :exchange_pair
+        |> insert(rate: 2)
+        |> Repo.preload([:from_token, :to_token])
+
+      _opposite_pair =
+        :exchange_pair
+        |> insert(
+          rate: 99,
+          from_token: exchange_pair.to_token,
+          to_token: exchange_pair.from_token
+        )
+        |> Repo.preload([:from_token, :to_token])
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: exchange_pair.id,
+        rate: 1000,
+        sync_opposite: true
+      }
+
+      response = admin_user_request("/exchange_pair.update", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "list"
+      assert Enum.count(response["data"]["data"]) == 2
+
+      pair = Enum.at(response["data"]["data"], 0)
+      assert pair["rate"] == 1000
+
+      pair = Enum.at(response["data"]["data"], 1)
+      assert pair["rate"] == 1 / 1000
+    end
+
+    test "reverts and returns error if sync_opposite: true but opposite pair is not found" do
+      exchange_pair =
+        :exchange_pair
+        |> insert(rate: 2)
+        |> Repo.preload([:from_token, :to_token])
+
+      assert exchange_pair.rate == 2
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: exchange_pair.id,
+        rate: 1000,
+        sync_opposite: true
+      }
+
+      response = admin_user_request("/exchange_pair.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "exchange:opposite_pair_not_found"
+
+      assert response["data"]["description"] ==
+               "The opposite exchange pair for the given tokens could not be found"
     end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
@@ -273,8 +334,63 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       response = admin_user_request("/exchange_pair.delete", %{id: exchange_pair.id})
 
       assert response["success"] == true
-      assert response["data"]["object"] == "exchange_pair"
-      assert response["data"]["id"] == exchange_pair.id
+      assert response["data"]["object"] == "list"
+      assert Enum.count(response["data"]["data"]) == 1
+
+      pair = Enum.at(response["data"]["data"], 0)
+      assert pair["object"] == "exchange_pair"
+      assert pair["deleted_at"] != nil
+    end
+
+    test "deletes the opposite pair when sync_opposite: true" do
+      exchange_pair = insert(:exchange_pair, rate: 2)
+
+      _opposite =
+        insert(
+          :exchange_pair,
+          from_token: exchange_pair.to_token,
+          to_token: exchange_pair.from_token
+        )
+
+      # Prepare the deletion data while keeping only id the same
+      request_data = %{
+        id: exchange_pair.id,
+        sync_opposite: true
+      }
+
+      response = admin_user_request("/exchange_pair.delete", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "list"
+
+      pair = Enum.at(response["data"]["data"], 0)
+      assert pair["object"] == "exchange_pair"
+      assert pair["deleted_at"] != nil
+
+      pair = Enum.at(response["data"]["data"], 1)
+      assert pair["object"] == "exchange_pair"
+      assert pair["deleted_at"] != nil
+    end
+
+    test "reverts and returns error if sync_opposite: true but opposite pair is not found" do
+      pair = insert(:exchange_pair, rate: 2)
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: pair.id,
+        sync_opposite: true
+      }
+
+      response = admin_user_request("/exchange_pair.delete", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "exchange:opposite_pair_not_found"
+
+      assert response["data"]["description"] ==
+               "The opposite exchange pair for the given tokens could not be found"
+
+      assert ExchangePair.get(pair.id) != nil
     end
 
     test "responds with an error if the provided id is not found" do

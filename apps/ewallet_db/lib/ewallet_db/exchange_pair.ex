@@ -59,7 +59,7 @@ defmodule EWalletDB.ExchangePair do
 
   defp changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast(attrs, [:name, :from_token_uuid, :to_token_uuid, :rate])
+    |> cast(attrs, [:name, :from_token_uuid, :to_token_uuid, :rate, :deleted_at])
     |> validate_required([:name, :from_token_uuid, :to_token_uuid, :rate])
     |> validate_different_values(:from_token_uuid, :to_token_uuid)
     |> validate_immutable(:from_token_uuid)
@@ -70,6 +70,15 @@ defmodule EWalletDB.ExchangePair do
     |> unique_constraint(:name)
     |> unique_constraint(
       :from_token,
+      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_null"
+    )
+  end
+
+  defp restore_changeset(exchange_pair, attrs) do
+    exchange_pair
+    |> cast(attrs, [:deleted_at])
+    |> unique_constraint(
+      :deleted_at,
       name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_null"
     )
   end
@@ -144,7 +153,17 @@ defmodule EWalletDB.ExchangePair do
   Restores the given exchange pair from soft-delete.
   """
   @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def restore(exchange_pair), do: SoftDelete.restore(exchange_pair)
+  def restore(exchange_pair) do
+    changeset = restore_changeset(exchange_pair, %{deleted_at: nil})
+
+    case Repo.update(changeset) do
+      {:error, %{errors: [deleted_at: {"has already been taken", []}]}} ->
+        {:error, :exchange_pair_already_exists}
+
+      result ->
+        result
+    end
+  end
 
   @doc """
   Touches the given exchange pair and updates `updated_at` to the current date & time.

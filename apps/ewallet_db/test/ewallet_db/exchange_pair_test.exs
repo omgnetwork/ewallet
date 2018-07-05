@@ -121,6 +121,26 @@ defmodule EWalletDB.ExchangePairTest do
 
   describe "restore/1" do
     test_restore_causes_record_undeleted(ExchangePair)
+
+    test "returns :exchange_pair_already_exists error when an undeleted pair already exists" do
+      omg = insert(:token)
+      eth = insert(:token)
+
+      _active = insert(:exchange_pair, from_token: omg, to_token: eth)
+
+      deleted =
+        insert(
+          :exchange_pair,
+          from_token: omg,
+          to_token: eth,
+          deleted_at: NaiveDateTime.utc_now()
+        )
+
+      {res, code} = ExchangePair.restore(deleted)
+
+      assert res == :error
+      assert code == :exchange_pair_already_exists
+    end
   end
 
   describe "touch/1" do
