@@ -950,6 +950,22 @@ paths:
           $ref: "#/components/responses/TransactionResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /transaction.calculate:
+    post:
+      tags:
+        - Transaction
+      summary: Calculates transaction amounts
+      operationId: transaction_calculate
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TransactionCalculateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TransactionCalculationResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 
   ############################
   #   TRANSACTION REQUESTS   #
@@ -2605,6 +2621,78 @@ components:
               current_page: 1
               is_first_page: true
               is_last_page: true
+    TransactionCalculationSchema:
+      description: "The object schema for a transaction calculation"
+      type: object
+      properties:
+        object:
+          type: string
+        from_amount:
+          type: integer
+        from_token_id:
+          type: string
+        to_amount:
+          type: integer
+        to_token_id:
+          type: string
+        exchange_pair:
+          $ref: '#/components/schemas/ExchangePairSchema'
+        calculated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - from_amount
+        - from_token_id
+        - to_amount
+        - to_token_id
+        - exchange_pair
+        - calculated_at
+    TransactionCalculationResponseSchema:
+      description: "The response schema for a transaction calculation"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            $ref: '#/components/schemas/TransactionCalculationSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "transaction_calculation"
+            from_amount: 20
+            from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+            to_amount: 20000
+            to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+            exchange_pair:
+              object: "exchange_pair"
+              id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
+              name: "ETH/OMG"
+              from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+              from_token:
+                object: "token"
+                id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+                symbol: "ETH"
+                name: "Ethereum"
+                subunit_to_unit: 100
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+              to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+              to_token:
+                object: "token"
+                id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
+                symbol: "OMG"
+                name: "OmiseGO"
+                subunit_to_unit: 100
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+              rate: 1000
+              created_at: "2018-01-10T00:00:00Z"
+              updated_at: "2018-01-10T10:00:00Z"
+            calculated_at: "2018-02-02T00:00:00Z"
 
     ######################################
     #     TRANSACTION REQUEST SCHEMAS    #
@@ -3052,7 +3140,6 @@ components:
       - type: object
         properties:
           data:
-            type: object
             $ref: '#/components/schemas/AccessKeySchema'
         required:
           - data
@@ -3152,7 +3239,6 @@ components:
       - type: object
         properties:
           data:
-            type: object
             $ref: '#/components/schemas/APIKeySchema'
         required:
           - data
@@ -4325,7 +4411,6 @@ components:
                 type: string
               to_address:
                 type: string
-
               from_account_id:
                 type: string
               to_account_id:
@@ -4372,6 +4457,28 @@ components:
               amount: 100
               metadata: {}
               encrypted_metadata: {}
+    TransactionCalculateBody:
+      description: The parameters for calculating transaction amounts.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              from_amount:
+                type: integer
+              from_token_id:
+                type: string
+              to_amount:
+                type: integer
+              to_token_id:
+                type: string
+            required:
+              - from_token_id
+              - to_token_id
+            example:
+              from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
+              to_token_id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
+              from_amount: 100
     CreateTransactionRequestBody:
       description: Create a transaction request using the specified values. That request can then be consumed using a different endpoint to create a transaction from that request.
       required: true
@@ -5002,6 +5109,12 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/TransactionsResponseSchema'
+    TransactionCalculationResponse:
+      description: "Returns a transaction calculation"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/TransactionCalculationResponseSchema'
 
     ######################################
     #   TRANSACTION REQUEST RESPONSES    #
