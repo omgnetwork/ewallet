@@ -12,7 +12,8 @@ class TransactionProvider extends Component {
   }
 
   componentDidMount = () => {
-    if (!this.props.transaction) {
+    if (_.isEmpty(this.props.transaction)) {
+      console.log('xxxx')
       this.props.getTransactionById(this.props.transactionId)
     }
   }

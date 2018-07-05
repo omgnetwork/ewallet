@@ -83,7 +83,8 @@ class TransactionRequestPanel extends Component {
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
     const tokenId = _.get(transaction, 'token.id')
-    const createLink = path => `/${accountId}/${path}/${this.props.location.search}`
+    const createLink = path =>
+      `/${this.props.match.params.accountId}/${path}/${this.props.location.search}`
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
@@ -118,6 +119,25 @@ class TransactionRequestPanel extends Component {
       </TransactionInfoContainer>
     )
   }
+  renderExchangeInfo = ({ exchange }) => {
+    const createLink = path =>
+      `/${this.props.match.params.accountId}/${path}/${this.props.location.search}`
+    const exchangeWalletAddress = _.get(exchange, 'exchange_wallet_address')
+    return (
+      <TransactionInfoContainer>
+        <h5>{'Exchange'}</h5>
+        <InformationItem>
+          <b>Rate : </b>
+          1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
+          {_.get(exchange, 'exchange_pair.rate')} {_.get(exchange, 'exchange_pair.to_token.symbol')}
+        </InformationItem>
+        <InformationItem>
+          <b>Exchange wallet address : </b>
+          <Link to={createLink(`wallet/${exchangeWalletAddress}`)}>{exchangeWalletAddress}</Link>
+        </InformationItem>
+      </TransactionInfoContainer>
+    )
+  }
   render = () => {
     return (
       <TransactionProvider
@@ -141,12 +161,13 @@ class TransactionRequestPanel extends Component {
                 | <span>{moment(transaction.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
               </SubDetailTitle>
               {_.get(transaction, 'error_description') && (
-                <InformationItem style={{color: '#FC7166'}}>
+                <InformationItem style={{ color: '#FC7166' }}>
                   <p>{_.get(transaction, 'error_description')}</p>
                 </InformationItem>
               )}
               {this.renderTransactionInfo(transaction.from, 'From')}
               {this.renderTransactionInfo(transaction.to, 'To')}
+              {this.renderExchangeInfo(transaction)}
             </PanelContainer>
           )
         }}

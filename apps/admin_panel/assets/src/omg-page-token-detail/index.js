@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
@@ -123,10 +123,10 @@ class TokenDetailPage extends Component {
                 {this.renderTopBar(token)}
                 <ContentDetailContainer>
                   {this.props.match.params.state !== 'history' && (
-                    <div>
+                    <Fragment>
                       <DetailContainer>{this.renderDetail(token)}</DetailContainer>
                       {this.renderExchangeRate(token)}
-                    </div>
+                    </Fragment>
                   )}
                   {this.props.match.params.state === 'history' && (
                     <HistoryTable tokenId={token.id} />

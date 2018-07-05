@@ -78,13 +78,13 @@ class CreateExchangeRateModal extends Component {
   }
   static getDerivedStateFromProps (props, state) {
     if (
-      _.get(state, 'fromToken.id') !== props.fromTokenId &&
-      props.fromTokenId !== undefined
+      state.fromTokenId !== props.fromTokenId
     ) {
       return {
         fromTokenSelected: props.fromTokenPrefill,
         fromTokenSearch: `${props.fromTokenPrefill.name} (${props.fromTokenPrefill.symbol})`,
-        fromTokenRate: 1
+        fromTokenRate: 1,
+        fromTokenId: props.fromTokenId
       }
     }
     return null
@@ -98,6 +98,9 @@ class CreateExchangeRateModal extends Component {
   }
   onChangeSearchToken = type => e => {
     this.setState({ [`${type}Search`]: e.target.value, [`${type}Selected`]: null })
+  }
+  onFocusSelect = type => () => {
+    this.setState({ [`${type}SearchToken`]: '', [`${type}Selected`]: null })
   }
   onSelectTokenSelect = type => token => {
     this.setState({ [`${type}Search`]: token.value, [`${type}Selected`]: token })
@@ -145,6 +148,7 @@ class CreateExchangeRateModal extends Component {
                       onSelectItem={this.onSelectTokenSelect('fromToken')}
                       onChange={this.onChangeSearchToken('fromToken')}
                       value={this.state.fromTokenSearch}
+                      onFocus={this.onFocusSelect('fromToken')}
                       options={data.map(b => ({
                         ...{
                           key: `${b.id}${b.name}${b.symbol}`,
@@ -172,6 +176,7 @@ class CreateExchangeRateModal extends Component {
                       onSelectItem={this.onSelectTokenSelect('toToken')}
                       onChange={this.onChangeSearchToken('toToken')}
                       value={this.state.toTokenSearch}
+                      onFocus={this.onFocusSelect('toToken')}
                       options={data.map(b => ({
                         ...{
                           key: `${b.id}${b.name}${b.symbol}`,
