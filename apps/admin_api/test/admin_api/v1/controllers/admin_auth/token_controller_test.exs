@@ -122,6 +122,19 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
                "messages" => nil
              }
     end
+
+    test "returns the stats for a token that hasn't been minted" do
+      token = insert(:token)
+      response = admin_user_request("/token.stats", %{"id" => token.id})
+      assert response["success"]
+
+      assert response["data"] == %{
+               "object" => "token_stats",
+               "token_id" => token.id,
+               "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
+               "total_supply" => 0
+             }
+    end
   end
 
   describe "/token.create" do
