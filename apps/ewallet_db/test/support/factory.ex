@@ -53,10 +53,9 @@ defmodule EWalletDB.Factory do
 
   def exchange_pair_factory do
     %ExchangePair{
-      name: sequence("Exchange pair name"),
-      rate: 1.0,
       from_token: insert(:token),
-      to_token: insert(:token)
+      to_token: insert(:token),
+      rate: 1.0
     }
   end
 

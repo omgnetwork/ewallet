@@ -62,7 +62,6 @@ defmodule EWalletDB.SoftDelete do
   ```
   """
   import Ecto.{Changeset, Query}
-  alias Ecto.DateTime
   alias EWalletDB.Repo
 
   @doc false
@@ -89,6 +88,7 @@ defmodule EWalletDB.SoftDelete do
   @doc """
   Scopes a query down to only records that are not deleted.
   """
+  @spec exclude_deleted(Ecto.Queryable.t()) :: Ecto.Queryable.t()
   def exclude_deleted(queryable) do
     where(queryable, [q], is_nil(q.deleted_at))
   end
@@ -96,6 +96,7 @@ defmodule EWalletDB.SoftDelete do
   @doc """
   Returns whether the given struct is soft-deleted or not.
   """
+  @spec deleted?(struct()) :: boolean()
   def deleted?(struct) do
     !is_nil(struct.deleted_at)
   end
@@ -103,15 +104,17 @@ defmodule EWalletDB.SoftDelete do
   @doc """
   Soft-deletes the given struct.
   """
+  @spec delete(struct()) :: any()
   def delete(struct) do
     struct
-    |> change(deleted_at: DateTime.utc())
+    |> change(deleted_at: NaiveDateTime.utc_now())
     |> Repo.update()
   end
 
   @doc """
   Restores the given struct from soft-delete.
   """
+  @spec restore(struct()) :: any()
   def restore(struct) do
     struct
     |> change(deleted_at: nil)

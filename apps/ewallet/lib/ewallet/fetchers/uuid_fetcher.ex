@@ -48,6 +48,10 @@ defmodule EWallet.UUIDFetcher do
 
   defp load_record(nil, key, value), do: {key, value}
 
+  defp load_record({_schema, _internal_field, uuid_key}, _key, nil) do
+    extract_uuid(nil, uuid_key)
+  end
+
   defp load_record({schema, internal_field, uuid_key}, _key, value) do
     [{internal_field, value}]
     |> schema.get_by()

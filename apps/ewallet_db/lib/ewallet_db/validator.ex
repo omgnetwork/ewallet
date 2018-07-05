@@ -150,4 +150,25 @@ defmodule EWalletDB.Validator do
         changeset
     end
   end
+
+  @doc """
+  Validates that the values are different.
+  """
+  def validate_different_values(changeset, key_1, key_2) do
+    value_1 = Changeset.get_field(changeset, key_1)
+    value_2 = Changeset.get_field(changeset, key_2)
+
+    case value_1 == value_2 do
+      true ->
+        Changeset.add_error(
+          changeset,
+          key_2,
+          "can't have the same value as `#{key_1}`",
+          validation: :different_values
+        )
+
+      false ->
+        changeset
+    end
+  end
 end
