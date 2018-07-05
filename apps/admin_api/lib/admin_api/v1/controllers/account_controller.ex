@@ -61,8 +61,8 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a specific account by its id.
   """
   def get(conn, %{"id" => id}) do
-    with :ok <- permit(:get, conn.assigns, id),
-         %Account{} = account <- Account.get_by(id: id),
+    with %Account{} = account <- Account.get_by(id: id) || {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, account.id),
          {:ok, account} <- Preloader.preload_one(account, @preload_fields) do
       render(conn, :account, %{account: account})
     else
@@ -107,8 +107,8 @@ defmodule AdminAPI.V1.AccountController do
   The requesting user must have write permission on the given account.
   """
   def update(conn, %{"id" => account_id} = attrs) do
-    with :ok <- permit(:update, conn.assigns, account_id),
-         %{} = original <- Account.get(account_id) || {:error, :account_id_not_found},
+    with %Account{} = original <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:update, conn.assigns, original.id),
          {:ok, updated} <- Account.update(original, attrs),
          {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
       render(conn, :account, %{account: updated})
@@ -127,8 +127,8 @@ defmodule AdminAPI.V1.AccountController do
   Uploads an image as avatar for a specific account.
   """
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
-    with :ok <- permit(:update, conn.assigns, id),
-         %{} = account <- Account.get(id) || {:error, :account_id_not_found},
+    with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
+         :ok <- permit(:update, conn.assigns, account.id),
          %{} = saved <- Account.store_avatar(account, attrs),
          {:ok, saved} <- Preloader.preload_one(saved, @preload_fields) do
       render(conn, :account, %{account: saved})

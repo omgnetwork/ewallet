@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
+  alias EWalletDB.{Account, AccountUser}
 
   describe "/user.all" do
     test "returns a list of users and pagination data" do
@@ -20,10 +21,16 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
     end
 
     test "returns a list of users according to search_term, sort_by and sort_direction" do
-      insert(:user, %{username: "match_user1"})
-      insert(:user, %{username: "match_user3"})
-      insert(:user, %{username: "match_user2"})
-      insert(:user, %{username: "missed_user1"})
+      user_1 = insert(:user, %{username: "match_user1"})
+      user_2 = insert(:user, %{username: "match_user3"})
+      user_3 = insert(:user, %{username: "match_user2"})
+      user_4 = insert(:user, %{username: "missed_user1"})
+
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user_1.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user_2.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account.uuid, user_4.uuid)
 
       attrs = %{
         # Search is case-insensitive
@@ -48,6 +55,10 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       users = insert_list(3, :user)
       # Pick the 2nd inserted user
       target = Enum.at(users, 1)
+
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, target.uuid)
+
       response = admin_user_request("/user.get", %{"id" => target.id})
 
       assert response["success"]
@@ -55,26 +66,20 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["data"]["username"] == target.username
     end
 
-    test "returns 'user:id_not_found' if the given ID was not found" do
+    test "returns 'unauthorized' if the given ID was not found" do
       response = admin_user_request("/user.get", %{"id" => "usr_12345678901234567890123456"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
-    test "returns 'user:id_not_found' if the given ID format is invalid" do
+    test "returns 'unauthorized' if the given ID format is invalid" do
       response = admin_user_request("/user.get", %{"id" => "not_uuid"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "responds with user data if the user is found by its provider_user_id" do
@@ -82,6 +87,9 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         :user
         |> build(provider_user_id: "provider_id_1")
         |> insert()
+
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, inserted_user.uuid)
 
       request_data = %{provider_user_id: inserted_user.provider_user_id}
       response = admin_user_request("/user.get", request_data)
@@ -121,8 +129,8 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         "success" => false,
         "data" => %{
           "object" => "error",
-          "code" => "user:provider_user_id_not_found",
-          "description" => "There is no user corresponding to the provided provider_user_id",
+          "code" => "unauthorized",
+          "description" => "You are not allowed to perform the requested operation",
           "messages" => nil
         }
       }
@@ -242,6 +250,9 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           }
         })
 
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
       response = admin_user_request("/user.update", request_data)
 
       assert response["version"] == @expected_version
@@ -259,6 +270,9 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
 
     test "updates the metadata and encrypted metadata" do
       user = insert(:user)
+
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       request_data =
         params_for(:user, %{
@@ -281,6 +295,9 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           encrypted_metadata: %{my_secret_stuff: "123"}
         })
 
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
       response =
         admin_user_request("/user.update", %{
           provider_user_id: user.provider_user_id,
@@ -299,6 +316,9 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           metadata: %{first_name: "updated_first_name"},
           encrypted_metadata: %{my_secret_stuff: "123"}
         })
+
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       response =
         admin_user_request("/user.update", %{
@@ -319,6 +339,9 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           metadata: %{first_name: "updated_first_name"},
           encrypted_metadata: %{my_secret_stuff: "123"}
         })
+
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       response =
         admin_user_request("/user.update", %{
@@ -355,10 +378,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["version"] == @expected_version
       assert response["success"] == false
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:provider_user_id_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no user corresponding to the provided provider_user_id"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "returns an error if username is not provided" do

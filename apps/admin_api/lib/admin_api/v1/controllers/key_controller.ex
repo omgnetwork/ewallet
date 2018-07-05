@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.KeyController do
     with :ok <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
       Key
-      |> Key.all_for_account_uuids(account_uuids)
+      |> Key.query_all_for_account_uuids(account_uuids)
       |> SearchParser.to_query(attrs, @search_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)

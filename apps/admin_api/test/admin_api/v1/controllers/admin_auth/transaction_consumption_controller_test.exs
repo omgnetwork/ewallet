@@ -185,8 +185,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "data" => %{
                  "messages" => nil,
                  "object" => "error",
-                 "code" => "account:id_not_found",
-                 "description" => "There is no account corresponding to the provided id"
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation"
                }
              }
     end
@@ -231,25 +231,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                t["id"]
              end) == [
                meta.tc_2.id
-             ]
-    end
-
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/account.get_transaction_consumptions", %{
-          "account_id" => meta.account.id,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
              ]
     end
 
@@ -412,25 +393,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/user.get_transaction_consumptions", %{
-          "user_id" => meta.user.id,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
-             ]
-    end
-
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
         admin_user_request("/user.get_transaction_consumptions", %{
@@ -503,7 +465,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :transaction_request_id_not_found when formatted_transaction_request_id is not valid" do
+    test "returns :unauthorized when formatted_transaction_request_id is not valid" do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => "fake",
@@ -515,11 +477,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "transaction_request:transaction_request_not_found",
+                 "code" => "unauthorized",
                  "messages" => nil,
                  "object" => "error",
-                 "description" =>
-                   "There is no transaction request corresponding to the provided ID."
+                 "description" => "You are not allowed to perform the requested operation"
                }
              }
     end
@@ -559,25 +520,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                t["id"]
              end) == [
                meta.tc_2.id
-             ]
-    end
-
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
-          "formatted_transaction_request_id" => meta.transaction_request.id,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
              ]
     end
 
@@ -653,7 +595,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :address_not_found when address is not provided" do
+    test "returns :unauthorized when address is not provided" do
       response =
         admin_user_request("/wallet.get_transaction_consumptions", %{
           "address" => "fake-0000-0000-0000",
@@ -665,10 +607,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "wallet:wallet_not_found",
+                 "code" => "unauthorized",
                  "messages" => nil,
                  "object" => "error",
-                 "description" => "There is no wallet corresponding to the provided address"
+                 "description" => "You are not allowed to perform the requested operation"
                }
              }
     end
@@ -711,25 +653,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
-          "address" => meta.wallet.address,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
-             ]
-    end
-
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
         admin_user_request("/wallet.get_transaction_consumptions", %{
@@ -767,7 +690,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == transaction_consumption.id
     end
 
-    test "returns an error when the request ID is not found" do
+    test "returns an error when the consumption ID is not found" do
       response =
         admin_user_request("/transaction_consumption.get", %{
           id: "123"

@@ -303,8 +303,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "wallet:wallet_not_found",
-                 "description" => "There is no wallet corresponding to the provided address",
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -386,9 +386,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "transaction_request:transaction_request_not_found",
-                 "description" =>
-                   "There is no transaction request corresponding to the provided ID.",
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation",
                  "messages" => nil,
                  "object" => "error"
                }

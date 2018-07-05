@@ -299,8 +299,15 @@ defmodule EWalletDB.TransactionConsumption do
   end
 
   @spec query_all_for(Atom.t() | String.t(), any()) :: Ecto.Query.t()
+  def query_all_for(field_name, value) when is_list(value),
+    do: where(TransactionConsumption, [t], field(t, ^field_name) in ^value)
+
   def query_all_for(field_name, value),
     do: where(TransactionConsumption, [t], field(t, ^field_name) == ^value)
+
+  def query_all_for_account_uuids_and_users(query, account_uuids) do
+    where(query, [c], c.account_uuid in ^account_uuids or not is_nil(c.user_uuid))
+  end
 
   @doc """
   Get all confirmed transaction consumptions.

@@ -9,8 +9,16 @@ defmodule AdminAPI.V1.AccountMembershipController do
   Lists the users that are assigned to the given account.
   """
   def get_users(conn, %{"account_id" => account_id}) do
-    with :ok <- permit(:get, conn.assigns, account_id) do
-      do_get_users(conn, Account.get(account_id, preload: [memberships: [:user, :role]]))
+    with %Account{} = account <-
+           Account.get(account_id, preload: [memberships: [:user, :role]]) ||
+             {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, account.id) do
+      # FIX THIS
+      # get all ancestors of account
+      # get all memberships of result
+      # unicity by role priority (lower wins)
+      # send that back
+      do_get_users(conn, account)
     else
       {:error, error} -> handle_error(conn, error)
     end
@@ -35,10 +43,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
           "redirect_url" => redirect_url
         } = attrs
       ) do
-    with :ok <- permit(:create, conn.assigns, account_id),
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:create, conn.assigns, account.id),
          user <- get_user_or_email(attrs),
          {false, :user_id_not_found} <- {is_tuple(user), :user_id_not_found},
-         %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
          %Role{} = role <- Role.get_by_name(role_name) || {:error, :role_name_not_found},
          {:ok, _} <- assign_or_invite(user, account, role, redirect_url) do
       render(conn, :empty, %{success: true})
@@ -110,9 +118,9 @@ defmodule AdminAPI.V1.AccountMembershipController do
         "user_id" => user_id,
         "account_id" => account_id
       }) do
-    with :ok <- permit(:delete, conn.assigns, account_id),
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:delete, conn.assigns, account.id),
          %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
-         %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
          {:ok, _} <- Membership.unassign(user, account) do
       render(conn, :empty, %{success: true})
     else

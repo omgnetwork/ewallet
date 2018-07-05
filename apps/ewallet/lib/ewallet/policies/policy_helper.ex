@@ -34,8 +34,10 @@ defmodule EWallet.PolicyHelper do
     end
   end
 
-  defp authorize(memberships, account_id) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+  defp authorize(memberships, account_id_or_uuid) do
+    with %Account{} = account <-
+           Account.get(account_id_or_uuid) || Account.get_by(uuid: account_id_or_uuid) ||
+             {:error, :unauthorized},
          ancestors <- Account.get_all_ancestors(account),
          ancestors_uuids <- Enum.map(ancestors, fn ancestor -> ancestor.uuid end),
          membership_accounts_uuids <-

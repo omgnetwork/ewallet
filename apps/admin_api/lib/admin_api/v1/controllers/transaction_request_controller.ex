@@ -1,6 +1,8 @@
 defmodule AdminAPI.V1.TransactionRequestController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.AccountHelper
+  alias EWallet.TransactionRequestPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
 
   alias EWallet.{
@@ -16,24 +18,41 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @sort_fields [:id, :status, :type, :correlation_id, :inserted_at, :expired_at]
 
   def all(conn, attrs) do
-    TransactionRequest
-    |> Preloader.to_query(@preload_fields)
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
+    with :ok <- permit(:all, conn.assigns, nil),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
+      TransactionRequest
+      |> TransactionRequest.query_all_for_account_uuids_and_users(account_uuids)
+      |> Preloader.to_query(@preload_fields)
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      error -> respond(error, conn)
+    end
   end
 
   def get(conn, %{"formatted_id" => formatted_id}) do
-    formatted_id
-    |> TransactionRequestFetcher.get()
-    |> respond(conn)
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
+         :ok <- permit(:get, conn.assigns, request) do
+      respond({:ok, request}, conn)
+    else
+      {:error, :transaction_request_not_found} ->
+        respond({:error, :unauthorized}, conn)
+
+      error ->
+        respond(error, conn)
+    end
   end
 
   def create(conn, attrs) do
-    attrs
-    |> TransactionRequestGate.create()
-    |> respond(conn)
+    with :ok <- permit(:create, conn.assigns, attrs) do
+      attrs
+      |> TransactionRequestGate.create()
+      |> respond(conn)
+    else
+      error -> respond(error, conn)
+    end
   end
 
   # Respond with a list of transaction requests
@@ -56,5 +75,11 @@ defmodule AdminAPI.V1.TransactionRequestController do
     render(conn, :transaction_request, %{
       transaction_request: request
     })
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, transaction_request_id) do
+    Bodyguard.permit(TransactionRequestPolicy, action, params, transaction_request_id)
   end
 end

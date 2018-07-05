@@ -8,7 +8,21 @@ defmodule EWalletDB.Account do
   import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, APIKey, Category, Key, Membership, Token, Wallet, Intersecter}
+
+  alias EWalletDB.{
+    Repo,
+    Account,
+    User,
+    AccountUser,
+    APIKey,
+    Category,
+    Key,
+    Membership,
+    Token,
+    Wallet,
+    Intersecter
+  }
+
   alias EWalletDB.Helpers.InputAttribute
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -290,6 +304,21 @@ defmodule EWalletDB.Account do
     |> where([b], b.identifier == ^identifier)
     |> where([b], b.account_uuid == ^account.uuid)
     |> Repo.one()
+  end
+
+  def get_all_users(account_uuids) do
+    account_uuids
+    |> query_all_users()
+    |> Repo.all()
+  end
+
+  def query_all_users(account_uuids) do
+    from(
+      user in User,
+      join: account_user in AccountUser,
+      on: account_user.user_uuid == user.uuid,
+      where: account_user.account_uuid in ^account_uuids
+    )
   end
 
   @doc """

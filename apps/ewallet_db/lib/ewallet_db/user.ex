@@ -18,6 +18,8 @@ defmodule EWalletDB.User do
     Membership,
     Role,
     User,
+    AccountUser,
+    UserQuery,
     Helpers.Crypto
   }
 
@@ -210,6 +212,12 @@ defmodule EWalletDB.User do
     |> preload_option(opts)
   end
 
+  def get_end_users do
+    User
+    |> UserQuery.where_end_user()
+    |> Repo.all()
+  end
+
   @doc """
   Creates a user.
 
@@ -319,6 +327,17 @@ defmodule EWalletDB.User do
   """
   def get_preloaded_primary_wallet(user) do
     Enum.find(user.wallets, fn wallet -> wallet.identifier == Wallet.primary() end)
+  end
+
+  def get_all_linked_accounts(user_uuid) do
+    Repo.all(
+      from(
+        account in Account,
+        join: account_user in AccountUser,
+        on: account_user.account_uuid == account.uuid,
+        where: account_user.user_uuid == ^user_uuid
+      )
+    )
   end
 
   @doc """

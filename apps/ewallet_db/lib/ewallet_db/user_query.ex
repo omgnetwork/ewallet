@@ -17,6 +17,11 @@ defmodule EWalletDB.UserQuery do
     |> select([c], c)
   end
 
+  def where_end_user(queryable \\ User) do
+    queryable
+    |> where([u], not is_nil(u.provider_user_id))
+  end
+
   def where_has_membership_in_accounts(account_uuids, queryable \\ User) do
     # Returns only the User struct, not the Memberships
     queryable
