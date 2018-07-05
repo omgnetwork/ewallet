@@ -41,8 +41,16 @@ defmodule EWallet.TransactionRequestPolicy do
     end
   end
 
+  def authorize(:create, %{key: key}, %{"account_uuid" => account_uuid}) do
+    Account.descendant?(key.account, account_uuid)
+  end
+
   def authorize(:create, %{key: key}, %{"account_id" => account_id}) do
     Account.descendant?(key.account, account_id)
+  end
+
+  def authorize(:create, %{admin_user: admin_user}, %{"account_uuid" => account_uuid}) do
+    PolicyHelper.admin_authorize(admin_user, account_uuid)
   end
 
   def authorize(:create, %{admin_user: admin_user}, %{"account_id" => account_id}) do

@@ -1,11 +1,14 @@
 defmodule EWalletAPI.V1.TransactionViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.TransactionView
-  alias EWallet.Web.{Date, V1.TokenSerializer}
+  alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer, V1.AccountSerializer}
+  alias EWalletDB.Helpers.Assoc
 
   describe "EWalletAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct structure" do
-      transaction = insert(:transaction)
+      transaction =
+        insert(:transaction)
+        |> Repo.preload([:from_token, :to_token, :from_user, :from_account, :to_user, :to_account])
 
       expected = %{
         version: @expected_version,
@@ -18,10 +21,10 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.from,
             amount: transaction.from_amount,
-            account: nil,
-            account_id: nil,
-            user: nil,
-            user_id: nil,
+            account: AccountSerializer.serialize(transaction.from_account),
+            account_id: Assoc.get(transaction, [:from_account, :id]),
+            user: UserSerializer.serialize(transaction.from_user),
+            user_id: Assoc.get(transaction, [:from_user, :id]),
             token_id: transaction.from_token.id,
             token: TokenSerializer.serialize(transaction.from_token)
           },
@@ -29,10 +32,10 @@ defmodule EWalletAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.to,
             amount: transaction.to_amount,
-            account: nil,
-            account_id: nil,
-            user: nil,
-            user_id: nil,
+            account: AccountSerializer.serialize(transaction.to_account),
+            account_id: Assoc.get(transaction, [:to_account, :id]),
+            user: UserSerializer.serialize(transaction.to_user),
+            user_id: Assoc.get(transaction, [:to_user, :id]),
             token_id: transaction.to_token.id,
             token: TokenSerializer.serialize(transaction.to_token)
           },

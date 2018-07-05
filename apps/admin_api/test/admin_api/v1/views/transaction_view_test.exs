@@ -1,12 +1,15 @@
 defmodule AdminAPI.V1.TransactionViewTest do
   use AdminAPI.ViewCase, :v1
-  alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.V1.TokenSerializer
   alias AdminAPI.V1.TransactionView
+  alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer, V1.AccountSerializer}
+  alias EWalletDB.Helpers.Assoc
 
   describe "AdminAPI.V1.TransactionView.render/2" do
     test "renders transaction.json with correct response structure" do
-      transaction = insert(:transaction)
+      transaction =
+        insert(:transaction)
+        |> Repo.preload([:from_token, :to_token, :from_user, :from_account, :to_user, :to_account])
 
       expected = %{
         version: @expected_version,
@@ -19,10 +22,10 @@ defmodule AdminAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.from,
             amount: transaction.from_amount,
-            account: nil,
-            account_id: nil,
-            user: nil,
-            user_id: nil,
+            account: AccountSerializer.serialize(transaction.from_account),
+            account_id: Assoc.get(transaction, [:from_account, :id]),
+            user: UserSerializer.serialize(transaction.from_user),
+            user_id: Assoc.get(transaction, [:from_user, :id]),
             token_id: transaction.from_token.id,
             token: TokenSerializer.serialize(transaction.from_token)
           },
@@ -30,10 +33,10 @@ defmodule AdminAPI.V1.TransactionViewTest do
             object: "transaction_source",
             address: transaction.to,
             amount: transaction.to_amount,
-            account: nil,
-            account_id: nil,
-            user: nil,
-            user_id: nil,
+            account: AccountSerializer.serialize(transaction.to_account),
+            account_id: Assoc.get(transaction, [:to_account, :id]),
+            user: UserSerializer.serialize(transaction.to_user),
+            user_id: Assoc.get(transaction, [:to_user, :id]),
             token_id: transaction.to_token.id,
             token: TokenSerializer.serialize(transaction.to_token)
           },
@@ -60,8 +63,13 @@ defmodule AdminAPI.V1.TransactionViewTest do
     end
 
     test "renders transactions.json with correct response structure" do
-      transaction1 = insert(:transaction)
-      transaction2 = insert(:transaction)
+      transaction1 =
+        insert(:transaction)
+        |> Repo.preload([:from_token, :to_token, :from_user, :from_account, :to_user, :to_account])
+
+      transaction2 =
+        insert(:transaction)
+        |> Repo.preload([:from_token, :to_token, :from_user, :from_account, :to_user, :to_account])
 
       paginator = %Paginator{
         data: [transaction1, transaction2],
@@ -87,10 +95,10 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction1.from,
                 amount: transaction1.from_amount,
-                account: nil,
-                account_id: nil,
-                user: nil,
-                user_id: nil,
+                account: AccountSerializer.serialize(transaction1.from_account),
+                account_id: Assoc.get(transaction1, [:from_account, :id]),
+                user: UserSerializer.serialize(transaction1.from_user),
+                user_id: Assoc.get(transaction1, [:from_user, :id]),
                 token_id: transaction1.from_token.id,
                 token: TokenSerializer.serialize(transaction1.from_token)
               },
@@ -98,10 +106,10 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction1.to,
                 amount: transaction1.to_amount,
-                account: nil,
-                account_id: nil,
-                user: nil,
-                user_id: nil,
+                account: AccountSerializer.serialize(transaction1.to_account),
+                account_id: Assoc.get(transaction1, [:to_account, :id]),
+                user: UserSerializer.serialize(transaction1.to_user),
+                user_id: Assoc.get(transaction1, [:to_user, :id]),
                 token_id: transaction1.to_token.id,
                 token: TokenSerializer.serialize(transaction1.to_token)
               },
@@ -130,10 +138,10 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction2.from,
                 amount: transaction2.from_amount,
-                account: nil,
-                account_id: nil,
-                user: nil,
-                user_id: nil,
+                account: AccountSerializer.serialize(transaction2.from_account),
+                account_id: Assoc.get(transaction2, [:from_account, :id]),
+                user: UserSerializer.serialize(transaction2.from_user),
+                user_id: Assoc.get(transaction2, [:from_user, :id]),
                 token_id: transaction2.from_token.id,
                 token: TokenSerializer.serialize(transaction2.from_token)
               },
@@ -141,10 +149,10 @@ defmodule AdminAPI.V1.TransactionViewTest do
                 object: "transaction_source",
                 address: transaction2.to,
                 amount: transaction2.to_amount,
-                account: nil,
-                account_id: nil,
-                user: nil,
-                user_id: nil,
+                account: AccountSerializer.serialize(transaction2.to_account),
+                account_id: Assoc.get(transaction2, [:to_account, :id]),
+                user: UserSerializer.serialize(transaction2.to_user),
+                user_id: Assoc.get(transaction2, [:to_user, :id]),
                 token_id: transaction2.to_token.id,
                 token: TokenSerializer.serialize(transaction2.to_token)
               },

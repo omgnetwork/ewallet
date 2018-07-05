@@ -29,7 +29,7 @@ defmodule EWallet.Web.SearchParser do
         |> map_field(mapping)
         |> allowed?(fields)
 
-      build_search_query(dynamic, field, value)
+      build_and_search_query(dynamic, field, value)
     end)
     |> handle_dynamic_return(queryable)
   end
@@ -37,7 +37,7 @@ defmodule EWallet.Web.SearchParser do
   def to_query(queryable, %{"search_term" => term}, fields, _mapping) when term != nil do
     fields
     |> Enum.reduce(false, fn field, dynamic ->
-      build_search_query(dynamic, field, term)
+      build_or_search_query(dynamic, field, term)
     end)
     |> handle_dynamic_return(queryable)
   end
@@ -84,22 +84,41 @@ defmodule EWallet.Web.SearchParser do
     end
   end
 
-  defp build_search_query(dynamic, _field, nil), do: dynamic
-  defp build_search_query(dynamic, nil, _value), do: dynamic
+  defp build_or_search_query(dynamic, _field, nil), do: dynamic
+  defp build_or_search_query(dynamic, nil, _value), do: dynamic
 
-  defp build_search_query(false, {field, :uuid}, term) do
+  defp build_or_search_query(false, {field, :uuid}, term) do
     dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%"))
   end
 
-  defp build_search_query(dynamic, {field, :uuid}, term) do
+  defp build_or_search_query(dynamic, {field, :uuid}, term) do
     dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%") or ^dynamic)
   end
 
-  defp build_search_query(false, field, term) do
+  defp build_or_search_query(false, field, term) do
     dynamic([q], ilike(field(q, ^field), ^"%#{term}%"))
   end
 
-  defp build_search_query(dynamic, field, term) do
+  defp build_or_search_query(dynamic, field, term) do
     dynamic([q], ilike(field(q, ^field), ^"%#{term}%") or ^dynamic)
+  end
+
+  defp build_and_search_query(dynamic, _field, nil), do: dynamic
+  defp build_and_search_query(dynamic, nil, _value), do: dynamic
+
+  defp build_and_search_query(false, {field, :uuid}, term) do
+    dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%"))
+  end
+
+  defp build_and_search_query(dynamic, {field, :uuid}, term) do
+    dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{term}%") and ^dynamic)
+  end
+
+  defp build_and_search_query(false, field, term) do
+    dynamic([q], ilike(field(q, ^field), ^"%#{term}%"))
+  end
+
+  defp build_and_search_query(dynamic, field, term) do
+    dynamic([q], ilike(field(q, ^field), ^"%#{term}%") and ^dynamic)
   end
 end

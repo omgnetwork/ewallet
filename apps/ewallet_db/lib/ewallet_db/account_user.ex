@@ -42,9 +42,11 @@ defmodule EWalletDB.AccountUser do
 
   @spec insert(attrs :: map()) :: {:ok, %AccountUser{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
+    opts = [on_conflict: :nothing]
+
     %AccountUser{}
     |> changeset(attrs)
-    |> Repo.insert()
+    |> Repo.insert(opts)
   end
 
   def link(account_uuid, user_uuid) do

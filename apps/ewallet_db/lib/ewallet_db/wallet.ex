@@ -23,6 +23,8 @@ defmodule EWalletDB.Wallet do
   def primary, do: @primary
   def secondary, do: @secondary
 
+  def genesis_address, do: @genesis_address
+
   @primary_key {:uuid, UUID, autogenerate: true}
   @cast_attrs [
     :address,

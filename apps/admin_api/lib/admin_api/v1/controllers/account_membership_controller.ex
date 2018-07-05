@@ -13,11 +13,6 @@ defmodule AdminAPI.V1.AccountMembershipController do
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, account.id) do
-      # FIX THIS
-      # get all ancestors of account
-      # get all memberships of result
-      # unicity by role priority (lower wins)
-      # send that back
       do_get_users(conn, account)
     else
       {:error, error} -> handle_error(conn, error)

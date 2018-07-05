@@ -42,9 +42,9 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       from: %{
         object: "transaction_source",
         user_id: Assoc.get(transaction, [:from_user, :id]),
-        user: UserSerializer.serialize(transaction.to_user),
+        user: UserSerializer.serialize(transaction.from_user),
         account_id: Assoc.get(transaction, [:from_account, :id]),
-        account: AccountSerializer.serialize(transaction.to_account),
+        account: AccountSerializer.serialize(transaction.from_account),
         address: transaction.from,
         amount: transaction.from_amount,
         token_id: Assoc.get(transaction, [:from_token, :id]),

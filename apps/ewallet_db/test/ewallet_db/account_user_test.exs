@@ -46,13 +46,7 @@ defmodule EWalletDB.AccountUserTest do
       params = params_for(:account_user, user_uuid: user.uuid, account_uuid: account.uuid)
 
       {:ok, _changeset} = AccountUser.insert(params)
-
-      {:error, changeset} = AccountUser.insert(params)
-
-      assert Enum.member?(
-               changeset.errors,
-               {:account_uuid, {"has already been taken", []}}
-             )
+      {:ok, _changeset} = AccountUser.insert(params)
 
       assert AccountUser |> Repo.all() |> length() == 1
     end
@@ -73,15 +67,9 @@ defmodule EWalletDB.AccountUserTest do
       account = insert(:account)
       user = insert(:user)
       {:ok, _account_user} = AccountUser.link(account.uuid, user.uuid)
-      {res, changeset} = AccountUser.link(account.uuid, user.uuid)
+      {res, _changeset} = AccountUser.link(account.uuid, user.uuid)
 
-      assert res == :error
-
-      assert Enum.member?(
-               changeset.errors,
-               {:account_uuid, {"has already been taken", []}}
-             )
-
+      assert res == :ok
       assert AccountUser |> Repo.all() |> length() == 1
     end
 

@@ -383,10 +383,12 @@ defmodule EWalletDB.Account do
     end
   end
 
-  def descendant?(ancestor, descendant_id) do
+  def descendant?(ancestor, descendant_uuid_or_id) do
     ancestor
     |> get_all_descendants()
-    |> Enum.any?(fn descendant -> descendant.id == descendant_id end)
+    |> Enum.any?(fn descendant ->
+      descendant.id == descendant_uuid_or_id || descendant.uuid == descendant_uuid_or_id
+    end)
   end
 
   @spec get_all_descendants_uuids(%Account{} | List.t()) :: List.t()
