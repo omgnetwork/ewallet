@@ -77,7 +77,7 @@ defmodule EWalletDB.Invite do
   """
   def generate(user, opts \\ [preload: []]) do
     # Insert a new invite
-    {:ok, invite} = insert(%{token: Crypto.generate_key(@token_length)})
+    {:ok, invite} = insert(%{token: Crypto.generate_base64_key(@token_length)})
 
     # Assign the invite to the user
     changeset = change(user, invite_uuid: invite.uuid)

@@ -38,7 +38,7 @@ defmodule AdminAPI.Inviter do
         {:ok, user} =
           User.insert(%{
             email: email,
-            password: Crypto.generate_key(32)
+            password: Crypto.generate_base64_key(32)
           })
 
         user

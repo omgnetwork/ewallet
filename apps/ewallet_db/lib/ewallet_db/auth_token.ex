@@ -76,7 +76,7 @@ defmodule EWalletDB.AuthToken do
       owner_app: Atom.to_string(owner_app),
       user_uuid: user.uuid,
       account_uuid: if(account, do: account.uuid, else: nil),
-      token: Crypto.generate_key(@key_length)
+      token: Crypto.generate_base64_key(@key_length)
     }
 
     insert(attrs)
