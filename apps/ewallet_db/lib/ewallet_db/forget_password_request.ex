@@ -60,8 +60,6 @@ defmodule EWalletDB.ForgetPasswordRequest do
     ForgetPasswordRequest
     |> where([f], f.user_uuid == ^user.uuid)
     |> Repo.delete_all()
-
-    user
   end
 
   @doc """

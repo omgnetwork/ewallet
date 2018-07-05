@@ -39,12 +39,15 @@ defmodule AdminAPI.V1.AccountMembershipController do
       {true, :user_id_not_found} ->
         handle_error(conn, :user_id_not_found)
 
-      {:error, error} when is_atom(error) ->
-        handle_error(conn, error)
+      {:error, code} when is_atom(code) ->
+        handle_error(conn, code)
 
       # Matches a different error format returned by Membership.assign_user/2
       {:error, changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, code, description} ->
+        handle_error(conn, code, description)
     end
   end
 
@@ -75,21 +78,15 @@ defmodule AdminAPI.V1.AccountMembershipController do
   end
 
   defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
-    case Inviter.invite(email, account, role, redirect_url) do
-      {:ok, invite} -> {:ok, invite.user}
-      {:error, _} = error -> error
-    end
+    Inviter.invite(email, account, role, redirect_url)
   end
 
   defp assign_or_invite(user, account, role, redirect_url) do
     case User.get_status(user) do
       :pending_confirmation ->
-        invite =
-          user
-          |> User.get_invite()
-          |> Inviter.send_email(redirect_url)
-
-        {:ok, invite}
+        user
+        |> User.get_invite()
+        |> Inviter.send_email(redirect_url)
 
       :active ->
         Membership.assign(user, account, role)

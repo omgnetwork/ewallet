@@ -4,6 +4,8 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
   alias EWallet.Web.Date
   alias EWalletDB.User
 
+  @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
+
   describe "/account.get_users" do
     test "returns a list of users with role and status" do
       account = insert(:account)
@@ -95,7 +97,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
           user_id: insert(:user).id,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
-          redirect_url: "https://invite_url/?email={email}&token={token}"
+          redirect_url: @redirect_url
         })
 
       assert response["success"] == true
@@ -108,7 +110,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
           email: insert(:admin).email,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
-          redirect_url: "https://invite_url/?email={email}&token={token}"
+          redirect_url: @redirect_url
         })
 
       assert response["success"] == true
@@ -121,7 +123,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
           email: "invalid_format",
           account_id: insert(:account).id,
           role_name: insert(:role).name,
-          redirect_url: "https://invite_url/?email={email}&token={token}"
+          redirect_url: @redirect_url
         })
 
       assert response["success"] == false
@@ -130,13 +132,31 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["description"] == "The format of the provided email is invalid"
     end
 
+    test "returns client:invalid_parameter error if the redirect_url is not allowed" do
+      redirect_url = "http://unknown-url.com/invite?email={email}&token={token}"
+
+      response =
+        admin_user_request("/account.assign_user", %{
+          email: "wrong.redirect.url@example.com",
+          account_id: insert(:account).id,
+          role_name: insert(:role).name,
+          redirect_url: redirect_url
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
+    end
+
     test "returns an error if the given user id does not exist" do
       response =
         admin_user_request("/account.assign_user", %{
           user_id: UUID.generate(),
           account_id: insert(:account).id,
           role_name: insert(:role).name,
-          redirect_url: "https://invite_url/?email={email}&token={token}"
+          redirect_url: @redirect_url
         })
 
       assert response["success"] == false
@@ -153,7 +173,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
           user_id: insert(:user).id,
           account_id: "acc_12345678901234567890123456",
           role_name: insert(:role).name,
-          redirect_url: "https://invite_url/?email={email}&token={token}"
+          redirect_url: @redirect_url
         })
 
       assert response["success"] == false
@@ -170,7 +190,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
           user_id: insert(:user).id,
           account_id: insert(:account).id,
           role_name: "invalid_role",
-          redirect_url: "https://invite_url/?email={email}&token={token}"
+          redirect_url: @redirect_url
         })
 
       assert response["success"] == false
