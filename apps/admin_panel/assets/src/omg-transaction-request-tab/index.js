@@ -9,7 +9,7 @@ import queryString from 'query-string'
 import QR from './QrCode'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { formatRecieveAmountToTotal, formatAmount } from '../utils/formatter'
+import { formatRecieveAmountToTotal, formatAmount, formatAmountReceive } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
@@ -181,7 +181,7 @@ class TransactionRequestPanel extends Component {
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
       return {
         transactionRequestId,
-        amount: formatRecieveAmountToTotal(
+        amount: formatAmountReceive(
           transactionRequest.amount,
           transactionRequest.token.subunit_to_unit
         ),

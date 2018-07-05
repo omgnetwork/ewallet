@@ -75,7 +75,7 @@ export const rejectConsumptionById = id => async dispatch => {
         data: result.data.data
       })
     } else {
-      return dispatch({ type: 'CONSUMPTION/REJECT/FAILED', data: result.data.data })
+      return dispatch({ type: 'CONSUMPTION/REJECT/FAILED', error: result.data.data })
     }
   } catch (error) {
     console.log(error)

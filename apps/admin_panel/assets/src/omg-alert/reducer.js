@@ -53,14 +53,23 @@ export const alertsReducer = createReducer([], {
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
     return [...state, createAlertState(`Transfer successfully.`, 'success')]
   },
-  'CONSUMPTION/APPROVE/SUCCESS': (state, { data }) => {
-    return [...state, createAlertState(`Approved consumption ${data.id} successfully.`, 'success')]
-  },
-  'CONSUMPTION/REJECT/SUCCESS': (state, { data }) => {
-    return [...state, createAlertState(`Rejected consumption ${data.id} successfully.`, 'success')]
-  },
   'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'CONSUMPTION/REJECT/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'CONSUMPTION/REJECT/SUCCESS': (state, { data }) => {
+    return [
+      ...state,
+      createAlertState(
+        <div>
+          Rejected consumption{' '}
+          <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> successfully.
+        </div>,
+        'success'
+      )
+    ]
   },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
     return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
@@ -69,18 +78,38 @@ export const alertsReducer = createReducer([], {
     if (data.status === 'confirmed') {
       return [...state, createAlertState(`Consumed transaction request.`, 'success')]
     }
+    return state
   },
-  'SOCKET_MESSAGE/CONSUMPTION/REQUEST/SUCCESS': (state, { data }) => {
+  'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
+    if (data.status === 'confirmed' && data.transaction_request.require_confirmation) {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            Approved consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> successfully.
+          </div>,
+          'success'
+        )
+      ]
+    }
+    return state
+  },
+  'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, { data }) => {
     if (data.status === 'pending') {
       return [
         ...state,
         createAlertState(
           <div>
-            New pending consumption <Link to={'/'}>{data.id}</Link>
+            New pending consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link>
           </div>,
           'success'
         )
       ]
+    }
+    if (data.status === 'confirmed') {
+      return [...state, createAlertState(`Consumed transaction request.`, 'success')]
     }
     return state
   }

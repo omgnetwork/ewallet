@@ -160,7 +160,7 @@ class ActivityList extends Component {
     return (
       <ConsumptionFetcherByTransactionIdFetcher
         id={queryString.parse(this.props.location.search)['show-request-tab']}
-        render={({ pendingConsumption, individualLoadingStatus, pagination, fetch }) => {
+        render={({ data: pendingConsumption, individualLoadingStatus, pagination, fetch }) => {
           return (
             <ContentContainer>
               <SortableTable

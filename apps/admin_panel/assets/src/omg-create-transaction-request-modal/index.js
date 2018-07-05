@@ -90,7 +90,7 @@ class CreateTransactionRequest extends Component {
     onCreateTransactionRequest: PropTypes.func,
     onRequestClose: PropTypes.func
   }
-  state = { selectedToken: {}, onCreateTransactionRequest: _.noop }
+  state = { selectedToken: {}, onCreateTransactionRequest: _.noop, allowAmountOverride: false }
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -135,7 +135,7 @@ class CreateTransactionRequest extends Component {
           <h4>Create Transaction Request</h4>
           <InputLabelContainer>
             <InputLabel>
-              Request Type <span>( Optional )</span>
+              Request Type
             </InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('type')(true)}
@@ -150,7 +150,7 @@ class CreateTransactionRequest extends Component {
           </InputLabelContainer>
           <InputLabelContainer>
             <InputLabel>
-              Require Confirmation <span>( Optional )</span>
+              Require Confirmation
             </InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('requireConfirmation')(false)}
@@ -165,7 +165,7 @@ class CreateTransactionRequest extends Component {
           </InputLabelContainer>
           <InputLabelContainer>
             <InputLabel>
-              Allow Amount Overide <span>( Optional )</span>
+              Allow Amount Overide
             </InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('allowAmountOverride')(false)}

@@ -7,17 +7,12 @@ export const consumptionsReducer = createReducer(
       return { ...state, ..._.keyBy(action.data, 'id') }
     },
     'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
-      return _.merge(state, _.keyBy(action.data, 'id'))
+      return { ...state, ..._.keyBy(action.data, 'id') }
     },
-    'SOCKET_MESSAGE/CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
+    'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, action) => {
       return {
         ...state,
-        ...{
-          [action.data.id]: {
-            ...action.data,
-            new: true
-          }
-        }
+        [action.data.id]: action.data
       }
     },
     'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, action) => {
@@ -30,16 +25,14 @@ export const consumptionsReducer = createReducer(
       return { ...state, ...{ [action.data.id]: action.data } }
     },
     'CONSUMPTION/APPROVE/FAILED': (state, action) => {
-      return action.data
-        ? { ...state, ...{ [action.data.id]: { ...action.data, status: 'failed' } } }
-        : state
+      return { ...state, ...{ [action.data.id]: action.data } }
     },
     'CONSUMPTION/REJECT/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
-    },
-    'CONSUMPTION/REJECT/FAILED': (state, action) => {
-      return { ...state, ...{ [action.data.id]: action.data } }
     }
+    // 'CONSUMPTION/REJECT/FAILED': (state, action) => {
+    //   return { ...state, ...{ [action.data.id]: action.data } }
+    // }
   }
 )
 
