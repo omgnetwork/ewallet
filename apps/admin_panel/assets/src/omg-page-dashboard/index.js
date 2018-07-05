@@ -60,13 +60,19 @@ const GetStartedContainer = styled.div`
   background-color: #ffffff;
   box-shadow: 0 2px 5px 0 rgba(60, 65, 77, 0.05);
   background-image: url(${require('../../statics/images/Main_dashboard-01.png')});
-  background-size: 550px auto;
+  background-size: 50vw auto;
   background-repeat: no-repeat;
-  background-position: top right;
+  background-position: bottom right;
   h4 {
     letter-spacing: 1px;
     margin-bottom: 30px;
   }
+`
+const GetStartedContent = styled.div`
+  width: 200px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 4px;
 `
 export default withRouter(
   class Dashboard extends Component {
@@ -131,42 +137,44 @@ export default withRouter(
                 <p>Analytics will come soon, stay tuned !</p>
               </IntroContainer>
               <GetStartedContainer>
-                <h4>Let's get started</h4>
-                <NavigationItem>
-                  <Link to={`/${accountId}/setting/?invite=true`}>
-                    <Icon name='Arrow-Right' /> Invite team member
+                <GetStartedContent>
+                  <h4>Let's get started</h4>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/setting/?invite=true`}>
+                      <Icon name='Arrow-Right' /> Invite team member
                   </Link>
-                </NavigationItem>
-                <NavigationItem>
-                  <Link to={`/${accountId}/accounts/?createAccount=true`}>
-                    <Icon name='Arrow-Right' /> Create Account
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/accounts/?createAccount=true`}>
+                      <Icon name='Arrow-Right' /> Create Account
                   </Link>
-                </NavigationItem>
-                <NavigationItem>
-                  <Link to={`/${accountId}/tokens/?createToken=true`}>
-                    <Icon name='Arrow-Right' /> Create Token
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/tokens/?createToken=true`}>
+                      <Icon name='Arrow-Right' /> Create Token
                   </Link>
-                </NavigationItem>
-                <NavigationItem>
-                  <Link to={`/${accountId}/wallets`}>
-                    <Icon name='Arrow-Right' /> Organize Wallets
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/wallets`}>
+                      <Icon name='Arrow-Right' /> Organize Wallets
                   </Link>
-                </NavigationItem>
-                <NavigationItem>
-                  <Link to={`/${accountId}/requests?createRequest=true`}>
-                    <Icon name='Arrow-Right' /> Create Request
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/requests?createRequest=true`}>
+                      <Icon name='Arrow-Right' /> Create Request
                   </Link>
-                </NavigationItem>
-                <NavigationItem>
-                  <Link to={`/${accountId}/api`}>
-                    <Icon name='Arrow-Right' /> Generate API
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/api`}>
+                      <Icon name='Arrow-Right' /> Generate API
                   </Link>
-                </NavigationItem>
-                <NavigationItem>
-                  <a href='/api/admin/docs.ui#' target='_blank'>
-                    <Icon name='Arrow-Right' /> API Documentation
+                  </NavigationItem>
+                  <NavigationItem>
+                    <a href='/api/admin/docs.ui#' target='_blank'>
+                      <Icon name='Arrow-Right' /> API Documentation
                   </a>
-                </NavigationItem>
+                  </NavigationItem>
+                </GetStartedContent>
               </GetStartedContainer>
             </SectionContainer>
           </SectionsContainer>
