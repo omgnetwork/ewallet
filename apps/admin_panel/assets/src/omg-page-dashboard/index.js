@@ -40,6 +40,13 @@ const IntroContainer = styled.div`
 const NavigationItem = styled.div`
   margin-bottom: 15px;
   cursor: pointer;
+  a {
+    color: ${props => props.theme.colors.B400};
+    :hover {
+      color: ${props => props.theme.colors.BL400};
+    }
+  }
+
   i {
     color: ${props => props.theme.colors.BL400};
     font-size: 16px;
