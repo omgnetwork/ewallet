@@ -10,6 +10,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import { selectWallets } from '../omg-wallet/selector'
+import Copy from '../omg-copy'
 const WalletPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -25,15 +26,28 @@ const WalletPageContainer = styled.div`
   td:nth-child(4) {
     width: 20%;
   }
+  tr:hover {
+    i[name="Copy"] {
+      visibility: visible;
+    }
+  }
 `
 const WalletAddressContainer = styled.div`
   white-space: nowrap;
   span {
     vertical-align: middle;
   }
-  i {
+  i[name="Wallet"] {
     color: ${props => props.theme.colors.BL400};
     margin-right: 5px;
+  }
+  i[name="Copy"] {
+    visibility: hidden;
+    margin-left: 5px;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const SortableTableContainer = styled.div`
@@ -90,9 +104,9 @@ class WalletPage extends Component {
   }
   getColumns = wallets => {
     return [
+      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'address', title: 'ADDRESS', sort: true },
       { key: 'owner', title: 'OWNER TYPE', sort: true },
-      { key: 'identifier', title: 'TYPE', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true }
     ]
   }
@@ -119,10 +133,17 @@ class WalletPage extends Component {
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
-    if (key === 'address') {
+    if (key === 'identifier') {
       return (
         <WalletAddressContainer>
           <Icon name='Wallet' /> <span>{data}</span>
+        </WalletAddressContainer>
+      )
+    }
+    if (key === 'address') {
+      return (
+        <WalletAddressContainer>
+          <span>{data}</span> <Copy data={data} />
         </WalletAddressContainer>
       )
     }

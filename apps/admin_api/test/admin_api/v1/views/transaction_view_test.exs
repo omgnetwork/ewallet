@@ -54,6 +54,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
           metadata: %{some: "metadata"},
           encrypted_metadata: %{},
           status: transaction.status,
+          error_code: nil,
+          error_description: nil,
           created_at: Date.to_iso8601(transaction.inserted_at),
           updated_at: Date.to_iso8601(transaction.updated_at)
         }
@@ -127,6 +129,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
               metadata: %{some: "metadata"},
               encrypted_metadata: %{},
               status: transaction1.status,
+              error_code: nil,
+              error_description: nil,
               created_at: Date.to_iso8601(transaction1.inserted_at),
               updated_at: Date.to_iso8601(transaction1.updated_at)
             },
@@ -170,6 +174,8 @@ defmodule AdminAPI.V1.TransactionViewTest do
               metadata: %{some: "metadata"},
               encrypted_metadata: %{},
               status: transaction2.status,
+              error_code: nil,
+              error_description: nil,
               created_at: Date.to_iso8601(transaction2.inserted_at),
               updated_at: Date.to_iso8601(transaction2.updated_at)
             }

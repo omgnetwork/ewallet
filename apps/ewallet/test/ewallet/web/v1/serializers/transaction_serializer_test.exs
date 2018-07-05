@@ -53,6 +53,8 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         metadata: %{some: "metadata"},
         encrypted_metadata: %{},
         status: transaction.status,
+        error_code: nil,
+        error_description: nil,
         created_at: Date.to_iso8601(transaction.inserted_at),
         updated_at: Date.to_iso8601(transaction.updated_at)
       }
@@ -62,6 +64,56 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
 
     test "serializes to nil if the transaction is not loaded" do
       assert TransactionSerializer.serialize(%NotLoaded{}) == nil
+    end
+
+    test "serializes the error description properly if nil" do
+      transaction =
+        insert(
+          :transaction,
+          error_code: "exchange_invalid_rate"
+        )
+
+      serialized = TransactionSerializer.serialize(transaction)
+      assert serialized[:error_code] == "exchange:invalid_rate"
+
+      assert serialized[:error_description] == "The exchange is attempted with an invalid rate"
+    end
+
+    test "serializes the error description properly" do
+      transaction =
+        insert(
+          :transaction,
+          error_code: "insufficient_funds",
+          error_description: "Some description."
+        )
+
+      serialized = TransactionSerializer.serialize(transaction)
+      assert serialized[:error_code] == "transaction:insufficient_funds"
+      assert serialized[:error_description] == "Some description."
+    end
+
+    test "serializes the error data properly" do
+      token = insert(:token)
+
+      transaction =
+        insert(
+          :transaction,
+          error_code: "insufficient_funds",
+          error_data: %{
+            "address" => "123",
+            "amount_to_debit" => 100_000,
+            "current_amount" => 0,
+            "token_id" => token.id
+          }
+        )
+
+      serialized = TransactionSerializer.serialize(transaction)
+      assert serialized[:error_code] == "transaction:insufficient_funds"
+
+      assert serialized[:error_description] ==
+               "The specified wallet (123) does not contain enough funds. Available: 0 #{token.id} - Attempted debit: 1000 #{
+                 token.id
+               }"
     end
   end
 end

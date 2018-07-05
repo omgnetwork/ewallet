@@ -606,6 +606,17 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error"
              }
+
+      transaction = get_last_inserted(Transaction)
+      assert transaction.error_code == "insufficient_funds"
+      assert transaction.error_description == nil
+
+      assert transaction.error_data == %{
+               "address" => wallet_1.address,
+               "amount_to_debit" => 1_234_567,
+               "current_amount" => 0,
+               "token_id" => token.id
+             }
     end
 
     test "returns client:invalid_parameter when idempotency token is not given" do

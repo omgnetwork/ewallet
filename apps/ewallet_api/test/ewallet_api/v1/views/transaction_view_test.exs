@@ -53,6 +53,8 @@ defmodule EWalletAPI.V1.TransactionViewTest do
           metadata: %{some: "metadata"},
           encrypted_metadata: %{},
           status: transaction.status,
+          error_code: nil,
+          error_description: nil,
           created_at: Date.to_iso8601(transaction.inserted_at),
           updated_at: Date.to_iso8601(transaction.updated_at)
         }
