@@ -78,7 +78,7 @@ defmodule EWalletDB.APIKey do
     attrs =
       attrs
       |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
-      |> Map.put_new_lazy(:key, fn -> Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:key, fn -> Crypto.generate_base64_key(@key_bytes) end)
 
     %APIKey{}
     |> changeset(attrs)

@@ -1,15 +1,16 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import WalletProvider from '../omg-wallet/walletProvider'
 import { compose } from 'recompose'
-import { Button } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
+import { formatNumber } from '../utils/formatter'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -31,13 +32,17 @@ const DetailContainer = styled.div`
 const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
+  button {
+    padding-left: 40px;
+    padding-right: 40px;
+  }
 `
 
 const enhance = compose(
   withTheme,
   withRouter
 )
-class TokenDetailPage extends Component {
+class WalletDetaillPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
@@ -59,13 +64,14 @@ class TokenDetailPage extends Component {
         breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <span>Transfer</span>
+            <Icon name='Transfer' /><span>Transfer</span>
           </Button>
         ]}
       />
     )
   }
   renderDetail = wallet => {
+    const accountId = this.props.match.params.accountId
     return (
       <Section title='DETAILS'>
         <DetailGroup>
@@ -74,12 +80,18 @@ class TokenDetailPage extends Component {
         <DetailGroup>
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
-        <DetailGroup>
+        { wallet.account && <DetailGroup>
           <b>Account Owner:</b>{' '}
-          <span>
-            <a>{_.get(wallet, 'account.name', '-')}</a>
-          </span>
-        </DetailGroup>
+          <Link to={`/${accountId}/account/${wallet.account.id}`}>
+            {_.get(wallet, 'account.name', '-')}
+          </Link>
+        </DetailGroup>}
+        { wallet.user && <DetailGroup>
+          <b>User:</b>{' '}
+          <Link to={`/${accountId}/user/${wallet.user.id}`}>
+            {_.get(wallet, 'user.id', '-')}
+          </Link>
+        </DetailGroup>}
         <DetailGroup>
           <b>Created date:</b>{' '}
           <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
@@ -97,7 +109,7 @@ class TokenDetailPage extends Component {
           return (
             <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b>{' '}
-              <span>{(balance.amount / balance.token.subunit_to_unit).toLocaleString()}</span>
+              <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span> {balance.token.symbol}
             </DetailGroup>
           )
         })}
@@ -127,7 +139,7 @@ class TokenDetailPage extends Component {
   renderWalletDetailPage = ({ wallet }) => {
     return (
       <WalletDetailContainer>
-        {wallet ? this.renderWalletDetailContainer(wallet) : 'loading'}
+        {wallet ? this.renderWalletDetailContainer(wallet) : null}
       </WalletDetailContainer>
     )
   }
@@ -142,4 +154,4 @@ class TokenDetailPage extends Component {
   }
 }
 
-export default enhance(TokenDetailPage)
+export default enhance(WalletDetaillPage)

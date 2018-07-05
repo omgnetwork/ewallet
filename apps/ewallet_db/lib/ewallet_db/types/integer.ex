@@ -17,9 +17,9 @@ defmodule EWalletDB.Types.Integer do
     {:ok, Decimal.to_integer(value)}
   end
 
-  def load!(value) do
-    Decimal.to_integer(value)
-  end
+  def load!(nil), do: 0
+
+  def load!(value), do: Decimal.to_integer(value)
 
   def dump(value) do
     {:ok, value}

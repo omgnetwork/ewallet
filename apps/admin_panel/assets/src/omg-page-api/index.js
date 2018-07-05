@@ -14,6 +14,7 @@ import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
 import { generateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
+import Copy from '../omg-copy'
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -42,6 +43,8 @@ const ConfirmCreateKeyContainer = styled.div`
   }
   p {
     font-size: 12px;
+    max-width: 350px;
+    margin-bottom: 10px;
   }
   input {
     border: 1px solid #1a56f0;
@@ -49,7 +52,17 @@ const ConfirmCreateKeyContainer = styled.div`
     background-color: #ffffff;
     width: 370px;
     padding: 5px;
-    margin-top: 20px;
+    margin-top: 5px;
+    margin-right: 5px;
+    color: ${props => props.theme.colors.B300};
+  }
+  i[name="Copy"] {
+    margin-left: 5px;
+    cursor: pointer;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const KeyContainer = styled.div`
@@ -68,6 +81,15 @@ const KeyContainer = styled.div`
   }
 `
 
+const InputContainer = styled.div`
+  :not(:last-child) {
+    margin-bottom: 10px;
+  }
+`
+const InputLabel = styled.div`
+  font-size: 14px;
+  color: ${props => props.theme.colors.B100};
+`
 const columnsApiKey = [
   { key: 'key', title: 'KEY' },
   { key: 'user', title: 'CREATE BY' },
@@ -135,19 +157,18 @@ class ApiKeyPage extends Component {
   }
   onClickSwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateApiKey({ id, expired })
-    // fetch()
   }
   rowRenderer = fetch => (key, data, rows) => {
     if (key === 'status') {
       return (
         <Switch
           open={!data}
-          onClick={this.onClickSwitch({ id: rows.key, expired: !rows.status, fetch })}
+          onClick={this.onClickSwitch({ id: rows.id, expired: !rows.status, fetch })}
         />
       )
     }
     if (key === 'status_access') {
-      return data ? 'enabled' : 'disabled'
+      return data ? 'disabled' : 'enabled'
     }
     if (key === 'key') {
       return (
@@ -178,7 +199,7 @@ class ApiKeyPage extends Component {
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
           const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
             return {
-              key: key.id,
+              key: key.key,
               id: key.id,
               user: key.account_id,
               created_at: key.created_at,
@@ -234,7 +255,7 @@ class ApiKeyPage extends Component {
           perPage: 5
         }}
         render={({ data, individualLoadingStatus, pagination, fetch }) => {
-          const apiKeysRows = data.filter(key => !key.deleted_at).map(key => {
+          const apiKeysRows = data.map(key => {
             return {
               key: key.access_key,
               id: key.access_key,
@@ -274,7 +295,7 @@ class ApiKeyPage extends Component {
               >
                 <ConfirmCreateKeyContainer>
                   <h4>Generate Access key</h4>
-                  <p>Are you sure you want to generate acesss key ?</p>
+                  <p>Are you sure you want to generate access key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
               <ConfirmationModal
@@ -285,12 +306,19 @@ class ApiKeyPage extends Component {
                 cancel={false}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Your secret key</h4>
-                  <p style={{ maxWidth: 300 }}>
-                    Please copy and keep this secret key private. Secret key will use to open your
-                    encrypted information.
+                  <h4>Your key pair</h4>
+                  <p>
+                    Please copy and keep this pair of public and private key. Secret key will use to
+                    open your encrypted information.
                   </p>
-                  <input value={this.state.privateKey} spellCheck='false' />
+                  <InputContainer>
+                    <InputLabel>Private key</InputLabel>
+                    <input value={this.state.privateKey} spellCheck='false' /><Copy data={this.state.privateKey} />
+                  </InputContainer>
+                  <InputContainer>
+                    <InputLabel>Public Key</InputLabel>
+                    <input value={this.state.publicKey} spellCheck='false' /><Copy data={this.state.publicKey} />
+                  </InputContainer>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
             </KeySection>

@@ -11,6 +11,18 @@ const TableContainer = styled.div`
   position: relative;
   min-height: ${props => (props.loading ? `${props.height}px` : 'auto')};
 `
+const EmptyStageContainer = styled.div`
+  text-align: center;
+  width: 100%;
+  color: ${props => props.theme.colors.S500};
+  > img {
+    width: 150px;
+    margin: 0 auto;
+    display: inline-block;
+    margin-top: 50px;
+    margin-bottom: 20px;
+  }
+`
 class Table extends Component {
   static propTypes = {
     columns: PropTypes.array,
@@ -102,6 +114,7 @@ class Table extends Component {
     })
   }
   render () {
+    const dataRows = this.renderDataRows()
     return (
       <TableContainer
         innerRef={table => (this.table = table)}
@@ -109,25 +122,22 @@ class Table extends Component {
         loading={this.props.loading}
       >
         <Fade in={this.props.loading} timeout={300} key={'loading'} unmountOnExit>
-          {state => {
-            return (
-              <table style={{ position: 'absolute', background: 'white' }}>
-                <tbody>{this.renderLoadingRows()}</tbody>
-              </table>
-            )
-          }}
+          <table style={{ position: 'absolute', background: 'white' }}>
+            <tbody>{this.renderLoadingRows()}</tbody>
+          </table>
         </Fade>
         <Fade in={!this.props.loading} timeout={300} key={'data'} unmountOnExit appear>
-          {state => {
-            return (
-              <table>
-                <thead>{this.renderColumns()}</thead>
-                <tbody>{this.renderDataRows()}</tbody>
-              </table>
-            )
-          }}
+          <table>
+            <thead>{this.renderColumns()}</thead>
+            {!!dataRows.length && <tbody>{this.renderDataRows()}</tbody>}
+          </table>
         </Fade>
-
+        {!dataRows.length && (
+          <EmptyStageContainer>
+            <img src={require('../../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
+            <div>Sorry, no data yet.</div>
+          </EmptyStageContainer>
+            )}
         {!this.props.loading &&
           this.props.pagination && (
             <StyledPagination

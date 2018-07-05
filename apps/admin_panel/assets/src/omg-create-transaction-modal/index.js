@@ -8,11 +8,12 @@ import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
+import { formatNumber } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
-
+import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 const Form = styled.form`
   padding: 50px;
-  width: 350px;
+  width: 400px;
   > i {
     position: absolute;
     right: 15px;
@@ -65,7 +66,11 @@ class CreateTransactionModal extends Component {
     open: PropTypes.bool,
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
-    getWalletById: PropTypes.func
+    getWalletById: PropTypes.func,
+    onCreateTransaction: PropTypes.func
+  }
+  static defaultProps = {
+    onCreateTransaction: _.noop
   }
   initialState = {
     submitting: false,
@@ -97,10 +102,16 @@ class CreateTransactionModal extends Component {
   onSelectTokenSelect = token => {
     this.setState({ searchTokenValue: token.value, selectedToken: token })
   }
-
+  onSelectToAddressSelect = item => {
+    this.setState({ toAddress: item.key })
+  }
+  onSelectFromAddressSelect = item => {
+    this.setState({ fromAddress: item.key })
+  }
   onFocusSelect = () => {
     this.setState({ searchTokenValue: '', selectedToken: null })
   }
+
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -121,6 +132,7 @@ class CreateTransactionModal extends Component {
           error: result.error.description || result.error.message
         })
       }
+      this.props.onCreateTransaction()
     } catch (e) {
       this.setState({ error: JSON.stringify(e.message) })
     }
@@ -134,10 +146,12 @@ class CreateTransactionModal extends Component {
     if (_.get(this.state.selectedToken, 'amount') === 0) {
       return 0
     }
-    return (
-      _.get(this.state.selectedToken, 'amount') /
-        _.get(this.state.selectedToken, 'token.subunit_to_unit') || '-'
-    )
+    return this.state.selectedToken
+      ? formatNumber(
+          _.get(this.state.selectedToken, 'amount') /
+            _.get(this.state.selectedToken, 'token.subunit_to_unit')
+        )
+      : '-'
   }
   render () {
     return (
@@ -146,26 +160,53 @@ class CreateTransactionModal extends Component {
         onRequestClose={this.onRequestClose}
         contentLabel='create account modal'
       >
-        <WalletProvider
-          walletAddress={this.state.fromAddress}
-          render={({ wallet }) => {
-            return (
-              <Form onSubmit={this.onSubmit} noValidate>
-                <Icon name='Close' onClick={this.props.onRequestClose} />
-                <h4>Transfer Token</h4>
-                <InputLabel>From</InputLabel>
-                <Input
+        <Form onSubmit={this.onSubmit} noValidate>
+          <Icon name='Close' onClick={this.props.onRequestClose} />
+          <h4>Transfer Token</h4>
+          <InputLabel>From Address</InputLabel>
+          <AllWalletsFetcher
+            query={{ search: this.state.fromAddress }}
+            render={({ data }) => {
+              return (
+                <Select
                   normalPlaceholder='acc_0x000000000000000'
+                  onSelectItem={this.onSelectFromAddressSelect}
                   value={this.state.fromAddress}
                   onChange={this.onChangeInputFromAddress}
+                  options={data.map(d => {
+                    return {
+                      key: d.address,
+                      value: `${d.address} ( ${_.get(d, 'account.name') || _.get(d, 'user.username') || _.get(d, 'user.email')} )`
+                    }
+                  })}
                 />
-                <InputLabel>To Address</InputLabel>
-                <Input
+              )
+            }}
+          />
+          <InputLabel>To Address</InputLabel>
+          <AllWalletsFetcher
+            render={({ data }) => {
+              return (
+                <Select
                   normalPlaceholder='acc_0x000000000000000'
+                  onSelectItem={this.onSelectToAddressSelect}
                   value={this.state.toAddress}
                   onChange={this.onChangeInputToAddress}
+                  options={data.map(d => {
+                    return {
+                      key: d.address,
+                      value: `${d.address} ( ${_.get(d, 'account.name') || _.get(d, 'user.username') || _.get(d, 'user.email')} )`
+                    }
+                  })}
                 />
-                <InputLabel>Token</InputLabel>
+              )
+            }}
+          />
+          <InputLabel>Token</InputLabel>
+          <WalletProvider
+            walletAddress={this.state.fromAddress}
+            render={({ wallet }) => {
+              return (
                 <Select
                   normalPlaceholder='Token'
                   onSelectItem={this.onSelectTokenSelect}
@@ -184,19 +225,19 @@ class CreateTransactionModal extends Component {
                       : []
                   }
                 />
-                <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken()}</BalanceTokenLabel>
-                <InputLabel>Amount</InputLabel>
-                <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
-                <ButtonContainer>
-                  <Button size='small' type='submit' loading={this.state.submitting}>
-                    Transfer
-                  </Button>
-                </ButtonContainer>
-                <Error error={this.state.error}>{this.state.error}</Error>
-              </Form>
-            )
-          }}
-        />
+              )
+            }}
+          />
+          <BalanceTokenLabel>Balance: {this.getBalanceOfSelectedToken()}</BalanceTokenLabel>
+          <InputLabel>Amount</InputLabel>
+          <Input value={this.state.amount} onChange={this.onChangeAmount} type='number' />
+          <ButtonContainer>
+            <Button size='small' type='submit' loading={this.state.submitting}>
+              Transfer
+            </Button>
+          </ButtonContainer>
+          <Error error={this.state.error}>{this.state.error}</Error>
+        </Form>
       </Modal>
     )
   }

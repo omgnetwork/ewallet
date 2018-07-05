@@ -4,11 +4,36 @@ defmodule EWalletDB.Helpers.Crypto do
   """
   alias Plug.Crypto
 
+  @spec generate_base64_key(non_neg_integer()) :: binary()
+  def generate_base64_key(key_bytes) when is_integer(key_bytes) do
+    key_bytes
+    |> generate_key()
+    |> Base.url_encode64(padding: false)
+  end
+
   @spec generate_key(non_neg_integer()) :: binary()
   def generate_key(key_bytes) when is_integer(key_bytes) do
-    key_bytes
-    |> :crypto.strong_rand_bytes()
-    |> Base.url_encode64(padding: false)
+    :crypto.strong_rand_bytes(key_bytes)
+  end
+
+  @spec hash_secret(String.t()) :: String.t()
+  def hash_secret(secret) do
+    :crypto.hash(:sha384, secret)
+    |> Base.encode16(padding: false)
+    |> String.downcase()
+  end
+
+  @spec verify_secret(String.t(), String.t()) :: boolean
+  def verify_secret(secret, hash) do
+    case Base.url_decode64(secret) do
+      {:ok, decoded} ->
+        decoded
+        |> hash_secret()
+        |> secure_compare(hash)
+
+      :error ->
+        false
+    end
   end
 
   @spec hash_password(nil) :: nil

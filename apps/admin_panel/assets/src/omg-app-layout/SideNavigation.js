@@ -62,6 +62,9 @@ const LoadingLogo = Logo.extend`
 `
 const NavigationItemsContainer = styled.div`
   margin-top: 20px;
+  a {
+    color: inherit;
+  }
 `
 const SwitchAccountButton = styled.button`
   padding: 5px 15px;
@@ -121,6 +124,8 @@ class SideNavigation extends PureComponent {
       { icon: 'Token', to: '/token', text: 'TOKEN' },
       { icon: 'Wallet', to: '/wallets', text: 'WALLET' },
       { icon: 'Transaction', to: '/transaction', text: 'TRANSACTION' },
+      { icon: 'Request', to: '/requests', text: 'REQUEST' },
+      { icon: 'Consumption', to: '/consumptions', text: 'CONSUMPTION' },
       { icon: 'Key', to: '/api', text: 'API' },
       { icon: 'People', to: '/users', text: 'USERS' },
       { icon: 'Setting', to: '/setting', text: 'SETTING' }

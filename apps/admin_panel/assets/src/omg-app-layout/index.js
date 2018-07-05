@@ -12,6 +12,9 @@ import { withRouter } from 'react-router-dom'
 import { switchAccount } from '../omg-account-current/action'
 import Alert from '../omg-alert'
 import LoadingBar from 'react-redux-loading-bar'
+import TransactionRequestPanel from '../omg-transaction-request-tab'
+import queryString from 'query-string'
+import ConsumptionPanel from '../omg-consumption-panel'
 const Container = styled.div`
   height: 100%;
   position: relative;
@@ -20,7 +23,8 @@ const Container = styled.div`
 const SideNav = styled(SideNavigation)`
   display: inline-block;
   vertical-align: top;
-  flex: 1 0 auto;
+  flex: 0 0 auto;
+  max-width : 240px;
 `
 
 const ContentContainer = styled.div`
@@ -90,7 +94,8 @@ const EnhancedAccountSelectorMenuClickOutside = enhance(
 
 class AppLayout extends Component {
   static propTypes = {
-    children: PropTypes.node
+    children: PropTypes.node,
+    location: PropTypes.object
   }
   state = {
     switchAccount: false
@@ -106,9 +111,10 @@ class AppLayout extends Component {
     this.contentContainer.scrollTo(0, 0)
   }
   render () {
+    const searchObject = queryString.parse(this.props.location.search)
     return (
       <Container>
-        <LoadingBar style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
+        <LoadingBar updateTime={1000} style={{ backgroundColor: '#1A56F0', zIndex: 99999 }} />
         <SideNav
           switchAccount={this.state.switchAccount}
           onClickSwitchAccount={this.onClickSwitchAccount}
@@ -127,6 +133,12 @@ class AppLayout extends Component {
           </Content>
         </ContentContainer>
         <Alert />
+        {searchObject['show-request-tab'] && (
+          <TransactionRequestPanel />
+        )}
+        {searchObject['show-consumption-tab'] && (
+        <ConsumptionPanel />
+        )}
       </Container>
     )
   }

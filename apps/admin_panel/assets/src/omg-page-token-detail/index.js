@@ -10,6 +10,7 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
+import { formatNumber } from '../utils/formatter'
 const AccountDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -29,7 +30,15 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 
-const enhance = compose(withTheme, withRouter)
+const LoadingContainer = styled.div`
+  > div {
+    margin-bottom: 20px;
+  }
+`
+const enhance = compose(
+  withTheme,
+  withRouter
+)
 class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
@@ -68,7 +77,7 @@ class TokenDetailPage extends Component {
           <b>Decimal:</b> <span>{Math.log10(token.subunit_to_unit)}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Subunit To Unit:</b> <span>{token.subunit_to_unit.toLocaleString()}</span>
+          <b>Subunit To Unit:</b> <span>{formatNumber(token.subunit_to_unit)}</span>
         </DetailGroup>
         <DetailGroup>
           <b>ID:</b> <span>{token.id}</span>
@@ -104,7 +113,7 @@ class TokenDetailPage extends Component {
   renderTokenDetailPage = ({ token, loadingStatus }) => {
     return (
       <AccountDetailContainer>
-        {token ? this.renderAccountDetailContainer(token) : 'loading'}
+        {token && this.renderAccountDetailContainer(token)}
       </AccountDetailContainer>
     )
   }

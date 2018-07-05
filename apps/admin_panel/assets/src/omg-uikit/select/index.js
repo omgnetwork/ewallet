@@ -34,7 +34,8 @@ export default class Select extends Component {
     onFocus: PropTypes.func
   }
   static defaultProps = {
-    onSelectItem: () => {}
+    onSelectItem: _.noop,
+    onFocus: _.noop
   }
   state = {
     active: false
@@ -56,7 +57,7 @@ export default class Select extends Component {
   }
   render () {
     const filteredOption = this.props.options.filter(option =>
-      new RegExp(this.props.value).test(option.value)
+      new RegExp(_.escapeRegExp(this.props.value)).test(option.value)
     )
     return (
       <SelectContainer>

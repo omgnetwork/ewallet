@@ -145,7 +145,7 @@ class ChooseCategoryStage extends Component {
               active={!this.props.category}
               onClick={e => this.props.onChooseCategory(null)}
             >
-              <Icon name='Checkmark' />
+              <Icon name='Checked' />
               <span>None</span>
             </SearchItem>
             {cat.map(cat => {
@@ -155,7 +155,7 @@ class ChooseCategoryStage extends Component {
                   active={_.get(this.props.category, 'id') === cat.id}
                   key={cat.id}
                 >
-                  <Icon name='Checkmark' />
+                  <Icon name='Checked' />
                   <span>{cat.name}</span>
                 </SearchItem>
               )
