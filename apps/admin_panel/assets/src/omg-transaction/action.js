@@ -1,11 +1,26 @@
 import * as transactionService from '../services/transactionService'
-export const transfer = ({ fromAddress, toAddress, tokenId, amount }) => async dispatch => {
+export const transfer = ({
+  fromAddress,
+  toAddress,
+  tokenId,
+  fromTokenId,
+  toTokenId,
+  fromAmount,
+  toAmount,
+  amount,
+  exchangeAddress
+}) => async dispatch => {
   try {
     const result = await transactionService.transfer({
       fromAddress,
       toAddress,
       tokenId,
-      amount
+      fromTokenId,
+      toTokenId,
+      fromAmount,
+      toAmount,
+      amount,
+      exchangeAddress
     })
     if (result.data.success) {
       return dispatch({ type: 'TRANSACTION/CREATE/SUCCESS', data: result.data.data })

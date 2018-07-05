@@ -175,7 +175,7 @@ class TransactionPage extends Component {
           <div>
             <Sign>+</Sign>
             <span>
-              {formatRecieveAmountToTotal(rows.to.amount, rows.from.token.subunit_to_unit)}{' '}
+              {formatRecieveAmountToTotal(rows.to.amount, rows.to.token.subunit_to_unit)}{' '}
               {rows.to.token.symbol}
             </span>
           </div>

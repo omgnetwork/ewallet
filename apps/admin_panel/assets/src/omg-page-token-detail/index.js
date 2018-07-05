@@ -143,7 +143,7 @@ class TokenDetailPage extends Component {
               <Section title={`RATES`}>
                 <h5>1 {token.name} :</h5>
                 {exchangePairs.map(pair => {
-                  return <DetailGroup><b>{_.get(pair, 'to_token.name')}</b>{1 / pair.rate} {_.get(pair, 'to_token.symbol')}</DetailGroup>
+                  return <DetailGroup><b>{_.get(pair, 'to_token.name')}</b>{pair.rate} {_.get(pair, 'to_token.symbol')}</DetailGroup>
                 })}
               </Section>
             </DetailContainer>

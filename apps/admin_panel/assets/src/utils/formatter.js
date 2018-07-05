@@ -19,14 +19,20 @@ export const formatNumber = number => {
 export const formatAmount = (amount, subUnitToUnit) => {
   const ensureNumberAmount = Number(amount)
   const decimal = precision(ensureNumberAmount)
-  if (decimal > 0) {
-    return bigInt(ensureNumberAmount * Math.pow(10, decimal))
-      .times(subUnitToUnit / Math.pow(10, decimal))
-      .toString()
+  const shiftedAmount = ensureNumberAmount * Math.pow(10, decimal)
+  const shiftedSubUnit = subUnitToUnit / Math.pow(10, decimal)
+  if (_.isInteger(shiftedSubUnit)) {
+    if (decimal > 0) {
+      return bigInt(shiftedAmount)
+        .times(shiftedSubUnit)
+        .toString()
+    } else {
+      return bigInt(ensureNumberAmount)
+        .times(subUnitToUnit)
+        .toString()
+    }
   } else {
-    return bigInt(ensureNumberAmount)
-      .times(subUnitToUnit)
-      .toString()
+    return 0
   }
 }
 

@@ -6,7 +6,7 @@ import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consump
 import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 import { Icon } from '../omg-uikit'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
