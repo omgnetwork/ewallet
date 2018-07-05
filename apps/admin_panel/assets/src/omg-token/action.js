@@ -24,7 +24,7 @@ export const mintToken = ({ id, amount }) => async dispatch => {
       amount
     })
     if (result.data.success) {
-      dispatch({ type: 'TOKEN/MINT/SUCCESS', token: result.data.data })
+      dispatch({ type: 'TOKEN/MINT/SUCCESS', data: result.data.data })
     } else {
       dispatch({ type: 'TOKEN/MINT/FAILED', error: result.data.data })
     }
