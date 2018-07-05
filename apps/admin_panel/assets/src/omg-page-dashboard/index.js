@@ -162,6 +162,11 @@ export default withRouter(
                     <Icon name='Arrow-Right' /> Generate API
                   </Link>
                 </NavigationItem>
+                <NavigationItem>
+                  <a href='/api/admin/docs.ui#' target='_blank'>
+                    <Icon name='Arrow-Right' /> API Documentation
+                  </a>
+                </NavigationItem>
               </GetStartedContainer>
             </SectionContainer>
           </SectionsContainer>
