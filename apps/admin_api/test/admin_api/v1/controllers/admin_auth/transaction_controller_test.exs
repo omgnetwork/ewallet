@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{User, Account}
+  alias EWalletDB.{User, Account, Transaction}
 
   # credo:disable-for-next-line
   setup do
@@ -595,6 +595,17 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                  } - Attempted debit: 12345.67 #{token.id}",
                "messages" => nil,
                "object" => "error"
+             }
+
+      transaction = get_last_inserted(Transaction)
+      assert transaction.error_code == "insufficient_funds"
+      assert transaction.error_description == nil
+
+      assert transaction.error_data == %{
+               "address" => wallet_1.address,
+               "amount_to_debit" => 1_234_567,
+               "current_amount" => 0,
+               "token_id" => token.id
              }
     end
 
