@@ -61,6 +61,6 @@ export const updateCurrentAccount = ({ accountId, name, description, avatar }) =
 
 export const switchAccount = accountToSwitch => (dispatch, getState, { socket }) => {
   setCurrentAccount(accountToSwitch)
-  socket.joinChannel(`account:${accountToSwitch.id}`)
+  // socket.joinChannel(`account:${accountToSwitch.id}`)
   return dispatch({ type: 'CURRENT_ACCOUNT/SWITCH', currentAccount: accountToSwitch })
 }

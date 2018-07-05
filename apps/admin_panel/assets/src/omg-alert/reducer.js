@@ -59,18 +59,6 @@ export const alertsReducer = createReducer([], {
   'CONSUMPTION/REJECT/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
-  'CONSUMPTION/REJECT/SUCCESS': (state, { data }) => {
-    return [
-      ...state,
-      createAlertState(
-        <div>
-          Rejected consumption{' '}
-          <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> successfully.
-        </div>,
-        'success'
-      )
-    ]
-  },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
     return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
   },
@@ -87,6 +75,18 @@ export const alertsReducer = createReducer([], {
         createAlertState(
           <div>
             Approved consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> successfully.
+          </div>,
+          'success'
+        )
+      ]
+    }
+    if (data.status === 'rejected') {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            Rejected consumption{' '}
             <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> successfully.
           </div>,
           'success'
