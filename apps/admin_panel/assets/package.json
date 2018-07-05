@@ -35,6 +35,7 @@
     "babel-polyfill": "^6.16.0",
     "babel-preset-env": "^1.4.0",
     "big-integer": "^1.6.32",
+    "bignumber.js": "^7.2.1",
     "btoa": "^1.1.2",
     "chart.js": "^2.7.2",
     "copy-to-clipboard": "^3.0.8",
