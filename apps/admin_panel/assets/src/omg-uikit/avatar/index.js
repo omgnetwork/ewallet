@@ -13,8 +13,8 @@ const AvatarCircle = styled.div`
   color: ${props => props.theme.colors.BL400};
   font-weight: 600;
   text-align: center;
-  line-height: 32px;
-  font-size: 16px;
+  line-height: 30px;
+  font-size: 8px;
 `
 export default class Avatar extends Component {
   static propTypes = {
@@ -25,6 +25,6 @@ export default class Avatar extends Component {
     name: ''
   }
   render () {
-    return <AvatarCircle image={this.props.image} {...this.props}>{this.props.image ? '' : this.props.name.substring(0, 1).toUpperCase()}</AvatarCircle>
+    return <AvatarCircle image={this.props.image} {...this.props}>{this.props.image ? '' : this.props.name.substring(0, 3).toUpperCase()}</AvatarCircle>
   }
 }

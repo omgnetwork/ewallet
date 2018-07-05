@@ -39,9 +39,14 @@ const Input = styled.input`
   }
   :disabled {
     background-color: transparent;
+    color: ${props => props.theme.colors.S400};
   }
   ::placeholder {
     color: ${props => props.theme.colors.S400};
+  }
+  :focus {
+    border-bottom: 1px solid ${props =>
+    props.error ? props.theme.colors.R400 : props.theme.colors.BL400};
   }
 `
 const Error = styled.div`

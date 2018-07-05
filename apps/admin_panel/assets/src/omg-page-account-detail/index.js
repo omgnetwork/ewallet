@@ -1,33 +1,35 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import AccountProvider from '../omg-account/accountProvider'
-import { Table, RatioBar } from '../omg-uikit'
+import WalletsFetcherByAccountId from '../omg-wallet/walletsFetcher'
 import { compose } from 'recompose'
+import { formatNumber } from '../utils/formatter'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 const AccountDetailContainer = styled.div`
-  padding: 20px 0;
 `
 const ContentDetailContainer = styled.div`
   margin-top: 50px;
   display: flex;
-`
-const DetailContainer = styled.div`
-  flex: 1 1 auto;
-  :first-child {
-    margin-right: 20px;
+  > div {
+    flex:  0 1 50%;
   }
 `
 const ContentContainer = styled.div`
   display: inline-block;
   width: 100%;
 `
-
-const enhance = compose(withTheme, withRouter)
+const WalletCointainter = styled.div`
+  margin-bottom: 40px;
+`
+const enhance = compose(
+  withTheme,
+  withRouter
+)
 class AccountDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
@@ -41,70 +43,55 @@ class AccountDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Created:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
-        </DetailGroup>
-        <DetailGroup>
           <b>ID:</b> {account.id}
         </DetailGroup>
         <DetailGroup>
-          <b>Description:</b> <span>{account.description}</span>
+          <b>Description:</b> {account.description || '-'}
         </DetailGroup>
         <DetailGroup>
-          <b>Category:</b> <span>{_.get(account.categories, 'data[0].name')}</span>
-        </DetailGroup>
-        {/* <DetailGroup>
-          <b>Category:</b> <span>{account.description}</span>
+          <b>Category:</b> {_.get(account.categories, 'data[0].name', '-')}
         </DetailGroup>
         <DetailGroup>
-          <b>Coins:</b> <span>{account.description}</span>
-        </DetailGroup> */}
+          <b>Created date:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
+        </DetailGroup>
+        <DetailGroup>
+          <b>Last update:</b> {moment(account.updated_at).format('DD/MM/YYYY hh:mm:ss')}
+        </DetailGroup>
       </Section>
     )
   }
-  renderTransactionRatio = account => {
+  renderWallets = () => {
+    const accountId = this.props.match.params.accountId
     return (
-      <Section title='TRANSACTION INFORMATION'>
-        <RatioBar
-          rows={[
-            { percent: 20, content: 'transaction', color: this.props.theme.colors.B100 },
-            { percent: 30, content: 'transaction', color: this.props.theme.colors.S500 }
-          ]}
+      <Section title='WALLETS'>
+        <WalletsFetcherByAccountId
+          query={{ accountId: this.props.match.params.viewAccountId }}
+          render={({ data, individualLoadingStatus }) => {
+            return data.map(wallet => {
+              return (
+                <WalletCointainter>
+                  <DetailGroup>
+                    <b>Address</b>
+                    <Link to={`/${accountId}/wallet/${wallet.address}`}>
+                      {wallet.address}
+                    </Link> ( <span>{wallet.name}</span> )
+                  </DetailGroup>
+                  {wallet.balances.filter(b => b.amount).map(balance => {
+                    return (
+                      <DetailGroup key={balance.token.id}>
+                        <b>{balance.token.name}</b>
+                        <span>
+                          {formatNumber(balance.amount / balance.token.subunit_to_unit)}
+                        </span>{' '}
+                        <span>{balance.token.symbol}</span>
+                      </DetailGroup>
+                    )
+                  })}
+                </WalletCointainter>
+              )
+            })
+          }}
         />
-      </Section>
-    )
-  }
-  renderHistory = account => {
-    const column = [
-      { key: 'date', title: 'DATE' },
-      {
-        key: 'admin',
-        title: 'ADMIN'
-      },
-      {
-        key: 'action',
-        title: 'ACTION'
-      }
-    ]
-    const data = [
-      {
-        date: 'a,b,c',
-        admin: 'c',
-        action: 'remove omg from omg'
-      },
-      {
-        date: 'a,b,c',
-        admin: 'c',
-        action: 'remove omg from omg'
-      },
-      {
-        date: 'a,b,c',
-        admin: 'c',
-        action: 'remove omg from omg'
-      }
-    ]
-    return (
-      <Section title='HISTORY'>
-        <Table columns={column} rows={data} />
       </Section>
     )
   }
@@ -115,11 +102,8 @@ class AccountDetailPage extends Component {
         <ContentContainer>
           {this.renderTopBar(account)}
           <ContentDetailContainer>
-            <DetailContainer>{this.renderDetail(account)}</DetailContainer>
-            {/* <DetailContainer>
-              {this.renderTransactionRatio(account)}
-              {this.renderHistory(account)}
-            </DetailContainer> */}
+            {this.renderDetail(account)}
+            {this.renderWallets()}
           </ContentDetailContainer>
         </ContentContainer>
       </DetailLayout>
@@ -129,7 +113,7 @@ class AccountDetailPage extends Component {
   renderAccountDetailPage = ({ account, loadingStatus }) => {
     return (
       <AccountDetailContainer>
-        {account ? this.renderAccountDetailContainer(account) : 'loading'}
+        {account && this.renderAccountDetailContainer(account)}
       </AccountDetailContainer>
     )
   }

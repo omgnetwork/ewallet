@@ -9,40 +9,60 @@ import { Icon } from '../omg-uikit'
 const AlertContainer = styled.div`
   position: fixed;
   top: 15px;
-  width: 400px;
-  left: 0;
-  right: 0;
+  display: flex;
   margin: 0 auto;
+  left: 50%;
+  transform: translateX(-50%);
   z-index: 1000;
+  text-align: center;
 `
 const AlertItemContainer = styled.div`
-  border: 1px solid ${props => (props.type === 'error' ? '#FC7166' : '#65d2bb;')};
   border-radius: 2px;
-  background-color: ${props => (props.type === 'error' ? '#FFEFED' : '#e8fbf7')};
   padding: 10px;
   font-size: 12px;
   color: ${props => props.theme.colors.B300};
   margin-bottom: 5px;
+  display: flex;
+  border: 1px solid #C9D1E2;
+  align-items: center;
+  min-width: 400px;
+  background-color: ${props => props.theme.colors.S100};
+  white-space: nowrap;
+  b {
+    color: ${props => props.theme.colors.B400};
+  }
 `
-const SuccessCheckmark = styled.div`
+
+const AlertItemSuccess = AlertItemContainer.extend`
+  background-color: #e8fbf7;
+  border: 1px solid #65d2bb;
+`
+const AlertItemError = AlertItemContainer.extend`
+  border: 1px solid #fc7166;
+  background-color: #ffefed;
+`
+const SuccessChecked = styled.div`
   border-radius: 50%;
   width: 20px;
   height: 20px;
   text-align: center;
   display: inline-block;
-  background-color: #0EBF9A;
+  background-color: #0ebf9a;
   vertical-align: middle;
   position: relative;
   margin-right: 10px;
   i {
     position: absolute;
     top: 50%;
-    transform:translateY(-50%);
+    transform: translateY(-50%);
     color: white;
     left: 0;
     right: 0;
     margin: 0 auto;
   }
+`
+const ErrorChecked = SuccessChecked.extend`
+  background-color: #EF3526;
 `
 class AlertItem extends Component {
   static propTypes = {
@@ -58,7 +78,27 @@ class AlertItem extends Component {
   }
 
   render () {
-    return <AlertItemContainer type={this.props.type}>{this.props.children}</AlertItemContainer>
+    const alertType = {
+      success: (
+        <AlertItemSuccess>
+          <SuccessChecked>
+            <Icon name='Checked' />
+          </SuccessChecked>
+          {this.props.children}
+        </AlertItemSuccess>
+      ),
+      error: (
+        <AlertItemError>
+          <ErrorChecked>
+            <i>!</i>
+          </ErrorChecked>
+          {this.props.children}
+        </AlertItemError>
+
+      ),
+      default: <AlertItemContainer>{this.props.children}</AlertItemContainer>
+    }
+    return alertType[this.props.type || 'default']
   }
 }
 
@@ -83,9 +123,6 @@ class Alert extends Component {
                 classNames='fade'
               >
                 <AlertItem id={alert.id} clearAlert={this.props.clearAlert} type={alert.type}>
-                  <SuccessCheckmark>
-                    <Icon name='Checkmark' />
-                  </SuccessCheckmark>
                   {alert.text}
                 </AlertItem>
               </CSSTransition>
