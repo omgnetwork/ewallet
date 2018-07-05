@@ -1,6 +1,7 @@
 import createReducer from '../reducer/createReducer'
 import uuid from 'uuid/v4'
 import React from 'react'
+import { Link } from 'react-router-dom'
 const createAlertState = (text, type) => {
   return { id: uuid(), text, type }
 }
@@ -14,9 +15,9 @@ export const alertsReducer = createReducer([], {
       createAlertState(
         <div>
           Copied <b>{data}</b> to clipboard.
-        </div>
-      , 'success')
-
+        </div>,
+        'success'
+      )
     ]
   },
   'API_KEY/CREATE/SUCCESS': state => {
@@ -55,13 +56,32 @@ export const alertsReducer = createReducer([], {
   'CONSUMPTION/APPROVE/SUCCESS': (state, { data }) => {
     return [...state, createAlertState(`Approved consumption ${data.id} successfully.`, 'success')]
   },
+  'CONSUMPTION/REJECT/SUCCESS': (state, { data }) => {
+    return [...state, createAlertState(`Rejected consumption ${data.id} successfully.`, 'success')]
+  },
   'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
     return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
   },
-  'TRANSACTION_REQUEST/CONSUME/SUCCESS': state => {
-    return [...state, createAlertState(`Consumed transaction request.`, 'success')]
+  'TRANSACTION_REQUEST/CONSUME/SUCCESS': (state, { data }) => {
+    if (data.status === 'confirmed') {
+      return [...state, createAlertState(`Consumed transaction request.`, 'success')]
+    }
+  },
+  'SOCKET_MESSAGE/CONSUMPTION/REQUEST/SUCCESS': (state, { data }) => {
+    if (data.status === 'pending') {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            New pending consumption <Link to={'/'}>{data.id}</Link>
+          </div>,
+          'success'
+        )
+      ]
+    }
+    return state
   }
 })

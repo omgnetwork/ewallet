@@ -1,5 +1,5 @@
 export const selectTransactionRequests = state => {
-  return _.values(state.TransactionRequests) || []
+  return _.values(state.transactionRequests) || []
 }
 export const selectTransactionRequestsCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(id => {

@@ -23,6 +23,9 @@ const EmptyStageContainer = styled.div`
     margin-bottom: 20px;
   }
 `
+const Tr = styled.tr`
+  background-color: ${props => props.new ? '#fffef2' : 'transparent'};
+`
 class Table extends Component {
   static propTypes = {
     columns: PropTypes.array,
@@ -101,7 +104,7 @@ class Table extends Component {
         : this.props.rows
     return source.map((d, i) => {
       return (
-        <tr key={d.id} ref={row => (this.row = row)} onClick={this.props.onClickRow(d, i)}>
+        <Tr key={d.id} ref={row => (this.row = row)} onClick={this.props.onClickRow(d, i)} new={d.new}>
           {this.props.columns
             .filter(c => !c.hide)
             .map((c, j) => (
@@ -109,7 +112,7 @@ class Table extends Component {
                 {this.props.rowRenderer ? this.props.rowRenderer(c.key, d[c.key], d) : d[c.key]}
               </td>
             ))}
-        </tr>
+        </Tr>
       )
     })
   }

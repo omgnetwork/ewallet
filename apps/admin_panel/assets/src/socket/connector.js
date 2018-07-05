@@ -130,23 +130,26 @@ class SocketConnector {
   handleMessage = message => {
     const msg = JSON.parse(message.data)
     const ref = msg.ref
-    const refType = ref.split(':')[0]
-    if (msg.success) {
-      switch (refType) {
-        case CONSTANT.WEBSOCKET.JOIN_CHANNEL_REF:
-          console.log('joined websocket channel:', msg.topic)
-          this.addChannelToJoinedChannels(msg.topic)
-          break
-        case CONSTANT.WEBSOCKET.LEAVE_CHANNEL_REF:
-          console.log('left websocket channel:', msg.topic)
-          this.removeChannelFromJoinedChannel(msg.topic)
-          break
+    if (ref) {
+      if (msg.success) {
+        const refType = ref.split(':')[0]
+        switch (refType) {
+          case CONSTANT.WEBSOCKET.JOIN_CHANNEL_REF:
+            console.log('joined websocket channel:', msg.topic)
+            this.addChannelToJoinedChannels(msg.topic)
+            break
+          case CONSTANT.WEBSOCKET.LEAVE_CHANNEL_REF:
+            console.log('left websocket channel:', msg.topic)
+            this.removeChannelFromJoinedChannel(msg.topic)
+            break
+        }
+        this.removeMessageFromQueue(msg)
+      } else {
+        console.error('websocket event reply error with response', msg)
       }
-      this.removeMessageFromQueue(msg)
     } else {
-      console.error('websocket event reply error with response', msg)
+      this.handleOnMessage(msg)
     }
-    this.handleOnMessage(msg)
   }
   getConnectionStatus () {
     return this.connectionStateMap[this.socket.readyState]

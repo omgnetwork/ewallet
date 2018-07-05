@@ -14,6 +14,7 @@ import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
+import { selectPendingConsumptions } from '../omg-consumption/selector'
 import ActivityList from './ActivityList'
 const PanelContainer = styled.div`
   height: 100vh;
@@ -132,15 +133,7 @@ const ExpiredContainer = styled.div`
   padding: 5px 10px;
   text-align: center;
 `
-const enhance = compose(
-  withRouter,
-  connect(
-    state => ({
-      selectTransactionRequestById: selectGetTransactionRequestById(state)
-    }),
-    { consumeTransactionRequest }
-  )
-)
+
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
   padding: ${props => (props.error ? '10px 0' : 0)};
@@ -150,12 +143,36 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
   text-align: right;
 `
+const RedDot = styled.div`
+  display: inline-block;
+  margin-left: 3px;
+  background-color: ${props => props.theme.colors.R300};
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  vertical-align: middle;
+  visibility: ${props => (props.show ? 'visible' : 'hidden')};
+`
+const enhance = compose(
+  withRouter,
+  connect(
+    (state, props) => ({
+      selectTransactionRequestById: selectGetTransactionRequestById(state),
+      pendingConsumptions: selectPendingConsumptions(
+        queryString.parse(props.location.search)['show-request-tab']
+      )(state)
+    }),
+    { consumeTransactionRequest }
+  )
+)
+
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
     location: PropTypes.object,
     consumeTransactionRequest: PropTypes.func,
-    selectTransactionRequestById: PropTypes.func
+    selectTransactionRequestById: PropTypes.func,
+    pendingConsumptions: PropTypes.array
   }
 
   static getDerivedStateFromProps (props, state) {
@@ -177,7 +194,11 @@ class TransactionRequestPanel extends Component {
 
   constructor (props) {
     super(props)
-    this.state = {}
+    this.state = {
+      consumeAddress: '',
+      amount: 0,
+      searchTokenValue: ''
+    }
   }
 
   onChangeWalletInput = e => {
@@ -222,10 +243,7 @@ class TransactionRequestPanel extends Component {
         formattedTransactionRequestId: transactionRequest.id,
         tokenId: this.state.selectedToken.id,
         amount: transactionRequest.allow_amount_override
-          ? formatAmount(
-              this.state.amount,
-              _.get(this.state.selectedToken, 'subunit_to_unit')
-            )
+          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
           : null,
         address: this.state.consumeAddress
       })
@@ -399,8 +417,7 @@ class TransactionRequestPanel extends Component {
                 {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>
-                <span>{tq.type}</span> |{' '}
-                <span>{tq.user_id || _.get(tq, 'account.name')}</span>
+                <span>{tq.type}</span> | <span>{tq.user_id || _.get(tq, 'account.name')}</span>
               </SubDetailTitle>
               <TabPanel
                 activeTabKey={
@@ -410,7 +427,12 @@ class TransactionRequestPanel extends Component {
                 data={[
                   {
                     key: 'activity',
-                    tabTitle: 'ACTIVITY LIST',
+                    tabTitle: (
+                      <div style={{ marginLeft: '5px' }}>
+                        <span>PENDING CONSUMPTION</span>{' '}
+                        <RedDot show={!!this.props.pendingConsumptions.length} />
+                      </div>
+                    ),
                     tabContent: <ActivityList />
                   },
                   {

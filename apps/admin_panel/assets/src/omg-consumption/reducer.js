@@ -7,7 +7,21 @@ export const consumptionsReducer = createReducer(
       return { ...state, ..._.keyBy(action.data, 'id') }
     },
     'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.data, 'id') }
+      return _.merge(state, _.keyBy(action.data, 'id'))
+    },
+    'SOCKET_MESSAGE/CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
+      return {
+        ...state,
+        ...{
+          [action.data.id]: {
+            ...action.data,
+            new: true
+          }
+        }
+      }
+    },
+    'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, action) => {
+      return { ...state, ...{ [action.data.id]: action.data } }
     },
     'CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }

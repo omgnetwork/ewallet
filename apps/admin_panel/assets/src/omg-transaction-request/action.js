@@ -126,7 +126,8 @@ export const getTransactionRequestConsumptions = ({
   sort,
   search,
   id,
-  cacheKey
+  cacheKey,
+  searchTerms
 }) => async dispatch => {
   dispatch({ type: 'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/INITIATED' })
   try {
@@ -135,7 +136,8 @@ export const getTransactionRequestConsumptions = ({
       page,
       sort: { by: 'created_at', dir: 'desc' },
       search,
-      id
+      id,
+      searchTerms
     })
     if (result.data.success) {
       return dispatch({
