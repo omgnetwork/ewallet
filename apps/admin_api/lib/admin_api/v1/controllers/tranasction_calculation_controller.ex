@@ -11,12 +11,10 @@ defmodule AdminAPI.V1.TransactionCalculationController do
   Calculates transaction amounts.
   """
   def calculate(conn, attrs) do
-    from_amount = attrs["from_amount"]
     from_token = Token.get(attrs["from_token_id"])
-    to_amount = attrs["to_amount"]
     to_token = Token.get(attrs["to_token_id"])
 
-    case do_calculate(from_amount, from_token, to_amount, to_token) do
+    case do_calculate(attrs["from_amount"], from_token, attrs["to_amount"], to_token) do
       {:ok, calculation} ->
         render(conn, :calculation, %{calculation: calculation})
 
