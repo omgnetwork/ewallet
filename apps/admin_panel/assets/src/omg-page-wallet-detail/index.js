@@ -89,11 +89,11 @@ class WalletDetaillPage extends Component {
           </Link>
         </DetailGroup>}
         <DetailGroup>
-          <b>Created date:</b>{' '}
+          <b>Created Date:</b>{' '}
           <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last update:</b> <span>{moment(wallet.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Last Update:</b> <span>{moment(wallet.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
       </Section>
     )

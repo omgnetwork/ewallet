@@ -52,10 +52,10 @@ class AccountDetailPage extends Component {
           <b>Category:</b> {_.get(account.categories, 'data[0].name', '-')}
         </DetailGroup>
         <DetailGroup>
-          <b>Created date:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
+          <b>Created Date:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
         </DetailGroup>
         <DetailGroup>
-          <b>Last update:</b> {moment(account.updated_at).format('DD/MM/YYYY hh:mm:ss')}
+          <b>Last Update:</b> {moment(account.updated_at).format('DD/MM/YYYY hh:mm:ss')}
         </DetailGroup>
       </Section>
     )
