@@ -10,9 +10,9 @@ defmodule EWalletDB.ExchangePairTest do
     test_insert_generate_uuid(ExchangePair, :uuid)
     test_insert_generate_external_id(ExchangePair, :id, "exg_")
     test_insert_prevent_blank(ExchangePair, :name)
-    test_insert_prevent_blank(ExchangePair, :from_token_uuid)
-    test_insert_prevent_blank(ExchangePair, :to_token_uuid)
     test_insert_prevent_blank(ExchangePair, :rate)
+    test_insert_prevent_blank_assoc(ExchangePair, :from_token)
+    test_insert_prevent_blank_assoc(ExchangePair, :to_token)
     test_insert_generate_timestamps(ExchangePair)
 
     test "allows inserting existing pairs if the existing pairs are soft-deleted" do
@@ -124,7 +124,14 @@ defmodule EWalletDB.ExchangePairTest do
   end
 
   describe "touch/1" do
-    test "touches the exchange pair's updated_at"
+    test "touches the exchange pair's updated_at" do
+      inserted = insert(:exchange_pair)
+
+      {res, touched} = ExchangePair.touch(inserted)
+
+      assert res == :ok
+      assert NaiveDateTime.compare(touched.updated_at, inserted.updated_at) == :gt
+    end
   end
 
   describe "fetch_exchangable_pair/3" do

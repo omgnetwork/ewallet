@@ -81,14 +81,20 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
   end
 
   describe "/exchange_pair.create" do
-    test "creates a new exchange pair and returns it in a list" do
-      request_data = %{
+    def insert_params do
+      %{
         name: "Test exchange pair",
         from_token_id: insert(:token).id,
         to_token_id: insert(:token).id,
-        rate: 2.0
+        rate: 2,
+        sync_opposite: false
       }
+    end
 
+    def insert_params(overrides), do: Map.merge(insert_params(), overrides)
+
+    test "creates a new exchange pair and returns it in a list" do
+      request_data = insert_params()
       response = admin_user_request("/exchange_pair.create", request_data)
 
       assert response["success"] == true
@@ -104,14 +110,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
     end
 
     test "creates a new exchange pair along with its opposite and returns them in a list" do
-      request_data = %{
-        name: "Test exchange pair",
-        from_token_id: insert(:token).id,
-        to_token_id: insert(:token).id,
-        rate: 2.0,
-        sync_opposite: true
-      }
-
+      request_data = insert_params(%{sync_opposite: true})
       response = admin_user_request("/exchange_pair.create", request_data)
 
       assert response["success"] == true
@@ -134,31 +133,64 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       assert opposite["rate"] == 1 / 2.0
     end
 
-    test "returns an error if given an exchange rate of 0" do
-      request_data = params_for(:exchange_pair, rate: 0)
+    test "returns client:invalid_parameter error if given an exchange rate of 0" do
+      request_data = insert_params(%{rate: 0})
       response = admin_user_request("/exchange_pair.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `rate` must be greater than 0."
     end
 
-    test "returns an error if given a negative exchange rate" do
-      request_data = params_for(:exchange_pair, rate: -1)
+    test "returns client:invalid_parameter error if given a negative exchange rate" do
+      request_data = insert_params(%{rate: -1})
       response = admin_user_request("/exchange_pair.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `rate` must be greater than 0."
     end
 
-    test "returns an error if a required parameter is not provided" do
-      request_data = params_for(:exchange_pair, rate: nil)
+    test "returns client:invalid_parameter error if rate is not provided" do
+      request_data = insert_params(%{rate: nil})
       response = admin_user_request("/exchange_pair.create", request_data)
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `rate` can't be blank."
+    end
+
+    test "returns client:invalid_parameter error if from_token_id is not provided" do
+      request_data = insert_params(%{from_token_id: nil})
+      response = admin_user_request("/exchange_pair.create", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `from_token_id` can't be blank."
+    end
+
+    test "returns client:invalid_parameter error if to_token_id is not provided" do
+      request_data = insert_params(%{to_token_id: nil})
+      response = admin_user_request("/exchange_pair.create", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `to_token_id` can't be blank."
     end
   end
 
@@ -176,7 +208,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
         rate: 999.99
       }
 
-      response = provider_request("/exchange_pair.update", request_data)
+      response = admin_user_request("/exchange_pair.update", request_data)
 
       assert response["success"] == true
       assert response["data"]["object"] == "list"
@@ -191,8 +223,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
     end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
-      request_data = params_for(:exchange_pair, %{id: nil})
-      response = admin_user_request("/exchange_pair.update", request_data)
+      response = admin_user_request("/exchange_pair.update", %{rate: 999.99})
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -201,8 +232,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
     end
 
     test "returns a 'user:unauthorized' error if id is invalid" do
-      request_data = params_for(:exchange_pair, %{id: "invalid_format"})
-      response = admin_user_request("/exchange_pair.update", request_data)
+      response = admin_user_request("/exchange_pair.update", %{id: "invalid_id"})
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
@@ -213,21 +243,27 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
     end
 
     test "returns an error if given an exchange rate of 0" do
-      request_data = params_for(:exchange_pair, rate: 0)
-      response = admin_user_request("/exchange_pair.update", request_data)
+      pair = :exchange_pair |> insert() |> Repo.preload([:from_token, :to_token])
+      response = admin_user_request("/exchange_pair.update", %{id: pair.id, rate: 0})
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `rate` must be greater than 0."
     end
 
     test "returns an error if given a negative exchange rate" do
-      request_data = params_for(:exchange_pair, rate: -1)
-      response = admin_user_request("/exchange_pair.update", request_data)
+      pair = :exchange_pair |> insert() |> Repo.preload([:from_token, :to_token])
+      response = admin_user_request("/exchange_pair.update", %{id: pair.id, rate: -1})
 
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `rate` must be greater than 0."
     end
   end
 
@@ -244,17 +280,12 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
     test "responds with an error if the provided id is not found" do
       response = admin_user_request("/exchange_pair.delete", %{id: "wrong_id"})
 
-      assert response ==
-               %{
-                 "version" => "1",
-                 "success" => false,
-                 "data" => %{
-                   "code" => "exchange:pair_id_not_found",
-                   "description" => "There is no exchange pair corresponding to the provided id",
-                   "messages" => nil,
-                   "object" => "error"
-                 }
-               }
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "exchange:pair_id_not_found"
+
+      assert response["data"]["description"] ==
+               "There is no exchange pair corresponding to the provided id"
     end
   end
 end

@@ -100,7 +100,9 @@ defmodule EWallet.ExchangePairGateTest do
 
     test "updates an exchange pair and its opposite when sync_opposite: true" do
       pair = insert(:exchange_pair)
-      _opposite_pair = insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token)
+
+      _opposite_pair =
+        insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token)
 
       {res, pairs} =
         ExchangePairGate.update(pair.id, %{
@@ -115,7 +117,21 @@ defmodule EWallet.ExchangePairGateTest do
       assert Enum.any?(pairs, fn p -> p.rate == 1 / 999 end)
     end
 
-    test "touches the opposite pair if rate did not change when sync_opposite: true"
+    test "touches the opposite pair even if the value didn't change when sync_opposite: true" do
+      pair = insert(:exchange_pair)
+      opposite = insert(:exchange_pair, from_token: pair.to_token, to_token: pair.from_token, rate: 1 / 1_000)
+
+      {res, pairs} =
+        ExchangePairGate.update(pair.id, %{
+          "rate" => 1_000,
+          "sync_opposite" => true
+        })
+
+      assert res == :ok
+      assert Enum.count(pairs) == 2
+      assert Enum.any?(pairs, fn p -> p.id == pair.id && p.rate == 1_000 end)
+      assert Enum.any?(pairs, fn p -> p.id == opposite.id && p.rate == 1 / 1_000 end)
+    end
 
     test "rollbacks if an error occurred along the way" do
       eth = insert(:token)

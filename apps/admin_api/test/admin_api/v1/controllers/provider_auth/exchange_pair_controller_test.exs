@@ -190,7 +190,58 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert pair["rate"] == 999.99
     end
 
-    test "updates the opposite pair when given sync_opposite: true"
+    test "updates the opposite pair when given sync_opposite: true" do
+      exchange_pair =
+        :exchange_pair
+        |> insert(rate: 2)
+        |> Repo.preload([:from_token, :to_token])
+
+      _opposite_pair =
+        :exchange_pair
+        |> insert(rate: 99, from_token: exchange_pair.to_token, to_token: exchange_pair.from_token)
+        |> Repo.preload([:from_token, :to_token])
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: exchange_pair.id,
+        rate: 1000,
+        sync_opposite: true
+      }
+
+      response = provider_request("/exchange_pair.update", request_data)
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "list"
+
+      pair = Enum.at(response["data"]["data"], 0)
+      assert pair["rate"] == 1000
+
+      pair = Enum.at(response["data"]["data"], 1)
+      assert pair["rate"] == 1 / 1000
+    end
+
+    test "reverts and returns error if sync_opposite: true but opposite pair is not found" do
+      exchange_pair =
+        :exchange_pair
+        |> insert(rate: 2)
+        |> Repo.preload([:from_token, :to_token])
+
+      assert exchange_pair.rate == 2
+
+      # Prepare the update data while keeping only id the same
+      request_data = %{
+        id: exchange_pair.id,
+        rate: 1000,
+        sync_opposite: true
+      }
+
+      response = provider_request("/exchange_pair.update", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "exchange:opposite_pair_not_found"
+      assert response["data"]["description"] == "The opposite exchange pair for the given tokens could not be found"
+    end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
       request_data = params_for(:exchange_pair, %{id: nil})

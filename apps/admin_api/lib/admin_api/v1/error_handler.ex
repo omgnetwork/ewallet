@@ -91,6 +91,10 @@ defmodule AdminAPI.V1.ErrorHandler do
     exchange_pair_already_exists: %{
       code: "exchange:pair_already_exists",
       description: "The exchange pair for the given tokens already exist"
+    },
+    exchange_opposite_pair_not_found: %{
+      code: "exchange:opposite_pair_not_found",
+      description: "The opposite exchange pair for the given tokens could not be found"
     }
   }
 

@@ -334,15 +334,16 @@ defmodule EWalletDB.SchemaCase do
       test "prevents creation with missing association :#{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
+        uuid_field = :"#{field}_uuid"
 
         {result, changeset} =
           schema
           |> get_factory
-          |> params_for(%{field => ""})
-          |> schema.insert
+          |> params_for(%{field => nil, uuid_field => nil})
+          |> schema.insert()
 
         assert result == :error
-        assert changeset.errors == [{:"#{field}_id", {"can't be blank", [validation: :required]}}]
+        assert changeset.errors == [{uuid_field, {"can't be blank", [validation: :required]}}]
       end
     end
   end
