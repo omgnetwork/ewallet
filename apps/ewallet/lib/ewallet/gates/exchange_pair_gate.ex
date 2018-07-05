@@ -40,7 +40,6 @@ defmodule EWallet.ExchangePairGate do
   defp insert(:opposite, %{"sync_opposite" => true} = attrs) do
     opposite_attrs =
       attrs
-      |> Map.put("name", attrs["name"] <> " (opposite pair)")
       |> Map.put("from_token_id", attrs["to_token_id"])
       |> Map.put("to_token_id", attrs["from_token_id"])
       |> Map.put("rate", 1 / attrs["rate"])
@@ -88,7 +87,7 @@ defmodule EWallet.ExchangePairGate do
       opposite_pair ->
         case direct_attrs["rate"] do
           nil ->
-            ExchangePair.touch(opposite_pair)
+            {:ok, opposite_pair}
 
           rate ->
             ExchangePair.update(opposite_pair, %{"rate" => 1 / rate})

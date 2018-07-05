@@ -3618,8 +3618,6 @@ components:
           application/vnd.omisego.v1+json:
             schema:
               properties:
-                name:
-                  type: string
                 from_token_id:
                   type: string
                 to_token_id:
@@ -3629,12 +3627,10 @@ components:
                 sync_opposite:
                   type: boolean
               required:
-                - name
                 - from_token_id
                 - to_token_id
                 - rate
               example:
-                name: "ETH/OMG"
                 from_token_id: "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3"
                 to_token_id: "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp"
                 rate: 0.017
@@ -3648,15 +3644,12 @@ components:
               properties:
                 id:
                   type: string
-                name:
-                  type: string
                 rate:
                   type: float
               required:
                 - id
               example:
                 id: "exg_01cgvppyrz2pprj6s0zmc26p2p"
-                name: "ETH/OMG updated name"
                 rate: 0.099
     ExchangePairDeleteBody:
         description: The parameters to delete an exchange pair.

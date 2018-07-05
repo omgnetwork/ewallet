@@ -11,7 +11,6 @@ defmodule EWalletDB.ExchangePair do
 
   ```
   %EWalletDB.ExchangePair{
-    name: "AAA/BBB",
     from_token: AAA,
     to_token: BBB,
     rate: 2.00
@@ -34,9 +33,6 @@ defmodule EWalletDB.ExchangePair do
   schema "exchange_pair" do
     external_id(prefix: "exg_")
 
-    field(:name, :string)
-    field(:rate, :float)
-
     belongs_to(
       :from_token,
       Token,
@@ -53,24 +49,24 @@ defmodule EWalletDB.ExchangePair do
       foreign_key: :to_token_uuid
     )
 
+    field(:rate, :float)
     timestamps()
     soft_delete()
   end
 
   defp changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast(attrs, [:name, :from_token_uuid, :to_token_uuid, :rate, :deleted_at])
-    |> validate_required([:name, :from_token_uuid, :to_token_uuid, :rate])
+    |> cast(attrs, [:from_token_uuid, :to_token_uuid, :rate, :deleted_at])
+    |> validate_required([:from_token_uuid, :to_token_uuid, :rate])
     |> validate_different_values(:from_token_uuid, :to_token_uuid)
     |> validate_immutable(:from_token_uuid)
     |> validate_immutable(:to_token_uuid)
     |> validate_number(:rate, greater_than: 0)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
-    |> unique_constraint(:name)
     |> unique_constraint(
       :from_token,
-      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_null"
+      name: "exchange_pair_from_token_uuid_to_token_uuid_index"
     )
   end
 
@@ -79,7 +75,7 @@ defmodule EWalletDB.ExchangePair do
     |> cast(attrs, [:deleted_at])
     |> unique_constraint(
       :deleted_at,
-      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_null"
+      name: "exchange_pair_from_token_uuid_to_token_uuid_index"
     )
   end
 
@@ -171,8 +167,17 @@ defmodule EWalletDB.ExchangePair do
   @spec touch(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def touch(exchange_pair) do
     exchange_pair
-    |> change()
-    |> Repo.update(force: true)
+    |> change(updated_at: NaiveDateTime.utc_now())
+    |> Repo.update()
+  end
+
+  @doc """
+  Gets the standard name of the exchange pair.
+  """
+  @spec get_name(%__MODULE__{}) :: String.t()
+  def get_name(exchange_pair) do
+    exchange_pair = Repo.preload(exchange_pair, [:from_token, :to_token])
+    exchange_pair.from_token.symbol <> "/" <> exchange_pair.to_token.symbol
   end
 
   @doc """

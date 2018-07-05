@@ -20,15 +20,15 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
     end
 
     test "returns a list of exchange pairs according to search_term, sort_by and sort_direction" do
-      insert(:exchange_pair, %{name: "Matched 2"})
-      insert(:exchange_pair, %{name: "Matched 3"})
-      insert(:exchange_pair, %{name: "Matched 1"})
-      insert(:exchange_pair, %{name: "Missed 1"})
+      insert(:exchange_pair, %{id: "exg_aaaaa222222222222222222222"})
+      insert(:exchange_pair, %{id: "exg_aaaaa333333333333333333333"})
+      insert(:exchange_pair, %{id: "exg_aaaaa111111111111111111111"})
+      insert(:exchange_pair, %{id: "exg_fffff000000000000000000000"})
 
       attrs = %{
         # Search is case-insensitive
-        "search_term" => "MaTcHed",
-        "sort_by" => "name",
+        "search_term" => "exg_AAAAA",
+        "sort_by" => "id",
         "sort_dir" => "desc"
       }
 
@@ -37,9 +37,9 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
 
       assert response["success"]
       assert Enum.count(exchange_pairs) == 3
-      assert Enum.at(exchange_pairs, 0)["name"] == "Matched 3"
-      assert Enum.at(exchange_pairs, 1)["name"] == "Matched 2"
-      assert Enum.at(exchange_pairs, 2)["name"] == "Matched 1"
+      assert Enum.at(exchange_pairs, 0)["id"] == "exg_aaaaa333333333333333333333"
+      assert Enum.at(exchange_pairs, 1)["id"] == "exg_aaaaa222222222222222222222"
+      assert Enum.at(exchange_pairs, 2)["id"] == "exg_aaaaa111111111111111111111"
     end
   end
 
@@ -53,7 +53,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
 
       assert response["success"]
       assert response["data"]["object"] == "exchange_pair"
-      assert response["data"]["name"] == target.name
+      assert response["data"]["id"] == target.id
     end
 
     test "returns 'exchange:pair_id_not_found' if the given ID was not found" do
@@ -83,7 +83,6 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
   describe "/exchange_pair.create" do
     def insert_params do
       %{
-        name: "Test exchange pair",
         from_token_id: insert(:token).id,
         to_token_id: insert(:token).id,
         rate: 2,
@@ -103,7 +102,6 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       pair = Enum.at(response["data"]["data"], 0)
 
       assert pair["object"] == "exchange_pair"
-      assert pair["name"] == request_data.name
       assert pair["from_token_id"] == request_data.from_token_id
       assert pair["to_token_id"] == request_data.to_token_id
       assert pair["rate"] == 2.0
@@ -119,7 +117,6 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       pair = Enum.at(response["data"]["data"], 0)
 
       assert pair["object"] == "exchange_pair"
-      assert pair["name"] == request_data.name
       assert pair["from_token_id"] == request_data.from_token_id
       assert pair["to_token_id"] == request_data.to_token_id
       assert pair["rate"] == 2.0
@@ -127,7 +124,6 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       opposite = Enum.at(response["data"]["data"], 1)
 
       assert opposite["object"] == "exchange_pair"
-      assert opposite["name"] == request_data.name <> " (opposite pair)"
       assert opposite["from_token_id"] == request_data.to_token_id
       assert opposite["to_token_id"] == request_data.from_token_id
       assert opposite["rate"] == 1 / 2.0
@@ -198,13 +194,11 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
     test "updates the given exchange pair" do
       exchange_pair = :exchange_pair |> insert() |> Repo.preload([:from_token, :to_token])
 
-      assert exchange_pair.name != "updated name"
       assert exchange_pair.rate != 999.99
 
       # Prepare the update data while keeping only id the same
       request_data = %{
         id: exchange_pair.id,
-        name: "updated name",
         rate: 999.99
       }
 
@@ -217,7 +211,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       pair = Enum.at(response["data"]["data"], 0)
 
       assert pair["object"] == "exchange_pair"
-      assert pair["name"] == request_data.name
+      assert pair["id"] == exchange_pair.id
       assert pair["from_token_id"] == exchange_pair.from_token.id
       assert pair["to_token_id"] == exchange_pair.to_token.id
       assert pair["rate"] == 999.99
@@ -229,7 +223,7 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
         |> insert(rate: 2)
         |> Repo.preload([:from_token, :to_token])
 
-      _opposite_pair =
+      opposite_pair =
         :exchange_pair
         |> insert(
           rate: 99,
@@ -252,9 +246,11 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       assert Enum.count(response["data"]["data"]) == 2
 
       pair = Enum.at(response["data"]["data"], 0)
+      assert pair["id"] == exchange_pair.id
       assert pair["rate"] == 1000
 
       pair = Enum.at(response["data"]["data"], 1)
+      assert pair["id"] == opposite_pair.id
       assert pair["rate"] == 1 / 1000
     end
 

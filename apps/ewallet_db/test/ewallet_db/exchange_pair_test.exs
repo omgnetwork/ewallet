@@ -9,7 +9,6 @@ defmodule EWalletDB.ExchangePairTest do
   describe "insert/1" do
     test_insert_generate_uuid(ExchangePair, :uuid)
     test_insert_generate_external_id(ExchangePair, :id, "exg_")
-    test_insert_prevent_blank(ExchangePair, :name)
     test_insert_prevent_blank(ExchangePair, :rate)
     test_insert_prevent_blank_assoc(ExchangePair, :from_token)
     test_insert_prevent_blank_assoc(ExchangePair, :to_token)
@@ -19,7 +18,6 @@ defmodule EWalletDB.ExchangePairTest do
       {:ok, pair} = :exchange_pair |> insert() |> ExchangePair.delete()
 
       attrs = %{
-        name: "Test pair",
         from_token_uuid: pair.from_token_uuid,
         to_token_uuid: pair.to_token_uuid,
         rate: 999
@@ -28,7 +26,6 @@ defmodule EWalletDB.ExchangePairTest do
       {res, inserted} = ExchangePair.insert(attrs)
 
       assert res == :ok
-      assert inserted.name == attrs.name
       assert inserted.from_token_uuid == attrs.from_token_uuid
       assert inserted.to_token_uuid == attrs.to_token_uuid
       assert inserted.rate == attrs.rate
@@ -38,7 +35,6 @@ defmodule EWalletDB.ExchangePairTest do
       omg = insert(:token)
 
       attrs = %{
-        name: "Test pair",
         from_token_uuid: omg.uuid,
         to_token_uuid: omg.uuid,
         rate: 1.00
@@ -59,7 +55,6 @@ defmodule EWalletDB.ExchangePairTest do
       pair = insert(:exchange_pair)
 
       attrs = %{
-        name: "Test pair",
         from_token_uuid: pair.from_token_uuid,
         to_token_uuid: pair.to_token_uuid,
         rate: 999
@@ -93,7 +88,6 @@ defmodule EWalletDB.ExchangePairTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(ExchangePair, :name)
     test_update_field_ok(ExchangePair, :rate, 2.00, 9.99)
 
     test_update_prevents_changing(
@@ -146,11 +140,20 @@ defmodule EWalletDB.ExchangePairTest do
   describe "touch/1" do
     test "touches the exchange pair's updated_at" do
       inserted = insert(:exchange_pair)
-
       {res, touched} = ExchangePair.touch(inserted)
 
       assert res == :ok
       assert NaiveDateTime.compare(touched.updated_at, inserted.updated_at) == :gt
+    end
+  end
+
+  describe "get_name/1" do
+    test "returns the exchange pair name" do
+      abc = insert(:token, symbol: "ABC")
+      xyz = insert(:token, symbol: "XYZ")
+      pair = insert(:exchange_pair, from_token: abc, to_token: xyz)
+
+      assert ExchangePair.get_name(pair) == "ABC/XYZ"
     end
   end
 

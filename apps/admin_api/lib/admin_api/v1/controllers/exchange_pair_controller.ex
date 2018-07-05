@@ -20,12 +20,12 @@ defmodule AdminAPI.V1.ExchangePairController do
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
   # If the request provides different names, map it via `@mapped_fields` first.
-  @search_fields [:id, :name]
+  @search_fields [:id]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :name, :inserted_at, :updated_at]
+  @sort_fields [:id, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of exchange pairs.

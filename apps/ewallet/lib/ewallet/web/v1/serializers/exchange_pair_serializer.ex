@@ -25,7 +25,7 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
     %{
       object: "exchange_pair",
       id: exchange_pair.id,
-      name: exchange_pair.name,
+      name: ExchangePair.get_name(exchange_pair),
       from_token_id: Assoc.get(exchange_pair, [:from_token, :id]),
       from_token: TokenSerializer.serialize(exchange_pair.from_token),
       to_token_id: Assoc.get(exchange_pair, [:to_token, :id]),

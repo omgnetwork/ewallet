@@ -3,6 +3,7 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{ExchangePairSerializer, TokenSerializer}
   alias EWallet.Web.{Paginator, Date}
+  alias EWalletDB.ExchangePair
 
   describe "serialize/1" do
     test "serializes an exchange pair into V1 response format" do
@@ -11,7 +12,7 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
       expected = %{
         object: "exchange_pair",
         id: exchange_pair.id,
-        name: exchange_pair.name,
+        name: ExchangePair.get_name(exchange_pair),
         from_token_id: exchange_pair.from_token.id,
         from_token: TokenSerializer.serialize(exchange_pair.from_token),
         to_token_id: exchange_pair.to_token.id,
@@ -45,7 +46,7 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
           %{
             object: "exchange_pair",
             id: exchange_pair1.id,
-            name: exchange_pair1.name,
+            name: ExchangePair.get_name(exchange_pair1),
             from_token_id: exchange_pair1.from_token.id,
             from_token: TokenSerializer.serialize(exchange_pair1.from_token),
             to_token_id: exchange_pair1.to_token.id,
@@ -58,7 +59,7 @@ defmodule EWallet.Web.V1.ExchangePairSerializerTest do
           %{
             object: "exchange_pair",
             id: exchange_pair2.id,
-            name: exchange_pair2.name,
+            name: ExchangePair.get_name(exchange_pair2),
             from_token_id: exchange_pair2.from_token.id,
             from_token: TokenSerializer.serialize(exchange_pair2.from_token),
             to_token_id: exchange_pair2.to_token.id,
