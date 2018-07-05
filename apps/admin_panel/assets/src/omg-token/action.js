@@ -58,7 +58,13 @@ export const getTokens = ({ search, page, perPage, cacheKey }) => async dispatch
     return dispatch({ type: 'TOKENS/REQUEST/FAILED', error })
   }
 }
-export const getMintedTokenHistory = ({ search, page, perPage, searchTerms, cacheKey }) => async dispatch => {
+export const getMintedTokenHistory = ({
+  search,
+  page,
+  perPage,
+  searchTerms,
+  cacheKey
+}) => async dispatch => {
   dispatch({ type: 'TOKENS/REQUEST/INITIATED' })
   try {
     const result = await tokenSerivce.getMintedTokenHistory({
@@ -86,9 +92,12 @@ export const getMintedTokenHistory = ({ search, page, perPage, searchTerms, cach
 
 export const getTokenById = id => async dispatch => {
   try {
-    const result = await tokenSerivce.getTokenById(id)
+    const result = await tokenSerivce.getTokenStatsById(id)
     if (result.data.success) {
-      dispatch({ type: 'TOKEN/REQUEST/SUCCESS', data: result.data.data })
+      dispatch({
+        type: 'TOKEN/REQUEST/SUCCESS',
+        data: { ...result.data.data.token, total_supply: result.data.data.total_supply }
+      })
     } else {
       dispatch({ type: 'TOKEN/REQUEST/FAILED', error: result.data.data })
     }

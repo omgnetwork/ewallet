@@ -171,6 +171,7 @@ class CreateTransactionModal extends Component {
   }
   onRequestClose = () => {
     this.props.onRequestClose()
+    this.setState({ submitting: false })
   }
 
   getBalanceOfSelectedToken = type => {

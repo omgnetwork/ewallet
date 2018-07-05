@@ -30,6 +30,13 @@ export function mintToken ({ id, amount }) {
     data: { id, amount: Number(amount) }
   })
 }
+export function getTokenStatsById (id) {
+  return authenticatedRequest({
+    path: '/token.stats',
+    data: { id }
+  })
+}
+
 export function getMintedTokenHistory ({ tokenId, page, perPage, search, searchTerms, sort }) {
   return authenticatedRequest({
     path: '/token.get_mints',

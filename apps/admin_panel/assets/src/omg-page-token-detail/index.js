@@ -12,7 +12,7 @@ import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
-import { formatNumber } from '../utils/formatter'
+import { formatRecieveAmountToTotal, formatNumber } from '../utils/formatter'
 const AccountDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -79,6 +79,9 @@ class TokenDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
+          <b>ID:</b> <span>{token.id}</span>
+        </DetailGroup>
+        <DetailGroup>
           <b>Name:</b> <span>{token.name}</span>
         </DetailGroup>
         <DetailGroup>
@@ -91,7 +94,7 @@ class TokenDetailPage extends Component {
           <b>Subunit To Unit:</b> <span>{formatNumber(token.subunit_to_unit)}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>ID:</b> <span>{token.id}</span>
+          <b>Total Supply:</b> <span>{formatRecieveAmountToTotal(token.total_supply, token.subunit_to_unit)} {token.symbol}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b> <span>{moment(token.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
