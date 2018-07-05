@@ -13,7 +13,7 @@ const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
-  width: 550px;
+  width: 560px;
   background-color: white;
   padding: 40px 30px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
@@ -143,6 +143,7 @@ class TransactionRequestPanel extends Component {
       <TransactionProvider
         transactionId={queryString.parse(this.props.location.search)['show-transaction-tab']}
         render={({ transaction }) => {
+          console.log(transaction)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
@@ -167,7 +168,7 @@ class TransactionRequestPanel extends Component {
               )}
               {this.renderTransactionInfo(transaction.from, 'From')}
               {this.renderTransactionInfo(transaction.to, 'To')}
-              {this.renderExchangeInfo(transaction)}
+              {_.get(transaction, 'exchange.exchange_pair') && this.renderExchangeInfo(transaction)}
             </PanelContainer>
           )
         }}

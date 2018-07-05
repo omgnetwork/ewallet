@@ -14,7 +14,7 @@ const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
-  width: 550px;
+  width: 560px;
   background-color: white;
   padding: 40px 30px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);

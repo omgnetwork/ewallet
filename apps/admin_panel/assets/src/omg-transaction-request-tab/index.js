@@ -19,7 +19,7 @@ const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
-  width: 550px;
+  width: 560px;
   background-color: white;
   padding: 40px 30px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
@@ -356,7 +356,7 @@ class TransactionRequestPanel extends Component {
             {_.get(transactionRequest, 'token.symbol')}
           </InformationItem>
           <InformationItem>
-            <b>address : </b> {transactionRequest.address}
+            <b>Requester Address : </b> {transactionRequest.address}
           </InformationItem>
           <InformationItem>
             <b>Confirmation : </b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
@@ -399,7 +399,7 @@ class TransactionRequestPanel extends Component {
                 {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>
-                <span>{tq.id}</span> | <span>{tq.type}</span> |{' '}
+                <span>{tq.type}</span> |{' '}
                 <span>{tq.user_id || _.get(tq, 'account.name')}</span>
               </SubDetailTitle>
               <TabPanel
