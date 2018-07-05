@@ -128,7 +128,7 @@ export default withRouter(
                   This is where you will see all stats and trend of transaction within current
                   account.
                 </h5>
-                <p>Analytics will appear when we collect enough data.</p>
+                <p>Analytics will come soon, stay tuned !</p>
               </IntroContainer>
               <GetStartedContainer>
                 <h4>Let's get started</h4>
