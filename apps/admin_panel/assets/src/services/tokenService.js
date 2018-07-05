@@ -41,6 +41,7 @@ export function getMintedTokenHistory ({ tokenId, page, perPage, search, searchT
   return authenticatedRequest({
     path: '/token.get_mints',
     data: {
+      page,
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,

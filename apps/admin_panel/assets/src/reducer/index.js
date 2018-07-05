@@ -11,7 +11,7 @@ import { inviteListReducer, inviteListLoadingStatusReducer } from '../omg-invite
 import { apiKeysReducer, apiKeysLoadingStatusReducer } from '../omg-api-keys/reducer'
 import { accessKeyReducer, accessKeyLoadingStatusReducer } from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
-import { tokensReducer, tokensLoadingStatusReducer } from '../omg-token/reducer'
+import { tokensReducer, tokensLoadingStatusReducer, mintedTokenHistoryReducer } from '../omg-token/reducer'
 import { usersReducer, usersLoadingStatusReducer } from '../omg-users/reducer'
 import { consumptionsReducer, consumptionsLoadingStatusReducer } from '../omg-consumption/reducer'
 import { transactionsReducer, transactionsLoadingStatusReducer } from '../omg-transaction/reducer'
@@ -53,5 +53,6 @@ export default combineReducers({
   categories: categoriesReducer,
   categoriesLoadingStatus: categoriesLoadingStatusReducer,
   exchangePairs: exchangePairsReducer,
-  cacheQueries: cacheReducer
+  cacheQueries: cacheReducer,
+  mintedTokenHistory: mintedTokenHistoryReducer
 })

@@ -3,7 +3,7 @@ export const tokensReducer = createReducer(
   {},
   {
     'TOKENS/REQUEST/SUCCESS': (state, { data }) => {
-      return { ...state, ..._.keyBy(data, 'id') }
+      return _.merge(state, _.keyBy(data, 'id'))
     },
     'TOKEN/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, [data.id]: data }

@@ -59,6 +59,7 @@ export const getTokens = ({ search, page, perPage, cacheKey }) => async dispatch
   }
 }
 export const getMintedTokenHistory = ({
+  tokenId,
   search,
   page,
   perPage,
@@ -72,7 +73,8 @@ export const getMintedTokenHistory = ({
       page,
       sort: { by: 'created_at', dir: 'desc' },
       search,
-      searchTerms
+      searchTerms,
+      tokenId
     })
     if (result.data.success) {
       return dispatch({

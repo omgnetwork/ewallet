@@ -22,6 +22,7 @@ const LoadMoreButton = styled(Button)`
   }
 `
 const TableContainer = styled.div`
+  width: 100%;
   table {
     width: 100%;
     text-align: left;

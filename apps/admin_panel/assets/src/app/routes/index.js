@@ -34,8 +34,9 @@ export default () => (
       <LoginRoute path='/create-new-password' exact component={CreateNewPasswordForm} />
       <LoginRoute path='/invite' exact component={InviteForm} />
       <AuthenticatedRoute path='/:accountId/dashboard' exact component={DashboardPage} />
-      <AuthenticatedRoute path='/:accountId/accounts' exact component={AccountPage} />\
+      <AuthenticatedRoute path='/:accountId/accounts' exact component={AccountPage} />
       <AuthenticatedRoute path='/:accountId/token' exact component={TokenPage} />
+      <AuthenticatedRoute path='/:accountId/token/:viewTokenId/:state' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/:accountId/token/:viewTokenId' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/:accountId/wallets' exact component={WalletPage} />
       <AuthenticatedRoute path='/:accountId/transaction' exact component={TransactionPage} />

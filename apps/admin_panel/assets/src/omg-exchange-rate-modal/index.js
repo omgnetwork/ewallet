@@ -105,7 +105,6 @@ class CreateExchangeRateModal extends Component {
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
-    console.log(this.state)
     try {
       const result = await this.props.createExchangePair({
         name: this.state.name,

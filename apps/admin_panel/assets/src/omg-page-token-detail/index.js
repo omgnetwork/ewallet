@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled, { withTheme } from 'styled-components'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import TokenProvider from '../omg-token/TokenProvider'
 import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
 import { compose } from 'recompose'
@@ -12,6 +12,7 @@ import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
+import HistoryTable from './HistoryTable'
 import { formatRecieveAmountToTotal, formatNumber } from '../utils/formatter'
 const AccountDetailContainer = styled.div`
   padding-bottom: 20px;
@@ -20,6 +21,7 @@ const AccountDetailContainer = styled.div`
 const ContentDetailContainer = styled.div`
   margin-top: 40px;
   display: flex;
+  width: 100%;
 `
 const DetailContainer = styled.div`
   flex: 1 1 auto;
@@ -40,6 +42,7 @@ class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
     history: PropTypes.object,
+    location: PropTypes.object,
     theme: PropTypes.object
   }
   state = {
@@ -94,7 +97,11 @@ class TokenDetailPage extends Component {
           <b>Subunit To Unit:</b> <span>{formatNumber(token.subunit_to_unit)}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Total Supply:</b> <span>{formatRecieveAmountToTotal(token.total_supply, token.subunit_to_unit)} {token.symbol}</span>
+          <b>Total Supply:</b>{' '}
+          <span>
+            {formatRecieveAmountToTotal(token.total_supply, token.subunit_to_unit)} {token.symbol}
+          </span>{' '}
+          <Link to={`${this.props.location.pathname}/history`}>view history</Link>
         </DetailGroup>
         <DetailGroup>
           <b>Created date:</b> <span>{moment(token.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
@@ -105,20 +112,28 @@ class TokenDetailPage extends Component {
       </Section>
     )
   }
+
   renderAccountDetail = () => {
-    const accountId = this.props.match.params.accountId
     return (
       <TokenProvider
         render={({ token }) => {
           return token ? (
-            <DetailLayout backPath={`/${accountId}/token`}>
+            <DetailLayout>
               <ContentContainer>
                 {this.renderTopBar(token)}
                 <ContentDetailContainer>
-                  <DetailContainer>{this.renderDetail(token)}</DetailContainer>
-                  {this.renderExchangeRate(token)}
+                  {this.props.match.params.state !== 'history' && (
+                    <div>
+                      <DetailContainer>{this.renderDetail(token)}</DetailContainer>
+                      {this.renderExchangeRate(token)}
+                    </div>
+                  )}
+                  {this.props.match.params.state === 'history' && (
+                    <HistoryTable tokenId={token.id} />
+                  )}
                 </ContentDetailContainer>
               </ContentContainer>
+
               <MintTokenModal
                 token={token}
                 onRequestClose={this.onRequestClose}
@@ -136,7 +151,7 @@ class TokenDetailPage extends Component {
       />
     )
   }
-  renderExchangeRate = (token) => {
+  renderExchangeRate = token => {
     return (
       <ExchangePairsProvider
         fromTokenId={this.props.match.params.viewTokenId}
@@ -146,7 +161,12 @@ class TokenDetailPage extends Component {
               <Section title={`RATES`}>
                 <h5>1 {token.name} :</h5>
                 {exchangePairs.map(pair => {
-                  return <DetailGroup><b>{_.get(pair, 'to_token.name')}</b>{pair.rate} {_.get(pair, 'to_token.symbol')}</DetailGroup>
+                  return (
+                    <DetailGroup>
+                      <b>{_.get(pair, 'to_token.name')}</b>
+                      {pair.rate} {_.get(pair, 'to_token.symbol')}
+                    </DetailGroup>
+                  )
                 })}
               </Section>
             </DetailContainer>
