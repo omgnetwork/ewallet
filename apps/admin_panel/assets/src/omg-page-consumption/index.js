@@ -61,7 +61,7 @@ class ConsumptionPage extends Component {
       { key: 'id', title: 'REQUEST ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
       { key: 'estimated_consumption_amount', title: 'AMOUNT', sort: true },
-      { key: 'created_by', title: 'TO' },
+      { key: 'created_by', title: 'CONSUMER' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'status', title: 'STATUS', sort: true }
     ]

@@ -80,7 +80,7 @@ class ActivityList extends Component {
     super(props)
     this.columns = [
       { key: 'estimated_consumption_amount', title: 'AMOUNT' },
-      { key: 'to', title: 'TO' },
+      { key: 'to', title: 'CONSUMER' },
       { key: 'created_at', title: 'CREATED DATE' },
       { key: 'status', title: 'CONFIRMATION' }
     ]
