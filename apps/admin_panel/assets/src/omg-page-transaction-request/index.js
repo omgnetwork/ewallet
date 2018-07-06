@@ -64,7 +64,8 @@ class TransactionRequestsPage extends Component {
       { key: 'amount', title: 'AMOUNT', sort: true },
       { key: 'created_by', title: 'CREATED BY' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'require_confirmation', title: 'CONFIRMATION' }
+      { key: 'require_confirmation', title: 'CONFIRMATION' },
+      { key: 'status', title: 'STATUS' }
     ]
   }
   onClickCreateRequest = e => {

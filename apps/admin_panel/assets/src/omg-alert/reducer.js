@@ -74,8 +74,8 @@ export const alertsReducer = createReducer([], {
         ...state,
         createAlertState(
           <div>
-            Approved consumption{' '}
-            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> successfully.
+            Consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> was approved successfully.
           </div>,
           'success'
         )
@@ -96,6 +96,7 @@ export const alertsReducer = createReducer([], {
     return state
   },
   'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, { data }) => {
+    console.log(data)
     if (data.status === 'pending') {
       return [
         ...state,
@@ -107,9 +108,6 @@ export const alertsReducer = createReducer([], {
           'success'
         )
       ]
-    }
-    if (data.status === 'confirmed') {
-      return [...state, createAlertState(`Consumed transaction request.`, 'success')]
     }
     return state
   }
