@@ -333,6 +333,7 @@ class CreateTransactionRequest extends Component {
               normalPlaceholder='1000'
               autofocus
               value={this.state.amount}
+              type='number'
               onChange={this.onChange('amount')}
             />
           </InputLabelContainer>
