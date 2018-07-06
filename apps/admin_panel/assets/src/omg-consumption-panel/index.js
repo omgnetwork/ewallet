@@ -35,7 +35,7 @@ const AdditionalTransactionRequestContainer = styled.div`
 `
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
-  b{
+  b {
     vertical-align: baseline;
   }
   span {
@@ -145,7 +145,7 @@ class TransactionRequestPanel extends Component {
                   <b>Status:</b> <span>{consumption.status}</span>
                 </InformationItem>
                 {_.get(consumption, 'transaction.error_description') && (
-                  <InformationItem style={{color: '#FC7166'}}>
+                  <InformationItem style={{ color: '#FC7166' }}>
                     {_.get(consumption, 'transaction.error_description')}
                   </InformationItem>
                 )}
@@ -188,30 +188,48 @@ class TransactionRequestPanel extends Component {
               <AdditionalTransactionRequestContainer>
                 <h5>ADDITIONAL REQUEST DETAILS</h5>
                 <InformationItem>
-                  <b>Amount:</b>{' '}
+                  <b>Type :</b> {tq.type}
+                </InformationItem>
+                <InformationItem>
+                  <b>Token ID :</b> {_.get(tq, 'token.id')}
+                </InformationItem>
+                <InformationItem>
+                  <b>Amount :</b>{' '}
                   {formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
                   {_.get(tq, 'token.symbol')}
                 </InformationItem>
                 <InformationItem>
-                  <b>Confirmation:</b> {tq.require_confirmation ? 'Yes' : 'No'}
+                  <b>Requester Address : </b> {tq.address}
                 </InformationItem>
                 <InformationItem>
-                  <b>Consumptions Count:</b> {tq.current_consumptions_count}
+                  <b>Account ID : </b> {_.get(tq, 'account.id', '-')}
                 </InformationItem>
                 <InformationItem>
-                  <b>Max Consumptions:</b> {tq.max_consumtions || '-'}
+                  <b>Account Name : </b> {_.get(tq, 'account.name', '-')}
                 </InformationItem>
                 <InformationItem>
-                  <b>Max Consumptions User:</b> {tq.max_consumptionPerUser || '-'}
+                  <b>User ID : </b> {_.get(tq, 'user.id', '-')}
                 </InformationItem>
                 <InformationItem>
-                  <b>Expiry Date:</b> {tq.expiration_date || '-'}
+                  <b>Confirmation : </b> {tq.require_confirmation ? 'Yes' : 'No'}
                 </InformationItem>
                 <InformationItem>
-                  <b>Allow Amount Override:</b> {tq.allow_amount_override ? 'Yes' : 'No'}
+                  <b>Consumptions Count : </b> {tq.current_consumptions_count}
                 </InformationItem>
                 <InformationItem>
-                  <b>Coorelation ID:</b> {tq.correlation_id || '-'}
+                  <b>Max Consumptions : </b> {tq.max_consumptions || '-'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Max Consumptions User : </b> {tq.max_consumptions_per_user || '-'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Expiry Date : </b> {tq.expiration_date || '-'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
+                </InformationItem>
+                <InformationItem>
+                  <b>Coorelation ID : </b> {tq.correlation_id || '-'}
                 </InformationItem>
               </AdditionalTransactionRequestContainer>
             </PanelContainer>
