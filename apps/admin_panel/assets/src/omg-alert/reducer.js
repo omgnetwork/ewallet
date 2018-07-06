@@ -80,6 +80,12 @@ export const alertsReducer = createReducer([], {
   'ACCESS_KEY/CREATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
+  'CURRENT_ACCOUNT/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'INVITE/REQUEST/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
   'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed' && data.transaction_request.require_confirmation) {
       return [
