@@ -1,13 +1,15 @@
 defmodule EWallet.Web.V1.TransactionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{TransactionSerializer, TokenSerializer}
+  alias EWallet.Web.V1.{TransactionSerializer, TokenSerializer, UserSerializer, AccountSerializer}
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Token}
+  alias EWalletDB.{Repo, Token, Helpers.Assoc}
 
   describe "serialize/1 for single transaction" do
     test "serializes into correct V1 transaction format" do
-      transaction = insert(:transaction)
+      transaction =
+        insert(:transaction) |> Repo.preload([:from_user, :from_account, :to_user, :to_account])
+
       from_token = Token.get_by(uuid: transaction.from_token_uuid)
       to_token = Token.get_by(uuid: transaction.to_token_uuid)
 
@@ -19,10 +21,10 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
           object: "transaction_source",
           address: transaction.from,
           amount: transaction.from_amount,
-          account: nil,
-          account_id: nil,
-          user: nil,
-          user_id: nil,
+          account: AccountSerializer.serialize(transaction.from_account),
+          account_id: Assoc.get(transaction, [:from_account, :id]),
+          user: UserSerializer.serialize(transaction.from_user),
+          user_id: Assoc.get(transaction, [:from_user, :id]),
           token_id: from_token.id,
           token: TokenSerializer.serialize(from_token)
         },
@@ -30,10 +32,10 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
           object: "transaction_source",
           address: transaction.to,
           amount: transaction.to_amount,
-          account: nil,
-          account_id: nil,
-          user: nil,
-          user_id: nil,
+          account: AccountSerializer.serialize(transaction.to_account),
+          account_id: Assoc.get(transaction, [:to_account, :id]),
+          user: UserSerializer.serialize(transaction.to_user),
+          user_id: Assoc.get(transaction, [:to_user, :id]),
           token_id: to_token.id,
           token: TokenSerializer.serialize(to_token)
         },

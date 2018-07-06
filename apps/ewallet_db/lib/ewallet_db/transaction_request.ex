@@ -188,6 +188,10 @@ defmodule EWalletDB.TransactionRequest do
 
   def get(_id, _opts), do: nil
 
+  def query_all_for_account_uuids_and_users(query, account_uuids) do
+    where(query, [c], c.account_uuid in ^account_uuids or not is_nil(c.user_uuid))
+  end
+
   @doc """
   Expires all transactions that are past their expiration_date.
   """
@@ -335,15 +339,5 @@ defmodule EWalletDB.TransactionRequest do
   @spec limited_consumptions?(%TransactionRequest{}) :: true | false
   defp limited_consumptions?(request) do
     !is_nil(request.max_consumptions) && request.max_consumptions > 0
-  end
-
-  @spec is_owned_by?(%TransactionRequest{}, %Account{}) :: true | false
-  def is_owned_by?(request, %Account{} = account) do
-    request.account_uuid == account.uuid
-  end
-
-  @spec is_owned_by?(%TransactionRequest{}, %User{}) :: true | false
-  def is_owned_by?(request, %User{} = user) do
-    request.user_uuid == user.uuid
   end
 end

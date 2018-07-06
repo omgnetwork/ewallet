@@ -6,7 +6,7 @@ defmodule AdminAPI.V1.TransactionController do
   import AdminAPI.V1.ErrorHandler
   alias EWallet.TransactionGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWallet.WalletFetcher
+  alias EWallet.TransactionPolicy
   alias EWalletDB.{Repo, Transaction, User}
   alias Ecto.Changeset
 
@@ -45,7 +45,13 @@ defmodule AdminAPI.V1.TransactionController do
   #   |> respond_multiple(conn)
   # end
 
-  def all(conn, attrs), do: query_records_and_respond(Transaction, attrs, conn)
+  def all(conn, attrs) do
+    with :ok <- permit(:all, conn.assigns, nil) do
+      query_records_and_respond(Transaction, attrs, conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
 
   @doc """
   Server endpoint
@@ -59,14 +65,24 @@ defmodule AdminAPI.V1.TransactionController do
   The 'from' and 'to' fields cannot be searched for at the same
   time in the 'search_terms' param.
   """
+  def all_for_user(conn, %{"user_id" => user_id} = attrs) do
+    with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, user) do
+      user
+      |> Transaction.all_for_user()
+      |> query_records_and_respond(attrs, conn)
+    else
+      error when is_atom(error) -> handle_error(conn, error)
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
   def all_for_user(conn, %{"provider_user_id" => provider_user_id} = attrs) do
     with %User{} = user <-
-           User.get_by_provider_user_id(provider_user_id) || :provider_user_id_not_found,
-         {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]) do
-      attrs = clean_address_search_terms(user, attrs)
-
-      wallet.address
-      |> Transaction.all_for_address()
+           User.get_by_provider_user_id(provider_user_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, user) do
+      user
+      |> Transaction.all_for_user()
       |> query_records_and_respond(attrs, conn)
     else
       error when is_atom(error) -> handle_error(conn, error)
@@ -80,10 +96,14 @@ defmodule AdminAPI.V1.TransactionController do
   Retrieves a specific transaction by its id.
   """
   def get(conn, %{"id" => id}) do
-    Transaction
-    |> Preloader.to_query(@preload_fields)
-    |> Repo.get_by(id: id)
-    |> respond_single(conn)
+    with :ok <- permit(:get, conn.assigns, id) do
+      Transaction
+      |> Preloader.to_query(@preload_fields)
+      |> Repo.get_by(id: id)
+      |> respond_single(conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
   end
 
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
@@ -92,44 +112,14 @@ defmodule AdminAPI.V1.TransactionController do
   Creates a transaction.
   """
   def create(conn, attrs) do
-    attrs
-    |> TransactionGate.create()
-    |> respond_single(conn)
-  end
-
-  defp contains_illegal_from_and_to?(terms) do
-    !is_nil(terms["from"]) && !is_nil(terms["to"])
-  end
-
-  defp remove_illegal_params_if_present(true, %{"search_terms" => terms} = attrs, addresses) do
-    from_member? = Enum.member?(addresses, terms["from"])
-    to_member? = Enum.member?(addresses, terms["to"])
-
-    case {from_member?, to_member?} do
-      {false, false} ->
-        terms =
-          terms
-          |> Map.delete("from")
-          |> Map.delete("to")
-
-        Map.put(attrs, "search_terms", terms)
-
-      _ ->
-        attrs
+    with :ok <- permit(:create, conn.assigns, attrs) do
+      attrs
+      |> TransactionGate.create()
+      |> respond_single(conn)
+    else
+      {:error, error} -> handle_error(conn, error)
     end
   end
-
-  defp remove_illegal_params_if_present(false, attrs, _addresses), do: attrs
-
-  defp clean_address_search_terms(user, %{"search_terms" => terms} = attrs) do
-    addresses = User.addresses(user)
-
-    terms
-    |> contains_illegal_from_and_to?()
-    |> remove_illegal_params_if_present(attrs, addresses)
-  end
-
-  defp clean_address_search_terms(_user, attrs), do: attrs
 
   defp query_records_and_respond(query, attrs, conn) do
     query
@@ -176,5 +166,11 @@ defmodule AdminAPI.V1.TransactionController do
 
   defp respond_single(nil, conn) do
     handle_error(conn, :transaction_id_not_found)
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, data) do
+    Bodyguard.permit(TransactionPolicy, action, params, data)
   end
 end

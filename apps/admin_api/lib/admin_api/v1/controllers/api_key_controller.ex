@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.APIKeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias EWallet.APIKeyPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.APIKey
   alias Ecto.Changeset
@@ -28,11 +29,15 @@ defmodule AdminAPI.V1.APIKeyController do
   Retrieves a list of API keys including soft-deleted.
   """
   def all(conn, attrs) do
-    APIKey
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
+    with :ok <- permit(:all, conn.assigns, nil) do
+      APIKey
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      {:error, code} -> handle_error(conn, code)
+    end
   end
 
   # Respond with a list of API keys
@@ -48,22 +53,31 @@ defmodule AdminAPI.V1.APIKeyController do
   Creates a new API key. Currently API keys are assigned to the master account only.
   """
   def create(conn, _attrs) do
-    # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
-    %{owner_app: "ewallet_api"}
-    |> APIKey.insert()
-    |> respond_single(conn)
+    with :ok <- permit(:create, conn.assigns, nil) do
+      # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
+      %{owner_app: "ewallet_api"}
+      |> APIKey.insert()
+      |> respond_single(conn)
+    else
+      {:error, code} ->
+        handle_error(conn, code)
+    end
   end
 
   @doc """
   Update an API key.
   """
   def update(conn, %{"id" => id} = attrs) do
-    with %APIKey{} = api_key <- APIKey.get(id) || :api_key_not_found,
+    with :ok <- permit(:update, conn.assigns, id),
+         %APIKey{} = api_key <- APIKey.get(id) || :api_key_not_found,
          {:ok, api_key} <- APIKey.update(api_key, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
       error when is_atom(error) ->
         handle_error(conn, error)
+
+      {:error, code} ->
+        handle_error(conn, code)
 
       {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
@@ -88,11 +102,12 @@ defmodule AdminAPI.V1.APIKeyController do
   Soft-deletes an existing API key by its id.
   """
   def delete(conn, %{"id" => id}) do
-    with %APIKey{} = key <- APIKey.get(id) do
+    with :ok <- permit(:delete, conn.assigns, id),
+         %APIKey{} = key <- APIKey.get(id) do
       do_delete(conn, key)
     else
-      true ->
-        handle_error(conn, :invalid_parameter, "The given API key is being used for this request")
+      {:error, code} ->
+        handle_error(conn, code)
 
       nil ->
         handle_error(conn, :api_key_not_found)
@@ -109,5 +124,11 @@ defmodule AdminAPI.V1.APIKeyController do
       {:error, changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
     end
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, api_key_id) do
+    Bodyguard.permit(APIKeyPolicy, action, params, api_key_id)
   end
 end

@@ -18,6 +18,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       description: "Invalid API version",
       template: "Invalid API version Given: '%{accept}'."
     },
+    unauthorized: %{
+      code: "unauthorized",
+      description: "You are not allowed to perform the requested operation"
+    },
     invalid_parameter: %{
       code: "client:invalid_parameter",
       description: "Invalid parameter provided"

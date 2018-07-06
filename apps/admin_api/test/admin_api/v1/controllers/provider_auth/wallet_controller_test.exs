@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Wallet, Account, User, Token}
+  alias EWalletDB.{Repo, Wallet, Account, User, Token, AccountUser}
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
@@ -258,7 +258,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
              }
     end
 
-    test "Get all user wallets with an invalid parameter should fail" do
+    test "fails to get all user wallets with an invalid parameter" do
       request_data = %{some_invalid_param: "some_invalid_value"}
       response = provider_request("/user.get_wallets", request_data)
 
@@ -274,7 +274,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
              }
     end
 
-    test "Get all user wallets with a nil provider_user_id should fail" do
+    test "fails to get all user wallets with a nil provider_user_id" do
       request_data = %{provider_user_id: nil}
       response = provider_request("/user.get_wallets", request_data)
 
@@ -283,9 +283,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                "success" => false,
                "data" => %{
                  "object" => "error",
-                 "code" => "user:provider_user_id_not_found",
-                 "description" =>
-                   "There is no user corresponding to the provided provider_user_id",
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation",
                  "messages" => nil
                }
              }
@@ -310,9 +309,13 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
   describe "/wallet.get" do
     test "returns a wallet by the given ID" do
+      account = Account.get_master_account()
       wallets = insert_list(3, :wallet)
+
       # Pick the 2nd inserted wallet
       target = Enum.at(wallets, 1)
+      {:ok, _} = AccountUser.link(account.uuid, target.user_uuid)
+
       response = provider_request("/wallet.get", %{"address" => target.address})
 
       assert response["success"]
@@ -320,15 +323,12 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert response["data"]["address"] == target.address
     end
 
-    test "returns 'wallet:address_not_found' if the given ID was not found" do
+    test "returns 'unauthorized' if the given ID was not found" do
       response = provider_request("/wallet.get", %{"address" => "fake-0000-0000-0000"})
 
       refute response["success"]
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "wallet:address_not_found"
-
-      assert response["data"]["description"] ==
-               "There is no wallet corresponding to the provided address."
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "returns 'client:invalid_parameter' if id was not provided" do
@@ -527,34 +527,29 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert response["success"] == false
 
       assert response["data"] == %{
-               "code" => "client:invalid_parameter",
+               "code" => "unauthorized",
                "object" => "error",
-               "description" =>
-                 "Invalid parameter provided `account_id`, `user_id` can't all be blank. `account_id` can't be blank.",
-               "messages" => %{
-                 "account_id" => ["required"],
-                 "account_id, user_id" => ["required_exclusive"]
-               }
+               "description" => "You are not allowed to perform the requested operation",
+               "messages" => nil
              }
     end
 
     test "returns insert error when attrs are invalid" do
+      account = Account.get_master_account()
+
       response =
         provider_request("/wallet.create", %{
-          name: "MyWallet"
+          name: "MyWallet",
+          account_id: account.id
         })
 
       refute response["success"]
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided `account_id`, `user_id` can't all be blank. `identifier` can't be blank.",
-               "messages" => %{
-                 "account_id, user_id" => ["required_exclusive"],
-                 "identifier" => ["required"]
-               },
-               "object" => "error"
+               "object" => "error",
+               "description" => "Invalid parameter provided `identifier` can't be blank.",
+               "messages" => %{"identifier" => ["required"]}
              }
 
       # The account's wallets made to use the request

@@ -1,10 +1,18 @@
 defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.{AccountView, UserView}
+  alias AdminAPI.V1.{AccountView, UserView, AccountHelper}
   alias EWallet.Web.Paginator
   alias EWalletDB.{Account, User}
+  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias Ecto.Changeset
+
+  @mapped_fields %{
+    "created_at" => "inserted_at"
+  }
+  @preload_fields [:categories]
+  @search_fields [:id, :name, :description]
+  @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   @doc """
   Retrieves the currently authenticated user.
@@ -62,10 +70,14 @@ defmodule AdminAPI.V1.SelfController do
   Retrieves the list of accounts that the authenticated user has membership in.
   """
   def get_accounts(conn, attrs) do
-    with {:ok, current_user} <- permit(:update, conn.assigns) do
+    with {:ok, current_user} <- permit(:update, conn.assigns),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(%{admin_user: current_user}) do
       accounts =
-        current_user
-        |> User.query_accounts()
+        Account
+        |> Account.where_in(account_uuids)
+        |> Preloader.to_query(@preload_fields)
+        |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
+        |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
         |> Paginator.paginate_attrs(attrs)
 
       render(conn, AccountView, :accounts, %{accounts: accounts})

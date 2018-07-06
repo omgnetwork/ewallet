@@ -8,7 +8,21 @@ defmodule EWalletDB.Account do
   import Ecto.{Changeset, Query}
   import EWalletDB.{AccountValidator, Helpers.Preloader}
   alias Ecto.{Multi, UUID}
-  alias EWalletDB.{Repo, Account, APIKey, Category, Key, Membership, Token, Wallet}
+
+  alias EWalletDB.{
+    Repo,
+    Account,
+    User,
+    AccountUser,
+    APIKey,
+    Category,
+    Key,
+    Membership,
+    Token,
+    Wallet,
+    Intersecter
+  }
+
   alias EWalletDB.Helpers.InputAttribute
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -292,6 +306,21 @@ defmodule EWalletDB.Account do
     |> Repo.one()
   end
 
+  def get_all_users(account_uuids) do
+    User
+    |> query_all_users(account_uuids)
+    |> Repo.all()
+  end
+
+  def query_all_users(query, account_uuids) do
+    from(
+      user in query,
+      join: account_user in AccountUser,
+      on: account_user.user_uuid == user.uuid,
+      where: account_user.account_uuid in ^account_uuids
+    )
+  end
+
   @doc """
   Determine the relative depth to the master account.
 
@@ -345,10 +374,21 @@ defmodule EWalletDB.Account do
     )
   end
 
-  def descendant?(ancestor, descendant_id) do
+  def descendant?(ancestor, descendant_uuids) when is_list(descendant_uuids) do
+    ancestor_descendant_uuids = get_all_descendants_uuids(ancestor)
+
+    case Intersecter.intersect(ancestor_descendant_uuids, descendant_uuids) do
+      [] -> false
+      _ -> true
+    end
+  end
+
+  def descendant?(ancestor, descendant_uuid_or_id) do
     ancestor
     |> get_all_descendants()
-    |> Enum.any?(fn descendant -> descendant.id == descendant_id end)
+    |> Enum.any?(fn descendant ->
+      descendant.id == descendant_uuid_or_id || descendant.uuid == descendant_uuid_or_id
+    end)
   end
 
   @spec get_all_descendants_uuids(%Account{} | List.t()) :: List.t()
@@ -412,6 +452,34 @@ defmodule EWalletDB.Account do
       )
       SELECT * FROM accounts_cte ORDER BY depth ASC
       ")
+  end
+
+  @spec get_all_ancestors(List.t()) :: List.t()
+  def get_all_ancestors(account_uuids) when is_list(account_uuids) do
+    binary_account_uuids =
+      Enum.map(account_uuids, fn account_uuid ->
+        {:ok, binary_uuid} = UUID.dump(account_uuid)
+        binary_uuid
+      end)
+
+    {:ok, result} =
+      Repo.query(
+        "
+        WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
+          SELECT current_account.uuid, current_account.id, current_account.name,
+                 current_account.parent_uuid, 0 AS depth, current_account.uuid::TEXT AS path
+          FROM account AS current_account WHERE current_account.uuid  = ANY($1)
+        UNION ALL
+         SELECT child.uuid, child.id, child.name, child.parent_uuid, parent.depth - 1 AS depth,
+                (parent.path || '<-' || child.uuid::TEXT)
+         FROM accounts_cte AS parent, account AS child WHERE child.uuid = parent.parent_uuid
+        )
+        SELECT * FROM accounts_cte ORDER BY depth ASC
+      ",
+        [binary_account_uuids]
+      )
+
+    load_accounts(result)
   end
 
   @spec get_all_ancestors(%Account{}) :: List.t()

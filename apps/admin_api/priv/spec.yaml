@@ -559,7 +559,7 @@ paths:
           $ref: "#/components/responses/AccountResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  /account.get_users:
+  /account.get_members:
     post:
       tags:
         - Account
@@ -569,7 +569,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/AccountListUsersBody'
+        $ref: '#/components/requestBodies/AccountListMembersBody'
       responses:
         '200':
           $ref: "#/components/responses/UsersResponse"
@@ -3886,19 +3886,19 @@ components:
               category_ids: []
               metadata: {}
               encrypted_metadata: {}
-    AccountListUsersBody:
+    AccountListMembersBody:
       description: The parameters to use for assigning listing users in an account
       required: true
       content:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              account_id:
+              id:
                 type: string
             required:
-              - account_id
+              - id
             example:
-              account_id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+              id: "acc_01ca2p8jqans5aty5gj5etmjcf"
     AccountAssignUserBody:
       description: The parameters to use for assigning a user to an account
       required: true

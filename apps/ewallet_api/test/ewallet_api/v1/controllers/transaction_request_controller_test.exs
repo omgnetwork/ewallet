@@ -272,17 +272,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
           formatted_id: "123"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "transaction_request:transaction_request_not_found",
-                 "description" =>
-                   "There is no transaction request corresponding to the provided ID.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 end

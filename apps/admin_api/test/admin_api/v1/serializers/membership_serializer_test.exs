@@ -33,7 +33,23 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         created_at: Date.to_iso8601(user.inserted_at),
         updated_at: Date.to_iso8601(user.updated_at),
         account_role: role.name,
-        status: User.get_status(user)
+        status: User.get_status(user),
+        account: %{
+          avatar: %{large: nil, original: nil, small: nil, thumb: nil},
+          categories: %{data: [], object: "list"},
+          category_ids: [],
+          description: account.description,
+          encrypted_metadata: %{},
+          id: account.id,
+          master: true,
+          metadata: %{},
+          name: account.name,
+          object: "account",
+          parent_id: nil,
+          socket_topic: "account:#{account.id}",
+          created_at: Date.to_iso8601(account.inserted_at),
+          updated_at: Date.to_iso8601(account.updated_at)
+        }
       }
 
       assert MembershipSerializer.serialize(membership) == expected
@@ -74,7 +90,23 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         created_at: Date.to_iso8601(user.inserted_at),
         updated_at: Date.to_iso8601(user.updated_at),
         account_role: role.name,
-        status: User.get_status(user)
+        status: User.get_status(user),
+        account: %{
+          avatar: %{large: nil, original: nil, small: nil, thumb: nil},
+          categories: %{data: [], object: "list"},
+          category_ids: [],
+          description: account.description,
+          encrypted_metadata: %{},
+          id: account.id,
+          master: true,
+          metadata: %{},
+          name: account.name,
+          object: "account",
+          parent_id: nil,
+          socket_topic: "account:#{account.id}",
+          created_at: Date.to_iso8601(account.inserted_at),
+          updated_at: Date.to_iso8601(account.updated_at)
+        }
       }
 
       assert MembershipSerializer.serialize(membership) == expected

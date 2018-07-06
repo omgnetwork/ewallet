@@ -4,7 +4,8 @@ defmodule EWalletAPI.V1.TransactionRequestController do
 
   alias EWallet.{
     TransactionRequestGate,
-    TransactionRequestFetcher
+    TransactionRequestFetcher,
+    TransactionRequestPolicy
   }
 
   def create_for_user(conn, attrs) do
@@ -14,9 +15,16 @@ defmodule EWalletAPI.V1.TransactionRequestController do
   end
 
   def get(conn, %{"formatted_id" => formatted_id}) do
-    formatted_id
-    |> TransactionRequestFetcher.get()
-    |> respond(conn)
+    with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
+         :ok <- permit(:get, conn.assigns, request) do
+      respond({:ok, request}, conn)
+    else
+      {:error, :transaction_request_not_found} ->
+        respond({:error, :unauthorized}, conn)
+
+      error ->
+        respond(error, conn)
+    end
   end
 
   defp respond({:error, code, description}, conn), do: handle_error(conn, code, description)
@@ -31,5 +39,11 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     render(conn, :transaction_request, %{
       transaction_request: request
     })
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, request) do
+    Bodyguard.permit(TransactionRequestPolicy, action, params, request)
   end
 end

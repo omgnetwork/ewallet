@@ -79,7 +79,7 @@ defmodule AdminAPI.V1.Router do
     )
 
     # Account membership endpoints
-    post("/account.get_users", AccountMembershipController, :get_users)
+    post("/account.get_members", AccountMembershipController, :all_for_account)
     post("/account.assign_user", AccountMembershipController, :assign_user)
     post("/account.unassign_user", AccountMembershipController, :unassign_user)
 
@@ -106,8 +106,8 @@ defmodule AdminAPI.V1.Router do
     )
 
     # Admin endpoints
-    post("/admin.all", AdminController, :all)
-    post("/admin.get", AdminController, :get)
+    post("/admin.all", AdminUserController, :all)
+    post("/admin.get", AdminUserController, :get)
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)

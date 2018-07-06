@@ -2,7 +2,25 @@ defmodule AdminAPI.V1.AccountHelper do
   @moduledoc """
   Simple helper module to access accounts from controllers.
   """
-  alias EWalletDB.{User, Key}
+  alias EWalletDB.{User, Key, Account, AuthToken, Helpers.Assoc}
+  alias Plug.Conn
+
+  def get_current_account(%Conn{assigns: %{admin_user: admin_user}} = conn) do
+    conn.private[:auth_auth_token]
+    |> AuthToken.get_by_token(:admin_api)
+    |> Assoc.get([:account_uuid])
+    |> case do
+      nil ->
+        User.get_account(admin_user)
+
+      account_uuid ->
+        Account.get_by(uuid: account_uuid)
+    end
+  end
+
+  def get_current_account(%Conn{assigns: %{key: key}}) do
+    key.account
+  end
 
   def get_accessible_account_uuids(%{admin_user: admin_user}) do
     User.get_all_accessible_account_uuids(admin_user)
