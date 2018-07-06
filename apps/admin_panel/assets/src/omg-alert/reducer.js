@@ -74,6 +74,9 @@ export const alertsReducer = createReducer([], {
   'CATEGORY/CREATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
+  'API_KEY/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
   'API_KEY/CREATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
