@@ -160,7 +160,6 @@ class SideNavigation extends PureComponent {
             </SwitchAccountButton>
           </SwitchAccount>
           {this.dataLink.map(link => {
-            const reg = new RegExp(link.to)
             return (
               <Link to={`/${accountIdFromLocation}${link.to}`} key={link.to}>
                 <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>

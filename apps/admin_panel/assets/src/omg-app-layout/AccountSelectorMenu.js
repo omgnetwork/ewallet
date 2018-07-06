@@ -67,8 +67,7 @@ class AccountSelectorMenu extends Component {
             .filter(account => {
               const seachText = this.props.searchValue
               return seachText
-                ? fuzzySearch(seachText, account.name) ||
-                    fuzzySearch(seachText, account.description)
+                ? fuzzySearch(this.props.searchValue, account.name || account.description)
                 : true
             })
             .map(account => (
