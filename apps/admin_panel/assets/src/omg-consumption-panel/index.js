@@ -191,7 +191,7 @@ class TransactionRequestPanel extends Component {
                   <b>Type :</b> {tq.type}
                 </InformationItem>
                 <InformationItem>
-                  <b>Token ID :</b> {_.get(tq, 'token.id')}
+                  <b>Token:</b> {_.get(tq, 'token.name')}
                 </InformationItem>
                 <InformationItem>
                   <b>Amount :</b>{' '}
@@ -199,13 +199,24 @@ class TransactionRequestPanel extends Component {
                   {_.get(tq, 'token.symbol')}
                 </InformationItem>
                 <InformationItem>
-                  <b>Requester Address : </b> {tq.address}
+                  <b>Requester Address : </b>{' '}
+                  <Link to={`/${this.props.match.params.accountId}/wallet/${tq.address}`}>
+                    {tq.address}
+                  </Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Account ID : </b> {_.get(tq, 'account.id', '-')}
                 </InformationItem>
                 <InformationItem>
-                  <b>Account Name : </b> {_.get(tq, 'account.name', '-')}
+                  <b>Account Name : </b>{' '}
+                  {_.get(tq, 'account.id') ? (
+                    <Link to={`/${this.props.match.params.accountId}/wallet/${tq.address}`}>
+                      {' '}
+                      {tq.account.name}{' '}
+                    </Link>
+                  ) : (
+                    '-'
+                  )}
                 </InformationItem>
                 <InformationItem>
                   <b>User ID : </b> {_.get(tq, 'user.id', '-')}

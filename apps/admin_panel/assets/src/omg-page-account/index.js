@@ -75,14 +75,6 @@ class AccountPage extends Component {
       loadMoreTime: 1
     }
   }
-  componentWillReceiveProps = nextProps => {
-    const search = queryString.parse(this.props.location.search).search
-    const nextSearch = queryString.parse(nextProps.location.search).search
-    if (search !== nextSearch) {
-      this.setState({ loadMoreTime: 1 })
-    }
-  }
-
   onClickCreateAccount = () => {
     this.setState({ createAccountModalOpen: true })
   }

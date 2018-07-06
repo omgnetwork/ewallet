@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import TabPanel from './TabPanel'
 import TransactionRequestProvider from '../omg-transaction-request/transactionRequestProvider'
 import { Icon, Button, Select, Input } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import QR from './QrCode'
 import { connect } from 'react-redux'
@@ -172,7 +172,8 @@ class TransactionRequestPanel extends Component {
     location: PropTypes.object,
     consumeTransactionRequest: PropTypes.func,
     selectTransactionRequestById: PropTypes.func,
-    pendingConsumptions: PropTypes.array
+    pendingConsumptions: PropTypes.array,
+    match: PropTypes.object
   }
 
   static getDerivedStateFromProps (props, state) {
@@ -363,7 +364,7 @@ class TransactionRequestPanel extends Component {
             <b>Type :</b> {transactionRequest.type}
           </InformationItem>
           <InformationItem>
-            <b>Token ID :</b> {_.get(transactionRequest, 'token.id')}
+            <b>Token:</b> {_.get(transactionRequest, 'token.name')}
           </InformationItem>
           <InformationItem>
             <b>Amount :</b>{' '}
@@ -374,13 +375,26 @@ class TransactionRequestPanel extends Component {
             {_.get(transactionRequest, 'token.symbol')}
           </InformationItem>
           <InformationItem>
-            <b>Requester Address : </b> {transactionRequest.address}
+            <b>Requester Address : </b>{' '}
+            <Link to={`/${this.props.match.params.accountId}/wallet/${transactionRequest.address}`}>
+              {transactionRequest.address}
+            </Link>
           </InformationItem>
           <InformationItem>
             <b>Account ID : </b> {_.get(transactionRequest, 'account.id', '-')}
           </InformationItem>
           <InformationItem>
-            <b>Account Name : </b> {_.get(transactionRequest, 'account.name', '-')}
+            <b>Account Name : </b>{' '}
+            {_.get(transactionRequest, 'account.id') ? (
+              <Link
+                to={`/${this.props.match.params.accountId}/wallet/${transactionRequest.address}`}
+              >
+                {' '}
+                {transactionRequest.account.name}{' '}
+              </Link>
+            ) : (
+              '-'
+            )}
           </InformationItem>
           <InformationItem>
             <b>User ID : </b> {_.get(transactionRequest, 'user.id', '-')}
