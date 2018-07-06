@@ -128,6 +128,9 @@ class CreateTransactionRequest extends Component {
   onSelectTokenSelect = token => {
     this.setState({ searchTokenValue: token.value, selectedToken: token })
   }
+  onSelectWallet = wallet => {
+    this.setState({ address: wallet.address, selectedWallet: wallet })
+  }
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
@@ -135,9 +138,7 @@ class CreateTransactionRequest extends Component {
         <InnerContainer>
           <h4>Create Transaction Request</h4>
           <InputLabelContainer>
-            <InputLabel>
-              Request Type
-            </InputLabel>
+            <InputLabel>Request Type</InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('type')(true)}
               label='Send'
@@ -150,9 +151,7 @@ class CreateTransactionRequest extends Component {
             />
           </InputLabelContainer>
           <InputLabelContainer>
-            <InputLabel>
-              Require Confirmation
-            </InputLabel>
+            <InputLabel>Require Confirmation</InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('requireConfirmation')(false)}
               label='No'
@@ -165,9 +164,7 @@ class CreateTransactionRequest extends Component {
             />
           </InputLabelContainer>
           <InputLabelContainer>
-            <InputLabel>
-              Allow Amount Overide
-            </InputLabel>
+            <InputLabel>Allow Amount Overide</InputLabel>
             <StyledRadioButton
               onClick={this.onRadioChange('allowAmountOverride')(false)}
               label='No'
@@ -213,17 +210,13 @@ class CreateTransactionRequest extends Component {
                     value={this.state.searchTokenValue}
                     onSelectItem={this.onSelectTokenSelect}
                     onChange={this.onChangeSearchToken}
-                    options={
-                      individualLoadingStatus === 'SUCCESS'
-                        ? data.map(b => ({
-                          ...{
-                            key: `${b.symbol}${b.name}${b.id}`,
-                            value: `${b.name} (${b.symbol})`
-                          },
-                          ...b
-                        }))
-                        : []
-                    }
+                    options={data.map(b => ({
+                      ...{
+                        key: `${b.symbol}${b.name}${b.id}`,
+                        value: `${b.name} (${b.symbol})`
+                      },
+                      ...b
+                    }))}
                   />
                 )
               }}
@@ -235,7 +228,7 @@ class CreateTransactionRequest extends Component {
               Consumption Lifetime <span>( Optional )</span>
             </InputLabel>
             <StyledInput
-              normalPlaceholder=''
+              normalPlaceholder='Lifetime of consumption is ms'
               autofocus
               type='number'
               value={this.state.consumptionLifetime}
@@ -244,10 +237,10 @@ class CreateTransactionRequest extends Component {
           </InputLabelContainer>
           <InputLabelContainer>
             <InputLabel>
-              Max consumption per user <span>( Optional )</span>
+              Max Consumption Per User <span>( Optional )</span>
             </InputLabel>
             <StyledInput
-              normalPlaceholder='Token name'
+              normalPlaceholder='1'
               autofocus
               type='number'
               value={this.state.maxConsumptionPerUser}
@@ -256,17 +249,22 @@ class CreateTransactionRequest extends Component {
           </InputLabelContainer>
           <InputLabelContainer>
             <InputLabel>
-              Wallet address <span>( Optional )</span>
+              Wallet Address <span>( Optional )</span>
             </InputLabel>
             <WalletsFetcher
               accountId={this.props.match.params.accountId}
-              render={() => {
+              render={({ data }) => {
                 return (
-                  <StyledInput
-                    normalPlaceholder='0x00000000'
-                    autofocus
+                  <StyledSelect
+                    normalPlaceholder='tk-0x00000000'
                     value={this.state.address}
+                    onSelectItem={this.onSelectWallet}
                     onChange={this.onChange('address')}
+                    options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
+                      ...wallet,
+                      key: wallet.address,
+                      value: `${wallet.address} (${wallet.name})`
+                    }))}
                   />
                 )
               }}

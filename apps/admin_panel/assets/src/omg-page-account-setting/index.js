@@ -18,7 +18,7 @@ const columns = [
   { key: 'account_role', title: 'ROLE', sort: true },
   { key: 'username', title: 'MEMBER NAME', sort: true },
   { key: 'email', title: 'EMAIL', sort: true },
-  { key: 'since', title: 'MEMBER SINCE', sort: true },
+  { key: 'since', title: 'LAST UPDATED', sort: true },
   { key: 'status', title: 'STATUS', sort: true }
 ]
 const AccountSettingContainer = styled.div`

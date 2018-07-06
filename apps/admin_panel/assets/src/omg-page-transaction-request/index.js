@@ -10,7 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -22,7 +22,7 @@ const TransactionRequestsPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(2) {
+  td:nth-child(2),td:nth-child(7) {
     text-transform: capitalize;
   }
   td:first-child {
