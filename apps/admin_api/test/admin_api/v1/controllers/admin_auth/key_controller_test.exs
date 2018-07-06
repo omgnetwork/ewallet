@@ -134,7 +134,7 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
 
       assert response["data"]["id"] == key.id
       assert response["data"]["expired"] == true
-      assert response["data"]["access_key"] == "old_key"
+      assert response["data"]["access_key"] == "key"
       assert response["data"]["secret_key"] == nil
 
       # Because secret_key_hash is not returned, fetch to confirm it was not changed
