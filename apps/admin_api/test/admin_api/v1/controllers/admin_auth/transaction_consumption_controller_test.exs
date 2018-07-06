@@ -804,6 +804,43 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.local_ledger_uuid != nil
     end
 
+    test "fails to consume when trying to send from a burn wallet", meta do
+      burn_wallet = Account.get_default_burn_wallet(meta.account)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          wallet: burn_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          user_id: meta.bob.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `from` can't be the address of a burn wallet."
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      assert inserted_consumption.error_code == "client:invalid_parameter"
+
+      assert inserted_consumption.error_description ==
+               "Invalid parameter provided `from` can't be the address of a burn wallet."
+    end
+
     test "consumes the request and transfers the appropriate amount of tokens with string",
          meta do
       transaction_request =

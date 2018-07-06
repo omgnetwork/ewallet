@@ -5,7 +5,7 @@ defmodule EWalletDB.TransactionConsumption do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  alias Ecto.{Changeset, UUID}
+  alias Ecto.UUID
 
   alias EWalletDB.{
     TransactionConsumption,
@@ -384,15 +384,16 @@ defmodule EWalletDB.TransactionConsumption do
     state_transition(consumption, @failed, transaction.uuid)
   end
 
-  def fail(consumption, %Changeset{} = _changeset) do
-    fail(consumption, :invalid_parameter, nil)
+  def fail(consumption, error_code, error_description) when is_atom(error_code) do
+    error_code = Atom.to_string(error_code)
+    fail(consumption, error_code, error_description)
   end
 
-  def fail(consumption, error_code, error_description) do
+  def fail(consumption, error_code, error_description) when is_binary(error_code) do
     data =
       %{
         status: @failed,
-        error_code: Atom.to_string(error_code),
+        error_code: error_code,
         error_description: error_description
       }
       |> Map.put(:failed_at, NaiveDateTime.utc_now())

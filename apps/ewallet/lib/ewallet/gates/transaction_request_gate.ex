@@ -154,9 +154,6 @@ defmodule EWallet.TransactionRequestGate do
       ) do
     with :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
          %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
-         true <-
-           !Wallet.burn_wallet?(wallet) ||
-             {:error, :invalid_parameter, "Can't create request with burn wallet."},
          {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
          {:ok, transaction_request} <- insert(token, wallet, amount, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)

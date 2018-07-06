@@ -9,10 +9,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     TransactionGate,
     TransactionRequestFetcher,
     TransactionConsumptionFetcher,
-    TransactionConsumptionValidator
+    TransactionConsumptionValidator,
+    Web.V1.ErrorHandler
   }
 
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Helpers.Assoc}
+  alias Ecto.Changeset
 
   @spec approve_and_confirm(TransactionRequest.t(), TransactionConsumption.t()) ::
           {:ok, TransactionConsumption.t()}
@@ -183,8 +185,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
 
         {:ok, consumption}
 
+      {:error, %Changeset{} = changeset} ->
+        error = ErrorHandler.build_error(:invalid_parameter, changeset, ErrorHandler.errors())
+        consumption = TransactionConsumption.fail(consumption, error.code, error.description)
+        {:error, consumption, :invalid_parameter, error.description}
+
       {:error, code} ->
-        consumption = TransactionConsumption.fail(consumption, code, nil)
+        error = ErrorHandler.build_error(code, ErrorHandler.errors())
+        consumption = TransactionConsumption.fail(consumption, error.code, error.description)
         {:error, consumption, code}
 
       {:error, code, description} ->
