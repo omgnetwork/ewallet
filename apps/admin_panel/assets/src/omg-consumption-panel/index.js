@@ -35,6 +35,12 @@ const AdditionalTransactionRequestContainer = styled.div`
 `
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
+  b{
+    vertical-align: baseline;
+  }
+  span {
+    vertical-align: baseline;
+  }
   :not(:last-child) {
     margin-bottom: 10px;
   }
@@ -93,7 +99,6 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
-          console.log(consumption)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
@@ -130,7 +135,7 @@ class TransactionRequestPanel extends Component {
                   <b>Amount:</b>{' '}
                   <span>
                     {formatRecieveAmountToTotal(
-                      consumption.amount,
+                      consumption.estimated_consumption_amount,
                       _.get(tq, 'token.subunit_to_unit')
                     )}{' '}
                     {_.get(tq, 'token.symbol')}

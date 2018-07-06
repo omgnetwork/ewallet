@@ -60,7 +60,7 @@ const GetStartedContainer = styled.div`
   background-color: #ffffff;
   box-shadow: 0 2px 5px 0 rgba(60, 65, 77, 0.05);
   background-image: url(${require('../../statics/images/Main_dashboard-01.png')});
-  background-size: 50vw auto;
+  background-size: 41vw auto;
   background-repeat: no-repeat;
   background-position: bottom right;
   h4 {

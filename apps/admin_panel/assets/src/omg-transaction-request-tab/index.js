@@ -377,6 +377,12 @@ class TransactionRequestPanel extends Component {
             <b>Requester Address : </b> {transactionRequest.address}
           </InformationItem>
           <InformationItem>
+            <b>Account ID : </b> {_.get(transactionRequest, 'account.id')}
+          </InformationItem>
+          <InformationItem>
+            <b>User ID : </b> {_.get(transactionRequest, 'user.id')}
+          </InformationItem>
+          <InformationItem>
             <b>Confirmation : </b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
