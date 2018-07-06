@@ -110,7 +110,6 @@ class CreateExchangeRateModal extends Component {
     this.setState({ submitting: true })
     try {
       const result = await this.props.createExchangePair({
-        name: 'dummy_name',
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
         toTokenId: _.get(this.state, 'toTokenSelected.id'),
         rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate)
