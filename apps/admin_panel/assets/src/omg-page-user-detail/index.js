@@ -9,7 +9,7 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import { LoadingSkeleton } from '../omg-uikit'
-import { formatNumber } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -19,7 +19,7 @@ const UserDetailContainer = styled.div`
   }
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 50px;
+  margin-top: 40px;
   display: flex;
 `
 const DetailContainer = styled.div`
@@ -64,10 +64,10 @@ class TokenDetailPage extends Component {
           <b>Provider Id:</b> <span>{user.provider_user_id}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created date:</b> <span>{moment(user.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Created Date:</b> <span>{moment(user.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last update:</b> <span>{moment(user.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Last Update:</b> <span>{moment(user.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
       </Section>
     )
@@ -87,7 +87,7 @@ class TokenDetailPage extends Component {
               return (
                 <DetailGroup key={balance.token.id}>
                   <b>{balance.token.name}</b>
-                  <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span>{' '}
+                  <span>{formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}</span>{' '}
                   <span>{balance.token.symbol}</span>
                 </DetailGroup>
               )

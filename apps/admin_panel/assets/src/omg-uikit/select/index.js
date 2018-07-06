@@ -3,6 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Input from '../input'
 import Icon from '../icon'
+import {fuzzySearch} from '../../utils/search'
 const SelectContainer = styled.div`
   position: relative;
 `
@@ -56,9 +57,9 @@ export default class Select extends Component {
     })
   }
   render () {
-    const filteredOption = this.props.options.filter(option =>
-      new RegExp(_.escapeRegExp(this.props.value)).test(option.value)
-    )
+    const filteredOption = this.props.options.filter(option => {
+      return fuzzySearch(this.props.value, option.key)
+    })
     return (
       <SelectContainer>
         <Input

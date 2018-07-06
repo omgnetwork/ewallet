@@ -10,6 +10,7 @@ import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import { selectPrimaryWalletCurrentAccount } from '../omg-wallet/selector'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
+import { formatAmount } from '../utils/formatter'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -86,7 +87,8 @@ class CreateTransactionRequest extends Component {
     createTransactionRequest: PropTypes.func,
     primaryWallet: PropTypes.object,
     match: PropTypes.object,
-    onCreateTransactionRequest: PropTypes.func
+    onCreateTransactionRequest: PropTypes.func,
+    onRequestClose: PropTypes.func
   }
   state = { selectedToken: {}, onCreateTransactionRequest: _.noop }
   onSubmit = async e => {
@@ -96,12 +98,12 @@ class CreateTransactionRequest extends Component {
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
-        amount: this.state.amount * _.get(this.state.selectedToken, 'subunit_to_unit'),
+        amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: this.state.selectedToken.id,
         address: this.state.address || this.props.primaryWallet.address
       })
       if (result.data) {
-        this.onRequestClose()
+        this.props.onRequestClose()
         this.props.onCreateTransactionRequest()
       } else {
         this.setState({
@@ -207,14 +209,14 @@ class CreateTransactionRequest extends Component {
                   <StyledSelect
                     normalPlaceholder='tk-0x00000000'
                     autofocus
-                    value={this.state.selectedToken.name}
+                    value={this.state.searchTokenValue}
                     onSelectItem={this.onSelectTokenSelect}
                     onChange={this.onChangeSearchToken}
                     options={
                       individualLoadingStatus === 'SUCCESS'
                         ? data.map(b => ({
                           ...{
-                            key: b.id,
+                            key: `${b.symbol}${b.name}${b.id}`,
                             value: `${b.name} (${b.symbol})`
                           },
                           ...b
@@ -328,20 +330,21 @@ const EnhancedCreateTransactionRequest = enhance(CreateTransactionRequest)
 export default class CreateTransactionRequestModal extends Component {
   static propTypes = {
     open: PropTypes.bool,
-    onRequestClose: PropTypes.func
-  }
-  onRequestClose = () => {
-    this.props.onRequestClose()
+    onRequestClose: PropTypes.func,
+    onCreateTransactionRequest: PropTypes.func
   }
   render = () => {
     return (
       <Modal
         isOpen={this.props.open}
-        onRequestClose={this.onRequestClose}
+        onRequestClose={this.props.onRequestClose}
         contentLabel='create account modal'
         overlayClassName='fuck'
       >
-        <EnhancedCreateTransactionRequest />
+        <EnhancedCreateTransactionRequest
+          onRequestClose={this.props.onRequestClose}
+          onCreateTransactionRequest={this.props.onCreateTransactionRequest}
+        />
       </Modal>
     )
   }

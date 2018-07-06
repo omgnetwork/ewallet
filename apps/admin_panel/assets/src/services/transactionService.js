@@ -13,14 +13,19 @@ export function getAllTransactions ({ perPage, sort, query, ...rest }) {
   })
 }
 
-export function transfer ({ fromAddress, toAddress, tokenId, amount }) {
+export function transfer ({ fromAddress, toAddress, tokenId, fromTokenId, toTokenId, fromAmount, toAmount, amount, exchangeAddress }) {
   return authenticatedRequest({
     path: '/transaction.create',
     data: {
       from_address: fromAddress,
       to_address: toAddress,
       token_id: tokenId,
+      from_token_id: fromTokenId,
+      to_token_id: toTokenId,
+      from_amount: fromAmount,
+      to_amount: toAmount,
       amount,
+      exchange_wallet_address: exchangeAddress,
       idempotency_token: uuid()
     }
   })

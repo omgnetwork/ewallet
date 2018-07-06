@@ -3,11 +3,10 @@ defmodule AdminAPI.InviterTest do
   use Bamboo.Test
   alias AdminAPI.{Inviter, InviteEmail}
   alias EWalletDB.{Invite, Membership, Repo}
-  alias Bamboo.Email
 
-  @redirect_url "https://invite_url/?email={email}&token={token}"
+  @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
-  describe "Inviter.invite/3" do
+  describe "invite/3" do
     test "sends email and returns the invite if successful" do
       account = insert(:account)
       role = insert(:role)
@@ -66,15 +65,25 @@ defmodule AdminAPI.InviterTest do
     end
   end
 
-  describe "Inviter.send/3" do
+  describe "send_email/3" do
     test "creates and sends the invite email" do
       invite = insert(:invite)
       _user = insert(:admin, %{invite: invite})
-      email = Inviter.send_email(invite, @redirect_url)
       invite = invite |> Repo.preload(:user)
+      {res, _} = Inviter.send_email(invite, @redirect_url)
 
-      assert %Email{} = email
+      assert res == :ok
       assert_delivered_email(InviteEmail.create(invite, @redirect_url))
+    end
+
+    test "returns :invalid_parameter error if the redirect_url value is not allowed" do
+      invite = insert(:invite)
+      redirect_url = "http://unknown.com/invite?email={email}&token={token}"
+      {res, code, description} = Inviter.send_email(invite, redirect_url)
+
+      assert res == :error
+      assert code == :invalid_parameter
+      assert description == "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
     end
   end
 end
