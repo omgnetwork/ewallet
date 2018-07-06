@@ -32,6 +32,12 @@ const TransactionPageContainer = styled.div`
   td:nth-child(3) {
     width: 20%;
   }
+  table {
+    td {
+    vertical-align: top;
+  }
+  }
+
 `
 const TransactionIdContainer = styled.div`
   white-space: nowrap;

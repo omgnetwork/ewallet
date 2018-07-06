@@ -163,7 +163,7 @@ defmodule EWalletDB.Factory do
 
     %Key{
       access_key: access_key,
-      secret_key: Base.url_encode64(secret_key),
+      secret_key: Base.url_encode64(secret_key, padding: false),
       secret_key_hash: Crypto.hash_secret(secret_key),
       account: insert(:account),
       deleted_at: nil
