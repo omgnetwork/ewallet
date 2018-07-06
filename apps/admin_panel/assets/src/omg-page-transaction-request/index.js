@@ -102,7 +102,7 @@ class TransactionRequestsPage extends Component {
       )
     }
     if (key === 'amount') {
-      const amount = rows.allow_amount_override ? (
+      const amount = rows.amount === null ? (
         'Not Specified'
       ) : (
         <span>

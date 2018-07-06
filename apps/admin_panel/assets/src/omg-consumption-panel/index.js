@@ -99,7 +99,7 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
-          const amount = tq.allow_amount_override ? (
+          const amount = tq.amount === null ? (
             'Not Specified'
           ) : (
             <span>

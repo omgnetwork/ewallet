@@ -183,10 +183,13 @@ class TransactionRequestPanel extends Component {
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
       return {
         transactionRequestId,
-        amount: formatAmountReceive(
-          transactionRequest.amount,
-          transactionRequest.token.subunit_to_unit
-        ),
+        amount:
+          transactionRequest.amount === null
+            ? null
+            : formatAmountReceive(
+                transactionRequest.amount,
+                transactionRequest.token.subunit_to_unit
+              ),
         selectedToken: transactionRequest.token,
         searchTokenValue: `${transactionRequest.token.name} (${transactionRequest.token.symbol})`
       }
@@ -198,7 +201,7 @@ class TransactionRequestPanel extends Component {
     super(props)
     this.state = {
       consumeAddress: '',
-      amount: 0,
+      amount: null,
       searchTokenValue: ''
     }
   }
@@ -275,17 +278,18 @@ class TransactionRequestPanel extends Component {
 
   renderProperties = transactionRequest => {
     const valid = transactionRequest.status === 'valid'
-    const amount = transactionRequest.allow_amount_override ? (
-      'Not Specified'
-    ) : (
-      <span>
-        {formatRecieveAmountToTotal(
-          transactionRequest.amount,
-          _.get(transactionRequest, 'token.subunit_to_unit')
-        )}{' '}
-        {_.get(transactionRequest, 'token.symbol')}
-      </span>
-    )
+    const amount =
+      transactionRequest.amount === null ? (
+        'Not Specified'
+      ) : (
+        <span>
+          {formatRecieveAmountToTotal(
+            transactionRequest.amount,
+            _.get(transactionRequest, 'token.subunit_to_unit')
+          )}{' '}
+          {_.get(transactionRequest, 'token.symbol')}
+        </span>
+      )
     return (
       <TransactionReqeustPropertiesContainer>
         <ConsumeActionContainer onSubmit={this.onSubmitConsume(transactionRequest)}>
