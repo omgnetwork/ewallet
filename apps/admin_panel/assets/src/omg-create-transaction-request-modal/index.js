@@ -362,7 +362,7 @@ export default class CreateTransactionRequestModal extends Component {
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
         contentLabel='create account modal'
-        overlayClassName='fuck'
+        overlayClassName='dummy'
       >
         <EnhancedCreateTransactionRequest
           onRequestClose={this.props.onRequestClose}
