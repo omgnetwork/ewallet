@@ -41,37 +41,29 @@ defmodule AdminAPI.V1.AccountController do
       |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)
-      |> case do
-        %Paginator{} = paginator ->
-          render(conn, :accounts, %{accounts: paginator})
-
-        {:error, code, description} ->
-          handle_error(conn, code, description)
-      end
+      |> respond(conn)
     else
-      {:error, code} ->
-        handle_error(conn, code)
-
-      nil ->
-        handle_error(conn, :account_id_not_found)
+      error -> respond(error, conn)
+      nil -> respond(conn, :account_id_not_found)
     end
   end
 
   def descendants_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account),
+         :ok <- permit(:all, conn.assigns, account.id),
          descendant_uuids <- Account.get_all_descendants_uuids(account) do
       # Get all users since everyone can access them
       Account
-      |> UserQuery.where_in(descendant_uuids)
+      |> Account.where_in(descendant_uuids)
       |> SearchParser.to_query(attrs, @search_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)
-      |> respond_multiple(conn)
+      |> respond(conn)
     else
-      error -> respond_single(error, conn)
+      error -> respond(error, conn)
     end
   end
+  def descendants_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Retrieves a specific account by its id.
@@ -158,6 +150,18 @@ defmodule AdminAPI.V1.AccountController do
       {:error, code} ->
         handle_error(conn, code)
     end
+  end
+
+  defp respond(%Paginator{} = paginator, conn) do
+    render(conn, :accounts, %{accounts: paginator})
+  end
+
+  defp respond({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
+  defp respond({:error, code, description}, conn) do
+    handle_error(conn, code, description)
   end
 
   @spec permit(:all | :create | :get | :update, map(), String.t()) ::
