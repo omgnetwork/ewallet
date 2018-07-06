@@ -3,8 +3,12 @@ defmodule EWallet.UserPolicy do
   The authorization policy for users.
   """
   @behaviour Bodyguard.Policy
-  alias EWallet.PolicyHelper
+  alias EWallet.{PolicyHelper, AccountPolicy}
   alias EWalletDB.{User, Account}
+
+  def authorize(:all, params, %Account{} = account) do
+    AccountPolicy.authorize(:get, params, account.id)
+  end
 
   def authorize(:all, _params, nil), do: true
 

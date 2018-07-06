@@ -161,6 +161,7 @@ class UsersPage extends Component {
         {...this.props}
         render={this.renderUserPage}
         query={{
+          accountId: this.props.match.params.accountId,
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
           search: queryString.parse(this.props.location.search).search
