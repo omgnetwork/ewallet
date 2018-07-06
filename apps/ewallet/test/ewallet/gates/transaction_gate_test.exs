@@ -48,6 +48,8 @@ defmodule EWallet.TransactionGateTest do
       {:ok, transaction} =
         Transaction.get_or_insert(%{
           idempotency_token: idempotency_token,
+          from_user_uuid: wallet1.user_uuid,
+          to_user_uuid: wallet2.user_uuid,
           from: wallet1.address,
           to: wallet2.address,
           from_amount: 100 * token.subunit_to_unit,

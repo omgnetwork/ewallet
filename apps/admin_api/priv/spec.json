@@ -1117,7 +1117,7 @@
         } ]
       }
     },
-    "/account.get_users" : {
+    "/account.get_members" : {
       "post" : {
         "tags" : [ "Account" ],
         "summary" : "List the users that are currently assigned to the given acount",

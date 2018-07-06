@@ -60,6 +60,10 @@ defmodule EWalletDB.Key do
     |> Repo.all()
   end
 
+  def query_all_for_account_uuids(query, account_uuids) do
+    where(query, [a], a.account_uuid in ^account_uuids)
+  end
+
   @doc """
   Get key by id, exclude soft-deleted.
   """

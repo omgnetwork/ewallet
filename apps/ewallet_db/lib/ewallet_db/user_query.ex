@@ -16,4 +16,22 @@ defmodule EWalletDB.UserQuery do
     |> distinct(true)
     |> select([c], c)
   end
+
+  def where_end_user(queryable \\ User) do
+    queryable
+    |> where([u], not is_nil(u.provider_user_id))
+  end
+
+  def where_has_membership_in_accounts(account_uuids, queryable \\ User) do
+    # Returns only the User struct, not the Memberships
+    queryable
+    |> join(
+      :inner,
+      [u],
+      m in Membership,
+      u.uuid == m.user_uuid and m.account_uuid in ^account_uuids
+    )
+    |> distinct(true)
+    |> select([c], c)
+  end
 end

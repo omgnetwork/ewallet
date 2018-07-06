@@ -11,7 +11,7 @@ defmodule EWallet.TransactionGate do
     AccountFetcher
   }
 
-  alias EWalletDB.Transaction
+  alias EWalletDB.{Transaction, AccountUser}
   alias LocalLedger.Transaction, as: LedgerTransaction
 
   def create(attrs) do
@@ -20,7 +20,8 @@ defmodule EWallet.TransactionGate do
          {:ok, from, to} <- TokenFetcher.fetch(attrs, from, to),
          {:ok, from, to, exchange} <- AmountFetcher.fetch(attrs, from, to),
          {:ok, exchange} <- AccountFetcher.fetch_exchange_account(attrs, exchange),
-         {:ok, transaction} <- get_or_insert(from, to, exchange, attrs) do
+         {:ok, transaction} <- get_or_insert(from, to, exchange, attrs),
+         _ <- link(transaction) do
       process_with_transaction(transaction)
     else
       error when is_atom(error) -> {:error, error}
@@ -97,4 +98,16 @@ defmodule EWallet.TransactionGate do
   def update_transaction({:error, code, description}, transaction) do
     Transaction.fail(transaction, code, description)
   end
+
+  defp link(%Transaction{from_account_uuid: account_uuid, to_user_uuid: user_uuid})
+       when not is_nil(account_uuid) and not is_nil(user_uuid) do
+    AccountUser.link(account_uuid, user_uuid)
+  end
+
+  defp link(%Transaction{from_user_uuid: user_uuid, to_account_uuid: account_uuid})
+       when not is_nil(account_uuid) and not is_nil(user_uuid) do
+    AccountUser.link(account_uuid, user_uuid)
+  end
+
+  defp link(_), do: nil
 end

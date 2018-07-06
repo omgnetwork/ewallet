@@ -23,6 +23,8 @@ defmodule EWalletDB.Wallet do
   def primary, do: @primary
   def secondary, do: @secondary
 
+  def genesis_address, do: @genesis_address
+
   @primary_key {:uuid, UUID, autogenerate: true}
   @cast_attrs [
     :address,
@@ -113,6 +115,10 @@ defmodule EWalletDB.Wallet do
   end
 
   def all_for(_), do: nil
+
+  def query_all_for_account_uuids_and_user(query, account_uuids) do
+    where(query, [w], w.account_uuid in ^account_uuids or not is_nil(w.user_uuid))
+  end
 
   @doc """
   Retrieve a wallet using the specified address.

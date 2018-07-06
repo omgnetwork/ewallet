@@ -68,6 +68,28 @@ defmodule EWalletDB.Membership do
     )
   end
 
+  def all_by_account_uuids(account_uuids, preload \\ []) do
+    Repo.all(from(m in Membership, where: m.account_uuid in ^account_uuids, preload: ^preload))
+  end
+
+  def distinct_by_role(memberships) do
+    memberships
+    |> Enum.reduce(%{}, fn membership, map -> reduce_distinct(membership, map) end)
+    |> Enum.map(fn {_uuid, membership} -> membership end)
+  end
+
+  defp reduce_distinct(membership, map) do
+    case Map.get(map, membership.user_uuid) do
+      nil ->
+        Map.put(map, membership.user_uuid, membership)
+
+      existing_membership ->
+        if existing_membership.role.priority > membership.role.priority do
+          Map.put(map, membership.user_uuid, membership)
+        end
+    end
+  end
+
   @doc """
   Assigns the user to the given account and role.
   """

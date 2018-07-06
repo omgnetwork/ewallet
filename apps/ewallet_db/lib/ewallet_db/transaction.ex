@@ -148,10 +148,6 @@ defmodule EWalletDB.Transaction do
       :type,
       :payload,
       :metadata,
-      :local_ledger_uuid,
-      :error_code,
-      :error_description,
-      :error_data,
       :encrypted_metadata,
       :from_account_uuid,
       :to_account_uuid,
@@ -166,6 +162,9 @@ defmodule EWalletDB.Transaction do
       :to,
       :from,
       :rate,
+      :local_ledger_uuid,
+      :error_code,
+      :error_description,
       :exchange_pair_uuid,
       :calculated_at
     ])
@@ -188,7 +187,16 @@ defmodule EWalletDB.Transaction do
     |> validate_from_wallet_identifier()
     |> validate_inclusion(:status, @statuses)
     |> validate_inclusion(:type, @types)
-    |> validate_exclusive([:local_ledger_uuid, :error_code])
+    |> validate_required_exclusive(%{
+      from_user_uuid: nil,
+      from_account_uuid: nil,
+      from: Wallet.genesis_address()
+    })
+    |> validate_required_exclusive(%{
+      to_user_uuid: nil,
+      to_account_uuid: nil,
+      to: Wallet.genesis_address()
+    })
     |> validate_immutable(:idempotency_token)
     |> unique_constraint(:idempotency_token)
     |> assoc_constraint(:from_token)
@@ -198,11 +206,44 @@ defmodule EWalletDB.Transaction do
     |> assoc_constraint(:exchange_account)
   end
 
+  defp confirm_changeset(%Transaction{} = transaction, attrs) do
+    transaction
+    |> cast(attrs, [:status, :local_ledger_uuid])
+    |> validate_required([:status, :local_ledger_uuid])
+    |> validate_inclusion(:status, @statuses)
+  end
+
+  defp fail_changeset(%Transaction{} = transaction, attrs) do
+    transaction
+    |> cast(attrs, [
+      :status,
+      :error_code,
+      :error_description,
+      :error_data
+    ])
+    |> validate_required([
+      :status,
+      :error_code
+    ])
+    |> validate_inclusion(:status, @statuses)
+  end
+
   @doc """
   Gets all transactions for the given address.
   """
   def all_for_address(address) do
     from(t in Transaction, where: t.from == ^address or t.to == ^address)
+  end
+
+  def all_for_user(user) do
+    from(t in Transaction, where: t.from_user_uuid == ^user.uuid or t.to_user_uuid == ^user.uuid)
+  end
+
+  def all_for_account(account) do
+    from(
+      t in Transaction,
+      where: t.from_account_uuid == ^account.uuid or t.to_account_uuid == ^account.uuid
+    )
   end
 
   @doc """
@@ -295,7 +336,7 @@ defmodule EWalletDB.Transaction do
   """
   def confirm(transaction, local_ledger_uuid) do
     transaction
-    |> changeset(%{status: @confirmed, local_ledger_uuid: local_ledger_uuid})
+    |> confirm_changeset(%{status: @confirmed, local_ledger_uuid: local_ledger_uuid})
     |> Repo.update()
     |> handle_update_result()
   end
@@ -335,7 +376,7 @@ defmodule EWalletDB.Transaction do
 
   defp do_fail(data, transaction) do
     transaction
-    |> changeset(data)
+    |> fail_changeset(data)
     |> Repo.update()
     |> handle_update_result()
   end

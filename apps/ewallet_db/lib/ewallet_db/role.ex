@@ -3,7 +3,7 @@ defmodule EWalletDB.Role do
   Ecto Schema representing user roles.
   """
   use Ecto.Schema
-  import Ecto.{Query, Changeset}
+  import Ecto.{Changeset, Query}
   alias Ecto.UUID
   alias EWalletDB.{Repo, Membership, Role, User}
 
