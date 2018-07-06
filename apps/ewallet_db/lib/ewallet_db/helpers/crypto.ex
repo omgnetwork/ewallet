@@ -25,7 +25,7 @@ defmodule EWalletDB.Helpers.Crypto do
 
   @spec verify_secret(String.t(), String.t()) :: boolean
   def verify_secret(secret, hash) do
-    case Base.url_decode64(secret) do
+    case Base.url_decode64(secret, padding: false) do
       {:ok, decoded} ->
         decoded
         |> hash_secret()

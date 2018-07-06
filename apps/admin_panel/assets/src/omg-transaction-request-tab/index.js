@@ -9,7 +9,7 @@ import queryString from 'query-string'
 import QR from './QrCode'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { formatNumber } from '../utils/formatter'
+import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
@@ -19,7 +19,7 @@ const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
-  width: 550px;
+  width: 560px;
   background-color: white;
   padding: 40px 30px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
@@ -164,7 +164,10 @@ class TransactionRequestPanel extends Component {
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
       return {
         transactionRequestId,
-        amount: transactionRequest.amount / transactionRequest.token.subunit_to_unit,
+        amount: formatReceiveAmountToTotal(
+          transactionRequest.amount,
+          transactionRequest.token.subunit_to_unit
+        ),
         selectedToken: transactionRequest.token,
         searchTokenValue: `${transactionRequest.token.name} (${transactionRequest.token.symbol})`
       }
@@ -219,7 +222,10 @@ class TransactionRequestPanel extends Component {
         formattedTransactionRequestId: transactionRequest.id,
         tokenId: this.state.selectedToken.id,
         amount: transactionRequest.allow_amount_override
-          ? Number(this.state.amount) * _.get(this.state.selectedToken, 'subunit_to_unit')
+          ? formatAmount(
+              this.state.amount,
+              _.get(this.state.selectedToken, 'subunit_to_unit')
+            )
           : null,
         address: this.state.consumeAddress
       })
@@ -246,18 +252,17 @@ class TransactionRequestPanel extends Component {
 
   renderProperties = transactionRequest => {
     const valid = transactionRequest.status === 'valid'
-    console.log(transactionRequest)
     return (
       <TransactionReqeustPropertiesContainer>
         <ConsumeActionContainer onSubmit={this.onSubmitConsume(transactionRequest)}>
           <QrContainer>
             <QR data={transactionRequest.id} />
             <QrTypeContainer>
-              <b>Type:</b>
+              <b>Type : </b>
               <div>{transactionRequest.type}</div>
             </QrTypeContainer>
             <QrTypeContainer>
-              <b>Token:</b>
+              <b>Token :</b>
               <div>{_.get(transactionRequest, 'token.name')}</div>
             </QrTypeContainer>
           </QrContainer>
@@ -311,7 +316,7 @@ class TransactionRequestPanel extends Component {
                         value={this.state.searchTokenValue}
                         options={data.map(token => ({
                           ...{
-                            key: token.id,
+                            key: `${token.symbol}${token.name}${token.id}`,
                             value: `${token.name} (${token.symbol})`
                           },
                           ...token
@@ -337,41 +342,43 @@ class TransactionRequestPanel extends Component {
         <AdditionalRequestDataContainer>
           <h5>ADDITIONAL REQUEST DETAILS</h5>
           <InformationItem>
-            <b>Type:</b> {transactionRequest.type}
+            <b>Type :</b> {transactionRequest.type}
           </InformationItem>
           <InformationItem>
-            <b>Token ID:</b> {_.get(transactionRequest, 'token.id')}
+            <b>Token ID :</b> {_.get(transactionRequest, 'token.id')}
           </InformationItem>
           <InformationItem>
-            <b>Amount:</b>{' '}
-            {formatNumber(
-              (transactionRequest.amount || 0) / _.get(transactionRequest, 'token.subunit_to_unit')
+            <b>Amount :</b>{' '}
+            {formatReceiveAmountToTotal(
+              transactionRequest.amount,
+              _.get(transactionRequest, 'token.subunit_to_unit')
             )}{' '}
             {_.get(transactionRequest, 'token.symbol')}
           </InformationItem>
           <InformationItem>
-            <b>address:</b> {transactionRequest.address}
+            <b>Requester Address : </b> {transactionRequest.address}
           </InformationItem>
           <InformationItem>
-            <b>Confirmation:</b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
+            <b>Confirmation : </b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Consumptions Count:</b> {transactionRequest.current_consumptions_count}
+            <b>Consumptions Count : </b> {transactionRequest.current_consumptions_count}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions:</b> {transactionRequest.max_consumptions || '-'}
+            <b>Max Consumptions : </b> {transactionRequest.max_consumptions || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions User:</b> {transactionRequest.max_consumptions_per_user || '-'}
+            <b>Max Consumptions User : </b> {transactionRequest.max_consumptions_per_user || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Expiry Date:</b> {transactionRequest.expiration_date || '-'}
+            <b>Expiry Date : </b> {transactionRequest.expiration_date || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Allow Amount Override:</b> {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
+            <b>Allow Amount Override : </b>{' '}
+            {transactionRequest.allow_amount_override ? 'Yes' : 'No'}
           </InformationItem>
           <InformationItem>
-            <b>Coorelation ID:</b> {transactionRequest.correlation_id || '-'}
+            <b>Coorelation ID : </b> {transactionRequest.correlation_id || '-'}
           </InformationItem>
         </AdditionalRequestDataContainer>
       </TransactionReqeustPropertiesContainer>
@@ -388,11 +395,11 @@ class TransactionRequestPanel extends Component {
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>
                 Request to {tq.type}{' '}
-                {formatNumber((tq.amount || 0) / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
                 {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>
-                <span>{tq.id}</span> | <span>{tq.type}</span> |{' '}
+                <span>{tq.type}</span> |{' '}
                 <span>{tq.user_id || _.get(tq, 'account.name')}</span>
               </SubDetailTitle>
               <TabPanel

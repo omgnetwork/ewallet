@@ -21,6 +21,23 @@ export const login = ({ email, password, rememberMe }) => async dispatch => {
   }
 }
 
+export const logout = () => async dispatch => {
+  try {
+    const sessionResult = await sessionService.logout()
+    if (sessionResult.data.success) {
+      sessionService.setAccessToken(null)
+      dispatch({
+        type: 'LOGOUT/SUCCESS'
+      })
+    } else {
+      dispatch({ type: 'LOGOUT/FAILED' })
+    }
+    return sessionResult
+  } catch (error) {
+    console.log(error)
+    dispatch({ type: 'LOGOUT/FAILED' })
+  }
+}
 export const sendResetPasswordEmail = ({ email, redirectUrl }) => async dispatch => {
   try {
     const result = await sessionService.resetPassword({

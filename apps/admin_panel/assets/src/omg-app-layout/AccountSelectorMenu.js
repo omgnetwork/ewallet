@@ -4,6 +4,7 @@ import AccountItem from './AccountItem'
 import PropTypes from 'prop-types'
 import { withRouter } from 'react-router-dom'
 import { Input, Icon } from '../omg-uikit'
+import { fuzzySearch } from '../utils/search'
 const Container = styled.div`
   background-color: ${props => props.theme.colors.B400};
   padding: 40px 35px;
@@ -55,25 +56,31 @@ class AccountSelectorMenu extends Component {
       <Container {...this.props} onKeyDown={this.props.onKeyDown}>
         <SearchContainer>
           <Icon name='Search' />
-          <InputSearch autoFocus onChange={this.props.onSearchChange} value={this.props.searchValue} />
+          <InputSearch
+            autoFocus
+            onChange={this.props.onSearchChange}
+            value={this.props.searchValue}
+          />
         </SearchContainer>
         <AccountsContainer>
           {this.props.accounts
-          .filter(account => {
-            const seachText = this.props.searchValue
-            const reg = new RegExp(seachText)
-            return seachText ? (reg.test(account.name) || reg.test(account.description)) : true
-          })
-          .map(account => (
-            <AccountItem
-              key={account.name}
-              name={account.name}
-              description={account.description}
-              thumbnail={account.avatar.small}
-              onClick={this.props.onClickAccountItem(account)}
-              active={this.props.location.pathname.split('/')[1] === account.id}
-            />
-          ))}
+            .filter(account => {
+              const seachText = this.props.searchValue
+              return seachText
+                ? fuzzySearch(seachText, account.name) ||
+                    fuzzySearch(seachText, account.description)
+                : true
+            })
+            .map(account => (
+              <AccountItem
+                key={account.name}
+                name={account.name}
+                description={account.description}
+                thumbnail={account.avatar.small}
+                onClick={this.props.onClickAccountItem(account)}
+                active={this.props.location.pathname.split('/')[1] === account.id}
+              />
+            ))}
         </AccountsContainer>
       </Container>
     )

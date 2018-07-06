@@ -5,7 +5,7 @@ import { withRouter, Link } from 'react-router-dom'
 import AccountProvider from '../omg-account/accountProvider'
 import WalletsFetcherByAccountId from '../omg-wallet/walletsFetcher'
 import { compose } from 'recompose'
-import { formatNumber } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
@@ -13,7 +13,7 @@ import moment from 'moment'
 const AccountDetailContainer = styled.div`
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 50px;
+  margin-top: 40px;
   display: flex;
   > div {
     flex:  0 1 50%;
@@ -52,10 +52,10 @@ class AccountDetailPage extends Component {
           <b>Category:</b> {_.get(account.categories, 'data[0].name', '-')}
         </DetailGroup>
         <DetailGroup>
-          <b>Created date:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
+          <b>Created Date:</b> {moment(account.created_at).format('DD/MM/YYYY hh:mm:ss')}
         </DetailGroup>
         <DetailGroup>
-          <b>Last update:</b> {moment(account.updated_at).format('DD/MM/YYYY hh:mm:ss')}
+          <b>Last Update:</b> {moment(account.updated_at).format('DD/MM/YYYY hh:mm:ss')}
         </DetailGroup>
       </Section>
     )
@@ -81,7 +81,7 @@ class AccountDetailPage extends Component {
                       <DetailGroup key={balance.token.id}>
                         <b>{balance.token.name}</b>
                         <span>
-                          {formatNumber(balance.amount / balance.token.subunit_to_unit)}
+                          {formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}
                         </span>{' '}
                         <span>{balance.token.symbol}</span>
                       </DetailGroup>

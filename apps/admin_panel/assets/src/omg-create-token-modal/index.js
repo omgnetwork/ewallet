@@ -5,6 +5,7 @@ import { Input, Button, Icon } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createToken } from '../omg-token/action'
 import { connect } from 'react-redux'
+import {formatAmount} from '../utils/formatter'
 const Form = styled.form`
   padding: 50px;
   width: 250px;
@@ -78,7 +79,7 @@ class CreateTokenModal extends Component {
       const result = await this.props.createToken({
         name: this.state.name,
         symbol: this.state.symbol,
-        amount: this.state.amount,
+        amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
         decimal: this.state.decimal
       })
       if (result.data) {

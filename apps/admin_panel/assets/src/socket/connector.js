@@ -158,7 +158,11 @@ class SocketConnector {
     if (!channelExistInQueue && !channelIsJoined) {
       const payload = this.createJoinChannelPayload(channel)
       this.queue.push(payload)
-      this.send(payload)
+      try {
+        this.send(payload)
+      } catch (error) {
+        console.warn('something went wrong while joining channel with error', error)
+      }
     }
   }
   leaveChannel = channel => {
