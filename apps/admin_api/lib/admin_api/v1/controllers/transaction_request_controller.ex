@@ -10,7 +10,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
     TransactionRequestFetcher
   }
 
-  alias EWalletDB.TransactionRequest
+  alias EWalletDB.{TransactionRequest, Account}
 
   @mapped_fields %{"created_at" => "inserted_at"}
   @preload_fields [:user, :account, :token, :wallet]
@@ -19,17 +19,55 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
-      TransactionRequest
-      |> TransactionRequest.query_all_for_account_uuids_and_users(account_uuids)
-      |> Preloader.to_query(@preload_fields)
-      |> SearchParser.to_query(attrs, @search_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
-      |> respond_multiple(conn)
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
+         linked_user_uuids <-
+           account_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      account_uuids
+      |> TransactionRequest.query_all_for_account_and_user_uuids(linked_user_uuids)
+      |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
     end
+  end
+
+  def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         linked_user_uuids <-
+           [account.uuid] |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      [account.uuid]
+      |> TransactionRequest.query_all_for_account_and_user_uuids(linked_user_uuids)
+      |> do_all(attrs, conn)
+    else
+      error -> respond(error, conn)
+    end
+  end
+
+  def all_for_account(conn, %{"id" => account_id} = attrs) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account),
+         linked_user_uuids <-
+           descendant_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      descendant_uuids
+      |> TransactionRequest.query_all_for_account_and_user_uuids(linked_user_uuids)
+      |> do_all(attrs, conn)
+    else
+      error -> respond(error, conn)
+    end
+  end
+
+  def all_for_account(conn, _) do
+    handle_error(conn, :invalid_parameter, "Parameter 'id' is required.")
+  end
+
+  defp do_all(query, attrs, conn) do
+    query
+    |> Preloader.to_query(@preload_fields)
+    |> SearchParser.to_query(attrs, @search_fields)
+    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+    |> Paginator.paginate_attrs(attrs)
+    |> respond_multiple(conn)
   end
 
   def get(conn, %{"formatted_id" => formatted_id}) do

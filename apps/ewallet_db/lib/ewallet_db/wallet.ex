@@ -120,6 +120,10 @@ defmodule EWalletDB.Wallet do
     where(query, [w], w.account_uuid in ^account_uuids or not is_nil(w.user_uuid))
   end
 
+  def query_all_for_account_uuids(query, account_uuids) do
+    where(query, [w], w.account_uuid in ^account_uuids)
+  end
+
   @doc """
   Retrieve a wallet using the specified address.
   """
