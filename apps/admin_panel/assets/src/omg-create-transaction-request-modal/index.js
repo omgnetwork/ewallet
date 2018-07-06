@@ -11,10 +11,13 @@ import { selectPrimaryWalletCurrentAccount } from '../omg-wallet/selector'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
 import { formatAmount } from '../utils/formatter'
+import moment from 'moment'
+import DateTime from 'react-datetime'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
   position: relative;
+  overflow: scroll;
   > i {
     position: absolute;
     right: 30px;
@@ -34,7 +37,7 @@ const Form = styled.form`
 const InnerContainer = styled.div`
   max-width: 950px;
   margin: 0 auto;
-  padding: 100px 0;
+  padding: 70px 0;
   text-align: center;
 `
 const StyledInput = styled(Input)`
@@ -53,6 +56,7 @@ const InputLabelContainer = styled.div`
   width: calc(33.33% - 60px);
   margin: 20px 20px 0 20px;
   text-align: left;
+  position: relative;
 `
 const ButtonContainer = styled.div`
   text-align: center;
@@ -95,13 +99,15 @@ class CreateTransactionRequest extends Component {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
+      console.log(moment(this.state.expirationDate).toISOString())
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
         amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
-        tokenId: this.state.selectedToken.id,
-        address: this.state.address || this.props.primaryWallet.address,
-        accountId: this.props.match.params.accountId
+        tokenId: _.get(this.state, 'selectedToken.id'),
+        address: _.get(this.state, 'selectedWallet.id', this.props.primaryWallet.address),
+        accountId: this.props.match.params.accountId,
+        expirationDate: this.state.expirationDate ? moment(this.state.expirationDate).toISOString() : null
       })
       if (result.data) {
         this.props.onRequestClose()
@@ -119,6 +125,12 @@ class CreateTransactionRequest extends Component {
   onChange = key => e => {
     this.setState({ [key]: e.target.value })
   }
+  onWalletFocus = e => {
+    this.setState({ address: '', selectedWallet: null })
+  }
+  onDateTimeFocus = e => {
+    this.setState({ expirationDate: '' })
+  }
   onRadioChange = key => bool => e => {
     this.setState({ [key]: bool })
   }
@@ -130,6 +142,9 @@ class CreateTransactionRequest extends Component {
   }
   onSelectWallet = wallet => {
     this.setState({ address: wallet.address, selectedWallet: wallet })
+  }
+  onDateTimeChange = date => {
+    this.setState({ expirationDate: date.format('DD/MM/YYYY hh:mm:ss') })
   }
   render () {
     return (
@@ -259,6 +274,7 @@ class CreateTransactionRequest extends Component {
                     normalPlaceholder='tk-0x00000000'
                     value={this.state.address}
                     onSelectItem={this.onSelectWallet}
+                    onFocus={this.onWalletFocus}
                     onChange={this.onChange('address')}
                     options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
                       ...wallet,
@@ -274,11 +290,18 @@ class CreateTransactionRequest extends Component {
             <InputLabel>
               Expiration Date <span>( Optional )</span>
             </InputLabel>
-            <StyledInput
-              normalPlaceholder='Token name'
-              autofocus
-              value={this.state.expirationDate}
-              onChange={this.onChange('expirationDate')}
+            <DateTime
+              onChange={this.onDateTimeChange}
+              renderInput={(props, openCalendar, closeCalendar) => {
+                return (
+                  <StyledInput
+                    {...props}
+                    normalPlaceholder='Expiry date'
+                    value={this.state.expirationDate}
+                    onFocus={this.onDateTimeFocus}
+                  />
+                )
+              }}
             />
           </InputLabelContainer>
           <InputLabelContainer>
@@ -321,6 +344,7 @@ class CreateTransactionRequest extends Component {
           </ButtonContainer>
           <Error error={this.state.error}>{this.state.error}</Error>
         </InnerContainer>
+        {/* <Datetime /> */}
       </Form>
     )
   }
