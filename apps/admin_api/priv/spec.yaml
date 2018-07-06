@@ -1767,7 +1767,7 @@ components:
         to_token:
           $ref: '#/components/schemas/TokenSchema'
         rate:
-          type: float
+          type: number
         created_at:
           type: string
           format: date-time
@@ -3639,7 +3639,7 @@ components:
                 to_token_id:
                   type: string
                 rate:
-                  type: float
+                  type: number
                 sync_opposite:
                   type: boolean
               required:
@@ -3661,7 +3661,7 @@ components:
                 id:
                   type: string
                 rate:
-                  type: float
+                  type: number
               required:
                 - id
               example:
