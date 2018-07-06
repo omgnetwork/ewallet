@@ -38,6 +38,9 @@ export const DetailGroup = styled.div`
     color: ${props => props.theme.colors.B100};
     margin-bottom: 2px;
   }
+  span {
+    vertical-align: baseline;
+  }
 `
 
 export default class DetailContent extends Component {
