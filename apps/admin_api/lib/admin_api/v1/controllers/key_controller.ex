@@ -66,7 +66,7 @@ defmodule AdminAPI.V1.KeyController do
   Updates a key.
   """
   def update(conn, %{"id" => id} = attrs) do
-    with %Key{} = api_key <- Key.get(id) || {:error, :api_key_not_found},
+    with %Key{} = api_key <- Key.get(id) || {:error, :key_not_found},
          {:ok, key} <- Key.update(api_key, attrs) do
       render(conn, :key, %{key: key})
     else
