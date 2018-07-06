@@ -73,6 +73,8 @@ defmodule AdminAPI.V1.Router do
     post("/account.get_wallets", WalletController, :all_for_account)
     post("/account.get_users", UserController, :all_for_account)
     post("/account.get_descendants", AccountController, :descendants_for_account)
+    # post("/account.get_transactions", TransactionController, :descendants_for_account)
+    # post("/account.get_transaction_requests", TransactionRequestController, :descendants_for_account)
 
     post(
       "/account.get_transaction_consumptions",

@@ -35,11 +35,27 @@ defmodule AdminAPI.V1.WalletController do
     end
   end
 
-  def all_for_account(conn, %{"id" => id} = attrs) do
+  def all_for_account(conn, %{"id" => id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account) do
       account
       |> Wallet.all_for()
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+      error -> handle_error(conn, error)
+    end
+  end
+
+  def all_for_account(conn, %{"id" => id} = attrs) do
+    with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account) do
+      Wallet
+      |> Wallet.query_all_for_account_uuids(descendant_uuids)
       |> SearchParser.to_query(attrs, @search_fields)
       |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
       |> Paginator.paginate_attrs(attrs)

@@ -48,6 +48,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
   describe "/account.get_wallets" do
     test "returns a list of wallets and pagination data for the specified account" do
       {:ok, account} = :account |> params_for() |> Account.insert()
+      {:ok, _account} = :account |> params_for(parent: account) |> Account.insert()
       response = admin_user_request("/account.get_wallets", %{"id" => account.id})
 
       # Asserts return data

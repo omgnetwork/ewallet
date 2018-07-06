@@ -68,6 +68,38 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert is_boolean(pagination["is_first_page"])
     end
 
+    test "returns a list of users according to the given account when owned = true" do
+      user_1 = insert(:user, %{username: "user_1"})
+      user_2 = insert(:user, %{username: "user_2"})
+      user_3 = insert(:user, %{username: "user_3"})
+      user_4 = insert(:user, %{username: "user_4"})
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      account_3 = insert(:account, parent: account_2)
+
+      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid)
+
+      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid)
+      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid)
+
+      attrs = %{
+        # Search is case-insensitive
+        "id" => account_2.id,
+        "owned" => true
+      }
+
+      response = admin_user_request("/account.get_users", attrs)
+      users = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(users) == 2
+      assert Enum.any?(users, fn user -> user["username"] == "user_2" end)
+      assert Enum.any?(users, fn user -> user["username"] == "user_3" end)
+    end
+
     test "returns a list of users according to the given account" do
       user_1 = insert(:user, %{username: "user_1"})
       user_2 = insert(:user, %{username: "user_2"})
