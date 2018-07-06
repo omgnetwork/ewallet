@@ -9,7 +9,7 @@ export const alertsReducer = createReducer([], {
   'ALERTS/CLEAR': (state, { id }) => {
     return state.filter(alert => alert.id !== id)
   },
-  COPY_TO_CLIPBAORD: (state, { data }) => {
+  'CLIPBOARD/COPY/SUCCESS': (state, { data }) => {
     return [
       ...state,
       createAlertState(
@@ -53,12 +53,6 @@ export const alertsReducer = createReducer([], {
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
     return [...state, createAlertState(`Transfer successfully.`, 'success')]
   },
-  'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
-  'CONSUMPTION/REJECT/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
   'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
     return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
   },
@@ -67,6 +61,24 @@ export const alertsReducer = createReducer([], {
       return [...state, createAlertState(`Consumed transaction request.`, 'success')]
     }
     return state
+  },
+  'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'CONSUMPTION/REJECT/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'ACCOUNT/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'CATEGORY/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'API_KEY/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'ACCESS_KEY/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
   'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed' && data.transaction_request.require_confirmation) {
@@ -96,7 +108,6 @@ export const alertsReducer = createReducer([], {
     return state
   },
   'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, { data }) => {
-    console.log(data)
     if (data.status === 'pending') {
       return [
         ...state,

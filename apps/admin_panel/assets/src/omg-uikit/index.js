@@ -12,6 +12,7 @@ import RatioBar from '../omg-uikit/ratioBar'
 import Breadcrumb from '../omg-uikit/breadcrumb'
 import Select from '../omg-uikit/select'
 import Switch from '../omg-uikit/switch'
+import Error from '../omg-uikit/error'
 export {
   Input,
   Button,
@@ -27,5 +28,6 @@ export {
   RatioBar,
   Breadcrumb,
   Select,
-  Switch
+  Switch,
+  Error
 }

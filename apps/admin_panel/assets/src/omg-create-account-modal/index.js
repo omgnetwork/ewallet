@@ -63,10 +63,14 @@ class CreateAccountModal extends Component {
       this.setState({ stage: 'finished' })
       this.props.onCreateAccount()
     } else {
-      this.setState({
-        error: result.data.data.description,
-        submitting: false
-      })
+      if (_.get(result, 'data.data.messages.name[0]') === 'required') {
+        this.setState({
+          error: result.data.data.description,
+          submitting: false
+        })
+      } else {
+        this.setState({ submitting: false })
+      }
     }
   }
   onClickContinue = e => {
