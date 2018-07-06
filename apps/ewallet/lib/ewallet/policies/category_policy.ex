@@ -6,6 +6,7 @@ defmodule EWallet.CategoryPolicy do
   alias EWalletDB.{Account, User}
 
   # Any user can get a category
+  def authorize(:all, _user_or_key, _category_id), do: true
   def authorize(:get, _user_or_key, _category_id), do: true
 
   # Only keys belonging to master account can create a category
