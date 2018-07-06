@@ -15,6 +15,7 @@ import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import { selectPendingConsumptions } from '../omg-consumption/selector'
+import moment from 'moment'
 import ActivityList from './ActivityList'
 const PanelContainer = styled.div`
   height: 100vh;
@@ -251,7 +252,10 @@ class TransactionRequestPanel extends Component {
       if (result.data) {
         this.setState({ submitStatus: 'SUCCESS', error: null })
       } else {
-        this.setState({ submitStatus: 'FAILED', error: result.error.description || result.error.message })
+        this.setState({
+          submitStatus: 'FAILED',
+          error: result.error.description || result.error.message
+        })
       }
     } catch (error) {
       this.setState({ submitStatus: 'FAILED', error: `${error}` })
@@ -412,7 +416,8 @@ class TransactionRequestPanel extends Component {
             <b>Max Consumptions User : </b> {transactionRequest.max_consumptions_per_user || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Expiry Date : </b> {transactionRequest.expiration_date || '-'}
+            <b>Expiry Date : </b>{' '}
+            {transactionRequest.expiration_date ? moment(transactionRequest.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss') : '-'}
           </InformationItem>
           <InformationItem>
             <b>Allow Amount Override : </b>{' '}
