@@ -5,7 +5,7 @@ defmodule EWalletDB.TransactionConsumption do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  alias Ecto.{Changeset, UUID}
+  alias Ecto.UUID
 
   alias EWalletDB.{
     TransactionConsumption,
@@ -299,8 +299,16 @@ defmodule EWalletDB.TransactionConsumption do
   end
 
   @spec query_all_for(Atom.t() | String.t(), any()) :: Ecto.Query.t()
+  def query_all_for(field_name, value) when is_list(value) do
+    where(TransactionConsumption, [t], field(t, ^field_name) in ^value)
+  end
+
   def query_all_for(field_name, value),
     do: where(TransactionConsumption, [t], field(t, ^field_name) == ^value)
+
+  def query_all_for_account_uuids_and_users(query, account_uuids) do
+    where(query, [c], c.account_uuid in ^account_uuids or not is_nil(c.user_uuid))
+  end
 
   @doc """
   Get all confirmed transaction consumptions.
@@ -376,15 +384,16 @@ defmodule EWalletDB.TransactionConsumption do
     state_transition(consumption, @failed, transaction.uuid)
   end
 
-  def fail(consumption, %Changeset{} = _changeset) do
-    fail(consumption, :invalid_parameter, nil)
+  def fail(consumption, error_code, error_description) when is_atom(error_code) do
+    error_code = Atom.to_string(error_code)
+    fail(consumption, error_code, error_description)
   end
 
-  def fail(consumption, error_code, error_description) do
+  def fail(consumption, error_code, error_description) when is_binary(error_code) do
     data =
       %{
         status: @failed,
-        error_code: Atom.to_string(error_code),
+        error_code: error_code,
         error_description: error_description
       }
       |> Map.put(:failed_at, NaiveDateTime.utc_now())

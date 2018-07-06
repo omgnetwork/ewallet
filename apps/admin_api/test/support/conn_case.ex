@@ -173,15 +173,20 @@ defmodule AdminAPI.ConnCase do
     mint
   end
 
-  def set_initial_balance(%{
-        address: address,
-        token: token,
-        amount: amount
-      }) do
+  def set_initial_balance(
+        %{
+          address: address,
+          token: token,
+          amount: amount
+        },
+        mint \\ true
+      ) do
     account = Account.get_master_account()
     master_wallet = Account.get_primary_wallet(account)
 
-    mint!(token, amount * 100)
+    if mint do
+      mint!(token, amount * 100)
+    end
 
     transfer!(
       master_wallet.address,

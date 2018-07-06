@@ -1,7 +1,7 @@
 defmodule EWallet.TransactionRequestGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.TransactionRequestGate
-  alias EWalletDB.{User, TransactionRequest}
+  alias EWalletDB.{User, TransactionRequest, AccountUser}
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
@@ -67,7 +67,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "account_id" => meta.account.id
+          "account_id" => meta.account.id,
+          "creator" => %{account: meta.account}
         })
 
       assert res == :ok
@@ -82,7 +83,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "correlation_id" => "123",
           "amount" => 1_000,
           "account_id" => meta.account.id,
-          "address" => meta.account_wallet.address
+          "address" => meta.account_wallet.address,
+          "creator" => %{account: meta.account}
         })
 
       assert res == :ok
@@ -105,6 +107,8 @@ defmodule EWallet.TransactionRequestGateTest do
     end
 
     test "with valid account_id, valid user and a valid address", meta do
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid)
+
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
@@ -113,7 +117,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "amount" => 1_000,
           "account_id" => meta.account.id,
           "provider_user_id" => meta.user.provider_user_id,
-          "address" => meta.user_wallet.address
+          "address" => meta.user_wallet.address,
+          "creator" => %{account: meta.account}
         })
 
       assert res == :ok
@@ -182,13 +187,16 @@ defmodule EWallet.TransactionRequestGateTest do
     end
 
     test "with valid provider_user_id and no address", meta do
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid)
+
       {res, request} =
         TransactionRequestGate.create(%{
           "type" => "receive",
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "provider_user_id" => meta.user.provider_user_id
+          "provider_user_id" => meta.user.provider_user_id,
+          "creator" => %{account: meta.account}
         })
 
       assert res == :ok
@@ -203,7 +211,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "correlation_id" => "123",
           "amount" => 1_000,
           "provider_user_id" => meta.user.provider_user_id,
-          "address" => meta.user_wallet.address
+          "address" => meta.user_wallet.address,
+          "creator" => %{end_user: meta.user}
         })
 
       assert res == :ok
@@ -260,7 +269,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "address" => meta.user_wallet.address
+          "address" => meta.user_wallet.address,
+          "creator" => %{end_user: meta.user}
         })
 
       assert res == :ok
@@ -274,7 +284,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "address" => "fake-0000-0000-0000"
+          "address" => "fake-0000-0000-0000",
+          "creator" => %{account: meta.account}
         })
 
       assert res == {:error, :wallet_not_found}
@@ -297,13 +308,16 @@ defmodule EWallet.TransactionRequestGateTest do
 
   describe "create/2 with %User{}" do
     test "creates a transaction request with all the params", meta do
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.user.uuid)
+
       {:ok, request} =
         TransactionRequestGate.create(meta.user, %{
           "type" => "receive",
           "token_id" => meta.token.id,
           "correlation_id" => "123",
           "amount" => 1_000,
-          "address" => meta.user_wallet.address
+          "address" => meta.user_wallet.address,
+          "creator" => %{account: meta.account}
         })
 
       assert %TransactionRequest{} = request
@@ -315,19 +329,6 @@ defmodule EWallet.TransactionRequestGateTest do
       assert request.wallet_address == meta.user_wallet.address
     end
 
-    test "creates a transaction request with only type and token_id", meta do
-      {:ok, request} =
-        TransactionRequestGate.create(meta.user, %{
-          "type" => "receive",
-          "token_id" => meta.token.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "address" => nil
-        })
-
-      assert %TransactionRequest{} = request
-    end
-
     test "receives an invalid changeset error when the type is invalid", meta do
       {:error, changeset} =
         TransactionRequestGate.create(meta.user, %{
@@ -335,7 +336,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "token_id" => meta.token.id,
           "correlation_id" => nil,
           "amount" => nil,
-          "address" => nil
+          "address" => meta.user_wallet.address,
+          "creator" => %{end_user: meta.user}
         })
 
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
@@ -403,7 +405,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "expiration_date" => expiration,
           "expiration_reason" => "test",
           "expired_at" => "something",
-          "max_consumptions" => 3
+          "max_consumptions" => 3,
+          "creator" => %{end_user: meta.user}
         })
 
       assert %TransactionRequest{} = request
@@ -431,7 +434,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "type" => "receive",
           "token_id" => meta.token.id,
           "correlation_id" => nil,
-          "amount" => nil
+          "amount" => nil,
+          "creator" => %{end_user: meta.user}
         })
 
       assert %TransactionRequest{} = request
@@ -443,7 +447,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "type" => "fake",
           "token_id" => meta.token.id,
           "correlation_id" => nil,
-          "amount" => nil
+          "amount" => nil,
+          "creator" => %{end_user: meta.user}
         })
 
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
@@ -467,7 +472,8 @@ defmodule EWallet.TransactionRequestGateTest do
           "type" => "receive",
           "token_id" => "fake",
           "correlation_id" => nil,
-          "amount" => nil
+          "amount" => nil,
+          "creator" => %{end_user: meta.user}
         })
 
       assert res == {:error, :token_not_found}

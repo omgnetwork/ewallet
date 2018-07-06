@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.MintController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.MintGate
+  alias EWallet.{MintGate, MintPolicy}
   alias EWallet.Web.{SortParser, Paginator, Preloader}
   alias EWalletDB.{Token, Mint}
   alias Plug.Conn
@@ -20,7 +20,8 @@ defmodule AdminAPI.V1.MintController do
   """
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
-    with %Token{} = token <- Token.get(id) || :token_id_not_found do
+    with :ok <- permit(:all, conn.assigns, nil),
+         %Token{} = token <- Token.get(id) || :token_id_not_found do
       token
       |> Mint.query_by_token()
       |> Preloader.to_query(@preload_fields)
@@ -28,6 +29,7 @@ defmodule AdminAPI.V1.MintController do
       |> Paginator.paginate_attrs(attrs)
       |> respond_multiple(conn)
     else
+      {:error, code} -> handle_error(conn, code)
       error -> handle_error(conn, error)
     end
   end
@@ -41,16 +43,18 @@ defmodule AdminAPI.V1.MintController do
   def mint(
         conn,
         %{
-          "id" => id,
+          "id" => token_id,
           "amount" => _
         } = attrs
       ) do
-    with %Token{} = token <- Token.get(id) || :token_id_not_found do
+    with :ok <- permit(:create, conn.assigns, token_id),
+         %Token{} = token <- Token.get(token_id) || :token_id_not_found do
       token
       |> MintGate.mint_token(attrs)
       |> respond_single(conn)
     else
       {:error, code, description} -> handle_error(conn, code, description)
+      {:error, code} -> handle_error(conn, code)
       error -> handle_error(conn, error)
     end
   end
@@ -77,5 +81,11 @@ defmodule AdminAPI.V1.MintController do
 
   defp respond_single({:ok, mint, _token}, conn) do
     render(conn, :mint, %{mint: mint})
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, account_id) do
+    Bodyguard.permit(MintPolicy, action, params, account_id)
   end
 end

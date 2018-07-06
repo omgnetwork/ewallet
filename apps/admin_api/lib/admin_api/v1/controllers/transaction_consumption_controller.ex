@@ -1,8 +1,10 @@
 defmodule AdminAPI.V1.TransactionConsumptionController do
   use AdminAPI, :controller
-  alias EWallet.Web.Embedder
-  @behaviour EWallet.Web.Embedder
   import AdminAPI.V1.ErrorHandler
+  @behaviour EWallet.Web.Embedder
+  alias AdminAPI.V1.AccountHelper
+  alias EWallet.Web.Embedder
+  alias EWallet.TransactionConsumptionPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
 
   alias EWallet.{
@@ -41,10 +43,11 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   ]
 
   def all_for_account(conn, %{"account_id" => account_id} = attrs) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found} do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account) do
       :account_uuid
-      |> TransactionConsumption.query_all_for(account.uuid)
-      |> SearchParser.search_with_terms(attrs, @search_fields)
+      |> TransactionConsumption.query_all_for(descendant_uuids)
       |> do_all(conn, attrs)
     else
       error -> respond(error, conn)
@@ -56,10 +59,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_user(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) do
+    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, user) do
       :user_uuid
       |> TransactionConsumption.query_all_for(user.uuid)
-      |> SearchParser.search_with_terms(attrs, @search_fields)
       |> do_all(conn, attrs)
     else
       {:error, :invalid_parameter} ->
@@ -79,11 +82,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
         %{"formatted_transaction_request_id" => formatted_transaction_request_id} = attrs
       ) do
     with %TransactionRequest{} = transaction_request <-
-           TransactionRequest.get(formatted_transaction_request_id) ||
-             {:error, :transaction_request_not_found} do
+           TransactionRequest.get(formatted_transaction_request_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, transaction_request) do
       :transaction_request_uuid
       |> TransactionConsumption.query_all_for(transaction_request.uuid)
-      |> SearchParser.search_with_terms(attrs, @search_fields)
       |> do_all(conn, attrs)
     else
       error -> respond(error, conn)
@@ -99,10 +101,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_wallet(conn, %{"address" => address} = attrs) do
-    with %Wallet{} = wallet <- Wallet.get(address) || {:error, :wallet_not_found} do
+    with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, wallet) do
       :wallet_address
       |> TransactionConsumption.query_all_for(wallet.address)
-      |> SearchParser.search_with_terms(attrs, @search_fields)
       |> do_all(conn, attrs)
     else
       error -> respond(error, conn)
@@ -114,15 +116,33 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all(conn, attrs) do
-    TransactionConsumption
+    with :ok <- permit(:all, conn.assigns, nil),
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
+      TransactionConsumption
+      |> TransactionConsumption.query_all_for_account_uuids_and_users(account_uuids)
+      |> do_all(conn, attrs)
+    else
+      error -> respond(error, conn)
+    end
+  end
+
+  defp do_all(query, conn, attrs) do
+    query
+    |> Preloader.to_query(@preload_fields)
     |> SearchParser.to_query(attrs, @search_fields)
-    |> do_all(conn, attrs)
+    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+    |> Paginator.paginate_attrs(attrs)
+    |> respond_multiple(conn)
   end
 
   def get(conn, %{"id" => id}) do
-    id
-    |> TransactionConsumptionFetcher.get()
-    |> respond(conn)
+    with %TransactionConsumption{} = consumption <-
+           TransactionConsumptionFetcher.get(id) || {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, consumption) do
+      respond(consumption, conn)
+    else
+      error -> respond(error, conn)
+    end
   end
 
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
@@ -136,31 +156,18 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, :invalid_parameter)
   end
 
-  def approve(conn, attrs), do: confirm(conn, get_actor(conn.assigns), attrs, true)
-  def reject(conn, attrs), do: confirm(conn, get_actor(conn.assigns), attrs, false)
+  def approve(conn, attrs), do: confirm(conn, conn.assigns, attrs, true)
+  def reject(conn, attrs), do: confirm(conn, conn.assigns, attrs, false)
 
-  def do_all(query, conn, attrs) do
-    query
-    |> Preloader.to_query(@preload_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
-  end
+  defp confirm(conn, confirmer, %{"id" => id}, approved) do
+    case TransactionConsumptionConfirmerGate.confirm(id, approved, confirmer) do
+      {:ok, consumption} ->
+        dispatch_confirm_event(consumption)
+        respond({:ok, consumption}, conn)
 
-  defp get_actor(%{admin_user: _admin_user}) do
-    # To do -> change this to actually check if the user has admin rights over the
-    # owner of the consumption
-    Account.get_master_account()
-  end
-
-  defp get_actor(%{key: key}) do
-    key.account
-  end
-
-  defp confirm(conn, entity, %{"id" => id}, approved) do
-    id
-    |> TransactionConsumptionConfirmerGate.confirm(approved, entity)
-    |> respond(conn)
+      error ->
+        respond(error, conn)
+    end
   end
 
   defp confirm(conn, _entity, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
@@ -194,8 +201,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   defp respond({:ok, consumption}, conn) do
-    dispatch_confirm_event(consumption)
-
     render(conn, :transaction_consumption, %{
       transaction_consumption: Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
     })
@@ -205,5 +210,11 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     if TransactionConsumption.finalized?(consumption) do
       Event.dispatch(:transaction_consumption_finalized, %{consumption: consumption})
     end
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, data) do
+    Bodyguard.permit(TransactionConsumptionPolicy, action, params, data)
   end
 end

@@ -1,8 +1,11 @@
 defmodule AdminAPI.V1.UserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias AdminAPI.V1.AccountHelper
+  alias EWallet.UserPolicy
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.User
+  alias EWalletDB.{User, Account, AccountUser, UserQuery}
+  alias Ecto.Changeset
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -27,38 +30,75 @@ defmodule AdminAPI.V1.UserController do
   Retrieves a list of users.
   """
   def all(conn, attrs) do
-    # Get all users for current account
-    User
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
-    |> respond_multiple(conn)
+    with :ok <- permit(:all, conn.assigns, nil) do
+      # Get all users since everyone can access them
+      User
+      |> UserQuery.where_end_user()
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      error -> respond_single(error, conn)
+    end
+  end
+
+  def all_for_account(conn, %{"id" => account_id} = attrs) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account.id) do
+      # Get all users since everyone can access them
+      User
+      |> UserQuery.where_end_user()
+      |> Account.query_all_users(descendant_uuids)
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      error -> respond_single(error, conn)
+    end
   end
 
   @doc """
   Retrieves a specific user by its id.
   """
   def get(conn, %{"id" => id}) do
-    id
-    |> User.get()
-    |> respond_single(conn)
+    with %User{} = user <- User.get(id) || {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, user) do
+      respond_single(user, conn)
+    else
+      error -> respond_single(error, conn)
+    end
   end
 
   def get(conn, %{"provider_user_id" => id})
       when is_binary(id) and byte_size(id) > 0 do
-    id
-    |> User.get_by_provider_user_id()
-    |> respond(conn)
+    with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, user) do
+      respond_single(user, conn)
+    else
+      error -> respond_single(error, conn)
+    end
   end
 
   def get(conn, _params) do
     handle_error(conn, :invalid_parameter)
   end
 
+  # When creating a new user, we need to link it with the current account
+  # defined in the key or in the auth token so that the user can access it
+  # even if that user hasn't had any transaction with the account yet (since
+  # that's how users and accounts are linked together).
   def create(conn, attrs) do
-    attrs
-    |> User.insert()
-    |> respond(conn)
+    with :ok <- permit(:create, conn.assigns, nil),
+         {:ok, user} <- User.insert(attrs),
+         %Account{} = account <- AccountHelper.get_current_account(conn),
+         {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid) do
+      respond_single(user, conn)
+    else
+      error -> respond_single(error, conn)
+    end
   end
 
   @doc """
@@ -69,15 +109,37 @@ defmodule AdminAPI.V1.UserController do
   def update(
         conn,
         %{
+          "id" => id,
+          "username" => _
+        } = attrs
+      )
+      when is_binary(id) and byte_size(id) > 0 do
+    with %User{} = user <- User.get(id) || {:error, :unauthorized},
+         :ok <- permit(:update, conn.assigns, user) do
+      user
+      |> update_user(attrs)
+      |> respond_single(conn)
+    else
+      error -> respond_single(error, conn)
+    end
+  end
+
+  def update(
+        conn,
+        %{
           "provider_user_id" => id,
           "username" => _
         } = attrs
       )
       when is_binary(id) and byte_size(id) > 0 do
-    id
-    |> User.get_by_provider_user_id()
-    |> update_user(attrs)
-    |> respond(conn)
+    with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
+         :ok <- permit(:update, conn.assigns, user) do
+      user
+      |> update_user(attrs)
+      |> respond_single(conn)
+    else
+      error -> respond_single(error, conn)
+    end
   end
 
   def update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
@@ -101,23 +163,21 @@ defmodule AdminAPI.V1.UserController do
   defp respond_single(nil, conn), do: handle_error(conn, :user_id_not_found)
 
   # Responds when user is saved successfully
-  defp respond({:ok, user}, conn) do
-    respond(user, conn)
+  defp respond_single({:ok, user}, conn) do
+    respond_single(user, conn)
   end
 
-  # Responds with valid user data
-  defp respond(%User{} = user, conn) do
-    conn
-    |> render(:user, %{user: user})
-  end
-
-  # Responds when user is saved unsucessfully
-  defp respond({:error, changeset}, conn) do
+  defp respond_single({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  # Responds when user is not found
-  defp respond(nil, conn) do
-    handle_error(conn, :provider_user_id_not_found)
+  defp respond_single({:error, code}, conn) do
+    handle_error(conn, code)
+  end
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, user) do
+    Bodyguard.permit(UserPolicy, action, params, user)
   end
 end

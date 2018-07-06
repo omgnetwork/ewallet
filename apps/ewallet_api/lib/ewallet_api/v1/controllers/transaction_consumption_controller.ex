@@ -34,10 +34,15 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   def approve_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, true)
   def reject_for_user(conn, attrs), do: confirm(conn, conn.assigns.user, attrs, false)
 
-  defp confirm(conn, entity, %{"id" => id}, approved) do
-    id
-    |> TransactionConsumptionConfirmerGate.confirm(approved, entity)
-    |> respond(conn)
+  defp confirm(conn, user, %{"id" => id}, approved) do
+    case TransactionConsumptionConfirmerGate.confirm(id, approved, %{end_user: user}) do
+      {:ok, consumption} ->
+        dispatch_confirm_event(consumption)
+        respond({:ok, consumption}, conn)
+
+      error ->
+        respond(error, conn)
+    end
   end
 
   defp confirm(conn, _entity, _attrs, _approved), do: handle_error(conn, :invalid_parameter)

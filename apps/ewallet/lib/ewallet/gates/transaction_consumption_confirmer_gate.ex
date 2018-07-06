@@ -9,10 +9,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     TransactionGate,
     TransactionRequestFetcher,
     TransactionConsumptionFetcher,
-    TransactionConsumptionValidator
+    TransactionConsumptionValidator,
+    Web.V1.ErrorHandler
   }
 
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Helpers.Assoc}
+  alias Ecto.Changeset
 
   @spec approve_and_confirm(TransactionRequest.t(), TransactionConsumption.t()) ::
           {:ok, TransactionConsumption.t()}
@@ -28,8 +30,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
           {:ok, TransactionConsumption.t()}
           | {:error, Atom.t()}
           | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
-  def confirm(id, approved, owner) do
-    transaction = Repo.transaction(fn -> do_confirm(id, approved, owner) end)
+  def confirm(id, approved, confirmer) do
+    transaction = Repo.transaction(fn -> do_confirm(id, approved, confirmer) end)
 
     case transaction do
       {:ok, res} -> res
@@ -38,12 +40,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     end
   end
 
-  defp do_confirm(id, approved, owner) do
+  defp do_confirm(id, approved, confirmer) do
     with {v, f} <- {TransactionConsumptionValidator, TransactionConsumptionFetcher},
          {:ok, consumption} <- f.get(id),
          request <- consumption.transaction_request,
          {:ok, request} <- TransactionRequestFetcher.get_with_lock(request.id),
-         {:ok, consumption} <- v.validate_before_confirmation(consumption, owner) do
+         {:ok, consumption} <- v.validate_before_confirmation(consumption, confirmer) do
       case approved do
         true ->
           consumption
@@ -183,8 +185,14 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
 
         {:ok, consumption}
 
+      {:error, %Changeset{} = changeset} ->
+        error = ErrorHandler.build_error(:invalid_parameter, changeset, ErrorHandler.errors())
+        consumption = TransactionConsumption.fail(consumption, error.code, error.description)
+        {:error, consumption, :invalid_parameter, error.description}
+
       {:error, code} ->
-        consumption = TransactionConsumption.fail(consumption, code, nil)
+        error = ErrorHandler.build_error(code, ErrorHandler.errors())
+        consumption = TransactionConsumption.fail(consumption, error.code, error.description)
         {:error, consumption, code}
 
       {:error, code, description} ->

@@ -2,21 +2,27 @@ defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.Inviter
+  alias EWallet.AccountMembershipPolicy
   alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """
   Lists the users that are assigned to the given account.
   """
-  def get_users(conn, %{"account_id" => account_id}) do
-    get_users(conn, Account.get(account_id, preload: [memberships: [:user, :role]]))
+  def all_for_account(conn, %{"id" => account_id}) do
+    with %Account{} = account <-
+           Account.get(account_id, preload: [memberships: [:user, :role]]) ||
+             {:error, :unauthorized},
+         :ok <- permit(:get, conn.assigns, account.id),
+         ancestor_uuids <- Account.get_all_ancestors_uuids(account),
+         memberships <- Membership.all_by_account_uuids(ancestor_uuids, [:role, :account, :user]),
+         memberships <- Membership.distinct_by_role(memberships) do
+      render(conn, :memberships, %{memberships: memberships})
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
   end
 
-  def get_users(conn, %Account{} = account) do
-    render(conn, :memberships, %{memberships: account.memberships})
-  end
-
-  def get_users(conn, nil), do: handle_error(conn, :account_id_not_found)
-  def get_users(conn, _), do: handle_error(conn, :invalid_parameter)
+  def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Assigns the user to the given account and role.
@@ -29,9 +35,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
           "redirect_url" => redirect_url
         } = attrs
       ) do
-    with user <- get_user_or_email(attrs),
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:create, conn.assigns, account.id),
+         user <- get_user_or_email(attrs),
          {false, :user_id_not_found} <- {is_tuple(user), :user_id_not_found},
-         %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
          %Role{} = role <- Role.get_by_name(role_name) || {:error, :role_name_not_found},
          {:ok, _} <- assign_or_invite(user, account, role, redirect_url) do
       render(conn, :empty, %{success: true})
@@ -100,8 +107,9 @@ defmodule AdminAPI.V1.AccountMembershipController do
         "user_id" => user_id,
         "account_id" => account_id
       }) do
-    with %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
-         %Account{} = account <- Account.get(account_id) || {:error, :account_id_not_found},
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:delete, conn.assigns, account.id),
+         %User{} = user <- User.get(user_id) || {:error, :user_id_not_found},
          {:ok, _} <- Membership.unassign(user, account) do
       render(conn, :empty, %{success: true})
     else
@@ -110,4 +118,10 @@ defmodule AdminAPI.V1.AccountMembershipController do
   end
 
   def unassign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
+
+  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+          :ok | {:error, any()} | no_return()
+  defp permit(action, params, account_id) do
+    Bodyguard.permit(AccountMembershipPolicy, action, params, account_id)
+  end
 end

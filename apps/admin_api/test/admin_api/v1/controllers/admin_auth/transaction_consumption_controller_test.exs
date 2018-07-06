@@ -1,6 +1,16 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transaction, Account}
+
+  alias EWalletDB.{
+    Repo,
+    TransactionRequest,
+    TransactionConsumption,
+    User,
+    Transaction,
+    Account,
+    AccountUser
+  }
+
   alias EWallet.{TestEndpoint, BalanceFetcher}
   alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
@@ -185,8 +195,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "data" => %{
                  "messages" => nil,
                  "object" => "error",
-                 "code" => "account:id_not_found",
-                 "description" => "There is no account corresponding to the provided id"
+                 "code" => "unauthorized",
+                 "description" => "You are not allowed to perform the requested operation"
                }
              }
     end
@@ -231,25 +241,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                t["id"]
              end) == [
                meta.tc_2.id
-             ]
-    end
-
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/account.get_transaction_consumptions", %{
-          "account_id" => meta.account.id,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
              ]
     end
 
@@ -412,25 +403,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/user.get_transaction_consumptions", %{
-          "user_id" => meta.user.id,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
-             ]
-    end
-
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
         admin_user_request("/user.get_transaction_consumptions", %{
@@ -503,7 +475,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :transaction_request_id_not_found when formatted_transaction_request_id is not valid" do
+    test "returns :unauthorized when formatted_transaction_request_id is not valid" do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
           "formatted_transaction_request_id" => "fake",
@@ -515,11 +487,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "transaction_request:transaction_request_not_found",
+                 "code" => "unauthorized",
                  "messages" => nil,
                  "object" => "error",
-                 "description" =>
-                   "There is no transaction request corresponding to the provided ID."
+                 "description" => "You are not allowed to perform the requested operation"
                }
              }
     end
@@ -562,25 +533,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/transaction_request.get_transaction_consumptions", %{
-          "formatted_transaction_request_id" => meta.transaction_request.id,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
-             ]
-    end
-
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
         admin_user_request("/transaction_request.get_transaction_consumptions", %{
@@ -609,6 +561,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     setup do
       account = insert(:account)
       wallet = insert(:wallet)
+      {:ok, _} = AccountUser.link(account.uuid, wallet.user_uuid)
 
       tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
 
@@ -653,7 +606,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :address_not_found when address is not provided" do
+    test "returns :unauthorized when address is not provided" do
       response =
         admin_user_request("/wallet.get_transaction_consumptions", %{
           "address" => "fake-0000-0000-0000",
@@ -665,10 +618,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "wallet:wallet_not_found",
+                 "code" => "unauthorized",
                  "messages" => nil,
                  "object" => "error",
-                 "description" => "There is no wallet corresponding to the provided address"
+                 "description" => "You are not allowed to perform the requested operation"
                }
              }
     end
@@ -711,25 +664,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              ]
     end
 
-    test "ignores the search_term parameter", meta do
-      response =
-        admin_user_request("/wallet.get_transaction_consumptions", %{
-          "address" => meta.wallet.address,
-          "sort_by" => "created_at",
-          "sort_dir" => "asc",
-          "search_term" => "pending"
-        })
-
-      assert response["data"]["data"] |> length() == 2
-
-      assert Enum.map(response["data"]["data"], fn t ->
-               t["id"]
-             end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
-             ]
-    end
-
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
         admin_user_request("/wallet.get_transaction_consumptions", %{
@@ -767,7 +701,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["id"] == transaction_consumption.id
     end
 
-    test "returns an error when the request ID is not found" do
+    test "returns an error when the consumption ID is not found" do
       response =
         admin_user_request("/transaction_consumption.get", %{
           id: "123"
@@ -868,6 +802,43 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.account_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
+    end
+
+    test "fails to consume when trying to send from a burn wallet", meta do
+      burn_wallet = Account.get_default_burn_wallet(meta.account)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          wallet: burn_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          user_id: meta.bob.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `from` can't be the address of a burn wallet."
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      assert inserted_consumption.error_code == "client:invalid_parameter"
+
+      assert inserted_consumption.error_description ==
+               "Invalid parameter provided `from` can't be the address of a burn wallet."
     end
 
     test "consumes the request and transfers the appropriate amount of tokens with string",
@@ -1578,6 +1549,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     end
 
     test "sends an error when approved without enough funds", meta do
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.bob.uuid)
+
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =
         insert(

@@ -22,7 +22,8 @@ defmodule EWalletDB.Factory do
     TransactionConsumption,
     Transaction,
     User,
-    Wallet
+    Wallet,
+    AccountUser
   }
 
   alias EWalletDB.Helpers.Crypto
@@ -157,6 +158,13 @@ defmodule EWalletDB.Factory do
     }
   end
 
+  def account_user_factory do
+    %AccountUser{
+      account_uuid: Account.get_master_account().uuid,
+      user_uuid: insert(:user).uuid
+    }
+  end
+
   def key_factory do
     access_key = sequence("access_key")
     secret_key = sequence("secret_key")
@@ -192,6 +200,8 @@ defmodule EWalletDB.Factory do
 
   def transaction_factory do
     token = insert(:token)
+    from_wallet = insert(:wallet)
+    to_wallet = insert(:wallet)
 
     %Transaction{
       idempotency_token: UUID.generate(),
@@ -199,10 +209,14 @@ defmodule EWalletDB.Factory do
       metadata: %{some: "metadata"},
       from_amount: 100,
       from_token: token,
-      from_wallet: insert(:wallet),
+      from_wallet: from_wallet,
+      from_user_uuid: from_wallet.user_uuid,
+      from_account_uuid: from_wallet.account_uuid,
       to_token: token,
       to_amount: 100,
-      to_wallet: insert(:wallet),
+      to_wallet: to_wallet,
+      to_user_uuid: to_wallet.user_uuid,
+      to_account_uuid: to_wallet.account_uuid,
       exchange_account: nil
     }
   end

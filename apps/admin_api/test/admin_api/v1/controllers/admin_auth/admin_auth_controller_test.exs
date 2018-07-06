@@ -158,14 +158,14 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       assert response["data"]["code"] == "unauthorized"
     end
 
-    test "returns :account_not_found when the account does not exist" do
+    test "returns :unauthorized when the account does not exist" do
       response =
         admin_user_request("/auth_token.switch_account", %{
           "account_id" => "123"
         })
 
       refute response["success"]
-      assert response["data"]["code"] == "account:not_found"
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "returns :invalid_parameter when account_id is not sent" do

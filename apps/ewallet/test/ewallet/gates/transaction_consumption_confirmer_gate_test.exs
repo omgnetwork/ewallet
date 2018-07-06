@@ -10,7 +10,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
     TransactionConsumptionConsumerGate
   }
 
-  alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
+  alias EWalletDB.{User, TransactionConsumption, TransactionRequest, AccountUser}
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
@@ -55,6 +55,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
   describe "confirm/3 with Account" do
     test "confirms the consumption if approved as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
 
       transaction_request =
         insert(
@@ -63,6 +64,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           require_confirmation: true,
           token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.token.subunit_to_unit
         )
 
@@ -84,14 +86,91 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
     end
 
+    test "confirms the consumption if approved as account with rights", meta do
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+      {:ok, account} = :account |> params_for() |> Account.insert()
+      wallet = Account.get_primary_wallet(account)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          require_confirmation: true,
+          token_uuid: meta.token.uuid,
+          account_uuid: account.uuid,
+          wallet: wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      {res, consumption} =
+        TransactionConsumptionConsumerGate.consume(%{
+          "formatted_transaction_request_id" => transaction_request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil,
+          "user_id" => meta.sender.id,
+          "address" => meta.sender_wallet.address
+        })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved_at == nil
+
+      {:ok, consumption} =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
+
+      assert consumption.status == "confirmed"
+      assert consumption.approved_at != nil
+    end
+
+    test "fails to confirm the consumption if approved as account with no rights", meta do
+      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+      {:ok, account} = :account |> params_for() |> Account.insert()
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          require_confirmation: true,
+          token_uuid: meta.token.uuid,
+          account_uuid: meta.account.uuid,
+          wallet: meta.account_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      {res, consumption} =
+        TransactionConsumptionConsumerGate.consume(%{
+          "formatted_transaction_request_id" => transaction_request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil,
+          "user_id" => meta.sender.id,
+          "address" => meta.sender_wallet.address
+        })
+
+      assert res == :ok
+      assert %TransactionConsumption{} = consumption
+      assert consumption.status == "pending"
+      assert consumption.approved_at == nil
+
+      {:error, :unauthorized} =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: account})
+    end
+
     test "confirms a user's consumption if created and approved as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
 
       {res, request} =
         TransactionRequestGate.create(%{
@@ -102,7 +181,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "account_id" => meta.account.id,
           "provider_user_id" => meta.receiver.provider_user_id,
           "address" => meta.receiver_wallet.address,
-          "require_confirmation" => true
+          "require_confirmation" => true,
+          "creator" => %{account: meta.account}
         })
 
       assert res == :ok
@@ -125,7 +205,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -133,6 +213,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
     test "fails to confirm the consumption if not owner", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+      account = insert(:account)
 
       transaction_request =
         insert(
@@ -161,12 +242,13 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      res = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
-      assert res == {:error, :not_transaction_request_owner}
+      res = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: account})
+      assert res == {:error, :unauthorized}
     end
 
     test "fails to confirm the consumption if expired", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
 
       transaction_request =
         insert(
@@ -175,6 +257,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           require_confirmation: true,
           token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.token.subunit_to_unit
         )
 
@@ -198,12 +281,15 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
       assert transaction_request.expired_at != nil
 
-      res = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.account)
+      res =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{account: meta.account})
+
       assert res == {:error, :expired_transaction_request}
     end
 
-    test "rejects the consumption if not approved as account", meta do
+    test "rejects the consumption if not confirmed as account", meta do
       initialize_wallet(meta.sender_wallet, 200_000, meta.token)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
 
       transaction_request =
         insert(
@@ -212,6 +298,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           require_confirmation: true,
           token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.token.subunit_to_unit
         )
 
@@ -233,7 +320,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, false, meta.account)
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, false, %{
+          account: meta.account
+        })
 
       assert consumption.status == "rejected"
       assert consumption.approved_at == nil
@@ -241,6 +330,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
     test "allows only one confirmation with two confirms at the same time", meta do
       initialize_wallet(meta.sender_wallet, 1_000_000, meta.token)
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.receiver.uuid)
 
       request =
         insert(
@@ -249,6 +339,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           require_confirmation: true,
           token_uuid: meta.token.uuid,
           account_uuid: meta.account.uuid,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.token.subunit_to_unit,
           max_consumptions: 1
         )
@@ -290,7 +381,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
             Sandbox.allow(LocalLedgerDB.Repo, pid, self())
 
             {res, response} =
-              TransactionConsumptionConfirmerGate.confirm(c.id, true, meta.account)
+              TransactionConsumptionConfirmerGate.confirm(c.id, true, %{account: meta.account})
 
             send(pid, {String.to_atom("updated_#{i + 1}"), res, response})
           end)
@@ -319,6 +410,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           require_confirmation: true,
           token_uuid: meta.token.uuid,
           user_uuid: meta.receiver.uuid,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.token.subunit_to_unit
         )
 
@@ -340,7 +432,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.receiver)
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{
+          end_user: meta.receiver
+        })
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -358,7 +452,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           "account_id" => meta.account.id,
           "provider_user_id" => meta.receiver.provider_user_id,
           "address" => meta.receiver_wallet.address,
-          "require_confirmation" => true
+          "require_confirmation" => true,
+          "creator" => %{end_user: meta.receiver}
         })
 
       assert res == :ok
@@ -381,7 +476,9 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.approved_at == nil
 
       {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.receiver)
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{
+          end_user: meta.receiver
+        })
 
       assert consumption.status == "confirmed"
       assert consumption.approved_at != nil
@@ -417,8 +514,10 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       assert consumption.status == "pending"
       assert consumption.approved_at == nil
 
-      res = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.sender)
-      assert res == {:error, :not_transaction_request_owner}
+      res =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{end_user: meta.sender})
+
+      assert res == {:error, :unauthorized}
     end
 
     test "fails to confirm the consumption if expired", meta do
@@ -431,6 +530,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
           require_confirmation: true,
           token_uuid: meta.token.uuid,
           user_uuid: meta.receiver.uuid,
+          wallet: meta.receiver_wallet,
           amount: 100_000 * meta.token.subunit_to_unit
         )
 
@@ -454,45 +554,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
       {:ok, transaction_request} = TransactionRequest.expire(transaction_request)
       assert transaction_request.expired_at != nil
 
-      res = TransactionConsumptionConfirmerGate.confirm(consumption.id, true, meta.receiver)
-      assert res == {:error, :expired_transaction_request}
-    end
-
-    test "rejects the consumption if not approved as account", meta do
-      initialize_wallet(meta.sender_wallet, 200_000, meta.token)
-
-      transaction_request =
-        insert(
-          :transaction_request,
-          type: "receive",
-          require_confirmation: true,
-          token_uuid: meta.token.uuid,
-          user_uuid: meta.receiver.uuid,
-          amount: 100_000 * meta.token.subunit_to_unit
-        )
-
-      {res, consumption} =
-        TransactionConsumptionConsumerGate.consume(%{
-          "formatted_transaction_request_id" => transaction_request.id,
-          "correlation_id" => nil,
-          "amount" => nil,
-          "metadata" => nil,
-          "idempotency_token" => "123",
-          "token_id" => nil,
-          "user_id" => meta.sender.id,
-          "address" => meta.sender_wallet.address
+      res =
+        TransactionConsumptionConfirmerGate.confirm(consumption.id, true, %{
+          end_user: meta.receiver
         })
 
-      assert res == :ok
-      assert %TransactionConsumption{} = consumption
-      assert consumption.status == "pending"
-      assert consumption.approved_at == nil
-
-      {:ok, consumption} =
-        TransactionConsumptionConfirmerGate.confirm(consumption.id, false, meta.receiver)
-
-      assert consumption.status == "rejected"
-      assert consumption.approved_at == nil
+      assert res == {:error, :expired_transaction_request}
     end
   end
 end
