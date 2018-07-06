@@ -215,7 +215,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"]["data"] |> length() == 8
 
-      Enum.map(response["data"]["data"], fn tx ->
+      Enum.each(response["data"]["data"], fn tx ->
         assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
       end)
     end
@@ -230,7 +230,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"]["data"] |> length() == 8
 
-      Enum.map(response["data"]["data"], fn tx ->
+      Enum.each(response["data"]["data"], fn tx ->
         assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
       end)
     end
@@ -246,7 +246,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"]["data"] |> length() == 8
 
-      Enum.map(response["data"]["data"], fn tx ->
+      Enum.each(response["data"]["data"], fn tx ->
         assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
       end)
     end
@@ -260,7 +260,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"]["data"] |> length() == 2
 
-      Enum.map(response["data"]["data"], fn tx ->
+      Enum.each(response["data"]["data"], fn tx ->
         assert Enum.member?([tx["from"]["user_id"], tx["to"]["user_id"]], meta.user.id)
       end)
     end
