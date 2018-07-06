@@ -46,7 +46,7 @@ defmodule AdminAPI.V1.UserController do
   def all_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account),
-         descendant_uuids <- Account.get_all_descendants_uuids(account.id) do
+         descendant_uuids <- Account.get_all_descendants_uuids(account) do
       # Get all users since everyone can access them
       User
       |> UserQuery.where_end_user()

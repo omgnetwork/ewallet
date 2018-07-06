@@ -563,13 +563,29 @@ paths:
     post:
       tags:
         - Account
-      summary: List the users that are currently assigned to the given acount
+      summary: List the admins that are currently assigned to the given acount
+      operationId: account_get_members
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AccountListBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/MembersResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /account.get_users:
+    post:
+      tags:
+        - Account
+      summary: List the users that are linked with the given account
       operationId: account_get_users
       security:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/AccountListMembersBody'
+        $ref: '#/components/requestBodies/AccountListBody'
       responses:
         '200':
           $ref: "#/components/responses/UsersResponse"
@@ -2101,6 +2117,56 @@ components:
     ######################################
     #            USER SCHEMAS            #
     ######################################
+    MemberSchema:
+      description: "The object schema for an account member"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        username:
+          type: string
+        provider_user_id:
+          type: string
+        email:
+          type: string
+          format: email
+        metadata:
+          type: object
+        encrypted_metadata:
+          type: object
+        avatar:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+        role:
+          type: string
+        account:
+          type: object
+          $ref: '#/components/schemas/AccountSchema'
+      required:
+        - object
+        - id
+        - created_at
+        - updated_at
+      example:
+        object: "user"
+        id: "usr_01ce83zf80j542z4q4zqd8qvfx"
+        provider_user_id: "wijf-fbancomw-dqwjudb"
+        username: "johndoe"
+        email: "johndoe@omise.co"
+        metadata: {"first_name": "John", "last_name": "Doe"}
+        encrypted_metadata: {"something": "secret"}
+        avatar: {"original": "file_url"}
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
+        account: {}
+        role: "admin"
     UserSchema:
       description: "The object schema for a user"
       type: object
@@ -2166,6 +2232,46 @@ components:
             encrypted_metadata: {"something": "secret"}
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
+    MembersResponseSchema:
+      description: "The response schema for a list of members"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MemberSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "user"
+                id: "usr_01ce83zf80j542z4q4zqd8qvfx"
+                provider_user_id: null
+                username: "johndoe"
+                email: "johndoe@omise.co"
+                metadata: {"first_name": "John", "last_name": "Doe"}
+                encrypted_metadata: {"something": "secret"}
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+                role: "admin"
+                account: {}
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
     UsersResponseSchema:
       description: "The response schema for a list of users"
       allOf:
@@ -3870,8 +3976,8 @@ components:
               category_ids: []
               metadata: {}
               encrypted_metadata: {}
-    AccountListMembersBody:
-      description: The parameters to use for assigning listing users in an account
+    AccountListBody:
+      description: The parameters to use for listing an account's data
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -3879,10 +3985,28 @@ components:
             properties:
               id:
                 type: string
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
             required:
               - id
             example:
               id: "acc_01ca2p8jqans5aty5gj5etmjcf"
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
     AccountAssignUserBody:
       description: The parameters to use for assigning a user to an account
       required: true
@@ -5073,6 +5197,12 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             $ref: '#/components/schemas/UserResponseSchema'
+    MembersResponse:
+      description: "Returns a list of members"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/MembersResponseSchema'
     UsersResponse:
       description: "Returns a list of users"
       content:

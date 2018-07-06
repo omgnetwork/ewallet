@@ -71,6 +71,7 @@ defmodule AdminAPI.V1.Router do
     post("/account.update", AccountController, :update)
     post("/account.upload_avatar", AccountController, :upload_avatar)
     post("/account.get_wallets", WalletController, :all_for_account)
+    post("/account.get_users", UserController, :all_for_account)
 
     post(
       "/account.get_transaction_consumptions",

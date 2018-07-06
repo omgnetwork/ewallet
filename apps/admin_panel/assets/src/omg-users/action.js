@@ -13,11 +13,12 @@ export const createUser = ({ name, description, avatar }) => async dispatch => {
   }
 }
 
-export const getUsers = ({ search, page, perPage, cacheKey }) => async dispatch => {
+export const getUsers = ({ accountId, search, page, perPage, cacheKey }) => async dispatch => {
   dispatch({ type: 'USERS/REQUEST/INITIATED' })
   try {
     const result = await userService.getAllUsers({
-      perPage: perPage,
+      accountId,
+      perPage,
       page,
       sort: { by: 'created_at', dir: 'desc' },
       search_term: search
