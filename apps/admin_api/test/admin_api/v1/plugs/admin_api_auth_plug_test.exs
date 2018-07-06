@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.AdminAPIAuthPlugTest do
 
   describe "AdminAPIAuthPlug.call/2 with provider auth" do
     test "authenticates if both access key and secret key are correct" do
-      conn = test_with("OMGProvider", @access_key, @secret_key)
+      conn = test_with("OMGProvider", @access_key, Base.url_encode64(@secret_key))
 
       refute conn.halted
       assert conn.assigns.authenticated == true

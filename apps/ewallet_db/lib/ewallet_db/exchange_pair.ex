@@ -11,7 +11,6 @@ defmodule EWalletDB.ExchangePair do
 
   ```
   %EWalletDB.ExchangePair{
-    name: "AAA/BBB",
     from_token: AAA,
     to_token: BBB,
     rate: 2.00
@@ -25,6 +24,7 @@ defmodule EWalletDB.ExchangePair do
   use EWalletDB.Types.ExternalID
   import Ecto.Changeset
   import EWalletDB.Helpers.Preloader
+  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Token}
 
@@ -32,9 +32,6 @@ defmodule EWalletDB.ExchangePair do
 
   schema "exchange_pair" do
     external_id(prefix: "exg_")
-
-    field(:name, :string)
-    field(:rate, :float)
 
     belongs_to(
       :from_token,
@@ -52,32 +49,33 @@ defmodule EWalletDB.ExchangePair do
       foreign_key: :to_token_uuid
     )
 
+    field(:rate, :float)
     timestamps()
     soft_delete()
   end
 
   defp changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast(attrs, [:name, :from_token_uuid, :to_token_uuid, :rate])
-    |> validate_required([:name, :rate])
+    |> cast(attrs, [:from_token_uuid, :to_token_uuid, :rate, :deleted_at])
+    |> validate_required([:from_token_uuid, :to_token_uuid, :rate])
+    |> validate_different_values(:from_token_uuid, :to_token_uuid)
+    |> validate_immutable(:from_token_uuid)
+    |> validate_immutable(:to_token_uuid)
     |> validate_number(:rate, greater_than: 0)
     |> assoc_constraint(:from_token)
     |> assoc_constraint(:to_token)
-    |> unique_constraint(:name)
     |> unique_constraint(
       :from_token,
-      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_index"
+      name: "exchange_pair_from_token_uuid_to_token_uuid_index"
     )
   end
 
-  defp update_changeset(exchange_pair, attrs) do
+  defp restore_changeset(exchange_pair, attrs) do
     exchange_pair
-    |> cast(attrs, [:name, :rate])
-    |> validate_required([:name, :rate])
-    |> unique_constraint(:name)
+    |> cast(attrs, [:deleted_at])
     |> unique_constraint(
-      :from_token,
-      name: "exchange_pair_from_token_uuid_to_token_uuid_deleted_at_index"
+      :deleted_at,
+      name: "exchange_pair_from_token_uuid_to_token_uuid_index"
     )
   end
 
@@ -131,7 +129,7 @@ defmodule EWalletDB.ExchangePair do
   @spec update(%__MODULE__{}, map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def update(exchange_pair, attrs) do
     exchange_pair
-    |> update_changeset(attrs)
+    |> changeset(attrs)
     |> Repo.update()
   end
 
@@ -151,7 +149,36 @@ defmodule EWalletDB.ExchangePair do
   Restores the given exchange pair from soft-delete.
   """
   @spec restore(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
-  def restore(exchange_pair), do: SoftDelete.restore(exchange_pair)
+  def restore(exchange_pair) do
+    changeset = restore_changeset(exchange_pair, %{deleted_at: nil})
+
+    case Repo.update(changeset) do
+      {:error, %{errors: [deleted_at: {"has already been taken", []}]}} ->
+        {:error, :exchange_pair_already_exists}
+
+      result ->
+        result
+    end
+  end
+
+  @doc """
+  Touches the given exchange pair and updates `updated_at` to the current date & time.
+  """
+  @spec touch(%__MODULE__{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  def touch(exchange_pair) do
+    exchange_pair
+    |> change(updated_at: NaiveDateTime.utc_now())
+    |> Repo.update()
+  end
+
+  @doc """
+  Gets the standard name of the exchange pair.
+  """
+  @spec get_name(%__MODULE__{}) :: String.t()
+  def get_name(exchange_pair) do
+    exchange_pair = Repo.preload(exchange_pair, [:from_token, :to_token])
+    exchange_pair.from_token.symbol <> "/" <> exchange_pair.to_token.symbol
+  end
 
   @doc """
   Retrieves an exchange pair using `from_token` and `to_token`.

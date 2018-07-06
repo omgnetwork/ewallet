@@ -12,6 +12,7 @@ defmodule EWalletDB.Key do
   @primary_key {:uuid, UUID, autogenerate: true}
   # String length = ceil(key_bytes / 3 * 4)
   @key_bytes 32
+  @secret_bytes 128
 
   schema "key" do
     external_id(prefix: "key_")
@@ -37,7 +38,8 @@ defmodule EWalletDB.Key do
     |> cast(attrs, [:access_key, :secret_key, :account_uuid])
     |> validate_required([:access_key, :secret_key, :account_uuid])
     |> unique_constraint(:access_key, name: :key_access_key_index)
-    |> put_change(:secret_key_hash, Crypto.hash_password(attrs[:secret_key]))
+    |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
+    |> put_change(:secret_key, Base.url_encode64(attrs[:secret_key], padding: false))
     |> assoc_constraint(:account)
   end
 
@@ -83,8 +85,8 @@ defmodule EWalletDB.Key do
     attrs =
       attrs
       |> Map.put_new_lazy(:account_uuid, fn -> get_master_account_uuid() end)
-      |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_key(@key_bytes) end)
-      |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@key_bytes) end)
+      |> Map.put_new_lazy(:access_key, fn -> Crypto.generate_base64_key(@key_bytes) end)
+      |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@secret_bytes) end)
 
     %Key{}
     |> changeset(attrs)
@@ -122,7 +124,7 @@ defmodule EWalletDB.Key do
   end
 
   def authenticate(%{secret_key_hash: secret_key_hash} = key, secret) do
-    case Crypto.verify_password(secret, secret_key_hash) do
+    case Crypto.verify_secret(secret, secret_key_hash) do
       true -> {:ok, key}
       _ -> false
     end
