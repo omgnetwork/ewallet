@@ -57,7 +57,7 @@ class ConsumptionPage extends Component {
     this.columns = [
       { key: 'id', title: 'REQUEST ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
-      { key: 'amount', title: 'AMOUNT', sort: true },
+      { key: 'estimated_consumption_amount', title: 'AMOUNT', sort: true },
       { key: 'created_by', title: 'TO' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'status', title: 'STATUS', sort: true }
@@ -93,7 +93,7 @@ class ConsumptionPage extends Component {
     if (key === 'type') {
       return _.get(rows, 'transaction_request.type')
     }
-    if (key === 'amount') {
+    if (key === 'estimated_consumption_amount') {
       return `${formatRecieveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {

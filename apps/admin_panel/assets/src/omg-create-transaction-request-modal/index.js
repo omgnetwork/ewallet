@@ -100,7 +100,8 @@ class CreateTransactionRequest extends Component {
         type: this.state.type ? 'send' : 'receive',
         amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: this.state.selectedToken.id,
-        address: this.state.address || this.props.primaryWallet.address
+        address: this.state.address || this.props.primaryWallet.address,
+        accountId: this.props.match.params.accountId
       })
       if (result.data) {
         this.props.onRequestClose()

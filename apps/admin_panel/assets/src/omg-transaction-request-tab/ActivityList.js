@@ -79,7 +79,7 @@ class ActivityList extends Component {
   constructor (props) {
     super(props)
     this.columns = [
-      { key: 'amount', title: 'AMOUNT' },
+      { key: 'estimated_consumption_amount', title: 'AMOUNT' },
       { key: 'to', title: 'TO' },
       { key: 'created_at', title: 'CREATED DATE' },
       { key: 'status', title: 'CONFIRMATION' }
@@ -111,7 +111,7 @@ class ActivityList extends Component {
     })
   }
   rowRenderer = (fetch, pendingConsumption) => (key, data, rows) => {
-    if (key === 'amount') {
+    if (key === 'estimated_consumption_amount') {
       return (
         <div>
           {formatRecieveAmountToTotal(data, _.get(rows, 'token.subunit_to_unit'))}{' '}
