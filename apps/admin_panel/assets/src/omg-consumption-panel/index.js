@@ -93,7 +93,6 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
-          console.log(consumption)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />

@@ -110,7 +110,7 @@ class CreateExchangeRateModal extends Component {
     this.setState({ submitting: true })
     try {
       const result = await this.props.createExchangePair({
-        name: this.state.name,
+        name: 'dummy_name',
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
         toTokenId: _.get(this.state, 'toTokenSelected.id'),
         rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate)
@@ -131,10 +131,7 @@ class CreateExchangeRateModal extends Component {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
-        <h4>Exchange Rate</h4>
-        <InputLabel>Rate Name</InputLabel>
-        <Input normalPlaceholder='rate name' onChange={this.onChangeName} value={this.state.name} />
-
+        <h4>Create Exchange Pair</h4>
         <TokensFetcher
           render={({ data }) => {
             return (
@@ -159,7 +156,7 @@ class CreateExchangeRateModal extends Component {
                     />
                   </div>
                   <div>
-                    <InputLabel>Rate</InputLabel>
+                    <InputLabel>Amount</InputLabel>
                     <Input
                       value={this.state.fromTokenRate}
                       onChange={this.onChangeRate('fromToken')}
@@ -187,7 +184,7 @@ class CreateExchangeRateModal extends Component {
                     />
                   </div>
                   <div>
-                    <InputLabel>Rate</InputLabel>
+                    <InputLabel>Amount</InputLabel>
                     <Input
                       value={this.state.toTokenRate}
                       onChange={this.onChangeRate('toToken')}

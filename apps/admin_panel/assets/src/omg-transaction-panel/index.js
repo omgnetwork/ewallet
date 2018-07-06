@@ -143,7 +143,6 @@ class TransactionRequestPanel extends Component {
       <TransactionProvider
         transactionId={queryString.parse(this.props.location.search)['show-transaction-tab']}
         render={({ transaction }) => {
-          console.log(transaction)
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
