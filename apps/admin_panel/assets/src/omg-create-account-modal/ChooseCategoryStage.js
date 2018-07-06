@@ -128,6 +128,7 @@ class ChooseCategoryStage extends Component {
     this.setState({ search: e.target.value })
   }
   renderCategories = ({ data: categories = [] }) => {
+    console.log(this.state.createNewGroup)
     return (
       <CategoryContainer>
         <TopBar>
@@ -165,7 +166,7 @@ class ChooseCategoryStage extends Component {
           {this.state.createNewGroup ? (
             <CreateNewGroupActionContainer onSubmit={this.onClickCreateCategory}>
               <Input
-                normalPlaceholder='Enter group name'
+                normalPlaceholder='Enter category name'
                 autofocus
                 value={this.state.categoryNameToCreate}
                 onChange={this.onChangeInputCreateGroup}
@@ -176,7 +177,7 @@ class ChooseCategoryStage extends Component {
             </CreateNewGroupActionContainer>
           ) : (
             <PlainButton onClick={this.onClickCreateNewGroup}>
-              <Icon name='Plus' /> Create New Group
+              <Icon name='Plus' /> Create New Category
             </PlainButton>
           )}
         </BottomBar>
@@ -186,6 +187,7 @@ class ChooseCategoryStage extends Component {
   render () {
     return (
       <CategoriesFetcher
+        {...this.state}
         render={this.renderCategories}
         search={this.state.search}
         perPage={100}
