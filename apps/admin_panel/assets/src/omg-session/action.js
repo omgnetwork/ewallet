@@ -25,7 +25,7 @@ export const logout = () => async dispatch => {
   try {
     const sessionResult = await sessionService.logout()
     if (sessionResult.data.success) {
-      sessionService.setAccessToken(null)
+      sessionService.removeAccessDataFromLocalStorage()
       dispatch({
         type: 'LOGOUT/SUCCESS'
       })
