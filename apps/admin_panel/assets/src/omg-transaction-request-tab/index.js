@@ -251,7 +251,7 @@ class TransactionRequestPanel extends Component {
       if (result.data) {
         this.setState({ submitStatus: 'SUCCESS', error: null })
       } else {
-        this.setState({ submitStatus: 'FAILED', error: result.error.description })
+        this.setState({ submitStatus: 'FAILED', error: result.error.description || result.error.message })
       }
     } catch (error) {
       this.setState({ submitStatus: 'FAILED', error: `${error}` })
