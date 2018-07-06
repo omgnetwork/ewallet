@@ -11,6 +11,7 @@ import PropTypes from 'prop-types'
 import { NameColumn } from '../omg-page-account'
 import moment from 'moment'
 import queryString from 'query-string'
+import ExchangePairModal from '../omg-exchange-rate-modal'
 const TokenDetailPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -41,21 +42,20 @@ class TokenDetailPage extends Component {
   state = {
     createTokenModalOpen: queryString.parse(this.props.location.search).createToken || false,
     exportModalOpen: false,
-    loadMoreTime: 1
-  }
-  componentWillReceiveProps = nextProps => {
-    const search = queryString.parse(this.props.location.search).search
-    const nextSearch = queryString.parse(nextProps.location.search).search
-    if (search !== nextSearch) {
-      this.setState({ loadMoreTime: 1 })
-    }
+    createExchangePairModalOpen: false
   }
 
   onClickCreateToken = () => {
     this.setState({ createTokenModalOpen: true })
   }
+  onClickCreateExchangePair = () => {
+    this.setState({ createExchangePairModalOpen: true })
+  }
   onRequestCloseCreateToken = () => {
     this.setState({ createTokenModalOpen: false })
+  }
+  onRequestCloseCreateExchangePair = () => {
+    this.setState({ createExchangePairModalOpen: false })
   }
   onClickExport = () => {
     this.setState({ exportModalOpen: true })
@@ -90,6 +90,13 @@ class TokenDetailPage extends Component {
       </Button>
     )
   }
+  renderCreateExchangePairButton = () => {
+    return (
+      <Button size='small' styleType='secondary' onClick={this.onClickCreateExchangePair} key={'create pair'}>
+        <span>Create Exchange Pair</span>
+      </Button>
+    )
+  }
   rowRenderer (key, data, rows) {
     if (key === 'created') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
@@ -120,7 +127,7 @@ class TokenDetailPage extends Component {
 
     return (
       <TokenDetailPageContainer>
-        <TopNavigation title={'Token'} buttons={[this.renderMintTokenButton()]} />
+        <TopNavigation title={'Token'} buttons={[this.renderCreateExchangePairButton(), this.renderMintTokenButton()]} />
         <SortableTable
           rows={data}
           columns={columns}
@@ -139,6 +146,10 @@ class TokenDetailPage extends Component {
           open={this.state.createTokenModalOpen}
           onRequestClose={this.onRequestCloseCreateToken}
           onFetchSuccess={fetch}
+        />
+        <ExchangePairModal
+          open={this.state.createExchangePairModalOpen}
+          onRequestClose={this.onRequestCloseCreateExchangePair}
         />
       </TokenDetailPageContainer>
     )

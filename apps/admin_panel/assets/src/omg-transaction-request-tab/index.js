@@ -185,7 +185,7 @@ class TransactionRequestPanel extends Component {
         transactionRequestId,
         amount:
           transactionRequest.amount === null
-            ? null
+            ? ''
             : formatAmountReceive(
                 transactionRequest.amount,
                 transactionRequest.token.subunit_to_unit
