@@ -86,9 +86,6 @@ export const alertsReducer = createReducer([], {
   'INVITE/REQUEST/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
-  'TRANSACTION_REQUEST/CREATE/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.description || error}`, 'error')]
-  },
   'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
     if (data.status === 'confirmed' && data.transaction_request.require_confirmation) {
       return [
