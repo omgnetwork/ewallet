@@ -127,9 +127,7 @@ class ChooseCategoryStage extends Component {
   onChangeInputSearch = e => {
     this.setState({ search: e.target.value })
   }
-  renderCategories = ({ data: categories, loadingStatus, cachedCategories }) => {
-    const cat = loadingStatus === 'SUCCESS' ? categories : cachedCategories
-    console.log(this.props.category)
+  renderCategories = ({ data: categories = [] }) => {
     return (
       <CategoryContainer>
         <TopBar>
@@ -149,7 +147,7 @@ class ChooseCategoryStage extends Component {
               <Icon name='Checked' />
               <span>None</span>
             </SearchItem>
-            {cat.map(cat => {
+            {categories.map(cat => {
               return (
                 <SearchItem
                   onClick={e => this.props.onChooseCategory(cat)}
@@ -189,8 +187,6 @@ class ChooseCategoryStage extends Component {
     return (
       <CategoriesFetcher
         render={this.renderCategories}
-        {...this.props}
-        {...this.state}
         search={this.state.search}
         perPage={100}
       />
