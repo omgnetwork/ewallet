@@ -128,7 +128,6 @@ class ChooseCategoryStage extends Component {
     this.setState({ search: e.target.value })
   }
   renderCategories = ({ data: categories = [] }) => {
-    console.log(this.state.createNewGroup)
     return (
       <CategoryContainer>
         <TopBar>

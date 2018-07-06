@@ -99,7 +99,6 @@ class CreateTransactionRequest extends Component {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
-      console.log(moment(this.state.expirationDate).toISOString())
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
