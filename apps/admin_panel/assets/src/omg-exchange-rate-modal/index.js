@@ -25,6 +25,8 @@ const Form = styled.form`
   button {
     margin: 35px 0 0;
     font-size: 14px;
+    padding-left: 40px;
+    padding-right: 40px;
   }
   h4 {
     text-align: center;
@@ -63,7 +65,7 @@ const Error = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    (state, props) => ({ fromTokenPrefill: selectGetTokenById(state)(props.fromTokenId)}),
+    (state, props) => ({ fromTokenPrefill: selectGetTokenById(state)(props.fromTokenId) }),
     { createExchangePair }
   )
 )
@@ -77,9 +79,7 @@ class CreateExchangeRateModal extends Component {
     onCreateTransaction: _.noop
   }
   static getDerivedStateFromProps (props, state) {
-    if (
-      state.fromTokenId !== props.fromTokenId
-    ) {
+    if (state.fromTokenId !== props.fromTokenId) {
       return {
         fromTokenSelected: props.fromTokenPrefill,
         fromTokenSearch: `${props.fromTokenPrefill.name} (${props.fromTokenPrefill.symbol})`,
@@ -100,7 +100,7 @@ class CreateExchangeRateModal extends Component {
     this.setState({ [`${type}Search`]: e.target.value, [`${type}Selected`]: null })
   }
   onFocusSelect = type => () => {
-    this.setState({ [`${type}SearchToken`]: '', [`${type}Selected`]: null })
+    this.setState({ [`${type}Search`]: '', [`${type}Selected`]: null })
   }
   onSelectTokenSelect = type => token => {
     this.setState({ [`${type}Search`]: token.value, [`${type}Selected`]: token })
@@ -110,6 +110,7 @@ class CreateExchangeRateModal extends Component {
     this.setState({ submitting: true })
     try {
       const result = await this.props.createExchangePair({
+        name: this.state.name,
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
         toTokenId: _.get(this.state, 'toTokenSelected.id'),
         rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate)
@@ -160,6 +161,7 @@ class CreateExchangeRateModal extends Component {
                       value={this.state.fromTokenRate}
                       onChange={this.onChangeRate('fromToken')}
                       type='number'
+                      normalPlaceholder={0}
                     />
                   </div>
                 </RateInputContainer>
@@ -188,6 +190,7 @@ class CreateExchangeRateModal extends Component {
                       value={this.state.toTokenRate}
                       onChange={this.onChangeRate('toToken')}
                       type='number'
+                      normalPlaceholder={0}
                     />
                   </div>
                 </RateInputContainer>
@@ -197,7 +200,7 @@ class CreateExchangeRateModal extends Component {
         />
         <ButtonContainer>
           <Button size='small' type='submit' loading={this.state.submitting}>
-            Create Rate
+            Create Pair
           </Button>
         </ButtonContainer>
         <Error error={this.state.error}>{this.state.error}</Error>

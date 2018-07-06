@@ -7,7 +7,7 @@ export const exchangePairsReducer = createReducer(
       return { ...state, ..._.keyBy(action.data, 'id') }
     },
     'EXCHANGE_PAIR/CREATE/SUCCESS': (state, action) => {
-      return { ...state, [action.data.id]: action.data }
+      return { ...state, ..._.keyBy(action.data.data, 'id') }
     }
   }
 )

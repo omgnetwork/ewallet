@@ -10,7 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import { formatNumber, formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -22,7 +22,7 @@ const TransactionRequestsPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(2) {
+  td:nth-child(2),td:nth-child(7) {
     text-transform: capitalize;
   }
   td:first-child {
@@ -54,7 +54,7 @@ class TransactionRequestsPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createTransactionRequestModalOpen: false,
+      createTransactionRequestModalOpen: queryString.parse(this.props.location.search).createRequest || false,
       exportModalOpen: false,
       loadMoreTime: 1
     }
@@ -64,7 +64,8 @@ class TransactionRequestsPage extends Component {
       { key: 'amount', title: 'AMOUNT', sort: true },
       { key: 'created_by', title: 'CREATED BY' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
-      { key: 'require_confirmation', title: 'CONFIRMATION' }
+      { key: 'require_confirmation', title: 'CONFIRMATION' },
+      { key: 'status', title: 'STATUS' }
     ]
   }
   onClickCreateRequest = e => {
@@ -101,7 +102,18 @@ class TransactionRequestsPage extends Component {
       )
     }
     if (key === 'amount') {
-      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+      const amount = rows.amount === null ? (
+        'Not Specified'
+      ) : (
+        <span>
+          {formatRecieveAmountToTotal(
+            data,
+            _.get(rows, 'token.subunit_to_unit')
+          )}{' '}
+          {_.get(rows, 'token.symbol')}
+        </span>
+      )
+      return amount
     }
     if (key === 'created_by') {
       return rows.user_id || rows.account.name || rows.account_id

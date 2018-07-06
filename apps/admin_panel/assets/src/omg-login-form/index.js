@@ -122,9 +122,9 @@ class LoginForm extends Component {
           autoComplete='off'
         />
         <OptionRowContainer>
-          <OptionItem align='left' onClick={this.onClickCheckbox}>
+          {/* <OptionItem align='left' onClick={this.onClickCheckbox}>
             <Checkbox checked={this.state.rememberMe} label={'Remember Me'} />
-          </OptionItem>
+          </OptionItem> */}
           <OptionItem align='right'>
             <Link to='/forget-password/'>Forget Password ?</Link>
           </OptionItem>

@@ -70,19 +70,11 @@ class AccountPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createAccountModalOpen: false,
+      createAccountModalOpen: queryString.parse(props.location.search).createAccount || false,
       exportModalOpen: false,
       loadMoreTime: 1
     }
   }
-  componentWillReceiveProps = nextProps => {
-    const search = queryString.parse(this.props.location.search).search
-    const nextSearch = queryString.parse(nextProps.location.search).search
-    if (search !== nextSearch) {
-      this.setState({ loadMoreTime: 1 })
-    }
-  }
-
   onClickCreateAccount = () => {
     this.setState({ createAccountModalOpen: true })
   }

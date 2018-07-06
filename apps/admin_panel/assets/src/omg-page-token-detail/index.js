@@ -13,7 +13,7 @@ import moment from 'moment'
 import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
 import HistoryTable from './HistoryTable'
-import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
+import { formatRecieveAmountToTotal, formatNumber } from '../utils/formatter'
 const AccountDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -69,7 +69,7 @@ class TokenDetailPage extends Component {
             onClick={this.onClickCreateExchangeRate}
             key='rate'
           >
-            <span>Create Rate</span>
+            <span>Create Exchange Pair</span>
           </Button>,
           <Button size='small' onClick={this.onClickMintTopen} key='mint'>
             <span>Mint Token</span>
@@ -99,7 +99,7 @@ class TokenDetailPage extends Component {
         <DetailGroup>
           <b>Total Supply:</b>{' '}
           <span>
-            {formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)} {token.symbol}
+            {formatRecieveAmountToTotal(token.total_supply, token.subunit_to_unit)} {token.symbol}
           </span>{' '}
           <Link to={`${this.props.location.pathname}/history`}>view history</Link>
         </DetailGroup>

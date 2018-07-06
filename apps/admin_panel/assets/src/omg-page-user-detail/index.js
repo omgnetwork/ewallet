@@ -9,7 +9,7 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import { LoadingSkeleton } from '../omg-uikit'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
@@ -87,7 +87,7 @@ class TokenDetailPage extends Component {
               return (
                 <DetailGroup key={balance.token.id}>
                   <b>{balance.token.name}</b>
-                  <span>{formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}</span>{' '}
+                  <span>{formatRecieveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}</span>{' '}
                   <span>{balance.token.symbol}</span>
                 </DetailGroup>
               )

@@ -10,7 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 const ConsumptionPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -27,6 +27,9 @@ const ConsumptionPageContainer = styled.div`
     max-width: 150px;
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  td:nth-child(6) {
+    text-transform: capitalize;
   }
 `
 const SortableTableContainer = styled.div`
@@ -57,8 +60,8 @@ class ConsumptionPage extends Component {
     this.columns = [
       { key: 'id', title: 'REQUEST ID', sort: true },
       { key: 'type', title: 'TYPE', sort: true },
-      { key: 'amount', title: 'AMOUNT', sort: true },
-      { key: 'created_by', title: 'TO' },
+      { key: 'estimated_consumption_amount', title: 'AMOUNT', sort: true },
+      { key: 'created_by', title: 'CONSUMER' },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'status', title: 'STATUS', sort: true }
     ]
@@ -93,8 +96,8 @@ class ConsumptionPage extends Component {
     if (key === 'type') {
       return _.get(rows, 'transaction_request.type')
     }
-    if (key === 'amount') {
-      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+    if (key === 'estimated_consumption_amount') {
+      return `${formatRecieveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
       return rows.user_id || rows.account.name || rows.account_id

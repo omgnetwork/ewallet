@@ -11,13 +11,14 @@ import InviteListProvider from '../omg-invite/inviteListProvider'
 import { updateCurrentAccount } from '../omg-account-current/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
+import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 const columns = [
   { key: 'account_role', title: 'ROLE', sort: true },
   { key: 'username', title: 'MEMBER NAME', sort: true },
   { key: 'email', title: 'EMAIL', sort: true },
-  { key: 'since', title: 'MEMBER SINCE', sort: true },
+  { key: 'since', title: 'LAST UPDATED', sort: true },
   { key: 'status', title: 'STATUS', sort: true }
 ]
 const AccountSettingContainer = styled.div`
@@ -67,13 +68,14 @@ class AccountSettingPage extends Component {
     match: PropTypes.object,
     updateCurrentAccount: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
-    currentAccount: PropTypes.object
+    currentAccount: PropTypes.object,
+    location: PropTypes.object
   }
 
   constructor (props) {
     super(props)
     this.state = {
-      inviteModalOpen: false,
+      inviteModalOpen: queryString.parse(props.location.search).invite || false,
       name: '',
       description: '',
       avatar: '',

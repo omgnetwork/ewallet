@@ -127,8 +127,7 @@ class ChooseCategoryStage extends Component {
   onChangeInputSearch = e => {
     this.setState({ search: e.target.value })
   }
-  renderCategories = ({ data: categories, loadingStatus, cachedCategories }) => {
-    const cat = loadingStatus === 'SUCCESS' ? categories : cachedCategories
+  renderCategories = ({ data: categories = [] }) => {
     return (
       <CategoryContainer>
         <TopBar>
@@ -142,13 +141,13 @@ class ChooseCategoryStage extends Component {
           </SearchBar>
           <SearchResult>
             <SearchItem
-              active={!this.props.category}
+              active={_.isEmpty(this.props.category)}
               onClick={e => this.props.onChooseCategory(null)}
             >
               <Icon name='Checked' />
               <span>None</span>
             </SearchItem>
-            {cat.map(cat => {
+            {categories.map(cat => {
               return (
                 <SearchItem
                   onClick={e => this.props.onChooseCategory(cat)}
@@ -166,7 +165,7 @@ class ChooseCategoryStage extends Component {
           {this.state.createNewGroup ? (
             <CreateNewGroupActionContainer onSubmit={this.onClickCreateCategory}>
               <Input
-                normalPlaceholder='Enter group name'
+                normalPlaceholder='Enter category name'
                 autofocus
                 value={this.state.categoryNameToCreate}
                 onChange={this.onChangeInputCreateGroup}
@@ -177,7 +176,7 @@ class ChooseCategoryStage extends Component {
             </CreateNewGroupActionContainer>
           ) : (
             <PlainButton onClick={this.onClickCreateNewGroup}>
-              <Icon name='Plus' /> Create New Group
+              <Icon name='Plus' /> Create New Category
             </PlainButton>
           )}
         </BottomBar>
@@ -187,9 +186,8 @@ class ChooseCategoryStage extends Component {
   render () {
     return (
       <CategoriesFetcher
-        render={this.renderCategories}
-        {...this.props}
         {...this.state}
+        render={this.renderCategories}
         search={this.state.search}
         perPage={100}
       />

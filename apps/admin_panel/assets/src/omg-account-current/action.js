@@ -6,8 +6,8 @@ export const loadCurrentAccount = accountId => async (dispatch, getState, { sock
   try {
     const result = await accountService.getAccountById(accountId)
     if (result.data.success) {
-      socket.joinChannel(`account:${result.data.data.id}`)
       dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/SUCCESS', currentAccount: result.data.data })
+      socket.joinChannel(`account:${result.data.data.id}`)
     } else {
       dispatch({ type: 'CURRENT_ACCOUNT/REQUEST/FAILED', error: result.data.data })
     }
@@ -61,6 +61,7 @@ export const updateCurrentAccount = ({ accountId, name, description, avatar }) =
 
 export const switchAccount = accountToSwitch => (dispatch, getState, { socket }) => {
   setCurrentAccount(accountToSwitch)
+  socket.leaveChannel(`account:${getState().currentAccount.id}`)
   socket.joinChannel(`account:${accountToSwitch.id}`)
   return dispatch({ type: 'CURRENT_ACCOUNT/SWITCH', currentAccount: accountToSwitch })
 }

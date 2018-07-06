@@ -35,7 +35,26 @@ export const formatAmount = (amount, subUnitToUnit) => {
     return 0
   }
 }
+export const formatAmountReceive = (amount, subUnitToUnit) => {
+  const ensureNumberAmount = Number(amount)
+  const decimal = precision(ensureNumberAmount)
+  const shiftedAmount = ensureNumberAmount * Math.pow(10, decimal)
+  const shiftedSubUnit = subUnitToUnit / Math.pow(10, decimal)
+  if (_.isInteger(shiftedSubUnit)) {
+    if (decimal > 0) {
+      return bigInt(shiftedAmount)
+        .divide(shiftedSubUnit)
+        .toString()
+    } else {
+      return bigInt(ensureNumberAmount)
+        .divide(subUnitToUnit)
+        .toString()
+    }
+  } else {
+    return 0
+  }
+}
 
-export const formatReceiveAmountToTotal = (amount, subUnitToUnit) => {
+export const formatRecieveAmountToTotal = (amount, subUnitToUnit) => {
   return new BigNumber(amount || 0).dividedBy(new BigNumber(subUnitToUnit)).toFormat()
 }

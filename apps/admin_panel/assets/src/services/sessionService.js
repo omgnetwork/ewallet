@@ -17,6 +17,11 @@ export function setAccessToken (data) {
   return localStorage.set(CONSTANT.AUTHENTICATION_TOKEN, data)
 }
 
+export function removeAccessDataFromLocalStorage () {
+  localStorage.set(CONSTANT.AUTHENTICATION_TOKEN, null)
+  localStorage.set(CONSTANT.CURRENT_ACCOUNT_ID, null)
+}
+
 export function login ({ email, password }) {
   return unAuthenticatedRequest({
     path: '/admin.login',

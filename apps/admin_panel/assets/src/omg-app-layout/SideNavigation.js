@@ -11,6 +11,7 @@ const SideNavigationContainer = styled.div`
   height: 100%;
   color: white;
   padding: 35px 0;
+  overflow: auto;
 `
 const NavigationItem = styled.div`
   padding: 15px 35px;
@@ -122,7 +123,7 @@ class SideNavigation extends PureComponent {
     this.dataLink = [
       { icon: 'Dashboard', to: '/dashboard', text: 'DASHBOARD' },
       { icon: 'Merchant', to: '/accounts', text: 'ACCOUNT' },
-      { icon: 'Token', to: '/token', text: 'TOKEN' },
+      { icon: 'Token', to: '/tokens', text: 'TOKEN' },
       { icon: 'Wallet', to: '/wallets', text: 'WALLET' },
       { icon: 'Transaction', to: '/transaction', text: 'TRANSACTION' },
       { icon: 'Request', to: '/requests', text: 'REQUEST' },
@@ -160,7 +161,6 @@ class SideNavigation extends PureComponent {
             </SwitchAccountButton>
           </SwitchAccount>
           {this.dataLink.map(link => {
-            const reg = new RegExp(link.to)
             return (
               <Link to={`/${accountIdFromLocation}${link.to}`} key={link.to}>
                 <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>

@@ -1,6 +1,7 @@
 import createReducer from '../reducer/createReducer'
 import uuid from 'uuid/v4'
 import React from 'react'
+import { Link } from 'react-router-dom'
 const createAlertState = (text, type) => {
   return { id: uuid(), text, type }
 }
@@ -8,15 +9,15 @@ export const alertsReducer = createReducer([], {
   'ALERTS/CLEAR': (state, { id }) => {
     return state.filter(alert => alert.id !== id)
   },
-  COPY_TO_CLIPBAORD: (state, { data }) => {
+  'CLIPBOARD/COPY/SUCCESS': (state, { data }) => {
     return [
       ...state,
       createAlertState(
         <div>
           Copied <b>{data}</b> to clipboard.
-        </div>
-      , 'success')
-
+        </div>,
+        'success'
+      )
     ]
   },
   'API_KEY/CREATE/SUCCESS': state => {
@@ -26,7 +27,7 @@ export const alertsReducer = createReducer([], {
     return [...state, createAlertState('Access key was successfully created.', 'success')]
   },
   'EXCHANGE_PAIR/CREATE/SUCCESS': state => {
-    return [...state, createAlertState('Exchange pair was successfully created.', 'success')]
+    return [...state, createAlertState('Exchange pair has successfully created.', 'success')]
   },
   'ACCOUNT/CREATE/SUCCESS': state => {
     return [...state, createAlertState('Account was successfully created.', 'success')]
@@ -52,16 +53,82 @@ export const alertsReducer = createReducer([], {
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
     return [...state, createAlertState(`Transffered successfully.`, 'success')]
   },
-  'CONSUMPTION/APPROVE/SUCCESS': (state, { data }) => {
-    return [...state, createAlertState(`Approved consumption ${data.id} successfully.`, 'success')]
+  'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
+    return [...state, createAlertState(`Transaction request has successfully created.`, 'success')]
+  },
+  'TRANSACTION_REQUEST/CONSUME/SUCCESS': (state, { data }) => {
+    if (data.status === 'confirmed') {
+      return [...state, createAlertState(`Consumed transaction request.`, 'success')]
+    }
+    return state
   },
   'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
-  'TRANSACTION_REQUEST/CREATE/SUCCESS': state => {
-    return [...state, createAlertState(`Transaction request was successfully created.`, 'success')]
+  'CONSUMPTION/REJECT/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
-  'TRANSACTION_REQUEST/CONSUME/SUCCESS': state => {
-    return [...state, createAlertState(`Consumed transaction request.`, 'success')]
+  'ACCOUNT/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'CATEGORY/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'API_KEY/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'API_KEY/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'ACCESS_KEY/CREATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'CURRENT_ACCOUNT/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'INVITE/REQUEST/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
+  'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, { data }) => {
+    if (data.status === 'confirmed' && data.transaction_request.require_confirmation) {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            Consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> was approved successfully.
+          </div>,
+          'success'
+        )
+      ]
+    }
+    if (data.status === 'rejected') {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            Rejected consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> successfully.
+          </div>,
+          'success'
+        )
+      ]
+    }
+    return state
+  },
+  'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, { data }) => {
+    if (data.status === 'pending') {
+      return [
+        ...state,
+        createAlertState(
+          <div>
+            New pending consumption{' '}
+            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link>
+          </div>,
+          'success'
+        )
+      ]
+    }
+    return state
   }
 })

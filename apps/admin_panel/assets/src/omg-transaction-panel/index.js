@@ -6,7 +6,7 @@ import { Icon } from '../omg-uikit'
 import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import { compose } from 'recompose'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 import { MarkContainer } from '../omg-page-transaction'
 const PanelContainer = styled.div`
@@ -110,7 +110,7 @@ class TransactionRequestPanel extends Component {
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
-          {formatReceiveAmountToTotal(
+          {formatRecieveAmountToTotal(
             _.get(transaction, 'amount'),
             _.get(transaction, 'token.subunit_to_unit')
           )}{' '}

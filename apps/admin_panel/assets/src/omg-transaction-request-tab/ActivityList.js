@@ -6,7 +6,7 @@ import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consump
 import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 import { Icon } from '../omg-uikit'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
@@ -79,18 +79,26 @@ class ActivityList extends Component {
   constructor (props) {
     super(props)
     this.columns = [
-      { key: 'amount', title: 'AMOUNT' },
-      { key: 'to', title: 'TO' },
+      { key: 'estimated_consumption_amount', title: 'AMOUNT' },
+      { key: 'to', title: 'CONSUMER' },
       { key: 'created_at', title: 'CREATED DATE' },
       { key: 'status', title: 'CONFIRMATION' }
     ]
+    this.perPage = Math.floor(window.innerHeight / 60)
   }
-  onClickConfirm = id => async e => {
+  onClickConfirm = (id, fetch, pendingConsumption) => async e => {
     e.stopPropagation()
+    console.log(pendingConsumption.length, this.perPage)
+    if (pendingConsumption.length - 1 === this.perPage) {
+      fetch()
+    }
     await this.props.approveConsumptionById(id)
   }
-  onClickReject = id => e => {
+  onClickReject = (id, fetch, pendingConsumption) => e => {
     e.stopPropagation()
+    if (pendingConsumption.length - 1 === this.perPage) {
+      fetch()
+    }
     this.props.rejectConsumptionById(id)
   }
   onClickRow = (data, index) => e => {
@@ -102,11 +110,11 @@ class ActivityList extends Component {
       })
     })
   }
-  rowRenderer = (key, data, rows) => {
-    if (key === 'amount') {
+  rowRenderer = (fetch, pendingConsumption) => (key, data, rows) => {
+    if (key === 'estimated_consumption_amount') {
       return (
         <div>
-          {formatReceiveAmountToTotal(data, _.get(rows, 'token.subunit_to_unit'))}{' '}
+          {formatRecieveAmountToTotal(data, _.get(rows, 'token.subunit_to_unit'))}{' '}
           {_.get(rows, 'token.symbol')}
         </div>
       )
@@ -123,10 +131,12 @@ class ActivityList extends Component {
         case 'pending':
           return (
             <div>
-              <ConfirmButtonApprove onClick={this.onClickConfirm(rows.id)}>
+              <ConfirmButtonApprove
+                onClick={this.onClickConfirm(rows.id, fetch, pendingConsumption)}
+              >
                 <Icon name='Checked' />
               </ConfirmButtonApprove>
-              <ConfirmButtonReject onClick={this.onClickReject(rows.id)}>
+              <ConfirmButtonReject onClick={this.onClickReject(rows.id, fetch, pendingConsumption)}>
                 <Icon name='Close' />
               </ConfirmButtonReject>
             </div>
@@ -150,27 +160,25 @@ class ActivityList extends Component {
     return (
       <ConsumptionFetcherByTransactionIdFetcher
         id={queryString.parse(this.props.location.search)['show-request-tab']}
-        render={({ data, individualLoadingStatus, pagination }) => {
+        render={({ data: pendingConsumption, individualLoadingStatus, pagination, fetch }) => {
           return (
             <ContentContainer>
               <SortableTable
-                rows={data}
+                rows={pendingConsumption.slice(0, this.perPage)}
                 columns={this.columns}
                 loadingStatus={individualLoadingStatus}
-                rowRenderer={this.rowRenderer}
+                rowRenderer={this.rowRenderer(fetch, pendingConsumption)}
                 onClickRow={this.onClickRow}
-                isFirstPage={pagination.is_first_page}
-                isLastPage={pagination.is_last_page}
-                navigation
                 pageEntity={'page-activity'}
               />
             </ContentContainer>
           )
         }}
         query={{
-          page: queryString.parse(this.props.location.search)['page-activity'],
-          perPage: Math.floor(window.innerHeight / 65),
-          uniqueId: queryString.parse(this.props.location.search)['show-request-tab']
+          page: 1,
+          perPage: this.perPage * 2,
+          searchTerms: { status: 'pending' },
+          transactionRequestId: queryString.parse(this.props.location.search)['show-request-tab']
         }}
       />
     )

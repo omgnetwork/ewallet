@@ -5,18 +5,17 @@ import { withRouter, Link } from 'react-router-dom'
 import AccountProvider from '../omg-account/accountProvider'
 import WalletsFetcherByAccountId from '../omg-wallet/walletsFetcher'
 import { compose } from 'recompose'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatRecieveAmountToTotal } from '../utils/formatter'
 import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
-const AccountDetailContainer = styled.div`
-`
+const AccountDetailContainer = styled.div``
 const ContentDetailContainer = styled.div`
   margin-top: 40px;
   display: flex;
   > div {
-    flex:  0 1 50%;
+    flex: 0 1 50%;
   }
 `
 const ContentContainer = styled.div`
@@ -24,6 +23,11 @@ const ContentContainer = styled.div`
   width: 100%;
 `
 const WalletCointainter = styled.div`
+  b {
+    text-transform: capitalize;
+  }
+`
+const TokensContainer = styled.div`
   margin-bottom: 40px;
 `
 const enhance = compose(
@@ -71,22 +75,27 @@ class AccountDetailPage extends Component {
               return (
                 <WalletCointainter>
                   <DetailGroup>
-                    <b>Address</b>
-                    <Link to={`/${accountId}/wallet/${wallet.address}`}>
-                      {wallet.address}
-                    </Link> ( <span>{wallet.name}</span> )
+                    <b>{wallet.name} Wallet</b>
+                    <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link>
                   </DetailGroup>
-                  {wallet.balances.filter(b => b.amount).map(balance => {
-                    return (
-                      <DetailGroup key={balance.token.id}>
-                        <b>{balance.token.name}</b>
-                        <span>
-                          {formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}
-                        </span>{' '}
-                        <span>{balance.token.symbol}</span>
-                      </DetailGroup>
-                    )
-                  })}
+                  {!!wallet.balances.filter(b => b.amount).length && (
+                    <TokensContainer>
+                      {wallet.balances.filter(b => b.amount).map(balance => {
+                        return (
+                          <DetailGroup key={balance.token.id}>
+                            <b>{balance.token.name}</b>
+                            <span>
+                              {formatRecieveAmountToTotal(
+                                balance.amount,
+                                balance.token.subunit_to_unit
+                              )}
+                            </span>{' '}
+                            <span>{balance.token.symbol}</span>
+                          </DetailGroup>
+                        )
+                      })}
+                    </TokensContainer>
+                  )}
                 </WalletCointainter>
               )
             })

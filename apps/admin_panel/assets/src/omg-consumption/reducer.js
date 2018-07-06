@@ -9,21 +9,22 @@ export const consumptionsReducer = createReducer(
     'TRANSACTION_REQUEST_CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
       return { ...state, ..._.keyBy(action.data, 'id') }
     },
+    'SOCKET_MESSAGE/CONSUMPTION/RECEIVE/SUCCESS': (state, action) => {
+      return {
+        ...state,
+        [action.data.id]: action.data
+      }
+    },
+    'SOCKET_MESSAGE/CONSUMPTION/UPDATE/SUCCESS': (state, action) => {
+      return { ...state, ...{ [action.data.id]: action.data } }
+    },
     'CONSUMPTION/REQUEST/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     },
     'CONSUMPTION/APPROVE/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     },
-    'CONSUMPTION/APPROVE/FAILED': (state, action) => {
-      return action.data
-        ? { ...state, ...{ [action.data.id]: { ...action.data, status: 'failed' } } }
-        : state
-    },
     'CONSUMPTION/REJECT/SUCCESS': (state, action) => {
-      return { ...state, ...{ [action.data.id]: action.data } }
-    },
-    'CONSUMPTION/REJECT/FAILED': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }
     }
   }

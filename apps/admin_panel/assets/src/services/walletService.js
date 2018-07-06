@@ -23,6 +23,7 @@ export function getWalletsByAccountId ({ accountId, perPage, sort, search, ...re
       sort_dir: sort.dir,
       search_term: search,
       id: accountId,
+      owned: true,
       ...rest
     }
   })

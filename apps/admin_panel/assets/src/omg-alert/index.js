@@ -18,18 +18,25 @@ const AlertContainer = styled.div`
 `
 const AlertItemContainer = styled.div`
   border-radius: 2px;
-  padding: 10px;
+  padding: 10px 40px 10px 10px;
   font-size: 12px;
   color: ${props => props.theme.colors.B300};
   margin-bottom: 5px;
   display: flex;
-  border: 1px solid #C9D1E2;
+  border: 1px solid #c9d1e2;
   align-items: center;
   min-width: 400px;
   background-color: ${props => props.theme.colors.S100};
   white-space: nowrap;
+  position: relative;
   b {
     color: ${props => props.theme.colors.B400};
+  }
+  i[name="Close"] {
+    position: absolute;
+    right: 10px;
+    cursor: pointer;
+    padding: 5px;
   }
 `
 
@@ -62,7 +69,7 @@ const SuccessChecked = styled.div`
   }
 `
 const ErrorChecked = SuccessChecked.extend`
-  background-color: #EF3526;
+  background-color: #ef3526;
 `
 class AlertItem extends Component {
   static propTypes = {
@@ -74,7 +81,7 @@ class AlertItem extends Component {
   componentDidMount = () => {
     setTimeout(() => {
       this.props.clearAlert(this.props.id)
-    }, 3000)
+    }, 5000)
   }
 
   render () {
@@ -94,7 +101,6 @@ class AlertItem extends Component {
           </ErrorChecked>
           {this.props.children}
         </AlertItemError>
-
       ),
       default: <AlertItemContainer>{this.props.children}</AlertItemContainer>
     }
@@ -124,6 +130,7 @@ class Alert extends Component {
               >
                 <AlertItem id={alert.id} clearAlert={this.props.clearAlert} type={alert.type}>
                   {alert.text}
+                  <Icon name='Close' onClick={e => this.props.clearAlert(alert.id)} />
                 </AlertItem>
               </CSSTransition>
             )

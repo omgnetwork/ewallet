@@ -20,17 +20,6 @@ const UserPageContainer = styled.div`
   td:first-child {
     width: 40%;
   }
-  td:nth-child(2),
-  td:nth-child(4) {
-    width: 20%;
-  }
-  td:nth-child(3) {
-    width: 200px;
-    max-width: 200px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
 `
 const SortableTableContainer = styled.div`
   position: relative;
@@ -102,8 +91,8 @@ class UsersPage extends Component {
     return [
       { key: 'id', title: 'ID', sort: true },
       { key: 'username', title: 'USERNAME', sort: true },
-      { key: 'email', title: 'EMAIL', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
+      { key: 'updated_at', title: 'LAST UPDATED', sort: true },
       { key: 'provider_user_id', title: 'PROVIDER', sort: true }
     ]
   }
@@ -116,7 +105,7 @@ class UsersPage extends Component {
     })
   }
   rowRenderer (key, data, rows) {
-    if (key === 'created_at') {
+    if (key === 'created_at' || key === 'updated_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
     }
     if (key === 'id') {
@@ -163,7 +152,8 @@ class UsersPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          search: queryString.parse(this.props.location.search).search
+          search: queryString.parse(this.props.location.search).search,
+          accountId: this.props.match.params.accountId
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

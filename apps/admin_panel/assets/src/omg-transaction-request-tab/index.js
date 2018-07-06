@@ -4,16 +4,18 @@ import styled from 'styled-components'
 import TabPanel from './TabPanel'
 import TransactionRequestProvider from '../omg-transaction-request/transactionRequestProvider'
 import { Icon, Button, Select, Input } from '../omg-uikit'
-import { withRouter } from 'react-router-dom'
+import { withRouter, Link } from 'react-router-dom'
 import queryString from 'query-string'
 import QR from './QrCode'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
+import { formatRecieveAmountToTotal, formatAmount, formatAmountReceive } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
+import { selectPendingConsumptions } from '../omg-consumption/selector'
+import moment from 'moment'
 import ActivityList from './ActivityList'
 const PanelContainer = styled.div`
   height: 100vh;
@@ -132,15 +134,7 @@ const ExpiredContainer = styled.div`
   padding: 5px 10px;
   text-align: center;
 `
-const enhance = compose(
-  withRouter,
-  connect(
-    state => ({
-      selectTransactionRequestById: selectGetTransactionRequestById(state)
-    }),
-    { consumeTransactionRequest }
-  )
-)
+
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
   padding: ${props => (props.error ? '10px 0' : 0)};
@@ -150,12 +144,37 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
   text-align: right;
 `
+const RedDot = styled.div`
+  display: inline-block;
+  margin-left: 3px;
+  background-color: ${props => props.theme.colors.R300};
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  vertical-align: middle;
+  visibility: ${props => (props.show ? 'visible' : 'hidden')};
+`
+const enhance = compose(
+  withRouter,
+  connect(
+    (state, props) => ({
+      selectTransactionRequestById: selectGetTransactionRequestById(state),
+      pendingConsumptions: selectPendingConsumptions(
+        queryString.parse(props.location.search)['show-request-tab']
+      )(state)
+    }),
+    { consumeTransactionRequest }
+  )
+)
+
 class TransactionRequestPanel extends Component {
   static propTypes = {
     history: PropTypes.object,
     location: PropTypes.object,
     consumeTransactionRequest: PropTypes.func,
-    selectTransactionRequestById: PropTypes.func
+    selectTransactionRequestById: PropTypes.func,
+    pendingConsumptions: PropTypes.array,
+    match: PropTypes.object
   }
 
   static getDerivedStateFromProps (props, state) {
@@ -164,10 +183,13 @@ class TransactionRequestPanel extends Component {
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
       return {
         transactionRequestId,
-        amount: formatReceiveAmountToTotal(
-          transactionRequest.amount,
-          transactionRequest.token.subunit_to_unit
-        ),
+        amount:
+          transactionRequest.amount === null
+            ? ''
+            : formatAmountReceive(
+                transactionRequest.amount,
+                transactionRequest.token.subunit_to_unit
+              ),
         selectedToken: transactionRequest.token,
         searchTokenValue: `${transactionRequest.token.name} (${transactionRequest.token.symbol})`
       }
@@ -177,7 +199,11 @@ class TransactionRequestPanel extends Component {
 
   constructor (props) {
     super(props)
-    this.state = {}
+    this.state = {
+      consumeAddress: '',
+      amount: null,
+      searchTokenValue: ''
+    }
   }
 
   onChangeWalletInput = e => {
@@ -222,17 +248,17 @@ class TransactionRequestPanel extends Component {
         formattedTransactionRequestId: transactionRequest.id,
         tokenId: this.state.selectedToken.id,
         amount: transactionRequest.allow_amount_override
-          ? formatAmount(
-              this.state.amount,
-              _.get(this.state.selectedToken, 'subunit_to_unit')
-            )
+          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
           : null,
         address: this.state.consumeAddress
       })
       if (result.data) {
         this.setState({ submitStatus: 'SUCCESS', error: null })
       } else {
-        this.setState({ submitStatus: 'FAILED', error: result.error.description })
+        this.setState({
+          submitStatus: 'FAILED',
+          error: result.error.description || result.error.message
+        })
       }
     } catch (error) {
       this.setState({ submitStatus: 'FAILED', error: `${error}` })
@@ -252,6 +278,18 @@ class TransactionRequestPanel extends Component {
 
   renderProperties = transactionRequest => {
     const valid = transactionRequest.status === 'valid'
+    const amount =
+      transactionRequest.amount === null ? (
+        'Not Specified'
+      ) : (
+        <span>
+          {formatRecieveAmountToTotal(
+            transactionRequest.amount,
+            _.get(transactionRequest, 'token.subunit_to_unit')
+          )}{' '}
+          {_.get(transactionRequest, 'token.symbol')}
+        </span>
+      )
     return (
       <TransactionReqeustPropertiesContainer>
         <ConsumeActionContainer onSubmit={this.onSubmitConsume(transactionRequest)}>
@@ -345,18 +383,35 @@ class TransactionRequestPanel extends Component {
             <b>Type :</b> {transactionRequest.type}
           </InformationItem>
           <InformationItem>
-            <b>Token ID :</b> {_.get(transactionRequest, 'token.id')}
+            <b>Token:</b> {_.get(transactionRequest, 'token.name')}
           </InformationItem>
           <InformationItem>
-            <b>Amount :</b>{' '}
-            {formatReceiveAmountToTotal(
-              transactionRequest.amount,
-              _.get(transactionRequest, 'token.subunit_to_unit')
-            )}{' '}
-            {_.get(transactionRequest, 'token.symbol')}
+            <b>Amount :</b> {amount}
           </InformationItem>
           <InformationItem>
-            <b>Requester Address : </b> {transactionRequest.address}
+            <b>Requester Address : </b>{' '}
+            <Link to={`/${this.props.match.params.accountId}/wallet/${transactionRequest.address}`}>
+              {transactionRequest.address}
+            </Link>
+          </InformationItem>
+          <InformationItem>
+            <b>Account ID : </b> {_.get(transactionRequest, 'account.id', '-')}
+          </InformationItem>
+          <InformationItem>
+            <b>Account Name : </b>{' '}
+            {_.get(transactionRequest, 'account.id') ? (
+              <Link
+                to={`/${this.props.match.params.accountId}/wallet/${transactionRequest.address}`}
+              >
+                {' '}
+                {transactionRequest.account.name}{' '}
+              </Link>
+            ) : (
+              '-'
+            )}
+          </InformationItem>
+          <InformationItem>
+            <b>User ID : </b> {_.get(transactionRequest, 'user.id', '-')}
           </InformationItem>
           <InformationItem>
             <b>Confirmation : </b> {transactionRequest.require_confirmation ? 'Yes' : 'No'}
@@ -371,7 +426,10 @@ class TransactionRequestPanel extends Component {
             <b>Max Consumptions User : </b> {transactionRequest.max_consumptions_per_user || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Expiry Date : </b> {transactionRequest.expiration_date || '-'}
+            <b>Expiry Date : </b>{' '}
+            {transactionRequest.expiration_date
+              ? moment(transactionRequest.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss')
+              : '-'}
           </InformationItem>
           <InformationItem>
             <b>Allow Amount Override : </b>{' '}
@@ -390,17 +448,17 @@ class TransactionRequestPanel extends Component {
       <TransactionRequestProvider
         transactionRequestId={queryString.parse(this.props.location.search)['show-request-tab']}
         render={({ transactionRequest: tq }) => {
+          const amount = tq.allow_amount_override
+            ? ''
+            : formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>
-                Request to {tq.type}{' '}
-                {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
-                {_.get(tq, 'token.symbol')}
+                Request to {tq.type} {amount} {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>
-                <span>{tq.type}</span> |{' '}
-                <span>{tq.user_id || _.get(tq, 'account.name')}</span>
+                <span>{tq.type}</span> | <span>{tq.user_id || _.get(tq, 'account.name')}</span>
               </SubDetailTitle>
               <TabPanel
                 activeTabKey={
@@ -410,7 +468,12 @@ class TransactionRequestPanel extends Component {
                 data={[
                   {
                     key: 'activity',
-                    tabTitle: 'ACTIVITY LIST',
+                    tabTitle: (
+                      <div style={{ marginLeft: '5px' }}>
+                        <span>PENDING CONSUMPTION</span>{' '}
+                        <RedDot show={!!this.props.pendingConsumptions.length} />
+                      </div>
+                    ),
                     tabContent: <ActivityList />
                   },
                   {

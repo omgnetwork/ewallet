@@ -10,7 +10,12 @@ export const transactionRequestsReducer = createReducer(
       return { ...state, ...{ [action.data.id]: action.data } }
     },
     'TRANSACTION_REQUEST/CONSUME/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.data, 'id') }
+      return {
+        ...state,
+        ...{
+          [action.data.transaction_request.id]: action.data.transaction_request
+        }
+      }
     },
     'TRANSACTION_REQUEST/APPROVE/SUCCESS': (state, action) => {
       return { ...state, ...{ [action.data.id]: action.data } }

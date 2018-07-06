@@ -1,125 +1,98 @@
 import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import { Bar } from 'react-chartjs-2'
 import styled from 'styled-components'
-import { Button, Icon, RatioBar } from '../omg-uikit'
+import { Button, Icon } from '../omg-uikit'
 import TopNavigation from '../omg-page-layout/TopNavigation'
-import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
+import { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
 import moment from 'moment'
-const number = new Array(30).fill().map((x, i) => i)
-const data = {
-  labels: number,
-  datasets: [
-    {
-      label: 'Credit',
-      backgroundColor: 'rgba(0,0,0,0.7)',
-      borderWidth: 1,
-      data: [
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40,
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40,
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40,
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40
-      ],
-      stack: 'a'
-    },
-    {
-      label: 'Debit',
-      backgroundColor: '#A4C4F8',
-      borderWidth: 1,
-      data: [
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40,
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40,
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40,
-        65,
-        59,
-        80,
-        81,
-        56,
-        55,
-        40
-      ],
-      stack: 'a'
-    }
-  ]
-}
-const ChartContainer = styled.div`
-  width: 100%;
-  margin-top: 60px;
-`
+import { Link, withRouter } from 'react-router-dom'
+import PropTypes from 'prop-types'
+
 const SectionsContainer = styled.div`
   display: flex;
 `
 const SectionContainer = styled.div`
   flex: 1 1 auto;
-`
-const SubTitle = styled.div`
-  font-size: 10px;
-  letter-spacing: 1px;
-  font-weight: 600;
-  color: ${props => props.theme.colors.B100};
-`
-export default class Dashboard extends Component {
-  renderExportButton = () => {
-    return (
-      <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
-      </Button>
-    )
+  :first-child {
+    width: 250px;
+    padding-right: 20px;
   }
-  renderCurrentAccountSection = ({ currentAccount }) => {
-    return (
-      <SectionContainer>
-        <Section title={currentAccount.name || '...'}>
+  b {
+    display: block;
+  }
+  > h5 {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+`
+const IntroContainer = styled.div`
+  border-radius: 4px;
+  background-color: rgba(219, 233, 255, 0.8);
+  box-shadow: 0 2px 10px 0 rgba(4, 7, 13, 0.1);
+  padding: 30px;
+  h5 {
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+  }
+  margin-bottom: 20px;
+`
+const NavigationItem = styled.div`
+  margin-bottom: 15px;
+  cursor: pointer;
+  a {
+    color: ${props => props.theme.colors.B400};
+    :hover {
+      color: ${props => props.theme.colors.BL400};
+    }
+  }
+
+  i {
+    color: ${props => props.theme.colors.BL400};
+    font-size: 16px;
+    margin-right: 10px;
+  }
+`
+const GetStartedContainer = styled.div`
+  border: 1px solid #e4e7ed;
+  padding: 30px;
+  border-radius: 4px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 5px 0 rgba(60, 65, 77, 0.05);
+  background-image: url(${require('../../statics/images/Main_dashboard-01.png')});
+  background-size: 41vw auto;
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  h4 {
+    letter-spacing: 1px;
+    margin-bottom: 30px;
+  }
+`
+const GetStartedContent = styled.div`
+  width: 200px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 4px;
+`
+export default withRouter(
+  class Dashboard extends Component {
+    static propTypes = {
+      match: PropTypes.object
+    }
+    renderExportButton = () => {
+      return (
+        <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
+          <Icon name='Export' />
+          <span>Export</span>
+        </Button>
+      )
+    }
+    renderCurrentAccountSection = ({ currentAccount }) => {
+      return (
+        <SectionContainer>
+          <h5>Account Details</h5>
           <DetailGroup>
-            <b>Created Date:</b>{' '}
-            <span>{currentAccount.created_at ? moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss') : '-'}</span>
-          </DetailGroup>
-          <DetailGroup>
-            <b>ID:</b> <span>{currentAccount.id}</span>
+            <b>ID:</b> <span>{currentAccount.id || '...'}</span>
           </DetailGroup>
           <DetailGroup>
             <b>Description:</b> <span>{currentAccount.description || '-'}</span>
@@ -137,60 +110,76 @@ export default class Dashboard extends Component {
                   : '-'}
             </span>
           </DetailGroup>
-        </Section>
-        {/* <Section title={'History'} /> */}
-      </SectionContainer>
-    )
+          <DetailGroup>
+            <b>Created Date:</b>{' '}
+            <span>{moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          </DetailGroup>
+          <DetailGroup>
+            <b>Last Update:</b>{' '}
+            <span>{moment(currentAccount.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          </DetailGroup>
+        </SectionContainer>
+      )
+    }
+    render () {
+      const accountId = this.props.match.params.accountId
+      return (
+        <div>
+          <TopNavigation title='Dashboard' types={false} secondaryAction={false} />
+          <SectionsContainer>
+            <CurrentAccountProvider render={this.renderCurrentAccountSection} />
+            <SectionContainer>
+              <IntroContainer>
+                <h5>
+                  This is where you will see all stats and trend of transaction within current
+                  account.
+                </h5>
+                <p>Analytics will come soon, stay tuned !</p>
+              </IntroContainer>
+              <GetStartedContainer>
+                <GetStartedContent>
+                  <h4>Let's get started</h4>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/setting/?invite=true`}>
+                      <Icon name='Arrow-Right' /> Invite team member
+                  </Link>
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/accounts/?createAccount=true`}>
+                      <Icon name='Arrow-Right' /> Create Account
+                  </Link>
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/tokens/?createToken=true`}>
+                      <Icon name='Arrow-Right' /> Create Token
+                  </Link>
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/wallets`}>
+                      <Icon name='Arrow-Right' /> Organize Wallets
+                  </Link>
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/requests?createRequest=true`}>
+                      <Icon name='Arrow-Right' /> Create Request
+                  </Link>
+                  </NavigationItem>
+                  <NavigationItem>
+                    <Link to={`/${accountId}/api`}>
+                      <Icon name='Arrow-Right' /> Generate API
+                  </Link>
+                  </NavigationItem>
+                  <NavigationItem>
+                    <a href='/api/admin/docs.ui#' target='_blank'>
+                      <Icon name='Arrow-Right' /> API Documentation
+                  </a>
+                  </NavigationItem>
+                </GetStartedContent>
+              </GetStartedContainer>
+            </SectionContainer>
+          </SectionsContainer>
+        </div>
+      )
+    }
   }
-  render () {
-    return (
-      <div>
-        <TopNavigation
-          // buttons={}
-          title='Dashboard'
-          types={false}
-          secondaryAction={false}
-        />
-        <SectionsContainer>
-          <CurrentAccountProvider render={this.renderCurrentAccountSection} />
-          {/* <SectionContainer>
-            <Section title={'Token Status'}>
-              <RatioBar
-                title='TOKEN PROPORTION'
-                rows={[
-                  { percent: 20, content: 'transaction', color: '#A4C4F8' },
-                  { percent: 80, content: 'transaction', color: 'rgba(0,0,0,0.7)' }
-                ]}
-              />
-              <ChartContainer>
-                <SubTitle>TRANSACTIONS TREND</SubTitle>
-                <Bar
-                  height={250}
-                  data={data}
-                  options={{
-                    maintainAspectRatio: false,
-                    scales: {
-                      xAxes: [
-                        {
-                          stacked: true,
-                          barPercentage: 0.7,
-                          gridLines: false
-                        }
-                      ],
-                      yAxes: [
-                        {
-                          stacked: true,
-                          gridLines: false
-                        }
-                      ]
-                    }
-                  }}
-                />
-              </ChartContainer>
-            </Section>
-          </SectionContainer> */}
-        </SectionsContainer>
-      </div>
-    )
-  }
-}
+)

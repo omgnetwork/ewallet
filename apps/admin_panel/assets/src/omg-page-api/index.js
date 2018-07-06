@@ -130,7 +130,8 @@ class ApiKeyPage extends Component {
     this.setState({
       privateKey: '',
       publicKey: '',
-      submitStatus: 'DEFAULT'
+      submitStatus: 'DEFAULT',
+      privateKeyModalOpen: false
     })
   }
   onClickCreateAccessKey = e => {
@@ -140,20 +141,31 @@ class ApiKeyPage extends Component {
     this.setState({ ewalletModalOpen: true })
   }
   onClickOkCreateEwalletKey = fetch => async e => {
-    await this.props.generateApiKey()
-    fetch()
-    this.onRequestClose()
+    this.setState({ submitStatus: 'SUBMITTING' })
+    try {
+      await this.props.generateApiKey()
+      fetch()
+      this.onRequestClose()
+      this.setState({ submitStatus: 'SUCCESS' })
+    } catch (error) {
+      this.setState({ submitStatus: 'FAILED' })
+    }
   }
   onClickOkCreateAccessKey = fetch => async e => {
     this.setState({ submitStatus: 'SUBMITTING' })
-    const { data } = await this.props.generateAccessKey()
-    fetch()
-    this.setState({
-      privateKey: data.secret_key,
-      publicKey: data.access_key,
-      submitStatus: 'SUCCESS'
-    })
-    this.onRequestClose()
+    try {
+      const { data } = await this.props.generateAccessKey()
+      fetch()
+      this.setState({
+        privateKey: data.secret_key,
+        publicKey: data.access_key,
+        submitStatus: 'SUCCESS',
+        privateKeyModalOpen: true
+      })
+      this.onRequestClose()
+    } catch (error) {
+      this.setState({ submitStatus: 'FAILED' })
+    }
   }
   onClickSwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateApiKey({ id, expired })
@@ -235,6 +247,7 @@ class ApiKeyPage extends Component {
                 open={this.state.ewalletModalOpen}
                 onRequestClose={this.onRequestClose}
                 onOk={this.onClickOkCreateEwalletKey(fetch)}
+                loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
                   <h4>Generate e-wallet key</h4>
@@ -299,7 +312,7 @@ class ApiKeyPage extends Component {
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
               <ConfirmationModal
-                open={this.state.submitStatus === 'SUCCESS'}
+                open={this.state.privateKeyModalOpen}
                 onRequestClose={this.onRequestCloseShowPrivateKey}
                 onOk={this.onRequestCloseShowPrivateKey}
                 confirmText='Got it!'
@@ -313,11 +326,13 @@ class ApiKeyPage extends Component {
                   </p>
                   <InputContainer>
                     <InputLabel>Private key</InputLabel>
-                    <input value={this.state.privateKey} spellCheck='false' /><Copy data={this.state.privateKey} />
+                    <input value={this.state.privateKey} spellCheck='false' />
+                    <Copy data={this.state.privateKey} />
                   </InputContainer>
                   <InputContainer>
                     <InputLabel>Public Key</InputLabel>
-                    <input value={this.state.publicKey} spellCheck='false' /><Copy data={this.state.privateKey} />
+                    <input value={this.state.publicKey} spellCheck='false' />
+                    <Copy data={this.state.privateKey} />
                   </InputContainer>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
