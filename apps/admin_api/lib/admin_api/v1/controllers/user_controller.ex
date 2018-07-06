@@ -43,6 +43,23 @@ defmodule AdminAPI.V1.UserController do
     end
   end
 
+  def all_for_account(conn, %{"id" => account_id} = attrs) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account.id) do
+      # Get all users since everyone can access them
+      User
+      |> UserQuery.where_end_user()
+      |> Account.query_all_users(descendant_uuids)
+      |> SearchParser.to_query(attrs, @search_fields)
+      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+      |> Paginator.paginate_attrs(attrs)
+      |> respond_multiple(conn)
+    else
+      error -> respond_single(error, conn)
+    end
+  end
+
   @doc """
   Retrieves a specific user by its id.
   """

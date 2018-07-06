@@ -307,14 +307,14 @@ defmodule EWalletDB.Account do
   end
 
   def get_all_users(account_uuids) do
-    account_uuids
-    |> query_all_users()
+    User
+    |> query_all_users(account_uuids)
     |> Repo.all()
   end
 
-  def query_all_users(account_uuids) do
+  def query_all_users(query, account_uuids) do
     from(
-      user in User,
+      user in query,
       join: account_user in AccountUser,
       on: account_user.user_uuid == user.uuid,
       where: account_user.account_uuid in ^account_uuids

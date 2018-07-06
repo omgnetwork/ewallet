@@ -47,10 +47,9 @@ export function unassignMember ({ userId, accountId }) {
 
 export function listMembers ({ accountId }) {
   return authenticatedRequest({
-    path: '/account.get_users',
+    path: '/account.get_members',
     data: {
-      account_id: accountId
+      id: accountId
     }
   })
 }
-

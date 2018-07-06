@@ -8,24 +8,21 @@ defmodule AdminAPI.V1.AccountMembershipController do
   @doc """
   Lists the users that are assigned to the given account.
   """
-  def get_users(conn, %{"account_id" => account_id}) do
+  def all_for_account(conn, %{"account_id" => account_id}) do
     with %Account{} = account <-
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},
-         :ok <- permit(:get, conn.assigns, account.id) do
-      do_get_users(conn, account)
+         :ok <- permit(:get, conn.assigns, account.id),
+         ancestor_uuids <- Account.get_all_ancestors_uuids(account),
+         memberships <- Membership.all_by_account_uuids(ancestor_uuids, [:role, :account, :user]),
+         memberships <- Membership.distinct_by_role(memberships) do
+      render(conn, :memberships, %{memberships: memberships})
     else
       {:error, error} -> handle_error(conn, error)
     end
   end
 
-  def get_users(conn, _), do: handle_error(conn, :invalid_parameter)
-
-  defp do_get_users(conn, %Account{} = account) do
-    render(conn, :memberships, %{memberships: account.memberships})
-  end
-
-  defp do_get_users(conn, nil), do: handle_error(conn, :account_id_not_found)
+  def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Assigns the user to the given account and role.
