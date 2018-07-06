@@ -43,8 +43,7 @@ defmodule EWallet.TransactionConsumptionSchedulerTest do
 
       events = TestEndpoint.get_events()
 
-      # 2 expired consumptions times 5 channels = 10 events
-      assert length(events) == 10
+      assert length(events) == 16
 
       Enum.each(events, fn event ->
         {:socket_push, :text, encoded} =
