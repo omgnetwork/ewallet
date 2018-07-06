@@ -99,6 +99,17 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
+          const amount = tq.allow_amount_override ? (
+            'Not Specified'
+          ) : (
+            <span>
+              {formatRecieveAmountToTotal(
+                tq.amount,
+                _.get(tq, 'token.subunit_to_unit')
+              )}{' '}
+              {_.get(tq, 'token.symbol')}
+            </span>
+          )
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
@@ -195,8 +206,7 @@ class TransactionRequestPanel extends Component {
                 </InformationItem>
                 <InformationItem>
                   <b>Amount :</b>{' '}
-                  {formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
-                  {_.get(tq, 'token.symbol')}
+                  {amount}
                 </InformationItem>
                 <InformationItem>
                   <b>Requester Address : </b>{' '}

@@ -102,7 +102,18 @@ class TransactionRequestsPage extends Component {
       )
     }
     if (key === 'amount') {
-      return `${formatRecieveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+      const amount = rows.allow_amount_override ? (
+        'Not Specified'
+      ) : (
+        <span>
+          {formatRecieveAmountToTotal(
+            data,
+            _.get(rows, 'token.subunit_to_unit')
+          )}{' '}
+          {_.get(rows, 'token.symbol')}
+        </span>
+      )
+      return amount
     }
     if (key === 'created_by') {
       return rows.user_id || rows.account.name || rows.account_id

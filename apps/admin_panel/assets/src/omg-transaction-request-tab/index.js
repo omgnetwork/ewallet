@@ -275,6 +275,17 @@ class TransactionRequestPanel extends Component {
 
   renderProperties = transactionRequest => {
     const valid = transactionRequest.status === 'valid'
+    const amount = transactionRequest.allow_amount_override ? (
+      'Not Specified'
+    ) : (
+      <span>
+        {formatRecieveAmountToTotal(
+          transactionRequest.amount,
+          _.get(transactionRequest, 'token.subunit_to_unit')
+        )}{' '}
+        {_.get(transactionRequest, 'token.symbol')}
+      </span>
+    )
     return (
       <TransactionReqeustPropertiesContainer>
         <ConsumeActionContainer onSubmit={this.onSubmitConsume(transactionRequest)}>
@@ -371,12 +382,7 @@ class TransactionRequestPanel extends Component {
             <b>Token:</b> {_.get(transactionRequest, 'token.name')}
           </InformationItem>
           <InformationItem>
-            <b>Amount :</b>{' '}
-            {formatRecieveAmountToTotal(
-              transactionRequest.amount,
-              _.get(transactionRequest, 'token.subunit_to_unit')
-            )}{' '}
-            {_.get(transactionRequest, 'token.symbol')}
+            <b>Amount :</b> {amount}
           </InformationItem>
           <InformationItem>
             <b>Requester Address : </b>{' '}
@@ -417,7 +423,9 @@ class TransactionRequestPanel extends Component {
           </InformationItem>
           <InformationItem>
             <b>Expiry Date : </b>{' '}
-            {transactionRequest.expiration_date ? moment(transactionRequest.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss') : '-'}
+            {transactionRequest.expiration_date
+              ? moment(transactionRequest.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss')
+              : '-'}
           </InformationItem>
           <InformationItem>
             <b>Allow Amount Override : </b>{' '}
@@ -436,13 +444,14 @@ class TransactionRequestPanel extends Component {
       <TransactionRequestProvider
         transactionRequestId={queryString.parse(this.props.location.search)['show-request-tab']}
         render={({ transactionRequest: tq }) => {
+          const amount = tq.allow_amount_override
+            ? ''
+            : formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
               <h4>
-                Request to {tq.type}{' '}
-                {formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
-                {_.get(tq, 'token.symbol')}
+                Request to {tq.type} {amount} {_.get(tq, 'token.symbol')}
               </h4>
               <SubDetailTitle>
                 <span>{tq.type}</span> | <span>{tq.user_id || _.get(tq, 'account.name')}</span>
