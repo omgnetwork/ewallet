@@ -1,6 +1,16 @@
 defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transaction, Account}
+
+  alias EWalletDB.{
+    Repo,
+    TransactionRequest,
+    TransactionConsumption,
+    User,
+    Transaction,
+    Account,
+    AccountUser
+  }
+
   alias EWallet.TestEndpoint
   alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
@@ -551,6 +561,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     setup do
       account = insert(:account)
       wallet = insert(:wallet)
+      {:ok, _} = AccountUser.link(account.uuid, wallet.user_uuid)
 
       tc_1 = insert(:transaction_consumption, account_uuid: account.uuid, status: "pending")
 
@@ -1260,6 +1271,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     end
 
     test "sends an error when approved without enough funds", meta do
+      {:ok, _} = AccountUser.link(meta.account.uuid, meta.bob.uuid)
+
       # Create a require_confirmation transaction request that will be consumed soon
       transaction_request =
         insert(

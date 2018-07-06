@@ -276,7 +276,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
         })
 
       assert response["data"]["data"] |> length() == 3
-      assert meta.transaction_1.inserted_at < meta.transaction_2.inserted_at
+
+      assert NaiveDateTime.compare(
+               meta.transaction_1.inserted_at,
+               meta.transaction_2.inserted_at
+             ) == :lt
 
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]

@@ -8,7 +8,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   @doc """
   Lists the users that are assigned to the given account.
   """
-  def all_for_account(conn, %{"account_id" => account_id}) do
+  def all_for_account(conn, %{"id" => account_id}) do
     with %Account{} = account <-
            Account.get(account_id, preload: [memberships: [:user, :role]]) ||
              {:error, :unauthorized},

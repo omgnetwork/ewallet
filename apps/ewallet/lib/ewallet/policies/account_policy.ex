@@ -13,8 +13,12 @@ defmodule EWallet.AccountPolicy do
 
   # access key have admin rights so we only check that the target is
   # a descendant of the access key's account.
-  def authorize(_action, %{key: key}, account_id) do
-    Account.descendant?(key.account, account_id)
+  def authorize(_action, %{account: account}, account_id) do
+    Account.descendant?(account, account_id)
+  end
+
+  def authorize(action, %{key: key}, account_id) do
+    authorize(action, %{account: key.account}, account_id)
   end
 
   def authorize(:get, %{admin_user: user}, account_id) do

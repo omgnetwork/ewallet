@@ -46,13 +46,10 @@ defmodule AdminAPI.V1.TransactionRequestController do
   end
 
   def create(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, attrs) do
-      attrs
-      |> TransactionRequestGate.create()
-      |> respond(conn)
-    else
-      error -> respond(error, conn)
-    end
+    attrs
+    |> Map.put("creator", conn.assigns)
+    |> TransactionRequestGate.create()
+    |> respond(conn)
   end
 
   # Respond with a list of transaction requests
@@ -79,7 +76,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
 
   @spec permit(:all | :create | :get | :update, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
-  defp permit(action, params, transaction_request_id) do
-    Bodyguard.permit(TransactionRequestPolicy, action, params, transaction_request_id)
+  defp permit(action, params, request) do
+    Bodyguard.permit(TransactionRequestPolicy, action, params, request)
   end
 end

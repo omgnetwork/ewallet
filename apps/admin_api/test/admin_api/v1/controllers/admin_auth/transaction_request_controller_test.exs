@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, User, Account}
+  alias EWalletDB.{Repo, TransactionRequest, User, Account, AccountUser}
   alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
 
   describe "/transaction_request.all" do
@@ -106,9 +106,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
 
   describe "/transaction_request.create" do
     test "creates a transaction request with all the params" do
+      account = Account.get_master_account()
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -158,9 +160,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
     end
 
     test "creates a transaction request with the minimum params" do
+      account = Account.get_master_account()
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -210,9 +214,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
     end
 
     test "creates a transaction request with string amount" do
+      account = Account.get_master_account()
       user = get_test_user()
       token = insert(:token)
       wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -262,9 +268,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
     end
 
     test "receives an error when the type is invalid" do
-      token = insert(:token)
+      account = Account.get_master_account()
       user = get_test_user()
+      token = insert(:token)
       wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       response =
         admin_user_request("/transaction_request.create", %{
@@ -299,16 +307,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
           address: "FAKE-0000-0000-0000"
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "unauthorized",
-                 "description" => "You are not allowed to perform the requested operation",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      assert response["success"] == false
+      assert response["data"]["code"] == "wallet:wallet_not_found"
     end
 
     test "receives an error when the address does not belong to the user" do
@@ -350,16 +350,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
           address: wallet.address
         })
 
-      assert response == %{
-               "success" => false,
-               "version" => "1",
-               "data" => %{
-                 "code" => "token:token_not_found",
-                 "description" => "There is no token matching the provided token_id.",
-                 "messages" => nil,
-                 "object" => "error"
-               }
-             }
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
     end
   end
 

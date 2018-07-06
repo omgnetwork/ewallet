@@ -6,7 +6,7 @@ defmodule EWallet.TransactionRequestGate do
 
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
-  alias EWallet.{WalletFetcher, TransactionRequestFetcher, Helper}
+  alias EWallet.{WalletFetcher, TransactionRequestFetcher, Helper, TransactionRequestPolicy}
   alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account}
 
   @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
@@ -136,7 +136,8 @@ defmodule EWallet.TransactionRequestGate do
         %User{} = user,
         attrs
       ) do
-    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]) do
+    with {:ok, wallet} <- WalletFetcher.get(user, attrs["address"]),
+         attrs <- Map.put(attrs, "creator", %{end_user: user}) do
       create(wallet, attrs)
     else
       error -> error
@@ -147,10 +148,15 @@ defmodule EWallet.TransactionRequestGate do
         %Wallet{} = wallet,
         %{
           "type" => _,
-          "token_id" => token_id
+          "token_id" => token_id,
+          "creator" => creator
         } = attrs
       ) do
-    with %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
+    with :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
+         %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
+         true <-
+           !Wallet.burn_wallet?(wallet) ||
+             {:error, :invalid_parameter, "Can't create request with burn wallet."},
          {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
          {:ok, transaction_request} <- insert(token, wallet, amount, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)

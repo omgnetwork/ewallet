@@ -38,5 +38,21 @@ defmodule EWallet.TransactionConsumptionPolicy do
     PolicyHelper.viewer_authorize(user, consumption.account.id)
   end
 
+  def authorize(:consume, params, %TransactionConsumption{} = consumption) do
+    WalletPolicy.authorize(:admin, params, consumption.wallet)
+  end
+
+  # To consume a request, we need to have admin rights on the
+  # wallet of the consumption
+  def authorize(:confirm, params, %TransactionConsumption{} = consumption) do
+    WalletPolicy.authorize(:admin, params, consumption.wallet)
+  end
+
+  # To confirm a request, we need to have admin rights on the
+  # wallet of the request
+  def authorize(:confirm, params, %TransactionRequest{} = request) do
+    WalletPolicy.authorize(:admin, params, request.wallet)
+  end
+
   def authorize(_, _, _), do: false
 end

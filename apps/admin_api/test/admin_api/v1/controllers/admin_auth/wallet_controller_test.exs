@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Wallet, Account, User, Token}
+  alias EWalletDB.{Repo, Wallet, Account, User, Token, AccountUser}
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
@@ -309,9 +309,13 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
   describe "/wallet.get" do
     test "returns a wallet by the given ID" do
+      account = Account.get_master_account()
       wallets = insert_list(3, :wallet)
+
       # Pick the 2nd inserted wallet
       target = Enum.at(wallets, 1)
+      {:ok, _} = AccountUser.link(account.uuid, target.user_uuid)
+
       response = admin_user_request("/wallet.get", %{"address" => target.address})
 
       assert response["success"]

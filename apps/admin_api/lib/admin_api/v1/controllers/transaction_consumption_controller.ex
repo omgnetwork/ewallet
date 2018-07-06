@@ -156,23 +156,18 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, :invalid_parameter)
   end
 
-  def approve(conn, attrs), do: confirm(conn, get_actor(conn.assigns), attrs, true)
-  def reject(conn, attrs), do: confirm(conn, get_actor(conn.assigns), attrs, false)
+  def approve(conn, attrs), do: confirm(conn, conn.assigns, attrs, true)
+  def reject(conn, attrs), do: confirm(conn, conn.assigns, attrs, false)
 
-  defp get_actor(%{admin_user: _admin_user}) do
-    # To do -> change this to actually check if the user has admin rights over the
-    # owner of the consumption
-    Account.get_master_account()
-  end
+  defp confirm(conn, confirmer, %{"id" => id}, approved) do
+    case TransactionConsumptionConfirmerGate.confirm(id, approved, confirmer) do
+      {:ok, consumption} ->
+        dispatch_confirm_event(consumption)
+        respond({:ok, consumption}, conn)
 
-  defp get_actor(%{key: key}) do
-    key.account
-  end
-
-  defp confirm(conn, entity, %{"id" => id}, approved) do
-    id
-    |> TransactionConsumptionConfirmerGate.confirm(approved, entity)
-    |> respond(conn)
+      error ->
+        respond(error, conn)
+    end
   end
 
   defp confirm(conn, _entity, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
@@ -206,8 +201,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   defp respond({:ok, consumption}, conn) do
-    dispatch_confirm_event(consumption)
-
     render(conn, :transaction_consumption, %{
       transaction_consumption: Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
     })

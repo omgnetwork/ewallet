@@ -15,14 +15,23 @@ defmodule EWallet.UserPolicy do
   def authorize(:create, _admin_user_or_key, nil), do: true
 
   # To update a user, an account needs to be linked with that user
-  def authorize(:update, %{key: key}, user) do
+  def authorize(_, %{account: account}, user) do
+    account_uuids = get_linked_account_uuids(user)
+    Account.descendant?(account, account_uuids)
+  end
+
+  def authorize(_, %{key: key}, user) do
     account_uuids = get_linked_account_uuids(user)
     Account.descendant?(key.account, account_uuids)
   end
 
-  def authorize(:update, %{admin_user: admin_user}, user) do
+  def authorize(_, %{admin_user: admin_user}, user) do
     account_uuids = get_linked_account_uuids(user)
     PolicyHelper.admin_authorize(admin_user, account_uuids)
+  end
+
+  def authorize(_, %{end_user: end_user}, user) do
+    end_user.uuid == user.uuid
   end
 
   def authorize(_, _, _), do: false

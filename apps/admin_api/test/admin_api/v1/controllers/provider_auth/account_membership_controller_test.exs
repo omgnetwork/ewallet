@@ -13,7 +13,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       role = insert(:role)
       _ = insert(:membership, %{account: account, user: user, role: role})
 
-      response = provider_request("/account.get_members", %{account_id: account.id})
+      response = provider_request("/account.get_members", %{id: account.id})
 
       assert response["success"] == true
       # created user + admin user = 2
@@ -99,7 +99,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       master = Account.get_master_account()
       account = insert(:account)
 
-      assert provider_request("/account.get_members", %{account_id: account.id}) ==
+      assert provider_request("/account.get_members", %{id: account.id}) ==
                %{
                  "version" => "1",
                  "success" => true,
@@ -154,7 +154,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
     test "returns account:id_not_found error if account id could not be found" do
       assert provider_request("/account.get_members", %{
-               account_id: "acc_12345678901234567890123456"
+               id: "acc_12345678901234567890123456"
              }) ==
                %{
                  "success" => false,
