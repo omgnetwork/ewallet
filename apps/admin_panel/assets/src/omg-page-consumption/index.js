@@ -28,6 +28,9 @@ const ConsumptionPageContainer = styled.div`
     overflow: hidden;
     text-overflow: ellipsis;
   }
+  td:nth-child(6) {
+    text-transform: capitalize;
+  }
 `
 const SortableTableContainer = styled.div`
   position: relative;
