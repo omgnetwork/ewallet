@@ -53,10 +53,9 @@ defmodule EWalletDB.Factory do
 
   def exchange_pair_factory do
     %ExchangePair{
-      name: sequence("Exchange pair name"),
-      rate: 1.0,
       from_token: insert(:token),
-      to_token: insert(:token)
+      to_token: insert(:token),
+      rate: 1.0
     }
   end
 
@@ -122,7 +121,7 @@ defmodule EWalletDB.Factory do
 
   def invite_factory do
     %Invite{
-      token: Crypto.generate_key(32)
+      token: Crypto.generate_base64_key(32)
     }
   end
 
@@ -164,8 +163,8 @@ defmodule EWalletDB.Factory do
 
     %Key{
       access_key: access_key,
-      secret_key: secret_key,
-      secret_key_hash: Crypto.hash_password(secret_key),
+      secret_key: Base.url_encode64(secret_key, padding: false),
+      secret_key_hash: Crypto.hash_secret(secret_key),
       account: insert(:account),
       deleted_at: nil
     }

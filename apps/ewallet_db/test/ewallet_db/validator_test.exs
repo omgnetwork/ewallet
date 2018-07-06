@@ -294,4 +294,38 @@ defmodule EWalletDB.ValidatorTest do
       assert changeset.errors == [{:attr1, {"must be 8 characters or more", []}}]
     end
   end
+
+  describe "validate_different_values/3" do
+    test "valid if values are different" do
+      attrs = %{
+        attr1: "value",
+        attr2: "different_value"
+      }
+
+      changeset =
+        %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2])
+        |> validate_different_values(:attr1, :attr2)
+
+      assert changeset.valid?
+    end
+
+    test "returns invalid if values are the same" do
+      attrs = %{
+        attr1: "same_value",
+        attr2: "same_value"
+      }
+
+      changeset =
+        %SampleStruct{}
+        |> cast(attrs, [:attr1, :attr2])
+        |> validate_different_values(:attr1, :attr2)
+
+      refute changeset.valid?
+
+      assert changeset.errors == [
+               {:attr2, {"can't have the same value as `attr1`", [validation: :different_values]}}
+             ]
+    end
+  end
 end
