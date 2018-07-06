@@ -239,6 +239,15 @@ defmodule EWalletDB.Transaction do
     from(t in Transaction, where: t.from_user_uuid == ^user.uuid or t.to_user_uuid == ^user.uuid)
   end
 
+  def all_for_account_and_user_uuids(account_uuids, user_uuids) do
+    from(
+      t in Transaction,
+      where:
+        t.from_account_uuid in ^account_uuids or t.to_account_uuid in ^account_uuids or
+          t.from_user_uuid in ^user_uuids or t.to_user_uuid in ^user_uuids
+    )
+  end
+
   def all_for_account(account) do
     from(
       t in Transaction,

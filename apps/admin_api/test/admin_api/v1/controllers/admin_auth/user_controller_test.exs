@@ -50,6 +50,123 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
     end
   end
 
+  describe "/account.get_users" do
+    test "returns a list of users and pagination data" do
+      account = Account.get_master_account()
+      response = admin_user_request("/account.get_users", %{id: account.id})
+
+      # Asserts return data
+      assert response["success"]
+      assert response["data"]["object"] == "list"
+      assert is_list(response["data"]["data"])
+
+      # Asserts pagination data
+      pagination = response["data"]["pagination"]
+      assert is_integer(pagination["per_page"])
+      assert is_integer(pagination["current_page"])
+      assert is_boolean(pagination["is_last_page"])
+      assert is_boolean(pagination["is_first_page"])
+    end
+
+    test "returns a list of users according to the given account when owned = true" do
+      user_1 = insert(:user, %{username: "user_1"})
+      user_2 = insert(:user, %{username: "user_2"})
+      user_3 = insert(:user, %{username: "user_3"})
+      user_4 = insert(:user, %{username: "user_4"})
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      account_3 = insert(:account, parent: account_2)
+
+      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid)
+
+      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid)
+      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid)
+
+      attrs = %{
+        # Search is case-insensitive
+        "id" => account_2.id,
+        "owned" => true
+      }
+
+      response = admin_user_request("/account.get_users", attrs)
+      users = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(users) == 2
+      assert Enum.any?(users, fn user -> user["username"] == "user_2" end)
+      assert Enum.any?(users, fn user -> user["username"] == "user_3" end)
+    end
+
+    test "returns a list of users according to the given account" do
+      user_1 = insert(:user, %{username: "user_1"})
+      user_2 = insert(:user, %{username: "user_2"})
+      user_3 = insert(:user, %{username: "user_3"})
+      user_4 = insert(:user, %{username: "user_4"})
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      account_3 = insert(:account, parent: account_2)
+
+      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid)
+
+      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid)
+      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid)
+
+      attrs = %{
+        # Search is case-insensitive
+        "id" => account_2.id
+      }
+
+      response = admin_user_request("/account.get_users", attrs)
+      users = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(users) == 3
+      assert Enum.any?(users, fn user -> user["username"] == "user_2" end)
+      assert Enum.any?(users, fn user -> user["username"] == "user_3" end)
+      assert Enum.any?(users, fn user -> user["username"] == "user_4" end)
+    end
+
+    test "returns a list of users according to search_term, sort_by and sort_direction" do
+      user_1 = insert(:user, %{username: "match_user1"})
+      user_2 = insert(:user, %{username: "match_user3"})
+      user_3 = insert(:user, %{username: "match_user2"})
+      user_4 = insert(:user, %{username: "missed_user1"})
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      account_3 = insert(:account, parent: account_2)
+
+      {:ok, _} = AccountUser.link(account_1.uuid, user_1.uuid)
+
+      {:ok, _} = AccountUser.link(account_2.uuid, user_2.uuid)
+      {:ok, _} = AccountUser.link(account_2.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_3.uuid)
+      {:ok, _} = AccountUser.link(account_3.uuid, user_4.uuid)
+
+      attrs = %{
+        # Search is case-insensitive
+        "id" => account_2.id,
+        "search_term" => "MaTcH",
+        "sort_by" => "username",
+        "sort_dir" => "desc"
+      }
+
+      response = admin_user_request("/account.get_users", attrs)
+      users = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(users) == 2
+      assert Enum.at(users, 0)["username"] == "match_user3"
+      assert Enum.at(users, 1)["username"] == "match_user2"
+    end
+  end
+
   describe "/user.get" do
     test "returns an user by the given user's ID" do
       users = insert_list(3, :user)

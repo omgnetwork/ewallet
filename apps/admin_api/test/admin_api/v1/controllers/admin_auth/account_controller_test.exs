@@ -94,6 +94,69 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
     end
   end
 
+  describe "/account.get_descendants" do
+    test "returns a list of baby accounts and pagination data" do
+      account = Account.get_master_account()
+      response = admin_user_request("/account.get_descendants", %{id: account.id})
+
+      # Asserts return data
+      assert response["success"]
+      assert response["data"]["object"] == "list"
+      assert is_list(response["data"]["data"])
+
+      # Asserts pagination data
+      pagination = response["data"]["pagination"]
+      assert is_integer(pagination["per_page"])
+      assert is_integer(pagination["current_page"])
+      assert is_boolean(pagination["is_last_page"])
+      assert is_boolean(pagination["is_first_page"])
+    end
+
+    test "returns a list of baby accounts" do
+      _account_1 = insert(:account, name: "account_1")
+      account_2 = insert(:account, name: "account_2")
+      account_3 = insert(:account, parent: account_2, name: "account_3")
+      _account_4 = insert(:account, parent: account_3, name: "account_4")
+
+      attrs = %{
+        "id" => account_2.id,
+        "sort_by" => "name",
+        "sort_dir" => "desc"
+      }
+
+      response = admin_user_request("/account.get_descendants", attrs)
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 3
+      assert Enum.at(accounts, 0)["name"] == "account_4"
+      assert Enum.at(accounts, 1)["name"] == "account_3"
+      assert Enum.at(accounts, 2)["name"] == "account_2"
+    end
+
+    test "returns a list of accounts according to search_term, sort_by and sort_direction" do
+      _account_1 = insert(:account, name: "account_1")
+      account_2 = insert(:account, name: "account_2:matchez")
+      account_3 = insert(:account, parent: account_2, name: "account_3:MaTcHed")
+      _account_4 = insert(:account, parent: account_3, name: "account_4:MaTcHed")
+
+      attrs = %{
+        "id" => account_2.id,
+        "search_term" => "MaTcHed",
+        "sort_by" => "name",
+        "sort_dir" => "desc"
+      }
+
+      response = admin_user_request("/account.get_descendants", attrs)
+      accounts = response["data"]["data"]
+
+      assert response["success"]
+      assert Enum.count(accounts) == 2
+      assert Enum.at(accounts, 0)["name"] == "account_4:MaTcHed"
+      assert Enum.at(accounts, 1)["name"] == "account_3:MaTcHed"
+    end
+  end
+
   describe "/account.get" do
     test "returns an account by the given account's external ID if the user has
           an indirect membership" do

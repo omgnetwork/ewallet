@@ -31,6 +31,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     account = Account.get_master_account()
     {:ok, alice} = :user |> params_for() |> User.insert()
     bob = get_test_user()
+    {:ok, _} = AccountUser.link(account.uuid, bob.uuid)
 
     %{
       account: account,
@@ -162,7 +163,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when account_id is not provided" do
+    test "returns :invalid_parameter when account id is not provided" do
       response =
         admin_user_request("/account.get_transaction_consumptions", %{
           "sort_by" => "created",
@@ -172,7 +173,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Parameter 'account_id' is required.",
+                 "description" => "Parameter 'id' is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -184,7 +185,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns :account_id_not_found when user_id is not provided" do
       response =
         admin_user_request("/account.get_transaction_consumptions", %{
-          "account_id" => "fake",
+          "id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -204,17 +205,18 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns all the transaction_consumptions for an account", meta do
       response =
         admin_user_request("/account.get_transaction_consumptions", %{
-          "account_id" => meta.account.id,
+          "id" => meta.account.id,
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
 
       transfers = [
+        meta.tc_1,
         meta.tc_2,
         meta.tc_3
       ]
 
-      assert length(response["data"]["data"]) == 2
+      assert length(response["data"]["data"]) == 3
 
       # All transfers made during setup should exist in the response
       assert Enum.all?(transfers, fn transfer ->
@@ -227,7 +229,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns all the transaction_consumptions for a specific status", meta do
       response =
         admin_user_request("/account.get_transaction_consumptions", %{
-          "account_id" => meta.account.id,
+          "id" => meta.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "search_terms" => %{
@@ -235,11 +237,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
           }
         })
 
-      assert response["data"]["data"] |> length() == 1
+      assert response["data"]["data"] |> length() == 2
 
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
+               meta.tc_1.id,
                meta.tc_2.id
              ]
     end
@@ -247,7 +250,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "returns all transaction_consumptions sorted and paginated", meta do
       response =
         admin_user_request("/account.get_transaction_consumptions", %{
-          "account_id" => meta.account.id,
+          "id" => meta.account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
@@ -262,8 +265,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert Enum.map(response["data"]["data"], fn t ->
                t["id"]
              end) == [
-               meta.tc_2.id,
-               meta.tc_3.id
+               meta.tc_1.id,
+               meta.tc_2.id
              ]
     end
   end

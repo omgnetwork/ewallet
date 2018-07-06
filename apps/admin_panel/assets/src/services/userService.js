@@ -1,9 +1,10 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAllUsers ({ perPage, sort, query, ...rest }) {
+export function getAllUsers ({ accountId, perPage, sort, query, ...rest }) {
   return authenticatedRequest({
-    path: '/user.all',
+    path: '/account.get_users',
     data: {
+      id: accountId,
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
