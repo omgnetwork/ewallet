@@ -12,7 +12,7 @@ defmodule EWalletDB.AccountUserTest do
     test_insert_prevent_blank(AccountUser, :account_uuid)
     test_insert_prevent_blank(AccountUser, :user_uuid)
 
-    test "prevents inserting an account without an account" do
+    test "prevents inserting an account user without an account" do
       {res, changeset} =
         :account_user
         |> params_for(account_uuid: nil)
