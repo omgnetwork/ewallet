@@ -129,6 +129,7 @@ class ChooseCategoryStage extends Component {
   }
   renderCategories = ({ data: categories, loadingStatus, cachedCategories }) => {
     const cat = loadingStatus === 'SUCCESS' ? categories : cachedCategories
+    console.log(this.props.category)
     return (
       <CategoryContainer>
         <TopBar>
@@ -142,7 +143,7 @@ class ChooseCategoryStage extends Component {
           </SearchBar>
           <SearchResult>
             <SearchItem
-              active={!this.props.category}
+              active={_.isEmpty(this.props.category)}
               onClick={e => this.props.onChooseCategory(null)}
             >
               <Icon name='Checked' />
