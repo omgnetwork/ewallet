@@ -15,7 +15,7 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
         {:title, "What email and password should I set for your first admin user?"},
         {:text, @argsline_desc},
         {:input, {:email, :admin_email, "E-mail", "admin@example.com"}},
-        {:input, {:password, :admin_password, "Password", {Crypto, :generate_key, [16]}}},
+        {:input, {:password, :admin_password, "Password", {Crypto, :generate_base64_key, [16]}}},
       ],
     ]
   end

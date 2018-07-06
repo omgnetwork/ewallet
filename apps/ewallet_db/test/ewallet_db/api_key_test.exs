@@ -48,6 +48,20 @@ defmodule EWalletDB.APIKeyTest do
     end
   end
 
+  describe "APIKey.update/2" do
+    test_update_ignores_changing(APIKey, :key)
+    test_update_ignores_changing(APIKey, :owner_app)
+
+    test_update_field_ok(APIKey, :expired, false, true)
+
+    test_update_field_ok(
+      APIKey,
+      :exchange_address,
+      insert(:wallet).address,
+      insert(:wallet).address
+    )
+  end
+
   describe "APIKey.authenticate/2" do
     test "returns the API key" do
       account = insert(:account)
