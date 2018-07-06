@@ -464,6 +464,16 @@ class TransactionRequestPanel extends Component {
                     tabContent: <ActivityList />
                   },
                   {
+                    key: 'activity_all',
+                    tabTitle: (
+                      <div style={{ marginLeft: '5px' }}>
+                        <span>CONSUMPTIONS</span>{' '}
+                        <RedDot show={!!this.props.pendingConsumptions.length} />
+                      </div>
+                    ),
+                    tabContent: <ActivityList />
+                  },
+                  {
                     key: 'properties',
                     tabTitle: 'PROPERTIES',
                     tabContent: this.renderProperties(tq)

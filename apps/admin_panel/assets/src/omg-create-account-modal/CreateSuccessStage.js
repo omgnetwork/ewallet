@@ -66,7 +66,7 @@ export default class CreateAccountStage extends Component {
         >
           Continue Create Account
         </Button>
-        <PlainButton onClick={this.props.onClickFinish}>Finished</PlainButton>
+        <PlainButton onClick={this.props.onClickFinish}>Done</PlainButton>
       </CreateAccountSuccessContainer>
     )
   }
