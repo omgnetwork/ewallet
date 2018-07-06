@@ -90,6 +90,25 @@ defmodule EWalletDB.KeyTest do
     end
   end
 
+  describe "update/2" do
+    test_update_field_ok(Key, :expired, false, true)
+    test_update_ignores_changing(Key, :access_key)
+
+    test "does not update secret_key_hash when given a new secret_key" do
+      original = insert(:key, %{secret_key: "original_secret_key"})
+      {:ok, updated} = Key.update(original, %{secret_key: "new_secret_key"})
+
+      assert updated.secret_key_hash == original.secret_key_hash
+    end
+
+    test "does not update secret_key_hash when given a new secret_key_hash" do
+      original = insert(:key, %{secret_key_hash: "original_secret_key"})
+      {:ok, updated} = Key.update(original, %{secret_key_hash: "changed"})
+
+      assert updated.secret_key_hash == original.secret_key_hash
+    end
+  end
+
   describe "authenticate/2" do
     test "returns an existing key if access and secret key match" do
       account = insert(:account)

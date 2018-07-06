@@ -112,6 +112,7 @@ defmodule AdminAPI.V1.Router do
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
     post("/access_key.create", KeyController, :create)
+    post("/access_key.update", KeyController, :update)
     post("/access_key.delete", KeyController, :delete)
 
     post("/api_key.all", APIKeyController, :all)

@@ -1212,6 +1212,22 @@ paths:
           $ref: "#/components/responses/AccessKeyResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /access_key.update:
+    post:
+      tags:
+        - API Access
+      summary: Update a pair of access and secret keys by its id
+      operationId: access_key_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AccessKeyUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AccessKeyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /access_key.delete:
     post:
       tags:
@@ -4862,6 +4878,22 @@ components:
               search_term: ""
               sort_by: "created_at"
               sort_dir: "desc"
+    AccessKeyUpdateBody:
+      description: The parameters to use for updating an access key
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              expired:
+                type: boolean
+            required:
+              - id
+            example:
+              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              expired: true
     AccessKeyDeleteBody:
       description: The parameters to use for deleting an access key
       required: true
@@ -4930,7 +4962,7 @@ components:
               - id
               - expired
             example:
-              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
               expired: true
     APIKeyDeleteBody:
       description: The parameters to use for deleting an API key
@@ -4944,7 +4976,7 @@ components:
             required:
               - id
             example:
-              id: "key_01ce83yphmq6vt4qnmn3ykwcw6"
+              id: "api_01ce83yphmq6vt4qnmn3ykwcw6"
 
   ######################################
   #           REQUEST HEADERS          #
