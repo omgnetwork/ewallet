@@ -35,20 +35,43 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
 
   defp broadcast_change(event, consumption) do
     consumption = Preloader.preload(consumption, [:account, :transaction_request, :user])
+    transaction_request = Preloader.preload(consumption.transaction_request, [:account, :user])
+    request_user_id = Assoc.get(transaction_request, [:user, :id])
+    consumption_user_id = Assoc.get(consumption, [:user, :id])
+    request_account_id = Assoc.get(transaction_request, [:account, :id])
+    consumption_account_id = Assoc.get(consumption, [:account, :id])
 
     topics =
       []
-      |> Event.address_topic(consumption.wallet_address)
       |> Event.transaction_request_topic(Assoc.get(consumption, [:transaction_request, :id]))
       |> Event.transaction_consumption_topic(consumption.id)
-      |> Event.user_topic(Assoc.get(consumption, [:user, :id]))
-      |> Event.account_topic(Assoc.get(consumption, [:account, :id]))
+      |> add_topic_if_different(
+        transaction_request.wallet_address,
+        consumption.wallet_address,
+        &Event.address_topic/2
+      )
+      |> add_topic_if_different(request_user_id, consumption_user_id, &Event.user_topic/2)
+      |> add_topic_if_different(
+        request_account_id,
+        consumption_account_id,
+        &Event.account_topic/2
+      )
 
     Event.broadcast(
       event: event,
       topics: topics,
       payload: payload(consumption)
     )
+  end
+
+  defp add_topic_if_different(topics, value_1, value_2, topic_fun) when value_1 == value_2 do
+    topic_fun.(topics, value_1)
+  end
+
+  defp add_topic_if_different(topics, value_1, value_2, topic_fun) do
+    topics
+    |> topic_fun.(value_1)
+    |> topic_fun.(value_2)
   end
 
   defp payload(consumption) do

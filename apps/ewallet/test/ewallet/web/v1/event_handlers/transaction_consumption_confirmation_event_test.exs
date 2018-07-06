@@ -22,6 +22,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
         |> insert()
         |> Repo.preload([:user, :transaction_request, :token])
 
+      request = consumption |> Repo.preload([:user])
+
       res =
         TransactionConsumptionEventHandler.broadcast(:transaction_consumption_finalized, %{
           consumption: consumption
@@ -30,16 +32,19 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
       events = TestEndpoint.get_events()
 
       assert res == :ok
-      assert length(events) == 5
+      assert length(events) == 8
 
       mapped = Enum.map(events, fn event -> {event.event, event.topic} end)
 
       [
         "transaction_request:#{consumption.transaction_request.id}",
         "address:#{consumption.wallet_address}",
+        "address:#{request.wallet_address}",
         "transaction_consumption:#{consumption.id}",
         "user:#{consumption.user.id}",
-        "user:#{consumption.user.provider_user_id}"
+        "user:#{consumption.user.provider_user_id}",
+        "user:#{request.user.id}",
+        "user:#{request.user.provider_user_id}"
       ]
       |> Enum.each(fn topic ->
         assert Enum.member?(mapped, {"transaction_consumption_finalized", topic})
