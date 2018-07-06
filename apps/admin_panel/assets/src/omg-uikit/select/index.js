@@ -1,4 +1,4 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Input from '../input'
@@ -26,7 +26,7 @@ const OptionItem = styled.div`
     background-color: ${props => props.theme.colors.S100};
   }
 `
-export default class Select extends Component {
+export default class Select extends PureComponent {
   static propTypes = {
     onSelectItem: PropTypes.func,
     options: PropTypes.array,
