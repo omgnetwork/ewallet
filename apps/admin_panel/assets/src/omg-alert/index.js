@@ -14,7 +14,8 @@ const AlertContainer = styled.div`
   left: 50%;
   transform: translateX(-50%);
   z-index: 1000;
-  text-align: center;
+  text-align: left;
+  line-height: 1.5;
 `
 const AlertItemContainer = styled.div`
   border-radius: 2px;
@@ -24,10 +25,10 @@ const AlertItemContainer = styled.div`
   margin-bottom: 5px;
   display: flex;
   border: 1px solid #c9d1e2;
-  align-items: center;
+  align-items: left;
   min-width: 400px;
+  max-width: 500px;
   background-color: ${props => props.theme.colors.S100};
-  white-space: nowrap;
   position: relative;
   b {
     color: ${props => props.theme.colors.B400};
@@ -57,6 +58,7 @@ const SuccessChecked = styled.div`
   background-color: #0ebf9a;
   vertical-align: middle;
   position: relative;
+  flex: 0 0 auto;
   margin-right: 10px;
   i {
     position: absolute;
@@ -81,7 +83,7 @@ class AlertItem extends Component {
   componentDidMount = () => {
     setTimeout(() => {
       this.props.clearAlert(this.props.id)
-    }, 5000)
+    }, 5000000)
   }
 
   render () {
