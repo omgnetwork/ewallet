@@ -47,7 +47,7 @@ const TableContainer = styled.div`
     td {
       opacity: ${props => (props.loading ? 0.6 : 1)};
       padding: 10px;
-      vertical-align: top;
+      vertical-align: middle;
       color: ${props => props.theme.colors.B200};
       :first-child {
         padding-left: 10px;
