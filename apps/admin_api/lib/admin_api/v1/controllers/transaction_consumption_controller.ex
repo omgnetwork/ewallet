@@ -157,7 +157,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     with %TransactionConsumption{} = consumption <-
            TransactionConsumptionFetcher.get(id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, consumption) do
-      respond(consumption, conn)
+      render(conn, :transaction_consumption, %{
+        transaction_consumption:
+          Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
+      })
     else
       error -> respond(error, conn)
     end
@@ -180,7 +183,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   defp confirm(conn, confirmer, %{"id" => id}, approved) do
     case TransactionConsumptionConfirmerGate.confirm(id, approved, confirmer) do
       {:ok, consumption} ->
-        dispatch_confirm_event(consumption)
         respond({:ok, consumption}, conn)
 
       error ->
@@ -219,6 +221,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   defp respond({:ok, consumption}, conn) do
+    dispatch_confirm_event(consumption)
+
     render(conn, :transaction_consumption, %{
       transaction_consumption: Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
     })
