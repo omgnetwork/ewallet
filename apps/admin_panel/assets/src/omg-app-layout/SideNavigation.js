@@ -11,6 +11,7 @@ const SideNavigationContainer = styled.div`
   height: 100%;
   color: white;
   padding: 35px 0;
+  overflow: auto;
 `
 const NavigationItem = styled.div`
   padding: 15px 35px;
