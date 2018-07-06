@@ -317,6 +317,7 @@ defmodule EWalletDB.Account do
       user in query,
       join: account_user in AccountUser,
       on: account_user.user_uuid == user.uuid,
+      distinct: true,
       where: account_user.account_uuid in ^account_uuids
     )
   end

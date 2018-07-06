@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
     setup do
       user = get_test_user()
       account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
       tr_1 = insert(:transaction_request, user_uuid: user.uuid, status: "valid")
       tr_2 = insert(:transaction_request, account_uuid: account.uuid, status: "valid")

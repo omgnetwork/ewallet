@@ -306,8 +306,11 @@ defmodule EWalletDB.TransactionConsumption do
   def query_all_for(field_name, value),
     do: where(TransactionConsumption, [t], field(t, ^field_name) == ^value)
 
-  def query_all_for_account_uuids_and_users(query, account_uuids) do
-    where(query, [c], c.account_uuid in ^account_uuids or not is_nil(c.user_uuid))
+  def query_all_for_account_and_user_uuids(account_uuids, user_uuids) do
+    from(
+      t in TransactionConsumption,
+      where: t.account_uuid in ^account_uuids or t.user_uuid in ^user_uuids
+    )
   end
 
   @doc """

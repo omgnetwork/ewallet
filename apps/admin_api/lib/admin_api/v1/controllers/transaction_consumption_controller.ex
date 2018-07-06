@@ -42,20 +42,35 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     :expired_at
   ]
 
-  def all_for_account(conn, %{"account_id" => account_id} = attrs) do
+  def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account),
-         descendant_uuids <- Account.get_all_descendants_uuids(account) do
-      :account_uuid
-      |> TransactionConsumption.query_all_for(descendant_uuids)
-      |> do_all(conn, attrs)
+         linked_user_uuids <-
+           [account.uuid] |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      [account.uuid]
+      |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
+      |> do_all(attrs, conn)
+    else
+      error -> respond(error, conn)
+    end
+  end
+
+  def all_for_account(conn, %{"id" => account_id} = attrs) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account),
+         linked_user_uuids <-
+           descendant_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      descendant_uuids
+      |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
+      |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
     end
   end
 
   def all_for_account(conn, _) do
-    handle_error(conn, :invalid_parameter, "Parameter 'account_id' is required.")
+    handle_error(conn, :invalid_parameter, "Parameter 'id' is required.")
   end
 
   def all_for_user(conn, attrs) do
@@ -63,7 +78,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
          :ok <- permit(:all, conn.assigns, user) do
       :user_uuid
       |> TransactionConsumption.query_all_for(user.uuid)
-      |> do_all(conn, attrs)
+      |> do_all(attrs, conn)
     else
       {:error, :invalid_parameter} ->
         handle_error(
@@ -86,7 +101,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
          :ok <- permit(:all, conn.assigns, transaction_request) do
       :transaction_request_uuid
       |> TransactionConsumption.query_all_for(transaction_request.uuid)
-      |> do_all(conn, attrs)
+      |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
     end
@@ -105,7 +120,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
          :ok <- permit(:all, conn.assigns, wallet) do
       :wallet_address
       |> TransactionConsumption.query_all_for(wallet.address)
-      |> do_all(conn, attrs)
+      |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
     end
@@ -117,16 +132,19 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
-         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
-      TransactionConsumption
-      |> TransactionConsumption.query_all_for_account_uuids_and_users(account_uuids)
-      |> do_all(conn, attrs)
+         account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
+         descendant_uuids <- Account.get_all_descendants_uuids(account_uuids),
+         linked_user_uuids <-
+           descendant_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      descendant_uuids
+      |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
+      |> do_all(attrs, conn)
     else
       error -> respond(error, conn)
     end
   end
 
-  defp do_all(query, conn, attrs) do
+  defp do_all(query, attrs, conn) do
     query
     |> Preloader.to_query(@preload_fields)
     |> SearchParser.to_query(attrs, @search_fields)
@@ -139,7 +157,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     with %TransactionConsumption{} = consumption <-
            TransactionConsumptionFetcher.get(id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, consumption) do
-      respond(consumption, conn)
+      render(conn, :transaction_consumption, %{
+        transaction_consumption:
+          Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
+      })
     else
       error -> respond(error, conn)
     end
@@ -162,7 +183,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   defp confirm(conn, confirmer, %{"id" => id}, approved) do
     case TransactionConsumptionConfirmerGate.confirm(id, approved, confirmer) do
       {:ok, consumption} ->
-        dispatch_confirm_event(consumption)
         respond({:ok, consumption}, conn)
 
       error ->
@@ -201,6 +221,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   defp respond({:ok, consumption}, conn) do
+    dispatch_confirm_event(consumption)
+
     render(conn, :transaction_consumption, %{
       transaction_consumption: Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
     })
