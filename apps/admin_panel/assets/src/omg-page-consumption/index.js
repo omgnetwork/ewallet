@@ -10,7 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import { formatNumber } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 const ConsumptionPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -94,10 +94,10 @@ class ConsumptionPage extends Component {
       return _.get(rows, 'transaction_request.type')
     }
     if (key === 'amount') {
-      return `${formatNumber(data / rows.token.subunit_to_unit || 0)} ${rows.token.symbol}`
+      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
-      return rows.user_id || _.get(rows, 'account.name') || rows.account_id
+      return rows.user_id || rows.account.name || rows.account_id
     }
     if (key === 'created_at') {
       return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')

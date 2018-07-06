@@ -115,7 +115,7 @@ export default class Dashboard extends Component {
       <SectionContainer>
         <Section title={currentAccount.name || '...'}>
           <DetailGroup>
-            <b>Created date:</b>{' '}
+            <b>Created Date:</b>{' '}
             <span>{currentAccount.created_at ? moment(currentAccount.created_at).format('DD/MM/YYYY hh:mm:ss') : '-'}</span>
           </DetailGroup>
           <DetailGroup>

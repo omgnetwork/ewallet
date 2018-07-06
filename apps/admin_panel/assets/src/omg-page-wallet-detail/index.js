@@ -10,17 +10,13 @@ import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
-import { formatNumber } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
-  b {
-    width: 150px;
-    display: inline-block;
-  }
 `
 const ContentDetailContainer = styled.div`
-  margin-top: 50px;
+  margin-top: 40px;
   display: flex;
 `
 const DetailContainer = styled.div`
@@ -93,11 +89,11 @@ class WalletDetaillPage extends Component {
           </Link>
         </DetailGroup>}
         <DetailGroup>
-          <b>Created date:</b>{' '}
+          <b>Created Date:</b>{' '}
           <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last update:</b> <span>{moment(wallet.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Last Update:</b> <span>{moment(wallet.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
         </DetailGroup>
       </Section>
     )
@@ -109,7 +105,7 @@ class WalletDetaillPage extends Component {
           return (
             <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b>{' '}
-              <span>{formatNumber(balance.amount / balance.token.subunit_to_unit)}</span> {balance.token.symbol}
+              <span>{formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)} {balance.token.symbol}</span>
             </DetailGroup>
           )
         })}

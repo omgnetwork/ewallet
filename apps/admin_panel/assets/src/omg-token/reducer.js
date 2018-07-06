@@ -3,13 +3,34 @@ export const tokensReducer = createReducer(
   {},
   {
     'TOKENS/REQUEST/SUCCESS': (state, { data }) => {
-      return { ...state, ..._.keyBy(data, 'id') }
+      return _.merge(state, _.keyBy(data, 'id'))
     },
     'TOKEN/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, [data.id]: data }
     },
     'TOKEN/CREATE/SUCCESS': (state, { data }) => {
       return { ...state, [data.id]: data }
+    },
+    'TOKEN/MINT/SUCCESS': (state, { data }) => {
+      return {
+        ...state,
+        [data.token.id]: {
+          ...data.token,
+          total_supply: state[data.token.id].total_supply + data.amount
+        }
+      }
+    },
+    'CURRENT_ACCOUNT/SWITCH': () => {
+      return {}
+    }
+  }
+)
+
+export const mintedTokenHistoryReducer = createReducer(
+  {},
+  {
+    'TOKEN_HISTORY/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, ..._.keyBy(data, 'id') }
     },
     'CURRENT_ACCOUNT/SWITCH': () => {
       return {}
