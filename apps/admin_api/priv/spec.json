@@ -2,7 +2,7 @@
   "openapi" : "3.0.0",
   "info" : {
     "title" : "eWallet Admin API",
-    "description" : "This is the documentation for eWallet Admin API.\n\nAll calls must be user-authenticated or provider-authenticate. That is, the client must first authenticate with the API using the user's email and password. On successful authentication, the API returns an authentication token (i.e. `authentication_token`).\nOnce a valid `authentication_token` is received, use the given auth token to make subsequent calls to the API via HTTP header:\n\n``` Authorization=OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token) ```\nor, if client authentication is disabled (the default):\n``` Authorization=OMGAdmin Base64(user_id:authentication_token) ```\nAn access/secret keys combination can be used as well.\n``` Authorization=OMGProvider Base64(access_key:secret_key)\n\nDue to HTTP-RPC nature, the API will always return a `200` HTTP status, including on errors. Only in case of an internal server error that `500` will be returned.\n\nError codes are available in [html](./errors), [json](./errors.json) and [yaml](./errors.yaml) formats.\n",
+    "description" : "This is the documentation for eWallet Admin API.\n\nAll calls must be user-authenticated or provider-authenticated. That is, the client must first authenticate with the API using the user's email and password. On successful authentication, the API returns an authentication token (i.e. `authentication_token`).\nOnce a valid `authentication_token` is received, use the given auth token to make subsequent calls to the API via HTTP header:\n``` Authorization=OMGAdmin Base64(user_id:authentication_token) ```\nAn access/secret keys combination can be used as well.\n``` Authorization=OMGProvider Base64(access_key:secret_key) ```\nDue to HTTP-RPC nature, the API will always return a `200` HTTP status, including on errors. Only in case of an internal server error that `500` will be returned.\n\nError codes are available in [html](./errors), [json](./errors.json) and [yaml](./errors.yaml) formats.\n",
     "contact" : {
       "name" : "OmiseGO",
       "email" : "thibault@omisego.co"
@@ -14,7 +14,7 @@
     "version" : "1.0.0"
   },
   "servers" : [ {
-    "url" : "/admin/api"
+    "url" : "/api/admin"
   } ],
   "tags" : [ {
     "name" : "AdminSession",
@@ -31,6 +31,9 @@
   }, {
     "name" : "Token",
     "description" : "Resources related to tokens."
+  }, {
+    "name" : "ExchangePair",
+    "description" : "Resources related to exchange pairs."
   }, {
     "name" : "Category",
     "description" : "Resources related to categories."
@@ -411,6 +414,43 @@
         } ]
       }
     },
+    "/token.update" : {
+      "post" : {
+        "tags" : [ "Token" ],
+        "summary" : "Update an existing token",
+        "operationId" : "token_update",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TokenUpdateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single tokens",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TokenResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/token.stats" : {
       "post" : {
         "tags" : [ "Token" ],
@@ -500,6 +540,191 @@
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TokenResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/exchange_pair.all" : {
+      "post" : {
+        "tags" : [ "ExchangePair" ],
+        "summary" : "Get the list of exchange pairs",
+        "operationId" : "exchange_pair_all",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/ExchangePairAllBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of exchange pairs",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExchangePairsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/exchange_pair.get" : {
+      "post" : {
+        "tags" : [ "ExchangePair" ],
+        "summary" : "Get the a specific exchange pair by its id",
+        "operationId" : "exchange_pair_get",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/ExchangePairGetBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single exchange pair",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExchangePairResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/exchange_pair.create" : {
+      "post" : {
+        "tags" : [ "ExchangePair" ],
+        "summary" : "Create a new exchange pair",
+        "operationId" : "exchange_pair_create",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/ExchangePairCreateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single exchange pair",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExchangePairResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/exchange_pair.update" : {
+      "post" : {
+        "tags" : [ "ExchangePair" ],
+        "summary" : "Update an existing exchange pair by its id",
+        "operationId" : "exchange_pair_update",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/ExchangePairUpdateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single exchange pair",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExchangePairResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/exchange_pair.delete" : {
+      "post" : {
+        "tags" : [ "ExchangePair" ],
+        "summary" : "Delete an exchange pair by its id",
+        "operationId" : "exchange_pair_delete",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/ExchangePairDeleteBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single exchange pair",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ExchangePairResponseSchema"
                 }
               }
             }
@@ -1499,7 +1724,7 @@
     },
     "/user.get_transactions" : {
       "post" : {
-        "tags" : [ "Transaction" ],
+        "tags" : [ "User" ],
         "summary" : "Get the list of transactions for the given user",
         "operationId" : "get_all_transactions_for_user",
         "requestBody" : {
@@ -1512,80 +1737,6 @@
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TransactionsResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ProviderAuth" : [ ]
-        }, {
-          "AdminAuth" : [ ]
-        } ]
-      }
-    },
-    "/user.credit_wallet" : {
-      "post" : {
-        "tags" : [ "Transaction" ],
-        "summary" : "Credit the wallet of a user, i.e. put funds into the user's wallet. The provider can call this to credit the wallet of an existing user corresponding to the provider_user_id provided.",
-        "operationId" : "user_credit_wallet",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/BalanceAdjustmentBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of wallets.",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MultipleWalletsSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ProviderAuth" : [ ]
-        }, {
-          "AdminAuth" : [ ]
-        } ]
-      }
-    },
-    "/user.debit_wallet" : {
-      "post" : {
-        "tags" : [ "Transaction" ],
-        "summary" : "Debit the wallet of a user, i.e. take funds away from the user's wallet. The provider can call this to debit the wallet of an existing user corresponding to the provider_user_id provided.",
-        "operationId" : "user_debit_wallet",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/BalanceAdjustmentBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of wallets.",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/MultipleWalletsSchema"
                 }
               }
             }
@@ -1830,21 +1981,21 @@
         } ]
       }
     },
-    "/transfer" : {
+    "/transaction.calculate" : {
       "post" : {
         "tags" : [ "Transaction" ],
-        "summary" : "Transfer the specified amount between two wallets.",
-        "operationId" : "transfer",
+        "summary" : "Calculates transaction amounts",
+        "operationId" : "transaction_calculate",
         "requestBody" : {
-          "$ref" : "#/components/requestBodies/TransferBody"
+          "$ref" : "#/components/requestBodies/TransactionCalculateBody"
         },
         "responses" : {
           "200" : {
-            "description" : "Returns a list of wallets.",
+            "description" : "Returns a transaction calculation",
             "content" : {
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/MultipleWalletsSchema"
+                  "$ref" : "#/components/schemas/TransactionCalculationResponseSchema"
                 }
               }
             }
@@ -1862,6 +2013,45 @@
         },
         "security" : [ {
           "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/transaction_request.all" : {
+      "post" : {
+        "tags" : [ "TransactionRequest" ],
+        "summary" : "Get the list of transaction requests",
+        "operationId" : "transaction_request_all",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TransactionRequestAllBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction requests",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionRequestsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
         } ]
       }
     },
@@ -1973,6 +2163,229 @@
         } ]
       }
     },
+    "/account.get_transaction_consumptions" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Get the list of transaction consumptions for an account",
+        "operationId" : "account_get_consumptions",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TransactionConsumptionAllForAccountBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction consumptions",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/user.get_transaction_consumptions" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Get the list of transaction consumptions for a user",
+        "operationId" : "user_get_consumptions",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TransactionConsumptionAllForUserBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction consumptions",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/wallet.get_transaction_consumptions" : {
+      "post" : {
+        "tags" : [ "Wallet" ],
+        "summary" : "Get the list of transaction consumptions for a wallet",
+        "operationId" : "wallet_get_consumptions",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TransactionConsumptionAllForWalletBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction consumptions",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/transaction_request.get_transaction_consumptions" : {
+      "post" : {
+        "tags" : [ "TransactionRequest" ],
+        "summary" : "Get the list of transaction consumptions for a transaction request",
+        "operationId" : "transaction_request_get_consumptions",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TransactionConsumptionAllForTransactionRequestBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction consumptions",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/transaction_consumption.all" : {
+      "post" : {
+        "tags" : [ "TransactionConsumption" ],
+        "summary" : "Get the list of transaction consumptions",
+        "operationId" : "transaction_consumption_all",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TransactionConsumptionAllBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction consumptions",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/transaction_consumption.get" : {
+      "post" : {
+        "tags" : [ "TransactionConsumption" ],
+        "summary" : "Get a consumption.",
+        "description" : "This is a server call only.",
+        "operationId" : "transaction_consumption_get",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/GetConsumptionRequestBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Transaction request consumption response",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionConsumptionSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/transaction_consumption.approve" : {
       "post" : {
         "tags" : [ "TransactionConsumption" ],
@@ -2006,6 +2419,8 @@
         },
         "security" : [ {
           "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
         } ]
       }
     },
@@ -2118,6 +2533,43 @@
         } ]
       }
     },
+    "/access_key.update" : {
+      "post" : {
+        "tags" : [ "API Access" ],
+        "summary" : "Update a pair of access and secret keys by its id",
+        "operationId" : "access_key_update",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccessKeyUpdateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single access key",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccessKeyResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/access_key.delete" : {
       "post" : {
         "tags" : [ "API Access" ],
@@ -2197,8 +2649,42 @@
         "tags" : [ "API Access" ],
         "summary" : "Create an API key",
         "operationId" : "api_key_create",
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single API key",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/APIKeyResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/api_key.update" : {
+      "post" : {
+        "tags" : [ "API Access" ],
+        "summary" : "Update an API key",
+        "operationId" : "api_key_update",
         "requestBody" : {
-          "$ref" : "#/components/requestBodies/APIKeyCreateBody"
+          "$ref" : "#/components/requestBodies/APIKeyUpdateBody"
         },
         "responses" : {
           "200" : {
@@ -2772,6 +3258,166 @@
                 "transaction" : { },
                 "created_at" : "2018-01-01T00:00:00Z",
                 "updated_at" : "2018-01-01T00:00:00Z"
+              } ],
+              "pagination" : {
+                "per_page" : 10,
+                "current_page" : 1,
+                "is_first_page" : true,
+                "is_last_page" : true
+              }
+            }
+          }
+        } ]
+      },
+      "ExchangePairSchema" : {
+        "required" : [ "created_at", "from_token", "from_token_id", "id", "name", "object", "rate", "to_token", "to_token_id", "updated_at" ],
+        "type" : "object",
+        "properties" : {
+          "object" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "from_token_id" : {
+            "type" : "string"
+          },
+          "from_token" : {
+            "$ref" : "#/components/schemas/TokenSchema"
+          },
+          "to_token_id" : {
+            "type" : "string"
+          },
+          "to_token" : {
+            "$ref" : "#/components/schemas/TokenSchema"
+          },
+          "rate" : {
+            "type" : "number"
+          },
+          "created_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "deleted_at" : {
+            "type" : "string",
+            "format" : "date-time",
+            "nullable" : true
+          }
+        },
+        "description" : "The object schema for an exchange pair"
+      },
+      "ExchangePairResponseSchema" : {
+        "description" : "The response schema for an exchange pair",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "$ref" : "#/components/schemas/ExchangePairSchema"
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "exchange_pair",
+              "id" : "exg_01cgvppyrz2pprj6s0zmc26p2p",
+              "name" : "ETH/OMG",
+              "from_token_id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+              "from_token" : {
+                "object" : "token",
+                "id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+                "symbol" : "ABC",
+                "name" : "Ethereum",
+                "subunit_to_unit" : 100,
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T10:00:00Z"
+              },
+              "to_token_id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+              "to_token" : {
+                "object" : "token",
+                "id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+                "symbol" : "OMG",
+                "name" : "OmiseGO",
+                "subunit_to_unit" : 100,
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T10:00:00Z"
+              },
+              "rate" : 0.017,
+              "created_at" : "2018-01-01T00:00:00Z",
+              "updated_at" : "2018-01-01T10:00:00Z",
+              "deleted_at" : null
+            }
+          }
+        } ]
+      },
+      "ExchangePairsResponseSchema" : {
+        "description" : "The response schema for a list of exchange pairs",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "type" : "object",
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/PaginatedListSchema"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/ExchangePairSchema"
+                    }
+                  }
+                }
+              } ]
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "list",
+              "data" : [ {
+                "object" : "exchange_pair",
+                "id" : "exg_01cgvppyrz2pprj6s0zmc26p2p",
+                "name" : "ETH/OMG",
+                "from_token_id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+                "from_token" : {
+                  "object" : "token",
+                  "id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+                  "symbol" : "ABC",
+                  "name" : "Ethereum",
+                  "subunit_to_unit" : 100,
+                  "created_at" : "2018-01-01T00:00:00Z",
+                  "updated_at" : "2018-01-01T10:00:00Z"
+                },
+                "to_token_id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+                "to_token" : {
+                  "object" : "token",
+                  "id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+                  "symbol" : "OMG",
+                  "name" : "OmiseGO",
+                  "subunit_to_unit" : 100,
+                  "created_at" : "2018-01-01T00:00:00Z",
+                  "updated_at" : "2018-01-01T10:00:00Z"
+                },
+                "rate" : 0.017,
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T10:00:00Z",
+                "deleted_at" : null
               } ],
               "pagination" : {
                 "per_page" : 10,
@@ -3413,82 +4059,6 @@
           }
         } ]
       },
-      "MultipleWalletsSchema" : {
-        "description" : "The response schema for a list of multiple wallets (i.e. transfers)",
-        "allOf" : [ {
-          "$ref" : "#/components/schemas/BaseResponseSchema"
-        }, {
-          "required" : [ "object" ],
-          "type" : "object",
-          "properties" : {
-            "data" : {
-              "type" : "object",
-              "allOf" : [ {
-                "$ref" : "#/components/schemas/UnpaginatedListSchema"
-              }, {
-                "type" : "object",
-                "properties" : {
-                  "data" : {
-                    "type" : "array",
-                    "items" : {
-                      "$ref" : "#/components/schemas/WalletSchema"
-                    }
-                  }
-                }
-              } ]
-            }
-          },
-          "example" : {
-            "data" : {
-              "object" : "list",
-              "data" : [ {
-                "object" : "wallet",
-                "socket_topic" : "wallet:XXX123",
-                "address" : "XXX123",
-                "name" : "primary",
-                "identifier" : "primary",
-                "metadata" : { },
-                "encrypted_metadata" : { },
-                "user_id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
-                "user" : { },
-                "account_id" : null,
-                "account" : null,
-                "balances" : [ {
-                  "amount" : 0,
-                  "token" : {
-                    "object" : "token",
-                    "id" : "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                    "symbol" : "BTC",
-                    "name" : "Bitcoin",
-                    "subunit_to_unit" : 100000000000000000
-                  }
-                } ]
-              }, {
-                "object" : "wallet",
-                "socket_topic" : "wallet:XXX456",
-                "address" : "XXX456",
-                "name" : "primary",
-                "identifier" : "primary",
-                "metadata" : { },
-                "encrypted_metadata" : { },
-                "user_id" : "usr_02cbfg6v9thrc3sd9m1v4gazjv",
-                "user" : { },
-                "account_id" : null,
-                "account" : null,
-                "balances" : [ {
-                  "amount" : 0,
-                  "token" : {
-                    "object" : "token",
-                    "id" : "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                    "symbol" : "BTC",
-                    "name" : "Bitcoin"
-                  }
-                } ]
-              } ]
-            }
-          }
-        } ]
-      },
       "AdminResponseSchema" : {
         "description" : "The response schema for an admin user",
         "allOf" : [ {
@@ -3764,6 +4334,158 @@
           }
         } ]
       },
+      "TransactionCalculationSchema" : {
+        "required" : [ "calculated_at", "exchange_pair", "from_amount", "from_token_id", "object", "to_amount", "to_token_id" ],
+        "type" : "object",
+        "properties" : {
+          "object" : {
+            "type" : "string"
+          },
+          "from_amount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "from_token_id" : {
+            "type" : "string"
+          },
+          "to_amount" : {
+            "type" : "integer",
+            "format" : "int32"
+          },
+          "to_token_id" : {
+            "type" : "string"
+          },
+          "exchange_pair" : {
+            "$ref" : "#/components/schemas/ExchangePairSchema"
+          },
+          "calculated_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "description" : "The object schema for a transaction calculation"
+      },
+      "TransactionCalculationResponseSchema" : {
+        "description" : "The response schema for a transaction calculation",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "$ref" : "#/components/schemas/TransactionCalculationSchema"
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "transaction_calculation",
+              "from_amount" : 20,
+              "from_token_id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+              "to_amount" : 20000,
+              "to_token_id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+              "exchange_pair" : {
+                "object" : "exchange_pair",
+                "id" : "exg_01cgvppyrz2pprj6s0zmc26p2p",
+                "name" : "ETH/OMG",
+                "from_token_id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+                "from_token" : {
+                  "object" : "token",
+                  "id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+                  "symbol" : "ETH",
+                  "name" : "Ethereum",
+                  "subunit_to_unit" : 100,
+                  "created_at" : "2018-01-01T00:00:00Z",
+                  "updated_at" : "2018-01-01T10:00:00Z"
+                },
+                "to_token_id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+                "to_token" : {
+                  "object" : "token",
+                  "id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+                  "symbol" : "OMG",
+                  "name" : "OmiseGO",
+                  "subunit_to_unit" : 100,
+                  "created_at" : "2018-01-01T00:00:00Z",
+                  "updated_at" : "2018-01-01T10:00:00Z"
+                },
+                "rate" : 1000,
+                "created_at" : "2018-01-10T00:00:00Z",
+                "updated_at" : "2018-01-10T10:00:00Z"
+              },
+              "calculated_at" : "2018-02-02T00:00:00Z"
+            }
+          }
+        } ]
+      },
+      "TransactionRequestsResponseSchema" : {
+        "description" : "The response schema for a list of transaction requests",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "type" : "object",
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/PaginatedListSchema"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/TransactionRequestSchema"
+                    }
+                  }
+                }
+              } ]
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "list",
+              "data" : [ {
+                "object" : "transaction_request",
+                "id" : "txr_01cbfg8mafdnbthgb9e68nd9y9",
+                "formatted_id" : "data|txr_01cbfg8mafdnbthgb9e68nd9y9",
+                "socket_topic" : "transaction_request:txr_01cbfg8mafdnbthgb9e68nd9y9",
+                "type" : "send",
+                "amount" : 100,
+                "status" : "valid",
+                "correlation_id" : "123",
+                "token_id" : "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+                "token" : null,
+                "address" : "3a560be5-15d1-4463-9ec2-02bc8ded7120",
+                "user_id" : "usr_01cbfg922kzmhvw04xvqn17qbd",
+                "account_id" : "acc_01cbfg9b5hn05rszm3na8jac7f",
+                "require_confirmation" : true,
+                "max_consumptions" : 3,
+                "max_consumptions_per_user" : null,
+                "consumption_lifetime" : 1000,
+                "expiration_reason" : null,
+                "allow_amount_override" : false,
+                "metadata" : { },
+                "encrypted_metadata" : { },
+                "expiration_date" : "2018-01-01T00:00:00Z",
+                "expired_at" : "2018-01-01T00:00:00Z",
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T00:00:00Z"
+              } ],
+              "pagination" : {
+                "per_page" : 10,
+                "current_page" : 1,
+                "is_first_page" : true,
+                "is_last_page" : true
+              }
+            }
+          }
+        } ]
+      },
       "TransactionRequestSchema" : {
         "description" : "The response schema for a transaction request",
         "allOf" : [ {
@@ -3878,6 +4600,76 @@
               "expired_at" : "2018-01-01T00:00:00Z",
               "created_at" : "2018-01-01T00:00:00Z",
               "updated_at" : "2018-01-01T00:00:00Z"
+            }
+          }
+        } ]
+      },
+      "TransactionConsumptionsResponseSchema" : {
+        "description" : "The response schema for a list of transaction consumptions",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "type" : "object",
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/PaginatedListSchema"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/TransactionConsumptionSchema"
+                    }
+                  }
+                }
+              } ]
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "list",
+              "data" : [ {
+                "object" : "transaction_consumption",
+                "id" : "txc_01cbfg9qtdken61agxhx6wvj9h",
+                "socket_topic" : "transaction_consumption:txc_01cbfg9qtdken61agxhx6wvj9h",
+                "status" : "confirmed",
+                "amount" : 100,
+                "token_id" : "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+                "token" : { },
+                "correlation_id" : "7e9c0be5-15d1-4463-9ec2-02bc8ded7120",
+                "idempotency_token" : "7831c0be5-15d1-4463-9ec2-02bc8ded7120",
+                "transaction_id" : "txn_01cbfga8g0dgwcfc7xh6ks1njt",
+                "transaction" : { },
+                "user_id" : "usr_01cbfgak47ng6x72vbwjca6j4v",
+                "user" : { },
+                "account_id" : "acc_01cbfgatsanznvzffqsekta5f0",
+                "account" : { },
+                "transaction_request_id" : "txr_01cbfgb66cby8wp5wpq6n4pm0h",
+                "transaction_request" : { },
+                "address" : "5555cer3-15d1-4463-9ec2-02bc8ded7120",
+                "metadata" : { },
+                "encrypted_metadata" : { },
+                "expiration_date" : null,
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T00:00:00Z",
+                "approved_at" : "2018-01-01T00:00:00Z",
+                "rejected_at" : null,
+                "confirmed_at" : "2018-01-01T00:00:00Z",
+                "failed_at" : null,
+                "expired_at" : null
+              } ],
+              "pagination" : {
+                "per_page" : 10,
+                "current_page" : 1,
+                "is_first_page" : true,
+                "is_last_page" : true
+              }
             }
           }
         } ]
@@ -4156,7 +4948,7 @@
         } ]
       },
       "APIKeySchema" : {
-        "required" : [ "account_id", "created_at", "deleted_at", "id", "key", "object", "owner_app", "updated_at" ],
+        "required" : [ "account_id", "created_at", "deleted_at", "expired", "id", "key", "object", "owner_app", "updated_at" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -4170,6 +4962,9 @@
           },
           "owner_app" : {
             "type" : "string"
+          },
+          "expired" : {
+            "type" : "boolean"
           },
           "account_id" : {
             "type" : "string"
@@ -4210,6 +5005,7 @@
               "id" : "api_01ce844d5w9e81snekr5kprvem",
               "key" : "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
               "owner_app" : "admin_api",
+              "expired" : false,
               "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
               "created_at" : "2018-01-01T00:00:00Z",
               "updated_at" : "2018-01-01T10:00:00Z",
@@ -4253,6 +5049,7 @@
                 "id" : "api_01ce844d5w9e81snekr5kprvem",
                 "key" : "jZKpGKgwy5LJTWwXqSD4jVWYDdnTKHlRYkaNB6SqsaQ",
                 "owner_app" : "admin_api",
+                "expired" : false,
                 "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
                 "created_at" : "2018-01-01T00:00:00Z",
                 "updated_at" : "2018-01-01T10:00:00Z",
@@ -4359,6 +5156,26 @@
           }
         }
       },
+      "ExchangePairResponse" : {
+        "description" : "Returns a single exchange pair",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/ExchangePairResponseSchema"
+            }
+          }
+        }
+      },
+      "ExchangePairsResponse" : {
+        "description" : "Returns a list of exchange pairs",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/ExchangePairsResponseSchema"
+            }
+          }
+        }
+      },
       "CategoryResponse" : {
         "description" : "Returns a single category",
         "content" : {
@@ -4439,16 +5256,6 @@
           }
         }
       },
-      "MultipleWalletsResponse" : {
-        "description" : "Returns a list of wallets.",
-        "content" : {
-          "application/vnd.omisego.v1+json" : {
-            "schema" : {
-              "$ref" : "#/components/schemas/MultipleWalletsSchema"
-            }
-          }
-        }
-      },
       "TransactionResponse" : {
         "description" : "Returns a single transaction",
         "content" : {
@@ -4469,12 +5276,42 @@
           }
         }
       },
+      "TransactionCalculationResponse" : {
+        "description" : "Returns a transaction calculation",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/TransactionCalculationResponseSchema"
+            }
+          }
+        }
+      },
+      "TransactionRequestsResponse" : {
+        "description" : "Returns a list of transaction requests",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/TransactionRequestsResponseSchema"
+            }
+          }
+        }
+      },
       "TransactionRequestResponse" : {
         "description" : "Transaction request response",
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
               "$ref" : "#/components/schemas/TransactionRequestSchema"
+            }
+          }
+        }
+      },
+      "TransactionConsumptionsResponse" : {
+        "description" : "Returns a list of transaction consumptions",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
             }
           }
         }
@@ -4837,6 +5674,54 @@
         },
         "required" : true
       },
+      "TokenUpdateBody" : {
+        "description" : "The parameters to update a token.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "description" : {
+                  "type" : "string"
+                },
+                "iso_code" : {
+                  "type" : "string"
+                },
+                "short_symbol" : {
+                  "type" : "string"
+                },
+                "symbol_first" : {
+                  "type" : "boolean"
+                },
+                "html_entity" : {
+                  "type" : "string"
+                },
+                "iso_numeric" : {
+                  "type" : "string"
+                },
+                "metadata" : {
+                  "type" : "object"
+                },
+                "encrypted_metadata" : {
+                  "type" : "object"
+                }
+              },
+              "example" : {
+                "id" : "tok_ABC_01ce846km1syzwezxfmgdn7dt7",
+                "name" : "Bitcoin v2",
+                "description" : "an awesome updated description"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
       "TokenMintBody" : {
         "description" : "The parameters to create a token. Note that if amount is specified, the token will be minted automatically.",
         "content" : {
@@ -4898,6 +5783,137 @@
                 "search_term" : "",
                 "sort_by" : "field_name",
                 "sort_dir" : "asc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "ExchangePairAllBody" : {
+        "description" : "The parameters to use for listing the exchange pairs",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "properties" : {
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_term" : {
+                  "type" : "string"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "page" : 1,
+                "per_page" : 10,
+                "search_term" : "",
+                "sort_by" : "field_name",
+                "sort_dir" : "asc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "ExchangePairGetBody" : {
+        "description" : "The parameters to use for retrieving a specific exchange pair by its id",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "id" : "exg_01cgvppyrz2pprj6s0zmc26p2p"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "ExchangePairCreateBody" : {
+        "description" : "The parameters to create an exchange pair.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "from_token_id", "rate", "to_token_id" ],
+              "properties" : {
+                "from_token_id" : {
+                  "type" : "string"
+                },
+                "to_token_id" : {
+                  "type" : "string"
+                },
+                "rate" : {
+                  "type" : "number"
+                },
+                "sync_opposite" : {
+                  "type" : "boolean"
+                }
+              },
+              "example" : {
+                "from_token_id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+                "to_token_id" : "tok_OMG_01cgvrqbfpa23ehkmrtqpbsyyp",
+                "rate" : 0.017,
+                "sync_opposite" : false
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "ExchangePairUpdateBody" : {
+        "description" : "The parameters to update an exchange pair.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "rate" : {
+                  "type" : "number"
+                }
+              },
+              "example" : {
+                "id" : "exg_01cgvppyrz2pprj6s0zmc26p2p",
+                "rate" : 0.099
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "ExchangePairDeleteBody" : {
+        "description" : "The parameters to delete an exchange pair.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "id" : "exg_01cgvppyrz2pprj6s0zmc26p2p"
               }
             }
           }
@@ -5907,91 +6923,7 @@
         "required" : true
       },
       "TransactionCreateBody" : {
-        "description" : "The parameters to use for creating a transaction",
-        "content" : {
-          "application/vnd.omisego.v1+json" : {
-            "schema" : {
-              "required" : [ "id" ],
-              "properties" : {
-                "from_address" : {
-                  "type" : "string"
-                },
-                "to_address" : {
-                  "type" : "string"
-                },
-                "token_id" : {
-                  "type" : "string"
-                },
-                "amount" : {
-                  "type" : "integer",
-                  "format" : "int32"
-                }
-              },
-              "example" : {
-                "from_address" : "123982f5-4a27-498d-a91b-7bb2e2a8d3d1",
-                "to_address" : "343982f5-4a27-498d-a91b-7bb2e2a8d3d1",
-                "token_id" : "tok_OMG_01cbepz0mhzb042vwgaqv17cjy",
-                "amount" : 1000
-              }
-            }
-          }
-        },
-        "required" : true
-      },
-      "BalanceAdjustmentBody" : {
-        "description" : "The parameters for crediting or debiting the balance of the specified user\nby taking/giving back the given amount from/to the account_id.\n\nYou can optionally specify the account_address and/or user_address to use a spcific wallet.\nA convenient way to burn tokens is to make a debit and specify the burn wallet address.\n",
-        "content" : {
-          "application/vnd.omisego.v1+json" : {
-            "schema" : {
-              "required" : [ "account_id", "amount", "idempotency_token", "provider_user_id", "token_id" ],
-              "properties" : {
-                "idempotency_token" : {
-                  "type" : "string"
-                },
-                "provider_user_id" : {
-                  "type" : "string"
-                },
-                "user_address" : {
-                  "type" : "string"
-                },
-                "token_id" : {
-                  "type" : "string"
-                },
-                "amount" : {
-                  "type" : "integer",
-                  "format" : "int32"
-                },
-                "account_id" : {
-                  "type" : "string"
-                },
-                "account_address" : {
-                  "type" : "string"
-                },
-                "metadata" : {
-                  "type" : "object"
-                },
-                "encrypted_metadata" : {
-                  "type" : "object"
-                }
-              },
-              "example" : {
-                "idempotency_token" : "1234",
-                "provider_user_id" : "wijf-fbancomw-dqwjudb",
-                "user_address" : "d28d5053-a1d5-4314-8c13-4aef396fe1e4",
-                "token_id" : "tok_BTC_01cbffybmtbbb449r05zgfct2h",
-                "amount" : 100,
-                "account_id" : "acc_01cbfgbt9hezkbz8mphmwdfcj1",
-                "account_address" : "546570a9-6ebf-4df7-be01-724745d0b298",
-                "metadata" : { },
-                "encrypted_metadata" : { }
-              }
-            }
-          }
-        },
-        "required" : true
-      },
-      "TransferBody" : {
-        "description" : "The parameters for making a transfer from an address to another.",
+        "description" : "The parameters for making a transaction from an address to another.",
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
@@ -6006,12 +6938,50 @@
                 "to_address" : {
                   "type" : "string"
                 },
+                "from_account_id" : {
+                  "type" : "string"
+                },
+                "to_account_id" : {
+                  "type" : "string"
+                },
+                "from_user_id" : {
+                  "type" : "string"
+                },
+                "to_user_id" : {
+                  "type" : "string"
+                },
+                "from_provider_user_id" : {
+                  "type" : "string"
+                },
+                "to_provider_user_id" : {
+                  "type" : "string"
+                },
+                "from_token_id" : {
+                  "type" : "string"
+                },
+                "to_token_id" : {
+                  "type" : "string"
+                },
                 "token_id" : {
                   "type" : "string"
+                },
+                "from_amount" : {
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "to_amount" : {
+                  "type" : "integer",
+                  "format" : "int32"
                 },
                 "amount" : {
                   "type" : "integer",
                   "format" : "int32"
+                },
+                "exchange_account_id" : {
+                  "type" : "string"
+                },
+                "exchange_wallet_address" : {
+                  "type" : "string"
                 },
                 "metadata" : {
                   "type" : "object"
@@ -6028,6 +6998,38 @@
                 "amount" : 100,
                 "metadata" : { },
                 "encrypted_metadata" : { }
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "TransactionCalculateBody" : {
+        "description" : "The parameters for calculating transaction amounts.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "from_token_id", "to_token_id" ],
+              "properties" : {
+                "from_amount" : {
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "from_token_id" : {
+                  "type" : "string"
+                },
+                "to_amount" : {
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "to_token_id" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "from_token_id" : "tok_ETH_01cbfge9qhmsdbjyb7a8e8pxt3",
+                "to_token_id" : "tok_OMG_01cbffwvj6ma9a9gg1tb24880q",
+                "from_amount" : 100
               }
             }
           }
@@ -6120,6 +7122,49 @@
         },
         "required" : true
       },
+      "TransactionRequestAllBody" : {
+        "description" : "The parameters to use for listing the transaction requests",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "properties" : {
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_term" : {
+                  "type" : "string"
+                },
+                "search_terms" : {
+                  "type" : "object"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "page" : 1,
+                "per_page" : 10,
+                "search_term" : "",
+                "search_terms" : { },
+                "sort_by" : "created_at",
+                "sort_dir" : "desc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
       "GetTransactionRequestBody" : {
         "description" : "Get a transaction request using the specified ID.",
         "content" : {
@@ -6196,6 +7241,243 @@
         },
         "required" : true
       },
+      "TransactionConsumptionAllBody" : {
+        "description" : "The parameters to use for listing the consumptions",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "properties" : {
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_term" : {
+                  "type" : "string"
+                },
+                "search_terms" : {
+                  "type" : "object"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "page" : 1,
+                "per_page" : 10,
+                "search_term" : "",
+                "sort_by" : "created_at",
+                "sort_dir" : "desc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "TransactionConsumptionAllForAccountBody" : {
+        "description" : "The parameters to use for listing the consumptions for an account",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "account_id" ],
+              "properties" : {
+                "account_id" : {
+                  "type" : "string"
+                },
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_terms" : {
+                  "type" : "object"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
+                "page" : 1,
+                "per_page" : 10,
+                "search_terms" : { },
+                "sort_by" : "created_at",
+                "sort_dir" : "desc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "TransactionConsumptionAllForUserBody" : {
+        "description" : "The parameters to use for listing the consumptions for a user",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "user_id" ],
+              "properties" : {
+                "user_id" : {
+                  "type" : "string"
+                },
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_terms" : {
+                  "type" : "object"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "user_id" : "usr_02cbfg6v9thrc3sd9m1v4gazjv",
+                "page" : 1,
+                "per_page" : 10,
+                "search_terms" : { },
+                "sort_by" : "created_at",
+                "sort_dir" : "desc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "TransactionConsumptionAllForWalletBody" : {
+        "description" : "The parameters to use for listing the consumptions for a wallet",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "address" ],
+              "properties" : {
+                "address" : {
+                  "type" : "string"
+                },
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_terms" : {
+                  "type" : "object"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "address" : "232454354",
+                "page" : 1,
+                "per_page" : 10,
+                "search_terms" : { },
+                "sort_by" : "created_at",
+                "sort_dir" : "desc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "TransactionConsumptionAllForTransactionRequestBody" : {
+        "description" : "The parameters to use for listing the consumptions for a transaction request",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "formatted_transaction_request_id" ],
+              "properties" : {
+                "formatted_transaction_request_id" : {
+                  "type" : "string"
+                },
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_terms" : {
+                  "type" : "object"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "formatted_transaction_request_id" : "txr_01cbfg8mafdnbthgb9e68nd9y9",
+                "page" : 1,
+                "per_page" : 10,
+                "search_terms" : { },
+                "sort_by" : "created_at",
+                "sort_dir" : "desc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "GetConsumptionRequestBody" : {
+        "description" : "Get a consumption using the specified ID.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "id" : "txc_01abfg5m2ee06kzm8tbysfmmw5"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
       "ConsumptionConfirmationRequestBody" : {
         "description" : "Approve or reject a consumption using the specified ID.",
         "content" : {
@@ -6248,6 +7530,29 @@
                 "search_term" : "",
                 "sort_by" : "created_at",
                 "sort_dir" : "desc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "AccessKeyUpdateBody" : {
+        "description" : "The parameters to use for updating an access key",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "expired" : {
+                  "type" : "boolean"
+                }
+              },
+              "example" : {
+                "id" : "key_01ce83yphmq6vt4qnmn3ykwcw6",
+                "expired" : true
               }
             }
           }
@@ -6327,19 +7632,23 @@
         },
         "required" : true
       },
-      "APIKeyCreateBody" : {
-        "description" : "The parameters to use for creating an API key",
+      "APIKeyUpdateBody" : {
+        "description" : "The parameters to use for updating an API key",
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "owner_app" ],
+              "required" : [ "expired", "id" ],
               "properties" : {
-                "owner_app" : {
+                "id" : {
                   "type" : "string"
+                },
+                "expired" : {
+                  "type" : "boolean"
                 }
               },
               "example" : {
-                "owner_app" : "admin_api"
+                "id" : "api_01ce83yphmq6vt4qnmn3ykwcw6",
+                "expired" : true
               }
             }
           }
@@ -6358,7 +7667,7 @@
                 }
               },
               "example" : {
-                "id" : "key_01ce83yphmq6vt4qnmn3ykwcw6"
+                "id" : "api_01ce83yphmq6vt4qnmn3ykwcw6"
               }
             }
           }
@@ -6367,15 +7676,9 @@
       }
     },
     "securitySchemes" : {
-      "ClientAuth" : {
-        "type" : "apiKey",
-        "description" : "OMGAdmin Base64(api_key_id:api_key)",
-        "name" : "Authorization",
-        "in" : "header"
-      },
       "AdminAuth" : {
         "type" : "apiKey",
-        "description" : "OMGAdmin Base64(api_key_id:api_key:user_id:authentication_token)",
+        "description" : "OMGAdmin Base64(user_id:authentication_token)",
         "name" : "Authorization",
         "in" : "header"
       },
