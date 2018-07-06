@@ -231,10 +231,11 @@ defmodule AdminAPI.ConnCase do
   def provider_request(path, data \\ %{}, opts \\ [])
       when is_binary(path) and byte_size(path) > 0 do
     {status, _opts} = Keyword.pop(opts, :status, :ok)
+    secret_key = Base.url_encode64(@secret_key)
 
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGProvider", @access_key, @secret_key)
+    |> put_auth_header("OMGProvider", @access_key, secret_key)
     |> post(@base_dir <> path, data)
     |> json_response(status)
   end

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
+import {fuzzySearch} from '../utils/search'
 const SideNavigationContainer = styled.div`
   background-color: ${props => props.theme.colors.B300};
   height: 100%;
@@ -162,7 +163,7 @@ class SideNavigation extends PureComponent {
             const reg = new RegExp(link.to)
             return (
               <Link to={`/${accountIdFromLocation}${link.to}`} key={link.to}>
-                <NavigationItem active={reg.test(this.props.location.pathname)}>
+                <NavigationItem active={fuzzySearch(link.to, this.props.location.pathname)}>
                   <Icon name={link.icon} /> <span>{link.text}</span>
                 </NavigationItem>
               </Link>

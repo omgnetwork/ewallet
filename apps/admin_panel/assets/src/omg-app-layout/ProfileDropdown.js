@@ -7,6 +7,8 @@ import styled from 'styled-components'
 import { compose } from 'recompose'
 import CurrentUserProvider from '../omg-user-current/currentUserProvider'
 import { withRouter } from 'react-router-dom'
+import { connect } from 'react-redux'
+import { logout } from '../omg-session/action'
 const AvatarDropdownContainer = styled.div`
   position: relative;
 `
@@ -53,26 +55,37 @@ const DropdownBoxStyled = DropdownBox.extend`
   text-align: left;
 `
 
-const enhance = compose(withDropdownState, withRouter)
+const enhance = compose(
+  withDropdownState,
+  withRouter,
+  connect(
+    null,
+    { logout }
+  )
+)
 class ProfileAvatarDropdown extends Component {
   static propTypes = {
     onClickButton: PropTypes.func,
     open: PropTypes.bool,
     closeDropdown: PropTypes.func,
     match: PropTypes.object,
-    history: PropTypes.object
+    history: PropTypes.object,
+    logout: PropTypes.func
   }
   onClickProfile = e => {
     const accountId = this.props.match.params.accountId
     this.props.closeDropdown()
     this.props.history.push(`/${accountId}/user_setting`)
   }
-  onClickLogout = e => {
+  onClickLogout = async e => {
+    await this.props.logout()
     this.props.history.push(`/login`)
   }
 
-  renderAvatar = (currentUser) => {
-    return <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} />
+  renderAvatar = currentUser => {
+    return (
+      <StyledAvatar onClick={this.props.onClickButton} image={_.get(currentUser, 'avatar.small')} />
+    )
   }
   renderCurrentUserAvatar = ({ currentUser, loadingStatus }) => {
     return (

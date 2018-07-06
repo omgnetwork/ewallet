@@ -60,15 +60,13 @@ defmodule EWalletDB.ForgetPasswordRequest do
     ForgetPasswordRequest
     |> where([f], f.user_uuid == ^user.uuid)
     |> Repo.delete_all()
-
-    user
   end
 
   @doc """
   Generates a forget password request for the given user.
   """
   def generate(user) do
-    token = Crypto.generate_key(@token_length)
+    token = Crypto.generate_base64_key(@token_length)
     {:ok, _} = insert(%{token: token, user_uuid: user.uuid})
     ForgetPasswordRequest.get(user, token)
   end

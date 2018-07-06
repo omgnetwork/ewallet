@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.ExchangePairController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{ExchangePairPolicy, UUIDFetcher}
+  alias EWallet.{ExchangePairGate, ExchangePairPolicy}
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWalletDB.ExchangePair
 
@@ -20,16 +20,17 @@ defmodule AdminAPI.V1.ExchangePairController do
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
   # If the request provides different names, map it via `@mapped_fields` first.
-  @search_fields [:id, :name]
+  @search_fields [:id]
 
   # The fields that are allowed to be sorted.
   # Note that the values here *must be the DB column names*.
   # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :name, :inserted_at, :updated_at]
+  @sort_fields [:id, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of exchange pairs.
   """
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
       pairs =
@@ -55,6 +56,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   @doc """
   Retrieves a specific exchange pair by its id.
   """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns, id),
          %ExchangePair{} = pair <- ExchangePair.get_by(id: id),
@@ -72,12 +74,12 @@ defmodule AdminAPI.V1.ExchangePairController do
   @doc """
   Creates a new exchange pair.
   """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
-         %{} = attrs <- UUIDFetcher.replace_external_ids(attrs),
-         {:ok, pair} <- ExchangePair.insert(attrs),
-         {:ok, pair} <- Preloader.preload_one(pair, @preload_fields) do
-      render(conn, :exchange_pair, %{exchange_pair: pair})
+         {:ok, pairs} <- ExchangePairGate.insert(attrs),
+         {:ok, pairs} <- Preloader.preload_all(pairs, @preload_fields) do
+      render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
@@ -90,13 +92,12 @@ defmodule AdminAPI.V1.ExchangePairController do
   @doc """
   Updates the exchange pair if all required parameters are provided.
   """
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
-         %{} = attrs <- UUIDFetcher.replace_external_ids(attrs),
-         %ExchangePair{} = pair <- ExchangePair.get(id) || {:error, :exchange_pair_id_not_found},
-         {:ok, updated} <- ExchangePair.update(pair, attrs),
-         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
-      render(conn, :exchange_pair, %{exchange_pair: updated})
+         {:ok, pairs} <- ExchangePairGate.update(id, attrs),
+         {:ok, pairs} <- Preloader.preload_all(pairs, @preload_fields) do
+      render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
@@ -111,11 +112,12 @@ defmodule AdminAPI.V1.ExchangePairController do
   @doc """
   Soft-deletes an existing exchange pair by its id.
   """
-  def delete(conn, %{"id" => id}) do
-    with %ExchangePair{} = pair <- ExchangePair.get(id) || {:error, :exchange_pair_id_not_found},
-         {:ok, deleted} = ExchangePair.delete(pair),
-         {:ok, deleted} <- Preloader.preload_one(deleted, @preload_fields) do
-      render(conn, :exchange_pair, %{exchange_pair: deleted})
+  @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def delete(conn, %{"id" => id} = attrs) do
+    with :ok <- permit(:delete, conn.assigns, id),
+         {:ok, deleted} <- ExchangePairGate.delete(id, attrs),
+         {:ok, deleted} <- Preloader.preload_all(deleted, @preload_fields) do
+      render(conn, :exchange_pairs, %{exchange_pairs: deleted})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)

@@ -4,6 +4,8 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
   alias EWalletDB.{Repo, ForgetPasswordRequest, User, Helpers.Crypto}
   alias AdminAPI.ForgetPasswordEmail
 
+  @redirect_url "http://localhost:4000/reset_password?email={email}&token={token}"
+
   describe "ResetPasswordController.reset/2" do
     test "returns success if the request was generated successfully" do
       user = insert(:admin)
@@ -11,7 +13,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       response =
         unauthenticated_request("/admin.reset_password", %{
           "email" => user.email,
-          "redirect_url" => "http://example.com"
+          "redirect_url" => @redirect_url
         })
 
       request =
@@ -20,16 +22,32 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
         |> Repo.preload(:user)
 
       assert response["success"]
-      assert_delivered_email(ForgetPasswordEmail.create(request, "http://example.com"))
+      assert_delivered_email(ForgetPasswordEmail.create(request, @redirect_url))
       assert request != nil
       assert request.token != nil
+    end
+
+    test "returns client:invalid_parameter error if the redirect_url is not allowed" do
+      redirect_url = "http://unknown-url.com/reset_password?email={email}&token={token}"
+
+      response =
+        unauthenticated_request("/admin.reset_password", %{
+          "email" => "example@mail.com",
+          "redirect_url" => redirect_url
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
     end
 
     test "returns an error if no user is found with the associated email" do
       response =
         unauthenticated_request("/admin.reset_password", %{
           "email" => "example@mail.com",
-          "redirect_url" => "http://example.com"
+          "redirect_url" => @redirect_url
         })
 
       assert response["success"] == false
@@ -41,7 +59,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
 
       response =
         unauthenticated_request("/admin.reset_password", %{
-          "redirect_url" => "http://example.com"
+          "redirect_url" => @redirect_url
         })
 
       request =

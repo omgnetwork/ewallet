@@ -334,15 +334,16 @@ defmodule EWalletDB.SchemaCase do
       test "prevents creation with missing association :#{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
+        uuid_field = :"#{field}_uuid"
 
         {result, changeset} =
           schema
           |> get_factory
-          |> params_for(%{field => ""})
-          |> schema.insert
+          |> params_for(%{field => nil, uuid_field => nil})
+          |> schema.insert()
 
         assert result == :error
-        assert changeset.errors == [{:"#{field}_id", {"can't be blank", [validation: :required]}}]
+        assert changeset.errors == [{uuid_field, {"can't be blank", [validation: :required]}}]
       end
     end
   end
@@ -453,19 +454,21 @@ defmodule EWalletDB.SchemaCase do
   @doc """
   Test schema's update/2 prevents changing of the given field
   """
-  defmacro test_update_prevents_changing(schema, field) do
+  defmacro test_update_prevents_changing(schema, field, old \\ "old", new \\ "new") do
     quote do
       test "prevents changing of #{unquote(field)}" do
         schema = unquote(schema)
         field = unquote(field)
+        old = unquote(old)
+        new = unquote(new)
 
         {res, original} =
           schema
           |> get_factory
-          |> params_for(%{field => "old_value"})
+          |> params_for(%{field => old})
           |> schema.insert()
 
-        {res, changeset} = schema.update(original, %{field => "new_value"})
+        {res, changeset} = schema.update(original, %{field => new})
 
         assert res == :error
         assert changeset.errors == [{field, {"can't be changed", []}}]
@@ -529,9 +532,10 @@ defmodule EWalletDB.SchemaCase do
         {:ok, record} =
           schema
           |> get_factory()
-          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> params_for(%{})
           |> schema.insert()
 
+        assert record.deleted_at == nil
         refute schema.deleted?(record)
       end
 
@@ -541,10 +545,13 @@ defmodule EWalletDB.SchemaCase do
         {:ok, record} =
           schema
           |> get_factory()
-          |> params_for(%{deleted_at: nil})
+          |> params_for(%{})
           |> schema.insert()
 
-        refute schema.deleted?(record)
+        {:ok, record} = schema.delete(record)
+
+        assert record.deleted_at != nil
+        assert schema.deleted?(record)
       end
     end
   end
@@ -578,13 +585,15 @@ defmodule EWalletDB.SchemaCase do
         {_, record} =
           schema
           |> get_factory()
-          |> params_for(%{deleted_at: DateTime.utc_now()})
+          |> params_for(%{})
           |> schema.insert()
 
         # Makes sure the record is already soft-deleted before testing
-        refute schema.deleted?(record)
+        {:ok, record} = schema.delete(record)
+        assert schema.deleted?(record)
 
         {res, record} = schema.restore(record)
+
         assert res == :ok
         refute schema.deleted?(record)
       end

@@ -8,13 +8,13 @@ import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
-import { formatNumber } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 import moment from 'moment'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
   right: 0;
-  width: 550px;
+  width: 560px;
   background-color: white;
   padding: 40px 30px;
   box-shadow: 0 0 15px 0 rgba(4, 7, 13, 0.1);
@@ -128,13 +128,21 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Amount:</b>{' '}
                   <span>
-                    {formatNumber(consumption.amount / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                    {formatReceiveAmountToTotal(
+                      consumption.amount,
+                      _.get(tq, 'token.subunit_to_unit')
+                    )}{' '}
                     {_.get(tq, 'token.symbol')}
                   </span>
                 </InformationItem>
                 <InformationItem>
                   <b>Status:</b> <span>{consumption.status}</span>
                 </InformationItem>
+                {_.get(consumption, 'transaction.error_description') && (
+                  <InformationItem style={{color: '#FC7166'}}>
+                    {_.get(consumption, 'transaction.error_description')}
+                  </InformationItem>
+                )}
                 {consumption.approved_at && (
                   <InformationItem>
                     <b>Approved Date:</b>{' '}
@@ -153,7 +161,7 @@ class TransactionRequestPanel extends Component {
                 )}
                 {consumption.expired_at && (
                   <InformationItem>
-                    <b>Expired At:</b>{' '}
+                    <b>Expired Date:</b>{' '}
                     <span>{moment(consumption.expired_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
                   </InformationItem>
                 )}
@@ -170,13 +178,12 @@ class TransactionRequestPanel extends Component {
                     </Button>
                   </InformationItem>
                 )}
-                <InformationItem />
               </ActionContainer>
               <AdditionalTransactionRequestContainer>
                 <h5>ADDITIONAL REQUEST DETAILS</h5>
                 <InformationItem>
                   <b>Amount:</b>{' '}
-                  {formatNumber((tq.amount || 0) / _.get(tq, 'token.subunit_to_unit'))}{' '}
+                  {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
                   {_.get(tq, 'token.symbol')}
                 </InformationItem>
                 <InformationItem>

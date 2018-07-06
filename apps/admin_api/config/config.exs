@@ -9,6 +9,7 @@ use Mix.Config
 config :admin_api,
   namespace: AdminAPI,
   ecto_repos: [],
+  base_url: System.get_env("BASE_URL") || "http://localhost:4000",
   sender_email: System.get_env("SENDER_EMAIL") || "admin@localhost"
 
 # Configs for the endpoint

@@ -11,12 +11,18 @@ export const selectTokensCachedQuery = state => cacheKey => {
     return selectGetTokenById(state)(tokenId)
   })
 }
-export const selectTokensCachedQueryPagination = state => cacheKey => {
-  return _.get(state.cacheQueries[cacheKey], 'pagination', {})
+export const selectMintedTokenHistoryCachedQuery = state => cacheKey => {
+  return _.get(state.cacheQueries[cacheKey], 'ids', []).map(mintedTokenHistoryId => {
+    return selectGetMintedTokenHistryById(state)(mintedTokenHistoryId)
+  })
 }
+
 export const selectTokensLoadingStatus = state => state.tokensLoadingStatus
 export const selectGetTokenById = state => id => {
   return state.tokens[id]
+}
+export const selectGetMintedTokenHistryById = state => id => {
+  return state.mintedTokenHistory[id]
 }
 
 export const selectTokensAllPagesCachedQuery = createSelectAllPagesCachedQuery(

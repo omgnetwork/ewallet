@@ -1,5 +1,7 @@
 use Mix.Config
 
+config :admin_panel, base_url: System.get_env("BASE_URL")
+
 # Configs for Bamboo emailing library
 config :admin_api, AdminAPI.Mailer,
   adapter: Bamboo.SMTPAdapter,

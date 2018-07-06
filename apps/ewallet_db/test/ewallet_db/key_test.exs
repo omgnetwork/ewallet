@@ -68,14 +68,19 @@ defmodule EWalletDB.KeyTest do
     test_insert_generate_external_id(Key, :id, "key_")
     test_insert_generate_timestamps(Key)
     test_insert_generate_length(Key, :access_key, 43)
-    test_insert_generate_length(Key, :secret_key, 43)
+    test_insert_generate_length(Key, :secret_key, 171)
     test_insert_prevent_duplicate(Key, :access_key)
 
-    test "hashes secret_key with bcrypt before saving" do
+    test "hashes secret_key with sha384 and hex digest it before saving" do
       {res, key} = Key.insert(params_for(:key, %{secret_key: "my_secret"}))
 
+      hashed =
+        :crypto.hash(:sha384, "my_secret")
+        |> Base.encode16(padding: false)
+        |> String.downcase()
+
       assert res == :ok
-      assert "$2b$" <> _ = key.secret_key_hash
+      assert hashed == key.secret_key_hash
       refute key.secret_key == key.secret_key_hash
     end
 
@@ -97,7 +102,7 @@ defmodule EWalletDB.KeyTest do
       })
       |> Key.insert()
 
-      {res, key} = Key.authenticate("access123", "secret321")
+      {res, key} = Key.authenticate("access123", Base.url_encode64("secret321"))
       assert res == :ok
       assert %Key{} = key
       assert key.account.uuid == account.uuid
@@ -108,9 +113,9 @@ defmodule EWalletDB.KeyTest do
       |> params_for(%{access_key: "access123", secret_key: "secret321"})
       |> Key.insert()
 
-      assert Key.authenticate("access123", "unmatched") == false
-      assert Key.authenticate("unmatched", "secret321") == false
-      assert Key.authenticate("unmatched", "unmatched") == false
+      assert Key.authenticate("access123", Base.url_encode64("unmatched")) == false
+      assert Key.authenticate("unmatched", Base.url_encode64("secret321")) == false
+      assert Key.authenticate("unmatched", Base.url_encode64("unmatched")) == false
     end
 
     test "returns nil if access_key and/or secret_key is nil" do
