@@ -69,7 +69,7 @@ class TokenDetailPage extends Component {
             onClick={this.onClickCreateExchangeRate}
             key='rate'
           >
-            <span>Create Rate</span>
+            <span>Create Exchange Pair</span>
           </Button>,
           <Button size='small' onClick={this.onClickMintTopen} key='mint'>
             <span>Mint Token</span>
