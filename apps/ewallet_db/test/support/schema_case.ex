@@ -477,6 +477,31 @@ defmodule EWalletDB.SchemaCase do
   end
 
   @doc """
+  Test schema's update/2 ignores changing of the given field
+  """
+  defmacro test_update_ignores_changing(schema, field, old \\ "old", new \\ "new") do
+    quote do
+      test "prevents changing of #{unquote(field)}" do
+        schema = unquote(schema)
+        field = unquote(field)
+        old = unquote(old)
+        new = unquote(new)
+
+        {res, original} =
+          schema
+          |> get_factory
+          |> params_for(%{field => old})
+          |> schema.insert()
+
+        {res, updated} = schema.update(original, %{field => new})
+
+        assert res == :ok
+        assert Map.fetch!(updated, field) == old
+      end
+    end
+  end
+
+  @doc """
   Test schema's metadata and encrypted metadata
   """
   defmacro test_default_metadata_fields(schema, table) do

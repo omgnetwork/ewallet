@@ -1,13 +1,13 @@
 defmodule EWalletDB.Repo.Seeds.AdminPanelUserSampleSeed do
-  import EWalletDB.Helpers.Crypto, only: [generate_key: 1]
+  import EWalletDB.Helpers.Crypto, only: [generate_base64_key: 1]
   alias EWalletDB.User
 
   @seed_data [
-    %{email: "admin_brand1@example.com", password: generate_key(16), metadata: %{}},
-    %{email: "admin_branch1@example.com", password: generate_key(16), metadata: %{}},
-    %{email: "viewer_master@example.com", password: generate_key(16), metadata: %{}},
-    %{email: "viewer_brand1@example.com", password: generate_key(16), metadata: %{}},
-    %{email: "viewer_branch1@example.com", password: generate_key(16), metadata: %{}},
+    %{email: "admin_brand1@example.com", password: generate_base64_key(16), metadata: %{}},
+    %{email: "admin_branch1@example.com", password: generate_base64_key(16), metadata: %{}},
+    %{email: "viewer_master@example.com", password: generate_base64_key(16), metadata: %{}},
+    %{email: "viewer_brand1@example.com", password: generate_base64_key(16), metadata: %{}},
+    %{email: "viewer_branch1@example.com", password: generate_base64_key(16), metadata: %{}},
   ]
 
   def seed do

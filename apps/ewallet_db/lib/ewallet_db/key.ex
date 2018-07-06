@@ -29,13 +29,14 @@ defmodule EWalletDB.Key do
       type: UUID
     )
 
+    field(:expired, :boolean, default: false)
     timestamps()
     soft_delete()
   end
 
-  defp changeset(%Key{} = key, attrs) do
+  defp insert_changeset(%Key{} = key, attrs) do
     key
-    |> cast(attrs, [:access_key, :secret_key, :account_uuid])
+    |> cast(attrs, [:access_key, :secret_key, :account_uuid, :expired])
     |> validate_required([:access_key, :secret_key, :account_uuid])
     |> unique_constraint(:access_key, name: :key_access_key_index)
     |> put_change(:secret_key_hash, Crypto.hash_secret(attrs[:secret_key]))
@@ -43,9 +44,16 @@ defmodule EWalletDB.Key do
     |> assoc_constraint(:account)
   end
 
+  defp update_changeset(%Key{} = key, attrs) do
+    key
+    |> cast(attrs, [:expired])
+    |> validate_required([:expired])
+  end
+
   @doc """
   Get all keys, exclude soft-deleted.
   """
+  @spec all() :: [%Key{}]
   def all do
     Key
     |> exclude_deleted()
@@ -69,6 +77,7 @@ defmodule EWalletDB.Key do
   @doc """
   Get key by its `:access_key`, exclude soft-deleted.
   """
+  @spec get(:access_key, String.t()) :: %Key{} | nil
   def get(:access_key, access_key) do
     Key
     |> exclude_deleted()
@@ -81,6 +90,7 @@ defmodule EWalletDB.Key do
   The `account_uuid` defaults to the master account if not provided.
   The `access_key` and `secret_key` are automatically generated if not specified.
   """
+  @spec insert(map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     attrs =
       attrs
@@ -89,7 +99,7 @@ defmodule EWalletDB.Key do
       |> Map.put_new_lazy(:secret_key, fn -> Crypto.generate_key(@secret_bytes) end)
 
     %Key{}
-    |> changeset(attrs)
+    |> insert_changeset(attrs)
     |> Repo.insert()
   end
 
@@ -101,12 +111,23 @@ defmodule EWalletDB.Key do
   end
 
   @doc """
+  Updates a key with the provided attributes.
+  """
+  @spec update(%Key{}, map()) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
+  def update(%Key{} = key, attrs) do
+    key
+    |> update_changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
   Authenticates using the specified access and secret keys.
   Returns the associated account if authenticated, false otherwise.
 
   Use this function instead of the usual get/2
   to avoid passing the access/secret key information around.
   """
+  @spec authenticate(String.t(), String.t()) :: {:ok, %Key{}} | false
   def authenticate(access, secret)
       when is_binary(access) and is_binary(secret) do
     query =
@@ -145,18 +166,25 @@ defmodule EWalletDB.Key do
   @doc """
   Checks whether the given key is soft-deleted.
   """
+  @spec deleted?(%Key{}) :: boolean()
   def deleted?(key), do: SoftDelete.deleted?(key)
 
   @doc """
   Soft-deletes the given key.
   """
+  @spec delete(%Key{}) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
   def delete(key), do: SoftDelete.delete(key)
 
   @doc """
   Restores the given key from soft-delete.
   """
+  @spec restore(%Key{}) :: {:ok, %Key{}} | {:error, Ecto.Changeset.t()}
   def restore(key), do: SoftDelete.restore(key)
 
+  @doc """
+  Retrieves all account uuids that are accessible by the given key.
+  """
+  @spec get_all_accessible_account_uuids(%Key{}) :: [%Account{}]
   def get_all_accessible_account_uuids(key) do
     Account.get_all_descendants_uuids(key.account)
   end
