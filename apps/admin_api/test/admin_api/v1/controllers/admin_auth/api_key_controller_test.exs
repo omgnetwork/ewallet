@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Account, APIKey}
+  alias EWalletDB.{Account, APIKey, Repo}
   alias EWalletDB.Helpers.Preloader
 
   describe "/api_key.all" do
@@ -115,35 +115,8 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
 
   describe "/api_key.update" do
     test "disables the API key" do
-      api_key = insert(:api_key) |> Repo.preload(:account)
+      api_key = :api_key |> insert() |> Repo.preload(:account)
       assert api_key.expired == false
-
-      response =
-        admin_user_request("/api_key.update", %{
-          id: api_key.id,
-          expired: false
-        })
-
-      assert response == %{
-               "version" => "1",
-               "success" => true,
-               "data" => %{
-                 "object" => "api_key",
-                 "id" => api_key.id,
-                 "key" => api_key.key,
-                 "expired" => false,
-                 "account_id" => api_key.account.id,
-                 "owner_app" => api_key.owner_app,
-                 "created_at" => Date.to_iso8601(api_key.inserted_at),
-                 "updated_at" => Date.to_iso8601(api_key.updated_at),
-                 "deleted_at" => Date.to_iso8601(api_key.deleted_at)
-               }
-             }
-    end
-
-    test "enables the API key" do
-      api_key = insert(:api_key, expired: true) |> Repo.preload(:account)
-      assert api_key.expired == true
 
       response =
         admin_user_request("/api_key.update", %{
@@ -151,26 +124,27 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
           expired: true
         })
 
-      assert response == %{
-               "version" => "1",
-               "success" => true,
-               "data" => %{
-                 "object" => "api_key",
-                 "id" => api_key.id,
-                 "key" => api_key.key,
-                 "expired" => true,
-                 "account_id" => api_key.account.id,
-                 "owner_app" => api_key.owner_app,
-                 "created_at" => Date.to_iso8601(api_key.inserted_at),
-                 "updated_at" => Date.to_iso8601(api_key.updated_at),
-                 "deleted_at" => Date.to_iso8601(api_key.deleted_at)
-               }
-             }
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["expired"] == true
+    end
+
+    test "enables the API key" do
+      api_key = :api_key |> insert(expired: true) |> Repo.preload(:account)
+      assert api_key.expired == true
+
+      response =
+        admin_user_request("/api_key.update", %{
+          id: api_key.id,
+          expired: false
+        })
+
+      assert response["data"]["id"] == api_key.id
+      assert response["data"]["expired"] == false
     end
 
     test "does not update any other fields" do
-      api_key = insert(:api_key, expired: true) |> Repo.preload(:account)
-      assert api_key.expired == true
+      api_key = :api_key |> insert() |> Repo.preload(:account)
+      assert api_key.expired == false
 
       response =
         admin_user_request("/api_key.update", %{
@@ -181,18 +155,20 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
           account_id: "random"
         })
 
+      updated = APIKey.get(api_key.id)
+
       assert response == %{
                "version" => "1",
                "success" => true,
                "data" => %{
                  "object" => "api_key",
-                 "id" => api_key.id,
+                 "id" => updated.id,
                  "key" => api_key.key,
                  "expired" => true,
                  "account_id" => api_key.account.id,
                  "owner_app" => api_key.owner_app,
                  "created_at" => Date.to_iso8601(api_key.inserted_at),
-                 "updated_at" => Date.to_iso8601(api_key.updated_at),
+                 "updated_at" => Date.to_iso8601(updated.updated_at),
                  "deleted_at" => Date.to_iso8601(api_key.deleted_at)
                }
              }

@@ -22,6 +22,7 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
                        "access_key" => key_1.access_key,
                        # Secret keys cannot be retrieved after creation
                        "secret_key" => nil,
+                       "expired" => key_1.expired,
                        "account_id" => Assoc.get(key_1, [:account, :id]),
                        "created_at" => Date.to_iso8601(key_1.inserted_at),
                        "updated_at" => Date.to_iso8601(key_1.updated_at),
@@ -33,6 +34,7 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
                        "access_key" => key_2.access_key,
                        # Secret keys cannot be retrieved after creation
                        "secret_key" => nil,
+                       "expired" => key_2.expired,
                        "account_id" => Assoc.get(key_2, [:account, :id]),
                        "created_at" => Date.to_iso8601(key_2.inserted_at),
                        "updated_at" => Date.to_iso8601(key_2.updated_at),
@@ -67,6 +69,7 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
                  "access_key" => _,
                  "secret_key" => _,
                  "account_id" => _,
+                 "expired" => _,
                  "created_at" => _,
                  "updated_at" => _,
                  "deleted_at" => _
@@ -76,6 +79,7 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
       assert response["data"]["id"] == key.id
       assert response["data"]["access_key"] == key.access_key
       assert response["data"]["account_id"] == Account.get_master_account().id
+      assert response["data"]["expired"] == key.expired
       assert response["data"]["created_at"] == Date.to_iso8601(key.inserted_at)
       assert response["data"]["updated_at"] == Date.to_iso8601(key.updated_at)
       assert response["data"]["deleted_at"] == Date.to_iso8601(key.deleted_at)
@@ -83,6 +87,59 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
       # We cannot know the `secret_key` from the controller call,
       # so we can only check that it is a string with some length.
       assert String.length(response["data"]["secret_key"]) > 0
+    end
+  end
+
+  describe "/access_key.update" do
+    test "disables the key" do
+      key = insert(:key)
+      assert key.expired == false
+
+      response =
+        admin_user_request("/access_key.update", %{
+          id: key.id,
+          expired: true
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["expired"] == true
+    end
+
+    test "enables the key" do
+      key = insert(:key, expired: true)
+      assert key.expired == true
+
+      response =
+        admin_user_request("/access_key.update", %{
+          id: key.id,
+          expired: false
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["expired"] == false
+    end
+
+    test "does not update any other fields" do
+      key = insert(:key, access_key: "key", secret_key: "secret", secret_key_hash: "hash")
+      assert key.expired == false
+
+      response =
+        admin_user_request("/access_key.update", %{
+          id: key.id,
+          expired: true,
+          access_key: "new_key",
+          secret_key: "new_secret_key",
+          secret_key_hash: "new_secret_key_hash"
+        })
+
+      assert response["data"]["id"] == key.id
+      assert response["data"]["expired"] == true
+      assert response["data"]["access_key"] == "old_key"
+      assert response["data"]["secret_key"] == nil
+
+      # Because secret_key_hash is not returned, fetch to confirm it was not changed
+      updated = Key.get(key.id)
+      assert updated.secret_key_hash == key.secret_key_hash
     end
   end
 

@@ -63,7 +63,7 @@ defmodule AdminAPI.V1.KeyController do
   end
 
   @doc """
-  Update a key.
+  Updates a key.
   """
   def update(conn, %{"id" => id} = attrs) do
     with %Key{} = api_key <- Key.get(id) || {:error, :api_key_not_found},
