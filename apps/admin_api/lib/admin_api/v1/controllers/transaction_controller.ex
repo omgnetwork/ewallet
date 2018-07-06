@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.TransactionController do
   alias EWallet.TransactionGate
   alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
   alias EWallet.TransactionPolicy
-  alias EWalletDB.{Repo, Transaction, User}
+  alias EWalletDB.{Repo, Transaction, User, Account}
   alias Ecto.Changeset
 
   # The field names to be mapped into DB column names.
@@ -52,6 +52,35 @@ defmodule AdminAPI.V1.TransactionController do
       {:error, error} -> handle_error(conn, error)
     end
   end
+
+  def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         linked_user_uuids <-
+           [account.uuid] |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      [account.uuid]
+      |> Transaction.all_for_account_and_user_uuids(linked_user_uuids)
+      |> query_records_and_respond(attrs, conn)
+    else
+      error -> respond_single(error, conn)
+    end
+  end
+
+  def all_for_account(conn, %{"id" => account_id} = attrs) do
+    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account),
+         linked_user_uuids <-
+           descendant_uuids |> Account.get_all_users() |> Enum.map(fn user -> user.uuid end) do
+      descendant_uuids
+      |> Transaction.all_for_account_and_user_uuids(linked_user_uuids)
+      |> query_records_and_respond(attrs, conn)
+    else
+      error -> respond_single(error, conn)
+    end
+  end
+
+  def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
 
   @doc """
   Server endpoint

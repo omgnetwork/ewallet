@@ -26,24 +26,31 @@ defmodule AdminAPI.V1.WalletController do
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
       Wallet
       |> Wallet.query_all_for_account_uuids_and_user(account_uuids)
-      |> SearchParser.to_query(attrs, @search_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
-      |> respond_multiple(conn)
+      |> do_all(attrs, conn)
     else
+      error -> handle_error(conn, error)
+    end
+  end
+
+  def all_for_account(conn, %{"id" => id, "owned" => true} = attrs) do
+    with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
+         :ok <- permit(:all, conn.assigns, account) do
+      account
+      |> Wallet.all_for()
+      |> do_all(attrs, conn)
+    else
+      {:error, error} -> handle_error(conn, error)
       error -> handle_error(conn, error)
     end
   end
 
   def all_for_account(conn, %{"id" => id} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
-         :ok <- permit(:all, conn.assigns, account) do
-      account
-      |> Wallet.all_for()
-      |> SearchParser.to_query(attrs, @search_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
-      |> respond_multiple(conn)
+         :ok <- permit(:all, conn.assigns, account),
+         descendant_uuids <- Account.get_all_descendants_uuids(account) do
+      Wallet
+      |> Wallet.query_all_for_account_uuids(descendant_uuids)
+      |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
       error -> handle_error(conn, error)
@@ -57,10 +64,7 @@ defmodule AdminAPI.V1.WalletController do
          :ok <- permit(:all, conn.assigns, user) do
       user
       |> Wallet.all_for()
-      |> SearchParser.to_query(attrs, @search_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
-      |> respond_multiple(conn)
+      |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
       error -> handle_error(conn, error)
@@ -73,9 +77,7 @@ defmodule AdminAPI.V1.WalletController do
          :ok <- permit(:all, conn.assigns, user) do
       user
       |> Wallet.all_for()
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
-      |> respond_multiple(conn)
+      |> do_all(attrs, conn)
     else
       {:error, error} -> handle_error(conn, error)
       error -> handle_error(conn, error)
@@ -83,6 +85,14 @@ defmodule AdminAPI.V1.WalletController do
   end
 
   def all_for_user(conn, _), do: handle_error(conn, :invalid_parameter)
+
+  defp do_all(query, attrs, conn) do
+    query
+    |> SearchParser.to_query(attrs, @search_fields)
+    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
+    |> Paginator.paginate_attrs(attrs)
+    |> respond_multiple(conn)
+  end
 
   @spec get(Conn.t(), map()) :: map()
   def get(conn, %{"address" => address}) do

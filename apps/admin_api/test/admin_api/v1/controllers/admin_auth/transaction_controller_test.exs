@@ -90,6 +90,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
     %{
       mint: mint,
+      token: token,
       user: user,
       wallet_1: wallet_1,
       wallet_2: wallet_2,
@@ -188,6 +189,125 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
     test "returns all transactions sorted and paginated", meta do
       response =
         admin_user_request("/transaction.all", %{
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "per_page" => 2,
+          "page" => 1
+        })
+
+      assert response["data"]["data"] |> length() == 2
+      transaction_1 = Enum.at(response["data"]["data"], 0)
+      transaction_2 = Enum.at(response["data"]["data"], 1)
+      assert transaction_2["created_at"] > transaction_1["created_at"]
+
+      assert transaction_1["id"] == meta.mint.transaction.id
+      assert transaction_2["id"] == meta.init_transaction_1.id
+    end
+  end
+
+  describe "/account.get_transactions" do
+    test "returns all the transactions", meta do
+      account = Account.get_master_account()
+      {:ok, account_1} = :account |> params_for() |> Account.insert()
+      {:ok, account_2} = :account |> params_for() |> Account.insert()
+      {:ok, account_3} = :account |> params_for() |> Account.insert()
+
+      wallet_1 = Account.get_primary_wallet(account_1)
+      wallet_2 = Account.get_primary_wallet(account_2)
+      wallet_3 = Account.get_primary_wallet(account_3)
+
+      set_initial_balance(%{address: wallet_1.address, token: meta.token, amount: 10}, false)
+      set_initial_balance(%{address: wallet_2.address, token: meta.token, amount: 20}, false)
+      set_initial_balance(%{address: wallet_3.address, token: meta.token, amount: 20}, false)
+
+      response =
+        admin_user_request("/account.get_transactions", %{
+          "id" => account.id,
+          "sort_by" => "created",
+          "sort_dir" => "asc",
+          "per_page" => 50
+        })
+
+      assert length(response["data"]["data"]) == 13
+    end
+
+    test "returns all the transactions when owned is true", meta do
+      account = Account.get_master_account()
+      {:ok, account_1} = :account |> params_for() |> Account.insert()
+      {:ok, account_2} = :account |> params_for() |> Account.insert()
+      {:ok, account_3} = :account |> params_for() |> Account.insert()
+
+      wallet_1 = Account.get_primary_wallet(account_1)
+      wallet_2 = Account.get_primary_wallet(account_2)
+      wallet_3 = Account.get_primary_wallet(account_3)
+
+      set_initial_balance(%{address: wallet_1.address, token: meta.token, amount: 10}, false)
+      set_initial_balance(%{address: wallet_2.address, token: meta.token, amount: 20}, false)
+      set_initial_balance(%{address: wallet_3.address, token: meta.token, amount: 20}, false)
+
+      response =
+        admin_user_request("/account.get_transactions", %{
+          "id" => account.id,
+          "owned" => true,
+          "sort_by" => "created",
+          "sort_dir" => "asc",
+          "per_page" => 50
+        })
+
+      assert length(response["data"]["data"]) == 13
+    end
+
+    test "returns all the transactions for a specific address", meta do
+      account = Account.get_master_account()
+
+      response =
+        admin_user_request("/account.get_transactions", %{
+          "id" => account.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_terms" => %{
+            "from" => meta.wallet_1.address,
+            "to" => meta.wallet_2.address
+          }
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transaction_1.id,
+               meta.transaction_4.id
+             ]
+    end
+
+    test "returns all transactions filtered", meta do
+      account = Account.get_master_account()
+
+      response =
+        admin_user_request("/account.get_transactions", %{
+          "id" => account.id,
+          "sort_by" => "created_at",
+          "sort_dir" => "asc",
+          "search_term" => "pending"
+        })
+
+      assert response["data"]["data"] |> length() == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.transaction_4.id,
+               meta.transaction_8.id
+             ]
+    end
+
+    test "returns all transactions sorted and paginated", meta do
+      account = Account.get_master_account()
+
+      response =
+        admin_user_request("/account.get_transactions", %{
+          "id" => account.id,
           "sort_by" => "created_at",
           "sort_dir" => "asc",
           "per_page" => 2,
