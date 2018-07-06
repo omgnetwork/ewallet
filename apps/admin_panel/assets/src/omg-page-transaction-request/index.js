@@ -10,7 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import { formatNumber, formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatNumber, formatReceiveAmountToTotal } from '../utils/formatter'
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -101,7 +101,7 @@ class TransactionRequestsPage extends Component {
       )
     }
     if (key === 'amount') {
-      return `${formatRecieveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
+      return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${rows.token.symbol}`
     }
     if (key === 'created_by') {
       return rows.user_id || rows.account.name || rows.account_id

@@ -8,7 +8,7 @@ import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-import { formatRecieveAmountToTotal, formatAmount } from '../utils/formatter'
+import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 const Form = styled.form`
@@ -176,7 +176,7 @@ class CreateTransactionModal extends Component {
 
   getBalanceOfSelectedToken = type => {
     return this.state[`${type}Selected`]
-      ? formatRecieveAmountToTotal(
+      ? formatReceiveAmountToTotal(
           _.get(this.state[`${type}Selected`], 'amount'),
           _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
         )
