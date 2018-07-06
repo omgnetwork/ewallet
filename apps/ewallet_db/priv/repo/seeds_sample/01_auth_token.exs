@@ -23,10 +23,15 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSampleSeed do
           Auth token       : #{token.token}
         """)
 
-        args ++ [{:seeded_ewallet_auth_token, token.token}]
+        args ++ [
+          {:seeded_ewallet_user_id, user.id},
+          {:seeded_ewallet_auth_token, token.token}
+        ]
+
       {:error, changeset} ->
         writer.error("  Auth token for #{user.id} and ewallet_api could not be inserted:")
         writer.print_errors(changeset)
+
       _ ->
         writer.error("  Auth token for #{user.id} and ewallet_api could not be inserted:")
         writer.error("  Unknown error.")
