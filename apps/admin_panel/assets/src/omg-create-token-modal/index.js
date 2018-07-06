@@ -49,7 +49,7 @@ class CreateTokenModal extends Component {
   initialState = {
     name: '',
     symbol: '',
-    amount: 0,
+    amount: null,
     decimal: 18,
     error: '',
     submitting: false

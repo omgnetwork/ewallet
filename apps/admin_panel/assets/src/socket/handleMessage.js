@@ -1,5 +1,4 @@
 export const handleWebsocketMessage = store => message => {
-  console.log(message)
   switch (message.event) {
     case 'transaction_consumption_request':
       return store.dispatch({
