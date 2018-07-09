@@ -9,7 +9,7 @@ let store
 describe('account actions', () => {
   beforeEach(() => {
     jest.resetAllMocks()
-    store = mockStore({ accounts: {} })
+    store = mockStore()
   })
   test('[createAccount] should dispatch failed action if fail to create account', () => {
     accountService.createAccount.mockImplementation(() => {

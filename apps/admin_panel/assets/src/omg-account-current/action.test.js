@@ -10,7 +10,7 @@ describe('account actions', () => {
     const middlewares = [thunk.withExtraArgument({ socket: { joinChannel } })]
     const mockStore = configureMockStore(middlewares)
     jest.resetAllMocks()
-    store = mockStore({ accounts: {} })
+    store = mockStore()
   })
   test('[updateAccount] should dispatch success action if can update current account', () => {
     accountService.updateAccountInfo.mockImplementation(() => {
