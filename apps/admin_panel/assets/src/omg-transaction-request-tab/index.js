@@ -54,6 +54,9 @@ const InformationItem = styled.div`
   :not(:last-child) {
     margin-bottom: 10px;
   }
+  span {
+    vertical-align: baseline;
+  }
 `
 const QrContainer = styled.div`
   background-color: white;
