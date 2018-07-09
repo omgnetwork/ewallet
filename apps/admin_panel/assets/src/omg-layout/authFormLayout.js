@@ -41,7 +41,7 @@ const Content = styled.div`
   position: relative;
 `
 
-const AuthFormLayout = class extends Component {
+class AuthFormLayout extends Component {
   static propTypes = {
     children: PropTypes.node
   }

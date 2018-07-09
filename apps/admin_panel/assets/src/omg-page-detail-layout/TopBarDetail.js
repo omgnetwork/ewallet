@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Breadcrumb, Button, Icon } from '../omg-uikit'
+import { Breadcrumb } from '../omg-uikit'
 const TopBarAction = styled.div`
   flex: 0 1 auto;
   margin-left: auto;

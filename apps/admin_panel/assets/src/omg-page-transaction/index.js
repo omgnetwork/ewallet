@@ -10,7 +10,7 @@ import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
-import { formatNumber, formatReceiveAmountToTotal } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
