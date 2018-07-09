@@ -160,7 +160,7 @@ class CreateTransactionRequest extends Component {
             />
             <StyledRadioButton
               onClick={this.onRadioChange('type')(false)}
-              label='Recieve'
+              label='Receive'
               checked={!this.state.type}
             />
           </InputLabelContainer>

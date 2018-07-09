@@ -10,7 +10,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
-import { formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -106,7 +106,7 @@ class TransactionRequestsPage extends Component {
         'Not Specified'
       ) : (
         <span>
-          {formatRecieveAmountToTotal(
+          {formatReceiveAmountToTotal(
             data,
             _.get(rows, 'token.subunit_to_unit')
           )}{' '}

@@ -9,7 +9,7 @@ import queryString from 'query-string'
 import QR from './QrCode'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { formatRecieveAmountToTotal, formatAmount, formatAmountReceive } from '../utils/formatter'
+import { formatReceiveAmountToTotal, formatAmount, formatAmountReceive } from '../utils/formatter'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
@@ -283,7 +283,7 @@ class TransactionRequestPanel extends Component {
         'Not Specified'
       ) : (
         <span>
-          {formatRecieveAmountToTotal(
+          {formatReceiveAmountToTotal(
             transactionRequest.amount,
             _.get(transactionRequest, 'token.subunit_to_unit')
           )}{' '}
@@ -450,7 +450,7 @@ class TransactionRequestPanel extends Component {
         render={({ transactionRequest: tq }) => {
           const amount = tq.allow_amount_override
             ? ''
-            : formatRecieveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))
+            : formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
