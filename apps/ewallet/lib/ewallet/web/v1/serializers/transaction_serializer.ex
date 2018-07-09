@@ -66,8 +66,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
       },
       exchange: %{
         object: "exchange",
-        rate: transaction.rate || 1,
-        calculated_at: transaction.calculated_at,
+        rate: transaction.rate,
+        calculated_at: Date.to_iso8601(transaction.calculated_at),
         exchange_pair_id: Assoc.get(transaction, [:exchange_pair, :id]),
         exchange_pair: ExchangePairSerializer.serialize(transaction.exchange_pair),
         exchange_account_id: Assoc.get(transaction, [:exchange_account, :id]),

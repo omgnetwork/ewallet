@@ -42,7 +42,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
           },
           exchange: %{
             object: "exchange",
-            rate: 1,
+            rate: nil,
             calculated_at: nil,
             exchange_pair: nil,
             exchange_pair_id: nil,
@@ -117,7 +117,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
               },
               exchange: %{
                 object: "exchange",
-                rate: 1,
+                rate: nil,
                 calculated_at: nil,
                 exchange_pair: nil,
                 exchange_pair_id: nil,
@@ -162,7 +162,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
               },
               exchange: %{
                 object: "exchange",
-                rate: 1,
+                rate: nil,
                 calculated_at: nil,
                 exchange_pair: nil,
                 exchange_pair_id: nil,
