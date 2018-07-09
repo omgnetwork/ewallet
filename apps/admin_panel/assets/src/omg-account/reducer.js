@@ -1,9 +1,10 @@
 import createReducer from '../reducer/createReducer'
-
+import _ from 'lodash'
 export const accountsReducer = createReducer(
   {},
   {
     'ACCOUNTS/REQUEST/SUCCESS': (state, { data }) => {
+      console.log(data)
       return { ...state, ..._.keyBy(data, 'id') }
     },
     'ACCOUNT/CREATE/SUCCESS': (state, { data }) => {
