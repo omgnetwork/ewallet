@@ -37,6 +37,28 @@ defmodule EWallet.WalletPolicy do
   end
 
   # For wallets owned by users
+  def authorize(:create_transaction, %{end_user: end_user}, %Wallet{user_uuid: uuid})
+      when not is_nil(uuid) do
+    end_user.uuid == uuid
+  end
+
+  def authorize(:create_transaction, _params, %Wallet{user_uuid: uuid}) when not is_nil(uuid) do
+    with %User{} = _wallet_user <- User.get_by(uuid: uuid) || {:error, :unauthorized} do
+      true
+    else
+      error -> error
+    end
+  end
+
+  def authorize(:create_transaction, params, %Wallet{account_uuid: uuid}) when not is_nil(uuid) do
+    with %Account{} = wallet_account <- Account.get_by(uuid: uuid) || {:error, :unauthorized} do
+      AccountPolicy.authorize(:admin, params, wallet_account.id)
+    else
+      error -> error
+    end
+  end
+
+  # For wallets owned by users
   def authorize(_action, params, %Wallet{user_uuid: uuid}) when not is_nil(uuid) do
     with %User{} = wallet_user <- User.get_by(uuid: uuid) || {:error, :unauthorized} do
       UserPolicy.authorize(:admin, params, wallet_user)
