@@ -5,14 +5,14 @@ import * as accountService from '../services/accountService'
 jest.mock('../services/accountService')
 let store
 const joinChannel = jest.fn()
-describe('account actions', () => {
+describe('current account actions', () => {
   beforeEach(() => {
     const middlewares = [thunk.withExtraArgument({ socket: { joinChannel } })]
     const mockStore = configureMockStore(middlewares)
     jest.resetAllMocks()
     store = mockStore()
   })
-  test('[updateAccount] should dispatch success action if can update current account', () => {
+  test('[updateCurrentAccount] should dispatch success action if can update current account', () => {
     accountService.updateAccountInfo.mockImplementation(() => {
       return Promise.resolve({ data: { success: true, data: { id: 'accc' } } })
     })
