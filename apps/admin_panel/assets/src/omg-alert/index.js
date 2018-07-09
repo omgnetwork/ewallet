@@ -80,6 +80,9 @@ class AlertItem extends Component {
     clearAlert: PropTypes.func,
     type: PropTypes.string
   }
+  static defaultProps = {
+    type: 'default'
+  }
   componentDidMount = () => {
     setTimeout(() => {
       this.props.clearAlert(this.props.id)
@@ -106,7 +109,7 @@ class AlertItem extends Component {
       ),
       default: <AlertItemContainer>{this.props.children}</AlertItemContainer>
     }
-    return alertType[this.props.type || 'default']
+    return alertType[this.props.type]
   }
 }
 

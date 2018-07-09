@@ -3,7 +3,8 @@ import createHeader from '../utils/headerGenerator'
 import { API_URL } from '../config'
 import urlJoin from 'url-join'
 export function request ({ path, data, headers }) {
-  return axios.post(urlJoin(API_URL, path), data, { headers })
+  const joinedPath = urlJoin(API_URL, path)
+  return axios.post(joinedPath, data, { headers })
 }
 export function authenticatedRequest ({ path, data }) {
   const headers = createHeader({ auth: true })

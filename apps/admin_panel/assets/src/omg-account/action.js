@@ -36,7 +36,7 @@ export const getAccounts = ({ page, perPage, search, cacheKey }) => async dispat
       perPage: perPage,
       page,
       sort: { by: 'created_at', dir: 'desc' },
-      search_term: search
+      search
     })
     if (result.data.success) {
       return dispatch({

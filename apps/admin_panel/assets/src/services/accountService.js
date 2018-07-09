@@ -1,5 +1,5 @@
 import { authenticatedRequest, authenticatedMultipartRequest } from './apiService'
-export function getAllAccounts ({ perPage, page, sort, query, ...rest }) {
+export function getAllAccounts ({ perPage, page, sort, query, search, searchTerms }) {
   return authenticatedRequest({
     path: '/account.all',
     data: {
@@ -7,8 +7,8 @@ export function getAllAccounts ({ perPage, page, sort, query, ...rest }) {
       page: Number(page) || 1,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      ...rest
+      search_term: search,
+      search_terms: searchTerms
     }
   })
 }
