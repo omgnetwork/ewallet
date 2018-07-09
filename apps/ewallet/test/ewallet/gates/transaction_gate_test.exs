@@ -254,6 +254,7 @@ defmodule EWallet.TransactionGateTest do
           "from_token_id" => token_1.id,
           "to_token_id" => token_2.id,
           "from_amount" => 100 * token_1.subunit_to_unit,
+          "to_amount" => 200 * token_1.subunit_to_unit,
           "exchange_account_id" => account.id,
           "metadata" => %{something: "interesting"},
           "encrypted_metadata" => %{something: "secret"}
