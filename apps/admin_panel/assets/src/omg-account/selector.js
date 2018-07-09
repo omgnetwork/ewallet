@@ -1,7 +1,9 @@
 import { createSelectAllPagesCachedQuery } from '../omg-cache/selector'
+
 export const selectAccounts = state => {
   return _.values(state.accounts) || []
 }
+
 export const selectAccountsCachedQuery = state => cacheKey => {
   return _.get(state.cacheQueries[cacheKey], 'ids', []).map(accountId => {
     return selectGetAccountById(state)(accountId)
