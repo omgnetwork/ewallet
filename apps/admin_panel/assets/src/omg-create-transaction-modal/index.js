@@ -130,18 +130,20 @@ class CreateTransaction extends Component {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
-      const fromAmount = !this.state.fromTokenAmount
-        ? null
-        : formatAmount(
-            this.state.fromTokenAmount,
-            _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
-          )
-      const toAmount = !this.state.toTokenAmount
-        ? null
-        : formatAmount(
-            this.state.toTokenAmount,
-            _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
-          )
+      const fromAmount =
+        !this.state.fromTokenAmount || !this.state.fromTokenSelected
+          ? null
+          : formatAmount(
+              this.state.fromTokenAmount,
+              _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
+            )
+      const toAmount =
+        !this.state.toTokenAmount || !this.state.toTokenSelected
+          ? null
+          : formatAmount(
+              this.state.toTokenAmount,
+              _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
+            )
       const result = await this.props.transfer({
         fromAddress: this.state.fromAddress,
         toAddress: this.state.toAddress,
