@@ -124,7 +124,7 @@ class AccountSettingPage extends Component {
         avatar: this.state.image
       })
 
-      if (result.data.success) {
+      if (result.data) {
         this.setState({ image: null })
         this.setState({ submitStatus: 'SUBMITTED' })
       } else {

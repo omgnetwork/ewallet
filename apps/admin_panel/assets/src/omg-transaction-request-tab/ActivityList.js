@@ -88,7 +88,6 @@ class ActivityList extends Component {
   }
   onClickConfirm = (id, fetch, pendingConsumption) => async e => {
     e.stopPropagation()
-    console.log(pendingConsumption.length, this.perPage)
     if (pendingConsumption.length - 1 === this.perPage) {
       fetch()
     }

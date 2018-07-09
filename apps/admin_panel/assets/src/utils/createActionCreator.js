@@ -1,7 +1,12 @@
-export const createActionCreator = ({ actionName, action, service }) => async dispatch => {
+import _ from 'lodash'
+export const createActionCreator = ({ actionName, action, service }) => async (
+  dispatch,
+  getState = _.noop,
+  injected = {}
+) => {
   dispatch({ type: `${actionName}/${action}/INITIATED` })
   try {
-    const result = await service()
+    const result = await service(dispatch, getState, injected)
     if (result.data.success) {
       return dispatch({
         type: `${actionName}/${action}/SUCCESS`,
@@ -16,7 +21,12 @@ export const createActionCreator = ({ actionName, action, service }) => async di
   }
 }
 
-export const createPaginationActionCreator = ({ actionName, action, service, cacheKey }) => async dispatch => {
+export const createPaginationActionCreator = ({
+  actionName,
+  action,
+  service,
+  cacheKey
+}) => async dispatch => {
   dispatch({ type: `${actionName}/${action}/INITIATED` })
   try {
     const result = await service()

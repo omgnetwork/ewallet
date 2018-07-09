@@ -4,7 +4,6 @@ export const accountsReducer = createReducer(
   {},
   {
     'ACCOUNTS/REQUEST/SUCCESS': (state, { data }) => {
-      console.log(data)
       return { ...state, ..._.keyBy(data, 'id') }
     },
     'ACCOUNT/CREATE/SUCCESS': (state, { data }) => {
@@ -13,8 +12,8 @@ export const accountsReducer = createReducer(
     'ACCOUNT/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.id]: data } }
     },
-    'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, action) => {
-      return { ...state, ...{ [action.currentAccount.id]: action.currentAccount } }
+    'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     }
   }
 )
