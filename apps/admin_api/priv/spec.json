@@ -1117,43 +1117,6 @@
         } ]
       }
     },
-    "/account.get_members" : {
-      "post" : {
-        "tags" : [ "Account" ],
-        "summary" : "List the users that are currently assigned to the given acount",
-        "operationId" : "account_get_users",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/AccountListUsersBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of users",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/UsersResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ProviderAuth" : [ ]
-        }, {
-          "AdminAuth" : [ ]
-        } ]
-      }
-    },
     "/account.assign_user" : {
       "post" : {
         "tags" : [ "Account" ],
@@ -1228,11 +1191,122 @@
         } ]
       }
     },
+    "/account.get_members" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "List the admins that are currently assigned to the given acount",
+        "operationId" : "account_get_members",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccountListBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of members",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/MembersResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/account.get_users" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "List the users that are linked with the given account",
+        "operationId" : "account_get_users",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccountListBodyWithOwned"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of users",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UsersResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/account.get_descendants" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "Get the list of descendants for the given account",
+        "operationId" : "account_get_descantants",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccountAllBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of accounts",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AccountsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/account.get_wallets" : {
       "post" : {
         "tags" : [ "Account" ],
         "summary" : "Get the list of wallets for the given account",
-        "operationId" : "account_wallet_all",
+        "operationId" : "account_get_wallets",
         "requestBody" : {
           "$ref" : "#/components/requestBodies/WalletAccountBody"
         },
@@ -1243,6 +1317,117 @@
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/WalletsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/account.get_transactions" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "List the transactions for the current account",
+        "operationId" : "account_get_transactions",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccountListBodyWithOwned"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transactions",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/account.get_transaction_requests" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "List the transaction requests for the current account",
+        "operationId" : "account_get_transaction_requests",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccountListBodyWithOwned"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction requests",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionRequestsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/account.get_transaction_consumptions" : {
+      "post" : {
+        "tags" : [ "Account" ],
+        "summary" : "List the transaction consumptions for the current account",
+        "operationId" : "account_get_transaction_consumptions",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AccountListBodyWithOwned"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of transaction consumptions",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
                 }
               }
             }
@@ -2163,43 +2348,6 @@
         } ]
       }
     },
-    "/account.get_transaction_consumptions" : {
-      "post" : {
-        "tags" : [ "Account" ],
-        "summary" : "Get the list of transaction consumptions for an account",
-        "operationId" : "account_get_consumptions",
-        "requestBody" : {
-          "$ref" : "#/components/requestBodies/TransactionConsumptionAllForAccountBody"
-        },
-        "responses" : {
-          "200" : {
-            "description" : "Returns a list of transaction consumptions",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/TransactionConsumptionsResponseSchema"
-                }
-              }
-            }
-          },
-          "500" : {
-            "description" : "Returns an internal server error",
-            "content" : {
-              "application/vnd.omisego.v1+json" : {
-                "schema" : {
-                  "$ref" : "#/components/schemas/ErrorResponseSchema"
-                }
-              }
-            }
-          }
-        },
-        "security" : [ {
-          "ProviderAuth" : [ ]
-        }, {
-          "AdminAuth" : [ ]
-        } ]
-      }
-    },
     "/user.get_transaction_consumptions" : {
       "post" : {
         "tags" : [ "User" ],
@@ -2934,7 +3082,7 @@
         } ]
       },
       "AuthenticationTokenSchema" : {
-        "required" : [ "account", "account_id", "authentication_token", "object", "user", "user_id" ],
+        "required" : [ "account", "account_id", "authentication_token", "master_admin", "object", "role", "user", "user_id" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -2957,6 +3105,9 @@
           },
           "account" : {
             "$ref" : "#/components/schemas/AccountSchema"
+          },
+          "role" : {
+            "type" : "string"
           }
         },
         "description" : "The object schema for an authentication token"
@@ -3009,7 +3160,9 @@
                 },
                 "created_at" : "2018-01-01T00:00:00Z",
                 "updated_at" : "2018-01-01T10:00:00Z"
-              }
+              },
+              "master_admin" : true,
+              "role" : "admin"
             }
           }
         } ]
@@ -3712,6 +3865,73 @@
           }
         } ]
       },
+      "MemberSchema" : {
+        "required" : [ "created_at", "id", "object", "updated_at" ],
+        "type" : "object",
+        "properties" : {
+          "object" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "username" : {
+            "type" : "string"
+          },
+          "provider_user_id" : {
+            "type" : "string"
+          },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
+          "metadata" : {
+            "type" : "object"
+          },
+          "encrypted_metadata" : {
+            "type" : "object"
+          },
+          "avatar" : {
+            "type" : "object"
+          },
+          "created_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "role" : {
+            "type" : "string"
+          },
+          "account" : {
+            "$ref" : "#/components/schemas/AccountSchema"
+          }
+        },
+        "description" : "The object schema for an account member",
+        "example" : {
+          "object" : "user",
+          "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
+          "provider_user_id" : "wijf-fbancomw-dqwjudb",
+          "username" : "johndoe",
+          "email" : "johndoe@omise.co",
+          "metadata" : {
+            "first_name" : "John",
+            "last_name" : "Doe"
+          },
+          "encrypted_metadata" : {
+            "something" : "secret"
+          },
+          "avatar" : {
+            "original" : "file_url"
+          },
+          "created_at" : "2018-01-01T00:00:00Z",
+          "updated_at" : "2018-01-01T10:00:00Z",
+          "account" : { },
+          "role" : "admin"
+        }
+      },
       "UserSchema" : {
         "required" : [ "created_at", "id", "object", "updated_at" ],
         "type" : "object",
@@ -3799,6 +4019,64 @@
               },
               "created_at" : "2018-01-01T00:00:00Z",
               "updated_at" : "2018-01-01T10:00:00Z"
+            }
+          }
+        } ]
+      },
+      "MembersResponseSchema" : {
+        "description" : "The response schema for a list of members",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "type" : "object",
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/PaginatedListSchema"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/MemberSchema"
+                    }
+                  }
+                }
+              } ]
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "list",
+              "data" : [ {
+                "object" : "user",
+                "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
+                "provider_user_id" : null,
+                "username" : "johndoe",
+                "email" : "johndoe@omise.co",
+                "metadata" : {
+                  "first_name" : "John",
+                  "last_name" : "Doe"
+                },
+                "encrypted_metadata" : {
+                  "something" : "secret"
+                },
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T10:00:00Z",
+                "role" : "admin",
+                "account" : { }
+              } ],
+              "pagination" : {
+                "per_page" : 10,
+                "current_page" : 1,
+                "is_first_page" : true,
+                "is_last_page" : true
+              }
             }
           }
         } ]
@@ -5226,6 +5504,16 @@
           }
         }
       },
+      "MembersResponse" : {
+        "description" : "Returns a list of members",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/MembersResponseSchema"
+            }
+          }
+        }
+      },
       "UsersResponse" : {
         "description" : "Returns a list of users",
         "content" : {
@@ -6203,19 +6491,92 @@
         },
         "required" : true
       },
-      "AccountListUsersBody" : {
-        "description" : "The parameters to use for assigning listing users in an account",
+      "AccountListBodyWithOwned" : {
+        "description" : "The parameters to use for listing an account's owned data",
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "account_id" ],
+              "required" : [ "id" ],
               "properties" : {
-                "account_id" : {
+                "id" : {
                   "type" : "string"
+                },
+                "owned" : {
+                  "type" : "boolean"
+                },
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_term" : {
+                  "type" : "string"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
                 }
               },
               "example" : {
-                "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf"
+                "id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
+                "owned" : true,
+                "page" : 1,
+                "per_page" : 10,
+                "search_term" : "",
+                "sort_by" : "field_name",
+                "sort_dir" : "asc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "AccountListBody" : {
+        "description" : "The parameters to use for listing an account's data",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_term" : {
+                  "type" : "string"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
+                "page" : 1,
+                "per_page" : 10,
+                "search_term" : "",
+                "sort_by" : "field_name",
+                "sort_dir" : "asc"
               }
             }
           }
@@ -7275,50 +7636,6 @@
                 "page" : 1,
                 "per_page" : 10,
                 "search_term" : "",
-                "sort_by" : "created_at",
-                "sort_dir" : "desc"
-              }
-            }
-          }
-        },
-        "required" : true
-      },
-      "TransactionConsumptionAllForAccountBody" : {
-        "description" : "The parameters to use for listing the consumptions for an account",
-        "content" : {
-          "application/vnd.omisego.v1+json" : {
-            "schema" : {
-              "required" : [ "account_id" ],
-              "properties" : {
-                "account_id" : {
-                  "type" : "string"
-                },
-                "page" : {
-                  "minimum" : 1,
-                  "type" : "integer",
-                  "format" : "int32"
-                },
-                "per_page" : {
-                  "minimum" : 1,
-                  "type" : "integer",
-                  "format" : "int32"
-                },
-                "search_terms" : {
-                  "type" : "object"
-                },
-                "sort_by" : {
-                  "type" : "string"
-                },
-                "sort_dir" : {
-                  "type" : "string",
-                  "enum" : [ "asc", "desc" ]
-                }
-              },
-              "example" : {
-                "account_id" : "acc_01ca2p8jqans5aty5gj5etmjcf",
-                "page" : 1,
-                "per_page" : 10,
-                "search_terms" : { },
                 "sort_by" : "created_at",
                 "sort_dir" : "desc"
               }
