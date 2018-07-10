@@ -2,19 +2,19 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { selectCurrentAccount, selectCurrentAccountLoadingStatus } from './selector'
-import { loadCurrentAccount } from './action'
+import { getCurrentAccount } from './action'
 import { withRouter } from 'react-router-dom'
 class CurrentAccountProvider extends Component {
   static propTypes = {
     render: PropTypes.func,
     currentAccount: PropTypes.object,
-    loadCurrentAccount: PropTypes.func,
+    getCurrentAccount: PropTypes.func,
     currentAccountLoadingStatus: PropTypes.string,
     match: PropTypes.object
   }
   componentDidMount = () => {
     if (this.props.currentAccountLoadingStatus === 'DEFAULT') {
-      this.props.loadCurrentAccount(this.props.match.params.accountId)
+      this.props.getCurrentAccount(this.props.match.params.accountId)
     }
   }
   render () {
@@ -31,7 +31,7 @@ const EnhancedCurrentAccountProvider = connect(
       currentAccountLoadingStatus: selectCurrentAccountLoadingStatus(state)
     }
   },
-  { loadCurrentAccount }
+  { getCurrentAccount }
 )(withRouter(CurrentAccountProvider))
 
 export const currentAccountProviderHoc = BaseComponent =>

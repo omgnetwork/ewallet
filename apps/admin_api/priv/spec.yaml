@@ -1540,6 +1540,8 @@ components:
         account:
           type: object
           $ref: '#/components/schemas/AccountSchema'
+        role:
+          type: string
       required:
         - object
         - authentication_token
@@ -1547,6 +1549,8 @@ components:
         - user
         - account_id
         - account
+        - master_admin
+        - role
     AuthenticationTokenResponseSchema:
       description: "The response schema for an authentication token"
       allOf:
@@ -1586,7 +1590,8 @@ components:
               avatar: {"original": "file_url"}
               created_at: "2018-01-01T00:00:00Z"
               updated_at: "2018-01-01T10:00:00Z"
-
+            master_admin: true
+            role: 'admin'
     ######################################
     #         TOKEN SCHEMAS       #
     ######################################

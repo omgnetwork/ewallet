@@ -8,7 +8,7 @@
     "start:dev": "webpack-dev-server --config webpack/webpack.dev.config.js --hot --progress",
     "build": "webpack --config webpack/webpack.prod.config.js --colors",
     "test": "jest --config config/jest.config.js",
-    "test:watch": "yarn test -- --watch --config config/jest.config.js",
+    "test:watch": "jest --config config/jest.config.js --watch",
     "lint": "eslint src --ext .js"
   },
   "license": "Apache 2.0",
@@ -80,6 +80,7 @@
     "recompose": "^0.26.0",
     "redux": "^3.7.2",
     "redux-devtools-extension": "^2.13.2",
+    "redux-mock-store": "^1.5.3",
     "redux-thunk": "^2.2.0",
     "reselect": "^3.0.1",
     "reset-css": "^3.0.0",

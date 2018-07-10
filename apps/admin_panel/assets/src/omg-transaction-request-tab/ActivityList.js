@@ -6,7 +6,7 @@ import ConsumptionFetcherByTransactionIdFetcher from '../omg-consumption/consump
 import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import { formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 import { Icon } from '../omg-uikit'
 import { compose } from 'recompose'
 import { connect } from 'react-redux'
@@ -88,7 +88,6 @@ class ActivityList extends Component {
   }
   onClickConfirm = (id, fetch, pendingConsumption) => async e => {
     e.stopPropagation()
-    console.log(pendingConsumption.length, this.perPage)
     if (pendingConsumption.length - 1 === this.perPage) {
       fetch()
     }
@@ -114,7 +113,7 @@ class ActivityList extends Component {
     if (key === 'estimated_consumption_amount') {
       return (
         <div>
-          {formatRecieveAmountToTotal(data, _.get(rows, 'token.subunit_to_unit'))}{' '}
+          {formatReceiveAmountToTotal(data, _.get(rows, 'token.subunit_to_unit'))}{' '}
           {_.get(rows, 'token.symbol')}
         </div>
       )

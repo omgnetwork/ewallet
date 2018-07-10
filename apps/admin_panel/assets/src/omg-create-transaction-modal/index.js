@@ -8,7 +8,7 @@ import { getWalletById } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
-import { formatRecieveAmountToTotal, formatAmount } from '../utils/formatter'
+import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 const Form = styled.form`
@@ -130,18 +130,20 @@ class CreateTransaction extends Component {
     e.preventDefault()
     this.setState({ submitting: true })
     try {
-      const fromAmount = !this.state.fromTokenAmount
-        ? null
-        : formatAmount(
-            this.state.fromTokenAmount,
-            _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
-          )
-      const toAmount = !this.state.toTokenAmount
-        ? null
-        : formatAmount(
-            this.state.toTokenAmount,
-            _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
-          )
+      const fromAmount =
+        !this.state.fromTokenAmount || !this.state.fromTokenSelected
+          ? null
+          : formatAmount(
+              this.state.fromTokenAmount,
+              _.get(this.state.fromTokenSelected, 'token.subunit_to_unit')
+            )
+      const toAmount =
+        !this.state.toTokenAmount || !this.state.toTokenSelected
+          ? null
+          : formatAmount(
+              this.state.toTokenAmount,
+              _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
+            )
       const result = await this.props.transfer({
         fromAddress: this.state.fromAddress,
         toAddress: this.state.toAddress,
@@ -175,7 +177,7 @@ class CreateTransaction extends Component {
 
   getBalanceOfSelectedToken = type => {
     return this.state[`${type}Selected`]
-      ? formatRecieveAmountToTotal(
+      ? formatReceiveAmountToTotal(
           _.get(this.state[`${type}Selected`], 'amount'),
           _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')
         )

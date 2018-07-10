@@ -1,19 +1,19 @@
 import createReducer from '../reducer/createReducer'
-
+import _ from 'lodash'
 export const accountsReducer = createReducer(
   {},
   {
-    'ACCOUNTS/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ..._.keyBy(action.data, 'id') }
+    'ACCOUNTS/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, ..._.keyBy(data, 'id') }
     },
-    'ACCOUNT/CREATE/SUCCESS': (state, action) => {
-      return { ...state, ...{ [action.account.id]: action.account } }
+    'ACCOUNT/CREATE/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     },
-    'ACCOUNT/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ...{ [action.data.id]: action.data } }
+    'ACCOUNT/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     },
-    'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, action) => {
-      return { ...state, ...{ [action.currentAccount.id]: action.currentAccount } }
+    'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     }
   }
 )

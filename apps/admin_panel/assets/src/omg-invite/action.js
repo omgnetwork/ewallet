@@ -1,8 +1,8 @@
-import * as settingService from '../services/settingService'
+import * as accountService from '../services/accountService'
 import * as adminSerivce from '../services/adminService'
 export const inviteMember = ({ email, redirectUrl, accountId, role }) => async dispatch => {
   try {
-    const result = await settingService.inviteMember({
+    const result = await accountService.inviteMember({
       email,
       redirectUrl: `${redirectUrl}?token={token}&email={email}`,
       accountId,
@@ -22,7 +22,7 @@ export const inviteMember = ({ email, redirectUrl, accountId, role }) => async d
 export const getListMembers = accountId => async dispatch => {
   dispatch({ type: 'INVITE_LIST/REQUEST/INITIATED' })
   try {
-    const result = await settingService.listMembers({ accountId })
+    const result = await accountService.listMembers({ accountId })
     if (result.data.success) {
       return dispatch({ type: 'INVITE_LIST/REQUEST/SUCCESS', inviteList: result.data.data })
     } else {

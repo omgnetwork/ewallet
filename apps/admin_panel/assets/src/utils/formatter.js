@@ -55,6 +55,6 @@ export const formatAmountReceive = (amount, subUnitToUnit) => {
   }
 }
 
-export const formatRecieveAmountToTotal = (amount, subUnitToUnit) => {
+export const formatReceiveAmountToTotal = (amount, subUnitToUnit) => {
   return new BigNumber(amount || 0).dividedBy(new BigNumber(subUnitToUnit)).toFormat()
 }

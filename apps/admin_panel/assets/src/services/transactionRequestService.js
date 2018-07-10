@@ -12,7 +12,14 @@ export function getTransactionRequests ({ perPage, page, sort, search }) {
     }
   })
 }
-export function getTransactionRequestConsumptions ({ perPage, page, sort, search, id, searchTerms}) {
+export function getTransactionRequestConsumptions ({
+  perPage,
+  page,
+  sort,
+  search,
+  id,
+  searchTerms
+}) {
   return authenticatedRequest({
     path: '/transaction_request.get_transaction_consumptions',
     data: {

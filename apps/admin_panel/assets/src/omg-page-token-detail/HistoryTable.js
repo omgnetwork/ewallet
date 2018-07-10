@@ -5,7 +5,7 @@ import Table from '../omg-table'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import moment from 'moment'
-import { formatRecieveAmountToTotal } from '../utils/formatter'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
 export default withRouter(
   class HistoryTable extends Component {
     static propTypes = {
@@ -24,7 +24,7 @@ export default withRouter(
     }
     rowRenderer = (key, data, rows) => {
       if (key === 'amount') {
-        return `${formatRecieveAmountToTotal(data, rows.token.subunit_to_unit)} ${_.get(
+        return `${formatReceiveAmountToTotal(data, rows.token.subunit_to_unit)} ${_.get(
           rows,
           'token.symbol'
         )}`
