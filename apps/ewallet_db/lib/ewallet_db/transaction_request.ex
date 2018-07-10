@@ -188,6 +188,16 @@ defmodule EWalletDB.TransactionRequest do
 
   def get(_id, _opts), do: nil
 
+  @doc """
+  Retrieves a transaction request using one or more fields.
+  """
+  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %__MODULE__{} | nil | no_return()
+  def get_by(fields, opts \\ []) do
+    TransactionRequest
+    |> Repo.get_by(fields)
+    |> preload_option(opts)
+  end
+
   def query_all_for_account_and_user_uuids(account_uuids, user_uuids) do
     from(
       t in TransactionRequest,

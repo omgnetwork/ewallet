@@ -33,6 +33,10 @@ defmodule EWalletDB.TransactionRequestTest do
     end
   end
 
+  describe "get_by/2" do
+    test_schema_get_by_allows_search_by(TransactionRequest, :correlation_id)
+  end
+
   describe "expire_all/0" do
     test "expires all requests past their expiration date" do
       now = NaiveDateTime.utc_now()
