@@ -42,14 +42,12 @@ defmodule EWallet.TransactionConsumptionPolicy do
     WalletPolicy.authorize(:admin, params, consumption.wallet)
   end
 
-  # To consume a request, we need to have admin rights on the
-  # wallet of the consumption
-  def authorize(:confirm, params, %TransactionConsumption{} = consumption) do
-    WalletPolicy.authorize(:admin, params, consumption.wallet)
+  # To confirm a request, we need to have admin rights on the
+  # wallet of the request, except for user-only request/consumption
+  def authorize(:confirm, %{end_user: end_user}, %TransactionRequest{} = request) do
+    end_user.uuid == request.wallet.user_uuid
   end
 
-  # To confirm a request, we need to have admin rights on the
-  # wallet of the request
   def authorize(:confirm, params, %TransactionRequest{} = request) do
     WalletPolicy.authorize(:admin, params, request.wallet)
   end
