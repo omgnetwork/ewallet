@@ -39,6 +39,22 @@ defmodule EWallet.AmountFetcherTest do
       assert exchange == %{}
     end
 
+    test "supports string integer" do
+      {res, from, to, exchange} =
+        AmountFetcher.fetch(
+          %{
+            "amount" => "100"
+          },
+          %{},
+          %{}
+        )
+
+      assert res == :ok
+      assert from == %{from_amount: 100}
+      assert to == %{to_amount: 100}
+      assert exchange == %{}
+    end
+
     test "returns an error if amount is not an integer (float)" do
       res =
         AmountFetcher.fetch(
@@ -77,6 +93,29 @@ defmodule EWallet.AmountFetcherTest do
           %{
             "from_amount" => 100,
             "to_amount" => 200
+          },
+          %{from_token: token_1},
+          %{to_token: token_2}
+        )
+
+      assert res == :ok
+      assert from[:from_amount] == 100
+      assert to[:to_amount] == 200
+      assert exchange[:actual_rate] == 2
+      assert exchange[:calculated_at] != nil
+      assert exchange[:pair_uuid] == pair.uuid
+    end
+
+    test "support string integers" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      {res, from, to, exchange} =
+        AmountFetcher.fetch(
+          %{
+            "from_amount" => "100",
+            "to_amount" => "200"
           },
           %{from_token: token_1},
           %{to_token: token_2}

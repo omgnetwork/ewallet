@@ -117,7 +117,7 @@ defmodule EWallet.AmountFetcher do
 
   defp handle_string_amount({amount_1, amount_2}, fun) do
     case Helper.strings_to_integers([amount_1, amount_2]) do
-      [amount_1, amount_2] when is_integer(amount_1) and is_integer(amount_2) ->
+      [ok: amount_1, ok: amount_2] when is_integer(amount_1) and is_integer(amount_2) ->
         fun.({amount_1, amount_2})
 
       error ->
