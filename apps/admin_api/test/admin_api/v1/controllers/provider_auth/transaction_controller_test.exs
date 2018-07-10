@@ -696,7 +696,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
              }
     end
 
-    test "returns user:from_address_not_found when from_address does not exist" do
+    test "returns unauthorized error when from_address does not exist" do
       token = insert(:token)
       wallet_2 = insert(:wallet)
 
