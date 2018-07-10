@@ -53,7 +53,7 @@ class MintTokenModal extends PureComponent {
     getWalletsByAccountId: PropTypes.func.isRequired,
     match: PropTypes.object
   }
-  state = { amount: 0 }
+  state = { amount: null }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
