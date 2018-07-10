@@ -81,7 +81,7 @@ podTemplate(
             )
         }
 
-        if (env.BRANCH_NAME == 'develop') {
+        if (env.BRANCH_NAME == 'master') {
             stage('Push') {
                 withCredentials([file(credentialsId: 'docker', variable: 'DOCKER_CONFIG')]) {
                     def configDir = sh(script: "dirname ${DOCKER_CONFIG}", returnStdout: true).trim()
