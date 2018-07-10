@@ -231,6 +231,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",
       description: "No wallet was found with the given exchange_wallet_address param"
+    },
+    amount_is_zero: %{
+      code: "transaction:amount_is_zero",
+      description: "Amount cannot be zero."
     }
   }
 
