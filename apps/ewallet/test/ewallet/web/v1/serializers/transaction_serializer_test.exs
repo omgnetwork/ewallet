@@ -41,7 +41,7 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
         },
         exchange: %{
           object: "exchange",
-          rate: 1,
+          rate: nil,
           calculated_at: nil,
           exchange_pair: nil,
           exchange_pair_id: nil,

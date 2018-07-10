@@ -24,7 +24,7 @@ defmodule EWallet.AmountFetcherTest do
     end
 
     test "sets the amount in from_amount and to_amount" do
-      res =
+      {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
             "amount" => 100
@@ -33,7 +33,26 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:ok, %{from_amount: 100}, %{to_amount: 100}, %{}}
+      assert res == :ok
+      assert from == %{from_amount: 100}
+      assert to == %{to_amount: 100}
+      assert exchange == %{}
+    end
+
+    test "supports string integer" do
+      {res, from, to, exchange} =
+        AmountFetcher.fetch(
+          %{
+            "amount" => "100"
+          },
+          %{},
+          %{}
+        )
+
+      assert res == :ok
+      assert from == %{from_amount: 100}
+      assert to == %{to_amount: 100}
+      assert exchange == %{}
     end
 
     test "returns an error if amount is not an integer (float)" do
@@ -46,7 +65,7 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "'amount' is not a number: 100.2"}
+      assert res == {:error, :invalid_parameter, "'amount' is not an integer: 100.2"}
     end
 
     test "returns an error if amount is not an integer (string)" do
@@ -65,17 +84,49 @@ defmodule EWallet.AmountFetcherTest do
 
   describe "fetch/3 with from_amount/to_amount" do
     test "sets from_amount and to_amount when valid integer" do
-      res =
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      {res, from, to, exchange} =
         AmountFetcher.fetch(
           %{
             "from_amount" => 100,
-            "to_amount" => 100
+            "to_amount" => 200
           },
-          %{},
-          %{}
+          %{from_token: token_1},
+          %{to_token: token_2}
         )
 
-      assert res == {:ok, %{from_amount: 100}, %{to_amount: 100}, %{}}
+      assert res == :ok
+      assert from[:from_amount] == 100
+      assert to[:to_amount] == 200
+      assert exchange[:actual_rate] == 2
+      assert exchange[:calculated_at] != nil
+      assert exchange[:pair_uuid] == pair.uuid
+    end
+
+    test "support string integers" do
+      token_1 = insert(:token)
+      token_2 = insert(:token)
+      pair = insert(:exchange_pair, from_token: token_1, to_token: token_2, rate: 2)
+
+      {res, from, to, exchange} =
+        AmountFetcher.fetch(
+          %{
+            "from_amount" => "100",
+            "to_amount" => "200"
+          },
+          %{from_token: token_1},
+          %{to_token: token_2}
+        )
+
+      assert res == :ok
+      assert from[:from_amount] == 100
+      assert to[:to_amount] == 200
+      assert exchange[:actual_rate] == 2
+      assert exchange[:calculated_at] != nil
+      assert exchange[:pair_uuid] == pair.uuid
     end
 
     test "sets from_amount only when sending nil to_amount with exchange pair" do
@@ -218,7 +269,7 @@ defmodule EWallet.AmountFetcherTest do
       assert exchange[:pair_uuid] == pair.uuid
     end
 
-    test "sets to_amount only when not sending from_amount without exchange rate" do
+    test "returns an error when exchange pair is not found" do
       token_1 = insert(:token)
       token_2 = insert(:token)
 

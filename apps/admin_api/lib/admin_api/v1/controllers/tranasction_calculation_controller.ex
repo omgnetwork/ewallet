@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.TransactionCalculationController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.Exchange
+  alias EWallet.{Exchange, Helper}
   alias EWalletDB.Token
 
   @doc """
@@ -41,6 +41,18 @@ defmodule AdminAPI.V1.TransactionCalculationController do
     {:error, :invalid_parameter, "`to_token_id` is required"}
   end
 
+  defp do_calculate(from_amount, from_token, to_amount, to_token) when is_binary(from_amount) do
+    handle_string_amount(from_amount, fn from_amount ->
+      do_calculate(from_amount, from_token, to_amount, to_token)
+    end)
+  end
+
+  defp do_calculate(from_amount, from_token, to_amount, to_token) when is_binary(to_amount) do
+    handle_string_amount(to_amount, fn to_amount ->
+      do_calculate(from_amount, from_token, to_amount, to_token)
+    end)
+  end
+
   defp do_calculate(nil, from_token, to_amount, to_token) do
     Exchange.calculate(nil, from_token, to_amount, to_token)
   end
@@ -51,5 +63,12 @@ defmodule AdminAPI.V1.TransactionCalculationController do
 
   defp do_calculate(from_amount, from_token, to_amount, to_token) do
     Exchange.validate(from_amount, from_token, to_amount, to_token)
+  end
+
+  defp handle_string_amount(amount, fun) do
+    case Helper.string_to_integer(amount) do
+      {:ok, amount} -> fun.(amount)
+      error -> error
+    end
   end
 end

@@ -37,6 +37,24 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionCalculationControllerTest do
       assert response["data"]["exchange_pair"]["id"] == context.pair.id
     end
 
+    test "accepts integer strings", context do
+      response =
+        provider_request("/transaction.calculate", %{
+          "from_amount" => "100",
+          "from_token_id" => context.eth.id,
+          "to_amount" => "1000",
+          "to_token_id" => context.omg.id
+        })
+
+      assert response["success"] == true
+      assert response["data"]["object"] == "transaction_calculation"
+
+      assert response["data"]["from_amount"] == 100
+      assert response["data"]["from_token_id"] == context.eth.id
+      assert response["data"]["to_amount"] == 100 * context.pair.rate
+      assert response["data"]["to_token_id"] == context.omg.id
+    end
+
     test "returns the calculation when `from_amount` is left out", context do
       response =
         provider_request("/transaction.calculate", %{
