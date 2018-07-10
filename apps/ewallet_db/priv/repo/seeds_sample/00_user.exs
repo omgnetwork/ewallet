@@ -1,5 +1,5 @@
 defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
-  alias EWalletDB.User
+  alias EWalletDB.{Account, AccountUser, User}
 
   @users_count 5
   @username_prefix "user"
@@ -24,25 +24,31 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
     data = %{
       provider_user_id: @provider_prefix <> running_string,
       username: @username_prefix <> running_string,
-      metadata: %{}
+      metadata: %{},
+      account_uuid: Account.get_master_account().uuid
     }
 
     case User.get_by_provider_user_id(data.provider_user_id) do
       nil ->
         case User.insert(data) do
           {:ok, user} ->
+            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid)
+
             writer.success("""
               User ID          : #{user.id}
               Provider user ID : #{user.provider_user_id}
               Username         : #{user.username}
             """)
+
           {:error, changeset} ->
             writer.error("  eWallet user #{data.email} could not be inserted:")
             writer.print_errors(changeset)
+
           _ ->
             writer.error("  eWallet user #{data.email} could not be inserted:")
             writer.error("  Unknown error.")
         end
+
       %User{} = user ->
         writer.warn("""
           User ID          : #{user.id}
