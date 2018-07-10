@@ -51,7 +51,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
       |> do_all(attrs, conn)
     else
-      error -> respond(error, conn)
+      error -> respond(error, conn, false)
     end
   end
 
@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
       |> do_all(attrs, conn)
     else
-      error -> respond(error, conn)
+      error -> respond(error, conn, false)
     end
   end
 
@@ -88,7 +88,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
         )
 
       error ->
-        respond(error, conn)
+        respond(error, conn, false)
     end
   end
 
@@ -103,7 +103,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       |> TransactionConsumption.query_all_for(transaction_request.uuid)
       |> do_all(attrs, conn)
     else
-      error -> respond(error, conn)
+      error -> respond(error, conn, false)
     end
   end
 
@@ -122,7 +122,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       |> TransactionConsumption.query_all_for(wallet.address)
       |> do_all(attrs, conn)
     else
-      error -> respond(error, conn)
+      error -> respond(error, conn, false)
     end
   end
 
@@ -140,7 +140,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       |> TransactionConsumption.query_all_for_account_and_user_uuids(linked_user_uuids)
       |> do_all(attrs, conn)
     else
-      error -> respond(error, conn)
+      error -> respond(error, conn, false)
     end
   end
 
@@ -162,7 +162,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
           Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
       })
     else
-      error -> respond(error, conn)
+      error -> respond(error, conn, false)
     end
   end
 
@@ -170,7 +170,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       when idempotency_token != nil do
     attrs
     |> TransactionConsumptionConsumerGate.consume()
-    |> respond(conn)
+    |> respond(conn, true)
   end
 
   def consume(conn, _) do
@@ -183,10 +183,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   defp confirm(conn, confirmer, %{"id" => id}, approved) do
     case TransactionConsumptionConfirmerGate.confirm(id, approved, confirmer) do
       {:ok, consumption} ->
-        respond({:ok, consumption}, conn)
+        respond({:ok, consumption}, conn, true)
 
       error ->
-        respond(error, conn)
+        respond(error, conn, true)
     end
   end
 
@@ -203,26 +203,40 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, code, description)
   end
 
-  defp respond({:error, %TransactionConsumption{} = consumption, code}, conn) do
+  defp respond({:error, %TransactionConsumption{} = consumption, code}, conn, true) do
     dispatch_confirm_event(consumption)
     handle_error(conn, code)
   end
 
-  defp respond({:error, code, description}, conn), do: handle_error(conn, code, description)
-  defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
+  defp respond({:error, %TransactionConsumption{} = _consumption, code}, conn, false) do
+    handle_error(conn, code)
+  end
 
-  defp respond({:error, changeset}, conn) do
+  defp respond({:error, code, description}, conn, _dispatch?),
+    do: handle_error(conn, code, description)
+
+  defp respond({:error, error}, conn, _dispatch?) when is_atom(error),
+    do: handle_error(conn, error)
+
+  defp respond({:error, changeset}, conn, _dispatch?) do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  defp respond({:error, consumption, code, description}, conn) do
+  defp respond({:error, consumption, code, description}, conn, true) do
     dispatch_confirm_event(consumption)
     handle_error(conn, code, description)
   end
 
-  defp respond({:ok, consumption}, conn) do
-    dispatch_confirm_event(consumption)
+  defp respond({:error, _consumption, code, description}, conn, false) do
+    handle_error(conn, code, description)
+  end
 
+  defp respond({:ok, consumption}, conn, true) do
+    dispatch_confirm_event(consumption)
+    respond({:ok, consumption}, conn, false)
+  end
+
+  defp respond({:ok, consumption}, conn, false) do
     render(conn, :transaction_consumption, %{
       transaction_consumption: Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
     })
