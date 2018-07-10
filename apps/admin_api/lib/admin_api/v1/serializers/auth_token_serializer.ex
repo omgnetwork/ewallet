@@ -16,7 +16,8 @@ defmodule AdminAPI.V1.AuthTokenSerializer do
       user: UserSerializer.serialize(auth_token.user),
       account_id: Assoc.get(auth_token, [:account, :id]),
       account: AccountSerializer.serialize(auth_token.account),
-      master_admin: User.master_admin?(auth_token.user)
+      master_admin: User.master_admin?(auth_token.user),
+      role: User.get_role(auth_token.user.id, auth_token.account.id)
     }
   end
 end
