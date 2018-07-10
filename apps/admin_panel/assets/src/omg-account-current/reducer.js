@@ -3,14 +3,14 @@ export const currentAccountReducer = createReducer({}, {
   'LOGIN/SUCCESS': (state, { currentAccount }) => {
     return currentAccount
   },
-  'CURRENT_ACCOUNT/REQUEST/SUCCESS': (state, { currentAccount }) => {
-    return currentAccount
+  'CURRENT_ACCOUNT/REQUEST/SUCCESS': (state, { data }) => {
+    return data
   },
-  'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, { currentAccount }) => {
-    return currentAccount
+  'CURRENT_ACCOUNT/UPDATE/SUCCESS': (state, { data }) => {
+    return data
   },
-  'CURRENT_ACCOUNT/SWITCH': (state, { currentAccount }) => {
-    return currentAccount
+  'CURRENT_ACCOUNT/SWITCH': (state, { data }) => {
+    return data
   }
 })
 
