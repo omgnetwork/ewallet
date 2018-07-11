@@ -19,7 +19,7 @@ class UserProvider extends Component {
     if (!this.props.user) {
       this.props.getUserById(this.props.userId)
     }
-    this.props.getWalletsByUserId({ userId: this.props.userId })
+    this.props.getWalletsByUserId({ userId: this.props.userId, perPage: 1000 })
   }
   render () {
     return this.props.render({

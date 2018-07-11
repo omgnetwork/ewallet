@@ -9,7 +9,6 @@ export function getWallets ({ perPage, sort, search, searchTerms }) {
       sort_dir: sort.dir,
       search_term: search,
       search_terms: searchTerms
-
     }
   })
 }
@@ -29,16 +28,17 @@ export function getWalletsByAccountId ({ accountId, perPage, sort, search, ...re
   })
 }
 
-export function getWalletsByUserId ({ userId, perPage, sort, query, ...rest }) {
+export function getWalletsByUserId ({ userId, perPage, page, sort, search, searchTerms }) {
   return authenticatedRequest({
     path: '/user.get_wallets',
     data: {
+      page,
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      id: userId,
-      ...rest
+      search_term: search,
+      search_terms: searchTerms,
+      id: userId
     }
   })
 }
@@ -51,4 +51,3 @@ export function getWallet (address) {
     }
   })
 }
-
