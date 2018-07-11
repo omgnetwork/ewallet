@@ -1,6 +1,6 @@
 import { transactionsReducer } from './reducer'
 
-describe('accounts reducer', () => {
+describe('transactions reducer', () => {
   test('should return the initial state', () => {
     expect(transactionsReducer({}, 'FAKE_ACTION')).toEqual({})
   })
