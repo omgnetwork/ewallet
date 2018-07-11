@@ -57,13 +57,40 @@ describe('account actions', () => {
       { type: 'TRANSACTION/REQUEST/INITIATED' },
       { type: 'TRANSACTION/REQUEST/SUCCESS', data: { id: 'a' } }
     ]
-    return store
-      .dispatch(
-        getTransactionById('acc')
-      )
-      .then(() => {
-        expect(transactionService.getTransactionById).toBeCalledWith('acc')
-        expect(store.getActions()).toEqual(expectedActions)
+    return store.dispatch(getTransactionById('acc')).then(() => {
+      expect(transactionService.getTransactionById).toBeCalledWith('acc')
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[getAllTransactions] should dispatch correct action if successfully get transactions', () => {
+    transactionService.getAllTransactions.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: { data: 'data', pagination: 'pagination' }
+        }
       })
+    })
+    const expectedActions = [
+      { type: 'TRANSACTIONS/REQUEST/INITIATED' },
+      {
+        type: 'TRANSACTIONS/REQUEST/SUCCESS',
+        data: 'data',
+        pagination: 'pagination',
+        cacheKey: 'key'
+      }
+    ]
+    return store.dispatch(getTransactions({ page: 1, perPage: 10, cacheKey: 'key', search: 'a' })).then(() => {
+      expect(transactionService.getAllTransactions).toBeCalledWith(
+        expect.objectContaining({
+          page: 1,
+          perPage: 10,
+          sort: { by: 'created_at', dir: 'desc' },
+          search: 'a'
+        })
+      )
+      expect(store.getActions()).toEqual(expectedActions)
+    })
   })
 })

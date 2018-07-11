@@ -1,5 +1,5 @@
 import createReducer from '../reducer/createReducer'
-
+import _ from 'lodash'
 export const transactionsReducer = createReducer(
   {},
   {
@@ -11,6 +11,9 @@ export const transactionsReducer = createReducer(
     },
     'TRANSACTION/REQUEST/SUCCESS': (state, action) => {
       return { ...state, [action.data.id]: action.data }
+    },
+    'CURRENT_ACCOUNT/SWITCH': () => {
+      return {}
     }
   }
 )

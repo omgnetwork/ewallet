@@ -18,10 +18,6 @@ export const selectTransactionsCachedQuery = state => cacheKey => {
   })
 }
 
-export const selectTransactionsCachedQueryPagination = state => cacheKey => {
-  return _.get(state.cacheQueries[cacheKey], 'pagination', {})
-}
-
 export const selectGetTransactionById = state => id => state.transactions[id] || {}
 
 export const selectTransactionsLoadingStatus = state => state.transactionsLoadingStatus
