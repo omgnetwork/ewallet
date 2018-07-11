@@ -8,7 +8,7 @@ import { getWalletsByAccountId } from '../omg-wallet/action'
 import { connect } from 'react-redux'
 import { withRouter } from 'react-router-dom'
 import { compose } from 'recompose'
-import {formatAmount} from '../utils/formatter'
+import { formatAmount } from '../utils/formatter'
 
 const MintTokenModalContainer = styled.form`
   position: relative;
@@ -20,8 +20,8 @@ const MintTokenModalContainer = styled.form`
   }
   > i {
     position: absolute;
-    right: 0;
-    top: 0;
+    right: 15px;
+    top: 15px;
     color: ${props => props.theme.colors.S400};
     cursor: pointer;
   }
@@ -64,11 +64,11 @@ class MintTokenModal extends PureComponent {
       id: this.props.token.id,
       amount: formatAmount(this.state.amount, this.props.token.subunit_to_unit)
     })
-    if (result.data.success) {
+    if (result.data) {
       this.props.onRequestClose()
-      this.setState({ submitStatus: 'SUCCESS', amount: 0 })
+      this.setState({ submitStatus: 'SUCCESS', amount: null })
     } else {
-      this.setState({ submitStatus: 'FAILED', amount: 0 })
+      this.setState({ submitStatus: 'FAILED' })
     }
   }
   onRequestClose = e => {
