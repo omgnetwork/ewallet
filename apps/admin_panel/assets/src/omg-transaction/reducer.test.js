@@ -20,7 +20,7 @@ describe('accounts reducer', () => {
       }
     })
   })
-  test('should return the key by id object with action [TRANSACTIONS/REQUEST/SUCCESS]', () => {
+  test('should reset state when switch account', () => {
     expect(transactionsReducer({}, { type: 'CURRENT_ACCOUNT/SWITCH', data: { id: '1' } })).toEqual(
       {}
     )
