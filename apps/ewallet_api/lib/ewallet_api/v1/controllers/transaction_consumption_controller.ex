@@ -24,7 +24,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
       when idempotency_token != nil do
     conn.assigns.user
     |> TransactionConsumptionConsumerGate.consume(attrs)
-    |> respond(conn, false)
+    |> respond(conn, true)
   end
 
   def consume_for_user(conn, _) do

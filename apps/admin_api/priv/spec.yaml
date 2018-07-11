@@ -355,7 +355,7 @@ paths:
         $ref: '#/components/requestBodies/ExchangePairCreateBody'
       responses:
         '200':
-          $ref: "#/components/responses/ExchangePairResponse"
+          $ref: "#/components/responses/ExchangePairsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   /exchange_pair.update:
@@ -371,7 +371,7 @@ paths:
         $ref: '#/components/requestBodies/ExchangePairUpdateBody'
       responses:
         '200':
-          $ref: "#/components/responses/ExchangePairResponse"
+          $ref: "#/components/responses/ExchangePairsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
   /exchange_pair.delete:
@@ -387,7 +387,7 @@ paths:
         $ref: '#/components/requestBodies/ExchangePairDeleteBody'
       responses:
         '200':
-          $ref: "#/components/responses/ExchangePairResponse"
+          $ref: "#/components/responses/ExchangePairsResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -649,7 +649,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/WalletAccountBody'
+        $ref: '#/components/requestBodies/AccountListBodyWithOwned'
       responses:
         '200':
           $ref: "#/components/responses/WalletsResponse"
