@@ -1,4 +1,5 @@
 import * as transactionService from '../services/transactionService'
+import { createActionCreator } from '../utils/createActionCreator'
 export const transfer = ({
   fromAddress,
   toAddress,
@@ -9,28 +10,23 @@ export const transfer = ({
   toAmount,
   amount,
   exchangeAddress
-}) => async dispatch => {
-  try {
-    const result = await transactionService.transfer({
-      fromAddress,
-      toAddress,
-      tokenId,
-      fromTokenId,
-      toTokenId,
-      fromAmount,
-      toAmount,
-      amount,
-      exchangeAddress
-    })
-    if (result.data.success) {
-      return dispatch({ type: 'TRANSACTION/CREATE/SUCCESS', data: result.data.data })
-    } else {
-      return dispatch({ type: 'TRANSACTION/CREATE/FAILED', error: result.data.data })
-    }
-  } catch (error) {
-    return dispatch({ type: 'TRANSACTION/CREATE/FAILED', error })
-  }
-}
+}) =>
+  createActionCreator({
+    actionName: 'TRANSACTION',
+    action: 'CREATE',
+    service: () =>
+      transactionService.transfer({
+        fromAddress,
+        toAddress,
+        tokenId,
+        fromTokenId,
+        toTokenId,
+        fromAmount,
+        toAmount,
+        amount,
+        exchangeAddress
+      })
+  })
 export const getTransactions = ({ page, search, perPage, cacheKey }) => async dispatch => {
   dispatch({ type: 'TRANSACTIONS/REQUEST/INITIATED' })
   try {
