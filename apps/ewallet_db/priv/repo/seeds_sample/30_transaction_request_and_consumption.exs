@@ -11,7 +11,7 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
     token_symbols: ["OMG", "ETH", "OEM", "BTC"],
     allow_amount_overrides: [false],
     require_confirmations: [true, false],
-    consumption_lifetimes: [nil, 10000, 2000000],
+    consumption_lifetimes: [nil, 10_000, 2_000_000],
     max_consumptions: [nil, 1, 10, 100],
     max_consumptions_per_user: [nil, 1, 10],
     consumed: [true, false]
@@ -95,8 +95,12 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
     |> case do
       {:ok, consumption} ->
         consumption = TransactionConsumption.approve(consumption)
-        {:ok, consumption} = Preloader.preload_one(consumption, [:token, :wallet, :transaction_request])
-        {:ok, consumption} = TransactionConsumptionConfirmerGate.approve_and_confirm(request, consumption)
+
+        {:ok, consumption} =
+          Preloader.preload_one(consumption, [:token, :wallet, :transaction_request])
+
+        {:ok, consumption} =
+          TransactionConsumptionConfirmerGate.approve_and_confirm(request, consumption)
 
         writer.success("""
             Transaction Consumption ID : #{consumption.id}
@@ -123,7 +127,7 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
 
     %{
       type: rand(attrs.types),
-      amount: :rand.uniform(100) * 1_000_000_000_000_000_000 |> round(),
+      amount: :rand.uniform(100) * 1_000_000_000_000_000_000,
       account_uuid: account.uuid,
       correlation_id: correlation_id,
       token_uuid: Token.get_by(symbol: token_symbol).uuid,
