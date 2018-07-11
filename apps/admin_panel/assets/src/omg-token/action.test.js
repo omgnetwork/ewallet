@@ -120,7 +120,7 @@ describe('token actions', () => {
     })
     const expectedActions = [
       { type: 'TOKEN/REQUEST/INITIATED' },
-      { type: 'TOKEN/REQUEST/SUCCESS', data: { id: '1' }, total_supply: 1 }
+      { type: 'TOKEN/REQUEST/SUCCESS', data: { token: { id: '1' }, total_supply: 1 } }
     ]
     return store.dispatch(getTokenById('id')).then(() => {
       expect(tokenService.getTokenStatsById).toBeCalledWith('id')

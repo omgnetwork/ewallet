@@ -1,9 +1,10 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAllTokens ({ perPage, sort, search, ...rest }) {
+export function getAllTokens ({ page, perPage, sort, search, searchTerms }) {
   return authenticatedRequest({
     path: '/token.all',
     data: {
+      page,
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
