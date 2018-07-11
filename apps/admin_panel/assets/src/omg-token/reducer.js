@@ -1,4 +1,5 @@
 import createReducer from '../reducer/createReducer'
+import _ from 'lodash'
 export const tokensReducer = createReducer(
   {},
   {
@@ -12,6 +13,7 @@ export const tokensReducer = createReducer(
       return { ...state, [data.id]: data }
     },
     'TOKEN/MINT/SUCCESS': (state, { data }) => {
+      console.log(data, '####')
       return {
         ...state,
         [data.token.id]: {
