@@ -6,114 +6,48 @@ const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 jest.mock('../services/tokenService')
 let store
-describe('account actions', () => {
+describe('token actions', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     store = mockStore()
   })
-  test('[createAccount] should dispatch failed action if fail to create account', () => {
-    tokenService.createAccount.mockImplementation(() => {
-      return Promise.resolve({ data: { data: { id: 'a' } } })
-    })
-    tokenService.uploadAccountAvatar.mockImplementation(() => {
-      return Promise.resolve({ data: { success: false, data: { id: 'a' } } })
+  test('[createToken] should dispatch success action if successfully create token', () => {
+    tokenService.createToken.mockImplementation(() => {
+      return Promise.resolve({ data: { success: true, data: 'data' } })
     })
     const expectedActions = [
-      { type: 'ACCOUNT/CREATE/INITIATED' },
-      { type: 'ACCOUNT/CREATE/FAILED', error: { id: 'a' } }
+      { type: 'TOKEN/CREATE/INITIATED' },
+      { type: 'TOKEN/CREATE/SUCCESS', data: 'data' }
     ]
     return store
-      .dispatch(
-        createAccount({
-          name: 'name',
-          description: 'description',
-          avatar: 'avatar',
-          category: 'cat'
-        })
-      )
+      .dispatch(createToken({ name: 'name', symbol: 'symbol', decimal: 'decimal', amount: '50' }))
       .then(() => {
-        expect(tokenService.createAccount).toBeCalledWith({
+        expect(tokenService.createToken).toBeCalledWith({
           name: 'name',
-          description: 'description',
-          category: 'cat'
-        })
-        expect(tokenService.uploadAccountAvatar).toBeCalledWith({
-          accountId: 'a',
-          avatar: 'avatar'
+          symbol: 'symbol',
+          decimal: 'decimal',
+          amount: '50'
         })
         expect(store.getActions()).toEqual(expectedActions)
       })
   })
 
-  test('[createAccount] should dispatch success action if create account successfully', () => {
-    tokenService.createAccount.mockImplementation(() => {
-      return Promise.resolve({ data: { data: { id: 'a' } } })
-    })
-    tokenService.uploadAccountAvatar.mockImplementation(() => {
-      return Promise.resolve({ data: { success: true, data: { id: 'a' } } })
-    })
-
-    const expectedActions = [
-      { type: 'ACCOUNT/CREATE/INITIATED' },
-      { type: 'ACCOUNT/CREATE/SUCCESS', data: { id: 'a' } }
-    ]
-    return store
-      .dispatch(
-        createAccount({
-          name: 'name',
-          description: 'description',
-          avatar: 'avatar',
-          category: 'cat'
-        })
-      )
-      .then(() => {
-        expect(tokenService.createAccount).toBeCalledWith({
-          name: 'name',
-          description: 'description',
-          category: 'cat'
-        })
-        expect(tokenService.uploadAccountAvatar).toBeCalledWith({
-          accountId: 'a',
-          avatar: 'avatar'
-        })
-        expect(store.getActions()).toEqual(expectedActions)
-      })
-  })
-
-  test('[getAccountById] should dispatch success action if get account successfully', () => {
-    tokenService.getAccountById.mockImplementation(() => {
-      return Promise.resolve({ data: { success: true, data: { id: 'a' } } })
+  test('[mintToken] should dispatch success action if successfully mintToken', () => {
+    tokenService.mintToken.mockImplementation(() => {
+      return Promise.resolve({ data: { success: true, data: 'data' } })
     })
     const expectedActions = [
-      { type: 'ACCOUNT/REQUEST/INITIATED' },
-      { type: 'ACCOUNT/REQUEST/SUCCESS', data: { id: 'a' } }
+      { type: 'TOKEN/MINT/INITIATED' },
+      { type: 'TOKEN/MINT/SUCCESS', data: 'data' }
     ]
-    return store.dispatch(getAccountById({ id: 'a' })).then(() => {
-      expect(tokenService.getAccountById).toBeCalledWith({
-        id: 'a'
-      })
+    return store.dispatch(mintToken({ id: 'id', amount: '50' })).then(() => {
+      expect(tokenService.mintToken).toBeCalledWith({ id: 'id', amount: '50' })
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
 
-  test('[getAccountById] should dispatch failed action if get account unsuccessfully', () => {
-    tokenService.getAccountById.mockImplementation(() => {
-      return Promise.resolve({ data: { success: false, data: { id: 'a' } } })
-    })
-    const expectedActions = [
-      { type: 'ACCOUNT/REQUEST/INITIATED' },
-      { type: 'ACCOUNT/REQUEST/FAILED', error: { id: 'a' } }
-    ]
-    return store.dispatch(getAccountById({ id: 'a' })).then(() => {
-      expect(tokenService.getAccountById).toBeCalledWith({
-        id: 'a'
-      })
-      expect(store.getActions()).toEqual(expectedActions)
-    })
-  })
-
-  test('[getAccounts] should dispatch success action if get account successfully', () => {
-    tokenService.getAllAccounts.mockImplementation(() => {
+  test('[getMintedTokenHistory] should dispatch success action if successfully getMintedTokenHistory', () => {
+    tokenService.getMintedTokenHistory.mockImplementation(() => {
       return Promise.resolve({
         data: {
           success: true,
@@ -122,22 +56,74 @@ describe('account actions', () => {
       })
     })
     const expectedActions = [
-      { type: 'ACCOUNTS/REQUEST/INITIATED' },
+      { type: 'TOKEN_HISTORY/REQUEST/INITIATED' },
       {
-        type: 'ACCOUNTS/REQUEST/SUCCESS',
+        type: 'TOKEN_HISTORY/REQUEST/SUCCESS',
         data: 'data',
         pagination: 'pagination',
         cacheKey: 'key'
       }
     ]
-    return store.dispatch(getAccounts({ page: 1, perPage: 10, cacheKey: 'key' })).then(() => {
-      expect(tokenService.getAllAccounts).toBeCalledWith(
-        expect.objectContaining({
-          page: 1,
-          perPage: 10,
-          sort: { by: 'created_at', dir: 'desc' }
-        })
-      )
+    return store
+      .dispatch(getMintedTokenHistory({ page: 1, perPage: 10, cacheKey: 'key', search: 'search' }))
+      .then(() => {
+        expect(tokenService.getMintedTokenHistory).toBeCalledWith(
+          expect.objectContaining({
+            page: 1,
+            perPage: 10,
+            sort: { by: 'created_at', dir: 'desc' },
+            search: 'search'
+          })
+        )
+        expect(store.getActions()).toEqual(expectedActions)
+      })
+  })
+
+  test('[getTokens] should dispatch success action if successfully getTokens', () => {
+    tokenService.getAllTokens.mockImplementation(() => {
+      return Promise.resolve({
+        data: {
+          success: true,
+          data: { data: 'data', pagination: 'pagination' }
+        }
+      })
+    })
+    const expectedActions = [
+      { type: 'TOKENS/REQUEST/INITIATED' },
+      {
+        type: 'TOKENS/REQUEST/SUCCESS',
+        data: 'data',
+        pagination: 'pagination',
+        cacheKey: 'key'
+      }
+    ]
+    return store
+      .dispatch(getTokens({ page: 1, perPage: 10, cacheKey: 'key', search: 'search' }))
+      .then(() => {
+        expect(tokenService.getAllTokens).toBeCalledWith(
+          expect.objectContaining({
+            page: 1,
+            perPage: 10,
+            sort: { by: 'created_at', dir: 'desc' },
+            search: 'search'
+          })
+        )
+        expect(store.getActions()).toEqual(expectedActions)
+      })
+  })
+
+  test('[getTokenById] should dispatch success action if successfully getTokenById', () => {
+    tokenService.getTokenStatsById.mockImplementation(() => {
+      return Promise.resolve({
+        data: { success: true, data: { token: { id: '1' }, total_supply: 1 } }
+      })
+    })
+    const expectedActions = [
+      { type: 'TOKEN/REQUEST/INITIATED' },
+      { type: 'TOKEN/REQUEST/SUCCESS', data: { id: '1' }, total_supply: 1 }
+    ]
+    return store.dispatch(getTokenById('id')).then(() => {
+      expect(tokenService.getTokenStatsById).toBeCalledWith('id')
       expect(store.getActions()).toEqual(expectedActions)
     })
   })
