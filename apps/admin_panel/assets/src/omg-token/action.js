@@ -1,11 +1,11 @@
-import * as tokenSerivce from '../services/tokenService'
+import * as tokenService from '../services/tokenService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
 export const createToken = ({ name, symbol, decimal, amount }) =>
   createActionCreator({
     actionName: 'TOKEN',
     action: 'CREATE',
     service: () =>
-      tokenSerivce.createToken({
+      tokenService.createToken({
         name,
         symbol,
         decimal,
@@ -18,7 +18,7 @@ export const mintToken = ({ id, amount }) =>
     actionName: 'TOKEN',
     action: 'MINT',
     service: () =>
-      tokenSerivce.mintToken({
+      tokenService.mintToken({
         id,
         amount
       })
@@ -29,7 +29,7 @@ export const getTokens = ({ search, page, perPage, cacheKey, searchTerms }) =>
     actionName: 'TOKENS',
     action: 'REQUEST',
     service: () =>
-      tokenSerivce.getAllTokens({
+      tokenService.getAllTokens({
         perPage,
         page,
         searchTerms,
@@ -44,7 +44,7 @@ export const getMintedTokenHistory = ({ tokenId, search, page, perPage, searchTe
     actionName: 'TOKEN_HISTORY',
     action: 'REQUEST',
     service: () =>
-      tokenSerivce.getMintedTokenHistory({
+      tokenService.getMintedTokenHistory({
         perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
@@ -59,5 +59,5 @@ export const getTokenById = id =>
   createActionCreator({
     actionName: 'TOKEN',
     action: 'REQUEST',
-    service: () => tokenSerivce.getTokenStatsById(id)
+    service: () => tokenService.getTokenStatsById(id)
   })
