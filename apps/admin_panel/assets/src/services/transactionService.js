@@ -1,14 +1,15 @@
 import { authenticatedRequest } from './apiService'
 import uuid from 'uuid/v4'
-export function getAllTransactions ({ perPage, sort, query, ...rest }) {
+export function getAllTransactions ({ page, perPage, sort, search, searchTerms }) {
   return authenticatedRequest({
     path: '/transaction.all',
     data: {
+      page,
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      ...rest
+      search_term: search,
+      search_terms: searchTerms
     }
   })
 }
