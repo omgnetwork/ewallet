@@ -191,13 +191,14 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Retrieves a transaction request using one or more fields.
   """
-  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %__MODULE__{} | nil | no_return()
+  @spec get_by(map() | keyword(), keyword()) :: %__MODULE__{} | nil | no_return()
   def get_by(fields, opts \\ []) do
     TransactionRequest
     |> Repo.get_by(fields)
     |> preload_option(opts)
   end
 
+  @spec query_all_for_account_and_user_uuids([String.t()], [String.t()]) :: Ecto.Queryable.t()
   def query_all_for_account_and_user_uuids(account_uuids, user_uuids) do
     from(
       t in TransactionRequest,
@@ -244,9 +245,7 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Touches a request by updating the `updated_at` field.
   """
-  @spec touch(%TransactionRequest{}) ::
-          {:ok, %TransactionRequest{}}
-          | {:error, Map.t()}
+  @spec touch(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, Map.t()}
   def touch(request) do
     request
     |> touch_changeset(%{updated_at: NaiveDateTime.utc_now()})
