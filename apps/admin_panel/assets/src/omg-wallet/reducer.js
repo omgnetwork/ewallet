@@ -1,5 +1,5 @@
 import createReducer from '../reducer/createReducer'
-
+import _ from 'lodash'
 export const walletsReducer = createReducer(
   {},
   {
