@@ -649,7 +649,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/WalletAccountBody'
+        $ref: '#/components/requestBodies/AccountListBodyWithOwned'
       responses:
         '200':
           $ref: "#/components/responses/WalletsResponse"
