@@ -40,6 +40,7 @@ defmodule EWallet.Mixfile do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:file_system, "~> 0.2"},
       {:phoenix, "~> 1.3.0"},
       {:phoenix_html, "~> 2.11.0"},
       {:quantum, "~> 2.2.6"},
