@@ -7,12 +7,14 @@ defmodule AdminAPI.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
+    spec_path = Path.expand("../../priv/spec.yaml", __DIR__)
 
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
       supervisor(AdminAPI.Endpoint, []),
-      supervisor(AdminAPI.V1.Endpoint, [])
+      supervisor(AdminAPI.V1.Endpoint, []),
+      supervisor(EWallet.Web.APIDocs.JSONGenerator, [spec_path])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
