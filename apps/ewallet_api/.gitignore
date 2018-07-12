@@ -5,6 +5,11 @@
 /deps
 /*.ez
 
+# The YAML spec is the single source of truth.
+# So the JSON spec should not be part of the code repo,
+# but generated during the build process or on-the-fly.
+/priv/spec.json
+
 # Generated on crash by the VM
 erl_crash.dump
 
