@@ -3,26 +3,31 @@ OmiseGO exposed API definitions
 
 OpenAPI definitions, allow devs to specify the operations and metadata of their APIs in machine-readable form. This enables them to automate various processes around the API lifecycle.
 
-OmiseGO provides two APIs (eWallet adn Admin) and two definition which you can use to generate your client libraries.
+OmiseGO provides two APIs (eWallet API and Admin API) and two definitions which you can use to generate your client libraries.
 
-### Build JSON OpenAPI definition
+The YAML definitions are the primary format for editing and therefore are the only format included in the repository. Other API definitions generated should be based on the YAML definitions.
 
-To build from source, you need the following installed and available in your `$PATH:`
+### Prerequisites
+
+To build the JSON definitions, you need the following installed and available in your `$PATH:`
 
 * [Java 8](http://java.oracle.com)
+* [inotify-tools](https://github.com/rvoicilas/inotify-tools/wiki) (required for Linux-based OS's)
 
-* [Apache maven 3.3.3 or greater](http://maven.apache.org/)
+When running an active ewallet server through `mix omg.server`, the JSON definitions are generated automatically every time a change to the YAML definition is detected.
 
-The repository already contains OpenAPI binary. To generate the json definition from yaml run the following commands for each API.
+### Building the JSON OpenAPI definition manually
+
+To generate the json definition manually without running the server, use the following commands:
 
 **eWallet API:**
 
 ```sh
 $ java -jar bin/openapi-generator-cli.jar generate -i apps/ewallet_api/priv/spec.yaml \
        -g openapi \
-       -o apps/ewallet_api/priv/specification \
-  && mv apps/ewallet_api/priv/specification/openapi.json apps/ewallet_api/priv/spec.json \
-  && rm -rf apps/ewallet_api/priv/specification
+       -o apps/ewallet_api/priv/spec_temp \
+  && mv apps/ewallet_api/priv/spec_temp/openapi.json apps/ewallet_api/priv/spec.json \
+  && rm -rf apps/ewallet_api/priv/spec_temp
 ```
 
 **Admin API:**
@@ -30,7 +35,7 @@ $ java -jar bin/openapi-generator-cli.jar generate -i apps/ewallet_api/priv/spec
 ```sh
 $ java -jar bin/openapi-generator-cli.jar generate -i apps/admin_api/priv/spec.yaml \
        -g openapi \
-       -o apps/admin_api/priv/specification \
-  && mv apps/admin_api/priv/specification/openapi.json apps/admin_api/priv/spec.json \
-  && rm -rf apps/admin_api/priv/specification
+       -o apps/admin_api/priv/spec_temp \
+  && mv apps/admin_api/priv/spec_temp/openapi.json apps/admin_api/priv/spec.json \
+  && rm -rf apps/admin_api/priv/spec_temp
 ```

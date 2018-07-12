@@ -7,15 +7,14 @@ defmodule EWalletAPI.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
+    spec_path = Path.expand("../../priv/spec.yaml", __DIR__)
 
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
       supervisor(EWalletAPI.Endpoint, []),
-      supervisor(EWalletAPI.V1.Endpoint, [])
-      # Start your own worker by calling:
-      #   EWalletAPI.Worker.start_link(arg1, arg2, arg3)
-      # worker(EWalletAPI.Worker, [arg1, arg2, arg3]),
+      supervisor(EWalletAPI.V1.Endpoint, []),
+      supervisor(EWallet.Web.APIDocs.JSONGenerator, [spec_path])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
