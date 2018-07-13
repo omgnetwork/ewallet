@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @search_fields [:id, :status, :type, :correlation_id, :expiration_reason]
   @sort_fields [:id, :status, :type, :correlation_id, :inserted_at, :expired_at]
 
+  @spec all(Plug.Conn.t(), map) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns),
@@ -30,6 +31,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
     end
   end
 
+  @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account),
@@ -61,6 +63,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
     handle_error(conn, :invalid_parameter, "Parameter 'id' is required.")
   end
 
+  @spec do_all(Ecto.Queryable.t(), map(), Plug.Conn.t()) :: Plug.Conn.t()
   defp do_all(query, attrs, conn) do
     query
     |> Preloader.to_query(@preload_fields)
@@ -70,6 +73,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
     |> respond_multiple(conn)
   end
 
+  @spec get(Plug.Conn.t(), map) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
     with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
          :ok <- permit(:get, conn.assigns, request) do
@@ -83,6 +87,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
     end
   end
 
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     attrs
     |> Map.put("creator", conn.assigns)
@@ -112,8 +117,11 @@ defmodule AdminAPI.V1.TransactionRequestController do
     })
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
-          :ok | {:error, any()} | no_return()
+  @spec permit(
+          :all | :create | :get | :update,
+          map(),
+          String.t() | %Account{} | %TransactionRequest{} | nil
+        ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, request) do
     Bodyguard.permit(TransactionRequestPolicy, action, params, request)
   end

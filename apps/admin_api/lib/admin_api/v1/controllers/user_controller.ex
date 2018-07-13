@@ -29,6 +29,7 @@ defmodule AdminAPI.V1.UserController do
   @doc """
   Retrieves a list of users.
   """
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
       # Get all users since everyone can access them
@@ -40,6 +41,7 @@ defmodule AdminAPI.V1.UserController do
     end
   end
 
+  @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account) do
@@ -67,7 +69,8 @@ defmodule AdminAPI.V1.UserController do
 
   def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  def do_all(query, attrs, conn) do
+  @spec do_all(Ecto.Queryable.t(), map(), Plug.Conn.t()) :: Plug.Conn.t()
+  defp do_all(query, attrs, conn) do
     query
     |> SearchParser.to_query(attrs, @search_fields)
     |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
@@ -78,6 +81,7 @@ defmodule AdminAPI.V1.UserController do
   @doc """
   Retrieves a specific user by its id.
   """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, user) do
@@ -105,6 +109,7 @@ defmodule AdminAPI.V1.UserController do
   # defined in the key or in the auth token so that the user can access it
   # even if that user hasn't had any transaction with the account yet (since
   # that's how users and accounts are linked together).
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          {:ok, user} <- User.insert(attrs),
@@ -121,6 +126,7 @@ defmodule AdminAPI.V1.UserController do
   """
   # Pattern matching for required params because changeset will treat
   # missing param as not need to update.
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(
         conn,
         %{
@@ -190,7 +196,7 @@ defmodule AdminAPI.V1.UserController do
     handle_error(conn, code)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, user) do
     Bodyguard.permit(UserPolicy, action, params, user)

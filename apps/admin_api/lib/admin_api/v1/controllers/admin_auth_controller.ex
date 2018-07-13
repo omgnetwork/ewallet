@@ -58,6 +58,10 @@ defmodule AdminAPI.V1.AdminAuthController do
     handle_error(conn, code)
   end
 
+  defp render_error(conn, error) do
+    handle_error(conn, error)
+  end
+
   @doc """
   Invalidates the authentication token used in this request.
   """
@@ -72,8 +76,7 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, any()) ::
-          {:ok, User.t()} | {:error, any()} | no_return()
+  @spec permit(:all | :create | :get | :update, any()) :: {:ok, User.t()} | atom() | no_return()
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end

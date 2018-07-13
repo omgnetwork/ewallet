@@ -29,6 +29,7 @@ defmodule AdminAPI.V1.AdminUserController do
   @doc """
   Retrieves a list of admins that the current user/key has access to.
   """
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
@@ -46,6 +47,7 @@ defmodule AdminAPI.V1.AdminUserController do
   @doc """
   Retrieves a specific admin by its id.
   """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => user_id}) do
     with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, user) do
@@ -74,7 +76,7 @@ defmodule AdminAPI.V1.AdminUserController do
     handle_error(conn, :user_id_not_found)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), %User{} | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, user) do
     Bodyguard.permit(AdminUserPolicy, action, params, user)

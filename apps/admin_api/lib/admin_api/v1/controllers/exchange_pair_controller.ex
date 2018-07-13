@@ -129,7 +129,7 @@ defmodule AdminAPI.V1.ExchangePairController do
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, exchange_pair_id) do
     Bodyguard.permit(ExchangePairPolicy, action, params, exchange_pair_id)

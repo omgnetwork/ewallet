@@ -450,6 +450,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the upper-most account that the given user has membership in.
   """
+  @spec get_account(%User{}) :: %Account{} | nil
   def get_account(user) do
     query =
       from(
@@ -461,6 +462,7 @@ defmodule EWalletDB.User do
     Repo.one(query)
   end
 
+  @spec get_all_accessible_account_uuids(%User{}) :: [String.t()]
   def get_all_accessible_account_uuids(user) do
     user
     |> get_membership_account_uuids()
@@ -470,6 +472,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the list of accounts that the given user has membership, including their child accounts.
   """
+  @spec get_accounts(%User{}) :: [%Account{}]
   def get_accounts(user) do
     user
     |> query_accounts()
@@ -486,6 +489,7 @@ defmodule EWalletDB.User do
   @doc """
   Query the list of accounts that the given user has membership, including their child accounts.
   """
+  @spec query_accounts(%User{}) :: Ecto.Queryable.t()
   def query_accounts(user) do
     account_uuids = get_membership_account_uuids(user)
 

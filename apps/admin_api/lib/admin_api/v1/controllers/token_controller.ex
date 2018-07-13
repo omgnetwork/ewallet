@@ -7,7 +7,6 @@ defmodule AdminAPI.V1.TokenController do
   alias EWallet.{MintGate, Helper, TokenPolicy}
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWalletDB.{Account, Token, Mint}
-  alias Plug.Conn
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -31,7 +30,7 @@ defmodule AdminAPI.V1.TokenController do
   @doc """
   Retrieves a list of tokens.
   """
-  @spec all(Conn.t(), map() | nil) :: map()
+  @spec all(Plug.Conn.t(), map() | nil) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
       Token
@@ -48,7 +47,7 @@ defmodule AdminAPI.V1.TokenController do
   @doc """
   Retrieves a specific token by its id.
   """
-  @spec get(Conn.t(), map()) :: map()
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns, id) do
       id
@@ -65,7 +64,7 @@ defmodule AdminAPI.V1.TokenController do
   @doc """
   Retrieves stats for a specific token.
   """
-  @spec stats(Conn.t(), map()) :: Conn.t()
+  @spec stats(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def stats(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns, id),
          %Token{} = token <- Token.get(id) || :token_not_found do
@@ -89,7 +88,7 @@ defmodule AdminAPI.V1.TokenController do
   @doc """
   Creates a new Token.
   """
-  @spec create(Conn.t(), map()) :: map()
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil) do
       do_create(conn, attrs)
@@ -134,7 +133,7 @@ defmodule AdminAPI.V1.TokenController do
   @doc """
   Update an existing Token.
   """
-  @spec update(Conn.t(), map()) :: map()
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %Token{} = token <- Token.get(id) || :token_not_found,
@@ -182,8 +181,7 @@ defmodule AdminAPI.V1.TokenController do
     handle_error(conn, :token_id_not_found)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
-          :ok | {:error, any()} | no_return()
+  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) :: any()
   defp permit(action, params, token_id) do
     Bodyguard.permit(TokenPolicy, action, params, token_id)
   end

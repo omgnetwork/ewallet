@@ -248,8 +248,17 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
-          :ok | {:error, any()} | no_return()
+  @spec permit(
+          :all | :create | :get | :update,
+          map(),
+          String.t()
+          | %Account{}
+          | %TransactionRequest{}
+          | %TransactionConsumption{}
+          | %User{}
+          | %Wallet{}
+          | nil
+        ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
     Bodyguard.permit(TransactionConsumptionPolicy, action, params, data)
   end

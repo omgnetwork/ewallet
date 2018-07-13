@@ -375,6 +375,7 @@ defmodule EWalletDB.Account do
     )
   end
 
+  @spec descendant?(%Account{}, String.t() | [String.t()]) :: boolean()
   def descendant?(ancestor, descendant_uuids) when is_list(descendant_uuids) do
     ancestor_descendant_uuids = get_all_descendants_uuids(ancestor)
 
@@ -392,7 +393,7 @@ defmodule EWalletDB.Account do
     end)
   end
 
-  @spec get_all_descendants_uuids(%Account{} | List.t()) :: List.t()
+  @spec get_all_descendants_uuids(%Account{} | [String.t()]) :: [String.t()]
   def get_all_descendants_uuids(account_uuids) when is_list(account_uuids) do
     account_uuids
     |> get_all_descendants()
@@ -405,13 +406,14 @@ defmodule EWalletDB.Account do
     |> Enum.map(fn account -> account.uuid end)
   end
 
-  @spec get_all_ancestors_uuids(%Account{}) :: List.t()
+  @spec get_all_ancestors_uuids(%Account{}) :: [String.t()]
   def get_all_ancestors_uuids(account) do
     account
     |> get_all_ancestors()
     |> Enum.map(fn account -> account.uuid end)
   end
 
+  @spec get_all_descendants([String.t()]) :: [%Account{}]
   def get_all_descendants(account_uuids) when is_list(account_uuids) do
     binary_account_uuids =
       Enum.map(account_uuids, fn account_uuid ->
@@ -439,7 +441,7 @@ defmodule EWalletDB.Account do
     load_accounts(result)
   end
 
-  @spec get_all_descendants(%Account{}) :: List.t()
+  @spec get_all_descendants(%Account{}) :: [%Account{}]
   def get_all_descendants(%Account{} = account) do
     get_family_tree(account, "
       WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
@@ -455,7 +457,7 @@ defmodule EWalletDB.Account do
       ")
   end
 
-  @spec get_all_ancestors(List.t()) :: List.t()
+  @spec get_all_ancestors([String.t()]) :: [%Account{}]
   def get_all_ancestors(account_uuids) when is_list(account_uuids) do
     binary_account_uuids =
       Enum.map(account_uuids, fn account_uuid ->
@@ -483,7 +485,7 @@ defmodule EWalletDB.Account do
     load_accounts(result)
   end
 
-  @spec get_all_ancestors(%Account{}) :: List.t()
+  @spec get_all_ancestors(%Account{}) :: [%Account{}]
   def get_all_ancestors(account) do
     get_family_tree(account, "
       WITH RECURSIVE accounts_cte(uuid, id, name, parent_uuid, depth, path) AS (
@@ -515,6 +517,7 @@ defmodule EWalletDB.Account do
     end)
   end
 
+  @spec add_category(%Account{}, %Category{}) :: %Account{}
   def add_category(account, category) do
     account = Repo.preload(account, :categories)
 
@@ -527,6 +530,7 @@ defmodule EWalletDB.Account do
     Account.update(account, %{category_ids: category_ids})
   end
 
+  @spec remove_category(%Account{}, %Category{}) :: %Account{}
   def remove_category(account, category) do
     account = Repo.preload(account, :categories)
 

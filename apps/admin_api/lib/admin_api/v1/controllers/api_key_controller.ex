@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.APIKeyController do
   @doc """
   Retrieves a list of API keys including soft-deleted.
   """
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
       APIKey
@@ -52,6 +53,7 @@ defmodule AdminAPI.V1.APIKeyController do
   @doc """
   Creates a new API key. Currently API keys are assigned to the master account only.
   """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, _attrs) do
     with :ok <- permit(:create, conn.assigns, nil) do
       # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
@@ -67,6 +69,7 @@ defmodule AdminAPI.V1.APIKeyController do
   @doc """
   Update an API key.
   """
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %APIKey{} = api_key <- APIKey.get(id) || :api_key_not_found,
@@ -101,6 +104,7 @@ defmodule AdminAPI.V1.APIKeyController do
   @doc """
   Soft-deletes an existing API key by its id.
   """
+  @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id}) do
     with :ok <- permit(:delete, conn.assigns, id),
          %APIKey{} = key <- APIKey.get(id) do
@@ -126,7 +130,7 @@ defmodule AdminAPI.V1.APIKeyController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, api_key_id) do
     Bodyguard.permit(APIKeyPolicy, action, params, api_key_id)
