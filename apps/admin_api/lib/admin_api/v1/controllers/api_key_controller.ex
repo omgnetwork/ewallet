@@ -130,7 +130,7 @@ defmodule AdminAPI.V1.APIKeyController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, api_key_id) do
     Bodyguard.permit(APIKeyPolicy, action, params, api_key_id)

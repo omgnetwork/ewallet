@@ -154,15 +154,18 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def get(conn, %{"id" => id}) do
-    with %TransactionConsumption{} = consumption <-
-           TransactionConsumptionFetcher.get(id) || {:error, :unauthorized},
+    with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
          :ok <- permit(:get, conn.assigns, consumption) do
       render(conn, :transaction_consumption, %{
         transaction_consumption:
           Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
       })
     else
-      error -> respond(error, conn, false)
+      {:error, :transaction_consumption_not_found} ->
+        {:error, :unauthorized}
+
+      error ->
+        respond(error, conn, false)
     end
   end
 

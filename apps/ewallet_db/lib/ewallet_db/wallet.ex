@@ -106,6 +106,7 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
   end
 
+  @spec all_for(%Account{} | %User{} | any()) :: %__MODULE__{} | nil
   def all_for(%Account{} = account) do
     from(t in Wallet, where: t.account_uuid == ^account.uuid, preload: [:user, :account])
   end
@@ -116,10 +117,12 @@ defmodule EWalletDB.Wallet do
 
   def all_for(_), do: nil
 
+  @spec query_all_for_account_uuids_and_user(Ecto.Queryable.t(), [String.t()]) :: Ecto.Queryable.t()
   def query_all_for_account_uuids_and_user(query, account_uuids) do
     where(query, [w], w.account_uuid in ^account_uuids or not is_nil(w.user_uuid))
   end
 
+  @spec query_all_for_account_uuids(Ecto.Queryable.t(), [String.t()]) :: Ecto.Queryable.t()
   def query_all_for_account_uuids(query, account_uuids) do
     where(query, [w], w.account_uuid in ^account_uuids)
   end
@@ -127,6 +130,7 @@ defmodule EWalletDB.Wallet do
   @doc """
   Retrieve a wallet using the specified address.
   """
+  @spec get(String.t() | nil) :: %__MODULE__{} | nil
   def get(nil), do: nil
 
   def get(address) do
@@ -143,12 +147,14 @@ defmodule EWalletDB.Wallet do
   Create a new wallet with the passed attributes.
   A UUID is generated as the address if address is not specified.
   """
+  @spec insert(map()) :: {:ok, %__MODULE__{}}
   def insert(attrs) do
     %Wallet{}
     |> changeset(attrs)
     |> Repo.insert()
   end
 
+  @spec insert_secondary_or_burn(map()) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def insert_secondary_or_burn(%{"identifier" => identifier} = attrs) do
     attrs
     |> Map.put("identifier", build_identifier(identifier))
@@ -177,6 +183,7 @@ defmodule EWalletDB.Wallet do
   @doc """
   Returns the genesis wallet.
   """
+  @spec get_genesis :: %__MODULE__{} | {:error, Ecto.Changeset.t()}
   def get_genesis do
     case get(@genesis_address) do
       nil ->
@@ -191,6 +198,7 @@ defmodule EWalletDB.Wallet do
   @doc """
   Inserts a genesis.
   """
+  @spec insert_genesis :: %__MODULE__{} | {:error, Ecto.Changeset.t()}
   def insert_genesis do
     changeset =
       changeset(%Wallet{}, %{address: @genesis_address, name: @genesis, identifier: @genesis})
@@ -209,7 +217,7 @@ defmodule EWalletDB.Wallet do
   @doc """
   Check if a wallet is a burn wallet.
   """
-  @spec burn_wallet?(%Wallet{} | nil) :: true | false
+  @spec burn_wallet?(%Wallet{} | nil) :: boolean()
   def burn_wallet?(nil), do: false
   def burn_wallet?(wallet), do: String.match?(wallet.identifier, ~r/^#{@burn}|#{@burn}:.*/)
 end

@@ -501,6 +501,7 @@ defmodule EWalletDB.Account do
     ")
   end
 
+  @spec get_family_tree(%Account{}, String.t()) :: [%Account{}]
   defp get_family_tree(account, query) do
     depth = get_depth(account.uuid)
     {:ok, binary_uuid} = UUID.dump(account.uuid)
@@ -508,6 +509,7 @@ defmodule EWalletDB.Account do
     load_accounts(result)
   end
 
+  @spec load_accounts([%Account{}]) :: [%Account{}]
   defp load_accounts(query_result) do
     Enum.map(query_result.rows, fn row ->
       Account
@@ -517,7 +519,7 @@ defmodule EWalletDB.Account do
     end)
   end
 
-  @spec add_category(%Account{}, %Category{}) :: %Account{}
+  @spec add_category(%Account{}, %Category{}) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def add_category(account, category) do
     account = Repo.preload(account, :categories)
 
@@ -530,7 +532,7 @@ defmodule EWalletDB.Account do
     Account.update(account, %{category_ids: category_ids})
   end
 
-  @spec remove_category(%Account{}, %Category{}) :: %Account{}
+  @spec remove_category(%Account{}, %Category{}) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def remove_category(account, category) do
     account = Repo.preload(account, :categories)
 

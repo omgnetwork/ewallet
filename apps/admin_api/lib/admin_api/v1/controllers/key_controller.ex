@@ -137,7 +137,7 @@ defmodule AdminAPI.V1.KeyController do
 
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, key_id) do
     Bodyguard.permit(KeyPolicy, action, params, key_id)

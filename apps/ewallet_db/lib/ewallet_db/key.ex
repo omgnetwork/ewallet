@@ -188,7 +188,7 @@ defmodule EWalletDB.Key do
   @doc """
   Retrieves all account uuids that are accessible by the given key.
   """
-  @spec get_all_accessible_account_uuids(%Key{}) :: [%Account{}]
+  @spec get_all_accessible_account_uuids(%Key{}) :: [String.t()]
   def get_all_accessible_account_uuids(key) do
     Account.get_all_descendants_uuids(key.account)
   end

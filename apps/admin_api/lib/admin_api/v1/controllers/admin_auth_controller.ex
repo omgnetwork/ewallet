@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, any()) :: {:ok, User.t()} | atom() | no_return()
+  @spec permit(:all | :create | :get | :update, map()) :: {:ok, User.t()} | atom() | no_return()
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end
