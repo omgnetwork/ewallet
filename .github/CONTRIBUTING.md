@@ -14,6 +14,13 @@ Welcome to one of OmiseGO's open source projects! We welcome contributions in al
 * Describe the problem and solution. Add link to issue if any.
 * Read the [coding conventions](/docs/conventions.md).
 
+In order for the build to pass, the following commands must run successfully without errors:
+
+-   `mix format --check-formatted`
+-   `mix credo`
+-   `mix dialyzer`
+-   `mix test`
+
 #### **Do you intend to add a new feature or change an existing one?**
 
 * Do not open an issue right away. First, get in touch with us through [Gitter](https://gitter.im/omisego/ewallet). Once you get the green light to work on something, create an issue to describe the whole idea.

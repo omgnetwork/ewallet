@@ -1,6 +1,5 @@
 # Conventions
 
-
 ## Naming conventions
 
 In order for any developers to start working with eWalletDB quickly, easily and without ambiguity,

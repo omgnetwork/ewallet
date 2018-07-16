@@ -3,7 +3,6 @@
 We offer [acceptance tests](https://github.com/omisego/e2e) written using [Robot Framework](http://robotframework.org/).
 These tests rely on initial seeded data which are 2 admins and a base account.
 
-
 ## Environment setup
 
 In order to generate the sample data needed for the tests you will need to run:

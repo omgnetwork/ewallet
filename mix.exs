@@ -62,34 +62,65 @@ defmodule EWallet.Umbrella.Mixfile do
       extra_section: "Guides",
       extras: [
         {"README.md", [filename: "introduction", title: "Introduction"]},
+        # Design
         "docs/design/components.md",
+        "docs/design/conventions.md",
         "docs/design/databases.md",
-        "docs/design/entities.md",
+        "docs/design/design.md",
         "docs/design/transactions_and_entries.md",
         "docs/design/wallets.md",
+        # Guides
+        "docs/guides/api_responsibilities.md",
+        "docs/guides/api_specs.md",
+        "docs/guides/entities.md",
+        "docs/guides/ewallet_api_websockets.md",
+        "docs/guides/faq.md",
+        "docs/guides/guides.md",
         "docs/guides/transaction_request_flow.md",
-        "docs/setup/clustering.md",
-        "docs/setup/env.md",
-        "docs/setup/integration.md"
+        "docs/guides/usage.md",
+        # Setup
+        "docs/setup/adhoc/20180619-encryption-upgrade.md",
+        "docs/setup/advanced/clustering.md",
+        "docs/setup/advanced/env.md",
+        "docs/setup/bare_metal.md",
+        "docs/setup/docker.md",
+        "docs/setup/vagrant.md",
+        # Tests
+        "docs/tests/e2e.md",
+        "docs/tests/tests.md"
       ],
       groups_for_extras: [
         "Getting Started": [
           "README.md"
         ],
         "Setting Up": [
-          "docs/setup/clustering.md",
-          "docs/setup/env.md",
-          "docs/setup/integration.md"
+          "docs/setup/docker.md",
+          "docs/setup/vagrant.md",
+          "docs/setup/bare_metal.md"
         ],
         Guides: [
-          "docs/guides/transaction_request_flow.md"
+          "docs/guides/api_responsibilities.md",
+          "docs/guides/usage.md",
+          "docs/guides/entities.md",
+          "docs/guides/transaction_request_flow.md",
+          "docs/guides/ewallet_api_websockets.md",
+          "docs/guides/api_specs.md",
+          "docs/guides/faq.md"
         ],
         "Technical Design": [
-          "docs/design/entities.md",
           "docs/design/components.md",
           "docs/design/databases.md",
           "docs/design/wallets.md",
-          "docs/design/transactions_and_entries.md"
+          "docs/design/transactions_and_entries.md",
+          "docs/design/conventions.md"
+        ],
+        "Tests": [
+          "docs/tests/tests.md",
+          "docs/tests/e2e.md"
+        ],
+        "Advanced Setup": [
+          "docs/setup/advanced/env.md",
+          "docs/setup/advanced/clustering.md"
         ]
       ],
       groups_for_modules: [
