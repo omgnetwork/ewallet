@@ -21,7 +21,7 @@ export const cacheReducer = createReducer(
         [action.cacheKey]: { ids: action.data.map(d => d.id), pagination: action.pagination }
       }
     },
-    'ACCESS_KEY/REQUEST/SUCCESS': (state, action) => {
+    'ACCESS_KEYS/REQUEST/SUCCESS': (state, action) => {
       return {
         ...state,
         [action.cacheKey]: { ids: action.data.map(d => d.id), pagination: action.pagination }

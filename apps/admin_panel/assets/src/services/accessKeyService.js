@@ -1,6 +1,6 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAllAccessKey ({ perPage, page, search, sort }) {
+export function getAccessKeys ({ perPage, page, search, sort }) {
   return authenticatedRequest({
     path: '/access_key.all',
     data: {
@@ -17,6 +17,12 @@ export function createAccessKey () {
   return authenticatedRequest({
     path: '/access_key.create',
     data: {}
+  })
+}
+export function updateAccessKey ({ id, expired }) {
+  return authenticatedRequest({
+    path: '/access_key.update',
+    data: { id, expired }
   })
 }
 
