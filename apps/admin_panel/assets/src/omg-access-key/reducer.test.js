@@ -4,12 +4,12 @@ describe('accessKeys reducer', () => {
   test('should return the initial state', () => {
     expect(accessKeysReducer({}, 'FAKE_ACTION')).toEqual({})
   })
-  test('should return the key by id object with action [API_KEYS/REQUEST/SUCCESS]', () => {
+  test('should return the key by id object with action [ACCESS_KEYS/REQUEST/SUCCESS]', () => {
     expect(
       accessKeysReducer(
         {},
         {
-          type: 'API_KEYS/REQUEST/SUCCESS',
+          type: 'ACCESS_KEYS/REQUEST/SUCCESS',
           data: [{ id: '1', data: '1' }]
         }
       )

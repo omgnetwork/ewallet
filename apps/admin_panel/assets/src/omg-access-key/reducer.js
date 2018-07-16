@@ -1,4 +1,5 @@
 import createReducer from '../reducer/createReducer'
+import _ from 'lodash'
 export const accessKeysReducer = createReducer(
   {},
   {
@@ -11,7 +12,7 @@ export const accessKeysReducer = createReducer(
     'ACCESS_KEY/UPDATE/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.id]: data } }
     },
-    'CURRENT_ACCOUNT/SWITCH': () => []
+    'CURRENT_ACCOUNT/SWITCH': () => ({})
   }
 )
 
