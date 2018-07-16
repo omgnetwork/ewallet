@@ -2,11 +2,11 @@ import createReducer from '../reducer/createReducer'
 export const apiKeysReducer = createReducer(
   {},
   {
-    'API_KEY/CREATE/SUCCESS': (state, { apiKey }) => {
-      return { ...state, ...{ [apiKey.id]: apiKey } }
-    },
-    'API_KEY/REQUEST/SUCCESS': (state, { data }) => {
+    'API_KEYS/REQUEST/SUCCESS': (state, { data }) => {
       return { ...state, ..._.keyBy(data, 'id') }
+    },
+    'API_KEY/CREATE/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     },
     'API_KEY/UPDATE/SUCCESS': (state, { data }) => {
       return { ...state, ...{ [data.id]: data } }
@@ -16,6 +16,6 @@ export const apiKeysReducer = createReducer(
 )
 
 export const apiKeysLoadingStatusReducer = createReducer('DEFAULT', {
-  'API)KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
+  'API_KEYS/REQUEST/SUCCESS': (state, action) => 'SUCCESS',
   'CURRENT_ACCOUNT/SWITCH': () => 'DEFAULT'
 })

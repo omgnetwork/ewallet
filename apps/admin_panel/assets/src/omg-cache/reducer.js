@@ -15,7 +15,7 @@ export const cacheReducer = createReducer(
         [action.cacheKey]: { ids: action.data.map(d => d.id), pagination: action.pagination }
       }
     },
-    'API_KEY/REQUEST/SUCCESS': (state, action) => {
+    'API_KEYS/REQUEST/SUCCESS': (state, action) => {
       return {
         ...state,
         [action.cacheKey]: { ids: action.data.map(d => d.id), pagination: action.pagination }

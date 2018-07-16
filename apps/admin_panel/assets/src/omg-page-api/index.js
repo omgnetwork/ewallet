@@ -10,7 +10,7 @@ import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
+import { createApiKey, updateApiKey } from '../omg-api-keys/action'
 import { generateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
@@ -106,12 +106,12 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { generateApiKey, updateApiKey, generateAccessKey }
+    { createApiKey, updateApiKey, generateAccessKey }
   )
 )
 class ApiKeyPage extends Component {
   static propTypes = {
-    generateApiKey: PropTypes.func,
+    createApiKey: PropTypes.func,
     generateAccessKey: PropTypes.func,
     updateApiKey: PropTypes.func,
     location: PropTypes.object
@@ -143,7 +143,7 @@ class ApiKeyPage extends Component {
   onClickOkCreateEwalletKey = fetch => async e => {
     this.setState({ submitStatus: 'SUBMITTING' })
     try {
-      await this.props.generateApiKey()
+      await this.props.createApiKey()
       fetch()
       this.onRequestClose()
       this.setState({ submitStatus: 'SUCCESS' })
