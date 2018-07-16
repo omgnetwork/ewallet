@@ -1,15 +1,15 @@
-import { transactionRequestsReducer } from './reducer'
-import { consumptionsReducer } from '../omg-consumption/reducer'
-describe('transaction requests reducer', () => {
+import { consumptionsReducer } from './reducer'
+
+describe('consumptions reducer', () => {
   test('should return the initial state', () => {
-    expect(transactionRequestsReducer({}, 'FAKE_ACTION')).toEqual({})
+    expect(consumptionsReducer({}, 'FAKE_ACTION')).toEqual({})
   })
-  test('should return the key by id object with action [TRANSACTION_REQUESTS/REQUEST/SUCCESS]', () => {
+  test('should return the key by id object with action [CONSUMPTIONS/REQUEST/SUCCESS]', () => {
     expect(
-      transactionRequestsReducer(
+      consumptionsReducer(
         {},
         {
-          type: 'TRANSACTION_REQUESTS/REQUEST/SUCCESS',
+          type: 'CONSUMPTIONS/REQUEST/SUCCESS',
           data: [{ id: '1', data: '1' }]
         }
       )
