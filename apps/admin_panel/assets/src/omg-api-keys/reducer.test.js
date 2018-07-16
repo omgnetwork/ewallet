@@ -1,6 +1,6 @@
 import { apiKeysReducer } from './reducer'
 
-describe('accounts reducer', () => {
+describe('apikeys reducer', () => {
   test('should return the initial state', () => {
     expect(apiKeysReducer({}, 'FAKE_ACTION')).toEqual({})
   })
