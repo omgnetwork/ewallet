@@ -6,7 +6,7 @@ const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
 jest.mock('../services/currentUserService')
 let store
-describe('wallet actions', () => {
+describe('current user actions', () => {
   beforeEach(() => {
     jest.resetAllMocks()
     store = mockStore()
