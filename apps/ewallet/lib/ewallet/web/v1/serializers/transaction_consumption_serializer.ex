@@ -11,6 +11,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
     TransactionSerializer,
     TransactionRequestSerializer,
     UserSerializer,
+    WalletSerializer,
     PaginatorSerializer
   }
 
@@ -49,10 +50,16 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
       idempotency_token: consumption.idempotency_token,
       transaction_id: Assoc.get(consumption, [:transaction, :id]),
       transaction: TransactionSerializer.serialize(consumption.transaction),
+      
       user_id: Assoc.get(consumption, [:user, :id]),
       user: UserSerializer.serialize(consumption.user),
       account_id: Assoc.get(consumption, [:account, :id]),
       account: AccountSerializer.serialize(consumption.account),
+      exchange_account_id: Assoc.get(consumption, [:exchange_account, :id]),
+      exchange_account: AccountSerializer.serialize(consumption.exchange_account),
+      exchange_wallet_address: Assoc.get(consumption, [:exchange_wallet, :address]),
+      exchange_wallet: WalletSerializer.serialize(consumption.exchange_wallet),
+
       transaction_request_id: consumption.transaction_request.id,
       transaction_request:
         TransactionRequestSerializer.serialize(consumption.transaction_request),

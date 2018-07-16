@@ -5,14 +5,20 @@ defmodule EWallet.TransactionConsumptionValidator do
   """
   alias EWallet.{Helper, TransactionConsumptionPolicy}
   alias EWallet.Web.V1.Event
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair}
+  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair, Wallet}
 
-  @spec validate_before_consumption(TransactionRequest.t(), any(), nil | keyword() | map()) ::
+  @spec validate_before_consumption(
+          TransactionRequest.t(),
+          Wallet.t(),
+          Wallet.t(),
+          nil | keyword() | map()
+        ) ::
           {:ok, TransactionRequest.t(), Token.t(), integer()}
           | {:error, Atom.t()}
-  def validate_before_consumption(request, wallet, attrs) do
+  def validate_before_consumption(request, wallet, attrs, wallet_exchange \\ nil) do
     with amount <- attrs["amount"],
          token_id <- attrs["token_id"],
+         :ok <- validate_only_one_exchange_address_in_pair(request, wallet_exchange),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,
          {:ok, amount} <- validate_amount(request, amount),
@@ -60,6 +66,31 @@ defmodule EWallet.TransactionConsumptionValidator do
       error ->
         error
     end
+  end
+
+  def validate_only_one_exchange_address_in_pair(
+        %TransactionRequest{exchange_wallet_address: nil},
+        nil
+      ),
+      do: :ok
+
+  def validate_only_one_exchange_address_in_pair(
+        %TransactionRequest{exchange_wallet_address: nil},
+        _wallet_exchange
+      ),
+      do: :ok
+
+  def validate_only_one_exchange_address_in_pair(
+        %TransactionRequest{exchange_wallet_address: _address},
+        nil
+      ),
+      do: :ok
+
+  def validate_only_one_exchange_address_in_pair(
+        %TransactionRequest{exchange_wallet_address: _address},
+        _wallet_exchange
+      ) do
+    {:error, :request_already_contains_exchange}
   end
 
   @spec validate_amount(TransactionRequest.t(), Integer.t()) ::

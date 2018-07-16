@@ -168,6 +168,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do
+        IO.inspect(attrs)
     attrs
     |> TransactionConsumptionConsumerGate.consume()
     |> respond(conn, true)
