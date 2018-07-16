@@ -1,5 +1,6 @@
 import * as consumptionService from '../services/consumptionService'
 import { selectGetConsumptionById } from '../omg-consumption/selector'
+
 export const getConsumptions = ({ page, perPage, search, cacheKey, searchTerms }) => async dispatch => {
   dispatch({ type: 'CONSUMPTIONS/REQUEST/INITIATED' })
   try {
