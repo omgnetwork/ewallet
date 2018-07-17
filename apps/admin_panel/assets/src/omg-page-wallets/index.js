@@ -78,10 +78,10 @@ class WalletPage extends Component {
   onRequestCloseTransferModal = () => {
     this.setState({ transferModalOpen: false })
   }
-  renderCreateAccountButton = () => {
+  renderTransferButton = () => {
     return (
       <TransferButton size='small' onClick={this.onClickTransfer} key={'transfer'}>
-        <Icon name='Transaction' /> <span>Transfer</span>
+        <Icon name='Transaction' /><span>Transfer</span>
       </TransferButton>
     )
   }
@@ -135,7 +135,7 @@ class WalletPage extends Component {
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation title={'Wallets'} buttons={[this.renderCreateAccountButton()]} />
+        <TopNavigation title={'Wallets'} buttons={[this.renderTransferButton()]} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(wallets)}
