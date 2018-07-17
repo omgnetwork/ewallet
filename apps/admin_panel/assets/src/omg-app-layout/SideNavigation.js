@@ -10,7 +10,7 @@ const SideNavigationContainer = styled.div`
   background-color: ${props => props.theme.colors.B300};
   height: 100%;
   color: white;
-  padding: 35px 0;
+  padding: 50px 0;
   overflow: auto;
 `
 const NavigationItem = styled.div`

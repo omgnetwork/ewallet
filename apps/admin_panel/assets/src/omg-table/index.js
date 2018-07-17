@@ -73,7 +73,8 @@ const NavigationContainer = styled.div`
   padding-top: 40px;
   > button {
     padding: 5px 10px;
-    :hover {
+    i {
+      line-height: 12px;
     }
   }
   > button:first-child {
