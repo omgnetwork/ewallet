@@ -1,71 +1,34 @@
 import * as apikeyService from '../services/apikeyService'
-export const generateApiKey = owner => async dispatch => {
-  try {
-    const result = await apikeyService.createApikey({ owner })
-    if (result.data.success) {
-      dispatch({
-        type: 'API_KEY/CREATE/SUCCESS',
-        apiKey: result.data.data
-      })
-    } else {
-      dispatch({ type: 'API_KEY/CREATE/FAILED', error: result.data.data })
-    }
-    return result
-  } catch (error) {
-    dispatch({ type: 'API_KEY/CREATE/FAILED', error })
-  }
-}
-export const disableApiKey = id => async dispatch => {
-  try {
-    const result = await apikeyService.deleteApiKeyById(id)
-    if (result.data.success) {
-      dispatch({
-        type: 'API_KEY/DISABLE/SUCCESS',
-        apiKey: result.data.data
-      })
-    } else {
-      dispatch({ type: 'API_KEY/DISABLE/FAILED', error: result.data.data })
-    }
-    return result
-  } catch (error) {
-    dispatch({ type: 'API_KEY/DISABLE/FAILED', error })
-  }
-}
-export const updateApiKey = ({ id, expired }) => async dispatch => {
-  try {
-    const result = await apikeyService.updateApiKey({ id, expired })
-    if (result.data.success) {
-      return dispatch({
-        type: 'API_KEY/UPDATE/SUCCESS',
-        data: result.data.data
-      })
-    } else {
-      return dispatch({ type: 'API_KEY/UPDATE/FAILED', error: result.data.data })
-    }
-  } catch (error) {
-    return dispatch({ type: 'API_KEY/UPDATE/FAILED', error })
-  }
-}
+import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
+export const createApiKey = owner =>
+  createActionCreator({
+    actionName: 'API_KEY',
+    action: 'CREATE',
+    service: () => apikeyService.createApikey({ owner })
+  })
+export const deleteApiKey = id =>
+  createActionCreator({
+    actionName: 'API_KEY',
+    action: 'DELETE',
+    service: () => apikeyService.deleteApiKeyById(id)
+  })
+export const updateApiKey = ({ id, expired }) =>
+  createActionCreator({
+    actionName: 'API_KEY',
+    action: 'UPDATE',
+    service: () => apikeyService.updateApiKey({ id, expired })
+  })
 
-export const getApiKeys = ({ page, perPage, search, cacheKey }) => async dispatch => {
-  try {
-    const result = await apikeyService.getAllApikey({
-      perPage,
-      page,
-      sort: { by: 'created_at', dir: 'desc' },
-      search
-    })
-    if (result.data.success) {
-      return dispatch({
-        type: 'API_KEY/REQUEST/SUCCESS',
-        data: result.data.data.data,
-        cacheKey,
-        pagination: result.data.data.pagination
-      })
-    } else {
-      return dispatch({ type: 'API_KEY/REQUEST/FAILED', error: result.data.data })
-    }
-  } catch (error) {
-    dispatch({ type: 'API_KEY/REQUEST/FAILED', error })
-  }
-}
+export const getApiKeys = ({ page, perPage, search, cacheKey }) =>
+  createPaginationActionCreator({
+    actionName: 'API_KEYS',
+    action: 'REQUEST',
+    service: () =>
+      apikeyService.getAllApikey({
+        perPage,
+        page,
+        sort: { by: 'created_at', dir: 'desc' },
+        search
+      }),
+    cacheKey
+  })
