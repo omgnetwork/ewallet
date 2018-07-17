@@ -1,20 +1,18 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
-const AccountItemLogo = styled.div`
+import {Avatar} from '../omg-uikit'
+const AccountItemLogo = styled(Avatar)`
   width: 32px;
   height: 32px;
   margin-right: 15px;
   margin-top: 15px;
   background-color: ${props => props.theme.colors.B300};
-  background-image: url(${props => props.backgroundImage});
-  background-size: cover;
-  background-position: center;
-  border: 2px solid ${props => props.active ? props.theme.colors.BL400 : props.theme.colors.B300};
+  border: 1px solid ${props => props.active ? props.theme.colors.BL400 : props.theme.colors.B300};
+  color: white;
   border-radius: 4px;
   transition: 0.25s;
-  text-align: center;
-  line-height: 30px;
+  line-height: 31px;
 `
 const AccountItemContainer = styled.div`
   width: 100%;
@@ -22,7 +20,7 @@ const AccountItemContainer = styled.div`
   color: white;
   cursor: pointer;
   :hover > ${AccountItemLogo} {
-    border: 2px solid ${props => props.theme.colors.BL400};
+    border: 1px solid ${props => props.theme.colors.BL400};
   }
 `
 const AccountItemContent = styled.div`
@@ -48,9 +46,7 @@ class AccountItem extends Component {
   render () {
     return (
       <AccountItemContainer onClick={this.props.onClick}>
-        <AccountItemLogo active={this.props.active} backgroundImage={this.props.thumbnail}>
-          { !this.props.thumbnail && this.props.name.slice(0, 2)}
-        </AccountItemLogo>
+        <AccountItemLogo name={!this.props.thumbnail && this.props.name.slice(0, 2)} active={this.props.active} image={this.props.thumbnail} />
         <AccountItemContent>
           <AccountName>{this.props.name}</AccountName>
           <AccountDescription>{this.props.description}</AccountDescription>
