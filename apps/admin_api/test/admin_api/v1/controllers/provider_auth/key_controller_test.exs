@@ -9,46 +9,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
       key_1 = Key |> Repo.get_by(access_key: @access_key) |> Repo.preload([:account])
       key_2 = insert(:key, %{secret_key: "the_secret_key"})
 
-      assert provider_request("/access_key.all") ==
-               %{
-                 "version" => "1",
-                 "success" => true,
-                 "data" => %{
-                   "object" => "list",
-                   "data" => [
-                     %{
-                       "object" => "key",
-                       "id" => key_1.id,
-                       "access_key" => key_1.access_key,
-                       # Secret keys cannot be retrieved after creation
-                       "secret_key" => nil,
-                       "account_id" => Assoc.get(key_1, [:account, :id]),
-                       "expired" => key_1.expired,
-                       "created_at" => Date.to_iso8601(key_1.inserted_at),
-                       "updated_at" => Date.to_iso8601(key_1.updated_at),
-                       "deleted_at" => Date.to_iso8601(key_1.deleted_at)
-                     },
-                     %{
-                       "object" => "key",
-                       "id" => key_2.id,
-                       "access_key" => key_2.access_key,
-                       # Secret keys cannot be retrieved after creation
-                       "secret_key" => nil,
-                       "account_id" => Assoc.get(key_2, [:account, :id]),
-                       "expired" => key_2.expired,
-                       "created_at" => Date.to_iso8601(key_2.inserted_at),
-                       "updated_at" => Date.to_iso8601(key_2.updated_at),
-                       "deleted_at" => Date.to_iso8601(key_2.deleted_at)
-                     }
-                   ],
-                   "pagination" => %{
-                     "current_page" => 1,
-                     "per_page" => 10,
-                     "is_first_page" => true,
-                     "is_last_page" => true
-                   }
-                 }
-               }
+      response = provider_request("/access_key.all")
+
+      assert Enum.count(response["data"]) == 2
+      assert Enum.all?(response["data"], fn key -> key.object == "key" end)
+      assert Enum.all?(response["data"], fn key -> key.access_key != nil end)
+      assert Enum.all?(response["data"], fn key -> key.secret_key == nil end)
     end
   end
 
