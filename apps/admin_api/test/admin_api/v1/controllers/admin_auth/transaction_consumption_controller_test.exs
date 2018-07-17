@@ -786,7 +786,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                  "user" => nil,
                  "account_id" => meta.account.id,
                  "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
-                 "exchange_account" => nil, "exchange_account_id" => nil, "exchange_wallet" => nil, "exchange_wallet_address" => nil,
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
                  "metadata" => %{},
                  "encrypted_metadata" => %{},
                  "expiration_date" => nil,
@@ -907,7 +910,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                  "user" => nil,
                  "account_id" => meta.account.id,
                  "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
-                 "exchange_account" => nil, "exchange_account_id" => nil, "exchange_wallet" => nil, "exchange_wallet_address" => nil,
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
                  "metadata" => %{},
                  "encrypted_metadata" => %{},
                  "expiration_date" => nil,
@@ -963,6 +969,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
           user_id: meta.bob.id,
           exchange_wallet_address: meta.account_wallet.address
         })
+
       IO.inspect(response)
       assert response["success"] == true
 
@@ -1144,9 +1151,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
       assert response["data"]["transaction_request"]["exchange_account_id"] == meta.account.id
+
       assert response["data"]["transaction_request"]["exchange_wallet_address"] ==
                meta.account_wallet.address
+
       assert response["data"]["transaction_request"]["exchange_account"]["id"] == meta.account.id
+
       assert response["data"]["transaction_request"]["exchange_wallet"]["address"] ==
                meta.account_wallet.address
 

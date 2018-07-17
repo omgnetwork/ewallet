@@ -3,7 +3,7 @@ defmodule EWallet.ExchangeAccountFetcher do
   Fetch exchange account and/or exchange wallet.
   """
   alias EWallet.WalletFetcher
-  alias EWalletDB.Account
+  alias EWalletDB.{Repo, Account}
 
   def fetch(%{
         "exchange_account_id" => exchange_account_id,
@@ -42,16 +42,14 @@ defmodule EWallet.ExchangeAccountFetcher do
         "exchange_wallet_address" => exchange_wallet_address
       })
       when not is_nil(exchange_wallet_address) do
-    with %Account{} = exchange_account <-
-           Account.get(exchange_account_id) || {:error, :exchange_account_id_not_found},
-         {:ok, exchange_wallet} <- WalletFetcher.get(exchange_account, exchange_wallet_address) do
+    with {:ok, exchange_wallet} <- WalletFetcher.get(nil, exchange_wallet_address),
+         exchange_wallet <- Repo.preload(exchange_wallet, [:account]),
+         %Account{} = _exchange_account <-
+           exchange_wallet.account || {:error, :exchange_address_not_account} do
       {:ok, exchange_wallet}
     else
       {:error, :account_wallet_not_found} ->
         {:error, :exchange_account_wallet_not_found}
-
-      {:error, :account_wallet_mismatch} ->
-        {:error, :exchange_account_wallet_mismatch}
 
       error ->
         error

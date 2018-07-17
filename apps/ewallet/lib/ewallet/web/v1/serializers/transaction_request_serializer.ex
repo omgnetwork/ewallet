@@ -22,7 +22,14 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
 
   def serialize(%TransactionRequest{} = transaction_request) do
     transaction_request =
-      Preloader.preload(transaction_request, [:account, :consumptions, :token, :user, :exchange_account, :exchange_wallet])
+      Preloader.preload(transaction_request, [
+        :account,
+        :consumptions,
+        :token,
+        :user,
+        :exchange_account,
+        :exchange_wallet
+      ])
 
     %{
       object: "transaction_request",

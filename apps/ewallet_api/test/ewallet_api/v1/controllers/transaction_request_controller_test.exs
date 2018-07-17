@@ -41,7 +41,10 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                  "account_id" => nil,
                  "account" => nil,
-                 "exchange_account" => nil, "exchange_account_id" => nil, "exchange_wallet" => nil, "exchange_wallet_address" => nil,
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
                  "allow_amount_override" => true,
                  "require_confirmation" => false,
                  "consumption_lifetime" => nil,
@@ -102,7 +105,10 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                  "account_id" => nil,
                  "account" => nil,
-                 "exchange_account" => nil, "exchange_account_id" => nil, "exchange_wallet" => nil, "exchange_wallet_address" => nil,
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
                  "created_at" => Date.to_iso8601(request.inserted_at),
                  "updated_at" => Date.to_iso8601(request.updated_at)
                }
@@ -153,7 +159,10 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                  "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                  "account_id" => nil,
                  "account" => nil,
-                 "exchange_account" => nil, "exchange_account_id" => nil, "exchange_wallet" => nil, "exchange_wallet_address" => nil,
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
                  "created_at" => Date.to_iso8601(request.inserted_at),
                  "updated_at" => Date.to_iso8601(request.updated_at)
                }
