@@ -10,12 +10,12 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
 
       response = provider_request("/access_key.all")
 
-      assert Enum.all?(response["data"], fn key -> key["object"] == "key" end)
-      assert Enum.all?(response["data"], fn key -> key["secret_key"] == nil end)
+      assert Enum.all?(response["data"]["data"], fn key -> key["object"] == "key" end)
+      assert Enum.all?(response["data"]["data"], fn key -> key["secret_key"] == nil end)
 
-      assert Enum.count(response["data"]) == 2
-      assert Enum.any?(response["data"], fn key -> key["access_key"] == key_1.access_key end)
-      assert Enum.any?(response["data"], fn key -> key["access_key"] == key_2.access_key end)
+      assert Enum.count(response["data"]["data"]) == 2
+      assert Enum.any?(response["data"]["data"], fn key -> key["access_key"] == key_1.access_key end)
+      assert Enum.any?(response["data"]["data"], fn key -> key["access_key"] == key_2.access_key end)
     end
   end
 
