@@ -87,6 +87,13 @@ defmodule EWallet.TransactionConsumptionValidator do
       do: :ok
 
   def validate_only_one_exchange_address_in_pair(
+        %TransactionRequest{exchange_wallet_address: address},
+        %Wallet{address: address}
+      ) do
+    :ok
+  end
+
+  def validate_only_one_exchange_address_in_pair(
         %TransactionRequest{exchange_wallet_address: _address},
         _wallet_exchange
       ) do

@@ -50,7 +50,8 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       exchange_account_id: Assoc.get(transaction_request, [:exchange_account, :id]),
       exchange_account: AccountSerializer.serialize(transaction_request.exchange_account),
       exchange_wallet_address: Assoc.get(transaction_request, [:exchange_wallet, :address]),
-      exchange_wallet: WalletSerializer.serialize(transaction_request.exchange_wallet),
+      exchange_wallet:
+        WalletSerializer.serialize_without_balances(transaction_request.exchange_wallet),
       require_confirmation: transaction_request.require_confirmation,
       current_consumptions_count: length(transaction_request.consumptions),
       max_consumptions: transaction_request.max_consumptions,

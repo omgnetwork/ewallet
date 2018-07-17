@@ -8,7 +8,7 @@ defmodule EWalletDB.Repo.Migrations.AddExchangeDetailsToTransactionRequestConsum
     end
 
     alter table(:transaction_consumption) do
-      add :exchange_account_uuid, references(:wallet, type: :uuid, column: :uuid)
+      add :exchange_account_uuid, references(:account, type: :uuid, column: :uuid)
       add :exchange_wallet_address, references(:wallet, type: :string, column: :address)
     end
   end

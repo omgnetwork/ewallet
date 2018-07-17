@@ -1,7 +1,8 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWalletDB.{Repo, TransactionRequest, User, Account, AccountUser}
-  alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
+  alias EWallet.Web.Date
+  alias EWallet.Web.V1.{TokenSerializer, UserSerializer, AccountSerializer, WalletSerializer}
 
   describe "/transaction_request.all" do
     setup do
@@ -106,10 +107,11 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
   end
 
   describe "/transaction_request.create" do
-    test "creates a transaction request with all the params" do
+    test "creates a transaction request with all the params and exchange wallet" do
       account = Account.get_master_account()
       user = get_test_user()
       token = insert(:token)
+      account_wallet = Account.get_primary_wallet(account)
       wallet = User.get_primary_wallet(user)
       {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
@@ -119,7 +121,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
           token_id: token.id,
           correlation_id: "123",
           amount: 1_000,
-          address: wallet.address
+          address: wallet.address,
+          exchange_wallet_address: account_wallet.address
         })
 
       request = TransactionRequest |> Repo.all() |> Enum.at(0)
@@ -143,10 +146,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                  "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                  "account_id" => nil,
                  "account" => nil,
-                 "exchange_account" => nil,
-                 "exchange_account_id" => nil,
-                 "exchange_wallet" => nil,
-                 "exchange_wallet_address" => nil,
                  "allow_amount_override" => true,
                  "require_confirmation" => false,
                  "consumption_lifetime" => nil,
@@ -158,6 +157,78 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
                  "current_consumptions_count" => 0,
                  "max_consumptions_per_user" => nil,
                  "metadata" => %{},
+                 "exchange_account_id" => account.id,
+                 "exchange_account" =>
+                   account |> AccountSerializer.serialize() |> stringify_keys(),
+                 "exchange_wallet_address" => account_wallet.address,
+                 "exchange_wallet" =>
+                   account_wallet
+                   |> WalletSerializer.serialize_without_balances()
+                   |> stringify_keys(),
+                 "created_at" => Date.to_iso8601(request.inserted_at),
+                 "updated_at" => Date.to_iso8601(request.updated_at)
+               }
+             }
+    end
+
+    test "creates a transaction request with all the params and exchange account" do
+      account = Account.get_master_account()
+      user = get_test_user()
+      token = insert(:token)
+      account_wallet = Account.get_primary_wallet(account)
+      wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      response =
+        admin_user_request("/transaction_request.create", %{
+          type: "send",
+          token_id: token.id,
+          correlation_id: "123",
+          amount: 1_000,
+          address: wallet.address,
+          exchange_account_id: account.id
+        })
+
+      request = TransactionRequest |> Repo.all() |> Enum.at(0)
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "object" => "transaction_request",
+                 "amount" => 1_000,
+                 "address" => wallet.address,
+                 "correlation_id" => "123",
+                 "id" => request.id,
+                 "formatted_id" => request.id,
+                 "socket_topic" => "transaction_request:#{request.id}",
+                 "token_id" => token.id,
+                 "token" => token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "type" => "send",
+                 "status" => "valid",
+                 "user_id" => user.id,
+                 "user" => user |> UserSerializer.serialize() |> stringify_keys(),
+                 "account_id" => nil,
+                 "account" => nil,
+                 "allow_amount_override" => true,
+                 "require_confirmation" => false,
+                 "consumption_lifetime" => nil,
+                 "encrypted_metadata" => %{},
+                 "expiration_date" => nil,
+                 "expiration_reason" => nil,
+                 "expired_at" => nil,
+                 "max_consumptions" => nil,
+                 "current_consumptions_count" => 0,
+                 "max_consumptions_per_user" => nil,
+                 "metadata" => %{},
+                 "exchange_account_id" => account.id,
+                 "exchange_account" =>
+                   account |> AccountSerializer.serialize() |> stringify_keys(),
+                 "exchange_wallet_address" => account_wallet.address,
+                 "exchange_wallet" =>
+                   account_wallet
+                   |> WalletSerializer.serialize_without_balances()
+                   |> stringify_keys(),
                  "created_at" => Date.to_iso8601(request.inserted_at),
                  "updated_at" => Date.to_iso8601(request.updated_at)
                }

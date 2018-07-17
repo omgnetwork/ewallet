@@ -11,7 +11,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     AccountUser
   }
 
-  alias EWallet.TestEndpoint
+  alias EWallet.{TestEndpoint, BalanceFetcher}
   alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
 
@@ -811,6 +811,479 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.local_ledger_uuid != nil
     end
 
+    test "fails to consume when trying to send from a burn wallet", meta do
+      burn_wallet = Account.get_default_burn_wallet(meta.account)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          wallet: burn_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          user_id: meta.bob.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `from` can't be the address of a burn wallet."
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      assert inserted_consumption.error_code == "client:invalid_parameter"
+
+      assert inserted_consumption.error_description ==
+               "Invalid parameter provided `from` can't be the address of a burn wallet."
+    end
+
+    test "consumes the request and transfers the appropriate amount of tokens with string",
+         meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: nil
+        )
+
+      set_initial_balance(%{
+        address: meta.bob_wallet.address,
+        token: meta.token,
+        amount: 100_000 * meta.token.subunit_to_unit
+      })
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: "10000000",
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
+      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      assert response == %{
+               "success" => true,
+               "version" => "1",
+               "data" => %{
+                 "address" => meta.account_wallet.address,
+                 "amount" => 100_000 * meta.token.subunit_to_unit,
+                 "estimated_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "estimated_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_request_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "finalized_consumption_amount" => 100_000 * meta.token.subunit_to_unit,
+                 "correlation_id" => nil,
+                 "id" => inserted_consumption.id,
+                 "socket_topic" => "transaction_consumption:#{inserted_consumption.id}",
+                 "idempotency_token" => "123",
+                 "object" => "transaction_consumption",
+                 "status" => "confirmed",
+                 "token_id" => meta.token.id,
+                 "token" => meta.token |> TokenSerializer.serialize() |> stringify_keys(),
+                 "transaction_request_id" => transaction_request.id,
+                 "transaction_request" =>
+                   request |> TransactionRequestSerializer.serialize() |> stringify_keys(),
+                 "transaction_id" => inserted_transaction.id,
+                 "transaction" =>
+                   inserted_transaction |> TransactionSerializer.serialize() |> stringify_keys(),
+                 "user_id" => nil,
+                 "user" => nil,
+                 "account_id" => meta.account.id,
+                 "account" => meta.account |> AccountSerializer.serialize() |> stringify_keys(),
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
+                 "metadata" => %{},
+                 "encrypted_metadata" => %{},
+                 "expiration_date" => nil,
+                 "created_at" => Date.to_iso8601(inserted_consumption.inserted_at),
+                 "approved_at" => Date.to_iso8601(inserted_consumption.approved_at),
+                 "rejected_at" => Date.to_iso8601(inserted_consumption.rejected_at),
+                 "confirmed_at" => Date.to_iso8601(inserted_consumption.confirmed_at),
+                 "failed_at" => Date.to_iso8601(inserted_consumption.failed_at),
+                 "expired_at" => nil
+               }
+             }
+
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == meta.token.uuid
+      assert inserted_transaction.to == meta.alice_wallet.address
+      assert inserted_transaction.from == meta.account_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+    end
+
+    test "consumes the request and transfers with exchange details in request",
+         meta do
+      token_2 = insert(:token)
+      mint!(token_2)
+      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit,
+          exchange_account_uuid: meta.account.uuid,
+          exchange_wallet_address: meta.account_wallet.address
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token_2.id,
+          user_id: meta.bob.id
+        })
+
+      assert response["success"] == true
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
+
+      assert response["data"]["amount"] == nil
+      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["token_id"] == token_2.id
+      assert response["data"]["address"] == meta.bob_wallet.address
+      assert response["data"]["user_id"] == meta.bob.id
+
+      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
+      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == token_2.uuid
+      assert inserted_transaction.to == meta.bob_wallet.address
+      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 0
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      assert Enum.at(b1.balances, 0).amount == 0
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+    end
+
+    test "consumes the request and exchange with exchange_wallet in consumption",
+         meta do
+      token_2 = insert(:token)
+      mint!(token_2)
+      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token_2.id,
+          user_id: meta.bob.id,
+          exchange_wallet_address: meta.account_wallet.address
+        })
+
+      assert response["success"] == true
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
+
+      assert response["data"]["amount"] == nil
+      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["token_id"] == token_2.id
+      assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
+      assert response["data"]["exchange_account_id"] == meta.account.id
+
+      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
+      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+      assert response["data"]["transaction_request"]["exchange_wallet_address"] == nil
+      assert response["data"]["transaction_request"]["exchange_accout_id"] == nil
+
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == token_2.uuid
+      assert inserted_transaction.to == meta.bob_wallet.address
+      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 0
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      assert Enum.at(b1.balances, 0).amount == 0
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+    end
+
+    test "consumes the request and exchange with exchange_account in consumption",
+         meta do
+      token_2 = insert(:token)
+      mint!(token_2)
+      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token_2.id,
+          user_id: meta.bob.id,
+          exchange_account_id: meta.account.id
+        })
+
+      assert response["success"] == true
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
+
+      assert response["data"]["amount"] == nil
+      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["token_id"] == token_2.id
+      assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
+      assert response["data"]["exchange_account_id"] == meta.account.id
+
+      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
+      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+      assert response["data"]["transaction_request"]["exchange_wallet_address"] == nil
+      assert response["data"]["transaction_request"]["exchange_accout_id"] == nil
+
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == token_2.uuid
+      assert inserted_transaction.to == meta.bob_wallet.address
+      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 0
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      assert Enum.at(b1.balances, 0).amount == 0
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+    end
+
+    test "transfer and exchange if request and consumption specify the same exchange wallet address",
+         meta do
+      token_2 = insert(:token)
+      mint!(token_2)
+      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit,
+          exchange_account_uuid: meta.account.uuid,
+          exchange_wallet_address: meta.account_wallet.address
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token_2.id,
+          user_id: meta.bob.id,
+          exchange_account_id: meta.account.id
+        })
+
+      assert response["success"] == true
+
+      inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
+      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
+
+      assert response["data"]["amount"] == nil
+      assert response["data"]["finalized_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["finalized_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["estimated_request_amount"] == 100_000 * meta.token.subunit_to_unit
+      assert response["data"]["estimated_consumption_amount"] == 200_000 * token_2.subunit_to_unit
+      assert response["data"]["token_id"] == token_2.id
+      assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
+      assert response["data"]["exchange_account_id"] == meta.account.id
+
+      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["token_id"] == meta.token.id
+      assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
+      assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+
+      assert response["data"]["transaction_request"]["exchange_wallet_address"] ==
+               meta.account_wallet.address
+
+      assert response["data"]["transaction_request"]["exchange_account_id"] == meta.account.id
+
+      assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
+      assert inserted_transaction.to_token_uuid == token_2.uuid
+      assert inserted_transaction.to == meta.bob_wallet.address
+      assert inserted_transaction.from == meta.alice_wallet.address
+      assert inserted_transaction.local_ledger_uuid != nil
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.alice_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.alice_wallet)
+      assert Enum.at(b1.balances, 0).amount == (150_000 - 100_000) * meta.token.subunit_to_unit
+      assert Enum.at(b2.balances, 0).amount == 0
+
+      {:ok, b1} = BalanceFetcher.get(meta.token.id, meta.bob_wallet)
+      {:ok, b2} = BalanceFetcher.get(token_2.id, meta.bob_wallet)
+      assert Enum.at(b1.balances, 0).amount == 0
+      assert Enum.at(b2.balances, 0).amount == 100_000 * 2 * meta.token.subunit_to_unit
+    end
+
+    test "fails to consume if exchange details are different and already specified in request",
+         meta do
+      {:ok, account_2} = :account |> params_for() |> Account.insert()
+      token_2 = insert(:token)
+      mint!(token_2)
+      _pair = insert(:exchange_pair, from_token: meta.token, to_token: token_2, rate: 2)
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "send",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit,
+          exchange_account_uuid: meta.account.uuid,
+          exchange_wallet_address: meta.account_wallet.address
+        )
+
+      set_initial_balance(%{
+        address: meta.alice_wallet.address,
+        token: meta.token,
+        amount: 150_000
+      })
+
+      response =
+        provider_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token_2.id,
+          user_id: meta.bob.id,
+          exchange_account_id: account_2.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "consumption:request_already_contains_exchange_wallet"
+
+      assert response["data"]["description"] ==
+               "The transaction request for the given consumption already specify an exchange account and/or wallet."
+    end
+
     test "fails to consume and return an insufficient funds error", meta do
       transaction_request =
         insert(
@@ -854,7 +1327,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.to_token_uuid == meta.token.uuid
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.account_wallet.address
       assert inserted_transaction.error_code == "insufficient_funds"
@@ -1055,7 +1528,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.to_token_uuid == meta.token.uuid
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.bob_wallet.address
       assert inserted_transaction.from == meta.account_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
@@ -1152,6 +1625,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       inserted_transaction = Repo.get_by(Transaction, id: response["data"]["transaction_id"])
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
+      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.bob_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
