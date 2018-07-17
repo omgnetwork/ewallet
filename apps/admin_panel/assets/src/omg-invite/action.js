@@ -1,5 +1,5 @@
 import * as accountService from '../services/accountService'
-import * as adminSerivce from '../services/adminService'
+import * as adminservice from '../services/adminService'
 export const inviteMember = ({ email, redirectUrl, accountId, role }) => async dispatch => {
   try {
     const result = await accountService.inviteMember({
@@ -40,7 +40,7 @@ export const createUser = ({
   email
 }) => async dispatch => {
   try {
-    const result = await adminSerivce.createAdmin({
+    const result = await adminservice.createAdmin({
       resetToken,
       password,
       passwordConfirmation,
