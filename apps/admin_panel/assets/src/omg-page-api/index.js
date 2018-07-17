@@ -325,13 +325,13 @@ class ApiKeyPage extends Component {
                     open your encrypted information.
                   </p>
                   <InputContainer>
-                    <InputLabel>Private key</InputLabel>
-                    <input value={this.state.privateKey} spellCheck='false' />
-                    <Copy data={this.state.privateKey} />
-                  </InputContainer>
-                  <InputContainer>
                     <InputLabel>Public Key</InputLabel>
                     <input value={this.state.publicKey} spellCheck='false' />
+                    <Copy data={this.state.publicKey} />
+                  </InputContainer>
+                  <InputContainer>
+                    <InputLabel>Private key</InputLabel>
+                    <input value={this.state.privateKey} spellCheck='false' />
                     <Copy data={this.state.privateKey} />
                   </InputContainer>
                 </ConfirmCreateKeyContainer>
