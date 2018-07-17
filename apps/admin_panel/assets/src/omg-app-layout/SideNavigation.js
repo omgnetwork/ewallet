@@ -41,14 +41,7 @@ const progress = keyframes`
       background-position: calc(200px + 100%) 0;
   }
 `
-const LoadingLogo = styled(Avatar)`
-  background-color: ${props => props.theme.colors.B200};
-  background-image: ${props =>
-    `linear-gradient(90deg, ${props.theme.colors.B200}, grey, ${props.theme.colors.B200})`};
-  background-size: 200px 100%;
-  background-repeat: no-repeat;
-  animation: ${progress} 1.5s ease-in-out infinite;
-`
+
 const NavigationItemsContainer = styled.div`
   margin-top: 20px;
   a {
@@ -103,6 +96,18 @@ const BigAvatar = styled(Avatar)`
   background-color: ${props => props.theme.colors.B200};
   color: white;
   font-size: 14px;
+  width: 36px;
+  height: 36px;
+`
+const LoadingLogo = styled(Avatar)`
+  width: 36px;
+  height: 36px;
+  background-color: ${props => props.theme.colors.B200};
+  background-image: ${props =>
+    `linear-gradient(90deg, ${props.theme.colors.B200}, grey, ${props.theme.colors.B200})`};
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  animation: ${progress} 1.5s ease-in-out infinite;
 `
 class SideNavigation extends PureComponent {
   static propTypes = {
@@ -132,7 +137,6 @@ class SideNavigation extends PureComponent {
       <CurrentAccountContainer>
         {loadingStatus === 'SUCCESS' ? (
           <BigAvatar
-            size={36}
             image={_.get(currentAccount, 'avatar.large')}
             name={
               !_.get(currentAccount, 'avatar.large') && _.get(currentAccount, 'name').slice(0, 2)
