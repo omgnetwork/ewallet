@@ -9,7 +9,7 @@ import {
 import { currentUserReducer, currentUserLoadingStatusReducer } from '../omg-user-current/reducer'
 import { inviteListReducer, inviteListLoadingStatusReducer } from '../omg-invite/reducer'
 import { apiKeysReducer, apiKeysLoadingStatusReducer } from '../omg-api-keys/reducer'
-import { accessKeyReducer, accessKeyLoadingStatusReducer } from '../omg-access-key/reducer'
+import { accessKeysReducer, accessKeyLoadingStatusReducer } from '../omg-access-key/reducer'
 import { alertsReducer } from '../omg-alert/reducer'
 import { tokensReducer, tokensLoadingStatusReducer, mintedTokenHistoryReducer } from '../omg-token/reducer'
 import { usersReducer, usersLoadingStatusReducer } from '../omg-users/reducer'
@@ -27,7 +27,7 @@ export default combineReducers({
   session: sessionReducer,
   accounts: accountsReducer,
   accountsLoadingStatus: accountsLoadingStatusReducer,
-  accessKeys: accessKeyReducer,
+  accessKeys: accessKeysReducer,
   accessKeysLoadingStatus: accessKeyLoadingStatusReducer,
   currentAccount: currentAccountReducer,
   currentAccountLoadingStatus: currentAccountLoadingStatusReducer,

@@ -10,8 +10,8 @@ import moment from 'moment'
 import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
-import { generateApiKey, updateApiKey } from '../omg-api-keys/action'
-import { generateAccessKey } from '../omg-access-key/action'
+import { createApiKey, updateApiKey } from '../omg-api-keys/action'
+import { createAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import Copy from '../omg-copy'
@@ -106,13 +106,13 @@ const enhance = compose(
   withRouter,
   connect(
     null,
-    { generateApiKey, updateApiKey, generateAccessKey }
+    { createApiKey, updateApiKey, createAccessKey }
   )
 )
 class ApiKeyPage extends Component {
   static propTypes = {
-    generateApiKey: PropTypes.func,
-    generateAccessKey: PropTypes.func,
+    createApiKey: PropTypes.func,
+    createAccessKey: PropTypes.func,
     updateApiKey: PropTypes.func,
     location: PropTypes.object
   }
@@ -143,7 +143,7 @@ class ApiKeyPage extends Component {
   onClickOkCreateEwalletKey = fetch => async e => {
     this.setState({ submitStatus: 'SUBMITTING' })
     try {
-      await this.props.generateApiKey()
+      await this.props.createApiKey()
       fetch()
       this.onRequestClose()
       this.setState({ submitStatus: 'SUCCESS' })
@@ -154,7 +154,7 @@ class ApiKeyPage extends Component {
   onClickOkCreateAccessKey = fetch => async e => {
     this.setState({ submitStatus: 'SUBMITTING' })
     try {
-      const { data } = await this.props.generateAccessKey()
+      const { data } = await this.props.createAccessKey()
       fetch()
       this.setState({
         privateKey: data.secret_key,
