@@ -44,6 +44,8 @@ const progress = keyframes`
 const Logo = styled.div`
   height: 36px;
   width: 36px;
+  text-align: center;
+  line-height: 36px;
   flex: 0 0 auto;
   vertical-align: middle;
   border-radius: 4px;
@@ -137,7 +139,10 @@ class SideNavigation extends PureComponent {
     return (
       <CurrentAccountContainer>
         {loadingStatus === 'SUCCESS' ? (
-          <Logo backgroundImage={_.get(currentAccount, 'avatar.large')} />
+          <Logo backgroundImage={_.get(currentAccount, 'avatar.large')}>
+            {!_.get(currentAccount, 'avatar.large') && _.get(currentAccount, 'name').slice(0, 2)}
+          </Logo>
+
         ) : (
           <LoadingLogo />
         )}

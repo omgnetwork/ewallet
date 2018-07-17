@@ -2,17 +2,19 @@ import React, { Component } from 'react'
 import styled from 'styled-components'
 import PropTypes from 'prop-types'
 const AccountItemLogo = styled.div`
-  border-radius: 50%;
-  width: 33px;
-  height: 33px;
+  width: 32px;
+  height: 32px;
   margin-right: 15px;
   margin-top: 15px;
   background-color: ${props => props.theme.colors.B300};
   background-image: url(${props => props.backgroundImage});
   background-size: cover;
   background-position: center;
-  border: 3px solid ${props => props.active ? props.theme.colors.B100 : props.theme.colors.B300};
+  border: 2px solid ${props => props.active ? props.theme.colors.BL400 : props.theme.colors.B300};
+  border-radius: 4px;
   transition: 0.25s;
+  text-align: center;
+  line-height: 30px;
 `
 const AccountItemContainer = styled.div`
   width: 100%;
@@ -20,7 +22,7 @@ const AccountItemContainer = styled.div`
   color: white;
   cursor: pointer;
   :hover > ${AccountItemLogo} {
-    border: 3px solid ${props => props.theme.colors.B100};
+    border: 2px solid ${props => props.theme.colors.BL400};
   }
 `
 const AccountItemContent = styled.div`
@@ -46,7 +48,9 @@ class AccountItem extends Component {
   render () {
     return (
       <AccountItemContainer onClick={this.props.onClick}>
-        <AccountItemLogo active={this.props.active} backgroundImage={this.props.thumbnail} />
+        <AccountItemLogo active={this.props.active} backgroundImage={this.props.thumbnail}>
+          { !this.props.thumbnail && this.props.name.slice(0, 2)}
+        </AccountItemLogo>
         <AccountItemContent>
           <AccountName>{this.props.name}</AccountName>
           <AccountDescription>{this.props.description}</AccountDescription>
