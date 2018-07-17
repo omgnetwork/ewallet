@@ -4,27 +4,35 @@
 
 [![Build Status](https://jenkins.omisego.io/buildStatus/icon?job=omisego/ewallet/master)](https://jenkins.omisego.io/blue/organizations/jenkins/omisego%2Fewallet/activity?branch=master) [![Gitter chat](https://badges.gitter.im/omisego/ewallet.png)](https://gitter.im/omisego/ewallet)
 
-This is the main server component of the OmiseGO eWallet SDKs that allows businesses and individuals to setup and run their own digital wallet services through their own local ledger.
+This is the main server component of the OmiseGO eWallet SDKs that allows businesses and individuals (referred here as the "provider") to setup and run their own digital wallet services through their own local ledger.
 
 This server component and its sibling SDKs will later be plugged onto a blockchain and connected to a decentralized exchange. **Blockchain capabilities are expected to be added as they become ready.** All active instances of the OmiseGO eWallet will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.
 
-The OmiseGO eWallet SDKs are also available in [Ruby](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [iOS](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)), [Android](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)).
+The OmiseGO eWallet SDKs are also available in [Ruby](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [iOS](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)) and [Android](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)).
+
+## Overview
+
+Here is an overview of all the SDK components and what needs to be integrated by a provider.
+
+![A provider's Sample Setup](assets/provider_setup.jpg)
 
 ## Getting started
 
-Pick one of the 3 following approaches that best suits your needs:
+Pick one of the 3 following setup approaches that best suits your needs:
 
-- **[Docker setup](docs/setup/docker.md) (recommended)**: The fastest way to get the server up and running with minimum configurations.
-- [Vagrant setup](docs/setup/vagrant.md): Sets up a flexible development environment. Recommended for contributing to the code base.
-- [Bare-metal setup](docs/setup/bare_metal.md): Sets up directly onto your base operating system. No virtualization involved.
+Setup | Description | Recommended for
+-----------|-------------|----------------
+[Docker](docs/setup/docker.md) | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery. | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.
+[Vagrant](docs/setup/vagrant.md) | A development environment bootstrapper using Vagrant. Comes with default configurations and full build tools. | Developers looking to contribute to the codebase.
+[Bare-metal](docs/setup/bare_metal.md) | Set up directly onto your base operating system. You will need to install Elixir, project's dependencies and Postgres manually if you havn't. | Developers and DevOps preferring to manage all dependencies and configurations themselves for any purposes.
 
 ## Documentation
 
 Choose the area that you are interested to learn more about the eWallet server:
 
-- [Demo](docs/demo.md): Explore available APIs without setting up your own servers.
+- [Demo](docs/demo.md): Explore the available APIs without setting up your own servers.
 - [Guides](docs/guides/guides.md): Understand how the eWallet server works behind the scene.
-- [Design](docs/design/design.md): Find out how the eWallet server was built and the technical design decisions that revolve around it.
+- [Design](docs/design/design.md): Find out about the technical design decisions that revolve around the eWallet server.
 - [Tests](docs/tests/tests.md): See how tests are organized for the eWallet server.
 
 Optionally, you can also follow our advanced setup guides to customize your eWallet server:
