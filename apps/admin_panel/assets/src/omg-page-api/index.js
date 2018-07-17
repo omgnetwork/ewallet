@@ -34,6 +34,9 @@ const KeySection = styled.div`
   td {
     color: ${props => props.theme.colors.B200};
   }
+  h3 {
+    margin-bottom: 20px;
+  }
 `
 const ConfirmCreateKeyContainer = styled.div`
   font-size: 16px;
