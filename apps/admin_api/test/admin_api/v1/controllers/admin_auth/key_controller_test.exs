@@ -14,8 +14,14 @@ defmodule AdminAPI.V1.AdminAuth.KeyControllerTest do
       assert Enum.all?(response["data"]["data"], fn key -> key["secret_key"] == nil end)
 
       assert Enum.count(response["data"]["data"]) == 2
-      assert Enum.any?(response["data"]["data"], fn key -> key["access_key"] == key_1.access_key end)
-      assert Enum.any?(response["data"]["data"], fn key -> key["access_key"] == key_2.access_key end)
+
+      assert Enum.any?(response["data"]["data"], fn key ->
+               key["access_key"] == key_1.access_key
+             end)
+
+      assert Enum.any?(response["data"]["data"], fn key ->
+               key["access_key"] == key_2.access_key
+             end)
     end
   end
 
