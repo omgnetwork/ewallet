@@ -6,13 +6,13 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       email: System.get_env("E2E_TEST_ADMIN_EMAIL") || "test_admin@example.com",
       password: System.get_env("E2E_TEST_ADMIN_PASSWORD") || "password",
       metadata: %{},
-      account_uuid: Account.get_master_account().uuid
+      account_name: "master_account"
     },
     %{
       email: System.get_env("E2E_TEST_ADMIN_1_EMAIL") || "test_admin_1@example.com",
       password: System.get_env("E2E_TEST_ADMIN_1_PASSWORD") || "password",
       metadata: %{},
-      account_uuid: Account.get_master_account().uuid
+      account_name: "master_account"
     },
   ]
 
@@ -34,7 +34,8 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       nil ->
         case User.insert(data) do
           {:ok, user} ->
-            {:ok, _} = AccountUser.link(data.account_uuid, user.uuid)
+            account = Account.get_by(name: data.account_name)
+            {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
             writer.success("""
               ID       : #{user.id}
