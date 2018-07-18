@@ -1,4 +1,4 @@
-# e2e
+# End-to-End Testing (E2E)
 
 We offer [acceptance tests](https://github.com/omisego/e2e) written using [Robot Framework](http://robotframework.org/).
 These tests rely on initial seeded data which are 2 admins and a base account.

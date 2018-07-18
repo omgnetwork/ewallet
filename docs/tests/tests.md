@@ -58,4 +58,4 @@ All the tests should pass. If some tests are failing, double-check you have inst
 
 ## Acceptance tests
 
-Check [this file](/docs/tests/e2e.md) for all informations about acceptance tests.
+We also have implementation-agnostic acceptance tests available. Check [End-to-End Testing (E2E)](/docs/tests/e2e.md) for information.
