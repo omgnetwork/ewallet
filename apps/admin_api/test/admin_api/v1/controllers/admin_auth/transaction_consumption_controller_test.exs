@@ -1058,7 +1058,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
       assert response["data"]["exchange_account_id"] == meta.account.id
 
-      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["amount"] ==
+               100_000 * meta.token.subunit_to_unit
+
       assert response["data"]["transaction_request"]["token_id"] == meta.token.id
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
@@ -1133,7 +1135,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
       assert response["data"]["exchange_account_id"] == meta.account.id
 
-      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["amount"] ==
+               100_000 * meta.token.subunit_to_unit
+
       assert response["data"]["transaction_request"]["token_id"] == meta.token.id
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
@@ -1327,7 +1331,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.alice_wallet.address
       assert inserted_transaction.from == meta.account_wallet.address
       assert inserted_transaction.error_code == "insufficient_funds"
@@ -1528,7 +1532,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to_amount == 100_000 * meta.token.subunit_to_unit
-      assert inserted_transaction.from_token_uuid == meta.token.uuid
+      assert inserted_transaction.to_token_uuid == meta.token.uuid
       assert inserted_transaction.to == meta.bob_wallet.address
       assert inserted_transaction.from == meta.account_wallet.address
       assert inserted_transaction.local_ledger_uuid != nil
