@@ -5,9 +5,12 @@ defmodule EWalletDB.Application do
   Kebura's data store lives in this application.
   """
   use Application
+  alias EWalletDB.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
+    DeferredConfig.populate(:ewallet_db)
+    Config.configure_file_storage()
 
     # List all child processes to be supervised
     children = [

@@ -7,6 +7,7 @@ defmodule UrlDispatcher.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec, warn: false
+    DeferredConfig.populate(:url_dispatcher)
 
     # List all child processes to be supervised
     children =

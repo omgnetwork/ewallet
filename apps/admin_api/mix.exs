@@ -48,7 +48,7 @@ defmodule AdminAPI.Mixfile do
       {:phoenix, "~> 1.3.0"},
       {:cowboy, "~> 1.0"},
       {:cors_plug, "~> 1.5"},
-      {:sentry, "~> 6.0.0"},
+      {:sentry, "~> 6.2.0"},
       {:bamboo, "~> 0.8"},
       {:bamboo_smtp, "~> 1.4.0"},
       {:bodyguard, "~> 2.2"},
