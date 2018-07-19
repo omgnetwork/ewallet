@@ -24,18 +24,20 @@ Setup | Description | Recommended for
 -----------|-------------|----------------
 [Docker](docs/setup/docker.md) | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery. | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.
 [Vagrant](docs/setup/vagrant.md) | A development environment bootstrapper using Vagrant. Comes with default configurations and full build tools. | Developers looking to contribute to the codebase.
-[Bare-metal](docs/setup/bare_metal.md) | Set up directly onto your base operating system. You will need to install Elixir, project's dependencies and Postgres manually if you havn't. | Developers and DevOps preferring to manage all dependencies and configurations themselves for any purposes.
+[Bare&#x2011;metal](docs/setup/bare_metal.md) | Set up directly onto your base operating system. You will need to install Elixir, project's dependencies and Postgres manually if you havn't. | Developers and DevOps preferring to manage all dependencies and configurations themselves for any purposes.
 
 ## Documentation
 
-Below are the links to the API documentations for the `master` branch. Note that the eWallet is not a centralized service and **the servers below are not for production uses.**
+Below are the links to the HTTP-RPC API documentations for the `master` branch. Note that the eWallet is not a centralized service and **the servers below are not for production uses.**
 
 - Admin API ([**interactive**](https://ewallet.staging.omisego.io/api/admin/docs.ui) / [**yaml**](https://ewallet.staging.omisego.io/api/admin/docs.yaml) / [**json**](https://ewallet.staging.omisego.io/api/admin/docs.json)): Integrate with your server apps to perform higher-privilege operations, such as managing tokens, accounts, users, transactions, global settings, etc.
 - Client API ([**interactive**](https://ewallet.staging.omisego.io/api/client/docs.ui) / [**yaml**](https://ewallet.staging.omisego.io/api/client/docs.yaml) / [**json**](https://ewallet.staging.omisego.io/api/client/docs.json)): Integrate with your client apps to transact on behalf of a specific user, such as creating a transaction request for a specific user, updating a user's settings, etc.
 
-Optionally, take deeper dives into the eWallet:
+We also provide the [**Ruby SDK**](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [**iOS SDK**](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)) and [**Android SDK**](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)) so you do not have to deal with the HTTP-RPC layer yourself.
 
-- [Demo](docs/demo.md): Explore the sample shop demos without setting up your own servers.
+Optionally, deeper dives into the eWallet are available:
+
+- [Demo](docs/demo.md): Explore the sample shop server demos without setting up your own.
 - [Guides](docs/guides/guides.md): Understand how the eWallet server works behind the scene.
 - [Design](docs/design/design.md): Find out about the technical design decisions that revolve around the eWallet server.
 - [Tests](docs/tests/tests.md): See how tests are organized for the eWallet server.
