@@ -232,6 +232,15 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "exchange:account_wallet_not_found",
       description: "No wallet was found with the given exchange_wallet_address param"
     },
+    exchange_account_wallet_mismatch: %{
+      code: "exchange:account_wallet_mismatch",
+      description: "The given exchange wallet does not belong to the specified exchange account"
+    },
+    request_already_contains_exchange: %{
+      code: "consumption:request_already_contains_exchange_wallet",
+      description:
+        "The transaction request for the given consumption already specify an exchange account and/or wallet."
+    },
     amount_is_zero: %{
       code: "transaction:amount_is_zero",
       description: "Amount cannot be zero."

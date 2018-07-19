@@ -22,6 +22,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
 
   def consume_for_user(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do
+    attrs =
+      attrs
+      |> Map.delete("exchange_account_id")
+      |> Map.delete("exchange_wallet_address")
+
     conn.assigns.user
     |> TransactionConsumptionConsumerGate.consume(attrs)
     |> respond(conn, true)
