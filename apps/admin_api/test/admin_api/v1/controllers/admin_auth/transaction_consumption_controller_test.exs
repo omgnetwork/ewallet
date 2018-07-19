@@ -985,7 +985,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["address"] == meta.bob_wallet.address
       assert response["data"]["user_id"] == meta.bob.id
 
-      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["amount"] ==
+               100_000 * meta.token.subunit_to_unit
+
       assert response["data"]["transaction_request"]["token_id"] == meta.token.id
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
@@ -1214,7 +1216,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["exchange_wallet_address"] == meta.account_wallet.address
       assert response["data"]["exchange_account_id"] == meta.account.id
 
-      assert response["data"]["transaction_request"]["amount"] == 10_000_000
+      assert response["data"]["transaction_request"]["amount"] ==
+               100_000 * meta.token.subunit_to_unit
+
       assert response["data"]["transaction_request"]["token_id"] == meta.token.id
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
