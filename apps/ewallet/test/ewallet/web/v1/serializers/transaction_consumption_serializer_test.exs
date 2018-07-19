@@ -15,12 +15,19 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
 
   describe "serialize/1 for single transaction request consumption" do
     test "serializes into correct V1 transaction_request consumption format" do
-      request = insert(:transaction_consumption)
+      consumption = insert(:transaction_consumption)
 
       consumption =
         TransactionConsumption.get(
-          request.id,
-          preload: [:token, :transaction, :transaction_request, :user]
+          consumption.id,
+          preload: [
+            :token,
+            :transaction,
+            :transaction_request,
+            :user,
+            :exchange_wallet,
+            :exchange_account
+          ]
         )
 
       expected = %{
@@ -43,6 +50,10 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
         user: UserSerializer.serialize(consumption.user),
         account_id: nil,
         account: AccountSerializer.serialize(consumption.account),
+        exchange_wallet: nil,
+        exchange_wallet_address: nil,
+        exchange_account: nil,
+        exchange_account_id: nil,
         transaction_request_id: Assoc.get(consumption, [:transaction_request, :id]),
         transaction_request:
           TransactionRequestSerializer.serialize(consumption.transaction_request),

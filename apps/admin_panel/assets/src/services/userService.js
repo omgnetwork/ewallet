@@ -1,6 +1,6 @@
 import { authenticatedRequest } from './apiService'
 
-export function getAllUsers ({ accountId, perPage, sort, query, ...rest }) {
+export function getUsers ({ accountId, perPage, sort, page, search, searchTerms }) {
   return authenticatedRequest({
     path: '/account.get_users',
     data: {
@@ -8,16 +8,19 @@ export function getAllUsers ({ accountId, perPage, sort, query, ...rest }) {
       per_page: perPage,
       sort_by: sort.by,
       sort_dir: sort.dir,
-      search_term: query,
-      ...rest
+      search_term: search,
+      search_terms: searchTerms
     }
   })
 }
 
-export function createUser (params) {
+export function createUser ({ username, providerUserId }) {
   return authenticatedRequest({
     path: '/user.create',
-    data: params
+    data: {
+      username,
+      provider_user_id: providerUserId
+    }
   })
 }
 
