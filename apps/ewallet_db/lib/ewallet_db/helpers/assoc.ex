@@ -57,4 +57,22 @@ defmodule EWalletDB.Helpers.Assoc do
     field = List.first(nested)
     Map.get(struct, field)
   end
+
+  @spec get_if_exists(Ecto.Schema.t() | nil, list(atom() | String.t())) :: Ecto.Schema.t()
+  def get_if_exists(nil, _nested), do: nil
+
+  def get_if_exists(struct, nested) when length(nested) > 1 do
+    [field | remaining] = nested
+
+    # Stops recursing and returns nil if the retrieved value is nil
+    case Map.get(struct, field) do
+      nil -> nil
+      assoc -> get_if_exists(assoc, remaining)
+    end
+  end
+
+  def get_if_exists(struct, nested) when length(nested) == 1 do
+    field = List.first(nested)
+    Map.get(struct, field)
+  end
 end

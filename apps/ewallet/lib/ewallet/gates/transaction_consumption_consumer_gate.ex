@@ -11,7 +11,8 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     TransactionConsumptionFetcher,
     TransactionConsumptionValidator,
     TransactionConsumptionConfirmerGate,
-    Exchange
+    Exchange,
+    ExchangeAccountFetcher
   }
 
   alias EWallet.Web.V1.Event
@@ -184,9 +185,14 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     transaction = Repo.transaction(fn -> do_consume(wallet, attrs) end)
 
     case transaction do
-      {:ok, res} -> res
-      {:error, _changeset} = error -> error
-      {:error, _, changeset, _} -> {:error, changeset}
+      {:ok, res} ->
+        res
+
+      {:error, _changeset} = error ->
+        error
+
+      {:error, _, changeset, _} ->
+        {:error, changeset}
     end
   end
 
@@ -202,8 +208,10 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     with {v, f} <- {TransactionConsumptionValidator, TransactionConsumptionFetcher},
          {:ok, request} <- TransactionRequestFetcher.get_with_lock(formatted_request_id),
          {:ok, nil} <- f.idempotent_fetch(idempotency_token),
-         {:ok, request, token, amount} <- v.validate_before_consumption(request, wallet, attrs),
-         {:ok, consumption} <- insert(wallet, token, request, amount, attrs),
+         {:ok, exchange_wallet} <- ExchangeAccountFetcher.fetch(attrs),
+         {:ok, request, token, amount} <-
+           v.validate_before_consumption(request, wallet, attrs, exchange_wallet),
+         {:ok, consumption} <- insert(wallet, exchange_wallet, token, request, amount, attrs),
          {:ok, consumption} <- f.get(consumption.id) do
       case request.require_confirmation do
         true ->
@@ -225,7 +233,7 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     end
   end
 
-  defp insert(wallet, token, request, amount, attrs) do
+  defp insert(wallet, exchange_wallet, token, request, amount, attrs) do
     case get_calculation(request, amount, token) do
       {:ok, calculation, amounts} ->
         TransactionConsumption.insert(%{
@@ -237,6 +245,8 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
           token_uuid: token.uuid,
           transaction_request_uuid: request.uuid,
           wallet_address: wallet.address,
+          exchange_account_uuid: Assoc.get_if_exists(exchange_wallet, [:account_uuid]),
+          exchange_wallet_address: Assoc.get_if_exists(exchange_wallet, [:address]),
           expiration_date: TransactionRequest.expiration_from_lifetime(request),
           exchange_pair_uuid: Assoc.get(calculation, [:pair, :uuid]),
           estimated_request_amount: amounts[:request_amount],

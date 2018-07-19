@@ -3,11 +3,11 @@ export const currentUserReducer = createReducer({}, {
   'LOGIN/SUCCESS': (state, { currentUser }) => {
     return currentUser
   },
-  'CURRENT_USER/REQUEST/SUCCESS': (state, { currentUser }) => {
-    return currentUser
+  'CURRENT_USER/REQUEST/SUCCESS': (state, { data }) => {
+    return data
   },
-  'CURRENT_USER/UPDATE/SUCCESS': (state, { currentUser }) => {
-    return currentUser
+  'CURRENT_USER/UPDATE/SUCCESS': (state, { data }) => {
+    return data
   }
 })
 

@@ -17,7 +17,7 @@ class UserProvider extends Component {
   componentDidMount = async () => {
     if (this.props.currentUserLoadingStatus === 'DEFAULT') {
       const result = await this.props.getCurrentUser()
-      if (!result.data.success) {
+      if (!result.data) {
         this.props.history.push('/login')
         removeAccessDataFromLocalStorage()
       }
