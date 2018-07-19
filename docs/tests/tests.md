@@ -4,31 +4,25 @@
 
 Before we start the application, let's try running the tests. Create the test databases:
 
-```
+```bash
 $ MIX_ENV=test mix do ecto.create, ecto.migrate
-```
 
-Or if you're using specific database URLs:
-
-```
+# Or if you are using specific database URLs:
 $ MIX_ENV=test DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix do ecto.create, ecto.migrate
 ```
 
-**If you don't want to do that, you can always search & replace the default values in the config files, but only do that in development to give it a try - we really don't recommend changing the code that way for production setups.**
-
 Then, let's run the tests:
 
-```
+```bash
 $ mix test
-```
 
-Or:
-
-```
+# Or if you are using specific database URLs:
 $ DATABASE_URL=postgres://localhost/ewallet_test_db LOCAL_LEDGER_DATABASE_URL=postgres://localhost/local_ledger_test_db mix test
 ```
 
-```
+You should see the results similar to below:
+
+```elixir
 ==> local_ledger_db
 Finished in 0.5 seconds
 57 tests, 0 failures
@@ -58,4 +52,15 @@ All the tests should pass. If some tests are failing, double-check you have inst
 
 ## Acceptance tests
 
-We also have implementation-agnostic acceptance tests available. Check [End-to-End Testing (E2E)](/docs/tests/e2e.md) for information.
+We offer acceptance tests at [omisego/e2e](https://github.com/omisego/e2e) written using [Robot Framework](http://robotframework.org/).
+These tests rely on initial seeded data which are 2 admins and a base account.
+
+Prior to running the acceptance tests, you will need generate the sample data needed for the tests:
+
+```bash
+$ mix seed --test --yes
+```
+
+`--yes` option allows to skip all prompted confirmations which is ideal when ran on an automation server.
+
+You will need to add a few environment variables before running the seed, check [Environment Variables](/docs/setup/env.md#e2e-tests) for more information.

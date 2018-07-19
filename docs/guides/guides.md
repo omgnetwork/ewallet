@@ -1,11 +1,9 @@
 # Guides
 
-Here are some resources if you want to learn more about how the eWallet works.
+Take a deeper dive into the eWallet. Here are some resources to learn more about how the eWallet works.
 
-- [API Responsibilities](docs/guides/api_responsibilities.md)
-- [Usage](/docs/guides/usage.md)
-- [Entities](/docs/guides/entities.md)
-- [Transaction Request FLow](/docs/guides/tranasction_request_flow.md)
-- [eWallet API Websockets](/docs/guides/ewallet_api_websockets.md)
-- [API Specs](/docs/guides/api_specs.md)
-- [FAQ](/docs/guides/faq.md)
+- [Usage](/docs/guides/usage.md): Start integrating your eWallet server to your application
+- [API Responsibilities](/docs/guides/api_responsibilities.md): Learn what responsibilities are taken care by the eWallet and what could be built on top of it.
+- [Entities](/docs/guides/entities.md): Learn the important terms used by the eWallet.
+- [Transaction Request Flow](/docs/guides/transaction_request_flow.md): Learn more about creating and consuming transaction requests.
+- [eWallet API Websockets](/docs/guides/ewallet_api_websockets.md): Learn how to integrate eWallet API websockets into your applications.

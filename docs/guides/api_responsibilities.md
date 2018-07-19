@@ -2,13 +2,6 @@
 
 Integrating the OmiseGO eWallet requires a new setup to be deployed. Feel free to [get in touch](mailto:thibault@omisego.co) for that step as we offer hosted solutions. Before starting any integration, it is important to understand which responsibilities OmiseGO is taking care of and which ones you will need to implement.
 
-## Available APIs
-
-**The URLs below are OmiseGO testing and sample eWallets. The eWallet is not a centralized service and no one should actually use those in production.**
-
-- **Admin API ([docs](https://ewallet.demo.omisego.io/api/admin/docs.ui)):** Make calls to the Admin API to manage tokens, accounts, users, transactions, global settings, etc.
-- **Client API ([docs](https://ewallet.demo.omisego.io/api/client/docs.ui)):** Make calls to the Client API to transact on behalf of a specific user.
-
 ## Responsibilities
 
 ### Features provided by the SDKs

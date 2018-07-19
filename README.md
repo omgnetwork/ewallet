@@ -4,7 +4,7 @@
 
 [![Build Status](https://jenkins.omisego.io/buildStatus/icon?job=omisego/ewallet/master)](https://jenkins.omisego.io/blue/organizations/jenkins/omisego%2Fewallet/activity?branch=master) [![Gitter chat](https://badges.gitter.im/omisego/ewallet.png)](https://gitter.im/omisego/ewallet)
 
-This is the main server component of the OmiseGO eWallet SDKs that allows businesses and individuals (referred here as the "provider") to setup and run their own digital wallet services through their own local ledger.
+This is the server component of the OmiseGO eWallet SDKs that allows businesses and individuals (referred hereafter as the "provider") to setup and run their own digital wallet services through their own local ledger.
 
 This server component and its sibling SDKs will later be plugged onto a blockchain and connected to a decentralized exchange. **Blockchain capabilities are expected to be added as they become ready.** All active instances of the OmiseGO eWallet will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.
 
@@ -18,7 +18,7 @@ Here is an overview of all the SDK components and what needs to be integrated by
 
 ## Getting started
 
-Pick one of the 3 following setup approaches that best suits your needs:
+Pick one of the following setup approaches that best suits your needs:
 
 Setup | Description | Recommended for
 -----------|-------------|----------------
@@ -28,18 +28,24 @@ Setup | Description | Recommended for
 
 ## Documentation
 
-Choose the area that you are interested to learn more about the eWallet server:
+Below are the links to the API documentations for the `master` branch. Note that the eWallet is not a centralized service and **the servers below are not for production uses.**
 
-- [Demo](docs/demo.md): Explore the available APIs without setting up your own servers.
+- Admin API ([**interactive**](https://ewallet.staging.omisego.io/api/admin/docs.ui) / [**yaml**](https://ewallet.staging.omisego.io/api/admin/docs.yaml) / [**json**](https://ewallet.staging.omisego.io/api/admin/docs.json)): Integrate with your server apps to perform higher-privilege operations, such as managing tokens, accounts, users, transactions, global settings, etc.
+- Client API ([**interactive**](https://ewallet.staging.omisego.io/api/client/docs.ui) / [**yaml**](https://ewallet.staging.omisego.io/api/client/docs.yaml) / [**json**](https://ewallet.staging.omisego.io/api/client/docs.json)): Integrate with your client apps to transact on behalf of a specific user, such as creating a transaction request for a specific user, updating a user's settings, etc.
+
+Optionally, take deeper dives into the eWallet:
+
+- [Demo](docs/demo.md): Explore the sample shop demos without setting up your own servers.
 - [Guides](docs/guides/guides.md): Understand how the eWallet server works behind the scene.
 - [Design](docs/design/design.md): Find out about the technical design decisions that revolve around the eWallet server.
 - [Tests](docs/tests/tests.md): See how tests are organized for the eWallet server.
+- [FAQ](docs/faq.md): Frequently asked questions.
 
-Optionally, you can also follow our advanced setup guides to customize your eWallet server:
+You can also follow our advanced setup guides to customize your eWallet server:
 
 - [Environment variables](docs/setup/advanced/env.md)
 - [Clustering](docs/setup/advanced/clustering.md)
-- [Adhoc settings](docs/setup/adhoc/)
+- [Upgrading](docs/setup/upgrading/)
 
 ## Contributing
 

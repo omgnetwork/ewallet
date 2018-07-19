@@ -62,6 +62,8 @@ defmodule EWallet.Umbrella.Mixfile do
       extra_section: "Guides",
       extras: [
         {"README.md", [filename: "introduction", title: "Introduction"]},
+        "docs/demo.md",
+        "docs/faq.md",
         # Design
         "docs/design/components.md",
         "docs/design/conventions.md",
@@ -71,17 +73,16 @@ defmodule EWallet.Umbrella.Mixfile do
         "docs/design/wallets.md",
         # Guides
         "docs/guides/api_responsibilities.md",
-        "docs/guides/api_specs.md",
         "docs/guides/entities.md",
         "docs/guides/ewallet_api_websockets.md",
-        "docs/guides/faq.md",
         "docs/guides/guides.md",
         "docs/guides/transaction_request_flow.md",
         "docs/guides/usage.md",
         # Setup
-        "docs/setup/adhoc/20180619-encryption-upgrade.md",
+        "docs/setup/upgrading/20180619-encryption-upgrade.md",
         "docs/setup/advanced/clustering.md",
         "docs/setup/advanced/env.md",
+        "docs/setup/api_specs.md",
         "docs/setup/bare_metal.md",
         "docs/setup/docker.md",
         "docs/setup/vagrant.md",
@@ -91,7 +92,9 @@ defmodule EWallet.Umbrella.Mixfile do
       ],
       groups_for_extras: [
         "Getting Started": [
-          "README.md"
+          "README.md",
+          "docs/demo.md",
+          "docs/faq.md",
         ],
         "Setting Up": [
           "docs/setup/docker.md",
@@ -99,12 +102,11 @@ defmodule EWallet.Umbrella.Mixfile do
           "docs/setup/bare_metal.md"
         ],
         Guides: [
-          "docs/guides/api_responsibilities.md",
           "docs/guides/usage.md",
+          "docs/guides/api_responsibilities.md",
           "docs/guides/entities.md",
           "docs/guides/transaction_request_flow.md",
           "docs/guides/ewallet_api_websockets.md",
-          "docs/guides/api_specs.md",
           "docs/guides/faq.md"
         ],
         "Technical Design": [
@@ -121,17 +123,18 @@ defmodule EWallet.Umbrella.Mixfile do
         "Advanced Setup": [
           "docs/setup/advanced/env.md",
           "docs/setup/advanced/clustering.md"
+          "docs/setup/advanced/api_specs.md",
         ]
       ],
       groups_for_modules: [
-        eWallet: ~r/EWallet(\..+)*$/,
         "eWallet API": ~r/EWalletAPI(?!\.V\d+)(\..+)*$/,
         "eWallet API V1": ~r/EWalletAPI.V1(\..+)*$/,
+        "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
+        "Admin API V1": ~r/AdminAPI.V1(\..+)*$/,
+        eWallet: ~r/EWallet(\..+)*$/,
         "eWallet DB": ~r/EWalletDB(\..+)*$/,
         "Local Ledger": ~r/LocalLedger(\..+)*$/,
         "Local Ledger DB": ~r/LocalLedgerDB(\..+)*$/,
-        "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
-        "Admin API V1": ~r/AdminAPI.V1(\..+)*$/,
         "URL Dispatcher": ~r/UrlDispatcher(\..+)*$/
       ]
     ]

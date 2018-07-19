@@ -129,3 +129,7 @@ You can now access your eWallet server using the available APIs:
 $ curl http://localhost:4000
 {"status": true}
 ```
+
+### Next step
+
+Read the [Documentation](/README.md/#documentation) to learn more and start using your eWallet!
