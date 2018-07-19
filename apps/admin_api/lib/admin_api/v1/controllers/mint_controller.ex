@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.MintController do
   alias EWallet.{MintGate, MintPolicy}
   alias EWallet.Web.{SortParser, Paginator, Preloader}
   alias EWalletDB.{Token, Mint}
+  alias Ecto.Changeset
   alias Plug.Conn
 
   @mapped_fields %{
@@ -75,8 +76,12 @@ defmodule AdminAPI.V1.MintController do
     handle_error(conn, code, description)
   end
 
-  defp respond_single({:error, changeset}, conn) do
+  defp respond_single({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond_single({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   defp respond_single({:ok, mint, _token}, conn) do

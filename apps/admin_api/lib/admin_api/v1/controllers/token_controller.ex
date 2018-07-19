@@ -141,11 +141,8 @@ defmodule AdminAPI.V1.TokenController do
          {:ok, updated} <- Token.update(token, attrs) do
       respond_single(updated, conn)
     else
-      {:error, code} ->
-        handle_error(conn, code)
-
       error ->
-        handle_error(conn, error)
+        respond_single(error, conn)
     end
   end
 
@@ -180,6 +177,10 @@ defmodule AdminAPI.V1.TokenController do
 
   defp respond_single(nil, conn) do
     handle_error(conn, :token_id_not_found)
+  end
+
+  defp respond_single(error_code, conn) when is_atom(error_code) do
+    handle_error(conn, error_code)
   end
 
   @spec permit(:all | :create | :get | :update, map(), String.t()) ::
