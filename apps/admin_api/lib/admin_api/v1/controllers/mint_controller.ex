@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.MintController do
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
-         %Token{} = token <- Token.get(id) || :token_id_not_found do
+         %Token{} = token <- Token.get(id) || :token_not_found do
       token
       |> Mint.query_by_token()
       |> Preloader.to_query(@preload_fields)
@@ -48,7 +48,7 @@ defmodule AdminAPI.V1.MintController do
         } = attrs
       ) do
     with :ok <- permit(:create, conn.assigns, token_id),
-         %Token{} = token <- Token.get(token_id) || :token_id_not_found do
+         %Token{} = token <- Token.get(token_id) || :token_not_found do
       token
       |> MintGate.mint_token(attrs)
       |> respond_single(conn)
