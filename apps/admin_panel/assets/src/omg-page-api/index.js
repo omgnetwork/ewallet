@@ -179,61 +179,59 @@ class ApiKeyPage extends Component {
   }
 
   rowApiKeyRenderer = fetch => (key, data, rows) => {
-    if (key === 'status') {
-      return (
-        <Switch
-          open={!data}
-          onClick={this.onClickSwitch({ id: rows.id, expired: !rows.status, fetch })}
-        />
-      )
+    switch (key) {
+      case 'status':
+        return (
+          <Switch
+            open={!data}
+            onClick={this.onClickSwitch({ id: rows.id, expired: !rows.status, fetch })}
+          />
+        )
+      case 'key':
+        return (
+          <KeyContainer>
+            <Icon name='Key' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'user':
+        return (
+          <KeyContainer>
+            <Icon name='Profile' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'created_at':
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      default:
+        return data
     }
-    if (key === 'key') {
-      return (
-        <KeyContainer>
-          <Icon name='Key' /> <span>{data}</span>
-        </KeyContainer>
-      )
-    }
-    if (key === 'user') {
-      return (
-        <KeyContainer>
-          <Icon name='Profile' /> <span>{data}</span>
-        </KeyContainer>
-      )
-    }
-    if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
-    }
-    return data
   }
 
   rowAccessKeyRenderer = fetch => (key, data, rows) => {
-    if (key === 'status') {
-      return (
-        <Switch
-          open={!data}
-          onClick={this.onClickAccessKeySwitch({ id: rows.id, expired: !rows.status, fetch })}
-        />
-      )
+    switch (key) {
+      case 'status':
+        return (
+          <Switch
+            open={!data}
+            onClick={this.onClickAccessKeySwitch({ id: rows.id, expired: !rows.status, fetch })}
+          />
+        )
+      case 'key':
+        return (
+          <KeyContainer>
+            <Icon name='Key' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'user':
+        return (
+          <KeyContainer>
+            <Icon name='Profile' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'created_at':
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      default:
+        return data
     }
-    if (key === 'key') {
-      return (
-        <KeyContainer>
-          <Icon name='Key' /> <span>{data}</span>
-        </KeyContainer>
-      )
-    }
-    if (key === 'user') {
-      return (
-        <KeyContainer>
-          <Icon name='Profile' /> <span>{data}</span>
-        </KeyContainer>
-      )
-    }
-    if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
-    }
-    return data
   }
   renderEwalletApiKey = () => {
     return (
