@@ -43,6 +43,17 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
                "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
     end
 
+    test "returns an error when sending email = nil" do
+      response =
+        unauthenticated_request("/admin.reset_password", %{
+          "email" => nil,
+          "redirect_url" => @redirect_url
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
     test "returns an error if no user is found with the associated email" do
       response =
         unauthenticated_request("/admin.reset_password", %{
