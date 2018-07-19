@@ -79,22 +79,21 @@ defmodule EWallet.Umbrella.Mixfile do
         "docs/guides/transaction_request_flow.md",
         "docs/guides/usage.md",
         # Setup
-        "docs/setup/upgrading/20180619-encryption-upgrade.md",
+        "docs/setup/advanced/api_specs.md",
         "docs/setup/advanced/clustering.md",
         "docs/setup/advanced/env.md",
-        "docs/setup/api_specs.md",
+        "docs/setup/upgrading/20180619-encryption-upgrade.md",
         "docs/setup/bare_metal.md",
         "docs/setup/docker.md",
         "docs/setup/vagrant.md",
         # Tests
-        "docs/tests/e2e.md",
         "docs/tests/tests.md"
       ],
       groups_for_extras: [
         "Getting Started": [
           "README.md",
           "docs/demo.md",
-          "docs/faq.md",
+          "docs/faq.md"
         ],
         "Setting Up": [
           "docs/setup/docker.md",
@@ -106,8 +105,7 @@ defmodule EWallet.Umbrella.Mixfile do
           "docs/guides/api_responsibilities.md",
           "docs/guides/entities.md",
           "docs/guides/transaction_request_flow.md",
-          "docs/guides/ewallet_api_websockets.md",
-          "docs/guides/faq.md"
+          "docs/guides/ewallet_api_websockets.md"
         ],
         "Technical Design": [
           "docs/design/components.md",
@@ -116,14 +114,13 @@ defmodule EWallet.Umbrella.Mixfile do
           "docs/design/transactions_and_entries.md",
           "docs/design/conventions.md"
         ],
-        "Tests": [
-          "docs/tests/tests.md",
-          "docs/tests/e2e.md"
+        Tests: [
+          "docs/tests/tests.md"
         ],
         "Advanced Setup": [
           "docs/setup/advanced/env.md",
-          "docs/setup/advanced/clustering.md"
-          "docs/setup/advanced/api_specs.md",
+          "docs/setup/advanced/clustering.md",
+          "docs/setup/advanced/api_specs.md"
         ]
       ],
       groups_for_modules: [
