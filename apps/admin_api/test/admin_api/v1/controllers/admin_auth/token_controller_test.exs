@@ -270,6 +270,22 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
 
+    test "fails to update an existing token with name = nil" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.update", %{
+          id: token.id,
+          name: nil
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `name` can't be blank."
+    end
+
     test "Raises invalid_parameter error if id is missing" do
       response = admin_user_request("/token.update", %{name: "Bitcoin"})
 
