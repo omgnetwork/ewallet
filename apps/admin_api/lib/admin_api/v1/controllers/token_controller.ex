@@ -176,7 +176,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   defp respond_single(nil, conn) do
-    handle_error(conn, :token_id_not_found)
+    handle_error(conn, :token_not_found)
   end
 
   defp respond_single(error_code, conn) when is_atom(error_code) do

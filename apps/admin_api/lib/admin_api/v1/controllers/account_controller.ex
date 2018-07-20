@@ -148,10 +148,15 @@ defmodule AdminAPI.V1.AccountController do
       changeset when is_map(changeset) ->
         handle_error(conn, :invalid_parameter, changeset)
 
+      {:error, changeset} when is_map(changeset) ->
+        handle_error(conn, :invalid_parameter, changeset)
+
       {:error, code} ->
         handle_error(conn, code)
     end
   end
+
+  def upload_avatar(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp respond(%Paginator{} = paginator, conn) do
     render(conn, :accounts, %{accounts: paginator})

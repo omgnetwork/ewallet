@@ -53,6 +53,8 @@ defmodule AdminAPI.V1.SelfController do
     end
   end
 
+  def upload_avatar(conn, _), do: handle_error(conn, :invalid_parameter)
+
   @doc """
   Retrieves the upper-most account that the given user has membership in.
   """

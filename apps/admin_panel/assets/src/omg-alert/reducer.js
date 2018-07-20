@@ -2,6 +2,17 @@ import createReducer from '../reducer/createReducer'
 import uuid from 'uuid/v4'
 import React from 'react'
 import { Link } from 'react-router-dom'
+import styled from 'styled-components'
+const CopyTextContainer = styled.div`
+  b {
+    display: inline-block;
+    max-width: 280px;
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+    vertical-align: bottom;
+  }
+`
 const createAlertState = (text, type) => {
   return { id: uuid(), text, type }
 }
@@ -13,9 +24,9 @@ export const alertsReducer = createReducer([], {
     return [
       ...state,
       createAlertState(
-        <div>
-          Copied <b>{data}</b> to clipboard.
-        </div>,
+        <CopyTextContainer>
+          <span>Copied</span> <b>{data.slice(0, 100)}</b> <span>to clipboard.</span>
+        </CopyTextContainer>,
         'success'
       )
     ]
@@ -95,8 +106,8 @@ export const alertsReducer = createReducer([], {
         ...state,
         createAlertState(
           <div>
-            Consumption{' '}
-            <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link> was approved successfully.
+            Consumption <Link to={{ search: `?show-consumption-tab=${data.id}` }}>{data.id}</Link>{' '}
+            was approved successfully.
           </div>,
           'success'
         )

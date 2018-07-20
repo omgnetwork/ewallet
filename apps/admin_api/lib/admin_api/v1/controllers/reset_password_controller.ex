@@ -6,7 +6,8 @@ defmodule AdminAPI.V1.ResetPasswordController do
   alias Bamboo.Email
 
   @spec reset(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def reset(conn, %{"email" => email, "redirect_url" => redirect_url}) do
+  def reset(conn, %{"email" => email, "redirect_url" => redirect_url})
+      when not is_nil(email) and not is_nil(redirect_url) do
     with true <- valid_url?(redirect_url) || :invalid_redirect_url,
          %User{} = user <- User.get_by_email(email) || :user_email_not_found,
          {_, _} <- ForgetPasswordRequest.delete_all(user),

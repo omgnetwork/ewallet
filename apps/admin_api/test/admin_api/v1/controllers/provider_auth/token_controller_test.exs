@@ -118,8 +118,8 @@ defmodule AdminAPI.V1.ProviderAuth.TokenControllerTest do
 
       assert response["data"] == %{
                "object" => "error",
-               "code" => "token:token_not_found",
-               "description" => "There is no token matching the provided token_id.",
+               "code" => "token:id_not_found",
+               "description" => "There is no token corresponding to the provided id",
                "messages" => nil
              }
     end
@@ -280,8 +280,8 @@ defmodule AdminAPI.V1.ProviderAuth.TokenControllerTest do
 
       assert response["data"] == %{
                "object" => "error",
-               "code" => "token:token_not_found",
-               "description" => "There is no token matching the provided token_id.",
+               "code" => "token:id_not_found",
+               "description" => "There is no token corresponding to the provided id",
                "messages" => nil
              }
     end
