@@ -312,8 +312,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "token:token_not_found",
-                 "description" => "There is no token matching the provided token_id.",
+                 "code" => "token:id_not_found",
+                 "description" => "There is no token corresponding to the provided id",
                  "messages" => nil,
                  "object" => "error"
                }

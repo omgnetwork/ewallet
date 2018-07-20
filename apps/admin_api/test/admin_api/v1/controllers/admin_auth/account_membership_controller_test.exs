@@ -227,6 +227,21 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["description"] == "The format of the provided email is invalid"
     end
 
+    test "returns an error if the email is nil" do
+      response =
+        admin_user_request("/account.assign_user", %{
+          email: nil,
+          account_id: insert(:account).id,
+          role_name: insert(:role).name,
+          redirect_url: @redirect_url
+        })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:invalid_email"
+      assert response["data"]["description"] == "The format of the provided email is invalid"
+    end
+
     test "returns client:invalid_parameter error if the redirect_url is not allowed" do
       redirect_url = "http://unknown-url.com/invite?email={email}&token={token}"
 

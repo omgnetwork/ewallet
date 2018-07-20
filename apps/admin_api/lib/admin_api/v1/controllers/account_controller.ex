@@ -156,6 +156,8 @@ defmodule AdminAPI.V1.AccountController do
     end
   end
 
+  def upload_avatar(conn, _), do: handle_error(conn, :invalid_parameter)
+
   defp respond(%Paginator{} = paginator, conn) do
     render(conn, :accounts, %{accounts: paginator})
   end
