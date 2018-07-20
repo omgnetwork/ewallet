@@ -22,6 +22,8 @@ const Placeholder = styled.span`
   transition: 0.2s ease all;
   border-bottom: 1px solid transparent;
   color: ${props => props.theme.colors.B100};
+  transition: 0.2s;
+  transform: ${props => (props.inputActive ? 'translate3d(0, -22px, 0)' : 'translate3d(0, 0, 0)')};
 `
 
 const Input = styled.input`
@@ -31,12 +33,8 @@ const Input = styled.input`
   padding-bottom: 5px;
   background-color: transparent;
   line-height: 1;
-  border-bottom: 1px solid ${props =>
-    props.error ? props.theme.colors.R400 : props.theme.colors.S400};
-  transform: translate3d(0, 0, 0);
-  :-webkit-autofill~ ${Placeholder},:disabled~ ${Placeholder},:focus~ ${Placeholder},:not(:focus):valid~ ${Placeholder} {
-    transform: translate3d(0, -22px, 0);
-  }
+  border-bottom: 1px solid
+    ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.S400)};
   :disabled {
     background-color: transparent;
     color: ${props => props.theme.colors.S400};
@@ -45,8 +43,8 @@ const Input = styled.input`
     color: ${props => props.theme.colors.S400};
   }
   :focus {
-    border-bottom: 1px solid ${props =>
-    props.error ? props.theme.colors.R400 : props.theme.colors.BL400};
+    border-bottom: 1px solid
+      ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.BL400)};
   }
 `
 const Error = styled.div`
@@ -94,7 +92,23 @@ class InputComonent extends PureComponent {
     onPressEnter: PropTypes.func,
     onPressEscape: PropTypes.func,
     onChange: PropTypes.func,
-    suffix: PropTypes.node
+    suffix: PropTypes.node,
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func,
+    value: PropTypes.string
+  }
+  static defaultProps = {
+    onFocus: () => {},
+    onBlur: () => {},
+    onChange: () => {},
+    registerRef: () => {}
+  }
+  state = {
+    active: false
+  }
+  componentDidMount = () => {
+    if (this.props.autofocus) this.input.focus()
+    this.props.registerRef(this.input)
   }
   handleKeyPress = e => {
     if (e.key === 'Enter') {
@@ -106,19 +120,19 @@ class InputComonent extends PureComponent {
       return this.props.onPressEscape && this.props.onPressEscape()
     }
   }
-
-  componentDidMount = () => {
-    if (this.props.autofocus) this.input.focus()
-    this.registerRef()
+  onFocus = e => {
+    this.props.onFocus()
+    this.setState({ active: true })
   }
-  onChange = e => {
-    if (this.props.onChange) this.props.onChange(e)
-  }
-
-  registerRef = () => {
-    if (this.props.registerRef) this.props.registerRef(this.input)
+  onBlur = e => {
+    this.props.onBlur()
+    this.setState({ active: false })
   }
   registerInput = input => (this.input = input)
+
+  isInputActive = () => {
+    return this.props.value || this.state.active
+  }
 
   render () {
     const { className, placeholder, ...rest } = this.props
@@ -126,15 +140,15 @@ class InputComonent extends PureComponent {
       <Container className={className}>
         <InnerContainer>
           <Input
+            {...rest}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
-            required
             innerRef={this.registerInput}
-            {...rest}
             placeholder={this.props.normalPlaceholder}
-            onChange={this.onChange}
+            onFocus={this.onFocus}
+            onBlur={this.onBlur}
           />
-          <Placeholder>{placeholder}</Placeholder>
+          <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>
         </InnerContainer>
         <Error error={this.props.error}>{this.props.errorText}</Error>
