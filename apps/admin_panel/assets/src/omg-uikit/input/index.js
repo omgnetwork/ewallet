@@ -101,10 +101,12 @@ class InputComonent extends PureComponent {
     onFocus: () => {},
     onBlur: () => {},
     onChange: () => {},
-    registerRef: () => {}
+    registerRef: () => {},
+    onPressEscape: () => {},
+    onPressEnter: () => {}
   }
   state = {
-    active: false
+    focus: false
   }
   componentDidMount = () => {
     if (this.props.autofocus) this.input.focus()
@@ -112,26 +114,26 @@ class InputComonent extends PureComponent {
   }
   handleKeyPress = e => {
     if (e.key === 'Enter') {
-      return this.props.onPressEnter && this.props.onPressEnter()
+      this.props.onPressEnter()
     }
   }
   handleKeyDown = e => {
     if (e.key === 'Escape') {
-      return this.props.onPressEscape && this.props.onPressEscape()
+      this.props.onPressEscape()
     }
   }
   onFocus = e => {
     this.props.onFocus()
-    this.setState({ active: true })
+    this.setState({ focus: true })
   }
   onBlur = e => {
     this.props.onBlur()
-    this.setState({ active: false })
+    this.setState({ focus: false })
   }
   registerInput = input => (this.input = input)
 
   isInputActive = () => {
-    return this.props.value || this.state.active
+    return this.props.value || this.state.focus
   }
 
   render () {
