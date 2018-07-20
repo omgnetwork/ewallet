@@ -96,6 +96,13 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
                "http://localhost:4000/public/uploads/test/user/avatars/#{uuid}/thumb.png?v="
     end
 
+    test "returns an error when 'avatar' is not sent" do
+      response = admin_user_request("/me.upload_avatar", %{})
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
     test "removes the avatar from a user" do
       account = insert(:account)
       role = insert(:role, %{name: "some_role"})
