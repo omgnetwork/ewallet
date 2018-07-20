@@ -11,7 +11,7 @@ import ConfirmationModal from '../omg-confirmation-modal'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { createApiKey, updateApiKey } from '../omg-api-keys/action'
-import { createAccessKey } from '../omg-access-key/action'
+import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import Copy from '../omg-copy'
@@ -33,6 +33,9 @@ const KeySection = styled.div`
   }
   td {
     color: ${props => props.theme.colors.B200};
+  }
+  h3 {
+    margin-bottom: 20px;
   }
 `
 const ConfirmCreateKeyContainer = styled.div`
@@ -100,13 +103,13 @@ const columnsAccessKey = [
   { key: 'key', title: 'KEY' },
   { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
-  { key: 'status_access', title: 'STATUS' }
+  { key: 'status', title: 'STATUS' }
 ]
 const enhance = compose(
   withRouter,
   connect(
     null,
-    { createApiKey, updateApiKey, createAccessKey }
+    { createApiKey, updateApiKey, createAccessKey, updateAccessKey }
   )
 )
 class ApiKeyPage extends Component {
@@ -114,7 +117,8 @@ class ApiKeyPage extends Component {
     createApiKey: PropTypes.func,
     createAccessKey: PropTypes.func,
     updateApiKey: PropTypes.func,
-    location: PropTypes.object
+    location: PropTypes.object,
+    updateAccessKey: PropTypes.func
   }
   state = {
     accessModalOpen: false,
@@ -170,36 +174,64 @@ class ApiKeyPage extends Component {
   onClickSwitch = ({ id, expired, fetch }) => async e => {
     await this.props.updateApiKey({ id, expired })
   }
-  rowRenderer = fetch => (key, data, rows) => {
-    if (key === 'status') {
-      return (
-        <Switch
-          open={!data}
-          onClick={this.onClickSwitch({ id: rows.id, expired: !rows.status, fetch })}
-        />
-      )
+  onClickAccessKeySwitch = ({ id, expired, fetch }) => async e => {
+    await this.props.updateAccessKey({ id, expired })
+  }
+
+  rowApiKeyRenderer = fetch => (key, data, rows) => {
+    switch (key) {
+      case 'status':
+        return (
+          <Switch
+            open={!data}
+            onClick={this.onClickSwitch({ id: rows.id, expired: !rows.status, fetch })}
+          />
+        )
+      case 'key':
+        return (
+          <KeyContainer>
+            <Icon name='Key' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'user':
+        return (
+          <KeyContainer>
+            <Icon name='Profile' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'created_at':
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      default:
+        return data
     }
-    if (key === 'status_access') {
-      return data ? 'disabled' : 'enabled'
+  }
+
+  rowAccessKeyRenderer = fetch => (key, data, rows) => {
+    switch (key) {
+      case 'status':
+        return (
+          <Switch
+            open={!data}
+            onClick={this.onClickAccessKeySwitch({ id: rows.id, expired: !rows.status, fetch })}
+          />
+        )
+      case 'key':
+        return (
+          <KeyContainer>
+            <Icon name='Key' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'user':
+        return (
+          <KeyContainer>
+            <Icon name='Profile' /> <span>{data}</span>
+          </KeyContainer>
+        )
+      case 'created_at':
+        return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
+      default:
+        return data
     }
-    if (key === 'key') {
-      return (
-        <KeyContainer>
-          <Icon name='Key' /> <span>{data}</span>
-        </KeyContainer>
-      )
-    }
-    if (key === 'user') {
-      return (
-        <KeyContainer>
-          <Icon name='Profile' /> <span>{data}</span>
-        </KeyContainer>
-      )
-    }
-    if (key === 'created_at') {
-      return moment(data).format('ddd, DD/MM/YYYY hh:mm:ss')
-    }
-    return data
   }
   renderEwalletApiKey = () => {
     return (
@@ -233,7 +265,7 @@ class ApiKeyPage extends Component {
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
-                rowRenderer={this.rowRenderer(fetch)}
+                rowRenderer={this.rowApiKeyRenderer(fetch)}
                 columns={columnsApiKey}
                 perPage={99999}
                 loadingColNumber={4}
@@ -271,10 +303,10 @@ class ApiKeyPage extends Component {
           const apiKeysRows = data.map(key => {
             return {
               key: key.access_key,
-              id: key.access_key,
+              id: key.id,
               user: key.account_id,
               created_at: key.created_at,
-              status_access: key.deleted_at
+              status: key.expired
             }
           })
           return (
@@ -291,7 +323,7 @@ class ApiKeyPage extends Component {
               <Table
                 loadingRowNumber={6}
                 rows={apiKeysRows}
-                rowRenderer={this.rowRenderer()}
+                rowRenderer={this.rowAccessKeyRenderer(fetch)}
                 columns={columnsAccessKey}
                 loadingStatus={individualLoadingStatus}
                 navigation
@@ -325,13 +357,13 @@ class ApiKeyPage extends Component {
                     open your encrypted information.
                   </p>
                   <InputContainer>
-                    <InputLabel>Private key</InputLabel>
-                    <input value={this.state.privateKey} spellCheck='false' />
-                    <Copy data={this.state.privateKey} />
-                  </InputContainer>
-                  <InputContainer>
                     <InputLabel>Public Key</InputLabel>
                     <input value={this.state.publicKey} spellCheck='false' />
+                    <Copy data={this.state.publicKey} />
+                  </InputContainer>
+                  <InputContainer>
+                    <InputLabel>Private key</InputLabel>
+                    <input value={this.state.privateKey} spellCheck='false' />
                     <Copy data={this.state.privateKey} />
                   </InputContainer>
                 </ConfirmCreateKeyContainer>

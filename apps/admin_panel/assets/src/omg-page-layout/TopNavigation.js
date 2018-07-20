@@ -46,6 +46,7 @@ const Spliiter = styled.span`
   margin: 0 ${props => (props.gap ? props.gap : '0')}px;
 `
 const SecondaryActionsContainer = styled.div`
+  vertical-align: bottom;
   display: inline-block;
 `
 
@@ -113,13 +114,11 @@ export default class TopNavigation extends PureComponent {
 const SearchGroupContainer = styled.form`
   display: inline-block;
   vertical-align: middle;
-  i {
-    vertical-align: baseline;
-    display: inline-block;
-  }
   i[name="Search"] {
+    vertical-align: bottom;
     transform: ${props => (props.search ? 'translate3d(0,0,0)' : 'translate3d(150px,0,0)')};
     transition: transform 0.2s;
+    padding: 12px;
   }
 `
 const InlineInput = styled(Input)`
@@ -133,6 +132,8 @@ const CloseIconInputContainer = styled.div`
   i {
     font-size: 10px;
     cursor: pointer;
+    vertical-align: middle;
+    padding: 10px auto;
   }
 `
 const SearchGroup = withRouter(

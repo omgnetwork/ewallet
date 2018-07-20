@@ -196,6 +196,11 @@ class AccountSettingPage extends Component {
                   size='small'
                   type='submit'
                   key={'save'}
+                  disabled={
+                    this.props.currentAccount.name === this.state.name &&
+                    this.props.currentAccount.description === this.state.description &&
+                    !this.state.image
+                  }
                   loading={this.state.submitStatus === 'SUBMITTING'}
                 >
                   <span>Save Change</span>
