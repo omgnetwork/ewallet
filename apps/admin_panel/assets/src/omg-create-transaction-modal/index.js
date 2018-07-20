@@ -30,6 +30,7 @@ const Form = styled.form`
   }
   h4 {
     text-align: center;
+    margin-bottom: 40px;
   }
 `
 const InputLabel = styled.div`
@@ -79,7 +80,8 @@ class CreateTransaction extends Component {
   static defaultProps = {
     onCreateTransaction: _.noop
   }
-  state = {}
+  state = { fromAddress: this.props.fromAddress }
+
   componentWillReceiveProps = nextProps => {
     if (this.state.fromAddress !== nextProps.fromAddress && nextProps.fromAddress !== undefined) {
       this.setState({ fromAddress: nextProps.fromAddress })
@@ -227,9 +229,9 @@ class CreateTransaction extends Component {
                       wallet
                         ? wallet.balances.map(b => ({
                           ...{
-                            key: b.token.id,
-                            value: `${b.token.name} (${b.token.symbol})`
-                          },
+                              key: b.token.id,
+                              value: `${b.token.name} (${b.token.symbol})`
+                            },
                           ...b
                         }))
                         : []
@@ -290,9 +292,9 @@ class CreateTransaction extends Component {
                       wallet
                         ? wallet.balances.map(b => ({
                           ...{
-                            key: b.token.id,
-                            value: `${b.token.name} (${b.token.symbol})`
-                          },
+                              key: b.token.id,
+                              value: `${b.token.name} (${b.token.symbol})`
+                            },
                           ...b
                         }))
                         : []

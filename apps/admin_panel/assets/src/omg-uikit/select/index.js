@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import Input from '../input'
 import Icon from '../icon'
-import {fuzzySearch} from '../../utils/search'
+import { fuzzySearch } from '../../utils/search'
 const SelectContainer = styled.div`
   position: relative;
 `
@@ -12,7 +12,7 @@ const OptionsContainer = styled.div`
   z-index: 2;
   border: 1px solid #ebeff7;
   border-radius: 2px;
-  box-shadow: 0 4px 12px 0 #e8eaed;
+  box-shadow: 0 4px 12px 0 rgba(4, 7, 13, 0.1);
   background-color: white;
   right: 0;
   max-height: 150px;

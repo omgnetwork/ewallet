@@ -131,7 +131,7 @@ class AccountPage extends Component {
     if (key === 'name') {
       return (
         <NameColumn>
-          <Avatar image={rows.avatar} /> <span>{data}</span>
+          <Avatar image={rows.avatar} name={data.slice(0, 2)} /> <span>{data}</span>
         </NameColumn>
       )
     }

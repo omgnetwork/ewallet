@@ -6,7 +6,7 @@ const mapSize = {
 }
 export const DefaultButton = styled.button`
   color: white;
-  border-radius: 2px;
+  border-radius: 4px;
   border: 1px solid transparent;
   padding: ${props => mapSize[props.size || 'medium']};
   width: ${props => props.fluid ? '100%' : 'auto'};
