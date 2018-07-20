@@ -157,8 +157,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
       description: "The websocket payload could not be decoded."
     },
     token_not_found: %{
-      code: "token:token_not_found",
-      description: "There is no token matching the provided token_id."
+      code: "token:id_not_found",
+      description: "There is no token corresponding to the provided id"
     },
     from_token_not_found: %{
       code: "token:from_token_not_found",
