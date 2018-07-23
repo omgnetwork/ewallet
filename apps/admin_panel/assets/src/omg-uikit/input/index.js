@@ -103,7 +103,8 @@ class InputComonent extends PureComponent {
     onChange: () => {},
     registerRef: () => {},
     onPressEscape: () => {},
-    onPressEnter: () => {}
+    onPressEnter: () => {},
+    value: ''
   }
   state = {
     focus: false
@@ -135,7 +136,6 @@ class InputComonent extends PureComponent {
   isInputActive = () => {
     return this.props.value || this.state.focus
   }
-
   render () {
     const { className, placeholder, ...rest } = this.props
     return (
@@ -149,6 +149,7 @@ class InputComonent extends PureComponent {
             placeholder={this.props.normalPlaceholder}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
+            value={this.props.value.trim()}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>

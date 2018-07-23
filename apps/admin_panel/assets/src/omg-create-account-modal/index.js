@@ -35,7 +35,7 @@ class CreateAccountModal extends Component {
     description: '',
     avatar: '',
     category: {},
-    error: false
+    error: ''
   }
   state = this.initialState
   componentDidMount = () => {
