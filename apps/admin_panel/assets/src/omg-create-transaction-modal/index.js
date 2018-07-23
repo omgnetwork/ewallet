@@ -147,8 +147,8 @@ class CreateTransaction extends Component {
               _.get(this.state.toTokenSelected, 'token.subunit_to_unit')
             )
       const result = await this.props.transfer({
-        fromAddress: this.state.fromAddress,
-        toAddress: this.state.toAddress,
+        fromAddress: this.state.fromAddress.trim(),
+        toAddress: this.state.toAddress.trim(),
         fromTokenId: _.get(this.state.fromTokenSelected, 'token.id'),
         toTokenId:
           _.get(this.state.toTokenSelected, 'token.id') ||
@@ -213,7 +213,7 @@ class CreateTransaction extends Component {
           }}
         />
         <WalletProvider
-          walletAddress={this.state.fromAddress}
+          walletAddress={this.state.fromAddress.trim()}
           render={({ wallet }) => {
             return (
               <InputGroupContainer>
@@ -229,9 +229,9 @@ class CreateTransaction extends Component {
                       wallet
                         ? wallet.balances.map(b => ({
                           ...{
-                              key: b.token.id,
-                              value: `${b.token.name} (${b.token.symbol})`
-                            },
+                            key: b.token.id,
+                            value: `${b.token.name} (${b.token.symbol})`
+                          },
                           ...b
                         }))
                         : []
@@ -256,7 +256,7 @@ class CreateTransaction extends Component {
         />
         <InputLabel>To Address</InputLabel>
         <AllWalletsFetcher
-          query={{ search: this.state.toAddress }}
+          query={{ search: this.state.toAddress.trim() }}
           render={({ data }) => {
             return (
               <Select
@@ -277,7 +277,7 @@ class CreateTransaction extends Component {
           }}
         />
         <WalletProvider
-          walletAddress={this.state.toAddress}
+          walletAddress={this.state.toAddress.trim()}
           render={({ wallet }) => {
             return (
               <InputGroupContainer>
@@ -293,9 +293,9 @@ class CreateTransaction extends Component {
                       wallet
                         ? wallet.balances.map(b => ({
                           ...{
-                              key: b.token.id,
-                              value: `${b.token.name} (${b.token.symbol})`
-                            },
+                            key: b.token.id,
+                            value: `${b.token.name} (${b.token.symbol})`
+                          },
                           ...b
                         }))
                         : []
