@@ -71,8 +71,7 @@ class AccountPage extends Component {
     super(props)
     this.state = {
       createAccountModalOpen: queryString.parse(props.location.search).createAccount || false,
-      exportModalOpen: false,
-      loadMoreTime: 1
+      exportModalOpen: false
     }
   }
   onClickCreateAccount = () => {
@@ -86,9 +85,6 @@ class AccountPage extends Component {
   }
   onRequestCloseExport = () => {
     this.setState({ exportModalOpen: false })
-  }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
   renderExportButton = () => {
     return (
