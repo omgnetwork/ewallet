@@ -43,7 +43,8 @@ const Error = styled.div`
 class CreateToken extends Component {
   static propTypes = {
     createToken: PropTypes.func,
-    onFetchSuccess: PropTypes.func
+    onFetchSuccess: PropTypes.func,
+    onRequestClose: PropTypes.func
   }
   state = {
     name: '',
@@ -89,7 +90,7 @@ class CreateToken extends Component {
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
-        <Icon name='Close' onClick={this.onRequestClose} />
+        <Icon name='Close' onClick={this.props.onRequestClose} />
         <h4>Create Token</h4>
         <Input
           placeholder='Token name'
@@ -136,7 +137,7 @@ class CreateTokenModal extends Component {
         onRequestClose={this.props.onRequestClose}
         contentLabel='create token modal'
       >
-        <CreateToken />
+        <CreateToken onRequestClose={this.props.onRequestClose} />
       </Modal>
     )
   }
