@@ -106,7 +106,7 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
   end
 
-  @spec all_for(%Account{} | %User{} | any()) :: %__MODULE__{} | nil
+  @spec all_for(any()) :: %__MODULE__{} | nil
   def all_for(%Account{} = account) do
     from(t in Wallet, where: t.account_uuid == ^account.uuid, preload: [:user, :account])
   end
