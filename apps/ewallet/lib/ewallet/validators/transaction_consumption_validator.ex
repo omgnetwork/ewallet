@@ -31,7 +31,10 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  @spec validate_before_confirmation(%TransactionConsumption{}, %EWalletDB.Account{} | %EWalletDB.User{}) ::
+  @spec validate_before_confirmation(
+          %TransactionConsumption{},
+          %EWalletDB.Account{} | %EWalletDB.User{}
+        ) ::
           {:ok, %TransactionConsumption{}}
           | {:error, atom()}
   def validate_before_confirmation(consumption, confirmer) do

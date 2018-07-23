@@ -130,8 +130,7 @@ defmodule EWallet.TransactionRequestGate do
 
   def create(_), do: {:error, :invalid_parameter}
 
-  @spec create(%User{} | %Wallet{}, map()) ::
-          {:ok, %TransactionRequest{}} | {:error, atom()}
+  @spec create(%User{} | %Wallet{}, map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
   def create(
         %User{} = user,
         attrs

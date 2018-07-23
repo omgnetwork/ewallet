@@ -8,8 +8,7 @@ defmodule EWallet.TransactionRequestFetcher do
   """
   alias EWalletDB.TransactionRequest
 
-  @spec get(String.t()) ::
-          {:ok, %TransactionRequest{}} | {:error, :transaction_request_not_found}
+  @spec get(String.t()) :: {:ok, %TransactionRequest{}} | {:error, :transaction_request_not_found}
   def get(transaction_request_id) do
     transaction_request_id
     |> TransactionRequest.get(

@@ -28,7 +28,8 @@ defmodule EWallet.GenesisGate do
     })
   end
 
-  @spec process_with_transaction(%Transaction{}, %Mint{}) :: {:ok, %Mint{}, %Transaction{}} | {:error, atom(), String.t(), %Mint{}}
+  @spec process_with_transaction(%Transaction{}, %Mint{}) ::
+          {:ok, %Mint{}, %Transaction{}} | {:error, atom(), String.t(), %Mint{}}
 
   def process_with_transaction(%Transaction{status: "pending"} = transaction, mint) do
     transaction

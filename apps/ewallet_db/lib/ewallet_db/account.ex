@@ -129,7 +129,8 @@ defmodule EWalletDB.Account do
     put_assoc(changeset, :categories, categories)
   end
 
-  @spec avatar_changeset(Ecto.Changeset.t() | %Account{}, map()) :: Ecto.Changeset.t() | %Account{} | no_return()
+  @spec avatar_changeset(Ecto.Changeset.t() | %Account{}, map()) ::
+          Ecto.Changeset.t() | %Account{} | no_return()
   defp avatar_changeset(changeset, attrs) do
     cast_attachments(changeset, attrs, [:avatar])
   end
@@ -162,8 +163,7 @@ defmodule EWalletDB.Account do
   @doc """
   Updates an account with the provided attributes.
   """
-  @spec update(%Account{}, map()) ::
-          {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
+  @spec update(%Account{}, map()) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def update(%Account{} = account, attrs) do
     changeset = changeset(account, attrs)
 
@@ -179,8 +179,7 @@ defmodule EWalletDB.Account do
   @doc """
   Inserts a wallet for the given account.
   """
-  @spec insert_wallet(%Account{}, String.t()) ::
-          {:ok, %Wallet{}} | {:error, Ecto.Changeset.t()}
+  @spec insert_wallet(%Account{}, String.t()) :: {:ok, %Wallet{}} | {:error, Ecto.Changeset.t()}
   def insert_wallet(%Account{} = account, identifier) do
     %{
       account_uuid: account.uuid,
@@ -295,8 +294,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve a wallet by name for the given account.
   """
-  @spec get_wallet_by_identifier(%Account{}, String.t()) ::
-          %Wallet{} | nil | no_return()
+  @spec get_wallet_by_identifier(%Account{}, String.t()) :: %Wallet{} | nil | no_return()
   def get_wallet_by_identifier(account, identifier) do
     Wallet
     |> where([b], b.identifier == ^identifier)
@@ -530,7 +528,8 @@ defmodule EWalletDB.Account do
     Account.update(account, %{category_ids: category_ids})
   end
 
-  @spec remove_category(%Account{}, %Category{}) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
+  @spec remove_category(%Account{}, %Category{}) ::
+          {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def remove_category(account, category) do
     account = Repo.preload(account, :categories)
 

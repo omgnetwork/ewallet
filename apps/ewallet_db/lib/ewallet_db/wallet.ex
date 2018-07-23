@@ -117,7 +117,8 @@ defmodule EWalletDB.Wallet do
 
   def all_for(_), do: nil
 
-  @spec query_all_for_account_uuids_and_user(Ecto.Queryable.t(), [String.t()]) :: Ecto.Queryable.t()
+  @spec query_all_for_account_uuids_and_user(Ecto.Queryable.t(), [String.t()]) ::
+          Ecto.Queryable.t()
   def query_all_for_account_uuids_and_user(query, account_uuids) do
     where(query, [w], w.account_uuid in ^account_uuids or not is_nil(w.user_uuid))
   end

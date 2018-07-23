@@ -59,7 +59,8 @@ defmodule EWalletDB.AuthToken do
     |> validate_required([:account_uuid])
   end
 
-  @spec switch_account(%__MODULE__{}, %Account{}) :: {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
+  @spec switch_account(%__MODULE__{}, %Account{}) ::
+          {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def switch_account(token, account) do
     token
     |> switch_account_changeset(%{account_uuid: account.uuid})

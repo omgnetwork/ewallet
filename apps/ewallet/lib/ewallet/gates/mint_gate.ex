@@ -8,8 +8,11 @@ defmodule EWallet.MintGate do
   alias EWalletDB.{Repo, Account, Mint, Token}
   alias Ecto.{UUID, Multi}
 
-  @spec mint_token({:ok, %Token{}} | %Token{} | {:error, Ecto.Changeset.t()} | any(), map())
-  :: {:ok, %Mint{}, %Token{}} | {:error, atom()} | {:error, atom(), String.t()} | {:error, Ecto.Changeset.t()}
+  @spec mint_token({:ok, %Token{}} | %Token{} | {:error, Ecto.Changeset.t()} | any(), map()) ::
+          {:ok, %Mint{}, %Token{}}
+          | {:error, atom()}
+          | {:error, atom(), String.t()}
+          | {:error, Ecto.Changeset.t()}
   def mint_token({:ok, token}, attrs) do
     mint_token(token, attrs)
   end
@@ -69,7 +72,10 @@ defmodule EWallet.MintGate do
         # Something went wrong, check the errors in the changeset!
     end
   """
-  @spec insert(map()) :: {:ok, %Mint{}, %EWalletDB.Transaction{}} | {:error, Ecto.Changeset.t()} | {:error, atom(), String.t()}
+  @spec insert(map()) ::
+          {:ok, %Mint{}, %EWalletDB.Transaction{}}
+          | {:error, Ecto.Changeset.t()}
+          | {:error, atom(), String.t()}
   def insert(
         %{
           "idempotency_token" => idempotency_token,
