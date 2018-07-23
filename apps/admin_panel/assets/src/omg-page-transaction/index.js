@@ -34,10 +34,9 @@ const TransactionPageContainer = styled.div`
   }
   table {
     td {
-    vertical-align: top;
+      vertical-align: top;
+    }
   }
-  }
-
 `
 const TransactionIdContainer = styled.div`
   white-space: nowrap;
@@ -84,6 +83,11 @@ export const MarkContainer = styled.div`
   margin-right: 5px;
   }
 `
+const TransferButton = styled(Button)`
+  padding-left: 40px;
+  padding-right: 40px;
+`
+
 const columns = [
   { key: 'id', title: 'TRANSACTION ID' },
   { key: 'toFrom', title: 'FROM/TO' },
@@ -125,15 +129,15 @@ class TransactionPage extends Component {
   }
   renderCreateTransactionButton = () => {
     return (
-      <Button
+      <TransferButton
         size='small'
         styleType='primary'
         onClick={this.onClickCreateTransaction}
         key={'create'}
       >
-        <Icon name='Export' />
-        <span>Create Transaction</span>
-      </Button>
+        <Icon name='Transaction' />
+        <span>Transfer</span>
+      </TransferButton>
     )
   }
   rowRenderer = (key, data, rows) => {

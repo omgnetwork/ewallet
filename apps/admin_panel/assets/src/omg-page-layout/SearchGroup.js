@@ -58,7 +58,7 @@ class SearchGroup extends PureComponent {
     this.input.focus()
     this.setState({ searching: true })
   }
-  removeSearchQueryParams = () => {}
+
   onClickRemoveSearch = e => {
     this.input.blur()
     this.setState({ searching: false })

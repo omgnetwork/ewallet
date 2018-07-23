@@ -44,6 +44,7 @@ const Spliiter = styled.span`
   margin: 0 ${props => (props.gap ? props.gap : '0')}px;
 `
 const SecondaryActionsContainer = styled.div`
+  vertical-align: bottom;
   display: inline-block;
 `
 

@@ -150,6 +150,20 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert mint.token_uuid == token.uuid
     end
 
+    test "fails to mint with amount = nil" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: nil
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided"
+    end
+
     test "fails to mint a non existing token" do
       response =
         admin_user_request("/token.mint", %{

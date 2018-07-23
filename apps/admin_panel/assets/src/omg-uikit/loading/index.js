@@ -18,7 +18,7 @@ const LoadingSkeletonSpan = styled.div`
   width: 100%;
   height: ${props => props.height || '1.5em'};
   animation: ${progress} 1.5s ease-in-out infinite;
-  opacity: 0.7;
+  opacity: 0.5;
 `
 class LoadingSkeleton extends Component {
   static propTypes = {
