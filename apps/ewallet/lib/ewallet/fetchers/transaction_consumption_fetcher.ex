@@ -7,8 +7,8 @@ defmodule EWallet.TransactionConsumptionFetcher do
   """
   alias EWalletDB.{TransactionConsumption, Transaction}
 
-  @spec get(UUID.t()) ::
-          {:ok, TransactionConsumption.t()}
+  @spec get(String.t()) ::
+          {:ok, %TransactionConsumption{}}
           | {:error, :transaction_consumption_not_found}
   def get(nil), do: {:error, :transaction_consumption_not_found}
 
@@ -22,10 +22,10 @@ defmodule EWallet.TransactionConsumptionFetcher do
   defp return_consumption(consumption), do: {:ok, consumption}
 
   @spec idempotent_fetch(String.t()) ::
-          {:ok, TransactionConsumption.t()}
-          | {:idempotent_call, TransactionConsumption.t()}
-          | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
-          | {:error, TransactionConsumption.t(), String.t(), String.t()}
+          {:ok, %TransactionConsumption{}}
+          | {:idempotent_call, %TransactionConsumption{}}
+          | {:error, %TransactionConsumption{}, atom(), String.t()}
+          | {:error, %TransactionConsumption{}, String.t(), String.t()}
   def idempotent_fetch(idempotency_token) do
     %{idempotency_token: idempotency_token}
     |> get_by()

@@ -68,7 +68,7 @@ defmodule EWalletDB.Category do
   @doc """
   Retrieves a category with the given ID.
   """
-  @spec get(ExternalID.t(), keyword()) :: %__MODULE__{} | nil
+  @spec get(String.t(), keyword()) :: %__MODULE__{} | nil
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do

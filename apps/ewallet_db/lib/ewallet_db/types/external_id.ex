@@ -120,6 +120,7 @@ defmodule EWalletDB.Types.ExternalID do
 
   defmacro __using__(_) do
     quote do
+      alias EWalletDB.Types.ExternalID
       import EWalletDB.Types.ExternalID, only: [external_id: 1, is_external_id: 1]
     end
   end

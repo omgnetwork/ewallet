@@ -93,7 +93,7 @@ defmodule EWalletDB.ExchangePair do
   @doc """
   Retrieves an exchange pair with the given ID.
   """
-  @spec get(ExternalID.t(), keyword()) :: %__MODULE__{} | nil
+  @spec get(String.t(), keyword()) :: %__MODULE__{} | nil
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do

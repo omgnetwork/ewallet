@@ -7,9 +7,9 @@ defmodule EWallet.TransactionConsumptionValidator do
   alias EWallet.Web.V1.Event
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair}
 
-  @spec validate_before_consumption(TransactionRequest.t(), any(), nil | keyword() | map()) ::
-          {:ok, TransactionRequest.t(), Token.t(), integer()}
-          | {:error, Atom.t()}
+  @spec validate_before_consumption(%TransactionRequest{}, any(), nil | keyword() | map()) ::
+          {:ok, %TransactionRequest{}, %Token{}, integer()}
+          | {:error, atom()}
   def validate_before_consumption(request, wallet, attrs) do
     with amount <- attrs["amount"],
          token_id <- attrs["token_id"],
@@ -31,9 +31,9 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  @spec validate_before_confirmation(TransactionConsumption.t(), Account.t() | User.t()) ::
-          {:ok, TransactionConsumption.t()}
-          | {:error, Atom.t()}
+  @spec validate_before_confirmation(%TransactionConsumption{}, %EWalletDB.Account{} | %EWalletDB.User{}) ::
+          {:ok, %TransactionConsumption{}}
+          | {:error, atom()}
   def validate_before_confirmation(consumption, confirmer) do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          request <- Repo.preload(request, [:wallet]),
@@ -62,8 +62,8 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  @spec validate_amount(TransactionRequest.t(), Integer.t()) ::
-          {:ok, TransactionRequest.t()} | {:error, :unauthorized_amount_override}
+  @spec validate_amount(%TransactionRequest{}, integer()) ::
+          {:ok, %TransactionRequest{}} | {:error, :unauthorized_amount_override}
   def validate_amount(%TransactionRequest{amount: nil} = _request, nil) do
     {:error, :invalid_parameter, "'amount' is required for transaction consumption."}
   end
@@ -92,9 +92,9 @@ defmodule EWallet.TransactionConsumptionValidator do
     {:error, :unauthorized_amount_override}
   end
 
-  @spec get_and_validate_token(TransactionRequest.t(), String.t()) ::
-          {:ok, Token.t()}
-          | {:error, Atom.t()}
+  @spec get_and_validate_token(%TransactionRequest{}, String.t()) ::
+          {:ok, %Token{}}
+          | {:error, atom()}
   def get_and_validate_token(%TransactionRequest{token_uuid: nil} = _request, nil) do
     {:error, :invalid_parameter,
      "'token_id' is required since the transaction request does not specify any."}

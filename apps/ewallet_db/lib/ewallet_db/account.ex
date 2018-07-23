@@ -100,7 +100,7 @@ defmodule EWalletDB.Account do
     timestamps()
   end
 
-  @spec changeset(account :: %Account{}, attrs :: map()) :: Ecto.Changeset.t()
+  @spec changeset(%Account{}, map()) :: Ecto.Changeset.t()
   defp changeset(%Account{} = account, attrs) do
     account
     |> cast(attrs, [:name, :description, :parent_uuid, :metadata, :encrypted_metadata])
@@ -129,17 +129,15 @@ defmodule EWalletDB.Account do
     put_assoc(changeset, :categories, categories)
   end
 
-  @spec avatar_changeset(changeset :: Ecto.Changeset.t() | %Account{}, attrs :: map()) ::
-          Ecto.Changeset.t() | no_return()
+  @spec avatar_changeset(Ecto.Changeset.t() | %Account{}, map()) :: Ecto.Changeset.t() | %Account{} | no_return()
   defp avatar_changeset(changeset, attrs) do
-    changeset
-    |> cast_attachments(attrs, [:avatar])
+    cast_attachments(changeset, attrs, [:avatar])
   end
 
   @doc """
   Create a new account with the passed attributes, as well as a primary and a burn wallets.
   """
-  @spec insert(attrs :: map()) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
+  @spec insert(map()) :: {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     multi =
       Multi.new()
@@ -164,7 +162,7 @@ defmodule EWalletDB.Account do
   @doc """
   Updates an account with the provided attributes.
   """
-  @spec update(account :: %Account{}, attrs :: map()) ::
+  @spec update(%Account{}, map()) ::
           {:ok, %Account{}} | {:error, Ecto.Changeset.t()}
   def update(%Account{} = account, attrs) do
     changeset = changeset(account, attrs)
@@ -181,7 +179,7 @@ defmodule EWalletDB.Account do
   @doc """
   Inserts a wallet for the given account.
   """
-  @spec insert_wallet(account :: %Account{}, identifier :: String.t()) ::
+  @spec insert_wallet(%Account{}, String.t()) ::
           {:ok, %Wallet{}} | {:error, Ecto.Changeset.t()}
   def insert_wallet(%Account{} = account, identifier) do
     %{
@@ -196,7 +194,7 @@ defmodule EWalletDB.Account do
   @doc """
   Stores an avatar for the given account.
   """
-  @spec store_avatar(account :: %Account{}, attrs :: map()) :: %Account{} | nil | no_return()
+  @spec store_avatar(%Account{}, map()) :: %Account{} | nil | no_return()
   def store_avatar(%Account{} = account, attrs) do
     attrs =
       case attrs["avatar"] do
@@ -216,7 +214,7 @@ defmodule EWalletDB.Account do
   @doc """
   Get all accounts.
   """
-  @spec all(opts :: keyword()) :: list(%Account{})
+  @spec all(keyword()) :: list(%Account{})
   def all(opts \\ [])
 
   def all(opts) do
@@ -232,7 +230,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieves an account with the given ID.
   """
-  @spec get(id :: ExternalID.t(), opts :: keyword()) :: %Account{} | nil | no_return()
+  @spec get(String.t(), keyword()) :: %Account{} | nil | no_return()
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do
@@ -244,7 +242,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieves an account using one or more fields.
   """
-  @spec get_by(fields :: map() | keyword(), opts :: keyword()) :: %Account{} | nil | no_return()
+  @spec get_by(map() | keyword(), keyword()) :: %Account{} | nil | no_return()
   def get_by(fields, opts \\ []) do
     Account
     |> Repo.get_by(fields)
@@ -254,7 +252,7 @@ defmodule EWalletDB.Account do
   @doc """
   Returns whether the account is the master account.
   """
-  @spec master?(account :: %Account{}) :: boolean()
+  @spec master?(%Account{}) :: boolean()
   def master?(account) do
     is_nil(account.parent_uuid)
   end
@@ -262,7 +260,7 @@ defmodule EWalletDB.Account do
   @doc """
   Get the master account for the current wallet setup.
   """
-  @spec get_preloaded_primary_wallet(opts :: keyword()) :: %Account{} | nil
+  @spec get_preloaded_primary_wallet(keyword()) :: %Account{} | nil
   def get_master_account(opts \\ []) do
     Account
     |> where([a], is_nil(a.parent_uuid))
@@ -273,7 +271,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve the primary wallet for an account with preloaded wallets.
   """
-  @spec get_preloaded_primary_wallet(account :: %Account{}) :: %Wallet{} | nil
+  @spec get_preloaded_primary_wallet(%Account{}) :: %Wallet{} | nil
   def get_preloaded_primary_wallet(account) do
     Enum.find(account.wallets, fn wallet -> wallet.identifier == Wallet.primary() end)
   end
@@ -281,7 +279,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve the primary wallet for an account.
   """
-  @spec get_primary_wallet(account :: %Account{}) :: %Wallet{}
+  @spec get_primary_wallet(%Account{}) :: %Wallet{}
   def get_primary_wallet(account) do
     get_wallet_by_identifier(account, Wallet.primary())
   end
@@ -289,7 +287,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve the default burn wallet for an account.
   """
-  @spec get_default_burn_wallet(account :: %Account{}) :: %Wallet{}
+  @spec get_default_burn_wallet(%Account{}) :: %Wallet{}
   def get_default_burn_wallet(account) do
     get_wallet_by_identifier(account, Wallet.burn())
   end
@@ -297,7 +295,7 @@ defmodule EWalletDB.Account do
   @doc """
   Retrieve a wallet by name for the given account.
   """
-  @spec get_wallet_by_identifier(account :: %Account{}, identifier :: String.t()) ::
+  @spec get_wallet_by_identifier(%Account{}, String.t()) ::
           %Wallet{} | nil | no_return()
   def get_wallet_by_identifier(account, identifier) do
     Wallet
@@ -347,7 +345,7 @@ defmodule EWalletDB.Account do
     end
   end
 
-  @spec query_depth(account_uuid :: String.t(), parent_uuid :: String.t()) :: Ecto.Queryable.t()
+  @spec query_depth(String.t(), String.t()) :: Ecto.Queryable.t()
   defp query_depth(account_uuid, parent_uuid) do
     # Traverses up the account tree and count each step up until it reaches the master account.
     from(
@@ -457,7 +455,7 @@ defmodule EWalletDB.Account do
       ")
   end
 
-  @spec get_all_ancestors([String.t()]) :: [%Account{}]
+  @spec get_all_ancestors([String.t()]) :: [%Account{}] | no_return()
   def get_all_ancestors(account_uuids) when is_list(account_uuids) do
     binary_account_uuids =
       Enum.map(account_uuids, fn account_uuid ->
@@ -501,7 +499,7 @@ defmodule EWalletDB.Account do
     ")
   end
 
-  @spec get_family_tree(%Account{}, String.t()) :: [%Account{}]
+  @spec get_family_tree(%Account{}, String.t()) :: [%Account{}] | no_return()
   defp get_family_tree(account, query) do
     depth = get_depth(account.uuid)
     {:ok, binary_uuid} = UUID.dump(account.uuid)
@@ -509,7 +507,7 @@ defmodule EWalletDB.Account do
     load_accounts(result)
   end
 
-  @spec load_accounts(%{:rows => any(), :num_rows => non_neg_integer(), optional(atom()) => any()}) :: [%Account{}]
+  @spec load_accounts(%{:rows => any()}) :: [%Account{}] | no_return()
   defp load_accounts(query_result) do
     Enum.map(query_result.rows, fn row ->
       Account

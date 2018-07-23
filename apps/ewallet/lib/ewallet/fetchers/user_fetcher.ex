@@ -4,7 +4,7 @@ defmodule EWallet.UserFetcher do
   """
   alias EWalletDB.{User}
 
-  @spec fetch(map()) :: {:ok, User.t()} | {:error, Atom.t()}
+  @spec fetch(map()) :: {:ok, %User{}} | {:error, atom()}
   def fetch(%{"user_id" => user_id}) do
     with %User{} = user <- User.get(user_id) || :user_id_not_found do
       {:ok, user}

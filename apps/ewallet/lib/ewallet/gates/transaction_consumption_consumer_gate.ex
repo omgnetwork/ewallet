@@ -26,7 +26,7 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
     Helpers.Assoc
   }
 
-  @spec consume(Map.t()) :: {:ok, %TransactionConsumption{}} | {:error, %TransactionConsumption{}} | {:error, Atom.t()}
+  @spec consume(map()) :: {:ok, %TransactionConsumption{}} | {:error, %TransactionConsumption{}} | {:error, atom()}
   def consume(
         %{
           "account_id" => account_id,
@@ -143,8 +143,7 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
 
   def consume(_attrs), do: {:error, :invalid_parameter}
 
-  @spec consume(User.t() | Balance.t(), Map.t()) ::
-          {:ok, TransactionConsumption.t()} | {:error, Atom.t()}
+  @spec consume(%User{} | %Wallet{}, map()) :: {:ok, %TransactionConsumption{}} | {:error, atom()}
   def consume(
         %User{} = user,
         %{

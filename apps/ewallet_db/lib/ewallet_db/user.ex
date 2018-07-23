@@ -108,8 +108,7 @@ defmodule EWalletDB.User do
   end
 
   defp avatar_changeset(changeset, attrs) do
-    changeset
-    |> cast_attachments(attrs, [:avatar])
+    cast_attachments(changeset, attrs, [:avatar])
   end
 
   defp update_changeset(%User{} = user, attrs) do
@@ -170,8 +169,8 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific user.
   """
-  @spec get(ExternalID.t()) :: %User{} | nil
-  @spec get(ExternalID.t(), Ecto.Queryable.t()) :: %User{} | nil
+  @spec get(String.t()) :: %User{} | nil
+  @spec get(String.t(), Ecto.Queryable.t()) :: %User{} | nil
   def get(id, queryable \\ User)
 
   def get(id, queryable) when is_external_id(id) do
@@ -185,6 +184,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific user from its provider_user_id.
   """
+  @spec get_by_provider_user_id(String.t() | nil) :: %User{} | nil
   def get_by_provider_user_id(nil), do: nil
 
   def get_by_provider_user_id(provider_user_id) do
@@ -196,6 +196,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves a specific user from its email.
   """
+  @spec get_by_email(String.t()) :: %User{} | nil
   def get_by_email(email) when is_binary(email) do
     User
     |> Repo.get_by(email: email)
@@ -212,6 +213,7 @@ defmodule EWalletDB.User do
     |> preload_option(opts)
   end
 
+  @spec get_end_users :: [%User{}]
   def get_end_users do
     User
     |> UserQuery.where_end_user()
@@ -228,6 +230,7 @@ defmodule EWalletDB.User do
 
   Creates a user and their primary wallet.
   """
+  @spec insert(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
     multi =
       Multi.new()
@@ -241,7 +244,7 @@ defmodule EWalletDB.User do
 
     case Repo.transaction(multi) do
       {:ok, result} ->
-        user = result.user |> Repo.preload([:wallets])
+        user = Repo.preload(result.user, [:wallets])
         {:ok, user}
 
       # Only the account insertion should fail. If the wallet insert fails, there is
@@ -397,7 +400,7 @@ defmodule EWalletDB.User do
   If the user does not have a membership on the given account, it inherits
   the role from the closest parent account that has one.
   """
-  @spec get_role(ExternalID.t(), ExternalID.t()) :: String.t() | nil
+  @spec get_role(String.t(), String.t()) :: String.t() | nil
   def get_role(user_id, account_id) do
     user_id
     |> query_role(account_id)
@@ -479,7 +482,7 @@ defmodule EWalletDB.User do
     |> Repo.all()
   end
 
-  @spec get_membership_account_uuids(%User{}) :: List.t() | no_return()
+  @spec get_membership_account_uuids(%User{}) :: [String.t()] | no_return()
   def get_membership_account_uuids(user) do
     user
     |> Membership.all_by_user()

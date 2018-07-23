@@ -31,11 +31,11 @@ defmodule AdminAPI.V1.AdminAuthController do
          {:ok, token} <- AuthToken.switch_account(token, account) do
       render_token(conn, token)
     else
-      error when is_atom(error) ->
-        render_error(conn, {:error, error})
+      error_code when is_atom(error_code) ->
+        handle_error(conn, error_code)
 
-      error ->
-        render_error(conn, error)
+      {:error, changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
     end
   end
 
@@ -47,19 +47,11 @@ defmodule AdminAPI.V1.AdminAuthController do
   end
 
   defp respond_with_token(conn) do
-    render_error(conn, {:error, :invalid_login_credentials})
+    handle_error(conn, :invalid_login_credentials)
   end
 
   defp render_token(conn, auth_token) do
     render(conn, :auth_token, %{auth_token: auth_token})
-  end
-
-  defp render_error(conn, {:error, code}) do
-    handle_error(conn, code)
-  end
-
-  defp render_error(conn, error) do
-    handle_error(conn, error)
   end
 
   @doc """
@@ -71,12 +63,12 @@ defmodule AdminAPI.V1.AdminAuthController do
       |> AdminUserAuthenticator.expire_token()
       |> render(:empty_response, %{})
     else
-      error ->
-        render_error(conn, {:error, error})
+      error_code ->
+        handle_error(conn, error_code)
     end
   end
 
-  @spec permit(:get | :update, map()) :: {:ok, User.t()} | atom() | no_return()
+  @spec permit(:get | :update, map()) :: {:ok, %EWalletDB.User{}} | atom() | no_return()
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end
