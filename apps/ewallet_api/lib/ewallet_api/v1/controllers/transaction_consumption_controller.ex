@@ -55,9 +55,6 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
     handle_error(conn, code)
   end
 
-  defp respond({:error, code, description}, conn, _dispatch?),
-    do: handle_error(conn, code, description)
-
   defp respond({:error, error}, conn, _dispatch?) when is_atom(error),
     do: handle_error(conn, error)
 

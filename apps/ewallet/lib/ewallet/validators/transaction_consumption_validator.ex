@@ -147,16 +147,10 @@ defmodule EWallet.TransactionConsumptionValidator do
   defp fetch_pair(type, request_token_uuid, consumption_token_uuid) do
     case type do
       "send" ->
-        ExchangePair.fetch_exchangable_pair(
-          %{uuid: request_token_uuid},
-          %{uuid: consumption_token_uuid}
-        )
+        ExchangePair.fetch_exchangable_pair(request_token_uuid, consumption_token_uuid)
 
       "receive" ->
-        ExchangePair.fetch_exchangable_pair(
-          %{uuid: consumption_token_uuid},
-          %{uuid: request_token_uuid}
-        )
+        ExchangePair.fetch_exchangable_pair(consumption_token_uuid, request_token_uuid)
     end
   end
 end

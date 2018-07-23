@@ -106,7 +106,7 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
   end
 
-  @spec all_for(any()) :: %__MODULE__{} | nil
+  @spec all_for(any()) :: Ecto.Query.t() | nil
   def all_for(%Account{} = account) do
     from(t in Wallet, where: t.account_uuid == ^account.uuid, preload: [:user, :account])
   end
@@ -198,7 +198,7 @@ defmodule EWalletDB.Wallet do
   @doc """
   Inserts a genesis.
   """
-  @spec insert_genesis :: %__MODULE__{} | {:error, Ecto.Changeset.t()}
+  @spec insert_genesis :: {:ok, %__MODULE__{}} | {:ok, nil} | {:error, Ecto.Changeset.t()}
   def insert_genesis do
     changeset =
       changeset(%Wallet{}, %{address: @genesis_address, name: @genesis, identifier: @genesis})

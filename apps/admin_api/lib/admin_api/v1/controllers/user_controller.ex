@@ -138,7 +138,7 @@ defmodule AdminAPI.V1.UserController do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, user) do
       user
-      |> update_user(attrs)
+      |> User.update(attrs)
       |> respond_single(conn)
     else
       error -> respond_single(error, conn)
@@ -156,7 +156,7 @@ defmodule AdminAPI.V1.UserController do
     with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, user) do
       user
-      |> update_user(attrs)
+      |> User.update(attrs)
       |> respond_single(conn)
     else
       error -> respond_single(error, conn)
@@ -164,9 +164,6 @@ defmodule AdminAPI.V1.UserController do
   end
 
   def update(conn, _attrs), do: handle_error(conn, :invalid_parameter)
-
-  defp update_user(%User{} = user, attrs), do: User.update(user, attrs)
-  defp update_user(_, _attrs), do: nil
 
   # Respond with a list of users
   defp respond_multiple(%Paginator{} = paged_users, conn) do

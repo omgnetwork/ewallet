@@ -37,7 +37,7 @@ defmodule EWallet.MintGate do
     |> insert()
     |> case do
       {:ok, mint, _entry} -> {:ok, mint, token}
-      {:error, code, description} -> {:error, code, description}
+      {:error, code, description, mint} -> {:error, code, description, mint}
       {:error, changeset} -> {:error, changeset}
     end
   end

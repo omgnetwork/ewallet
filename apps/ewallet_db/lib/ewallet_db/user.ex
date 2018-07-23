@@ -462,7 +462,7 @@ defmodule EWalletDB.User do
     Repo.one(query)
   end
 
-  @spec get_all_accessible_account_uuids(%User{}) :: [String.t()]
+  @spec get_all_accessible_account_uuids(%User{}) :: [String.t()] | no_return()
   def get_all_accessible_account_uuids(user) do
     user
     |> get_membership_account_uuids()

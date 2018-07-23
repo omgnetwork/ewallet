@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.AdminAuthController do
 
   def switch_account(conn, %{"account_id" => account_id}) do
     with {:ok, _current_user} <- permit(:get, conn.assigns),
-         %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         %Account{} = account <- Account.get(account_id) || :unauthorized,
          :ok <- permit_account(:get, conn.assigns, account.id),
          token <- conn.private.auth_auth_token,
          %AuthToken{} = token <-
@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, map()) :: {:ok, User.t()} | atom() | no_return()
+  @spec permit(:get | :update, map()) :: {:ok, User.t()} | atom() | no_return()
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end

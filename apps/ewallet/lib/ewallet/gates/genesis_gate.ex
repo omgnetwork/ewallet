@@ -28,6 +28,8 @@ defmodule EWallet.GenesisGate do
     })
   end
 
+  @spec process_with_transaction(%Transaction{}, %Mint{}) :: {:ok, %Mint{}, %Transaction{}} | {:error, atom(), String.t(), %Mint{}}
+
   def process_with_transaction(%Transaction{status: "pending"} = transaction, mint) do
     transaction
     |> TransactionFormatter.format()
@@ -47,10 +49,10 @@ defmodule EWallet.GenesisGate do
     )
   end
 
-  def confirm_and_return({:error, code, description}, mint),
+  defp confirm_and_return({:error, code, description}, mint),
     do: {:error, code, description, mint}
 
-  def confirm_and_return(transaction, mint) do
+  defp confirm_and_return(transaction, mint) do
     mint = Mint.confirm(mint)
     {:ok, mint, transaction}
   end

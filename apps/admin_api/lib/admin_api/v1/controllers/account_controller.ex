@@ -45,7 +45,6 @@ defmodule AdminAPI.V1.AccountController do
       |> respond(conn)
     else
       error -> respond(error, conn)
-      nil -> respond(conn, :account_id_not_found)
     end
   end
 

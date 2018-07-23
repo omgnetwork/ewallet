@@ -27,6 +27,7 @@ defmodule AdminAPI.V1.WalletController do
       |> Wallet.query_all_for_account_uuids_and_user(account_uuids)
       |> do_all(attrs, conn)
     else
+      {:error, error} -> handle_error(conn, error)
       error -> handle_error(conn, error)
     end
   end
@@ -139,10 +140,6 @@ defmodule AdminAPI.V1.WalletController do
 
   defp respond_single(%Wallet{} = wallet, conn) do
     render(conn, :wallet, %{wallet: wallet})
-  end
-
-  defp respond_single(nil, conn) do
-    handle_error(conn, :wallet_address_not_found)
   end
 
   @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::

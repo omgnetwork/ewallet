@@ -186,10 +186,16 @@ defmodule EWalletDB.ExchangePair do
   If an exchange pair is found, `{:ok, pair}` is returned.
   If an exchange pair could not be found, `{:error, :exchange_pair_not_found}` is returned.
   """
-  @spec fetch_exchangable_pair(%Token{}, %Token{}, keyword()) ::
+  @spec fetch_exchangable_pair(%Token{} | String.t(), %Token{} | String.t(), keyword()) ::
           {:ok, %__MODULE__{}} | {:error, :exchange_pair_not_found}
-  def fetch_exchangable_pair(%{uuid: from}, %{uuid: to}, opts \\ []) do
-    case get_by([from_token_uuid: from, to_token_uuid: to], opts) do
+  def fetch_exchangable_pair(from, to, opts \\ [])
+
+  def fetch_exchangable_pair(%Token{} = from_token, %Token{} = to_token, opts) do
+    fetch_exchangable_pair(from_token.uuid, to_token.uuid, opts)
+  end
+
+  def fetch_exchangable_pair(from_token_uuid, to_token_uuid, opts) do
+    case get_by([from_token_uuid: from_token_uuid, to_token_uuid: to_token_uuid], opts) do
       %__MODULE__{} = pair ->
         {:ok, pair}
 

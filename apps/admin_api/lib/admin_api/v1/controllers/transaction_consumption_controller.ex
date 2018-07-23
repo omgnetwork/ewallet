@@ -74,12 +74,18 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_user(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) || {:error, :unauthorized},
+    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          :ok <- permit(:all, conn.assigns, user) do
       :user_uuid
       |> TransactionConsumption.query_all_for(user.uuid)
       |> do_all(attrs, conn)
     else
+      {:error, :user_id_not_found} ->
+        respond({:error, :unauthorized}, conn, false)
+
+      {:error, :provider_user_id_not_found} ->
+        respond({:error, :unauthorized}, conn, false)
+
       {:error, :invalid_parameter} ->
         handle_error(
           conn,
@@ -215,11 +221,9 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, code)
   end
 
-  defp respond({:error, code, description}, conn, _dispatch?),
-    do: handle_error(conn, code, description)
-
-  defp respond({:error, error}, conn, _dispatch?) when is_atom(error),
-    do: handle_error(conn, error)
+  defp respond({:error, error}, conn, _dispatch?) when is_atom(error) do
+    handle_error(conn, error)
+  end
 
   defp respond({:error, changeset}, conn, _dispatch?) do
     handle_error(conn, :invalid_parameter, changeset)

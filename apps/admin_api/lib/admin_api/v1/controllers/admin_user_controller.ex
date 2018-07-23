@@ -71,11 +71,6 @@ defmodule AdminAPI.V1.AdminUserController do
     render(conn, UserView, :user, %{user: user})
   end
 
-  # Responds when the admin is not found
-  defp respond_single(nil, conn) do
-    handle_error(conn, :user_id_not_found)
-  end
-
   @spec permit(:all | :create | :get | :update, map(), %User{} | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, user) do
