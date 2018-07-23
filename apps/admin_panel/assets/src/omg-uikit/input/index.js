@@ -149,7 +149,6 @@ class InputComonent extends PureComponent {
             placeholder={this.props.normalPlaceholder}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
-            value={this.props.value.trim()}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>

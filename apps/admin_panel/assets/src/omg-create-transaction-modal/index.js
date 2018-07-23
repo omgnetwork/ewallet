@@ -80,7 +80,7 @@ class CreateTransaction extends Component {
   static defaultProps = {
     onCreateTransaction: _.noop
   }
-  state = { fromAddress: this.props.fromAddress }
+  state = { fromAddress: this.props.fromAddress || '', toAddress: '' }
 
   componentWillReceiveProps = nextProps => {
     if (this.state.fromAddress !== nextProps.fromAddress && nextProps.fromAddress !== undefined) {
@@ -192,7 +192,7 @@ class CreateTransaction extends Component {
         <h4>Transfer</h4>
         <InputLabel>From Address</InputLabel>
         <AllWalletsFetcher
-          query={{ search: this.state.fromAddress }}
+          query={{ search: this.state.fromAddress.trim() }}
           render={({ data }) => {
             return (
               <Select
@@ -244,9 +244,10 @@ class CreateTransaction extends Component {
                 <div>
                   <InputLabel>Amount</InputLabel>
                   <Input
-                    value={this.state.fromAddressAmount}
+                    value={this.state.fromTokenAmount}
                     onChange={this.onChangeAmount('fromToken')}
                     type='number'
+                    normalPlaceholder={'Token amount'}
                   />
                 </div>
               </InputGroupContainer>
@@ -307,9 +308,10 @@ class CreateTransaction extends Component {
                 <div>
                   <InputLabel>Amount</InputLabel>
                   <Input
-                    value={this.state.toAddressAmount}
+                    value={this.state.toTokenAmount}
                     onChange={this.onChangeAmount('toToken')}
                     type='number'
+                    normalPlaceholder={'Token amount'}
                   />
                 </div>
               </InputGroupContainer>
