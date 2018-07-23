@@ -40,22 +40,17 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
 
-class CreateTokenModal extends Component {
+class CreateToken extends Component {
   static propTypes = {
-    open: PropTypes.bool,
-    onRequestClose: PropTypes.func,
     createToken: PropTypes.func,
     onFetchSuccess: PropTypes.func
   }
-  initialState = {
+  state = {
     name: '',
     symbol: '',
     amount: null,
-    decimal: 18,
-    error: '',
-    submitting: false
+    decimal: 18
   }
-  state = this.initialState
   onChangeInputName = e => {
     this.setState({ name: e.target.value })
   }
@@ -67,10 +62,6 @@ class CreateTokenModal extends Component {
   }
   onChangeDecimal = e => {
     this.setState({ decimal: e.target.value })
-  }
-  onRequestClose = () => {
-    this.setState(this.initialState)
-    this.props.onRequestClose()
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -97,48 +88,59 @@ class CreateTokenModal extends Component {
   }
   render () {
     return (
-      <Modal
-        isOpen={this.props.open}
-        onRequestClose={this.onRequestClose}
-        contentLabel='create account modal'
-      >
-        <Form onSubmit={this.onSubmit} noValidate>
-          <Icon name='Close' onClick={this.onRequestClose} />
-          <h4>Create Token</h4>
-          <Input
-            placeholder='Token name'
-            autofocus
-            value={this.state.name}
-            onChange={this.onChangeInputName}
-          />
-          <Input
-            placeholder='Token symbol'
-            value={this.state.symbol}
-            onChange={this.onChangeInputSymbol}
-          />
-          <Input
-            placeholder='Decimal point'
-            value={this.state.decimal}
-            onChange={this.onChangeDecimal}
-          />
-          <Input
-            placeholder='Amount (Optional)'
-            value={this.state.amount}
-            onChange={this.onChangeAmount}
-            type='number'
-          />
-          <ButtonContainer>
-            <Button size='small' type='submit' loading={this.state.submitting}>
-              Create Token
-            </Button>
-          </ButtonContainer>
-          <Error error={this.state.error}>{this.state.error}</Error>
-        </Form>
-      </Modal>
+      <Form onSubmit={this.onSubmit} noValidate>
+        <Icon name='Close' onClick={this.onRequestClose} />
+        <h4>Create Token</h4>
+        <Input
+          placeholder='Token name'
+          autofocus
+          value={this.state.name}
+          onChange={this.onChangeInputName}
+        />
+        <Input
+          placeholder='Token symbol'
+          value={this.state.symbol}
+          onChange={this.onChangeInputSymbol}
+        />
+        <Input
+          placeholder='Decimal point'
+          value={this.state.decimal}
+          onChange={this.onChangeDecimal}
+        />
+        <Input
+          placeholder='Amount (Optional)'
+          value={this.state.amount}
+          onChange={this.onChangeAmount}
+          type='number'
+        />
+        <ButtonContainer>
+          <Button size='small' type='submit' loading={this.state.submitting}>
+            Create Token
+          </Button>
+        </ButtonContainer>
+        <Error error={this.state.error}>{this.state.error}</Error>
+      </Form>
     )
   }
 }
 
+class CreateTokenModal extends Component {
+  static propTypes = {
+    onRequestClose: PropTypes.func,
+    open: PropTypes.bool
+  }
+  render () {
+    return (
+      <Modal
+        isOpen={this.props.open}
+        onRequestClose={this.props.onRequestClose}
+        contentLabel='create token modal'
+      >
+        <CreateToken />
+      </Modal>
+    )
+  }
+}
 export default connect(
   null,
   { createToken }
