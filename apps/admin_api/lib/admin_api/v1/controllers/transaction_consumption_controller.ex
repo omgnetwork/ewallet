@@ -80,12 +80,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       |> TransactionConsumption.query_all_for(user.uuid)
       |> do_all(attrs, conn)
     else
-      {:error, :user_id_not_found} ->
-        respond({:error, :unauthorized}, conn, false)
-
-      {:error, :provider_user_id_not_found} ->
-        respond({:error, :unauthorized}, conn, false)
-
       {:error, :invalid_parameter} ->
         handle_error(
           conn,
@@ -167,9 +161,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
           Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
       })
     else
-      {:error, :transaction_consumption_not_found} ->
-        respond({:error, :unauthorized}, conn, false)
-
       error ->
         respond(error, conn, false)
     end

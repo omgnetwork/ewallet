@@ -31,11 +31,11 @@ defmodule AdminAPI.V1.AdminAuthController do
          {:ok, token} <- AuthToken.switch_account(token, account) do
       render_token(conn, token)
     else
-      error_code when is_atom(error_code) ->
-        handle_error(conn, error_code)
+      {:error, error} ->
+        handle_error(conn, error)
 
-      {:error, changeset} ->
-        handle_error(conn, :invalid_parameter, changeset)
+      error ->
+        handle_error(conn, error)
     end
   end
 
