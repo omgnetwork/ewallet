@@ -16,7 +16,7 @@ defmodule EWallet.Umbrella.Mixfile do
       aliases: aliases(),
       docs: docs(),
       dialyzer: [
-        ignore_warnings: ".dialyzer_ignore"
+        ignore_warnings: ".dialyzer_ignore.exs"
       ]
     ]
   end
