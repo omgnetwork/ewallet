@@ -173,6 +173,8 @@ defmodule EWalletDB.TransactionConsumption do
     |> assoc_constraint(:transaction_request)
     |> assoc_constraint(:wallet)
     |> assoc_constraint(:account)
+    |> assoc_constraint(:exchange_wallet)
+    |> assoc_constraint(:exchange_account)
     |> assoc_constraint(:exchange_pair)
   end
 

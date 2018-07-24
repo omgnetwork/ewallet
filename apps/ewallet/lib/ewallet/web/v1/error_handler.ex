@@ -157,8 +157,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
       description: "The websocket payload could not be decoded."
     },
     token_not_found: %{
-      code: "token:token_not_found",
-      description: "There is no token matching the provided token_id."
+      code: "token:id_not_found",
+      description: "There is no token corresponding to the provided id"
     },
     from_token_not_found: %{
       code: "token:from_token_not_found",
@@ -231,6 +231,15 @@ defmodule EWallet.Web.V1.ErrorHandler do
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",
       description: "No wallet was found with the given exchange_wallet_address param"
+    },
+    exchange_account_wallet_mismatch: %{
+      code: "exchange:account_wallet_mismatch",
+      description: "The given exchange wallet does not belong to the specified exchange account"
+    },
+    request_already_contains_exchange: %{
+      code: "consumption:request_already_contains_exchange_wallet",
+      description:
+        "The transaction request for the given consumption already specify an exchange account and/or wallet."
     },
     amount_is_zero: %{
       code: "transaction:amount_is_zero",

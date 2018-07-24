@@ -57,7 +57,6 @@ class AccountSelectorMenu extends Component {
         <SearchContainer>
           <Icon name='Search' />
           <InputSearch
-            autoFocus
             onChange={this.props.onSearchChange}
             value={this.props.searchValue}
           />

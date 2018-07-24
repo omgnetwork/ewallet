@@ -37,10 +37,9 @@ defmodule AdminAPI.V1.AccountMembershipController do
       ) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:create, conn.assigns, account.id),
-         user <- get_user_or_email(attrs),
-         {false, :user_id_not_found} <- {is_tuple(user), :user_id_not_found},
+         {:ok, user_or_email} <- get_user_or_email(attrs),
          %Role{} = role <- Role.get_by_name(role_name) || {:error, :role_name_not_found},
-         {:ok, _} <- assign_or_invite(user, account, role, redirect_url) do
+         {:ok, _} <- assign_or_invite(user_or_email, account, role, redirect_url) do
       render(conn, :empty, %{success: true})
     else
       {true, :user_id_not_found} ->
@@ -72,15 +71,19 @@ defmodule AdminAPI.V1.AccountMembershipController do
   # Hence the pattern matching for `%{"user_id" => _}` comes first.
   defp get_user_or_email(%{"user_id" => user_id}) do
     case User.get(user_id) do
-      %User{} = user -> user
+      %User{} = user -> {:ok, user}
       _ -> {:error, :user_id_not_found}
     end
   end
 
+  defp get_user_or_email(%{"email" => nil}) do
+    {:error, :invalid_email}
+  end
+
   defp get_user_or_email(%{"email" => email}) do
     case User.get_by_email(email) do
-      %User{} = user -> user
-      nil -> email
+      %User{} = user -> {:ok, user}
+      nil -> {:ok, email}
     end
   end
 

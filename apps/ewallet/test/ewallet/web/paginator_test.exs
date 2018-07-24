@@ -53,6 +53,17 @@ defmodule EWallet.Web.PaginatorTest do
       Application.delete_env(:ewallet, :max_per_page)
     end
 
+    test "returns per_page if max_per_page is configured as a system tuple" do
+      System.put_env("_TMP_MAX_PER_PAGE", "20")
+      Application.put_env(:ewallet, :max_per_page, {:system, "_TMP_MAX_PER_PAGE"})
+
+      paginator = Paginator.paginate_attrs(Account, %{"per_page" => 100})
+      assert paginator.pagination.per_page == 20
+
+      Application.delete_env(:ewallet, :max_per_page)
+      System.delete_env("_TMP_MAX_PER_PAGE")
+    end
+
     test "returns :error if given attrs.page is a negative integer" do
       result = Paginator.paginate_attrs(Account, %{"page" => -1})
       assert {:error, :invalid_parameter, _} = result

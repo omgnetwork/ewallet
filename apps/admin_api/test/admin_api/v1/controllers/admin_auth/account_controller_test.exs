@@ -371,6 +371,34 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
                "http://localhost:4000/public/uploads/test/account/avatars/#{account.id}/thumb.png?v="
     end
 
+    test "fails to upload an invalid file" do
+      account = insert(:account)
+
+      response =
+        admin_user_request("/account.upload_avatar", %{
+          "id" => account.id,
+          "avatar" => %Plug.Upload{
+            path: "test/support/assets/file.json",
+            filename: "file.json"
+          }
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
+    test "returns an error when 'avatar' is not sent" do
+      account = insert(:account)
+
+      response =
+        admin_user_request("/account.upload_avatar", %{
+          "id" => account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
     test "removes the avatar from an account" do
       account = insert(:account)
 

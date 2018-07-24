@@ -6,8 +6,15 @@ defmodule EWallet.TransactionRequestGate do
 
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
-  alias EWallet.{WalletFetcher, TransactionRequestFetcher, Helper, TransactionRequestPolicy}
-  alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account}
+  alias EWallet.{
+    WalletFetcher,
+    TransactionRequestFetcher,
+    ExchangeAccountFetcher,
+    Helper,
+    TransactionRequestPolicy
+  }
+
+  alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account, Helpers.Assoc}
 
   @spec create(map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
   def create(
@@ -154,7 +161,8 @@ defmodule EWallet.TransactionRequestGate do
     with :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
          %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
          {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
-         {:ok, transaction_request} <- insert(token, wallet, amount, attrs) do
+         {:ok, exchange_wallet} <- ExchangeAccountFetcher.fetch(attrs),
+         {:ok, transaction_request} <- insert(token, wallet, exchange_wallet, amount, attrs) do
       TransactionRequestFetcher.get(transaction_request.id)
     else
       error when is_atom(error) -> {:error, error}
@@ -183,7 +191,7 @@ defmodule EWallet.TransactionRequestGate do
     end
   end
 
-  defp insert(token, wallet, amount, attrs) do
+  defp insert(token, wallet, exchange_wallet, amount, attrs) do
     require_confirmation = default_to_if_nil(attrs["require_confirmation"], false)
     allow_amount_override = default_to_if_nil(attrs["allow_amount_override"], true)
 
@@ -203,8 +211,8 @@ defmodule EWallet.TransactionRequestGate do
       expiration_date: attrs["expiration_date"],
       max_consumptions: attrs["max_consumptions"],
       max_consumptions_per_user: attrs["max_consumptions_per_user"],
-      exchange_account_id: attrs["exchange_account_id"],
-      exchange_wallet_address: attrs["exchange_wallet_address"]
+      exchange_account_uuid: Assoc.get_if_exists(exchange_wallet, [:account_uuid]),
+      exchange_wallet_address: Assoc.get_if_exists(exchange_wallet, [:address])
     })
   end
 

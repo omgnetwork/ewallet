@@ -143,6 +143,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                  "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                  "account_id" => nil,
                  "account" => nil,
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
                  "allow_amount_override" => true,
                  "require_confirmation" => false,
                  "consumption_lifetime" => nil,
@@ -197,6 +201,10 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                  "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                  "account_id" => nil,
                  "account" => nil,
+                 "exchange_account" => nil,
+                 "exchange_account_id" => nil,
+                 "exchange_wallet" => nil,
+                 "exchange_wallet_address" => nil,
                  "allow_amount_override" => true,
                  "require_confirmation" => false,
                  "consumption_lifetime" => nil,
@@ -304,8 +312,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "success" => false,
                "version" => "1",
                "data" => %{
-                 "code" => "token:token_not_found",
-                 "description" => "There is no token matching the provided token_id.",
+                 "code" => "token:id_not_found",
+                 "description" => "There is no token corresponding to the provided id",
                  "messages" => nil,
                  "object" => "error"
                }

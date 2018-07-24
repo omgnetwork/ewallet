@@ -8,6 +8,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
     AccountSerializer,
     TokenSerializer,
     UserSerializer,
+    WalletSerializer,
     PaginatorSerializer
   }
 
@@ -21,7 +22,14 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
 
   def serialize(%TransactionRequest{} = transaction_request) do
     transaction_request =
-      Preloader.preload(transaction_request, [:account, :consumptions, :token, :user])
+      Preloader.preload(transaction_request, [
+        :account,
+        :consumptions,
+        :token,
+        :user,
+        :exchange_account,
+        :exchange_wallet
+      ])
 
     %{
       object: "transaction_request",
@@ -39,6 +47,11 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
       user: UserSerializer.serialize(transaction_request.user),
       account_id: Assoc.get(transaction_request, [:account, :id]),
       account: AccountSerializer.serialize(transaction_request.account),
+      exchange_account_id: Assoc.get(transaction_request, [:exchange_account, :id]),
+      exchange_account: AccountSerializer.serialize(transaction_request.exchange_account),
+      exchange_wallet_address: Assoc.get(transaction_request, [:exchange_wallet, :address]),
+      exchange_wallet:
+        WalletSerializer.serialize_without_balances(transaction_request.exchange_wallet),
       require_confirmation: transaction_request.require_confirmation,
       current_consumptions_count: length(transaction_request.consumptions),
       max_consumptions: transaction_request.max_consumptions,

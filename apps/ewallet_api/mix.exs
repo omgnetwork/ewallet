@@ -52,7 +52,7 @@ defmodule EWalletAPI.Mixfile do
     [
       {:phoenix, "~> 1.3.0"},
       {:cowboy, "~> 1.0"},
-      {:sentry, "~> 6.0.0"},
+      {:sentry, "~> 6.2.0"},
       {:peerage, "~> 1.0.2"},
       {:ewallet_db, in_umbrella: true},
       {:ewallet, in_umbrella: true}

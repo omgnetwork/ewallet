@@ -14,6 +14,9 @@ import { formatReceiveAmountToTotal } from '../utils/formatter'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
+  button i {
+    margin-right: 10px;
+  }
 `
 const ContentDetailContainer = styled.div`
   margin-top: 40px;
@@ -60,7 +63,7 @@ class WalletDetaillPage extends Component {
         breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <Icon name='Transfer' /><span>Transfer</span>
+            <Icon name='Transaction' /> <span>Transfer</span>
           </Button>
         ]}
       />

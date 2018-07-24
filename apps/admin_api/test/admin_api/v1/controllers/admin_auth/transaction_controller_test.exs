@@ -650,7 +650,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
              }
     end
 
-    test "returns token:token_not_found when token_id does not exist" do
+    test "returns token:id_not_found when token_id does not exist" do
       wallet_1 = insert(:wallet)
       wallet_2 = insert(:wallet)
 
@@ -666,8 +666,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert response["success"] == false
 
       assert response["data"] == %{
-               "code" => "token:token_not_found",
-               "description" => "There is no token matching the provided token_id.",
+               "code" => "token:id_not_found",
+               "description" => "There is no token corresponding to the provided id",
                "messages" => nil,
                "object" => "error"
              }
