@@ -13,17 +13,13 @@ const SearchGroupContainer = styled.form`
     vertical-align: bottom;
     display: inline-block;
   }
-  i[name="Search"] {
-    transform: ${props => (props.search ? 'translate3d(0,0,0)' : 'translate3d(150px,0,0)')};
-    transition: transform 0.2s;
-  }
 `
 const InlineInput = styled(Input)`
   display: inline-block;
-  width: 150px;
+  width: ${props => (props.search ? '150px' : '0')};
   transform: ${props => (props.search ? 'scale3d(1,1,1)' : 'scale3d(0,1,1)')};
   overflow: hidden;
-  transition: transform 0.2s;
+  transition: 0.2s;
 `
 const CloseIconInputContainer = styled.div`
   i {

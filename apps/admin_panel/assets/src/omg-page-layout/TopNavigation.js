@@ -34,6 +34,10 @@ const RightNavigationContainer = styled.div`
   button:not(:first-child) {
     margin-left: 10px;
   }
+  @media screen and (max-width: 769px) {
+    flex: 1 0 100%;
+    margin-top: 10px;
+  }
 `
 const TableType = styled.span`
   color: ${props => props.theme.colors.B100};

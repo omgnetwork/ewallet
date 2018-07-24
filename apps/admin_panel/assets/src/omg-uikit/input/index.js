@@ -81,7 +81,7 @@ const Suffix = styled.div`
 class InputComonent extends PureComponent {
   static propTypes = {
     placeholder: PropTypes.string,
-    normalPlaceholder: PropTypes.string,
+    normalPlaceholder: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
     className: PropTypes.string,
     registerRef: PropTypes.func,
     error: PropTypes.bool,
