@@ -63,7 +63,7 @@ class WalletDetaillPage extends Component {
         breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <Icon name='Transaction' /> <span>Transfer</span>
+            <Icon name='Transaction' /><span>Transfer</span>
           </Button>
         ]}
       />
