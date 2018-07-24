@@ -15,6 +15,7 @@ import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import Copy from '../omg-copy'
+
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -36,6 +37,22 @@ const KeySection = styled.div`
   }
   h3 {
     margin-bottom: 20px;
+  }
+  tr:hover {
+    td:nth-child(1) {
+      i {
+        visibility: visible;
+      }
+    }
+  }
+  i[name="Copy"] {
+    cursor: pointer;
+    visibility: hidden;
+    cursor: pointer;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const ConfirmCreateKeyContainer = styled.div`
@@ -190,7 +207,7 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span>
+            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
       case 'user':
@@ -218,7 +235,7 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span>
+            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
       case 'user':
