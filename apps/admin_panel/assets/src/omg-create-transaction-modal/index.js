@@ -12,6 +12,7 @@ import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
 import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
+import WalletSelect from '../omg-wallet-select'
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -207,9 +208,8 @@ class CreateTransaction extends Component {
                 options={data.map(d => {
                   return {
                     key: d.address,
-                    value: `${d.address} ( ${_.get(d, 'account.name') ||
-                      _.get(d, 'user.username') ||
-                      _.get(d, 'user.email')} )`
+                    value: <WalletSelect wallet={d} />,
+                    ...d
                   }
                 })}
               />
@@ -269,12 +269,7 @@ class CreateTransaction extends Component {
                 value={this.state.toAddress}
                 onChange={this.onChangeInputToAddress}
                 options={data.map(d => {
-                  return {
-                    key: d.address,
-                    value: `${d.address} ( ${_.get(d, 'account.name') ||
-                      _.get(d, 'user.username') ||
-                      _.get(d, 'user.email')} )`
-                  }
+                  return { key: d.address, value: <WalletSelect wallet={d} />, ...d }
                 })}
               />
             )
@@ -337,9 +332,8 @@ class CreateTransaction extends Component {
                     options={data.map(d => {
                       return {
                         key: d.address,
-                        value: `${d.address} ( ${_.get(d, 'account.name') ||
-                          _.get(d, 'user.username') ||
-                          _.get(d, 'user.email')} )`
+                        value: <WalletSelect wallet={d} />,
+                        ...d
                       }
                     })}
                   />

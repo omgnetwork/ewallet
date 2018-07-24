@@ -8,7 +8,7 @@ export const getWalletsByAccountId = ({ accountId, search, page, perPage, cacheK
       walletService.getWalletsByAccountId({
         perPage: perPage,
         sort: { by: 'created_at', dir: 'desc' },
-        search_term: search,
+        search,
         accountId,
         page,
         owned

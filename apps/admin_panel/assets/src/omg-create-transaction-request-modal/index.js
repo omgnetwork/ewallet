@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Button, Icon, RadioButton, Select } from '../omg-uikit'
+import { Input, Button, Icon, RadioButton, Select, Avatar } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createTransactionRequest } from '../omg-transaction-request/action'
 import { connect } from 'react-redux'
@@ -13,6 +13,7 @@ import { compose } from 'recompose'
 import { formatAmount } from '../utils/formatter'
 import moment from 'moment'
 import DateTime from 'react-datetime'
+import WalletSelect from '../omg-wallet-select'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -282,9 +283,9 @@ class CreateTransactionRequest extends Component {
                     onFocus={this.onWalletFocus}
                     onChange={this.onChange('address')}
                     options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
-                      ...wallet,
                       key: wallet.address,
-                      value: <div><div>{wallet.address}</div><div style={{color: 'grey', fontSize: 10}}>{wallet.name} {wallet.identifier}</div></div>
+                      value: <WalletSelect wallet={wallet} />,
+                      ...wallet
                     }))}
                   />
                 )
