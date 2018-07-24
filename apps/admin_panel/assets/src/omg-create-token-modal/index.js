@@ -75,7 +75,7 @@ class CreateToken extends Component {
         decimal: this.state.decimal
       })
       if (result.data) {
-        this.onRequestClose()
+        this.props.onRequestClose()
         this.props.onFetchSuccess()
       } else {
         this.setState({
@@ -84,7 +84,7 @@ class CreateToken extends Component {
         })
       }
     } catch (e) {
-      this.setState({ submitting: false, error: e })
+      this.setState({ submitting: false })
     }
   }
   render () {
@@ -128,7 +128,9 @@ class CreateToken extends Component {
 class CreateTokenModal extends Component {
   static propTypes = {
     onRequestClose: PropTypes.func,
-    open: PropTypes.bool
+    open: PropTypes.bool,
+    createToken: PropTypes.func,
+    onFetchSuccess: PropTypes.func
   }
   render () {
     return (
@@ -137,7 +139,11 @@ class CreateTokenModal extends Component {
         onRequestClose={this.props.onRequestClose}
         contentLabel='create token modal'
       >
-        <CreateToken onRequestClose={this.props.onRequestClose} />
+        <CreateToken
+          onRequestClose={this.props.onRequestClose}
+          createToken={this.props.createToken}
+          onFetchSuccess={this.props.onFetchSuccess}
+        />
       </Modal>
     )
   }

@@ -14,7 +14,7 @@ import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
 import HistoryTable from './HistoryTable'
 import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
-const AccountDetailContainer = styled.div`
+const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
   padding-top: 3px;
 `
@@ -113,7 +113,7 @@ class TokenDetailPage extends Component {
     )
   }
 
-  renderAccountDetail = () => {
+  renderTokenDetail = () => {
     return (
       <TokenProvider
         render={({ token }) => {
@@ -177,7 +177,7 @@ class TokenDetailPage extends Component {
   }
 
   render () {
-    return <AccountDetailContainer>{this.renderAccountDetail()}</AccountDetailContainer>
+    return <TokenDetailContainer>{this.renderTokenDetail()}</TokenDetailContainer>
   }
 }
 
