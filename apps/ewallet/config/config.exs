@@ -4,6 +4,6 @@ use Mix.Config
 
 config :ewallet,
   ecto_repos: [],
-  max_per_page: System.get_env("REQUEST_MAX_PER_PAGE") || 100
+  max_per_page: {:system, "REQUEST_MAX_PER_PAGE"}
 
 import_config "#{Mix.env()}.exs"

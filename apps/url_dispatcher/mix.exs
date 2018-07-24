@@ -38,6 +38,7 @@ defmodule UrlDispatcher.Mixfile do
       {:timex, "~> 3.0"},
       {:plug, "~> 1.2"},
       {:cowboy, "~> 1.0"},
+      {:deferred_config, "~> 0.1.0"},
       {:admin_api, in_umbrella: true},
       {:admin_panel, in_umbrella: true},
       {:ewallet_api, in_umbrella: true}
