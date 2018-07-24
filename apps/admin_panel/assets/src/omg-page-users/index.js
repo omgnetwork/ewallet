@@ -48,8 +48,7 @@ class UsersPage extends Component {
     super(props)
     this.state = {
       createAccountModalOpen: false,
-      exportModalOpen: false,
-      loadMoreTime: 1
+      exportModalOpen: false
     }
   }
   componentWillReceiveProps = nextProps => {
@@ -61,16 +60,7 @@ class UsersPage extends Component {
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/user/${data.id}`)
-  }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
-  }
-  onClickExport = () => {
-    this.setState({ exportModalOpen: true })
-  }
-  onRequestCloseExport = () => {
-    this.setState({ exportModalOpen: false })
+    this.props.history.push(`/${params.accountId}/users/${data.id}`)
   }
   renderExportButton = () => {
     return (
@@ -134,7 +124,6 @@ class UsersPage extends Component {
             isLastPage={pagination.is_last_page}
             navigation
             pagination={false}
-            perPage={this.state.loadMoreTime * 15}
             onClickLoadMore={this.onClickLoadMore}
           />
         </SortableTableContainer>

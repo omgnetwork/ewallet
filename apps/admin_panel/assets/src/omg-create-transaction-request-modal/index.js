@@ -284,7 +284,7 @@ class CreateTransactionRequest extends Component {
                     options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
                       ...wallet,
                       key: wallet.address,
-                      value: `${wallet.address} (${wallet.name})`
+                      value: <div><div>{wallet.address}</div><div style={{color: 'grey', fontSize: 10}}>{wallet.name} {wallet.identifier}</div></div>
                     }))}
                   />
                 )

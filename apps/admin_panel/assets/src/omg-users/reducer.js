@@ -4,13 +4,13 @@ export const usersReducer = createReducer(
   {},
   {
     'USERS/REQUEST/SUCCESS': (state, action) => {
-      return {...state, ..._.keyBy(action.data, 'id')}
+      return { ...state, ..._.keyBy(action.data, 'id') }
     },
-    'USER/REQUEST/SUCCESS': (state, action) => {
-      return { ...state, ...{ [action.user.id]: action.user } }
+    'USER/REQUEST/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     },
-    'USER/CREATE/SUCCESS': (state, action) => {
-      return { ...state, ...{ [action.user.id]: action.user } }
+    'USER/CREATE/SUCCESS': (state, { data }) => {
+      return { ...state, ...{ [data.id]: data } }
     },
     'CURRENT_ACCOUNT/SWITCH': () => ({})
   }
