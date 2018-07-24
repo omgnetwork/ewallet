@@ -59,37 +59,10 @@ export default class TopNavigation extends PureComponent {
     types: true,
     secondaryAction: true
   }
-  constructor (props) {
-    super(props)
-    this.types = ['History', 'Table Info']
-  }
-  renderTableTypes () {
-    return (
-      <SecondaryActionsContainer>
-        {this.types.reduce((prev, curr, index) => {
-          prev.push(
-            <Link to='/' key={curr}>
-              <TableType>{curr}</TableType>
-            </Link>
-          )
-          if (index !== this.types.length - 1) {
-            prev.push(
-              <Spliiter key={`${curr}${index}`} gap={10}>
-                |
-              </Spliiter>
-            )
-          }
-          return prev
-        }, [])}
-      </SecondaryActionsContainer>
-    )
-  }
   renderSecondaryActions () {
     return (
       <SecondaryActionsContainer>
         <SearchGroup />
-        {/* <Spliiter>|</Spliiter>
-        <Icon name='Filter' button /> */}
       </SecondaryActionsContainer>
     )
   }
@@ -98,7 +71,6 @@ export default class TopNavigation extends PureComponent {
       <TopNavigationContainer>
         <LeftNavigationContainer>
           <h2>{this.props.title}</h2>
-          {/* {this.props.types && this.renderTableTypes()} */}
         </LeftNavigationContainer>
         <RightNavigationContainer>
           {this.props.secondaryAction && this.renderSecondaryActions()}

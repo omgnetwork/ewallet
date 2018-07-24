@@ -103,8 +103,7 @@ class InputComonent extends PureComponent {
     onChange: () => {},
     registerRef: () => {},
     onPressEscape: () => {},
-    onPressEnter: () => {},
-    value: ''
+    onPressEnter: () => {}
   }
   state = {
     focus: false
