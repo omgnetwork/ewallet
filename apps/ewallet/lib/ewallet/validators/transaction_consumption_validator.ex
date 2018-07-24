@@ -8,7 +8,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair}
 
   @spec validate_before_consumption(%TransactionRequest{}, any(), nil | keyword() | map()) ::
-          {:ok, %TransactionRequest{}, %Token{}, integer()}
+          {:ok, %TransactionRequest{}, %Token{}, integer() | nil}
           | {:error, atom()}
   def validate_before_consumption(request, wallet, attrs) do
     with amount <- attrs["amount"],
@@ -65,7 +65,7 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  @spec validate_amount(%TransactionRequest{}, integer()) ::
+  @spec validate_amount(%TransactionRequest{}, integer() | nil) ::
           {:ok, %TransactionRequest{}} | {:error, :unauthorized_amount_override}
   def validate_amount(%TransactionRequest{amount: nil} = _request, nil) do
     {:error, :invalid_parameter, "'amount' is required for transaction consumption."}
@@ -95,7 +95,7 @@ defmodule EWallet.TransactionConsumptionValidator do
     {:error, :unauthorized_amount_override}
   end
 
-  @spec get_and_validate_token(%TransactionRequest{}, String.t()) ::
+  @spec get_and_validate_token(%TransactionRequest{}, String.t() | nil) ::
           {:ok, %Token{}}
           | {:error, atom()}
   def get_and_validate_token(%TransactionRequest{token_uuid: nil} = _request, nil) do

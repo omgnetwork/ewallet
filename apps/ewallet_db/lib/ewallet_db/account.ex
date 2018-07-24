@@ -505,7 +505,7 @@ defmodule EWalletDB.Account do
     load_accounts(result)
   end
 
-  @spec load_accounts(%{:rows => any()}) :: [%Account{}] | no_return()
+  @spec load_accounts(%{:num_rows => any(), :rows => any()}) :: [%Account{}] | no_return()
   defp load_accounts(query_result) do
     Enum.map(query_result.rows, fn row ->
       Account

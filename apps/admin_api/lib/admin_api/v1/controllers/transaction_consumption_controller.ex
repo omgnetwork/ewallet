@@ -168,7 +168,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
       })
     else
       {:error, :transaction_consumption_not_found} ->
-        {:error, :unauthorized}
+        respond({:error, :unauthorized}, conn, false)
 
       error ->
         respond(error, conn, false)
@@ -210,15 +210,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   defp respond_multiple({:error, code, description}, conn) do
     handle_error(conn, code, description)
-  end
-
-  defp respond({:error, %TransactionConsumption{} = consumption, code}, conn, true) do
-    dispatch_confirm_event(consumption)
-    handle_error(conn, code)
-  end
-
-  defp respond({:error, %TransactionConsumption{} = _consumption, code}, conn, false) do
-    handle_error(conn, code)
   end
 
   defp respond({:error, error}, conn, _dispatch?) when is_atom(error) do

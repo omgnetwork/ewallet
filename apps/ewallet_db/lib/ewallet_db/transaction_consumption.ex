@@ -298,7 +298,7 @@ defmodule EWalletDB.TransactionConsumption do
     end
   end
 
-  @spec query_all_for(atom() | String.t(), any()) :: Ecto.Query.t()
+  @spec query_all_for(atom() | String.t(), any()) :: Ecto.Queryable.t()
   def query_all_for(field_name, value) when is_list(value) do
     where(TransactionConsumption, [t], field(t, ^field_name) in ^value)
   end
@@ -306,7 +306,7 @@ defmodule EWalletDB.TransactionConsumption do
   def query_all_for(field_name, value),
     do: where(TransactionConsumption, [t], field(t, ^field_name) == ^value)
 
-  @spec query_all_for_account_and_user_uuids([String.t()], [String.t()]) :: Ecto.Query.t()
+  @spec query_all_for_account_and_user_uuids([String.t()], [String.t()]) :: Ecto.Queryable.t()
   def query_all_for_account_and_user_uuids(account_uuids, user_uuids) do
     from(
       t in TransactionConsumption,

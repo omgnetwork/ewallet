@@ -260,7 +260,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response of invalid parameter error with error details provided.
   """
-  @spec build_error(String.t() | atom(), map() | Ecto.Changeset.t() | String.t(), map()) :: map()
+  @spec build_error(String.t() | atom(), map() | Ecto.Changeset.t() | String.t(), map() | nil) :: map()
   def build_error(code, %Changeset{} = changeset, supported_errors) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(
