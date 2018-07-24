@@ -33,6 +33,7 @@ export default class WalletSelectItem extends Component {
   render () {
     const accountName = _.get(this.props.wallet, 'account.name')
     const userName = _.get(this.props.wallet, 'user.username')
+    const userEmail = _.get(this.props.wallet, 'user.email')
     const type = this.props.wallet.account ? 'account' : 'user'
     return (
       <WalletSelectItemContainer>
@@ -43,7 +44,7 @@ export default class WalletSelectItem extends Component {
         <DetailContainer>
           <Address>{this.props.wallet.address}</Address>
           <WalletNameAndIdentifier>
-            {type} {accountName || userName} | {this.props.wallet.identifier}
+            {type} {accountName || userName || userEmail} | {this.props.wallet.identifier}
           </WalletNameAndIdentifier>
         </DetailContainer>
       </WalletSelectItemContainer>

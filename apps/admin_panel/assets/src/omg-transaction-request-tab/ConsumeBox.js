@@ -11,6 +11,7 @@ import { connect } from 'react-redux'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
 import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
+import WalletSelect from '../omg-wallet-select'
 const ConsumeActionContainer = styled.form`
   display: flex;
   margin: 20px 0;
@@ -198,9 +199,8 @@ class PropertiesTab extends Component {
                     options={data.map(d => {
                       return {
                         key: d.address,
-                        value: `${d.address} ( ${_.get(d, 'account.name') ||
-                          _.get(d, 'user.username') ||
-                          _.get(d, 'user.email')} )`
+                        value: <WalletSelect wallet={d} />,
+                        ...d
                       }
                     })}
                   />
