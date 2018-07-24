@@ -37,10 +37,10 @@ const AdditionalTransactionRequestContainer = styled.div`
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
   b {
-    vertical-align: baseline;
+    vertical-align: bottom;
   }
   span {
-    vertical-align: baseline;
+    vertical-align: bottom;
   }
   :not(:last-child) {
     margin-bottom: 10px;

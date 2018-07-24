@@ -10,7 +10,7 @@ const SearchGroupContainer = styled.form`
   display: inline-block;
   vertical-align: middle;
   i {
-    vertical-align: baseline;
+    vertical-align: bottom;
     display: inline-block;
   }
   i[name="Search"] {

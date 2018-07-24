@@ -39,7 +39,7 @@ export const DetailGroup = styled.div`
     margin-bottom: 2px;
   }
   span {
-    vertical-align: baseline;
+    vertical-align: bottom;
   }
 `
 

@@ -11,7 +11,7 @@ const InformationItem = styled.div`
     margin-bottom: 10px;
   }
   span {
-    vertical-align: baseline;
+    vertical-align: bottom;
   }
 `
 const TransactionReqeustPropertiesContainer = styled.div`
