@@ -28,7 +28,6 @@ const SectionContainer = styled.div`
 const IntroContainer = styled.div`
   border-radius: 4px;
   background-color: rgba(219, 233, 255, 0.8);
-  box-shadow: 0 2px 10px 0 rgba(4, 7, 13, 0.1);
   padding: 30px;
   h5 {
     text-transform: uppercase;
@@ -58,7 +57,6 @@ const GetStartedContainer = styled.div`
   padding: 30px;
   border-radius: 4px;
   background-color: #ffffff;
-  box-shadow: 0 2px 5px 0 rgba(60, 65, 77, 0.05);
   background-image: url(${require('../../statics/images/Main_dashboard-01.png')});
   background-size: 41vw auto;
   background-repeat: no-repeat;
