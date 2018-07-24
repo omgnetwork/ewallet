@@ -211,7 +211,7 @@ class TransactionRequestPanel extends Component {
                 </InformationItem>
                 <InformationItem>
                   <b>Requester Address : </b>{' '}
-                  <Link to={`/${this.props.match.params.accountId}/wallet/${tq.address}`}>
+                  <Link to={`/${this.props.match.params.accountId}/wallets/${tq.address}`}>
                     {tq.address}
                   </Link>
                 </InformationItem>
@@ -221,7 +221,7 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Account Name : </b>{' '}
                   {_.get(tq, 'account.id') ? (
-                    <Link to={`/${this.props.match.params.accountId}/wallet/${tq.address}`}>
+                    <Link to={`/${this.props.match.params.accountId}/wallets/${tq.address}`}>
                       {' '}
                       {tq.account.name}{' '}
                     </Link>

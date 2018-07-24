@@ -10,6 +10,7 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
 import WalletProvider from '../omg-wallet/walletProvider'
+import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 const Form = styled.form`
   padding: 50px;
@@ -75,6 +76,7 @@ class CreateTransaction extends Component {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
     getWalletById: PropTypes.func,
+    match: PropTypes.func,
     onCreateTransaction: PropTypes.func
   }
   static defaultProps = {
@@ -191,7 +193,9 @@ class CreateTransaction extends Component {
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <h4>Transfer</h4>
         <InputLabel>From Address</InputLabel>
-        <AllWalletsFetcher
+        <WalletsFetcher
+          accountId={this.props.match.params.accountId}
+          owned={false}
           query={{ search: this.state.fromAddress.trim() }}
           render={({ data }) => {
             return (

@@ -99,7 +99,10 @@ class TokenDetailPage extends Component {
         <DetailGroup>
           <b>Total Supply:</b>{' '}
           <span>
-            {formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)} {token.symbol}
+            {token.total_supply === undefined
+              ? '...'
+              : formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)}{' '}
+            {token.symbol}
           </span>{' '}
           <Link to={`${this.props.location.pathname}/history`}>view history</Link>
         </DetailGroup>

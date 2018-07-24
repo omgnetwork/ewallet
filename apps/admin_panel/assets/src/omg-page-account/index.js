@@ -121,7 +121,7 @@ class AccountPage extends Component {
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/account/${data.id}`)
+    this.props.history.push(`/${params.accountId}/accounts/${data.id}`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {

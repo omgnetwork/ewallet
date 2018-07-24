@@ -80,7 +80,7 @@ class TokenDetailPage extends Component {
           <div>
             <DetailGroup>
               <b>Wallet Address:</b>{' '}
-              <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link> ({' '}
+              <Link to={`/${accountId}/wallets/${wallet.address}`}>{wallet.address}</Link> ({' '}
               <span>{wallet.name}</span> )
             </DetailGroup>
             {wallet.balances.map(balance => {

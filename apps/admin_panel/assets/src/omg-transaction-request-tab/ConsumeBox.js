@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
+import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import QR from './QrCode'
 import { formatAmount, formatAmountReceive } from '../utils/formatter'
@@ -88,7 +88,8 @@ const Error = styled.div`
 class PropertiesTab extends Component {
   static propTypes = {
     transactionRequests: PropTypes.array,
-    consumeTransactionRequest: PropTypes.func
+    consumeTransactionRequest: PropTypes.func,
+    match: PropTypes.object
   }
 
   static getDerivedStateFromProps (props, state) {
@@ -180,8 +181,10 @@ class PropertiesTab extends Component {
           </QrTypeContainer>
         </QrContainer>
         <InputsContainer>
-          <AllWalletsFetcher
+          <WalletsFetcher
             query={{ search: this.state.consumeAddress }}
+            accountId={this.props.match.params.accountId}
+            owned={false}
             render={({ data }) => {
               return (
                 <InputLabelContainer>

@@ -15,17 +15,18 @@ const LoadingSkeletonSpan = styled.div`
   background-size: 200px 100%;
   background-repeat: no-repeat;
   border-radius: 4px;
-  width: 100%;
+  width: ${props => props.width || '100%'};
   height: ${props => props.height || '1.5em'};
   animation: ${progress} 1.5s ease-in-out infinite;
   opacity: 0.5;
 `
 class LoadingSkeleton extends Component {
   static propTypes = {
-    height: PropTypes.string
+    height: PropTypes.string,
+    width: PropTypes.string
   }
   render () {
-    return <LoadingSkeletonSpan height={this.props.height} />
+    return <LoadingSkeletonSpan height={this.props.height} width={this.props.width} />
   }
 }
 export default LoadingSkeleton

@@ -13,7 +13,7 @@ export function getWallets ({ perPage, sort, search, searchTerms }) {
   })
 }
 
-export function getWalletsByAccountId ({ accountId, perPage, sort, search, ...rest }) {
+export function getWalletsByAccountId ({ accountId, perPage, sort, search, owned }) {
   return authenticatedRequest({
     path: '/account.get_wallets',
     data: {
@@ -22,8 +22,7 @@ export function getWalletsByAccountId ({ accountId, perPage, sort, search, ...re
       sort_dir: sort.dir,
       search_term: search,
       id: accountId,
-      owned: true,
-      ...rest
+      owned
     }
   })
 }

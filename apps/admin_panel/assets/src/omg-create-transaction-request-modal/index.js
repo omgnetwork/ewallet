@@ -102,11 +102,15 @@ class CreateTransactionRequest extends Component {
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
-        amount: this.state.amount ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')) : null,
+        amount: this.state.amount
+          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
+          : null,
         tokenId: _.get(this.state, 'selectedToken.id'),
         address: _.get(this.state, 'selectedWallet.id', this.props.primaryWallet.address),
         accountId: this.props.match.params.accountId,
-        expirationDate: this.state.expirationDate ? moment(this.state.expirationDate).toISOString() : null
+        expirationDate: this.state.expirationDate
+          ? moment(this.state.expirationDate).toISOString()
+          : null
       })
       if (result.data) {
         this.props.onRequestClose()
@@ -267,6 +271,8 @@ class CreateTransactionRequest extends Component {
             </InputLabel>
             <WalletsFetcher
               accountId={this.props.match.params.accountId}
+              search={this.state.address}
+              owned={false}
               render={({ data }) => {
                 return (
                   <StyledSelect

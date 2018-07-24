@@ -81,13 +81,13 @@ class WalletDetaillPage extends Component {
         </DetailGroup>
         { wallet.account && <DetailGroup>
           <b>Account Owner:</b>{' '}
-          <Link to={`/${accountId}/account/${wallet.account.id}`}>
+          <Link to={`/${accountId}/accounts/${wallet.account.id}`}>
             {_.get(wallet, 'account.name', '-')}
           </Link>
         </DetailGroup>}
         { wallet.user && <DetailGroup>
           <b>User:</b>{' '}
-          <Link to={`/${accountId}/user/${wallet.user.id}`}>
+          <Link to={`/${accountId}/users/${wallet.user.id}`}>
             {_.get(wallet, 'user.id', '-')}
           </Link>
         </DetailGroup>}

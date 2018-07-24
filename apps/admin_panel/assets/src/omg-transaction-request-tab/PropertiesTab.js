@@ -68,7 +68,7 @@ class PropertiesTab extends Component {
         <InformationItem>
           <b>Requester Address : </b>{' '}
           <Link
-            to={`/${this.props.match.params.accountId}/wallet/${
+            to={`/${this.props.match.params.accountId}/wallets/${
               this.props.transactionRequests.address
             }`}
           >
@@ -82,7 +82,7 @@ class PropertiesTab extends Component {
           <b>Account Name : </b>{' '}
           {_.get(this.props.transactionRequests, 'account.id') ? (
             <Link
-              to={`/${this.props.match.params.accountId}/wallet/${
+              to={`/${this.props.match.params.accountId}/wallets/${
                 this.props.transactionRequests.address
               }`}
             >

@@ -76,7 +76,7 @@ class AccountDetailPage extends Component {
                 <WalletCointainter>
                   <DetailGroup>
                     <b>{wallet.name} Wallet</b>
-                    <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link>
+                    <Link to={`/${accountId}/wallets/${wallet.address}`}>{wallet.address}</Link>
                   </DetailGroup>
                   {!!wallet.balances.filter(b => b.amount).length && (
                     <TokensContainer>
