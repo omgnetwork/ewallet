@@ -11,8 +11,10 @@ import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
+import Copy from '../omg-copy'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
+  padding-top: 3px;
   button i {
     margin-right: 10px;
   }
@@ -73,7 +75,7 @@ class WalletDetaillPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>Address:</b> <span>{wallet.address}</span>
+          <b>Address:</b> <span>{wallet.address}</span> <Copy data={wallet.address} />
         </DetailGroup>
         <DetailGroup>
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>

@@ -18,6 +18,7 @@ import { getMintedTokenHistory } from '../omg-token/action'
 import { createCacheKey } from '../utils/createFetcher'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
+import Copy from '../omg-copy'
 const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
 `
@@ -101,7 +102,7 @@ class TokenDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>ID:</b> <span>{token.id}</span>
+          <b>ID:</b> <span>{token.id}</span> <Copy data={token.id} />
         </DetailGroup>
         <DetailGroup>
           <b>Name:</b> <span>{token.name}</span>
