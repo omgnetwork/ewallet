@@ -17,7 +17,7 @@ export const formatNumber = number => {
 }
 
 export const formatAmount = (amount, subUnitToUnit) => {
-  if (!ensureNumberAmount) return null
+  if (!amount) return null
   const ensureNumberAmount = Number(amount)
 
   const decimal = precision(ensureNumberAmount)

@@ -35,7 +35,7 @@ const Error = styled.div`
   text-align: center;
   padding: 10px 0;
   overflow: hidden;
-  max-height: ${props => (props.error ? '50px' : 0)};
+  max-height: ${props => (props.error ? '100px' : 0)};
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
@@ -66,27 +66,26 @@ class CreateToken extends Component {
   }
   onSubmit = async e => {
     e.preventDefault()
-    if (this.state.decimal <= 18) {
-      try {
-        this.setState({ submitting: true })
-        const result = await this.props.createToken({
-          name: this.state.name,
-          symbol: this.state.symbol,
-          amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
-          decimal: this.state.decimal
+    try {
+      this.setState({ submitting: true })
+      const result = await this.props.createToken({
+        name: this.state.name,
+        symbol: this.state.symbol,
+        amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
+        decimal: this.state.decimal
+      })
+      if (result.data) {
+        this.props.onRequestClose()
+        this.props.onFetchSuccess()
+      } else {
+        this.setState({
+          submitting: false,
+          error: result.error.description || result.error.message
         })
-        if (result.data) {
-          this.props.onRequestClose()
-          this.props.onFetchSuccess()
-        } else {
-          this.setState({
-            submitting: false,
-            error: result.error.description || result.error.message
-          })
-        }
-      } catch (e) {
-        this.setState({ submitting: false })
       }
+    } catch (e) {
+      console.log(e)
+      this.setState({ submitting: false })
     }
   }
   render () {
