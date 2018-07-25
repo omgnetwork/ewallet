@@ -41,6 +41,9 @@ export const DetailGroup = styled.div`
   span {
     vertical-align: bottom;
   }
+  i[name="Copy"] {
+    margin-left: 5px;
+  }
 `
 
 export default class DetailContent extends Component {

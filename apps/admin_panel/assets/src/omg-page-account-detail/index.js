@@ -10,6 +10,7 @@ import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
 import TopBar from '../omg-page-detail-layout/TopBarDetail'
 import DetailLayout from '../omg-page-detail-layout/DetailLayout'
 import moment from 'moment'
+import Copy from '../omg-copy'
 const AccountDetailContainer = styled.div``
 const ContentDetailContainer = styled.div`
   margin-top: 40px;
@@ -47,7 +48,7 @@ class AccountDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>ID:</b> {account.id}
+          <b>ID:</b> {account.id} <Copy data={account.id} />
         </DetailGroup>
         <DetailGroup>
           <b>Description:</b> {account.description || '-'}
