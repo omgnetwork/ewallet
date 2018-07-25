@@ -139,9 +139,10 @@ defmodule EWalletDB.KeyTest do
         })
         |> Key.insert()
 
-      {:ok, _key} = Key.update(key, %{
-        expired: true
-      })
+      {:ok, _key} =
+        Key.update(key, %{
+          expired: true
+        })
 
       res = Key.authenticate("access123", Base.url_encode64("secret321"))
       assert res == false
