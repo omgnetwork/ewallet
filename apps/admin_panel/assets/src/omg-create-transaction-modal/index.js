@@ -337,6 +337,7 @@ class CreateTransaction extends Component {
                     onSelectItem={this.onSelectExchangeAddressSelect}
                     value={this.state.exchangeAddress}
                     onChange={this.onChangeInputExchangeAddress}
+                    onFocus={this.onFocusAddressSelect('exchangeAddress')}
                     options={data.map(d => {
                       return {
                         key: d.address,
