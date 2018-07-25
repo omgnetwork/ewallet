@@ -56,11 +56,12 @@ export default withRouter(
     render () {
       return (
         <TokenMintedHistoryFetcher
-          tokenId={this.props.tokenId}
+
           render={this.renderTableHistory}
           query={{
             page: queryString.parse(this.props.location.search).page,
-            perPage: Math.floor(window.innerHeight / 65),
+            perPage: 10,
+            tokenId: this.props.tokenId,
             search: queryString.parse(this.props.location.search).search
           }}
         />

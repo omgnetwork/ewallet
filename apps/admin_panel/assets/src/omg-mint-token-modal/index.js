@@ -60,7 +60,11 @@ class MintTokenModal extends PureComponent {
     token: PropTypes.object,
     mintToken: PropTypes.func.isRequired,
     getWalletsByAccountId: PropTypes.func.isRequired,
+    onSuccess: PropTypes.func,
     match: PropTypes.object
+  }
+  static defaultProps = {
+    onSuccess: _.noop
   }
   state = { amount: null, error: null }
   onChangeAmount = e => {
@@ -76,6 +80,7 @@ class MintTokenModal extends PureComponent {
       })
       if (result.data) {
         this.props.onRequestClose()
+        this.props.onSuccess()
         this.setState({ submitStatus: 'SUCCESS', amount: null })
       } else {
         this.setState({ submitStatus: 'FAILED', error: result.error.description })
