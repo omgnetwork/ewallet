@@ -15,13 +15,17 @@ import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 const Form = styled.form`
   padding: 50px;
-  width: 500px;
+  width: 100vw;
+  height: 100vh;
+  box-sizing: border-box;
+  overflow: auto;
   > i {
     position: absolute;
-    right: 15px;
-    top: 15px;
+    right: 30px;
+    top: 30px;
     color: ${props => props.theme.colors.S400};
     cursor: pointer;
+    font-size: 30px;
   }
   input {
     margin-top: 5px;
@@ -35,6 +39,7 @@ const Form = styled.form`
   h4 {
     text-align: center;
     margin-bottom: 40px;
+    font-size: 18px;
   }
 `
 const InputLabel = styled.div`
@@ -78,6 +83,10 @@ const FromToContainer = styled.div`
     display: inline-block;
     padding: 5px 10px;
   }
+`
+const InnerTransferContainer = styled.div`
+  max-width: 500px;
+  margin: 0 auto;
 `
 const enhance = compose(
   withRouter,
@@ -304,7 +313,7 @@ class CreateTransaction extends Component {
   renderToSection () {
     return (
       <FromToContainer>
-        <h5 style={{marginTop: '20px'}}>To</h5>
+        <h5 style={{ marginTop: '20px' }}>To</h5>
         <InputLabel>To Address</InputLabel>
         <AllWalletsFetcher
           query={{ search: this.state.toAddress.trim() }}
@@ -380,43 +389,44 @@ class CreateTransaction extends Component {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
         <Icon name='Close' onClick={this.props.onRequestClose} />
-        <h4>Transfer</h4>
-        <div>
+        <InnerTransferContainer>
+          <h4>Transfer</h4>
           {this.renderFromSection()}
           {this.renderToSection()}
-        </div>
-        {this.state.toTokenSelected && (
-          <AllWalletsFetcher
-            query={{ search: this.state.exchangeAddress }}
-            render={({ data }) => {
-              return (
-                <div>
-                  <InputLabel>Exchange Address</InputLabel>
-                  <Select
-                    normalPlaceholder='acc_0x000000000000000'
-                    onSelectItem={this.onSelectExchangeAddressSelect}
-                    value={this.state.exchangeAddress}
-                    onChange={this.onChangeInputExchangeAddress}
-                    onFocus={this.onFocusExchangeAddressSelect}
-                    options={data.map(d => {
-                      return {
-                        key: d.address,
-                        value: <WalletSelect wallet={d} />,
-                        ...d
-                      }
-                    })}
-                  />
-                </div>
-              )
-            }}
-          />
-        )}
-        <ButtonContainer>
-          <Button size='small' type='submit' loading={this.state.submitting}>
-            Transfer
-          </Button>
-        </ButtonContainer>
-        <Error error={this.state.error}>{this.state.error}</Error>
+
+          {this.state.toTokenSelected && (
+            <AllWalletsFetcher
+              query={{ search: this.state.exchangeAddress }}
+              render={({ data }) => {
+                return (
+                  <div>
+                    <InputLabel>Exchange Address</InputLabel>
+                    <Select
+                      normalPlaceholder='acc_0x000000000000000'
+                      onSelectItem={this.onSelectExchangeAddressSelect}
+                      value={this.state.exchangeAddress}
+                      onChange={this.onChangeInputExchangeAddress}
+                      onFocus={this.onFocusExchangeAddressSelect}
+                      options={data.map(d => {
+                        return {
+                          key: d.address,
+                          value: <WalletSelect wallet={d} />,
+                          ...d
+                        }
+                      })}
+                    />
+                  </div>
+                )
+              }}
+            />
+          )}
+          <ButtonContainer>
+            <Button size='small' type='submit' loading={this.state.submitting}>
+              Transfer
+            </Button>
+          </ButtonContainer>
+          <Error error={this.state.error}>{this.state.error}</Error>
+        </InnerTransferContainer>
       </Form>
     )
   }
