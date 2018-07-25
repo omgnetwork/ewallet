@@ -6,7 +6,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.TransactionConsumption
 
-  @spec broadcast(Atom.t(), TransactionConsumption.t()) :: :ok | {:error, :unhandled_event}
+  @spec broadcast(atom(), %{:consumption => %TransactionConsumption{}}) ::
+          :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do
     consumption = Preloader.preload(consumption, transaction_request: [:account, :user])
 

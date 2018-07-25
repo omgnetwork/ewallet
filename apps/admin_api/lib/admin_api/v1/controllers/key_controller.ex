@@ -28,6 +28,7 @@ defmodule AdminAPI.V1.KeyController do
   @doc """
   Retrieves a list of keys including soft-deleted.
   """
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
@@ -55,6 +56,7 @@ defmodule AdminAPI.V1.KeyController do
   @doc """
   Creates a new key. Currently keys are assigned to the master account only.
   """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, _attrs) do
     with :ok <- permit(:create, conn.assigns, nil) do
       %{}
@@ -79,6 +81,7 @@ defmodule AdminAPI.V1.KeyController do
   @doc """
   Updates a key.
   """
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with %Key{} = api_key <- Key.get(id) || {:error, :key_not_found},
          {:ok, key} <- Key.update(api_key, attrs) do
@@ -99,6 +102,7 @@ defmodule AdminAPI.V1.KeyController do
   @doc """
   Soft-deletes an existing key.
   """
+  @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"access_key" => access_key}) do
     with :ok <- permit(:delete, conn.assigns, nil) do
       key = Key.get(:access_key, access_key)
@@ -133,7 +137,7 @@ defmodule AdminAPI.V1.KeyController do
 
   defp do_delete(conn, nil), do: handle_error(conn, :key_not_found)
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, key_id) do
     Bodyguard.permit(KeyPolicy, action, params, key_id)

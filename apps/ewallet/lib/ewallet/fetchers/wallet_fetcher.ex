@@ -4,7 +4,7 @@ defmodule EWallet.WalletFetcher do
   """
   alias EWalletDB.{User, Wallet, Account}
 
-  @spec get(User.t(), String.t()) :: {:ok, Wallet.t()} | {:error, Atom.t()}
+  @spec get(%User{} | %Account{} | nil, String.t() | nil) :: {:ok, %Wallet{}} | {:error, atom()}
   def get(%User{} = user, nil) do
     {:ok, User.get_primary_wallet(user)}
   end

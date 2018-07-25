@@ -32,8 +32,9 @@ defmodule EWalletDB.MembershipChecker do
   end
 
   defp search_ancestors(uuids_intersect, _role, _memberships, _ancestor_uuids)
-       when uuids_intersect == [],
-       do: nil
+       when uuids_intersect == [] do
+    nil
+  end
 
   defp search_ancestors([uuid_intersect] = uuids_intersect, role, memberships, _ancestor_uuids)
        when length(uuids_intersect) == 1 do

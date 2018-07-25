@@ -51,23 +51,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
 
   defp confirm(conn, _entity, _attrs, _approved), do: handle_error(conn, :invalid_parameter)
 
-  defp respond({:error, %TransactionConsumption{} = consumption, code}, conn, true) do
-    dispatch_confirm_event(consumption)
-    handle_error(conn, code)
-  end
-
-  defp respond({:error, %TransactionConsumption{} = _consumption, code}, conn, false) do
-    handle_error(conn, code)
-  end
-
-  defp respond({:error, code, description}, conn, _dispatch?),
-    do: handle_error(conn, code, description)
-
-  defp respond({:error, error}, conn, _dispatch?) when is_atom(error),
-    do: handle_error(conn, error)
-
-  defp respond({:error, changeset}, conn, _dispatch?) do
-    handle_error(conn, :invalid_parameter, changeset)
+  defp respond({:error, error}, conn, _dispatch?) when is_atom(error) do
+    handle_error(conn, error)
   end
 
   defp respond({:error, consumption, code, description}, conn, true) do

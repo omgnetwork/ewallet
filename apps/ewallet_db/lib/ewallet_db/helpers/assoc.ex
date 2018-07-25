@@ -42,7 +42,7 @@ defmodule EWalletDB.Helpers.Assoc do
 
   This function does not preload the associations.
   """
-  @spec get(Ecto.Schema.t(), list(atom() | String.t())) :: Ecto.Schema.t()
+  @spec get(Ecto.Schema.t(), list(atom() | String.t())) :: any()
   def get(struct, nested) when length(nested) > 1 do
     [field | remaining] = nested
 
