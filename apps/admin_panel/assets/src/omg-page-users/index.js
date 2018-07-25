@@ -9,6 +9,7 @@ import { withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
+import Copy from '../omg-copy'
 const UserPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -19,6 +20,22 @@ const UserPageContainer = styled.div`
   }
   td:first-child {
     width: 40%;
+  }
+  tr:hover {
+    td:nth-child(1) {
+      i {
+        visibility: visible;
+      }
+    }
+  }
+  i[name="Copy"] {
+    margin-left: 5px;
+    cursor: pointer;
+    visibility: hidden;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const SortableTableContainer = styled.div`
@@ -101,7 +118,7 @@ class UsersPage extends Component {
     if (key === 'id') {
       return (
         <UserIdContainer>
-          <Icon name='Profile' /> <span>{data}</span>
+          <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
         </UserIdContainer>
       )
     }

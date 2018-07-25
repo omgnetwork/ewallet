@@ -11,6 +11,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
+import Copy from '../omg-copy'
 const TransactionRequestsPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -31,6 +32,22 @@ const TransactionRequestsPageContainer = styled.div`
   td:nth-child(2),
   td:nth-child(3) {
     width: 25%;
+  }
+  tr:hover {
+    td:nth-child(1) {
+      i {
+        visibility: visible;
+      }
+    }
+  }
+  i[name="Copy"] {
+    margin-left: 5px;
+    cursor: pointer;
+    visibility: hidden;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const SortableTableContainer = styled.div`
@@ -97,7 +114,7 @@ class TransactionRequestsPage extends Component {
     if (key === 'id') {
       return (
         <NameColumn>
-          <Icon name='Request' /> <span>{data}</span>
+          <Icon name='Request' /> <span>{data}</span> <Copy data={data} />
         </NameColumn>
       )
     }
