@@ -205,7 +205,7 @@ class CreateTransaction extends Component {
                 onSelectItem={this.onSelectFromAddressSelect}
                 value={this.state.fromAddress}
                 onChange={this.onChangeInputFromAddress}
-                options={data.map(d => {
+                options={data.filter(w => w.identifier !== 'burn').map(d => {
                   return {
                     key: d.address,
                     value: <WalletSelect wallet={d} />,
