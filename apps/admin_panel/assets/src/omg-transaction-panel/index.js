@@ -1,14 +1,14 @@
-import React, { Component } from "react"
-import PropTypes from "prop-types"
-import styled from "styled-components"
-import TransactionProvider from "../omg-transaction/transactionProvider"
-import { Icon } from "../omg-uikit"
-import { withRouter, Link } from "react-router-dom"
-import queryString from "query-string"
-import { compose } from "recompose"
-import { formatReceiveAmountToTotal } from "../utils/formatter"
-import moment from "moment"
-import { MarkContainer } from "../omg-page-transaction"
+import React, { Component } from 'react'
+import PropTypes from 'prop-types'
+import styled from 'styled-components'
+import TransactionProvider from '../omg-transaction/transactionProvider'
+import { Icon } from '../omg-uikit'
+import { withRouter, Link } from 'react-router-dom'
+import queryString from 'query-string'
+import { compose } from 'recompose'
+import { formatReceiveAmountToTotal } from '../utils/formatter'
+import moment from 'moment'
+import { MarkContainer } from '../omg-page-transaction'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -67,24 +67,24 @@ class TransactionRequestPanel extends Component {
     match: PropTypes.object
   }
 
-  constructor(props) {
+  constructor (props) {
     super(props)
     this.state = {}
   }
   onClickClose = () => {
     const searchObject = queryString.parse(this.props.location.search)
-    delete searchObject["show-transaction-tab"]
+    delete searchObject['show-transaction-tab']
     this.props.history.push({
       search: queryString.stringify(searchObject)
     })
   }
   renderTransactionInfo = (transaction, title) => {
-    const address = _.get(transaction, "address")
-    const accountName = _.get(transaction, "account.name")
-    const accountId = _.get(transaction, "account.id")
-    const tokenId = _.get(transaction, "token.id")
+    const address = _.get(transaction, 'address')
+    const accountName = _.get(transaction, 'account.name')
+    const accountId = _.get(transaction, 'account.id')
+    const tokenId = _.get(transaction, 'token.id')
     const createLink = path =>
-      `/${this.props.match.params.accountId}/${path}/${this.props.location.search}`
+      `/${this.props.match.params.accountId}/${path}${this.props.location.search}`
     return (
       <TransactionInfoContainer>
         <h5>{title}</h5>
@@ -92,29 +92,29 @@ class TransactionRequestPanel extends Component {
           <b>Wallet Address : </b>
           <Link to={createLink(`wallets/${address}`)}>{address}</Link>
         </InformationItem>
-        {_.get(transaction, "account") && (
+        {_.get(transaction, 'account') && (
           <InformationItem>
             <b>Account : </b>
             <Link to={createLink(`accounts/${accountId}`)}>{accountName}</Link>
           </InformationItem>
         )}
-        {_.get(transaction, "user") && (
+        {_.get(transaction, 'user') && (
           <InformationItem>
             <b>User : </b>
-            <Link to={createLink(`accounts/${accountId}`)}>{_.get(transaction, "user.id")}</Link>
+            <Link to={createLink(`accounts/${accountId}`)}>{_.get(transaction, 'user.id')}</Link>
           </InformationItem>
         )}
         <InformationItem>
           <b>Token : </b>
-          <Link to={createLink(`tokens/${tokenId}`)}>{_.get(transaction, "token.name")}</Link>
+          <Link to={createLink(`tokens/${tokenId}`)}>{_.get(transaction, 'token.name')}</Link>
         </InformationItem>
         <InformationItem>
           <b>Amount : </b>
           {formatReceiveAmountToTotal(
-            _.get(transaction, "amount"),
-            _.get(transaction, "token.subunit_to_unit")
-          )}{" "}
-          {_.get(transaction, "token.symbol")}
+            _.get(transaction, 'amount'),
+            _.get(transaction, 'token.subunit_to_unit')
+          )}{' '}
+          {_.get(transaction, 'token.symbol')}
         </InformationItem>
       </TransactionInfoContainer>
     )
@@ -122,14 +122,14 @@ class TransactionRequestPanel extends Component {
   renderExchangeInfo = ({ exchange }) => {
     const createLink = path =>
       `/${this.props.match.params.accountId}/${path}/${this.props.location.search}`
-    const exchangeWalletAddress = _.get(exchange, "exchange_wallet_address")
+    const exchangeWalletAddress = _.get(exchange, 'exchange_wallet_address')
     return (
       <TransactionInfoContainer>
-        <h5>{"Exchange"}</h5>
+        <h5>{'Exchange'}</h5>
         <InformationItem>
           <b>Rate : </b>
-          1 {_.get(exchange, "exchange_pair.from_token.symbol")} :{" "}
-          {_.get(exchange, "exchange_pair.rate")} {_.get(exchange, "exchange_pair.to_token.symbol")}
+          1 {_.get(exchange, 'exchange_pair.from_token.symbol')} :{' '}
+          {_.get(exchange, 'exchange_pair.rate')} {_.get(exchange, 'exchange_pair.to_token.symbol')}
         </InformationItem>
         <InformationItem>
           <b>Exchange wallet address : </b>
@@ -141,33 +141,33 @@ class TransactionRequestPanel extends Component {
   render = () => {
     return (
       <TransactionProvider
-        transactionId={queryString.parse(this.props.location.search)["show-transaction-tab"]}
+        transactionId={queryString.parse(this.props.location.search)['show-transaction-tab']}
         render={({ transaction }) => {
           return (
             <PanelContainer>
-              <Icon name="Close" onClick={this.onClickClose} />
+              <Icon name='Close' onClick={this.onClickClose} />
               <h4>Transaction {transaction.id}</h4>
               <SubDetailTitle>
                 <span>
                   <MarkContainer status={transaction.status}>
-                    {transaction.status === "failed" ? (
-                      <Icon name="Close" />
+                    {transaction.status === 'failed' ? (
+                      <Icon name='Close' />
                     ) : (
-                      <Icon name="Checked" />
+                      <Icon name='Checked' />
                     )}
                   </MarkContainer>
                   {transaction.status}
-                </span>{" "}
-                | <span>{moment(transaction.created_at).format("ddd, DD/MM/YYYY hh:mm:ss")}</span>
+                </span>{' '}
+                | <span>{moment(transaction.created_at).format('ddd, DD/MM/YYYY hh:mm:ss')}</span>
               </SubDetailTitle>
-              {_.get(transaction, "error_description") && (
-                <InformationItem style={{ color: "#FC7166" }}>
-                  <p>{_.get(transaction, "error_description")}</p>
+              {_.get(transaction, 'error_description') && (
+                <InformationItem style={{ color: '#FC7166' }}>
+                  <p>{_.get(transaction, 'error_description')}</p>
                 </InformationItem>
               )}
-              {this.renderTransactionInfo(transaction.from, "From")}
-              {this.renderTransactionInfo(transaction.to, "To")}
-              {_.get(transaction, "exchange.exchange_pair") && this.renderExchangeInfo(transaction)}
+              {this.renderTransactionInfo(transaction.from, 'From')}
+              {this.renderTransactionInfo(transaction.to, 'To')}
+              {_.get(transaction, 'exchange.exchange_pair') && this.renderExchangeInfo(transaction)}
             </PanelContainer>
           )
         }}
