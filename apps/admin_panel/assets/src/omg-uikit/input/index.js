@@ -46,6 +46,9 @@ const Input = styled.input`
     border-bottom: 1px solid
       ${props => (props.error ? props.theme.colors.R400 : props.theme.colors.BL400)};
   }
+  :-webkit-autofill {
+    content: "AUTO_FILL_HACK";
+  }
 `
 const Error = styled.div`
   position: absolute;
@@ -111,9 +114,12 @@ class InputComonent extends PureComponent {
   componentDidMount = () => {
     if (this.props.autofocus) this.input.focus()
     this.props.registerRef(this.input)
-    if (this.input.value) {
-      this.setState({ active: true })
-    }
+    // HACK CHROME BUG AUTOFILL
+    setTimeout(() => {
+      if (window.getComputedStyle(this.input, ':-webkit-autofill').content === '"AUTO_FILL_HACK"') {
+        this.setState({ active: true })
+      }
+    }, 100)
   }
   handleKeyPress = e => {
     if (e.key === 'Enter') {

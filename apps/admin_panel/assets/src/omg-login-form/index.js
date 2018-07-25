@@ -108,7 +108,6 @@ class LoginForm extends Component {
           value={this.state.email}
           disabled={this.state.submitted}
           name='email'
-          autoComplete='off'
         />
         <Input
           placeholder='Password'
@@ -119,12 +118,8 @@ class LoginForm extends Component {
           value={this.state.password}
           disabled={this.state.submitted}
           name='password'
-          autoComplete='off'
         />
         <OptionRowContainer>
-          {/* <OptionItem align='left' onClick={this.onClickCheckbox}>
-            <Checkbox checked={this.state.rememberMe} label={'Remember Me'} />
-          </OptionItem> */}
           <OptionItem align='right'>
             <Link to='/forget-password/'>Forget Password ?</Link>
           </OptionItem>
