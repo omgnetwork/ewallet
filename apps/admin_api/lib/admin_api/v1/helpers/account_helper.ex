@@ -5,6 +5,7 @@ defmodule AdminAPI.V1.AccountHelper do
   alias EWalletDB.{User, Key, Account, AuthToken, Helpers.Assoc}
   alias Plug.Conn
 
+  @spec get_current_account(Plug.Conn.t()) :: %Account{}
   def get_current_account(%Conn{assigns: %{admin_user: admin_user}} = conn) do
     conn.private[:auth_auth_token]
     |> AuthToken.get_by_token(:admin_api)
@@ -22,6 +23,7 @@ defmodule AdminAPI.V1.AccountHelper do
     key.account
   end
 
+  @spec get_accessible_account_uuids(%{admin_user: %User{}} | %{key: %Key{}}) :: [String.t()]
   def get_accessible_account_uuids(%{admin_user: admin_user}) do
     User.get_all_accessible_account_uuids(admin_user)
   end

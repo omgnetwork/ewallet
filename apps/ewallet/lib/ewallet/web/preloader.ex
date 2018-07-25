@@ -8,7 +8,7 @@ defmodule EWallet.Web.Preloader do
   @doc """
   Preload the given list of associations.
   """
-  @spec to_query(Ecto.Queryable.t(), List.t()) :: {Ecto.Query.t()}
+  @spec to_query(Ecto.Queryable.t(), [atom()]) :: {Ecto.Query.t()}
   def to_query(queryable, preload_fields) when is_list(preload_fields) do
     import Ecto.Query
     from(q in queryable, preload: ^preload_fields)

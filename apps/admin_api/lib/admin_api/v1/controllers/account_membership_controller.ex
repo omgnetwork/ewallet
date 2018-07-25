@@ -122,7 +122,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
 
   def unassign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update | :delete, map(), String.t()) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
     Bodyguard.permit(AccountMembershipPolicy, action, params, account_id)

@@ -43,10 +43,11 @@ defmodule EWallet.Seeder.CLI do
       |> Seeder.argsline_for()
       |> process_argsline()
 
-    unless assume_yes do
-      _ = IO.puts("\n-----\n")
-      _ = IO.gets(@confirm_message)
-    end
+    _ =
+      unless assume_yes do
+        _ = IO.puts("\n-----\n")
+        _ = IO.gets(@confirm_message)
+      end
 
     args = run_seeds(mods, args)
     run_reporters(reporters, args)

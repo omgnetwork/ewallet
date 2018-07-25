@@ -59,9 +59,7 @@ defmodule EWalletDB.APIKey do
   @doc """
   Get API key by id, exclude soft-deleted.
   """
-  @spec get(ExternalID.t()) :: %APIKey{} | nil
-  def get(id)
-
+  @spec get(String.t()) :: %APIKey{} | nil
   def get(id) when is_external_id(id) do
     APIKey
     |> exclude_deleted()

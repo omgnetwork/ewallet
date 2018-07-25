@@ -176,8 +176,8 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Gets a transaction request.
   """
-  @spec get(ExternalID.t()) :: %TransactionRequest{} | nil
-  @spec get(ExternalID.t(), keyword()) :: %TransactionRequest{} | nil
+  @spec get(String.t()) :: %TransactionRequest{} | nil
+  @spec get(String.t(), keyword()) :: %TransactionRequest{} | nil
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do
@@ -229,7 +229,7 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Gets a request with a "FOR UPDATE" lock on it. Should be called inside a transaction.
   """
-  @spec get_with_lock(ExternalID.t()) :: %TransactionRequest{} | nil
+  @spec get_with_lock(String.t()) :: %TransactionRequest{} | nil
   def get_with_lock(id, preloads \\ [])
 
   def get_with_lock(id, preloads) when is_external_id(id) do
@@ -245,7 +245,7 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Touches a request by updating the `updated_at` field.
   """
-  @spec touch(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, Map.t()}
+  @spec touch(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, map()}
   def touch(request) do
     request
     |> touch_changeset(%{updated_at: NaiveDateTime.utc_now()})
@@ -255,7 +255,7 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Inserts a transaction request.
   """
-  @spec insert(Map.t()) :: {:ok, %TransactionRequest{}} | {:error, Map.t()}
+  @spec insert(map()) :: {:ok, %TransactionRequest{}} | {:error, map()}
   def insert(attrs) do
     %TransactionRequest{}
     |> changeset(attrs)
@@ -300,7 +300,7 @@ defmodule EWalletDB.TransactionRequest do
   @doc """
   Expires the given request with the specified reason.
   """
-  @spec expire(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, Map.t()}
+  @spec expire(%TransactionRequest{}) :: {:ok, %TransactionRequest{}} | {:error, map()}
   def expire(request, reason \\ "expired_transaction_request") do
     request
     |> expire_changeset(%{
@@ -315,7 +315,7 @@ defmodule EWalletDB.TransactionRequest do
   Expires the given request if the expiration date is past.
   """
   @spec expire_if_past_expiration_date(%TransactionRequest{}) ::
-          {:ok, %TransactionRequest{}} | {:error, Map.t()}
+          {:ok, %TransactionRequest{}} | {:error, map()}
   def expire_if_past_expiration_date(request) do
     expired? =
       request.expiration_date &&
@@ -332,7 +332,7 @@ defmodule EWalletDB.TransactionRequest do
   """
   @spec expire_if_max_consumption(%TransactionRequest{}) ::
           {:ok, %TransactionRequest{}}
-          | {:error, Map.t()}
+          | {:error, map()}
   def expire_if_max_consumption(request) do
     consumptions = TransactionConsumption.all_active_for_request(request.uuid)
 

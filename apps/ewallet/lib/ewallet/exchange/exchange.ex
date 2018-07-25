@@ -16,7 +16,7 @@ defmodule EWallet.Exchange do
   Returns `{:ok, rate, pair}` if the exchange pair is found.
   """
   @spec get_rate(from_token :: %Token{}, to_token :: %Token{}) ::
-          {:ok, Decimal.t(), ExchangePair.t()} | {:error, atom()}
+          {:ok, Decimal.t(), %ExchangePair{}} | {:error, atom()}
   def get_rate(from_token, to_token) do
     case ExchangePair.fetch_exchangable_pair(from_token, to_token) do
       {:ok, pair} ->

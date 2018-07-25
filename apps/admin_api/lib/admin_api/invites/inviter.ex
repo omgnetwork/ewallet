@@ -63,10 +63,11 @@ defmodule AdminAPI.Inviter do
           {:ok, %Invite{}} | {:error, :invalid_parameter, String.t()}
   def send_email(invite, redirect_url) do
     if valid_url?(redirect_url) do
-      invite
-      |> Repo.preload(:user)
-      |> InviteEmail.create(redirect_url)
-      |> Mailer.deliver_now()
+      _ =
+        invite
+        |> Repo.preload(:user)
+        |> InviteEmail.create(redirect_url)
+        |> Mailer.deliver_now()
 
       {:ok, invite}
     else

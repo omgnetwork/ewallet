@@ -36,15 +36,7 @@ defmodule AdminAPI.V1.TransactionController do
   @doc """
   Retrieves a list of transactions.
   """
-  # def all(conn, attrs) do
-  #   Transaction
-  #   |> Preloader.to_query(@preload_fields)
-  #   |> SearchParser.to_query(attrs, @search_fields)
-  #   |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-  #   |> Paginator.paginate_attrs(attrs)
-  #   |> respond_multiple(conn)
-  # end
-
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
       query_records_and_respond(Transaction, attrs, conn)
@@ -53,6 +45,7 @@ defmodule AdminAPI.V1.TransactionController do
     end
   end
 
+  @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account),
@@ -94,6 +87,7 @@ defmodule AdminAPI.V1.TransactionController do
   The 'from' and 'to' fields cannot be searched for at the same
   time in the 'search_terms' param.
   """
+  @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"user_id" => user_id} = attrs) do
     with %User{} = user <- User.get(user_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, user) do
@@ -124,6 +118,7 @@ defmodule AdminAPI.V1.TransactionController do
   @doc """
   Retrieves a specific transaction by its id.
   """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns, id) do
       Transaction
@@ -140,6 +135,7 @@ defmodule AdminAPI.V1.TransactionController do
   @doc """
   Creates a transaction.
   """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, attrs) do
       attrs
@@ -197,8 +193,11 @@ defmodule AdminAPI.V1.TransactionController do
     handle_error(conn, :transaction_id_not_found)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
-          :ok | {:error, any()} | no_return()
+  @spec permit(
+          :all | :create | :get | :update,
+          map(),
+          String.t() | %Account{} | %User{} | map() | nil
+        ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
     Bodyguard.permit(TransactionPolicy, action, params, data)
   end
