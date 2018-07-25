@@ -159,6 +159,18 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert mint == nil
     end
 
+    test "returns an error with decimals > 18 (19 decimals)" do
+      response =
+        admin_user_request("/token.create", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          subunit_to_unit: 10_000_000_000_000_000_000_000
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+    end
+
     test "inserts a new token with no minting if amount is nil" do
       response =
         admin_user_request("/token.create", %{
