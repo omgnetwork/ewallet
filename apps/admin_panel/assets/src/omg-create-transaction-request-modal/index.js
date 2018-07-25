@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Button, Icon, RadioButton, Select, Avatar } from '../omg-uikit'
+import { Input, Button, Icon, RadioButton, Select } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createTransactionRequest } from '../omg-transaction-request/action'
 import { connect } from 'react-redux'

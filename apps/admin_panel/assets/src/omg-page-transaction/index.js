@@ -211,7 +211,6 @@ class TransactionPage extends Component {
           navigation
           onClickRow={this.onClickRow}
         />
-
         <CreateTransactionModal
           onRequestClose={this.onRequestCloseCreateTransaction}
           open={this.state.createTransactionModalOpen}

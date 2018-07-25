@@ -10,7 +10,7 @@ export default class Modal extends Component {
   render () {
     return (
       <ReactModal
-        closeTimeoutMS={300}
+        closeTimeoutMS={200}
         className='react-modal'
         overlayClassName='react-modal-overlay'
         {...this.props}
