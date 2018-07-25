@@ -64,7 +64,7 @@ Learn more from our [contributing guide](.github/CONTRIBUTING.md).
 
 ## Community efforts
 
-We are thankful of our community for creating and maintaining these wonderful work that we otherwise could not have done ourselves. If you have ported any part of the OmiseGO eWallet to another platform, we will be very happy to list them here. [Submit us a pull request](pulls).
+We are thankful to our community for creating and maintaining these wonderful work that we otherwise could not have done ourselves. If you have ported any part of the OmiseGO eWallet to another platform, we will be very happy to list them here. [Submit us a pull request](pulls).
 
 - [Alainy/OmiseGo-Go-SDK](https://github.com/Alainy/OmiseGo-Go-SDK) (Golang)
 
