@@ -29,7 +29,7 @@ export function createToken ({ name, symbol, decimal = 18, amount = 0 }) {
 export function mintToken ({ id, amount }) {
   return authenticatedRequest({
     path: '/token.mint',
-    data: { id, amount: Number(amount) }
+    data: { id, amount }
   })
 }
 export function getTokenStatsById (id) {

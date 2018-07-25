@@ -36,6 +36,15 @@ const ButtonsContainer = styled.div`
     }
   }
 `
+const Error = styled.div`
+  color: ${props => props.theme.colors.R400};
+  text-align: center;
+  padding: 10px 0;
+  overflow: hidden;
+  max-height: ${props => (props.error ? '50px' : 0)};
+  opacity: ${props => (props.error ? 1 : 0)};
+  transition: 0.5s ease max-height, 0.3s ease opacity;
+`
 
 const enhance = compose(
   withRouter,
@@ -53,26 +62,31 @@ class MintTokenModal extends PureComponent {
     getWalletsByAccountId: PropTypes.func.isRequired,
     match: PropTypes.object
   }
-  state = { amount: null }
+  state = { amount: null, error: null }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value })
   }
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitStatus: 'SUBMITTED' })
-    const result = await this.props.mintToken({
-      id: this.props.token.id,
-      amount: formatAmount(this.state.amount, this.props.token.subunit_to_unit)
-    })
-    if (result.data) {
-      this.props.onRequestClose()
-      this.setState({ submitStatus: 'SUCCESS', amount: null })
-    } else {
+    try {
+      const result = await this.props.mintToken({
+        id: this.props.token.id,
+        amount: formatAmount(this.state.amount, this.props.token.subunit_to_unit)
+      })
+      if (result.data) {
+        this.props.onRequestClose()
+        this.setState({ submitStatus: 'SUCCESS', amount: null })
+      } else {
+        this.setState({ submitStatus: 'FAILED', error: result.error.description })
+      }
+    } catch (error) {
       this.setState({ submitStatus: 'FAILED' })
     }
   }
   onRequestClose = e => {
     this.props.onRequestClose()
+    this.setState({ amount: null, error: null })
   }
   render () {
     return (
@@ -90,6 +104,7 @@ class MintTokenModal extends PureComponent {
             value={this.state.amount}
             autofocus
             onChange={this.onChangeAmount}
+            step='any'
           />
           <ButtonsContainer>
             <Button
@@ -101,6 +116,7 @@ class MintTokenModal extends PureComponent {
               Mint
             </Button>
           </ButtonsContainer>
+          <Error error={this.state.error}>{this.state.error}</Error>
         </MintTokenModalContainer>
       </Modal>
     )

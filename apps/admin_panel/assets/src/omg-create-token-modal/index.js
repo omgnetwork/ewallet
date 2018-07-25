@@ -113,6 +113,7 @@ class CreateToken extends Component {
           value={this.state.amount}
           onChange={this.onChangeAmount}
           type='number'
+          step='any'
         />
         <ButtonContainer>
           <Button size='small' type='submit' loading={this.state.submitting}>

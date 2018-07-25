@@ -341,6 +341,7 @@ class CreateTransactionRequest extends Component {
               autofocus
               value={this.state.amount}
               type='number'
+              step='any'
               onChange={this.onChange('amount')}
             />
           </InputLabelContainer>

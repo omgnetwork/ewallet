@@ -251,6 +251,7 @@ class CreateTransaction extends Component {
                     value={this.state.fromTokenAmount}
                     onChange={this.onChangeAmount('fromToken')}
                     type='number'
+                    step='any'
                     normalPlaceholder={'Token amount'}
                   />
                 </div>
@@ -310,6 +311,7 @@ class CreateTransaction extends Component {
                     value={this.state.toTokenAmount}
                     onChange={this.onChangeAmount('toToken')}
                     type='number'
+                    step='any'
                     normalPlaceholder={'Token amount'}
                   />
                 </div>

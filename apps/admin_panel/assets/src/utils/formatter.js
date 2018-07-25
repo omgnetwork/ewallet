@@ -17,7 +17,9 @@ export const formatNumber = number => {
 }
 
 export const formatAmount = (amount, subUnitToUnit) => {
+  if (!ensureNumberAmount) return null
   const ensureNumberAmount = Number(amount)
+
   const decimal = precision(ensureNumberAmount)
   const shiftedAmount = ensureNumberAmount * Math.pow(10, decimal)
   const shiftedSubUnit = subUnitToUnit / Math.pow(10, decimal)
