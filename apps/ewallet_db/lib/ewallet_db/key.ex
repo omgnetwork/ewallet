@@ -137,7 +137,7 @@ defmodule EWalletDB.Key do
     query =
       from(
         k in Key,
-        where: k.access_key == ^access,
+        where: k.access_key == ^access and k.expired == false,
         join: a in assoc(k, :account),
         preload: [account: a]
       )

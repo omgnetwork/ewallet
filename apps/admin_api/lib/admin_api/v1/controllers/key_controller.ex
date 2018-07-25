@@ -83,8 +83,8 @@ defmodule AdminAPI.V1.KeyController do
   """
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
-    with %Key{} = api_key <- Key.get(id) || {:error, :key_not_found},
-         {:ok, key} <- Key.update(api_key, attrs) do
+    with %Key{} = key <- Key.get(id) || {:error, :key_not_found},
+         {:ok, key} <- Key.update(key, attrs) do
       render(conn, :key, %{key: key})
     else
       {:error, code} when is_atom(code) ->
