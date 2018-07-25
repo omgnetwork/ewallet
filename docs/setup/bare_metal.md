@@ -6,11 +6,12 @@ Get the most juice out of your machine by setting up the eWallet server onto you
 
 Before we begin, be sure to have the following applications installed and running on your machine.
 
-- [PostgreSQL](https://www.postgresql.org/): PostgreSQL is used to store most of the data for the eWallet API and local ledger.
-- [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used to format images in the admin panel. Tested with version `> 7.0.7-22`.
-- [Elixir](http://elixir-lang.github.io/install.html): Elixir is a dynamic, functional language designed for building scalable and maintainable applications.
-- [Git](https://git-scm.com/): Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
-- [NodeJS](https://nodejs.org/) Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine. Uses for admin panel building package and dependencies installation.
+- [PostgreSQL](https://www.postgresql.org/): PostgreSQL is used for storing most of the data for the eWallet and LocalLedger.
+- [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used for formatting images in the Admin Panel. Tested with version `> 7.0.7-22`.
+- [Elixir](http://elixir-lang.github.io/install.html): Elixir is used as the primary language for the server components of the eWallet.
+- [Git](https://git-scm.com/): Git is used for downloading and synchronizing codebase with the remote code repository.
+- [Yarn](https://yarnpkg.com/en/docs/install) Yarn is used for managing and install front-end dependencies for the Admin Panel.
+- [NodeJS](https://nodejs.org/) Node.js is used for building front-end code for the Admin Panel.
 
 Now that you have the applications installed, proceed with 1.1 through 1.5 to setup the server.
 
@@ -32,11 +33,6 @@ $ mix deps.get
 
 Then, install the front-end dependencies:
 
-If you do not have `yarn` package manager, install it first with
-```bash
-$ npm install -g yarn
-```
-Install dependencies
 ```bash
 $ (cd apps/admin_panel/assets/ && yarn install)
 ```
