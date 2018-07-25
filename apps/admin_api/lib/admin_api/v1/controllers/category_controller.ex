@@ -30,6 +30,7 @@ defmodule AdminAPI.V1.CategoryController do
   @doc """
   Retrieves a list of categories.
   """
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
       Category
@@ -53,6 +54,7 @@ defmodule AdminAPI.V1.CategoryController do
   @doc """
   Retrieves a specific category by its id.
   """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns, id),
          %Category{} = category <- Category.get_by(id: id),
@@ -70,6 +72,7 @@ defmodule AdminAPI.V1.CategoryController do
   @doc """
   Creates a new category.
   """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          {:ok, category} <- Category.insert(attrs),
@@ -87,6 +90,7 @@ defmodule AdminAPI.V1.CategoryController do
   @doc """
   Updates the category if all required parameters are provided.
   """
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
@@ -107,6 +111,7 @@ defmodule AdminAPI.V1.CategoryController do
   @doc """
   Soft-deletes an existing category by its id.
   """
+  @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id}) do
     with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, deleted} <- Category.delete(category),
@@ -123,7 +128,7 @@ defmodule AdminAPI.V1.CategoryController do
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
     Bodyguard.permit(CategoryPolicy, action, params, account_id)

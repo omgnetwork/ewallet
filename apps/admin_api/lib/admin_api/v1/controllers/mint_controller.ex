@@ -7,6 +7,7 @@ defmodule AdminAPI.V1.MintController do
   alias EWallet.{MintGate, MintPolicy}
   alias EWallet.Web.{SortParser, Paginator, Preloader}
   alias EWalletDB.{Token, Mint}
+  alias Ecto.Changeset
   alias Plug.Conn
 
   @mapped_fields %{
@@ -21,7 +22,7 @@ defmodule AdminAPI.V1.MintController do
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
-         %Token{} = token <- Token.get(id) || :token_id_not_found do
+         %Token{} = token <- Token.get(id) || :token_not_found do
       token
       |> Mint.query_by_token()
       |> Preloader.to_query(@preload_fields)
@@ -48,7 +49,7 @@ defmodule AdminAPI.V1.MintController do
         } = attrs
       ) do
     with :ok <- permit(:create, conn.assigns, token_id),
-         %Token{} = token <- Token.get(token_id) || :token_id_not_found do
+         %Token{} = token <- Token.get(token_id) || :token_not_found do
       token
       |> MintGate.mint_token(attrs)
       |> respond_single(conn)
@@ -75,15 +76,19 @@ defmodule AdminAPI.V1.MintController do
     handle_error(conn, code, description)
   end
 
-  defp respond_single({:error, changeset}, conn) do
+  defp respond_single({:error, %Changeset{} = changeset}, conn) do
     handle_error(conn, :invalid_parameter, changeset)
+  end
+
+  defp respond_single({:error, code}, conn) do
+    handle_error(conn, code)
   end
 
   defp respond_single({:ok, mint, _token}, conn) do
     render(conn, :mint, %{mint: mint})
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
     Bodyguard.permit(MintPolicy, action, params, account_id)

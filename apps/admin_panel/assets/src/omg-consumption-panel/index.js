@@ -242,7 +242,7 @@ class TransactionRequestPanel extends Component {
                   <b>Max Consumptions : </b> {tq.max_consumptions || '-'}
                 </InformationItem>
                 <InformationItem>
-                  <b>Max Consumptions User : </b> {tq.max_consumptions_per_user || '-'}
+                  <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user || '-'}
                 </InformationItem>
                 <InformationItem>
                   <b>Expiry Date : </b> {tq.expiration_date ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss') : '-'}

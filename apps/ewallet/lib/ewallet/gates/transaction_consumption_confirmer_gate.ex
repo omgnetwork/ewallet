@@ -16,20 +16,20 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Helpers.Assoc}
   alias Ecto.Changeset
 
-  @spec approve_and_confirm(TransactionRequest.t(), TransactionConsumption.t()) ::
-          {:ok, TransactionConsumption.t()}
-          | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
-          | {:error, TransactionConsumption.t(), String.t(), String.t()}
+  @spec approve_and_confirm(%TransactionRequest{}, %TransactionConsumption{}) ::
+          {:ok, %TransactionConsumption{}}
+          | {:error, %TransactionConsumption{}, atom(), String.t()}
+          | {:error, %TransactionConsumption{}, String.t(), String.t()}
   def approve_and_confirm(request, consumption) do
     consumption
     |> TransactionConsumption.approve()
     |> transfer(request)
   end
 
-  @spec confirm(UUID.t(), Boolean.t(), Map.t()) ::
-          {:ok, TransactionConsumption.t()}
-          | {:error, Atom.t()}
-          | {:error, TransactionConsumption.t(), Atom.t(), String.t()}
+  @spec confirm(String.t(), boolean(), map()) ::
+          {:ok, %TransactionConsumption{}}
+          | {:error, atom()}
+          | {:error, %TransactionConsumption{}, atom(), String.t()}
   def confirm(id, approved, confirmer) do
     transaction = Repo.transaction(fn -> do_confirm(id, approved, confirmer) end)
 

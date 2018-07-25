@@ -59,6 +59,8 @@ defmodule EWalletDB.AuthToken do
     |> validate_required([:account_uuid])
   end
 
+  @spec switch_account(%__MODULE__{}, %Account{}) ::
+          {:ok, %__MODULE__{}} | {:error, Ecto.Changeset.t()}
   def switch_account(token, account) do
     token
     |> switch_account_changeset(%{account_uuid: account.uuid})
@@ -125,6 +127,7 @@ defmodule EWalletDB.AuthToken do
     end
   end
 
+  @spec get_by_token(String.t(), atom()) :: %__MODULE__{} | nil
   def get_by_token(token, owner_app) when is_binary(token) and is_atom(owner_app) do
     AuthToken
     |> Repo.get_by(%{

@@ -29,8 +29,8 @@ const TableContainer = styled.div`
 
     thead {
       tr {
-        border-top: 1px solid ${props => props.theme.colors.S400};
-        border-bottom: 1px solid ${props => props.theme.colors.S400};
+        border-top: 1px solid ${props => props.theme.colors.S300};
+        border-bottom: 1px solid ${props => props.theme.colors.S300};
       }
     }
     * {
@@ -40,7 +40,7 @@ const TableContainer = styled.div`
       background-color: ${props => props.theme.colors.S100};
     }
     tr {
-      border-bottom: 1px solid ${props => props.theme.colors.S300};
+      border-bottom: 1px solid ${props => props.theme.colors.S200};
       padding: 20px 0;
       cursor: pointer;
     }
@@ -73,7 +73,8 @@ const NavigationContainer = styled.div`
   padding-top: 40px;
   > button {
     padding: 5px 10px;
-    :hover {
+    i {
+      line-height: 12px;
     }
   }
   > button:first-child {

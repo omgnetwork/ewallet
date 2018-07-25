@@ -20,7 +20,7 @@ defmodule LocalLedger.CachedBalance do
   @doc """
   Get all the balances for the given wallet.
   """
-  @spec all(Wallet.t()) :: {:ok, Map.t()}
+  @spec all(%Wallet{}) :: {:ok, map()}
   def all(wallet) do
     {:ok, get_amounts(wallet)}
   end
@@ -29,7 +29,7 @@ defmodule LocalLedger.CachedBalance do
   Get the balance for the specified token (token_id) and
   the given wallet.
   """
-  @spec get(Wallet.t(), String.t()) :: {:ok, Map.t()}
+  @spec get(%Wallet{}, String.t()) :: {:ok, map()}
   def get(wallet, token_id) do
     amounts = get_amounts(wallet)
     {:ok, %{token_id => amounts[token_id] || 0}}

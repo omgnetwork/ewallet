@@ -74,7 +74,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_user(conn, attrs) do
-    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs) || {:error, :unauthorized},
+    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          :ok <- permit(:all, conn.assigns, user) do
       :user_uuid
       |> TransactionConsumption.query_all_for(user.uuid)
@@ -154,15 +154,15 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def get(conn, %{"id" => id}) do
-    with %TransactionConsumption{} = consumption <-
-           TransactionConsumptionFetcher.get(id) || {:error, :unauthorized},
+    with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
          :ok <- permit(:get, conn.assigns, consumption) do
       render(conn, :transaction_consumption, %{
         transaction_consumption:
           Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
       })
     else
-      error -> respond(error, conn, false)
+      error ->
+        respond(error, conn, false)
     end
   end
 
@@ -203,20 +203,9 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(conn, code, description)
   end
 
-  defp respond({:error, %TransactionConsumption{} = consumption, code}, conn, true) do
-    dispatch_confirm_event(consumption)
-    handle_error(conn, code)
+  defp respond({:error, error}, conn, _dispatch?) when is_atom(error) do
+    handle_error(conn, error)
   end
-
-  defp respond({:error, %TransactionConsumption{} = _consumption, code}, conn, false) do
-    handle_error(conn, code)
-  end
-
-  defp respond({:error, code, description}, conn, _dispatch?),
-    do: handle_error(conn, code, description)
-
-  defp respond({:error, error}, conn, _dispatch?) when is_atom(error),
-    do: handle_error(conn, error)
 
   defp respond({:error, changeset}, conn, _dispatch?) do
     handle_error(conn, :invalid_parameter, changeset)
@@ -248,8 +237,17 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     end
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
-          :ok | {:error, any()} | no_return()
+  @spec permit(
+          :all | :create | :get | :update,
+          map(),
+          String.t()
+          | %Account{}
+          | %TransactionRequest{}
+          | %TransactionConsumption{}
+          | %User{}
+          | %Wallet{}
+          | nil
+        ) :: :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
     Bodyguard.permit(TransactionConsumptionPolicy, action, params, data)
   end

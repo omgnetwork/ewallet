@@ -11,6 +11,7 @@ import moment from 'moment'
 import queryString from 'query-string'
 import { selectWallets } from '../omg-wallet/selector'
 import Copy from '../omg-copy'
+import CreateTransactionModal from '../omg-create-transaction-modal'
 const WalletPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -31,6 +32,10 @@ const WalletPageContainer = styled.div`
       visibility: visible;
     }
   }
+`
+const TransferButton = styled(Button)`
+    padding-left: 40px;
+    padding-right: 40px;
 `
 const WalletAddressContainer = styled.div`
   white-space: nowrap;
@@ -63,43 +68,21 @@ class WalletPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createAccountModalOpen: false,
-      exportModalOpen: false,
-      loadMoreTime: 1
+      transferModalOpen: false
     }
   }
 
-  componentWillReceiveProps = nextProps => {
-    const search = queryString.parse(this.props.location.search).search
-    const nextSearch = queryString.parse(nextProps.location.search).search
-    if (search !== nextSearch) {
-      this.setState({ loadMoreTime: 1 })
-    }
+  onClickTransfer = () => {
+    this.setState({ transferModalOpen: true })
   }
-
-  onClickExport = () => {
-    this.setState({ exportModalOpen: true })
+  onRequestCloseTransferModal = () => {
+    this.setState({ transferModalOpen: false })
   }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
-  }
-
-  onRequestCloseExport = () => {
-    this.setState({ exportModalOpen: false })
-  }
-  renderExportButton = () => {
+  renderTransferButton = () => {
     return (
-      <Button size='small' styleType='ghost' onClick={this.onClickExport} key={'export'}>
-        <Icon name='Export' />
-        <span>Export</span>
-      </Button>
-    )
-  }
-  renderCreateAccountButton = () => {
-    return (
-      <Button size='small' onClick={this.onClickCreateAccount} key={'create'}>
-        <Icon name='Plus' /> <span>Create Account</span>
-      </Button>
+      <TransferButton size='small' onClick={this.onClickTransfer} key={'transfer'}>
+        <Icon name='Transaction' /><span>Transfer</span>
+      </TransferButton>
     )
   }
   getColumns = wallets => {
@@ -152,7 +135,7 @@ class WalletPage extends Component {
   renderWalletPage = ({ data: wallets, individualLoadingStatus, pagination }) => {
     return (
       <WalletPageContainer>
-        <TopNavigation title={'Wallets'} />
+        <TopNavigation title={'Wallets'} buttons={[this.renderTransferButton()]} />
         <SortableTableContainer innerRef={table => (this.table = table)}>
           <SortableTable
             rows={this.getRow(wallets)}
@@ -166,7 +149,10 @@ class WalletPage extends Component {
             onClickLoadMore={this.onClickLoadMore}
           />
         </SortableTableContainer>
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
+        <CreateTransactionModal
+          open={this.state.transferModalOpen}
+          onRequestClose={this.onRequestCloseTransferModal}
+        />
       </WalletPageContainer>
     )
   }

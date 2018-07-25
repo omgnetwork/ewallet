@@ -31,6 +31,7 @@ defmodule AdminAPI.V1.AccountController do
   @doc """
   Retrieves a list of accounts based on current account for users.
   """
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
@@ -44,10 +45,10 @@ defmodule AdminAPI.V1.AccountController do
       |> respond(conn)
     else
       error -> respond(error, conn)
-      nil -> respond(conn, :account_id_not_found)
     end
   end
 
+  @spec descendants_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def descendants_for_account(conn, %{"id" => account_id} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account.id),
@@ -69,6 +70,7 @@ defmodule AdminAPI.V1.AccountController do
   @doc """
   Retrieves a specific account by its id.
   """
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"id" => id}) do
     with %Account{} = account <- Account.get_by(id: id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, account.id),
@@ -88,6 +90,7 @@ defmodule AdminAPI.V1.AccountController do
 
   The requesting user must have write permission on the given parent account.
   """
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     parent =
       if attrs["parent_id"] do
@@ -115,6 +118,7 @@ defmodule AdminAPI.V1.AccountController do
 
   The requesting user must have write permission on the given account.
   """
+  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => account_id} = attrs) do
     with %Account{} = original <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, original.id),
@@ -135,6 +139,7 @@ defmodule AdminAPI.V1.AccountController do
   @doc """
   Uploads an image as avatar for a specific account.
   """
+  @spec upload_avatar(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def upload_avatar(conn, %{"id" => id, "avatar" => _} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, account.id),
@@ -146,6 +151,9 @@ defmodule AdminAPI.V1.AccountController do
         handle_error(conn, :invalid_parameter)
 
       changeset when is_map(changeset) ->
+        handle_error(conn, :invalid_parameter, changeset)
+
+      {:error, changeset} when is_map(changeset) ->
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
@@ -167,7 +175,7 @@ defmodule AdminAPI.V1.AccountController do
     handle_error(conn, code, description)
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
     Bodyguard.permit(AccountPolicy, action, params, account_id)

@@ -117,8 +117,8 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
 
       assert response["data"] == %{
                "object" => "error",
-               "code" => "token:token_not_found",
-               "description" => "There is no token matching the provided token_id.",
+               "code" => "token:id_not_found",
+               "description" => "There is no token corresponding to the provided id",
                "messages" => nil
              }
     end
@@ -157,6 +157,18 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
       assert Token.get(response["data"]["id"]) != nil
       assert mint == nil
+    end
+
+    test "returns an error with decimals > 18 (19 decimals)" do
+      response =
+        admin_user_request("/token.create", %{
+          symbol: "BTC",
+          name: "Bitcoin",
+          subunit_to_unit: 10_000_000_000_000_000_000_000
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
     end
 
     test "inserts a new token with no minting if amount is nil" do
@@ -270,6 +282,22 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"]["encrypted_metadata"] == %{"something" => "secret"}
     end
 
+    test "fails to update an existing token with name = nil" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.update", %{
+          id: token.id,
+          name: nil
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `name` can't be blank."
+    end
+
     test "Raises invalid_parameter error if id is missing" do
       response = admin_user_request("/token.update", %{name: "Bitcoin"})
 
@@ -290,8 +318,8 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
 
       assert response["data"] == %{
                "object" => "error",
-               "code" => "token:token_not_found",
-               "description" => "There is no token matching the provided token_id.",
+               "code" => "token:id_not_found",
+               "description" => "There is no token corresponding to the provided id",
                "messages" => nil
              }
     end

@@ -8,7 +8,6 @@ defmodule AdminAPI.V1.WalletController do
   alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWallet.{UUIDFetcher, WalletPolicy}
   alias EWalletDB.{Wallet, Account, User}
-  alias Plug.Conn
 
   @mapped_fields %{
     "created_at" => "inserted_at"
@@ -20,7 +19,7 @@ defmodule AdminAPI.V1.WalletController do
   Retrieves a list of all wallets the accessor has access to (all accessible
   accounts + all user wallets)
   """
-  @spec all(Conn.t(), map() | nil) :: map()
+  @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
@@ -28,10 +27,12 @@ defmodule AdminAPI.V1.WalletController do
       |> Wallet.query_all_for_account_uuids_and_user(account_uuids)
       |> do_all(attrs, conn)
     else
+      {:error, error} -> handle_error(conn, error)
       error -> handle_error(conn, error)
     end
   end
 
+  @spec all_for_account(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_account(conn, %{"id" => id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, account) do
@@ -59,6 +60,7 @@ defmodule AdminAPI.V1.WalletController do
 
   def all_for_account(conn, _), do: handle_error(conn, :invalid_parameter)
 
+  @spec all_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all_for_user(conn, %{"id" => id} = attrs) do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
          :ok <- permit(:all, conn.assigns, user) do
@@ -94,7 +96,7 @@ defmodule AdminAPI.V1.WalletController do
     |> respond_multiple(conn)
   end
 
-  @spec get(Conn.t(), map()) :: map()
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"address" => address}) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, wallet) do
@@ -106,7 +108,7 @@ defmodule AdminAPI.V1.WalletController do
 
   def get(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec create(Conn.t(), map()) :: map()
+  @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, attrs) do
       attrs
@@ -140,11 +142,7 @@ defmodule AdminAPI.V1.WalletController do
     render(conn, :wallet, %{wallet: wallet})
   end
 
-  defp respond_single(nil, conn) do
-    handle_error(conn, :wallet_address_not_found)
-  end
-
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, data) do
     Bodyguard.permit(WalletPolicy, action, params, data)

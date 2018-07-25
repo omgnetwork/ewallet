@@ -1,16 +1,16 @@
 import React, { PureComponent } from 'react'
 import styled, { keyframes } from 'styled-components'
-import { Icon } from '../omg-uikit'
+import { Icon, Avatar } from '../omg-uikit'
 import { Link } from 'react-router-dom'
 import { withRouter } from 'react-router'
 import PropTypes from 'prop-types'
 import CurrentAccountProvider from '../omg-account-current/currentAccountProvider'
-import {fuzzySearch} from '../utils/search'
+import { fuzzySearch } from '../utils/search'
 const SideNavigationContainer = styled.div`
   background-color: ${props => props.theme.colors.B300};
   height: 100%;
   color: white;
-  padding: 35px 0;
+  padding: 50px 0;
   overflow: auto;
 `
 const NavigationItem = styled.div`
@@ -41,27 +41,7 @@ const progress = keyframes`
       background-position: calc(200px + 100%) 0;
   }
 `
-const Logo = styled.div`
-  height: 36px;
-  width: 36px;
-  flex: 0 0 auto;
-  vertical-align: middle;
-  border-radius: 4px;
-  background-color: ${props => props.theme.colors.B200};
-  position: relative;
-  color: white;
-  background-image: url(${props => props.backgroundImage});
-  background-size: cover;
-  background-position: center;
-`
-const LoadingLogo = Logo.extend`
-  background-color: ${props => props.theme.colors.B200};
-  background-image: ${props =>
-    `linear-gradient(90deg, ${props.theme.colors.B200}, grey, ${props.theme.colors.B200})`};
-  background-size: 200px 100%;
-  background-repeat: no-repeat;
-  animation: ${progress} 1.5s ease-in-out infinite;
-`
+
 const NavigationItemsContainer = styled.div`
   margin-top: 20px;
   a {
@@ -110,6 +90,25 @@ const CurrentAccountName = styled.h4`
   overflow: hidden;
   text-overflow: ellipsis;
 `
+const BigAvatar = styled(Avatar)`
+  text-align: center;
+  line-height: 36px;
+  background-color: ${props => props.theme.colors.B200};
+  color: white;
+  font-size: 14px;
+  width: 36px;
+  height: 36px;
+`
+const LoadingLogo = styled(Avatar)`
+  width: 36px;
+  height: 36px;
+  background-color: ${props => props.theme.colors.B200};
+  background-image: ${props =>
+    `linear-gradient(90deg, ${props.theme.colors.B200}, grey, ${props.theme.colors.B200})`};
+  background-size: 200px 100%;
+  background-repeat: no-repeat;
+  animation: ${progress} 1.5s ease-in-out infinite;
+`
 class SideNavigation extends PureComponent {
   static propTypes = {
     location: PropTypes.object,
@@ -137,7 +136,12 @@ class SideNavigation extends PureComponent {
     return (
       <CurrentAccountContainer>
         {loadingStatus === 'SUCCESS' ? (
-          <Logo backgroundImage={_.get(currentAccount, 'avatar.large')} />
+          <BigAvatar
+            image={_.get(currentAccount, 'avatar.large')}
+            name={
+              !_.get(currentAccount, 'avatar.large') && _.get(currentAccount, 'name').slice(0, 2)
+            }
+          />
         ) : (
           <LoadingLogo />
         )}

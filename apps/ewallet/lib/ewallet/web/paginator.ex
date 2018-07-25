@@ -27,7 +27,7 @@ defmodule EWallet.Web.Paginator do
   expects attribute keys to be strings, not atoms.
   """
   @spec paginate_attrs(Ecto.Query.t() | Ecto.Queryable.t(), map()) ::
-          map() | {:error, :invalid_parameter, String.t()}
+          %__MODULE__{} | {:error, :invalid_parameter, String.t()}
   def paginate_attrs(queryable, %{"page" => page} = attrs) when not is_integer(page) do
     parse_string_param(queryable, attrs, "page", page)
   end
@@ -67,7 +67,19 @@ defmodule EWallet.Web.Paginator do
   # Returns the per_page number or default, but never greater than the system's defined limit
   defp get_per_page(attrs) do
     per_page = Map.get(attrs, "per_page", @default_per_page)
-    max_per_page = Application.get_env(:ewallet, :max_per_page, @default_max_per_page)
+
+    max_per_page =
+      case Application.get_env(:ewallet, :max_per_page, @default_max_per_page) do
+        {:system, env_var} ->
+          case System.get_env(env_var) do
+            "" -> @default_max_per_page
+            nil -> @default_max_per_page
+            value when is_binary(value) -> String.to_integer(value)
+          end
+
+        value ->
+          value
+      end
 
     case per_page do
       n when n > max_per_page -> max_per_page

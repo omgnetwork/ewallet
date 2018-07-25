@@ -426,7 +426,7 @@ class TransactionRequestPanel extends Component {
             <b>Max Consumptions : </b> {transactionRequest.max_consumptions || '-'}
           </InformationItem>
           <InformationItem>
-            <b>Max Consumptions User : </b> {transactionRequest.max_consumptions_per_user || '-'}
+            <b>Max Consumptions Per User : </b> {transactionRequest.max_consumptions_per_user || '-'}
           </InformationItem>
           <InformationItem>
             <b>Expiry Date : </b>{' '}

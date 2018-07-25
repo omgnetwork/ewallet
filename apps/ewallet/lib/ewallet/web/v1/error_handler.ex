@@ -157,8 +157,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
       description: "The websocket payload could not be decoded."
     },
     token_not_found: %{
-      code: "token:token_not_found",
-      description: "There is no token matching the provided token_id."
+      code: "token:id_not_found",
+      description: "There is no token corresponding to the provided id"
     },
     from_token_not_found: %{
       code: "token:from_token_not_found",
@@ -258,9 +258,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
   Returns a map of all the error atoms along with their code and description.
   """
   @spec errors() :: %{
-          required(Atom.t()) => %{
-            required(Atom.t()) => String.t(),
-            required(Atom.t()) => String.t()
+          required(atom()) => %{
+            required(atom()) => String.t(),
+            required(atom()) => String.t()
           }
         }
   def errors, do: @errors
@@ -269,8 +269,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response of invalid parameter error with error details provided.
   """
-  @spec build_error(String.t() | Atom.t(), Map.t() | Ecto.Changeset.t() | String.t(), Map.t()) ::
-          Map.t()
+  @spec build_error(String.t() | atom(), map() | Ecto.Changeset.t() | String.t(), map() | nil) ::
+          map()
   def build_error(code, %Changeset{} = changeset, supported_errors) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(
@@ -334,7 +334,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with default error code and description
   """
-  @spec build_error(Atom.t(), Map.t()) :: Map.t()
+  @spec build_error(atom(), map() | nil) :: map()
   def build_error(error_name, supported_errors) do
     run_if_valid_error(error_name, supported_errors, fn error ->
       build(code: error.code, desc: error.description)

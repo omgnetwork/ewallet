@@ -137,12 +137,12 @@ class ChooseCategoryStage extends Component {
         <SearchContainer>
           <SearchBar>
             <Icon name='Search' />
-            <InputSearch autofocus value={this.state.search} onChange={this.onChangeInputSearch} />
+            <InputSearch value={this.state.search} onChange={this.onChangeInputSearch} />
           </SearchBar>
           <SearchResult>
             <SearchItem
               active={_.isEmpty(this.props.category)}
-              onClick={e => this.props.onChooseCategory(null)}
+              onClick={e => this.props.onChooseCategory({name: 'None'})}
             >
               <Icon name='Checked' />
               <span>None</span>
@@ -166,9 +166,9 @@ class ChooseCategoryStage extends Component {
             <CreateNewGroupActionContainer onSubmit={this.onClickCreateCategory}>
               <Input
                 normalPlaceholder='Enter category name'
-                autofocus
                 value={this.state.categoryNameToCreate}
                 onChange={this.onChangeInputCreateGroup}
+                autofocus
               />
               <PlainButtonContainer>
                 <PlainButton onClick={this.onClickCreateCategory}>Create</PlainButton>

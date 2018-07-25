@@ -219,8 +219,8 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Gets a transaction request consumption.
   """
-  @spec get(ExternalID.t()) :: %TransactionConsumption{} | nil
-  @spec get(ExternalID.t(), keyword()) :: %TransactionConsumption{} | nil
+  @spec get(String.t()) :: %TransactionConsumption{} | nil
+  @spec get(String.t(), keyword()) :: %TransactionConsumption{} | nil
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do
@@ -232,7 +232,7 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Get a consumption using one or more fields.
   """
-  @spec get_by(map() | keyword(), List.t()) :: %TransactionConsumption{} | nil
+  @spec get_by(map() | keyword(), keyword()) :: %TransactionConsumption{} | nil
   def get_by(map, opts \\ []) do
     query = TransactionConsumption |> Repo.get_by(map)
 
@@ -242,7 +242,7 @@ defmodule EWalletDB.TransactionConsumption do
     end
   end
 
-  @spec get_final_amount(%TransactionConsumption{}) :: Integer.t() | nil
+  @spec get_final_amount(%TransactionConsumption{}) :: integer() | nil
   def get_final_amount(consumption) do
     consumption = Repo.preload(consumption, [:transaction, :transaction_request])
 
@@ -274,7 +274,7 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Expires the given consumption.
   """
-  @spec expire(%TransactionConsumption{}) :: {:ok, %TransactionConsumption{}} | {:error, Map.t()}
+  @spec expire(%TransactionConsumption{}) :: {:ok, %TransactionConsumption{}} | {:error, map()}
   def expire(consumption) do
     consumption
     |> expired_changeset(%{
@@ -288,7 +288,7 @@ defmodule EWalletDB.TransactionConsumption do
   Expires the given consumption if the expiration date is past.
   """
   @spec expire_if_past_expiration_date(%TransactionConsumption{}) ::
-          {:ok, %TransactionConsumption{}} | {:error, Map.t()}
+          {:ok, %TransactionConsumption{}} | {:error, map()}
   def expire_if_past_expiration_date(consumption) do
     expired? =
       consumption.expiration_date &&
@@ -300,7 +300,7 @@ defmodule EWalletDB.TransactionConsumption do
     end
   end
 
-  @spec query_all_for(Atom.t() | String.t(), any()) :: Ecto.Query.t()
+  @spec query_all_for(atom() | String.t(), any()) :: Ecto.Queryable.t()
   def query_all_for(field_name, value) when is_list(value) do
     where(TransactionConsumption, [t], field(t, ^field_name) in ^value)
   end
@@ -308,6 +308,7 @@ defmodule EWalletDB.TransactionConsumption do
   def query_all_for(field_name, value),
     do: where(TransactionConsumption, [t], field(t, ^field_name) == ^value)
 
+  @spec query_all_for_account_and_user_uuids([String.t()], [String.t()]) :: Ecto.Queryable.t()
   def query_all_for_account_and_user_uuids(account_uuids, user_uuids) do
     from(
       t in TransactionConsumption,
@@ -318,7 +319,7 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Get all confirmed transaction consumptions.
   """
-  @spec all_active_for_request(UUID.t()) :: List.t()
+  @spec all_active_for_request(String.t()) :: [%TransactionConsumption{}]
   def all_active_for_request(nil), do: []
 
   def all_active_for_request(request_uuid) do
@@ -331,7 +332,7 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Get all confirmed transaction consumptions for the given user uuid.
   """
-  @spec all_active_for_user(UUID.t(), UUID.t()) :: List.t()
+  @spec all_active_for_user(String.t(), String.t()) :: [%TransactionConsumption{}]
   def all_active_for_user(nil, _), do: []
 
   def all_active_for_user(user_uuid, request_uuid) do
@@ -345,7 +346,7 @@ defmodule EWalletDB.TransactionConsumption do
   @doc """
   Inserts a transaction request consumption.
   """
-  @spec insert(Map.t()) :: {:ok, %TransactionConsumption{}} | {:error, Map.t()}
+  @spec insert(map()) :: {:ok, %TransactionConsumption{}} | {:error, map()}
   def insert(attrs) do
     changeset = changeset(%TransactionConsumption{}, attrs)
     opts = [on_conflict: :nothing, conflict_target: :idempotency_token]
