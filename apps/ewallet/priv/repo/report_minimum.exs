@@ -87,8 +87,8 @@ CLI.print("""
         <> ":" <> admin.id <> ":" <> admin_auth_token.token)}
       ```
 
-      The above header is for you to get started quickly. To integrate the eWallet SDK
-      to your application, you must build your own Authorization header using the information below:
+      The above header is for you to get started quickly. To integrate the eWallet to your
+      application, you must build your own Authorization header using the information below:
 
         - Authorization header : `OMGAdmin base64(api_key_id:api_key:user_id:auth_token)`
         - API key ID           : `#{api_key_id}`

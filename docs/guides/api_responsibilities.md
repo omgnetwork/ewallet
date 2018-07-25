@@ -4,7 +4,7 @@ Integrating the OmiseGO eWallet requires a new setup to be deployed. Feel free t
 
 ## Responsibilities
 
-### Features provided by the SDKs
+### Features provided by the eWallet
 
 |Area of responsibilities|Tasks|
 |------------------------|-----|

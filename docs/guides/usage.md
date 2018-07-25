@@ -1,7 +1,7 @@
 # Usage
 
 You can start communicating with the web APIs using any programming language of your choice,
-either by using the HTTP-RPC endpoints directly or by using one of the available SDKs.
+either by using the HTTP-RPC endpoints directly, or by using one of the available SDKs.
 
 ## HTTP-RPC WEB APIs
 

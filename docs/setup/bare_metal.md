@@ -1,6 +1,6 @@
 # Bare-metal setup
 
-Get the most juice out of your machine by setting up the eWallet server onto your base operating system.
+Get the most juice out of your machine by setting up the eWallet onto your base operating system.
 
 ## Step 1: Set up the server
 
