@@ -20,7 +20,6 @@ import queryString from 'query-string'
 import { connect } from 'react-redux'
 const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
-  padding-top: 3px;
 `
 const ContentDetailContainer = styled.div`
   margin-top: 40px;

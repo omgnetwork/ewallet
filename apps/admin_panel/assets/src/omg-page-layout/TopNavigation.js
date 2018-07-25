@@ -1,13 +1,12 @@
 import React, { PureComponent } from 'react'
 import styled from 'styled-components'
-import { Link } from 'react-router-dom'
 
 import PropTypes from 'prop-types'
 import SearchGroup from './SearchGroup'
 const TopNavigationContainer = styled.div`
   padding: 20px 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   flex-wrap: wrap;
   h2 {
     display: inline-block;
@@ -38,14 +37,6 @@ const RightNavigationContainer = styled.div`
     flex: 1 0 100%;
     margin-top: 10px;
   }
-`
-const TableType = styled.span`
-  color: ${props => props.theme.colors.B100};
-  font-size: 12px;
-`
-const Spliiter = styled.span`
-  color: ${props => props.theme.colors.S400};
-  margin: 0 ${props => (props.gap ? props.gap : '0')}px;
 `
 const SecondaryActionsContainer = styled.div`
   vertical-align: bottom;

@@ -13,7 +13,6 @@ import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
-  padding-top: 3px;
   button i {
     margin-right: 10px;
   }

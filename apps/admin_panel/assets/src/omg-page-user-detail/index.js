@@ -12,7 +12,6 @@ import { LoadingSkeleton } from '../omg-uikit'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
-  padding-top: 3px;
   b {
     width: 150px;
     display: inline-block;
