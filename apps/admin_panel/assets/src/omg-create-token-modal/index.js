@@ -66,25 +66,27 @@ class CreateToken extends Component {
   }
   onSubmit = async e => {
     e.preventDefault()
-    this.setState({ submitting: true })
-    try {
-      const result = await this.props.createToken({
-        name: this.state.name,
-        symbol: this.state.symbol,
-        amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
-        decimal: this.state.decimal
-      })
-      if (result.data) {
-        this.props.onRequestClose()
-        this.props.onFetchSuccess()
-      } else {
-        this.setState({
-          submitting: false,
-          error: result.error.description || result.error.message
+    if (this.state.decimal <= 18) {
+      try {
+        this.setState({ submitting: true })
+        const result = await this.props.createToken({
+          name: this.state.name,
+          symbol: this.state.symbol,
+          amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
+          decimal: this.state.decimal
         })
+        if (result.data) {
+          this.props.onRequestClose()
+          this.props.onFetchSuccess()
+        } else {
+          this.setState({
+            submitting: false,
+            error: result.error.description || result.error.message
+          })
+        }
+      } catch (e) {
+        this.setState({ submitting: false })
       }
-    } catch (e) {
-      this.setState({ submitting: false })
     }
   }
   render () {
@@ -107,6 +109,10 @@ class CreateToken extends Component {
           placeholder='Decimal point'
           value={this.state.decimal}
           onChange={this.onChangeDecimal}
+          error={this.state.decimal > 18}
+          errorText={'Decimal point should not exceed 18'}
+          type='number'
+          step={'1'}
         />
         <Input
           placeholder='Amount (Optional)'
