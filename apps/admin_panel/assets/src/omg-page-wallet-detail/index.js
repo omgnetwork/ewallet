@@ -14,7 +14,6 @@ import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
-  padding-top: 3px;
   button i {
     margin-right: 10px;
   }
