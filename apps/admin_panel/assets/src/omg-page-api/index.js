@@ -149,8 +149,8 @@ class ApiKeyPage extends Component {
   }
   onRequestCloseShowPrivateKey = () => {
     this.setState({
-      privateKey: '',
-      publicKey: '',
+      secretKey: '',
+      accessKey: '',
       submitStatus: 'DEFAULT',
       privateKeyModalOpen: false
     })
@@ -178,8 +178,8 @@ class ApiKeyPage extends Component {
       const { data } = await this.props.createAccessKey()
       fetch()
       this.setState({
-        privateKey: data.secret_key,
-        publicKey: data.access_key,
+        secretKey: data.secret_key,
+        accessKey: data.access_key,
         submitStatus: 'SUCCESS',
         privateKeyModalOpen: true
       })
@@ -370,18 +370,18 @@ class ApiKeyPage extends Component {
                 <ConfirmCreateKeyContainer>
                   <h4>Your key pair</h4>
                   <p>
-                    Please copy and keep this pair of public and private key. Secret key will use to
+                    Please copy and keep this pair of acesss and secret key. Secret key will use to
                     open your encrypted information.
                   </p>
                   <InputContainer>
-                    <InputLabel>Public Key</InputLabel>
-                    <input value={this.state.publicKey} spellCheck='false' />
-                    <Copy data={this.state.publicKey} />
+                    <InputLabel>Access Key</InputLabel>
+                    <input value={this.state.accessKey} spellCheck='false' />
+                    <Copy data={this.state.accessKey} />
                   </InputContainer>
                   <InputContainer>
-                    <InputLabel>Private key</InputLabel>
-                    <input value={this.state.privateKey} spellCheck='false' />
-                    <Copy data={this.state.privateKey} />
+                    <InputLabel>Secret key</InputLabel>
+                    <input value={this.state.secretKey} spellCheck='false' />
+                    <Copy data={this.state.secretKey} />
                   </InputContainer>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
