@@ -16,7 +16,7 @@ defmodule EWallet.TransactionRequestGate do
 
   alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account, Helpers.Assoc}
 
-  @spec create(Map.t()) :: {:ok, TransactionRequest.t()} | {:error, Atom.t()}
+  @spec create(map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
   def create(
         %{
           "account_id" => account_id,
@@ -137,8 +137,7 @@ defmodule EWallet.TransactionRequestGate do
 
   def create(_), do: {:error, :invalid_parameter}
 
-  @spec create(User.t() | Wallet.t(), Map.t()) ::
-          {:ok, TransactionRequest.t()} | {:error, Atom.t()}
+  @spec create(%User{} | %Wallet{}, map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
   def create(
         %User{} = user,
         attrs
@@ -173,10 +172,10 @@ defmodule EWallet.TransactionRequestGate do
 
   def create(_, _attrs), do: {:error, :invalid_parameter}
 
-  @spec expire_if_past_expiration_date(TransactionRequest.t()) ::
-          {:ok, TransactionRequest.t()}
-          | {:error, Atom.t()}
-          | {:error, Map.t()}
+  @spec expire_if_past_expiration_date(%TransactionRequest{}) ::
+          {:ok, %TransactionRequest{}}
+          | {:error, atom()}
+          | {:error, map()}
   def expire_if_past_expiration_date(request) do
     res = TransactionRequest.expire_if_past_expiration_date(request)
 

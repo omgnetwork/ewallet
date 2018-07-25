@@ -6,12 +6,12 @@ defmodule EWallet.Web.V1.Event do
   alias EWallet.Web.V1.TransactionConsumptionEventHandler
   alias EWalletDB.{User, Account}
 
-  @spec dispatch(Atom.t(), Map.t()) :: :ok
+  @spec dispatch(atom(), map()) :: :ok
   def dispatch(event, attrs) do
     TransactionConsumptionEventHandler.broadcast(event, attrs)
   end
 
-  @spec broadcast(Keyword.t()) :: :ok
+  @spec broadcast(keyword()) :: :ok
   def broadcast(
         event: event,
         topics: topics,

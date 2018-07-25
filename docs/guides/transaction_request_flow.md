@@ -4,7 +4,6 @@
 
 Transaction requests are a way to create pre-transactions with only one side (either sender or receiver). That pre-transaction will become a full transaction once the other side has consumed it.
 
-
 Here is a quick example to give you a better idea of how it works:
 
 1. Alice generates a transaction request to receive 10 OMG. The transaction request ID can be embedded in a QR code to provide a better user experience.

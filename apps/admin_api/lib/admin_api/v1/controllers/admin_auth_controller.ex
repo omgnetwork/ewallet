@@ -23,7 +23,7 @@ defmodule AdminAPI.V1.AdminAuthController do
 
   def switch_account(conn, %{"account_id" => account_id}) do
     with {:ok, _current_user} <- permit(:get, conn.assigns),
-         %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+         %Account{} = account <- Account.get(account_id) || :unauthorized,
          :ok <- permit_account(:get, conn.assigns, account.id),
          token <- conn.private.auth_auth_token,
          %AuthToken{} = token <-
@@ -31,11 +31,11 @@ defmodule AdminAPI.V1.AdminAuthController do
          {:ok, token} <- AuthToken.switch_account(token, account) do
       render_token(conn, token)
     else
-      error when is_atom(error) ->
-        render_error(conn, {:error, error})
+      {:error, error} ->
+        handle_error(conn, error)
 
       error ->
-        render_error(conn, error)
+        handle_error(conn, error)
     end
   end
 
@@ -47,15 +47,11 @@ defmodule AdminAPI.V1.AdminAuthController do
   end
 
   defp respond_with_token(conn) do
-    render_error(conn, {:error, :invalid_login_credentials})
+    handle_error(conn, :invalid_login_credentials)
   end
 
   defp render_token(conn, auth_token) do
     render(conn, :auth_token, %{auth_token: auth_token})
-  end
-
-  defp render_error(conn, {:error, code}) do
-    handle_error(conn, code)
   end
 
   @doc """
@@ -67,13 +63,12 @@ defmodule AdminAPI.V1.AdminAuthController do
       |> AdminUserAuthenticator.expire_token()
       |> render(:empty_response, %{})
     else
-      error ->
-        render_error(conn, {:error, error})
+      error_code ->
+        handle_error(conn, error_code)
     end
   end
 
-  @spec permit(:all | :create | :get | :update, any()) ::
-          {:ok, User.t()} | {:error, any()} | no_return()
+  @spec permit(:get | :update, map()) :: {:ok, %EWalletDB.User{}} | atom() | no_return()
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end

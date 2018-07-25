@@ -271,8 +271,8 @@ defmodule EWalletDB.Transaction do
   @doc """
   Gets a transaction.
   """
-  @spec get(ExternalID.t()) :: %Transaction{} | nil
-  @spec get(ExternalID.t(), keyword()) :: %Transaction{} | nil
+  @spec get(String.t()) :: %Transaction{} | nil
+  @spec get(String.t(), keyword()) :: %Transaction{} | nil
   def get(id, opts \\ [])
 
   def get(id, opts) when is_external_id(id) do

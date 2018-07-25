@@ -16,8 +16,8 @@ defmodule EWallet.Umbrella.Mixfile do
       aliases: aliases(),
       docs: docs(),
       dialyzer: [
-        flags: ["-Wunmatched_returns", :error_handling, :underspecs],
-        ignore_warnings: ".dialyzer_ignore"
+        plt_add_apps: [:iex, :mix],
+        ignore_warnings: ".dialyzer_ignore.exs"
       ]
     ]
   end
@@ -32,7 +32,7 @@ defmodule EWallet.Umbrella.Mixfile do
       {:credo, "0.9.2", only: [:dev, :test], runtime: false},
       {:ex_doc, "~> 0.16", only: :dev, runtime: false},
       {:excoveralls, "~> 0.8", only: :test, runtime: false},
-      {:dialyxir, "~> 0.5", only: [:dev], runtime: false}
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false}
     ]
   end
 
@@ -62,45 +62,76 @@ defmodule EWallet.Umbrella.Mixfile do
       extra_section: "Guides",
       extras: [
         {"README.md", [filename: "introduction", title: "Introduction"]},
+        "docs/demo.md",
+        "docs/faq.md",
+        # Design
         "docs/design/components.md",
+        "docs/design/conventions.md",
         "docs/design/databases.md",
-        "docs/design/entities.md",
+        "docs/design/design.md",
         "docs/design/transactions_and_entries.md",
         "docs/design/wallets.md",
+        # Guides
+        "docs/guides/api_responsibilities.md",
+        "docs/guides/entities.md",
+        "docs/guides/ewallet_api_websockets.md",
+        "docs/guides/guides.md",
         "docs/guides/transaction_request_flow.md",
-        "docs/setup/clustering.md",
-        "docs/setup/env.md",
-        "docs/setup/integration.md"
+        "docs/guides/usage.md",
+        # Setup
+        "docs/setup/advanced/api_specs.md",
+        "docs/setup/advanced/clustering.md",
+        "docs/setup/advanced/env.md",
+        "docs/setup/upgrading/20180619-encryption-upgrade.md",
+        "docs/setup/bare_metal.md",
+        "docs/setup/docker.md",
+        "docs/setup/vagrant.md",
+        # Tests
+        "docs/tests/tests.md"
       ],
       groups_for_extras: [
         "Getting Started": [
-          "README.md"
+          "README.md",
+          "docs/demo.md",
+          "docs/faq.md"
         ],
         "Setting Up": [
-          "docs/setup/clustering.md",
-          "docs/setup/env.md",
-          "docs/setup/integration.md"
+          "docs/setup/docker.md",
+          "docs/setup/vagrant.md",
+          "docs/setup/bare_metal.md"
         ],
         Guides: [
-          "docs/guides/transaction_request_flow.md"
+          "docs/guides/usage.md",
+          "docs/guides/api_responsibilities.md",
+          "docs/guides/entities.md",
+          "docs/guides/transaction_request_flow.md",
+          "docs/guides/ewallet_api_websockets.md"
         ],
         "Technical Design": [
-          "docs/design/entities.md",
           "docs/design/components.md",
           "docs/design/databases.md",
           "docs/design/wallets.md",
-          "docs/design/transactions_and_entries.md"
+          "docs/design/transactions_and_entries.md",
+          "docs/design/conventions.md"
+        ],
+        Tests: [
+          "docs/tests/tests.md"
+        ],
+        "Advanced Setup": [
+          "docs/setup/advanced/env.md",
+          "docs/setup/advanced/clustering.md",
+          "docs/setup/advanced/api_specs.md"
         ]
       ],
       groups_for_modules: [
-        eWallet: ~r/EWallet(\..+)*$/,
         "eWallet API": ~r/EWalletAPI(?!\.V\d+)(\..+)*$/,
         "eWallet API V1": ~r/EWalletAPI.V1(\..+)*$/,
+        "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
+        "Admin API V1": ~r/AdminAPI.V1(\..+)*$/,
+        eWallet: ~r/EWallet(\..+)*$/,
         "eWallet DB": ~r/EWalletDB(\..+)*$/,
         "Local Ledger": ~r/LocalLedger(\..+)*$/,
         "Local Ledger DB": ~r/LocalLedgerDB(\..+)*$/,
-        "Admin API": ~r/AdminAPI(?!\.V\d+)(\..+)*$/,
-        "Admin API V1": ~r/AdminAPI.V1(\..+)*$/,
         "URL Dispatcher": ~r/UrlDispatcher(\..+)*$/
       ]
     ]

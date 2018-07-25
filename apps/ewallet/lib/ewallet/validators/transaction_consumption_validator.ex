@@ -8,13 +8,13 @@ defmodule EWallet.TransactionConsumptionValidator do
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair, Wallet}
 
   @spec validate_before_consumption(
-          TransactionRequest.t(),
-          Wallet.t(),
-          Wallet.t(),
+          %TransactionRequest{},
+          %Wallet{},
+          %Wallet{},
           nil | keyword() | map()
         ) ::
-          {:ok, TransactionRequest.t(), Token.t(), integer()}
-          | {:error, Atom.t()}
+          {:ok, %TransactionRequest{}, %Token{}, integer() | nil}
+          | {:error, atom()}
   def validate_before_consumption(request, wallet, attrs, wallet_exchange \\ nil) do
     with amount <- attrs["amount"],
          token_id <- attrs["token_id"],
@@ -37,9 +37,13 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  @spec validate_before_confirmation(TransactionConsumption.t(), Account.t() | User.t()) ::
-          {:ok, TransactionConsumption.t()}
-          | {:error, Atom.t()}
+  @spec validate_before_confirmation(
+          %TransactionConsumption{},
+          %EWalletDB.Account{} | %EWalletDB.User{}
+        ) ::
+          {:ok, %TransactionConsumption{}}
+          | {:error, atom()}
+          | no_return()
   def validate_before_confirmation(consumption, confirmer) do
     with {request, wallet} <- {consumption.transaction_request, consumption.wallet},
          request <- Repo.preload(request, [:wallet]),
@@ -68,23 +72,28 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
+  @spec validate_only_one_exchange_address_in_pair(%TransactionRequest{}, %Wallet{} | nil) ::
+          :ok | {:error, :request_already_contains_exchange}
   def validate_only_one_exchange_address_in_pair(
         %TransactionRequest{exchange_wallet_address: nil},
         nil
-      ),
-      do: :ok
+      ) do
+    :ok
+  end
 
   def validate_only_one_exchange_address_in_pair(
         %TransactionRequest{exchange_wallet_address: nil},
         _wallet_exchange
-      ),
-      do: :ok
+      ) do
+    :ok
+  end
 
   def validate_only_one_exchange_address_in_pair(
         %TransactionRequest{exchange_wallet_address: _address},
         nil
-      ),
-      do: :ok
+      ) do
+    :ok
+  end
 
   def validate_only_one_exchange_address_in_pair(
         %TransactionRequest{exchange_wallet_address: address},
@@ -100,8 +109,10 @@ defmodule EWallet.TransactionConsumptionValidator do
     {:error, :request_already_contains_exchange}
   end
 
-  @spec validate_amount(TransactionRequest.t(), Integer.t()) ::
-          {:ok, TransactionRequest.t()} | {:error, :unauthorized_amount_override}
+  @spec validate_amount(%TransactionRequest{}, integer() | nil) ::
+          {:ok, integer() | nil}
+          | {:error, :unauthorized_amount_override}
+          | {:error, :invalid_parameter, String.t()}
   def validate_amount(%TransactionRequest{amount: nil} = _request, nil) do
     {:error, :invalid_parameter, "'amount' is required for transaction consumption."}
   end
@@ -130,9 +141,10 @@ defmodule EWallet.TransactionConsumptionValidator do
     {:error, :unauthorized_amount_override}
   end
 
-  @spec get_and_validate_token(TransactionRequest.t(), String.t()) ::
-          {:ok, Token.t()}
-          | {:error, Atom.t()}
+  @spec get_and_validate_token(%TransactionRequest{}, String.t() | nil) ::
+          {:ok, %Token{}}
+          | {:error, atom()}
+          | {:error, atom(), String.t()}
   def get_and_validate_token(%TransactionRequest{token_uuid: nil} = _request, nil) do
     {:error, :invalid_parameter,
      "'token_id' is required since the transaction request does not specify any."}
@@ -162,6 +174,8 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
+  @spec validate_max_consumptions_per_user(%TransactionRequest{}, %Wallet{}) ::
+          {:ok, %Wallet{}} | {:error, :max_consumptions_per_user_reached}
   def validate_max_consumptions_per_user(request, wallet) do
     with max <- request.max_consumptions_per_user,
          # max has a value
@@ -185,16 +199,10 @@ defmodule EWallet.TransactionConsumptionValidator do
   defp fetch_pair(type, request_token_uuid, consumption_token_uuid) do
     case type do
       "send" ->
-        ExchangePair.fetch_exchangable_pair(
-          %{uuid: request_token_uuid},
-          %{uuid: consumption_token_uuid}
-        )
+        ExchangePair.fetch_exchangable_pair(request_token_uuid, consumption_token_uuid)
 
       "receive" ->
-        ExchangePair.fetch_exchangable_pair(
-          %{uuid: consumption_token_uuid},
-          %{uuid: request_token_uuid}
-        )
+        ExchangePair.fetch_exchangable_pair(consumption_token_uuid, request_token_uuid)
     end
   end
 end

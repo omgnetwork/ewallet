@@ -20,6 +20,5 @@ The eWallet is an umbrella Elixir application containing the following sub-appli
 
 ## Sub-applications planned
 
-- `admin_panel`: A React front-end used to manage an eWallet.
 - `request_logger`: A logging system allowing developers to debug an eWallet.
 - `blockchain_gateway`: An interface to the blockchain.

@@ -8,12 +8,14 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     TransactionRequestPolicy
   }
 
+  @spec create_for_user(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create_for_user(conn, attrs) do
     conn.assigns.user
     |> TransactionRequestGate.create(attrs)
     |> respond(conn)
   end
 
+  @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def get(conn, %{"formatted_id" => formatted_id}) do
     with {:ok, request} <- TransactionRequestFetcher.get(formatted_id),
          :ok <- permit(:get, conn.assigns, request) do
@@ -27,8 +29,6 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     end
   end
 
-  defp respond({:error, code, description}, conn), do: handle_error(conn, code, description)
-
   defp respond({:error, error}, conn) when is_atom(error), do: handle_error(conn, error)
 
   defp respond({:error, changeset}, conn) do
@@ -41,7 +41,7 @@ defmodule EWalletAPI.V1.TransactionRequestController do
     })
   end
 
-  @spec permit(:all | :create | :get | :update, map(), String.t()) ::
+  @spec permit(:all | :create | :get | :update, map(), %EWalletDB.TransactionRequest{}) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, request) do
     Bodyguard.permit(TransactionRequestPolicy, action, params, request)
