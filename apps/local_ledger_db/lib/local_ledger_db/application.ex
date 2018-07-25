@@ -7,6 +7,7 @@ defmodule LocalLedgerDB.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
+    DeferredConfig.populate(:local_ledger_db)
 
     # List all child processes to be supervised
     children = [

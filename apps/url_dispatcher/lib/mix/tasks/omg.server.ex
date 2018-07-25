@@ -42,35 +42,26 @@ defmodule Mix.Tasks.Omg.Server do
 
   use Mix.Task
   alias Mix.Tasks.Run
+  import Application, only: [put_env: 3]
 
   @shortdoc "Starts the eWallet applications and their servers"
 
   @doc false
   def run(args) do
-    args
-    |> configure_endpoints()
-    |> configure_no_watch()
-    |> configure_no_halt()
-    |> Run.run()
+    configure_env(args)
+    Run.run(run_args() ++ args)
   end
 
-  # Let the UrlDispatcher know that the application is started as a server,
-  # so that it can prepare the endpoints to be served.
-  defp configure_endpoints(args) do
-    Application.put_env(:url_dispatcher, :serve_endpoints, true)
-    # Doesn't touch the arguments, so send it back for further processing
-    args
+  defp configure_env(["--no-watch" | rest]) do
+    put_env(:admin_panel, :start_with_no_watch, true)
+    configure_env(rest)
   end
 
-  defp configure_no_watch(args) do
-    {parsed, args, _invalids} = OptionParser.parse(args, switches: [no_watch: :boolean])
-    if parsed[:no_watch], do: Application.put_env(:admin_panel, :start_with_no_watch, true)
-    # This is the arguments with `--no-watch` flag removed by `OptionParser.parse/2` above
-    args
-  end
+  defp configure_env([_ | rest]), do: configure_env(rest)
+  defp configure_env([]), do: put_env(:url_dispatcher, :serve_endpoints, true)
 
-  defp configure_no_halt(args) do
-    if iex_running?(), do: args, else: ["--no-halt" | args]
+  defp run_args do
+    if iex_running?(), do: [], else: ["--no-halt"]
   end
 
   defp iex_running? do
