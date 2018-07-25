@@ -48,6 +48,7 @@ const Input = styled.input`
   }
   :-webkit-autofill {
     content: "AUTO_FILL_HACK";
+    transition: background-color 50000s ease-in-out 0s;
   }
 `
 const Error = styled.div`
