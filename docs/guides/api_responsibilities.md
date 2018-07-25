@@ -1,10 +1,10 @@
-# Integrating the OmiseGO SDK
+# API Responsibilities
 
 Integrating the OmiseGO eWallet requires a new setup to be deployed. Feel free to [get in touch](mailto:thibault@omisego.co) for that step as we offer hosted solutions. Before starting any integration, it is important to understand which responsibilities OmiseGO is taking care of and which ones you will need to implement.
 
 ## Responsibilities
 
-### Features provided by the SDK
+### Features provided by the eWallet
 
 |Area of responsibilities|Tasks|
 |------------------------|-----|

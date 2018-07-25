@@ -1,5 +1,4 @@
-OmiseGO exposed API definitions
-===============
+# API Specifications
 
 OpenAPI definitions, allow devs to specify the operations and metadata of their APIs in machine-readable form. This enables them to automate various processes around the API lifecycle.
 
