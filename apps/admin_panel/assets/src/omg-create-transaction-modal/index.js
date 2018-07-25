@@ -16,6 +16,7 @@ import WalletSelect from '../omg-wallet-select'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
+  position: relative;
   > i {
     position: absolute;
     right: 30px;
@@ -82,7 +83,7 @@ const FromToContainer = styled.div`
   }
 `
 const InnerTransferContainer = styled.div`
-  max-width: 500px;
+  max-width: 600px;
   padding: 50px;
   margin: 0 auto;
 `
