@@ -30,8 +30,13 @@ Fetch the Elixir dependencies:
 $ mix deps.get
 ```
 
-Then, fetch the front-end dependencies:
+Then, install the front-end dependencies:
 
+If you do not have `yarn` package manager, install it first with
+```bash
+$ npm install -g yarn
+```
+Then Install frontend dependencies
 ```bash
 $ (cd apps/admin_panel/assets/ && yarn install)
 ```
