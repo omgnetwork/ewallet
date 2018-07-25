@@ -4,7 +4,6 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateTransactionModal from '../omg-create-transaction-modal'
-import ExportModal from '../omg-export-modal'
 import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { withRouter } from 'react-router'
 import moment from 'moment'
@@ -218,7 +217,6 @@ class TransactionPage extends Component {
           open={this.state.createTransactionModalOpen}
           onCreateTransaction={fetch}
         />
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </TransactionPageContainer>
     )
   }

@@ -14,11 +14,8 @@ import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 const Form = styled.form`
-  padding: 50px;
   width: 100vw;
   height: 100vh;
-  box-sizing: border-box;
-  overflow: auto;
   > i {
     position: absolute;
     right: 30px;
@@ -86,6 +83,7 @@ const FromToContainer = styled.div`
 `
 const InnerTransferContainer = styled.div`
   max-width: 500px;
+  padding: 50px;
   margin: 0 auto;
 `
 const enhance = compose(
@@ -444,7 +442,8 @@ export default class CreateTransactionModal extends Component {
       <Modal
         isOpen={this.props.open}
         onRequestClose={this.props.onRequestClose}
-        contentLabel='create account modal'
+        contentLabel='create transaction modal'
+        overlayClassName='dummy2'
       >
         <EnhancedCreateTransaction
           onRequestClose={this.props.onRequestClose}

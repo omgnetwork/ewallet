@@ -41,7 +41,6 @@ const AccountPageContainer = styled.div`
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
-    cursor: pointer;
     color: ${props => props.theme.colors.S500};
     :hover {
       color: ${props => props.theme.colors.B300};
