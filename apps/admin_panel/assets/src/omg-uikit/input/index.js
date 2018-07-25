@@ -48,7 +48,16 @@ const Input = styled.input`
   }
   :-webkit-autofill {
     content: "AUTO_FILL_HACK";
+    animation-name: onAutoFillStart;
     transition: background-color 50000s ease-in-out 0s;
+  }
+  @keyframes onAutoFillStart {
+    from {
+      /**/
+    }
+    to {
+      /**/
+    }
   }
 `
 const Error = styled.div`
@@ -116,12 +125,11 @@ class InputComonent extends PureComponent {
     if (this.props.autofocus) this.input.focus()
     this.props.registerRef(this.input)
     // HACK CHROME BUG AUTOFILL
-    setTimeout(() => {
-      if (window.getComputedStyle(this.input, ':-webkit-autofill').content === '"AUTO_FILL_HACK"') {
-        this.setState({ active: true })
-      }
-    }, 100)
+    this.input.addEventListener('animationstart', e => {
+      this.setState({ active: true })
+    })
   }
+
   handleKeyPress = e => {
     if (e.key === 'Enter') {
       this.props.onPressEnter()
