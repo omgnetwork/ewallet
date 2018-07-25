@@ -131,6 +131,10 @@ class CreateTransaction extends Component {
     this.setState({ [`${type}SearchToken`]: '', [`${type}Selected`]: null })
   }
 
+  onFocusAddressSelect = type => () => {
+    this.setState({[type]: ''})
+  }
+
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -205,6 +209,7 @@ class CreateTransaction extends Component {
                 onSelectItem={this.onSelectFromAddressSelect}
                 value={this.state.fromAddress}
                 onChange={this.onChangeInputFromAddress}
+                onFocus={this.onFocusAddressSelect('fromAddress')}
                 options={data.filter(w => w.identifier !== 'burn').map(d => {
                   return {
                     key: d.address,
@@ -269,6 +274,7 @@ class CreateTransaction extends Component {
                 onSelectItem={this.onSelectToAddressSelect}
                 value={this.state.toAddress}
                 onChange={this.onChangeInputToAddress}
+                onFocus={this.onFocusAddressSelect('toAddress')}
                 options={data.map(d => {
                   return { key: d.address, value: <WalletSelect wallet={d} />, ...d }
                 })}
