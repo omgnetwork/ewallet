@@ -127,7 +127,27 @@ defmodule EWalletDB.KeyTest do
       assert key.account.uuid == account.uuid
     end
 
-    test "returns nil if access_key and/or secret_key do not match" do
+    test "returns false if access key is disabled" do
+      account = insert(:account)
+
+      {:ok, key} =
+        :key
+        |> params_for(%{
+          access_key: "access123",
+          secret_key: "secret321",
+          account: account
+        })
+        |> Key.insert()
+
+      {:ok, _key} = Key.update(key, %{
+        expired: true
+      })
+
+      res = Key.authenticate("access123", Base.url_encode64("secret321"))
+      assert res == false
+    end
+
+    test "returns false if access_key and/or secret_key do not match" do
       :key
       |> params_for(%{access_key: "access123", secret_key: "secret321"})
       |> Key.insert()
@@ -137,7 +157,7 @@ defmodule EWalletDB.KeyTest do
       assert Key.authenticate("unmatched", Base.url_encode64("unmatched")) == false
     end
 
-    test "returns nil if access_key and/or secret_key is nil" do
+    test "returns false if access_key and/or secret_key is nil" do
       assert Key.authenticate("access_key", nil) == false
       assert Key.authenticate(nil, "secret_key") == false
       assert Key.authenticate(nil, nil) == false
