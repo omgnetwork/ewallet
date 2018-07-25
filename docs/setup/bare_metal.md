@@ -10,6 +10,7 @@ Before we begin, be sure to have the following applications installed and runnin
 - [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used to format images in the admin panel. Tested with version `> 7.0.7-22`.
 - [Elixir](http://elixir-lang.github.io/install.html): Elixir is a dynamic, functional language designed for building scalable and maintainable applications.
 - [Git](https://git-scm.com/): Git is a free and open source distributed version control system designed to handle everything from small to very large projects with speed and efficiency.
+- [NodeJS](https://nodejs.org/) Node.js is a JavaScript runtime built on Chrome's V8 JavaScript engine. Uses for admin panel building package and dependencies installation.
 
 Now that you have the applications installed, proceed with 1.1 through 1.5 to setup the server.
 
