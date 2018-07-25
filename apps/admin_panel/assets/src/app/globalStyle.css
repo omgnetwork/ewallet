@@ -108,10 +108,12 @@ a {
   bottom: 0;
   right:0;
   background-color: rgba(0,0,0,0.5);
+  overflow: auto;
 }
 
 .ReactModal__Content.react-modal {
   background-color: white;
+  overflow: auto;
   border: none;
   border-radius: 4px;
   opacity: 0;

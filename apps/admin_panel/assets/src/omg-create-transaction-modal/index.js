@@ -15,7 +15,7 @@ import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 const Form = styled.form`
   padding: 50px;
-  width: 400px;
+  width: 500px;
   > i {
     position: absolute;
     right: 15px;
@@ -64,6 +64,19 @@ const InputGroupContainer = styled.div`
   > div:first-child {
     flex: 1 1 auto;
     margin-right: 40px;
+  }
+`
+const OptionalExplanation = styled.div`
+  margin-top: 10px;
+  font-size: 10px;
+  color: ${props => props.theme.colors.B100};
+`
+const FromToContainer = styled.div`
+  h5 {
+    letter-spacing: 1px;
+    background-color: ${props => props.theme.colors.S300};
+    display: inline-block;
+    padding: 5px 10px;
   }
 `
 const enhance = compose(
@@ -213,11 +226,10 @@ class CreateTransaction extends Component {
         )
       : '-'
   }
-  render () {
+  renderFromSection () {
     return (
-      <Form onSubmit={this.onSubmit} noValidate>
-        <Icon name='Close' onClick={this.props.onRequestClose} />
-        <h4>Transfer</h4>
+      <FromToContainer>
+        <h5>From</h5>
         <InputLabel>From Address</InputLabel>
         <WalletsFetcher
           accountId={this.props.match.params.accountId}
@@ -260,9 +272,9 @@ class CreateTransaction extends Component {
                       wallet
                         ? wallet.balances.map(b => ({
                           ...{
-                              key: b.token.id,
-                              value: `${b.token.name} (${b.token.symbol})`
-                            },
+                            key: b.token.id,
+                            value: `${b.token.name} (${b.token.symbol})`
+                          },
                           ...b
                         }))
                         : []
@@ -286,6 +298,13 @@ class CreateTransaction extends Component {
             )
           }}
         />
+      </FromToContainer>
+    )
+  }
+  renderToSection () {
+    return (
+      <FromToContainer>
+        <h5 style={{marginTop: '20px'}}>To</h5>
         <InputLabel>To Address</InputLabel>
         <AllWalletsFetcher
           query={{ search: this.state.toAddress.trim() }}
@@ -309,45 +328,63 @@ class CreateTransaction extends Component {
           walletAddress={this.state.toAddress.trim()}
           render={({ wallet }) => {
             return (
-              <InputGroupContainer>
-                <div>
-                  <InputLabel>Token</InputLabel>
-                  <Select
-                    normalPlaceholder='Token'
-                    onSelectItem={this.onSelectTokenSelect('toToken')}
-                    onChange={this.onChangeSearchToken('toToken')}
-                    value={this.state.toTokenSearchToken}
-                    onFocus={this.onFocusSelect('toToken')}
-                    options={
-                      wallet
-                        ? wallet.balances.map(b => ({
-                          ...{
+              <div>
+                <OptionalExplanation>
+                  The fields below are optional and should only be used if you want to perform an
+                  exchange. Leave the amount blank to let the server use the default exchange rate.
+                </OptionalExplanation>
+                <InputGroupContainer>
+                  <div>
+                    <InputLabel>Token</InputLabel>
+                    <Select
+                      normalPlaceholder='Token'
+                      onSelectItem={this.onSelectTokenSelect('toToken')}
+                      onChange={this.onChangeSearchToken('toToken')}
+                      value={this.state.toTokenSearchToken}
+                      onFocus={this.onFocusSelect('toToken')}
+                      options={
+                        wallet
+                          ? wallet.balances.map(b => ({
+                            ...{
                               key: b.token.id,
                               value: `${b.token.name} (${b.token.symbol})`
                             },
-                          ...b
-                        }))
-                        : []
-                    }
-                  />
-                  <BalanceTokenLabel>
-                    Balance: {this.getBalanceOfSelectedToken('toToken')}
-                  </BalanceTokenLabel>
-                </div>
-                <div>
-                  <InputLabel>Amount</InputLabel>
-                  <Input
-                    value={this.state.toTokenAmount}
-                    onChange={this.onChangeAmount('toToken')}
-                    type='number'
-                    step='any'
-                    normalPlaceholder={'Token amount'}
-                  />
-                </div>
-              </InputGroupContainer>
+                            ...b
+                          }))
+                          : []
+                      }
+                    />
+                    <BalanceTokenLabel>
+                      Balance: {this.getBalanceOfSelectedToken('toToken')}
+                    </BalanceTokenLabel>
+                  </div>
+                  <div>
+                    <InputLabel>Amount</InputLabel>
+                    <Input
+                      value={this.state.toTokenAmount}
+                      onChange={this.onChangeAmount('toToken')}
+                      type='number'
+                      step='any'
+                      normalPlaceholder={'Token amount'}
+                    />
+                  </div>
+                </InputGroupContainer>
+              </div>
             )
           }}
         />
+      </FromToContainer>
+    )
+  }
+  render () {
+    return (
+      <Form onSubmit={this.onSubmit} noValidate>
+        <Icon name='Close' onClick={this.props.onRequestClose} />
+        <h4>Transfer</h4>
+        <div>
+          {this.renderFromSection()}
+          {this.renderToSection()}
+        </div>
         {this.state.toTokenSelected && (
           <AllWalletsFetcher
             query={{ search: this.state.exchangeAddress }}
