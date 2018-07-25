@@ -49,7 +49,7 @@ defmodule Mix.Tasks.Omg.Server do
   @doc false
   def run(args) do
     configure_env(args)
-    Run.run(run_args() ++ args)
+    Run.run(run_args())
   end
 
   defp configure_env(["--no-watch" | rest]) do
