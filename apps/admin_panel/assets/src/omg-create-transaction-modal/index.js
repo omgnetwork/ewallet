@@ -250,7 +250,6 @@ class CreateTransaction extends Component {
                 onSelectItem={this.onSelectFromAddressSelect}
                 value={this.state.fromAddress}
                 onChange={this.onChangeInputFromAddress}
-                onFocus={this.onFocusFromAddressSelect}
                 onBlur={this.onBlurFromAddressSelect}
                 options={data.filter(w => w.identifier !== 'burn').map(d => {
                   return {
@@ -275,7 +274,6 @@ class CreateTransaction extends Component {
                     onSelectItem={this.onSelectTokenSelect('fromToken')}
                     onChange={this.onChangeSearchToken('fromToken')}
                     value={this.state.fromTokenSearchToken}
-                    onFocus={this.onFocusSelect('fromToken')}
                     options={
                       wallet
                         ? wallet.balances.map(b => ({
@@ -323,7 +321,6 @@ class CreateTransaction extends Component {
                 onSelectItem={this.onSelectToAddressSelect}
                 value={this.state.toAddress}
                 onChange={this.onChangeInputToAddress}
-                onFocus={this.onFocusToAddressSelect}
                 onBlur={this.onBlurToAddressSelect}
                 options={data.map(d => {
                   return { key: d.address, value: <WalletSelect wallet={d} />, ...d }
@@ -349,7 +346,6 @@ class CreateTransaction extends Component {
                       onSelectItem={this.onSelectTokenSelect('toToken')}
                       onChange={this.onChangeSearchToken('toToken')}
                       value={this.state.toTokenSearchToken}
-                      onFocus={this.onFocusSelect('toToken')}
                       options={
                         wallet
                           ? wallet.balances.map(b => ({
@@ -405,7 +401,6 @@ class CreateTransaction extends Component {
                       onSelectItem={this.onSelectExchangeAddressSelect}
                       value={this.state.exchangeAddress}
                       onChange={this.onChangeInputExchangeAddress}
-                      onFocus={this.onFocusExchangeAddressSelect}
                       options={data.map(d => {
                         return {
                           key: d.address,
