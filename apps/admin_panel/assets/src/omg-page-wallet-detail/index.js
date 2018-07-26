@@ -12,6 +12,7 @@ import moment from 'moment'
 import CreateTransactionModal from '../omg-create-transaction-modal'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Copy from '../omg-copy'
+import CONSTANT from '../constants'
 const WalletDetailContainer = styled.div`
   padding-bottom: 20px;
   button i {
@@ -36,7 +37,18 @@ const ContentContainer = styled.div`
     padding-right: 40px;
   }
 `
-
+const ErrorPageContainer = styled.div`
+  text-align: center;
+  h4 {
+    margin-top: 20px;
+  }
+  img {
+    margin-top: 100px;
+    width: 500px;
+    height: 350px;
+    margin-bottom: 30px;
+  }
+`
 const enhance = compose(
   withTheme,
   withRouter
@@ -63,7 +75,8 @@ class WalletDetaillPage extends Component {
         breadcrumbItems={['Wallet', `${wallet.address}`]}
         buttons={[
           <Button size='small' onClick={this.onClickCreateTransaction} key='transfer'>
-            <Icon name='Transaction' /><span>Transfer</span>
+            <Icon name='Transaction' />
+            <span>Transfer</span>
           </Button>
         ]}
       />
@@ -79,18 +92,22 @@ class WalletDetaillPage extends Component {
         <DetailGroup>
           <b>Wallet Type:</b> <span>{wallet.identifier}</span>
         </DetailGroup>
-        { wallet.account && <DetailGroup>
-          <b>Account Owner:</b>{' '}
-          <Link to={`/${accountId}/accounts/${wallet.account.id}`}>
-            {_.get(wallet, 'account.name', '-')}
-          </Link>
-        </DetailGroup>}
-        { wallet.user && <DetailGroup>
-          <b>User:</b>{' '}
-          <Link to={`/${accountId}/users/${wallet.user.id}`}>
-            {_.get(wallet, 'user.id', '-')}
-          </Link>
-        </DetailGroup>}
+        {wallet.account && (
+          <DetailGroup>
+            <b>Account Owner:</b>{' '}
+            <Link to={`/${accountId}/accounts/${wallet.account.id}`}>
+              {_.get(wallet, 'account.name', '-')}
+            </Link>
+          </DetailGroup>
+        )}
+        {wallet.user && (
+          <DetailGroup>
+            <b>User:</b>{' '}
+            <Link to={`/${accountId}/users/${wallet.user.id}`}>
+              {_.get(wallet, 'user.id', '-')}
+            </Link>
+          </DetailGroup>
+        )}
         <DetailGroup>
           <b>Created Date:</b>{' '}
           <span>{moment(wallet.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
@@ -108,7 +125,10 @@ class WalletDetaillPage extends Component {
           return (
             <DetailGroup key={balance.token.id}>
               <b>{balance.token.name}</b>{' '}
-              <span>{formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)} {balance.token.symbol}</span>
+              <span>
+                {formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}{' '}
+                {balance.token.symbol}
+              </span>
             </DetailGroup>
           )
         })}
@@ -134,11 +154,22 @@ class WalletDetaillPage extends Component {
       </DetailLayout>
     )
   }
+  renderErrorPage (error) {
+    return (
+      <ErrorPageContainer>
+        <img src={require('../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
+        <h2>{error.code}</h2>
+        <p>{error.description}</p>
+      </ErrorPageContainer>
+    )
+  }
 
-  renderWalletDetailPage = ({ wallet }) => {
+  renderWalletDetailPage = ({ wallet, loadingStatus, result }) => {
     return (
       <WalletDetailContainer>
-        {wallet ? this.renderWalletDetailContainer(wallet) : null}
+        {loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS &&
+          this.renderWalletDetailContainer(wallet)}
+        {loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
       </WalletDetailContainer>
     )
   }

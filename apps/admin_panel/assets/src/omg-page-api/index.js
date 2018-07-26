@@ -270,7 +270,7 @@ class ApiKeyPage extends Component {
           })
           return (
             <KeySection style={{ marginTop: '20px' }}>
-              <h3>E-Wallet API Key</h3>
+              <h3>eWallet API Key</h3>
               <p>
                 eWallet API Keys are used to authenticate clients and allow them to perform various
                 user-related functions (once the user has been logged in), e.g. make transfers with
@@ -299,8 +299,8 @@ class ApiKeyPage extends Component {
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Generate e-wallet key</h4>
-                  <p>Are you sure you want to generate e-wallet key ?</p>
+                  <h4>Generate eWallet key</h4>
+                  <p>Are you sure you want to generate eWallet key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
             </KeySection>
