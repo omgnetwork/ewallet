@@ -68,13 +68,6 @@ class UsersPage extends Component {
       exportModalOpen: false
     }
   }
-  componentWillReceiveProps = nextProps => {
-    const search = queryString.parse(this.props.location.search).search
-    const nextSearch = queryString.parse(nextProps.location.search).search
-    if (search !== nextSearch) {
-      this.setState({ loadMoreTime: 1 })
-    }
-  }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
     this.props.history.push(`/${params.accountId}/users/${data.id}`)

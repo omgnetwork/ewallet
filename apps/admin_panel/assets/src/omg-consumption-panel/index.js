@@ -3,12 +3,13 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import ConsumptionProvider from '../omg-consumption/consumptionProvider'
 import { Icon, Button } from '../omg-uikit'
-import { withRouter, Link } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import { connect } from 'react-redux'
 import { approveConsumptionById, rejectConsumptionById } from '../omg-consumption/action'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
+import Link from '../omg-links'
 import moment from 'moment'
 const PanelContainer = styled.div`
   height: 100vh;
@@ -100,17 +101,15 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
-          const amount = tq.amount === null ? (
-            'Not Specified'
-          ) : (
-            <span>
-              {formatReceiveAmountToTotal(
-                tq.amount,
-                _.get(tq, 'token.subunit_to_unit')
-              )}{' '}
-              {_.get(tq, 'token.symbol')}
-            </span>
-          )
+          const amount =
+            tq.amount === null ? (
+              'Not Specified'
+            ) : (
+              <span>
+                {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
+                {_.get(tq, 'token.symbol')}
+              </span>
+            )
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
@@ -122,23 +121,18 @@ class TransactionRequestPanel extends Component {
                 <InformationItem>
                   <b>Request:</b>{' '}
                   <span>
-                    <Link
-                      to={`/${this.props.match.params.accountId}/consumptions?show-request-tab=${
-                        tq.id
-                      }`}
-                    >
-                      {tq.id}
-                    </Link>
+                    <Link to={{ search: `show-request-tab=${tq.id}` }}>{tq.id}</Link>
                   </span>
                 </InformationItem>
                 <InformationItem>
                   <b>Type:</b> <span>{tq.type}</span>
                 </InformationItem>
                 <InformationItem>
-                  <b>Requester Address:</b> {tq.address}
+                  <b>Requester Address:</b> <Link to={`/wallets/${tq.address}`}>{tq.address}</Link>
                 </InformationItem>
                 <InformationItem>
-                  <b>Consumer Address:</b> {consumption.address}
+                  <b>Consumer Address:</b>{' '}
+                  <Link to={`/wallets/${consumption.address}`}>{consumption.address}</Link>
                 </InformationItem>
                 <InformationItem>
                   <b>Token:</b> <span>{_.get(tq, 'token.name')}</span>
@@ -206,31 +200,37 @@ class TransactionRequestPanel extends Component {
                   <b>Token:</b> {_.get(tq, 'token.name')}
                 </InformationItem>
                 <InformationItem>
-                  <b>Amount :</b>{' '}
-                  {amount}
+                  <b>Amount :</b> {amount}
                 </InformationItem>
                 <InformationItem>
                   <b>Requester Address : </b>{' '}
-                  <Link to={`/${this.props.match.params.accountId}/wallets/${tq.address}`}>
-                    {tq.address}
-                  </Link>
+                  <Link to={`/wallets/${tq.address}`}>{tq.address}</Link>
                 </InformationItem>
                 <InformationItem>
-                  <b>Account ID : </b> {_.get(tq, 'account.id', '-')}
-                </InformationItem>
-                <InformationItem>
-                  <b>Account Name : </b>{' '}
+                  <b>Account ID : </b>{' '}
                   {_.get(tq, 'account.id') ? (
-                    <Link to={`/${this.props.match.params.accountId}/wallets/${tq.address}`}>
-                      {' '}
-                      {tq.account.name}{' '}
+                    <Link to={`/accounts/${_.get(tq, 'account.id')}`}>
+                      {_.get(tq, 'account.id')}
                     </Link>
                   ) : (
                     '-'
                   )}
                 </InformationItem>
                 <InformationItem>
-                  <b>User ID : </b> {_.get(tq, 'user.id', '-')}
+                  <b>Account Name : </b>{' '}
+                  {_.get(tq, 'account.id') ? (
+                    <Link to={`/wallets/${tq.address}`}> {tq.account.name} </Link>
+                  ) : (
+                    '-'
+                  )}
+                </InformationItem>
+                <InformationItem>
+                  <b>User ID : </b>{' '}
+                  {_.get(tq, 'user.id') ? (
+                    <Link to={`/users/${_.get(tq, 'user.id')}`}>{_.get(tq, 'user.id')}</Link>
+                  ) : (
+                    '-'
+                  )}
                 </InformationItem>
                 <InformationItem>
                   <b>Confirmation : </b> {tq.require_confirmation ? 'Yes' : 'No'}
@@ -245,7 +245,10 @@ class TransactionRequestPanel extends Component {
                   <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user || '-'}
                 </InformationItem>
                 <InformationItem>
-                  <b>Expiry Date : </b> {tq.expiration_date ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss') : '-'}
+                  <b>Expiry Date : </b>{' '}
+                  {tq.expiration_date
+                    ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss')
+                    : '-'}
                 </InformationItem>
                 <InformationItem>
                   <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}

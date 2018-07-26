@@ -72,8 +72,7 @@ class TransactionRequestsPage extends Component {
     super(props)
     this.state = {
       createTransactionRequestModalOpen: queryString.parse(this.props.location.search).createRequest || false,
-      exportModalOpen: false,
-      loadMoreTime: 1
+      exportModalOpen: false
     }
     this.columns = [
       { key: 'id', title: 'REQUEST ID', sort: true },
