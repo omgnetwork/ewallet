@@ -58,6 +58,12 @@ Run the following command to setup the databases:
 $ mix do ecto.create, ecto.migrate
 ```
 
+Also, you will need to setup the test database so tests can be run:
+
+```bash
+$ MIX_ENV=test mix do ecto.create, ecto.migrate
+```
+
 ### 1.5 Run the tests
 
 Run the tests to make sure that your setup is healthy:
