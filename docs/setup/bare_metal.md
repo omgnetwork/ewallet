@@ -37,6 +37,8 @@ Then, install the front-end dependencies:
 $ (cd apps/admin_panel/assets/ && yarn install)
 ```
 
+_The parentheses above forces the commands to be executed in a subshell, and returns to the current working directory after the execution._
+
 ### 1.3 Configure environment variables
 
 Many configurations have default values pre-defined. If your environment requires different values, run `export ENV=value` to set environment variables in the current session (or add them to whatever profile file you are using).
