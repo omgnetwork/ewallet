@@ -83,6 +83,7 @@ class TransactionRequestPanel extends Component {
     const address = _.get(transaction, 'address')
     const accountName = _.get(transaction, 'account.name')
     const accountId = _.get(transaction, 'account.id')
+    const userId = _.get(transaction, 'user.id')
     const tokenId = _.get(transaction, 'token.id')
     return (
       <TransactionInfoContainer>
@@ -100,7 +101,7 @@ class TransactionRequestPanel extends Component {
         {_.get(transaction, 'user') && (
           <InformationItem>
             <b>User : </b>
-            <Link to={`accounts/${accountId}`}>{_.get(transaction, 'user.id')}</Link>
+            <Link to={`users/${userId}`}>{userId}</Link>
           </InformationItem>
         )}
         <InformationItem>
