@@ -36,7 +36,7 @@ const Error = styled.div`
   text-align: center;
   padding: 10px 0;
   overflow: hidden;
-  max-height: ${props => (props.error ? '50px' : 0)};
+  max-height: ${props => (props.error ? '100px' : 0)};
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
@@ -108,7 +108,6 @@ class LoginForm extends Component {
           value={this.state.email}
           disabled={this.state.submitted}
           name='email'
-          autoComplete='off'
         />
         <Input
           placeholder='Password'
@@ -119,12 +118,8 @@ class LoginForm extends Component {
           value={this.state.password}
           disabled={this.state.submitted}
           name='password'
-          autoComplete='off'
         />
         <OptionRowContainer>
-          {/* <OptionItem align='left' onClick={this.onClickCheckbox}>
-            <Checkbox checked={this.state.rememberMe} label={'Remember Me'} />
-          </OptionItem> */}
           <OptionItem align='right'>
             <Link to='/forget-password/'>Forget Password ?</Link>
           </OptionItem>

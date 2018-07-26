@@ -1,6 +1,6 @@
 import { BigNumber } from 'bignumber.js'
 import bigInt from 'big-integer'
-
+import _ from 'lodash'
 function precision (a) {
   if (!isFinite(a)) return 0
   let e = 1
@@ -17,7 +17,9 @@ export const formatNumber = number => {
 }
 
 export const formatAmount = (amount, subUnitToUnit) => {
+  if (!amount) return null
   const ensureNumberAmount = Number(amount)
+
   const decimal = precision(ensureNumberAmount)
   const shiftedAmount = ensureNumberAmount * Math.pow(10, decimal)
   const shiftedSubUnit = subUnitToUnit / Math.pow(10, decimal)
@@ -32,7 +34,7 @@ export const formatAmount = (amount, subUnitToUnit) => {
         .toString()
     }
   } else {
-    return 0
+    return null
   }
 }
 export const formatAmountReceive = (amount, subUnitToUnit) => {

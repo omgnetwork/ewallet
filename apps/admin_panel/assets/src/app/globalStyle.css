@@ -108,15 +108,17 @@ a {
   bottom: 0;
   right:0;
   background-color: rgba(0,0,0,0.5);
+  overflow: auto;
 }
 
 .ReactModal__Content.react-modal {
   background-color: white;
+  overflow: auto;
   border: none;
   border-radius: 4px;
   opacity: 0;
   transition: 0.2s;
-  transform: translate3d(-50%,-40%,0);
+  transform: translate3d(-50%,-50%,0);
   top: 50%;
   left: 50%;
   right: auto;
@@ -128,13 +130,11 @@ a {
 
 .ReactModal__Content--after-open.react-modal {
   opacity: 1;
-  transform: translate3d(-50%,-50%,0);
   
 }
 
 .ReactModal__Content--before-close.react-modal {
   opacity: 0.1;
-  transform: translate3d(-50%,-40%,0);
 }
 .icon-omisego_Checked:before {
   content: "\e906";

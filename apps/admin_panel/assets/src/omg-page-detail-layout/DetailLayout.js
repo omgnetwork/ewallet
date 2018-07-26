@@ -6,7 +6,6 @@ import { withRouter } from 'react-router-dom'
 const DetailLayoutContainer = styled.div`
   padding: 20px 0;
   display: flex;
-  align-items: flex-start;
 `
 const Back = styled.div`
   font-size: 24px;

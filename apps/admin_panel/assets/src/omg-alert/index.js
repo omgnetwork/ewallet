@@ -25,6 +25,7 @@ const AlertItemContainer = styled.div`
   margin-bottom: 5px;
   display: flex;
   border: 1px solid #c9d1e2;
+  border-radius: 4px;
   align-items: left;
   min-width: 400px;
   max-width: 500px;

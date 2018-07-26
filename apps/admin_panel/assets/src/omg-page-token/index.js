@@ -112,7 +112,7 @@ class TokenDetailPage extends Component {
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/token/${data.id}`)
+    this.props.history.push(`/${params.accountId}/tokens/${data.id}`)
   }
   renderTokenDetailPage = ({ data: tokens, individualLoadingStatus, pagination, fetch }) => {
     const data = tokens.map(token => {
@@ -163,7 +163,7 @@ class TokenDetailPage extends Component {
         {...this.props}
         query={{
           page: queryString.parse(this.props.location.search).page,
-          perPage: 15,
+          perPage: 10,
           search: queryString.parse(this.props.location.search).search
         }}
         onFetchComplete={this.props.scrollTopContentContainer}

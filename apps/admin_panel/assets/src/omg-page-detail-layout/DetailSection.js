@@ -39,7 +39,10 @@ export const DetailGroup = styled.div`
     margin-bottom: 2px;
   }
   span {
-    vertical-align: baseline;
+    vertical-align: bottom;
+  }
+  i[name="Copy"] {
+    margin-left: 5px;
   }
 `
 

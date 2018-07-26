@@ -1,6 +1,6 @@
 import * as walletService from '../services/walletService'
 import { createActionCreator, createPaginationActionCreator } from '../utils/createActionCreator'
-export const getWalletsByAccountId = ({ accountId, search, page, perPage, cacheKey }) =>
+export const getWalletsByAccountId = ({ accountId, search, page, perPage, cacheKey, owned = true }) =>
   createPaginationActionCreator({
     actionName: 'WALLETS',
     action: 'REQUEST',
@@ -8,9 +8,10 @@ export const getWalletsByAccountId = ({ accountId, search, page, perPage, cacheK
       walletService.getWalletsByAccountId({
         perPage: perPage,
         sort: { by: 'created_at', dir: 'desc' },
-        search_term: search,
+        search,
         accountId,
-        page
+        page,
+        owned
       }),
     cacheKey
   })

@@ -18,7 +18,7 @@ export const getUsers = ({ accountId, search, page, perPage, cacheKey }) =>
         perPage: perPage,
         page,
         sort: { by: 'created_at', dir: 'desc' },
-        search_term: search
+        search
       }),
     cacheKey
   })

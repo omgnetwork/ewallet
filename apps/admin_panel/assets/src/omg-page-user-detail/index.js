@@ -1,18 +1,18 @@
-import React, { Component } from 'react'
-import PropTypes from 'prop-types'
-import styled, { withTheme } from 'styled-components'
-import { withRouter, Link } from 'react-router-dom'
-import UserProvider from '../omg-users/userProvider'
-import { compose } from 'recompose'
-import Section, { DetailGroup } from '../omg-page-detail-layout/DetailSection'
-import TopBar from '../omg-page-detail-layout/TopBarDetail'
-import DetailLayout from '../omg-page-detail-layout/DetailLayout'
-import moment from 'moment'
-import { LoadingSkeleton } from '../omg-uikit'
-import { formatReceiveAmountToTotal } from '../utils/formatter'
+import React, { Component } from "react"
+import PropTypes from "prop-types"
+import styled, { withTheme } from "styled-components"
+import { withRouter, Link } from "react-router-dom"
+import UserProvider from "../omg-users/userProvider"
+import { compose } from "recompose"
+import Section, { DetailGroup } from "../omg-page-detail-layout/DetailSection"
+import TopBar from "../omg-page-detail-layout/TopBarDetail"
+import DetailLayout from "../omg-page-detail-layout/DetailLayout"
+import moment from "moment"
+import { LoadingSkeleton } from "../omg-uikit"
+import { formatReceiveAmountToTotal } from "../utils/formatter"
+import Copy from "../omg-copy"
 const UserDetailContainer = styled.div`
   padding-bottom: 20px;
-  padding-top: 3px;
   b {
     width: 150px;
     display: inline-block;
@@ -49,25 +49,25 @@ class TokenDetailPage extends Component {
     theme: PropTypes.object
   }
   renderTopBar = user => {
-    return <TopBar title={user.id} breadcrumbItems={['User', user.id]} buttons={[]} />
+    return <TopBar title={user.id} breadcrumbItems={["User", user.id]} buttons={[]} />
   }
   renderDetail = user => {
     return (
-      <Section title='DETAILS'>
+      <Section title="DETAILS">
         <DetailGroup>
-          <b>Id:</b> <span>{user.id}</span>
+          <b>Id:</b> <span>{user.id}</span> <Copy data={user.id} />
         </DetailGroup>
         <DetailGroup>
-          <b>Email:</b> <span>{user.email || '-'}</span>
+          <b>Email:</b> <span>{user.email || "-"}</span>
         </DetailGroup>
         <DetailGroup>
           <b>Provider Id:</b> <span>{user.provider_user_id}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Created Date:</b> <span>{moment(user.created_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Created Date:</b> <span>{moment(user.created_at).format("DD/MM/YYYY hh:mm:ss")}</span>
         </DetailGroup>
         <DetailGroup>
-          <b>Last Update:</b> <span>{moment(user.updated_at).format('DD/MM/YYYY hh:mm:ss')}</span>
+          <b>Last Update:</b> <span>{moment(user.updated_at).format("DD/MM/YYYY hh:mm:ss")}</span>
         </DetailGroup>
       </Section>
     )
@@ -75,19 +75,21 @@ class TokenDetailPage extends Component {
   renderWallet = wallet => {
     const accountId = this.props.match.params.accountId
     return (
-      <Section title='BALANCE'>
+      <Section title="BALANCE">
         {wallet ? (
           <div>
             <DetailGroup>
-              <b>Wallet Address:</b>{' '}
-              <Link to={`/${accountId}/wallet/${wallet.address}`}>{wallet.address}</Link> ({' '}
+              <b>Wallet Address:</b>{" "}
+              <Link to={`/${accountId}/wallets/${wallet.address}`}>{wallet.address}</Link> ({" "}
               <span>{wallet.name}</span> )
             </DetailGroup>
             {wallet.balances.map(balance => {
               return (
                 <DetailGroup key={balance.token.id}>
                   <b>{balance.token.name}</b>
-                  <span>{formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}</span>{' '}
+                  <span>
+                    {formatReceiveAmountToTotal(balance.amount, balance.token.subunit_to_unit)}
+                  </span>{" "}
                   <span>{balance.token.symbol}</span>
                 </DetailGroup>
               )
@@ -125,7 +127,7 @@ class TokenDetailPage extends Component {
       </UserDetailContainer>
     )
   }
-  render () {
+  render() {
     return (
       <UserProvider
         render={this.renderUserDetailPage}

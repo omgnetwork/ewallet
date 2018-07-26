@@ -139,7 +139,9 @@ class SideNavigation extends PureComponent {
           <BigAvatar
             image={_.get(currentAccount, 'avatar.large')}
             name={
-              !_.get(currentAccount, 'avatar.large') && _.get(currentAccount, 'name').slice(0, 2)
+              _.get(currentAccount, 'avatar.large')
+                ? _.get(currentAccount, 'avatar.large')
+                : _.get(currentAccount, 'name').slice(0, 2)
             }
           />
         ) : (

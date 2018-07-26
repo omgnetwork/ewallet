@@ -36,17 +36,17 @@ export default () => (
       <AuthenticatedRoute path='/:accountId/dashboard' exact component={DashboardPage} />
       <AuthenticatedRoute path='/:accountId/accounts' exact component={AccountPage} />
       <AuthenticatedRoute path='/:accountId/tokens' exact component={TokenPage} />
-      <AuthenticatedRoute path='/:accountId/token/:viewTokenId/:state' exact component={TokenDetailPage} />
-      <AuthenticatedRoute path='/:accountId/token/:viewTokenId' exact component={TokenDetailPage} />
+      <AuthenticatedRoute path='/:accountId/tokens/:viewTokenId/:state' exact component={TokenDetailPage} />
+      <AuthenticatedRoute path='/:accountId/tokens/:viewTokenId' exact component={TokenDetailPage} />
       <AuthenticatedRoute path='/:accountId/wallets' exact component={WalletPage} />
       <AuthenticatedRoute path='/:accountId/transaction' exact component={TransactionPage} />
       <AuthenticatedRoute path='/:accountId/api' exact component={ApiKeyPage} />
       <AuthenticatedRoute path='/:accountId/setting' exact component={AccountSettingPage} />
       <AuthenticatedRoute path='/:accountId/user_setting' exact component={UserSettingPage} />
       <AuthenticatedRoute path='/:accountId/users' exact component={UserPage} />
-      <AuthenticatedRoute path='/:accountId/account/:viewAccountId' exact component={AccountDetailPage} />
-      <AuthenticatedRoute path='/:accountId/wallet/:walletAddress' exact component={WalletDetailPage} />
-      <AuthenticatedRoute path='/:accountId/user/:userId' exact component={UserDetailPage} />
+      <AuthenticatedRoute path='/:accountId/accounts/:viewAccountId' exact component={AccountDetailPage} />
+      <AuthenticatedRoute path='/:accountId/wallets/:walletAddress' exact component={WalletDetailPage} />
+      <AuthenticatedRoute path='/:accountId/users/:userId' exact component={UserDetailPage} />
       <AuthenticatedRoute path='/:accountId/consumptions' exact component={ReqestConsumptionPage} />
       <AuthenticatedRoute path='/:accountId/requests' exact component={TransactionRequestPage} />
     </Switch>

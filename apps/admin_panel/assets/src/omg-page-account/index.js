@@ -41,7 +41,6 @@ const AccountPageContainer = styled.div`
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
-    cursor: pointer;
     color: ${props => props.theme.colors.S500};
     :hover {
       color: ${props => props.theme.colors.B300};
@@ -71,8 +70,7 @@ class AccountPage extends Component {
     super(props)
     this.state = {
       createAccountModalOpen: queryString.parse(props.location.search).createAccount || false,
-      exportModalOpen: false,
-      loadMoreTime: 1
+      exportModalOpen: false
     }
   }
   onClickCreateAccount = () => {
@@ -86,9 +84,6 @@ class AccountPage extends Component {
   }
   onRequestCloseExport = () => {
     this.setState({ exportModalOpen: false })
-  }
-  onClickLoadMore = e => {
-    this.setState(({ loadMoreTime }) => ({ loadMoreTime: loadMoreTime + 1 }))
   }
   renderExportButton = () => {
     return (
@@ -125,7 +120,7 @@ class AccountPage extends Component {
   }
   onClickRow = (data, index) => e => {
     const { params } = this.props.match
-    this.props.history.push(`/${params.accountId}/account/${data.id}`)
+    this.props.history.push(`/${params.accountId}/accounts/${data.id}`)
   }
   rowRenderer (key, data, rows) {
     if (key === 'name') {

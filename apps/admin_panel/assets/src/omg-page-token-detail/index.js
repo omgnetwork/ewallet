@@ -1,6 +1,6 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import styled, { withTheme } from 'styled-components'
+import styled from 'styled-components'
 import { withRouter, Link } from 'react-router-dom'
 import TokenProvider from '../omg-token/TokenProvider'
 import ExchangePairsProvider from '../omg-exchange-pair/exchangePairProvider'
@@ -14,9 +14,13 @@ import MintTokenModal from '../omg-mint-token-modal'
 import ExchangeRateModal from '../omg-exchange-rate-modal'
 import HistoryTable from './HistoryTable'
 import { formatReceiveAmountToTotal, formatNumber } from '../utils/formatter'
-const AccountDetailContainer = styled.div`
+import { getMintedTokenHistory } from '../omg-token/action'
+import { createCacheKey } from '../utils/createFetcher'
+import queryString from 'query-string'
+import { connect } from 'react-redux'
+import Copy from '../omg-copy'
+const TokenDetailContainer = styled.div`
   padding-bottom: 20px;
-  padding-top: 3px;
 `
 const ContentDetailContainer = styled.div`
   margin-top: 40px;
@@ -35,15 +39,17 @@ const ContentContainer = styled.div`
 `
 
 const enhance = compose(
-  withTheme,
-  withRouter
+  withRouter,
+  connect(
+    null,
+    { getMintedTokenHistory }
+  )
 )
 class TokenDetailPage extends Component {
   static propTypes = {
     match: PropTypes.object,
-    history: PropTypes.object,
     location: PropTypes.object,
-    theme: PropTypes.object
+    getMintedTokenHistory: PropTypes.func
   }
   state = {
     mintTokenModalOpen: false
@@ -56,6 +62,20 @@ class TokenDetailPage extends Component {
   }
   onClickCreateExchangeRate = e => {
     this.setState({ exchangeRateModalOpen: true })
+  }
+  onMintTokenSuccess = () => {
+    if (this.props.match.params.state === 'history') {
+      const query = {
+        page: queryString.parse(this.props.location.search).page,
+        perPage: 10,
+        search: queryString.parse(this.props.location.search).search,
+        tokenId: this.props.match.params.viewTokenId
+      }
+      this.props.getMintedTokenHistory({
+        ...query,
+        cacheKey: createCacheKey({ query }, 'tokensHistory')
+      })
+    }
   }
   renderTopBar = token => {
     return (
@@ -82,7 +102,7 @@ class TokenDetailPage extends Component {
     return (
       <Section title='DETAILS'>
         <DetailGroup>
-          <b>ID:</b> <span>{token.id}</span>
+          <b>ID:</b> <span>{token.id}</span> <Copy data={token.id} />
         </DetailGroup>
         <DetailGroup>
           <b>Name:</b> <span>{token.name}</span>
@@ -99,7 +119,10 @@ class TokenDetailPage extends Component {
         <DetailGroup>
           <b>Total Supply:</b>{' '}
           <span>
-            {formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)} {token.symbol}
+            {token.total_supply === undefined
+              ? '...'
+              : formatReceiveAmountToTotal(token.total_supply, token.subunit_to_unit)}{' '}
+            {token.symbol}
           </span>{' '}
           <Link to={`${this.props.location.pathname}/history`}>view history</Link>
         </DetailGroup>
@@ -113,7 +136,7 @@ class TokenDetailPage extends Component {
     )
   }
 
-  renderAccountDetail = () => {
+  renderTokenDetail = () => {
     return (
       <TokenProvider
         render={({ token }) => {
@@ -138,6 +161,7 @@ class TokenDetailPage extends Component {
                 token={token}
                 onRequestClose={this.onRequestClose}
                 open={this.state.mintTokenModalOpen}
+                onSuccess={this.onMintTokenSuccess}
               />
               <ExchangeRateModal
                 onRequestClose={this.onRequestClose}
@@ -177,7 +201,7 @@ class TokenDetailPage extends Component {
   }
 
   render () {
-    return <AccountDetailContainer>{this.renderAccountDetail()}</AccountDetailContainer>
+    return <TokenDetailContainer>{this.renderTokenDetail()}</TokenDetailContainer>
   }
 }
 

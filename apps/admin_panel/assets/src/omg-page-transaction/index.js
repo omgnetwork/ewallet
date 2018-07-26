@@ -4,13 +4,13 @@ import styled from 'styled-components'
 import SortableTable from '../omg-table'
 import { Button, Icon } from '../omg-uikit'
 import CreateTransactionModal from '../omg-create-transaction-modal'
-import ExportModal from '../omg-export-modal'
 import TransactionsFetcher from '../omg-transaction/transactionsFetcher'
 import { withRouter } from 'react-router'
 import moment from 'moment'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
+import Copy from '../omg-copy'
 const TransactionPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -35,6 +35,22 @@ const TransactionPageContainer = styled.div`
   table {
     td {
       vertical-align: top;
+    }
+  }
+  tr:hover {
+    td:nth-child(1) {
+      i {
+        visibility: visible;
+      }
+    }
+  }
+  i[name="Copy"] {
+    margin-left: 5px;
+    cursor: pointer;
+    visibility: hidden;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
     }
   }
 `
@@ -144,7 +160,7 @@ class TransactionPage extends Component {
     if (key === 'id') {
       return (
         <TransactionIdContainer>
-          <Icon name='Transaction' /> <span>{data}</span>
+          <Icon name='Transaction' /> <span>{data}</span> <Copy data={data} />
         </TransactionIdContainer>
       )
     }
@@ -212,13 +228,11 @@ class TransactionPage extends Component {
           navigation
           onClickRow={this.onClickRow}
         />
-
         <CreateTransactionModal
           onRequestClose={this.onRequestCloseCreateTransaction}
           open={this.state.createTransactionModalOpen}
           onCreateTransaction={fetch}
         />
-        <ExportModal open={this.state.exportModalOpen} onRequestClose={this.onRequestCloseExport} />
       </TransactionPageContainer>
     )
   }

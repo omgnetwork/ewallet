@@ -13,6 +13,7 @@ import { compose } from 'recompose'
 import { formatAmount } from '../utils/formatter'
 import moment from 'moment'
 import DateTime from 'react-datetime'
+import WalletSelect from '../omg-wallet-select'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -66,7 +67,7 @@ const Error = styled.div`
   text-align: center;
   padding: 10px 0;
   overflow: hidden;
-  max-height: ${props => (props.error ? '50px' : 0)};
+  max-height: ${props => (props.error ? '100px' : 0)};
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
@@ -102,11 +103,15 @@ class CreateTransactionRequest extends Component {
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
-        amount: this.state.amount ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')) : null,
+        amount: this.state.amount
+          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
+          : null,
         tokenId: _.get(this.state, 'selectedToken.id'),
         address: _.get(this.state, 'selectedWallet.id', this.props.primaryWallet.address),
         accountId: this.props.match.params.accountId,
-        expirationDate: this.state.expirationDate ? moment(this.state.expirationDate).toISOString() : null
+        expirationDate: this.state.expirationDate
+          ? moment(this.state.expirationDate).toISOString()
+          : null
       })
       if (result.data) {
         this.props.onRequestClose()
@@ -267,6 +272,8 @@ class CreateTransactionRequest extends Component {
             </InputLabel>
             <WalletsFetcher
               accountId={this.props.match.params.accountId}
+              query={{ search: this.state.address }}
+              owned={false}
               render={({ data }) => {
                 return (
                   <StyledSelect
@@ -276,9 +283,9 @@ class CreateTransactionRequest extends Component {
                     onFocus={this.onWalletFocus}
                     onChange={this.onChange('address')}
                     options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
-                      ...wallet,
                       key: wallet.address,
-                      value: `${wallet.address} (${wallet.name})`
+                      value: <WalletSelect wallet={wallet} />,
+                      ...wallet
                     }))}
                   />
                 )
@@ -334,6 +341,7 @@ class CreateTransactionRequest extends Component {
               autofocus
               value={this.state.amount}
               type='number'
+              step='any'
               onChange={this.onChange('amount')}
             />
           </InputLabelContainer>

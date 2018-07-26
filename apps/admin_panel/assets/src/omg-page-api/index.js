@@ -15,6 +15,7 @@ import { createAccessKey, updateAccessKey } from '../omg-access-key/action'
 import queryString from 'query-string'
 import { withRouter } from 'react-router-dom'
 import Copy from '../omg-copy'
+
 const ApiKeyContainer = styled.div`
   padding-bottom: 50px;
   button {
@@ -36,6 +37,22 @@ const KeySection = styled.div`
   }
   h3 {
     margin-bottom: 20px;
+  }
+  tr:hover {
+    td:nth-child(1) {
+      i {
+        visibility: visible;
+      }
+    }
+  }
+  i[name="Copy"] {
+    cursor: pointer;
+    visibility: hidden;
+    cursor: pointer;
+    color: ${props => props.theme.colors.S500};
+    :hover {
+      color: ${props => props.theme.colors.B300};
+    }
   }
 `
 const ConfirmCreateKeyContainer = styled.div`
@@ -94,13 +111,13 @@ const InputLabel = styled.div`
   color: ${props => props.theme.colors.B100};
 `
 const columnsApiKey = [
-  { key: 'key', title: 'KEY' },
+  { key: 'key', title: 'API KEY' },
   { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
 const columnsAccessKey = [
-  { key: 'key', title: 'KEY' },
+  { key: 'key', title: 'ACCESS KEY' },
   { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
@@ -132,8 +149,8 @@ class ApiKeyPage extends Component {
   }
   onRequestCloseShowPrivateKey = () => {
     this.setState({
-      privateKey: '',
-      publicKey: '',
+      secretKey: '',
+      accessKey: '',
       submitStatus: 'DEFAULT',
       privateKeyModalOpen: false
     })
@@ -161,8 +178,8 @@ class ApiKeyPage extends Component {
       const { data } = await this.props.createAccessKey()
       fetch()
       this.setState({
-        privateKey: data.secret_key,
-        publicKey: data.access_key,
+        secretKey: data.secret_key,
+        accessKey: data.access_key,
         submitStatus: 'SUCCESS',
         privateKeyModalOpen: true
       })
@@ -190,7 +207,7 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span>
+            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
       case 'user':
@@ -218,7 +235,7 @@ class ApiKeyPage extends Component {
       case 'key':
         return (
           <KeyContainer>
-            <Icon name='Key' /> <span>{data}</span>
+            <Icon name='Key' /> <span>{data}</span> <Copy data={data} />
           </KeyContainer>
         )
       case 'user':
@@ -253,14 +270,14 @@ class ApiKeyPage extends Component {
           })
           return (
             <KeySection style={{ marginTop: '20px' }}>
-              <h3>E-Wallet API Key</h3>
+              <h3>eWallet API Key</h3>
               <p>
                 eWallet API Keys are used to authenticate clients and allow them to perform various
                 user-related functions (once the user has been logged in), e.g. make transfers with
                 the user's wallets, list a user's transactions, create transaction requests, etc.
               </p>
               <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
-                <span>Generate Key</span>
+                <span>Generate Api Key</span>
               </Button>
               <Table
                 loadingRowNumber={6}
@@ -282,8 +299,8 @@ class ApiKeyPage extends Component {
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 <ConfirmCreateKeyContainer>
-                  <h4>Generate e-wallet key</h4>
-                  <p>Are you sure you want to generate e-wallet key ?</p>
+                  <h4>Generate eWallet key</h4>
+                  <p>Are you sure you want to generate eWallet key ?</p>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>
             </KeySection>
@@ -318,7 +335,7 @@ class ApiKeyPage extends Component {
                 transactions, create transaction requests, etc.
               </p>
               <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
-                <span>Generate Key</span>
+                <span>Generate Access Key</span>
               </Button>
               <Table
                 loadingRowNumber={6}
@@ -353,18 +370,18 @@ class ApiKeyPage extends Component {
                 <ConfirmCreateKeyContainer>
                   <h4>Your key pair</h4>
                   <p>
-                    Please copy and keep this pair of public and private key. Secret key will use to
+                    Please copy and keep this pair of acesss and secret key. Secret key will use to
                     open your encrypted information.
                   </p>
                   <InputContainer>
-                    <InputLabel>Public Key</InputLabel>
-                    <input value={this.state.publicKey} spellCheck='false' />
-                    <Copy data={this.state.publicKey} />
+                    <InputLabel>Access Key</InputLabel>
+                    <input value={this.state.accessKey} spellCheck='false' />
+                    <Copy data={this.state.accessKey} />
                   </InputContainer>
                   <InputContainer>
-                    <InputLabel>Private key</InputLabel>
-                    <input value={this.state.privateKey} spellCheck='false' />
-                    <Copy data={this.state.privateKey} />
+                    <InputLabel>Secret key</InputLabel>
+                    <input value={this.state.secretKey} spellCheck='false' />
+                    <Copy data={this.state.secretKey} />
                   </InputContainer>
                 </ConfirmCreateKeyContainer>
               </ConfirmationModal>

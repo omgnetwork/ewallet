@@ -4,9 +4,10 @@ import { connect } from 'react-redux'
 import { withProps, compose } from 'recompose'
 import CONSTANT from '../constants'
 import { selectCacheQueriesByEntity } from '../omg-cache/selector'
+export const createCacheKey = (props, entity) => JSON.stringify({ ...props.query, entity })
 export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(
-    withProps(props => ({ cacheKey: `${JSON.stringify({ ...props.query, entity })}` })),
+    withProps(props => ({ cacheKey: createCacheKey(props, entity) })),
     connect(
       (state, props) => {
         return {
@@ -71,23 +72,6 @@ export const createFetcher = (entity, reducer, selectors) => {
       getQuery = () => {
         return { page: 1, perPage: 10, ...this.props.query }
       }
-      fetchAll = async () => {
-        try {
-          const promises = this.props.queriesByEntity.map(query => {
-            const { page } = JSON.parse(query)
-            return this.props.dispatcher({
-              ...this.props,
-              ...this.getQuery(),
-              page,
-              cacheKey: `${JSON.stringify({ ...this.getQuery(), page, entity })}`
-            })
-          })
-          await Promise.all(promises)
-          this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS, data: this.props.data })
-        } catch (error) {
-          console.log('cannot fetch all cache query with error', error)
-        }
-      }
       fetch = async () => {
         try {
           this.setState(oldState => ({
@@ -124,7 +108,6 @@ export const createFetcher = (entity, reducer, selectors) => {
           ...this.getQuery(),
           individualLoadingStatus: this.state.loadingStatus,
           fetch: this.fetch,
-          fetchAll: this.fetchAll,
           data:
             this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
               ? this.props.data

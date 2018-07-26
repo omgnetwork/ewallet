@@ -54,7 +54,7 @@ const SearchItem = styled.div`
   cursor: pointer;
   i {
     opacity: ${props => (props.active ? 1 : 0)};
-    vertical-align: baseline;
+    vertical-align: bottom;
   }
   > span {
     margin-left: 30px;
@@ -176,7 +176,7 @@ class ChooseCategoryStage extends Component {
             </CreateNewGroupActionContainer>
           ) : (
             <PlainButton onClick={this.onClickCreateNewGroup}>
-              <Icon name='Plus' /> Create New Category
+              <Icon name='Plus' /> <span>Create New Category</span>
             </PlainButton>
           )}
         </BottomBar>

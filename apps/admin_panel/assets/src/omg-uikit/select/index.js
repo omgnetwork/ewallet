@@ -32,15 +32,18 @@ export default class Select extends PureComponent {
     options: PropTypes.array,
     value: PropTypes.string,
     onChange: PropTypes.func,
-    onFocus: PropTypes.func
+    onFocus: PropTypes.func,
+    onBlur: PropTypes.func
   }
   static defaultProps = {
     onSelectItem: _.noop,
-    onFocus: _.noop
+    onFocus: _.noop,
+    onBlur: _.noop
   }
   state = {
     active: false
   }
+
   registerRef = input => {
     this.input = input
   }
@@ -49,6 +52,7 @@ export default class Select extends PureComponent {
     this.props.onFocus()
   }
   onBlur = e => {
+    this.props.onBlur()
     this.setState({ active: false })
   }
   onClickItem = item => e => {
