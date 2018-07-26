@@ -9,10 +9,10 @@ import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import { formatReceiveAmountToTotal, formatAmount } from '../utils/formatter'
-import WalletProvider from '../omg-wallet/walletProvider'
 import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
+import { selectWalletById } from '../omg-wallet/selector'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -90,7 +90,7 @@ const InnerTransferContainer = styled.div`
 const enhance = compose(
   withRouter,
   connect(
-    null,
+    state => ({ selectWalletById: selectWalletById(state) }),
     { transfer, getWalletById }
   )
 )
@@ -98,6 +98,7 @@ class CreateTransaction extends Component {
   static propTypes = {
     onRequestClose: PropTypes.func,
     fromAddress: PropTypes.string,
+    selectWalletById: PropTypes.func,
     getWalletById: PropTypes.func,
     match: PropTypes.object,
     onCreateTransaction: PropTypes.func
@@ -235,6 +236,7 @@ class CreateTransaction extends Component {
       : '-'
   }
   renderFromSection () {
+    const fromWallet = this.props.selectWalletById(this.state.fromAddress.trim())
     return (
       <FromToContainer>
         <h5>From</h5>
@@ -262,52 +264,46 @@ class CreateTransaction extends Component {
             )
           }}
         />
-        <WalletProvider
-          walletAddress={this.state.fromAddress.trim()}
-          render={({ wallet }) => {
-            return (
-              <InputGroupContainer>
-                <div>
-                  <InputLabel>Token</InputLabel>
-                  <Select
-                    normalPlaceholder='Token'
-                    onSelectItem={this.onSelectTokenSelect('fromToken')}
-                    onChange={this.onChangeSearchToken('fromToken')}
-                    value={this.state.fromTokenSearchToken}
-                    options={
-                      wallet
-                        ? wallet.balances.map(b => ({
-                          ...{
-                            key: b.token.id,
-                            value: `${b.token.name} (${b.token.symbol})`
-                          },
-                          ...b
-                        }))
-                        : []
-                    }
-                  />
-                  <BalanceTokenLabel>
-                    Balance: {this.getBalanceOfSelectedToken('fromToken')}
-                  </BalanceTokenLabel>
-                </div>
-                <div>
-                  <InputLabel>Amount</InputLabel>
-                  <Input
-                    value={this.state.fromTokenAmount}
-                    onChange={this.onChangeAmount('fromToken')}
-                    type='number'
-                    step='any'
-                    normalPlaceholder={'Token amount'}
-                  />
-                </div>
-              </InputGroupContainer>
-            )
-          }}
-        />
+        <InputGroupContainer>
+          <div>
+            <InputLabel>Token</InputLabel>
+            <Select
+              normalPlaceholder='Token'
+              onSelectItem={this.onSelectTokenSelect('fromToken')}
+              onChange={this.onChangeSearchToken('fromToken')}
+              value={this.state.fromTokenSearchToken}
+              options={
+                fromWallet
+                  ? fromWallet.balances.map(b => ({
+                    ...{
+                      key: b.token.id,
+                      value: `${b.token.name} (${b.token.symbol})`
+                    },
+                    ...b
+                  }))
+                  : []
+              }
+            />
+            <BalanceTokenLabel>
+              Balance: {this.getBalanceOfSelectedToken('fromToken')}
+            </BalanceTokenLabel>
+          </div>
+          <div>
+            <InputLabel>Amount</InputLabel>
+            <Input
+              value={this.state.fromTokenAmount}
+              onChange={this.onChangeAmount('fromToken')}
+              type='number'
+              step='any'
+              normalPlaceholder={'Token amount'}
+            />
+          </div>
+        </InputGroupContainer>
       </FromToContainer>
     )
   }
   renderToSection () {
+    const toWallet = this.props.selectWalletById(this.state.toAddress.trim())
     return (
       <FromToContainer>
         <h5 style={{ marginTop: '20px' }}>To</h5>
@@ -329,54 +325,47 @@ class CreateTransaction extends Component {
             )
           }}
         />
-        <WalletProvider
-          walletAddress={this.state.toAddress.trim()}
-          render={({ wallet }) => {
-            return (
-              <div>
-                <OptionalExplanation>
-                  The fields below are optional and should only be used if you want to perform an
-                  exchange. Leave the amount blank to let the server use the default exchange rate.
-                </OptionalExplanation>
-                <InputGroupContainer>
-                  <div>
-                    <InputLabel>Token</InputLabel>
-                    <Select
-                      normalPlaceholder='Token'
-                      onSelectItem={this.onSelectTokenSelect('toToken')}
-                      onChange={this.onChangeSearchToken('toToken')}
-                      value={this.state.toTokenSearchToken}
-                      options={
-                        wallet
-                          ? wallet.balances.map(b => ({
-                            ...{
-                              key: b.token.id,
-                              value: `${b.token.name} (${b.token.symbol})`
-                            },
-                            ...b
-                          }))
-                          : []
-                      }
-                    />
-                    <BalanceTokenLabel>
-                      Balance: {this.getBalanceOfSelectedToken('toToken')}
-                    </BalanceTokenLabel>
-                  </div>
-                  <div>
-                    <InputLabel>Amount</InputLabel>
-                    <Input
-                      value={this.state.toTokenAmount}
-                      onChange={this.onChangeAmount('toToken')}
-                      type='number'
-                      step='any'
-                      normalPlaceholder={'Token amount'}
-                    />
-                  </div>
-                </InputGroupContainer>
-              </div>
-            )
-          }}
-        />
+        <div>
+          <OptionalExplanation>
+            The fields below are optional and should only be used if you want to perform an
+            exchange. Leave the amount blank to let the server use the default exchange rate.
+          </OptionalExplanation>
+          <InputGroupContainer>
+            <div>
+              <InputLabel>Token</InputLabel>
+              <Select
+                normalPlaceholder='Token'
+                onSelectItem={this.onSelectTokenSelect('toToken')}
+                onChange={this.onChangeSearchToken('toToken')}
+                value={this.state.toTokenSearchToken}
+                options={
+                  toWallet
+                    ? toWallet.balances.map(b => ({
+                      ...{
+                        key: b.token.id,
+                        value: `${b.token.name} (${b.token.symbol})`
+                      },
+                      ...b
+                    }))
+                    : []
+                }
+              />
+              <BalanceTokenLabel>
+                Balance: {this.getBalanceOfSelectedToken('toToken')}
+              </BalanceTokenLabel>
+            </div>
+            <div>
+              <InputLabel>Amount</InputLabel>
+              <Input
+                value={this.state.toTokenAmount}
+                onChange={this.onChangeAmount('toToken')}
+                type='number'
+                step='any'
+                normalPlaceholder={'Token amount'}
+              />
+            </div>
+          </InputGroupContainer>
+        </div>
       </FromToContainer>
     )
   }
