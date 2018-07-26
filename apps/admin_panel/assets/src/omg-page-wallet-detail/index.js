@@ -167,7 +167,7 @@ class WalletDetaillPage extends Component {
   renderWalletDetailPage = ({ wallet, loadingStatus, result }) => {
     return (
       <WalletDetailContainer>
-        {loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS &&
+        {(loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS || wallet) &&
           this.renderWalletDetailContainer(wallet)}
         {loadingStatus === CONSTANT.LOADING_STATUS.FAILED && this.renderErrorPage(result.error)}
       </WalletDetailContainer>
