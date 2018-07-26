@@ -111,13 +111,13 @@ const InputLabel = styled.div`
   color: ${props => props.theme.colors.B100};
 `
 const columnsApiKey = [
-  { key: 'key', title: 'KEY' },
+  { key: 'key', title: 'API KEY' },
   { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
 ]
 const columnsAccessKey = [
-  { key: 'key', title: 'KEY' },
+  { key: 'key', title: 'ACCESS KEY' },
   { key: 'user', title: 'CREATE BY' },
   { key: 'created_at', title: 'CREATED DATE' },
   { key: 'status', title: 'STATUS' }
@@ -277,7 +277,7 @@ class ApiKeyPage extends Component {
                 the user's wallets, list a user's transactions, create transaction requests, etc.
               </p>
               <Button size='small' onClick={this.onClickCreateEwalletKey} styleType={'secondary'}>
-                <span>Generate Key</span>
+                <span>Generate Api Key</span>
               </Button>
               <Table
                 loadingRowNumber={6}
@@ -335,7 +335,7 @@ class ApiKeyPage extends Component {
                 transactions, create transaction requests, etc.
               </p>
               <Button size='small' onClick={this.onClickCreateAccessKey} styleType={'secondary'}>
-                <span>Generate Key</span>
+                <span>Generate Access Key</span>
               </Button>
               <Table
                 loadingRowNumber={6}
