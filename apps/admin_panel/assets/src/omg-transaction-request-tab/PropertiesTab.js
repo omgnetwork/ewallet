@@ -3,7 +3,8 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 import moment from 'moment'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
-import { Link, withRouter } from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
+import Link from '../omg-links'
 import ConsumeBox from './ConsumeBox'
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
@@ -41,89 +42,81 @@ class PropertiesTab extends Component {
   state = {}
 
   renderTransactionRequestDetail = () => {
+    const tq = this.props.transactionRequests
     const amount =
-      this.props.transactionRequests.amount === null ? (
+      tq.amount === null ? (
         'Not Specified'
       ) : (
         <span>
-          {formatReceiveAmountToTotal(
-            this.props.transactionRequests.amount,
-            _.get(this.props.transactionRequests, 'token.subunit_to_unit')
-          )}{' '}
-          {_.get(this.props.transactionRequests, 'token.symbol')}
+          {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
+          {_.get(tq, 'token.symbol')}
         </span>
       )
+
     return (
       <AdditionalRequestDataContainer>
         <h5>ADDITIONAL REQUEST DETAILS</h5>
         <InformationItem>
-          <b>Type :</b> {this.props.transactionRequests.type}
+          <b>Type :</b> {tq.type}
         </InformationItem>
         <InformationItem>
-          <b>Token:</b> {_.get(this.props.transactionRequests, 'token.name')}
+          <b>Token:</b> {_.get(tq, 'token.name')}
         </InformationItem>
         <InformationItem>
           <b>Amount :</b> {amount}
         </InformationItem>
         <InformationItem>
-          <b>Requester Address : </b>{' '}
-          <Link
-            to={`/${this.props.match.params.accountId}/wallets/${
-              this.props.transactionRequests.address
-            }`}
-          >
-            {this.props.transactionRequests.address}
-          </Link>
+          <b>Requester Address : </b> <Link to={`/wallets/${tq.address}`}>{tq.address}</Link>
         </InformationItem>
         <InformationItem>
-          <b>Account ID : </b> {_.get(this.props.transactionRequests, 'account.id', '-')}
-        </InformationItem>
-        <InformationItem>
-          <b>Account Name : </b>{' '}
-          {_.get(this.props.transactionRequests, 'account.id') ? (
-            <Link
-              to={`/${this.props.match.params.accountId}/wallets/${
-                this.props.transactionRequests.address
-              }`}
-            >
-              {' '}
-              {this.props.transactionRequests.account.name}{' '}
-            </Link>
+          <b>Account ID : </b>{' '}
+          {_.get(tq, 'account.id') ? (
+            <Link to={`/accounts/${_.get(tq, 'account.id')}`}>{_.get(tq, 'account.id')}</Link>
           ) : (
             '-'
           )}
         </InformationItem>
         <InformationItem>
-          <b>User ID : </b> {_.get(this.props.transactionRequests, 'user.id', '-')}
+          <b>Account Name : </b>{' '}
+          {_.get(tq, 'account.id') ? (
+            <Link to={`/accounts/${_.get(tq, 'account.id')}`}> {_.get(tq, 'account.name')} </Link>
+          ) : (
+            '-'
+          )}
         </InformationItem>
         <InformationItem>
-          <b>Confirmation : </b>{' '}
-          {this.props.transactionRequests.require_confirmation ? 'Yes' : 'No'}
+          <b>User ID : </b>{' '}
+          {_.get(tq, 'user.id') ? (
+            <Link to={`/users/${_.get(tq, 'user.id')}`}>{_.get(tq, 'user.id')}</Link>
+          ) : (
+            '-'
+          )}
         </InformationItem>
         <InformationItem>
-          <b>Consumptions Count : </b> {this.props.transactionRequests.current_consumptions_count}
+          <b>Confirmation : </b> {tq.require_confirmation ? 'Yes' : 'No'}
         </InformationItem>
         <InformationItem>
-          <b>Max Consumptions : </b> {this.props.transactionRequests.max_consumptions || '-'}
+          <b>Consumptions Count : </b> {tq.current_consumptions_count}
         </InformationItem>
         <InformationItem>
-          <b>Max Consumptions Per User : </b>{' '}
-          {this.props.transactionRequests.max_consumptions_per_user || '-'}
+          <b>Max Consumptions : </b> {tq.max_consumptions || '-'}
+        </InformationItem>
+        <InformationItem>
+          <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user || '-'}
         </InformationItem>
         <InformationItem>
           <b>Expiry Date : </b>{' '}
-          {this.props.transactionRequests.expiration_date
+          {tq.expiration_date
             ? moment(this.props.transactionRequests.expiration_date).format(
                 'ddd, DD/MM/YYYY hh:mm:ss'
               )
             : '-'}
         </InformationItem>
         <InformationItem>
-          <b>Allow Amount Override : </b>{' '}
-          {this.props.transactionRequests.allow_amount_override ? 'Yes' : 'No'}
+          <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
         </InformationItem>
         <InformationItem>
-          <b>Coorelation ID : </b> {this.props.transactionRequests.correlation_id || '-'}
+          <b>Coorelation ID : </b> {tq.correlation_id || '-'}
         </InformationItem>
       </AdditionalRequestDataContainer>
     )

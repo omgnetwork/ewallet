@@ -64,28 +64,33 @@ class CreateToken extends Component {
   onChangeDecimal = e => {
     this.setState({ decimal: e.target.value })
   }
+  shouldSubmit () {
+    return this.state.decimal <= 18 && this.state.name && this.state.symbol
+  }
   onSubmit = async e => {
     e.preventDefault()
-    try {
-      this.setState({ submitting: true })
-      const result = await this.props.createToken({
-        name: this.state.name,
-        symbol: this.state.symbol,
-        amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
-        decimal: this.state.decimal
-      })
-      if (result.data) {
-        this.props.onRequestClose()
-        this.props.onFetchSuccess()
-      } else {
-        this.setState({
-          submitting: false,
-          error: result.error.description || result.error.message
+    if (this.shouldSubmit()) {
+      try {
+        this.setState({ submitting: true })
+        const result = await this.props.createToken({
+          name: this.state.name,
+          symbol: this.state.symbol,
+          amount: formatAmount(this.state.amount, 10 ** this.state.decimal),
+          decimal: this.state.decimal
         })
+        if (result.data) {
+          this.props.onRequestClose()
+          this.props.onFetchSuccess()
+        } else {
+          this.setState({
+            submitting: false,
+            error: result.error.description || result.error.message
+          })
+        }
+      } catch (e) {
+        console.log(e)
+        this.setState({ submitting: false })
       }
-    } catch (e) {
-      console.log(e)
-      this.setState({ submitting: false })
     }
   }
   render () {
@@ -121,7 +126,12 @@ class CreateToken extends Component {
           step='any'
         />
         <ButtonContainer>
-          <Button size='small' type='submit' loading={this.state.submitting}>
+          <Button
+            size='small'
+            type='submit'
+            loading={this.state.submitting}
+            disabled={!this.shouldSubmit()}
+          >
             Create Token
           </Button>
         </ButtonContainer>
