@@ -23,11 +23,13 @@ class WalletProvider extends Component {
     }
   }
   fetch = async () => {
-    const result = await this.props.getWalletById(this.props.walletAddress)
-    if (result.data) {
-      this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS, result })
-    } else {
-      this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, result })
+    if (this.props.walletAddress) {
+      const result = await this.props.getWalletById(this.props.walletAddress)
+      if (result.data) {
+        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS, result })
+      } else {
+        this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED, result })
+      }
     }
   }
   render () {

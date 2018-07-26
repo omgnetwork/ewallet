@@ -94,9 +94,6 @@ export const alertsReducer = createReducer([], {
   'ACCESS_KEY/CREATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
-  'WALLET/REQUEST/FAILED': (state, { error }) => {
-    return [...state, createAlertState(`${error.code}: ${error.description || error}`, 'error')]
-  },
   'CURRENT_ACCOUNT/UPDATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
