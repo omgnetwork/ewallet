@@ -95,6 +95,9 @@ class CreateTransactionRequest extends Component {
     onCreateTransactionRequest: PropTypes.func,
     onRequestClose: PropTypes.func
   }
+  static defaultProps = {
+    primaryWallet: {}
+  }
   state = { selectedToken: {}, onCreateTransactionRequest: _.noop, allowAmountOverride: false }
   onSubmit = async e => {
     e.preventDefault()
