@@ -131,6 +131,7 @@ class CreateExchangeRateModal extends Component {
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <h4>Create Exchange Pair</h4>
         <TokensFetcher
+          query={{ search: this.state.fromTokenSearch }}
           render={({ data }) => {
             return (
               <Fragment>
@@ -161,6 +162,15 @@ class CreateExchangeRateModal extends Component {
                     />
                   </div>
                 </RateInputContainer>
+              </Fragment>
+            )
+          }}
+        />
+        <TokensFetcher
+          query={{ search: this.state.toTokenSearch }}
+          render={({ data }) => {
+            return (
+              <Fragment>
                 <h5>To</h5>
                 <RateInputContainer>
                   <div>
