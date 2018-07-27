@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import QR from './QrCode'
-import { formatAmount, formatAmountReceive } from '../utils/formatter'
+import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
 import { Select, Button, Input } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -99,13 +99,10 @@ class PropertiesTab extends Component {
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
       return {
         transactionRequestId,
-        amount:
-          transactionRequest.amount === null
-            ? ''
-            : formatAmountReceive(
-                transactionRequest.amount,
-                transactionRequest.token.subunit_to_unit
-              ),
+        amount: formatReceiveAmountToTotal(
+          transactionRequest.amount,
+          transactionRequest.token.subunit_to_unit
+        ),
         selectedToken: transactionRequest.token,
         searchTokenValue: `${transactionRequest.token.name} (${transactionRequest.token.symbol})`,
         error: null
