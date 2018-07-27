@@ -10,10 +10,10 @@ describe('formatter', () => {
     const subunitToUnit = 100
     expect(formatAmount(amount, subunitToUnit)).toEqual(null)
   })
-  test('should return null amount is falsy', () => {
+  test('should return 0 amount is falsy', () => {
     const subunitToUnit = 100
-    expect(formatReceiveAmountToTotal(null, subunitToUnit)).toEqual(null)
-    expect(formatReceiveAmountToTotal(0, subunitToUnit)).toEqual(null)
-    expect(formatReceiveAmountToTotal(undefined, subunitToUnit)).toEqual(null)
+    expect(formatReceiveAmountToTotal(null, subunitToUnit)).toEqual('0')
+    expect(formatReceiveAmountToTotal(0, subunitToUnit)).toEqual('0')
+    expect(formatReceiveAmountToTotal(undefined, subunitToUnit)).toEqual('0')
   })
 })
