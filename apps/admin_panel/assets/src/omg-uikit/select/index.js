@@ -17,7 +17,7 @@ const OptionsContainer = styled.div`
   right: 0;
   max-height: 150px;
   overflow: auto;
-  width: 100%;
+  min-width: 100%;
 `
 const OptionItem = styled.div`
   padding: 10px 10px;
