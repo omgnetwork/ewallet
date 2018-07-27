@@ -9,6 +9,7 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
+import TokenSelect from '../omg-token-select'
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -82,7 +83,7 @@ class CreateExchangeRateModal extends Component {
     if (state.fromTokenId !== props.fromTokenId) {
       return {
         fromTokenSelected: props.fromTokenPrefill,
-        fromTokenSearch: `${props.fromTokenPrefill.name} (${props.fromTokenPrefill.symbol})`,
+        fromTokenSearch: props.fromTokenPrefill.name,
         fromTokenRate: 1,
         fromTokenId: props.fromTokenId
       }
@@ -99,11 +100,8 @@ class CreateExchangeRateModal extends Component {
   onChangeSearchToken = type => e => {
     this.setState({ [`${type}Search`]: e.target.value, [`${type}Selected`]: null })
   }
-  onFocusSelect = type => () => {
-    this.setState({ [`${type}Search`]: '', [`${type}Selected`]: null })
-  }
   onSelectTokenSelect = type => token => {
-    this.setState({ [`${type}Search`]: token.value, [`${type}Selected`]: token })
+    this.setState({ [`${type}Search`]: token.name, [`${type}Selected`]: token })
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -145,12 +143,9 @@ class CreateExchangeRateModal extends Component {
                       onSelectItem={this.onSelectTokenSelect('fromToken')}
                       onChange={this.onChangeSearchToken('fromToken')}
                       value={this.state.fromTokenSearch}
-                      onFocus={this.onFocusSelect('fromToken')}
                       options={data.map(b => ({
-                        ...{
-                          key: `${b.id}${b.name}${b.symbol}`,
-                          value: `${b.name} (${b.symbol})`
-                        },
+                        key: `${b.id}${b.name}${b.symbol}`,
+                        value: <TokenSelect token={b} />,
                         ...b
                       }))}
                     />
@@ -175,12 +170,10 @@ class CreateExchangeRateModal extends Component {
                       onSelectItem={this.onSelectTokenSelect('toToken')}
                       onChange={this.onChangeSearchToken('toToken')}
                       value={this.state.toTokenSearch}
-                      onFocus={this.onFocusSelect('toToken')}
+                      optionBoxHeight={'120px'}
                       options={data.map(b => ({
-                        ...{
-                          key: `${b.id}${b.name}${b.symbol}`,
-                          value: `${b.name} (${b.symbol})`
-                        },
+                        key: `${b.id}${b.name}${b.symbol}`,
+                        value: <TokenSelect token={b} />,
                         ...b
                       }))}
                     />

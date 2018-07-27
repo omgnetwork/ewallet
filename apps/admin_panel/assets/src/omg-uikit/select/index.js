@@ -15,7 +15,7 @@ const OptionsContainer = styled.div`
   box-shadow: 0 4px 12px 0 rgba(4, 7, 13, 0.1);
   background-color: white;
   right: 0;
-  max-height: 150px;
+  max-height: ${props => props.optionBoxHeight ? props.optionBoxHeight : '150px'};
   overflow: auto;
   min-width: 100%;
 `
@@ -33,7 +33,8 @@ export default class Select extends PureComponent {
     value: PropTypes.string,
     onChange: PropTypes.func,
     onFocus: PropTypes.func,
-    onBlur: PropTypes.func
+    onBlur: PropTypes.func,
+    optionBoxHeight: PropTypes.string
   }
   static defaultProps = {
     onSelectItem: _.noop,
@@ -77,7 +78,7 @@ export default class Select extends PureComponent {
         />
         {this.state.active &&
           filteredOption.length > 0 && (
-            <OptionsContainer>
+            <OptionsContainer optionBoxHeight={this.props.optionBoxHeight}>
               {filteredOption.map(option => {
                 return (
                   <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
