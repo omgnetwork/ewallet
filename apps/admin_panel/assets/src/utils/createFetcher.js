@@ -3,7 +3,6 @@ import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
 import { withProps, compose } from 'recompose'
 import CONSTANT from '../constants'
-import { selectCacheQueriesByEntity } from '../omg-cache/selector'
 export const createCacheKey = (props, entity) => JSON.stringify({ ...props.query, entity })
 export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(
@@ -11,8 +10,7 @@ export const createFetcher = (entity, reducer, selectors) => {
     connect(
       (state, props) => {
         return {
-          ...selectors(state, props),
-          queriesByEntity: selectCacheQueriesByEntity(entity)(state)
+          ...selectors(state, props)
         }
       },
       { dispatcher: reducer }
@@ -31,8 +29,7 @@ export const createFetcher = (entity, reducer, selectors) => {
         loadingStatus: PropTypes.string,
         cacheKey: PropTypes.string,
         data: PropTypes.array,
-        pagination: PropTypes.object,
-        queriesByEntity: PropTypes.array
+        pagination: PropTypes.object
       }
       static defaultProps = {
         onFetchComplete: _.noop

@@ -123,7 +123,8 @@ class CreateTransactionRequest extends Component {
         })
       }
     } catch (e) {
-      this.setState({ submitting: false, error: e })
+      console.log(e)
+      this.setState({ submitting: false })
     }
   }
   onChange = key => e => {
