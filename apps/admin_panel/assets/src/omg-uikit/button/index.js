@@ -4,7 +4,6 @@ import { ButtonPrimary, ButtonDisabled } from './primary'
 import { ButtonGhost } from './ghost'
 import { ButtonSecondary } from './secondary'
 import { Content } from './default'
-import ReactLoading from 'react-loading'
 import styled from 'styled-components'
 const buttonMapStyle = {
   primary: {
@@ -50,7 +49,10 @@ export default class Button extends PureComponent {
         styleType={this.props.styleType}
         type={this.props.type}
       >
-        <ReactLoading className='loading' type='bars' color='white' height={30} width={30} />
+        <img
+          src={require('../../../statics/images/GO-DeepBlue-White.gif')}
+          className='loading'
+        />
         <Content loading={this.props.loading}>{this.props.children}</Content>
       </Button>
     )
