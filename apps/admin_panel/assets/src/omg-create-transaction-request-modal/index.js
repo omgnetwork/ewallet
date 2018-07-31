@@ -226,6 +226,7 @@ class CreateTransactionRequest extends Component {
           <InputLabelContainer>
             <InputLabel>Token</InputLabel>
             <TokensFetcher
+              query={{ page: 1, perPage: 10, search: this.state.searchTokenValue }}
               render={({ individualLoadingStatus, data }) => {
                 return (
                   <StyledSelect
@@ -242,7 +243,7 @@ class CreateTransactionRequest extends Component {
                   />
                 )
               }}
-              query={{ page: 1, perPage: 10, search: this.state.tokenId }}
+
             />
           </InputLabelContainer>
           <InputLabelContainer>
