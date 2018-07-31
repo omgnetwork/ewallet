@@ -2,7 +2,7 @@
 
 Get the most juice out of your machine by setting up the eWallet onto your base operating system.
 
-## Step 1: Set up the server
+## Prerequisites
 
 Before we begin, be sure to have the following applications installed and running on your machine.
 
@@ -13,7 +13,9 @@ Before we begin, be sure to have the following applications installed and runnin
 - [Yarn](https://yarnpkg.com/en/docs/install) Yarn is used for managing and install front-end dependencies for the Admin Panel.
 - [NodeJS](https://nodejs.org/) Node.js is used for building front-end code for the Admin Panel.
 
-Now that you have the applications installed, proceed with 1.1 through 1.5 to setup the server.
+## Step 1: Set up the server
+
+Once you have all the prerequisites prepared, proceed with 1.1 through 1.5 to setup the server.
 
 ### 1.1 Get the code
 
@@ -41,14 +43,36 @@ _The parentheses above forces the commands to be executed in a subshell, and ret
 
 ### 1.3 Configure environment variables
 
-Many configurations have default values pre-defined. If your environment requires different values, run `export ENV=value` to set environment variables in the current session (or add them to whatever profile file you are using).
+#### Required variables
+
+You will need to generate and configure `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` which are used for encrypting data in the `ewallet_db` and `local_ledger_db` respectively:
+
+```bash
+# Step 1: Generate the `ewallet_db` secret key:
+$ elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
+
+# Step 2: Configure the above secret key into `EWALLET_SECRET_KEY`:
+$ export EWALLET_SECRET_KEY=generated_ewallet_secret_key
+
+# Step 3: Generate the `local_ledger_db` secret key:
+$ elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
+
+# Step 4: Configure the above secret key into `LOCAL_LEDGER_SECRET_KEY`:
+$ export LOCAL_LEDGER_SECRET_KEY=generated_local_ledger_secret_key
+```
+
+#### Optional variables
+
+Review the default values for the environment variables below.
 
 Environment variable | Description
 -------------------- | -----------
-`BASE_URL` | The URL where the application can be accessed. <br /> _Defaults to `http://localhost:4000`_
-`PORT` | The internal listening port for the application <br /> _Defaults to `4000`_
-`DATABASE_URL` | The URL where the eWallet database can be accessed. <br /> _Defaults to `postgres://localhost/ewallet_dev`_
-`LOCAL_LEDGER_DATABASE_URL` | The URL where the LocalLedger database can be accessed. <br /> _Defaults to `postgres://localhost/local_ledger_dev`_
+`BASE_URL` | The URL where the application can be accessed. <br /> _Defaults to `http://localhost:4000`._
+`PORT` | The internal listening port for the application <br /> _Defaults to `4000`._
+`DATABASE_URL` | The URL where the eWallet database can be accessed. <br /> _Defaults to `postgres://localhost/ewallet_dev`._
+`LOCAL_LEDGER_DATABASE_URL` | The URL where the LocalLedger database can be accessed. <br /> _Defaults to `postgres://localhost/local_ledger_dev`._
+
+If your environment requires different values from above, run `export ENV=value` to set them to your current session (or add them to whatever profile file you are using).
 
 Learn more about all the environment variables available at [Environment Variables](/docs/setup/advanced/env.md).
 
