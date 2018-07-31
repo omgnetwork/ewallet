@@ -4,7 +4,7 @@ import styled from 'styled-components'
 import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import QR from './QrCode'
-import { formatAmount, formatAmountReceive } from '../utils/formatter'
+import { formatAmount, formatReceiveAmountToTotal } from '../utils/formatter'
 import { Select, Button, Input } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
@@ -12,6 +12,7 @@ import { consumeTransactionRequest } from '../omg-transaction-request/action'
 import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
+import TokenSelect from '../omg-token-select'
 const ConsumeActionContainer = styled.form`
   display: flex;
   margin: 20px 0;
@@ -99,15 +100,12 @@ class PropertiesTab extends Component {
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
       return {
         transactionRequestId,
-        amount:
-          transactionRequest.amount === null
-            ? ''
-            : formatAmountReceive(
-                transactionRequest.amount,
-                transactionRequest.token.subunit_to_unit
-              ),
+        amount: formatReceiveAmountToTotal(
+          transactionRequest.amount,
+          transactionRequest.token.subunit_to_unit
+        ),
         selectedToken: transactionRequest.token,
-        searchTokenValue: `${transactionRequest.token.name} (${transactionRequest.token.symbol})`,
+        searchTokenValue: transactionRequest.token.name,
         error: null
       }
     }
@@ -152,7 +150,7 @@ class PropertiesTab extends Component {
     this.setState({ searchTokenValue: e.target.value, selectedToken: null })
   }
   onSelectTokenSelect = token => {
-    this.setState({ searchTokenValue: token.value, selectedToken: token })
+    this.setState({ searchTokenValue: token.name, selectedToken: token })
   }
 
   getExpiredReason = reason => {
@@ -209,6 +207,7 @@ class PropertiesTab extends Component {
             }}
           />
           <TokensFetcher
+            query={{ search: this.state.searchTokenValue }}
             render={({ data }) => {
               return (
                 <TokenAmountContainer>
@@ -232,10 +231,8 @@ class PropertiesTab extends Component {
                       onChange={this.onChangeSearchToken}
                       value={this.state.searchTokenValue}
                       options={data.map(token => ({
-                        ...{
-                          key: `${token.symbol}${token.name}${token.id}`,
-                          value: `${token.name} (${token.symbol})`
-                        },
+                        key: `${token.symbol}${token.name}${token.id}`,
+                        value: <TokenSelect token={token} />,
                         ...token
                       }))}
                     />

@@ -14,6 +14,7 @@ import { formatAmount } from '../utils/formatter'
 import moment from 'moment'
 import DateTime from 'react-datetime'
 import WalletSelect from '../omg-wallet-select'
+import TokenSelect from '../omg-token-select'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -95,6 +96,9 @@ class CreateTransactionRequest extends Component {
     onCreateTransactionRequest: PropTypes.func,
     onRequestClose: PropTypes.func
   }
+  static defaultProps = {
+    primaryWallet: {}
+  }
   state = { selectedToken: {}, onCreateTransactionRequest: _.noop, allowAmountOverride: false }
   onSubmit = async e => {
     e.preventDefault()
@@ -123,7 +127,8 @@ class CreateTransactionRequest extends Component {
         })
       }
     } catch (e) {
-      this.setState({ submitting: false, error: e })
+      console.log(e)
+      this.setState({ submitting: false })
     }
   }
   onChange = key => e => {
@@ -142,7 +147,7 @@ class CreateTransactionRequest extends Component {
     this.setState({ searchTokenValue: e.target.value, selectedToken: {} })
   }
   onSelectTokenSelect = token => {
-    this.setState({ searchTokenValue: token.value, selectedToken: token })
+    this.setState({ searchTokenValue: token.name, selectedToken: token })
   }
   onSelectWallet = wallet => {
     this.setState({ address: wallet.address, selectedWallet: wallet })
@@ -230,10 +235,8 @@ class CreateTransactionRequest extends Component {
                     onSelectItem={this.onSelectTokenSelect}
                     onChange={this.onChangeSearchToken}
                     options={data.map(b => ({
-                      ...{
-                        key: `${b.symbol}${b.name}${b.id}`,
-                        value: `${b.name} (${b.symbol})`
-                      },
+                      key: `${b.symbol}${b.name}${b.id}`,
+                      value: <TokenSelect token={b} />,
                       ...b
                     }))}
                   />
