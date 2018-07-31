@@ -65,6 +65,7 @@ export default class Select extends PureComponent {
     const filteredOption = this.props.options.filter(option => {
       return fuzzySearch(this.props.value, option.key)
     })
+
     return (
       <SelectContainer>
         <Input
