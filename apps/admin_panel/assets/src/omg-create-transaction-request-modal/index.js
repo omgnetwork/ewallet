@@ -298,6 +298,32 @@ class CreateTransactionRequest extends Component {
           </InputLabelContainer>
           <InputLabelContainer>
             <InputLabel>
+              Exchange Address <span>( Optional )</span>
+            </InputLabel>
+            <WalletsFetcher
+              accountId={this.props.match.params.accountId}
+              query={{ search: this.state.address }}
+              owned={false}
+              render={({ data }) => {
+                return (
+                  <StyledSelect
+                    normalPlaceholder='tk-0x00000000'
+                    value={this.state.address}
+                    onSelectItem={this.onSelectWallet}
+                    onFocus={this.onWalletFocus}
+                    onChange={this.onChange('address')}
+                    options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
+                      key: wallet.address,
+                      value: <WalletSelect wallet={wallet} />,
+                      ...wallet
+                    }))}
+                  />
+                )
+              }}
+            />
+          </InputLabelContainer>
+          <InputLabelContainer>
+            <InputLabel>
               Expiration Date <span>( Optional )</span>
             </InputLabel>
             <DateTime
