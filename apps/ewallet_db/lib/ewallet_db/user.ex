@@ -439,7 +439,21 @@ defmodule EWalletDB.User do
   end
 
   @doc """
-  Checks if the user has an admin role on the top-level account.
+  Checks if the user is an admin user.
+  """
+  @spec admin?(String.t() | %User{}) :: boolean()
+  def admin?(user_id) when is_binary(user_id), do: user_id |> User.get() |> admin?()
+  def admin?(user), do: user.provider_user_id == nil
+
+  @doc """
+  Checks if the user is an end user.
+  """
+  @spec end_user?(String.t() | %User{}) :: boolean()
+  def end_user?(user_id) when is_binary(user_id), do: user_id |> User.get() |> end_user?()
+  def end_user?(user), do: user.provider_user_id != nil
+
+  @doc """
+  Checks if the user is an admin on the top-level account.
   """
   @spec master_admin?(%User{} | String.t()) :: boolean()
   def master_admin?(%User{id: user_id}) do
