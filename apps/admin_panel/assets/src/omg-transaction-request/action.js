@@ -56,7 +56,8 @@ export const createTransactionRequest = ({
   maxConsumptionPerUser,
   expirationDate,
   allowAmountOverride,
-  consumptionLifetime
+  consumptionLifetime,
+  exchangeAddress
 }) =>
   createActionCreator({
     actionName: 'TRANSACTION_REQUEST',
@@ -75,7 +76,8 @@ export const createTransactionRequest = ({
         maxConsumptionPerUser,
         expirationDate,
         allowAmountOverride,
-        consumptionLifetime
+        consumptionLifetime,
+        exchangeAddress
       })
   })
 

@@ -81,7 +81,6 @@ export const createFetcher = (entity, reducer, selectors) => {
           this.props.dispatcher({ ...this.props, ...this.getQuery() }).then(result => {
             this.fetched[this.props.cacheKey] = true
             if (result.data) {
-              console.log(result.data, this.getQuery())
               this.setState({
                 loadingStatus: CONSTANT.LOADING_STATUS.SUCCESS,
                 data: this.props.data,
