@@ -1,6 +1,6 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Invite, User}
+  alias EWalletDB.{Account, Invite, User}
 
   describe "User factory" do
     test_has_valid_factory(User)
@@ -268,6 +268,44 @@ defmodule EWalletDB.UserTest do
       account = insert(:account, parent: parent)
 
       assert User.get_role(user.id, account.id) == nil
+    end
+  end
+
+  describe "admin?/1" do
+    test "returns true if the user has a membership" do
+      user = insert(:user)
+      _membership = insert(:membership, %{user: user})
+
+      assert User.admin?(user)
+    end
+
+    test "returns false if the user does not have a membership" do
+      user = insert(:user)
+      refute User.admin?(user)
+    end
+  end
+
+  describe "master_admin?/1" do
+    test "returns true if the user has a membership on the top-level account" do
+      user = insert(:user)
+      master_account = Account.get_master_account()
+      role = insert(:role, %{name: "admin"})
+      _membership = insert(:membership, %{user: user, account: master_account, role: role})
+
+      assert User.master_admin?(user)
+    end
+
+    test "returns false if the user has a membership on the non-top-level account" do
+      user = insert(:user)
+      account = insert(:account)
+      _membership = insert(:membership, %{user: user, account: account})
+
+      refute User.master_admin?(user)
+    end
+
+    test "returns false if the user does not have a membership" do
+      user = insert(:user)
+      refute User.master_admin?(user)
     end
   end
 

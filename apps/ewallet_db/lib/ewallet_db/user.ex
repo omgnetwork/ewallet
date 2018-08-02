@@ -364,7 +364,13 @@ defmodule EWalletDB.User do
   """
   # User does not have any membership if it has not been saved yet.
   # Without pattern matching for nil id, Ecto will return an unsafe nil comparison error.
-  def has_membership?(%{uuid: nil}), do: false
+  @spec has_membership?(%User{} | String.t()) :: boolean()
+  def has_membership?(user) when is_binary(user) do
+    query = from(m in Membership, where: m.user_uuid == ^user)
+    Repo.aggregate(query, :count, :uuid) > 0
+  end
+
+  def has_membership?(%User{uuid: nil}), do: false
 
   def has_membership?(user) do
     query = from(m in Membership, where: m.user_uuid == ^user.uuid)
@@ -442,15 +448,7 @@ defmodule EWalletDB.User do
   Checks if the user is an admin user.
   """
   @spec admin?(String.t() | %User{}) :: boolean()
-  def admin?(user_id) when is_binary(user_id), do: user_id |> User.get() |> admin?()
-  def admin?(user), do: user.provider_user_id == nil
-
-  @doc """
-  Checks if the user is an end user.
-  """
-  @spec end_user?(String.t() | %User{}) :: boolean()
-  def end_user?(user_id) when is_binary(user_id), do: user_id |> User.get() |> end_user?()
-  def end_user?(user), do: user.provider_user_id != nil
+  def admin?(user), do: has_membership?(user)
 
   @doc """
   Checks if the user is an admin on the top-level account.
