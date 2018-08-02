@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Button, Icon, Select } from '../omg-uikit'
+import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createExchangePair } from '../omg-exchange-pair/action'
 import { connect } from 'react-redux'
@@ -52,6 +52,9 @@ const RateInputContainer = styled.div`
     flex: 1 1 auto;
     margin-right: 30px;
   }
+`
+const SyncContainer = styled.div`
+  margin-top: 20px;
 `
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
@@ -105,6 +108,9 @@ class CreateExchangeRateModal extends Component {
   onSelectTokenSelect = type => token => {
     this.setState({ [`${type}Search`]: token.value, [`${type}Selected`]: token })
   }
+  onClickSync = e => {
+    this.setState(oldState => ({ sync: !oldState.sync }))
+  }
   onSubmit = async e => {
     e.preventDefault()
     this.setState({ submitting: true })
@@ -113,7 +119,8 @@ class CreateExchangeRateModal extends Component {
         name: this.state.name,
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
         toTokenId: _.get(this.state, 'toTokenSelected.id'),
-        rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate)
+        rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate),
+        syncOpposite: this.state.sync
       })
       if (result.data) {
         this.props.onRequestClose()
@@ -196,6 +203,13 @@ class CreateExchangeRateModal extends Component {
                     />
                   </div>
                 </RateInputContainer>
+                <SyncContainer>
+                  <Checkbox
+                    label={'Sync Exchange Pair'}
+                    checked={this.state.sync}
+                    onClick={this.onClickSync}
+                  />
+                </SyncContainer>
               </Fragment>
             )
           }}
