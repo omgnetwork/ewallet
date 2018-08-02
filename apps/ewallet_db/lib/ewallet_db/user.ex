@@ -158,6 +158,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves all the addresses for the given user.
   """
+  @spec addresses(%User{}) :: [String.t()]
   def addresses(user) do
     user = user |> Repo.preload(:wallets)
 
@@ -257,6 +258,7 @@ defmodule EWalletDB.User do
   @doc """
   Inserts a wallet for the given user.
   """
+  @spec insert_wallet(%User{}, String.t()) :: {:ok, %Wallet{}} | {:error, Ecto.Changeset.t()}
   def insert_wallet(%User{} = user, identifier) do
     %{
       user_uuid: user.uuid,
@@ -269,6 +271,7 @@ defmodule EWalletDB.User do
   @doc """
   Updates a user with the provided attributes.
   """
+  @spec update(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update(%User{} = user, attrs) do
     changeset = changeset(user, attrs)
 
@@ -284,6 +287,7 @@ defmodule EWalletDB.User do
   @doc """
   Updates a user with the provided attributes.
   """
+  @spec update_without_password(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update_without_password(%User{} = user, attrs) do
     changeset = update_changeset(user, attrs)
 
@@ -299,6 +303,7 @@ defmodule EWalletDB.User do
   @doc """
   Stores an avatar for the given user.
   """
+  @spec store_avatar(%User{}, map()) :: %User{} | Ecto.Changeset.t()
   def store_avatar(%User{} = user, attrs) do
     attrs =
       case attrs["avatar"] do
@@ -318,6 +323,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieve the primary wallet for a user.
   """
+  @spec get_primary_wallet(%User{}) :: %Wallet{} | nil
   def get_primary_wallet(user) do
     Wallet
     |> where([b], b.user_uuid == ^user.uuid)
@@ -328,10 +334,12 @@ defmodule EWalletDB.User do
   @doc """
   Retrieve the primary wallet for a user with preloaded wallets.
   """
+  @spec get_preloaded_primary_wallet(%User{}) :: %Wallet{} | nil
   def get_preloaded_primary_wallet(user) do
     Enum.find(user.wallets, fn wallet -> wallet.identifier == Wallet.primary() end)
   end
 
+  @spec get_all_linked_accounts(String.t()) :: [%Account{}]
   def get_all_linked_accounts(user_uuid) do
     Repo.all(
       from(
@@ -346,6 +354,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the status of the given user.
   """
+  @spec get_status(%User{}) :: :active | :pending_confirmation
   def get_status(user) do
     if user.invite_uuid == nil, do: :active, else: :pending_confirmation
   end
@@ -353,6 +362,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the user's invite if any.
   """
+  @spec get_invite(%User{}) :: %Invite{} | nil
   def get_invite(user) do
     user
     |> Repo.preload(:invite)
@@ -380,6 +390,7 @@ defmodule EWalletDB.User do
   @doc """
   Checks if the user is assigned to the given role, regardless of which account.
   """
+  @spec has_role?(%User{}, String.t()) :: boolean()
   def has_role?(user, role) do
     user
     |> User.get_roles()
@@ -392,6 +403,7 @@ defmodule EWalletDB.User do
   This is useful when a check is required on a role but not depending on the account.
   E.g. if the user is an admin, an email and password is required regardless of which account.
   """
+  @spec get_roles(%User{}) :: [String.t()]
   def get_roles(user) do
     user
     |> Repo.preload(:roles)
