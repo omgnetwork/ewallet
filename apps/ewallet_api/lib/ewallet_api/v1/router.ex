@@ -30,7 +30,6 @@ defmodule EWalletAPI.V1.Router do
     )
 
     post("/me.reject_transaction_consumption", TransactionConsumptionController, :reject_for_user)
-
     post("/me.consume_transaction_request", TransactionConsumptionController, :consume_for_user)
 
     post("/me.logout", AuthController, :logout)
@@ -42,6 +41,10 @@ defmodule EWalletAPI.V1.Router do
 
     post("/status", StatusController, :index)
     post("/status.server_error", StatusController, :server_error)
+
+    # User signup and login
+    post("/user.signup", AuthController, :signup)
+    post("/user.login", AuthController, :login)
 
     match(:*, "/*path", FallbackController, :not_found)
   end
