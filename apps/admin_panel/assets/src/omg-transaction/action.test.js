@@ -1,6 +1,6 @@
 import configureMockStore from 'redux-mock-store'
 import thunk from 'redux-thunk'
-import { transfer, getTransactionById, getTransactions } from './action'
+import { transfer, getTransactionById, getTransactions, calculate } from './action'
 import * as transactionService from '../services/transactionService'
 const middlewares = [thunk]
 const mockStore = configureMockStore(middlewares)
@@ -59,6 +59,20 @@ describe('transaction actions', () => {
     ]
     return store.dispatch(getTransactionById('acc')).then(() => {
       expect(transactionService.getTransactionById).toBeCalledWith('acc')
+      expect(store.getActions()).toEqual(expectedActions)
+    })
+  })
+
+  test('[calculate] should dispatch correct action if successfully get transaction', () => {
+    transactionService.calculate.mockImplementation(() => {
+      return Promise.resolve({ data: { success: true, data: { id: 'a' } } })
+    })
+    const expectedActions = [
+      { type: 'TRANSACTION/CALCULATE/INITIATED' },
+      { type: 'TRANSACTION/CALCULATE/SUCCESS', data: { id: 'a' } }
+    ]
+    return store.dispatch(calculate({fromTokenId: 'a', fromAmount: 50, toTokenId: 'b'})).then(() => {
+      expect(transactionService.calculate).toBeCalledWith({fromTokenId: 'a', fromAmount: 50, toTokenId: 'b', toAmount: undefined})
       expect(store.getActions()).toEqual(expectedActions)
     })
   })

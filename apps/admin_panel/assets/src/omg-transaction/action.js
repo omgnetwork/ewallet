@@ -42,9 +42,16 @@ export const getTransactions = ({ page, search, searchTerms, perPage, cacheKey }
     cacheKey
   })
 
-export const getTransactionById = id => createActionCreator({
-  actionName: 'TRANSACTION',
-  action: 'REQUEST',
-  service: () => transactionService.getTransactionById(id)
+export const getTransactionById = id =>
+  createActionCreator({
+    actionName: 'TRANSACTION',
+    action: 'REQUEST',
+    service: () => transactionService.getTransactionById(id)
+  })
 
-})
+export const calculate = ({ fromTokenId, toTokenId, fromAmount, toAmount }) =>
+  createActionCreator({
+    actionName: 'TRANSACTION',
+    action: 'CALCULATE',
+    service: () => transactionService.calculate({ fromTokenId, toTokenId, fromAmount, toAmount })
+  })
