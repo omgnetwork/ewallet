@@ -134,6 +134,7 @@ class CreateTransaction extends Component {
     })
   }
   onChangeAmount = type => e => {
+    console.log(e.target.value)
     this.setState({ [`${type}Amount`]: e.target.value })
   }
   onChangeSearchToken = type => e => {

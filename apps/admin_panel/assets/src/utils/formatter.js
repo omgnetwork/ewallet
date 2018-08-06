@@ -38,7 +38,6 @@ export const formatAmount = (amount, subUnitToUnit) => {
       return null
     }
   } catch (error) {
-    console.log(error, '3#######')
     throw new Error('error formatting amount.')
   }
 }

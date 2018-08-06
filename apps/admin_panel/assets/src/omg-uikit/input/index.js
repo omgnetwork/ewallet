@@ -108,7 +108,8 @@ class InputComonent extends PureComponent {
     suffix: PropTypes.node,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
-    value: PropTypes.string
+    value: PropTypes.string,
+    type: PropTypes.string
   }
   static defaultProps = {
     onFocus: () => {},
@@ -155,27 +156,26 @@ class InputComonent extends PureComponent {
   }
   onChange = e => {
     if (this.props.type === 'number') {
+      const event = { ...e, target: { ...e.target, value: formatNumber(e.target.value) } }
+      this.props.onChange(event)
+    } else {
       this.props.onChange(e)
     }
   }
   render () {
     const { className, placeholder, ...rest } = this.props
-    let props = rest
-    if (rest.type === 'number' && rest.value) {
-      props = { ...props, value: formatNumber(props.value) }
-    }
-
     return (
       <Container className={className}>
         <InnerContainer>
           <Input
-            {...props}
+            {...rest}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
             innerRef={this.registerInput}
             placeholder={this.props.normalPlaceholder}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
+            onChange={this.onChange}
             type='string'
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
