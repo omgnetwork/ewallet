@@ -142,7 +142,7 @@ class TransactionRequestPanel extends Component {
                   <span>
                     {formatReceiveAmountToTotal(
                       consumption.estimated_consumption_amount,
-                      _.get(tq, 'token.subunit_to_unit')
+                      _.get(consumption, 'token.subunit_to_unit')
                     )}{' '}
                     {_.get(tq, 'token.symbol')}
                   </span>

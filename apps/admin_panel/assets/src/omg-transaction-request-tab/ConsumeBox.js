@@ -217,8 +217,6 @@ class PropertiesTab extends Component {
                       normalPlaceholder='1000'
                       onChange={this.onChangeAmount}
                       value={this.state.amount}
-                      type='number'
-                      step='any'
                       disabled={!valid || !this.props.transactionRequests.allow_amount_override}
                     />
                   </InputLabelContainer>

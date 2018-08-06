@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-
+import { formatNumber } from '../../utils/formatter'
 const Container = styled.div`
   position: relative;
   width: 100%;
@@ -153,19 +153,30 @@ class InputComonent extends PureComponent {
   isInputActive = () => {
     return this.props.value || this.state.active
   }
+  onChange = e => {
+    if (this.props.type === 'number') {
+      this.props.onChange(e)
+    }
+  }
   render () {
     const { className, placeholder, ...rest } = this.props
+    let props = rest
+    if (rest.type === 'number' && rest.value) {
+      props = { ...props, value: formatNumber(props.value) }
+    }
+
     return (
       <Container className={className}>
         <InnerContainer>
           <Input
-            {...rest}
+            {...props}
             onKeyPress={this.handleKeyPress}
             onKeyDown={this.handleKeyDown}
             innerRef={this.registerInput}
             placeholder={this.props.normalPlaceholder}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
+            type='string'
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>

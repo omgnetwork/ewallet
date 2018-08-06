@@ -10,6 +10,16 @@ describe('formatter', () => {
     const subunitToUnit = 100
     expect(formatAmount(amount, subunitToUnit)).toEqual(null)
   })
+  test('should format amount correctly with numbers string', () => {
+    const amount = '1.12345'
+    const subunitToUnit = 10000000
+    expect(formatAmount(amount, subunitToUnit)).toEqual('11234500')
+  })
+  test('should format amount correctly with comma', () => {
+    const amount = '10,000.12345'
+    const subunitToUnit = 100000000000
+    expect(formatAmount(amount, subunitToUnit)).toEqual('1000012345000000')
+  })
   test('should return 0 amount is falsy', () => {
     const subunitToUnit = 100
     expect(formatReceiveAmountToTotal(null, subunitToUnit)).toEqual('0')

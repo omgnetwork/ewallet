@@ -326,7 +326,7 @@ class CreateTransactionRequest extends Component {
             </InputLabel>
             <WalletsFetcher
               accountId={this.props.match.params.accountId}
-              query={{ search: this.state.address }}
+              query={{ search: this.state.exchangeAddress }}
               owned={false}
               render={({ data }) => {
                 return (
