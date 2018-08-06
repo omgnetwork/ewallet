@@ -34,7 +34,8 @@ export default class Select extends PureComponent {
     onChange: PropTypes.func,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
-    optionBoxHeight: PropTypes.string
+    optionBoxHeight: PropTypes.string,
+    className: PropTypes.string
   }
   static defaultProps = {
     onSelectItem: _.noop,
@@ -67,7 +68,7 @@ export default class Select extends PureComponent {
     })
 
     return (
-      <SelectContainer>
+      <SelectContainer className={this.props.className}>
         <Input
           {...this.props}
           onFocus={this.onFocus}

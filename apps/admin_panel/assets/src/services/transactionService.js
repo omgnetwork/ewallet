@@ -45,7 +45,12 @@ export function transfer ({
 export function calculate ({ fromTokenId, toTokenId, fromAmount, toAmount }) {
   return authenticatedRequest({
     path: '/transaction.calculate',
-    data: { fromTokenId, toTokenId, fromAmount, toAmount }
+    data: {
+      from_token_id: fromTokenId,
+      to_token_id: toTokenId,
+      from_amount: fromAmount,
+      to_amount: toAmount
+    }
   })
 }
 

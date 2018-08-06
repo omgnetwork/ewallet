@@ -70,6 +70,7 @@ const InputLabel = styled.div`
 `
 const InputLabelContainer = styled.div`
   text-align: left;
+  flex: 1 1 auto;
 `
 const ExpiredContainer = styled.div`
   background-color: ${props => props.theme.colors.S200};
@@ -87,6 +88,9 @@ const Error = styled.div`
   opacity: ${props => (props.error ? 1 : 0)};
   transition: 0.5s ease max-height, 0.3s ease opacity;
   text-align: right;
+`
+const AmountInput = styled(Input)`
+  pointer-events: ${props => (props.override ? 'auto' : 'none')};
 `
 class ConsumeBox extends Component {
   static propTypes = {
@@ -117,18 +121,6 @@ class ConsumeBox extends Component {
   }
 
   state = { amount: '', searchTokenValue: '' }
-  componentDidUpdate = async (prevProps, prevState) => {
-    const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
-    const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
-    const selectedTokenId = _.get(this.state, 'selectedToken.id')
-    if (
-      selectedTokenId &&
-      transactionRequest.token_id &&
-      selectedTokenId !== transactionRequest.token_id
-    ) {
-      this.setState({ yo: 'yo' })
-    }
-  }
 
   onSubmitConsume = transactionRequest => async e => {
     e.preventDefault()
@@ -166,10 +158,30 @@ class ConsumeBox extends Component {
   onChangeSearchToken = e => {
     this.setState({ searchTokenValue: e.target.value, selectedToken: null })
   }
-  onSelectTokenSelect = token => {
+  onSelectTokenSelect = async token => {
+    const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
+    const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
     this.setState({ searchTokenValue: token.name, selectedToken: token })
+    if (token.id !== transactionRequest.token_id) {
+      const { data } = await this.props.calculate({
+        fromTokenId: transactionRequest.token_id,
+        toTokenId: token.id,
+        fromAmount: this.state.amount
+      })
+      if (data) {
+        this.setState({
+          amount:
+            formatReceiveAmountToTotal(
+              transactionRequest.amount,
+              transactionRequest.token.subunit_to_unit
+            ) * data.exchange_pair.rate,
+          error: null
+        })
+      } else {
+        this.setState({ error: 'Exchange pair does not exist.' })
+      }
+    }
   }
-
   getExpiredReason = reason => {
     switch (reason) {
       case 'max_consumptions_reached':
@@ -230,12 +242,13 @@ class ConsumeBox extends Component {
                 <TokenAmountContainer>
                   <InputLabelContainer>
                     <InputLabel disabled={!valid}>Amount</InputLabel>
-                    <Input
+                    <AmountInput
+                      override={this.props.transactionRequest.allow_amount_override}
                       normalPlaceholder='1000'
                       onChange={this.onChangeAmount}
                       value={this.state.amount}
                       type='number'
-                      disabled={!valid || !this.props.transactionRequest.allow_amount_override}
+                      disabled={!valid}
                     />
                   </InputLabelContainer>
                   <InputLabelContainer>
