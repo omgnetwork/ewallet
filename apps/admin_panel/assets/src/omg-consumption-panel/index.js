@@ -177,7 +177,7 @@ class TransactionRequestPanel extends Component {
                   </InformationItem>
                 )}
               </ActionContainer>
-              <TransactionRequestDetail transactionRequests={tq} />
+              <TransactionRequestDetail transactionRequest={tq} />
             </PanelContainer>
           )
         }}

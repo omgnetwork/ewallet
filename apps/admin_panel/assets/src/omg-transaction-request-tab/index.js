@@ -137,7 +137,7 @@ class TransactionRequestPanel extends Component {
                   {
                     key: 'properties',
                     tabTitle: 'PROPERTIES',
-                    tabContent: <PropertyTab transactionRequests={tq} />
+                    tabContent: <PropertyTab transactionRequest={tq} />
                   }
                 ]}
               />

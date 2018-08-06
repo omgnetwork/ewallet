@@ -9,6 +9,7 @@ import { Select, Button, Input } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
+import { calculate } from '../omg-transaction/action'
 import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
@@ -87,11 +88,14 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
   text-align: right;
 `
-class PropertiesTab extends Component {
+class ConsumeBox extends Component {
   static propTypes = {
-    transactionRequests: PropTypes.array,
+    transactionRequest: PropTypes.object,
     consumeTransactionRequest: PropTypes.func,
-    match: PropTypes.object
+    match: PropTypes.object,
+    calculate: PropTypes.func,
+    selectTransactionRequestById: PropTypes.func,
+    location: PropTypes.object
   }
 
   static getDerivedStateFromProps (props, state) {
@@ -111,7 +115,20 @@ class PropertiesTab extends Component {
     }
     return null
   }
-  state = {}
+
+  state = { amount: '', searchTokenValue: '' }
+  componentDidUpdate = async (prevProps, prevState) => {
+    const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
+    const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
+    const selectedTokenId = _.get(this.state, 'selectedToken.id')
+    if (
+      selectedTokenId &&
+      transactionRequest.token_id &&
+      selectedTokenId !== transactionRequest.token_id
+    ) {
+      this.setState({ yo: 'yo' })
+    }
+  }
 
   onSubmitConsume = transactionRequest => async e => {
     e.preventDefault()
@@ -165,18 +182,18 @@ class PropertiesTab extends Component {
   }
 
   render = () => {
-    const valid = this.props.transactionRequests.status === 'valid'
+    const valid = this.props.transactionRequest.status === 'valid'
     return (
-      <ConsumeActionContainer onSubmit={this.onSubmitConsume(this.props.transactionRequests)}>
+      <ConsumeActionContainer onSubmit={this.onSubmitConsume(this.props.transactionRequest)}>
         <QrContainer>
-          <QR data={this.props.transactionRequests.id} />
+          <QR data={this.props.transactionRequest.id} />
           <QrTypeContainer>
             <b>Type : </b>
-            <div>{this.props.transactionRequests.type}</div>
+            <div>{this.props.transactionRequest.type}</div>
           </QrTypeContainer>
           <QrTypeContainer>
             <b>Token :</b>
-            <div>{_.get(this.props.transactionRequests, 'token.name')}</div>
+            <div>{_.get(this.props.transactionRequest, 'token.name')}</div>
           </QrTypeContainer>
         </QrContainer>
         <InputsContainer>
@@ -218,7 +235,7 @@ class PropertiesTab extends Component {
                       onChange={this.onChangeAmount}
                       value={this.state.amount}
                       type='number'
-                      disabled={!valid || !this.props.transactionRequests.allow_amount_override}
+                      disabled={!valid || !this.props.transactionRequest.allow_amount_override}
                     />
                   </InputLabelContainer>
                   <InputLabelContainer>
@@ -240,9 +257,9 @@ class PropertiesTab extends Component {
               )
             }}
           />
-          {this.props.transactionRequests.expiration_reason ? (
+          {this.props.transactionRequest.expiration_reason ? (
             <ExpiredContainer>
-              {this.getExpiredReason(this.props.transactionRequests.expiration_reason)}
+              {this.getExpiredReason(this.props.transactionRequest.expiration_reason)}
             </ExpiredContainer>
           ) : (
             <Button disabled={!valid} loading={this.state.submitStatus === 'SUBMITTING'}>
@@ -259,6 +276,6 @@ class PropertiesTab extends Component {
 export default withRouter(
   connect(
     state => ({ selectTransactionRequestById: selectGetTransactionRequestById(state) }),
-    { consumeTransactionRequest }
-  )(PropertiesTab)
+    { consumeTransactionRequest, calculate }
+  )(ConsumeBox)
 )

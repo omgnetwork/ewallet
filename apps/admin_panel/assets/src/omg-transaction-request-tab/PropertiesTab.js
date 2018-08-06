@@ -17,15 +17,15 @@ const TransactionReqeustPropertiesContainer = styled.div`
 class PropertiesTab extends Component {
   static propTypes = {
     match: PropTypes.object,
-    transactionRequests: PropTypes.array
+    transactionRequest: PropTypes.object
   }
   state = {}
 
   render = () => {
     return (
       <TransactionReqeustPropertiesContainer>
-        <ConsumeBox transactionRequests={this.props.transactionRequests} />
-        <TransactionRequestDetail transactionRequests={this.props.transactionRequests} />
+        <ConsumeBox transactionRequest={this.props.transactionRequest} />
+        <TransactionRequestDetail transactionRequest={this.props.transactionRequest} />
       </TransactionReqeustPropertiesContainer>
     )
   }

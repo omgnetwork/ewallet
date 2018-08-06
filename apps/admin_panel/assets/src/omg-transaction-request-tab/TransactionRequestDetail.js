@@ -25,11 +25,11 @@ const AdditionalRequestDataContainer = styled.div`
 `
 export default class TransactionRequestDetail extends Component {
   static propTypes = {
-    transactionRequests: PropTypes.array
+    transactionRequest: PropTypes.object
   }
 
   render = () => {
-    const tq = this.props.transactionRequests
+    const tq = this.props.transactionRequest
     const amount =
       tq.amount === null ? (
         'Not Specified'
@@ -39,7 +39,6 @@ export default class TransactionRequestDetail extends Component {
           {_.get(tq, 'token.symbol')}
         </span>
       )
-    console.log(tq)
     return (
       <AdditionalRequestDataContainer>
         <h5>ADDITIONAL REQUEST DETAILS</h5>
