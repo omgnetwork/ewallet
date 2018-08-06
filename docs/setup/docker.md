@@ -54,6 +54,8 @@ services:
       LOCAL_LEDGER_SECRET_KEY: "<local_ledger_secret_key_here>"
       SMTP_HOST: mailhog
       SMTP_PORT: 1025
+    ports:
+      - 4000:4000
 
 networks:
   external:
