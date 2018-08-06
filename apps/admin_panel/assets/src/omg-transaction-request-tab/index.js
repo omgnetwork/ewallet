@@ -6,7 +6,6 @@ import TransactionRequestProvider from '../omg-transaction-request/transactionRe
 import { Icon } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import queryString from 'query-string'
-
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
