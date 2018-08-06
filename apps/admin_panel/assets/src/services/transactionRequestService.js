@@ -49,7 +49,6 @@ export function createTransactionRequest ({
   consumptionLifetime,
   exchangeAddress
 }) {
-  console.log(exchangeAddress)
   return authenticatedRequest({
     path: '/transaction_request.create',
     data: {

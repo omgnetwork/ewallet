@@ -117,7 +117,8 @@ class InputComonent extends PureComponent {
     onChange: () => {},
     registerRef: () => {},
     onPressEscape: () => {},
-    onPressEnter: () => {}
+    onPressEnter: () => {},
+    type: 'string'
   }
   state = {
     active: false
@@ -176,7 +177,7 @@ class InputComonent extends PureComponent {
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onChange={this.onChange}
-            type='string'
+            type={this.props.type === 'number' ? 'string' : this.props.type}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>

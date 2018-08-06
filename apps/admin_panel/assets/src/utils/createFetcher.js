@@ -101,9 +101,6 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
 
       render () {
-        if (this.props.entity === 'tokens') {
-          console.log(this.props.data.length, this.state.data.length, this.props.query)
-        }
         return this.props.render({
           ...this.props,
           ...this.getQuery(),
