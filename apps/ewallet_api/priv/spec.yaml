@@ -48,12 +48,27 @@ paths:
   ######################################
   #          SESSION ENDPOINTS         #
   ######################################
+  /user.login:
+    post:
+      tags:
+        - Session
+      summary: Login to retrieve a user's authentication_token.
+      operationId: user_login
+      security:
+        - ClientAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/LoginBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/AuthenticationTokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /me.logout:
     post:
       tags:
         - Session
       summary: Expires a user's authentication_token.
-      operationId: logout
+      operationId: me_logout
       security:
         - ClientAuth: []
       responses:
@@ -65,6 +80,22 @@ paths:
   ######################################
   #            USER ENDPOINTS          #
   ######################################
+  /user.signup:
+    post:
+      tags:
+        - User
+      summary: Sign up a new user
+      operationId: user_signup
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /me.get:
     post:
       tags:
@@ -372,9 +403,16 @@ components:
           type: string
         authentication_token:
           type: string
+        user_id:
+          type: string
+        user:
+          type: object
+          $ref: '#/components/schemas/UserSchema'
       required:
         - object
         - authentication_token
+        - user_id
+        - user
     AuthenticationTokenResponse:
       description: "The response schema for an authentication token"
       allOf:
@@ -390,6 +428,17 @@ components:
           data:
             object: "authentication_token"
             authentication_token: "azJRj09l7jvR8KhTqUs3"
+            user_id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+            user:
+              object: "user"
+              id: "usr_01cc02x0v98qcctvycfx4vsk8x"
+              provider_user_id: "wijf-fbancomw-dqwjudb"
+              username: "johndoe"
+              email: "johndoe@omise.co"
+              metadata: {"first_name": "John", "last_name": "Doe"}
+              encrypted_metadata: {"something": "secret"}
+              created_at: "2018-01-01T00:00:00Z"
+              updated_at: "2018-01-01T10:00:00Z"
 
     ######################################
     #             USER SCHEMAS           #
@@ -406,22 +455,37 @@ components:
           type: string
         provider_user_id:
           type: string
+        email:
+          type: string
+          format: email
         metadata:
           type: object
         encrypted_metadata:
           type: object
+        avatar:
+          type: object
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
       required:
         - object
         - id
-        - username
-        - provider_user_id
+        - created_at
+        - updated_at
       example:
         object: "user"
         id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
         provider_user_id: "wijf-fbancomw-dqwjudb"
-        username: "thibault@omise.co"
-        metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+        username: "johndoe"
+        email: "johndoe@omise.co"
+        metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {}
+        avatar: {"original": "file_url"}
+        created_at: "2018-01-01T00:00:00Z"
+        updated_at: "2018-01-01T10:00:00Z"
     UserResponseSchema:
       description: "The response schema for a user"
       allOf:
@@ -438,9 +502,13 @@ components:
             object: "user"
             id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
             provider_user_id: "wijf-fbancomw-dqwjudb"
-            username: "thibault@omise.co"
-            metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+            username: "johndoe"
+            email: "johndoe@omise.co"
+            metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {}
+            avatar: {"original": "file_url"}
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
 
     ######################################
     #             WALLET SCHEMAS         #
@@ -1162,6 +1230,29 @@ components:
             expired_at: null
   requestBodies:
     ######################################
+    #       SESSION REQUEST BODIES       #
+    ######################################
+    LoginBody:
+      description: The parameters to use for logging in a user
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+                format: email
+              password:
+                type: string
+                format: password
+            required:
+              - email
+              - password
+            example:
+              email: "test@example.com"
+              password: "the_password"
+
+    ######################################
     #         USER REQUEST BODIES        #
     ######################################
     UserBody:
@@ -1171,21 +1262,29 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              provider_user_id:
+              email:
                 type: string
-              username:
+                format: email
+              password:
                 type: string
+                format: password
+              password_confirmation:
+                type: string
+                format: password
               metadata:
                 type: object
               encrypted_metadata:
                 type: object
             required:
-              - provider_user_id
-              - username
+              - email
+              - password
+              - password_confirmation
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
-              username: "thibault@omise.co"
-              metadata: {"first_name": "Thibault", "last_name": "Denizet"}
+              username: "johndoe@example.com"
+              password: "nZi9Enc5$l#"
+              password_confirmation: "nZi9Enc5$l#"
+              metadata: {"first_name": "John", "last_name": "Doe"}
               encrypted_metadata: {}
     ProviderIdBody:
       description: The parameters to use for providing a provider user id
