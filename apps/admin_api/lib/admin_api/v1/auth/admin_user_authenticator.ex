@@ -4,12 +4,22 @@ defmodule AdminAPI.V1.AdminUserAuthenticator do
   It returns the associated user if authenticated, `false` otherwise.
   """
   import Plug.Conn
-  alias EWalletDB.{User, AuthToken}
+  alias EWalletDB.{AuthToken, User}
   alias EWalletDB.Helpers.Crypto
 
   def authenticate(conn, email, password) when is_binary(email) do
-    user = User.get_by_email(email)
-    authenticate(conn, user, password)
+    with %User{} = user <- User.get_by_email(email) || :user_email_not_found,
+         true <- User.admin?(user) || :user_not_admin do
+      authenticate(conn, user, password)
+    else
+      :user_email_not_found ->
+        Crypto.fake_verify()
+        handle_fail_auth(conn, :invalid_login_credentials)
+
+      :user_not_admin ->
+        Crypto.fake_verify()
+        handle_fail_auth(conn, :invalid_login_credentials)
+    end
   end
 
   def authenticate(conn, %{password_hash: password_hash} = user, password)
