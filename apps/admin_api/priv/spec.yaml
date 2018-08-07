@@ -1132,7 +1132,7 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/TransactionConsumptionAllForUserBody'
+        $ref: '#/components/requestBodies/UserIdentifierWithFiltersBody'
       responses:
         '200':
           $ref: "#/components/responses/TransactionConsumptionsResponse"
@@ -4916,7 +4916,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              user_id:
+              id:
                 type: string
               page:
                 type: integer
@@ -4932,9 +4932,9 @@ components:
                 type: string
                 enum: ["asc", "desc"]
             required:
-              - user_id
+              - id
             example:
-              user_id: "usr_02cbfg6v9thrc3sd9m1v4gazjv"
+              id: "usr_02cbfg6v9thrc3sd9m1v4gazjv"
               page: 1
               per_page: 10
               search_terms: {}

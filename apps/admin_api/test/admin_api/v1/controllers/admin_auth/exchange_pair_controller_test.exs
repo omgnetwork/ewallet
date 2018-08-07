@@ -188,6 +188,20 @@ defmodule AdminAPI.V1.AdminAuth.ExchangePairControllerTest do
       assert response["data"]["description"] ==
                "Invalid parameter provided `to_token_id` can't be blank."
     end
+
+    test "returns client:invalid_parameter error if from_token_id and to_token_id are the same" do
+      omg = insert(:token)
+
+      request_data = insert_params(%{from_token_id: omg.id, to_token_id: omg.id})
+      response = admin_user_request("/exchange_pair.create", request_data)
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided `to_token_id` can't have the same value as `from_token_id`."
+    end
   end
 
   describe "/exchange_pair.update" do
