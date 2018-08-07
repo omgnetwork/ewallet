@@ -88,7 +88,6 @@ class CreateToken extends Component {
           })
         }
       } catch (e) {
-        console.log(e)
         this.setState({ submitting: false })
       }
     }
