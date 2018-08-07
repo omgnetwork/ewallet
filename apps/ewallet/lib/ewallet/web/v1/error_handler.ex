@@ -9,6 +9,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
   alias EWalletDB.Token
 
   @errors %{
+    invalid_login_credentials: %{
+      code: "user:invalid_login_credentials",
+      description: "There is no user corresponding to the provided login credentials"
+    },
     invalid_auth_scheme: %{
       code: "client:invalid_auth_scheme",
       description: "The provided authentication scheme is not supported"

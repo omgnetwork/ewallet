@@ -8,10 +8,6 @@ defmodule AdminAPI.V1.ErrorHandler do
   alias EWallet.Web.V1.ResponseSerializer
 
   @errors %{
-    invalid_login_credentials: %{
-      code: "user:invalid_login_credentials",
-      description: "There is no user corresponding to the provided login credentials"
-    },
     user_account_not_found: %{
       code: "user:account_not_found",
       description: "There is no account assigned to the provided user"
