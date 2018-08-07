@@ -80,10 +80,10 @@ Some initial data is required to start the server. Either run the seed or the sa
 
 ```bash
 # Option 2a: Run this command to set up the initial data
-$ mix do ecto.seed
+$ mix seed
 
 # Option 2b: Run this command to set up the initial data and populate the database with more sample data
-$ mix do ecto.seed --sample
+$ mix seed --sample
 ```
 
 ### Step 3: Start the server
