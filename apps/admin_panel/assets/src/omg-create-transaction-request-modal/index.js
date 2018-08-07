@@ -117,9 +117,7 @@ class CreateTransactionRequest extends Component {
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
-        amount: this.state.amount
-          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
-          : null,
+        amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: _.get(this.state, 'selectedToken.id'),
         address: _.get(this.state, 'selectedWallet.id', this.props.primaryWallet.address),
         accountId: this.props.match.params.accountId,

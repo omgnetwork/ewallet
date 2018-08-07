@@ -106,12 +106,14 @@ class ConsumeBox extends Component {
     const transactionRequestId = queryString.parse(props.location.search)['show-request-tab']
     const transactionRequest = props.selectTransactionRequestById(transactionRequestId)
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
+      const amount = formatReceiveAmountToTotal(
+        transactionRequest.amount,
+        transactionRequest.token.subunit_to_unit
+      )
       return {
         transactionRequestId,
-        amount: formatReceiveAmountToTotal(
-          transactionRequest.amount,
-          transactionRequest.token.subunit_to_unit
-        ),
+        defaultAmount: amount,
+        amount,
         selectedToken: transactionRequest.token,
         searchTokenValue: transactionRequest.token.name,
         error: null
@@ -178,7 +180,7 @@ class ConsumeBox extends Component {
           error: null
         })
       } else {
-        this.setState({ error: 'Exchange pair does not exist.' })
+        this.setState({ error: 'Exchange pair does not exist.', amount: this.state.defaultAmount })
       }
     }
   }
