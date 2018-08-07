@@ -51,7 +51,11 @@ defmodule EWalletAPI.V1.AuthController do
         handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
 
       :missing_password ->
-        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `password` is required")
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Invalid parameter provided. `password` is required"
+        )
 
       :unauthenticated ->
         handle_error(conn, :invalid_login_credentials)
