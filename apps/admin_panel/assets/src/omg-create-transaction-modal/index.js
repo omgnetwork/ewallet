@@ -139,8 +139,8 @@ class CreateTransaction extends Component {
   onChangeSearchToken = type => e => {
     this.setState({ [`${type}SearchToken`]: e.target.value, [`${type}Selected`]: null })
   }
-  onSelectTokenSelect = type => b => {
-    this.setState({ [`${type}SearchToken`]: _.get(b, 'token.name'), [`${type}Selected`]: b })
+  onSelectTokenSelect = type => token => {
+    this.setState({ [`${type}SearchToken`]: _.get(token, 'token.name'), [`${type}Selected`]: token })
   }
   onSelectToAddressSelect = item => {
     this.setState({
