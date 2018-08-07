@@ -124,7 +124,7 @@ defmodule EWalletDB.User do
 
   # Two cases to validate for loginable:
   #
-  #   1. A new admin user has just been created. No membership assgined yet.
+  #   1. A new admin user has just been created. No membership assigned yet.
   #      So `do_validate_loginable/2` if email is provided.
   #   2. An existing provider user has been assigned a membership. No email provided yet.
   #      So `do_validate_loginable/2` if membership exists.
