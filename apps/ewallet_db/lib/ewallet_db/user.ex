@@ -97,7 +97,7 @@ defmodule EWalletDB.User do
       :invite_uuid
     ])
     |> validate_required([:metadata, :encrypted_metadata])
-    |> validate_confirmation(:password, message: "does not match password!")
+    |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
