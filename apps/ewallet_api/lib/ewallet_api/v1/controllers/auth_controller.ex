@@ -1,8 +1,11 @@
 defmodule EWalletAPI.V1.AuthController do
   use EWalletAPI, :controller
+  import EWalletAPI.V1.ErrorHandler
+  alias Ecto.Changeset
   alias EWallet.UserPolicy
+  alias EWalletAPI.V1.EndUserAuthenticator
   alias EWalletAPI.V1.Plug.ClientAuthPlug
-  alias EWalletDB.{Account, AuthToken, User}
+  alias EWalletDB.{AuthToken, User}
 
   @doc """
   Signs up a new user.
@@ -11,11 +14,17 @@ defmodule EWalletAPI.V1.AuthController do
   allowing users to sign up without an integration with the provider's server.
   """
   @spec signup(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def signup(conn, _attrs) do
+  def signup(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
+         email when is_binary(email) <- attrs["email"] || :missing_email,
          {:ok, user} <- User.insert(attrs) do
       render(conn, :user, %{user: user})
     else
+      # Because User.validate_by_roles/2 will validate for `username` and `provider_user_id`
+      # if `email` is not provided, we need to handle the missing `email` here.
+      :missing_email ->
+        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
+
       {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
 
@@ -31,19 +40,20 @@ defmodule EWalletAPI.V1.AuthController do
   allowing users to log in without an integration with the provider's server.
   """
   def login(conn, attrs) do
-    with email <- attrs["email"] || :missing_email,
-         password <- attrs["password"] || :missing_password,
-         %{assigns: %{authenticated: true}}} <- UserAuth.authenticate(email, password),
-         {:ok, auth_token} <- AuthToken.generate(conn.assigns.auth_user, :ewallet_api) do
+    with email when is_binary(email) <- attrs["email"] || :missing_email,
+         password when is_binary(password) <- attrs["password"] || :missing_password,
+         conn <- EndUserAuthenticator.authenticate(conn, email, password),
+         true <- conn.assigns.authenticated || :unauthenticated,
+         {:ok, auth_token} <- AuthToken.generate(conn.assigns.end_user, :ewallet_api) do
       render(conn, :auth_token, %{auth_token: auth_token})
     else
       :missing_email ->
-        handle_error(conn, :invalid_parameter, "`email` is required")
+        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
 
       :missing_password ->
-        handle_error(conn, :invalid_parameter, "`password` is required")
+        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `password` is required")
 
-      _ ->
+      :unauthenticated ->
         handle_error(conn, :invalid_login_credentials)
     end
   end
