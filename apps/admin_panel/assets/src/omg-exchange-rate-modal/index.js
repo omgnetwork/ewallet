@@ -92,7 +92,7 @@ class CreateExchangeRateModal extends Component {
     }
     return null
   }
-  state = {}
+  state = { sync: true }
   onChangeName = e => {
     this.setState({ name: e.target.value })
   }
