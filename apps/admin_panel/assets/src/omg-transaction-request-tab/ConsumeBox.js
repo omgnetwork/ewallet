@@ -175,7 +175,6 @@ class ConsumeBox extends Component {
       } else {
         Object.assign(query, { toAmount: amountTo })
       }
-      console.log(query)
       this.calculateRate(query)
     })
   }
@@ -186,19 +185,20 @@ class ConsumeBox extends Component {
     this.setState({ searchTokenValue: e.target.value })
   }
   onSelectTokenSelect = async token => {
-    const oldToken = { ...this.state.selectedToken }
     this.setState({ searchTokenValue: token.name, selectedToken: token }, async () => {
       const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
       const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
       if (transactionRequest.token.id === this.state.selectedToken.id) {
         this.setState({
-          amount: formatReceiveAmountToTotal(
-            transactionRequest.amount,
-            transactionRequest.token.subunit_to_unit
-          ),
-          rate: null
+          amount:
+            formatReceiveAmountToTotal(
+              transactionRequest.amount,
+              transactionRequest.token.subunit_to_unit
+            ) || this.state.amount,
+          rate: null,
+          error: null
         })
-      } else if (oldToken.id !== this.state.selectedToken.id && this.state.amount) {
+      } else {
         const fromTokenId =
           transactionRequest.type === 'send' ? token.id : transactionRequest.token_id
         const toTokenId =
