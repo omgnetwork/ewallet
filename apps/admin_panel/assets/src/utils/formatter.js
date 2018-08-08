@@ -42,5 +42,6 @@ export const formatAmount = (amount, subUnitToUnit) => {
   }
 }
 export const formatReceiveAmountToTotal = (amount, subUnitToUnit) => {
+  if (!amount) return null
   return new BigNumber(amount || 0).dividedBy(new BigNumber(subUnitToUnit)).toFormat()
 }

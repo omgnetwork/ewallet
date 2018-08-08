@@ -14,6 +14,7 @@ import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
+import numeral from 'numeral'
 const ConsumeActionContainer = styled.form`
   display: flex;
   margin: 20px 0;
@@ -46,10 +47,6 @@ const InputsContainer = styled.div`
   text-align: right;
   > div:not(:last-child) {
     margin-bottom: 20px;
-  }
-  > div:nth-child(3) {
-    margin-top: 32px;
-    margin-bottom: 0;
   }
 `
 const QrTypeContainer = styled.div`
@@ -92,6 +89,9 @@ const Error = styled.div`
 const AmountInput = styled(Input)`
   pointer-events: ${props => (props.override ? 'auto' : 'none')};
 `
+const RateCointaner = styled.div`
+  color: ${props => props.theme.colors.B100};
+`
 class ConsumeBox extends Component {
   static propTypes = {
     transactionRequest: PropTypes.object,
@@ -112,8 +112,8 @@ class ConsumeBox extends Component {
       )
       return {
         transactionRequestId,
-        defaultAmount: amount,
-        amount,
+        defaultAmount: amount || '',
+        amount: amount || '',
         selectedToken: transactionRequest.token,
         searchTokenValue: transactionRequest.token.name,
         error: null
@@ -152,36 +152,69 @@ class ConsumeBox extends Component {
     this.setState({ consumeAddress: e.target.value })
   }
   onChangeAmount = e => {
-    this.setState({ amount: e.target.value })
+    this.setState({ amount: e.target.value }, () => {
+      this.calculateRate()
+    })
   }
   onSelectWalletAddressSelect = item => {
     this.setState({ consumeAddress: item.key })
   }
   onChangeSearchToken = e => {
-    this.setState({ searchTokenValue: e.target.value, selectedToken: null })
+    this.setState({ searchTokenValue: e.target.value, selectedToken: {} })
   }
   onSelectTokenSelect = async token => {
+    const oldToken = this.state.selectedToken
+    this.setState({ searchTokenValue: token.name, selectedToken: token }, async () => {
+      const amount = await this.calculateRate()
+      const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
+      const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
+      if (transactionRequest.token.id === this.state.selectedToken.id) {
+        this.setState({
+          amount: formatReceiveAmountToTotal(
+            transactionRequest.amount,
+            transactionRequest.token.subunit_to_unit
+          )
+        })
+      } else if (
+        oldToken.id !== this.state.selectedToken.id &&
+        !transactionRequest.allow_amount_override
+      ) {
+        this.setState({ amount })
+      }
+    })
+  }
+  calculateRate = async () => {
     const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
     const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
-    this.setState({ searchTokenValue: token.name, selectedToken: token })
+    const token = this.state.selectedToken
     if (token.id !== transactionRequest.token_id) {
-      const { data } = await this.props.calculate({
-        fromTokenId: transactionRequest.token_id,
-        toTokenId: token.id,
-        fromAmount: this.state.amount
-      })
-      if (data) {
-        this.setState({
-          amount:
-            formatReceiveAmountToTotal(
-              transactionRequest.amount,
-              transactionRequest.token.subunit_to_unit
-            ) * data.exchange_pair.rate,
-          error: null
+      try {
+        const fromTokenId = transactionRequest.type === 'send' ? transactionRequest.token_id : token.id
+        const toTokenId = transactionRequest.type === 'send' ? token.id : transactionRequest.token_id
+        const { data, error } = await this.props.calculate({
+          fromTokenId,
+          toTokenId,
+          fromAmount: transactionRequest.allow_amount_override
+            ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
+            : transactionRequest.amount
         })
-      } else {
-        this.setState({ error: 'Exchange pair does not exist.', amount: this.state.defaultAmount })
+        if (data) {
+          this.setState({ error: null, rate: data })
+          return formatReceiveAmountToTotal(
+            data.to_amount,
+            _.get(data, 'exchange_pair.to_token.subunit_to_unit')
+          )
+        } else {
+          this.setState({
+            error: error.description || 'Exchange pair does not exist.',
+            rate: null
+          })
+        }
+      } catch (error) {
+        this.setState({ error: `${error}`, rate: null })
       }
+    } else {
+      this.setState({ error: null })
     }
   }
   getExpiredReason = reason => {
@@ -254,7 +287,10 @@ class ConsumeBox extends Component {
                     />
                   </InputLabelContainer>
                   <InputLabelContainer>
-                    <InputLabel disabled={!valid}>Token</InputLabel>
+                    <InputLabel disabled={!valid}>
+                      Token to{' '}
+                      {this.props.transactionRequest.type === 'receive' ? 'send' : 'receive'}
+                    </InputLabel>
                     <Select
                       disabled={!valid}
                       normalPlaceholder='ETH'
@@ -272,6 +308,13 @@ class ConsumeBox extends Component {
               )
             }}
           />
+          {this.state.rate && (
+            <RateCointaner>
+              1 {_.get(this.state, 'rate.exchange_pair.from_token.symbol')} :{' '}
+              {_.get(this.state, 'rate.exchange_pair.rate')}{' '}
+              {_.get(this.state, 'rate.exchange_pair.to_token.symbol')}
+            </RateCointaner>
+          )}
           {this.props.transactionRequest.expiration_reason ? (
             <ExpiredContainer>
               {this.getExpiredReason(this.props.transactionRequest.expiration_reason)}
