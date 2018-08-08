@@ -130,7 +130,7 @@ class TransactionRequestPanel extends Component {
                       consumption.estimated_consumption_amount,
                       _.get(consumption, 'token.subunit_to_unit')
                     )}{' '}
-                    {_.get(tq, 'token.symbol')}
+                    {_.get(consumption, 'token.symbol')}
                   </span>
                 </InformationItem>
                 <InformationItem>
