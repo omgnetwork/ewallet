@@ -173,11 +173,13 @@ class ConsumeBox extends Component {
           amount: formatReceiveAmountToTotal(
             transactionRequest.amount,
             transactionRequest.token.subunit_to_unit
-          )
+          ),
+          rate: null
         })
       } else if (
-        oldToken.id !== this.state.selectedToken.id &&
-        !transactionRequest.allow_amount_override
+        (oldToken.id !== this.state.selectedToken.id &&
+          !transactionRequest.allow_amount_override) ||
+        this.state.amount
       ) {
         this.setState({ amount })
       }
@@ -189,8 +191,8 @@ class ConsumeBox extends Component {
     const token = this.state.selectedToken
     if (token.id !== transactionRequest.token_id) {
       try {
-        const fromTokenId = transactionRequest.type === 'send' ? transactionRequest.token_id : token.id
-        const toTokenId = transactionRequest.type === 'send' ? token.id : transactionRequest.token_id
+        const fromTokenId = transactionRequest.token_id
+        const toTokenId = token.id
         const { data, error } = await this.props.calculate({
           fromTokenId,
           toTokenId,
