@@ -292,8 +292,7 @@ class CreateTransaction extends Component {
             <Input
               value={this.state.fromTokenAmount}
               onChange={this.onChangeAmount('fromToken')}
-              type='number'
-              step='any'
+              type='amount'
               normalPlaceholder={'Token amount'}
             />
           </div>
@@ -356,8 +355,7 @@ class CreateTransaction extends Component {
               <Input
                 value={this.state.toTokenAmount}
                 onChange={this.onChangeAmount('toToken')}
-                type='number'
-                step='any'
+                type='amount'
                 normalPlaceholder={'Token amount'}
               />
             </div>

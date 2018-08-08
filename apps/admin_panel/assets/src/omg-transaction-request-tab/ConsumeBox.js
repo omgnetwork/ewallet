@@ -282,7 +282,7 @@ class ConsumeBox extends Component {
                       normalPlaceholder='1000'
                       onChange={this.onChangeAmount}
                       value={this.state.amount}
-                      type='number'
+                      type='amount'
                       disabled={!valid}
                     />
                   </InputLabelContainer>

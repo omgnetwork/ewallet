@@ -241,8 +241,7 @@ class CreateTransactionRequest extends Component {
               normalPlaceholder='1000'
               autofocus
               value={this.state.amount}
-              type='number'
-              step='any'
+              type='amount'
               onChange={this.onChange('amount')}
             />
           </InputLabelContainer>
@@ -290,6 +289,7 @@ class CreateTransactionRequest extends Component {
               normalPlaceholder='0'
               autofocus
               type='number'
+              step={1}
               value={this.state.maxConsumption}
               onChange={this.onChange('maxConsumption')}
             />

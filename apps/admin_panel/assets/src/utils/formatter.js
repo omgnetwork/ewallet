@@ -14,10 +14,15 @@ function precision (a) {
 }
 
 export const formatNumber = number => {
-  if (number[number.length - 1] === '.') {
-    return number
-  }
-  return numeral(number).format('0,0.[000000000000000000]')
+  const ensureStringNumber = String(number)
+  if (!number) return ''
+  const [integer, decimal = ''] = ensureStringNumber.split('.')
+  const maybeDecimal =
+    new RegExp(/\./).test(ensureStringNumber) ||
+    (new RegExp(/^0*$/).test(ensureStringNumber) && ensureStringNumber.length > 1)
+  const formattedInteger = numeral(integer).format()
+  const formattedDecimal = decimal.replace(/[^0-9]+/g, '')
+  return maybeDecimal ? `${formattedInteger}.${formattedDecimal}` : formattedInteger
 }
 
 export const formatAmount = (amount, subUnitToUnit) => {
@@ -25,7 +30,9 @@ export const formatAmount = (amount, subUnitToUnit) => {
   try {
     const ensureNumberAmount = numeral(amount).value()
     const decimal = precision(ensureNumberAmount)
-    const shiftedAmount = new BigNumber(ensureNumberAmount).multipliedBy(Math.pow(10, decimal)).toNumber()
+    const shiftedAmount = new BigNumber(ensureNumberAmount)
+      .multipliedBy(Math.pow(10, decimal))
+      .toNumber()
     const shiftedSubUnit = new BigNumber(subUnitToUnit).dividedBy(Math.pow(10, decimal)).toNumber()
     if (_.isInteger(shiftedSubUnit)) {
       if (decimal > 0) {

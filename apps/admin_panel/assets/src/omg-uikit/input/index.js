@@ -156,7 +156,7 @@ class InputComonent extends PureComponent {
     return this.props.value || this.state.active
   }
   onChange = e => {
-    if (this.props.type === 'number') {
+    if (this.props.type === 'amount') {
       const event = { ...e, target: { ...e.target, value: formatNumber(e.target.value) } }
       this.props.onChange(event)
     } else {
@@ -177,7 +177,7 @@ class InputComonent extends PureComponent {
             onFocus={this.onFocus}
             onBlur={this.onBlur}
             onChange={this.onChange}
-            type={this.props.type === 'number' ? 'string' : this.props.type}
+            type={this.props.type === 'amount' ? 'string' : this.props.type}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>

@@ -121,8 +121,7 @@ class CreateToken extends Component {
           placeholder='Amount (Optional)'
           value={this.state.amount}
           onChange={this.onChangeAmount}
-          type='number'
-          step='any'
+          type='amount'
         />
         <ButtonContainer>
           <Button

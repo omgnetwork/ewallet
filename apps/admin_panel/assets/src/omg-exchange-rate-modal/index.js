@@ -156,8 +156,7 @@ class CreateExchangeRateModal extends Component {
                     <Input
                       value={this.state.fromTokenRate}
                       onChange={this.onChangeRate('fromToken')}
-                      type='number'
-                      step='any'
+                      type='amount'
                       normalPlaceholder={0}
                     />
                   </div>
@@ -193,7 +192,7 @@ class CreateExchangeRateModal extends Component {
                     <Input
                       value={this.state.toTokenRate}
                       onChange={this.onChangeRate('toToken')}
-                      type='number'
+                      type='amount'
                       step='any'
                       normalPlaceholder={0}
                     />
