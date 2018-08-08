@@ -200,9 +200,9 @@ class ConsumeBox extends Component {
         })
       } else {
         const fromTokenId =
-          transactionRequest.type === 'send' ? token.id : transactionRequest.token_id
+          transactionRequest.type !== 'send' ? token.id : transactionRequest.token_id
         const toTokenId =
-          transactionRequest.type === 'send' ? transactionRequest.token_id : token.id
+          transactionRequest.type !== 'send' ? transactionRequest.token_id : token.id
         const amountTo = transactionRequest.allow_amount_override
           ? formatAmount(this.state.amount, transactionRequest.token.subunit_to_unit)
           : transactionRequest.amount
@@ -210,14 +210,14 @@ class ConsumeBox extends Component {
           fromTokenId,
           toTokenId
         }
-        if (transactionRequest.type === 'send') {
+        if (transactionRequest.type !== 'send') {
           Object.assign(query, { toAmount: amountTo })
         } else {
           Object.assign(query, { fromAmount: amountTo })
         }
         const rate = await this.calculateRate(query)
         const amount =
-          transactionRequest.type !== 'send'
+          transactionRequest.type === 'send'
             ? formatReceiveAmountToTotal(
                 rate.to_amount,
                 _.get(rate, 'exchange_pair.to_token.subunit_to_unit')
