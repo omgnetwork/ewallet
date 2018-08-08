@@ -121,7 +121,7 @@ class TransactionRequestPanel extends Component {
                   <Link to={`/wallets/${consumption.address}`}>{consumption.address}</Link>
                 </InformationItem>
                 <InformationItem>
-                  <b>Token:</b> <span>{_.get(tq, 'token.name')}</span>
+                  <b>Token:</b> <span>{_.get(consumption, 'token.name')}</span>
                 </InformationItem>
                 <InformationItem>
                   <b>Amount:</b>{' '}
