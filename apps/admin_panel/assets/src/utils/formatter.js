@@ -14,7 +14,10 @@ function precision (a) {
 }
 
 export const formatNumber = number => {
-  return numeral(number).format()
+  if (number[number.length - 1] === '.') {
+    return number
+  }
+  return numeral(number).format('0,0.[000000000000000000]')
 }
 
 export const formatAmount = (amount, subUnitToUnit) => {
