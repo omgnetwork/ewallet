@@ -26,7 +26,7 @@ export const formatNumber = number => {
 }
 
 export const formatAmount = (amount, subUnitToUnit) => {
-  if (amount === null || amount === undefined) return null
+  if (amount === null || amount === undefined || amount === '') return null
   try {
     const ensureNumberAmount = numeral(amount).value()
     const decimal = precision(ensureNumberAmount)
@@ -52,6 +52,6 @@ export const formatAmount = (amount, subUnitToUnit) => {
   }
 }
 export const formatReceiveAmountToTotal = (amount, subUnitToUnit) => {
-  if (amount === null || amount === undefined) return null
+  if (amount === null || amount === undefined || amount === '') return null
   return new BigNumber(amount || 0).dividedBy(new BigNumber(subUnitToUnit)).toFormat()
 }

@@ -14,7 +14,6 @@ import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
 import TokenSelect from '../omg-token-select'
-import numeral from 'numeral'
 const ConsumeActionContainer = styled.form`
   display: flex;
   margin: 20px 0;
@@ -116,7 +115,8 @@ class ConsumeBox extends Component {
         amount: amount || '',
         selectedToken: transactionRequest.token,
         searchTokenValue: transactionRequest.token.name,
-        error: null
+        error: null,
+        rate: null
       }
     }
     return null
