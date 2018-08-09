@@ -51,7 +51,9 @@ defmodule EWalletAPI.V1.SignupControllerTest do
 
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] =~ "Invalid parameter provided. `email` can't be blank"
+
+      assert response["data"]["description"] =~
+               "Invalid parameter provided. `email` can't be blank"
     end
 
     test "returns client:invalid_parameter when password is less than 8 characters" do
@@ -102,7 +104,9 @@ defmodule EWalletAPI.V1.SignupControllerTest do
 
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] =~ "Invalid parameter provided. `redirect_url` can't be blank"
+
+      assert response["data"]["description"] =~
+               "Invalid parameter provided. `redirect_url` can't be blank"
     end
   end
 end

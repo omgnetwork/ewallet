@@ -25,10 +25,18 @@ defmodule EWalletAPI.V1.SignupController do
       # Because User.validate_by_roles/2 will validate for `username` and `provider_user_id`
       # if `email` is not provided, we need to handle the missing `email` here.
       :no_email ->
-        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` can't be blank")
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Invalid parameter provided. `email` can't be blank"
+        )
 
       :no_password ->
-        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `password` can't be blank")
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Invalid parameter provided. `password` can't be blank"
+        )
 
       :no_redirect_url ->
         handle_error(
