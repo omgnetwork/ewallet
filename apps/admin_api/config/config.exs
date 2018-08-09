@@ -36,9 +36,6 @@ config :admin_api, AdminAPI.V1.Endpoint,
 # Config for Phoenix's generators
 config :admin_api, :generators, context_app: false
 
-# Configs for Bamboo emailing library
-config :admin_api, AdminAPI.Mailer, adapter: Bamboo.LocalAdapter
-
 # Two configs need to be added to have a new EWallet Admin version:
 #
 # 1. `admin_api.api_versions`

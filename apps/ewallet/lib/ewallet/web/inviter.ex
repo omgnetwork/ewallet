@@ -78,7 +78,7 @@ defmodule EWallet.Web.Inviter do
   end
 
   defp valid_url?(url) do
-    base_url = Application.get_env(:admin_api, :base_url)
+    base_url = Application.get_env(:ewallet, :base_url)
     String.starts_with?(url, base_url)
   end
 end

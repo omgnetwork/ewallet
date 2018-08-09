@@ -7,6 +7,3 @@ config :admin_api, AdminAPI.Endpoint,
   server: false
 
 config :admin_api, AdminAPI.V1.Endpoint, server: false
-
-# Configs for Bamboo emailing library
-config :admin_api, AdminAPI.Mailer, adapter: Bamboo.TestAdapter

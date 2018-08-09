@@ -6,3 +6,6 @@ config :ewallet,
     EWalletAPI.V1.Endpoint,
     AdminAPI.V1.Endpoint
   ]
+
+# Configs for Bamboo emailing library
+config :ewallet, EWallet.Mailer, adapter: Bamboo.TestAdapter
