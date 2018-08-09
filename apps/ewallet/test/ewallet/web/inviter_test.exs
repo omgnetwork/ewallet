@@ -1,7 +1,8 @@
-defmodule AdminAPI.InviterTest do
+defmodule EWallet.Web.InviterTest do
   use AdminAPI.ConnCase
   use Bamboo.Test
-  alias AdminAPI.{Inviter, InviteEmail}
+  alias AdminAPI.InviteEmail
+  alias EWallet.Web.Inviter
   alias EWalletDB.{Invite, Membership, Repo}
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"

@@ -1,8 +1,9 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.Inviter
+  alias AdminAPI.InviteEmail
   alias EWallet.AccountMembershipPolicy
+  alias EWallet.Web.Inviter
   alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """
@@ -88,7 +89,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   end
 
   defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
-    Inviter.invite(email, account, role, redirect_url)
+    Inviter.invite(email, account, role, redirect_url, InviteEmail)
   end
 
   defp assign_or_invite(user, account, role, redirect_url) do
@@ -96,7 +97,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
       :pending_confirmation ->
         user
         |> User.get_invite()
-        |> Inviter.send_email(redirect_url)
+        |> Inviter.send_email(redirect_url, InviteEmail)
 
       :active ->
         Membership.assign(user, account, role)
