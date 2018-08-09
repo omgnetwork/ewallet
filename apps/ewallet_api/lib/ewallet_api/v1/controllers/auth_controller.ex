@@ -1,37 +1,9 @@
 defmodule EWalletAPI.V1.AuthController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias Ecto.Changeset
-  alias EWallet.UserPolicy
   alias EWalletAPI.V1.EndUserAuthenticator
   alias EWalletAPI.V1.Plug.ClientAuthPlug
-  alias EWalletDB.{AuthToken, User}
-
-  @doc """
-  Signs up a new user.
-
-  This function is used when the eWallet is setup as a standalone solution,
-  allowing users to sign up without an integration with the provider's server.
-  """
-  @spec signup(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def signup(conn, attrs) do
-    with :ok <- permit(:create, conn.assigns, nil),
-         email when is_binary(email) <- attrs["email"] || :missing_email,
-         {:ok, user} <- User.insert(attrs) do
-      render(conn, :user, %{user: user})
-    else
-      # Because User.validate_by_roles/2 will validate for `username` and `provider_user_id`
-      # if `email` is not provided, we need to handle the missing `email` here.
-      :missing_email ->
-        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
-
-      {:error, %Changeset{} = changeset} ->
-        handle_error(conn, :invalid_parameter, changeset)
-
-      {:error, code} ->
-        handle_error(conn, code)
-    end
-  end
+  alias EWalletDB.AuthToken
 
   @doc """
   Logins the user.
@@ -72,10 +44,5 @@ defmodule EWalletAPI.V1.AuthController do
     conn
     |> ClientAuthPlug.expire_token()
     |> render(:empty_response, %{})
-  end
-
-  @spec permit(:create, map(), %User{} | nil) :: :ok | {:error, any()}
-  defp permit(action, params, user) do
-    Bodyguard.permit(UserPolicy, action, params, user)
   end
 end
