@@ -7,6 +7,7 @@ defmodule EWallet.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
+    DeferredConfig.populate(:ewallet)
 
     set_decimal_context()
     # List all child processes to be supervised
