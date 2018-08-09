@@ -43,7 +43,8 @@ defmodule EWalletAPI.V1.Router do
     post("/status.server_error", StatusController, :server_error)
 
     # User signup and login
-    post("/user.signup", AuthController, :signup)
+    post("/user.signup", SignupController, :signup)
+    post("/user.verify_email", SignupController, :verify_email)
     post("/user.login", AuthController, :login)
 
     match(:*, "/*path", FallbackController, :not_found)
