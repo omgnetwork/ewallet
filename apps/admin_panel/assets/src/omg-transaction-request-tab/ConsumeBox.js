@@ -88,6 +88,9 @@ const Error = styled.div`
 const AmountInput = styled(Input)`
   pointer-events: ${props => (props.override ? 'auto' : 'none')};
 `
+const ExchangeSelect = styled(Select)`
+  pointer-events: ${props => (props.disablePointer ? 'none' : 'auto')};
+`
 const RateCointaner = styled.div`
   color: ${props => props.theme.colors.B100};
 `
@@ -366,7 +369,8 @@ class ConsumeBox extends Component {
                   return (
                     <InputLabelContainer>
                       <InputLabel>Exhange Wallet</InputLabel>
-                      <Select
+                      <ExchangeSelect
+                        disablePointer={_.get(transactionRequest, 'exchange_wallet.address', null)}
                         normalPlaceholder='acc_0x000000000000000'
                         onSelectItem={this.onSelectExchangeWalletAddressSelect}
                         value={this.state.exchangeAddress}
