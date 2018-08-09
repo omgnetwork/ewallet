@@ -12,7 +12,8 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {res, invite} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
+      {res, invite} =
+        Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
 
       assert res == :ok
       assert %Invite{} = invite
@@ -23,8 +24,11 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {:ok, invite1} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
-      {:ok, invite2} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
+      {:ok, invite1} =
+        Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
+
+      {:ok, invite2} =
+        Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
 
       assert_delivered_email(InviteEmail.create(invite1, @redirect_url))
       assert_delivered_email(InviteEmail.create(invite2, @redirect_url))
@@ -34,7 +38,9 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {:ok, invite} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
+      {:ok, invite} =
+        Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
+
       memberships = Membership.all_by_user(invite.user)
 
       assert Enum.any?(memberships, fn m ->
@@ -59,7 +65,8 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {res, error} = Inviter.invite("activeuser@example.com", account, role, @redirect_url, InviteEmail)
+      {res, error} =
+        Inviter.invite("activeuser@example.com", account, role, @redirect_url, InviteEmail)
 
       assert res == :error
       assert error == :user_already_active

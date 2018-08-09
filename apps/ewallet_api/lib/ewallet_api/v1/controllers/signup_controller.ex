@@ -14,18 +14,22 @@ defmodule EWalletAPI.V1.SignupController do
   @spec signup(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def signup(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
-         email when is_binary(email) <- attrs["email"] || :missing_email,
-         redirect_url when is_binary(redirect_url) <- attrs["redirect_url"] || :missing_redirect_url,
+         email when is_binary(email) <- attrs["email"] || :no_email,
+         redirect_url when is_binary(redirect_url) <- attrs["redirect_url"] || :no_redirect_url,
          {:ok, invite} <- Inviter.invite(email, redirect_url, VerificationEmail) do
       render(conn, :user, %{user: invite.user})
     else
       # Because User.validate_by_roles/2 will validate for `username` and `provider_user_id`
       # if `email` is not provided, we need to handle the missing `email` here.
-      :missing_email ->
+      :no_email ->
         handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
 
-      :missing_redirect_url ->
-        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `redirect_url` is required")
+      :no_redirect_url ->
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Invalid parameter provided. `redirect_url` is required"
+        )
 
       {:error, %Changeset{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
