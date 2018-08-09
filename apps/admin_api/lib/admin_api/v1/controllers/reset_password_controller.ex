@@ -1,9 +1,10 @@
 defmodule AdminAPI.V1.ResetPasswordController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.{Mailer, ForgetPasswordEmail}
-  alias EWalletDB.{User, ForgetPasswordRequest}
+  alias AdminAPI.ForgetPasswordEmail
   alias Bamboo.Email
+  alias EWallet.Mailer
+  alias EWalletDB.{ForgetPasswordRequest, User}
 
   @spec reset(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def reset(conn, %{"email" => email, "redirect_url" => redirect_url})
