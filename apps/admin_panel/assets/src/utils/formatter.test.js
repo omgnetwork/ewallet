@@ -23,8 +23,8 @@ describe('formatter', () => {
     expect(formatNumber('0000abc01.001')).toEqual('1.001')
   })
   test('[formatNumber] should work with number', () => {
-    expect(formatNumber(0.01)).toEqual('0.01')
     expect(formatNumber(0)).toEqual('0')
+    expect(formatNumber(0.01)).toEqual('0.01')
   })
   test('[formatAmount] should format amount with the right precision when provide incorrect decimal', () => {
     const amount = 100000000

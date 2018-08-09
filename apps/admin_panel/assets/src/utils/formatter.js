@@ -15,7 +15,7 @@ function precision (a) {
 
 export const formatNumber = number => {
   const ensureStringNumber = String(number)
-  if (!number) return ''
+  if (!ensureStringNumber) return ''
   const [integer, decimal = ''] = ensureStringNumber.split('.')
   const maybeDecimal =
     new RegExp(/\./).test(ensureStringNumber) ||

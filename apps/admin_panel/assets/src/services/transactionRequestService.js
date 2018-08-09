@@ -89,7 +89,7 @@ export function consumeTransactionRequest ({
       amount: amount === null ? null : amount,
       provider_user_id: providerUserId,
       address,
-      exchange_address: exchangeAddress
+      exchange_wallet_address: exchangeAddress
     }
   })
 }

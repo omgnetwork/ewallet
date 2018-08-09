@@ -115,7 +115,7 @@ class ConsumeBox extends Component {
         amount: amount || '',
         selectedToken: transactionRequest.token,
         searchTokenValue: transactionRequest.token.name,
-        exchangeAddress: transactionRequest.exchange_wallet.address,
+        exchangeAddress: _.get(transactionRequest, 'exchange_wallet.address', null),
         error: null,
         rate: null
       }
@@ -368,9 +368,9 @@ class ConsumeBox extends Component {
                       <InputLabel>Exhange Wallet</InputLabel>
                       <Select
                         normalPlaceholder='acc_0x000000000000000'
-                        onSelectItem={this.onSelectWalletAddressSelect}
+                        onSelectItem={this.onSelectExchangeWalletAddressSelect}
                         value={this.state.exchangeAddress}
-                        onChange={this.onSelectExchangeWalletAddressSelect}
+                        onChange={this.onChangeWalletExchange}
                         options={data.map(d => {
                           return {
                             key: d.address,
