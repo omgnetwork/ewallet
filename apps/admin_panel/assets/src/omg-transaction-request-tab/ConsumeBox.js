@@ -115,6 +115,7 @@ class ConsumeBox extends Component {
         amount: amount || '',
         selectedToken: transactionRequest.token,
         searchTokenValue: transactionRequest.token.name,
+        exchangeAddress: transactionRequest.exchange_wallet.address,
         error: null,
         rate: null
       }
@@ -122,34 +123,13 @@ class ConsumeBox extends Component {
     return null
   }
 
-  state = { amount: '', searchTokenValue: '' }
+  state = { amount: '', searchTokenValue: '', selectedToken: {} }
 
-  onSubmitConsume = transactionRequest => async e => {
-    e.preventDefault()
-    this.setState({ submitStatus: 'SUBMITTING' })
-    try {
-      const result = await this.props.consumeTransactionRequest({
-        formattedTransactionRequestId: transactionRequest.id,
-        tokenId: this.state.selectedToken.id,
-        amount: transactionRequest.allow_amount_override
-          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
-          : null,
-        address: this.state.consumeAddress
-      })
-      if (result.data) {
-        this.setState({ submitStatus: 'SUCCESS', error: null })
-      } else {
-        this.setState({
-          submitStatus: 'FAILED',
-          error: result.error.description || result.error.message
-        })
-      }
-    } catch (error) {
-      this.setState({ submitStatus: 'FAILED', error: `${error}` })
-    }
-  }
   onChangeWalletInput = e => {
     this.setState({ consumeAddress: e.target.value })
+  }
+  onChangeWalletExchange = e => {
+    this.setState({ exchangeAddress: e.target.value })
   }
   onChangeAmount = e => {
     this.setState({ amount: e.target.value }, async () => {
@@ -180,6 +160,9 @@ class ConsumeBox extends Component {
   }
   onSelectWalletAddressSelect = item => {
     this.setState({ consumeAddress: item.key })
+  }
+  onSelectExchangeWalletAddressSelect = item => {
+    this.setState({ exchangeAddress: item.key })
   }
   onChangeSearchToken = e => {
     this.setState({ searchTokenValue: e.target.value })
@@ -230,6 +213,31 @@ class ConsumeBox extends Component {
       }
     })
   }
+  onSubmitConsume = transactionRequest => async e => {
+    e.preventDefault()
+    this.setState({ submitStatus: 'SUBMITTING' })
+    try {
+      const result = await this.props.consumeTransactionRequest({
+        formattedTransactionRequestId: transactionRequest.id,
+        tokenId: this.state.selectedToken.id,
+        amount: transactionRequest.allow_amount_override
+          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
+          : null,
+        address: this.state.consumeAddress,
+        exchangeAddress: this.state.exchangeAddress
+      })
+      if (result.data) {
+        this.setState({ submitStatus: 'SUCCESS', error: null })
+      } else {
+        this.setState({
+          submitStatus: 'FAILED',
+          error: result.error.description || result.error.message
+        })
+      }
+    } catch (error) {
+      this.setState({ submitStatus: 'FAILED', error: `${error}` })
+    }
+  }
   calculateRate = async ({ fromTokenId, toTokenId, fromAmount, toAmount }) => {
     if (fromTokenId !== toTokenId) {
       try {
@@ -268,6 +276,8 @@ class ConsumeBox extends Component {
 
   render = () => {
     const valid = this.props.transactionRequest.status === 'valid'
+    const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
+    const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
     return (
       <ConsumeActionContainer onSubmit={this.onSubmitConsume(this.props.transactionRequest)}>
         <QrContainer>
@@ -346,6 +356,34 @@ class ConsumeBox extends Component {
               )
             }}
           />
+          {_.get(this.state, 'selectedToken.id') !== _.get(transactionRequest, 'token.id') &&
+            this.state.rate && (
+              <WalletsFetcher
+                query={{ search: this.state.exchangeAddress }}
+                accountId={this.props.match.params.accountId}
+                owned={false}
+                render={({ data }) => {
+                  return (
+                    <InputLabelContainer>
+                      <InputLabel>Exhange Wallet</InputLabel>
+                      <Select
+                        normalPlaceholder='acc_0x000000000000000'
+                        onSelectItem={this.onSelectWalletAddressSelect}
+                        value={this.state.exchangeAddress}
+                        onChange={this.onSelectExchangeWalletAddressSelect}
+                        options={data.map(d => {
+                          return {
+                            key: d.address,
+                            value: <WalletSelect wallet={d} />,
+                            ...d
+                          }
+                        })}
+                      />
+                    </InputLabelContainer>
+                  )
+                }}
+              />
+            )}
           {this.state.rate && (
             <RateCointaner>
               {formatReceiveAmountToTotal(

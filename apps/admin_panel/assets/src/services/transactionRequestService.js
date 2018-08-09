@@ -76,7 +76,8 @@ export function consumeTransactionRequest ({
   tokenId,
   amount,
   providerUserId,
-  address
+  address,
+  exchangeAddress
 }) {
   return authenticatedRequest({
     path: '/transaction_request.consume',
@@ -87,7 +88,8 @@ export function consumeTransactionRequest ({
       token_id: tokenId,
       amount: amount === null ? null : amount,
       provider_user_id: providerUserId,
-      address
+      address,
+      exchange_address: exchangeAddress
     }
   })
 }

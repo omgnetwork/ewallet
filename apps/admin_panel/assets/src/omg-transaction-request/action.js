@@ -27,7 +27,8 @@ export const consumeTransactionRequest = ({
   tokenId,
   amount,
   providerUserId,
-  address
+  address,
+  exchangeAddress
 }) =>
   createActionCreator({
     actionName: 'TRANSACTION_REQUEST',
@@ -39,7 +40,8 @@ export const consumeTransactionRequest = ({
         tokenId,
         amount,
         providerUserId,
-        address
+        address,
+        exchangeAddress
       })
   })
 
