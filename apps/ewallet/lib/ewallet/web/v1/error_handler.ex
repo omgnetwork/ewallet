@@ -46,6 +46,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "server:unknown_error",
       description: "An unknown error occured on the server"
     },
+    passwords_mismatch: %{
+      code: "user:passwords_mismatch",
+      description: "The provided passwords do not match"
+    },
     account_not_found: %{
       code: "account:not_found",
       description: "There is no user corresponding to the provided account id"

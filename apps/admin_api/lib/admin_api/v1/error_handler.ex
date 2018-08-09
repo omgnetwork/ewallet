@@ -52,10 +52,6 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "user:invite_not_found",
       description: "There is no invite corresponding to the provided email and token"
     },
-    passwords_mismatch: %{
-      code: "user:passwords_mismatch",
-      description: "The provided passwords do not match"
-    },
     key_not_found: %{
       code: "key:not_found",
       description: "The key could not be found"

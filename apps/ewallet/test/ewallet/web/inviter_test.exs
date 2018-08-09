@@ -7,7 +7,31 @@ defmodule EWallet.Web.InviterTest do
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
-  describe "invite/3" do
+  describe "invite/4" do
+    test "sends email and returns the invite if successful" do
+      {res, invite} = Inviter.invite("test@example.com", "password", @redirect_url, InviteEmail)
+
+      assert res == :ok
+      assert %Invite{} = invite
+      assert_delivered_email(InviteEmail.create(invite, @redirect_url))
+    end
+
+    test "does not create a user membership" do
+      {:ok, invite} = Inviter.invite("test@example.com", "password", @redirect_url, InviteEmail)
+      memberships = Membership.all_by_user(invite.user)
+
+      assert Enum.empty?(memberships)
+    end
+
+    test "returns :invalid_email error if email is invalid" do
+      {res, error} = Inviter.invite("not-an-email", "password", @redirect_url, InviteEmail)
+
+      assert res == :error
+      assert error == :invalid_email
+    end
+  end
+
+  describe "invite/5" do
     test "sends email and returns the invite if successful" do
       account = insert(:account)
       role = insert(:role)

@@ -1,18 +1,18 @@
-defmodule AdminAPI.InviteEmailTest do
-  use AdminAPI.ConnCase
-  alias AdminAPI.InviteEmail
+defmodule EWalletAPI.VerificationEmailTest do
+  use EWalletAPI.ConnCase
+  alias EWalletAPI.VerificationEmail
   alias EWalletDB.Repo
 
   defp create_email(email, token) do
     invite = insert(:invite, %{token: token})
     _user = insert(:admin, %{email: email, invite: invite})
     invite = Repo.preload(invite, :user)
-    email = InviteEmail.create(invite, "https://invite_url/?email={email}&token={token}")
+    email = VerificationEmail.create(invite, "https://invite_url/?email={email}&token={token}")
 
     email
   end
 
-  describe "InviteEmail.create/2" do
+  describe "create/2" do
     test "creates an email with correct from and to addresses" do
       email = create_email("test@omise.co", "the_token")
 

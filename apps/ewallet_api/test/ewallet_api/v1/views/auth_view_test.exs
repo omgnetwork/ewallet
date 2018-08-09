@@ -5,18 +5,6 @@ defmodule EWalletAPI.V1.AuthViewTest do
   alias EWalletDB.Helpers.Preloader
 
   describe "EWalletAPI.V1.AuthView.render/2" do
-    test "renders user.json with the correct structure" do
-      user = insert(:user)
-
-      expected = %{
-        version: @expected_version,
-        success: true,
-        data: UserSerializer.serialize(user)
-      }
-
-      assert AuthView.render("user.json", %{user: user}) == expected
-    end
-
     test "renders auth_token.json with correct structure" do
       auth_token = insert(:auth_token) |> Preloader.preload(:user)
 

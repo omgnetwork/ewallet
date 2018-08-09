@@ -15,7 +15,7 @@ defmodule AdminAPI.ForgetPasswordEmailTest do
   describe "ForgetPasswordEmail.create/2" do
     test "creates an email with correct from and to addresses", meta do
       # `from` should be the one set in the config
-      assert meta.email.from == Application.get_env(:admin_api, :sender_email)
+      assert meta.email.from == Application.get_env(:ewallet, :sender_email)
 
       # `to` should be the user's email
       assert meta.email.to == meta.user.email

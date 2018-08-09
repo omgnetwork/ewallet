@@ -9,10 +9,10 @@ defmodule EWallet.Web.Inviter do
   @doc """
   Creates the user if the user does not exist, then sends the invite email out.
   """
-  @spec invite(String.t(), String.t(), Bamboo.Email.t()) :: {:ok, %Invite{}} | {:error, atom()}
-  def invite(email, redirect_url, template) do
+  @spec invite(String.t(), String.t(), String.t(), Bamboo.Email.t()) :: {:ok, %Invite{}} | {:error, atom()}
+  def invite(email, password, redirect_url, template) do
     with true <- EmailValidator.valid?(email) || {:error, :invalid_email},
-         {:ok, user} <- get_or_create_user(email),
+         {:ok, user} <- get_or_create_user(email, password),
          {:ok, invite} <- Invite.generate(user, preload: :user) do
       send_email(invite, redirect_url, template)
     else
@@ -39,7 +39,7 @@ defmodule EWallet.Web.Inviter do
     end
   end
 
-  defp get_or_create_user(email) do
+  defp get_or_create_user(email, password \\ nil) do
     case User.get_by_email(email) do
       %User{} = user ->
         case User.get_status(user) do
@@ -53,7 +53,7 @@ defmodule EWallet.Web.Inviter do
       nil ->
         User.insert(%{
           email: email,
-          password: Crypto.generate_base64_key(32)
+          password: password || Crypto.generate_base64_key(32)
         })
     end
   end

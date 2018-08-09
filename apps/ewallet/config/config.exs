@@ -5,6 +5,7 @@ use Mix.Config
 config :ewallet,
   ecto_repos: [],
   base_url: {:system, "BASE_URL", "http://localhost:4000"},
+  sender_email: {:system, "SENDER_EMAIL", "admin@localhost"},
   max_per_page: {:system, "REQUEST_MAX_PER_PAGE", 100}
 
 # Configs for Bamboo emailing library
