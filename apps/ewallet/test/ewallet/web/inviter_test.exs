@@ -12,7 +12,7 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {res, invite} = Inviter.invite("test@example.com", account, role, @redirect_url)
+      {res, invite} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
 
       assert res == :ok
       assert %Invite{} = invite
@@ -23,8 +23,8 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {:ok, invite1} = Inviter.invite("test@example.com", account, role, @redirect_url)
-      {:ok, invite2} = Inviter.invite("test@example.com", account, role, @redirect_url)
+      {:ok, invite1} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
+      {:ok, invite2} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
 
       assert_delivered_email(InviteEmail.create(invite1, @redirect_url))
       assert_delivered_email(InviteEmail.create(invite2, @redirect_url))
@@ -34,7 +34,7 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {:ok, invite} = Inviter.invite("test@example.com", account, role, @redirect_url)
+      {:ok, invite} = Inviter.invite("test@example.com", account, role, @redirect_url, InviteEmail)
       memberships = Membership.all_by_user(invite.user)
 
       assert Enum.any?(memberships, fn m ->
@@ -47,7 +47,7 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {res, error} = Inviter.invite(email, account, role, @redirect_url)
+      {res, error} = Inviter.invite(email, account, role, @redirect_url, InviteEmail)
 
       assert res == :error
       assert error == :invalid_email
@@ -59,7 +59,7 @@ defmodule EWallet.Web.InviterTest do
       account = insert(:account)
       role = insert(:role)
 
-      {res, error} = Inviter.invite("activeuser@example.com", account, role, @redirect_url)
+      {res, error} = Inviter.invite("activeuser@example.com", account, role, @redirect_url, InviteEmail)
 
       assert res == :error
       assert error == :user_already_active
@@ -71,7 +71,7 @@ defmodule EWallet.Web.InviterTest do
       invite = insert(:invite)
       _user = insert(:admin, %{invite: invite})
       invite = invite |> Repo.preload(:user)
-      {res, _} = Inviter.send_email(invite, @redirect_url)
+      {res, _} = Inviter.send_email(invite, @redirect_url, InviteEmail)
 
       assert res == :ok
       assert_delivered_email(InviteEmail.create(invite, @redirect_url))
@@ -80,7 +80,7 @@ defmodule EWallet.Web.InviterTest do
     test "returns :invalid_parameter error if the redirect_url value is not allowed" do
       invite = insert(:invite)
       redirect_url = "http://unknown.com/invite?email={email}&token={token}"
-      {res, code, description} = Inviter.send_email(invite, redirect_url)
+      {res, code, description} = Inviter.send_email(invite, redirect_url, InviteEmail)
 
       assert res == :error
       assert code == :invalid_parameter
