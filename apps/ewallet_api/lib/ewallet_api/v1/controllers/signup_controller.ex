@@ -4,9 +4,7 @@ defmodule EWalletAPI.V1.SignupController do
   alias Ecto.Changeset
   alias EWallet.{UserPolicy, VerificationEmail}
   alias EWallet.Web.Inviter
-  alias EWalletAPI.V1.EndUserAuthenticator
-  alias EWalletAPI.V1.Plug.ClientAuthPlug
-  alias EWalletDB.{AuthToken, Repo, User}
+  alias EWalletDB.User
 
   @doc """
   Signs up a new user.
