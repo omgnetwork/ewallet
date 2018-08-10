@@ -9,6 +9,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
   alias EWalletDB.Token
 
   @errors %{
+    invalid_email: %{
+      code: "user:invalid_email",
+      description: "The format of the provided email is invalid"
+    },
+    invite_not_found: %{
+      code: "user:invite_not_found",
+      description: "There is no invite corresponding to the provided email and token"
+    },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
