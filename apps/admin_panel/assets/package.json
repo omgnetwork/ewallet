@@ -59,6 +59,7 @@
     "mini-css-extract-plugin": "^0.4.0",
     "mock-socket": "^7.1.0",
     "moment": "^2.22.1",
+    "numeral": "^2.0.6",
     "postcss-loader": "^1.2.2",
     "prop-types": "^15.6.1",
     "qrcode": "^1.2.0",

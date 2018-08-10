@@ -27,7 +27,8 @@ export const consumeTransactionRequest = ({
   tokenId,
   amount,
   providerUserId,
-  address
+  address,
+  exchangeAddress
 }) =>
   createActionCreator({
     actionName: 'TRANSACTION_REQUEST',
@@ -39,7 +40,8 @@ export const consumeTransactionRequest = ({
         tokenId,
         amount,
         providerUserId,
-        address
+        address,
+        exchangeAddress
       })
   })
 
@@ -56,7 +58,8 @@ export const createTransactionRequest = ({
   maxConsumptionPerUser,
   expirationDate,
   allowAmountOverride,
-  consumptionLifetime
+  consumptionLifetime,
+  exchangeAddress
 }) =>
   createActionCreator({
     actionName: 'TRANSACTION_REQUEST',
@@ -75,7 +78,8 @@ export const createTransactionRequest = ({
         maxConsumptionPerUser,
         expirationDate,
         allowAmountOverride,
-        consumptionLifetime
+        consumptionLifetime,
+        exchangeAddress
       })
   })
 
