@@ -16,10 +16,8 @@ defmodule EWalletAPI.V1.SignupController do
   def signup(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          email when is_binary(email) <- attrs["email"] || :no_email,
-         password when is_binary(password) <- attrs["password"] || :no_password,
-         true <- password == attrs["password_confirmation"] || :passwords_mismatch,
          redirect_url when is_binary(redirect_url) <- attrs["redirect_url"] || :no_redirect_url,
-         {:ok, invite} <- Inviter.invite(email, password, redirect_url, VerificationEmail) do
+         {:ok, invite} <- Inviter.invite(email, redirect_url, VerificationEmail) do
       render(conn, :user, %{user: invite.user})
     else
       # Because User.validate_by_roles/2 will validate for `username` and `provider_user_id`
@@ -31,12 +29,6 @@ defmodule EWalletAPI.V1.SignupController do
           "Invalid parameter provided. `email` can't be blank"
         )
 
-      :no_password ->
-        handle_error(
-          conn,
-          :invalid_parameter,
-          "Invalid parameter provided. `password` can't be blank"
-        )
 
       :no_redirect_url ->
         handle_error(
@@ -49,9 +41,6 @@ defmodule EWalletAPI.V1.SignupController do
         handle_error(conn, :invalid_parameter, changeset)
 
       {:error, code} ->
-        handle_error(conn, code)
-
-      code when is_atom(code) ->
         handle_error(conn, code)
     end
   end
