@@ -1,12 +1,13 @@
 import * as exchangePairService from '../services/exchangePairService'
 
-export const createExchangePair = ({ name, toTokenId, fromTokenId, rate }) => async dispatch => {
+export const createExchangePair = ({ name, toTokenId, fromTokenId, rate, syncOpposite }) => async dispatch => {
   try {
     const result = await exchangePairService.createExchangePair({
       name,
       toTokenId,
       fromTokenId,
-      rate
+      rate,
+      syncOpposite
     })
     if (result.data.success) {
       return dispatch({ type: 'EXCHANGE_PAIR/CREATE/SUCCESS', data: result.data.data })
