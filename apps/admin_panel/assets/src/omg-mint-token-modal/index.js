@@ -105,11 +105,10 @@ class MintTokenModal extends PureComponent {
           <h4>Mint {this.props.token.name}</h4>
           <Input
             placeholder='Amount'
-            type='number'
+            type='amount'
             value={this.state.amount}
             autofocus
             onChange={this.onChangeAmount}
-            step='any'
           />
           <ButtonsContainer>
             <Button
