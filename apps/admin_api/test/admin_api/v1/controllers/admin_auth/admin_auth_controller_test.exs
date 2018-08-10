@@ -88,6 +88,8 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       assert response == expected
     end
 
+    test "returns an error if the credentials are valid but the email invite is not yet accepted"
+
     test "returns an error if the given email does not exist" do
       response =
         unauthenticated_request("/admin.login", %{

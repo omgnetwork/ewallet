@@ -30,7 +30,9 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["data"]["user"]["email"] == context.user.email
     end
 
-    test "returns user:invalid_login_credentials when given unknown email", context do
+    test "returns error when the user has a pending invite"
+
+    test "returns user:invalid_login_credentials when given an unknown email", context do
       request_data = %{context.request_data | email: "unknown@example.com"}
       response = client_request("/user.login", request_data)
 
@@ -44,7 +46,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
                "There is no user corresponding to the provided login credentials"
     end
 
-    test "returns user:invalid_login_credentials when given invalid password", context do
+    test "returns user:invalid_login_credentials when given an invalid password", context do
       request_data = %{context.request_data | password: "wrong_password"}
       response = client_request("/user.login", request_data)
 

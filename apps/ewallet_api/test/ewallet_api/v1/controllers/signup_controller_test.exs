@@ -56,6 +56,8 @@ defmodule EWalletAPI.V1.SignupControllerTest do
                "Invalid parameter provided. `email` can't be blank"
     end
 
+    test "returns client:invalid_parameter when a user with the provided email already exists"
+
     test "returns client:invalid_parameter when password is less than 8 characters" do
       response =
         client_request("/user.signup", %{
