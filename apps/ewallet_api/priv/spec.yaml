@@ -90,7 +90,23 @@ paths:
         - ProviderAuth: []
         - AdminAuth: []
       requestBody:
-        $ref: '#/components/requestBodies/UserBody'
+        $ref: '#/components/requestBodies/UserSignupBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /user.verify_email:
+    post:
+      tags:
+        - User
+      summary: Verify the email for a user
+      operationId: user_verify_email
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/UserVerifyEmailBody'
       responses:
         '200':
           $ref: "#/components/responses/UserResponse"
@@ -1255,8 +1271,8 @@ components:
     ######################################
     #         USER REQUEST BODIES        #
     ######################################
-    UserBody:
-      description: The parameters to use for creating or updating a user
+    UserSignupBody:
+      description: The parameters to use for signing up a user
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -1265,27 +1281,42 @@ components:
               email:
                 type: string
                 format: email
+              redirect_url:
+                type: string
+            required:
+              - email
+              - redirect_url
+            example:
+              email: "johndoe@example.com"
+              redirect_url: "https://example.com/verify_email?email={email}&token={token}"
+    UserVerifyEmailBody:
+      description: The parameters to use for verifying a user's email
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              email:
+                type: string
+                format: email
+              token:
+                type: string
               password:
                 type: string
                 format: password
               password_confirmation:
                 type: string
                 format: password
-              metadata:
-                type: object
-              encrypted_metadata:
-                type: object
             required:
               - email
+              - token
               - password
               - password_confirmation
             example:
-              provider_user_id: "wijf-fbancomw-dqwjudb"
-              username: "johndoe@example.com"
-              password: "nZi9Enc5$l#"
-              password_confirmation: "nZi9Enc5$l#"
-              metadata: {"first_name": "John", "last_name": "Doe"}
-              encrypted_metadata: {}
+              email: "johndoe@example.com"
+              token: "some_token_string"
+              password: "new_password"
+              password_confirmation: "new_password"
     ProviderIdBody:
       description: The parameters to use for providing a provider user id
       required: true
