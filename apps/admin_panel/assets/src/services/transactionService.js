@@ -14,7 +14,17 @@ export function getAllTransactions ({ page, perPage, sort, search, searchTerms }
   })
 }
 
-export function transfer ({ fromAddress, toAddress, tokenId, fromTokenId, toTokenId, fromAmount, toAmount, amount, exchangeAddress }) {
+export function transfer ({
+  fromAddress,
+  toAddress,
+  tokenId,
+  fromTokenId,
+  toTokenId,
+  fromAmount,
+  toAmount,
+  amount,
+  exchangeAddress
+}) {
   return authenticatedRequest({
     path: '/transaction.create',
     data: {
@@ -28,6 +38,18 @@ export function transfer ({ fromAddress, toAddress, tokenId, fromTokenId, toToke
       amount,
       exchange_wallet_address: exchangeAddress,
       idempotency_token: uuid()
+    }
+  })
+}
+
+export function calculate ({ fromTokenId, toTokenId, fromAmount, toAmount }) {
+  return authenticatedRequest({
+    path: '/transaction.calculate',
+    data: {
+      from_token_id: fromTokenId,
+      to_token_id: toTokenId,
+      from_amount: fromAmount,
+      to_amount: toAmount
     }
   })
 }

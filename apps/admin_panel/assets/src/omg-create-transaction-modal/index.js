@@ -139,8 +139,8 @@ class CreateTransaction extends Component {
   onChangeSearchToken = type => e => {
     this.setState({ [`${type}SearchToken`]: e.target.value, [`${type}Selected`]: null })
   }
-  onSelectTokenSelect = type => b => {
-    this.setState({ [`${type}SearchToken`]: _.get(b, 'token.name'), [`${type}Selected`]: b })
+  onSelectTokenSelect = type => token => {
+    this.setState({ [`${type}SearchToken`]: _.get(token, 'token.name'), [`${type}Selected`]: token })
   }
   onSelectToAddressSelect = item => {
     this.setState({
@@ -292,8 +292,7 @@ class CreateTransaction extends Component {
             <Input
               value={this.state.fromTokenAmount}
               onChange={this.onChangeAmount('fromToken')}
-              type='number'
-              step='any'
+              type='amount'
               normalPlaceholder={'Token amount'}
             />
           </div>
@@ -356,8 +355,7 @@ class CreateTransaction extends Component {
               <Input
                 value={this.state.toTokenAmount}
                 onChange={this.onChangeAmount('toToken')}
-                type='number'
-                step='any'
+                type='amount'
                 normalPlaceholder={'Token amount'}
               />
             </div>

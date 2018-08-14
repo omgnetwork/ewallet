@@ -40,14 +40,15 @@ export function deleteExchangePairById (id) {
   })
 }
 
-export function createExchangePair ({ name, fromTokenId, toTokenId, rate }) {
+export function createExchangePair ({ name, fromTokenId, toTokenId, rate, syncOpposite }) {
   return authenticatedRequest({
     path: '/exchange_pair.create',
     data: {
       name,
       from_token_id: fromTokenId,
       to_token_id: toTokenId,
-      rate
+      rate,
+      sync_opposite: syncOpposite
     }
   })
 }

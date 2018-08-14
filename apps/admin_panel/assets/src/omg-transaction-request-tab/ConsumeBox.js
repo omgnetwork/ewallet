@@ -9,6 +9,7 @@ import { Select, Button, Input } from '../omg-uikit'
 import { withRouter } from 'react-router-dom'
 import { connect } from 'react-redux'
 import { consumeTransactionRequest } from '../omg-transaction-request/action'
+import { calculate } from '../omg-transaction/action'
 import queryString from 'query-string'
 import { selectGetTransactionRequestById } from '../omg-transaction-request/selector'
 import WalletSelect from '../omg-wallet-select'
@@ -46,10 +47,6 @@ const InputsContainer = styled.div`
   > div:not(:last-child) {
     margin-bottom: 20px;
   }
-  > div:nth-child(3) {
-    margin-top: 32px;
-    margin-bottom: 0;
-  }
 `
 const QrTypeContainer = styled.div`
   margin-top: 15px;
@@ -69,6 +66,7 @@ const InputLabel = styled.div`
 `
 const InputLabelContainer = styled.div`
   text-align: left;
+  flex: 1 1 auto;
 `
 const ExpiredContainer = styled.div`
   background-color: ${props => props.theme.colors.S200};
@@ -87,32 +85,137 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
   text-align: right;
 `
-class PropertiesTab extends Component {
+const AmountInput = styled(Input)`
+  pointer-events: ${props => (props.override ? 'auto' : 'none')};
+`
+const ExchangeSelect = styled(Select)`
+  pointer-events: ${props => (props.disablePointer ? 'none' : 'auto')};
+`
+const RateCointaner = styled.div`
+  color: ${props => props.theme.colors.B100};
+`
+class ConsumeBox extends Component {
   static propTypes = {
-    transactionRequests: PropTypes.array,
+    transactionRequest: PropTypes.object,
     consumeTransactionRequest: PropTypes.func,
-    match: PropTypes.object
+    match: PropTypes.object,
+    calculate: PropTypes.func,
+    selectTransactionRequestById: PropTypes.func,
+    location: PropTypes.object
   }
 
   static getDerivedStateFromProps (props, state) {
     const transactionRequestId = queryString.parse(props.location.search)['show-request-tab']
     const transactionRequest = props.selectTransactionRequestById(transactionRequestId)
     if (!_.isEmpty(transactionRequest) && state.transactionRequestId !== transactionRequestId) {
+      const amount = formatReceiveAmountToTotal(
+        transactionRequest.amount,
+        transactionRequest.token.subunit_to_unit
+      )
       return {
         transactionRequestId,
-        amount: formatReceiveAmountToTotal(
-          transactionRequest.amount,
-          transactionRequest.token.subunit_to_unit
-        ),
+        defaultAmount: amount || '',
+        amount: amount || '',
         selectedToken: transactionRequest.token,
         searchTokenValue: transactionRequest.token.name,
-        error: null
+        exchangeAddress: _.get(transactionRequest, 'exchange_wallet.address', null),
+        error: null,
+        rate: null
       }
     }
     return null
   }
-  state = {}
 
+  state = { amount: '', searchTokenValue: '', selectedToken: {} }
+
+  onChangeWalletInput = e => {
+    this.setState({ consumeAddress: e.target.value })
+  }
+  onChangeWalletExchange = e => {
+    this.setState({ exchangeAddress: e.target.value })
+  }
+  onChangeAmount = e => {
+    this.setState({ amount: e.target.value }, async () => {
+      const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
+      const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
+      const fromTokenId =
+        transactionRequest.type === 'send'
+          ? transactionRequest.token_id
+          : this.state.selectedToken.id
+      const toTokenId =
+        transactionRequest.type === 'send'
+          ? this.state.selectedToken.id
+          : transactionRequest.token_id
+      const amountTo = transactionRequest.allow_amount_override
+        ? formatAmount(this.state.amount, transactionRequest.token.subunit_to_unit)
+        : transactionRequest.amount
+      let query = {
+        fromTokenId,
+        toTokenId
+      }
+      if (transactionRequest.type !== 'send') {
+        Object.assign(query, { fromAmount: amountTo })
+      } else {
+        Object.assign(query, { toAmount: amountTo })
+      }
+      this.calculateRate(query)
+    })
+  }
+  onSelectWalletAddressSelect = item => {
+    this.setState({ consumeAddress: item.key })
+  }
+  onSelectExchangeWalletAddressSelect = item => {
+    this.setState({ exchangeAddress: item.key })
+  }
+  onChangeSearchToken = e => {
+    this.setState({ searchTokenValue: e.target.value })
+  }
+  onSelectTokenSelect = async token => {
+    this.setState({ searchTokenValue: token.name, selectedToken: token }, async () => {
+      const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
+      const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
+      if (transactionRequest.token.id === this.state.selectedToken.id) {
+        this.setState({
+          amount:
+            formatReceiveAmountToTotal(
+              transactionRequest.amount,
+              transactionRequest.token.subunit_to_unit
+            ) || this.state.amount,
+          rate: null,
+          error: null
+        })
+      } else {
+        const fromTokenId =
+          transactionRequest.type !== 'send' ? token.id : transactionRequest.token_id
+        const toTokenId =
+          transactionRequest.type !== 'send' ? transactionRequest.token_id : token.id
+        const amountTo = transactionRequest.allow_amount_override
+          ? formatAmount(this.state.amount, transactionRequest.token.subunit_to_unit)
+          : transactionRequest.amount
+        let query = {
+          fromTokenId,
+          toTokenId
+        }
+        if (transactionRequest.type !== 'send') {
+          Object.assign(query, { toAmount: amountTo })
+        } else {
+          Object.assign(query, { fromAmount: amountTo })
+        }
+        const rate = await this.calculateRate(query)
+        const amount =
+          transactionRequest.type === 'send'
+            ? formatReceiveAmountToTotal(
+                rate.to_amount,
+                _.get(rate, 'exchange_pair.to_token.subunit_to_unit')
+              )
+            : formatReceiveAmountToTotal(
+                rate.from_amount,
+                _.get(rate, 'exchange_pair.from_token.subunit_to_unit')
+              )
+        this.setState({ amount })
+      }
+    })
+  }
   onSubmitConsume = transactionRequest => async e => {
     e.preventDefault()
     this.setState({ submitStatus: 'SUBMITTING' })
@@ -123,7 +226,8 @@ class PropertiesTab extends Component {
         amount: transactionRequest.allow_amount_override
           ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
           : null,
-        address: this.state.consumeAddress
+        address: this.state.consumeAddress,
+        exchangeAddress: this.state.exchangeAddress
       })
       if (result.data) {
         this.setState({ submitStatus: 'SUCCESS', error: null })
@@ -137,22 +241,31 @@ class PropertiesTab extends Component {
       this.setState({ submitStatus: 'FAILED', error: `${error}` })
     }
   }
-  onChangeWalletInput = e => {
-    this.setState({ consumeAddress: e.target.value })
+  calculateRate = async ({ fromTokenId, toTokenId, fromAmount, toAmount }) => {
+    if (fromTokenId !== toTokenId) {
+      try {
+        const { data, error } = await this.props.calculate({
+          fromTokenId,
+          toTokenId,
+          fromAmount,
+          toAmount
+        })
+        if (data) {
+          this.setState({ error: null, rate: data })
+          return data
+        } else {
+          this.setState({
+            error: error.description || 'Exchange pair does not exist.',
+            rate: null
+          })
+        }
+      } catch (error) {
+        this.setState({ error: `${error}`, rate: null })
+      }
+    } else {
+      this.setState({ error: null })
+    }
   }
-  onChangeAmount = e => {
-    this.setState({ amount: e.target.value })
-  }
-  onSelectWalletAddressSelect = item => {
-    this.setState({ consumeAddress: item.key })
-  }
-  onChangeSearchToken = e => {
-    this.setState({ searchTokenValue: e.target.value, selectedToken: null })
-  }
-  onSelectTokenSelect = token => {
-    this.setState({ searchTokenValue: token.name, selectedToken: token })
-  }
-
   getExpiredReason = reason => {
     switch (reason) {
       case 'max_consumptions_reached':
@@ -165,18 +278,20 @@ class PropertiesTab extends Component {
   }
 
   render = () => {
-    const valid = this.props.transactionRequests.status === 'valid'
+    const valid = this.props.transactionRequest.status === 'valid'
+    const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
+    const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
     return (
-      <ConsumeActionContainer onSubmit={this.onSubmitConsume(this.props.transactionRequests)}>
+      <ConsumeActionContainer onSubmit={this.onSubmitConsume(this.props.transactionRequest)}>
         <QrContainer>
-          <QR data={this.props.transactionRequests.id} />
+          <QR data={this.props.transactionRequest.id} />
           <QrTypeContainer>
             <b>Type : </b>
-            <div>{this.props.transactionRequests.type}</div>
+            <div>{this.props.transactionRequest.type}</div>
           </QrTypeContainer>
           <QrTypeContainer>
             <b>Token :</b>
-            <div>{_.get(this.props.transactionRequests, 'token.name')}</div>
+            <div>{_.get(this.props.transactionRequest, 'token.name')}</div>
           </QrTypeContainer>
         </QrContainer>
         <InputsContainer>
@@ -213,17 +328,20 @@ class PropertiesTab extends Component {
                 <TokenAmountContainer>
                   <InputLabelContainer>
                     <InputLabel disabled={!valid}>Amount</InputLabel>
-                    <Input
+                    <AmountInput
+                      override={this.props.transactionRequest.allow_amount_override}
                       normalPlaceholder='1000'
                       onChange={this.onChangeAmount}
                       value={this.state.amount}
-                      type='number'
-                      step='any'
-                      disabled={!valid || !this.props.transactionRequests.allow_amount_override}
+                      type='amount'
+                      disabled={!valid}
                     />
                   </InputLabelContainer>
                   <InputLabelContainer>
-                    <InputLabel disabled={!valid}>Token</InputLabel>
+                    <InputLabel disabled={!valid}>
+                      Token to{' '}
+                      {this.props.transactionRequest.type === 'receive' ? 'send' : 'receive'}
+                    </InputLabel>
                     <Select
                       disabled={!valid}
                       normalPlaceholder='ETH'
@@ -241,9 +359,52 @@ class PropertiesTab extends Component {
               )
             }}
           />
-          {this.props.transactionRequests.expiration_reason ? (
+          {_.get(this.state, 'selectedToken.id') !== _.get(transactionRequest, 'token.id') &&
+            this.state.rate && (
+              <WalletsFetcher
+                query={{ search: this.state.exchangeAddress }}
+                accountId={this.props.match.params.accountId}
+                owned={false}
+                render={({ data }) => {
+                  return (
+                    <InputLabelContainer>
+                      <InputLabel>Exhange Wallet</InputLabel>
+                      <ExchangeSelect
+                        disablePointer={_.get(transactionRequest, 'exchange_wallet.address', null)}
+                        normalPlaceholder='acc_0x000000000000000'
+                        onSelectItem={this.onSelectExchangeWalletAddressSelect}
+                        value={this.state.exchangeAddress}
+                        onChange={this.onChangeWalletExchange}
+                        options={data.map(d => {
+                          return {
+                            key: d.address,
+                            value: <WalletSelect wallet={d} />,
+                            ...d
+                          }
+                        })}
+                      />
+                    </InputLabelContainer>
+                  )
+                }}
+              />
+            )}
+          {this.state.rate && (
+            <RateCointaner>
+              {formatReceiveAmountToTotal(
+                _.get(this.state, 'rate.from_amount'),
+                _.get(this.state, 'rate.exchange_pair.from_token.subunit_to_unit')
+              )}{' '}
+              {_.get(this.state, 'rate.exchange_pair.from_token.symbol')} ={' '}
+              {formatReceiveAmountToTotal(
+                _.get(this.state, 'rate.to_amount'),
+                _.get(this.state, 'rate.exchange_pair.to_token.subunit_to_unit')
+              )}{' '}
+              {_.get(this.state, 'rate.exchange_pair.to_token.symbol')}
+            </RateCointaner>
+          )}
+          {this.props.transactionRequest.expiration_reason ? (
             <ExpiredContainer>
-              {this.getExpiredReason(this.props.transactionRequests.expiration_reason)}
+              {this.getExpiredReason(this.props.transactionRequest.expiration_reason)}
             </ExpiredContainer>
           ) : (
             <Button disabled={!valid} loading={this.state.submitStatus === 'SUBMITTING'}>
@@ -260,6 +421,6 @@ class PropertiesTab extends Component {
 export default withRouter(
   connect(
     state => ({ selectTransactionRequestById: selectGetTransactionRequestById(state) }),
-    { consumeTransactionRequest }
-  )(PropertiesTab)
+    { consumeTransactionRequest, calculate }
+  )(ConsumeBox)
 )

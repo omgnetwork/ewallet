@@ -2,11 +2,10 @@ import React, { Component } from 'react'
 import PropTypes from 'prop-types'
 import { Link, withRouter } from 'react-router-dom'
 import path from 'path'
-import queryString from 'query-string'
 class LinkWithAccount extends Component {
   static propTypes = {
     to: PropTypes.string.isRequired,
-    children: PropTypes.node.isRequired,
+    children: PropTypes.node,
     match: PropTypes.object.isRequired,
     location: PropTypes.object.isRequired
   }

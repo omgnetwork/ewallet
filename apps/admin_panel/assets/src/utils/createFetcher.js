@@ -6,7 +6,7 @@ import CONSTANT from '../constants'
 export const createCacheKey = (props, entity) => JSON.stringify({ ...props.query, entity })
 export const createFetcher = (entity, reducer, selectors) => {
   const enhance = compose(
-    withProps(props => ({ cacheKey: createCacheKey(props, entity) })),
+    withProps(props => ({ cacheKey: createCacheKey(props, entity), entity })),
     connect(
       (state, props) => {
         return {
@@ -29,7 +29,8 @@ export const createFetcher = (entity, reducer, selectors) => {
         loadingStatus: PropTypes.string,
         cacheKey: PropTypes.string,
         data: PropTypes.array,
-        pagination: PropTypes.object
+        pagination: PropTypes.object,
+        optimistic: PropTypes.bool
       }
       static defaultProps = {
         onFetchComplete: _.noop
@@ -105,12 +106,14 @@ export const createFetcher = (entity, reducer, selectors) => {
           ...this.getQuery(),
           individualLoadingStatus: this.state.loadingStatus,
           fetch: this.fetch,
-          data:
-            this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
+          data: this.props.optimistic
+            ? this.props.data
+            : this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
               ? this.props.data
               : this.state.data,
-          pagination:
-            this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
+          pagination: this.props.optimistic
+            ? this.props.data
+            : this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
               ? this.props.pagination
               : this.state.pagination
         })

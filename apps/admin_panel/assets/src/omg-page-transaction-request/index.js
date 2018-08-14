@@ -23,15 +23,9 @@ const TransactionRequestsPageContainer = styled.div`
   td {
     white-space: nowrap;
   }
-  td:nth-child(2),td:nth-child(7) {
-    text-transform: capitalize;
-  }
-  td:first-child {
-    width: 50%;
-  }
   td:nth-child(2),
-  td:nth-child(3) {
-    width: 25%;
+  td:nth-child(7) {
+    text-transform: capitalize;
   }
   tr:hover {
     td:nth-child(1) {
@@ -71,7 +65,8 @@ class TransactionRequestsPage extends Component {
   constructor (props) {
     super(props)
     this.state = {
-      createTransactionRequestModalOpen: queryString.parse(this.props.location.search).createRequest || false,
+      createTransactionRequestModalOpen:
+        queryString.parse(this.props.location.search).createRequest || false,
       exportModalOpen: false
     }
     this.columns = [
@@ -118,17 +113,15 @@ class TransactionRequestsPage extends Component {
       )
     }
     if (key === 'amount') {
-      const amount = rows.amount === null ? (
-        'Not Specified'
-      ) : (
-        <span>
-          {formatReceiveAmountToTotal(
-            data,
-            _.get(rows, 'token.subunit_to_unit')
-          )}{' '}
-          {_.get(rows, 'token.symbol')}
-        </span>
-      )
+      const amount =
+        rows.amount === null ? (
+          'Not Specified'
+        ) : (
+          <span>
+            {formatReceiveAmountToTotal(data, _.get(rows, 'token.subunit_to_unit'))}{' '}
+            {_.get(rows, 'token.symbol')}
+          </span>
+        )
       return amount
     }
     if (key === 'created_by') {
