@@ -3,23 +3,35 @@ defmodule AdminAPI.V1.AdminAuthController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AdminUserAuthenticator
   alias EWallet.AccountPolicy
-  alias EWalletDB.{AuthToken, Account}
+  alias EWalletDB.{Account, AuthToken, User}
 
   @doc """
   Authenticates a user with the given email and password.
   Returns with a newly generated authentication token if auth is successful.
   """
-  def login(conn, %{
-        "email" => email,
-        "password" => password
-      })
-      when is_binary(email) and is_binary(password) do
-    conn
-    |> AdminUserAuthenticator.authenticate(email, password)
-    |> respond_with_token()
-  end
+  def login(conn, attrs) do
+    with email when is_binary(email) <- attrs["email"] || :missing_email,
+         password when is_binary(password) <- attrs["password"] || :missing_password,
+         conn <- AdminUserAuthenticator.authenticate(conn, attrs["email"], attrs["password"]),
+         true <- conn.assigns.authenticated || :invalid_login_credentials,
+         true <- User.get_status(conn.assigns.admin_user) == :active || :invite_pending,
+         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api) do
+      render_token(conn, auth_token)
+    else
+      :missing_email ->
+        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
 
-  def login(conn, _attrs), do: handle_error(conn, :invalid_parameter)
+      :missing_password ->
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Invalid parameter provided. `password` is required"
+        )
+
+      error_code ->
+        handle_error(conn, error_code)
+    end
+  end
 
   def switch_account(conn, %{"account_id" => account_id}) do
     with {:ok, _current_user} <- permit(:get, conn.assigns),
@@ -40,15 +52,6 @@ defmodule AdminAPI.V1.AdminAuthController do
   end
 
   def switch_account(conn, _attrs), do: handle_error(conn, :invalid_parameter)
-
-  defp respond_with_token(%{assigns: %{authenticated: true}} = conn) do
-    {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api)
-    render_token(conn, auth_token)
-  end
-
-  defp respond_with_token(conn) do
-    handle_error(conn, :invalid_login_credentials)
-  end
 
   defp render_token(conn, auth_token) do
     render(conn, :auth_token, %{auth_token: auth_token})

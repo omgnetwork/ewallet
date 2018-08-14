@@ -56,7 +56,24 @@ defmodule EWalletAPI.V1.SignupControllerTest do
                "Invalid parameter provided. `email` can't be blank"
     end
 
-    test "returns client:invalid_parameter when a user with the provided email already exists"
+    test "returns user:already_active when a user with the provided email already exists" do
+      _ = insert(:user, email: "already_exists@example.com")
+
+      response =
+        client_request("/user.signup", %{
+          email: "already_exists@example.com",
+          password: "some_password",
+          password_confirmation: "some_password",
+          redirect_url: @redirect_url
+        })
+
+      assert response["version"] == @expected_version
+      assert response["success"] == false
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:already_active"
+      assert response["data"]["description"] == "The user already exists and active"
+    end
 
     test "returns client:invalid_parameter when password is less than 8 characters" do
       response =
@@ -71,8 +88,8 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["success"] == false
 
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] =~ "`password` must be 8 characters or more"
+      assert response["data"]["code"] == "user:password_too_short"
+      assert response["data"]["description"] =~ "`password` can't be shorter than 8 characters"
     end
 
     test "returns client:invalid_parameter when password is not provided" do

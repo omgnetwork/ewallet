@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.AuthController do
   import EWalletAPI.V1.ErrorHandler
   alias EWalletAPI.V1.EndUserAuthenticator
   alias EWalletAPI.V1.Plug.ClientAuthPlug
-  alias EWalletDB.AuthToken
+  alias EWalletDB.{AuthToken, User}
 
   @doc """
   Logins the user.
@@ -15,22 +15,27 @@ defmodule EWalletAPI.V1.AuthController do
     with email when is_binary(email) <- attrs["email"] || :missing_email,
          password when is_binary(password) <- attrs["password"] || :missing_password,
          conn <- EndUserAuthenticator.authenticate(conn, email, password),
-         true <- conn.assigns.authenticated || :unauthenticated,
+         true <- conn.assigns.authenticated || :invalid_login_credentials,
+         true <- User.get_status(conn.assigns.end_user) == :active || :invite_pending,
          {:ok, auth_token} <- AuthToken.generate(conn.assigns.end_user, :ewallet_api) do
       render(conn, :auth_token, %{auth_token: auth_token})
     else
       :missing_email ->
-        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Invalid parameter provided. `email` can't be blank"
+        )
 
       :missing_password ->
         handle_error(
           conn,
           :invalid_parameter,
-          "Invalid parameter provided. `password` is required"
+          "Invalid parameter provided. `password` can't be blank"
         )
 
-      :unauthenticated ->
-        handle_error(conn, :invalid_login_credentials)
+      error_code ->
+        handle_error(conn, error_code)
     end
   end
 

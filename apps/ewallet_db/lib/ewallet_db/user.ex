@@ -116,10 +116,12 @@ defmodule EWalletDB.User do
     |> cast(attrs, [
       :email,
       :metadata,
-      :encrypted_metadata
+      :encrypted_metadata,
+      :invite_uuid
     ])
     |> validate_required(:email)
     |> unique_constraint(:email)
+    |> assoc_constraint(:invite)
   end
 
   # Two cases to validate for loginable:

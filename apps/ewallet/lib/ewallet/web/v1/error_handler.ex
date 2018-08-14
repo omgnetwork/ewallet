@@ -17,6 +17,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:invite_not_found",
       description: "There is no invite corresponding to the provided email and token"
     },
+    invite_pending: %{
+      code: "user:invite_pending",
+      description: "The user has not accepted the invite"
+    },
+    user_already_active: %{
+      code: "user:already_active",
+      description: "The user already exists and active"
+    },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
       description: "There is no user corresponding to the provided login credentials"
@@ -57,6 +65,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     passwords_mismatch: %{
       code: "user:passwords_mismatch",
       description: "The provided passwords do not match"
+    },
+    password_too_short: %{
+      code: "user:password_too_short",
+      description: "The provided password is too short"
     },
     account_not_found: %{
       code: "account:not_found",
