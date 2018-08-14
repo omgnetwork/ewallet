@@ -104,10 +104,10 @@ Some initial data is required to start the server. Either run the seed or the sa
 
 ```bash
 # Option 2a: Run this command to set up the initial data
-$ docker exec -it <container-id> mix do ecto.seed
+$ docker exec -it <container-id> mix seed
 
 # Option 2b: Run this command to set up the initial data and populate the database with more sample data
-$ docker exec -it <container-id> mix do ecto.seed --sample
+$ docker exec -it <container-id> mix seed --sample
 ```
 
 ## Step 3: Start the server

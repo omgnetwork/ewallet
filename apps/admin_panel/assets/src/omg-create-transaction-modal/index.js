@@ -13,6 +13,7 @@ import WalletsFetcher from '../omg-wallet/walletsFetcher'
 import AllWalletsFetcher from '../omg-wallet/allWalletsFetcher'
 import WalletSelect from '../omg-wallet-select'
 import { selectWalletById } from '../omg-wallet/selector'
+import TokenSelect from '../omg-token-select'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -139,7 +140,7 @@ class CreateTransaction extends Component {
     this.setState({ [`${type}SearchToken`]: e.target.value, [`${type}Selected`]: null })
   }
   onSelectTokenSelect = type => token => {
-    this.setState({ [`${type}SearchToken`]: token.value, [`${type}Selected`]: token })
+    this.setState({ [`${type}SearchToken`]: _.get(token, 'token.name'), [`${type}Selected`]: token })
   }
   onSelectToAddressSelect = item => {
     this.setState({
@@ -275,10 +276,8 @@ class CreateTransaction extends Component {
               options={
                 fromWallet
                   ? fromWallet.balances.map(b => ({
-                    ...{
-                      key: b.token.id,
-                      value: `${b.token.name} (${b.token.symbol})`
-                    },
+                    key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+                    value: <TokenSelect token={b.token} />,
                     ...b
                   }))
                   : []
@@ -293,8 +292,7 @@ class CreateTransaction extends Component {
             <Input
               value={this.state.fromTokenAmount}
               onChange={this.onChangeAmount('fromToken')}
-              type='number'
-              step='any'
+              type='amount'
               normalPlaceholder={'Token amount'}
             />
           </div>
@@ -341,10 +339,8 @@ class CreateTransaction extends Component {
                 options={
                   toWallet
                     ? toWallet.balances.map(b => ({
-                      ...{
-                        key: b.token.id,
-                        value: `${b.token.name} (${b.token.symbol})`
-                      },
+                      key: `${b.token.name}${b.token.symbol}${b.token.id}`,
+                      value: <TokenSelect token={b.token} />,
                       ...b
                     }))
                     : []
@@ -359,8 +355,7 @@ class CreateTransaction extends Component {
               <Input
                 value={this.state.toTokenAmount}
                 onChange={this.onChangeAmount('toToken')}
-                type='number'
-                step='any'
+                type='amount'
                 normalPlaceholder={'Token amount'}
               />
             </div>
