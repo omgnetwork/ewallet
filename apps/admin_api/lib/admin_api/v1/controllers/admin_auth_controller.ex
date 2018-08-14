@@ -64,7 +64,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   end
 
   defp permit(_action, %{key: _key}) do
-    :access_key_unauthorized
+    {:error, :access_key_unauthorized}
   end
 
   defp permit_account(action, params, account_id) do
