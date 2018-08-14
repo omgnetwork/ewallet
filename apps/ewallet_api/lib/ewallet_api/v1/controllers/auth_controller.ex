@@ -12,30 +12,16 @@ defmodule EWalletAPI.V1.AuthController do
   allowing users to log in without an integration with the provider's server.
   """
   def login(conn, attrs) do
-    with email when is_binary(email) <- attrs["email"] || :missing_email,
-         password when is_binary(password) <- attrs["password"] || :missing_password,
+    with email when is_binary(email) <- attrs["email"] || {:error, :missing_email},
+         password when is_binary(password) <- attrs["password"] || {:error, :missing_password},
          conn <- EndUserAuthenticator.authenticate(conn, email, password),
-         true <- conn.assigns.authenticated || :invalid_login_credentials,
-         true <- User.get_status(conn.assigns.end_user) == :active || :invite_pending,
+         true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
+         true <- User.get_status(conn.assigns.end_user) == :active || {:error, :invite_pending},
          {:ok, auth_token} <- AuthToken.generate(conn.assigns.end_user, :ewallet_api) do
       render(conn, :auth_token, %{auth_token: auth_token})
     else
-      :missing_email ->
-        handle_error(
-          conn,
-          :invalid_parameter,
-          "Invalid parameter provided. `email` can't be blank"
-        )
-
-      :missing_password ->
-        handle_error(
-          conn,
-          :invalid_parameter,
-          "Invalid parameter provided. `password` can't be blank"
-        )
-
-      error_code ->
-        handle_error(conn, error_code)
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
 

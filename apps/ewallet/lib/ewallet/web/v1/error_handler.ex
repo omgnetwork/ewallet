@@ -9,9 +9,29 @@ defmodule EWallet.Web.V1.ErrorHandler do
   alias EWalletDB.Token
 
   @errors %{
+    missing_email: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `email` can't be blank"
+    },
+    missing_redirect_url: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `redirect_url` can't be blank"
+    },
+    missing_token: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `token` can't be blank"
+    },
+    missing_password: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `password` can't be blank"
+    },
     invalid_email: %{
       code: "user:invalid_email",
       description: "The format of the provided email is invalid"
+    },
+    email_token_not_found: %{
+      code: "user:email_token_not_found",
+      description: "There is no pending email verification for the provided email and token"
     },
     invite_not_found: %{
       code: "user:invite_not_found",
@@ -65,10 +85,6 @@ defmodule EWallet.Web.V1.ErrorHandler do
     passwords_mismatch: %{
       code: "user:passwords_mismatch",
       description: "The provided passwords do not match"
-    },
-    password_too_short: %{
-      code: "user:password_too_short",
-      description: "The provided password is too short"
     },
     account_not_found: %{
       code: "account:not_found",
