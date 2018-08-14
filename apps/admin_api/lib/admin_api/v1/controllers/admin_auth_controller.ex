@@ -10,44 +10,31 @@ defmodule AdminAPI.V1.AdminAuthController do
   Returns with a newly generated authentication token if auth is successful.
   """
   def login(conn, attrs) do
-    with email when is_binary(email) <- attrs["email"] || :missing_email,
-         password when is_binary(password) <- attrs["password"] || :missing_password,
+    with email when is_binary(email) <- attrs["email"] || {:error, :missing_email},
+         password when is_binary(password) <- attrs["password"] || {:error, :missing_password},
          conn <- AdminUserAuthenticator.authenticate(conn, attrs["email"], attrs["password"]),
-         true <- conn.assigns.authenticated || :invalid_login_credentials,
-         true <- User.get_status(conn.assigns.admin_user) == :active || :invite_pending,
+         true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
+         true <- User.get_status(conn.assigns.admin_user) == :active || {:error, :invite_pending},
          {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api) do
       render_token(conn, auth_token)
     else
-      :missing_email ->
-        handle_error(conn, :invalid_parameter, "Invalid parameter provided. `email` is required")
-
-      :missing_password ->
-        handle_error(
-          conn,
-          :invalid_parameter,
-          "Invalid parameter provided. `password` is required"
-        )
-
-      error_code ->
-        handle_error(conn, error_code)
+      {:error, code} when is_atom(code) ->
+        handle_error(conn, code)
     end
   end
 
   def switch_account(conn, %{"account_id" => account_id}) do
     with {:ok, _current_user} <- permit(:get, conn.assigns),
-         %Account{} = account <- Account.get(account_id) || :unauthorized,
+         %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit_account(:get, conn.assigns, account.id),
          token <- conn.private.auth_auth_token,
          %AuthToken{} = token <-
-           AuthToken.get_by_token(token, :admin_api) || :auth_token_not_found,
+           AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},
          {:ok, token} <- AuthToken.switch_account(token, account) do
       render_token(conn, token)
     else
-      {:error, error} ->
-        handle_error(conn, error)
-
-      error ->
-        handle_error(conn, error)
+      {:error, code} when is_atom(code) ->
+        handle_error(conn, code)
     end
   end
 
