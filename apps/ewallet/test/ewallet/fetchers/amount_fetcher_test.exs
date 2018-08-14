@@ -340,7 +340,8 @@ defmodule EWallet.AmountFetcherTest do
         )
 
       assert res ==
-               {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
     end
   end
 
@@ -349,7 +350,8 @@ defmodule EWallet.AmountFetcherTest do
       res = AmountFetcher.fetch(%{}, %{}, %{})
 
       assert res ==
-               {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
     end
   end
 end

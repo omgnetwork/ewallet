@@ -173,7 +173,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Parameter 'id' is required.",
+                 "description" => "Invalid parameter provided. `id` is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -197,7 +197,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                  "messages" => nil,
                  "object" => "error",
                  "code" => "unauthorized",
-                 "description" => "You are not allowed to perform the requested operation"
+                 "description" => "You are not allowed to perform the requested operation."
                }
              }
     end
@@ -299,7 +299,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Parameter 'user_id' or 'provider_user_id' is required.",
+                 "description" =>
+                   "Invalid parameter provided. `user_id` or `provider_user_id` is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -323,7 +324,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                  "messages" => nil,
                  "object" => "error",
                  "code" => "user:id_not_found",
-                 "description" => "There is no user corresponding to the provided id"
+                 "description" => "There is no user corresponding to the provided id."
                }
              }
     end
@@ -344,7 +345,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                  "object" => "error",
                  "code" => "user:provider_user_id_not_found",
                  "description" =>
-                   "There is no user corresponding to the provided provider_user_id"
+                   "There is no user corresponding to the provided provider_user_id."
                }
              }
     end
@@ -469,7 +470,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Parameter 'formatted_transaction_request_id' is required.",
+                 "description" =>
+                   "Invalid parameter provided. `formatted_transaction_request_id` is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -493,7 +495,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                  "code" => "unauthorized",
                  "messages" => nil,
                  "object" => "error",
-                 "description" => "You are not allowed to perform the requested operation"
+                 "description" => "You are not allowed to perform the requested operation."
                }
              }
     end
@@ -600,7 +602,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response == %{
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Parameter 'address' is required.",
+                 "description" => "Invalid parameter provided. `address` is required.",
                  "messages" => nil,
                  "object" => "error"
                },
@@ -624,7 +626,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                  "code" => "unauthorized",
                  "messages" => nil,
                  "object" => "error",
-                 "description" => "You are not allowed to perform the requested operation"
+                 "description" => "You are not allowed to perform the requested operation."
                }
              }
     end
@@ -839,13 +841,13 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `from` can't be the address of a burn wallet."
+               "Invalid parameter provided. `from` can't be the address of a burn wallet."
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       assert inserted_consumption.error_code == "client:invalid_parameter"
 
       assert inserted_consumption.error_description ==
-               "Invalid parameter provided `from` can't be the address of a burn wallet."
+               "Invalid parameter provided. `from` can't be the address of a burn wallet."
     end
 
     test "consumes the request and transfers the appropriate amount of tokens with string",
@@ -1456,7 +1458,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided",
+                 "description" => "Invalid parameter provided.",
                  "messages" => nil,
                  "object" => "error"
                }

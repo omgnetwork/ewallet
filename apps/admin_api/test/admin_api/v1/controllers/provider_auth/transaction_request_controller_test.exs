@@ -243,7 +243,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided `type` is invalid.",
+                 "description" => "Invalid parameter provided. `type` is invalid.",
                  "messages" => %{"type" => ["inclusion"]},
                  "object" => "error"
                }
@@ -286,7 +286,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "account:account_wallet_mismatch",
-                 "description" => "The provided wallet does not belong to the given account",
+                 "description" => "The provided wallet does not belong to the given account.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -313,7 +313,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "token:id_not_found",
-                 "description" => "There is no token corresponding to the provided id",
+                 "description" => "There is no token corresponding to the provided id.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -345,7 +345,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "unauthorized",
-                 "description" => "You are not allowed to perform the requested operation",
+                 "description" => "You are not allowed to perform the requested operation.",
                  "messages" => nil,
                  "object" => "error"
                }

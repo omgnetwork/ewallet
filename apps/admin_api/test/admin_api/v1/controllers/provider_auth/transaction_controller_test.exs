@@ -432,7 +432,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"]["code"] == "transaction:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no transaction corresponding to the provided id"
+               "There is no transaction corresponding to the provided id."
     end
 
     test "returns 'transaction:id_not_found' if the given ID format is invalid" do
@@ -443,7 +443,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"]["code"] == "transaction:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no transaction corresponding to the provided id"
+               "There is no transaction corresponding to the provided id."
     end
   end
 
@@ -551,7 +551,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
                "description" =>
-                 "Invalid parameter provided `from` can't be the address of a burn wallet.",
+                 "Invalid parameter provided. `from` can't be the address of a burn wallet.",
                "messages" => %{"from" => ["burn_wallet_as_sender_not_allowed"]},
                "object" => "error"
              }
@@ -614,7 +614,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" => "'idempotency_token' is required."
+               "description" => "Invalid parameter provided. `idempotency_token` is required."
              }
     end
 
@@ -666,7 +666,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"] == %{
                "code" => "token:id_not_found",
-               "description" => "There is no token corresponding to the provided id",
+               "description" => "There is no token corresponding to the provided id.",
                "messages" => nil,
                "object" => "error"
              }
@@ -713,7 +713,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
 
       assert response["data"] == %{
                "code" => "unauthorized",
-               "description" => "You are not allowed to perform the requested operation",
+               "description" => "You are not allowed to perform the requested operation.",
                "messages" => nil,
                "object" => "error"
              }

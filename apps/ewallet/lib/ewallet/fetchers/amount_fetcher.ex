@@ -72,7 +72,8 @@ defmodule EWallet.AmountFetcher do
 
   # Returns error if neither `amount`, `from_amount` or `to_amount` is provided
   def fetch(_, _, _) do
-    {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
   # Uses `Exchange.validate/4` if both `from_amount` and `to_amount` are provided.
@@ -112,7 +113,8 @@ defmodule EWallet.AmountFetcher do
   end
 
   defp do_fetch(_, _, _, _) do
-    {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required"}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
   defp handle_string_amount({amount_1, amount_2}, fun) do

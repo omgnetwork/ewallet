@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
       assert response["data"]["code"] == "category:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no category corresponding to the provided id"
+               "There is no category corresponding to the provided id."
     end
 
     test "returns 'category:id_not_found' if the given ID format is invalid" do
@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
       assert response["data"]["code"] == "category:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no category corresponding to the provided id"
+               "There is no category corresponding to the provided id."
     end
   end
 
@@ -146,7 +146,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
     test "returns an 'unauthorized' error if id is invalid" do
@@ -158,7 +158,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
       assert response["data"]["code"] == "category:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no category corresponding to the provided id"
+               "There is no category corresponding to the provided id."
     end
   end
 
@@ -188,7 +188,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
                  "success" => false,
                  "data" => %{
                    "code" => "category:not_empty",
-                   "description" => "The category has one or more accounts associated",
+                   "description" => "The category has one or more accounts associated.",
                    "messages" => nil,
                    "object" => "error"
                  }
@@ -204,7 +204,7 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
                  "success" => false,
                  "data" => %{
                    "code" => "category:id_not_found",
-                   "description" => "There is no category corresponding to the provided id",
+                   "description" => "There is no category corresponding to the provided id.",
                    "messages" => nil,
                    "object" => "error"
                  }

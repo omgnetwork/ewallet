@@ -23,7 +23,7 @@ defmodule AdminAPI.VersionedRouterTest do
           "object" => "error",
           "code" => "client:invalid_version",
           "description" =>
-            "Invalid API version Given: 'application/vnd.omisego.invalid_ver+json'.",
+            "Invalid API version. Given: 'application/vnd.omisego.invalid_ver+json'.",
           "messages" => nil
         }
       }

@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "exchange:pair_id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id"
+               "There is no exchange pair corresponding to the provided id."
     end
 
     test "returns 'exchange:id_not_found' if the given ID format is invalid" do
@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "exchange:pair_id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id"
+               "There is no exchange pair corresponding to the provided id."
     end
   end
 
@@ -138,7 +138,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `rate` must be greater than 0."
+               "Invalid parameter provided. `rate` must be greater than 0."
     end
 
     test "returns client:invalid_parameter error if given a negative exchange rate" do
@@ -150,7 +150,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `rate` must be greater than 0."
+               "Invalid parameter provided. `rate` must be greater than 0."
     end
 
     test "returns client:invalid_parameter error if a required parameter is not provided" do
@@ -162,7 +162,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `rate` can't be blank."
+               "Invalid parameter provided. `rate` can't be blank."
     end
 
     test "returns client:invalid_parameter error if from_token_id is not provided" do
@@ -174,7 +174,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `from_token_id` can't be blank."
+               "Invalid parameter provided. `from_token_id` can't be blank."
     end
 
     test "returns client:invalid_parameter error if to_token_id is not provided" do
@@ -186,7 +186,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `to_token_id` can't be blank."
+               "Invalid parameter provided. `to_token_id` can't be blank."
     end
   end
 
@@ -276,7 +276,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "exchange:opposite_pair_not_found"
 
       assert response["data"]["description"] ==
-               "The opposite exchange pair for the given tokens could not be found"
+               "The opposite exchange pair for the given tokens could not be found."
     end
 
     test "returns a 'client:invalid_parameter' error if id is not provided" do
@@ -285,7 +285,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
     test "returns a 'user:unauthorized' error if id is invalid" do
@@ -296,7 +296,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "exchange:pair_id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id"
+               "There is no exchange pair corresponding to the provided id."
     end
 
     test "returns an error if given an exchange rate of 0" do
@@ -308,7 +308,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `rate` must be greater than 0."
+               "Invalid parameter provided. `rate` must be greater than 0."
     end
 
     test "returns an error if given a negative exchange rate" do
@@ -320,7 +320,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `rate` must be greater than 0."
+               "Invalid parameter provided. `rate` must be greater than 0."
     end
   end
 
@@ -384,7 +384,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "exchange:opposite_pair_not_found"
 
       assert response["data"]["description"] ==
-               "The opposite exchange pair for the given tokens could not be found"
+               "The opposite exchange pair for the given tokens could not be found."
 
       assert ExchangePair.get(pair.id) != nil
     end
@@ -397,7 +397,7 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert response["data"]["code"] == "exchange:pair_id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no exchange pair corresponding to the provided id"
+               "There is no exchange pair corresponding to the provided id."
     end
   end
 end
