@@ -15,20 +15,26 @@ defmodule AdminAPI.InviteEmail do
     new_email()
     |> to(invite.user.email)
     |> from(sender)
-    |> subject("OmiseGO eWallet: Invitation")
+    |> subject("eWallet: Invitation")
     |> html_body(html(link))
     |> text_body(text(link))
   end
 
   defp html(link) do
     """
-    <strong>Click the link to accept the invite: </strong>
-    <a href="#{link}">#{link}</a>
+    <p>You have been invited to join the eWallet.</p>
+
+    <p>
+      <strong>Click the link to complete the email verification: </strong>
+      <a href="#{link}">#{link}</a>
+    </p>
     """
   end
 
   defp text(link) do
     """
+    You have been invited to join the eWallet.
+
     Copy & paste the link into your browser to accept the invite: #{link}
     """
   end
