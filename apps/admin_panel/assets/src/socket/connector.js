@@ -1,7 +1,4 @@
-import {
-  appendParams,
-  isAbsoluteURL
-} from '../utils/url'
+import { appendParams, isAbsoluteURL } from '../utils/url'
 import urlJoin from 'url-join'
 import _ from 'lodash'
 import CONSTANT from '../constants'
@@ -178,12 +175,7 @@ class SocketConnector {
   leaveChannel = channel => {
     this.send(this.createLeaveChannelPayload(channel))
   }
-  createPayload = ({
-    topic,
-    event,
-    type,
-    data = {}
-  }) => {
+  createPayload = ({ topic, event, type, data = {} }) => {
     const payload = {
       topic,
       event,
