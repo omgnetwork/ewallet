@@ -1,4 +1,7 @@
-import { appendParams, isAbsoluteURL } from '../utils/url'
+import {
+  appendParams,
+  isAbsoluteURL
+} from '../utils/url'
 import urlJoin from 'url-join'
 import _ from 'lodash'
 import CONSTANT from '../constants'
@@ -162,7 +165,11 @@ class SocketConnector {
       const payload = this.createJoinChannelPayload(channel)
       this.queue.push(payload)
       try {
-        this.send(payload)
+        if (!this.socket) {
+          console.log(`attempt to join channel : ${channel} when socket is not initialized, added to queue.`)
+        } else {
+          this.send(payload)
+        }
       } catch (error) {
         console.warn('something went wrong while joining channel with error', error)
       }
@@ -171,7 +178,12 @@ class SocketConnector {
   leaveChannel = channel => {
     this.send(this.createLeaveChannelPayload(channel))
   }
-  createPayload = ({ topic, event, type, data = {} }) => {
+  createPayload = ({
+    topic,
+    event,
+    type,
+    data = {}
+  }) => {
     const payload = {
       topic,
       event,
