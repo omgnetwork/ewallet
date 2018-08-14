@@ -16,9 +16,6 @@ defmodule EWalletAPI.V1.SignupController do
   def signup(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          email when is_binary(email) <- attrs["email"] || :missing_email,
-         password when is_binary(password) <- attrs["password"] || :missing_password,
-         true <- password == attrs["password_confirmation"] || :passwords_mismatch,
-         {:ok, _password} <- Validator.validate_password(password),
          redirect_url when is_binary(redirect_url) <- attrs["redirect_url"] || :no_redirect_url,
          {:ok, invite} <- Inviter.invite(email, redirect_url, VerificationEmail) do
       render(conn, :user, %{user: invite.user})
@@ -28,20 +25,6 @@ defmodule EWalletAPI.V1.SignupController do
           conn,
           :invalid_parameter,
           "Invalid parameter provided. `email` can't be blank"
-        )
-
-      :missing_password ->
-        handle_error(
-          conn,
-          :invalid_parameter,
-          "Invalid parameter provided. `password` can't be blank"
-        )
-
-      {:error, :too_short, min_length: min_length} ->
-        handle_error(
-          conn,
-          :password_too_short,
-          "`password` can't be shorter than #{min_length} characters"
         )
 
       :no_redirect_url ->
@@ -54,8 +37,8 @@ defmodule EWalletAPI.V1.SignupController do
       {:error, :user_already_active} ->
         handle_error(conn, :user_already_active)
 
-      :passwords_mismatch ->
-        handle_error(conn, :passwords_mismatch)
+      {:error, :invalid_parameter, description} ->
+        handle_error(conn, :invalid_parameter, description)
     end
   end
 
