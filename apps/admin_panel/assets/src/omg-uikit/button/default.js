@@ -20,6 +20,7 @@ export const DefaultButton = styled.button`
     left: 0;
     right: 0;
     top: 50%;
+    height: 20px;
     transform: translateY(-50%);
   }
 `

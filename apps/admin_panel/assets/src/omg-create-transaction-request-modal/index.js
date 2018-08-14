@@ -14,6 +14,7 @@ import { formatAmount } from '../utils/formatter'
 import moment from 'moment'
 import DateTime from 'react-datetime'
 import WalletSelect from '../omg-wallet-select'
+import TokenSelect from '../omg-token-select'
 const Form = styled.form`
   width: 100vw;
   height: 100vh;
@@ -38,8 +39,17 @@ const Form = styled.form`
 const InnerContainer = styled.div`
   max-width: 950px;
   margin: 0 auto;
-  padding: 70px 0;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 0;
+  right: 0;
   text-align: center;
+  @media screen and (max-height: 700px) {
+    position: static;
+    transform: translateY(0);
+    padding: 70px 0;
+  }
 `
 const StyledInput = styled(Input)`
   margin-top: 10px;
@@ -77,6 +87,7 @@ const InputLabel = styled.div`
   font-weight: 400;
   > span {
     color: ${props => props.theme.colors.S500};
+    vertical-align: bottom;
   }
 `
 const enhance = compose(
@@ -95,6 +106,9 @@ class CreateTransactionRequest extends Component {
     onCreateTransactionRequest: PropTypes.func,
     onRequestClose: PropTypes.func
   }
+  static defaultProps = {
+    primaryWallet: {}
+  }
   state = { selectedToken: {}, onCreateTransactionRequest: _.noop, allowAmountOverride: false }
   onSubmit = async e => {
     e.preventDefault()
@@ -103,9 +117,7 @@ class CreateTransactionRequest extends Component {
       const result = await this.props.createTransactionRequest({
         ...this.state,
         type: this.state.type ? 'send' : 'receive',
-        amount: this.state.amount
-          ? formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit'))
-          : null,
+        amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: _.get(this.state, 'selectedToken.id'),
         address: _.get(this.state, 'selectedWallet.id', this.props.primaryWallet.address),
         accountId: this.props.match.params.accountId,
@@ -123,7 +135,7 @@ class CreateTransactionRequest extends Component {
         })
       }
     } catch (e) {
-      this.setState({ submitting: false, error: e })
+      this.setState({ submitting: false })
     }
   }
   onChange = key => e => {
@@ -142,10 +154,13 @@ class CreateTransactionRequest extends Component {
     this.setState({ searchTokenValue: e.target.value, selectedToken: {} })
   }
   onSelectTokenSelect = token => {
-    this.setState({ searchTokenValue: token.value, selectedToken: token })
+    this.setState({ searchTokenValue: token.name, selectedToken: token })
   }
   onSelectWallet = wallet => {
     this.setState({ address: wallet.address, selectedWallet: wallet })
+  }
+  onSelectExchangeWallet = exchangeWallet => {
+    this.setState({ exchangeAddress: exchangeWallet.address, selectedWallet: exchangeWallet })
   }
   onDateTimeChange = date => {
     this.setState({ expirationDate: date.format('DD/MM/YYYY hh:mm:ss') })
@@ -196,6 +211,65 @@ class CreateTransactionRequest extends Component {
             />
           </InputLabelContainer>
           <InputLabelContainer>
+            <InputLabel>Token</InputLabel>
+            <TokensFetcher
+              query={{ page: 1, perPage: 10, search: this.state.searchTokenValue }}
+              render={({ individualLoadingStatus, data }) => {
+                return (
+                  <StyledSelect
+                    normalPlaceholder='tk-0x00000000'
+                    autofocus
+                    value={this.state.searchTokenValue}
+                    onSelectItem={this.onSelectTokenSelect}
+                    onChange={this.onChangeSearchToken}
+                    options={data.map(b => ({
+                      key: `${b.symbol}${b.name}${b.id}`,
+                      value: <TokenSelect token={b} />,
+                      ...b
+                    }))}
+                  />
+                )
+              }}
+            />
+          </InputLabelContainer>
+          <InputLabelContainer>
+            <InputLabel>
+              Amount {this.state.allowAmountOverride && <span>( Optional )</span>}
+            </InputLabel>
+            <StyledInput
+              normalPlaceholder='1000'
+              autofocus
+              value={this.state.amount}
+              type='amount'
+              onChange={this.onChange('amount')}
+            />
+          </InputLabelContainer>
+          <InputLabelContainer>
+            <InputLabel>
+              Wallet Address <span>( Optional )</span>
+            </InputLabel>
+            <WalletsFetcher
+              accountId={this.props.match.params.accountId}
+              query={{ search: this.state.address }}
+              owned={false}
+              render={({ data }) => {
+                return (
+                  <StyledSelect
+                    normalPlaceholder='0x00000000'
+                    value={this.state.address}
+                    onSelectItem={this.onSelectWallet}
+                    onChange={this.onChange('address')}
+                    options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
+                      key: wallet.address,
+                      value: <WalletSelect wallet={wallet} />,
+                      ...wallet
+                    }))}
+                  />
+                )
+              }}
+            />
+          </InputLabelContainer>
+          <InputLabelContainer>
             <InputLabel>
               Correlation Id <span>( Optional )</span>
             </InputLabel>
@@ -214,32 +288,9 @@ class CreateTransactionRequest extends Component {
               normalPlaceholder='0'
               autofocus
               type='number'
+              step={1}
               value={this.state.maxConsumption}
               onChange={this.onChange('maxConsumption')}
-            />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>Token</InputLabel>
-            <TokensFetcher
-              render={({ individualLoadingStatus, data }) => {
-                return (
-                  <StyledSelect
-                    normalPlaceholder='tk-0x00000000'
-                    autofocus
-                    value={this.state.searchTokenValue}
-                    onSelectItem={this.onSelectTokenSelect}
-                    onChange={this.onChangeSearchToken}
-                    options={data.map(b => ({
-                      ...{
-                        key: `${b.symbol}${b.name}${b.id}`,
-                        value: `${b.name} (${b.symbol})`
-                      },
-                      ...b
-                    }))}
-                  />
-                )
-              }}
-              query={{ page: 1, perPage: 10, search: this.state.tokenId }}
             />
           </InputLabelContainer>
           <InputLabelContainer>
@@ -268,20 +319,19 @@ class CreateTransactionRequest extends Component {
           </InputLabelContainer>
           <InputLabelContainer>
             <InputLabel>
-              Wallet Address <span>( Optional )</span>
+              Exchange Address <span>( Optional )</span>
             </InputLabel>
             <WalletsFetcher
               accountId={this.props.match.params.accountId}
-              query={{ search: this.state.address }}
+              query={{ search: this.state.exchangeAddress }}
               owned={false}
               render={({ data }) => {
                 return (
                   <StyledSelect
-                    normalPlaceholder='tk-0x00000000'
-                    value={this.state.address}
-                    onSelectItem={this.onSelectWallet}
-                    onFocus={this.onWalletFocus}
-                    onChange={this.onChange('address')}
+                    normalPlaceholder='0x00000000'
+                    value={this.state.exchangeAddress}
+                    onSelectItem={this.onSelectExchangeWallet}
+                    onChange={this.onChange('exchangeAddress')}
                     options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
                       key: wallet.address,
                       value: <WalletSelect wallet={wallet} />,
@@ -332,19 +382,6 @@ class CreateTransactionRequest extends Component {
               onChange={this.onChange('encryptedMetadata')}
             />
           </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Amount <span>( Optional )</span>
-            </InputLabel>
-            <StyledInput
-              normalPlaceholder='1000'
-              autofocus
-              value={this.state.amount}
-              type='number'
-              step='any'
-              onChange={this.onChange('amount')}
-            />
-          </InputLabelContainer>
           <ButtonContainer>
             <Button size='small' type='submit' loading={this.state.submitting}>
               Create Request
@@ -352,7 +389,6 @@ class CreateTransactionRequest extends Component {
           </ButtonContainer>
           <Error error={this.state.error}>{this.state.error}</Error>
         </InnerContainer>
-        {/* <Datetime /> */}
       </Form>
     )
   }

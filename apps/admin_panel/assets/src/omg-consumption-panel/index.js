@@ -11,6 +11,7 @@ import { compose } from 'recompose'
 import { formatReceiveAmountToTotal } from '../utils/formatter'
 import Link from '../omg-links'
 import moment from 'moment'
+import TransactionRequestDetail from '../omg-transaction-request-tab/TransactionRequestDetail'
 const PanelContainer = styled.div`
   height: 100vh;
   position: fixed;
@@ -28,13 +29,6 @@ const PanelContainer = styled.div`
     cursor: pointer;
   }
 `
-const AdditionalTransactionRequestContainer = styled.div`
-  margin-top: 20px;
-  h5 {
-    margin-bottom: 10px;
-    letter-spacing: 1px;
-  }
-`
 const InformationItem = styled.div`
   color: ${props => props.theme.colors.B200};
   b {
@@ -50,6 +44,7 @@ const InformationItem = styled.div`
 const ActionContainer = styled.div`
   padding: 20px;
   border-radius: 4px;
+  margin-bottom: 20px;
   border: 1px solid ${props => props.theme.colors.S400};
   button {
     margin-right: 20px;
@@ -101,15 +96,6 @@ class TransactionRequestPanel extends Component {
         consumptionId={queryString.parse(this.props.location.search)['show-consumption-tab']}
         render={({ consumption }) => {
           const tq = consumption.transaction_request || {}
-          const amount =
-            tq.amount === null ? (
-              'Not Specified'
-            ) : (
-              <span>
-                {formatReceiveAmountToTotal(tq.amount, _.get(tq, 'token.subunit_to_unit'))}{' '}
-                {_.get(tq, 'token.symbol')}
-              </span>
-            )
           return (
             <PanelContainer>
               <Icon name='Close' onClick={this.onClickClose} />
@@ -135,16 +121,16 @@ class TransactionRequestPanel extends Component {
                   <Link to={`/wallets/${consumption.address}`}>{consumption.address}</Link>
                 </InformationItem>
                 <InformationItem>
-                  <b>Token:</b> <span>{_.get(tq, 'token.name')}</span>
+                  <b>Token:</b> <span>{_.get(consumption, 'token.name')}</span>
                 </InformationItem>
                 <InformationItem>
                   <b>Amount:</b>{' '}
                   <span>
                     {formatReceiveAmountToTotal(
                       consumption.estimated_consumption_amount,
-                      _.get(tq, 'token.subunit_to_unit')
+                      _.get(consumption, 'token.subunit_to_unit')
                     )}{' '}
-                    {_.get(tq, 'token.symbol')}
+                    {_.get(consumption, 'token.symbol')}
                   </span>
                 </InformationItem>
                 <InformationItem>
@@ -191,72 +177,7 @@ class TransactionRequestPanel extends Component {
                   </InformationItem>
                 )}
               </ActionContainer>
-              <AdditionalTransactionRequestContainer>
-                <h5>ADDITIONAL REQUEST DETAILS</h5>
-                <InformationItem>
-                  <b>Type :</b> {tq.type}
-                </InformationItem>
-                <InformationItem>
-                  <b>Token:</b> {_.get(tq, 'token.name')}
-                </InformationItem>
-                <InformationItem>
-                  <b>Amount :</b> {amount}
-                </InformationItem>
-                <InformationItem>
-                  <b>Requester Address : </b>{' '}
-                  <Link to={`/wallets/${tq.address}`}>{tq.address}</Link>
-                </InformationItem>
-                <InformationItem>
-                  <b>Account ID : </b>{' '}
-                  {_.get(tq, 'account.id') ? (
-                    <Link to={`/accounts/${_.get(tq, 'account.id')}`}>
-                      {_.get(tq, 'account.id')}
-                    </Link>
-                  ) : (
-                    '-'
-                  )}
-                </InformationItem>
-                <InformationItem>
-                  <b>Account Name : </b>{' '}
-                  {_.get(tq, 'account.id') ? (
-                    <Link to={`/wallets/${tq.address}`}> {tq.account.name} </Link>
-                  ) : (
-                    '-'
-                  )}
-                </InformationItem>
-                <InformationItem>
-                  <b>User ID : </b>{' '}
-                  {_.get(tq, 'user.id') ? (
-                    <Link to={`/users/${_.get(tq, 'user.id')}`}>{_.get(tq, 'user.id')}</Link>
-                  ) : (
-                    '-'
-                  )}
-                </InformationItem>
-                <InformationItem>
-                  <b>Confirmation : </b> {tq.require_confirmation ? 'Yes' : 'No'}
-                </InformationItem>
-                <InformationItem>
-                  <b>Consumptions Count : </b> {tq.current_consumptions_count}
-                </InformationItem>
-                <InformationItem>
-                  <b>Max Consumptions : </b> {tq.max_consumptions || '-'}
-                </InformationItem>
-                <InformationItem>
-                  <b>Max Consumptions Per User : </b> {tq.max_consumptions_per_user || '-'}
-                </InformationItem>
-                <InformationItem>
-                  <b>Expiry Date : </b>{' '}
-                  {tq.expiration_date
-                    ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss')
-                    : '-'}
-                </InformationItem>
-                <InformationItem>
-                  <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
-                </InformationItem>
-                <InformationItem>
-                  <b>Coorelation ID : </b> {tq.correlation_id || '-'}
-                </InformationItem>
-              </AdditionalTransactionRequestContainer>
+              <TransactionRequestDetail transactionRequest={tq} />
             </PanelContainer>
           )
         }}

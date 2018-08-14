@@ -25,7 +25,7 @@ const EmptyStageContainer = styled.div`
   }
 `
 const Tr = styled.tr`
-  background-color: ${props => props.new ? '#fffef2' : 'transparent'};
+  background-color: ${props => (props.new ? '#fffef2' : 'transparent')};
 `
 class Table extends Component {
   static propTypes = {
@@ -52,7 +52,12 @@ class Table extends Component {
     pagination: false,
     onClickRow: () => {}
   }
-
+  constructor (props) {
+    super(props)
+    this.loadingWidthBars = new Array(this.props.loadingRowNumber).fill().map((x, i) => {
+      return `${30 + Math.random() * 40}%`
+    })
+  }
   onClickPagination = page => e => {
     if (this.props.onClickPagination) {
       this.props.onClickPagination(page)
@@ -61,13 +66,7 @@ class Table extends Component {
   renderLoadingColumns = () => {
     return (
       <tr>
-        {new Array(this.props.loadingColNumber).fill().map((x, i) => {
-          return (
-            <th key={`col-header-${i}`}>
-              <LoadingSkeleton height={'25px'} />
-            </th>
-          )
-        })}
+        <th style={{height: '20px'}} />
       </tr>
     )
   }
@@ -80,18 +79,13 @@ class Table extends Component {
       </tr>
     )
   }
-  renderHeaderRows = () => {
-    return <tr>{this.props.loading ? this.renderLoadingColumns() : this.renderColumns()}</tr>
-  }
   renderLoadingRows = () => {
-    return new Array(this.props.loadingRowNumber).fill().map((x, i) => {
+    return this.loadingWidthBars.map((x, i) => {
       return (
         <tr key={`row-${i}`} ref={row => (this.row = row)}>
-          {new Array(this.props.loadingColNumber).fill().map((c, j) => (
-            <td key={`col-rest-${j}`}>
-              <LoadingSkeleton />
-            </td>
-          ))}
+          <td key={`col-rest-${i}`}>
+            <LoadingSkeleton height={'12px'} width={x} style={{margin: '5px 0'}} />
+          </td>
         </tr>
       )
     })
@@ -105,7 +99,12 @@ class Table extends Component {
         : this.props.rows
     return source.map((d, i) => {
       return (
-        <Tr key={d.id} ref={row => (this.row = row)} onClick={this.props.onClickRow(d, i)} new={d.new}>
+        <Tr
+          key={d.id}
+          ref={row => (this.row = row)}
+          onClick={this.props.onClickRow(d, i)}
+          new={d.new}
+        >
           {this.props.columns
             .filter(c => !c.hide)
             .map((c, j) => (
@@ -127,6 +126,7 @@ class Table extends Component {
       >
         <Fade in={this.props.loading} timeout={300} key={'loading'} unmountOnExit>
           <table style={{ position: 'absolute', background: 'white' }}>
+            <thead>{this.renderLoadingColumns()}</thead>
             <tbody>{this.renderLoadingRows()}</tbody>
           </table>
         </Fade>
@@ -141,7 +141,7 @@ class Table extends Component {
             <img src={require('../../../statics/images/Empty state_1.0_Empty-state_1.0.png')} />
             <div>Sorry, no data yet.</div>
           </EmptyStageContainer>
-            )}
+        )}
         {!this.props.loading &&
           this.props.pagination && (
             <StyledPagination

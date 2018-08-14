@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-import { Input, Button, Icon, Select } from '../omg-uikit'
+import { Input, Button, Icon, Select, Checkbox } from '../omg-uikit'
 import Modal from '../omg-modal'
 import { createExchangePair } from '../omg-exchange-pair/action'
 import { connect } from 'react-redux'
@@ -9,6 +9,7 @@ import { compose } from 'recompose'
 import { withRouter } from 'react-router-dom'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
+import TokenSelect from '../omg-token-select'
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -53,6 +54,9 @@ const RateInputContainer = styled.div`
     margin-right: 30px;
   }
 `
+const SyncContainer = styled.div`
+  margin-top: 20px;
+`
 const Error = styled.div`
   color: ${props => props.theme.colors.R400};
   text-align: center;
@@ -82,14 +86,14 @@ class CreateExchangeRateModal extends Component {
     if (state.fromTokenId !== props.fromTokenId) {
       return {
         fromTokenSelected: props.fromTokenPrefill,
-        fromTokenSearch: `${props.fromTokenPrefill.name} (${props.fromTokenPrefill.symbol})`,
+        fromTokenSearch: props.fromTokenPrefill.name,
         fromTokenRate: 1,
         fromTokenId: props.fromTokenId
       }
     }
     return null
   }
-  state = {}
+  state = { sync: true }
   onChangeName = e => {
     this.setState({ name: e.target.value })
   }
@@ -99,11 +103,11 @@ class CreateExchangeRateModal extends Component {
   onChangeSearchToken = type => e => {
     this.setState({ [`${type}Search`]: e.target.value, [`${type}Selected`]: null })
   }
-  onFocusSelect = type => () => {
-    this.setState({ [`${type}Search`]: '', [`${type}Selected`]: null })
-  }
   onSelectTokenSelect = type => token => {
-    this.setState({ [`${type}Search`]: token.value, [`${type}Selected`]: token })
+    this.setState({ [`${type}Search`]: token.name, [`${type}Selected`]: token })
+  }
+  onClickSync = e => {
+    this.setState(oldState => ({ sync: !oldState.sync }))
   }
   onSubmit = async e => {
     e.preventDefault()
@@ -113,7 +117,8 @@ class CreateExchangeRateModal extends Component {
         name: this.state.name,
         fromTokenId: _.get(this.state, 'fromTokenSelected.id'),
         toTokenId: _.get(this.state, 'toTokenSelected.id'),
-        rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate)
+        rate: Number(this.state.toTokenRate) / Number(this.state.fromTokenRate),
+        syncOpposite: this.state.sync
       })
       if (result.data) {
         this.props.onRequestClose()
@@ -133,6 +138,7 @@ class CreateExchangeRateModal extends Component {
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <h4>Create Exchange Pair</h4>
         <TokensFetcher
+          query={{ search: this.state.fromTokenSearch }}
           render={({ data }) => {
             return (
               <Fragment>
@@ -145,12 +151,9 @@ class CreateExchangeRateModal extends Component {
                       onSelectItem={this.onSelectTokenSelect('fromToken')}
                       onChange={this.onChangeSearchToken('fromToken')}
                       value={this.state.fromTokenSearch}
-                      onFocus={this.onFocusSelect('fromToken')}
                       options={data.map(b => ({
-                        ...{
-                          key: `${b.id}${b.name}${b.symbol}`,
-                          value: `${b.name} (${b.symbol})`
-                        },
+                        key: `${b.id}${b.name}${b.symbol}`,
+                        value: <TokenSelect token={b} />,
                         ...b
                       }))}
                     />
@@ -160,12 +163,20 @@ class CreateExchangeRateModal extends Component {
                     <Input
                       value={this.state.fromTokenRate}
                       onChange={this.onChangeRate('fromToken')}
-                      type='number'
-                      step='any'
+                      type='amount'
                       normalPlaceholder={0}
                     />
                   </div>
                 </RateInputContainer>
+              </Fragment>
+            )
+          }}
+        />
+        <TokensFetcher
+          query={{ search: this.state.toTokenSearch }}
+          render={({ data }) => {
+            return (
+              <Fragment>
                 <h5>To</h5>
                 <RateInputContainer>
                   <div>
@@ -175,12 +186,10 @@ class CreateExchangeRateModal extends Component {
                       onSelectItem={this.onSelectTokenSelect('toToken')}
                       onChange={this.onChangeSearchToken('toToken')}
                       value={this.state.toTokenSearch}
-                      onFocus={this.onFocusSelect('toToken')}
+                      optionBoxHeight={'120px'}
                       options={data.map(b => ({
-                        ...{
-                          key: `${b.id}${b.name}${b.symbol}`,
-                          value: `${b.name} (${b.symbol})`
-                        },
+                        key: `${b.id}${b.name}${b.symbol}`,
+                        value: <TokenSelect token={b} />,
                         ...b
                       }))}
                     />
@@ -190,12 +199,19 @@ class CreateExchangeRateModal extends Component {
                     <Input
                       value={this.state.toTokenRate}
                       onChange={this.onChangeRate('toToken')}
-                      type='number'
+                      type='amount'
                       step='any'
                       normalPlaceholder={0}
                     />
                   </div>
                 </RateInputContainer>
+                <SyncContainer>
+                  <Checkbox
+                    label={'Sync Exchange Pair'}
+                    checked={this.state.sync}
+                    onClick={this.onClickSync}
+                  />
+                </SyncContainer>
               </Fragment>
             )
           }}

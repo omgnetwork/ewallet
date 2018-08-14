@@ -182,7 +182,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :account_id_not_found when user_id is not provided" do
+    test "returns :account_id_not_found when id is not provided" do
       response =
         admin_user_request("/account.get_transaction_consumptions", %{
           "id" => "fake",
@@ -289,7 +289,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       }
     end
 
-    test "returns :invalid_parameter when user_id or provider_user_id is not provided" do
+    test "returns :invalid_parameter when id or provider_user_id is not provided" do
       response =
         admin_user_request("/user.get_transaction_consumptions", %{
           "sort_by" => "created",
@@ -308,10 +308,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
              }
     end
 
-    test "returns :user_id_not_found when user_id is not valid" do
+    test "returns :id_not_found when id is not valid" do
       response =
         admin_user_request("/user.get_transaction_consumptions", %{
-          "user_id" => "fake",
+          "id" => "fake",
           "sort_by" => "created",
           "sort_dir" => "asc"
         })
@@ -347,6 +347,24 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                    "There is no user corresponding to the provided provider_user_id"
                }
              }
+    end
+
+    test "returns all the transaction_consumptions for a user when given an id", meta do
+      response =
+        admin_user_request("/user.get_transaction_consumptions", %{
+          "id" => meta.user.id,
+          "sort_by" => "created",
+          "sort_dir" => "asc"
+        })
+
+      assert length(response["data"]["data"]) == 2
+
+      assert Enum.map(response["data"]["data"], fn t ->
+               t["id"]
+             end) == [
+               meta.tc_2.id,
+               meta.tc_3.id
+             ]
     end
 
     test "returns all the transaction_consumptions for a user when given a user_id", meta do

@@ -415,8 +415,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
   end
 
   defp build_template(data, template) do
-    Enum.reduce(data, template, fn {k, v}, desc ->
-      String.replace(desc, "%{#{k}}", "#{v}")
+    Enum.reduce(data, template, fn {k, v}, description ->
+      description
+      |> String.replace("%{#{k}}", "#{v}")
+      |> replace_uuids()
     end)
   end
 
