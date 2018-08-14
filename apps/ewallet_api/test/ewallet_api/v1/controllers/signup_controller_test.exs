@@ -49,7 +49,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
 
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:already_active"
-      assert response["data"]["description"] == "The user already exists and active"
+      assert response["data"]["description"] == "The user already exists and active."
     end
 
     test "returns client:invalid_parameter when redirect_url is not provided" do
@@ -118,7 +118,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["data"]["code"] == "user:email_token_not_found"
 
       assert response["data"]["description"] ==
-               "There is no pending email verification for the provided email and token"
+               "There is no pending email verification for the provided email and token."
     end
 
     test "returns client:passwords_mismatch error if the passwords do not match", context do
@@ -135,7 +135,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
 
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:passwords_mismatch"
-      assert response["data"]["description"] == "The provided passwords do not match"
+      assert response["data"]["description"] == "The provided passwords do not match."
     end
 
     test "returns client:invalid_parameter error if the password has less than 8 characters",
@@ -172,7 +172,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `password` can't be blank"
+               "Invalid parameter provided. `password` can't be blank."
     end
   end
 end

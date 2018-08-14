@@ -222,7 +222,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invalid_email"
-      assert response["data"]["description"] == "The format of the provided email is invalid"
+      assert response["data"]["description"] == "The format of the provided email is invalid."
     end
 
     test "returns an error if the given user id does not exist" do

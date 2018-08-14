@@ -53,8 +53,8 @@ defmodule AdminAPI.V1.AdminAuthController do
       |> AdminUserAuthenticator.expire_token()
       |> render(:empty_response, %{})
     else
-      error_code ->
-        handle_error(conn, error_code)
+      {:error, code} ->
+        handle_error(conn, code)
     end
   end
 

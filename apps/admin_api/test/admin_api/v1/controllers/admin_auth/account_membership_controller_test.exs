@@ -224,7 +224,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invalid_email"
-      assert response["data"]["description"] == "The format of the provided email is invalid"
+      assert response["data"]["description"] == "The format of the provided email is invalid."
     end
 
     test "returns an error if the email is nil" do
@@ -239,7 +239,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invalid_email"
-      assert response["data"]["description"] == "The format of the provided email is invalid"
+      assert response["data"]["description"] == "The format of the provided email is invalid."
     end
 
     test "returns client:invalid_parameter error if the redirect_url is not allowed" do

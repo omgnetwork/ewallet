@@ -101,7 +101,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invite_pending"
-      assert response["data"]["description"] == "The user has not accepted the invite"
+      assert response["data"]["description"] == "The user has not accepted the invite."
     end
 
     test "returns an error if the given email does not exist" do
@@ -117,7 +117,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "user:invalid_login_credentials",
-          "description" => "There is no user corresponding to the provided login credentials",
+          "description" => "There is no user corresponding to the provided login credentials.",
           "messages" => nil
         }
       }
@@ -135,7 +135,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "user:invalid_login_credentials",
-          "description" => "There is no user corresponding to the provided login credentials",
+          "description" => "There is no user corresponding to the provided login credentials.",
           "messages" => nil
         }
       }

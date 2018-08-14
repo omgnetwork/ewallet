@@ -40,7 +40,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
 
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:invite_pending"
-      assert response["data"]["description"] == "The user has not accepted the invite"
+      assert response["data"]["description"] == "The user has not accepted the invite."
     end
 
     test "returns user:invalid_login_credentials when given an unknown email", context do
@@ -54,7 +54,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["data"]["code"] == "user:invalid_login_credentials"
 
       assert response["data"]["description"] ==
-               "There is no user corresponding to the provided login credentials"
+               "There is no user corresponding to the provided login credentials."
     end
 
     test "returns user:invalid_login_credentials when given an invalid password", context do
@@ -68,7 +68,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["data"]["code"] == "user:invalid_login_credentials"
 
       assert response["data"]["description"] ==
-               "There is no user corresponding to the provided login credentials"
+               "There is no user corresponding to the provided login credentials."
     end
 
     test "returns client:invalid_parameter when email is not provided", context do
@@ -82,7 +82,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `email` can't be blank"
+               "Invalid parameter provided. `email` can't be blank."
     end
 
     test "returns client:invalid_parameter when password is not provided", context do
@@ -96,7 +96,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `password` can't be blank"
+               "Invalid parameter provided. `password` can't be blank."
     end
   end
 
