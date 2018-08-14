@@ -11,43 +11,43 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @errors %{
     missing_email: %{
       code: "client:invalid_parameter",
-      description: "Invalid parameter provided. `email` can't be blank"
+      description: "Invalid parameter provided. `email` can't be blank."
     },
     missing_redirect_url: %{
       code: "client:invalid_parameter",
-      description: "Invalid parameter provided. `redirect_url` can't be blank"
+      description: "Invalid parameter provided. `redirect_url` can't be blank."
     },
     missing_token: %{
       code: "client:invalid_parameter",
-      description: "Invalid parameter provided. `token` can't be blank"
+      description: "Invalid parameter provided. `token` can't be blank."
     },
     missing_password: %{
       code: "client:invalid_parameter",
-      description: "Invalid parameter provided. `password` can't be blank"
+      description: "Invalid parameter provided. `password` can't be blank."
     },
     invalid_email: %{
       code: "user:invalid_email",
-      description: "The format of the provided email is invalid"
+      description: "The format of the provided email is invalid."
     },
     email_token_not_found: %{
       code: "user:email_token_not_found",
-      description: "There is no pending email verification for the provided email and token"
+      description: "There is no pending email verification for the provided email and token."
     },
     invite_not_found: %{
       code: "user:invite_not_found",
-      description: "There is no invite corresponding to the provided email and token"
+      description: "There is no invite corresponding to the provided email and token."
     },
     invite_pending: %{
       code: "user:invite_pending",
-      description: "The user has not accepted the invite"
+      description: "The user has not accepted the invite."
     },
     user_already_active: %{
       code: "user:already_active",
-      description: "The user already exists and active"
+      description: "The user already exists and active."
     },
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
-      description: "There is no user corresponding to the provided login credentials"
+      description: "There is no user corresponding to the provided login credentials."
     },
     invalid_auth_scheme: %{
       code: "client:invalid_auth_scheme",
@@ -84,7 +84,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     passwords_mismatch: %{
       code: "user:passwords_mismatch",
-      description: "The provided passwords do not match"
+      description: "The provided passwords do not match."
     },
     account_not_found: %{
       code: "account:not_found",
