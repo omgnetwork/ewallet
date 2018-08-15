@@ -1310,6 +1310,64 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "The transaction request for the given consumption already specify an exchange account and/or wallet."
     end
 
+    test "fails to consume and return an error when amount is not specified", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: nil
+        )
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "'amount' is required for transaction consumption."
+    end
+
+    test "fails to consume and return an error when amount is a decimal number", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: nil
+        )
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: 1.2365,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "'amount' is not an integer: 1.2365."
+    end
+
     test "fails to consume and return an insufficient funds error", meta do
       transaction_request =
         insert(
