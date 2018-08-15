@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 import PropTypes from 'prop-types'
 import styled from 'styled-components'
-
+import { formatNumber } from '../../utils/formatter'
 const Container = styled.div`
   position: relative;
   width: 100%;
@@ -108,7 +108,8 @@ class InputComonent extends PureComponent {
     suffix: PropTypes.node,
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
-    value: PropTypes.string
+    value: PropTypes.string,
+    type: PropTypes.string
   }
   static defaultProps = {
     onFocus: () => {},
@@ -116,7 +117,8 @@ class InputComonent extends PureComponent {
     onChange: () => {},
     registerRef: () => {},
     onPressEscape: () => {},
-    onPressEnter: () => {}
+    onPressEnter: () => {},
+    type: 'string'
   }
   state = {
     active: false
@@ -153,6 +155,14 @@ class InputComonent extends PureComponent {
   isInputActive = () => {
     return this.props.value || this.state.active
   }
+  onChange = e => {
+    if (this.props.type === 'amount') {
+      const event = { ...e, target: { ...e.target, value: formatNumber(e.target.value) } }
+      this.props.onChange(event)
+    } else {
+      this.props.onChange(e)
+    }
+  }
   render () {
     const { className, placeholder, ...rest } = this.props
     return (
@@ -166,6 +176,8 @@ class InputComonent extends PureComponent {
             placeholder={this.props.normalPlaceholder}
             onFocus={this.onFocus}
             onBlur={this.onBlur}
+            onChange={this.onChange}
+            type={this.props.type === 'amount' ? 'string' : this.props.type}
           />
           <Placeholder inputActive={this.isInputActive()}>{placeholder}</Placeholder>
           <Suffix>{this.props.suffix}</Suffix>

@@ -46,7 +46,8 @@ export function createTransactionRequest ({
   maxConsumptionPerUser,
   expirationDate,
   allowAmountOverride,
-  consumptionLifetime
+  consumptionLifetime,
+  exchangeAddress
 }) {
   return authenticatedRequest({
     path: '/transaction_request.create',
@@ -63,7 +64,8 @@ export function createTransactionRequest ({
       max_consumptions_per_user: Number(maxConsumptionPerUser) || undefined,
       expiration_date: expirationDate,
       allow_amount_override: allowAmountOverride,
-      consumption_lifetime: Number(consumptionLifetime)
+      consumption_lifetime: Number(consumptionLifetime),
+      exchange_wallet_address: exchangeAddress
     }
   })
 }
@@ -74,7 +76,8 @@ export function consumeTransactionRequest ({
   tokenId,
   amount,
   providerUserId,
-  address
+  address,
+  exchangeAddress
 }) {
   return authenticatedRequest({
     path: '/transaction_request.consume',
@@ -85,7 +88,8 @@ export function consumeTransactionRequest ({
       token_id: tokenId,
       amount: amount === null ? null : amount,
       provider_user_id: providerUserId,
-      address
+      address,
+      exchange_wallet_address: exchangeAddress
     }
   })
 }
