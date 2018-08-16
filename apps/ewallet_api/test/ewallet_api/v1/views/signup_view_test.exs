@@ -4,6 +4,15 @@ defmodule EWalletAPI.V1.SignupViewTest do
   alias EWalletAPI.V1.SignupView
 
   describe "render/2" do
+    test "renders empty.json correctly" do
+      assert SignupView.render("empty.json", %{success: true}) ==
+               %{
+                 version: @expected_version,
+                 success: true,
+                 data: %{}
+               }
+    end
+
     test "renders user.json with the correct structure" do
       user = insert(:user)
 
