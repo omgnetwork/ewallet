@@ -57,7 +57,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
       assert response["success"] == false
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `email` has already been taken."
+               "Invalid parameter provided. `email` has already been taken."
 
       assert response["data"]["code"] == "client:invalid_parameter"
     end
@@ -246,7 +246,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
                  "data" => %{
                    "object" => "error",
                    "code" => "user:account_not_found",
-                   "description" => "There is no account assigned to the provided user",
+                   "description" => "There is no account assigned to the provided user.",
                    "messages" => nil
                  }
                }

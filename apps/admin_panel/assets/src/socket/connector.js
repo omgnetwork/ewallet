@@ -162,7 +162,11 @@ class SocketConnector {
       const payload = this.createJoinChannelPayload(channel)
       this.queue.push(payload)
       try {
-        this.send(payload)
+        if (!this.socket) {
+          console.log(`attempt to join channel : ${channel} when socket is not initialized, added to queue.`)
+        } else {
+          this.send(payload)
+        }
       } catch (error) {
         console.warn('something went wrong while joining channel with error', error)
       }

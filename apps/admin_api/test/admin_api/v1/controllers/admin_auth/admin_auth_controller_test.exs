@@ -101,7 +101,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "user:invalid_login_credentials",
-          "description" => "There is no user corresponding to the provided login credentials",
+          "description" => "There is no user corresponding to the provided login credentials.",
           "messages" => nil
         }
       }
@@ -119,7 +119,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "user:invalid_login_credentials",
-          "description" => "There is no user corresponding to the provided login credentials",
+          "description" => "There is no user corresponding to the provided login credentials.",
           "messages" => nil
         }
       }

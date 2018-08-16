@@ -16,7 +16,7 @@ defmodule EWallet.AmountFetcher do
       )
       when not is_nil(amount) and not is_nil(from_token_id) and not is_nil(to_token_id) do
     {:error, :invalid_parameter,
-     "'amount' not allowed when exchanging values. Use from_amount and/or to_amount."}
+     "Invalid parameter provided. `amount` not allowed when exchanging values. Use `from_amount` and/or `to_amount`."}
   end
 
   def fetch(%{"amount" => amount}, from, to) when is_binary(amount) do
@@ -30,7 +30,8 @@ defmodule EWallet.AmountFetcher do
   end
 
   def fetch(%{"amount" => amount}, _from, _to) do
-    {:error, :invalid_parameter, "'amount' is not an integer: #{amount}"}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount` is not an integer: #{amount}"}
   end
 
   #
@@ -72,7 +73,8 @@ defmodule EWallet.AmountFetcher do
 
   # Returns error if neither `amount`, `from_amount` or `to_amount` is provided
   def fetch(_, _, _) do
-    {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required."}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
   # Uses `Exchange.validate/4` if both `from_amount` and `to_amount` are provided.
@@ -112,7 +114,8 @@ defmodule EWallet.AmountFetcher do
   end
 
   defp do_fetch(_, _, _, _) do
-    {:error, :invalid_parameter, "'amount', 'from_amount' or 'to_amount' is required"}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount`, `from_amount` or `to_amount` is required."}
   end
 
   defp handle_string_amount({amount_1, amount_2}, fun) do
