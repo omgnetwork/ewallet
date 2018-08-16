@@ -133,13 +133,18 @@ defmodule EWallet.TransactionConsumptionValidator do
     end
   end
 
-  def validate_amount(%TransactionRequest{allow_amount_override: true} = _request, amount) do
+  def validate_amount(%TransactionRequest{allow_amount_override: true} = _request, amount)
+      when is_integer(amount) do
     {:ok, amount}
   end
 
   def validate_amount(%TransactionRequest{allow_amount_override: false} = _request, amount)
       when not is_nil(amount) do
     {:error, :unauthorized_amount_override}
+  end
+
+  def validate_amount(_request, amount) do
+    {:error, :invalid_parameter, "'amount' is not an integer: #{amount}."}
   end
 
   @spec get_and_validate_token(%TransactionRequest{}, String.t() | nil) ::
