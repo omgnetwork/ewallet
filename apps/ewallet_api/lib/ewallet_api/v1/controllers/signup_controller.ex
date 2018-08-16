@@ -1,10 +1,7 @@
 defmodule EWalletAPI.V1.SignupController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias Ecto.Changeset
-  alias EWallet.UserPolicy
-  alias EWallet.Web.Preloader
-  alias EWalletDB.Invite
+  alias EWallet.{SignupGate, UserPolicy}
 
   @doc """
   Signs up a new user.
@@ -15,7 +12,7 @@ defmodule EWalletAPI.V1.SignupController do
   @spec signup(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def signup(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
-         {:ok, invite} <- SignupGate.signup(attrs) do
+         {:ok, _invite} <- SignupGate.signup(attrs) do
       render(conn, :empty, %{success: true})
     else
       {:error, code} ->
@@ -35,11 +32,11 @@ defmodule EWalletAPI.V1.SignupController do
          {:ok, user} <- SignupGate.verify_email(attrs) do
       render(conn, :user, %{user: user})
     else
-      {:error, code} when is_atom(code) ->
+      {:error, code} ->
         handle_error(conn, code)
 
-      {:error, %Changeset{} = changeset} ->
-        handle_error(conn, :invalid_parameter, changeset)
+      {:error, code, description} ->
+        handle_error(conn, code, description)
     end
   end
 

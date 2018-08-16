@@ -61,6 +61,29 @@ defmodule EWalletDB.InviteTest do
     end
   end
 
+  describe "Invite.fetch/2" do
+    test "returns `{:ok, invite}` if the given email and token combo is found" do
+      invite = insert(:invite, %{token: "the_token"})
+
+      _user =
+        insert(:admin, %{
+          email: "testemail@omise.co",
+          invite: invite
+        })
+
+      assert {:ok, %Invite{}} = Invite.fetch("testemail@omise.co", "the_token")
+    end
+
+    test "returns `{:error, :email_token_not_found}` if the given email and token combo is not found" do
+      insert(:admin, %{
+        email: "testemail@omise.co",
+        invite: insert(:invite)
+      })
+
+      assert Invite.fetch("testemail@omise.co", "wrong_token") == {:error, :email_token_not_found}
+    end
+  end
+
   describe "Invite.generate/2" do
     test "returns {:ok, invite} for the given user" do
       user = insert(:admin)

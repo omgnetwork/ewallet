@@ -73,6 +73,23 @@ defmodule EWalletDB.Invite do
   end
 
   @doc """
+  Fetches a specific invite by email and token.
+
+  Returns `{:ok, invite}` when invite is found.
+  Returns `{:error, :email_token_not_found}` otherwise.
+  """
+  @spec fetch(String.t(), String.t()) :: {:ok, %__MODULE__{}} | {:error, :email_token_not_found}
+  def fetch(email, input_token) do
+    case __MODULE__.get(email, input_token) do
+      %__MODULE__{} = invite ->
+        {:ok, invite}
+
+      nil ->
+        {:error, :email_token_not_found}
+    end
+  end
+
+  @doc """
   Generates an invite for the given user.
   """
   def generate(user, opts \\ [preload: []]) do

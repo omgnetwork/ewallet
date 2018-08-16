@@ -5,40 +5,70 @@ defmodule EWallet.SignupGate do
   alias EWallet.EmailValidator
   alias EWallet.Web.Inviter
   alias EWalletAPI.VerificationEmail
+  alias EWalletDB.{Invite, Validator}
 
   @doc """
   Signs up new users.
   """
-  @spec signup(map()) ::
-          {:ok, %EWalletDB.Invite{}} | {:error, atom()} | {:error, Ecto.Changeset.t()}
-  def signup(attrs) do
-    with email when is_binary(email) <- attrs["email"] || :missing_email,
-         password when is_binary(password) <- attrs["password"] || :missing_password,
-         true <- password == attrs["password_confirmation"] || :passwords_mismatch,
-         url when is_binary(url) <- attrs["redirect_url"] || :missing_redirect_url do
-      Inviter.invite(email, url, VerificationEmail)
+  @spec signup(map()) :: {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
+
+  # Signup with a password
+  def signup(%{"password" => password} = attrs) do
+    with {:ok, email} <- EmailValidator.validate(attrs["email"]),
+         {:ok, password} <- validate_passwords(password, attrs["password_confirmation"]),
+         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]) do
+      Inviter.invite(email, password, redirect_url, VerificationEmail)
     else
-      error_code -> {:error, error_code}
+      error -> error
+    end
+  end
+
+  # Signup without setting a password
+  def signup(attrs) do
+    with {:ok, email} <- EmailValidator.validate(attrs["email"]),
+         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]) do
+      Inviter.invite(email, redirect_url, VerificationEmail)
+    else
+      error -> error
     end
   end
 
   @doc """
   Verifies a user's email address.
   """
-  @spec verify_email(map()) ::
-          {:ok, %EWalletDB.User{}} | {:error, atom()} | {:error, Ecto.Changeset.t()}
+  @spec verify_email(map()) :: {:ok, %EWalletDB.User{}} | {:error, atom() | Ecto.Changeset.t()}
   def verify_email(attrs) do
-    with email when is_binary(email) <- attrs["email"] || :missing_email,
-         token when is_binary(token) <- attrs["token"] || :missing_token,
-         password when is_binary(password) <- attrs["password"] || :missing_password,
-         true <- password == attrs["password_confirmation"] || :passwords_mismatch,
-         %Invite{} = invite <- Invite.get(email, token) || :email_token_not_found do
-      case Invite.accept(invite, password) do
-        {:ok, invite} -> {:ok, invite.user}
-        {:error, changeset} -> {:error, changeset}
-      end
+    with {:ok, email} <- EmailValidator.validate(attrs["email"]),
+         {:ok, token} <- validate_token(attrs["token"]),
+         {:ok, password} <- validate_passwords(attrs["password"], attrs["password_confirmation"]),
+         {:ok, invite} <- Invite.fetch(email, token),
+         {:ok, invite} <- Invite.accept(invite, password) do
+      {:ok, invite.user}
     else
-      error_code -> {:error, error_code}
+      error -> error
     end
   end
+
+  defp validate_passwords(password, password_confirmation) do
+    case Validator.validate_password(password) do
+      {:ok, password} ->
+        if password == password_confirmation do
+          {:ok, password}
+        else
+          {:error, :passwords_mismatch}
+        end
+
+      {:error, :too_short, [min_length: min_length]} ->
+        {:error, :invalid_parameter,
+         "Invalid parameter provided. `password` must be #{min_length} characters or more."}
+    end
+  end
+
+  defp validate_token(token) when is_binary(token) and byte_size(token) > 0, do: {:ok, token}
+
+  defp validate_token(_), do: {:error, :missing_token}
+
+  defp validate_redirect_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
+
+  defp validate_redirect_url(_), do: {:error, :missing_redirect_url}
 end

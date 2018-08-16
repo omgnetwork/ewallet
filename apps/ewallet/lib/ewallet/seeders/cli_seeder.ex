@@ -120,7 +120,7 @@ defmodule EWallet.Seeder.CLI do
       byte_size(val) == 0 ->
         {name, process_default(default)}
 
-      EmailValidator.validate(val) ->
+      EmailValidator.valid?(val) ->
         {name, val}
 
       true ->
