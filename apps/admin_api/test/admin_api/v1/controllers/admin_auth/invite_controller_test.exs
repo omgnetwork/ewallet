@@ -85,7 +85,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `password` must be 8 characters or more."
+               "Invalid parameter provided. `password` must be 8 characters or more."
     end
 
     test "returns :invalid_parameter error if a required parameter is missing" do
@@ -104,7 +104,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "'email', 'token', 'password', 'password_confirmation' are required"
+               "Invalid parameter provided. `email`, `token`, `password`, `password_confirmation` are required."
     end
   end
 end

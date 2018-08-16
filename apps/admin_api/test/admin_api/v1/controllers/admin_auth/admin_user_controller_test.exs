@@ -88,7 +88,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
       assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation"
+               "You are not allowed to perform the requested operation."
     end
   end
 end

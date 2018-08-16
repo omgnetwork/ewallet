@@ -15,7 +15,6 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["success"] == true
       assert response["data"] == %{}
     end
-
   end
 
   describe "verify_email/2" do
@@ -49,6 +48,5 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["data"]["object"] == "user"
       assert response["data"]["id"] == context.user.id
     end
-
   end
 end

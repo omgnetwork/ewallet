@@ -70,7 +70,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_account(conn, _) do
-    handle_error(conn, :invalid_parameter, "Parameter 'id' is required.")
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
   end
 
   def all_for_user(conn, attrs) do
@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
         handle_error(
           conn,
           :invalid_parameter,
-          "Parameter 'user_id' or 'provider_user_id' is required."
+          "Invalid parameter provided. `user_id` or `provider_user_id` is required."
         )
 
       error ->
@@ -111,7 +111,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
     handle_error(
       conn,
       :invalid_parameter,
-      "Parameter 'formatted_transaction_request_id' is required."
+      "Invalid parameter provided. `formatted_transaction_request_id` is required."
     )
   end
 
@@ -127,7 +127,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   end
 
   def all_for_wallet(conn, _) do
-    handle_error(conn, :invalid_parameter, "Parameter 'address' is required.")
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
   end
 
   def all(conn, attrs) do
@@ -205,6 +205,10 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   defp respond({:error, error}, conn, _dispatch?) when is_atom(error) do
     handle_error(conn, error)
+  end
+
+  defp respond({:error, code, description}, conn, _dispatch?) do
+    handle_error(conn, code, description)
   end
 
   defp respond({:error, changeset}, conn, _dispatch?) do

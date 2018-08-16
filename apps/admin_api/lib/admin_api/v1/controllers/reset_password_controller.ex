@@ -21,7 +21,7 @@ defmodule AdminAPI.V1.ResetPasswordController do
         handle_error(
           conn,
           :invalid_parameter,
-          "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
+          "The `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."
         )
 
       error_code ->

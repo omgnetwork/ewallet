@@ -164,7 +164,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
                  "data" => %{
                    "object" => "error",
                    "code" => "unauthorized",
-                   "description" => "You are not allowed to perform the requested operation",
+                   "description" => "You are not allowed to perform the requested operation.",
                    "messages" => nil
                  }
                }
@@ -178,7 +178,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
                  "data" => %{
                    "object" => "error",
                    "code" => "client:invalid_parameter",
-                   "description" => "Invalid parameter provided",
+                   "description" => "Invalid parameter provided.",
                    "messages" => nil
                  }
                }
@@ -257,7 +257,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
+               "The `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."
     end
 
     test "returns an error if the given user id does not exist" do
@@ -274,7 +274,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["code"] == "user:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+               "There is no user corresponding to the provided id."
     end
 
     test "returns an error if the given account id does not exist" do
@@ -305,7 +305,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["code"] == "role:name_not_found"
 
       assert response["data"]["description"] ==
-               "There is no role corresponding to the provided name"
+               "There is no role corresponding to the provided name."
     end
   end
 
@@ -338,7 +338,9 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "membership:not_found"
-      assert response["data"]["description"] == "The user is not assigned to the provided account"
+
+      assert response["data"]["description"] ==
+               "The user is not assigned to the provided account."
     end
 
     test "returns an error if the given user id does not exist" do
@@ -353,7 +355,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["code"] == "user:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no user corresponding to the provided id"
+               "There is no user corresponding to the provided id."
     end
 
     test "returns an error if the given account id does not exist" do

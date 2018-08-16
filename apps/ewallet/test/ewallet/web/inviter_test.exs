@@ -115,7 +115,9 @@ defmodule EWallet.Web.InviterTest do
 
       assert res == :error
       assert code == :invalid_parameter
-      assert description == "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
+
+      assert description ==
+               "The `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."
     end
   end
 end

@@ -60,7 +60,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   end
 
   def all_for_account(conn, _) do
-    handle_error(conn, :invalid_parameter, "Parameter 'id' is required.")
+    handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
   end
 
   @spec do_all(Ecto.Queryable.t(), map(), Plug.Conn.t()) :: Plug.Conn.t()

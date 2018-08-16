@@ -126,7 +126,7 @@ defmodule AdminAPI.V1.TokenController do
         |> respond_single(conn)
 
       amount ->
-        handle_error(conn, :invalid_parameter, "Invalid amount provided: '#{amount}'")
+        handle_error(conn, :invalid_parameter, "Invalid amount provided: '#{amount}'.")
     end
   end
 
@@ -146,7 +146,7 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def update(conn, _),
-    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided: 'id' is required")
+    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
 
   # Respond with a list of tokens
   defp respond_multiple(%Paginator{} = paged_tokens, conn) do

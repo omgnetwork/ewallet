@@ -51,36 +51,36 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     invalid_auth_scheme: %{
       code: "client:invalid_auth_scheme",
-      description: "The provided authentication scheme is not supported"
+      description: "The provided authentication scheme is not supported."
     },
     invalid_version: %{
       code: "client:invalid_version",
       description: "Invalid API version",
-      template: "Invalid API version Given: '%{accept}'."
+      template: "Invalid API version. Given: '%{accept}'."
     },
     unauthorized: %{
       code: "unauthorized",
-      description: "You are not allowed to perform the requested operation"
+      description: "You are not allowed to perform the requested operation."
     },
     invalid_parameter: %{
       code: "client:invalid_parameter",
-      description: "Invalid parameter provided"
+      description: "Invalid parameter provided."
     },
     invalid_api_key: %{
       code: "client:invalid_api_key",
-      description: "The provided API key can't be found or is invalid"
+      description: "The provided API key can't be found or is invalid."
     },
     endpoint_not_found: %{
       code: "client:endpoint_not_found",
-      description: "Endpoint not found"
+      description: "Endpoint not found."
     },
     internal_server_error: %{
       code: "server:internal_server_error",
-      description: "Something went wrong on the server"
+      description: "Something went wrong on the server."
     },
     unknown_error: %{
       code: "server:unknown_error",
-      description: "An unknown error occured on the server"
+      description: "An unknown error occured on the server."
     },
     passwords_mismatch: %{
       code: "user:passwords_mismatch",
@@ -88,15 +88,15 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     account_not_found: %{
       code: "account:not_found",
-      description: "There is no user corresponding to the provided account id"
+      description: "There is no user corresponding to the provided account id."
     },
     auth_token_not_found: %{
       code: "user:auth_token_not_found",
-      description: "There is no account or user corresponding to the provided auth_token"
+      description: "There is no account or user corresponding to the provided auth_token."
     },
     auth_token_expired: %{
       code: "user:auth_token_expired",
-      description: "The provided token is expired or has been invalidated"
+      description: "The provided token is expired or has been invalidated."
     },
     insufficient_funds: %{
       code: "transaction:insufficient_funds",
@@ -108,7 +108,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     inserted_transaction_could_not_be_loaded: %{
       code: "db:inserted_transaction_could_not_be_loaded",
       description:
-        "We could not load the transaction after insertion. Please try submitting the same transaction again (with identical idempontecy token!)."
+        "We could not load the transaction after insertion. Please try submitting the same transaction again (with identical idempontecy token)."
     },
     transaction_request_not_found: %{
       code: "transaction_request:transaction_request_not_found",
@@ -202,7 +202,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     token_not_found: %{
       code: "token:id_not_found",
-      description: "There is no token corresponding to the provided id"
+      description: "There is no token corresponding to the provided id."
     },
     from_token_not_found: %{
       code: "token:from_token_not_found",
@@ -214,71 +214,71 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     user_wallet_mismatch: %{
       code: "user:user_wallet_mismatch",
-      description: "The provided wallet does not belong to the current user"
+      description: "The provided wallet does not belong to the current user."
     },
     account_wallet_mismatch: %{
       code: "account:account_wallet_mismatch",
-      description: "The provided wallet does not belong to the given account"
+      description: "The provided wallet does not belong to the given account."
     },
     invalid_access_secret_key: %{
       code: "client:invalid_access_secret_key",
-      description: "Invalid access and/or secret key"
+      description: "Invalid access and/or secret key."
     },
     user_id_not_found: %{
       code: "user:id_not_found",
-      description: "There is no user corresponding to the provided id"
+      description: "There is no user corresponding to the provided id."
     },
     provider_user_id_not_found: %{
       code: "user:provider_user_id_not_found",
-      description: "There is no user corresponding to the provided provider_user_id"
+      description: "There is no user corresponding to the provided provider_user_id."
     },
     wallet_not_found: %{
       code: "wallet:wallet_not_found",
-      description: "There is no wallet corresponding to the provided address"
+      description: "There is no wallet corresponding to the provided address."
     },
     user_wallet_not_found: %{
       code: "user:wallet_not_found",
-      description: "There is no user wallet corresponding to the provided address"
+      description: "There is no user wallet corresponding to the provided address."
     },
     account_wallet_not_found: %{
       code: "account:wallet_not_found",
-      description: "There is no account wallet corresponding to the provided address"
+      description: "There is no account wallet corresponding to the provided address."
     },
     account_id_not_found: %{
       code: "user:account_id_not_found",
-      description: "There is no account corresponding to the provided account_id"
+      description: "There is no account corresponding to the provided account_id."
     },
     exchange_pair_id_not_found: %{
       code: "exchange:pair_id_not_found",
-      description: "There is no exchange pair corresponding to the provided id"
+      description: "There is no exchange pair corresponding to the provided id."
     },
     exchange_pair_not_found: %{
       code: "exchange:pair_not_found",
-      description: "There is no exchange pair corresponding to the provided tokens"
+      description: "There is no exchange pair corresponding to the provided tokens."
     },
     exchange_invalid_rate: %{
       code: "exchange:invalid_rate",
-      description: "The exchange is attempted with an invalid rate"
+      description: "The exchange is attempted with an invalid rate."
     },
     exchange_address_not_account: %{
       code: "exchange:exchange_wallet_not_owned_by_account",
-      description: "The specified exchange_wallet is not owned by an account"
+      description: "The specified exchange_wallet is not owned by an account."
     },
     exchange_account_id_not_found: %{
       code: "exchange:account_id_not_found",
-      description: "No account was found with the given exchange_account_id param"
+      description: "No account was found with the given exchange_account_id param."
     },
     exchange_client_not_allowed: %{
       code: "exchange:not_allowed",
-      description: "Exchange consumptions cannot be made through the client API"
+      description: "Exchange consumptions cannot be made through the client API."
     },
     exchange_account_wallet_not_found: %{
       code: "exchange:account_wallet_not_found",
-      description: "No wallet was found with the given exchange_wallet_address param"
+      description: "No wallet was found with the given exchange_wallet_address param."
     },
     exchange_account_wallet_mismatch: %{
       code: "exchange:account_wallet_mismatch",
-      description: "The given exchange wallet does not belong to the specified exchange account"
+      description: "The given exchange wallet does not belong to the specified exchange account."
     },
     request_already_contains_exchange: %{
       code: "consumption:request_already_contains_exchange_wallet",

@@ -213,7 +213,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation"
+               "You are not allowed to perform the requested operation."
     end
 
     test "returns 'client:invalid_parameter' if the given ID is not in the correct format" do
@@ -224,7 +224,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation"
+               "You are not allowed to perform the requested operation."
     end
   end
 
@@ -326,7 +326,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
     test "returns a 'unauthorized' error if id is invalid" do
@@ -338,7 +338,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation"
+               "You are not allowed to perform the requested operation."
     end
   end
 
@@ -492,7 +492,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert response["data"]["code"] == "unauthorized"
 
       assert response["data"]["description"] ==
-               "You are not allowed to perform the requested operation"
+               "You are not allowed to perform the requested operation."
     end
   end
 end

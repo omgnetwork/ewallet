@@ -79,7 +79,7 @@ defmodule EWallet.TransactionGate do
   end
 
   def get_or_insert(_, _, _, _) do
-    {:error, :invalid_parameter, "'idempotency_token' is required."}
+    {:error, :invalid_parameter, "Invalid parameter provided. `idempotency_token` is required."}
   end
 
   def update_transaction(
