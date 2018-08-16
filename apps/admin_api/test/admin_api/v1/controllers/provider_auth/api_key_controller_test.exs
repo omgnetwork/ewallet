@@ -195,7 +195,7 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                "success" => false,
                "data" => %{
                  "code" => "api_key:not_found",
-                 "description" => "The API key could not be found",
+                 "description" => "The API key could not be found.",
                  "messages" => nil,
                  "object" => "error"
                }

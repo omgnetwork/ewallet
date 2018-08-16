@@ -73,7 +73,7 @@ defmodule EWallet.AccountFetcher do
 
   def fetch_exchange_account(_attrs, _from) do
     {:error, :invalid_parameter,
-     "'exchange_account_id' or 'exchange_wallet_address' is required.'"}
+     "Invalid parameter provided. `exchange_account_id` or `exchange_wallet_address` is required.'"}
   end
 
   defp return_from(exchange, account, wallet) do
