@@ -136,7 +136,7 @@ defmodule AdminAPI.V1.ProviderAuth.MintControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "String number is not a valid number: 'abc'."
+      assert response["data"]["description"] == "Invalid parameter provided. String number is not a valid number: 'abc'."
     end
 
     test "fails to mint with mint amount == 0" do

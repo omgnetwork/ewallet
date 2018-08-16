@@ -27,7 +27,7 @@ defmodule EWallet.Helper do
         {:ok, amount}
 
       _ ->
-        {:error, :invalid_parameter, "String number is not a valid number: '#{string}'."}
+        {:error, :invalid_parameter, "Invalid parameter provided. String number is not a valid number: '#{string}'."}
     end
   end
 
@@ -48,7 +48,7 @@ defmodule EWallet.Helper do
         formatted_strings = Enum.join(strings, ", ")
 
         {:error, :invalid_parameter,
-         "String numbers are not valid numbers: '#{formatted_strings}'."}
+         "Invalid parameter provided. String numbers are not valid numbers: '#{formatted_strings}'."}
 
       false ->
         amounts

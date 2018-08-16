@@ -691,7 +691,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "String number is not a valid number: 'fake'.",
+               "description" => "Invalid parameter provided. String number is not a valid number: 'fake'.",
                "messages" => nil,
                "object" => "error"
              }
