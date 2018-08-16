@@ -80,7 +80,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"]["code"] == "token:id_not_found"
 
       assert response["data"]["description"] ==
-               "There is no token corresponding to the provided id"
+               "There is no token corresponding to the provided id."
     end
 
     test "returns 'client:invalid_parameter' if id was not provided" do
@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
   end
 
@@ -118,7 +118,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"] == %{
                "object" => "error",
                "code" => "token:id_not_found",
-               "description" => "There is no token corresponding to the provided id",
+               "description" => "There is no token corresponding to the provided id.",
                "messages" => nil
              }
     end
@@ -255,7 +255,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `symbol` can't be blank."
+               "Invalid parameter provided. `symbol` can't be blank."
 
       inserted = Token |> Repo.all() |> Enum.at(0)
       assert inserted == nil
@@ -295,7 +295,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `name` can't be blank."
+               "Invalid parameter provided. `name` can't be blank."
     end
 
     test "Raises invalid_parameter error if id is missing" do
@@ -306,7 +306,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"] == %{
                "object" => "error",
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided: 'id' is required",
+               "description" => "Invalid parameter provided. `id` is required.",
                "messages" => nil
              }
     end
@@ -319,7 +319,7 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
       assert response["data"] == %{
                "object" => "error",
                "code" => "token:id_not_found",
-               "description" => "There is no token corresponding to the provided id",
+               "description" => "There is no token corresponding to the provided id.",
                "messages" => nil
              }
     end

@@ -168,7 +168,7 @@ defmodule EWallet.AccountFetcherTest do
 
       assert res ==
                {:error, :invalid_parameter,
-                "'exchange_account_id' or 'exchange_wallet_address' is required.'"}
+                "Invalid parameter provided. `exchange_account_id` or `exchange_wallet_address` is required.'"}
     end
 
     test "returns an error if from_token is not found" do
@@ -185,7 +185,7 @@ defmodule EWallet.AccountFetcherTest do
 
       assert res ==
                {:error, :invalid_parameter,
-                "'exchange_account_id' or 'exchange_wallet_address' is required.'"}
+                "Invalid parameter provided. `exchange_account_id` or `exchange_wallet_address` is required.'"}
     end
 
     test "returns an error if to_token is not found" do
@@ -202,7 +202,7 @@ defmodule EWallet.AccountFetcherTest do
 
       assert res ==
                {:error, :invalid_parameter,
-                "'exchange_account_id' or 'exchange_wallet_address' is required.'"}
+                "Invalid parameter provided. `exchange_account_id` or `exchange_wallet_address` is required.'"}
     end
   end
 
@@ -220,7 +220,7 @@ defmodule EWallet.AccountFetcherTest do
 
       assert res ==
                {:error, :invalid_parameter,
-                "'exchange_account_id' or 'exchange_wallet_address' is required.'"}
+                "Invalid parameter provided. `exchange_account_id` or `exchange_wallet_address` is required.'"}
     end
 
     test "returns an error when given only to_token_id" do
@@ -236,7 +236,7 @@ defmodule EWallet.AccountFetcherTest do
 
       assert res ==
                {:error, :invalid_parameter,
-                "'exchange_account_id' or 'exchange_wallet_address' is required.'"}
+                "Invalid parameter provided. `exchange_account_id` or `exchange_wallet_address` is required.'"}
     end
 
     test "returns an error with invalid params" do
@@ -244,7 +244,7 @@ defmodule EWallet.AccountFetcherTest do
 
       assert res ==
                {:error, :invalid_parameter,
-                "'exchange_account_id' or 'exchange_wallet_address' is required.'"}
+                "Invalid parameter provided. `exchange_account_id` or `exchange_wallet_address` is required.'"}
     end
   end
 end

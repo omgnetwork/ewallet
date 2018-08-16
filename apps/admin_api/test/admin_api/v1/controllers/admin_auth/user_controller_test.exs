@@ -247,7 +247,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "unauthorized",
-          "description" => "You are not allowed to perform the requested operation",
+          "description" => "You are not allowed to perform the requested operation.",
           "messages" => nil
         }
       }
@@ -265,7 +265,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided",
+          "description" => "Invalid parameter provided.",
           "messages" => nil
         }
       }
@@ -282,7 +282,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided",
+          "description" => "Invalid parameter provided.",
           "messages" => nil
         }
       }
@@ -331,7 +331,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided " <> "`provider_user_id` can't be blank."
+               "Invalid parameter provided. " <> "`provider_user_id` can't be blank."
 
       assert response["data"]["messages"] == %{"provider_user_id" => ["required"]}
     end
@@ -346,7 +346,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided " <> "`username` can't be blank."
+               "Invalid parameter provided. " <> "`username` can't be blank."
 
       assert response["data"]["messages"] == %{"username" => ["required"]}
     end
@@ -485,7 +485,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
     test "returns an error if user for provider_user_id is not found" do
@@ -514,7 +514,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
   end
 end

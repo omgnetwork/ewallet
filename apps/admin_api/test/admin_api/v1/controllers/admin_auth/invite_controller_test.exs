@@ -48,7 +48,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["code"] == "user:invite_not_found"
 
       assert response["data"]["description"] ==
-               "There is no invite corresponding to the provided email and token"
+               "There is no invite corresponding to the provided email and token."
     end
 
     test "returns :invite_not_found error if the token is incorrect" do
@@ -61,7 +61,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["code"] == "user:invite_not_found"
 
       assert response["data"]["description"] ==
-               "There is no invite corresponding to the provided email and token"
+               "There is no invite corresponding to the provided email and token."
     end
 
     test "returns :passwords_mismatch error if the passwords do not match" do
@@ -72,7 +72,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "user:passwords_mismatch"
-      assert response["data"]["description"] == "The provided passwords do not match"
+      assert response["data"]["description"] == "The provided passwords do not match."
     end
 
     test "returns client:invalid_parameter error if the password has less than 8 characters" do
@@ -85,7 +85,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `password` must be 8 characters or more."
+               "Invalid parameter provided. `password` must be 8 characters or more."
     end
 
     test "returns :invalid_parameter error if a required parameter is missing" do
@@ -104,7 +104,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "'email', 'token', 'password', 'password_confirmation' are required"
+               "Invalid parameter provided. `email`, `token`, `password`, `password_confirmation` are required."
     end
   end
 end

@@ -23,6 +23,6 @@ defmodule EWallet.TokenFetcher do
 
   def fetch(_, _from, _to) do
     {:error, :invalid_parameter,
-     "'token_id' or a pair 'from_token_id'/'to_token_id' is required."}
+     "Invalid parameter provided. `token_id` or a pair of `from_token_id` and `to_token_id` is required."}
   end
 end
