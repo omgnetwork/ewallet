@@ -30,7 +30,8 @@ defmodule EWallet.AmountFetcher do
   end
 
   def fetch(%{"amount" => amount}, _from, _to) do
-    {:error, :invalid_parameter, "Invalid parameter provided. `amount` is not an integer: #{amount}"}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount` is not an integer: #{amount}"}
   end
 
   #

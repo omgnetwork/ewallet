@@ -27,7 +27,8 @@ defmodule EWallet.Helper do
         {:ok, amount}
 
       _ ->
-        {:error, :invalid_parameter, "Invalid parameter provided. String number is not a valid number: '#{string}'."}
+        {:error, :invalid_parameter,
+         "Invalid parameter provided. String number is not a valid number: '#{string}'."}
     end
   end
 

@@ -65,7 +65,9 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "Invalid parameter provided. `amount` is not an integer: 100.2"}
+      assert res ==
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. `amount` is not an integer: 100.2"}
     end
 
     test "returns an error if amount is not an integer (string)" do
@@ -78,7 +80,9 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "Invalid parameter provided. String number is not a valid number: 'fake'."}
+      assert res ==
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. String number is not a valid number: 'fake'."}
     end
   end
 
@@ -297,7 +301,8 @@ defmodule EWallet.AmountFetcherTest do
         )
 
       assert res ==
-               {:error, :invalid_parameter, "Invalid parameter provided. String numbers are not valid numbers: 'fake, fake'."}
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. String numbers are not valid numbers: 'fake, fake'."}
     end
 
     test "returns an error when sending invalid from_amount" do
@@ -310,7 +315,9 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "Invalid parameter provided. String number is not a valid number: 'fake'."}
+      assert res ==
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. String number is not a valid number: 'fake'."}
     end
 
     test "returns an error when sending invalid to_amount" do
@@ -323,7 +330,9 @@ defmodule EWallet.AmountFetcherTest do
           %{}
         )
 
-      assert res == {:error, :invalid_parameter, "Invalid parameter provided. String number is not a valid number: 'fake'."}
+      assert res ==
+               {:error, :invalid_parameter,
+                "Invalid parameter provided. String number is not a valid number: 'fake'."}
     end
 
     test "returns an error when sending nil to_amount" do

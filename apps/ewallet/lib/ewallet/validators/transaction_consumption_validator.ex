@@ -144,7 +144,8 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   def validate_amount(_request, amount) do
-    {:error, :invalid_parameter, "Invalid parameter provided. `amount` is not an integer: #{amount}."}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount` is not an integer: #{amount}."}
   end
 
   @spec get_and_validate_token(%TransactionRequest{}, String.t() | nil) ::

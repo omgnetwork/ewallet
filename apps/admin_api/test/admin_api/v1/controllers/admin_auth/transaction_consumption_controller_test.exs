@@ -1367,7 +1367,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided. `amount` is not an integer: 1.2365."
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `amount` is not an integer: 1.2365."
     end
 
     test "fails to consume and return an insufficient funds error", meta do
