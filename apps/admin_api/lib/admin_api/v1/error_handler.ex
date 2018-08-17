@@ -10,63 +10,63 @@ defmodule AdminAPI.V1.ErrorHandler do
   @errors %{
     invalid_login_credentials: %{
       code: "user:invalid_login_credentials",
-      description: "There is no user corresponding to the provided login credentials"
+      description: "There is no user corresponding to the provided login credentials."
     },
     user_account_not_found: %{
       code: "user:account_not_found",
-      description: "There is no account assigned to the provided user"
+      description: "There is no account assigned to the provided user."
     },
     access_key_unauthorized: %{
       code: "access_key:unauthorized",
-      description: "The current access key is not allowed to perform the requested operation"
+      description: "The current access key is not allowed to perform the requested operation."
     },
     invalid_reset_token: %{
       code: "forget_password:token_not_found",
-      description: "There are no password reset requests corresponding to the provided token"
+      description: "There are no password reset requests corresponding to the provided token."
     },
     auth_token_not_found: %{
       code: "auth_token:not_found",
-      description: "There is no auth token corresponding to the provided token"
+      description: "There is no auth token corresponding to the provided token."
     },
     user_email_not_found: %{
       code: "user:email_not_found",
-      description: "There is no user corresponding to the provided email"
+      description: "There is no user corresponding to the provided email."
     },
     account_id_not_found: %{
       code: "account:id_not_found",
-      description: "There is no account corresponding to the provided id"
+      description: "There is no account corresponding to the provided id."
     },
     transaction_id_not_found: %{
       code: "transaction:id_not_found",
-      description: "There is no transaction corresponding to the provided id"
+      description: "There is no transaction corresponding to the provided id."
     },
     role_name_not_found: %{
       code: "role:name_not_found",
-      description: "There is no role corresponding to the provided name"
+      description: "There is no role corresponding to the provided name."
     },
     membership_not_found: %{
       code: "membership:not_found",
-      description: "The user is not assigned to the provided account"
+      description: "The user is not assigned to the provided account."
     },
     invalid_email: %{
       code: "user:invalid_email",
-      description: "The format of the provided email is invalid"
+      description: "The format of the provided email is invalid."
     },
     invite_not_found: %{
       code: "user:invite_not_found",
-      description: "There is no invite corresponding to the provided email and token"
+      description: "There is no invite corresponding to the provided email and token."
     },
     passwords_mismatch: %{
       code: "user:passwords_mismatch",
-      description: "The provided passwords do not match"
+      description: "The provided passwords do not match."
     },
     key_not_found: %{
       code: "key:not_found",
-      description: "The key could not be found"
+      description: "The key could not be found."
     },
     api_key_not_found: %{
       code: "api_key:not_found",
-      description: "The API key could not be found"
+      description: "The API key could not be found."
     },
     invalid_account_id: %{
       code: "client:invalid_account_id",
@@ -74,19 +74,19 @@ defmodule AdminAPI.V1.ErrorHandler do
     },
     category_id_not_found: %{
       code: "category:id_not_found",
-      description: "There is no category corresponding to the provided id"
+      description: "There is no category corresponding to the provided id."
     },
     category_not_empty: %{
       code: "category:not_empty",
-      description: "The category has one or more accounts associated"
+      description: "The category has one or more accounts associated."
     },
     exchange_pair_already_exists: %{
       code: "exchange:pair_already_exists",
-      description: "The exchange pair for the given tokens already exist"
+      description: "The exchange pair for the given tokens already exists."
     },
     exchange_opposite_pair_not_found: %{
       code: "exchange:opposite_pair_not_found",
-      description: "The opposite exchange pair for the given tokens could not be found"
+      description: "The opposite exchange pair for the given tokens could not be found."
     }
   }
 

@@ -12,7 +12,7 @@ Welcome to one of OmiseGO's open source projects! We welcome contributions in al
 
 * Open a Pull Request.
 * Describe the problem and solution. Add link to issue if any.
-* Read the [coding conventions](/docs/conventions.md).
+* Read the [coding conventions](/docs/design/conventions.md).
 
 In order for the build to pass, the following commands must run successfully without errors:
 

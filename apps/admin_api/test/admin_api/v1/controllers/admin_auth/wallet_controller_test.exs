@@ -316,7 +316,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
                "data" => %{
                  "object" => "error",
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided",
+                 "description" => "Invalid parameter provided.",
                  "messages" => nil
                }
              }
@@ -332,7 +332,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
                "data" => %{
                  "object" => "error",
                  "code" => "unauthorized",
-                 "description" => "You are not allowed to perform the requested operation",
+                 "description" => "You are not allowed to perform the requested operation.",
                  "messages" => nil
                }
              }
@@ -348,7 +348,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
                "data" => %{
                  "object" => "error",
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided",
+                 "description" => "Invalid parameter provided.",
                  "messages" => nil
                }
              }
@@ -385,7 +385,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
   end
 
@@ -404,7 +404,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided `identifier` has invalid format.",
+               "description" => "Invalid parameter provided. `identifier` has invalid format.",
                "messages" => %{"identifier" => ["format"]},
                "object" => "error"
              }
@@ -468,7 +468,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided `identifier` has invalid format.",
+               "description" => "Invalid parameter provided. `identifier` has invalid format.",
                "messages" => %{"identifier" => ["format"]},
                "object" => "error"
              }
@@ -522,7 +522,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided `account_id` can't be blank.",
+               "description" => "Invalid parameter provided. `account_id` can't be blank.",
                "messages" => %{"account_id" => ["required"]},
                "object" => "error"
              }
@@ -545,7 +545,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
                "description" =>
-                 "Invalid parameter provided `account_id`, `user_id` only one must be present.",
+                 "Invalid parameter provided. `account_id`, `user_id` only one must be present.",
                "messages" => %{"account_id, user_id" => ["only_one_required"]},
                "object" => "error"
              }
@@ -563,7 +563,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       assert response["data"] == %{
                "code" => "unauthorized",
                "object" => "error",
-               "description" => "You are not allowed to perform the requested operation",
+               "description" => "You are not allowed to perform the requested operation.",
                "messages" => nil
              }
     end
@@ -581,7 +581,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided `identifier` can't be blank.",
+               "description" => "Invalid parameter provided. `identifier` can't be blank.",
                "messages" => %{"identifier" => ["required"]},
                "object" => "error"
              }

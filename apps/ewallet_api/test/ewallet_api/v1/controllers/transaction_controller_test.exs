@@ -226,7 +226,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "'idempotency_token' is required.",
+                 "description" => "Invalid parameter provided. `idempotency_token` is required.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -473,7 +473,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "token:id_not_found",
-                 "description" => "There is no token corresponding to the provided id",
+                 "description" => "There is no token corresponding to the provided id.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -515,7 +515,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided",
+                 "description" => "Invalid parameter provided.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -596,7 +596,7 @@ defmodule EWalletAPI.V1.TransactionControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "'token_id' or a pair 'from_token_id'/'to_token_id' is required."
+               "Invalid parameter provided. `token_id` or a pair of `from_token_id` and `to_token_id` is required."
     end
   end
 end

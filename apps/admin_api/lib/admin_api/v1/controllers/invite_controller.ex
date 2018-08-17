@@ -33,7 +33,7 @@ defmodule AdminAPI.V1.InviteController do
     handle_error(
       conn,
       :invalid_parameter,
-      "'email', 'token', 'password', 'password_confirmation' are required"
+      "Invalid parameter provided. `email`, `token`, `password`, `password_confirmation` are required."
     )
   end
 end

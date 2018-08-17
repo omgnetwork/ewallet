@@ -172,7 +172,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
-      assert response["data"]["description"] == "Invalid parameter provided"
+      assert response["data"]["description"] == "Invalid parameter provided."
     end
 
     test "returns a 'unauthorized' error if id is invalid" do

@@ -9,7 +9,7 @@ defmodule AdminAPI.InviteEmail do
 
     link =
       redirect_url
-      |> String.replace("{email}", invite.user.email)
+      |> String.replace("{email}", URI.encode_www_form(invite.user.email))
       |> String.replace("{token}", invite.token)
 
     new_email()
