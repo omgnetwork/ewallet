@@ -27,9 +27,10 @@ export default class Avatar extends Component {
     name: ''
   }
   render () {
+    const name = _.isNil(this.props.name) ? '' : String(this.props.name).substring(0, 3).toUpperCase()
     return (
       <AvatarCircle image={this.props.image} size={this.props.size} {...this.props}>
-        {this.props.image ? '' : this.props.name.substring(0, 3).toUpperCase()}
+        {this.props.image ? '' : name}
       </AvatarCircle>
     )
   }

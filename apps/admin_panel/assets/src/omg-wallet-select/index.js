@@ -39,7 +39,7 @@ export default class WalletSelectItem extends Component {
       <WalletSelectItemContainer>
         <StyledAvatar
           image={_.get(this.props.wallet, 'account.avatar.thumb')}
-          name={accountName || userName}
+          name={accountName || userName || userEmail || ''}
         />
         <DetailContainer>
           <Address>{this.props.wallet.address}</Address>
