@@ -114,7 +114,9 @@ defmodule EWallet.TokenFetcherTest do
 
       assert res == :error
       assert code == :invalid_parameter
-      assert desc == "'token_id' or a pair 'from_token_id'/'to_token_id' is required."
+
+      assert desc ==
+               "Invalid parameter provided. `token_id` or a pair of `from_token_id` and `to_token_id` is required."
     end
   end
 end

@@ -139,7 +139,7 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
                "success" => false,
                "data" => %{
                  "code" => "key:not_found",
-                 "description" => "The key could not be found",
+                 "description" => "The key could not be found.",
                  "messages" => nil,
                  "object" => "error"
                }

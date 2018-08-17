@@ -1324,7 +1324,9 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
 
       assert res == :error
       assert code == :invalid_parameter
-      assert desc == "'amount' is required for transaction consumption."
+
+      assert desc ==
+               "Invalid parameter provided. `amount` is required for transaction consumption."
     end
 
     test "returns 'user_wallet_not_found' when address is invalid", meta do

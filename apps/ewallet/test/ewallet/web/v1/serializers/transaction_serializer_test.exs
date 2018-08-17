@@ -75,8 +75,7 @@ defmodule EWallet.Web.V1.TransactionSerializerTest do
 
       serialized = TransactionSerializer.serialize(transaction)
       assert serialized[:error_code] == "exchange:invalid_rate"
-
-      assert serialized[:error_description] == "The exchange is attempted with an invalid rate"
+      assert serialized[:error_description] == "The exchange is attempted with an invalid rate."
     end
 
     test "serializes the error description properly" do

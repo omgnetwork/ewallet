@@ -114,7 +114,8 @@ defmodule EWallet.TransactionConsumptionValidator do
           | {:error, :unauthorized_amount_override}
           | {:error, :invalid_parameter, String.t()}
   def validate_amount(%TransactionRequest{amount: nil} = _request, nil) do
-    {:error, :invalid_parameter, "'amount' is required for transaction consumption."}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount` is required for transaction consumption."}
   end
 
   def validate_amount(%TransactionRequest{amount: _amount} = _request, nil) do
@@ -143,7 +144,8 @@ defmodule EWallet.TransactionConsumptionValidator do
   end
 
   def validate_amount(_request, amount) do
-    {:error, :invalid_parameter, "'amount' is not an integer: #{amount}."}
+    {:error, :invalid_parameter,
+     "Invalid parameter provided. `amount` is not an integer: #{amount}."}
   end
 
   @spec get_and_validate_token(%TransactionRequest{}, String.t() | nil) ::
@@ -152,7 +154,7 @@ defmodule EWallet.TransactionConsumptionValidator do
           | {:error, atom(), String.t()}
   def get_and_validate_token(%TransactionRequest{token_uuid: nil} = _request, nil) do
     {:error, :invalid_parameter,
-     "'token_id' is required since the transaction request does not specify any."}
+     "Invalid parameter provided. `token_id` is required since the transaction request does not specify any."}
   end
 
   def get_and_validate_token(%TransactionRequest{token_uuid: _token_uuid} = request, nil) do

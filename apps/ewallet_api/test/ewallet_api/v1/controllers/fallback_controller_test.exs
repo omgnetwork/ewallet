@@ -9,7 +9,7 @@ defmodule EWalletAPI.V1.FallbackControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:endpoint_not_found",
-          "description" => "Endpoint not found",
+          "description" => "Endpoint not found.",
           "messages" => nil
         }
       }

@@ -186,7 +186,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "client:invalid_parameter",
-                 "description" => "Invalid parameter provided `type` is invalid.",
+                 "description" => "Invalid parameter provided. `type` is invalid.",
                  "messages" => %{"type" => ["inclusion"]},
                  "object" => "error"
                }
@@ -210,7 +210,8 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "user:wallet_not_found",
-                 "description" => "There is no user wallet corresponding to the provided address",
+                 "description" =>
+                   "There is no user wallet corresponding to the provided address.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -235,7 +236,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "user:user_wallet_mismatch",
-                 "description" => "The provided wallet does not belong to the current user",
+                 "description" => "The provided wallet does not belong to the current user.",
                  "messages" => nil,
                  "object" => "error"
                }
@@ -257,7 +258,7 @@ defmodule EWalletAPI.V1.TransactionRequestControllerTest do
                "version" => "1",
                "data" => %{
                  "code" => "token:id_not_found",
-                 "description" => "There is no token corresponding to the provided id",
+                 "description" => "There is no token corresponding to the provided id.",
                  "messages" => nil,
                  "object" => "error"
                }
