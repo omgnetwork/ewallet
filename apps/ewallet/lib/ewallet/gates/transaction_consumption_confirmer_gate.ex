@@ -17,8 +17,7 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   alias Ecto.Changeset
 
   @spec approve_and_confirm(%TransactionRequest{}, %TransactionConsumption{}) ::
-          {:ok, %TransactionConsumption{}}
-          | {:error, %TransactionConsumption{}, atom(), String.t()}
+          {:error, %TransactionConsumption{}, atom(), String.t()}
           | {:error, %TransactionConsumption{}, String.t(), String.t()}
   def approve_and_confirm(request, consumption) do
     consumption

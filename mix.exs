@@ -16,6 +16,7 @@ defmodule EWallet.Umbrella.Mixfile do
       aliases: aliases(),
       docs: docs(),
       dialyzer: [
+        flags: [:underspecs, :unknown, :unmatched_returns],
         plt_add_apps: [:iex, :mix],
         ignore_warnings: ".dialyzer_ignore.exs"
       ]
