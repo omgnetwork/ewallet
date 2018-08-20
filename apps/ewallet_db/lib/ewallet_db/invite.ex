@@ -111,6 +111,22 @@ defmodule EWalletDB.Invite do
   end
 
   @doc """
+  Accepts an invitation without setting a new password.
+  """
+  @spec accept(%Invite{}) :: {:ok, struct()} | {:error, any()}
+  def accept(invite) do
+    invite = Repo.preload(invite, :user)
+
+    case User.update_without_password(invite.user, %{invite_uuid: nil}) do
+      {:ok, _user} ->
+        Repo.delete(invite)
+
+      error ->
+        error
+    end
+  end
+
+  @doc """
   Accepts an invitation and sets the given password to the user.
   """
   @spec accept(%Invite{}, String.t()) :: {:ok, struct()} | {:error, any()}

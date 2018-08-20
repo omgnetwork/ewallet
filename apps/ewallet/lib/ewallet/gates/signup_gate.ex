@@ -11,39 +11,11 @@ defmodule EWallet.SignupGate do
   Signs up new users.
   """
   @spec signup(map()) :: {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
-
-  # Signup with a password
-  def signup(%{"password" => password} = attrs) do
-    with {:ok, email} <- EmailValidator.validate(attrs["email"]),
-         {:ok, password} <- validate_passwords(password, attrs["password_confirmation"]),
-         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]) do
-      Inviter.invite(email, password, redirect_url, VerificationEmail)
-    else
-      error -> error
-    end
-  end
-
-  # Signup without setting a password
   def signup(attrs) do
     with {:ok, email} <- EmailValidator.validate(attrs["email"]),
-         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]) do
-      Inviter.invite(email, redirect_url, VerificationEmail)
-    else
-      error -> error
-    end
-  end
-
-  @doc """
-  Verifies a user's email address.
-  """
-  @spec verify_email(map()) :: {:ok, %EWalletDB.User{}} | {:error, atom() | Ecto.Changeset.t()}
-  def verify_email(attrs) do
-    with {:ok, email} <- EmailValidator.validate(attrs["email"]),
-         {:ok, token} <- validate_token(attrs["token"]),
          {:ok, password} <- validate_passwords(attrs["password"], attrs["password_confirmation"]),
-         {:ok, invite} <- Invite.fetch(email, token),
-         {:ok, invite} <- Invite.accept(invite, password) do
-      {:ok, invite.user}
+         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]) do
+      Inviter.invite(email, password, redirect_url, VerificationEmail)
     else
       error -> error
     end
@@ -64,11 +36,26 @@ defmodule EWallet.SignupGate do
     end
   end
 
-  defp validate_token(token) when is_binary(token) and byte_size(token) > 0, do: {:ok, token}
-
-  defp validate_token(_), do: {:error, :missing_token}
-
   defp validate_redirect_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
 
   defp validate_redirect_url(_), do: {:error, :missing_redirect_url}
+
+  @doc """
+  Verifies a user's email address.
+  """
+  @spec verify_email(map()) :: {:ok, %EWalletDB.User{}} | {:error, atom() | Ecto.Changeset.t()}
+  def verify_email(attrs) do
+    with {:ok, email} <- EmailValidator.validate(attrs["email"]),
+         {:ok, token} <- validate_token(attrs["token"]),
+         {:ok, invite} <- Invite.fetch(email, token),
+         {:ok, invite} <- Invite.accept(invite) do
+      {:ok, invite.user}
+    else
+      error -> error
+    end
+  end
+
+  defp validate_token(token) when is_binary(token) and byte_size(token) > 0, do: {:ok, token}
+
+  defp validate_token(_), do: {:error, :missing_token}
 end
