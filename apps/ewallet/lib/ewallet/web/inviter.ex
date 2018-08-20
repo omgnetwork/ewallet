@@ -3,31 +3,20 @@ defmodule EWallet.Web.Inviter do
   This module handles user invite and confirmation of their emails.
   """
   alias EWallet.{EmailValidator, Mailer}
-  alias EWalletDB.{Account, Repo, Invite, Membership, Role, User, Validator}
+  alias EWalletDB.{Account, AccountUser, Invite, Membership, Repo, Role, User, Validator}
   alias EWalletDB.Helpers.Crypto
 
   @doc """
-  Creates the user if the user does not exist, then sends the invite email out.
+  Creates the end user if it does not exist, then sends the invite email out.
   """
-  @spec invite(String.t(), String.t(), Bamboo.Email.t()) :: {:ok, %Invite{}} | {:error, atom()}
-  def invite(email, redirect_url, template) do
-    with {:ok, email} <- EmailValidator.validate(email),
-         {:ok, user} <- get_or_create_user(email),
-         {:ok, invite} <- Invite.generate(user, preload: :user) do
-      send_email(invite, redirect_url, template)
-    else
-      {:error, error} ->
-        {:error, error}
-    end
-  end
-
-  @spec invite(String.t(), String.t(), String.t(), Bamboo.Email.t()) ::
+  @spec invite_user(String.t(), String.t(), %Account{}, String.t(), Bamboo.Email.t()) ::
           {:ok, %Invite{}} | {:error, atom()}
-  def invite(email, password, redirect_url, template) do
+  def invite_user(email, password, account, redirect_url, template) do
     with {:ok, email} <- EmailValidator.validate(email),
          {:ok, password} <- Validator.validate_password(password),
          {:ok, user} <- get_or_create_user(email, password),
-         {:ok, invite} <- Invite.generate(user, preload: :user) do
+         {:ok, invite} <- Invite.generate(user, preload: :user),
+         {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid) do
       send_email(invite, redirect_url, template)
     else
       {:error, error} ->
@@ -36,12 +25,12 @@ defmodule EWallet.Web.Inviter do
   end
 
   @doc """
-  Creates the user along with the membership if the user does not exist,
+  Creates the admin along with the membership if the admin does not exist,
   then sends the invite email out.
   """
-  @spec invite(String.t(), %Account{}, %Role{}, String.t(), Bamboo.Email.t()) ::
+  @spec invite_admin(String.t(), %Account{}, %Role{}, String.t(), Bamboo.Email.t()) ::
           {:ok, %Invite{}} | {:error, atom()}
-  def invite(email, account, role, redirect_url, template) do
+  def invite_admin(email, account, role, redirect_url, template) do
     with {:ok, email} <- EmailValidator.validate(email),
          {:ok, user} <- get_or_create_user(email),
          {:ok, invite} <- Invite.generate(user, preload: :user),

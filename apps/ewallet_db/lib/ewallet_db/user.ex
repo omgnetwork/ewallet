@@ -6,7 +6,8 @@ defmodule EWalletDB.User do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  import EWalletDB.{Validator, Helpers.Preloader}
+  import EWalletDB.Helpers.Preloader
+  import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
 
   alias EWalletDB.{
@@ -226,14 +227,12 @@ defmodule EWalletDB.User do
   end
 
   @doc """
-  Creates a user.
+  Creates a user and their primary wallet.
 
   ## Examples
 
       iex> insert(%{field: value})
       {:ok, %User{}}
-
-  Creates a user and their primary wallet.
   """
   @spec insert(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do

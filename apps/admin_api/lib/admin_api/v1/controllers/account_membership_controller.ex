@@ -89,7 +89,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   end
 
   defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
-    Inviter.invite(email, account, role, redirect_url, InviteEmail)
+    Inviter.invite_admin(email, account, role, redirect_url, InviteEmail)
   end
 
   defp assign_or_invite(user, account, role, redirect_url) do

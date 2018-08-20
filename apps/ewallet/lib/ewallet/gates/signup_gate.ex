@@ -10,12 +10,13 @@ defmodule EWallet.SignupGate do
   @doc """
   Signs up new users.
   """
-  @spec signup(map()) :: {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
-  def signup(attrs) do
+  @spec signup(map(), %EWalletDB.Account{}) ::
+          {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
+  def signup(attrs, account) do
     with {:ok, email} <- EmailValidator.validate(attrs["email"]),
          {:ok, password} <- validate_passwords(attrs["password"], attrs["password_confirmation"]),
          {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]) do
-      Inviter.invite(email, password, redirect_url, VerificationEmail)
+      Inviter.invite_user(email, password, account, redirect_url, VerificationEmail)
     else
       error -> error
     end
