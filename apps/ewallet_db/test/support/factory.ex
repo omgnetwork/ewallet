@@ -95,6 +95,7 @@ defmodule EWalletDB.Factory do
 
   def user_factory do
     %User{
+      is_admin: false,
       username: sequence("johndoe"),
       provider_user_id: sequence("provider_id"),
       metadata: %{
@@ -109,6 +110,7 @@ defmodule EWalletDB.Factory do
     password = sequence("password")
 
     %User{
+      is_admin: true,
       email: sequence("johndoe") <> "@example.com",
       password: password,
       password_hash: Crypto.hash_password(password),

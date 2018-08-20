@@ -3,15 +3,13 @@ defmodule EWalletDB.UserQueryTest do
   alias EWalletDB.{User, UserQuery}
 
   describe "where_has_membership/1" do
-    test "returns only admins" do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
-      admin1 = insert(:admin, %{email: "admin1@omise.co"})
-      admin2 = insert(:admin, %{email: "admin2@omise.co"})
-      user = insert(:user, %{email: "user1@omise.co"})
+    test "returns only users with memberships" do
+      user1 = insert(:admin, %{email: "user1@example.com"})
+      user2 = insert(:admin, %{email: "user2@example.com"})
+      user3 = insert(:user, %{email: "user3@example.com"})
 
-      insert(:membership, %{user: admin1, account: account, role: role})
-      insert(:membership, %{user: admin2, account: account, role: role})
+      insert(:membership, %{user: user1})
+      insert(:membership, %{user: user2})
 
       result =
         User
@@ -19,19 +17,16 @@ defmodule EWalletDB.UserQueryTest do
         |> Repo.all()
 
       assert Enum.count(result) == 2
-      assert Enum.any?(result, fn admin -> admin.email == admin1.email end)
-      assert Enum.any?(result, fn admin -> admin.email == admin2.email end)
-      refute Enum.any?(result, fn admin -> admin.email == user.email end)
+      assert Enum.any?(result, fn admin -> admin.email == user1.email end)
+      assert Enum.any?(result, fn admin -> admin.email == user2.email end)
+      refute Enum.any?(result, fn admin -> admin.email == user3.email end)
     end
 
     test "returns unique records" do
-      account1 = insert(:account)
-      account2 = insert(:account)
-      admin = insert(:admin, %{email: "admin1@omise.co"})
-      role = insert(:role, %{name: "some_role"})
+      user = insert(:admin, %{email: "multiple.memberships@example.com"})
 
-      insert(:membership, %{user: admin, account: account1, role: role})
-      insert(:membership, %{user: admin, account: account2, role: role})
+      insert(:membership, %{user: user})
+      insert(:membership, %{user: user})
 
       result =
         User
@@ -39,14 +34,12 @@ defmodule EWalletDB.UserQueryTest do
         |> Repo.all()
 
       assert Enum.count(result) == 1
-      assert Enum.at(result, 0).email == admin.email
+      assert Enum.at(result, 0).email == user.email
     end
 
     test "uses `EWalletDB.User` if `queryable` is not given" do
-      account = insert(:account)
-      role = insert(:role, %{name: "some_role"})
-      admin = insert(:admin, %{email: "admin@omise.co"})
-      insert(:membership, %{user: admin, account: account, role: role})
+      user = insert(:admin, %{email: "default.user@example.com"})
+      insert(:membership, %{user: user})
 
       query = UserQuery.where_has_membership()
       result = Repo.all(query)

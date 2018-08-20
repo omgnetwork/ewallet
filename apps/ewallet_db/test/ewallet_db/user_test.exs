@@ -272,15 +272,13 @@ defmodule EWalletDB.UserTest do
   end
 
   describe "admin?/1" do
-    test "returns true if the user has a membership" do
-      user = insert(:user)
-      _membership = insert(:membership, %{user: user})
-
+    test "returns true if the user's `is_admin` is true" do
+      user = insert(:user, is_admin: true)
       assert User.admin?(user)
     end
 
-    test "returns false if the user does not have a membership" do
-      user = insert(:user)
+    test "returns false if the user's `is_admin` is false" do
+      user = insert(:user, is_admin: false)
       refute User.admin?(user)
     end
   end

@@ -28,6 +28,7 @@ defmodule EWalletDB.User do
   schema "user" do
     external_id(prefix: "usr_")
 
+    field(:is_admin, :boolean, default: false)
     field(:username, :string)
     field(:email, :string)
     field(:password, :string, virtual: true)
@@ -87,6 +88,7 @@ defmodule EWalletDB.User do
   defp changeset(changeset, attrs) do
     changeset
     |> cast(attrs, [
+      :is_admin,
       :username,
       :provider_user_id,
       :email,
@@ -239,9 +241,9 @@ defmodule EWalletDB.User do
       Multi.new()
       |> Multi.insert(:user, changeset(%User{}, attrs))
       |> Multi.run(:wallet, fn %{user: user} ->
-        case user.provider_user_id do
-          nil -> {:ok, nil}
-          _ -> insert_wallet(user, Wallet.primary())
+        case User.admin?(user) do
+          true -> {:ok, nil}
+          false -> insert_wallet(user, Wallet.primary())
         end
       end)
 
@@ -462,7 +464,7 @@ defmodule EWalletDB.User do
   Checks if the user is an admin user.
   """
   @spec admin?(String.t() | %User{}) :: boolean()
-  def admin?(user), do: has_membership?(user)
+  def admin?(user), do: user.is_admin == true
 
   @doc """
   Checks if the user is an admin on the top-level account.

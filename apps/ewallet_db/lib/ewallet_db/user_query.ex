@@ -14,22 +14,19 @@ defmodule EWalletDB.UserQuery do
   def where_has_membership(queryable \\ User) do
     # Returns only the User struct, not the Memberships
     queryable
-    |> join(:inner, [u], m in Membership, u.uuid == m.user_uuid)
+    |> join(:inner, [u], m in assoc(u, :memberships))
     |> distinct(true)
     |> select([c], c)
   end
 
   @doc """
-  Scopes the given user query to end users. This is done by filtering for users
-  that do not have any membership.
+  Scopes the given user query to end users.
 
   Returns a list of Users.
   """
   def where_end_user(queryable \\ User) do
     queryable
-    |> join(:left, [u], m in assoc(u, :memberships))
-    |> where([u, m], is_nil(m.uuid))
-    |> select([u], u)
+    |> where(is_admin: false)
   end
 
   @doc """
