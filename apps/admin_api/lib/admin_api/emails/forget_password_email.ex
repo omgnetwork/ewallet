@@ -9,7 +9,7 @@ defmodule AdminAPI.ForgetPasswordEmail do
 
     link =
       redirect_url
-      |> String.replace("{email}", request.user.email)
+      |> String.replace("{email}", URI.encode_www_form(request.user.email))
       |> String.replace("{token}", request.token)
 
     new_email()
