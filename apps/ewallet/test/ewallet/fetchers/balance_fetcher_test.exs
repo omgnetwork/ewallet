@@ -29,8 +29,19 @@ defmodule EWallet.BalanceFetcherTest do
 
   describe "all/1" do
     test "retrieve all wallets from a user_id", context do
-      transfer!(context.master_wallet.address, context.user_wallet.address, context.btc, 990_000 * context.btc.subunit_to_unit)
-      transfer!(context.master_wallet.address, context.user_wallet.address, context.omg, 57_000 * context.omg.subunit_to_unit)
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.btc,
+        990_000 * context.btc.subunit_to_unit
+      )
+
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.omg,
+        57_000 * context.omg.subunit_to_unit
+      )
 
       {status, wallet} = BalanceFetcher.all(%{"user_id" => context.user.id})
 
@@ -45,10 +56,22 @@ defmodule EWallet.BalanceFetcherTest do
     end
 
     test "retrieve all wallets from a provider_user_id", context do
-      transfer!(context.master_wallet.address, context.user_wallet.address, context.btc, 150_000 * context.btc.subunit_to_unit)
-      transfer!(context.master_wallet.address, context.user_wallet.address, context.omg, 12_000 * context.omg.subunit_to_unit)
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.btc,
+        150_000 * context.btc.subunit_to_unit
+      )
 
-      {status, wallet} = BalanceFetcher.all(%{"provider_user_id" => context.user.provider_user_id})
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.omg,
+        12_000 * context.omg.subunit_to_unit
+      )
+
+      {status, wallet} =
+        BalanceFetcher.all(%{"provider_user_id" => context.user.provider_user_id})
 
       assert status == :ok
       assert wallet.address == context.user_wallet.address
@@ -63,8 +86,19 @@ defmodule EWallet.BalanceFetcherTest do
 
   describe "get/2" do
     test "retrieve the specific wallet from a token and an address", context do
-      transfer!(context.master_wallet.address, context.user_wallet.address, context.btc, 150_000 * context.btc.subunit_to_unit)
-      transfer!(context.master_wallet.address, context.user_wallet.address, context.omg, 12_000 * context.omg.subunit_to_unit)
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.btc,
+        150_000 * context.btc.subunit_to_unit
+      )
+
+      transfer!(
+        context.master_wallet.address,
+        context.user_wallet.address,
+        context.omg,
+        12_000 * context.omg.subunit_to_unit
+      )
 
       {status, wallet} = BalanceFetcher.get(context.omg.id, context.user_wallet)
 
