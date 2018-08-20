@@ -1,9 +1,14 @@
 defmodule EWalletAPI.V1.Router do
   use EWalletAPI, :router
   alias EWalletAPI.V1.Plug.ClientAuthPlug
+  alias EWalletAPI.V1.StandalonePlug
 
   pipeline :client_api do
     plug(ClientAuthPlug)
+  end
+
+  pipeline :standalone do
+    plug(StandalonePlug)
   end
 
   pipeline :api do
@@ -35,17 +40,21 @@ defmodule EWalletAPI.V1.Router do
     post("/me.logout", AuthController, :logout)
   end
 
+  # Standalone endpoints
+  scope "/", EWalletAPI.V1 do
+    pipe_through([:api, :standalone])
+
+    post("/user.signup", SignupController, :signup)
+    post("/user.verify_email", SignupController, :verify_email)
+    post("/user.login", AuthController, :login)
+  end
+
   # Public endpoints
   scope "/", EWalletAPI.V1 do
     pipe_through([:api])
 
     post("/status", StatusController, :index)
     post("/status.server_error", StatusController, :server_error)
-
-    # User signup and login
-    post("/user.signup", SignupController, :signup)
-    post("/user.verify_email", SignupController, :verify_email)
-    post("/user.login", AuthController, :login)
 
     match(:*, "/*path", FallbackController, :not_found)
   end
