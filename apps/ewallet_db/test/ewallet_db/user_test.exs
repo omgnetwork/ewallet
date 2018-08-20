@@ -26,6 +26,18 @@ defmodule EWalletDB.UserTest do
     test_insert_prevent_duplicate(User, :provider_user_id)
     test_default_metadata_fields(User, "user")
 
+    test "creates a primary wallet for end users" do
+      {:ok, inserted_user} = :user |> params_for() |> User.insert()
+
+      assert User.get_primary_wallet(inserted_user) != nil
+    end
+
+    test "does not create a wallet for admins" do
+      {:ok, inserted_user} = :admin |> params_for() |> User.insert()
+
+      assert User.get_primary_wallet(inserted_user) == nil
+    end
+
     # The test below can't use `test_insert_prevent_duplicate/3` with :email
     # because we need to use :admin factory to get proper data for admin user.
     test "returns error if same :email already exists" do
