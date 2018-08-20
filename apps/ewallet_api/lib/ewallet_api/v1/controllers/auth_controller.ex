@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.AuthController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWalletAPI.V1.EndUserAuthenticator
-  alias EWalletAPI.V1.Plug.ClientAuthPlug
+  alias EWalletAPI.V1.ClientAuthPlug
   alias EWalletDB.{AuthToken, User}
 
   @doc """
