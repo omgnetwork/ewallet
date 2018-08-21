@@ -1,16 +1,13 @@
 defmodule EWalletAPI.V1.SignupControllerTest do
   use EWalletAPI.ConnCase, async: true
 
-  @redirect_url "http://localhost:4000/api/client/user.verify_email?email={email}&token={token}"
-
   describe "/user.signup" do
     test "returns success with an empty response" do
       response =
         client_request("/user.signup", %{
           email: "test_user_signup@example.com",
           password: "the_password",
-          password_confirmation: "the_password",
-          redirect_url: @redirect_url
+          password_confirmation: "the_password"
         })
 
       assert response["version"] == @expected_version
@@ -18,23 +15,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["data"] == %{}
     end
 
-    test "returns success when redirect_url is not provided" do
-      response =
-        client_request("/user.signup", %{
-          email: "test_no_redirect_url@example.com",
-          password: "the_password",
-          password_confirmation: "the_password"
-        })
-
-      assert response["version"] == @expected_version
-      assert response["success"] == false
-
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "client:invalid_parameter"
-
-      assert response["data"]["description"] ==
-               "Invalid parameter provided. `redirect_url` can't be blank."
-    end
+    test "defaults to the redirect_url value if not provided"
 
     test "returns client:invalid_parameter when email is not provided" do
       response =

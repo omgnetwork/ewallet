@@ -14,6 +14,7 @@ defmodule EWalletDB.Invite do
 
   schema "invite" do
     field(:token, :string)
+    field(:success_url, :string)
 
     has_one(
       :user,
@@ -27,7 +28,7 @@ defmodule EWalletDB.Invite do
 
   defp changeset(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token])
+    |> cast(attrs, [:token, :success_url])
     |> validate_required([:token])
   end
 
@@ -94,7 +95,11 @@ defmodule EWalletDB.Invite do
   """
   def generate(user, opts \\ [preload: []]) do
     # Insert a new invite
-    {:ok, invite} = insert(%{token: Crypto.generate_base64_key(@token_length)})
+    {:ok, invite} =
+      insert(%{
+        token: Crypto.generate_base64_key(@token_length),
+        success_url: opts[:success_url]
+      })
 
     # Assign the invite to the user
     changeset = change(user, invite_uuid: invite.uuid)

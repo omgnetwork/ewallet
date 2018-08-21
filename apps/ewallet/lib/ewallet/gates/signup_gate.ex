@@ -10,13 +10,13 @@ defmodule EWallet.SignupGate do
   @doc """
   Signs up new users.
   """
-  @spec signup(map(), %EWalletDB.Account{}) ::
-          {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
-  def signup(attrs, account) do
+  @spec signup(map()) :: {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
+  def signup(attrs) do
     with {:ok, email} <- EmailValidator.validate(attrs["email"]),
          {:ok, password} <- validate_passwords(attrs["password"], attrs["password_confirmation"]),
-         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]) do
-      Inviter.invite_user(email, password, account, redirect_url, VerificationEmail)
+         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]),
+         {:ok, success_url} <- validate_success_url(attrs["success_url"]) do
+      Inviter.invite_user(email, password, redirect_url, success_url, VerificationEmail)
     else
       error -> error
     end
@@ -37,6 +37,10 @@ defmodule EWallet.SignupGate do
     end
   end
 
+  defp validate_success_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
+
+  defp validate_success_url(_), do: {:ok, nil}
+
   defp validate_redirect_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
 
   defp validate_redirect_url(_), do: {:error, :missing_redirect_url}
@@ -50,7 +54,7 @@ defmodule EWallet.SignupGate do
          {:ok, token} <- validate_token(attrs["token"]),
          {:ok, invite} <- Invite.fetch(email, token),
          {:ok, invite} <- Invite.accept(invite) do
-      {:ok, invite.user}
+      {:ok, invite}
     else
       error -> error
     end

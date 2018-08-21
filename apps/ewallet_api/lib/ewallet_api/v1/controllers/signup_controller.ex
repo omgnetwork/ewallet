@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.SignupController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.{SignupGate, UserPolicy}
-  alias EWalletDB.Account
+  alias EWalletAPI.V1.VerifyEmailController
 
   @doc """
   Signs up a new user.
@@ -13,8 +13,8 @@ defmodule EWalletAPI.V1.SignupController do
   @spec signup(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def signup(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
-         %Account{} = account <- Account.get_master_account(),
-         {:ok, _invite} <- SignupGate.signup(attrs, account) do
+         attrs <- Map.put_new(attrs, "redirect_url", VerifyEmailController.verify_url()),
+         {:ok, _invite} <- SignupGate.signup(attrs) do
       render(conn, :empty, %{success: true})
     else
       {:error, code} ->
@@ -31,8 +31,8 @@ defmodule EWalletAPI.V1.SignupController do
   @spec verify_email(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def verify_email(conn, attrs) do
     with :ok <- permit(:verify_email, conn.assigns, nil),
-         {:ok, user} <- SignupGate.verify_email(attrs) do
-      render(conn, :user, %{user: user})
+         {:ok, invite} <- SignupGate.verify_email(attrs) do
+      render(conn, :user, %{user: invite.user})
     else
       {:error, code} ->
         handle_error(conn, code)

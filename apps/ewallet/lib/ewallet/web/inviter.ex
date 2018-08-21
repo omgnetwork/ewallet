@@ -9,18 +9,34 @@ defmodule EWallet.Web.Inviter do
   @doc """
   Creates the end user if it does not exist, then sends the invite email out.
   """
-  @spec invite_user(String.t(), String.t(), %Account{}, String.t(), Bamboo.Email.t()) ::
+  @spec invite_user(String.t(), String.t(), String.t(), String.t(), Bamboo.Email.t()) ::
           {:ok, %Invite{}} | {:error, atom()}
-  def invite_user(email, password, account, redirect_url, template) do
+  def invite_user(email, password, redirect_url, success_url, template) do
     with {:ok, email} <- EmailValidator.validate(email),
          {:ok, password} <- Validator.validate_password(password),
          {:ok, user} <- get_or_create_user(email, password),
-         {:ok, invite} <- Invite.generate(user, preload: :user),
+         {:ok, success_url} <- validate_success_url(success_url),
+         {:ok, invite} <- Invite.generate(user, preload: :user, success_url: success_url),
+         account <- Account.get_master_account(),
          {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid) do
       send_email(invite, redirect_url, template)
     else
       {:error, error} ->
         {:error, error}
+
+      {:error, error, description} ->
+        {:error, error, description}
+    end
+  end
+
+  defp validate_success_url(nil), do: {:ok, nil}
+
+  defp validate_success_url(url) do
+    if valid_url?(url) do
+      {:ok, url}
+    else
+      {:error, :invalid_parameter,
+       "The given `success_url` is not allowed to be used. Got: '#{url}'."}
     end
   end
 
