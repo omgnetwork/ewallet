@@ -103,8 +103,7 @@ defmodule EWallet.Web.WebSocket do
 
   defp normalize_headers(headers) do
     headers
-    |> Enum.map(fn {name, value} -> {String.downcase(name), value} end)
-    |> Enum.into(%{})
+    |> Enum.into(%{}, fn {name, value} -> {String.downcase(name), value} end)
   end
 
   @doc false

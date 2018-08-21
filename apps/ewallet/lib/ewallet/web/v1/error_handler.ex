@@ -421,10 +421,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
       end)
 
     errors
-    |> Enum.map(fn {key, value} ->
-      {key |> replace_uuids() |> stringify_field(), value}
-    end)
-    |> Enum.into(%{})
+    |> Enum.into(
+      %{},
+      fn {key, value} ->
+        {key |> replace_uuids() |> stringify_field(), value}
+      end
+    )
   end
 
   defp replace_uuids(field) do
