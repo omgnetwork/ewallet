@@ -1,5 +1,8 @@
 defmodule EWalletAPI.V1.SignupControllerTest do
   use EWalletAPI.ConnCase, async: true
+  alias EWalletAPI.VerificationEmail
+  alias EWalletAPI.V1.VerifyEmailController
+  alias EWalletDB.User
 
   describe "/user.signup" do
     test "returns success with an empty response" do
@@ -15,7 +18,42 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["data"] == %{}
     end
 
-    test "defaults to the redirect_url value if not provided"
+    test "defaults to the redirect_url value if not provided" do
+      import Bamboo.Test, only: [assert_delivered_email: 1]
+
+      response =
+        client_request("/user.signup", %{
+          email: "test_signup_no_redirect_url@example.com",
+          password: "the_password",
+          password_confirmation: "the_password"
+        })
+
+      assert response["version"] == @expected_version
+      assert response["success"] == true
+
+      user = User.get_by([email: "test_signup_no_redirect_url@example.com"], preload: [:invite])
+      email = VerificationEmail.create(user.invite, VerifyEmailController.verify_url())
+      assert_delivered_email(email)
+    end
+
+    test "uses the given redirect_url if provided" do
+      import Bamboo.Test, only: [assert_delivered_email: 1]
+
+      response =
+        client_request("/user.signup", %{
+          email: "test_signup_with_redirect_url@example.com",
+          password: "the_password",
+          password_confirmation: "the_password",
+          redirect_url: "http://localhost:4000/custom_redirect_url"
+        })
+
+      assert response["version"] == @expected_version
+      assert response["success"] == true
+
+      user = User.get_by([email: "test_signup_with_redirect_url@example.com"], preload: [:invite])
+      email = VerificationEmail.create(user.invite, "http://localhost:4000/custom_redirect_url")
+      assert_delivered_email(email)
+    end
 
     test "returns client:invalid_parameter when email is not provided" do
       response =

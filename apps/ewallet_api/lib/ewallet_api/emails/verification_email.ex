@@ -3,9 +3,11 @@ defmodule EWalletAPI.VerificationEmail do
   The module that generates invite email templates.
   """
   import Bamboo.Email
+  alias EWallet.Web.Preloader
 
   def create(invite, redirect_url) do
     sender = Application.get_env(:ewallet, :sender_email)
+    {:ok, invite} = Preloader.preload_one(invite, [:user])
 
     link =
       redirect_url
