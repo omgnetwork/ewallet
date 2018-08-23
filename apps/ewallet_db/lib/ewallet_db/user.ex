@@ -20,7 +20,6 @@ defmodule EWalletDB.User do
     Role,
     User,
     AccountUser,
-    UserQuery,
     Helpers.Crypto
   }
 
@@ -217,13 +216,6 @@ defmodule EWalletDB.User do
     User
     |> Repo.get_by(fields)
     |> preload_option(opts)
-  end
-
-  @spec get_end_users :: [%User{}]
-  def get_end_users do
-    User
-    |> UserQuery.where_end_user()
-    |> Repo.all()
   end
 
   @doc """
