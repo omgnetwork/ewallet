@@ -84,7 +84,13 @@ defmodule EWallet.Web.InviterTest do
       role = insert(:role)
 
       {res, invite} =
-        Inviter.invite_admin("test@example.com", account, role, @admin_redirect_url, &InviteEmail.create/2)
+        Inviter.invite_admin(
+          "test@example.com",
+          account,
+          role,
+          @admin_redirect_url,
+          &InviteEmail.create/2
+        )
 
       assert res == :ok
       assert %Invite{} = invite
@@ -96,10 +102,22 @@ defmodule EWallet.Web.InviterTest do
       role = insert(:role)
 
       {:ok, invite1} =
-        Inviter.invite_admin("test@example.com", account, role, @admin_redirect_url, &InviteEmail.create/2)
+        Inviter.invite_admin(
+          "test@example.com",
+          account,
+          role,
+          @admin_redirect_url,
+          &InviteEmail.create/2
+        )
 
       {:ok, invite2} =
-        Inviter.invite_admin("test@example.com", account, role, @admin_redirect_url, &InviteEmail.create/2)
+        Inviter.invite_admin(
+          "test@example.com",
+          account,
+          role,
+          @admin_redirect_url,
+          &InviteEmail.create/2
+        )
 
       assert_delivered_email(InviteEmail.create(invite1, @admin_redirect_url))
       assert_delivered_email(InviteEmail.create(invite2, @admin_redirect_url))
@@ -110,7 +128,13 @@ defmodule EWallet.Web.InviterTest do
       role = insert(:role)
 
       {:ok, invite} =
-        Inviter.invite_admin("test@example.com", account, role, @admin_redirect_url, &InviteEmail.create/2)
+        Inviter.invite_admin(
+          "test@example.com",
+          account,
+          role,
+          @admin_redirect_url,
+          &InviteEmail.create/2
+        )
 
       memberships = Membership.all_by_user(invite.user)
 

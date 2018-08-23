@@ -65,7 +65,8 @@ defmodule EWallet.Web.Inviter do
   @doc """
   Sends the invite email.
   """
-  @spec send_email(%Invite{}, String.t(), (%Invite{}, String.t() -> Bamboo.Email.t())) :: {:ok, %Invite{}}
+  @spec send_email(%Invite{}, String.t(), (%Invite{}, String.t() -> Bamboo.Email.t())) ::
+          {:ok, %Invite{}}
   def send_email(invite, redirect_url, create_email_func) do
     _ =
       invite
