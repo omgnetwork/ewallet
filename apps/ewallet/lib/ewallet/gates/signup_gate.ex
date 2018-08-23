@@ -17,7 +17,7 @@ defmodule EWallet.SignupGate do
          true <- password == attrs["password_confirmation"] || {:error, :passwords_mismatch},
          {:ok, verification_url} <- validate_verification_url(attrs["verification_url"]),
          {:ok, success_url} <- validate_success_url(attrs["success_url"]) do
-      Inviter.invite_user(email, password, verification_url, success_url, VerificationEmail)
+      Inviter.invite_user(email, password, verification_url, success_url, &VerificationEmail.create/2)
     else
       error -> error
     end
