@@ -86,6 +86,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "server:unknown_error",
       description: "An unknown error occured on the server."
     },
+    password_too_short: %{
+      code: "client:invalid_parameter",
+      template: "Invalid parameter provided. `password` must be %{min_length} characters or more."
+    },
     passwords_mismatch: %{
       code: "user:passwords_mismatch",
       description: "The provided passwords do not match."
@@ -372,7 +376,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with template description to build.
   """
-  def build_error(code, data, supported_errors) when is_map(data) do
+  def build_error(code, data, supported_errors) when is_map(data) or is_list(data) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(code: error.code, desc: build_template(data, error.template))
     end)

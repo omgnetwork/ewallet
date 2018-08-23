@@ -14,27 +14,13 @@ defmodule EWallet.SignupGate do
   @spec signup(map()) :: {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
   def signup(attrs) do
     with {:ok, email} <- EmailValidator.validate(attrs["email"]),
-         {:ok, password} <- validate_passwords(attrs["password"], attrs["password_confirmation"]),
+         {:ok, password} <- Validator.validate_password(attrs["password"]),
+         true <- password == attrs["password_confirmation"] || {:error, :passwords_mismatch},
          {:ok, verification_url} <- validate_verification_url(attrs["verification_url"]),
          {:ok, success_url} <- validate_success_url(attrs["success_url"]) do
       Inviter.invite_user(email, password, verification_url, success_url, VerificationEmail)
     else
       error -> error
-    end
-  end
-
-  defp validate_passwords(password, password_confirmation) do
-    case Validator.validate_password(password) do
-      {:ok, password} ->
-        if password == password_confirmation do
-          {:ok, password}
-        else
-          {:error, :passwords_mismatch}
-        end
-
-      {:error, :too_short, [min_length: min_length]} ->
-        {:error, :invalid_parameter,
-         "Invalid parameter provided. `password` must be #{min_length} characters or more."}
     end
   end
 

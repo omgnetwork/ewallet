@@ -92,8 +92,8 @@ defmodule EWallet.SignupGateTest do
         })
 
       assert res == :error
-      assert code == :invalid_parameter
-      assert description == "Invalid parameter provided. `password` must be 8 characters or more."
+      assert code == :password_too_short
+      assert description == [min_length: 8]
     end
 
     test "returns an error when the passwords were provided but do not match" do
@@ -119,8 +119,8 @@ defmodule EWallet.SignupGateTest do
         })
 
       assert res == :error
-      assert code == :invalid_parameter
-      assert description == "Invalid parameter provided. `password` must be 8 characters or more."
+      assert code == :password_too_short
+      assert description == [min_length: 8]
     end
   end
 
