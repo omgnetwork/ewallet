@@ -61,35 +61,6 @@ defmodule EWallet.Web.InviterTest do
       assert invite.user.uuid == user.uuid
     end
 
-    test "returns :invalid_email error if email is invalid" do
-      {res, error} =
-        Inviter.invite_user(
-          "not-an-email",
-          "password",
-          @user_redirect_url,
-          @user_success_url,
-          VerificationEmail
-        )
-
-      assert res == :error
-      assert error == :invalid_email
-    end
-
-    test "returns :too_short error if the given password is too short" do
-      {res, error, meta} =
-        Inviter.invite_user(
-          "too_short@example.com",
-          "pwd",
-          @user_redirect_url,
-          @user_success_url,
-          VerificationEmail
-        )
-
-      assert res == :error
-      assert error == :too_short
-      assert meta == [min_length: 8]
-    end
-
     test "returns :user_already_active error if user is already active" do
       _user = insert(:user, %{email: "activeuser@example.com"})
 
@@ -121,23 +92,6 @@ defmodule EWallet.Web.InviterTest do
 
       assert description ==
                "The given `redirect_url` is not allowed to be used. Got: 'http://wrong_redirect_url'."
-    end
-
-    test "returns client:invalid_parameter if the given success_url is not allowed" do
-      {res, error, description} =
-        Inviter.invite_user(
-          "success_url_not_allowed@example.com",
-          "password",
-          @user_redirect_url,
-          "http://wrong_success_url",
-          VerificationEmail
-        )
-
-      assert res == :error
-      assert error == :invalid_parameter
-
-      assert description ==
-               "The given `success_url` is not allowed to be used. Got: 'http://wrong_success_url'."
     end
   end
 

@@ -4,6 +4,7 @@ defmodule EWallet.SignupGate do
   """
   alias EWallet.EmailValidator
   alias EWallet.Web.Inviter
+  alias EWalletAPI.V1.VerifyEmailController
   alias EWalletAPI.VerificationEmail
   alias EWalletDB.{Invite, Validator}
 
@@ -14,9 +15,9 @@ defmodule EWallet.SignupGate do
   def signup(attrs) do
     with {:ok, email} <- EmailValidator.validate(attrs["email"]),
          {:ok, password} <- validate_passwords(attrs["password"], attrs["password_confirmation"]),
-         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]),
+         {:ok, verification_url} <- validate_verification_url(attrs["verification_url"]),
          {:ok, success_url} <- validate_success_url(attrs["success_url"]) do
-      Inviter.invite_user(email, password, redirect_url, success_url, VerificationEmail)
+      Inviter.invite_user(email, password, verification_url, success_url, VerificationEmail)
     else
       error -> error
     end
@@ -37,13 +38,34 @@ defmodule EWallet.SignupGate do
     end
   end
 
-  defp validate_redirect_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
+  defp validate_verification_url(nil) do
+    {:ok, VerifyEmailController.verify_url()}
+  end
 
-  defp validate_redirect_url(_), do: {:error, :missing_redirect_url}
+  defp validate_verification_url(url) do
+    if valid_url?(url) do
+      {:ok, url}
+    else
+      {:error, :invalid_parameter,
+       "The given `verification_url` is not allowed to be used. Got: '#{url}'."}
+    end
+  end
 
-  defp validate_success_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
+  defp validate_success_url(nil), do: {:ok, nil}
 
-  defp validate_success_url(_), do: {:ok, nil}
+  defp validate_success_url(url) do
+    if valid_url?(url) do
+      {:ok, url}
+    else
+      {:error, :invalid_parameter,
+       "The given `success_url` is not allowed to be used. Got: '#{url}'."}
+    end
+  end
+
+  defp valid_url?(url) do
+    base_url = Application.get_env(:ewallet, :base_url)
+    String.starts_with?(url, base_url)
+  end
 
   @doc """
   Verifies a user's email address.
