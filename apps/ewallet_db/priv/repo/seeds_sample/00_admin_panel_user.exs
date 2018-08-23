@@ -3,11 +3,11 @@ defmodule EWalletDB.Repo.Seeds.AdminPanelUserSampleSeed do
   alias EWalletDB.User
 
   @seed_data [
-    %{email: "admin_brand1@example.com", password: generate_base64_key(16), metadata: %{}},
-    %{email: "admin_branch1@example.com", password: generate_base64_key(16), metadata: %{}},
-    %{email: "viewer_master@example.com", password: generate_base64_key(16), metadata: %{}},
-    %{email: "viewer_brand1@example.com", password: generate_base64_key(16), metadata: %{}},
-    %{email: "viewer_branch1@example.com", password: generate_base64_key(16), metadata: %{}},
+    %{email: "admin_brand1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
+    %{email: "admin_branch1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
+    %{email: "viewer_master@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
+    %{email: "viewer_brand1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
+    %{email: "viewer_branch1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
   ]
 
   def seed do
