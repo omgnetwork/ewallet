@@ -2,7 +2,7 @@ defmodule EWallet.ConfigTest do
   use ExUnit.Case, async: true
   alias EWallet.Config
 
-  describe "get_boolean/1" do
+  describe "get_boolean/2" do
     test "returns true when value is true" do
       Application.put_env(:ewallet, :config_true_boolean, true)
       assert Config.get_boolean(:ewallet, :config_true_boolean) == true
@@ -51,6 +51,38 @@ defmodule EWallet.ConfigTest do
     test "returns false when value is nil" do
       Application.put_env(:ewallet, :config_nil, nil)
       assert Config.get_boolean(:ewallet, :config_nil) == false
+    end
+  end
+
+  describe "get_strings/2" do
+    test "returns a list of strings" do
+      Application.put_env(:ewallet, :test_get_strings, "one,two,three")
+      assert Config.get_strings(:ewallet, :test_get_strings) == ["one", "two", "three"]
+    end
+
+    test "returns the strings trimmed" do
+      Application.put_env(:ewallet, :test_get_strings, "   one ,   two ,three    ")
+      assert Config.get_strings(:ewallet, :test_get_strings) == ["one", "two", "three"]
+    end
+
+    test "returns without empty strings" do
+      Application.put_env(:ewallet, :config_get_strings, "one, two, , three,,,")
+      assert Config.get_strings(:ewallet, :config_get_strings) == ["one", "two", "three"]
+    end
+
+    test "returns an empty list if the config is nil" do
+      Application.put_env(:ewallet, :test_get_strings, nil)
+      assert Config.get_strings(:ewallet, :test_get_strings) == []
+    end
+
+    test "returns an empty list if the config is a blank string" do
+      Application.put_env(:ewallet, :test_get_strings, "")
+      assert Config.get_strings(:ewallet, :test_get_strings) == []
+    end
+
+    test "returns an empty list if all strings are trimmable" do
+      Application.put_env(:ewallet, :test_get_strings, ",   , ,   , , ,,,")
+      assert Config.get_strings(:ewallet, :test_get_strings) == []
     end
   end
 end

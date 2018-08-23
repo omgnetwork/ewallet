@@ -31,7 +31,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["data"]["user"]["email"] == context.user.email
     end
 
-    test "returns user:invite_pending error when the user has a pending invite", context do
+    test "returns user:email_not_verified error when the user has a pending invite", context do
       _user = User.update_without_password(context.user, %{invite_uuid: insert(:invite).uuid})
       response = client_request("/user.login", context.request_data)
 
@@ -39,8 +39,10 @@ defmodule EWalletAPI.V1.AuthControllerTest do
       assert response["success"] == false
 
       assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:invite_pending"
-      assert response["data"]["description"] == "The user has not accepted the invite."
+      assert response["data"]["code"] == "user:email_not_verified"
+
+      assert response["data"]["description"] ==
+               "Your user account has not been confirmed yet. Please check your emails."
     end
 
     test "returns user:invalid_login_credentials when given an unknown email", context do

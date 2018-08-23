@@ -88,10 +88,9 @@ defmodule EWallet.Web.InviterTest do
         )
 
       assert res == :error
-      assert error == :invalid_parameter
+      assert error == :prohibited_url
 
-      assert description ==
-               "The given `redirect_url` is not allowed to be used. Got: 'http://wrong_redirect_url'."
+      assert description == [param_name: "redirect_url", url: "http://wrong_redirect_url"]
     end
   end
 
@@ -180,14 +179,13 @@ defmodule EWallet.Web.InviterTest do
 
     test "returns :invalid_parameter error if the redirect_url value is not allowed" do
       invite = insert(:invite)
-      redirect_url = "http://unknown.com/invite?email={email}&token={token}"
+      redirect_url = "http://example.com/invite?email={email}&token={token}"
       {res, code, description} = Inviter.send_email(invite, redirect_url, InviteEmail)
 
       assert res == :error
-      assert code == :invalid_parameter
+      assert code == :prohibited_url
 
-      assert description ==
-               "The given `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."
+      assert description == [param_name: "redirect_url", url: redirect_url]
     end
   end
 end

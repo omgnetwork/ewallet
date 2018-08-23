@@ -3,6 +3,7 @@ defmodule EWallet.Web.Inviter do
   This module handles user invite and confirmation of their emails.
   """
   alias EWallet.{EmailValidator, Mailer}
+  alias EWallet.Web.UrlValidator
   alias EWalletDB.{Account, AccountUser, Invite, Membership, Repo, Role, User}
   alias EWalletDB.Helpers.Crypto
 
@@ -69,7 +70,7 @@ defmodule EWallet.Web.Inviter do
   @spec send_email(%Invite{}, String.t(), Bamboo.Email.t()) ::
           {:ok, %Invite{}} | {:error, :invalid_parameter, String.t()}
   def send_email(invite, redirect_url, template) do
-    if valid_url?(redirect_url) do
+    if UrlValidator.allowed_redirect_url?(redirect_url) do
       _ =
         invite
         |> Repo.preload(:user)
@@ -78,13 +79,7 @@ defmodule EWallet.Web.Inviter do
 
       {:ok, invite}
     else
-      {:error, :invalid_parameter,
-       "The given `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."}
+      {:error, :prohibited_url, param_name: "redirect_url", url: redirect_url}
     end
-  end
-
-  defp valid_url?(url) do
-    base_url = Application.get_env(:ewallet, :base_url)
-    String.starts_with?(url, base_url)
   end
 end

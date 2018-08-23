@@ -16,7 +16,8 @@ defmodule EWalletAPI.V1.AuthController do
          password when is_binary(password) <- attrs["password"] || {:error, :missing_password},
          conn <- EndUserAuthenticator.authenticate(conn, email, password),
          true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
-         true <- User.get_status(conn.assigns.end_user) == :active || {:error, :invite_pending},
+         true <-
+           User.get_status(conn.assigns.end_user) == :active || {:error, :email_not_verified},
          {:ok, auth_token} <- AuthToken.generate(conn.assigns.end_user, :ewallet_api) do
       render(conn, :auth_token, %{auth_token: auth_token})
     else

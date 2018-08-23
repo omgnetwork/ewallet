@@ -3,8 +3,7 @@ defmodule EWallet.SignupGate do
   Handles signups of new users.
   """
   alias EWallet.EmailValidator
-  alias EWallet.Web.Inviter
-  alias EWalletAPI.V1.VerifyEmailController
+  alias EWallet.Web.{Inviter, UrlValidator}
   alias EWalletAPI.VerificationEmail
   alias EWalletDB.{Invite, Validator}
 
@@ -24,33 +23,20 @@ defmodule EWallet.SignupGate do
     end
   end
 
-  defp validate_verification_url(nil) do
-    {:ok, VerifyEmailController.verify_url()}
-  end
-
   defp validate_verification_url(url) do
-    if valid_url?(url) do
+    if UrlValidator.allowed_redirect_url?(url) do
       {:ok, url}
     else
-      {:error, :invalid_parameter,
-       "The given `verification_url` is not allowed to be used. Got: '#{url}'."}
+      {:error, :prohibited_url, param_name: "verification_url", url: url}
     end
   end
-
-  defp validate_success_url(nil), do: {:ok, nil}
 
   defp validate_success_url(url) do
-    if valid_url?(url) do
+    if UrlValidator.allowed_redirect_url?(url) do
       {:ok, url}
     else
-      {:error, :invalid_parameter,
-       "The given `success_url` is not allowed to be used. Got: '#{url}'."}
+      {:error, :prohibited_url, param_name: "success_url", url: url}
     end
-  end
-
-  defp valid_url?(url) do
-    base_url = Application.get_env(:ewallet, :base_url)
-    String.starts_with?(url, base_url)
   end
 
   @doc """

@@ -4,12 +4,13 @@ defmodule AdminAPI.V1.ResetPasswordController do
   alias AdminAPI.ForgetPasswordEmail
   alias Bamboo.Email
   alias EWallet.Mailer
+  alias EWallet.Web.UrlValidator
   alias EWalletDB.{ForgetPasswordRequest, User}
 
   @spec reset(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def reset(conn, %{"email" => email, "redirect_url" => redirect_url})
       when not is_nil(email) and not is_nil(redirect_url) do
-    with true <- valid_url?(redirect_url) || :invalid_redirect_url,
+    with {:ok, redirect_url} <- validate_redirect_url(redirect_url),
          %User{} = user <- User.get_by_email(email) || :user_email_not_found,
          {_, _} <- ForgetPasswordRequest.delete_all(user),
          %ForgetPasswordRequest{} = request <- ForgetPasswordRequest.generate(user),
@@ -17,12 +18,8 @@ defmodule AdminAPI.V1.ResetPasswordController do
          %Email{} <- Mailer.deliver_now(email_object) do
       render(conn, :empty, %{success: true})
     else
-      :invalid_redirect_url ->
-        handle_error(
-          conn,
-          :invalid_parameter,
-          "The `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."
-        )
+      {:error, code, meta} ->
+        handle_error(conn, code, meta)
 
       error_code ->
         handle_error(conn, error_code)
@@ -31,9 +28,12 @@ defmodule AdminAPI.V1.ResetPasswordController do
 
   def reset(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  defp valid_url?(url) do
-    base_url = Application.get_env(:admin_api, :base_url)
-    String.starts_with?(url, base_url)
+  defp validate_redirect_url(url) do
+    if UrlValidator.allowed_redirect_url?(url) do
+      {:ok, url}
+    else
+      {:error, :prohibited_url, param_name: "redirect_url", url: url}
+    end
   end
 
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()

@@ -21,6 +21,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "client:invalid_parameter",
       description: "Invalid parameter provided. `redirect_url` can't be blank."
     },
+    prohibited_url: %{
+      code: "client:invalid_parameter",
+      template: "The given `%{param_name}` is not allowed to be used. Got: '%{url}'."
+    },
     missing_token: %{
       code: "client:invalid_parameter",
       description: "Invalid parameter provided. `token` can't be blank."
@@ -44,6 +48,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
     invite_pending: %{
       code: "user:invite_pending",
       description: "The user has not accepted the invite."
+    },
+    email_not_verified: %{
+      code: "user:email_not_verified",
+      description: "Your user account has not been confirmed yet. Please check your emails."
     },
     user_already_active: %{
       code: "user:already_active",

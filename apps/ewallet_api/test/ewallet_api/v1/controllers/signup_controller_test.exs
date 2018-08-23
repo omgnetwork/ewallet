@@ -1,5 +1,10 @@
 defmodule EWalletAPI.V1.SignupControllerTest do
   use EWalletAPI.ConnCase, async: true
+  import Bamboo.Test, only: [assert_delivered_email: 1]
+  alias EWallet.Web.Preloader
+  alias EWalletAPI.V1.VerifyEmailController
+  alias EWalletAPI.VerificationEmail
+  alias EWalletDB.User
 
   describe "/user.signup" do
     test "returns success with an empty response" do
@@ -13,6 +18,36 @@ defmodule EWalletAPI.V1.SignupControllerTest do
       assert response["version"] == @expected_version
       assert response["success"] == true
       assert response["data"] == %{}
+    end
+
+    test "uses the default verification_url if not provided" do
+      %{"success" => true} =
+        client_request("/user.signup", %{
+          email: "test_verfication_url@example.com",
+          password: "the_password",
+          password_confirmation: "the_password"
+        })
+
+      user = User.get_by(email: "test_verfication_url@example.com")
+      {:ok, user} = Preloader.preload_one(user, :invite)
+
+      assert_delivered_email(
+        VerificationEmail.create(user.invite, VerifyEmailController.verify_url())
+      )
+    end
+
+    test "uses the default success_url if not provided" do
+      %{"success" => true} =
+        client_request("/user.signup", %{
+          email: "test_success_url@example.com",
+          password: "the_password",
+          password_confirmation: "the_password"
+        })
+
+      user = User.get_by(email: "test_success_url@example.com")
+      {:ok, user} = Preloader.preload_one(user, :invite)
+
+      assert user.invite.success_url == VerifyEmailController.success_url()
     end
 
     test "returns client:invalid_parameter when email is not provided" do
