@@ -9,6 +9,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
   alias EWalletDB.Token
 
   @errors %{
+    missing_master_account: %{
+      code: "account:missing_master_account",
+      description: "Unable to find the master account."
+    },
     missing_email: %{
       code: "client:invalid_parameter",
       description: "Invalid parameter provided. `email` can't be blank."

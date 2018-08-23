@@ -93,7 +93,7 @@ defmodule EWallet.Web.Inviter do
       {:ok, invite}
     else
       {:error, :invalid_parameter,
-       "The `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."}
+       "The given `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."}
     end
   end
 

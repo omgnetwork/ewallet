@@ -37,13 +37,13 @@ defmodule EWallet.SignupGate do
     end
   end
 
-  defp validate_success_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
-
-  defp validate_success_url(_), do: {:ok, nil}
-
   defp validate_redirect_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
 
   defp validate_redirect_url(_), do: {:error, :missing_redirect_url}
+
+  defp validate_success_url(url) when is_binary(url) and byte_size(url) > 0, do: {:ok, url}
+
+  defp validate_success_url(_), do: {:ok, nil}
 
   @doc """
   Verifies a user's email address.
