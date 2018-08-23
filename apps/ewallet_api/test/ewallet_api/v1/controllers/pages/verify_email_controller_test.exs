@@ -28,7 +28,8 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
       _user = insert(:standalone_user, %{invite: invite})
       response = verify_email("wrong@example.com", invite.token) |> text_response(:ok)
 
-      assert response == "Unable to verify your email address. There is no pending email verification for the provided email and token."
+      assert response ==
+               "Unable to verify your email address. There is no pending email verification for the provided email and token."
     end
 
     test "returns an error when the token is invalid" do
@@ -36,7 +37,8 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
       user = insert(:standalone_user, %{invite: invite})
       response = verify_email(user.email, "wrong_token") |> text_response(:ok)
 
-      assert response == "Unable to verify your email address. There is no pending email verification for the provided email and token."
+      assert response ==
+               "Unable to verify your email address. There is no pending email verification for the provided email and token."
     end
   end
 

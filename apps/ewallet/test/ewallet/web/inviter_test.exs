@@ -37,7 +37,7 @@ defmodule EWallet.Web.InviterTest do
 
       {:ok, invite} = Preloader.preload_one(invite, :user)
       accounts = User.get_all_linked_accounts(invite.user.uuid)
-      assert Enum.any?(accounts, fn (account) -> Account.master?(account) end)
+      assert Enum.any?(accounts, fn account -> Account.master?(account) end)
     end
 
     test "resends the verification email if the user has not verified their email" do
@@ -118,7 +118,9 @@ defmodule EWallet.Web.InviterTest do
 
       assert res == :error
       assert error == :invalid_parameter
-      assert description == "The given `redirect_url` is not allowed to be used. Got: 'http://wrong_redirect_url'."
+
+      assert description ==
+               "The given `redirect_url` is not allowed to be used. Got: 'http://wrong_redirect_url'."
     end
 
     test "returns client:invalid_parameter if the given success_url is not allowed" do
@@ -133,7 +135,9 @@ defmodule EWallet.Web.InviterTest do
 
       assert res == :error
       assert error == :invalid_parameter
-      assert description == "The given `success_url` is not allowed to be used. Got: 'http://wrong_success_url'."
+
+      assert description ==
+               "The given `success_url` is not allowed to be used. Got: 'http://wrong_success_url'."
     end
   end
 
