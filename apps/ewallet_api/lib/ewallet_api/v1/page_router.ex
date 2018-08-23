@@ -1,4 +1,7 @@
 defmodule EWalletAPI.V1.PageRouter do
+  @moduledoc """
+  Routes for html pages.
+  """
   use EWalletAPI, :router
   alias EWalletAPI.V1.StandalonePlug
 

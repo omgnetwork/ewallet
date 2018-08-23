@@ -1,4 +1,7 @@
 defmodule EWalletAPI.V1.Router do
+  @moduledoc """
+  Routes for the eWallet API endpoints.
+  """
   use EWalletAPI, :router
   alias EWalletAPI.V1.ClientAuthPlug
   alias EWalletAPI.V1.StandalonePlug
