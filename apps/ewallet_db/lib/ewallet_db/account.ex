@@ -259,12 +259,28 @@ defmodule EWalletDB.Account do
   @doc """
   Get the master account for the current wallet setup.
   """
-  @spec get_preloaded_primary_wallet(keyword()) :: %Account{} | nil
+  @spec get_master_account(keyword()) :: %Account{} | nil
   def get_master_account(opts \\ []) do
     Account
     |> where([a], is_nil(a.parent_uuid))
     |> Repo.one()
     |> preload_option(opts)
+  end
+
+  @doc """
+  Fetches the master account for the current eWallet setup.
+
+  Returns `{:ok, account}` when successful, or `{:error, :missing_master_account}` on failure.
+  """
+  @spec fetch_master_account(keyword()) :: {:ok, %Account{}} | {:error, :missing_master_account}
+  def fetch_master_account(opts \\ []) do
+    case get_master_account(opts) do
+      %__MODULE__{} = account ->
+        {:ok, account}
+
+      _ ->
+        {:error, :missing_master_account}
+    end
   end
 
   @doc """
