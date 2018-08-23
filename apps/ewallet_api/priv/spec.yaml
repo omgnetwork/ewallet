@@ -1281,14 +1281,26 @@ components:
               email:
                 type: string
                 format: email
-              redirect_url:
+              password:
+                type: string
+                format: password
+              password_confirmation:
+                type: string
+                format: password
+              verification_url:
+                type: string
+              success_url:
                 type: string
             required:
               - email
-              - redirect_url
+              - password
+              - password_confirmation
             example:
               email: "johndoe@example.com"
-              redirect_url: "https://example.com/verify_email?email={email}&token={token}"
+              password: "password"
+              password_confirmation: "password"
+              verification_url: "https://example.com/verify_email?email={email}&token={token}"
+              success_url: "https://example.com/verify_email/success"
     UserVerifyEmailBody:
       description: The parameters to use for verifying a user's email
       required: true
@@ -1301,22 +1313,12 @@ components:
                 format: email
               token:
                 type: string
-              password:
-                type: string
-                format: password
-              password_confirmation:
-                type: string
-                format: password
             required:
               - email
               - token
-              - password
-              - password_confirmation
             example:
               email: "johndoe@example.com"
               token: "some_token_string"
-              password: "new_password"
-              password_confirmation: "new_password"
     ProviderIdBody:
       description: The parameters to use for providing a provider user id
       required: true
