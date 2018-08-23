@@ -39,11 +39,46 @@
     "description" : "Resources related to global settings of the wallet."
   } ],
   "paths" : {
+    "/user.login" : {
+      "post" : {
+        "tags" : [ "Session" ],
+        "summary" : "Login to retrieve a user's authentication_token.",
+        "operationId" : "user_login",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/LoginBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single authentication token",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/AuthenticationTokenResponse"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ClientAuth" : [ ]
+        } ]
+      }
+    },
     "/me.logout" : {
       "post" : {
         "tags" : [ "Session" ],
         "summary" : "Expires a user's authentication_token.",
-        "operationId" : "logout",
+        "operationId" : "me_logout",
         "responses" : {
           "200" : {
             "description" : "Returns an empty response",
@@ -68,6 +103,80 @@
         },
         "security" : [ {
           "ClientAuth" : [ ]
+        } ]
+      }
+    },
+    "/user.signup" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Sign up a new user",
+        "operationId" : "user_signup",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/UserSignupBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single user",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/user.verify_email" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Verify the email for a user",
+        "operationId" : "user_verify_email",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/UserVerifyEmailBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single user",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
         } ]
       }
     },
@@ -542,7 +651,7 @@
         } ]
       },
       "AuthenticationTokenSchema" : {
-        "required" : [ "authentication_token", "object" ],
+        "required" : [ "authentication_token", "object", "user", "user_id" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -550,6 +659,12 @@
           },
           "authentication_token" : {
             "type" : "string"
+          },
+          "user_id" : {
+            "type" : "string"
+          },
+          "user" : {
+            "$ref" : "#/components/schemas/UserSchema"
           }
         },
         "description" : "The object schema for an authentication token"
@@ -569,13 +684,30 @@
           "example" : {
             "data" : {
               "object" : "authentication_token",
-              "authentication_token" : "azJRj09l7jvR8KhTqUs3"
+              "authentication_token" : "azJRj09l7jvR8KhTqUs3",
+              "user_id" : "usr_01cc02x0v98qcctvycfx4vsk8x",
+              "user" : {
+                "object" : "user",
+                "id" : "usr_01cc02x0v98qcctvycfx4vsk8x",
+                "provider_user_id" : "wijf-fbancomw-dqwjudb",
+                "username" : "johndoe",
+                "email" : "johndoe@omise.co",
+                "metadata" : {
+                  "first_name" : "John",
+                  "last_name" : "Doe"
+                },
+                "encrypted_metadata" : {
+                  "something" : "secret"
+                },
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T10:00:00Z"
+              }
             }
           }
         } ]
       },
       "UserSchema" : {
-        "required" : [ "id", "object", "provider_user_id", "username" ],
+        "required" : [ "created_at", "id", "object", "updated_at" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -590,11 +722,26 @@
           "provider_user_id" : {
             "type" : "string"
           },
+          "email" : {
+            "type" : "string",
+            "format" : "email"
+          },
           "metadata" : {
             "type" : "object"
           },
           "encrypted_metadata" : {
             "type" : "object"
+          },
+          "avatar" : {
+            "type" : "object"
+          },
+          "created_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "format" : "date-time"
           }
         },
         "description" : "The object schema for a user",
@@ -602,12 +749,18 @@
           "object" : "user",
           "id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
           "provider_user_id" : "wijf-fbancomw-dqwjudb",
-          "username" : "thibault@omise.co",
+          "username" : "johndoe",
+          "email" : "johndoe@omise.co",
           "metadata" : {
-            "first_name" : "Thibault",
-            "last_name" : "Denizet"
+            "first_name" : "John",
+            "last_name" : "Doe"
           },
-          "encrypted_metadata" : { }
+          "encrypted_metadata" : { },
+          "avatar" : {
+            "original" : "file_url"
+          },
+          "created_at" : "2018-01-01T00:00:00Z",
+          "updated_at" : "2018-01-01T10:00:00Z"
         }
       },
       "UserResponseSchema" : {
@@ -627,12 +780,18 @@
               "object" : "user",
               "id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
               "provider_user_id" : "wijf-fbancomw-dqwjudb",
-              "username" : "thibault@omise.co",
+              "username" : "johndoe",
+              "email" : "johndoe@omise.co",
               "metadata" : {
-                "first_name" : "Thibault",
-                "last_name" : "Denizet"
+                "first_name" : "John",
+                "last_name" : "Doe"
               },
-              "encrypted_metadata" : { }
+              "encrypted_metadata" : { },
+              "avatar" : {
+                "original" : "file_url"
+              },
+              "created_at" : "2018-01-01T00:00:00Z",
+              "updated_at" : "2018-01-01T10:00:00Z"
             }
           }
         } ]
@@ -1552,34 +1711,87 @@
       }
     },
     "requestBodies" : {
-      "UserBody" : {
-        "description" : "The parameters to use for creating or updating a user",
+      "LoginBody" : {
+        "description" : "The parameters to use for logging in a user",
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "provider_user_id", "username" ],
+              "required" : [ "email", "password" ],
               "properties" : {
-                "provider_user_id" : {
-                  "type" : "string"
+                "email" : {
+                  "type" : "string",
+                  "format" : "email"
                 },
-                "username" : {
-                  "type" : "string"
-                },
-                "metadata" : {
-                  "type" : "object"
-                },
-                "encrypted_metadata" : {
-                  "type" : "object"
+                "password" : {
+                  "type" : "string",
+                  "format" : "password"
                 }
               },
               "example" : {
-                "provider_user_id" : "wijf-fbancomw-dqwjudb",
-                "username" : "thibault@omise.co",
-                "metadata" : {
-                  "first_name" : "Thibault",
-                  "last_name" : "Denizet"
+                "email" : "test@example.com",
+                "password" : "the_password"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "UserSignupBody" : {
+        "description" : "The parameters to use for signing up a user",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "email", "password", "password_confirmation" ],
+              "properties" : {
+                "email" : {
+                  "type" : "string",
+                  "format" : "email"
                 },
-                "encrypted_metadata" : { }
+                "password" : {
+                  "type" : "string",
+                  "format" : "password"
+                },
+                "password_confirmation" : {
+                  "type" : "string",
+                  "format" : "password"
+                },
+                "verification_url" : {
+                  "type" : "string"
+                },
+                "success_url" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "email" : "johndoe@example.com",
+                "password" : "password",
+                "password_confirmation" : "password",
+                "verification_url" : "https://example.com/verify_email?email={email}&token={token}",
+                "success_url" : "https://example.com/verify_email/success"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "UserVerifyEmailBody" : {
+        "description" : "The parameters to use for verifying a user's email",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "email", "token" ],
+              "properties" : {
+                "email" : {
+                  "type" : "string",
+                  "format" : "email"
+                },
+                "token" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "email" : "johndoe@example.com",
+                "token" : "some_token_string"
               }
             }
           }
