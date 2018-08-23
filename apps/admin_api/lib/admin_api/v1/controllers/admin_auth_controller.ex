@@ -58,7 +58,7 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  @spec permit(:get | :update, map()) :: {:ok, %EWalletDB.User{}} | atom() | no_return()
+  @spec permit(:get | :update, map()) :: {:ok, %EWalletDB.User{}} | {:error, :access_key_unauthorized}
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end

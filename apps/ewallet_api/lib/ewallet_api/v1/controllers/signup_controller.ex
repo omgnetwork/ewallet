@@ -2,6 +2,7 @@ defmodule EWalletAPI.V1.SignupController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.{SignupGate, UserPolicy}
+  alias EWallet.Web.Preloader
   alias EWalletAPI.V1.VerifyEmailController
 
   @doc """
@@ -32,7 +33,8 @@ defmodule EWalletAPI.V1.SignupController do
   @spec verify_email(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def verify_email(conn, attrs) do
     with :ok <- permit(:verify_email, conn.assigns, nil),
-         {:ok, invite} <- SignupGate.verify_email(attrs) do
+         {:ok, invite} <- SignupGate.verify_email(attrs),
+         {:ok, invite} <- Preloader.preload_one(invite, :user) do
       render(conn, :user, %{user: invite.user})
     else
       {:error, code} ->
