@@ -76,22 +76,6 @@ defmodule EWallet.Web.InviterTest do
       assert res == :error
       assert error == :user_already_active
     end
-
-    test "returns client:invalid_parameter if the given redirect_url is not allowed" do
-      {res, error, description} =
-        Inviter.invite_user(
-          "redirect_url_not_allowed@example.com",
-          "password",
-          "http://wrong_redirect_url",
-          @user_success_url,
-          VerificationEmail
-        )
-
-      assert res == :error
-      assert error == :prohibited_url
-
-      assert description == [param_name: "redirect_url", url: "http://wrong_redirect_url"]
-    end
   end
 
   describe "invite_admin/5" do
@@ -135,17 +119,6 @@ defmodule EWallet.Web.InviterTest do
              end)
     end
 
-    test "returns :invalid_email error if email is invalid" do
-      email = "not-an-email"
-      account = insert(:account)
-      role = insert(:role)
-
-      {res, error} = Inviter.invite_admin(email, account, role, @admin_redirect_url, InviteEmail)
-
-      assert res == :error
-      assert error == :invalid_email
-    end
-
     test "returns :user_already_active error if user is already active" do
       # This should already be an active user
       _user = insert(:admin, %{email: "activeuser@example.com"})
@@ -175,17 +148,6 @@ defmodule EWallet.Web.InviterTest do
 
       assert res == :ok
       assert_delivered_email(InviteEmail.create(invite, @admin_redirect_url))
-    end
-
-    test "returns :invalid_parameter error if the redirect_url value is not allowed" do
-      invite = insert(:invite)
-      redirect_url = "http://example.com/invite?email={email}&token={token}"
-      {res, code, description} = Inviter.send_email(invite, redirect_url, InviteEmail)
-
-      assert res == :error
-      assert code == :prohibited_url
-
-      assert description == [param_name: "redirect_url", url: redirect_url]
     end
   end
 end

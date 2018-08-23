@@ -67,19 +67,14 @@ defmodule EWallet.Web.Inviter do
   @doc """
   Sends the invite email.
   """
-  @spec send_email(%Invite{}, String.t(), Bamboo.Email.t()) ::
-          {:ok, %Invite{}} | {:error, :invalid_parameter, String.t()}
-  def send_email(invite, redirect_url, template) do
-    if UrlValidator.allowed_redirect_url?(redirect_url) do
-      _ =
-        invite
-        |> Repo.preload(:user)
-        |> template.create(redirect_url)
-        |> Mailer.deliver_now()
+  @spec send_email(%Invite{}, String.t(), (%Invite{}, String.t() -> Bamboo.Email.t())) :: {:ok, %Invite{}}
+  def send_email(invite, redirect_url, create_email_func) do
+    _ =
+      invite
+      |> Repo.preload(:user)
+      |> create_email_func.(redirect_url)
+      |> Mailer.deliver_now()
 
-      {:ok, invite}
-    else
-      {:error, :prohibited_url, param_name: "redirect_url", url: redirect_url}
-    end
+    {:ok, invite}
   end
 end
