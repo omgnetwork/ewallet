@@ -4,14 +4,13 @@ defmodule EWallet.SignupGate do
   """
   alias EWallet.EmailValidator
   alias EWallet.Web.{Inviter, UrlValidator}
-  alias EWalletAPI.VerificationEmail
   alias EWalletDB.{Invite, Validator}
 
   @doc """
   Signs up new users.
   """
-  @spec signup(map()) :: {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
-  def signup(attrs) do
+  @spec signup(map(), fun()) :: {:ok, %Invite{}} | {:error, atom() | Ecto.Changeset.t()}
+  def signup(attrs, email_func) do
     with {:ok, email} <- EmailValidator.validate(attrs["email"]),
          {:ok, password} <- Validator.validate_password(attrs["password"]),
          true <- password == attrs["password_confirmation"] || {:error, :passwords_mismatch},
@@ -22,7 +21,7 @@ defmodule EWallet.SignupGate do
         password,
         verification_url,
         success_url,
-        &VerificationEmail.create/2
+        email_func
       )
     else
       error -> error

@@ -1,6 +1,7 @@
 defmodule EWallet.SignupGateTest do
   use EWallet.DBCase, async: true
   alias EWallet.SignupGate
+  alias EWalletAPI.VerificationEmail
   alias EWalletDB.Invite
 
   @verification_url "http://localhost:4000/verification_url?email={email}&token={token}"
@@ -12,13 +13,16 @@ defmodule EWallet.SignupGateTest do
       _ = insert(:account)
 
       {res, invite} =
-        SignupGate.signup(%{
-          "email" => "signup_success@example.com",
-          "password" => "password",
-          "password_confirmation" => "password",
-          "verification_url" => @verification_url,
-          "success_url" => @success_url
-        })
+        SignupGate.signup(
+          %{
+            "email" => "signup_success@example.com",
+            "password" => "password",
+            "password_confirmation" => "password",
+            "verification_url" => @verification_url,
+            "success_url" => @success_url
+          },
+          &VerificationEmail.create/2
+        )
 
       assert res == :ok
       assert %Invite{} = invite
@@ -26,13 +30,16 @@ defmodule EWallet.SignupGateTest do
 
     test "returns an error when the given verification_url is not whitelisted" do
       {res, code, meta} =
-        SignupGate.signup(%{
-          "email" => "with_verification_url@example.com",
-          "password" => "password",
-          "password_confirmation" => "password",
-          "verification_url" => "https://example.com/verify",
-          "success_url" => @success_url
-        })
+        SignupGate.signup(
+          %{
+            "email" => "with_verification_url@example.com",
+            "password" => "password",
+            "password_confirmation" => "password",
+            "verification_url" => "https://example.com/verify",
+            "success_url" => @success_url
+          },
+          &VerificationEmail.create/2
+        )
 
       assert res == :error
       assert code == :prohibited_url
@@ -41,13 +48,16 @@ defmodule EWallet.SignupGateTest do
 
     test "returns an error when the given success_url is not whitelisted" do
       {res, code, meta} =
-        SignupGate.signup(%{
-          "email" => "with_verification_url@example.com",
-          "password" => "password",
-          "password_confirmation" => "password",
-          "verification_url" => @verification_url,
-          "success_url" => "https://example.com/verify_success"
-        })
+        SignupGate.signup(
+          %{
+            "email" => "with_verification_url@example.com",
+            "password" => "password",
+            "password_confirmation" => "password",
+            "verification_url" => @verification_url,
+            "success_url" => "https://example.com/verify_success"
+          },
+          &VerificationEmail.create/2
+        )
 
       assert res == :error
       assert code == :prohibited_url
@@ -56,13 +66,16 @@ defmodule EWallet.SignupGateTest do
 
     test "returns an error when the email format is invalid" do
       {res, code} =
-        SignupGate.signup(%{
-          "email" => "invalid-email-format",
-          "password" => "password",
-          "password_confirmation" => "password",
-          "verification_url" => @verification_url,
-          "success_url" => @success_url
-        })
+        SignupGate.signup(
+          %{
+            "email" => "invalid-email-format",
+            "password" => "password",
+            "password_confirmation" => "password",
+            "verification_url" => @verification_url,
+            "success_url" => @success_url
+          },
+          &VerificationEmail.create/2
+        )
 
       assert res == :error
       assert code == :invalid_email
@@ -70,13 +83,16 @@ defmodule EWallet.SignupGateTest do
 
     test "returns an error when the password is not provided" do
       {res, code, description} =
-        SignupGate.signup(%{
-          "email" => "password_not_provided@example.com",
-          "password" => "",
-          "password_confirmation" => "",
-          "verification_url" => @verification_url,
-          "success_url" => @success_url
-        })
+        SignupGate.signup(
+          %{
+            "email" => "password_not_provided@example.com",
+            "password" => "",
+            "password_confirmation" => "",
+            "verification_url" => @verification_url,
+            "success_url" => @success_url
+          },
+          &VerificationEmail.create/2
+        )
 
       assert res == :error
       assert code == :password_too_short
@@ -85,13 +101,16 @@ defmodule EWallet.SignupGateTest do
 
     test "returns an error when the passwords were provided but do not match" do
       {res, code} =
-        SignupGate.signup(%{
-          "email" => "passwords_mismatch@example.com",
-          "password" => "password",
-          "password_confirmation" => "another_password",
-          "verification_url" => @verification_url,
-          "success_url" => @success_url
-        })
+        SignupGate.signup(
+          %{
+            "email" => "passwords_mismatch@example.com",
+            "password" => "password",
+            "password_confirmation" => "another_password",
+            "verification_url" => @verification_url,
+            "success_url" => @success_url
+          },
+          &VerificationEmail.create/2
+        )
 
       assert res == :error
       assert code == :passwords_mismatch
@@ -99,13 +118,16 @@ defmodule EWallet.SignupGateTest do
 
     test "returns an error when the passwords are less than 8 characters" do
       {res, code, description} =
-        SignupGate.signup(%{
-          "email" => "password_too_short@example.com",
-          "password" => "pwd",
-          "password_confirmation" => "pwd",
-          "verification_url" => @verification_url,
-          "success_url" => @success_url
-        })
+        SignupGate.signup(
+          %{
+            "email" => "password_too_short@example.com",
+            "password" => "pwd",
+            "password_confirmation" => "pwd",
+            "verification_url" => @verification_url,
+            "success_url" => @success_url
+          },
+          &VerificationEmail.create/2
+        )
 
       assert res == :error
       assert code == :password_too_short
