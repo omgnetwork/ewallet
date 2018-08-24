@@ -35,7 +35,13 @@ We try to provide sane default values, but if needed, the following environment 
 
 The eWallet is able to work independent of an external integration. The default configurations expect the eWallet to be integrated with another system, but the following environment variables can be configured:
 
-- `ENABLE_STANDALONE`: Enables standalone functionalities like `/api/client/user.signup`, `/api/client/user.verify_email` and `/api/client/user.login` so that the eWallet can be used without integration with other systems. Set `ENABLE_STANDALONE=true` to enable the feature.
+- `ENABLE_STANDALONE`: Enables standalone mode such as `/api/client/user.signup`, `/api/client/user.verify_email` and `/api/client/user.login` so that the eWallet can be used without integration with other systems. Set `ENABLE_STANDALONE=true` to enable the feature.
+
+## External redirects
+
+Some features such as email verification allows redirects to URIs external to the eWallet. For security reasons we do not allow redirects to arbitary URIs, unless the prefix is whitelisted.
+
+- `REDIRECT_URL_PREFIXES`: A comma-separated list of prefixes that are allowed to be redirected to. For example, `REDIRECT_URL_PREFIXES=https://example.com,pos-client://example.com` allows redirects to `https://example.com/some_url` and `pos-client://example.com/some_deep_linked_url`.
 
 ## Error Reporting
 
