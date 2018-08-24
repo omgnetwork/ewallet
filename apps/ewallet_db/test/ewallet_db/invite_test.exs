@@ -61,6 +61,29 @@ defmodule EWalletDB.InviteTest do
     end
   end
 
+  describe "Invite.fetch/2" do
+    test "returns `{:ok, invite}` if the given email and token combo is found" do
+      invite = insert(:invite, %{token: "the_token"})
+
+      _user =
+        insert(:admin, %{
+          email: "testemail@omise.co",
+          invite: invite
+        })
+
+      assert {:ok, %Invite{}} = Invite.fetch("testemail@omise.co", "the_token")
+    end
+
+    test "returns `{:error, :email_token_not_found}` if the given email and token combo is not found" do
+      insert(:admin, %{
+        email: "testemail@omise.co",
+        invite: insert(:invite)
+      })
+
+      assert Invite.fetch("testemail@omise.co", "wrong_token") == {:error, :email_token_not_found}
+    end
+  end
+
   describe "Invite.generate/2" do
     test "returns {:ok, invite} for the given user" do
       user = insert(:admin)
@@ -68,6 +91,8 @@ defmodule EWalletDB.InviteTest do
 
       assert result == :ok
       assert %Invite{} = invite
+      assert invite.user_uuid == user.uuid
+      assert invite.verified_at == nil
     end
 
     test "associates the invite_uuid to the user" do
@@ -76,6 +101,13 @@ defmodule EWalletDB.InviteTest do
 
       user = User.get(user.id)
       assert user.invite_uuid == invite.uuid
+    end
+
+    test "sets the success_url if the option is given" do
+      user = insert(:admin)
+      {:ok, invite} = Invite.generate(user, success_url: "http://some_url")
+
+      assert invite.success_url == "http://some_url"
     end
 
     test "preloads the invite if the option is given" do
@@ -88,34 +120,46 @@ defmodule EWalletDB.InviteTest do
 
   describe "Invite.accept/2" do
     test "sets user to :active status" do
-      invite = insert(:invite)
-      user = insert(:admin, %{invite: invite})
+      {:ok, invite} = Invite.generate(insert(:admin))
+      user = User.get_by(uuid: invite.user_uuid)
 
-      :pending_confirmation = User.get_status(user)
+      assert User.get_status(user) == :pending_confirmation
+
       {:ok, _invite} = Invite.accept(invite, "some_password")
-      status = user.id |> User.get() |> User.get_status()
+      user = User.get(user.id)
 
-      assert status == :active
+      assert User.get_status(user) == :active
     end
 
     test "sets user with the given password" do
-      invite = insert(:invite)
-      user = insert(:admin, %{invite: invite})
+      admin = insert(:admin)
+      {:ok, invite} = Invite.generate(admin)
+
       {res, _invite} = Invite.accept(invite, "some_password")
-      user = User.get(user.id)
+      admin = User.get(admin.id)
 
       assert res == :ok
-      assert Crypto.verify_password("some_password", user.password_hash)
+      assert Crypto.verify_password("some_password", admin.password_hash)
     end
 
-    test "deletes the invite" do
-      invite = insert(:invite)
-      _user = insert(:admin, %{invite: invite})
+    test "disassociates the invite_uuid from the user" do
+      admin = insert(:admin)
+      {:ok, invite} = Invite.generate(admin)
 
       {res, _invite} = Invite.accept(invite, "some_password")
 
       assert res == :ok
-      assert Invite.get(invite.uuid) == nil
+      assert User.get(admin.id).invite_uuid == nil
+    end
+
+    test "sets verified_at date time" do
+      admin = insert(:admin)
+      {:ok, invite} = Invite.generate(admin)
+
+      {res, invite} = Invite.accept(invite, "some_password")
+
+      assert res == :ok
+      assert invite.verified_at != nil
     end
   end
 end

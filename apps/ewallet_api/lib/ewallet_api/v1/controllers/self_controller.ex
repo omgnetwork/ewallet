@@ -14,7 +14,7 @@ defmodule EWalletAPI.V1.SelfController do
   end
 
   def get_wallets(conn, _attrs) do
-    %{"provider_user_id" => conn.assigns.user.provider_user_id}
+    %{"user_id" => conn.assigns.user.id}
     |> BalanceFetcher.all()
     |> respond(conn)
   end

@@ -9,8 +9,7 @@ use Mix.Config
 config :admin_api,
   namespace: AdminAPI,
   ecto_repos: [],
-  base_url: {:system, "BASE_URL", "http://localhost:4000"},
-  sender_email: {:system, "SENDER_EMAIL", "admin@localhost"}
+  base_url: {:system, "BASE_URL", "http://localhost:4000"}
 
 # Configs for the endpoint
 config :admin_api, AdminAPI.Endpoint,
@@ -35,9 +34,6 @@ config :admin_api, AdminAPI.V1.Endpoint,
 
 # Config for Phoenix's generators
 config :admin_api, :generators, context_app: false
-
-# Configs for Bamboo emailing library
-config :admin_api, AdminAPI.Mailer, adapter: Bamboo.LocalAdapter
 
 # Two configs need to be added to have a new EWallet Admin version:
 #

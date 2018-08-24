@@ -247,16 +247,16 @@ defmodule EWalletDB.ValidatorTest do
       assert validate_password("valid_password") == {:ok, "valid_password"}
     end
 
-    test "returns {:error, :too_short, data} if the password is nil" do
-      assert validate_password(nil) == {:error, :too_short, [min_length: 8]}
+    test "returns {:error, :password_too_short, data} if the password is nil" do
+      assert validate_password(nil) == {:error, :password_too_short, [min_length: 8]}
     end
 
-    test "returns {:error, :too_short, data} if the password is empty" do
-      assert validate_password("") == {:error, :too_short, [min_length: 8]}
+    test "returns {:error, :password_too_short, data} if the password is empty" do
+      assert validate_password("") == {:error, :password_too_short, [min_length: 8]}
     end
 
-    test "returns {:error, :too_short, data} if the password is shorter than 8 chars" do
-      assert validate_password("short") == {:error, :too_short, [min_length: 8]}
+    test "returns {:error, :password_too_short, data} if the password is shorter than 8 chars" do
+      assert validate_password("short") == {:error, :password_too_short, [min_length: 8]}
     end
   end
 

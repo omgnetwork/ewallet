@@ -120,7 +120,7 @@ defmodule EWallet.Seeder.CLI do
       byte_size(val) == 0 ->
         {name, process_default(default)}
 
-      EmailValidator.validate(val) ->
+      EmailValidator.valid?(val) ->
         {name, val}
 
       true ->
@@ -144,7 +144,7 @@ defmodule EWallet.Seeder.CLI do
         {:ok, password} ->
           {name, password}
 
-        {:error, :too_short, d} ->
+        {:error, :password_too_short, d} ->
           IO.puts("#{prompt} must be at least #{d[:min_length]} characters. Please try again.")
           process_input(input)
       end

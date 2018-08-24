@@ -7,17 +7,25 @@ defmodule EWallet.EmailValidator do
   @doc """
   Checks whether the email address looks correct.
   """
-  @spec valid?(String.t()) :: boolean()
+  @spec valid?(String.t() | nil) :: boolean()
+  def valid?(nil), do: false
+
   def valid?(email) do
     Regex.match?(@email_regex, email)
   end
 
   @doc """
   Checks whether the email address looks correct.
-  Returns the email string if valid, returns false if invalid.
+  Returns `{:ok, email}` if valid, returns `{:error, :invalid_email}` if invalid.
   """
-  @spec validate(String.t()) :: String.t() | false
+  @spec validate(String.t() | nil) :: {:ok, String.t()} | {:error, :invalid_email}
+  def validate(nil), do: {:error, :invalid_email}
+
   def validate(email) do
-    if Regex.match?(@email_regex, email), do: email, else: false
+    if Regex.match?(@email_regex, email) do
+      {:ok, email}
+    else
+      {:error, :invalid_email}
+    end
   end
 end

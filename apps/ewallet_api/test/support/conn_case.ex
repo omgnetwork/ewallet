@@ -196,4 +196,16 @@ defmodule EWalletAPI.ConnCase do
   def put_auth_header(conn, type, content) do
     put_req_header(conn, "authorization", type <> " " <> content)
   end
+
+  @doc """
+  Sets the new config value, runs the given function,
+  then sets the original value back.
+  """
+  def run_with(key, value, fun) do
+    original = Application.get_env(:ewallet_api, key)
+    :ok = Application.put_env(:ewallet_api, key, value)
+    returned_value = fun.()
+    :ok = Application.put_env(:ewallet_api, key, original)
+    returned_value
+  end
 end

@@ -6,13 +6,15 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       email: System.get_env("E2E_TEST_ADMIN_EMAIL") || "test_admin@example.com",
       password: System.get_env("E2E_TEST_ADMIN_PASSWORD") || "password",
       metadata: %{},
-      account_name: "master_account"
+      account_name: "master_account",
+      is_admin: true
     },
     %{
       email: System.get_env("E2E_TEST_ADMIN_1_EMAIL") || "test_admin_1@example.com",
       password: System.get_env("E2E_TEST_ADMIN_1_PASSWORD") || "password",
       metadata: %{},
-      account_name: "master_account"
+      account_name: "master_account",
+      is_admin: true
     },
   ]
 

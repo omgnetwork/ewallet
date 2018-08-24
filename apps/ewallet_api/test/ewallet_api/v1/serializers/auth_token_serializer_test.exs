@@ -9,6 +9,8 @@ defmodule EWalletAPI.V1.UserAuthTokenSerializerTest do
 
       assert serialized.object == "authentication_token"
       assert serialized.authentication_token == auth_token.token
+      assert serialized.user_id == auth_token.user.id
+      assert serialized.user != nil
     end
   end
 end

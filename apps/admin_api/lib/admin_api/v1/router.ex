@@ -1,4 +1,7 @@
 defmodule AdminAPI.V1.Router do
+  @moduledoc """
+  Routes for the Admin API endpoints.
+  """
   use AdminAPI, :router
   alias AdminAPI.V1.AdminAPIAuthPlug
 

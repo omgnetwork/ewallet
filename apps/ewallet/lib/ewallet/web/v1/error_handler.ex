@@ -9,6 +9,58 @@ defmodule EWallet.Web.V1.ErrorHandler do
   alias EWalletDB.Token
 
   @errors %{
+    missing_master_account: %{
+      code: "account:missing_master_account",
+      description: "Unable to find the master account."
+    },
+    missing_email: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `email` can't be blank."
+    },
+    missing_redirect_url: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `redirect_url` can't be blank."
+    },
+    prohibited_url: %{
+      code: "client:invalid_parameter",
+      template: "The given `%{param_name}` is not allowed. Got: '%{url}'."
+    },
+    missing_token: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `token` can't be blank."
+    },
+    missing_password: %{
+      code: "client:invalid_parameter",
+      description: "Invalid parameter provided. `password` can't be blank."
+    },
+    invalid_email: %{
+      code: "user:invalid_email",
+      description: "The format of the provided email is invalid."
+    },
+    email_token_not_found: %{
+      code: "user:email_token_not_found",
+      description: "There is no pending email verification for the provided email and token."
+    },
+    invite_not_found: %{
+      code: "user:invite_not_found",
+      description: "There is no invite corresponding to the provided email and token."
+    },
+    invite_pending: %{
+      code: "user:invite_pending",
+      description: "The user has not accepted the invite."
+    },
+    email_not_verified: %{
+      code: "user:email_not_verified",
+      description: "Your user account has not been confirmed yet. Please check your emails."
+    },
+    user_already_active: %{
+      code: "user:already_active",
+      description: "The user already exists and active."
+    },
+    invalid_login_credentials: %{
+      code: "user:invalid_login_credentials",
+      description: "There is no user corresponding to the provided login credentials."
+    },
     invalid_auth_scheme: %{
       code: "client:invalid_auth_scheme",
       description: "The provided authentication scheme is not supported."
@@ -41,6 +93,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
     unknown_error: %{
       code: "server:unknown_error",
       description: "An unknown error occured on the server."
+    },
+    password_too_short: %{
+      code: "client:invalid_parameter",
+      template: "Invalid parameter provided. `password` must be %{min_length} characters or more."
+    },
+    passwords_mismatch: %{
+      code: "user:passwords_mismatch",
+      description: "The provided passwords do not match."
     },
     account_not_found: %{
       code: "account:not_found",
@@ -324,7 +384,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @doc """
   Handles response with template description to build.
   """
-  def build_error(code, data, supported_errors) when is_map(data) do
+  def build_error(code, data, supported_errors) when is_map(data) or is_list(data) do
     run_if_valid_error(code, supported_errors, fn error ->
       build(code: error.code, desc: build_template(data, error.template))
     end)

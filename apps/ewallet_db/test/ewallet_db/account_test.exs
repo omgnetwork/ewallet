@@ -1,6 +1,6 @@
 defmodule EWalletDB.AccountTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, Repo}
   alias EWalletDB.Helpers.Preloader
 
   describe "Account factory" do
@@ -189,7 +189,7 @@ defmodule EWalletDB.AccountTest do
     test_schema_get_by_allows_search_by(Account, :name)
   end
 
-  describe "get_master_account/1" do
+  describe "get_master_account/0" do
     test "returns the master account" do
       result = Account.get_master_account()
 
@@ -203,6 +203,29 @@ defmodule EWalletDB.AccountTest do
 
       assert result.id == get_or_insert_master_account().id
       assert Account.master?(result)
+    end
+
+    test "returns nil if the master account could not be found" do
+      {:ok, _} = Repo.delete(Account.get_master_account())
+
+      assert Account.get_master_account() == nil
+    end
+  end
+
+  describe "fetch_master_account/0" do
+    test "returns {:ok, account} on success" do
+      {res, account} = Account.fetch_master_account()
+
+      assert res == :ok
+      assert Account.master?(account)
+    end
+
+    test "returns {:error, :missing_master_account} when the master account is missing" do
+      {:ok, _} = Repo.delete(Account.get_master_account())
+      {res, code} = Account.fetch_master_account()
+
+      assert res == :error
+      assert code == :missing_master_account
     end
   end
 

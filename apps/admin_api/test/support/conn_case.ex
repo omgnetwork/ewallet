@@ -91,7 +91,7 @@ defmodule AdminAPI.ConnCase do
 
     # Insert necessary records for making authenticated calls.
     admin =
-      insert(:user, %{
+      insert(:admin, %{
         id: @admin_id,
         email: @user_email,
         password_hash: Crypto.hash_password(@password)

@@ -17,7 +17,7 @@ defmodule AdminAPI.ForgetPasswordEmailTest do
       email = create_email("forgetpassword@example.com", "the_token")
 
       # `from` should be the one set in the config
-      assert email.from == Application.get_env(:admin_api, :sender_email)
+      assert email.from == Application.get_env(:ewallet, :sender_email)
 
       # `to` should be the user's email
       assert email.to == "forgetpassword@example.com"

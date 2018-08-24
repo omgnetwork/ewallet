@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.V1.{UserSerializer, AccountSerializer}
-  alias EWalletDB.{Repo, AuthToken, Membership, Role, Account}
+  alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
+  alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, User}
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
@@ -86,6 +86,22 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       }
 
       assert response == expected
+    end
+
+    test "returns an error if the credentials are valid but the email invite is not yet accepted" do
+      {:ok, _user} =
+        [email: @user_email]
+        |> User.get_by()
+        |> User.update_without_password(%{invite_uuid: insert(:invite).uuid})
+
+      response =
+        unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
+
+      assert response["version"] == @expected_version
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:invite_pending"
+      assert response["data"]["description"] == "The user has not accepted the invite."
     end
 
     test "returns an error if the given email does not exist" do

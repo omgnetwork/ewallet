@@ -1,6 +1,6 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Invite, User}
+  alias EWalletDB.{Account, Invite, User}
 
   describe "User factory" do
     test_has_valid_factory(User)
@@ -25,6 +25,18 @@ defmodule EWalletDB.UserTest do
     test_insert_prevent_duplicate(User, :username)
     test_insert_prevent_duplicate(User, :provider_user_id)
     test_default_metadata_fields(User, "user")
+
+    test "creates a primary wallet for end users" do
+      {:ok, inserted_user} = :user |> params_for() |> User.insert()
+
+      assert User.get_primary_wallet(inserted_user) != nil
+    end
+
+    test "does not create a wallet for admins" do
+      {:ok, inserted_user} = :admin |> params_for() |> User.insert()
+
+      assert User.get_primary_wallet(inserted_user) == nil
+    end
 
     # The test below can't use `test_insert_prevent_duplicate/3` with :email
     # because we need to use :admin factory to get proper data for admin user.
@@ -268,6 +280,42 @@ defmodule EWalletDB.UserTest do
       account = insert(:account, parent: parent)
 
       assert User.get_role(user.id, account.id) == nil
+    end
+  end
+
+  describe "admin?/1" do
+    test "returns true if the user's `is_admin` is true" do
+      user = insert(:user, is_admin: true)
+      assert User.admin?(user)
+    end
+
+    test "returns false if the user's `is_admin` is false" do
+      user = insert(:user, is_admin: false)
+      refute User.admin?(user)
+    end
+  end
+
+  describe "master_admin?/1" do
+    test "returns true if the user has a membership on the top-level account" do
+      user = insert(:user)
+      master_account = Account.get_master_account()
+      role = insert(:role, %{name: "admin"})
+      _membership = insert(:membership, %{user: user, account: master_account, role: role})
+
+      assert User.master_admin?(user)
+    end
+
+    test "returns false if the user has a membership on the non-top-level account" do
+      user = insert(:user)
+      account = insert(:account)
+      _membership = insert(:membership, %{user: user, account: account})
+
+      refute User.master_admin?(user)
+    end
+
+    test "returns false if the user does not have a membership" do
+      user = insert(:user)
+      refute User.master_admin?(user)
     end
   end
 

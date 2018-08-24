@@ -5,6 +5,38 @@ defmodule EWallet.BalanceFetcher do
   alias EWalletDB.{User, Token}
   alias LocalLedger.Wallet
 
+  @spec all(map()) :: {:ok, %EWalletDB.Wallet{}} | {:error, atom()}
+
+  @doc """
+  Prepare the list of balances and turn them into a suitable format for
+  EWalletAPI using a user_id.
+
+  ## Examples
+
+    res = BalanceFetcher.all(%{"user_id" => "usr_12345678901234567890123456"})
+
+    case res do
+      {:ok, wallets} ->
+        # Everything went well, do something.
+        # response is the response returned by the ledger (LocalLedger for
+        # example).
+      {:error, code, description} ->
+        # Something went wrong on the other side (LocalLedger maybe) and the
+        # retrieval failed.
+    end
+
+  """
+  def all(%{"user_id" => id}) do
+    case User.get(id) do
+      nil ->
+        {:error, :user_id_not_found}
+
+      user ->
+        wallet = User.get_primary_wallet(user)
+        format_all(wallet)
+    end
+  end
+
   @doc """
   Prepare the list of balances and turn them into a suitable format for
   EWalletAPI using a provider_user_id.
@@ -25,9 +57,7 @@ defmodule EWallet.BalanceFetcher do
 
   """
   def all(%{"provider_user_id" => provider_user_id}) do
-    user = User.get_by_provider_user_id(provider_user_id)
-
-    case user do
+    case User.get_by_provider_user_id(provider_user_id) do
       nil ->
         {:error, :provider_user_id_not_found}
 

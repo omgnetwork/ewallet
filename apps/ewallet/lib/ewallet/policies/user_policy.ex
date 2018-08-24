@@ -18,6 +18,9 @@ defmodule EWallet.UserPolicy do
   # Anyone can create a new user
   def authorize(:create, _admin_user_or_key, nil), do: true
 
+  # Anyone can attempt to verify a user's email address
+  def authorize(:verify_email, _admin_user_or_key, nil), do: true
+
   # To update a user, an account needs to be linked with that user
   def authorize(_, %{account: account}, user) do
     account_uuids = get_linked_account_uuids(user)

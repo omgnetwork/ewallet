@@ -1,6 +1,6 @@
-defmodule EWalletAPI.V1.Plug.ClientAuthPlugTest do
+defmodule EWalletAPI.V1.ClientAuthPlugTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletAPI.V1.Plug.ClientAuthPlug
+  alias EWalletAPI.V1.ClientAuthPlug
   alias EWalletDB.AuthToken
 
   describe "ClientAuthPlug.call/2" do

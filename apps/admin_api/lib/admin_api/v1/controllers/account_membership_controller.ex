@@ -1,8 +1,9 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.Inviter
-  alias EWallet.AccountMembershipPolicy
+  alias AdminAPI.InviteEmail
+  alias EWallet.{AccountMembershipPolicy, EmailValidator}
+  alias EWallet.Web.{Inviter, UrlValidator}
   alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """
@@ -27,18 +28,12 @@ defmodule AdminAPI.V1.AccountMembershipController do
   @doc """
   Assigns the user to the given account and role.
   """
-  def assign_user(
-        conn,
-        %{
-          "account_id" => account_id,
-          "role_name" => role_name,
-          "redirect_url" => redirect_url
-        } = attrs
-      ) do
-    with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
+  def assign_user(conn, attrs) do
+    with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
          :ok <- permit(:create, conn.assigns, account.id),
          {:ok, user_or_email} <- get_user_or_email(attrs),
-         %Role{} = role <- Role.get_by_name(role_name) || {:error, :role_name_not_found},
+         %Role{} = role <- Role.get_by_name(attrs["role_name"]) || {:error, :role_name_not_found},
+         {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]),
          {:ok, _} <- assign_or_invite(user_or_email, account, role, redirect_url) do
       render(conn, :empty, %{success: true})
     else
@@ -56,8 +51,6 @@ defmodule AdminAPI.V1.AccountMembershipController do
         handle_error(conn, code, description)
     end
   end
-
-  def assign_user(conn, _attrs), do: handle_error(conn, :invalid_parameter)
 
   # Get user or email specifically for `assign_user/2` above.
   #
@@ -87,8 +80,22 @@ defmodule AdminAPI.V1.AccountMembershipController do
     end
   end
 
+  defp validate_redirect_url(url) do
+    if UrlValidator.allowed_redirect_url?(url) do
+      {:ok, url}
+    else
+      {:error, :prohibited_url, param_name: "redirect_url", url: url}
+    end
+  end
+
   defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
-    Inviter.invite(email, account, role, redirect_url)
+    case EmailValidator.validate(email) do
+      {:ok, email} ->
+        Inviter.invite_admin(email, account, role, redirect_url, &InviteEmail.create/2)
+
+      error ->
+        error
+    end
   end
 
   defp assign_or_invite(user, account, role, redirect_url) do
@@ -96,7 +103,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
       :pending_confirmation ->
         user
         |> User.get_invite()
-        |> Inviter.send_email(redirect_url)
+        |> Inviter.send_email(redirect_url, InviteEmail)
 
       :active ->
         Membership.assign(user, account, role)

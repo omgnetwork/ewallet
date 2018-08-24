@@ -6,7 +6,8 @@ defmodule EWalletDB.User do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
-  import EWalletDB.{Validator, Helpers.Preloader}
+  import EWalletDB.Helpers.Preloader
+  import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
 
   alias EWalletDB.{
@@ -19,7 +20,6 @@ defmodule EWalletDB.User do
     Role,
     User,
     AccountUser,
-    UserQuery,
     Helpers.Crypto
   }
 
@@ -28,6 +28,7 @@ defmodule EWalletDB.User do
   schema "user" do
     external_id(prefix: "usr_")
 
+    field(:is_admin, :boolean, default: false)
     field(:username, :string)
     field(:email, :string)
     field(:password, :string, virtual: true)
@@ -87,6 +88,7 @@ defmodule EWalletDB.User do
   defp changeset(changeset, attrs) do
     changeset
     |> cast(attrs, [
+      :is_admin,
       :username,
       :provider_user_id,
       :email,
@@ -97,7 +99,7 @@ defmodule EWalletDB.User do
       :invite_uuid
     ])
     |> validate_required([:metadata, :encrypted_metadata])
-    |> validate_confirmation(:password, message: "does not match password!")
+    |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
     |> unique_constraint(:provider_user_id)
@@ -116,15 +118,17 @@ defmodule EWalletDB.User do
     |> cast(attrs, [
       :email,
       :metadata,
-      :encrypted_metadata
+      :encrypted_metadata,
+      :invite_uuid
     ])
     |> validate_required(:email)
     |> unique_constraint(:email)
+    |> assoc_constraint(:invite)
   end
 
   # Two cases to validate for loginable:
   #
-  #   1. A new admin user has just been created. No membership assgined yet.
+  #   1. A new admin user has just been created. No membership assigned yet.
   #      So `do_validate_loginable/2` if email is provided.
   #   2. An existing provider user has been assigned a membership. No email provided yet.
   #      So `do_validate_loginable/2` if membership exists.
@@ -158,6 +162,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves all the addresses for the given user.
   """
+  @spec addresses(%User{}) :: [String.t()]
   def addresses(user) do
     user = user |> Repo.preload(:wallets)
 
@@ -213,22 +218,13 @@ defmodule EWalletDB.User do
     |> preload_option(opts)
   end
 
-  @spec get_end_users :: [%User{}]
-  def get_end_users do
-    User
-    |> UserQuery.where_end_user()
-    |> Repo.all()
-  end
-
   @doc """
-  Creates a user.
+  Creates a user and their primary wallet.
 
   ## Examples
 
       iex> insert(%{field: value})
       {:ok, %User{}}
-
-  Creates a user and their primary wallet.
   """
   @spec insert(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
@@ -236,9 +232,9 @@ defmodule EWalletDB.User do
       Multi.new()
       |> Multi.insert(:user, changeset(%User{}, attrs))
       |> Multi.run(:wallet, fn %{user: user} ->
-        case user.provider_user_id do
-          nil -> {:ok, nil}
-          _ -> insert_wallet(user, Wallet.primary())
+        case User.admin?(user) do
+          true -> {:ok, nil}
+          false -> insert_wallet(user, Wallet.primary())
         end
       end)
 
@@ -257,6 +253,7 @@ defmodule EWalletDB.User do
   @doc """
   Inserts a wallet for the given user.
   """
+  @spec insert_wallet(%User{}, String.t()) :: {:ok, %Wallet{}} | {:error, Ecto.Changeset.t()}
   def insert_wallet(%User{} = user, identifier) do
     %{
       user_uuid: user.uuid,
@@ -269,6 +266,7 @@ defmodule EWalletDB.User do
   @doc """
   Updates a user with the provided attributes.
   """
+  @spec update(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update(%User{} = user, attrs) do
     changeset = changeset(user, attrs)
 
@@ -284,6 +282,7 @@ defmodule EWalletDB.User do
   @doc """
   Updates a user with the provided attributes.
   """
+  @spec update_without_password(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update_without_password(%User{} = user, attrs) do
     changeset = update_changeset(user, attrs)
 
@@ -299,6 +298,7 @@ defmodule EWalletDB.User do
   @doc """
   Stores an avatar for the given user.
   """
+  @spec store_avatar(%User{}, map()) :: %User{} | Ecto.Changeset.t()
   def store_avatar(%User{} = user, attrs) do
     attrs =
       case attrs["avatar"] do
@@ -318,6 +318,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieve the primary wallet for a user.
   """
+  @spec get_primary_wallet(%User{}) :: %Wallet{} | nil
   def get_primary_wallet(user) do
     Wallet
     |> where([b], b.user_uuid == ^user.uuid)
@@ -328,10 +329,12 @@ defmodule EWalletDB.User do
   @doc """
   Retrieve the primary wallet for a user with preloaded wallets.
   """
+  @spec get_preloaded_primary_wallet(%User{}) :: %Wallet{} | nil
   def get_preloaded_primary_wallet(user) do
     Enum.find(user.wallets, fn wallet -> wallet.identifier == Wallet.primary() end)
   end
 
+  @spec get_all_linked_accounts(String.t()) :: [%Account{}]
   def get_all_linked_accounts(user_uuid) do
     Repo.all(
       from(
@@ -346,6 +349,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the status of the given user.
   """
+  @spec get_status(%User{}) :: :active | :pending_confirmation
   def get_status(user) do
     if user.invite_uuid == nil, do: :active, else: :pending_confirmation
   end
@@ -353,6 +357,7 @@ defmodule EWalletDB.User do
   @doc """
   Retrieves the user's invite if any.
   """
+  @spec get_invite(%User{}) :: %Invite{} | nil
   def get_invite(user) do
     user
     |> Repo.preload(:invite)
@@ -364,7 +369,13 @@ defmodule EWalletDB.User do
   """
   # User does not have any membership if it has not been saved yet.
   # Without pattern matching for nil id, Ecto will return an unsafe nil comparison error.
-  def has_membership?(%{uuid: nil}), do: false
+  @spec has_membership?(%User{} | String.t()) :: boolean()
+  def has_membership?(user) when is_binary(user) do
+    query = from(m in Membership, where: m.user_uuid == ^user)
+    Repo.aggregate(query, :count, :uuid) > 0
+  end
+
+  def has_membership?(%User{uuid: nil}), do: false
 
   def has_membership?(user) do
     query = from(m in Membership, where: m.user_uuid == ^user.uuid)
@@ -374,6 +385,7 @@ defmodule EWalletDB.User do
   @doc """
   Checks if the user is assigned to the given role, regardless of which account.
   """
+  @spec has_role?(%User{}, String.t()) :: boolean()
   def has_role?(user, role) do
     user
     |> User.get_roles()
@@ -386,6 +398,7 @@ defmodule EWalletDB.User do
   This is useful when a check is required on a role but not depending on the account.
   E.g. if the user is an admin, an email and password is required regardless of which account.
   """
+  @spec get_roles(%User{}) :: [String.t()]
   def get_roles(user) do
     user
     |> Repo.preload(:roles)
@@ -439,7 +452,13 @@ defmodule EWalletDB.User do
   end
 
   @doc """
-  Checks if the user has an admin role on the top-level account.
+  Checks if the user is an admin user.
+  """
+  @spec admin?(String.t() | %User{}) :: boolean()
+  def admin?(user), do: user.is_admin == true
+
+  @doc """
+  Checks if the user is an admin on the top-level account.
   """
   @spec master_admin?(%User{} | String.t()) :: boolean()
   def master_admin?(%User{id: user_id}) do

@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWallet.Web.Date
-  alias EWalletDB.{User, Account}
+  alias EWalletDB.{Account, User}
 
   @redirect_url "http://localhost:4000/invite?email={email}&token={token}"
 
@@ -257,7 +257,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "The `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."
+               "The given `redirect_url` is not allowed. Got: '#{redirect_url}'."
     end
 
     test "returns an error if the given user id does not exist" do
@@ -289,6 +289,9 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
     end
 
     test "returns an error if the given role does not exist" do
@@ -368,6 +371,9 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["success"] == false
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "unauthorized"
+
+      assert response["data"]["description"] ==
+               "You are not allowed to perform the requested operation."
     end
   end
 end

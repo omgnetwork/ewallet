@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
+  alias EWalletDB.Invite
 
   defp request(email, token, password, password_confirmation) do
     unauthenticated_request("/invite.accept", %{
@@ -13,25 +14,26 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
   describe "InviteController.accept/2" do
     test "returns success if invite is accepted successfully" do
-      invite = insert(:invite)
-      user = insert(:admin, %{invite: invite})
-      response = request(user.email, invite.token, "some_password", "some_password")
+      user = insert(:admin)
+      {:ok, invite} = Invite.generate(user, preload: :user)
+
+      response = request(invite.user.email, invite.token, "some_password", "some_password")
 
       expected = %{
         "object" => "user",
-        "id" => user.id,
+        "id" => invite.user.id,
         "socket_topic" => "user:#{user.id}",
         "provider_user_id" => nil,
         "username" => nil,
-        "email" => user.email,
+        "email" => invite.user.email,
         "avatar" => %{"original" => nil, "large" => nil, "small" => nil, "thumb" => nil},
         "metadata" => %{
-          "first_name" => user.metadata["first_name"],
-          "last_name" => user.metadata["last_name"]
+          "first_name" => invite.user.metadata["first_name"],
+          "last_name" => invite.user.metadata["last_name"]
         },
         "encrypted_metadata" => %{},
-        "created_at" => Date.to_iso8601(user.inserted_at),
-        "updated_at" => Date.to_iso8601(user.updated_at)
+        "created_at" => Date.to_iso8601(invite.user.inserted_at),
+        "updated_at" => Date.to_iso8601(invite.user.updated_at)
       }
 
       assert response["success"]
@@ -39,8 +41,9 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
     end
 
     test "returns :invite_not_found error if the email has not been invited" do
-      invite = insert(:invite)
-      _user = insert(:admin, %{invite: invite})
+      user = insert(:admin)
+      {:ok, invite} = Invite.generate(user)
+
       response = request("unknown@example.com", invite.token, "some_password", "some_password")
 
       refute response["success"]
@@ -52,8 +55,9 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
     end
 
     test "returns :invite_not_found error if the token is incorrect" do
-      invite = insert(:invite)
-      user = insert(:admin, %{invite: invite})
+      user = insert(:admin)
+      {:ok, _invite} = Invite.generate(user)
+
       response = request(user.email, "wrong_token", "some_password", "some_password")
 
       refute response["success"]
@@ -65,8 +69,9 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
     end
 
     test "returns :passwords_mismatch error if the passwords do not match" do
-      invite = insert(:invite)
-      user = insert(:admin, %{invite: invite})
+      user = insert(:admin)
+      {:ok, invite} = Invite.generate(user)
+
       response = request(user.email, invite.token, "some_password", "mismatch_password")
 
       refute response["success"]
@@ -76,8 +81,9 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
     end
 
     test "returns client:invalid_parameter error if the password has less than 8 characters" do
-      invite = insert(:invite)
-      user = insert(:admin, %{invite: invite})
+      user = insert(:admin)
+      {:ok, invite} = Invite.generate(user)
+
       response = request(user.email, invite.token, "short", "short")
 
       refute response["success"]
@@ -89,8 +95,8 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
     end
 
     test "returns :invalid_parameter error if a required parameter is missing" do
-      invite = insert(:invite)
-      user = insert(:admin, %{invite: invite})
+      user = insert(:admin)
+      {:ok, invite} = Invite.generate(user)
 
       # Missing passwords
       response =

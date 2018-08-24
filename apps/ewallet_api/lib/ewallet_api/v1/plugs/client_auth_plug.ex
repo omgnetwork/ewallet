@@ -1,4 +1,4 @@
-defmodule EWalletAPI.V1.Plug.ClientAuthPlug do
+defmodule EWalletAPI.V1.ClientAuthPlug do
   @moduledoc """
   This plug checks if valid api key and token were provided.
 

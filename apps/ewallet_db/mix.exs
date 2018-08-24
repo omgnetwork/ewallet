@@ -54,6 +54,7 @@ defmodule EWalletDB.Mixfile do
       {:plug, "~> 1.0"},
       {:arc, "~> 0.8.0"},
       {:arc_ecto, "~> 0.7.0"},
+      {:deferred_config, "~> 0.1.0"},
 
       # arc GCS dependencies
       {:arc_gcs, "~> 0.0.3", runtime: false},

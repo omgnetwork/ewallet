@@ -8,7 +8,8 @@ use Mix.Config
 # General application configuration
 config :ewallet_api,
   namespace: EWalletAPI,
-  ecto_repos: []
+  ecto_repos: [],
+  enable_standalone: {:system, "ENABLE_STANDALONE", false}
 
 # Configures the endpoint for websockets
 config :ewallet_api, EWalletAPI.Endpoint,
