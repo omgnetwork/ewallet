@@ -27,10 +27,10 @@ defmodule EWalletAPI.V1.VerifyEmailController do
       {:error, error} ->
         case Map.get(ErrorHandler.errors(), error) do
           %{description: description} ->
-            text(conn, "Unable to verify your email address. " <> description)
+            text(conn, "We were unable to verify your email address. " <> description)
 
           nil ->
-            text(conn, "Unable to verify your email address. An unknown error occured.")
+            text(conn, "We were unable to verify your email address. An unknown error occured.")
         end
     end
   end
@@ -39,6 +39,6 @@ defmodule EWalletAPI.V1.VerifyEmailController do
   Renders the page to show when email verification is successful.
   """
   def success(conn, _attrs) do
-    text(conn, "Your email address is successfully verified!")
+    text(conn, "Your email address has been successfully verified!")
   end
 end

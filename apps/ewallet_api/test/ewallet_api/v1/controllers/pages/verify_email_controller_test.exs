@@ -30,7 +30,7 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
       response = text_response(conn, :ok)
 
       assert response ==
-               "Unable to verify your email address. There is no pending email verification for the provided email and token."
+               "We were unable to verify your email address. There is no pending email verification for the provided email and token."
     end
 
     test "returns an error when the token is invalid" do
@@ -40,7 +40,7 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
       response = text_response(conn, :ok)
 
       assert response ==
-               "Unable to verify your email address. There is no pending email verification for the provided email and token."
+               "We were unable to verify your email address. There is no pending email verification for the provided email and token."
     end
   end
 
@@ -51,7 +51,7 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
         |> get("/pages/client/v1/verify_email/success")
         |> text_response(:ok)
 
-      assert response == "Your email address is successfully verified!"
+      assert response == "Your email address has been successfully verified!"
     end
   end
 end

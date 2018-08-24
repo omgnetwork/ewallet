@@ -257,7 +257,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "The given `redirect_url` is not allowed to be used. Got: '#{redirect_url}'."
+               "The given `redirect_url` is not allowed. Got: '#{redirect_url}'."
     end
 
     test "returns an error if the given user id does not exist" do

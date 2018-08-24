@@ -25,7 +25,7 @@ defmodule EWalletAPI.VerificationEmail do
   defp html(link) do
     """
     <p>
-      <strong>Click the link to complete the email verification: </strong>
+      <strong>Click the link to complete the email verification process: </strong>
       <a href="#{link}">#{link}</a>
     </p>
     """
@@ -33,7 +33,7 @@ defmodule EWalletAPI.VerificationEmail do
 
   defp text(link) do
     """
-    Copy & paste the link into your browser to complete the email verification: #{link}
+    Copy & paste the link into your browser to complete the email verification process: #{link}
     """
   end
 end

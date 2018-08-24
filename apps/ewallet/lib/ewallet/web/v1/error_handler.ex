@@ -23,7 +23,7 @@ defmodule EWallet.Web.V1.ErrorHandler do
     },
     prohibited_url: %{
       code: "client:invalid_parameter",
-      template: "The given `%{param_name}` is not allowed to be used. Got: '%{url}'."
+      template: "The given `%{param_name}` is not allowed. Got: '%{url}'."
     },
     missing_token: %{
       code: "client:invalid_parameter",
