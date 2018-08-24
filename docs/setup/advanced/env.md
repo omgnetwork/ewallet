@@ -35,7 +35,7 @@ We try to provide sane default values, but if needed, the following environment 
 
 The eWallet is able to work independent of an external integration. The default configurations expect the eWallet to be integrated with another system, but the following environment variables can be configured:
 
-- `ENABLE_STANDALONE`: Enables standalone functionalities like `/api/client/user.signup`, `api/client/user.verify_email` and `/api/client/user.login` so that the eWallet can be used without integration with other systems.
+- `ENABLE_STANDALONE`: Enables standalone functionalities like `/api/client/user.signup`, `/api/client/user.verify_email` and `/api/client/user.login` so that the eWallet can be used without integration with other systems. Set `ENABLE_STANDALONE=true` to enable the feature.
 
 ## Error Reporting
 
