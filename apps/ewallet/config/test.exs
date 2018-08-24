@@ -1,7 +1,7 @@
 use Mix.Config
 
 config :ewallet,
-  redirect_url_prefixes: "http://localhost:4000",
+  redirect_url_prefixes: "",
   websocket_endpoints: [
     EWallet.TestEndpoint,
     EWalletAPI.V1.Endpoint,

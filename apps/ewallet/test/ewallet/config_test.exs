@@ -54,6 +54,17 @@ defmodule EWallet.ConfigTest do
     end
   end
 
+  describe "get_string/2" do
+    test "returns a string" do
+      Application.put_env(:ewallet, :test_get_string, "some_string")
+      assert Config.get_string(:ewallet, :test_get_string) == "some_string"
+    end
+
+    test "returns nil if the key could not be found" do
+      assert Config.get_string(:ewallet, :test_get_string_not_exists) == nil
+    end
+  end
+
   describe "get_strings/2" do
     test "returns a list of strings" do
       Application.put_env(:ewallet, :test_get_strings, "one,two,three")

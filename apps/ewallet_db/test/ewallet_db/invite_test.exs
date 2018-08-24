@@ -101,6 +101,13 @@ defmodule EWalletDB.InviteTest do
       assert user.invite_uuid == invite.uuid
     end
 
+    test "sets the success_url if the option is given" do
+      user = insert(:admin)
+      {:ok, invite} = Invite.generate(user, success_url: "http://some_url")
+
+      assert invite.success_url == "http://some_url"
+    end
+
     test "preloads the invite if the option is given" do
       user = insert(:admin)
       {:ok, invite} = Invite.generate(user, preload: :user)

@@ -16,6 +16,16 @@ defmodule EWallet.Config do
   end
 
   @doc """
+  Gets the application's environment config as a string.
+
+  Returns the string or nil.
+  """
+  @spec get_string(atom(), atom()) :: String.t() | nil
+  def get_string(app, key) do
+    Application.get_env(app, key, nil)
+  end
+
+  @doc """
   Gets the application's environment config as a list of strings.
 
   Returns a list of strings or an empty list.
