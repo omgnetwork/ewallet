@@ -15,21 +15,29 @@ defmodule EWalletDB.Invite do
   schema "invite" do
     field(:token, :string)
     field(:success_url, :string)
+    field(:verified_at, :naive_datetime)
 
-    has_one(
+    belongs_to(
       :user,
       User,
-      foreign_key: :invite_uuid,
-      references: :uuid
+      foreign_key: :user_uuid,
+      references: :uuid,
+      type: UUID
     )
 
     timestamps()
   end
 
-  defp changeset(changeset, attrs) do
+  defp changeset_insert(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token, :success_url])
-    |> validate_required([:token])
+    |> cast(attrs, [:user_uuid, :token, :success_url])
+    |> validate_required([:user_uuid, :token])
+  end
+
+  defp changeset_accept(changeset, attrs) do
+    changeset
+    |> cast(attrs, [:verified_at])
+    |> validate_required([:verified_at])
   end
 
   @doc """
@@ -93,25 +101,29 @@ defmodule EWalletDB.Invite do
   @doc """
   Generates an invite for the given user.
   """
-  def generate(user, opts \\ [preload: []]) do
+  def generate(user, opts \\ []) do
     # Insert a new invite
     {:ok, invite} =
       insert(%{
+        user_uuid: user.uuid,
         token: Crypto.generate_base64_key(@token_length),
         success_url: opts[:success_url]
       })
 
     # Assign the invite to the user
-    changeset = change(user, invite_uuid: invite.uuid)
+    changeset = change(user, %{invite_uuid: invite.uuid})
     {:ok, _user} = Repo.update(changeset)
-    invite = Repo.preload(invite, opts[:preload])
 
-    {:ok, invite}
+    if opts[:preload] do
+      {:ok, Repo.preload(invite, opts[:preload])}
+    else
+      {:ok, invite}
+    end
   end
 
   defp insert(attrs) do
     %Invite{}
-    |> changeset(attrs)
+    |> changeset_insert(attrs)
     |> Repo.insert()
   end
 
@@ -124,7 +136,9 @@ defmodule EWalletDB.Invite do
 
     case User.update_without_password(invite.user, %{invite_uuid: nil}) do
       {:ok, _user} ->
-        Repo.delete(invite)
+        invite
+        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
+        |> Repo.update()
 
       error ->
         error
@@ -140,7 +154,9 @@ defmodule EWalletDB.Invite do
 
     case User.update(invite.user, %{invite_uuid: nil, password: password}) do
       {:ok, _user} ->
-        Repo.delete(invite)
+        invite
+        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
+        |> Repo.update()
 
       error ->
         error

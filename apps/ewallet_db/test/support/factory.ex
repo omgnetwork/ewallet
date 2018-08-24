@@ -141,7 +141,10 @@ defmodule EWalletDB.Factory do
 
   def invite_factory do
     %Invite{
-      token: Crypto.generate_base64_key(32)
+      user: nil,
+      token: Crypto.generate_base64_key(32),
+      success_url: nil,
+      verified_at: nil
     }
   end
 

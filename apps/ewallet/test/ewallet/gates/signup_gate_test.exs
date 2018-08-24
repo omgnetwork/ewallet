@@ -137,8 +137,8 @@ defmodule EWallet.SignupGateTest do
 
   describe "verify_email/1" do
     test "returns the invite when the verification is successful" do
-      invite = insert(:invite)
-      user = insert(:standalone_user, invite: invite)
+      user = insert(:standalone_user)
+      {:ok, invite} = Invite.generate(user)
 
       {res, invite} =
         SignupGate.verify_email(%{
@@ -151,8 +151,8 @@ defmodule EWallet.SignupGateTest do
     end
 
     test "returns an error when the email format is invalid" do
-      invite = insert(:invite)
-      _user = insert(:standalone_user, invite: invite)
+      user = insert(:standalone_user)
+      {:ok, invite} = Invite.generate(user)
 
       {res, code} =
         SignupGate.verify_email(%{
@@ -165,8 +165,8 @@ defmodule EWallet.SignupGateTest do
     end
 
     test "returns :missing_token error when the token is not provided" do
-      invite = insert(:invite)
-      user = insert(:standalone_user, invite: invite)
+      user = insert(:standalone_user)
+      {:ok, _invite} = Invite.generate(user)
 
       {res, code} =
         SignupGate.verify_email(%{
@@ -178,8 +178,8 @@ defmodule EWallet.SignupGateTest do
     end
 
     test "returns :email_token_not_found error when the email and token do not match" do
-      invite = insert(:invite)
-      user = insert(:standalone_user, invite: invite)
+      user = insert(:standalone_user)
+      {:ok, _invite} = Invite.generate(user)
 
       {res, code} =
         SignupGate.verify_email(%{

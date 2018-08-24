@@ -4,7 +4,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
   alias EWallet.Web.Preloader
   alias EWalletAPI.V1.VerifyEmailController
   alias EWalletAPI.VerificationEmail
-  alias EWalletDB.User
+  alias EWalletDB.{Invite, User}
 
   describe "/user.signup" do
     test "returns success with an empty response" do
@@ -101,16 +101,11 @@ defmodule EWalletAPI.V1.SignupControllerTest do
 
   describe "verify_email/2" do
     setup do
-      invite = insert(:invite)
-
-      user =
-        insert(:user, %{
-          email: "verify_email@example.com",
-          invite_uuid: invite.uuid
-        })
+      user = insert(:user, email: "verify_email@example.com")
+      {:ok, invite} = Invite.generate(user, preload: :user)
 
       %{
-        user: user,
+        user: invite.user,
         token: invite.token
       }
     end

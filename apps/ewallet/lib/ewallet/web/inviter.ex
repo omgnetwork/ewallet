@@ -3,7 +3,7 @@ defmodule EWallet.Web.Inviter do
   This module handles user invite and confirmation of their emails.
   """
   alias EWallet.Mailer
-  alias EWalletDB.{Account, AccountUser, Invite, Membership, Repo, Role, User}
+  alias EWalletDB.{Account, AccountUser, Invite, Membership, Role, User}
   alias EWalletDB.Helpers.Crypto
 
   @doc """
@@ -70,7 +70,6 @@ defmodule EWallet.Web.Inviter do
   def send_email(invite, redirect_url, create_email_func) do
     _ =
       invite
-      |> Repo.preload(:user)
       |> create_email_func.(redirect_url)
       |> Mailer.deliver_now()
 

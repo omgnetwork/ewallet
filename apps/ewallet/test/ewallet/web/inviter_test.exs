@@ -4,7 +4,7 @@ defmodule EWallet.Web.InviterTest do
   alias AdminAPI.InviteEmail
   alias EWallet.Web.{Inviter, Preloader}
   alias EWalletAPI.VerificationEmail
-  alias EWalletDB.{Account, Invite, Membership, Repo, User}
+  alias EWalletDB.{Account, Invite, Membership, User}
 
   @user_redirect_url "http://localhost:4000/some_redirect_url?email={email}&token={token}"
   @user_success_url "http://localhost:4000/some_success_url"
@@ -165,9 +165,8 @@ defmodule EWallet.Web.InviterTest do
 
   describe "send_email/3" do
     test "creates and sends the invite email" do
-      invite = insert(:invite)
-      _user = insert(:admin, %{invite: invite})
-      invite = invite |> Repo.preload(:user)
+      {:ok, invite} = Invite.generate(insert(:admin))
+
       {res, _} = Inviter.send_email(invite, @admin_redirect_url, &InviteEmail.create/2)
 
       assert res == :ok

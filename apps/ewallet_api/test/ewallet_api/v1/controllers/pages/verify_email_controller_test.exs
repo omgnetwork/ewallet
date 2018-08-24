@@ -1,5 +1,6 @@
 defmodule EWalletAPI.V1.VerifyEmailControllerTest do
   use EWalletAPI.ConnCase, async: true
+  alias EWalletDB.Invite
 
   describe "verify/2" do
     defp verify_email(email, token) do
@@ -7,25 +8,28 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
       |> get("/pages/client/v1/verify_email?email=#{email}&token=#{token}")
     end
 
-    test "redirects to the invite.success_url on success" do
-      invite = insert(:invite, success_url: "https://example.com/success_url")
-      user = insert(:standalone_user, %{invite: invite})
-      conn = verify_email(user.email, invite.token)
-
-      assert redirected_to(conn) == "https://example.com/success_url"
-    end
-
     test "redirects to the default success_url when invite.success_url is not given" do
-      invite = insert(:invite)
-      user = insert(:standalone_user, %{invite: invite})
+      user = insert(:standalone_user)
+      {:ok, invite} = Invite.generate(user)
+
       conn = verify_email(user.email, invite.token)
 
       assert redirected_to(conn) == "/pages/client/v1/verify_email/success"
     end
 
+    test "redirects to the invite.success_url on success" do
+      user = insert(:standalone_user)
+      {:ok, invite} = Invite.generate(user, success_url: "https://example.com/success_url")
+
+      conn = verify_email(user.email, invite.token)
+
+      assert redirected_to(conn) == "https://example.com/success_url"
+    end
+
     test "returns an error when the email is invalid" do
-      invite = insert(:invite)
-      _user = insert(:standalone_user, %{invite: invite})
+      user = insert(:standalone_user)
+      {:ok, invite} = Invite.generate(user)
+
       conn = verify_email("wrong@example.com", invite.token)
       response = text_response(conn, :ok)
 
@@ -34,8 +38,9 @@ defmodule EWalletAPI.V1.VerifyEmailControllerTest do
     end
 
     test "returns an error when the token is invalid" do
-      invite = insert(:invite)
-      user = insert(:standalone_user, %{invite: invite})
+      user = insert(:standalone_user)
+      {:ok, _invite} = Invite.generate(user)
+
       conn = verify_email(user.email, "wrong_token")
       response = text_response(conn, :ok)
 
