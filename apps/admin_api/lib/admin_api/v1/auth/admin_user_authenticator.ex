@@ -12,11 +12,7 @@ defmodule AdminAPI.V1.AdminUserAuthenticator do
          true <- User.admin?(user) || :user_not_admin do
       authenticate(conn, user, password)
     else
-      :user_email_not_found ->
-        Crypto.fake_verify()
-        handle_fail_auth(conn, :invalid_login_credentials)
-
-      :user_not_admin ->
+      _ ->
         Crypto.fake_verify()
         handle_fail_auth(conn, :invalid_login_credentials)
     end
