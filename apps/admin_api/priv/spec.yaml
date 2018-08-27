@@ -238,7 +238,7 @@ paths:
           $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new token
+  # Endpoint to update a token
   /token.update:
     post:
       tags:
@@ -255,7 +255,24 @@ paths:
           $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new token
+  # Endpoint to enable or disable a token
+  /token.enable_or_disable:
+    post:
+      tags:
+        - Token
+      summary: Enable or disable an existing token
+      operationId: token_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TokenToggleStatusBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get the statistics of a token
   /token.stats:
     post:
       tags:
@@ -1619,6 +1636,8 @@ components:
           type: object
         encrypted_metadata:
           type: object
+        enabled:
+          type: boolean
       required:
         - object
         - id
@@ -1627,6 +1646,7 @@ components:
         - subunit_to_unit
         - created_at
         - updated_at
+        - enabled
     TokenResponseSchema:
       description: "The response schema for a token"
       allOf:
@@ -1649,6 +1669,7 @@ components:
               subunit_to_unit: 100
               created_at: "2018-01-01T00:00:00Z"
               updated_at: "2018-01-01T10:00:00Z"
+              enabled: true
     TokensResponseSchema:
       description: "The response schema for a list of tokens"
       allOf:
@@ -1680,6 +1701,7 @@ components:
                   subunit_to_unit: 100
                   created_at: "2018-01-01T00:00:00Z"
                   updated_at: "2018-01-01T10:00:00Z"
+                  enabled: true
               pagination:
                 per_page: 10
                 current_page: 1
@@ -3693,6 +3715,24 @@ components:
               id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
               name: "Bitcoin v2"
               description: "an awesome updated description"
+    # Request body for enable/disabling a token
+    TokenToggleStatusBody:
+      description: The parameters to enable/disable a token. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+              enabled: false
     # Request body for minting a token
     TokenMintBody:
       description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
