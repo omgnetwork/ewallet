@@ -232,6 +232,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                            "id" => btc.id,
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
+                           "enabled" => true,
                            "created_at" => Date.to_iso8601(btc.inserted_at),
                            "updated_at" => Date.to_iso8601(btc.updated_at)
                          }
@@ -247,6 +248,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                            "id" => omg.id,
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
+                           "enabled" => true,
                            "created_at" => Date.to_iso8601(omg.inserted_at),
                            "updated_at" => Date.to_iso8601(omg.updated_at)
                          }

@@ -138,4 +138,14 @@ defmodule EWalletDB.TokenTest do
       assert token == nil
     end
   end
+
+  describe "enable_or_disable/0" do
+    test "disables a token" do
+      {:ok, token} = :token |> params_for() |> Token.insert()
+      assert token.enabled == true
+
+      {:ok, token} = Token.enable_or_disable(token, %{enabled: false})
+      assert token.enabled == false
+    end
+  end
 end

@@ -324,4 +324,62 @@ defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
              }
     end
   end
+
+  describe "/token.enable_or_disable" do
+    test "disables an existing token" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.enable_or_disable", %{
+          id: token.id,
+          enabled: false
+        })
+
+      assert response["success"]
+      assert response["data"]["object"] == "token"
+      assert response["data"]["enabled"] == false
+    end
+
+    test "fails to disable an existing token with enabled = nil" do
+      token = insert(:token)
+
+      response =
+        admin_user_request("/token.enable_or_disable", %{
+          id: token.id,
+          enabled: nil
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `enabled` can't be blank."
+    end
+
+    test "Raises invalid_parameter error if id is missing" do
+      response = admin_user_request("/token.enable_or_disable", %{enabled: false})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "client:invalid_parameter",
+               "description" => "Invalid parameter provided. `id` is required.",
+               "messages" => nil
+             }
+    end
+
+    test "Raises token_not_found error if the token can't be found" do
+      response = admin_user_request("/token.enable_or_disable", %{id: "fake", enabled: false})
+
+      refute response["success"]
+
+      assert response["data"] == %{
+               "object" => "error",
+               "code" => "token:id_not_found",
+               "description" => "There is no token corresponding to the provided id.",
+               "messages" => nil
+             }
+    end
+  end
 end

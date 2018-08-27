@@ -437,6 +437,26 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       assert response["success"] == false
       assert response["data"]["code"] == "unauthorized"
     end
+
+    test "receives an error when the token is disabled" do
+      account = Account.get_master_account()
+      user = get_test_user()
+      token = insert(:token, enabled: false)
+      wallet = User.get_primary_wallet(user)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      response =
+        admin_user_request("/transaction_request.create", %{
+          type: "send",
+          token_id: token.id,
+          correlation_id: nil,
+          amount: nil,
+          address: wallet.address
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "token:disabled"
+    end
   end
 
   describe "/transaction_request.get" do

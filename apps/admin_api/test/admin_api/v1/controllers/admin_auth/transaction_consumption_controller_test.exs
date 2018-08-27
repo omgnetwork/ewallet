@@ -8,7 +8,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     User,
     Transaction,
     Account,
-    AccountUser
+    AccountUser,
+    Token
   }
 
   alias EWallet.{TestEndpoint, BalanceFetcher}
@@ -1427,6 +1428,35 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "current_amount" => 0,
                "token_id" => meta.token.id
              }
+    end
+
+    test "fails to consume when token is disabled", meta do
+      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false})
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: nil,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "token:disabled"
     end
 
     test "returns with preload if `embed` attribute is given", meta do

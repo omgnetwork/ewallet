@@ -89,7 +89,8 @@ defmodule EWalletDB.Factory do
       iso_numeric: sequence("990"),
       smallest_denomination: 1,
       locked: false,
-      account: insert(:account)
+      account: insert(:account),
+      enabled: true
     }
   end
 

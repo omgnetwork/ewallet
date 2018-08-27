@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.TransactionGate
-  alias EWalletDB.{User, Account, Repo, Transaction}
+  alias EWalletDB.{User, Account, Repo, Transaction, Token}
 
   # credo:disable-for-next-line
   setup do
@@ -719,6 +719,35 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
                "messages" => nil,
                "object" => "error"
              }
+    end
+
+    test "fails to create a transaction when token is disabled" do
+      token = insert(:token)
+      mint!(token)
+
+      wallet_1 = insert(:wallet)
+      wallet_2 = insert(:wallet)
+
+      set_initial_balance(%{
+        address: wallet_1.address,
+        token: token,
+        amount: 2_000_000
+      })
+
+      {:ok, token} = Token.enable_or_disable(token, %{enabled: false})
+
+      response =
+        admin_user_request("/transaction.create", %{
+          "idempotency_token" => "123",
+          "from_address" => wallet_1.address,
+          "to_address" => wallet_2.address,
+          "token_id" => token.id,
+          "amount" => 1_000_000
+        })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "token:disabled"
     end
   end
 
