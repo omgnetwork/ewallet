@@ -24,6 +24,7 @@ defmodule EWallet.Web.V1.TokenSerializer do
       subunit_to_unit: token.subunit_to_unit,
       metadata: token.metadata || %{},
       encrypted_metadata: token.encrypted_metadata || %{},
+      enabled: token.enabled,
       created_at: Date.to_iso8601(token.inserted_at),
       updated_at: Date.to_iso8601(token.updated_at)
     }

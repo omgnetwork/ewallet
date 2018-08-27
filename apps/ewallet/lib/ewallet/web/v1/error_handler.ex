@@ -228,6 +228,18 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "token:to_token_not_found",
       description: "There is no token matching the provided to_token_id."
     },
+    token_is_disabled: %{
+      code: "token:disabled",
+      description: "The given token is disabled."
+    },
+    from_token_is_disabled: %{
+      code: "token:from_token_is_disabled",
+      description: "The given from_token_id is disabled."
+    },
+    to_token_is_disabled: %{
+      code: "token:to_token_is_disabled",
+      description: "The given to_token_id is disabled."
+    },
     user_wallet_mismatch: %{
       code: "user:user_wallet_mismatch",
       description: "The provided wallet does not belong to the current user."

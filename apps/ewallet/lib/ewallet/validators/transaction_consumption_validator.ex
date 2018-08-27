@@ -3,7 +3,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   Handles all validations for a transaction request, including amount and
   expiration.
   """
-  alias EWallet.{Helper, TransactionConsumptionPolicy}
+  alias EWallet.{Helper, TransactionConsumptionPolicy, TokenFetcher}
   alias EWallet.Web.V1.Event
   alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair, Wallet}
 
@@ -157,22 +157,16 @@ defmodule EWallet.TransactionConsumptionValidator do
      "Invalid parameter provided. `token_id` is required since the transaction request does not specify any."}
   end
 
-  def get_and_validate_token(%TransactionRequest{token_uuid: _token_uuid} = request, nil) do
-    {:ok, Repo.preload(request, :token).token}
+  def get_and_validate_token(%TransactionRequest{token_uuid: token_uuid}, nil) do
+    TokenFetcher.fetch(%{"token_uuid" => token_uuid})
   end
 
   def get_and_validate_token(%{token_uuid: nil} = _request, token_id) do
-    case Token.get(token_id) do
-      nil ->
-        {:error, :token_not_found}
-
-      token ->
-        {:ok, token}
-    end
+    TokenFetcher.fetch(%{"token_id" => token_id})
   end
 
   def get_and_validate_token(request, token_id) do
-    with %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
+    with {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
          request_token <- Repo.preload(request, :token).token,
          {:ok, _pair} <- fetch_pair(request.type, request_token.uuid, token.uuid) do
       {:ok, token}

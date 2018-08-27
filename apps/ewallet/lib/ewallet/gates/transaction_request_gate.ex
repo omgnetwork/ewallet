@@ -11,10 +11,11 @@ defmodule EWallet.TransactionRequestGate do
     TransactionRequestFetcher,
     ExchangeAccountFetcher,
     Helper,
-    TransactionRequestPolicy
+    TransactionRequestPolicy,
+    TokenFetcher
   }
 
-  alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account, Helpers.Assoc}
+  alias EWalletDB.{TransactionRequest, User, Wallet, Account, Helpers.Assoc}
 
   @spec create(map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
   def create(
@@ -159,7 +160,7 @@ defmodule EWallet.TransactionRequestGate do
         } = attrs
       ) do
     with :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
-         %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
+         {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
          {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
          {:ok, exchange_wallet} <- ExchangeAccountFetcher.fetch(attrs),
          {:ok, transaction_request} <- insert(token, wallet, exchange_wallet, amount, attrs) do
