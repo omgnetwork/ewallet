@@ -108,13 +108,14 @@ defmodule EWalletDB.Validator do
   @doc """
   Validates the given string with the password requirements.
   """
-  def validate_password(nil), do: {:error, :too_short, [min_length: @min_password_length]}
+  def validate_password(nil),
+    do: {:error, :password_too_short, [min_length: @min_password_length]}
 
   def validate_password(password) do
     with len when len >= @min_password_length <- String.length(password) do
       {:ok, password}
     else
-      _ -> {:error, :too_short, [min_length: @min_password_length]}
+      _ -> {:error, :password_too_short, [min_length: @min_password_length]}
     end
   end
 
@@ -128,7 +129,7 @@ defmodule EWalletDB.Validator do
       {:ok, _} ->
         changeset
 
-      {:error, :too_short, data} ->
+      {:error, :password_too_short, data} ->
         Changeset.add_error(changeset, key, "must be #{data[:min_length]} characters or more")
     end
   end

@@ -8,33 +8,24 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       response = admin_user_request("/user.login", %{id: user.id})
       auth_token = get_last_inserted(AuthToken)
 
-      expected = %{
-        "version" => @expected_version,
-        "success" => true,
-        "data" => %{
-          "object" => "authentication_token",
-          "authentication_token" => auth_token.token
-        }
-      }
+      assert response["version"] == @expected_version
+      assert response["success"] == true
 
-      assert response == expected
+      assert response["data"]["object"] == "authentication_token"
+      assert response["data"]["authentication_token"] == auth_token.token
+      assert response["data"]["user_id"] == user.id
+      assert response["data"]["user"]["id"] == user.id
     end
 
     test "responds with a new auth token if provider_user_id is valid" do
-      _user = insert(:user, %{provider_user_id: "1234"})
+      user = insert(:user, %{provider_user_id: "1234"})
       response = admin_user_request("/user.login", %{provider_user_id: "1234"})
       auth_token = get_last_inserted(AuthToken)
 
-      expected = %{
-        "version" => @expected_version,
-        "success" => true,
-        "data" => %{
-          "object" => "authentication_token",
-          "authentication_token" => auth_token.token
-        }
-      }
-
-      assert response == expected
+      assert response["data"]["object"] == "authentication_token"
+      assert response["data"]["authentication_token"] == auth_token.token
+      assert response["data"]["user_id"] == user.id
+      assert response["data"]["user"]["provider_user_id"] == user.provider_user_id
     end
 
     test "returns an error if provider_user_id does not match a user" do
@@ -46,7 +37,7 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "user:provider_user_id_not_found",
-          "description" => "There is no user corresponding to the provided provider_user_id",
+          "description" => "There is no user corresponding to the provided provider_user_id.",
           "messages" => nil
         }
       }
@@ -63,7 +54,7 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided",
+          "description" => "Invalid parameter provided.",
           "messages" => nil
         }
       }
@@ -80,7 +71,7 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided",
+          "description" => "Invalid parameter provided.",
           "messages" => nil
         }
       }

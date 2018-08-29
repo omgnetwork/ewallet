@@ -95,8 +95,26 @@ defmodule EWalletDB.Factory do
 
   def user_factory do
     %User{
+      is_admin: false,
+      email: nil,
       username: sequence("johndoe"),
       provider_user_id: sequence("provider_id"),
+      metadata: %{
+        "first_name" => sequence("John"),
+        "last_name" => sequence("Doe")
+      },
+      encrypted_metadata: %{}
+    }
+  end
+
+  def standalone_user_factory do
+    password = sequence("password")
+
+    %User{
+      is_admin: false,
+      email: sequence("johndoe") <> "@example.com",
+      password: password,
+      password_hash: Crypto.hash_password(password),
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
@@ -109,6 +127,7 @@ defmodule EWalletDB.Factory do
     password = sequence("password")
 
     %User{
+      is_admin: true,
       email: sequence("johndoe") <> "@example.com",
       password: password,
       password_hash: Crypto.hash_password(password),
@@ -122,7 +141,10 @@ defmodule EWalletDB.Factory do
 
   def invite_factory do
     %Invite{
-      token: Crypto.generate_base64_key(32)
+      user: nil,
+      token: Crypto.generate_base64_key(32),
+      success_url: nil,
+      verified_at: nil
     }
   end
 

@@ -54,6 +54,7 @@ defmodule EWalletAPI.Mixfile do
       {:cowboy, "~> 1.0"},
       {:sentry, "~> 6.2.0"},
       {:peerage, "~> 1.0.2"},
+      {:deferred_config, "~> 0.1.0"},
       {:ewallet_db, in_umbrella: true},
       {:ewallet, in_umbrella: true}
     ]

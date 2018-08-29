@@ -14,21 +14,30 @@ defmodule EWalletDB.Invite do
 
   schema "invite" do
     field(:token, :string)
+    field(:success_url, :string)
+    field(:verified_at, :naive_datetime)
 
-    has_one(
+    belongs_to(
       :user,
       User,
-      foreign_key: :invite_uuid,
-      references: :uuid
+      foreign_key: :user_uuid,
+      references: :uuid,
+      type: UUID
     )
 
     timestamps()
   end
 
-  defp changeset(changeset, attrs) do
+  defp changeset_insert(changeset, attrs) do
     changeset
-    |> cast(attrs, [:token])
-    |> validate_required([:token])
+    |> cast(attrs, [:user_uuid, :token, :success_url])
+    |> validate_required([:user_uuid, :token])
+  end
+
+  defp changeset_accept(changeset, attrs) do
+    changeset
+    |> cast(attrs, [:verified_at])
+    |> validate_required([:verified_at])
   end
 
   @doc """
@@ -73,24 +82,67 @@ defmodule EWalletDB.Invite do
   end
 
   @doc """
+  Fetches a specific invite by email and token.
+
+  Returns `{:ok, invite}` when invite is found.
+  Returns `{:error, :email_token_not_found}` otherwise.
+  """
+  @spec fetch(String.t(), String.t()) :: {:ok, %__MODULE__{}} | {:error, :email_token_not_found}
+  def fetch(email, input_token) do
+    case __MODULE__.get(email, input_token) do
+      %__MODULE__{} = invite ->
+        {:ok, invite}
+
+      nil ->
+        {:error, :email_token_not_found}
+    end
+  end
+
+  @doc """
   Generates an invite for the given user.
   """
-  def generate(user, opts \\ [preload: []]) do
+  def generate(user, opts \\ []) do
     # Insert a new invite
-    {:ok, invite} = insert(%{token: Crypto.generate_base64_key(@token_length)})
+    {:ok, invite} =
+      insert(%{
+        user_uuid: user.uuid,
+        token: Crypto.generate_base64_key(@token_length),
+        success_url: opts[:success_url]
+      })
 
     # Assign the invite to the user
-    changeset = change(user, invite_uuid: invite.uuid)
+    changeset = change(user, %{invite_uuid: invite.uuid})
     {:ok, _user} = Repo.update(changeset)
-    invite = Repo.preload(invite, opts[:preload])
 
-    {:ok, invite}
+    if opts[:preload] do
+      {:ok, Repo.preload(invite, opts[:preload])}
+    else
+      {:ok, invite}
+    end
   end
 
   defp insert(attrs) do
     %Invite{}
-    |> changeset(attrs)
+    |> changeset_insert(attrs)
     |> Repo.insert()
+  end
+
+  @doc """
+  Accepts an invitation without setting a new password.
+  """
+  @spec accept(%Invite{}) :: {:ok, struct()} | {:error, any()}
+  def accept(invite) do
+    invite = Repo.preload(invite, :user)
+
+    case User.update_without_password(invite.user, %{invite_uuid: nil}) do
+      {:ok, _user} ->
+        invite
+        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
+        |> Repo.update()
+
+      error ->
+        error
+    end
   end
 
   @doc """
@@ -102,7 +154,9 @@ defmodule EWalletDB.Invite do
 
     case User.update(invite.user, %{invite_uuid: nil, password: password}) do
       {:ok, _user} ->
-        Repo.delete(invite)
+        invite
+        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
+        |> Repo.update()
 
       error ->
         error

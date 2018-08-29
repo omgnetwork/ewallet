@@ -40,7 +40,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "The `redirect_url` is not allowed to be used. Got: #{redirect_url}"
+               "The given `redirect_url` is not allowed. Got: '#{redirect_url}'."
     end
 
     test "returns an error when sending email = nil" do
@@ -177,7 +177,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided `password` must be 8 characters or more."
+               "Invalid parameter provided. `password` must be 8 characters or more."
 
       assert ForgetPasswordRequest |> Repo.all() |> length() == 1
     end

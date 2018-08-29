@@ -646,11 +646,11 @@
         },
         "responses" : {
           "200" : {
-            "description" : "Returns a single exchange pair",
+            "description" : "Returns a list of exchange pairs",
             "content" : {
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ExchangePairResponseSchema"
+                  "$ref" : "#/components/schemas/ExchangePairsResponseSchema"
                 }
               }
             }
@@ -683,11 +683,11 @@
         },
         "responses" : {
           "200" : {
-            "description" : "Returns a single exchange pair",
+            "description" : "Returns a list of exchange pairs",
             "content" : {
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ExchangePairResponseSchema"
+                  "$ref" : "#/components/schemas/ExchangePairsResponseSchema"
                 }
               }
             }
@@ -720,11 +720,11 @@
         },
         "responses" : {
           "200" : {
-            "description" : "Returns a single exchange pair",
+            "description" : "Returns a list of exchange pairs",
             "content" : {
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
-                  "$ref" : "#/components/schemas/ExchangePairResponseSchema"
+                  "$ref" : "#/components/schemas/ExchangePairsResponseSchema"
                 }
               }
             }
@@ -1308,7 +1308,7 @@
         "summary" : "Get the list of wallets for the given account",
         "operationId" : "account_get_wallets",
         "requestBody" : {
-          "$ref" : "#/components/requestBodies/WalletAccountBody"
+          "$ref" : "#/components/requestBodies/AccountListBodyWithOwned"
         },
         "responses" : {
           "200" : {
@@ -2354,7 +2354,7 @@
         "summary" : "Get the list of transaction consumptions for a user",
         "operationId" : "user_get_consumptions",
         "requestBody" : {
-          "$ref" : "#/components/requestBodies/TransactionConsumptionAllForUserBody"
+          "$ref" : "#/components/requestBodies/UserIdentifierWithFiltersBody"
         },
         "responses" : {
           "200" : {
@@ -7649,9 +7649,9 @@
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
-              "required" : [ "user_id" ],
+              "required" : [ "id" ],
               "properties" : {
-                "user_id" : {
+                "id" : {
                   "type" : "string"
                 },
                 "page" : {
@@ -7676,7 +7676,7 @@
                 }
               },
               "example" : {
-                "user_id" : "usr_02cbfg6v9thrc3sd9m1v4gazjv",
+                "id" : "usr_02cbfg6v9thrc3sd9m1v4gazjv",
                 "page" : 1,
                 "per_page" : 10,
                 "search_terms" : { },

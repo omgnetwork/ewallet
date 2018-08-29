@@ -22,7 +22,7 @@ defmodule EWallet.TransactionConsumptionFetcher do
   defp return_consumption(consumption), do: {:ok, consumption}
 
   @spec idempotent_fetch(String.t()) ::
-          {:ok, %TransactionConsumption{}}
+          {:ok, nil}
           | {:idempotent_call, %TransactionConsumption{}}
           | {:error, %TransactionConsumption{}, atom(), String.t()}
           | {:error, %TransactionConsumption{}, String.t(), String.t()}

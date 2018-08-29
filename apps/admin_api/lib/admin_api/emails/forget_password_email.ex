@@ -5,11 +5,11 @@ defmodule AdminAPI.ForgetPasswordEmail do
   import Bamboo.Email
 
   def create(request, redirect_url) do
-    sender = Application.get_env(:admin_api, :sender_email)
+    sender = Application.get_env(:ewallet, :sender_email)
 
     link =
       redirect_url
-      |> String.replace("{email}", request.user.email)
+      |> String.replace("{email}", URI.encode_www_form(request.user.email))
       |> String.replace("{token}", request.token)
 
     new_email()
