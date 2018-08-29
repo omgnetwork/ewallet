@@ -99,7 +99,6 @@
         {Credo.Check.Readability.VariableNames},
         {Credo.Check.Readability.Semicolons},
         {Credo.Check.Readability.SpaceAfterCommas},
-        {Credo.Check.Readability.AliasOrder, false},
 
         #
         ## Refactoring Opportunities
