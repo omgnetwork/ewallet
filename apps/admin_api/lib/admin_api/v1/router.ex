@@ -107,6 +107,7 @@ defmodule AdminAPI.V1.Router do
     post("/wallet.all", WalletController, :all)
     post("/wallet.get", WalletController, :get)
     post("/wallet.create", WalletController, :create)
+    post("/wallet.enable_or_disable", WalletController, :enable_or_disable)
 
     post(
       "/wallet.get_transaction_consumptions",

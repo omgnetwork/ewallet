@@ -264,6 +264,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "wallet:wallet_not_found",
       description: "There is no wallet corresponding to the provided address."
     },
+    primary_wallet_cannot_be_disabled: %{
+      code: "wallet:primary_cannot_be_disabled",
+      description: "Primary wallets cannot be disabled."
+    },
     user_wallet_not_found: %{
       code: "user:wallet_not_found",
       description: "There is no user wallet corresponding to the provided address."

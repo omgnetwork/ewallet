@@ -29,7 +29,8 @@ defmodule EWallet.TransactionSourceFetcher do
   def fetch_from(%{"from_account_id" => from_account_id, "from_address" => from_address})
       when not is_nil(from_account_id) do
     with %Account{} = account <- Account.get(from_account_id) || {:error, :account_id_not_found},
-         {:ok, wallet} <- WalletFetcher.get(account, from_address) do
+         {:ok, wallet} <- WalletFetcher.get(account, from_address),
+         true <- wallet.enabled || {:error, :from_wallet_is_disabled} do
       {:ok,
        %{
          from_account_uuid: account.uuid,
@@ -50,7 +51,8 @@ defmodule EWallet.TransactionSourceFetcher do
   def fetch_from(%{"from_user_id" => from_user_id, "from_address" => from_address})
       when not is_nil(from_user_id) do
     with %User{} = user <- User.get(from_user_id) || {:error, :user_id_not_found},
-         {:ok, wallet} <- WalletFetcher.get(user, from_address) do
+         {:ok, wallet} <- WalletFetcher.get(user, from_address),
+         true <- wallet.enabled || {:error, :from_wallet_is_disabled}  do
       {:ok,
        %{
          from_user_uuid: user.uuid,
@@ -76,7 +78,8 @@ defmodule EWallet.TransactionSourceFetcher do
     with %User{} = user <-
            User.get_by_provider_user_id(from_provider_user_id) ||
              {:error, :provider_user_id_not_found},
-         {:ok, wallet} <- WalletFetcher.get(user, from_address) do
+         {:ok, wallet} <- WalletFetcher.get(user, from_address),
+         true <- wallet.enabled || {:error, :from_wallet_is_disabled}  do
       {:ok,
        %{
          from_user_uuid: user.uuid,
@@ -96,7 +99,8 @@ defmodule EWallet.TransactionSourceFetcher do
 
   def fetch_from(%{"from_address" => from_address}) when not is_nil(from_address) do
     with {:ok, wallet} <- WalletFetcher.get(nil, from_address),
-         wallet <- Repo.preload(wallet, [:account, :user]) do
+         wallet <- Repo.preload(wallet, [:account, :user]),
+         true <- wallet.enabled || {:error, :from_wallet_is_disabled}  do
       case is_nil(wallet.account_uuid) do
         true ->
           {:ok,
@@ -156,7 +160,8 @@ defmodule EWallet.TransactionSourceFetcher do
   def fetch_to(%{"to_account_id" => to_account_id, "to_address" => to_address})
       when not is_nil(to_account_id) do
     with %Account{} = account <- Account.get(to_account_id) || {:error, :account_id_not_found},
-         {:ok, wallet} <- WalletFetcher.get(account, to_address) do
+         {:ok, wallet} <- WalletFetcher.get(account, to_address),
+         true <- wallet.enabled || {:error, :to_wallet_is_disabled}  do
       {:ok,
        %{
          to_account_uuid: account.uuid,
@@ -177,7 +182,8 @@ defmodule EWallet.TransactionSourceFetcher do
   def fetch_to(%{"to_user_id" => to_user_id, "to_address" => to_address})
       when not is_nil(to_user_id) do
     with %User{} = user <- User.get(to_user_id) || {:error, :user_id_not_found},
-         {:ok, wallet} <- WalletFetcher.get(user, to_address) do
+         {:ok, wallet} <- WalletFetcher.get(user, to_address),
+         true <- wallet.enabled || {:error, :to_wallet_is_disabled} do
       {:ok,
        %{
          to_user_uuid: user.uuid,
@@ -200,7 +206,8 @@ defmodule EWallet.TransactionSourceFetcher do
     with %User{} = user <-
            User.get_by_provider_user_id(to_provider_user_id) ||
              {:error, :provider_user_id_not_found},
-         {:ok, wallet} <- WalletFetcher.get(user, to_address) do
+         {:ok, wallet} <- WalletFetcher.get(user, to_address),
+         true <- wallet.enabled || {:error, :to_wallet_is_disabled} do
       {:ok,
        %{
          to_user_uuid: user.uuid,
@@ -220,7 +227,8 @@ defmodule EWallet.TransactionSourceFetcher do
 
   def fetch_to(%{"to_address" => to_address}) when not is_nil(to_address) do
     with {:ok, wallet} <- WalletFetcher.get(nil, to_address),
-         wallet <- Repo.preload(wallet, [:account, :user]) do
+         wallet <- Repo.preload(wallet, [:account, :user]),
+         true <- wallet.enabled || {:error, :to_wallet_is_disabled} do
       case is_nil(wallet.account_uuid) do
         true ->
           {:ok,

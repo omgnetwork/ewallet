@@ -44,6 +44,7 @@ defmodule EWalletDB.Wallet do
     field(:identifier, :string)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:enabled, :boolean)
 
     belongs_to(
       :user,
@@ -104,6 +105,12 @@ defmodule EWalletDB.Wallet do
     |> unique_constraint(:unique_user_name, name: :wallet_user_uuid_name_index)
     |> unique_constraint(:unique_account_identifier, name: :wallet_account_uuid_identifier_index)
     |> unique_constraint(:unique_user_identifier, name: :wallet_user_uuid_identifier_index)
+  end
+
+  defp enable_changeset(%Wallet{} = wallet, attrs) do
+    wallet
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
   end
 
   @spec all_for(any()) :: Ecto.Query.t() | nil
@@ -221,4 +228,18 @@ defmodule EWalletDB.Wallet do
   @spec burn_wallet?(%Wallet{} | nil) :: boolean()
   def burn_wallet?(nil), do: false
   def burn_wallet?(wallet), do: String.match?(wallet.identifier, ~r/^#{@burn}|#{@burn}:.*/)
+
+  @doc """
+  Enables or disables a wallet.
+  """
+  def enable_or_disable(wallet, attrs) do
+    case wallet do
+      %{identifier: "primary"} ->
+        {:error, :primary_wallet_cannot_be_disabled}
+      wallet ->
+        wallet
+        |> enable_changeset(attrs)
+        |> Repo.update()
+    end
+  end
 end
