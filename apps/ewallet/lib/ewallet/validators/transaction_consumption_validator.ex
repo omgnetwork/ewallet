@@ -18,6 +18,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   def validate_before_consumption(request, wallet, attrs, wallet_exchange \\ nil) do
     with amount <- attrs["amount"],
          token_id <- attrs["token_id"],
+         true <- wallet.enabled || {:error, :wallet_is_disabled},
          :ok <- validate_only_one_exchange_address_in_pair(request, wallet_exchange),
          {:ok, request} <- TransactionRequest.expire_if_past_expiration_date(request),
          true <- TransactionRequest.valid?(request) || request.expiration_reason,

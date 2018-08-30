@@ -9,7 +9,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     Transaction,
     Account,
     AccountUser,
-    Token
+    Token,
+    Wallet
   }
 
   alias EWallet.{TestEndpoint, BalanceFetcher}
@@ -1431,13 +1432,49 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     end
 
     test "fails to consume when token is disabled", meta do
-      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false})
 
       transaction_request =
         insert(
           :transaction_request,
           type: "receive",
-          token_uuid: token.uuid,
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false})
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token.id,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "token:disabled"
+    end
+
+    test "fails to consume when wallet is disabled", meta do
+      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
+        "user_uuid" => meta.bob.uuid,
+        "name" => "MySecondary",
+        "identifier" => "secondary"
+      })
+
+      {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
           user_uuid: meta.alice.uuid,
           wallet: meta.alice_wallet,
           amount: 100_000 * meta.token.subunit_to_unit
@@ -1449,14 +1486,14 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
           formatted_transaction_request_id: transaction_request.id,
           correlation_id: nil,
           amount: nil,
-          address: nil,
+          address: wallet.address,
           metadata: nil,
           token_id: nil,
           account_id: meta.account.id
         })
 
       assert response["success"] == false
-      assert response["data"]["code"] == "token:disabled"
+      assert response["data"]["code"] == "wallet:disabled"
     end
 
     test "returns with preload if `embed` attribute is given", meta do

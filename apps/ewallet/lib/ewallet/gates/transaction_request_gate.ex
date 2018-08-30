@@ -159,7 +159,8 @@ defmodule EWallet.TransactionRequestGate do
           "creator" => creator
         } = attrs
       ) do
-    with :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
+    with true <- wallet.enabled || {:error, :wallet_is_disabled},
+         :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
          {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
          {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
          {:ok, exchange_wallet} <- ExchangeAccountFetcher.fetch(attrs),

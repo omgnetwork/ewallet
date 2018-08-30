@@ -68,6 +68,7 @@ defmodule EWalletDB.Factory do
       name: sequence("Wallet name"),
       identifier: Wallet.primary(),
       user: insert(:user),
+      enabled: true,
       metadata: %{}
     }
   end

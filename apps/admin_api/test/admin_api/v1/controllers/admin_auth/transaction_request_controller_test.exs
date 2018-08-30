@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, User, Account, AccountUser}
+  alias EWalletDB.{Repo, TransactionRequest, User, Account, AccountUser, Wallet}
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{TokenSerializer, UserSerializer, AccountSerializer, WalletSerializer}
 
@@ -456,6 +456,33 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
 
       assert response["success"] == false
       assert response["data"]["code"] == "token:disabled"
+    end
+
+    test "receives an error when the wallet is disabled" do
+      account = Account.get_master_account()
+      user = get_test_user()
+      token = insert(:token, enabled: false)
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
+        "user_uuid" => user.uuid,
+        "name" => "MySecondary",
+        "identifier" => "secondary"
+      })
+
+      {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
+
+      response =
+        admin_user_request("/transaction_request.create", %{
+          type: "send",
+          token_id: token.id,
+          correlation_id: nil,
+          amount: nil,
+          address: wallet.address
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "wallet:disabled"
     end
   end
 

@@ -268,6 +268,10 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "wallet:primary_cannot_be_disabled",
       description: "Primary wallets cannot be disabled."
     },
+    wallet_is_disabled: %{
+      code: "wallet:disabled",
+      description: "The given wallet is disabled."
+    },
     user_wallet_not_found: %{
       code: "user:wallet_not_found",
       description: "There is no user wallet corresponding to the provided address."
