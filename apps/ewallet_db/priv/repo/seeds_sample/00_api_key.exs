@@ -1,5 +1,5 @@
 defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
-  alias EWalletDB.{Account, APIKey}
+  alias EWalletDB.{APIKey, Account}
   alias EWallet.Web.Preloader
 
   def seed do

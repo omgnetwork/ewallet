@@ -4,7 +4,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
-  alias EWallet.Web.{Paginator, Date}
+  alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Account
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.Uploaders.Avatar

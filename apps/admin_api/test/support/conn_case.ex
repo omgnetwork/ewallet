@@ -19,7 +19,7 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, User, Account, Key}
+  alias EWalletDB.{Account, Key, Repo, User}
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.Helpers.Crypto
   alias EWalletDB.Types.ExternalID

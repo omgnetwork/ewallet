@@ -8,7 +8,7 @@ defmodule EWalletDB.Token do
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Token}
+  alias EWalletDB.{Account, Repo, Token}
   alias ExULID.ULID
 
   @primary_key {:uuid, UUID, autogenerate: true}

@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.CategoryView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, CategorySerializer}
+  alias EWallet.Web.V1.{CategorySerializer, ResponseSerializer}
 
   def render("category.json", %{category: category}) do
     category

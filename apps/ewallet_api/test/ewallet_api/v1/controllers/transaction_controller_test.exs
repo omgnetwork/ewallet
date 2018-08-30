@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionControllerTest do
   use EWalletAPI.ConnCase, async: false
   alias EWallet.BalanceFetcher
-  alias EWalletDB.{User, Transaction, Account}
+  alias EWalletDB.{Account, Transaction, User}
   alias Ecto.UUID
 
   # credo:disable-for-next-line

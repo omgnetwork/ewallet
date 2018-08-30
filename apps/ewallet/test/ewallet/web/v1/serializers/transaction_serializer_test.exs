@@ -1,9 +1,9 @@
 defmodule EWallet.Web.V1.TransactionSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{TransactionSerializer, TokenSerializer, UserSerializer, AccountSerializer}
+  alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer, UserSerializer}
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Token, Helpers.Assoc}
+  alias EWalletDB.{Helpers.Assoc, Repo, Token}
 
   describe "serialize/1 for single transaction" do
     test "serializes into correct V1 transaction format" do

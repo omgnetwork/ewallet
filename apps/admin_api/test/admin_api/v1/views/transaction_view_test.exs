@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.TransactionViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.TransactionView
   alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer, V1.AccountSerializer}
+  alias EWallet.Web.{Date, V1.AccountSerializer, V1.TokenSerializer, V1.UserSerializer}
   alias EWalletDB.Helpers.Assoc
 
   describe "AdminAPI.V1.TransactionView.render/2" do

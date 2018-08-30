@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.KeyController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.KeyPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
   alias EWalletDB.Key
 
   # The field names to be mapped into DB column names.

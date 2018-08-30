@@ -8,7 +8,7 @@ defmodule EWallet.TransactionConsumptionFetcherTest do
     TransactionConsumptionFetcher
   }
 
-  alias EWalletDB.{User, TransactionConsumption}
+  alias EWalletDB.{TransactionConsumption, User}
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()

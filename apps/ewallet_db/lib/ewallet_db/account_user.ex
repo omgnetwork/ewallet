@@ -6,7 +6,7 @@ defmodule EWalletDB.AccountUser do
   use Arc.Ecto.Schema
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{Repo, AccountUser, Account, User}
+  alias EWalletDB.{Account, AccountUser, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 

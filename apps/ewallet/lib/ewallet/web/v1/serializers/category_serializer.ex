@@ -4,7 +4,7 @@ defmodule EWallet.Web.V1.CategorySerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{AccountSerializer, PaginatorSerializer}
-  alias EWallet.Web.{Paginator, Date}
+  alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Category
 
   def serialize(%Paginator{} = paginator) do

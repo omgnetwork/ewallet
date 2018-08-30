@@ -2,16 +2,16 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias EWalletDB.{
-    Repo,
-    TransactionRequest,
-    TransactionConsumption,
-    User,
-    Transaction,
     Account,
-    AccountUser
+    AccountUser,
+    Repo,
+    Transaction,
+    TransactionConsumption,
+    TransactionRequest,
+    User
   }
 
-  alias EWallet.{TestEndpoint, BalanceFetcher}
+  alias EWallet.{BalanceFetcher, TestEndpoint}
   alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
 

@@ -3,7 +3,7 @@ defmodule LocalLedger.EntryTest do
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias LocalLedger.Entry
-  alias LocalLedgerDB.{Repo, Transaction, Errors.InsufficientFundsError}
+  alias LocalLedgerDB.{Errors.InsufficientFundsError, Repo, Transaction}
   alias Ecto.UUID
 
   setup do

@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.APIKeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.APIKeyPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
   alias EWalletDB.APIKey
   alias Ecto.Changeset
 

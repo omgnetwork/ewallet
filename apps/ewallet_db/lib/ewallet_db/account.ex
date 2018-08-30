@@ -10,17 +10,17 @@ defmodule EWalletDB.Account do
   alias Ecto.{Multi, UUID}
 
   alias EWalletDB.{
-    Repo,
-    Account,
-    User,
-    AccountUser,
     APIKey,
+    Account,
+    AccountUser,
     Category,
+    Intersecter,
     Key,
     Membership,
+    Repo,
     Token,
-    Wallet,
-    Intersecter
+    User,
+    Wallet
   }
 
   alias EWalletDB.Helpers.InputAttribute

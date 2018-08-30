@@ -2,7 +2,7 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
-  alias EWallet.Web.{Paginator, Date}
+  alias EWallet.Web.{Date, Paginator}
   alias EWalletDB.Account
 
   describe "AccountSerializer.serialize/1" do

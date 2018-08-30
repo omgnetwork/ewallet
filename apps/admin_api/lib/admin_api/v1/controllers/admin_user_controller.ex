@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminUserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
   alias EWallet.AdminUserPolicy
   alias AdminAPI.V1.UserView
   alias EWalletDB.{User, UserQuery}

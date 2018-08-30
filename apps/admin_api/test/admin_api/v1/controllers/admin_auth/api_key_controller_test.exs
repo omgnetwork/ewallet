@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, APIKey, Repo}
+  alias EWalletDB.{APIKey, Account, Repo}
   alias EWalletDB.Helpers.Preloader
 
   describe "/api_key.all" do

@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AuthTokenSerializer do
   @moduledoc """
   Serializes authentication token data into V1 response format.
   """
-  alias EWallet.Web.V1.{UserSerializer, AccountSerializer}
+  alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
   alias EWalletDB.User
   alias EWalletDB.Helpers.{Assoc, Preloader}
 

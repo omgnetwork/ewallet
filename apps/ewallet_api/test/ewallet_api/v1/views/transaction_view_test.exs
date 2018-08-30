@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.TransactionView
-  alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer, V1.AccountSerializer}
+  alias EWallet.Web.{Date, V1.AccountSerializer, V1.TokenSerializer, V1.UserSerializer}
   alias EWalletDB.Helpers.Assoc
 
   describe "EWalletAPI.V1.TransactionView.render/2" do

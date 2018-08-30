@@ -7,12 +7,12 @@ defmodule LocalLedgerDB.Entry do
   import Ecto.{Changeset, Query}
 
   alias LocalLedgerDB.{
-    Transaction,
+    Entry,
+    Errors.InsufficientFundsError,
     Repo,
     Token,
-    Wallet,
-    Entry,
-    Errors.InsufficientFundsError
+    Transaction,
+    Wallet
   }
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}

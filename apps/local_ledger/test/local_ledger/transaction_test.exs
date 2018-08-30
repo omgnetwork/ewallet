@@ -2,7 +2,7 @@ defmodule LocalLedger.TransactionTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
   alias LocalLedger.Transaction
-  alias LocalLedgerDB.{Repo, Entry}
+  alias LocalLedgerDB.{Entry, Repo}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 

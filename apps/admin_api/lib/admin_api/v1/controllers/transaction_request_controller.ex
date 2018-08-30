@@ -3,14 +3,14 @@ defmodule AdminAPI.V1.TransactionRequestController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionRequestPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
 
   alias EWallet.{
-    TransactionRequestGate,
-    TransactionRequestFetcher
+    TransactionRequestFetcher,
+    TransactionRequestGate
   }
 
-  alias EWalletDB.{TransactionRequest, Account}
+  alias EWalletDB.{Account, TransactionRequest}
 
   @mapped_fields %{"created_at" => "inserted_at"}
   @preload_fields [:user, :account, :token, :wallet]

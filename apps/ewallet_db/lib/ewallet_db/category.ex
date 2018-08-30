@@ -8,7 +8,7 @@ defmodule EWalletDB.Category do
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account}
+  alias EWalletDB.{Account, Repo}
   alias EWalletDB.Helpers.InputAttribute
 
   @primary_key {:uuid, UUID, autogenerate: true}

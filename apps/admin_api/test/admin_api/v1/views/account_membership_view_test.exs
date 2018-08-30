@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AccountMembershipViewTest do
   use AdminAPI.ViewCase, :v1
   alias EWalletDB.Repo
-  alias AdminAPI.V1.{MembershipSerializer, AccountMembershipView}
+  alias AdminAPI.V1.{AccountMembershipView, MembershipSerializer}
 
   describe "AccountMembershipView.render/2" do
     test "renders memberships.json with users response" do

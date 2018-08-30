@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuthViewTest do
   use AdminAPI.ViewCase, :v1
-  alias AdminAPI.V1.{AuthTokenSerializer, AdminAuthView}
+  alias AdminAPI.V1.{AdminAuthView, AuthTokenSerializer}
 
   describe "AdminAPI.V1.AuthView.render/2" do
     # Potential candidate to be moved to a shared library

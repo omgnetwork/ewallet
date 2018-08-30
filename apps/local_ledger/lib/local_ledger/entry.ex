@@ -3,7 +3,7 @@ defmodule LocalLedger.Entry do
   This module is responsible for preparing and formatting the entries
   before they are passed to a transaction to be inserted in the database.
   """
-  alias LocalLedgerDB.{Wallet, Token, Entry}
+  alias LocalLedgerDB.{Entry, Token, Wallet}
 
   @doc """
   Get or insert the given token and all the given addresses before

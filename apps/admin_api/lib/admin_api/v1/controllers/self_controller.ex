@@ -1,10 +1,10 @@
 defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.{AccountView, UserView, AccountHelper}
+  alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
   alias EWallet.Web.Paginator
   alias EWalletDB.{Account, User}
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
   alias Ecto.Changeset
 
   @mapped_fields %{

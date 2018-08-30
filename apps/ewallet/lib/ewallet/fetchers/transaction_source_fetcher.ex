@@ -3,7 +3,7 @@ defmodule EWallet.TransactionSourceFetcher do
   Handles the logic for fetching the token and the from and to wallets.
   """
   alias EWallet.WalletFetcher
-  alias EWalletDB.{Repo, Account, User}
+  alias EWalletDB.{Account, Repo, User}
 
   def fetch_from(%{"from_account_id" => from_account_id, "from_user_id" => from_user_id})
       when not is_nil(from_account_id) and not is_nil(from_user_id) do

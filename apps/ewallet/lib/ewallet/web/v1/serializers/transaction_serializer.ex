@@ -5,13 +5,13 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   alias Ecto.Association.NotLoaded
 
   alias EWallet.Web.V1.{
+    AccountSerializer,
+    ErrorHandler,
+    ExchangePairSerializer,
     PaginatorSerializer,
     TokenSerializer,
     UserSerializer,
-    AccountSerializer,
-    ExchangePairSerializer,
-    WalletSerializer,
-    ErrorHandler
+    WalletSerializer
   }
 
   alias EWallet.Web.{Date, Paginator}

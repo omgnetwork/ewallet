@@ -4,7 +4,7 @@ defmodule LocalLedger.CachedBalance do
   wallets and serves as an interface to retrieve the current balances (which will either be
   loaded from a cached balance or computed - or both).
   """
-  alias LocalLedgerDB.{Wallet, CachedBalance, Entry}
+  alias LocalLedgerDB.{CachedBalance, Entry, Wallet}
 
   @doc """
   Cache all the wallets balances using a batch stream mechanism for retrieval (1000 at a time). This

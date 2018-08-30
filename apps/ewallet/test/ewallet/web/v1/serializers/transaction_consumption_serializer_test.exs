@@ -7,9 +7,9 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializerTest do
   alias EWallet.Web.V1.{
     AccountSerializer,
     TokenSerializer,
-    TransactionSerializer,
     TransactionConsumptionSerializer,
     TransactionRequestSerializer,
+    TransactionSerializer,
     UserSerializer
   }
 

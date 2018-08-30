@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Account, Key}
+  alias EWalletDB.{Account, Key, Repo}
 
   describe "/access_key.all" do
     test "responds with a list of keys without secret keys" do

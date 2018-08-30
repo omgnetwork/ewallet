@@ -5,17 +5,17 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   alias AdminAPI.V1.AccountHelper
   alias EWallet.Web.Embedder
   alias EWallet.TransactionConsumptionPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
 
   alias EWallet.{
-    Web.V1.Event,
-    TransactionConsumptionConsumerGate,
     TransactionConsumptionConfirmerGate,
+    TransactionConsumptionConsumerGate,
     TransactionConsumptionFetcher,
-    UserFetcher
+    UserFetcher,
+    Web.V1.Event
   }
 
-  alias EWalletDB.{Account, User, TransactionRequest, TransactionConsumption, Wallet}
+  alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
 
   # The fields that are allowed to be embedded.
   # These fields must be one of the schema's association names.

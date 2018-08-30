@@ -5,7 +5,7 @@ defmodule EWalletDB.Invite do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Invite, User}
+  alias EWalletDB.{Invite, Repo, User}
   alias EWalletDB.Helpers.Crypto
 
   @primary_key {:uuid, UUID, autogenerate: true}

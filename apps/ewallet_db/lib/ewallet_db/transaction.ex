@@ -6,8 +6,8 @@ defmodule EWalletDB.Transaction do
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
-  alias Ecto.{UUID, Multi}
-  alias EWalletDB.{Account, User, Repo, Token, Transaction, Wallet, ExchangePair}
+  alias Ecto.{Multi, UUID}
+  alias EWalletDB.{Account, ExchangePair, Repo, Token, Transaction, User, Wallet}
 
   @pending "pending"
   @confirmed "confirmed"

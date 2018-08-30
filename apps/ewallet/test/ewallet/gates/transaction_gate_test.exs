@@ -1,8 +1,8 @@
 defmodule EWallet.TransactionGateTest do
   use EWallet.LocalLedgerCase, async: true
   import EWalletDB.Factory
-  alias EWallet.{TransactionGate, BalanceFetcher}
-  alias EWalletDB.{User, Token, Transaction, Account}
+  alias EWallet.{BalanceFetcher, TransactionGate}
+  alias EWalletDB.{Account, Token, Transaction, User}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
 

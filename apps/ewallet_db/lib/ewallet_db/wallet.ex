@@ -9,7 +9,7 @@ defmodule EWalletDB.Wallet do
   alias Ecto.UUID
   alias ExULID.ULID
   alias EWalletDB.Types.WalletAddress
-  alias EWalletDB.{Repo, Account, Wallet, User}
+  alias EWalletDB.{Account, Repo, User, Wallet}
 
   @genesis "genesis"
   @burn "burn"

@@ -2,7 +2,7 @@ defmodule EWallet.Web.PaginatorTest do
   use EWallet.DBCase
   import Ecto.Query
   alias EWallet.Web.Paginator
-  alias EWalletDB.{Repo, Account}
+  alias EWalletDB.{Account, Repo}
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
     test "paginates with default values if attrs not given" do

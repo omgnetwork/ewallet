@@ -1,6 +1,6 @@
 defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, User, Transaction, Account}
+  alias EWalletDB.{Account, Repo, Transaction, TransactionConsumption, TransactionRequest, User}
   alias EWallet.TestEndpoint
   alias EWallet.Web.Date
   alias Phoenix.Socket.Broadcast
