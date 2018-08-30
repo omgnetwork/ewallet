@@ -995,6 +995,22 @@ paths:
           $ref: "#/components/responses/WalletResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /wallet.enable_or_disable:
+    post:
+      tags:
+        - Wallet
+      summary: Enable or disable a specific wallet
+      operationId: wallet_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletEnableOrDisableBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 
   #####################################
   #       TRANSACTION ENDPOINTS       #
@@ -2425,6 +2441,8 @@ components:
           type: object
         encrypted_metadata:
           type: object
+        enabled:
+          type: boolean
         user_id:
           type: string
         user:
@@ -2450,6 +2468,7 @@ components:
         - account_id
         - account
         - balances
+        - enabled
       example:
         data:
           object: "wallet"
@@ -2459,6 +2478,7 @@ components:
           identifier: "primary"
           metadata: {}
           encrypted_metadata: {}
+          enabled: true
           user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
           user: {}
           account_id: null
@@ -2516,6 +2536,7 @@ components:
             identifier: "primary"
             metadata: {}
             encrypted_metadata: {}
+            enabled: true
             user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
             user: {}
             account_id: null
@@ -2559,6 +2580,7 @@ components:
                 identifier: "primary"
                 metadata: {}
                 encrypted_metadata: {}
+                enabled: true
                 user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
                 user: {}
                 account_id: null
@@ -4573,6 +4595,23 @@ components:
               - address
             example:
               address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+    WalletEnableOrDisableBody:
+      description: The parameters to use to enable or disable a wallet.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              address:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - address
+              - enabled
+            example:
+              address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              enabled: false
     WalletCreateBody:
       description: The parameters to use for creating a wallet
       required: true
