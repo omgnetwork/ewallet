@@ -266,6 +266,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
                      "name" => "primary",
                      "user" => user |> UserSerializer.serialize() |> stringify_keys(),
                      "user_id" => user.id,
+                     "enabled" => true,
                      "created_at" => Date.to_iso8601(user_wallet.inserted_at),
                      "updated_at" => Date.to_iso8601(user_wallet.updated_at),
                      "balances" => [
@@ -591,6 +592,62 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       # The account's wallets made to use the request
       length = Wallet |> Repo.all() |> length()
       assert length == 3
+    end
+  end
+
+  describe "/wallet.disable" do
+    test "disables a burn wallet" do
+      account = Account.get_master_account()
+
+      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
+        "account_uuid" => account.uuid,
+        "name" => "MyBurn",
+        "identifier" => "burn"
+      })
+
+      response =
+        admin_user_request("/wallet.enable_or_disable", %{
+          address: wallet.address,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["address"] == wallet.address
+      assert response["data"]["enabled"] == false
+    end
+
+    test "disables a secondary wallet" do
+      account = Account.get_master_account()
+
+      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
+        "account_uuid" => account.uuid,
+        "name" => "MySecondary",
+        "identifier" => "secondary"
+      })
+
+      response =
+        admin_user_request("/wallet.enable_or_disable", %{
+          address: wallet.address,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["address"] == wallet.address
+      assert response["data"]["enabled"] == false
+    end
+
+    test "can't disable a primary account" do
+      account = Account.get_master_account()
+      wallet = Account.get_primary_wallet(account)
+
+      response =
+        admin_user_request("/wallet.enable_or_disable", %{
+          address: wallet.address,
+          enabled: false
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "wallet:primary_cannot_be_disabled"
     end
   end
 end
