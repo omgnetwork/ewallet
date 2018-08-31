@@ -111,3 +111,5 @@ $ curl http://localhost:4000
 ### Next step
 
 Read the [Documentation](/README.md/#documentation) to learn more and start using your eWallet!
+
+Having trouble setting up the eWallet? Check the [Setup Troubleshooting Guide](troubleshooting.md).
