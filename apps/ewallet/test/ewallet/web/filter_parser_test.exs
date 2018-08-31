@@ -1,7 +1,7 @@
 defmodule EWallet.Web.FilterParserTest do
   use EWallet.DBCase
   import EWalletDB.Factory
-  alias EWallet.Web.FilterParser
+  alias EWallet.Web.{FilterParser, Preloader}
   alias EWalletDB.{Account, Transaction, Repo, User}
 
   describe "to_query/3" do
@@ -225,6 +225,301 @@ defmodule EWallet.Web.FilterParserTest do
       result = FilterParser.to_query(Transaction, attrs, [])
 
       assert result == {:error, :not_allowed, "from_amount"}
+    end
+  end
+
+  describe "to_query/3 with field definition" do
+    test "supports field tuples in the whitelist" do
+      whitelist = [uuid: :uuid]
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      account_3 = insert(:account)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "uuid",
+            "comparator" => "eq",
+            "value" => account_2.uuid
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Account, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
+      assert Enum.any?(result, fn acc -> acc.id == account_2.id end)
+      refute Enum.any?(result, fn acc -> acc.id == account_3.id end)
+    end
+
+    test "supports filtering using 'contains' with a field tuple" do
+      whitelist = [uuid: :uuid]
+
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+      account_3 = insert(:account)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "uuid",
+            "comparator" => "contains",
+            "value" => account_3.uuid |> String.split("-") |> Enum.at(2)
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Account, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
+      refute Enum.any?(result, fn acc -> acc.id == account_2.id end)
+      assert Enum.any?(result, fn acc -> acc.id == account_3.id end)
+    end
+  end
+
+  describe "to_query/3 with nested field" do
+    test "filter for boolean true when given 'true' as value" do
+      whitelist = [from_user: [:is_admin]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+      {:ok, _user} = User.update(txn_2.from_user, %{is_admin: true})
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_user.is_admin",
+            "comparator" => "eq",
+            "value" => "true"
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'eq'" do
+      whitelist = [from_user: [:username]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_user.username",
+            "comparator" => "eq",
+            "value" => txn_2.from_user.username
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'neq'" do
+      whitelist = [from_user: [:username]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_user.username",
+            "comparator" => "neq",
+            "value" => txn_2.from_user.username
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'gt'" do
+      whitelist = [from_user: [:inserted_at]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_user.inserted_at",
+            "comparator" => "gt",
+            "value" => txn_2.from_user.inserted_at
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'gte'" do
+      whitelist = [from_user: [:inserted_at]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_user.inserted_at",
+            "comparator" => "gte",
+            "value" => txn_2.from_user.inserted_at
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'lt'" do
+      whitelist = [from_user: [:inserted_at]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_user.inserted_at",
+            "comparator" => "lt",
+            "value" => txn_2.from_user.inserted_at
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'lte'" do
+      whitelist = [from_user: [:inserted_at]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_user.inserted_at",
+            "comparator" => "lte",
+            "value" => txn_2.from_user.inserted_at
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'contains'" do
+      whitelist = [from_token: [:name]]
+
+      txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction, from_token: insert(:token, name: "partial_match_token"))
+      txn_3 = insert(:transaction)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_token.name",
+            "comparator" => "contains",
+            "value" => "ial_match_"
+          }
+        ]
+      }
+
+      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns error if filtering is not allowed on the field" do
+      whitelist = [from_token: [:email]]
+
+      _txn_1 = insert(:transaction)
+      txn_2 = insert(:transaction)
+      _txn_3 = insert(:transaction)
+
+      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_token)
+
+      attrs = %{
+        "filters" => [
+          %{
+            "field" => "from_token.name",
+            "comparator" => "eq",
+            "value" => txn_2.from_token.name
+          }
+        ]
+      }
+
+      {res, code, params} = FilterParser.to_query(Transaction, attrs, whitelist)
+
+      assert res == :error
+      assert code == :not_allowed
+      assert params == "from_token.name"
     end
   end
 end
