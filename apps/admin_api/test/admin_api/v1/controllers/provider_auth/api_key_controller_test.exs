@@ -1,8 +1,7 @@
 defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{APIKey, Account, Repo}
-  alias EWalletDB.Helpers.Preloader
+  alias EWalletDB.{Account, APIKey, Helpers.Preloader, Repo}
 
   describe "/api_key.all" do
     test "responds with a list of api keys when no params are given" do

@@ -3,8 +3,8 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   import AdminAPI.V1.ErrorHandler
   @behaviour EWallet.Web.Embedder
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.Web.Embedder
   alias EWallet.TransactionConsumptionPolicy
+  alias EWallet.Web.Embedder
   alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
 
   alias EWallet.{

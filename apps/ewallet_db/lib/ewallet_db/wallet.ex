@@ -7,9 +7,8 @@ defmodule EWalletDB.Wallet do
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
+  alias EWalletDB.{Account, Repo, Types.WalletAddress, User, Wallet}
   alias ExULID.ULID
-  alias EWalletDB.Types.WalletAddress
-  alias EWalletDB.{Account, Repo, User, Wallet}
 
   @genesis "genesis"
   @burn "burn"

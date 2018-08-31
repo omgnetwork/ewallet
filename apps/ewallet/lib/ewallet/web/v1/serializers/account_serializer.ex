@@ -3,8 +3,8 @@ defmodule EWallet.Web.V1.AccountSerializer do
   Serializes account(s) into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
   alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
   alias EWalletDB.Account
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.Uploaders.Avatar

@@ -3,8 +3,8 @@ defmodule AdminAPI.Application do
   AdminAPI's startup and shutdown functionalities
   """
   use Application
-  alias AdminAPI.Endpoint
   alias AdminAPI.Config
+  alias AdminAPI.Endpoint
 
   def start(_type, _args) do
     import Supervisor.Spec

@@ -1,11 +1,11 @@
 defmodule EWalletDB.Repo.Seeds.AuthTokenSeed do
-  alias EWalletDB.{AuthToken, User}
   alias EWallet.Web.Preloader
+  alias EWalletDB.{AuthToken, User}
 
   def seed do
     [
       run_banner: "Seeding auth tokens:",
-      argsline: [],
+      argsline: []
     ]
   end
 
@@ -16,6 +16,7 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSeed do
     case AuthToken.generate(user, owner_app) do
       {:ok, token} ->
         {:ok, token} = Preloader.preload_one(token, :user)
+
         writer.success("""
           Owner app        : #{token.owner_app}
           User ID          : #{token.user.id}
@@ -25,9 +26,11 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSeed do
         """)
 
         args ++ [{:seeded_admin_auth_token, token.token}]
+
       {:error, changeset} ->
         writer.error("  Auth token for #{user.id} and #{owner_app} could not be inserted:")
         writer.print_errors(changeset)
+
       _ ->
         writer.error("  Auth token for #{user.id} and #{owner_app} could not be inserted:")
         writer.error("  Unknown error.")

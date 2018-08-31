@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.UserViewTest do
   use EWalletAPI.ViewCase, :v1
+  alias Ecto.UUID
   alias EWalletAPI.V1.UserView
   alias EWalletDB.User
-  alias Ecto.UUID
 
   describe "EWalletAPI.V1.UserView.render/2" do
     test "renders user.json with correct structure" do

@@ -5,8 +5,8 @@ defmodule AdminAPI.V1.WalletController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.Web.{Paginator, SearchParser, SortParser}
   alias EWallet.{UUIDFetcher, WalletPolicy}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
   alias EWalletDB.{Account, User, Wallet}
 
   @mapped_fields %{

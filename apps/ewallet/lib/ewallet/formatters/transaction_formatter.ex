@@ -2,8 +2,8 @@ defmodule EWallet.TransactionFormatter do
   @moduledoc """
   Converts an eWallet's transaction into a LocalLedger's transaction and entries.
   """
-  alias EWalletDB.Transaction
   alias EWalletDB.Helpers.Preloader
+  alias EWalletDB.Transaction
   alias LocalLedgerDB.Entry
 
   @doc """

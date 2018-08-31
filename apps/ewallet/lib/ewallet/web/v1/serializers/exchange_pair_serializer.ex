@@ -3,8 +3,8 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
   Serializes exchange pairs into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
   alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
   alias EWalletDB.ExchangePair
   alias EWalletDB.Helpers.{Assoc, Preloader}
 

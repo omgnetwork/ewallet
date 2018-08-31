@@ -1,8 +1,7 @@
 defmodule EWalletDB.WalletTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Account, User, Wallet}
-  alias EWalletDB.Types.WalletAddress
   alias Ecto.UUID
+  alias EWalletDB.{Account, Types.WalletAddress, User, Wallet}
 
   describe "Wallet factory" do
     test_has_valid_factory(Wallet)

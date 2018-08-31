@@ -1,10 +1,10 @@
 defmodule LocalLedgerDB.WalletTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
-  alias LocalLedgerDB.Wallet
-  alias LocalLedgerDB.Repo
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
+  alias LocalLedgerDB.Repo
+  alias LocalLedgerDB.Wallet
 
   setup do
     :ok = Sandbox.checkout(Repo)

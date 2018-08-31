@@ -1,8 +1,8 @@
 defmodule EWallet.Web.V1.CategorySerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
   alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
 
   describe "CategorySerializer.serialize/1" do
     test "serializes a category into V1 response format" do

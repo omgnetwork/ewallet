@@ -4,8 +4,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
-  alias EWallet.Web.V1.ErrorSerializer
   alias EWallet.AmountFormatter
+  alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
 
   @errors %{

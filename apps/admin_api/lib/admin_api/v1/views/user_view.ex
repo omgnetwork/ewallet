@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.UserView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.V1.ResponseSerializer
+  alias EWallet.Web.V1.UserSerializer
 
   def render("user.json", %{user: user}) do
     user

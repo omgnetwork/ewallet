@@ -1,8 +1,8 @@
 defmodule EWallet.Web.V1.UserSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias EWallet.Web.V1.UserSerializer
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.UserSerializer
 
   describe "serialize/1" do
     test "serializes a user into correct JSON format" do

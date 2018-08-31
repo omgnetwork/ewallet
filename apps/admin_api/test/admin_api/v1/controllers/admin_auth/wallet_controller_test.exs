@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.Date
+  alias EWallet.Web.V1.UserSerializer
   alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
 
   describe "/wallet.all" do

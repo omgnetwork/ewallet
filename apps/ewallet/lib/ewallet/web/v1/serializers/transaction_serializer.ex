@@ -15,8 +15,8 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   }
 
   alias EWallet.Web.{Date, Paginator}
-  alias EWalletDB.Transaction
   alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.Transaction
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)

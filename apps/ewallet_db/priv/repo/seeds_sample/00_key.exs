@@ -1,11 +1,11 @@
 defmodule EWalletDB.Repo.Seeds.KeySampleSeed do
-  alias EWalletDB.{Account, Key}
   alias EWallet.Web.Preloader
+  alias EWalletDB.{Account, Key}
 
   def seed do
     [
       run_banner: "Seeding sample keys:",
-      argsline: [],
+      argsline: []
     ]
   end
 
@@ -15,6 +15,7 @@ defmodule EWalletDB.Repo.Seeds.KeySampleSeed do
     case Key.insert(%{account_uuid: account.uuid}) do
       {:ok, key} ->
         {:ok, key} = Preloader.preload_one(key, :account)
+
         writer.success("""
           Account Name : #{key.account.name}
           Account ID   : #{key.account.id}
@@ -22,13 +23,16 @@ defmodule EWalletDB.Repo.Seeds.KeySampleSeed do
           Secret key   : #{key.secret_key}
         """)
 
-        args ++ [
-          {:seeded_ewallet_key_access, key.access_key},
-          {:seeded_ewallet_key_secret, key.secret_key},
-        ]
+        args ++
+          [
+            {:seeded_ewallet_key_access, key.access_key},
+            {:seeded_ewallet_key_secret, key.secret_key}
+          ]
+
       {:error, changeset} ->
         writer.error("  Access/Secret for #{account.name} could not be inserted:")
         writer.print_errors(changeset)
+
       _ ->
         writer.error("  Access/Secret for #{account.name} could not be inserted:")
         writer.error("  Unknown error.")

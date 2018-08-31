@@ -22,8 +22,8 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     TransactionSerializer
   }
 
-  alias EWallet.TransactionConsumptionScheduler
   alias AdminAPI.V1.Endpoint
+  alias EWallet.TransactionConsumptionScheduler
 
   setup do
     {:ok, _} = TestEndpoint.start_link()

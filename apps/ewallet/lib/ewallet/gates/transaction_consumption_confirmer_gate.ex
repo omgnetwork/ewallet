@@ -13,8 +13,8 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
     Web.V1.ErrorHandler
   }
 
-  alias EWalletDB.{Helpers.Assoc, Repo, TransactionConsumption, TransactionRequest}
   alias Ecto.Changeset
+  alias EWalletDB.{Helpers.Assoc, Repo, TransactionConsumption, TransactionRequest}
 
   @spec approve_and_confirm(%TransactionRequest{}, %TransactionConsumption{}) ::
           {:error, %TransactionConsumption{}, atom(), String.t()}

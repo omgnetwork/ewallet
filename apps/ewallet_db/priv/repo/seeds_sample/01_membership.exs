@@ -1,6 +1,6 @@
 defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
-  alias EWalletDB.{Account, Membership, Role, User}
   alias EWallet.Web.Preloader
+  alias EWalletDB.{Account, Membership, Role, User}
 
   @seed_data [
     %{email: "admin_brand1@example.com", role_name: "admin", account_name: "brand1"},
@@ -13,14 +13,14 @@ defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
   def seed do
     [
       run_banner: "Seeding sample admin memberships:",
-      argsline: [],
+      argsline: []
     ]
   end
 
   def run(writer, _args) do
-    Enum.each @seed_data, fn data ->
+    Enum.each(@seed_data, fn data ->
       run_with(writer, data)
-    end
+    end)
   end
 
   defp run_with(writer, data) do
@@ -33,21 +33,26 @@ defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
         case Membership.assign(user, account, role) do
           {:ok, membership} ->
             {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
+
             writer.success("""
               Email        : #{membership.user.email}
               Account Name : #{membership.account.name}
               Account ID   : #{membership.account.id}
               Role         : #{membership.role.name}
             """)
+
           {:error, changeset} ->
             writer.error("  Admin Panel user #{data.email} could not be assigned:")
             writer.print_errors(changeset)
+
           _ ->
             writer.error("  Admin Panel user #{data.email} could not be assigned:")
             writer.error("  Unknown error.")
         end
+
       %Membership{} = membership ->
         {:ok, membership} = Preloader.preload_one(membership, [:user, :account, :role])
+
         writer.warn("""
           Email        : #{membership.user.email}
           Account Name : #{membership.account.name}

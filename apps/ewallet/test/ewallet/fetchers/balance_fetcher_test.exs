@@ -1,8 +1,8 @@
 defmodule EWallet.BalanceFetcherTest do
   use EWallet.LocalLedgerCase, async: true
+  alias Ecto.Adapters.SQL.Sandbox
   alias EWallet.BalanceFetcher
   alias EWalletDB.{Account, Token, User}
-  alias Ecto.Adapters.SQL.Sandbox
 
   setup do
     account = Account.get_master_account()

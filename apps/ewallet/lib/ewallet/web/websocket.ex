@@ -36,8 +36,8 @@ defmodule EWallet.Web.WebSocket do
 
   require Logger
 
-  alias Phoenix.Socket.Transport
   alias Phoenix.CodeReloader
+  alias Phoenix.Socket.Transport
   alias Phoenix.Transports.WebSocket
 
   @doc false

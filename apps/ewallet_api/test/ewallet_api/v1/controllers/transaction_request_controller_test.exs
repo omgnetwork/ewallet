@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.TransactionRequestControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, User}
   alias EWallet.Web.{Date, V1.TokenSerializer, V1.UserSerializer}
+  alias EWalletDB.{Repo, TransactionRequest, User}
 
   describe "/me.create_transaction_request" do
     test "creates a transaction request with all the params" do

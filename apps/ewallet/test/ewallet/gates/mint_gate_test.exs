@@ -1,9 +1,9 @@
 defmodule EWallet.MintGateTest do
   use EWallet.LocalLedgerCase, async: true
-  alias EWallet.MintGate
-  alias EWalletDB.Token
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
+  alias EWallet.MintGate
+  alias EWalletDB.Token
 
   describe "insert/2" do
     test "inserts a new confirmed mint" do

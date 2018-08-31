@@ -18,11 +18,9 @@ defmodule AdminAPI.ConnCase do
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
-  alias EWallet.Web.Date
-  alias EWalletDB.{Account, Key, Repo, User}
   alias EWallet.{MintGate, TransactionGate}
-  alias EWalletDB.Helpers.Crypto
-  alias EWalletDB.Types.ExternalID
+  alias EWallet.Web.Date
+  alias EWalletDB.{Account, Helpers.Crypto, Key, Repo, Types.ExternalID, User}
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminAPI.Endpoint
