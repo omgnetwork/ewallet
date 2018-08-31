@@ -4,8 +4,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   @behaviour EWallet.Web.Embedder
   alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionConsumptionPolicy
-  alias EWallet.Web.Embedder
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Embedder, Paginator, Preloader, SearchParser, SortParser}
 
   alias EWallet.{
     TransactionConsumptionConfirmerGate,

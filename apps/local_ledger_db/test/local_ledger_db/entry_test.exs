@@ -3,9 +3,7 @@ defmodule LocalLedgerDB.EntryTest do
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
-  alias LocalLedgerDB.Entry
-  alias LocalLedgerDB.Errors.InsufficientFundsError
-  alias LocalLedgerDB.Repo
+  alias LocalLedgerDB.{Entry, Errors.InsufficientFundsError, Repo}
 
   @uuid_regex ~r/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
 

@@ -3,8 +3,7 @@ defmodule LocalLedgerDB.WalletTest do
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
-  alias LocalLedgerDB.Repo
-  alias LocalLedgerDB.Wallet
+  alias LocalLedgerDB.{Repo, Wallet}
 
   setup do
     :ok = Sandbox.checkout(Repo)

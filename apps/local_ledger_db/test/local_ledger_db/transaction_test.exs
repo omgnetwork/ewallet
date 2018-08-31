@@ -3,8 +3,7 @@ defmodule LocalLedgerDB.TransactionTest do
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
-  alias LocalLedgerDB.Repo
-  alias LocalLedgerDB.Transaction
+  alias LocalLedgerDB.{Repo, Transaction}
 
   setup do
     :ok = Sandbox.checkout(Repo)
