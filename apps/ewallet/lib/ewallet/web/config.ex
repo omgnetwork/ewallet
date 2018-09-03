@@ -1,4 +1,4 @@
-defmodule AdminAPI.Config do
+defmodule EWallet.Web.Config do
   @moduledoc """
   Provides a configuration function that are called during application startup.
   """
