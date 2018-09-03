@@ -4,7 +4,7 @@ defmodule EWallet.TransactionGateTest do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias EWallet.{BalanceFetcher, TransactionGate}
-  alias EWalletDB.{Account, Token, Transaction, User}
+  alias EWalletDB.{Account, Token, Transaction, User, Wallet}
 
   def init_wallet(address, token, amount \\ 1_000) do
     master_account = Account.get_master_account()
@@ -225,6 +225,62 @@ defmodule EWallet.TransactionGateTest do
       assert transaction.from == wallet1.address
       assert transaction.to == wallet2.address
       assert token.id == token.id
+    end
+
+    test "fails to create the transaction when the token is disabled" do
+      idempotency_token = UUID.generate()
+      {wallet1, wallet2, token} = insert_addresses_records()
+
+      attrs = build_addresses_attrs(idempotency_token, wallet1, wallet2, token)
+      init_wallet(wallet1.address, token, 1_000)
+
+      {:ok, _token} = Token.enable_or_disable(token, %{enabled: false})
+
+      {status, code} = TransactionGate.create(attrs)
+      assert status == :error
+      assert code == :token_is_disabled
+    end
+
+    test "fails to create the transaction when the from_wallet is disabled" do
+      idempotency_token = UUID.generate()
+      {wallet1, wallet2, token} = insert_addresses_records()
+
+      {:ok, wallet3} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => wallet1.user_uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
+
+      attrs = build_addresses_attrs(idempotency_token, wallet3, wallet2, token)
+      init_wallet(wallet3.address, token, 1_000)
+
+      {:ok, _wallet3} = Wallet.enable_or_disable(wallet3, %{enabled: false})
+
+      {status, code} = TransactionGate.create(attrs)
+      assert status == :error
+      assert code == :from_wallet_is_disabled
+    end
+
+    test "fails to create the transaction when the to_wallet is disabled" do
+      idempotency_token = UUID.generate()
+      {wallet1, _wallet2, token} = insert_addresses_records()
+
+      {:ok, wallet3} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => wallet1.user_uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
+
+      attrs = build_addresses_attrs(idempotency_token, wallet1, wallet3, token)
+      init_wallet(wallet1.address, token, 1_000)
+
+      {:ok, _wallet3} = Wallet.enable_or_disable(wallet3, %{enabled: false})
+
+      {status, code} = TransactionGate.create(attrs)
+      assert status == :error
+      assert code == :to_wallet_is_disabled
     end
   end
 

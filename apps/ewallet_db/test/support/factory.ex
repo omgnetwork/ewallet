@@ -68,6 +68,7 @@ defmodule EWalletDB.Factory do
       name: sequence("Wallet name"),
       identifier: Wallet.primary(),
       user: insert(:user),
+      enabled: true,
       metadata: %{}
     }
   end
@@ -89,7 +90,8 @@ defmodule EWalletDB.Factory do
       iso_numeric: sequence("990"),
       smallest_denomination: 1,
       locked: false,
-      account: insert(:account)
+      account: insert(:account),
+      enabled: true
     }
   end
 

@@ -15,6 +15,7 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
         subunit_to_unit: token.subunit_to_unit,
         metadata: token.metadata,
         encrypted_metadata: token.encrypted_metadata,
+        enabled: true,
         created_at: token.inserted_at,
         updated_at: token.updated_at
       }
@@ -42,6 +43,7 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
           subunit_to_unit: token1.subunit_to_unit,
           metadata: token1.metadata,
           encrypted_metadata: token1.encrypted_metadata,
+          enabled: true,
           created_at: token1.inserted_at,
           updated_at: token1.updated_at
         },
@@ -53,6 +55,7 @@ defmodule EWallet.Web.V1.TokenSerializerTest do
           subunit_to_unit: token2.subunit_to_unit,
           metadata: token2.metadata,
           encrypted_metadata: token2.encrypted_metadata,
+          enabled: true,
           created_at: token2.inserted_at,
           updated_at: token2.updated_at
         }
