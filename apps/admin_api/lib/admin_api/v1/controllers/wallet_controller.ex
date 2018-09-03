@@ -5,9 +5,9 @@ defmodule AdminAPI.V1.WalletController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWallet.{UUIDFetcher, WalletPolicy}
-  alias EWalletDB.{Wallet, Account, User}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWalletDB.{Account, User, Wallet}
 
   @mapped_fields %{
     "created_at" => "inserted_at"

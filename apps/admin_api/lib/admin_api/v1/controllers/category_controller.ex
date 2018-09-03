@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.CategoryController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.CategoryPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
   alias EWalletDB.Category
 
   # The field names to be mapped into DB column names.

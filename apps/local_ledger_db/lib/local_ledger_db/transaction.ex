@@ -5,7 +5,7 @@ defmodule LocalLedgerDB.Transaction do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Entry, Transaction}
+  alias LocalLedgerDB.{Entry, Repo, Transaction}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 

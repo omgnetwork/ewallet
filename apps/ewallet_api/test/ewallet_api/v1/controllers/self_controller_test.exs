@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.SelfControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{User, Account}
+  alias EWalletDB.{Account, User}
 
   describe "/me.get" do
     test "responds with user data" do

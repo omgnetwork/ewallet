@@ -1,8 +1,8 @@
 defmodule EWallet.Web.V1.ExchangePairSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
+  alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.{ExchangePairSerializer, TokenSerializer}
-  alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.ExchangePair
 
   describe "serialize/1" do

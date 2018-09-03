@@ -1,10 +1,10 @@
 defmodule EWallet.TransactionGateTest do
   use EWallet.LocalLedgerCase, async: true
   import EWalletDB.Factory
-  alias EWallet.{TransactionGate, BalanceFetcher}
-  alias EWalletDB.{User, Token, Transaction, Account}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
+  alias EWallet.{BalanceFetcher, TransactionGate}
+  alias EWalletDB.{Account, Token, Transaction, User}
 
   def init_wallet(address, token, amount \\ 1_000) do
     master_account = Account.get_master_account()

@@ -7,8 +7,7 @@ defmodule EWalletDB.AuthToken do
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
-  alias EWalletDB.{Repo, AuthToken, User, Account}
-  alias EWalletDB.Helpers.Crypto
+  alias EWalletDB.{Account, AuthToken, Helpers.Crypto, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @key_length 32

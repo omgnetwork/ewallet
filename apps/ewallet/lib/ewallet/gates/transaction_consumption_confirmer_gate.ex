@@ -6,15 +6,15 @@ defmodule EWallet.TransactionConsumptionConfirmerGate do
   consumptions and initiating the actual transfer of funds.
   """
   alias EWallet.{
-    TransactionGate,
-    TransactionRequestFetcher,
     TransactionConsumptionFetcher,
     TransactionConsumptionValidator,
+    TransactionGate,
+    TransactionRequestFetcher,
     Web.V1.ErrorHandler
   }
 
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Helpers.Assoc}
   alias Ecto.Changeset
+  alias EWalletDB.{Helpers.Assoc, Repo, TransactionConsumption, TransactionRequest}
 
   @spec approve_and_confirm(%TransactionRequest{}, %TransactionConsumption{}) ::
           {:error, %TransactionConsumption{}, atom(), String.t()}

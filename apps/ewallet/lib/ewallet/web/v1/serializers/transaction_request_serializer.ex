@@ -6,10 +6,10 @@ defmodule EWallet.Web.V1.TransactionRequestSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
+    PaginatorSerializer,
     TokenSerializer,
     UserSerializer,
-    WalletSerializer,
-    PaginatorSerializer
+    WalletSerializer
   }
 
   alias EWallet.Web.{Date, Paginator}

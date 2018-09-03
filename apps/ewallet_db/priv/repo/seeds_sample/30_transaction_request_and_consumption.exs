@@ -2,7 +2,7 @@ defmodule EWalletDB.Repo.Seeds.TransactionRequestSeed do
   alias Ecto.UUID
   alias EWallet.TransactionConsumptionConfirmerGate
   alias EWallet.Web.Preloader
-  alias EWalletDB.{Account, Token, TransactionRequest, TransactionConsumption, User}
+  alias EWalletDB.{Account, Token, TransactionConsumption, TransactionRequest, User}
 
   @num_requests 20
   @request_correlation_id_prefix "transaction_request_"

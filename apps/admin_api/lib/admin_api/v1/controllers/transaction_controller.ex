@@ -4,11 +4,11 @@ defmodule AdminAPI.V1.TransactionController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.TransactionGate
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWallet.TransactionPolicy
-  alias EWalletDB.{Repo, Transaction, User, Account}
   alias Ecto.Changeset
+  alias EWallet.TransactionGate
+  alias EWallet.TransactionPolicy
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWalletDB.{Account, Repo, Transaction, User}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before

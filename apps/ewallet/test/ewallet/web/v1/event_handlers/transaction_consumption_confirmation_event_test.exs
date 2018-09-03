@@ -1,7 +1,7 @@
 defmodule EWallet.Web.V1.TransactionConsumptionEventHandlerTest do
   use EWallet.LocalLedgerCase, async: true
-  alias EWallet.Web.V1.TransactionConsumptionEventHandler
   alias EWallet.TestEndpoint
+  alias EWallet.Web.V1.TransactionConsumptionEventHandler
   alias EWalletDB.Repo
 
   setup do

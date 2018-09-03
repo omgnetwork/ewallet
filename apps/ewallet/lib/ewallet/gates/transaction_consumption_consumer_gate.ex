@@ -6,25 +6,25 @@ defmodule EWallet.TransactionConsumptionConsumerGate do
   having validated its content.
   """
   alias EWallet.{
-    WalletFetcher,
-    TransactionRequestFetcher,
+    Exchange,
+    ExchangeAccountFetcher,
+    TransactionConsumptionConfirmerGate,
     TransactionConsumptionFetcher,
     TransactionConsumptionValidator,
-    TransactionConsumptionConfirmerGate,
-    Exchange,
-    ExchangeAccountFetcher
+    TransactionRequestFetcher,
+    WalletFetcher
   }
 
   alias EWallet.Web.V1.Event
 
   alias EWalletDB.{
-    Repo,
-    Wallet,
     Account,
-    User,
-    TransactionRequest,
+    Helpers.Assoc,
+    Repo,
     TransactionConsumption,
-    Helpers.Assoc
+    TransactionRequest,
+    User,
+    Wallet
   }
 
   @spec consume(map()) ::

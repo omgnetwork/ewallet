@@ -7,8 +7,8 @@ defmodule EWallet.Web.SerializerCase do
     quote do
       use ExUnit.Case
       import EWalletDB.Factory
-      alias EWalletDB.Repo
       alias Ecto.Adapters.SQL.Sandbox
+      alias EWalletDB.Repo
 
       setup do
         :ok = Sandbox.checkout(Repo)

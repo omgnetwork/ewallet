@@ -3,8 +3,8 @@ defmodule EWallet.Web.V1.CategorySerializer do
   Serializes categories into V1 response format.
   """
   alias Ecto.Association.NotLoaded
+  alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.{AccountSerializer, PaginatorSerializer}
-  alias EWallet.Web.{Paginator, Date}
   alias EWalletDB.Category
 
   def serialize(%Paginator{} = paginator) do

@@ -38,24 +38,25 @@ defmodule LocalLedgerDB.Repo.Migrations.UpdateGenesisAddressInWallet do
   end
 
   defp get_wallet_metadatas(address) do
-    query = from(w in "wallet",
-                 select: {w.encrypted_metadata, w.metadata},
-                 where: w.address == ^address,
-                 limit: 1)
+    query =
+      from(w in "wallet",
+        select: {w.encrypted_metadata, w.metadata},
+        where: w.address == ^address,
+        limit: 1
+      )
 
     Repo.one(query)
   end
 
   defp insert("wallet", address, encrypted_metadata, metadata) do
-    attrs =
-      %{
-        uuid: UUID.bingenerate(),
-        address: address,
-        inserted_at: DateTime.autogenerate(),
-        updated_at: DateTime.autogenerate(),
-        encrypted_metadata: encrypted_metadata,
-        metadata: metadata
-      }
+    attrs = %{
+      uuid: UUID.bingenerate(),
+      address: address,
+      inserted_at: DateTime.autogenerate(),
+      updated_at: DateTime.autogenerate(),
+      encrypted_metadata: encrypted_metadata,
+      metadata: metadata
+    }
 
     insert("wallet", attrs)
   end
@@ -69,8 +70,9 @@ defmodule LocalLedgerDB.Repo.Migrations.UpdateGenesisAddressInWallet do
 
     query =
       from(t in table,
-           where: field(t, ^field_name) == ^from_value,
-           update: [set: ^update_args])
+        where: field(t, ^field_name) == ^from_value,
+        update: [set: ^update_args]
+      )
 
     {_, nil} = Repo.update_all(query, [])
   end

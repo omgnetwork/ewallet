@@ -1,11 +1,11 @@
 defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
-  alias EWalletDB.{Account, APIKey}
   alias EWallet.Web.Preloader
+  alias EWalletDB.{Account, APIKey}
 
   def seed do
     [
       run_banner: "Seeding sample API keys:",
-      argsline: [],
+      argsline: []
     ]
   end
 
@@ -15,6 +15,7 @@ defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
     case APIKey.insert(%{account_uuid: account.uuid, owner_app: "ewallet_api"}) do
       {:ok, api_key} ->
         {:ok, api_key} = Preloader.preload_one(api_key, :account)
+
         writer.success("""
           Owner app    : #{api_key.owner_app}
           Account Name : #{api_key.account.name}
@@ -24,9 +25,11 @@ defmodule EWalletDB.Repo.Seeds.APIKeySampleSeed do
         """)
 
         args ++ [{:seeded_ewallet_api_key, api_key.key}]
+
       {:error, changeset} ->
         writer.error("  API key could not be inserted:")
         writer.print_errors(changeset)
+
       _ ->
         writer.error("  API key could not be inserted:")
         writer.error("  Unknown error.")

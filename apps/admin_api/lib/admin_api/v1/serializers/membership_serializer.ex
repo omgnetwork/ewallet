@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.MembershipSerializer do
   Serializes membership(s) into V1 response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.{UserSerializer, AccountSerializer}
+  alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
   alias EWalletDB.User
 
   def serialize(memberships) when is_list(memberships) do

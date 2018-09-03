@@ -5,9 +5,9 @@ defmodule EWalletAPI.V1.TransactionConsumptionController do
   import EWalletAPI.V1.ErrorHandler
 
   alias EWallet.{
-    Web.V1.Event,
+    TransactionConsumptionConfirmerGate,
     TransactionConsumptionConsumerGate,
-    TransactionConsumptionConfirmerGate
+    Web.V1.Event
   }
 
   alias EWalletDB.TransactionConsumption

@@ -4,9 +4,9 @@ defmodule EWallet.MintGate do
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
   examples on how to add value to a token.
   """
-  alias EWallet.{Helper, GenesisGate}
-  alias EWalletDB.{Repo, Account, Mint, Token}
-  alias Ecto.{UUID, Multi}
+  alias Ecto.{Multi, UUID}
+  alias EWallet.{GenesisGate, Helper}
+  alias EWalletDB.{Account, Mint, Repo, Token}
 
   @spec mint_token({:ok, %Token{}} | %Token{} | {:error, Ecto.Changeset.t()} | any(), map()) ::
           {:ok, %Mint{}, %Token{}}

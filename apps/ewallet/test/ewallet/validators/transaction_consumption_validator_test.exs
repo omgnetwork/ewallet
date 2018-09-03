@@ -1,7 +1,7 @@
 defmodule EWallet.TransactionConsumptionValidatorTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.{TestEndpoint, TransactionConsumptionValidator}
-  alias EWalletDB.{Repo, User, Account, TransactionRequest, TransactionConsumption}
+  alias EWalletDB.{Account, Repo, TransactionConsumption, TransactionRequest, User}
 
   describe "validate_before_consumption/3" do
     test "expires a transaction request if past expiration date" do

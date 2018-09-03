@@ -5,7 +5,7 @@ defmodule EWallet.TransactionConsumptionValidator do
   """
   alias EWallet.{Helper, TransactionConsumptionPolicy}
   alias EWallet.Web.V1.Event
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair, Wallet}
+  alias EWalletDB.{ExchangePair, Repo, Token, TransactionConsumption, TransactionRequest, Wallet}
 
   @spec validate_before_consumption(
           %TransactionRequest{},

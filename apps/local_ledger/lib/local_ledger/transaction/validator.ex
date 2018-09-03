@@ -3,7 +3,7 @@ defmodule LocalLedger.Transaction.Validator do
   This module is used to validate that the total of debits minus the total of
   credits for a transaction is equal to 0.
   """
-  alias LocalLedger.Errors.{InvalidAmountError, AmountNotPositiveError, SameAddressError}
+  alias LocalLedger.Errors.{AmountNotPositiveError, InvalidAmountError, SameAddressError}
   alias LocalLedgerDB.Entry
 
   @doc """

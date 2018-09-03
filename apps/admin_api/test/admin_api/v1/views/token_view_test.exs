@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.TokenViewTest do
   use AdminAPI.ViewCase, :v1
-  alias EWallet.Web.{Date, Paginator}
   alias AdminAPI.V1.TokenView
+  alias EWallet.Web.{Date, Paginator}
 
   describe "AdminAPI.V1.TokenView.render/2" do
     test "renders token.json with correct response structure" do

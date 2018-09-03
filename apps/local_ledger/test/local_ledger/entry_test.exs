@@ -2,9 +2,9 @@ defmodule LocalLedger.EntryTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
   alias Ecto.Adapters.SQL.Sandbox
-  alias LocalLedger.Entry
-  alias LocalLedgerDB.{Repo, Transaction, Errors.InsufficientFundsError}
   alias Ecto.UUID
+  alias LocalLedger.Entry
+  alias LocalLedgerDB.{Errors.InsufficientFundsError, Repo, Transaction}
 
   setup do
     :ok = Sandbox.checkout(Repo)

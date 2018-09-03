@@ -4,10 +4,10 @@ defmodule EWallet.Web.V1.WebsocketResponseSerializer do
   """
   @behaviour Phoenix.Transports.Serializer
 
-  alias Phoenix.Socket.Reply
-  alias Phoenix.Socket.Message
-  alias Phoenix.Socket.Broadcast
   alias EWallet.Web.V1.ErrorHandler
+  alias Phoenix.Socket.Broadcast
+  alias Phoenix.Socket.Message
+  alias Phoenix.Socket.Reply
 
   @doc """
   Renders the given `data` into a V1 response format as JSON.

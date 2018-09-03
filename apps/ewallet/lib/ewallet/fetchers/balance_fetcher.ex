@@ -2,7 +2,7 @@ defmodule EWallet.BalanceFetcher do
   @moduledoc """
   Handles the retrieval and formatting of balances from the local ledger.
   """
-  alias EWalletDB.{User, Token}
+  alias EWalletDB.{Token, User}
   alias LocalLedger.Wallet
 
   @spec all(map()) :: {:ok, %EWalletDB.Wallet{}} | {:error, atom()}

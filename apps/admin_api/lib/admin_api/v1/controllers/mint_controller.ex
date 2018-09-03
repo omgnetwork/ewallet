@@ -4,10 +4,10 @@ defmodule AdminAPI.V1.MintController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{MintGate, MintPolicy}
-  alias EWallet.Web.{SortParser, Paginator, Preloader}
-  alias EWalletDB.{Token, Mint}
   alias Ecto.Changeset
+  alias EWallet.{MintGate, MintPolicy}
+  alias EWallet.Web.{Paginator, Preloader, SortParser}
+  alias EWalletDB.{Mint, Token}
   alias Plug.Conn
 
   @mapped_fields %{

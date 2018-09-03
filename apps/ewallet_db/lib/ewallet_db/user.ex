@@ -11,16 +11,16 @@ defmodule EWalletDB.User do
   alias Ecto.{Multi, UUID}
 
   alias EWalletDB.{
-    Repo,
     Account,
+    AccountUser,
     AuthToken,
-    Wallet,
+    Helpers.Crypto,
     Invite,
     Membership,
+    Repo,
     Role,
     User,
-    AccountUser,
-    Helpers.Crypto
+    Wallet
   }
 
   @primary_key {:uuid, UUID, autogenerate: true}

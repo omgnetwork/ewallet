@@ -3,7 +3,7 @@ defmodule EWallet.ExchangeAccountFetcher do
   Fetch exchange account and/or exchange wallet.
   """
   alias EWallet.WalletFetcher
-  alias EWalletDB.{Repo, Account}
+  alias EWalletDB.{Account, Repo}
 
   def fetch(%{
         "exchange_account_id" => exchange_account_id,

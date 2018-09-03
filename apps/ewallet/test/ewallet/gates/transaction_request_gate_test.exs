@@ -1,7 +1,7 @@
 defmodule EWallet.TransactionRequestGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.TransactionRequestGate
-  alias EWalletDB.{User, TransactionRequest, AccountUser}
+  alias EWalletDB.{AccountUser, TransactionRequest, User}
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()

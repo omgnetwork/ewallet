@@ -1,6 +1,6 @@
 defmodule EWalletDB.Repo.Seeds.ExchangePairSeed do
   alias EWallet.Web.Preloader
-  alias EWalletDB.{Token, ExchangePair}
+  alias EWalletDB.{ExchangePair, Token}
 
   @pairs [
     %{from_token_symbol: "BTC", to_token_symbol: "OEM", rate: 1_000_000},

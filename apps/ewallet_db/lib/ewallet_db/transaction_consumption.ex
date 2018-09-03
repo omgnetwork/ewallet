@@ -8,15 +8,15 @@ defmodule EWalletDB.TransactionConsumption do
   alias Ecto.UUID
 
   alias EWalletDB.{
-    TransactionConsumption,
-    Repo,
-    User,
-    Token,
-    TransactionRequest,
-    Wallet,
-    Transaction,
     Account,
-    ExchangePair
+    ExchangePair,
+    Repo,
+    Token,
+    Transaction,
+    TransactionConsumption,
+    TransactionRequest,
+    User,
+    Wallet
   }
 
   alias EWalletDB.Helpers.Assoc
