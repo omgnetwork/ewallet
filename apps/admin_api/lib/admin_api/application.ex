@@ -3,8 +3,8 @@ defmodule AdminAPI.Application do
   AdminAPI's startup and shutdown functionalities
   """
   use Application
-  alias AdminAPI.Config
   alias AdminAPI.Endpoint
+  alias EWallet.Web.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
