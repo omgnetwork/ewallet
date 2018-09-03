@@ -176,6 +176,22 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       assert response["data"]["code"] == "token:id_not_found"
     end
 
+    test "fails to mint a disabled token" do
+      token = insert(:token, enabled: false)
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: "100000000"
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "token:disabled"
+      assert mint == nil
+    end
+
     test "fails to mint with mint amount sent as string" do
       token = insert(:token)
 

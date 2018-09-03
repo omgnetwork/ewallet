@@ -148,6 +148,24 @@ defmodule AdminAPI.V1.TokenController do
   def update(conn, _),
     do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
 
+  @doc """
+  Enable or disable a token.
+  """
+  @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def enable_or_disable(conn, %{"id" => id} = attrs) do
+    with :ok <- permit(:enable_or_disable, conn.assigns, id),
+         %Token{} = token <- Token.get(id) || :token_not_found,
+         {:ok, updated} <- Token.enable_or_disable(token, attrs) do
+      respond_single(updated, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
+  def enable_or_disable(conn, _),
+    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
+
   # Respond with a list of tokens
   defp respond_multiple(%Paginator{} = paged_tokens, conn) do
     render(conn, :tokens, %{tokens: paged_tokens})

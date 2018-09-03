@@ -17,6 +17,7 @@ defmodule AdminAPI.V1.TokenViewTest do
           name: token.name,
           metadata: %{},
           encrypted_metadata: %{},
+          enabled: true,
           subunit_to_unit: token.subunit_to_unit,
           created_at: Date.to_iso8601(token.inserted_at),
           updated_at: Date.to_iso8601(token.updated_at)
@@ -53,6 +54,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               name: token1.name,
               metadata: %{},
               encrypted_metadata: %{},
+              enabled: true,
               subunit_to_unit: token1.subunit_to_unit,
               created_at: Date.to_iso8601(token1.inserted_at),
               updated_at: Date.to_iso8601(token1.updated_at)
@@ -64,6 +66,7 @@ defmodule AdminAPI.V1.TokenViewTest do
               name: token2.name,
               metadata: %{},
               encrypted_metadata: %{},
+              enabled: true,
               subunit_to_unit: token2.subunit_to_unit,
               created_at: Date.to_iso8601(token2.inserted_at),
               updated_at: Date.to_iso8601(token2.updated_at)

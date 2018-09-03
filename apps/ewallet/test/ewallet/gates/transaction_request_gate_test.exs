@@ -1,7 +1,7 @@
 defmodule EWallet.TransactionRequestGateTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.TransactionRequestGate
-  alias EWalletDB.{AccountUser, TransactionRequest, User}
+  alias EWalletDB.{AccountUser, Token, TransactionRequest, User, Wallet}
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()
@@ -439,6 +439,43 @@ defmodule EWallet.TransactionRequestGateTest do
         })
 
       assert %TransactionRequest{} = request
+    end
+
+    test "receives an error when the token is disabled", meta do
+      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false})
+
+      {:error, code} =
+        TransactionRequestGate.create(meta.user_wallet, %{
+          "type" => "receive",
+          "token_id" => token.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "creator" => %{end_user: meta.user}
+        })
+
+      assert code == :token_is_disabled
+    end
+
+    test "receives an error when the wallet is disabled", meta do
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => meta.user.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
+
+      {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
+
+      {:error, code} =
+        TransactionRequestGate.create(wallet, %{
+          "type" => "receive",
+          "token_id" => meta.token.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "creator" => %{end_user: meta.user}
+        })
+
+      assert code == :wallet_is_disabled
     end
 
     test "receives an invalid changeset error when the type is invalid", meta do
