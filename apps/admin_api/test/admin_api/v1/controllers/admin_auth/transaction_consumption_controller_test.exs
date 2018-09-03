@@ -2,18 +2,18 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias EWalletDB.{
-    Repo,
-    TransactionRequest,
-    TransactionConsumption,
-    User,
-    Transaction,
     Account,
     AccountUser,
+    Repo,
     Token,
+    Transaction,
+    TransactionConsumption,
+    TransactionRequest,
+    User,
     Wallet
   }
 
-  alias EWallet.{TestEndpoint, BalanceFetcher}
+  alias EWallet.{BalanceFetcher, TestEndpoint}
   alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
 
@@ -24,8 +24,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     TransactionSerializer
   }
 
-  alias EWallet.TransactionConsumptionScheduler
   alias AdminAPI.V1.Endpoint
+  alias EWallet.TransactionConsumptionScheduler
 
   setup do
     {:ok, _} = TestEndpoint.start_link()
@@ -1432,7 +1432,6 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     end
 
     test "fails to consume when token is disabled", meta do
-
       transaction_request =
         insert(
           :transaction_request,
@@ -1462,11 +1461,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     end
 
     test "fails to consume when wallet is disabled", meta do
-      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
-        "user_uuid" => meta.bob.uuid,
-        "name" => "MySecondary",
-        "identifier" => "secondary"
-      })
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => meta.bob.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
 
       {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
 
@@ -1489,7 +1489,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
           address: wallet.address,
           metadata: nil,
           token_id: nil,
-          account_id: meta.account.id
+          user_id: meta.bob.id
         })
 
       assert response["success"] == false

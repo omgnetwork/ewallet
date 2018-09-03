@@ -1,6 +1,5 @@
 defmodule EWalletDB.Repo.Seeds.UserSeed do
-  alias EWalletDB.Helpers.Crypto
-  alias EWalletDB.{Account, AccountUser, User}
+  alias EWalletDB.{Account, AccountUser, Helpers.Crypto, User}
 
   @argsline_desc """
   This email and password combination is required for logging into the admin panel.
@@ -15,8 +14,8 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
         {:title, "What email and password should I set for your first admin user?"},
         {:text, @argsline_desc},
         {:input, {:email, :admin_email, "E-mail", "admin@example.com"}},
-        {:input, {:password, :admin_password, "Password", {Crypto, :generate_base64_key, [16]}}},
-      ],
+        {:input, {:password, :admin_password, "Password", {Crypto, :generate_base64_key, [16]}}}
+      ]
     ]
   end
 
@@ -41,11 +40,12 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
               Password : #{user.password}
             """)
 
-            args ++ [
-              {:seeded_admin_user_id, user.id},
-              {:seeded_admin_user_email, user.email},
-              {:seeded_admin_user_password, user.password},
-            ]
+            args ++
+              [
+                {:seeded_admin_user_id, user.id},
+                {:seeded_admin_user_email, user.email},
+                {:seeded_admin_user_password, user.password}
+              ]
 
           {:error, changeset} ->
             writer.error("  Admin Panel user #{data.email} could not be inserted:")
@@ -63,11 +63,12 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
           Password : <hidden>
         """)
 
-        args ++ [
-          {:seeded_admin_user_id, user.id},
-          {:seeded_admin_user_email, user.email},
-          {:seeded_admin_user_password, "<hidden>"},
-        ]
+        args ++
+          [
+            {:seeded_admin_user_id, user.id},
+            {:seeded_admin_user_email, user.email},
+            {:seeded_admin_user_password, "<hidden>"}
+          ]
     end
   end
 end

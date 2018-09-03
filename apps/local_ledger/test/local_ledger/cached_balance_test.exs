@@ -1,9 +1,9 @@
 defmodule LocalLedger.CachedBalanceTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
+  alias Ecto.Adapters.SQL.Sandbox
   alias LocalLedger.{CachedBalance}
   alias LocalLedgerDB.{Repo}
-  alias Ecto.Adapters.SQL.Sandbox
 
   setup do
     :ok = Sandbox.checkout(Repo)

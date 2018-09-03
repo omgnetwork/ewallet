@@ -1,25 +1,25 @@
 defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
-  alias EWalletDB.Account
   alias EWallet.Web.Preloader
+  alias EWalletDB.Account
 
   @seed_data [
     %{name: "brand1", description: "Brand 1", parent_name: "master_account"},
     %{name: "brand2", description: "Brand 2", parent_name: "master_account"},
     %{name: "branch1", description: "Branch 1", parent_name: "master_account"},
-    %{name: "branch2", description: "Branch 2", parent_name: "master_account"},
+    %{name: "branch2", description: "Branch 2", parent_name: "master_account"}
   ]
 
   def seed do
     [
       run_banner: "Seeding sample accounts:",
-      argsline: [],
+      argsline: []
     ]
   end
 
   def run(writer, _args) do
-    Enum.each @seed_data, fn data ->
+    Enum.each(@seed_data, fn data ->
       run_with(writer, data)
-    end
+    end)
   end
 
   defp run_with(writer, data) do
@@ -31,20 +31,25 @@ defmodule EWalletDB.Repo.Seeds.AccountSampleSeed do
         case Account.insert(data) do
           {:ok, account} ->
             {:ok, account} = Preloader.preload_one(account, :parent)
+
             writer.success("""
               Name   : #{account.name}
               ID     : #{account.id}
               Parent : #{account.parent.id}
             """)
+
           {:error, changeset} ->
             writer.error("  The account #{data.name} could not be inserted:")
             writer.print_errors(changeset)
+
           _ ->
             writer.error("  The account #{data.name} could not be inserted:")
             writer.error("  Unknown error.")
         end
+
       %Account{} = account ->
         {:ok, account} = Preloader.preload_one(account, :parent)
+
         writer.warn("""
           Name   : #{account.name}
           ID     : #{account.id}

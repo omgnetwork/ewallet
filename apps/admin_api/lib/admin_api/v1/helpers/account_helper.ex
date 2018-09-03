@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AccountHelper do
   @moduledoc """
   Simple helper module to access accounts from controllers.
   """
-  alias EWalletDB.{User, Key, Account, AuthToken, Helpers.Assoc}
+  alias EWalletDB.{Account, AuthToken, Helpers.Assoc, Key, User}
   alias Plug.Conn
 
   @spec get_current_account(Plug.Conn.t()) :: %Account{}

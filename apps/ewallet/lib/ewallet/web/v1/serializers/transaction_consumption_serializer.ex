@@ -7,16 +7,16 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
+    PaginatorSerializer,
     TokenSerializer,
-    TransactionSerializer,
     TransactionRequestSerializer,
+    TransactionSerializer,
     UserSerializer,
-    WalletSerializer,
-    PaginatorSerializer
+    WalletSerializer
   }
 
-  alias EWalletDB.TransactionConsumption
   alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.TransactionConsumption
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)

@@ -4,7 +4,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionChannel do
   Represents the transaction consumption channel.
   """
   use Phoenix.Channel, async: false
-  alias EWalletDB.{User, TransactionConsumption}
+  alias EWalletDB.{TransactionConsumption, User}
 
   def join(
         "transaction_consumption:" <> consumption_id,

@@ -1,10 +1,10 @@
 defmodule EWallet.TransactionGateTest do
   use EWallet.LocalLedgerCase, async: true
   import EWalletDB.Factory
-  alias EWallet.{TransactionGate, BalanceFetcher}
-  alias EWalletDB.{User, Token, Transaction, Account, Wallet}
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
+  alias EWallet.{BalanceFetcher, TransactionGate}
+  alias EWalletDB.{Account, Token, Transaction, User, Wallet}
 
   def init_wallet(address, token, amount \\ 1_000) do
     master_account = Account.get_master_account()
@@ -245,11 +245,12 @@ defmodule EWallet.TransactionGateTest do
       idempotency_token = UUID.generate()
       {wallet1, wallet2, token} = insert_addresses_records()
 
-      {:ok, wallet3} = Wallet.insert_secondary_or_burn(%{
-        "user_uuid" => wallet1.user_uuid,
-        "name" => "MySecondary",
-        "identifier" => "secondary"
-      })
+      {:ok, wallet3} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => wallet1.user_uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
 
       attrs = build_addresses_attrs(idempotency_token, wallet3, wallet2, token)
       init_wallet(wallet3.address, token, 1_000)
@@ -265,11 +266,12 @@ defmodule EWallet.TransactionGateTest do
       idempotency_token = UUID.generate()
       {wallet1, _wallet2, token} = insert_addresses_records()
 
-      {:ok, wallet3} = Wallet.insert_secondary_or_burn(%{
-        "user_uuid" => wallet1.user_uuid,
-        "name" => "MySecondary",
-        "identifier" => "secondary"
-      })
+      {:ok, wallet3} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => wallet1.user_uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
 
       attrs = build_addresses_attrs(idempotency_token, wallet1, wallet3, token)
       init_wallet(wallet1.address, token, 1_000)

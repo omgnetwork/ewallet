@@ -1,7 +1,7 @@
 defmodule EWallet.Web.DateTest do
   use ExUnit.Case
-  alias EWallet.Web.Date
   alias EWallet.Errors.InvalidDateFormatError
+  alias EWallet.Web.Date
 
   describe "EWallet.Web.Date.to_iso8601/1" do
     test "formats a valid naive date time" do

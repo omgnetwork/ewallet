@@ -25,6 +25,8 @@ Setup | Description | Recommended for
 [Docker](docs/setup/docker.md) | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery. | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.
 [Bare&#x2011;metal](docs/setup/bare_metal.md) | Set up directly onto your base operating system. You will need to install Elixir, project's dependencies and Postgres manually if you havn't. | Developers and DevOps preferring to manage all dependencies and configurations themselves for any purposes.
 
+Had trouble setting up the eWallet? Check the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
+
 ## Documentation
 
 Below are the links to the HTTP-RPC API documentations for the `master` branch. Note that the eWallet is not a centralized service and **the servers below are not for production uses.**

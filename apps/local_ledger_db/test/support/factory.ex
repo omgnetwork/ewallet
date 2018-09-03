@@ -4,7 +4,7 @@ defmodule LocalLedgerDB.Factory do
   """
   use ExMachina.Ecto, repo: LocalLedgerDB.Repo
   alias Ecto.UUID
-  alias LocalLedgerDB.{Entry, Wallet, Token, Transaction}
+  alias LocalLedgerDB.{Entry, Token, Transaction, Wallet}
 
   def token_factory do
     %Token{

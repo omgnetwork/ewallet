@@ -4,8 +4,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
-  alias EWallet.Web.V1.ErrorSerializer
   alias EWallet.AmountFormatter
+  alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
 
   @errors %{
@@ -501,10 +501,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
       end)
 
     errors
-    |> Enum.map(fn {key, value} ->
-      {key |> replace_uuids() |> stringify_field(), value}
-    end)
-    |> Enum.into(%{})
+    |> Enum.into(
+      %{},
+      fn {key, value} ->
+        {key |> replace_uuids() |> stringify_field(), value}
+      end
+    )
   end
 
   defp replace_uuids(field) do

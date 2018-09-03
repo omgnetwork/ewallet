@@ -2,8 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
   use AdminAPI.ConnCase, async: true
   import Ecto.Query
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, Membership, Repo, User}
-  alias EWalletDB.Helpers.Assoc
+  alias EWalletDB.{Account, Helpers.Assoc, Membership, Repo, User}
 
   describe "/me.get" do
     test "responds with user data" do

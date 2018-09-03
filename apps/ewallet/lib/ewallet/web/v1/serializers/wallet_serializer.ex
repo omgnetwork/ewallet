@@ -7,10 +7,10 @@ defmodule EWallet.Web.V1.WalletSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
-    UserSerializer,
     BalanceSerializer,
+    ListSerializer,
     PaginatorSerializer,
-    ListSerializer
+    UserSerializer
   }
 
   alias EWallet.BalanceFetcher

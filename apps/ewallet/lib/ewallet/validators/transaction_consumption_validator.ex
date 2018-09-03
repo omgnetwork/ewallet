@@ -3,9 +3,9 @@ defmodule EWallet.TransactionConsumptionValidator do
   Handles all validations for a transaction request, including amount and
   expiration.
   """
-  alias EWallet.{Helper, TransactionConsumptionPolicy, TokenFetcher}
+  alias EWallet.{Helper, TokenFetcher, TransactionConsumptionPolicy}
   alias EWallet.Web.V1.Event
-  alias EWalletDB.{Repo, TransactionRequest, TransactionConsumption, Token, ExchangePair, Wallet}
+  alias EWalletDB.{ExchangePair, Repo, Token, TransactionConsumption, TransactionRequest, Wallet}
 
   @spec validate_before_consumption(
           %TransactionRequest{},

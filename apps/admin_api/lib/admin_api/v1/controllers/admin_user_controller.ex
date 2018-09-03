@@ -2,9 +2,9 @@ defmodule AdminAPI.V1.AdminUserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWallet.AdminUserPolicy
   alias AdminAPI.V1.UserView
+  alias EWallet.AdminUserPolicy
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
   alias EWalletDB.{User, UserQuery}
 
   # The field names to be mapped into DB column names.

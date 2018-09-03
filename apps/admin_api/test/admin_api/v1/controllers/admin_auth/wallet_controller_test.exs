@@ -1,8 +1,8 @@
 defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Wallet, Account, User, Token, AccountUser}
+  alias EWallet.Web.V1.UserSerializer
+  alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do
@@ -599,11 +599,12 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     test "disables a burn wallet" do
       account = Account.get_master_account()
 
-      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
-        "account_uuid" => account.uuid,
-        "name" => "MyBurn",
-        "identifier" => "burn"
-      })
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "account_uuid" => account.uuid,
+          "name" => "MyBurn",
+          "identifier" => "burn"
+        })
 
       response =
         admin_user_request("/wallet.enable_or_disable", %{
@@ -619,11 +620,12 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     test "disables a secondary wallet" do
       account = Account.get_master_account()
 
-      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
-        "account_uuid" => account.uuid,
-        "name" => "MySecondary",
-        "identifier" => "secondary"
-      })
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "account_uuid" => account.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
 
       response =
         admin_user_request("/wallet.enable_or_disable", %{

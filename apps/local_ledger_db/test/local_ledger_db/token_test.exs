@@ -1,10 +1,9 @@
 defmodule LocalLedgerDB.TokenTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
-  alias LocalLedgerDB.Token
-  alias LocalLedgerDB.Repo
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
+  alias LocalLedgerDB.{Repo, Token}
 
   setup do
     :ok = Sandbox.checkout(Repo)

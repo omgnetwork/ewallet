@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.ExchangePairView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, ExchangePairSerializer}
+  alias EWallet.Web.V1.{ExchangePairSerializer, ResponseSerializer}
 
   def render("exchange_pair.json", %{exchange_pair: exchange_pair}) do
     exchange_pair

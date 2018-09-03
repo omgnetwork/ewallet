@@ -3,8 +3,8 @@ defmodule EWallet.Web.V1.TokenSerializer do
   Serializes token(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.PaginatorSerializer
   alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.Token
 
   def serialize(%Paginator{} = paginator) do

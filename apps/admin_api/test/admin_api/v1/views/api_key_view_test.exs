@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.APIKeyViewTest do
   use AdminAPI.ViewCase, :v1
-  alias EWallet.Web.{Date, Paginator}
   alias AdminAPI.V1.APIKeyView
+  alias EWallet.Web.{Date, Paginator}
 
   describe "render/2" do
     test "renders api_key.json with correct response format" do

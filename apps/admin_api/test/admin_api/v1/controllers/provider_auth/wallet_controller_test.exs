@@ -1,8 +1,8 @@
 defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWallet.Web.V1.UserSerializer
   alias EWallet.Web.Date
-  alias EWalletDB.{Repo, Wallet, Account, User, Token, AccountUser}
+  alias EWallet.Web.V1.UserSerializer
+  alias EWalletDB.{Account, AccountUser, Repo, Token, User, Wallet}
 
   describe "/wallet.all" do
     test "returns a list of wallets and pagination data" do

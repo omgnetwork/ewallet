@@ -4,10 +4,10 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
   alias EWalletDB.TransactionRequest
 
   alias EWallet.Web.V1.{
-    TransactionRequestSerializer,
+    AccountSerializer,
     TokenSerializer,
-    UserSerializer,
-    AccountSerializer
+    TransactionRequestSerializer,
+    UserSerializer
   }
 
   alias EWallet.Web.Date

@@ -1,9 +1,9 @@
 defmodule EWalletAPI.V1.TransactionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
-  alias EWallet.{WalletFetcher, TransactionGate}
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
-  alias EWalletDB.{Transaction, User, Repo}
+  alias EWallet.{TransactionGate, WalletFetcher}
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWalletDB.{Repo, Transaction, User}
 
   @preload_fields [:from_token, :to_token]
   @mapped_fields %{"created_at" => "inserted_at"}

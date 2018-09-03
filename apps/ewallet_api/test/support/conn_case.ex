@@ -16,9 +16,9 @@ defmodule EWalletAPI.ConnCase do
   import EWalletDB.Factory
   import Ecto.Query
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletDB.{Account, Repo, User}
-  alias EWallet.{MintGate, TransactionGate}
   alias Ecto.UUID
+  alias EWallet.{MintGate, TransactionGate}
+  alias EWalletDB.{Account, Repo, User}
   use Phoenix.ConnTest
 
   # Attributes required by Phoenix.ConnTest

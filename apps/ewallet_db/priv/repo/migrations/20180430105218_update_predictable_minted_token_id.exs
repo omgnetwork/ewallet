@@ -1,9 +1,9 @@
 defmodule EWalletDB.Repo.Migrations.UpdatePredictableMintedTokenId do
   use Ecto.Migration
   import Ecto.Query
+  alias Ecto.UUID
   alias EWalletDB.Repo
   alias ExULID.ULID
-  alias Ecto.UUID
 
   @table "minted_token"
   @prefix "tok_"

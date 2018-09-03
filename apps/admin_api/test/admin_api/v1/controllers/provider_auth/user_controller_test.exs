@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{AccountUser, Account}
+  alias EWalletDB.{Account, AccountUser}
 
   describe "/user.all" do
     test "returns a list of users and pagination data" do

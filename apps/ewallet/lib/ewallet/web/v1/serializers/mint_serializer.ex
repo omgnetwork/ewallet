@@ -8,12 +8,12 @@ defmodule EWallet.Web.V1.MintSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
+    PaginatorSerializer,
     TokenSerializer,
-    TransactionSerializer,
-    PaginatorSerializer
+    TransactionSerializer
   }
 
-  alias EWalletDB.{Mint, Helpers.Assoc}
+  alias EWalletDB.{Helpers.Assoc, Mint}
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)

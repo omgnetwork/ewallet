@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.TokenControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.TokenSerializer
-  alias EWalletDB.{Repo, Token, Mint}
+  alias EWalletDB.{Mint, Repo, Token}
 
   describe "/token.all" do
     test "returns a list of tokens and pagination data" do

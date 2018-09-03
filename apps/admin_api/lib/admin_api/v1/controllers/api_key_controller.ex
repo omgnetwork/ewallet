@@ -1,10 +1,10 @@
 defmodule AdminAPI.V1.APIKeyController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.APIKeyPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.APIKey
   alias Ecto.Changeset
+  alias EWallet.APIKeyPolicy
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWalletDB.APIKey
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before

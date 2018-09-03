@@ -5,8 +5,8 @@ defmodule LocalLedgerDB.Wallet do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Wallet, Entry}
   alias LocalLedger.{EctoBatchStream}
+  alias LocalLedgerDB.{Entry, Repo, Wallet}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 

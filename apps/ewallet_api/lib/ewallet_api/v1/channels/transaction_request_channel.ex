@@ -4,7 +4,7 @@ defmodule EWalletAPI.V1.TransactionRequestChannel do
   Represents the transaction request channel.
   """
   use Phoenix.Channel, async: false
-  alias EWalletDB.{User, TransactionRequest}
+  alias EWalletDB.{TransactionRequest, User}
 
   def join("transaction_request:" <> request_id, _params, %{assigns: %{auth: auth}} = socket) do
     request_id

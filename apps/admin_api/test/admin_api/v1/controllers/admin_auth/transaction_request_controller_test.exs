@@ -1,8 +1,8 @@
 defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Repo, TransactionRequest, User, Account, AccountUser, Wallet}
   alias EWallet.Web.Date
-  alias EWallet.Web.V1.{TokenSerializer, UserSerializer, AccountSerializer, WalletSerializer}
+  alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, UserSerializer, WalletSerializer}
+  alias EWalletDB.{Account, AccountUser, Repo, TransactionRequest, User, Wallet}
 
   describe "/transaction_request.all" do
     setup do
@@ -464,11 +464,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
       token = insert(:token, enabled: false)
       {:ok, _} = AccountUser.link(account.uuid, user.uuid)
 
-      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
-        "user_uuid" => user.uuid,
-        "name" => "MySecondary",
-        "identifier" => "secondary"
-      })
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => user.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
 
       {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
 

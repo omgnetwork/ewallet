@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AccountView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, AccountSerializer}
+  alias EWallet.Web.V1.{AccountSerializer, ResponseSerializer}
 
   def render("account.json", %{account: account}) do
     account

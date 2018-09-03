@@ -3,14 +3,14 @@ defmodule LocalLedger.Transaction do
   This module is an interface to the LocalLedgerDB schemas and contains the logic
   needed to insert valid transactions and entries.
   """
-  alias LocalLedgerDB.{Repo, Transaction, Errors.InsufficientFundsError}
+  alias LocalLedgerDB.{Errors.InsufficientFundsError, Repo, Transaction}
 
   alias LocalLedger.{
     Entry,
-    Wallet,
-    Errors.InvalidAmountError,
     Errors.AmountNotPositiveError,
-    Errors.SameAddressError
+    Errors.InvalidAmountError,
+    Errors.SameAddressError,
+    Wallet
   }
 
   alias LocalLedger.Transaction.Validator

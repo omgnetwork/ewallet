@@ -1,7 +1,7 @@
 defmodule EWallet.TransactionConsumptionSchedulerTest do
   use EWallet.LocalLedgerCase, async: true
-  alias EWallet.Web.V1.WebsocketResponseSerializer
   alias EWallet.{TestEndpoint, TransactionConsumptionScheduler}
+  alias EWallet.Web.V1.WebsocketResponseSerializer
   alias EWalletDB.TransactionConsumption
   alias Phoenix.Socket.Broadcast
 

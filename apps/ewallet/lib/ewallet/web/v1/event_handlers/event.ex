@@ -4,7 +4,7 @@ defmodule EWallet.Web.V1.Event do
   """
   require Logger
   alias EWallet.Web.V1.TransactionConsumptionEventHandler
-  alias EWalletDB.{User, Account}
+  alias EWalletDB.{Account, User}
 
   @spec dispatch(atom(), map()) :: :ok
   def dispatch(event, attrs) do

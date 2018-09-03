@@ -7,7 +7,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     TransactionConsumptionConsumerGate
   }
 
-  alias EWalletDB.{User, TransactionConsumption, TransactionRequest, Token, Wallet}
+  alias EWalletDB.{Token, TransactionConsumption, TransactionRequest, User, Wallet}
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
@@ -410,11 +410,12 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     end
 
     test "receives an error when the wallet is disabled", meta do
-      {:ok, wallet} = Wallet.insert_secondary_or_burn(%{
-        "account_uuid" => meta.account.uuid,
-        "name" => "MySecondary",
-        "identifier" => "secondary"
-      })
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "account_uuid" => meta.account.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
 
       {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
 

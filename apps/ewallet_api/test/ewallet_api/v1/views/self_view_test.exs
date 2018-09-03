@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.SelfViewTest do
   use EWalletAPI.ViewCase, :v1
-  alias EWalletAPI.V1.SelfView
   alias EWallet.Web.V1.TokenSerializer
+  alias EWalletAPI.V1.SelfView
 
   describe "EWalletAPI.V1.UserView.render/2" do
     test "renders user.json with correct structure" do

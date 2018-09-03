@@ -4,9 +4,9 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{MintGate, Helper, TokenPolicy}
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{Account, Token, Mint}
+  alias EWallet.{Helper, MintGate, TokenPolicy}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWalletDB.{Account, Mint, Token}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before

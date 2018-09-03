@@ -7,27 +7,27 @@ defmodule EWalletDB.Factory do
 
   alias EWalletDB.{
     Account,
+    AccountUser,
     APIKey,
     AuthToken,
     Category,
     ExchangePair,
     ForgetPasswordRequest,
+    Helpers.Crypto,
     Invite,
     Key,
     Membership,
     Mint,
-    Token,
     Role,
-    TransactionRequest,
-    TransactionConsumption,
+    Token,
     Transaction,
+    TransactionConsumption,
+    TransactionRequest,
+    Types.WalletAddress,
     User,
-    Wallet,
-    AccountUser
+    Wallet
   }
 
-  alias EWalletDB.Helpers.Crypto
-  alias EWalletDB.Types.WalletAddress
   alias Ecto.UUID
   alias ExULID.ULID
 

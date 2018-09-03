@@ -7,15 +7,15 @@ defmodule EWallet.TransactionRequestGate do
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
   alias EWallet.{
-    WalletFetcher,
-    TransactionRequestFetcher,
     ExchangeAccountFetcher,
     Helper,
+    TokenFetcher,
+    TransactionRequestFetcher,
     TransactionRequestPolicy,
-    TokenFetcher
+    WalletFetcher
   }
 
-  alias EWalletDB.{TransactionRequest, User, Wallet, Account, Helpers.Assoc}
+  alias EWalletDB.{Account, Helpers.Assoc, TransactionRequest, User, Wallet}
 
   @spec create(map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
   def create(
