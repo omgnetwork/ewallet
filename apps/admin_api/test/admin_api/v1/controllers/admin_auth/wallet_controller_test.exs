@@ -595,7 +595,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
   end
 
-  describe "/wallet.disable" do
+  describe "/wallet.enable_or_disable" do
     test "disables a burn wallet" do
       account = Account.get_master_account()
 
