@@ -1,6 +1,6 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Account, Invite, User}
+  alias EWalletDB.{Account, Audit, Invite, User}
 
   describe "User factory" do
     test_has_valid_factory(User)
@@ -9,7 +9,8 @@ defmodule EWalletDB.UserTest do
 
   describe "insert/1" do
     test "inserts a user if it does not exist" do
-      {:ok, inserted_user} = :user |> params_for |> User.insert()
+      admin = insert(:admin)
+      {:ok, inserted_user} = :user |> params_for |> User.insert(admin)
       user = User.get(inserted_user.id)
 
       assert user.id == inserted_user.id
@@ -17,6 +18,12 @@ defmodule EWalletDB.UserTest do
       assert user.provider_user_id == inserted_user.provider_user_id
       assert user.metadata["first_name"] == inserted_user.metadata["first_name"]
       assert user.metadata["last_name"] == inserted_user.metadata["last_name"]
+
+      audits = Audit.all_for_target(User, user.uuid)
+      assert length(audits) == 1
+
+      audit = Enum.at(audits, 0)
+      assert audit.originator_uuid == admin.uuid
     end
 
     test_insert_generate_uuid(User, :uuid)

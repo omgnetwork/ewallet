@@ -13,6 +13,7 @@ defmodule EWalletDB.User do
   alias EWalletDB.{
     Account,
     AccountUser,
+    Audit,
     AuthToken,
     Helpers.Crypto,
     Invite,
@@ -22,6 +23,9 @@ defmodule EWalletDB.User do
     User,
     Wallet
   }
+
+  @audit_schema "user"
+  def audit_schema, do: @audit_schema
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -226,21 +230,22 @@ defmodule EWalletDB.User do
       iex> insert(%{field: value})
       {:ok, %User{}}
   """
-  @spec insert(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
-  def insert(attrs) do
-    multi =
-      Multi.new()
-      |> Multi.insert(:user, changeset(%User{}, attrs))
-      |> Multi.run(:wallet, fn %{user: user} ->
-        case User.admin?(user) do
+  @spec insert(map(), map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def insert(attrs, originator) do
+    %User{}
+    |> changeset(attrs)
+    |> Audit.insert(
+      originator,
+      Multi.run(Multi.new(), :wallet, fn %{record: record} ->
+        case User.admin?(record) do
           true -> {:ok, nil}
-          false -> insert_wallet(user, Wallet.primary())
+          false -> insert_wallet(record, Wallet.primary())
         end
       end)
-
-    case Repo.transaction(multi) do
+    )
+    |> case do
       {:ok, result} ->
-        user = Repo.preload(result.user, [:wallets])
+        user = Repo.preload(result.record, [:wallets])
         {:ok, user}
 
       # Only the account insertion should fail. If the wallet insert fails, there is
