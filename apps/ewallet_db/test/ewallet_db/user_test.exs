@@ -9,8 +9,7 @@ defmodule EWalletDB.UserTest do
 
   describe "insert/1" do
     test "inserts a user if it does not exist" do
-      admin = insert(:admin)
-      {:ok, inserted_user} = :user |> params_for |> User.insert(admin)
+      {:ok, inserted_user} = :user |> params_for |> User.insert()
       user = User.get(inserted_user.id)
 
       assert user.id == inserted_user.id
@@ -23,7 +22,8 @@ defmodule EWalletDB.UserTest do
       assert length(audits) == 1
 
       audit = Enum.at(audits, 0)
-      assert audit.originator_uuid == admin.uuid
+      assert audit.originator_uuid != nil
+      assert audit.originator_schema == "user"
     end
 
     test_insert_generate_uuid(User, :uuid)

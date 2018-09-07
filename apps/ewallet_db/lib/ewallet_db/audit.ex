@@ -58,20 +58,20 @@ defmodule EWalletDB.Audit do
     |> Repo.all(target_schema: schema.audit_schema, target_uuid: uuid)
   end
 
-  def insert(changeset, originator, multi \\ Multi.new()) do
-    perform(:insert, changeset, originator, multi)
+  def insert(changeset, multi \\ Multi.new()) do
+    perform(:insert, changeset, multi)
   end
 
-  def update(changeset, originator, multi \\ Multi.new()) do
-    perform(:update, changeset, originator, multi)
+  def update(changeset, multi \\ Multi.new()) do
+    perform(:update, changeset, multi)
   end
 
-  defp perform(action, changeset, originator, multi) do
+  defp perform(action, changeset, multi) do
     Multi
     |> apply(action, [Multi.new(), :record, changeset])
     |> Multi.run(:audit, fn %{record: record} ->
       action
-      |> build_attrs(changeset, record, originator)
+      |> build_attrs(changeset, record)
       |> insert_audit()
     end)
     |> Multi.append(multi)
@@ -84,12 +84,15 @@ defmodule EWalletDB.Audit do
     |> Repo.insert()
   end
 
-  defp build_attrs(action, changeset, record, originator) do
+  defp build_attrs(action, changeset, record) do
+    originator = changeset.changes.originator
+    changes = Map.delete(changeset.changes, :originator)
+
     %{
       action: Atom.to_string(action),
       target_schema: record.__struct__.audit_schema,
       target_uuid: record.uuid,
-      target_changes: changeset.changes,
+      target_changes: changes,
       originator_uuid: originator.uuid,
       originator_schema: originator.__struct__.audit_schema
     }

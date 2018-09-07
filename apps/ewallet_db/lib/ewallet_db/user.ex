@@ -20,6 +20,7 @@ defmodule EWalletDB.User do
     Membership,
     Repo,
     Role,
+    Types.VirtualStruct,
     User,
     Wallet
   }
@@ -39,6 +40,7 @@ defmodule EWalletDB.User do
     field(:password_confirmation, :string, virtual: true)
     field(:password_hash, :string)
     field(:provider_user_id, :string)
+    field(:originator, VirtualStruct, virtual: true)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
@@ -100,9 +102,10 @@ defmodule EWalletDB.User do
       :password_confirmation,
       :metadata,
       :encrypted_metadata,
-      :invite_uuid
+      :invite_uuid,
+      :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata])
+    |> validate_required([:originator, :metadata, :encrypted_metadata])
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
@@ -230,12 +233,11 @@ defmodule EWalletDB.User do
       iex> insert(%{field: value})
       {:ok, %User{}}
   """
-  @spec insert(map(), map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
-  def insert(attrs, originator) do
+  @spec insert(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def insert(attrs) do
     %User{}
     |> changeset(attrs)
     |> Audit.insert(
-      originator,
       Multi.run(Multi.new(), :wallet, fn %{record: record} ->
         case User.admin?(record) do
           true -> {:ok, nil}

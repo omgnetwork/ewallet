@@ -25,6 +25,7 @@ defmodule EWalletDB.Factory do
     TransactionRequest,
     Types.WalletAddress,
     User,
+    System,
     Wallet
   }
 
@@ -101,6 +102,7 @@ defmodule EWalletDB.Factory do
       email: nil,
       username: sequence("johndoe"),
       provider_user_id: sequence("provider_id"),
+      originator: insert(:admin),
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
@@ -134,6 +136,7 @@ defmodule EWalletDB.Factory do
       password: password,
       password_hash: Crypto.hash_password(password),
       invite: nil,
+      originator: %System{},
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
