@@ -10,8 +10,10 @@ Before we begin, be sure to have the following applications installed and runnin
 - [ImageMagick](https://www.imagemagick.org/script/index.php): ImageMagick is used for formatting images in the Admin Panel. Tested with version `> 7.0.7-22`.
 - [Elixir](http://elixir-lang.github.io/install.html): Elixir is used as the primary language for the server components of the eWallet.
 - [Git](https://git-scm.com/): Git is used for downloading and synchronizing codebase with the remote code repository.
-- [Yarn](https://yarnpkg.com/en/docs/install) Yarn is used for managing and install front-end dependencies for the Admin Panel.
 - [NodeJS](https://nodejs.org/) Node.js is used for building front-end code for the Admin Panel.
+- [Yarn](https://yarnpkg.com/en/docs/install) Yarn is used for managing and install front-end dependencies for the Admin Panel.
+
+If you are on MacOS, you may [install the above dependencies via Homebrew](/docs/setup/macos/brew_install_dependencies.md).
 
 Now that you have the applications installed, proceed with 1.1 through 1.5 to setup the server.
 
