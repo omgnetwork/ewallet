@@ -20,12 +20,12 @@ defmodule EWalletDB.Audit do
 
     field(:action, :string)
 
-    field(:target_schema, :string)
+    field(:target_type, :string)
     field(:target_uuid, UUID)
     field(:target_changes, :map)
 
     field(:originator_uuid, UUID)
-    field(:originator_schema, :string)
+    field(:originator_type, :string)
 
     field(:metadata, :map)
 
@@ -36,26 +36,42 @@ defmodule EWalletDB.Audit do
     changeset
     |> cast(attrs, [
       :action,
-      :target_schema,
+      :target_type,
       :target_uuid,
       :target_changes,
       :originator_uuid,
-      :originator_schema,
+      :originator_type,
       :metadata
     ])
     |> validate_required([
       :action,
-      :target_schema,
+      :target_type,
       :target_uuid,
       :target_changes,
       :originator_uuid,
-      :originator_schema
+      :originator_type
     ])
   end
 
+  def get_schema(type) do
+    Application.get_env(:ewallet_db, :audit_types_to_schemas)[type]
+  end
+
+  def get_type(schema) do
+    Application.get_env(:ewallet_db, :schemas_to_audit_types)[schema]
+  end
+
   def all_for_target(schema, uuid) do
-    Audit
-    |> Repo.all(target_schema: schema.audit_schema, target_uuid: uuid)
+    Repo.all(Audit, target_type: get_type(schema), target_uuid: uuid)
+  end
+
+  def get_initial_audit(type, uuid) do
+    Repo.get_by(
+      Audit,
+      action: "insert",
+      target_type: type,
+      target_uuid: uuid
+    )
   end
 
   def insert(changeset, multi \\ Multi.new()) do
@@ -87,14 +103,16 @@ defmodule EWalletDB.Audit do
   defp build_attrs(action, changeset, record) do
     originator = changeset.changes.originator
     changes = Map.delete(changeset.changes, :originator)
+    target_type = get_type(record.__struct__)
+    originator_type = get_type(originator.__struct__)
 
     %{
       action: Atom.to_string(action),
-      target_schema: record.__struct__.audit_schema,
+      target_type: target_type,
       target_uuid: record.uuid,
       target_changes: changes,
       originator_uuid: originator.uuid,
-      originator_schema: originator.__struct__.audit_schema
+      originator_type: originator_type
     }
   end
 end

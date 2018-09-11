@@ -9,6 +9,7 @@ defmodule EWalletDB.Factory do
     Account,
     AccountUser,
     APIKey,
+    Audit,
     AuthToken,
     Category,
     ExchangePair,
@@ -144,12 +145,43 @@ defmodule EWalletDB.Factory do
     }
   end
 
+  def audit_factory do
+    params = params_for(:user)
+    user = insert(params)
+    originator = insert(:admin)
+
+    %Audit{
+      action: "insert",
+      target_type: Audit.get_type(User),
+      target_uuid: user.uuid,
+      target_changes: params,
+      originator_uuid: originator.uuid,
+      originator_type: Audit.get_type(Admin)
+    }
+  end
+
+  def sytem_audit_factory do
+    params = params_for(:admin)
+    admin = insert(params)
+    originator = %System{}
+
+    %Audit{
+      action: "insert",
+      target_type: Audit.get_type(admin.__struct__),
+      target_uuid: admin.uuid,
+      target_changes: params,
+      originator_uuid: originator.uuid,
+      originator_type: Audit.get_type(originator.__struct__)
+    }
+  end
+
   def invite_factory do
     %Invite{
       user: nil,
       token: Crypto.generate_base64_key(32),
       success_url: nil,
-      verified_at: nil
+      verified_at: nil,
+      originator: insert(:admin)
     }
   end
 

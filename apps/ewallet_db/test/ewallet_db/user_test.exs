@@ -23,7 +23,7 @@ defmodule EWalletDB.UserTest do
 
       audit = Enum.at(audits, 0)
       assert audit.originator_uuid != nil
-      assert audit.originator_schema == "user"
+      assert audit.originator_type == "user"
     end
 
     test_insert_generate_uuid(User, :uuid)
@@ -65,8 +65,8 @@ defmodule EWalletDB.UserTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(User, :username)
-    test_update_field_ok(User, :metadata, %{"field" => "old"}, %{"field" => "new"})
+    test_update_field_ok(User, :username, insert(:admin))
+    test_update_field_ok(User, :metadata, insert(:admin), %{"field" => "old"}, %{"field" => "new"})
     test_update_prevents_changing(User, :provider_user_id)
 
     test "prevents updating an admin without email" do

@@ -25,9 +25,6 @@ defmodule EWalletDB.User do
     Wallet
   }
 
-  @audit_schema "user"
-  def audit_schema, do: @audit_schema
-
   @primary_key {:uuid, UUID, autogenerate: true}
 
   schema "user" do
@@ -126,9 +123,10 @@ defmodule EWalletDB.User do
       :email,
       :metadata,
       :encrypted_metadata,
-      :invite_uuid
+      :invite_uuid,
+      :originator
     ])
-    |> validate_required(:email)
+    |> validate_required([:email, :originator])
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
   end
@@ -225,6 +223,13 @@ defmodule EWalletDB.User do
     |> preload_option(opts)
   end
 
+  # TODO
+  def get_initial_originator(user) do
+    audit = Audit.get_initial_audit("user", user.uuid)
+    schema = Audit.get_schema(audit.originator_type)
+    struct(schema, uuid: audit.originator_uuid)
+  end
+
   @doc """
   Creates a user and their primary wallet.
 
@@ -277,12 +282,11 @@ defmodule EWalletDB.User do
   def update(%User{} = user, attrs) do
     changeset = changeset(user, attrs)
 
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        {:ok, get(user.id)}
-
-      result ->
-        result
+    case Audit.update(changeset) do
+      {:ok, result} ->
+        {:ok, get(result.record.id)}
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
   end
 
@@ -292,13 +296,12 @@ defmodule EWalletDB.User do
   @spec update_without_password(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update_without_password(%User{} = user, attrs) do
     changeset = update_changeset(user, attrs)
-
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        {:ok, get(user.id)}
-
-      result ->
-        result
+    IO.inspect(changeset)
+    case Audit.update(changeset) do
+      {:ok, result} ->
+        {:ok, get(result.record.id)}
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
   end
 
@@ -316,9 +319,11 @@ defmodule EWalletDB.User do
 
     changeset = avatar_changeset(user, attrs)
 
-    case Repo.update(changeset) do
-      {:ok, user} -> get(user.id)
-      result -> result
+    case Audit.update(changeset) do
+      {:ok, result} ->
+        {:ok, get(result.record.id)}
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
   end
 

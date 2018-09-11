@@ -9,18 +9,18 @@ defmodule EWalletDB.Repo.Migrations.AddAudit do
       add :action, :string, null: false
 
       add :target_uuid, :uuid, null: false
-      add :target_schema, :string, null: false
+      add :target_type, :string, null: false
       add :target_changes, :map, null: false
 
       add :originator_uuid, :uuid
-      add :originator_schema, :string
+      add :originator_type, :string
 
       add :metadata, :map
 
       add :inserted_at, :naive_datetime, default: fragment("now()")
     end
 
-    create index(:audit, [:target_uuid, :target_schema])
-    create index(:audit, [:originator_uuid, :originator_schema])
+    create index(:audit, [:target_uuid, :target_type])
+    create index(:audit, [:originator_uuid, :originator_type])
   end
 end
