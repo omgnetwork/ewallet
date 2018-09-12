@@ -11,7 +11,7 @@ _Prerequisite: You will need [Docker](https://www.docker.com/get-docker) and [Do
 First, generate secret keys for eWallet and LocalLedger by running:
 
 ```
-$ elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
+$ docker run --rm omisego/ewallet:latest elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
 ```
 
 Then, create your `docker-compose.yml` file using the following script:
