@@ -6,7 +6,7 @@ defmodule LocalLedgerDB.Token do
   use Ecto.Schema
   import Ecto.Changeset
   alias Ecto.UUID
-  alias LocalLedgerDB.{Repo, Token, Entry}
+  alias LocalLedgerDB.{Entry, Repo, Token}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 

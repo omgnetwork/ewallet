@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.MintView do
   use AdminAPI, :view
-  alias EWallet.Web.V1.{ResponseSerializer, MintSerializer}
+  alias EWallet.Web.V1.{MintSerializer, ResponseSerializer}
 
   def render("mint.json", %{mint: mint}) do
     mint

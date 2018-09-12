@@ -2,7 +2,7 @@ defmodule EWallet.Web.SortParserTest do
   use EWallet.DBCase
   import EWalletDB.Factory
   alias EWallet.Web.SortParser
-  alias EWalletDB.{Repo, Account}
+  alias EWalletDB.{Account, Repo}
 
   defp prepare_test_accounts do
     insert(:account, %{name: "account111", description: "Account DDD"})

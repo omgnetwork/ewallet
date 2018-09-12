@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.ClientAuth do
   @moduledoc """
   This module takes care of authenticating a client for websocket connections.
   """
-  alias EWalletDB.{User, AuthToken, APIKey}
+  alias EWalletDB.{APIKey, AuthToken, User}
 
   def authenticate(params) do
     # auth is an agnostic replacement for the conn being passed around

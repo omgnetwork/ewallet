@@ -7,14 +7,15 @@ defmodule EWallet.TransactionRequestGate do
   It is basically an interface to the EWalletDB.TransactionRequest schema.
   """
   alias EWallet.{
-    WalletFetcher,
-    TransactionRequestFetcher,
     ExchangeAccountFetcher,
     Helper,
-    TransactionRequestPolicy
+    TokenFetcher,
+    TransactionRequestFetcher,
+    TransactionRequestPolicy,
+    WalletFetcher
   }
 
-  alias EWalletDB.{TransactionRequest, User, Wallet, Token, Account, Helpers.Assoc}
+  alias EWalletDB.{Account, Helpers.Assoc, TransactionRequest, User, Wallet}
 
   @spec create(map()) :: {:ok, %TransactionRequest{}} | {:error, atom()}
   def create(
@@ -158,8 +159,9 @@ defmodule EWallet.TransactionRequestGate do
           "creator" => creator
         } = attrs
       ) do
-    with :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
-         %Token{} = token <- Token.get(token_id) || {:error, :token_not_found},
+    with true <- wallet.enabled || {:error, :wallet_is_disabled},
+         :ok <- Bodyguard.permit(TransactionRequestPolicy, :create, creator, wallet),
+         {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
          {:ok, amount} <- get_integer_or_string_amount(attrs["amount"]),
          {:ok, exchange_wallet} <- ExchangeAccountFetcher.fetch(attrs),
          {:ok, transaction_request} <- insert(token, wallet, exchange_wallet, amount, attrs) do

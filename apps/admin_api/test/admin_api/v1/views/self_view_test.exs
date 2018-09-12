@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.SelfViewTest do
   use AdminAPI.ViewCase, :v1
-  alias EWallet.Web.Date
   alias AdminAPI.V1.SelfView
+  alias EWallet.Web.Date
 
   describe "render/2" do
     test "renders user.json with correct response structure" do

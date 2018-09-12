@@ -1,11 +1,11 @@
 defmodule EWalletDB.Repo.Seeds.AuthTokenSampleSeed do
-  alias EWalletDB.{AuthToken, User}
   alias EWallet.Web.Preloader
+  alias EWalletDB.{AuthToken, User}
 
   def seed do
     [
       run_banner: "Seeding sample auth tokens:",
-      argsline: [],
+      argsline: []
     ]
   end
 
@@ -15,6 +15,7 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSampleSeed do
     case AuthToken.generate(user, :ewallet_api) do
       {:ok, token} ->
         {:ok, token} = Preloader.preload_one(token, :user)
+
         writer.success("""
           Owner app        : #{token.owner_app}
           User ID          : #{token.user.id}
@@ -23,10 +24,11 @@ defmodule EWalletDB.Repo.Seeds.AuthTokenSampleSeed do
           Auth token       : #{token.token}
         """)
 
-        args ++ [
-          {:seeded_ewallet_user_id, user.id},
-          {:seeded_ewallet_auth_token, token.token}
-        ]
+        args ++
+          [
+            {:seeded_ewallet_user_id, user.id},
+            {:seeded_ewallet_auth_token, token.token}
+          ]
 
       {:error, changeset} ->
         writer.error("  Auth token for #{user.id} and ewallet_api could not be inserted:")

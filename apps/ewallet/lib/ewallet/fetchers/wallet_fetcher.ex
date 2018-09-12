@@ -2,7 +2,7 @@ defmodule EWallet.WalletFetcher do
   @moduledoc """
   Handles the retrieval of wallets from the eWallet database.
   """
-  alias EWalletDB.{User, Wallet, Account}
+  alias EWalletDB.{Account, User, Wallet}
 
   @spec get(%User{} | %Account{} | nil, String.t() | nil) :: {:ok, %Wallet{}} | {:error, atom()}
   def get(%User{} = user, nil) do

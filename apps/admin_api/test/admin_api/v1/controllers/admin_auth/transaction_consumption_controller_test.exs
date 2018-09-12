@@ -2,16 +2,18 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
   use AdminAPI.ConnCase, async: true
 
   alias EWalletDB.{
-    Repo,
-    TransactionRequest,
-    TransactionConsumption,
-    User,
-    Transaction,
     Account,
-    AccountUser
+    AccountUser,
+    Repo,
+    Token,
+    Transaction,
+    TransactionConsumption,
+    TransactionRequest,
+    User,
+    Wallet
   }
 
-  alias EWallet.{TestEndpoint, BalanceFetcher}
+  alias EWallet.{BalanceFetcher, TestEndpoint}
   alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
 
@@ -22,8 +24,8 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     TransactionSerializer
   }
 
-  alias EWallet.TransactionConsumptionScheduler
   alias AdminAPI.V1.Endpoint
+  alias EWallet.TransactionConsumptionScheduler
 
   setup do
     {:ok, _} = TestEndpoint.start_link()
@@ -1427,6 +1429,71 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
                "current_amount" => 0,
                "token_id" => meta.token.id
              }
+    end
+
+    test "fails to consume when token is disabled", meta do
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false})
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: nil,
+          metadata: nil,
+          token_id: token.id,
+          account_id: meta.account.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "token:disabled"
+    end
+
+    test "fails to consume when wallet is disabled", meta do
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "user_uuid" => meta.bob.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
+
+      {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
+
+      transaction_request =
+        insert(
+          :transaction_request,
+          type: "receive",
+          token_uuid: meta.token.uuid,
+          user_uuid: meta.alice.uuid,
+          wallet: meta.alice_wallet,
+          amount: 100_000 * meta.token.subunit_to_unit
+        )
+
+      response =
+        admin_user_request("/transaction_request.consume", %{
+          idempotency_token: "123",
+          formatted_transaction_request_id: transaction_request.id,
+          correlation_id: nil,
+          amount: nil,
+          address: wallet.address,
+          metadata: nil,
+          token_id: nil,
+          user_id: meta.bob.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "wallet:disabled"
     end
 
     test "returns with preload if `embed` attribute is given", meta do

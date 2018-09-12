@@ -3,20 +3,19 @@ defmodule EWalletAPI.Application do
   EWalletAPI's startup and shutdown functionalities
   """
   use Application
+  alias EWallet.Web.Config
   alias EWalletAPI.Endpoint
 
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:ewallet_api)
+    Config.configure_cors_plug()
 
     # Define workers and child supervisors to be supervised
     children = [
       # Start the endpoint when the application starts
       supervisor(EWalletAPI.Endpoint, []),
       supervisor(EWalletAPI.V1.Endpoint, [])
-      # Start your own worker by calling:
-      #   EWalletAPI.Worker.start_link(arg1, arg2, arg3)
-      # worker(EWalletAPI.Worker, [arg1, arg2, arg3]),
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

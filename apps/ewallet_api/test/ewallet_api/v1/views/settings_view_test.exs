@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.SettingsViewTest do
   use EWalletAPI.ViewCase, :v1
-  alias EWalletAPI.V1.SettingsView
   alias EWallet.Web.V1.TokenSerializer
+  alias EWalletAPI.V1.SettingsView
 
   describe "EWalletAPI.V1.SettingsView.render/2" do
     test "renders settings.json with correct structure" do

@@ -1,6 +1,6 @@
 defmodule EWalletDB.Repo.Seeds.CategorySampleSeed do
-  alias EWalletDB.{Account, Category}
   alias EWallet.Web.Preloader
+  alias EWalletDB.{Account, Category}
 
   @seed_data [
     %{name: "category1", description: "Sample Category 1", account_names: ["brand1", "branch1"]},

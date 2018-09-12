@@ -1,10 +1,9 @@
 defmodule LocalLedgerDB.TransactionTest do
   use ExUnit.Case
   import LocalLedgerDB.Factory
-  alias LocalLedgerDB.Transaction
-  alias LocalLedgerDB.Repo
   alias Ecto.Adapters.SQL
   alias Ecto.Adapters.SQL.Sandbox
+  alias LocalLedgerDB.{Repo, Transaction}
 
   setup do
     :ok = Sandbox.checkout(Repo)

@@ -238,7 +238,7 @@ paths:
           $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new token
+  # Endpoint to update a token
   /token.update:
     post:
       tags:
@@ -255,7 +255,24 @@ paths:
           $ref: "#/components/responses/TokenResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
-  # Endpoint to create a new token
+  # Endpoint to enable or disable a token
+  /token.enable_or_disable:
+    post:
+      tags:
+        - Token
+      summary: Enable or disable an existing token
+      operationId: token_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/TokenToggleStatusBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/TokenResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to get the statistics of a token
   /token.stats:
     post:
       tags:
@@ -978,6 +995,22 @@ paths:
           $ref: "#/components/responses/WalletResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /wallet.enable_or_disable:
+    post:
+      tags:
+        - Wallet
+      summary: Enable or disable a specific wallet
+      operationId: wallet_enable_or_disable
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/WalletEnableOrDisableBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/WalletResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
 
   #####################################
   #       TRANSACTION ENDPOINTS       #
@@ -1619,6 +1652,8 @@ components:
           type: object
         encrypted_metadata:
           type: object
+        enabled:
+          type: boolean
       required:
         - object
         - id
@@ -1627,6 +1662,7 @@ components:
         - subunit_to_unit
         - created_at
         - updated_at
+        - enabled
     TokenResponseSchema:
       description: "The response schema for a token"
       allOf:
@@ -1649,6 +1685,7 @@ components:
               subunit_to_unit: 100
               created_at: "2018-01-01T00:00:00Z"
               updated_at: "2018-01-01T10:00:00Z"
+              enabled: true
     TokensResponseSchema:
       description: "The response schema for a list of tokens"
       allOf:
@@ -1680,6 +1717,7 @@ components:
                   subunit_to_unit: 100
                   created_at: "2018-01-01T00:00:00Z"
                   updated_at: "2018-01-01T10:00:00Z"
+                  enabled: true
               pagination:
                 per_page: 10
                 current_page: 1
@@ -2403,6 +2441,8 @@ components:
           type: object
         encrypted_metadata:
           type: object
+        enabled:
+          type: boolean
         user_id:
           type: string
         user:
@@ -2428,6 +2468,7 @@ components:
         - account_id
         - account
         - balances
+        - enabled
       example:
         data:
           object: "wallet"
@@ -2437,6 +2478,7 @@ components:
           identifier: "primary"
           metadata: {}
           encrypted_metadata: {}
+          enabled: true
           user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
           user: {}
           account_id: null
@@ -2494,6 +2536,7 @@ components:
             identifier: "primary"
             metadata: {}
             encrypted_metadata: {}
+            enabled: true
             user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
             user: {}
             account_id: null
@@ -2537,6 +2580,7 @@ components:
                 identifier: "primary"
                 metadata: {}
                 encrypted_metadata: {}
+                enabled: true
                 user_id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
                 user: {}
                 account_id: null
@@ -3693,6 +3737,24 @@ components:
               id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
               name: "Bitcoin v2"
               description: "an awesome updated description"
+    # Request body for enable/disabling a token
+    TokenToggleStatusBody:
+      description: The parameters to enable/disable a token. Send enabled=true to enable, enabled=false to disable.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - id
+              - enabled
+            example:
+              id: "tok_ABC_01ce846km1syzwezxfmgdn7dt7"
+              enabled: false
     # Request body for minting a token
     TokenMintBody:
       description: The parameters to create a token. Note that if amount is specified, the token will be minted automatically.
@@ -4533,6 +4595,23 @@ components:
               - address
             example:
               address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+    WalletEnableOrDisableBody:
+      description: The parameters to use to enable or disable a wallet.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              address:
+                type: string
+              enabled:
+                type: boolean
+            required:
+              - address
+              - enabled
+            example:
+              address: "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1"
+              enabled: false
     WalletCreateBody:
       description: The parameters to use for creating a wallet
       required: true

@@ -1,6 +1,6 @@
 defmodule LocalLedger.Transaction.ValidatorTest do
   use ExUnit.Case
-  alias LocalLedger.Errors.{InvalidAmountError, AmountNotPositiveError, SameAddressError}
+  alias LocalLedger.Errors.{AmountNotPositiveError, InvalidAmountError, SameAddressError}
   alias LocalLedger.Transaction.Validator
 
   setup do

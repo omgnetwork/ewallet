@@ -7,7 +7,7 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
     TransactionConsumptionConsumerGate
   }
 
-  alias EWalletDB.{User, TransactionConsumption, TransactionRequest}
+  alias EWalletDB.{Token, TransactionConsumption, TransactionRequest, User, Wallet}
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
@@ -389,6 +389,49 @@ defmodule EWallet.TransactionConsumptionConsumerGateTest do
         })
 
       assert res == {:error, :wallet_not_found}
+    end
+
+    test "receives an error when the token is disabled", meta do
+      {:ok, token} = Token.enable_or_disable(meta.token, %{enabled: false})
+
+      {res, code} =
+        TransactionConsumptionConsumerGate.consume(%{
+          "formatted_transaction_request_id" => meta.request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => token.id,
+          "address" => meta.account_wallet.address
+        })
+
+      assert res == :error
+      assert code == :token_is_disabled
+    end
+
+    test "receives an error when the wallet is disabled", meta do
+      {:ok, wallet} =
+        Wallet.insert_secondary_or_burn(%{
+          "account_uuid" => meta.account.uuid,
+          "name" => "MySecondary",
+          "identifier" => "secondary"
+        })
+
+      {:ok, wallet} = Wallet.enable_or_disable(wallet, %{enabled: false})
+
+      {res, code} =
+        TransactionConsumptionConsumerGate.consume(%{
+          "formatted_transaction_request_id" => meta.request.id,
+          "correlation_id" => nil,
+          "amount" => nil,
+          "metadata" => nil,
+          "idempotency_token" => "123",
+          "token_id" => nil,
+          "address" => wallet.address
+        })
+
+      assert res == :error
+      assert code == :wallet_is_disabled
     end
   end
 

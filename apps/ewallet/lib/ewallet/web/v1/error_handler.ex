@@ -4,8 +4,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
   """
   import Ecto.Changeset, only: [traverse_errors: 2]
   alias Ecto.Changeset
-  alias EWallet.Web.V1.ErrorSerializer
   alias EWallet.AmountFormatter
+  alias EWallet.Web.V1.ErrorSerializer
   alias EWalletDB.Token
 
   @errors %{
@@ -228,6 +228,18 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "token:to_token_not_found",
       description: "There is no token matching the provided to_token_id."
     },
+    token_is_disabled: %{
+      code: "token:disabled",
+      description: "The given token is disabled."
+    },
+    from_token_is_disabled: %{
+      code: "token:from_token_is_disabled",
+      description: "The given from_token_id is disabled."
+    },
+    to_token_is_disabled: %{
+      code: "token:to_token_is_disabled",
+      description: "The given to_token_id is disabled."
+    },
     user_wallet_mismatch: %{
       code: "user:user_wallet_mismatch",
       description: "The provided wallet does not belong to the current user."
@@ -251,6 +263,14 @@ defmodule EWallet.Web.V1.ErrorHandler do
     wallet_not_found: %{
       code: "wallet:wallet_not_found",
       description: "There is no wallet corresponding to the provided address."
+    },
+    primary_wallet_cannot_be_disabled: %{
+      code: "wallet:primary_cannot_be_disabled",
+      description: "Primary wallets cannot be disabled."
+    },
+    wallet_is_disabled: %{
+      code: "wallet:disabled",
+      description: "The given wallet is disabled."
     },
     user_wallet_not_found: %{
       code: "user:wallet_not_found",
@@ -481,10 +501,12 @@ defmodule EWallet.Web.V1.ErrorHandler do
       end)
 
     errors
-    |> Enum.map(fn {key, value} ->
-      {key |> replace_uuids() |> stringify_field(), value}
-    end)
-    |> Enum.into(%{})
+    |> Enum.into(
+      %{},
+      fn {key, value} ->
+        {key |> replace_uuids() |> stringify_field(), value}
+      end
+    )
   end
 
   defp replace_uuids(field) do

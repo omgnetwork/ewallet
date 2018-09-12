@@ -4,9 +4,9 @@ defmodule EWallet.MintGate do
   handle the transactions (i.e. LocalLedger), a callback needs to be passed. See
   examples on how to add value to a token.
   """
-  alias EWallet.{Helper, GenesisGate}
-  alias EWalletDB.{Repo, Account, Mint, Token}
-  alias Ecto.{UUID, Multi}
+  alias Ecto.{Multi, UUID}
+  alias EWallet.{GenesisGate, Helper, TokenFetcher}
+  alias EWalletDB.{Account, Mint, Repo, Token}
 
   @spec mint_token({:ok, %Token{}} | %Token{} | {:error, Ecto.Changeset.t()} | any(), map()) ::
           {:ok, %Mint{}, %Token{}}
@@ -84,38 +84,40 @@ defmodule EWallet.MintGate do
           "description" => description
         } = attrs
       ) do
-    token = Token.get(token_id)
-    account = Account.get_master_account()
+    with {:ok, token} <- TokenFetcher.fetch(%{"token_id" => token_id}),
+         %Account{} = account <- Account.get_master_account() do
+      multi =
+        Multi.new()
+        |> Multi.run(:mint, fn _ ->
+          Mint.insert(%{
+            token_uuid: token.uuid,
+            amount: amount,
+            account_uuid: account.uuid,
+            description: description
+          })
+        end)
+        |> Multi.run(:transaction, fn _ ->
+          GenesisGate.create(%{
+            idempotency_token: idempotency_token,
+            amount: amount,
+            token: token,
+            account: account,
+            attrs: attrs
+          })
+        end)
+        |> Multi.run(:mint_with_transaction, fn %{transaction: transaction, mint: mint} ->
+          Mint.update(mint, %{transaction_uuid: transaction.uuid})
+        end)
 
-    multi =
-      Multi.new()
-      |> Multi.run(:mint, fn _ ->
-        Mint.insert(%{
-          token_uuid: token.uuid,
-          amount: amount,
-          account_uuid: account.uuid,
-          description: description
-        })
-      end)
-      |> Multi.run(:transaction, fn _ ->
-        GenesisGate.create(%{
-          idempotency_token: idempotency_token,
-          amount: amount,
-          token: token,
-          account: account,
-          attrs: attrs
-        })
-      end)
-      |> Multi.run(:mint_with_transaction, fn %{transaction: transaction, mint: mint} ->
-        Mint.update(mint, %{transaction_uuid: transaction.uuid})
-      end)
+      case Repo.transaction(multi) do
+        {:ok, result} ->
+          GenesisGate.process_with_transaction(result.transaction, result.mint_with_transaction)
 
-    case Repo.transaction(multi) do
-      {:ok, result} ->
-        GenesisGate.process_with_transaction(result.transaction, result.mint_with_transaction)
-
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
+        {:error, _failed_operation, changeset, _changes_so_far} ->
+          {:error, changeset}
+      end
+    else
+      error -> error
     end
   end
 end

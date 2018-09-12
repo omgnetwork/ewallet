@@ -1,11 +1,10 @@
 defmodule AdminAPI.V1.SelfController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.V1.{AccountView, UserView, AccountHelper}
-  alias EWallet.Web.Paginator
-  alias EWalletDB.{Account, User}
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
+  alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
   alias Ecto.Changeset
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWalletDB.{Account, User}
 
   @mapped_fields %{
     "created_at" => "inserted_at"

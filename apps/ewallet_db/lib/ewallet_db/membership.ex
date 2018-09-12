@@ -6,7 +6,7 @@ defmodule EWalletDB.Membership do
   import Ecto.Changeset
   import Ecto.Query, except: [update: 2]
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Membership, Role, User, MembershipChecker}
+  alias EWalletDB.{Account, Membership, MembershipChecker, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 

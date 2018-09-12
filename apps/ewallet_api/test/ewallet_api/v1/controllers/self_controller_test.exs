@@ -1,7 +1,7 @@
 defmodule EWalletAPI.V1.SelfControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{User, Account}
+  alias EWalletDB.{Account, User}
 
   describe "/me.get" do
     test "responds with user data" do
@@ -55,6 +55,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                      "identifier" => "primary",
                      "metadata" => %{},
                      "name" => "primary",
+                     "enabled" => true,
                      "created_at" => Date.to_iso8601(user_wallet.inserted_at),
                      "updated_at" => Date.to_iso8601(user_wallet.updated_at),
                      "user" => %{
@@ -88,6 +89,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "id" => btc.id,
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
+                           "enabled" => true,
                            "created_at" => Date.to_iso8601(btc.inserted_at),
                            "updated_at" => Date.to_iso8601(btc.updated_at)
                          }
@@ -103,6 +105,7 @@ defmodule EWalletAPI.V1.SelfControllerTest do
                            "id" => omg.id,
                            "metadata" => %{},
                            "encrypted_metadata" => %{},
+                           "enabled" => true,
                            "created_at" => Date.to_iso8601(omg.inserted_at),
                            "updated_at" => Date.to_iso8601(omg.updated_at)
                          }

@@ -5,9 +5,9 @@ defmodule AdminAPI.V1.WalletController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
   alias EWallet.{UUIDFetcher, WalletPolicy}
-  alias EWalletDB.{Wallet, Account, User}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWalletDB.{Account, User, Wallet}
 
   @mapped_fields %{
     "created_at" => "inserted_at"
@@ -119,6 +119,24 @@ defmodule AdminAPI.V1.WalletController do
       {:error, error} -> handle_error(conn, error)
     end
   end
+
+  @doc """
+  Enable or disable a wallet.
+  """
+  @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def enable_or_disable(conn, %{"address" => address} = attrs) do
+    with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
+         :ok <- permit(:enable_or_disable, conn.assigns, wallet),
+         {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs) do
+      respond_single(updated, conn)
+    else
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
+  def enable_or_disable(conn, _),
+    do:
+      handle_error(conn, :invalid_parameter, "Invalid parameter provided. `address` is required.")
 
   # Respond with a list of wallets
   defp respond_multiple(%Paginator{} = paged_wallets, conn) do

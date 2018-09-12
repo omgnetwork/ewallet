@@ -2,7 +2,7 @@ defmodule EWallet.Web.SearchParserTest do
   use EWallet.DBCase
   import EWalletDB.Factory
   alias EWallet.Web.SearchParser
-  alias EWalletDB.{Repo, Account}
+  alias EWalletDB.{Account, Repo}
 
   defp prepare_test_accounts do
     account_1 = insert(:account, %{name: "Name Match 1", description: "Description missed 1"})

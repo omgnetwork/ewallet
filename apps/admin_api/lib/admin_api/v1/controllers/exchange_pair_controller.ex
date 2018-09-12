@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.{ExchangePairGate, ExchangePairPolicy}
-  alias EWallet.Web.{SearchParser, SortParser, Paginator, Preloader}
+  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
   alias EWalletDB.ExchangePair
 
   # The field names to be mapped into DB column names.

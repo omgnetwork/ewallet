@@ -765,11 +765,14 @@ components:
           type: object
         encrypted_metadata:
           type: object
+        enabled:
+          type: boolean
       required:
         - object
         - symbol
         - name
         - subunit_to_unit
+        - enabled
       example:
         object: "token"
         id: "tok_OMG_01cbffwvj6ma9a9gg1tb24880q"
@@ -778,6 +781,7 @@ components:
         subunit_to_unit: 100000000000000000
         metadata: {}
         encrypted_metadata: {}
+        enabled: true
 
     ######################################
     #         TRANSACTION SCHEMAS        #

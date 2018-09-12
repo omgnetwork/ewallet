@@ -4,7 +4,7 @@ defmodule LocalLedgerDB.CachedBalance do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias LocalLedgerDB.{Repo, Wallet, CachedBalance}
+  alias LocalLedgerDB.{CachedBalance, Repo, Wallet}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 

@@ -8,7 +8,7 @@ defmodule EWalletDB.Token do
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Account, Token}
+  alias EWalletDB.{Account, Repo, Token}
   alias ExULID.ULID
 
   @primary_key {:uuid, UUID, autogenerate: true}
@@ -43,6 +43,8 @@ defmodule EWalletDB.Token do
     field(:locked, :boolean)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+
+    field(:enabled, :boolean)
 
     belongs_to(
       :account,
@@ -120,6 +122,12 @@ defmodule EWalletDB.Token do
     |> unique_constraint(:name)
     |> unique_constraint(:short_symbol)
     |> unique_constraint(:iso_numeric)
+  end
+
+  defp enable_changeset(%Token{} = token, attrs) do
+    token
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
   end
 
   defp set_id(changeset, opts) do
@@ -201,5 +209,14 @@ defmodule EWalletDB.Token do
   """
   def get_all(ids) do
     Repo.all(from(m in Token, where: m.id in ^ids))
+  end
+
+  @doc """
+  Enables or disables a token.
+  """
+  def enable_or_disable(token, attrs) do
+    token
+    |> enable_changeset(attrs)
+    |> Repo.update()
   end
 end

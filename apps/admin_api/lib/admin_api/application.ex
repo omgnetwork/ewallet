@@ -4,7 +4,7 @@ defmodule AdminAPI.Application do
   """
   use Application
   alias AdminAPI.Endpoint
-  alias AdminAPI.Config
+  alias EWallet.Web.Config
 
   def start(_type, _args) do
     import Supervisor.Spec

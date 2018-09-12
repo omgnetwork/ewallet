@@ -3,8 +3,8 @@ defmodule EWalletAPI.V1.TransactionRequestController do
   import EWalletAPI.V1.ErrorHandler
 
   alias EWallet.{
-    TransactionRequestGate,
     TransactionRequestFetcher,
+    TransactionRequestGate,
     TransactionRequestPolicy
   }
 

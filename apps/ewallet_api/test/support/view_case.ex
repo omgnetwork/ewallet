@@ -8,8 +8,8 @@ defmodule EWalletAPI.ViewCase do
       use ExUnit.Case
       import EWalletDB.Factory
       import Phoenix.View
-      alias EWalletDB.Repo
       alias Ecto.Adapters.SQL.Sandbox
+      alias EWalletDB.Repo
 
       setup do
         :ok = Sandbox.checkout(Repo)

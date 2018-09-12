@@ -1,7 +1,7 @@
 defmodule EWallet.Web.V1.PaginatorSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias EWallet.Web.V1.PaginatorSerializer
   alias EWallet.Web.Paginator
+  alias EWallet.Web.V1.PaginatorSerializer
 
   describe "PaginatorSerializer.serialize/1" do
     test "serializes the given paginator into a list object" do

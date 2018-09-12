@@ -4,14 +4,14 @@ defmodule EWallet.TransactionGate do
   actual transaction to EWallet.TransactionGate once the wallets have been loaded.
   """
   alias EWallet.{
-    TransactionSourceFetcher,
+    AccountFetcher,
+    AmountFetcher,
     TokenFetcher,
     TransactionFormatter,
-    AmountFetcher,
-    AccountFetcher
+    TransactionSourceFetcher
   }
 
-  alias EWalletDB.{Transaction, AccountUser}
+  alias EWalletDB.{AccountUser, Transaction}
   alias LocalLedger.Transaction, as: LedgerTransaction
 
   def create(attrs) do

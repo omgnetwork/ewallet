@@ -1,8 +1,8 @@
 defmodule EWalletDB.Repo.Migrations.MoveLedgerResponseIntoSpecificFields do
   use Ecto.Migration
   import Ecto.Query
-  alias EWalletDB.Repo
   alias EWalletDB.Encrypted
+  alias EWalletDB.Repo
 
   def up do
     alter table(:transfer) do

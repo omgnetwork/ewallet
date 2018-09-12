@@ -1,8 +1,7 @@
 defmodule EWalletAPI.Router do
   use EWalletAPI, :router
   use EWallet.Web.APIDocs, scope: "/api/client"
-  alias EWalletAPI.{StatusController, VersionedRouter}
-  alias EWalletAPI.V1.PageRouter
+  alias EWalletAPI.{StatusController, V1.PageRouter, VersionedRouter}
 
   scope "/pages/client/v1" do
     forward("/", PageRouter)

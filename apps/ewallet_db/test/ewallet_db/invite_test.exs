@@ -1,8 +1,7 @@
 defmodule EWalletDB.InviteTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Invite, User}
-  alias EWalletDB.Helpers.Crypto
   alias Ecto.UUID
+  alias EWalletDB.{Helpers.Crypto, Invite, User}
 
   describe "Invite.get/1" do
     test "returns an Invite if the given id is found" do

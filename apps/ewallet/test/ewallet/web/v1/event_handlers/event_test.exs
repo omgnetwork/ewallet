@@ -2,8 +2,8 @@ defmodule EWallet.Web.V1.EventTest do
   use EWallet.LocalLedgerCase, async: true
   import ExUnit.CaptureLog
   require Logger
-  alias EWallet.Web.V1.Event
   alias EWallet.TestEndpoint
+  alias EWallet.Web.V1.Event
 
   setup do
     Logger.configure(level: :info)

@@ -1,6 +1,6 @@
 defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.{Account, Repo, User, Role, Membership}
+  alias EWalletDB.{Account, Membership, Repo, Role, User}
 
   describe "/account.all" do
     test "returns a list of accounts and pagination data" do

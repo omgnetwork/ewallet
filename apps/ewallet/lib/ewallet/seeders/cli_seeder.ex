@@ -25,8 +25,8 @@ defmodule EWallet.Seeder.CLI do
   end
 
   alias EWallet.CLI
-  alias EWallet.Seeder
   alias EWallet.EmailValidator
+  alias EWallet.Seeder
   alias EWalletDB.Validator
 
   @confirm_message """

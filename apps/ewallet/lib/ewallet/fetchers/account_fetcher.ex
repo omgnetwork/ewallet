@@ -3,7 +3,7 @@ defmodule EWallet.AccountFetcher do
   Handles retrieval of accounts from params for transactions.
   """
   alias EWallet.WalletFetcher
-  alias EWalletDB.{Repo, Account}
+  alias EWalletDB.{Account, Repo}
 
   def fetch_exchange_account(
         %{

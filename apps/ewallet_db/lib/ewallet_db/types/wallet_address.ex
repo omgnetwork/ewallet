@@ -12,8 +12,8 @@ defmodule EWalletDB.Types.WalletAddress do
   a schema field that autogenerates the wallet address.
   """
   @behaviour Ecto.Type
-  alias EWalletDB.Helpers.UUID
   alias Ecto.Schema
+  alias EWalletDB.Helpers.UUID
 
   # 4-char letters, 12-digit integers
   @type t :: <<_::16>>

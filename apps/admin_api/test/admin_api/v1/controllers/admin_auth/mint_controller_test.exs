@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
   alias EWallet.MintGate
   alias EWallet.Web.Date
   alias EWallet.Web.V1.{AccountSerializer, TokenSerializer, TransactionSerializer}
-  alias EWalletDB.{Repo, Mint}
+  alias EWalletDB.{Mint, Repo}
 
   describe "/token.get_mints" do
     test "returns a list of mints and pagination data" do
@@ -174,6 +174,22 @@ defmodule AdminAPI.V1.AdminAuth.MintControllerTest do
       refute response["success"]
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "token:id_not_found"
+    end
+
+    test "fails to mint a disabled token" do
+      token = insert(:token, enabled: false)
+
+      response =
+        admin_user_request("/token.mint", %{
+          id: token.id,
+          amount: "100000000"
+        })
+
+      mint = Mint |> Repo.all() |> Enum.at(0)
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "token:disabled"
+      assert mint == nil
     end
 
     test "fails to mint with mint amount sent as string" do

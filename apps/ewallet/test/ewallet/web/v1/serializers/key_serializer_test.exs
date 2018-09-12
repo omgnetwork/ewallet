@@ -1,8 +1,8 @@
 defmodule EWallet.Web.V1.KeySerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.V1.KeySerializer
   alias EWallet.Web.{Date, Paginator}
+  alias EWallet.Web.V1.KeySerializer
 
   describe "serialize/1" do
     test "serializes a key into the correct response format" do

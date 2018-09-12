@@ -5,7 +5,7 @@ defmodule EWalletDB.Role do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Membership, Role, User}
+  alias EWalletDB.{Membership, Repo, Role, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 

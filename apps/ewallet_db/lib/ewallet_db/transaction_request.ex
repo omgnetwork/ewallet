@@ -6,16 +6,16 @@ defmodule EWalletDB.TransactionRequest do
   use EWalletDB.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  alias Ecto.{UUID, Changeset, Query}
+  alias Ecto.{Changeset, Query, UUID}
 
   alias EWalletDB.{
     Account,
-    Wallet,
-    Token,
-    TransactionRequest,
-    TransactionConsumption,
     Repo,
-    User
+    Token,
+    TransactionConsumption,
+    TransactionRequest,
+    User,
+    Wallet
   }
 
   @valid "valid"

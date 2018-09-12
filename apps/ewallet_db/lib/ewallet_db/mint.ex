@@ -7,7 +7,7 @@ defmodule EWalletDB.Mint do
   import Ecto.{Query, Changeset}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
-  alias EWalletDB.{Repo, Mint, Token, Transaction, Account}
+  alias EWalletDB.{Account, Mint, Repo, Token, Transaction}
 
   @primary_key {:uuid, Ecto.UUID, autogenerate: true}
 

@@ -7,10 +7,10 @@ defmodule EWallet.Web.V1.WalletSerializer do
 
   alias EWallet.Web.V1.{
     AccountSerializer,
-    UserSerializer,
     BalanceSerializer,
+    ListSerializer,
     PaginatorSerializer,
-    ListSerializer
+    UserSerializer
   }
 
   alias EWallet.BalanceFetcher
@@ -48,6 +48,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
       account_id: Assoc.get(wallet, [:account, :id]),
       account: AccountSerializer.serialize(wallet.account),
       balances: serialize_balances(wallet.balances),
+      enabled: wallet.enabled,
       created_at: Date.to_iso8601(wallet.inserted_at),
       updated_at: Date.to_iso8601(wallet.updated_at)
     }
@@ -69,6 +70,7 @@ defmodule EWallet.Web.V1.WalletSerializer do
       account_id: Assoc.get(wallet, [:account, :id]),
       account: AccountSerializer.serialize(wallet.account),
       balances: nil,
+      enabled: wallet.enabled,
       created_at: Date.to_iso8601(wallet.inserted_at),
       updated_at: Date.to_iso8601(wallet.updated_at)
     }

@@ -2,10 +2,10 @@ defmodule AdminAPI.V1.UserController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
-  alias EWallet.UserPolicy
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{User, Account, AccountUser, UserQuery}
   alias Ecto.Changeset
+  alias EWallet.UserPolicy
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWalletDB.{Account, AccountUser, User, UserQuery}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before

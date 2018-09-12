@@ -5,7 +5,7 @@ defmodule EWallet.TransactionConsumptionFetcher do
   All functions here are only meant to load and format data related to
   transaction consumptions.
   """
-  alias EWalletDB.{TransactionConsumption, Transaction}
+  alias EWalletDB.{Transaction, TransactionConsumption}
 
   @spec get(String.t()) ::
           {:ok, %TransactionConsumption{}}

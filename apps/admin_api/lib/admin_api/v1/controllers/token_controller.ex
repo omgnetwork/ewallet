@@ -4,9 +4,9 @@ defmodule AdminAPI.V1.TokenController do
   """
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias EWallet.{MintGate, Helper, TokenPolicy}
-  alias EWallet.Web.{SearchParser, SortParser, Paginator}
-  alias EWalletDB.{Account, Token, Mint}
+  alias EWallet.{Helper, MintGate, TokenPolicy}
+  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWalletDB.{Account, Mint, Token}
 
   # The field names to be mapped into DB column names.
   # The keys and values must be strings as this is mapped early before
@@ -146,6 +146,24 @@ defmodule AdminAPI.V1.TokenController do
   end
 
   def update(conn, _),
+    do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
+
+  @doc """
+  Enable or disable a token.
+  """
+  @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def enable_or_disable(conn, %{"id" => id} = attrs) do
+    with :ok <- permit(:enable_or_disable, conn.assigns, id),
+         %Token{} = token <- Token.get(id) || :token_not_found,
+         {:ok, updated} <- Token.enable_or_disable(token, attrs) do
+      respond_single(updated, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
+  def enable_or_disable(conn, _),
     do: handle_error(conn, :invalid_parameter, "Invalid parameter provided. `id` is required.")
 
   # Respond with a list of tokens

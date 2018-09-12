@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.TransactionRequestViewTest do
   use EWalletAPI.ViewCase, :v1
-  alias EWalletDB.TransactionRequest
-  alias EWalletAPI.V1.TransactionRequestView
   alias EWallet.Web.V1.TransactionRequestSerializer
+  alias EWalletAPI.V1.TransactionRequestView
+  alias EWalletDB.TransactionRequest
 
   describe "EWalletAPI.V1.TransactionRequestView.render/2" do
     test "renders transaction_request.json with correct structure" do

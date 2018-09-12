@@ -5,12 +5,12 @@ defmodule EWallet.TransactionConsumptionConfirmerGateTest do
 
   alias EWallet.{
     TestEndpoint,
-    TransactionRequestGate,
     TransactionConsumptionConfirmerGate,
-    TransactionConsumptionConsumerGate
+    TransactionConsumptionConsumerGate,
+    TransactionRequestGate
   }
 
-  alias EWalletDB.{User, TransactionConsumption, TransactionRequest, AccountUser}
+  alias EWalletDB.{AccountUser, TransactionConsumption, TransactionRequest, User}
 
   setup do
     {:ok, pid} = TestEndpoint.start_link()
