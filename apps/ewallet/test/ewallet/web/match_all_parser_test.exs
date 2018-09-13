@@ -1,7 +1,7 @@
-defmodule EWallet.Web.FilterParserTest do
+defmodule EWallet.Web.MatchAllParserTest do
   use EWallet.DBCase
   import EWalletDB.Factory
-  alias EWallet.Web.{FilterParser, Preloader}
+  alias EWallet.Web.{MatchAllParser, Preloader}
   alias EWalletDB.{Account, Transaction, Repo, User}
 
   describe "to_query/3" do
@@ -20,7 +20,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(User, attrs, [:is_admin])
+      query = MatchAllParser.to_query(User, attrs, [:is_admin])
       result = Repo.all(query)
 
       refute Enum.any?(result, fn user -> user.id == user_1.id end)
@@ -43,7 +43,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, [:from_amount])
+      query = MatchAllParser.to_query(Transaction, attrs, [:from_amount])
       result = Repo.all(query)
 
       assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -66,7 +66,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, [:from_amount])
+      query = MatchAllParser.to_query(Transaction, attrs, [:from_amount])
       result = Repo.all(query)
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -89,7 +89,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, [:from_amount])
+      query = MatchAllParser.to_query(Transaction, attrs, [:from_amount])
       result = Repo.all(query)
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -112,7 +112,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, [:from_amount])
+      query = MatchAllParser.to_query(Transaction, attrs, [:from_amount])
       result = Repo.all(query)
 
       assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -135,7 +135,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, [:from_amount])
+      query = MatchAllParser.to_query(Transaction, attrs, [:from_amount])
       result = Repo.all(query)
 
       assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -158,7 +158,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, [:from_amount])
+      query = MatchAllParser.to_query(Transaction, attrs, [:from_amount])
       result = Repo.all(query)
 
       assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -181,7 +181,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Account, attrs, [:name])
+      query = MatchAllParser.to_query(Account, attrs, [:name])
       result = Repo.all(query)
 
       refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
@@ -202,7 +202,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      {res, code, params} = FilterParser.to_query(Transaction, attrs, [])
+      {res, code, params} = MatchAllParser.to_query(Transaction, attrs, [])
 
       assert res == :error
       assert code == :missing_filter_param
@@ -222,13 +222,13 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      result = FilterParser.to_query(Transaction, attrs, [])
+      result = MatchAllParser.to_query(Transaction, attrs, [])
 
       assert result == {:error, :not_allowed, "from_amount"}
     end
   end
 
-  describe "to_query/3 with field definition" do
+  describe "to_query/3 with field definitions" do
     test "supports field tuples in the whitelist" do
       whitelist = [uuid: :uuid]
 
@@ -246,7 +246,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Account, attrs, whitelist)
+      query = MatchAllParser.to_query(Account, attrs, whitelist)
       result = Repo.all(query)
 
       refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
@@ -271,7 +271,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Account, attrs, whitelist)
+      query = MatchAllParser.to_query(Account, attrs, whitelist)
       result = Repo.all(query)
 
       refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
@@ -301,7 +301,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -328,7 +328,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -355,7 +355,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -382,7 +382,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -409,7 +409,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -436,7 +436,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -463,7 +463,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       assert Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -488,7 +488,7 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      query = FilterParser.to_query(Transaction, attrs, whitelist)
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
       result = Repo.all(query)
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
@@ -515,60 +515,11 @@ defmodule EWallet.Web.FilterParserTest do
         ]
       }
 
-      {res, code, params} = FilterParser.to_query(Transaction, attrs, whitelist)
+      {res, code, params} = MatchAllParser.to_query(Transaction, attrs, whitelist)
 
       assert res == :error
       assert code == :not_allowed
       assert params == "from_token.name"
     end
-  end
-
-  describe "to_query/3 with match_all and match_any" do
-  #   test "filter for boolean true when given 'true' as value" do
-  #     whitelist = [from_user: [:is_admin]]
-
-  #     txn_1 = insert(:transaction)
-  #     txn_2 = insert(:transaction)
-  #     txn_3 = insert(:transaction)
-
-  #     {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
-  #     {:ok, _user} = User.update(txn_2.from_user, %{is_admin: true})
-
-  #     attrs = %{
-  #       "filters" => %{
-  #         "match_all" => [
-  #           %{
-  #             "field" => "from_user.id",
-  #             "comparator" => "eq",
-  #             "value" => "1234"
-  #           },
-  #           %{
-  #             "field" => "to_user.id",
-  #             "comparator" => "eq",
-  #             "value" => "5678"
-  #           }
-  #         ],
-  #         "match_any" => [
-  #           %{
-  #             "field" => "status",
-  #             "comparator" => "eq",
-  #             "value" => "confirmed"
-  #           },
-  #           %{
-  #             "field" => "status",
-  #             "comparator" => "eq",
-  #             "value" => "approved"
-  #           }
-  #         ]
-  #       }
-  #     }
-
-  #     query = FilterParser.to_query(Transaction, attrs, whitelist)
-  #     result = Repo.all(query)
-
-  #     refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
-  #     assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
-  #     refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
-  #   end
   end
 end

@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.TransactionController do
   alias Ecto.Changeset
   alias EWallet.TransactionGate
   alias EWallet.TransactionPolicy
-  alias EWallet.Web.{FilterParser, Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{MatchAllParser, Paginator, Preloader, SearchParser, SortParser}
   alias EWalletDB.{Account, Repo, Transaction, User}
 
   # The field names to be mapped into DB column names.
@@ -173,7 +173,7 @@ defmodule AdminAPI.V1.TransactionController do
   defp query_records_and_respond(query, attrs, conn) do
     query
     |> Preloader.to_query(@preload_fields)
-    |> FilterParser.to_query(attrs, @filter_fields)
+    |> MatchAllParser.to_query(attrs, @filter_fields)
     |> SearchParser.to_query(attrs, @search_fields)
     |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
     |> Paginator.paginate_attrs(attrs)

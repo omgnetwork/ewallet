@@ -1,4 +1,4 @@
-defmodule EWallet.Web.FilterParser do
+defmodule EWallet.Web.MatchAllParser do
   @moduledoc """
   This module allows parsing of arbitrary attributes into a filtering query.
   It takes in a request's attributes, parses only the attributes needed for filtering,
