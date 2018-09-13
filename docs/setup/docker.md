@@ -8,13 +8,7 @@ You can setup the eWallet server using either Docker Compose or roll your own Do
 
 _Prerequisite: You will need [Docker](https://www.docker.com/get-docker) and [Docker Compose](https://docs.docker.com/compose/install/) installed._
 
-First, generate secret keys for eWallet and LocalLedger by running:
-
-```
-$ docker run --rm omisego/ewallet:latest elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
-```
-
-Then, create your `docker-compose.yml` file using the following script:
+First, create your `docker-compose.yml` file using the following script:
 
 ```yaml
 version: "3"
@@ -65,19 +59,19 @@ volumes:
   postgres-db:
 ```
 
-Then, run the following command to provision the images:
+Notice that the values for `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are missing. You can generate these secret keys by running:
 
-```bash
-$ docker-compose up
+```
+$ docker run --rm omisego/ewallet:latest elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
 ```
 
-Then, run the following command to setup the databases:
+Replace the `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` values in your `docker-compose.yml` with the generated keys
+
+Then, run the following command to create and start the containers:
 
 ```bash
-$ docker exec -it <container-id> mix do ecto.create, ecto.migrate
+$ docker-compose up -d
 ```
-
-Enter `Y` when asked to install Hex and rebar3.
 
 ### 1b: Using the pre-built Docker image
 
@@ -94,22 +88,25 @@ $ docker run \
 
 While the command above pulls the latest image, *it is highly recommended to pin the version to specific commit in anything that resembles a production environment.*
 
-Then, run the following command to setup the database:
+## Step 2: Setup and seed the databases
+
+Run the following command to setup the database:
 
 ```bash
-$ docker exec <container-id> mix do ecto.create, ecto.migrate
+$ docker exec -it <container-id> \
+  env MIX_ENV=prod mix do \
+  local.hex --force, local.rebar --force, \
+  ecto.create, ecto.migrate
 ```
-
-## Step 2: Seed the databases
 
 Some initial data is required to start the server. Either run the seed or the sample seed below:
 
 ```bash
 # Option 2a: Run this command to set up the initial data
-$ docker exec -it <container-id> mix seed
+$ docker exec -it <container-id> env MIX_ENV=prod mix seed
 
 # Option 2b: Run this command to set up the initial data and populate the database with more sample data
-$ docker exec -it <container-id> mix seed --sample
+$ docker exec -it <container-id> env MIX_ENV=prod mix seed --sample
 ```
 
 ## Step 3: Start the server
