@@ -11,7 +11,7 @@ defmodule EWallet.Web.FilterParserTest do
       user_3 = insert(:user, is_admin: true)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "is_admin",
             "comparator" => "eq",
@@ -34,7 +34,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn_3 = insert(:transaction, from_amount: 300)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "eq",
@@ -57,7 +57,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn_3 = insert(:transaction, from_amount: 300)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "neq",
@@ -80,7 +80,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn_3 = insert(:transaction, from_amount: 300)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "gt",
@@ -103,7 +103,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn_3 = insert(:transaction, from_amount: 300)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "gte",
@@ -126,7 +126,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn_3 = insert(:transaction, from_amount: 300)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "lt",
@@ -149,7 +149,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn_3 = insert(:transaction, from_amount: 300)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "lte",
@@ -172,7 +172,7 @@ defmodule EWallet.Web.FilterParserTest do
       account_3 = insert(:account)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "name",
             "comparator" => "contains",
@@ -193,7 +193,7 @@ defmodule EWallet.Web.FilterParserTest do
       _txn = insert(:transaction, from_amount: 100)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "eq"
@@ -213,7 +213,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn = insert(:transaction, from_amount: 100)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_amount",
             "comparator" => "eq",
@@ -237,7 +237,7 @@ defmodule EWallet.Web.FilterParserTest do
       account_3 = insert(:account)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "uuid",
             "comparator" => "eq",
@@ -262,7 +262,7 @@ defmodule EWallet.Web.FilterParserTest do
       account_3 = insert(:account)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "uuid",
             "comparator" => "contains",
@@ -292,7 +292,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, _user} = User.update(txn_2.from_user, %{is_admin: true})
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_user.is_admin",
             "comparator" => "eq",
@@ -319,7 +319,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_user.username",
             "comparator" => "eq",
@@ -346,7 +346,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_user.username",
             "comparator" => "neq",
@@ -373,7 +373,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_user.inserted_at",
             "comparator" => "gt",
@@ -400,7 +400,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_user.inserted_at",
             "comparator" => "gte",
@@ -427,7 +427,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_user.inserted_at",
             "comparator" => "lt",
@@ -454,7 +454,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_user.inserted_at",
             "comparator" => "lte",
@@ -479,7 +479,7 @@ defmodule EWallet.Web.FilterParserTest do
       txn_3 = insert(:transaction)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_token.name",
             "comparator" => "contains",
@@ -506,7 +506,7 @@ defmodule EWallet.Web.FilterParserTest do
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_token)
 
       attrs = %{
-        "filters" => [
+        "match_all" => [
           %{
             "field" => "from_token.name",
             "comparator" => "eq",
@@ -521,5 +521,54 @@ defmodule EWallet.Web.FilterParserTest do
       assert code == :not_allowed
       assert params == "from_token.name"
     end
+  end
+
+  describe "to_query/3 with match_all and match_any" do
+  #   test "filter for boolean true when given 'true' as value" do
+  #     whitelist = [from_user: [:is_admin]]
+
+  #     txn_1 = insert(:transaction)
+  #     txn_2 = insert(:transaction)
+  #     txn_3 = insert(:transaction)
+
+  #     {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
+  #     {:ok, _user} = User.update(txn_2.from_user, %{is_admin: true})
+
+  #     attrs = %{
+  #       "filters" => %{
+  #         "match_all" => [
+  #           %{
+  #             "field" => "from_user.id",
+  #             "comparator" => "eq",
+  #             "value" => "1234"
+  #           },
+  #           %{
+  #             "field" => "to_user.id",
+  #             "comparator" => "eq",
+  #             "value" => "5678"
+  #           }
+  #         ],
+  #         "match_any" => [
+  #           %{
+  #             "field" => "status",
+  #             "comparator" => "eq",
+  #             "value" => "confirmed"
+  #           },
+  #           %{
+  #             "field" => "status",
+  #             "comparator" => "eq",
+  #             "value" => "approved"
+  #           }
+  #         ]
+  #       }
+  #     }
+
+  #     query = FilterParser.to_query(Transaction, attrs, whitelist)
+  #     result = Repo.all(query)
+
+  #     refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+  #     assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+  #     refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+  #   end
   end
 end

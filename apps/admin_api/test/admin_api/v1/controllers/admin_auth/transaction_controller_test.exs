@@ -207,7 +207,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
     test "returns filtered transactions", meta do
       response =
         admin_user_request("/transaction.all", %{
-          "filters" => [
+          "match_all" => [
             %{
               "field" => "from_wallet.address",
               "comparator" => "eq",

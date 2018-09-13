@@ -7,7 +7,7 @@ defmodule EWallet.Web.FilterParser do
   import Ecto.Query
 
   @spec to_query(Ecto.Queryable.t(), map(), [atom()]) :: Ecto.Queryable.t()
-  def to_query(queryable, %{"filters" => filters}, whitelist) do
+  def to_query(queryable, %{"match_all" => filters}, whitelist) do
     parse_many(queryable, filters, whitelist)
   end
 
