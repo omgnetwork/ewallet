@@ -22,10 +22,10 @@ Pick one of the following setup approaches that best suits your needs:
 
 Setup | Description | Recommended for
 -----------|-------------|----------------
-[Docker](docs/setup/docker.md) | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery. | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.
 [Bare&#x2011;metal](docs/setup/bare_metal.md) | Set up directly onto your base operating system. You will need to install Elixir, project's dependencies and Postgres manually if you havn't. | Developers and DevOps preferring to manage all dependencies and configurations themselves for any purposes.
+[Docker](docs/setup/docker.md) | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery. | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.
 
-Had trouble setting up the eWallet? Check the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
+Having trouble setting up the eWallet? Check the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
 
 ## Documentation
 
