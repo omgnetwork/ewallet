@@ -4,9 +4,9 @@
 
 [![Build Status](https://jenkins.omisego.io/buildStatus/icon?job=omisego/ewallet/master)](https://jenkins.omisego.io/blue/organizations/jenkins/omisego%2Fewallet/activity?branch=master) [![Gitter chat](https://badges.gitter.im/omisego/ewallet.png)](https://gitter.im/omisego/ewallet)
 
-This is the server component of the OmiseGO eWallet that allows businesses and individuals (referred hereafter as the "provider") to setup and run their own digital wallet services through their own local ledger.
+This is the server application of the OmiseGO eWallet Suite that allows businesses and individuals (referred hereafter as the "provider") to setup and run their own digital wallet services through their own local ledger.
 
-This server component and its sibling SDKs will later be plugged onto a blockchain and connected to a decentralized exchange. **Blockchain capabilities are expected to be added as they become ready.** All active instances of the OmiseGO eWallet will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.
+This server application and the SDKs will later be plugged onto a blockchain and connected to a decentralized exchange. **Blockchain capabilities are expected to be added as they become ready.** All active instances of the OmiseGO eWallet will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.
 
 The SDKs for integrating your apps with the eWallet are available in [Ruby](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [iOS](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)) and [Android](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)).
 
