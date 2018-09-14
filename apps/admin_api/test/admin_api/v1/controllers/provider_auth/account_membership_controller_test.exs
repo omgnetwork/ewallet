@@ -11,7 +11,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
       master = Account.get_master_account()
       admin = get_test_admin()
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
       _ = insert(:membership, %{account: account, user: user, role: role})
 
@@ -189,7 +189,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     test "returns empty success if assigned with user_id successfully" do
       response =
         provider_request("/account.assign_user", %{
-          user_id: insert(:user).id,
+          user_id: :user |> params_for() |> User.insert().id,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
           redirect_url: @redirect_url
@@ -280,7 +280,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     test "returns an error if the given account id does not exist" do
       response =
         provider_request("/account.assign_user", %{
-          user_id: insert(:user).id,
+          user_id: :user |> params_for() |> User.insert().id,
           account_id: "acc_12345678901234567890123456",
           role_name: insert(:role).name,
           redirect_url: @redirect_url
@@ -297,7 +297,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     test "returns an error if the given role does not exist" do
       response =
         provider_request("/account.assign_user", %{
-          user_id: insert(:user).id,
+          user_id: :user |> params_for() |> User.insert().id,
           account_id: insert(:account).id,
           role_name: "invalid_role",
           redirect_url: @redirect_url
@@ -315,7 +315,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
   describe "/account.unassign_user" do
     test "returns empty success if unassigned successfully" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       _membership = insert(:membership, %{account: account, user: user})
 
       response =
@@ -329,7 +329,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the user was not previously assigned to the account" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
 
       response =
@@ -364,7 +364,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     test "returns an error if the given account id does not exist" do
       response =
         provider_request("/account.unassign_user", %{
-          user_id: insert(:user).id,
+          user_id: :user |> params_for() |> User.insert().id,
           account_id: "acc_12345678901234567890123456"
         })
 

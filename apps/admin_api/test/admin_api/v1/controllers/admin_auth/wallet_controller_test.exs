@@ -196,7 +196,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
 
     test "returns a list of wallets according to sort_by and sort_direction" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       insert(:wallet, %{user: user, address: "aaaa111111111111", identifier: "secondary_1"})
       insert(:wallet, %{user: user, address: "aaaa333333333333", identifier: "secondary_2"})
       insert(:wallet, %{user: user, address: "aaaa222222222222", identifier: "secondary_3"})
@@ -458,7 +458,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
 
     test "fails to insert a primary wallet for a user" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         admin_user_request("/wallet.create", %{
@@ -478,7 +478,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
 
     test "inserts two secondary wallets for a user" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       assert Wallet |> Repo.all() |> length() == 3
 
       response_1 =
@@ -512,7 +512,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
 
     test "fails to insert a burn wallet for a user" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         admin_user_request("/wallet.create", %{
@@ -533,7 +533,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
     test "fails to insert a new wallet when both user and account are specified" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         admin_user_request("/wallet.create", %{

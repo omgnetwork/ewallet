@@ -101,7 +101,9 @@ defmodule EWalletAPI.V1.SignupControllerTest do
 
   describe "verify_email/2" do
     setup do
-      {:ok, user} = :standalone_user |> params_for(email: "verify_email@example.com") |> User.insert()
+      {:ok, user} =
+        :standalone_user |> params_for(email: "verify_email@example.com") |> User.insert()
+
       {:ok, invite} = Invite.generate(user, preload: :user)
 
       %{

@@ -279,6 +279,7 @@ defmodule EWalletDB.User do
     |> case do
       {:ok, result} ->
         {:ok, get(result.record.id)}
+
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
     end
@@ -294,6 +295,7 @@ defmodule EWalletDB.User do
     case Audit.update(changeset) do
       {:ok, result} ->
         {:ok, get(result.record.id)}
+
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
     end
@@ -316,6 +318,7 @@ defmodule EWalletDB.User do
     case Audit.update(changeset) do
       {:ok, result} ->
         {:ok, get(result.record.id)}
+
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
     end

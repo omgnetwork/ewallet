@@ -110,8 +110,7 @@ defmodule EWalletDB.Audit do
     with {:ok, originator} <- get_originator(changeset, record),
          originator_type <- get_type(originator.__struct__),
          target_type <- get_type(record.__struct__),
-         changes <- Map.delete(changeset.changes, :originator)
-    do
+         changes <- Map.delete(changeset.changes, :originator) do
       %{
         action: Atom.to_string(action),
         target_type: target_type,

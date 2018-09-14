@@ -117,13 +117,14 @@ defmodule EWalletDB.Invite do
       Multi.run(Multi.new(), :user, fn %{record: record} ->
         {:ok, _user} =
           user
-          |>  change(%{invite_uuid: record.uuid})
+          |> change(%{invite_uuid: record.uuid})
           |> Repo.update()
       end)
     )
     |> case do
       {:ok, result} ->
         {:ok, Repo.preload(result.record, opts[:preload] || [])}
+
       {:error, _failed_operation, changeset, _changes_so_far} ->
         {:error, changeset}
     end
@@ -134,9 +135,8 @@ defmodule EWalletDB.Invite do
   """
   @spec accept(%Invite{}) :: {:ok, struct()} | {:error, any()}
   def accept(invite) do
-    attrs = %{invite_uuid: nil, originator: :self}
-
     with invite <- Repo.preload(invite, :user),
+         attrs <- %{invite_uuid: nil, originator: :self},
          {:ok, _user} <- User.update_without_password(invite.user, attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
@@ -156,14 +156,16 @@ defmodule EWalletDB.Invite do
   """
   @spec accept(%Invite{}, String.t()) :: {:ok, struct()} | {:error, any()}
   def accept(invite, password) do
-    invite = Repo.preload(invite, :user)
-    attrs = %{invite_uuid: nil, password: password, originator: invite}
-
-    case User.update(invite.user, attrs) do
-      {:ok, _user} ->
-        invite
-        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
-        |> Repo.update()
+    with invite <- Repo.preload(invite, :user),
+         attrs <- %{invite_uuid: nil, password: password, originator: :self},
+         {:ok, _user} <- User.update(invite.user, attrs),
+         invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
+         changeset <- changeset_accept(invite, invite_attrs),
+         {:ok, result} <- Audit.update(changeset) do
+      {:ok, result.record}
+    else
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
 
       error ->
         error

@@ -444,10 +444,11 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(%{field => old})
           |> schema.insert()
 
-        {res, updated} = schema.update(original, %{
-          :originator => originator,
-          field => new
-        })
+        {res, updated} =
+          schema.update(original, %{
+            :originator => originator,
+            field => new
+          })
 
         assert res == :ok
         assert Map.fetch!(updated, field) == new

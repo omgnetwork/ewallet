@@ -66,7 +66,9 @@ defmodule EWalletDB.UserTest do
 
   describe "update/2" do
     test_update_field_ok(User, :username, insert(:admin))
+
     test_update_field_ok(User, :metadata, insert(:admin), %{"field" => "old"}, %{"field" => "new"})
+
     test_update_prevents_changing(User, :provider_user_id)
 
     test "prevents updating an admin without email" do

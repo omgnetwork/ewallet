@@ -92,7 +92,14 @@ defmodule AdminAPI.V1.AccountMembershipController do
   defp assign_or_invite(email, account, role, redirect_url, originator) when is_binary(email) do
     case EmailValidator.validate(email) do
       {:ok, email} ->
-        Inviter.invite_admin(email, account, role, redirect_url, originator, &InviteEmail.create/2)
+        Inviter.invite_admin(
+          email,
+          account,
+          role,
+          redirect_url,
+          originator,
+          &InviteEmail.create/2
+        )
 
       error ->
         error
