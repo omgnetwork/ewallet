@@ -9,7 +9,8 @@ export function getUsers ({ accountId, perPage, sort, page, search, searchTerms 
       sort_by: sort.by,
       sort_dir: sort.dir,
       search_term: search,
-      search_terms: searchTerms
+      search_terms: searchTerms,
+      page
     }
   })
 }
