@@ -120,6 +120,7 @@ defmodule EWalletDB.Factory do
       email: sequence("johndoe") <> "@example.com",
       password: password,
       password_hash: Crypto.hash_password(password),
+      originator: :self,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")

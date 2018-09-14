@@ -6,7 +6,7 @@ defmodule EWalletDB.Audit do
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
   import Ecto.Changeset
-  alias Ecto.{Multi, UUID}
+  alias Ecto.{Changeset, Multi, UUID}
 
   alias EWalletDB.{
     Audit,
@@ -74,6 +74,12 @@ defmodule EWalletDB.Audit do
     )
   end
 
+  def get_initial_originator(audit_type, record) do
+    audit = Audit.get_initial_audit(audit_type, record.uuid)
+    schema = Audit.get_schema(audit.originator_type)
+    struct(schema, uuid: audit.originator_uuid)
+  end
+
   def insert(changeset, multi \\ Multi.new()) do
     perform(:insert, changeset, multi)
   end
@@ -101,18 +107,33 @@ defmodule EWalletDB.Audit do
   end
 
   defp build_attrs(action, changeset, record) do
-    originator = changeset.changes.originator
-    changes = Map.delete(changeset.changes, :originator)
-    target_type = get_type(record.__struct__)
-    originator_type = get_type(originator.__struct__)
+    with {:ok, originator} <- get_originator(changeset, record),
+         originator_type <- get_type(originator.__struct__),
+         target_type <- get_type(record.__struct__),
+         changes <- Map.delete(changeset.changes, :originator)
+    do
+      %{
+        action: Atom.to_string(action),
+        target_type: target_type,
+        target_uuid: record.uuid,
+        target_changes: changes,
+        originator_uuid: originator.uuid,
+        originator_type: originator_type
+      }
+    else
+      error -> error
+    end
+  end
 
-    %{
-      action: Atom.to_string(action),
-      target_type: target_type,
-      target_uuid: record.uuid,
-      target_changes: changes,
-      originator_uuid: originator.uuid,
-      originator_type: originator_type
-    }
+  defp get_originator(%Changeset{changes: %{originator: :self}}, record) do
+    {:ok, record}
+  end
+
+  defp get_originator(%Changeset{changes: %{originator: originator}}, _) do
+    {:ok, originator}
+  end
+
+  defp get_originator(_, _) do
+    {:error, :no_originator_given}
   end
 end

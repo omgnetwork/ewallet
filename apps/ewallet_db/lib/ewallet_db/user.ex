@@ -102,7 +102,7 @@ defmodule EWalletDB.User do
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:originator, :metadata, :encrypted_metadata])
+    |> validate_required([:metadata, :encrypted_metadata, :originator])
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
@@ -223,13 +223,6 @@ defmodule EWalletDB.User do
     |> preload_option(opts)
   end
 
-  # TODO
-  def get_initial_originator(user) do
-    audit = Audit.get_initial_audit("user", user.uuid)
-    schema = Audit.get_schema(audit.originator_type)
-    struct(schema, uuid: audit.originator_uuid)
-  end
-
   @doc """
   Creates a user and their primary wallet.
 
@@ -280,9 +273,10 @@ defmodule EWalletDB.User do
   """
   @spec update(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update(%User{} = user, attrs) do
-    changeset = changeset(user, attrs)
-
-    case Audit.update(changeset) do
+    user
+    |> changeset(attrs)
+    |> Audit.update()
+    |> case do
       {:ok, result} ->
         {:ok, get(result.record.id)}
       {:error, _failed_operation, changeset, _changes_so_far} ->
@@ -296,7 +290,7 @@ defmodule EWalletDB.User do
   @spec update_without_password(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update_without_password(%User{} = user, attrs) do
     changeset = update_changeset(user, attrs)
-    IO.inspect(changeset)
+
     case Audit.update(changeset) do
       {:ok, result} ->
         {:ok, get(result.record.id)}

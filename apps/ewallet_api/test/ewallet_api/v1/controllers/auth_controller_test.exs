@@ -32,7 +32,7 @@ defmodule EWalletAPI.V1.AuthControllerTest do
     end
 
     test "returns user:email_not_verified error when the user has a pending invite", context do
-      _user = User.update_without_password(context.user, %{invite_uuid: insert(:invite).uuid})
+      _user = User.update_without_password(context.user, %{invite_uuid: insert(:invite).uuid, originator: :self})
       response = client_request("/user.login", context.request_data)
 
       assert response["version"] == @expected_version

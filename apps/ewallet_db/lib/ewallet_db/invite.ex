@@ -36,8 +36,8 @@ defmodule EWalletDB.Invite do
 
   defp changeset_accept(changeset, attrs) do
     changeset
-    |> cast(attrs, [:verified_at])
-    |> validate_required([:verified_at])
+    |> cast(attrs, [:verified_at, :originator])
+    |> validate_required([:verified_at, :originator])
   end
 
   @doc """
@@ -102,7 +102,7 @@ defmodule EWalletDB.Invite do
   Generates an invite for the given user.
   """
   def generate(user, opts \\ []) do
-    originator = opts[:originator] || User.get_initial_originator(user)
+    originator = Audit.get_initial_originator("user", user)
 
     # Insert a new invite
     %Invite{}
@@ -134,14 +134,17 @@ defmodule EWalletDB.Invite do
   """
   @spec accept(%Invite{}) :: {:ok, struct()} | {:error, any()}
   def accept(invite) do
-    invite = Repo.preload(invite, :user)
-    attrs = %{invite_uuid: nil, originator: invite}
+    attrs = %{invite_uuid: nil, originator: :self}
 
-    case User.update_without_password(invite.user, attrs) do
-      {:ok, _user} ->
-        invite
-        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
-        |> Repo.update()
+    with invite <- Repo.preload(invite, :user),
+         {:ok, _user} <- User.update_without_password(invite.user, attrs),
+         invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
+         changeset <- changeset_accept(invite, invite_attrs),
+         {:ok, result} <- Audit.update(changeset) do
+      {:ok, result.record}
+    else
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
 
       error ->
         error

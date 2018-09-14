@@ -103,7 +103,8 @@ defmodule EWalletDB.UserTest do
           email: "test_1337@example.com",
           metadata: %{"key" => "value_1337"},
           encrypted_metadata: %{"key" => "value_1337"},
-          provider_user_id: "test_1337_puid"
+          provider_user_id: "test_1337_puid",
+          originator: insert(:admin)
         })
 
       assert updated_user.email == "test_1337@example.com"

@@ -91,7 +91,7 @@ defmodule EWalletDB.KeyTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(Key, :expired, false, true)
+    test_update_field_ok(Key, :expired, insert(:admin), false, true)
     test_update_ignores_changing(Key, :access_key)
 
     test "does not update secret_key_hash when given a new secret_key" do
