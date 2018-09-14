@@ -45,6 +45,8 @@ defmodule EWallet.Mixfile do
       {:quantum, "~> 2.2.6"},
       {:timex, "~> 3.0"},
       {:bodyguard, "~> 2.2"},
+      {:bamboo, "~> 0.8"},
+      {:bamboo_smtp, "~> 1.4.0"},
       {:decimal, "~> 1.0"},
       {:deferred_config, "~> 0.1.0"},
       {:ewallet_db, in_umbrella: true},
