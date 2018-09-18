@@ -72,6 +72,7 @@ const GetStartedContent = styled.div`
   background-color: white;
   border-radius: 4px;
 `
+
 export default withRouter(
   class Dashboard extends Component {
     static propTypes = {
