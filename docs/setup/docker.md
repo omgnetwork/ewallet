@@ -34,7 +34,7 @@ services:
       - internal
 
   ewallet:
-    image: omisego/ewallet:latest
+    image: omisego/ewallet:v1.0.0
     restart: always
     networks:
       - internal
@@ -83,10 +83,10 @@ $ docker run \
     -e DATABASE_URL="postgresql://postgres@127.0.0.1:5432/ewallet" \
     -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@127.0.0.1:5432/local_ledger" \
     -p 4000:4000 \
-    omisego/ewallet:latest
+    omisego/ewallet:v1.0.0
 ```
 
-While the command above pulls the latest image, *it is highly recommended to pin the version to specific commit in anything that resembles a production environment.*
+The command above pulls the v1.0.0 image. If you wish, you can pick [other available tags from the Docker Hub](https://hub.docker.com/r/omisego/ewallet/tags/).
 
 ## Step 2: Setup and seed the databases
 
