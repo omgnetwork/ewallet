@@ -18,6 +18,7 @@ defmodule EWallet.Web.MatchAnyParser do
   def to_query(queryable, %{"match_any" => inputs}, whitelist) do
     with rules when is_list(rules) <- parse_rules(inputs, whitelist),
          {queryable, assoc_positions} <- join_assocs(queryable, rules),
+         true <- Enum.count(assoc_positions) <= 5 || {:error, :too_many_associations},
          queryable <- filter(queryable, assoc_positions, rules) do
       queryable
     else

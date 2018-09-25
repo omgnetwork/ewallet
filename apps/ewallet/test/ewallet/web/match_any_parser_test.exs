@@ -281,6 +281,54 @@ defmodule EWallet.Web.MatchAnyParserTest do
   end
 
   describe "to_query/3 with nested fields" do
+    test "supports up to 5 different associations" do
+      whitelist = [
+        from_user: [:id],
+        to_user: [:id],
+        from_token: [:id],
+        to_token: [:id],
+        from_wallet: [:id],
+        to_wallet: [:id]
+      ]
+
+      attrs = %{
+        "match_any" => [
+          %{"field" => "from_user.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "to_user.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "from_token.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "to_token.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "from_wallet.id", "comparator" => "eq", "value" => 1234}
+        ]
+      }
+
+      assert %Ecto.Query{} = MatchAnyParser.to_query(Transaction, attrs, whitelist)
+    end
+
+    test "returns error if more than 5 associations are referenced" do
+      whitelist = [
+        from_user: [:id],
+        to_user: [:id],
+        from_token: [:id],
+        to_token: [:id],
+        from_wallet: [:id],
+        to_wallet: [:id]
+      ]
+
+      attrs = %{
+        "match_any" => [
+          %{"field" => "from_user.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "to_user.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "from_token.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "to_token.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "from_wallet.id", "comparator" => "eq", "value" => 1234},
+          %{"field" => "to_wallet.id", "comparator" => "eq", "value" => 1234}
+        ]
+      }
+
+      result = MatchAnyParser.to_query(Transaction, attrs, whitelist)
+      assert result == {:error, :too_many_associations}
+    end
+
     test "filter for boolean true when given 'true' as value" do
       whitelist = [from_user: [:is_admin]]
 
