@@ -25,7 +25,39 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def always_embed, do: [:token]
 
   @mapped_fields %{"created_at" => "inserted_at"}
-  @preload_fields [:account, :user, :wallet, :token, :transaction_request, :transaction]
+  @preload_fields [
+    :account,
+    :user,
+    :wallet,
+    :token,
+    :exchange_account,
+    account: [:categories],
+    exchange_account: [:categories],
+    transaction: [
+      :from_token,
+      :to_token,
+      :exchange_pair,
+      :to_wallet,
+      :from_wallet,
+      :from_account,
+      :to_account,
+      :from_user,
+      :to_user,
+      :exchange_account,
+      :exchange_wallet,
+      from_account: [:categories],
+      to_account: [:categories],
+      exchange_account: [:categories]
+    ],
+    transaction_request: [
+      :consumptions,
+      :token,
+      :user,
+      :exchange_wallet,
+      account: [:categories],
+      exchange_account: [:categories]
+    ]
+  ]
   @search_fields [:id, :status, :correlation_id, :idempotency_token]
   @sort_fields [
     :id,

@@ -4,9 +4,9 @@
 
 [![Build Status](https://jenkins.omisego.io/buildStatus/icon?job=omisego/ewallet/master)](https://jenkins.omisego.io/blue/organizations/jenkins/omisego%2Fewallet/activity?branch=master) [![Gitter chat](https://badges.gitter.im/omisego/ewallet.png)](https://gitter.im/omisego/ewallet)
 
-This is the server component of the OmiseGO eWallet that allows businesses and individuals (referred hereafter as the "provider") to setup and run their own digital wallet services through their own local ledger.
+This is the server application of the OmiseGO eWallet Suite that allows businesses and individuals (referred hereafter as the "provider") to setup and run their own digital wallet services through their own local ledger.
 
-This server component and its sibling SDKs will later be plugged onto a blockchain and connected to a decentralized exchange. **Blockchain capabilities are expected to be added as they become ready.** All active instances of the OmiseGO eWallet will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.
+This server application and the SDKs will later be plugged onto a blockchain and connected to a decentralized exchange. **Blockchain capabilities are expected to be added as they become ready.** All active instances of the OmiseGO eWallet will then become a federated network forming the top layer of the OMG network, allowing the exchange of any currency into any other in a transparent way.
 
 The SDKs for integrating your apps with the eWallet are available in [Ruby](https://github.com/omisego/ruby-sdk) ([sample server](https://github.com/omisego/sample-server)), [iOS](https://github.com/omisego/ios-sdk) ([sample app](https://github.com/omisego/sample-ios)) and [Android](https://github.com/omisego/android-sdk) ([sample app](https://github.com/omisego/sample-android)).
 
@@ -22,10 +22,10 @@ Pick one of the following setup approaches that best suits your needs:
 
 Setup | Description | Recommended for
 -----------|-------------|----------------
-[Docker](docs/setup/docker.md) | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery. | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.
 [Bare&#x2011;metal](docs/setup/bare_metal.md) | Set up directly onto your base operating system. You will need to install Elixir, project's dependencies and Postgres manually if you havn't. | Developers and DevOps preferring to manage all dependencies and configurations themselves for any purposes.
+[Docker](docs/setup/docker.md) | A pre-packaged image for production uses. No build-time dependencies. Packaged with Distillery. | Developers and DevOps looking to integrate or deploy the eWallet without changing its internals.
 
-Had trouble setting up the eWallet? Check the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
+Having trouble setting up the eWallet? Check the [Setup Troubleshooting Guide](docs/setup/troubleshooting.md).
 
 ## Documentation
 
