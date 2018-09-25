@@ -62,7 +62,7 @@ volumes:
 Notice that the values for `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are missing. You can generate these secret keys by running:
 
 ```
-$ docker run --rm omisego/ewallet:latest elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
+$ openssl rand -base64 32
 ```
 
 Replace the `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` values in your `docker-compose.yml` with the generated keys
