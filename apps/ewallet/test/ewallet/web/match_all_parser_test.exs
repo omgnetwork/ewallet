@@ -2,7 +2,7 @@ defmodule EWallet.Web.MatchAllParserTest do
   use EWallet.DBCase
   import EWalletDB.Factory
   alias EWallet.Web.{MatchAllParser, Preloader}
-  alias EWalletDB.{Account, Transaction, Repo, User}
+  alias EWalletDB.{Account, Repo, Transaction, User}
 
   describe "to_query/3" do
     test "filter for boolean true when given 'true' as value" do
@@ -280,7 +280,7 @@ defmodule EWallet.Web.MatchAllParserTest do
     end
   end
 
-  describe "to_query/3 with nested field" do
+  describe "to_query/3 with nested fields" do
     test "filter for boolean true when given 'true' as value" do
       whitelist = [from_user: [:is_admin]]
 
@@ -520,6 +520,38 @@ defmodule EWallet.Web.MatchAllParserTest do
       assert res == :error
       assert code == :not_allowed
       assert params == "from_token.name"
+    end
+  end
+
+  describe "to_query/3 with multiple conditions" do
+    test "returns only records that match all conditions" do
+      txn_1 = insert(:transaction, status: "pending", type: "internal")
+      txn_2 = insert(:transaction, status: "confirmed", type: "internal")
+      txn_3 = insert(:transaction, status: "pending", type: "external")
+      txn_4 = insert(:transaction, status: "confirmed", type: "external")
+
+      attrs = %{
+        "match_all" => [
+          %{
+            "field" => "status",
+            "comparator" => "eq",
+            "value" => "confirmed"
+          },
+          %{
+            "field" => "type",
+            "comparator" => "eq",
+            "value" => "internal"
+          }
+        ]
+      }
+
+      query = MatchAllParser.to_query(Transaction, attrs, [:status, :type])
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_4.id end)
     end
   end
 end
