@@ -41,8 +41,8 @@ defmodule AdminAPI.V1.UserViewTest do
     end
 
     test "renders users.json with correct response structure" do
-      user1 = :user |> params_for() |> User.insert()
-      user2 = :user |> params_for() |> User.insert()
+      {:ok, user1} = :user |> params_for() |> User.insert()
+      {:ok, user2} = :user |> params_for() |> User.insert()
 
       paginator = %Paginator{
         data: [user1, user2],

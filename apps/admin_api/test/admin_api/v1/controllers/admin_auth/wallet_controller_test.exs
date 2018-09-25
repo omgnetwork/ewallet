@@ -197,6 +197,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
     test "returns a list of wallets according to sort_by and sort_direction" do
       {:ok, user} = :user |> params_for() |> User.insert()
+      primary_wallet = User.get_primary_wallet(user)
       insert(:wallet, %{user: user, address: "aaaa111111111111", identifier: "secondary_1"})
       insert(:wallet, %{user: user, address: "aaaa333333333333", identifier: "secondary_2"})
       insert(:wallet, %{user: user, address: "aaaa222222222222", identifier: "secondary_3"})
@@ -212,11 +213,13 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
-      assert Enum.count(wallets) == 4
-      assert Enum.at(wallets, 0)["address"] == "bbbb111111111111"
-      assert Enum.at(wallets, 1)["address"] == "aaaa333333333333"
-      assert Enum.at(wallets, 2)["address"] == "aaaa222222222222"
-      assert Enum.at(wallets, 3)["address"] == "aaaa111111111111"
+
+      assert Enum.count(wallets) == 5
+      assert Enum.at(wallets, 0)["address"] == primary_wallet.address
+      assert Enum.at(wallets, 1)["address"] == "bbbb111111111111"
+      assert Enum.at(wallets, 2)["address"] == "aaaa333333333333"
+      assert Enum.at(wallets, 3)["address"] == "aaaa222222222222"
+      assert Enum.at(wallets, 4)["address"] == "aaaa111111111111"
 
       Enum.each(wallets, fn wallet ->
         assert wallet["user_id"] == user.id
@@ -479,7 +482,6 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
     test "inserts two secondary wallets for a user" do
       {:ok, user} = :user |> params_for() |> User.insert()
-      assert Wallet |> Repo.all() |> length() == 3
 
       response_1 =
         admin_user_request("/wallet.create", %{
@@ -507,8 +509,8 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       assert "secondary_" <> _ = response_2["data"]["identifier"]
       assert response_2["data"]["name"] == "MyWallet2"
 
-      wallets = Repo.all(Wallet)
-      assert length(wallets) == 5
+      wallets = Wallet |> Repo.all() |> Repo.preload(:user)
+      assert Enum.count(wallets) == 6
     end
 
     test "fails to insert a burn wallet for a user" do

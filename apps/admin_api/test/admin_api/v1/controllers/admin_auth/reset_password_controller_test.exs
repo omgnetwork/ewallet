@@ -120,7 +120,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert response["success"]
       user = User.get(user.id)
       assert Crypto.verify_password("password", user.password_hash)
-      assert ForgetPasswordRequest |> Repo.all() |> length() == 0
+      assert ForgetPasswordRequest.all_active() |> length() == 0
     end
 
     test "returns an email_not_found error when the user is not found" do

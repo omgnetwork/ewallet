@@ -37,7 +37,7 @@ defmodule EWalletDB.SchemaCase do
   """
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL
-  alias EWalletDB.{User, Account}
+  alias EWalletDB.{Account, User}
 
   defmacro __using__(_opts) do
     quote do

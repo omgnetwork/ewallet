@@ -20,13 +20,13 @@ defmodule EWalletDB.Factory do
     Membership,
     Mint,
     Role,
+    System,
     Token,
     Transaction,
     TransactionConsumption,
     TransactionRequest,
     Types.WalletAddress,
     User,
-    System,
     Wallet
   }
 

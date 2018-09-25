@@ -187,9 +187,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
 
   describe "/account.assign_user" do
     test "returns empty success if assigned with user_id successfully" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         provider_request("/account.assign_user", %{
-          user_id: :user |> params_for() |> User.insert().id,
+          user_id: user.id,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
           redirect_url: @redirect_url
@@ -278,9 +280,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the given account id does not exist" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         provider_request("/account.assign_user", %{
-          user_id: :user |> params_for() |> User.insert().id,
+          user_id: user.id,
           account_id: "acc_12345678901234567890123456",
           role_name: insert(:role).name,
           redirect_url: @redirect_url
@@ -295,9 +299,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the given role does not exist" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         provider_request("/account.assign_user", %{
-          user_id: :user |> params_for() |> User.insert().id,
+          user_id: user.id,
           account_id: insert(:account).id,
           role_name: "invalid_role",
           redirect_url: @redirect_url
@@ -362,9 +368,11 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the given account id does not exist" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         provider_request("/account.unassign_user", %{
-          user_id: :user |> params_for() |> User.insert().id,
+          user_id: user.id,
           account_id: "acc_12345678901234567890123456"
         })
 

@@ -114,7 +114,10 @@ defmodule EWalletDB.User do
   end
 
   defp avatar_changeset(changeset, attrs) do
-    cast_attachments(changeset, attrs, [:avatar])
+    changeset
+    |> cast(attrs, [:originator])
+    |> cast_attachments(attrs, [:avatar])
+    |> validate_required([:originator])
   end
 
   defp update_changeset(%User{} = user, attrs) do
@@ -306,14 +309,15 @@ defmodule EWalletDB.User do
   """
   @spec store_avatar(%User{}, map()) :: %User{} | Ecto.Changeset.t()
   def store_avatar(%User{} = user, attrs) do
-    attrs =
+    updated_attrs =
       case attrs["avatar"] do
         "" -> %{avatar: nil}
         "null" -> %{avatar: nil}
         avatar -> %{avatar: avatar}
       end
 
-    changeset = avatar_changeset(user, attrs)
+    updated_attrs = Map.put(updated_attrs, :originator, attrs["originator"])
+    changeset = avatar_changeset(user, updated_attrs)
 
     case Audit.update(changeset) do
       {:ok, result} ->
