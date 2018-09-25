@@ -5,6 +5,7 @@ defmodule EWallet.Web.MatchAnyParser do
   then builds those attributes into a filtering query on top of the given `Ecto.Queryable`.
   """
   import Ecto.Query
+  import EWallet.Web.MatchAnyParserHelper
 
   # Steps:
   # 1. Parse the list of `%{"field" => _, "comparator" => _, "value" => _}`
@@ -15,10 +16,13 @@ defmodule EWallet.Web.MatchAnyParser do
 
   @spec to_query(Ecto.Queryable.t(), map(), [atom()]) :: Ecto.Queryable.t()
   def to_query(queryable, %{"match_any" => inputs}, whitelist) do
-    rules = parse_rules(inputs, whitelist)
-    {queryable, assoc_positions} = join_assocs(queryable, rules)
-
-    filter(queryable, assoc_positions, rules)
+    with rules when is_list(rules) <- parse_rules(inputs, whitelist),
+         {queryable, assoc_positions} <- join_assocs(queryable, rules),
+         queryable <- filter(queryable, assoc_positions, rules) do
+      queryable
+    else
+      error -> error
+    end
   end
 
   def to_query(queryable, _, _), do: queryable
@@ -119,7 +123,7 @@ defmodule EWallet.Web.MatchAnyParser do
 
   defp join_assocs(queryable, rules) do
     {queryable, joined_assocs} =
-      Enum.reduce(rules, {queryable, []}, fn(rule, {queryable, joined_assocs}) ->
+      Enum.reduce(rules, {queryable, []}, fn rule, {queryable, joined_assocs} ->
         {field_definition, _comparator, _value} = rule
 
         case field_definition do
@@ -137,12 +141,12 @@ defmodule EWallet.Web.MatchAnyParser do
     joined_assocs =
       joined_assocs
       |> Enum.reverse()
-      |> Enum.with_index(1)
+      |> Enum.with_index()
 
     {queryable, joined_assocs}
   end
 
-  defp filter(queryable, assoc_positions, rules) do
+  def filter(queryable, assoc_positions, rules) do
     dynamic =
       Enum.reduce(rules, false, fn rule, dynamic ->
         {field_definition, comparator, value} = rule
@@ -158,49 +162,5 @@ defmodule EWallet.Web.MatchAnyParser do
       end)
 
     from(queryable, where: ^dynamic)
-  end
-
-  defp do_filter(dynamic, field, :uuid, "eq", value) do
-    dynamic([q], fragment("?::text", field(q, ^field)) == ^value or ^dynamic)
-  end
-
-  defp do_filter(dynamic, field, nil, "eq", value) do
-    dynamic([q], fragment("?::text", field(q, ^field)) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 1, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a1, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 2, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a2, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 3, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a3, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 4, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a4, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 5, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a5, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 6, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a6, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 7, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a7, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 8, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a8, ^subfield) == ^value or ^dynamic)
-  end
-
-  defp do_filter_assoc(dynamic, 9, subfield, nil, "eq", value) do
-    dynamic([q, a1, a2, a3, a4, a5, a6, a7, a8, a9], field(a9, ^subfield) == ^value or ^dynamic)
   end
 end
