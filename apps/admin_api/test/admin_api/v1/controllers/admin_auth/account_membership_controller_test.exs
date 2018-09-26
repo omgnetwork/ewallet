@@ -212,6 +212,37 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       assert response["data"] == %{}
     end
 
+    test "returns empty success if the user has a pending confirmation" do
+      email = "user_pending_confirmation@example.com"
+      account = insert(:account)
+      role = insert(:role)
+
+      response =
+        admin_user_request("/account.assign_user", %{
+          email: email,
+          account_id: account.id,
+          role_name: role.name,
+          redirect_url: @redirect_url
+        })
+
+      # Make sure that the first attemps created the user with pending_confirmation status
+      assert response["success"] == true
+      user = User.get_by(email: email)
+      assert User.get_status(user) == :pending_confirmation
+
+      response =
+        admin_user_request("/account.assign_user", %{
+          email: email,
+          account_id: account.id,
+          role_name: role.name,
+          redirect_url: @redirect_url
+        })
+
+      # The second attempt should also be successful
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
     test "returns an error if the email format is invalid" do
       response =
         admin_user_request("/account.assign_user", %{
