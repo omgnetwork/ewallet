@@ -119,8 +119,8 @@ class CreateTransactionRequest extends Component {
         type: this.state.type ? 'send' : 'receive',
         amount: formatAmount(this.state.amount, _.get(this.state.selectedToken, 'subunit_to_unit')),
         tokenId: _.get(this.state, 'selectedToken.id'),
-        address: _.get(this.state, 'selectedWallet.id', this.props.primaryWallet.address),
-        accountId: this.props.match.params.accountId,
+        address: this.state.address || _.get(this.props, 'primaryWallet.address'),
+        accountId: _.get(this.state, 'selectedWallet.account_id'),
         expirationDate: this.state.expirationDate
           ? moment(this.state.expirationDate).toISOString()
           : null
@@ -160,7 +160,7 @@ class CreateTransactionRequest extends Component {
     this.setState({ address: wallet.address, selectedWallet: wallet })
   }
   onSelectExchangeWallet = exchangeWallet => {
-    this.setState({ exchangeAddress: exchangeWallet.address, selectedWallet: exchangeWallet })
+    this.setState({ exchangeAddress: exchangeWallet.address })
   }
   onDateTimeChange = date => {
     this.setState({ expirationDate: date.format('DD/MM/YYYY hh:mm:ss') })

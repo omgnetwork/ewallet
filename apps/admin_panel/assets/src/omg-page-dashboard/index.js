@@ -57,7 +57,7 @@ const GetStartedContainer = styled.div`
   padding: 30px;
   border-radius: 4px;
   background-color: #ffffff;
-  background-image: url(${require('../../statics/images/Main_dashboard-01.png')});
+  background-image: url(${require('../../statics/images/Dashboard_Main.png')});
   background-size: 41vw auto;
   background-repeat: no-repeat;
   background-position: bottom right;
@@ -72,6 +72,7 @@ const GetStartedContent = styled.div`
   background-color: white;
   border-radius: 4px;
 `
+
 export default withRouter(
   class Dashboard extends Component {
     static propTypes = {
