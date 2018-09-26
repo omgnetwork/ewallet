@@ -16,6 +16,9 @@ defmodule EWallet.Web.MatchAnyParserHelper do
 
       "contains" ->
         dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{value}%") or ^dynamic)
+
+      "starts_with" ->
+        dynamic([q], ilike(fragment("?::text", field(q, ^field)), ^"#{value}%") or ^dynamic)
     end
   end
 
@@ -28,6 +31,7 @@ defmodule EWallet.Web.MatchAnyParserHelper do
       "lt" -> dynamic([q], field(q, ^field) < ^value or ^dynamic)
       "lte" -> dynamic([q], field(q, ^field) <= ^value or ^dynamic)
       "contains" -> dynamic([q], ilike(field(q, ^field), ^"%#{value}%") or ^dynamic)
+      "starts_with" -> dynamic([q], ilike(field(q, ^field), ^"#{value}%") or ^dynamic)
     end
   end
 
@@ -40,6 +44,7 @@ defmodule EWallet.Web.MatchAnyParserHelper do
       "lt" -> dynamic([q, a], field(a, ^field) < ^value or ^dynamic)
       "lte" -> dynamic([q, a], field(a, ^field) <= ^value or ^dynamic)
       "contains" -> dynamic([q, a], ilike(field(a, ^field), ^"%#{value}%") or ^dynamic)
+      "starts_with" -> dynamic([q, a], ilike(field(a, ^field), ^"#{value}%") or ^dynamic)
     end
   end
 
@@ -52,6 +57,7 @@ defmodule EWallet.Web.MatchAnyParserHelper do
       "lt" -> dynamic([q, _, a], field(a, ^field) < ^value or ^dynamic)
       "lte" -> dynamic([q, _, a], field(a, ^field) <= ^value or ^dynamic)
       "contains" -> dynamic([q, _, a], ilike(field(a, ^field), ^"%#{value}%") or ^dynamic)
+      "starts_with" -> dynamic([q, _, a], ilike(field(a, ^field), ^"#{value}%") or ^dynamic)
     end
   end
 
@@ -64,6 +70,7 @@ defmodule EWallet.Web.MatchAnyParserHelper do
       "lt" -> dynamic([q, _, _, a], field(a, ^field) < ^value or ^dynamic)
       "lte" -> dynamic([q, _, _, a], field(a, ^field) <= ^value or ^dynamic)
       "contains" -> dynamic([q, _, _, a], ilike(field(a, ^field), ^"%#{value}%") or ^dynamic)
+      "starts_with" -> dynamic([q, _, _, a], ilike(field(a, ^field), ^"#{value}%") or ^dynamic)
     end
   end
 
@@ -76,6 +83,7 @@ defmodule EWallet.Web.MatchAnyParserHelper do
       "lt" -> dynamic([q, _, _, _, a], field(a, ^field) < ^value or ^dynamic)
       "lte" -> dynamic([q, _, _, _, a], field(a, ^field) <= ^value or ^dynamic)
       "contains" -> dynamic([q, _, _, _, a], ilike(field(a, ^field), ^"%#{value}%") or ^dynamic)
+      "starts_with" -> dynamic([q, _, _, _, a], ilike(field(a, ^field), ^"#{value}%") or ^dynamic)
     end
   end
 
@@ -101,6 +109,9 @@ defmodule EWallet.Web.MatchAnyParserHelper do
 
       "contains" ->
         dynamic([q, _, _, _, _, a], ilike(field(a, ^field), ^"%#{value}%") or ^dynamic)
+
+      "starts_with" ->
+        dynamic([q, _, _, _, _, a], ilike(field(a, ^field), ^"#{value}%") or ^dynamic)
     end
   end
 end

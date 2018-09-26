@@ -189,6 +189,29 @@ defmodule EWallet.Web.MatchAllParserTest do
       refute Enum.any?(result, fn acc -> acc.id == account_3.id end)
     end
 
+    test "returns records filtered with 'starts_with'" do
+      account_1 = insert(:account, name: "Some Parser Test")
+      account_2 = insert(:account, name: "Beginning Filter Parser")
+      account_3 = insert(:account, name: "Middle Filter Parser")
+
+      attrs = %{
+        "match_all" => [
+          %{
+            "field" => "name",
+            "comparator" => "starts_with",
+            "value" => "Begin"
+          }
+        ]
+      }
+
+      query = MatchAllParser.to_query(Account, attrs, [:name])
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
+      assert Enum.any?(result, fn acc -> acc.id == account_2.id end)
+      refute Enum.any?(result, fn acc -> acc.id == account_3.id end)
+    end
+
     test "returns error if a filter param is missing" do
       _txn = insert(:transaction, from_amount: 100)
 
@@ -494,6 +517,31 @@ defmodule EWallet.Web.MatchAllParserTest do
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
       assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
       refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+    end
+
+    test "returns records filtered with 'starts_with'" do
+      whitelist = [from_token: [:name]]
+
+      txn_1 = insert(:transaction, from_token: insert(:token, name: "not_beginning_match_1"))
+      txn_2 = insert(:transaction, from_token: insert(:token, name: "not_beginning_match_2"))
+      txn_3 = insert(:transaction, from_token: insert(:token, name: "beginning_match"))
+
+      attrs = %{
+        "match_all" => [
+          %{
+            "field" => "from_token.name",
+            "comparator" => "starts_with",
+            "value" => "begin"
+          }
+        ]
+      }
+
+      query = MatchAllParser.to_query(Transaction, attrs, whitelist)
+      result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
     end
 
     test "returns error if filtering is not allowed on the field" do

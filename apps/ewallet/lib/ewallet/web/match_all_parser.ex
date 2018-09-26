@@ -196,4 +196,19 @@ defmodule EWallet.Web.MatchAllParser do
   defp build_query(queryable, {field, nil}, "contains", value) do
     queryable |> where([q], ilike(field(q, ^field), ^"%#{value}%"))
   end
+
+  # starts with
+  defp build_query(queryable, {field, subfield, nil}, "starts_with", value) do
+    queryable
+    |> join(:inner, [q], assoc in assoc(q, ^field))
+    |> where([q, assoc], ilike(field(assoc, ^subfield), ^"#{value}%"))
+  end
+
+  defp build_query(queryable, {field, :uuid}, "starts_with", value) do
+    queryable |> where([q], ilike(fragment("?::text", field(q, ^field)), ^"#{value}%"))
+  end
+
+  defp build_query(queryable, {field, nil}, "starts_with", value) do
+    queryable |> where([q], ilike(field(q, ^field), ^"#{value}%"))
+  end
 end
