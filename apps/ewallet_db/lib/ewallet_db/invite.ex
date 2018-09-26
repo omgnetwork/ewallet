@@ -102,7 +102,7 @@ defmodule EWalletDB.Invite do
   Generates an invite for the given user.
   """
   def generate(user, opts \\ []) do
-    originator = Audit.get_initial_originator("user", user)
+    originator = Audit.get_initial_originator(user)
 
     # Insert a new invite
     %Invite{}
@@ -112,7 +112,7 @@ defmodule EWalletDB.Invite do
       success_url: opts[:success_url],
       originator: originator
     })
-    |> Audit.insert(
+    |> Audit.insert_record_with_audit(
       # Assign the invite to the user
       Multi.run(Multi.new(), :user, fn %{record: record} ->
         {:ok, _user} =
@@ -140,7 +140,7 @@ defmodule EWalletDB.Invite do
          {:ok, _user} <- User.update_without_password(invite.user, attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
-         {:ok, result} <- Audit.update(changeset) do
+         {:ok, result} <- Audit.update_record_with_audit(changeset) do
       {:ok, result.record}
     else
       {:error, _failed_operation, changeset, _changes_so_far} ->
@@ -161,7 +161,7 @@ defmodule EWalletDB.Invite do
          {:ok, _user} <- User.update(invite.user, attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
-         {:ok, result} <- Audit.update(changeset) do
+         {:ok, result} <- Audit.update_record_with_audit(changeset) do
       {:ok, result.record}
     else
       {:error, _failed_operation, changeset, _changes_so_far} ->

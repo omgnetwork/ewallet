@@ -11,13 +11,14 @@ defmodule EWalletDB.Repo.Migrations.AddAudit do
       add :target_uuid, :uuid, null: false
       add :target_type, :string, null: false
       add :target_changes, :map, null: false
+      add :target_encrypted_metadata, :binary
 
       add :originator_uuid, :uuid
       add :originator_type, :string
 
       add :metadata, :map
 
-      add :inserted_at, :naive_datetime, default: fragment("now()")
+      add :inserted_at, :naive_datetime
     end
 
     create index(:audit, [:target_uuid, :target_type])

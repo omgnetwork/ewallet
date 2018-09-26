@@ -23,11 +23,12 @@ defmodule EWalletDB.Audit do
     field(:target_type, :string)
     field(:target_uuid, UUID)
     field(:target_changes, :map)
+    field(:target_encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
 
     field(:originator_uuid, UUID)
     field(:originator_type, :string)
 
-    field(:metadata, :map)
+    field(:metadata, :map, default: %{})
 
     field(:inserted_at, :naive_datetime)
   end
@@ -39,9 +40,11 @@ defmodule EWalletDB.Audit do
       :target_type,
       :target_uuid,
       :target_changes,
+      :target_encrypted_metadata,
       :originator_uuid,
       :originator_type,
-      :metadata
+      :metadata,
+      :inserted_at
     ])
     |> validate_required([
       :action,
@@ -49,7 +52,8 @@ defmodule EWalletDB.Audit do
       :target_uuid,
       :target_changes,
       :originator_uuid,
-      :originator_type
+      :originator_type,
+      :inserted_at
     ])
   end
 
@@ -59,6 +63,10 @@ defmodule EWalletDB.Audit do
 
   def get_type(schema) do
     Application.get_env(:ewallet_db, :schemas_to_audit_types)[schema]
+  end
+
+  def all_for_target(record) do
+    Repo.all(Audit, target_type: get_type(record.__struct__), target_uuid: record.uuid)
   end
 
   def all_for_target(schema, uuid) do
@@ -74,17 +82,25 @@ defmodule EWalletDB.Audit do
     )
   end
 
-  def get_initial_originator(audit_type, record) do
+  def get_initial_originator(record) do
+    audit_type = get_type(record.__struct__)
     audit = Audit.get_initial_audit(audit_type, record.uuid)
-    schema = Audit.get_schema(audit.originator_type)
-    struct(schema, uuid: audit.originator_uuid)
+    originator_schema = Audit.get_schema(audit.originator_type)
+
+    case originator_schema do
+      EWalletDB.System ->
+        %EWalletDB.System{uuid: audit.originator_uuid}
+
+      schema ->
+        Repo.get(schema, audit.originator_uuid)
+    end
   end
 
-  def insert(changeset, multi \\ Multi.new()) do
+  def insert_record_with_audit(changeset, multi \\ Multi.new()) do
     perform(:insert, changeset, multi)
   end
 
-  def update(changeset, multi \\ Multi.new()) do
+  def update_record_with_audit(changeset, multi \\ Multi.new()) do
     perform(:update, changeset, multi)
   end
 
@@ -110,14 +126,18 @@ defmodule EWalletDB.Audit do
     with {:ok, originator} <- get_originator(changeset, record),
          originator_type <- get_type(originator.__struct__),
          target_type <- get_type(record.__struct__),
-         changes <- Map.delete(changeset.changes, :originator) do
+         changes <- Map.delete(changeset.changes, :originator),
+         encrypted_metadata <- changes[:encrypted_metadata],
+         changes <- Map.delete(changes, :encrypted_metadata) do
       %{
         action: Atom.to_string(action),
         target_type: target_type,
         target_uuid: record.uuid,
         target_changes: changes,
+        target_encrypted_metadata: encrypted_metadata || %{},
         originator_uuid: originator.uuid,
-        originator_type: originator_type
+        originator_type: originator_type,
+        inserted_at: NaiveDateTime.utc_now()
       }
     else
       error -> error

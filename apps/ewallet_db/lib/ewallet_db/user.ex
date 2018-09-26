@@ -238,7 +238,7 @@ defmodule EWalletDB.User do
   def insert(attrs) do
     %User{}
     |> changeset(attrs)
-    |> Audit.insert(
+    |> Audit.insert_record_with_audit(
       Multi.run(Multi.new(), :wallet, fn %{record: record} ->
         case User.admin?(record) do
           true -> {:ok, nil}
@@ -278,7 +278,7 @@ defmodule EWalletDB.User do
   def update(%User{} = user, attrs) do
     user
     |> changeset(attrs)
-    |> Audit.update()
+    |> Audit.update_record_with_audit()
     |> case do
       {:ok, result} ->
         {:ok, get(result.record.id)}
@@ -295,7 +295,7 @@ defmodule EWalletDB.User do
   def update_without_password(%User{} = user, attrs) do
     changeset = update_changeset(user, attrs)
 
-    case Audit.update(changeset) do
+    case Audit.update_record_with_audit(changeset) do
       {:ok, result} ->
         {:ok, get(result.record.id)}
 
@@ -319,7 +319,7 @@ defmodule EWalletDB.User do
     updated_attrs = Map.put(updated_attrs, :originator, attrs["originator"])
     changeset = avatar_changeset(user, updated_attrs)
 
-    case Audit.update(changeset) do
+    case Audit.update_record_with_audit(changeset) do
       {:ok, result} ->
         {:ok, get(result.record.id)}
 

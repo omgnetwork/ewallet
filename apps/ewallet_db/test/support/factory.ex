@@ -148,7 +148,7 @@ defmodule EWalletDB.Factory do
 
   def audit_factory do
     params = params_for(:user)
-    user = insert(params)
+    user = insert(:user, params)
     originator = insert(:admin)
 
     %Audit{
