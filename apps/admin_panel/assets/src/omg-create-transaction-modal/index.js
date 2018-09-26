@@ -109,11 +109,6 @@ class CreateTransaction extends Component {
   }
   state = { fromAddress: this.props.fromAddress || '', toAddress: '' }
 
-  componentWillReceiveProps = nextProps => {
-    if (this.state.fromAddress !== nextProps.fromAddress && nextProps.fromAddress !== undefined) {
-      this.setState({ fromAddress: nextProps.fromAddress })
-    }
-  }
   onChangeInputFromAddress = e => {
     this.setState({
       fromAddress: e.target.value,

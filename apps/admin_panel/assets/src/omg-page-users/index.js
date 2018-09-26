@@ -90,6 +90,7 @@ class UsersPage extends Component {
   getColumns = () => {
     return [
       { key: 'id', title: 'ID', sort: true },
+      { key: 'email', title: 'EMAIL', sort: true },
       { key: 'username', title: 'USERNAME', sort: true },
       { key: 'created_at', title: 'CREATED DATE', sort: true },
       { key: 'updated_at', title: 'LAST UPDATED', sort: true },
@@ -114,6 +115,9 @@ class UsersPage extends Component {
           <Icon name='Profile' /> <span>{data}</span> <Copy data={data} />
         </UserIdContainer>
       )
+    }
+    if (key === 'email') {
+      return data || '-'
     }
 
     return data
