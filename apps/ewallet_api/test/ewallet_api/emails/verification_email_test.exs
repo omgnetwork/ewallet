@@ -29,12 +29,19 @@ defmodule EWalletAPI.VerificationEmailTest do
 
     test "creates an email with email and token in the html body" do
       {email, token} = create_email("test@example.com")
-      assert email.html_body =~ "https://invite_url/?email=test@example.com&token=#{token}"
+      assert email.html_body =~ "https://invite_url/?email=test%40example.com&token=#{token}"
     end
 
     test "creates an email with email and token in the text body" do
       {email, token} = create_email("test@example.com")
-      assert email.text_body =~ "https://invite_url/?email=test@example.com&token=#{token}"
+      assert email.text_body =~ "https://invite_url/?email=test%40example.com&token=#{token}"
+    end
+
+    test "creates an email with properly encoded plus sign" do
+      {email, token} = create_email("verification+test@example.com")
+
+      assert email.html_body =~
+               "https://invite_url/?email=verification%2Btest%40example.com&token=#{token}"
     end
   end
 end
