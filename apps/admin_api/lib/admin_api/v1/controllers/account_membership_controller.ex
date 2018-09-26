@@ -111,7 +111,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
       :pending_confirmation ->
         user
         |> User.get_invite()
-        |> Inviter.send_email(redirect_url, InviteEmail)
+        |> Inviter.send_email(redirect_url, &InviteEmail.create/2)
 
       :active ->
         Membership.assign(user, account, role)
