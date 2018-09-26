@@ -14,7 +14,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
   describe "InviteController.accept/2" do
     test "returns success if invite is accepted successfully" do
-      {:ok, user} = :admin |> params_for() |> User.insert()
+      {:ok, user} = :admin |> params_for(is_admin: false) |> User.insert()
       {:ok, invite} = Invite.generate(user, preload: :user)
 
       response = request(invite.user.email, invite.token, "some_password", "some_password")
@@ -38,6 +38,9 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
       assert response["success"]
       assert response["data"] == expected
+
+      # The user should be an admin after the invite is successfully accepted
+      assert invite.user.id |> User.get() |> User.admin?()
     end
 
     test "returns :invite_not_found error if the email has not been invited" do

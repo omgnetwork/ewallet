@@ -293,6 +293,24 @@ defmodule EWalletDB.UserTest do
     end
   end
 
+  describe "set_admin/2" do
+    test "sets the user to admin status when given true" do
+      user = insert(:user)
+      refute User.admin?(user)
+
+      {:ok, user} = User.set_admin(user, true)
+      assert User.admin?(user)
+    end
+
+    test "sets the user to non-admin status when given false" do
+      user = insert(:admin)
+      assert User.admin?(user)
+
+      {:ok, user} = User.set_admin(user, false)
+      refute User.admin?(user)
+    end
+  end
+
   describe "admin?/1" do
     test "returns true if the user's `is_admin` is true" do
       user = insert(:user, is_admin: true)

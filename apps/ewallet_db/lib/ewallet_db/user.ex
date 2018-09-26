@@ -465,6 +465,16 @@ defmodule EWalletDB.User do
   end
 
   @doc """
+  Sets the user's admin status.
+  """
+  @spec set_admin(%User{}, boolean()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def set_admin(user, boolean) do
+    user
+    |> change(is_admin: boolean)
+    |> Repo.update()
+  end
+
+  @doc """
   Checks if the user is an admin user.
   """
   @spec admin?(String.t() | %User{}) :: boolean()
