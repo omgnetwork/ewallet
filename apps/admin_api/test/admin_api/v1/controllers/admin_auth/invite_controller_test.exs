@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.Invite
+  alias EWalletDB.{Invite, User}
 
   defp request(email, token, password, password_confirmation) do
     unauthenticated_request("/invite.accept", %{
@@ -14,7 +14,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
   describe "InviteController.accept/2" do
     test "returns success if invite is accepted successfully" do
-      user = insert(:admin)
+      user = insert(:admin, is_admin: false)
       {:ok, invite} = Invite.generate(user, preload: :user)
 
       response = request(invite.user.email, invite.token, "some_password", "some_password")
@@ -38,6 +38,9 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
 
       assert response["success"]
       assert response["data"] == expected
+
+      # The user should be an admin after the invite is successfully accepted
+      assert invite.user.id |> User.get() |> User.admin?()
     end
 
     test "returns :invite_not_found error if the email has not been invited" do
