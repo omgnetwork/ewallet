@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.InviteController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.UserView
   alias EWallet.Web.Preloader
-  alias EWalletDB.Invite
+  alias EWalletDB.{Invite, User}
 
   @doc """
   Validates the user's invite token and activates the user.
@@ -18,7 +18,8 @@ defmodule AdminAPI.V1.InviteController do
     with %Invite{} = invite <- Invite.get(email, token) || {:error, :invite_not_found},
          true <- password == password_confirmation || {:error, :passwords_mismatch},
          {:ok, invite} <- Preloader.preload_one(invite, :user),
-         {:ok, _} <- Invite.accept(invite, password) do
+         {:ok, _} <- Invite.accept(invite, password),
+         {:ok, _} <- User.set_admin(invite.user, true) do
       render(conn, UserView, :user, %{user: invite.user})
     else
       {:error, error_code} when is_atom(error_code) ->
