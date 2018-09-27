@@ -5,7 +5,7 @@ defmodule EWalletDB.Audit do
   use Arc.Ecto.Schema
   use Ecto.Schema
   use EWalletDB.Types.ExternalID
-  import Ecto.Changeset
+  import Ecto.{Changeset, Query}
   alias Ecto.{Changeset, Multi, UUID}
 
   alias EWalletDB.{
@@ -66,11 +66,13 @@ defmodule EWalletDB.Audit do
   end
 
   def all_for_target(record) do
-    Repo.all(Audit, target_type: get_type(record.__struct__), target_uuid: record.uuid)
+    all_for_target(get_type(record.__struct__), record.uuid)
   end
 
   def all_for_target(schema, uuid) do
-    Repo.all(Audit, target_type: get_type(schema), target_uuid: uuid)
+    Audit
+    |> where([a], a.target_type == ^schema and a.target_uuid == ^uuid)
+    |> Repo.all()
   end
 
   def get_initial_audit(type, uuid) do

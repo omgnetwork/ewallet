@@ -15,8 +15,32 @@ defmodule EWalletDB.AuditTest do
     end
   end
 
+  describe "Audit.all_for_target/1" do
+    test "returns all audits for a target" do
+      {:ok, _user} = :user |> params_for() |> User.insert()
+      {:ok, _user} = :user |> params_for() |> User.insert()
+      {:ok, user} = :user |> params_for() |> User.insert()
+
+      {:ok, user} =
+        User.update_without_password(user, %{
+          email: "test@mail.com",
+          originator: %System{}
+        })
+
+      audits = Audit.all_for_target(user)
+
+      assert length(audits) == 2
+
+      results = Enum.map(audits, fn a -> {a.action, a.originator_type, a.target_type} end)
+      assert Enum.member?(results, {"insert", "user", "user"})
+      assert Enum.member?(results, {"update", "system", "user"})
+    end
+  end
+
   describe "Audit.all_for_target/2" do
     test "returns all audits for a target" do
+      {:ok, _user} = :user |> params_for() |> User.insert()
+      {:ok, _user} = :user |> params_for() |> User.insert()
       {:ok, user} = :user |> params_for() |> User.insert()
 
       {:ok, user} =
