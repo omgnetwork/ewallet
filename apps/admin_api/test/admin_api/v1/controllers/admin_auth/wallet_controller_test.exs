@@ -196,8 +196,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
 
     test "returns a list of wallets according to sort_by and sort_direction" do
-      {:ok, user} = :user |> params_for() |> User.insert()
-      primary_wallet = User.get_primary_wallet(user)
+      user = insert(:user)
       insert(:wallet, %{user: user, address: "aaaa111111111111", identifier: "secondary_1"})
       insert(:wallet, %{user: user, address: "aaaa333333333333", identifier: "secondary_2"})
       insert(:wallet, %{user: user, address: "aaaa222222222222", identifier: "secondary_3"})
@@ -214,12 +213,11 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
       assert response["success"]
 
-      assert Enum.count(wallets) == 5
-      assert Enum.at(wallets, 0)["address"] == primary_wallet.address
-      assert Enum.at(wallets, 1)["address"] == "bbbb111111111111"
-      assert Enum.at(wallets, 2)["address"] == "aaaa333333333333"
-      assert Enum.at(wallets, 3)["address"] == "aaaa222222222222"
-      assert Enum.at(wallets, 4)["address"] == "aaaa111111111111"
+      assert Enum.count(wallets) == 4
+      assert Enum.at(wallets, 0)["address"] == "bbbb111111111111"
+      assert Enum.at(wallets, 1)["address"] == "aaaa333333333333"
+      assert Enum.at(wallets, 2)["address"] == "aaaa222222222222"
+      assert Enum.at(wallets, 3)["address"] == "aaaa111111111111"
 
       Enum.each(wallets, fn wallet ->
         assert wallet["user_id"] == user.id
