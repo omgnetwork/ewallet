@@ -58,10 +58,11 @@ volumes:
   postgres-db:
 ```
 
-Notice that the values for `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are missing. Replace the values with your own generated ones. We recommend that you generate a different secret key for each, using the command below:
+Notice that the values for `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are missing. Replace the values with your own generated ones. We recommend that you generate a different secret key for each. The commands below will generate the keys and replace them automatically:
 
 ```
-$ openssl rand -base64 32
+$ sed -i -e "s/<ewallet_secret_key_here>/$(openssl rand -base64 32 | sed 's/\//\\\//g')/" docker-compose.yml
+$ sed -i -e "s/<local_ledger_secret_key_here>/$(openssl rand -base64 32 | sed 's/\//\\\//g')/" docker-compose.yml
 ```
 
 Once the `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are replaced, run the following command to create and start the containers:
