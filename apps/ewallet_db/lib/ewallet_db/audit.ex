@@ -57,24 +57,36 @@ defmodule EWalletDB.Audit do
     ])
   end
 
+  @spec get_schema(String.t()) :: Atom.t()
   def get_schema(type) do
     Application.get_env(:ewallet_db, :audit_types_to_schemas)[type]
   end
 
+  @spec get_type(Atom.t()) :: String.t()
   def get_type(schema) do
     Application.get_env(:ewallet_db, :schemas_to_audit_types)[schema]
   end
 
+  @spec all_for_target(Map.t()) :: [%Audit{}]
   def all_for_target(record) do
-    all_for_target(get_type(record.__struct__), record.uuid)
+    all_for_target(record.__struct__, record.uuid)
   end
 
-  def all_for_target(schema, uuid) do
+  @spec all_for_target(String.t(), UUID.t()) :: [%Audit{}]
+  def all_for_target(type, uuid) when is_binary(type) do
     Audit
-    |> where([a], a.target_type == ^schema and a.target_uuid == ^uuid)
+    |> where([a], a.target_type == ^type and a.target_uuid == ^uuid)
     |> Repo.all()
   end
 
+  @spec all_for_target(Atom.t(), UUID.t()) :: [%Audit{}]
+  def all_for_target(schema, uuid) do
+    schema
+    |> get_type()
+    |> all_for_target(uuid)
+  end
+
+  @spec get_initial_audit(String.t(), UUID.t()) :: %Audit{}
   def get_initial_audit(type, uuid) do
     Repo.get_by(
       Audit,
@@ -84,6 +96,7 @@ defmodule EWalletDB.Audit do
     )
   end
 
+  @spec get_initial_originator(Map.t()) :: Map.t()
   def get_initial_originator(record) do
     audit_type = get_type(record.__struct__)
     audit = Audit.get_initial_audit(audit_type, record.uuid)
@@ -98,10 +111,20 @@ defmodule EWalletDB.Audit do
     end
   end
 
+  @spec insert_record_with_audit(%Changeset{}, Multi.t()) :: {:ok, any()}
+                                                             | {:error, any()}
+                                                             | {:error, :no_originator_given}
+                                                             | {:error, Multi.name(), any(),
+                                                                 %{optional(Multi.name()) => any()}}
   def insert_record_with_audit(changeset, multi \\ Multi.new()) do
     perform(:insert, changeset, multi)
   end
 
+  @spec update_record_with_audit(%Changeset{}, Multi.t()) :: {:ok, any()}
+                                                             | {:error, any()}
+                                                             | {:error, :no_originator_given}
+                                                             | {:error, Multi.name(), any(),
+                                                                 %{optional(Multi.name()) => any()}}
   def update_record_with_audit(changeset, multi \\ Multi.new()) do
     perform(:update, changeset, multi)
   end

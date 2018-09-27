@@ -49,7 +49,7 @@ defmodule EWalletDB.AuditTest do
           originator: %System{}
         })
 
-      audits = Audit.all_for_target("user", user.uuid)
+      audits = Audit.all_for_target(User, user.uuid)
 
       assert length(audits) == 2
 
