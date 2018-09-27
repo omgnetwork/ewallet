@@ -111,20 +111,20 @@ defmodule EWalletDB.Audit do
     end
   end
 
-  @spec insert_record_with_audit(%Changeset{}, Multi.t()) :: {:ok, any()}
-                                                             | {:error, any()}
-                                                             | {:error, :no_originator_given}
-                                                             | {:error, Multi.name(), any(),
-                                                                 %{optional(Multi.name()) => any()}}
+  @spec insert_record_with_audit(%Changeset{}, Multi.t()) ::
+          {:ok, any()}
+          | {:error, any()}
+          | {:error, :no_originator_given}
+          | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
   def insert_record_with_audit(changeset, multi \\ Multi.new()) do
     perform(:insert, changeset, multi)
   end
 
-  @spec update_record_with_audit(%Changeset{}, Multi.t()) :: {:ok, any()}
-                                                             | {:error, any()}
-                                                             | {:error, :no_originator_given}
-                                                             | {:error, Multi.name(), any(),
-                                                                 %{optional(Multi.name()) => any()}}
+  @spec update_record_with_audit(%Changeset{}, Multi.t()) ::
+          {:ok, any()}
+          | {:error, any()}
+          | {:error, :no_originator_given}
+          | {:error, Multi.name(), any(), %{optional(Multi.name()) => any()}}
   def update_record_with_audit(changeset, multi \\ Multi.new()) do
     perform(:update, changeset, multi)
   end
