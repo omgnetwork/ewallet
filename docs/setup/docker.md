@@ -32,7 +32,6 @@ services:
       - internal
 
   ewallet:
-    container_name: docker-local-ewallet
     image: omisego/ewallet:v1.0.0
     restart: always
     networks:
@@ -71,10 +70,13 @@ Once the `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are replaced, run th
 $ docker-compose up -d
 ```
 
-The eWallet should now be running in the background. If you see database errors, this is normal. Create and seed the database using the command below:
+The eWallet should now be running in the background. Create and seed the database using the command below:
 
 ```bash
-$ docker exec -it docker-local-ewallet env MIX_ENV=prod mix do local.hex --force, local.rebar --force, ecto.create, ecto.migrate, seed --sample
+$ docker exec -it $(docker ps --filter ancestor="omisego/ewallet:v1.0.0" --format "{{.Names}}") \
+  env MIX_ENV=prod mix do \
+  local.hex --force, local.rebar --force, \
+  ecto.create, ecto.migrate, seed --sample
 ```
 
 You should now be able to access your eWallet server using the available APIs:
@@ -91,7 +93,6 @@ To get the Docker image running without docker-compose would be (assuming [Postg
 ```bash
 # Pulls the omisego/ewallet image from https://hub.docker.com/r/omisego/ewallet/
 $ docker run \
-    --name docker-local-ewallet \
     -e DATABASE_URL="postgresql://postgres@127.0.0.1:5432/ewallet" \
     -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@127.0.0.1:5432/local_ledger" \
     -p 4000:4000 \
@@ -100,14 +101,13 @@ $ docker run \
 
 The command above pulls and starts an eWallet server with the v1.0.0 image. If you wish, you can pick [other available tags from the Docker Hub](https://hub.docker.com/r/omisego/ewallet/tags/).
 
-Now run the following command to setup and seed the database:
+If you see database errors at this step, this is normal. Now run the following command to setup and seed the database:
 
 ```bash
-$ docker exec -it docker-local-ewallet \
+$ docker exec -it $(docker ps --filter ancestor="omisego/ewallet:v1.0.0" --format "{{.Names}}") \
   env MIX_ENV=prod mix do \
   local.hex --force, local.rebar --force, \
-  ecto.create, ecto.migrate, \
-  seed --sample
+  ecto.create, ecto.migrate, seed --sample
 ```
 
 You should now be able to access your eWallet server using the available APIs:
