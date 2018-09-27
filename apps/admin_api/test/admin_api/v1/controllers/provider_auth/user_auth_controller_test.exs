@@ -1,10 +1,10 @@
 defmodule AdminAPI.V1.ProviderAuth.UserAuthControllerTest do
   use AdminAPI.ConnCase, async: true
-  alias EWalletDB.AuthToken
+  alias EWalletDB.{AuthToken, User}
 
   describe "/user.login" do
     test "responds with a new auth token if id is valid" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       response = provider_request("/user.login", %{id: user.id})
       auth_token = get_last_inserted(AuthToken)
 

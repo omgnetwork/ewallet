@@ -2,11 +2,12 @@
 defmodule AdminAPI.V1.UserChannelTest do
   use AdminAPI.ChannelCase, async: false
   alias AdminAPI.V1.UserChannel
+  alias EWalletDB.User
 
   describe "join/3 as provider" do
     test "joins the channel with authenticated account and valid user ID" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       {res, _, socket} =
         "test"
@@ -19,7 +20,7 @@ defmodule AdminAPI.V1.UserChannelTest do
 
     test "joins the channel with authenticated account and valid provider user ID" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       {res, _, socket} =
         "test"

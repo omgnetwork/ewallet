@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
+  alias EWalletDB.User
 
   describe "/admin.all" do
     test "returns a list of admins and pagination data" do
@@ -64,7 +65,7 @@ defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
     end
 
     test "returns 'unauthorized' if the given ID is not an admin" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       response = provider_request("/admin.get", %{"id" => user.id})
 
       refute response["success"]

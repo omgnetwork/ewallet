@@ -212,6 +212,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       wallets = response["data"]["data"]
 
       assert response["success"]
+
       assert Enum.count(wallets) == 4
       assert Enum.at(wallets, 0)["address"] == "bbbb111111111111"
       assert Enum.at(wallets, 1)["address"] == "aaaa333333333333"
@@ -458,7 +459,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
 
     test "fails to insert a primary wallet for a user" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         admin_user_request("/wallet.create", %{
@@ -478,8 +479,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
     end
 
     test "inserts two secondary wallets for a user" do
-      user = insert(:user)
-      assert Wallet |> Repo.all() |> length() == 3
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response_1 =
         admin_user_request("/wallet.create", %{
@@ -507,12 +507,12 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
       assert "secondary_" <> _ = response_2["data"]["identifier"]
       assert response_2["data"]["name"] == "MyWallet2"
 
-      wallets = Repo.all(Wallet)
-      assert length(wallets) == 5
+      wallets = Wallet |> Repo.all() |> Repo.preload(:user)
+      assert Enum.count(wallets) == 6
     end
 
     test "fails to insert a burn wallet for a user" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         admin_user_request("/wallet.create", %{
@@ -533,7 +533,7 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
 
     test "fails to insert a new wallet when both user and account are specified" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         admin_user_request("/wallet.create", %{

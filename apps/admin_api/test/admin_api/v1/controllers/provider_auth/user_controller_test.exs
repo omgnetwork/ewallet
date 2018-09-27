@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, AccountUser}
+  alias EWalletDB.{Account, AccountUser, User}
 
   describe "/user.all" do
     test "returns a list of users and pagination data" do
@@ -237,7 +237,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
 
   describe "/user.update" do
     test "updates the user if attributes are valid" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       # Prepare the update data while keeping only provider_user_id the same
       request_data =
@@ -269,7 +269,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
     end
 
     test "updates the metadata and encrypted metadata" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       account = Account.get_master_account()
       {:ok, _} = AccountUser.link(account.uuid, user.uuid)
@@ -382,7 +382,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
     end
 
     test "returns an error if username is not provided" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       # ExMachine will remove the param if set to nil.
       request_data =

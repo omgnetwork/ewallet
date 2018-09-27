@@ -4,8 +4,8 @@ defmodule EWalletDB.Invite do
   """
   use Ecto.Schema
   import Ecto.{Changeset, Query}
-  alias Ecto.UUID
-  alias EWalletDB.{Helpers.Crypto, Invite, Repo, User}
+  alias Ecto.{Multi, UUID}
+  alias EWalletDB.{Audit, Helpers.Crypto, Invite, Repo, Types.VirtualStruct, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32
@@ -15,6 +15,7 @@ defmodule EWalletDB.Invite do
     field(:token, :string)
     field(:success_url, :string)
     field(:verified_at, :naive_datetime)
+    field(:originator, VirtualStruct, virtual: true)
 
     belongs_to(
       :user,
@@ -29,14 +30,14 @@ defmodule EWalletDB.Invite do
 
   defp changeset_insert(changeset, attrs) do
     changeset
-    |> cast(attrs, [:user_uuid, :token, :success_url])
-    |> validate_required([:user_uuid, :token])
+    |> cast(attrs, [:user_uuid, :token, :success_url, :originator])
+    |> validate_required([:user_uuid, :token, :originator])
   end
 
   defp changeset_accept(changeset, attrs) do
     changeset
-    |> cast(attrs, [:verified_at])
-    |> validate_required([:verified_at])
+    |> cast(attrs, [:verified_at, :originator])
+    |> validate_required([:verified_at, :originator])
   end
 
   @doc """
@@ -101,29 +102,32 @@ defmodule EWalletDB.Invite do
   Generates an invite for the given user.
   """
   def generate(user, opts \\ []) do
+    originator = Audit.get_initial_originator(user)
+
     # Insert a new invite
-    {:ok, invite} =
-      insert(%{
-        user_uuid: user.uuid,
-        token: Crypto.generate_base64_key(@token_length),
-        success_url: opts[:success_url]
-      })
-
-    # Assign the invite to the user
-    changeset = change(user, %{invite_uuid: invite.uuid})
-    {:ok, _user} = Repo.update(changeset)
-
-    if opts[:preload] do
-      {:ok, Repo.preload(invite, opts[:preload])}
-    else
-      {:ok, invite}
-    end
-  end
-
-  defp insert(attrs) do
     %Invite{}
-    |> changeset_insert(attrs)
-    |> Repo.insert()
+    |> changeset_insert(%{
+      user_uuid: user.uuid,
+      token: Crypto.generate_base64_key(@token_length),
+      success_url: opts[:success_url],
+      originator: originator
+    })
+    |> Audit.insert_record_with_audit(
+      # Assign the invite to the user
+      Multi.run(Multi.new(), :user, fn %{record: record} ->
+        {:ok, _user} =
+          user
+          |> change(%{invite_uuid: record.uuid})
+          |> Repo.update()
+      end)
+    )
+    |> case do
+      {:ok, result} ->
+        {:ok, Repo.preload(result.record, opts[:preload] || [])}
+
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
+    end
   end
 
   @doc """
@@ -131,13 +135,16 @@ defmodule EWalletDB.Invite do
   """
   @spec accept(%Invite{}) :: {:ok, struct()} | {:error, any()}
   def accept(invite) do
-    invite = Repo.preload(invite, :user)
-
-    case User.update_without_password(invite.user, %{invite_uuid: nil}) do
-      {:ok, _user} ->
-        invite
-        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
-        |> Repo.update()
+    with invite <- Repo.preload(invite, :user),
+         attrs <- %{invite_uuid: nil, originator: :self},
+         {:ok, _user} <- User.update_without_password(invite.user, attrs),
+         invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
+         changeset <- changeset_accept(invite, invite_attrs),
+         {:ok, result} <- Audit.update_record_with_audit(changeset) do
+      {:ok, result.record}
+    else
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
 
       error ->
         error
@@ -149,13 +156,16 @@ defmodule EWalletDB.Invite do
   """
   @spec accept(%Invite{}, String.t()) :: {:ok, struct()} | {:error, any()}
   def accept(invite, password) do
-    invite = Repo.preload(invite, :user)
-
-    case User.update(invite.user, %{invite_uuid: nil, password: password}) do
-      {:ok, _user} ->
-        invite
-        |> changeset_accept(%{verified_at: NaiveDateTime.utc_now()})
-        |> Repo.update()
+    with invite <- Repo.preload(invite, :user),
+         attrs <- %{invite_uuid: nil, password: password, originator: :self},
+         {:ok, _user} <- User.update(invite.user, attrs),
+         invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
+         changeset <- changeset_accept(invite, invite_attrs),
+         {:ok, result} <- Audit.update_record_with_audit(changeset) do
+      {:ok, result.record}
+    else
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
 
       error ->
         error

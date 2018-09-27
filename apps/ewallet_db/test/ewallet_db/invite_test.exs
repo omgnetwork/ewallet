@@ -85,53 +85,54 @@ defmodule EWalletDB.InviteTest do
 
   describe "Invite.generate/2" do
     test "returns {:ok, invite} for the given user" do
-      user = insert(:admin)
-      {result, invite} = Invite.generate(user)
+      {:ok, admin} = :admin |> params_for() |> User.insert()
+      {result, invite} = Invite.generate(admin)
 
       assert result == :ok
       assert %Invite{} = invite
-      assert invite.user_uuid == user.uuid
+      assert invite.user_uuid == admin.uuid
       assert invite.verified_at == nil
     end
 
     test "associates the invite_uuid to the user" do
-      user = insert(:admin)
-      {:ok, invite} = Invite.generate(user)
+      {:ok, admin} = :admin |> params_for() |> User.insert()
+      {:ok, invite} = Invite.generate(admin)
 
-      user = User.get(user.id)
+      user = User.get(admin.id)
       assert user.invite_uuid == invite.uuid
     end
 
     test "sets the success_url if the option is given" do
-      user = insert(:admin)
-      {:ok, invite} = Invite.generate(user, success_url: "http://some_url")
+      {:ok, admin} = :admin |> params_for() |> User.insert()
+      {:ok, invite} = Invite.generate(admin, success_url: "http://some_url")
 
       assert invite.success_url == "http://some_url"
     end
 
     test "preloads the invite if the option is given" do
-      user = insert(:admin)
-      {:ok, invite} = Invite.generate(user, preload: :user)
+      {:ok, admin} = :admin |> params_for() |> User.insert()
+      {:ok, invite} = Invite.generate(admin, preload: :user)
 
-      assert invite.user.uuid == user.uuid
+      assert invite.user.uuid == admin.uuid
     end
   end
 
   describe "Invite.accept/2" do
     test "sets user to :active status" do
-      {:ok, invite} = Invite.generate(insert(:admin))
+      {:ok, admin} = :admin |> params_for() |> User.insert()
+      {:ok, invite} = Invite.generate(admin)
       user = User.get_by(uuid: invite.user_uuid)
 
       assert User.get_status(user) == :pending_confirmation
 
       {:ok, _invite} = Invite.accept(invite, "some_password")
-      user = User.get(user.id)
 
+      user = User.get(user.id)
       assert User.get_status(user) == :active
     end
 
     test "sets user with the given password" do
-      admin = insert(:admin)
+      {:ok, admin} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(admin)
 
       {res, _invite} = Invite.accept(invite, "some_password")
@@ -142,7 +143,7 @@ defmodule EWalletDB.InviteTest do
     end
 
     test "disassociates the invite_uuid from the user" do
-      admin = insert(:admin)
+      {:ok, admin} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(admin)
 
       {res, _invite} = Invite.accept(invite, "some_password")
@@ -152,7 +153,7 @@ defmodule EWalletDB.InviteTest do
     end
 
     test "sets verified_at date time" do
-      admin = insert(:admin)
+      {:ok, admin} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(admin)
 
       {res, invite} = Invite.accept(invite, "some_password")

@@ -11,12 +11,12 @@ defmodule EWallet.UserFetcherTest do
   describe "get/1" do
     test "retrieves a user from its id", meta do
       {:ok, user} = UserFetcher.fetch(%{"user_id" => meta.user.id})
-      assert user == meta.user
+      assert user.uuid == meta.user.uuid
     end
 
     test "retrieves a user from its provider_user_id", meta do
       {:ok, user} = UserFetcher.fetch(%{"provider_user_id" => meta.user.provider_user_id})
-      assert user == meta.user
+      assert user.uuid == meta.user.uuid
     end
 
     test "Raise user_id_not_found if the user_id doesn't exist" do

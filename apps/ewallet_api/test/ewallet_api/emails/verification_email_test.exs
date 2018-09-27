@@ -1,10 +1,10 @@
 defmodule EWalletAPI.VerificationEmailTest do
   use EWalletAPI.ConnCase
   alias EWalletAPI.VerificationEmail
-  alias EWalletDB.Invite
+  alias EWalletDB.{Invite, User}
 
   defp create_email(email) do
-    user = insert(:standalone_user, email: email)
+    {:ok, user} = :standalone_user |> params_for(email: email) |> User.insert()
     {:ok, invite} = Invite.generate(user)
 
     {VerificationEmail.create(invite, "https://invite_url/?email={email}&token={token}"),

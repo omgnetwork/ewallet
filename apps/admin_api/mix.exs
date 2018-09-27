@@ -49,8 +49,6 @@ defmodule AdminAPI.Mixfile do
       {:cowboy, "~> 1.0"},
       {:cors_plug, "~> 1.5"},
       {:sentry, "~> 6.2.0"},
-      {:bamboo, "~> 0.8"},
-      {:bamboo_smtp, "~> 1.4.0"},
       {:bodyguard, "~> 2.2"},
       {:deferred_config, "~> 0.1.0"},
       {:ewallet_db, in_umbrella: true},
