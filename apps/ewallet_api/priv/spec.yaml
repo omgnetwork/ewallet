@@ -450,6 +450,8 @@ components:
               id: "usr_01cc02x0v98qcctvycfx4vsk8x"
               provider_user_id: "wijf-fbancomw-dqwjudb"
               username: "johndoe"
+              full_name: "John Doe"
+              display_name: "John"
               email: "johndoe@omise.co"
               metadata: {"first_name": "John", "last_name": "Doe"}
               encrypted_metadata: {"something": "secret"}
@@ -468,6 +470,10 @@ components:
         id:
           type: string
         username:
+          type: string
+        full_name:
+          type: string
+        display_name:
           type: string
         provider_user_id:
           type: string
@@ -496,6 +502,8 @@ components:
         id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
         provider_user_id: "wijf-fbancomw-dqwjudb"
         username: "johndoe"
+        full_name: "John Doe"
+        display_name: "John"
         email: "johndoe@omise.co"
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {}
@@ -519,6 +527,8 @@ components:
             id: "usr_01cbfg6v9thrc3sd9m1v4gazjv"
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "johndoe"
+            full_name: "John Doe"
+            display_name: "John"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {}
