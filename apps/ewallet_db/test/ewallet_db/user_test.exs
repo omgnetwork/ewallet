@@ -14,6 +14,8 @@ defmodule EWalletDB.UserTest do
 
       assert user.id == inserted_user.id
       assert user.username == inserted_user.username
+      assert user.full_name == inserted_user.full_name
+      assert user.display_name == inserted_user.display_name
       assert user.provider_user_id == inserted_user.provider_user_id
       assert user.metadata["first_name"] == inserted_user.metadata["first_name"]
       assert user.metadata["last_name"] == inserted_user.metadata["last_name"]
@@ -66,6 +68,8 @@ defmodule EWalletDB.UserTest do
 
   describe "update/2" do
     test_update_field_ok(User, :username, insert(:admin))
+    test_update_field_ok(User, :full_name, insert(:admin))
+    test_update_field_ok(User, :display_name, insert(:admin))
 
     test_update_field_ok(User, :metadata, insert(:admin), %{"field" => "old"}, %{"field" => "new"})
 
