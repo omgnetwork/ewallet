@@ -17,6 +17,8 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         id: user.id,
         socket_topic: "user:#{user.id}",
         username: user.username,
+        full_name: user.full_name,
+        display_name: user.display_name,
         provider_user_id: user.provider_user_id,
         email: user.email,
         metadata: %{
@@ -73,6 +75,8 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         object: "user",
         id: user.id,
         username: user.username,
+        full_name: user.full_name,
+        display_name: user.display_name,
         socket_topic: "user:#{user.id}",
         provider_user_id: user.provider_user_id,
         email: user.email,

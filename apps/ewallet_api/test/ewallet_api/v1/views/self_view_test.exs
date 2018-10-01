@@ -16,6 +16,8 @@ defmodule EWalletAPI.V1.SelfViewTest do
           socket_topic: "user:#{user.id}",
           provider_user_id: user.provider_user_id,
           username: user.username,
+          full_name: user.full_name,
+          display_name: user.display_name,
           email: user.email,
           avatar: %{
             original: nil,
