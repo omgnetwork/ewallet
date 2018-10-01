@@ -312,7 +312,7 @@ defmodule EWallet.Web.MatchAllParserTest do
       txn_3 = insert(:transaction)
 
       {:ok, txn_2} = Preloader.preload_one(txn_2, :from_user)
-      {:ok, _user} = User.update(txn_2.from_user, %{is_admin: true})
+      {:ok, _user} = User.set_admin(txn_2.from_user, true)
 
       attrs = %{
         "match_all" => [
