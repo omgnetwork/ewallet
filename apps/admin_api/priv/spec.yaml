@@ -1508,6 +1508,25 @@ components:
           is_last_page: true
 
     ######################################
+    #     ADVANCED FILTERING SCHEMAS     #
+    ######################################
+    AdvancedFilteringSchema:
+      type: array
+      items:
+        type: object
+        properties:
+          field:
+            type: string
+          comparator:
+            type: string
+          value:
+            type: string
+        required:
+          - field
+          - comparator
+          - value
+
+    ######################################
     #            ERROR SCHEMAS           #
     ######################################
     ErrorSchema:
@@ -4710,6 +4729,10 @@ components:
                 minimum: 1
               search_term:
                 type: string
+              match_all:
+                $ref: '#/components/schemas/AdvancedFilteringSchema'
+              match_any:
+                $ref: '#/components/schemas/AdvancedFilteringSchema'
               sort_by:
                 type: string
               sort_dir:
@@ -4719,6 +4742,8 @@ components:
               page: 1
               per_page: 10
               search_term: ""
+              match_all: []
+              match_any: []
               sort_by: "created_at"
               sort_dir: "desc"
 

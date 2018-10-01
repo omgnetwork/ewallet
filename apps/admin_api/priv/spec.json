@@ -3103,6 +3103,12 @@
           }
         }
       },
+      "AdvancedFilteringSchema" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/AdvancedFilteringSchema_inner"
+        }
+      },
       "ErrorSchema" : {
         "required" : [ "code", "description", "messages", "object" ],
         "type" : "object",
@@ -5456,6 +5462,19 @@
           }
         } ]
       },
+      "AdvancedFilteringSchema_inner" : {
+        "properties" : {
+          "field" : {
+            "type" : "string"
+          },
+          "comparator" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
       "TransactionSchema_from" : {
         "properties" : {
           "object" : {
@@ -7411,6 +7430,12 @@
                 "search_term" : {
                   "type" : "string"
                 },
+                "match_all" : {
+                  "$ref" : "#/components/schemas/AdvancedFilteringSchema"
+                },
+                "match_any" : {
+                  "$ref" : "#/components/schemas/AdvancedFilteringSchema"
+                },
                 "sort_by" : {
                   "type" : "string"
                 },
@@ -7423,6 +7448,8 @@
                 "page" : 1,
                 "per_page" : 10,
                 "search_term" : "",
+                "match_all" : [ ],
+                "match_any" : [ ],
                 "sort_by" : "created_at",
                 "sort_dir" : "desc"
               }
