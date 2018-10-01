@@ -13,12 +13,14 @@ defmodule EWalletDB.User do
   alias EWalletDB.{
     Account,
     AccountUser,
+    Audit,
     AuthToken,
     Helpers.Crypto,
     Invite,
     Membership,
     Repo,
     Role,
+    Types.VirtualStruct,
     User,
     Wallet
   }
@@ -35,6 +37,7 @@ defmodule EWalletDB.User do
     field(:password_confirmation, :string, virtual: true)
     field(:password_hash, :string)
     field(:provider_user_id, :string)
+    field(:originator, VirtualStruct, virtual: true)
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
@@ -96,9 +99,10 @@ defmodule EWalletDB.User do
       :password_confirmation,
       :metadata,
       :encrypted_metadata,
-      :invite_uuid
+      :invite_uuid,
+      :originator
     ])
-    |> validate_required([:metadata, :encrypted_metadata])
+    |> validate_required([:metadata, :encrypted_metadata, :originator])
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_immutable(:provider_user_id)
     |> unique_constraint(:username)
@@ -110,7 +114,10 @@ defmodule EWalletDB.User do
   end
 
   defp avatar_changeset(changeset, attrs) do
-    cast_attachments(changeset, attrs, [:avatar])
+    changeset
+    |> cast(attrs, [:originator])
+    |> cast_attachments(attrs, [:avatar])
+    |> validate_required([:originator])
   end
 
   defp update_changeset(%User{} = user, attrs) do
@@ -119,9 +126,10 @@ defmodule EWalletDB.User do
       :email,
       :metadata,
       :encrypted_metadata,
-      :invite_uuid
+      :invite_uuid,
+      :originator
     ])
-    |> validate_required(:email)
+    |> validate_required([:email, :originator])
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
   end
@@ -228,19 +236,19 @@ defmodule EWalletDB.User do
   """
   @spec insert(map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def insert(attrs) do
-    multi =
-      Multi.new()
-      |> Multi.insert(:user, changeset(%User{}, attrs))
-      |> Multi.run(:wallet, fn %{user: user} ->
-        case User.admin?(user) do
+    %User{}
+    |> changeset(attrs)
+    |> Audit.insert_record_with_audit(
+      Multi.run(Multi.new(), :wallet, fn %{record: record} ->
+        case User.admin?(record) do
           true -> {:ok, nil}
-          false -> insert_wallet(user, Wallet.primary())
+          false -> insert_wallet(record, Wallet.primary())
         end
       end)
-
-    case Repo.transaction(multi) do
+    )
+    |> case do
       {:ok, result} ->
-        user = Repo.preload(result.user, [:wallets])
+        user = Repo.preload(result.record, [:wallets])
         {:ok, user}
 
       # Only the account insertion should fail. If the wallet insert fails, there is
@@ -268,14 +276,15 @@ defmodule EWalletDB.User do
   """
   @spec update(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update(%User{} = user, attrs) do
-    changeset = changeset(user, attrs)
+    user
+    |> changeset(attrs)
+    |> Audit.update_record_with_audit()
+    |> case do
+      {:ok, result} ->
+        {:ok, get(result.record.id)}
 
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        {:ok, get(user.id)}
-
-      result ->
-        result
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
   end
 
@@ -286,12 +295,12 @@ defmodule EWalletDB.User do
   def update_without_password(%User{} = user, attrs) do
     changeset = update_changeset(user, attrs)
 
-    case Repo.update(changeset) do
-      {:ok, user} ->
-        {:ok, get(user.id)}
+    case Audit.update_record_with_audit(changeset) do
+      {:ok, result} ->
+        {:ok, get(result.record.id)}
 
-      result ->
-        result
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
   end
 
@@ -300,18 +309,22 @@ defmodule EWalletDB.User do
   """
   @spec store_avatar(%User{}, map()) :: %User{} | Ecto.Changeset.t()
   def store_avatar(%User{} = user, attrs) do
-    attrs =
+    updated_attrs =
       case attrs["avatar"] do
         "" -> %{avatar: nil}
         "null" -> %{avatar: nil}
         avatar -> %{avatar: avatar}
       end
 
-    changeset = avatar_changeset(user, attrs)
+    updated_attrs = Map.put(updated_attrs, :originator, attrs["originator"])
+    changeset = avatar_changeset(user, updated_attrs)
 
-    case Repo.update(changeset) do
-      {:ok, user} -> get(user.id)
-      result -> result
+    case Audit.update_record_with_audit(changeset) do
+      {:ok, result} ->
+        {:ok, get(result.record.id)}
+
+      {:error, _failed_operation, changeset, _changes_so_far} ->
+        {:error, changeset}
     end
   end
 

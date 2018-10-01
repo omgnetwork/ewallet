@@ -1,7 +1,7 @@
 defmodule AdminAPI.Web.V1.AdminUserAuthTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.AdminUserAuth
-  alias EWalletDB.AuthToken
+  alias EWalletDB.{AuthToken, User}
 
   def auth_header(user_id, token) do
     encoded_key = Base.encode64(user_id <> ":" <> token)
@@ -9,7 +9,7 @@ defmodule AdminAPI.Web.V1.AdminUserAuthTest do
   end
 
   setup do
-    user = insert(:user)
+    {:ok, user} = :user |> params_for() |> User.insert()
 
     %{
       user: user,
@@ -22,7 +22,7 @@ defmodule AdminAPI.Web.V1.AdminUserAuthTest do
       auth = auth_header(meta.user.id, meta.auth_token.token)
 
       assert auth.authenticated == true
-      assert auth.admin_user == meta.user
+      assert auth.admin_user.uuid == meta.user.uuid
       assert auth.auth_user_id == meta.user.id
       assert auth.auth_auth_token == meta.auth_token.token
     end

@@ -42,7 +42,7 @@ defmodule EWallet.Web.InviterTest do
 
     test "resends the verification email if the user has not verified their email" do
       invite = insert(:invite)
-      user = insert(:standalone_user, invite: invite)
+      {:ok, user} = :standalone_user |> params_for(invite: invite) |> User.insert()
 
       {res, invite} =
         Inviter.invite_user(
@@ -80,6 +80,7 @@ defmodule EWallet.Web.InviterTest do
 
   describe "invite_admin/5" do
     test "sends email and returns the invite if successful" do
+      user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
       role = insert(:role)
 
@@ -89,6 +90,7 @@ defmodule EWallet.Web.InviterTest do
           account,
           role,
           @admin_redirect_url,
+          user,
           &InviteEmail.create/2
         )
 
@@ -98,6 +100,7 @@ defmodule EWallet.Web.InviterTest do
     end
 
     test "sends a new invite if this email has been invited before" do
+      user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
       role = insert(:role)
 
@@ -107,6 +110,7 @@ defmodule EWallet.Web.InviterTest do
           account,
           role,
           @admin_redirect_url,
+          user,
           &InviteEmail.create/2
         )
 
@@ -116,6 +120,7 @@ defmodule EWallet.Web.InviterTest do
           account,
           role,
           @admin_redirect_url,
+          user,
           &InviteEmail.create/2
         )
 
@@ -124,6 +129,7 @@ defmodule EWallet.Web.InviterTest do
     end
 
     test "assigns the user to account and role" do
+      user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
       role = insert(:role)
 
@@ -133,6 +139,7 @@ defmodule EWallet.Web.InviterTest do
           account,
           role,
           @admin_redirect_url,
+          user,
           &InviteEmail.create/2
         )
 
@@ -145,7 +152,7 @@ defmodule EWallet.Web.InviterTest do
 
     test "returns :user_already_active error if user is already active" do
       # This should already be an active user
-      _user = insert(:admin, %{email: "activeuser@example.com"})
+      user = insert(:admin, %{email: "activeuser@example.com"})
       account = insert(:account)
       role = insert(:role)
 
@@ -155,6 +162,7 @@ defmodule EWallet.Web.InviterTest do
           account,
           role,
           @admin_redirect_url,
+          user,
           &InviteEmail.create/2
         )
 
@@ -165,7 +173,8 @@ defmodule EWallet.Web.InviterTest do
 
   describe "send_email/3" do
     test "creates and sends the invite email" do
-      {:ok, invite} = Invite.generate(insert(:admin))
+      {:ok, user} = :admin |> params_for() |> User.insert()
+      {:ok, invite} = Invite.generate(user)
 
       {res, _} = Inviter.send_email(invite, @admin_redirect_url, &InviteEmail.create/2)
 

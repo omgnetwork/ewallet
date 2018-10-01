@@ -8,7 +8,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
 
   describe "ResetPasswordController.reset/2" do
     test "returns success if the request was generated successfully" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
         unauthenticated_request("/admin.reset_password", %{
@@ -66,7 +66,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
     end
 
     test "returns an error if the email is not supplied" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
         unauthenticated_request("/admin.reset_password", %{
@@ -84,7 +84,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
     end
 
     test "returns an error if the redirect_url is not supplied" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
 
       response =
         unauthenticated_request("/admin.reset_password", %{
@@ -104,7 +104,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
 
   describe "ResetPasswordController.update/2" do
     test "returns success and updates the password if the password has been reset succesfully" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
       request = ForgetPasswordRequest.generate(user)
 
       assert user.password_hash != Crypto.hash_password("password")
@@ -120,11 +120,11 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
       assert response["success"]
       user = User.get(user.id)
       assert Crypto.verify_password("password", user.password_hash)
-      assert ForgetPasswordRequest |> Repo.all() |> length() == 0
+      assert ForgetPasswordRequest.all_active() |> length() == 0
     end
 
     test "returns an email_not_found error when the user is not found" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
       request = ForgetPasswordRequest.generate(user)
 
       response =
@@ -141,7 +141,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
     end
 
     test "returns a token_not_found error when the request is not found" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
       _request = ForgetPasswordRequest.generate(user)
 
       assert user.password_hash != Crypto.hash_password("password")
@@ -160,7 +160,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
     end
 
     test "returns a client:invalid_parameter error when the password is too short" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
       request = ForgetPasswordRequest.generate(user)
 
       assert user.password_hash != Crypto.hash_password("password")
@@ -183,7 +183,7 @@ defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
     end
 
     test "returns an invalid parameter error when the email is not sent" do
-      user = insert(:admin)
+      {:ok, user} = :admin |> params_for() |> User.insert()
       request = ForgetPasswordRequest.generate(user)
 
       assert user.password_hash != Crypto.hash_password("password")
