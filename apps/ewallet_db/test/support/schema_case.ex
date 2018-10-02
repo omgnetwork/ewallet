@@ -37,7 +37,7 @@ defmodule EWalletDB.SchemaCase do
   """
   import EWalletDB.Factory
   alias Ecto.Adapters.SQL
-  alias EWalletDB.Account
+  alias EWalletDB.{Account, User}
 
   defmacro __using__(_opts) do
     quote do
@@ -66,7 +66,7 @@ defmodule EWalletDB.SchemaCase do
     role = insert(:role, %{name: role_name})
     _membership = insert(:membership, %{user: user, account: account, role: role})
 
-    {user, account}
+    {User.get(user.id), account}
   end
 
   def get_or_insert_master_account do
@@ -429,11 +429,12 @@ defmodule EWalletDB.SchemaCase do
   @doc """
   Test schema's update/2 does update the given field
   """
-  defmacro test_update_field_ok(schema, field, old \\ "old", new \\ "new") do
+  defmacro test_update_field_ok(schema, field, originator, old \\ "old", new \\ "new") do
     quote do
       test "updates #{unquote(field)} successfully" do
         schema = unquote(schema)
         field = unquote(field)
+        originator = unquote(originator)
         old = unquote(old)
         new = unquote(new)
 
@@ -443,7 +444,11 @@ defmodule EWalletDB.SchemaCase do
           |> params_for(%{field => old})
           |> schema.insert()
 
-        {res, updated} = schema.update(original, %{field => new})
+        {res, updated} =
+          schema.update(original, %{
+            :originator => originator,
+            field => new
+          })
 
         assert res == :ok
         assert Map.fetch!(updated, field) == new

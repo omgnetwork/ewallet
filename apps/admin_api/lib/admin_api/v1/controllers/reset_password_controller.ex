@@ -12,7 +12,7 @@ defmodule AdminAPI.V1.ResetPasswordController do
       when not is_nil(email) and not is_nil(redirect_url) do
     with {:ok, redirect_url} <- validate_redirect_url(redirect_url),
          %User{} = user <- User.get_by_email(email) || :user_email_not_found,
-         {_, _} <- ForgetPasswordRequest.delete_all(user),
+         {_, _} <- ForgetPasswordRequest.disable_all_for(user),
          %ForgetPasswordRequest{} = request <- ForgetPasswordRequest.generate(user),
          %Email{} = email_object <- ForgetPasswordEmail.create(request, redirect_url),
          %Email{} <- Mailer.deliver_now(email_object) do
@@ -48,8 +48,9 @@ defmodule AdminAPI.V1.ResetPasswordController do
       ) do
     with %User{} = user <- get_user(email),
          %ForgetPasswordRequest{} = request <- get_request(user, token),
+         attrs <- Map.put(attrs, "originator", request),
          {:ok, %User{} = user} <- update_password(request, attrs) do
-      _ = ForgetPasswordRequest.delete_all(user)
+      _ = ForgetPasswordRequest.disable_all_for(user)
       render(conn, :empty, %{success: true})
     else
       error when is_atom(error) ->
@@ -76,7 +77,8 @@ defmodule AdminAPI.V1.ResetPasswordController do
        }) do
     User.update(request.user, %{
       password: password,
-      password_confirmation: password_confirmation
+      password_confirmation: password_confirmation,
+      originator: request
     })
   end
 end

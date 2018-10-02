@@ -2,10 +2,11 @@ defmodule AdminAPI.V1.UserViewTest do
   use AdminAPI.ViewCase, :v1
   alias AdminAPI.V1.UserView
   alias EWallet.Web.{Date, Paginator}
+  alias EWalletDB.User
 
   describe "AdminAPI.V1.UserView.render/2" do
     test "renders user.json with correct response structure" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       # I prefer to keep this test code duplicate with the `UserView.render/2` test,
       # because in practice they are separate responses.
@@ -40,8 +41,8 @@ defmodule AdminAPI.V1.UserViewTest do
     end
 
     test "renders users.json with correct response structure" do
-      user1 = insert(:user)
-      user2 = insert(:user)
+      {:ok, user1} = :user |> params_for() |> User.insert()
+      {:ok, user2} = :user |> params_for() |> User.insert()
 
       paginator = %Paginator{
         data: [user1, user2],

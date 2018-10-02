@@ -7,7 +7,7 @@ defmodule AdminAPI.V1.TransactionController do
   alias Ecto.Changeset
   alias EWallet.TransactionGate
   alias EWallet.TransactionPolicy
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{MatchAllParser, Paginator, Preloader, SearchParser, SortParser}
   alias EWalletDB.{Account, Repo, Transaction, User}
 
   # The field names to be mapped into DB column names.
@@ -21,6 +21,30 @@ defmodule AdminAPI.V1.TransactionController do
   # The fields that should be preloaded.
   # Note that these values *must be in the schema associations*.
   @preload_fields [:from_token, :to_token]
+
+  # The fields that are allowed to be filtered.
+  @filter_fields [
+    # From
+    from_amount: nil,
+    from_token: [:id, :name, :symbol, :inserted_at, :created_at],
+    from_wallet: [:address, :name, :identifier, :inserted_at, :created_at],
+    from_account: [:id, :name, :inserted_at, :created_at],
+    from_user: [:id, :username, :email, :provider_user_id, :inserted_at, :created_at],
+    # To
+    to_amount: nil,
+    to_token: [:id, :name, :symbol],
+    to_wallet: [:address, :name, :identifier],
+    to_account: [:id, :name, :inserted_at, :created_at],
+    to_user: [:id, :username, :email, :provider_user_id, :inserted_at, :created_at],
+    # Exchange
+    exchange_account: [:id, :name, :inserted_at, :created_at],
+    exchange_wallet: [:address, :name, :identifier, :inserted_at, :created_at],
+    # Other data
+    status: nil,
+    type: nil,
+    inserted_at: nil,
+    updated_at: nil
+  ]
 
   # The fields that are allowed to be searched.
   # Note that these values here *must be the DB column names*
@@ -149,6 +173,7 @@ defmodule AdminAPI.V1.TransactionController do
   defp query_records_and_respond(query, attrs, conn) do
     query
     |> Preloader.to_query(@preload_fields)
+    |> MatchAllParser.to_query(attrs, @filter_fields)
     |> SearchParser.to_query(attrs, @search_fields)
     |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
     |> Paginator.paginate_attrs(attrs)

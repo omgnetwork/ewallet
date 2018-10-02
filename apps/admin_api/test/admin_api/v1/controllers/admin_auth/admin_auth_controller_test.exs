@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
-  alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, User}
+  alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, System, User}
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
@@ -92,7 +92,10 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       {:ok, _user} =
         [email: @user_email]
         |> User.get_by()
-        |> User.update_without_password(%{invite_uuid: insert(:invite).uuid})
+        |> User.update_without_password(%{
+          invite_uuid: insert(:invite).uuid,
+          originator: %System{}
+        })
 
       response =
         unauthenticated_request("/admin.login", %{email: @user_email, password: @password})
