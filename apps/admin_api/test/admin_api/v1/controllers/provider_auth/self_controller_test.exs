@@ -26,6 +26,20 @@ defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
     end
   end
 
+  describe "/me.update_password" do
+    test "gets access_key:unauthorized back" do
+      response =
+        provider_request("/me.update_password", %{
+          current_password: "current_password",
+          password: "password",
+          password_confirmation: "password"
+        })
+
+      refute response["success"]
+      assert response["data"]["code"] == "access_key:unauthorized"
+    end
+  end
+
   describe "/me.upload_avatar" do
     test "gets access_key:unauthorized back" do
       account = insert(:account)

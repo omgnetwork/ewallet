@@ -89,6 +89,8 @@ defmodule EWalletDB.User do
   end
 
   defp changeset(changeset, attrs) do
+    password = attrs[:password] || attrs["password"]
+
     changeset
     |> cast(attrs, [
       :is_admin,
@@ -109,7 +111,7 @@ defmodule EWalletDB.User do
     |> unique_constraint(:provider_user_id)
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
-    |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
+    |> put_change(:password_hash, Crypto.hash_password(password))
     |> validate_by_roles(attrs)
   end
 
@@ -156,6 +158,8 @@ defmodule EWalletDB.User do
   end
 
   defp password_changeset(user, attrs) do
+    password = attrs[:password] || attrs["password"]
+
     user
     |> cast(attrs, [
       :password,
@@ -165,7 +169,7 @@ defmodule EWalletDB.User do
     |> validate_required([:originator])
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_password(:password)
-    |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
+    |> put_change(:password_hash, Crypto.hash_password(password))
   end
 
   # Two cases to validate for loginable:
