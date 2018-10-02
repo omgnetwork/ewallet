@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.SelfController do
     with {:ok, current_user} <- permit(:update, conn.assigns),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
-         {:ok, user} <- User.update_without_password(current_user, attrs) do
+         {:ok, user} <- User.update(current_user, attrs) do
       respond_single(user, conn)
     else
       error ->

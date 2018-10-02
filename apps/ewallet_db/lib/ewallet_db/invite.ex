@@ -137,7 +137,7 @@ defmodule EWalletDB.Invite do
   def accept(invite) do
     with invite <- Repo.preload(invite, :user),
          attrs <- %{invite_uuid: nil, originator: :self},
-         {:ok, _user} <- User.update_without_password(invite.user, attrs),
+         {:ok, _user} <- User.update(invite.user, attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
          {:ok, result} <- Audit.update_record_with_audit(changeset) do
@@ -157,8 +157,14 @@ defmodule EWalletDB.Invite do
   @spec accept(%Invite{}, String.t()) :: {:ok, struct()} | {:error, any()}
   def accept(invite, password) do
     with invite <- Repo.preload(invite, :user),
-         attrs <- %{invite_uuid: nil, password: password, originator: :self},
-         {:ok, _user} <- User.update(invite.user, attrs),
+         password_attrs <- %{
+           password: password,
+           password_confirmation: password,
+           originator: :self
+         },
+         {:ok, user} <- User.update_password(invite.user, password_attrs, ignore_current: true),
+         user_attrs <- %{invite_uuid: nil, originator: :self},
+         {:ok, _user} <- User.update(user, user_attrs),
          invite_attrs <- %{verified_at: NaiveDateTime.utc_now(), originator: invite.user},
          changeset <- changeset_accept(invite, invite_attrs),
          {:ok, result} <- Audit.update_record_with_audit(changeset) do

@@ -22,8 +22,8 @@ defmodule EWalletDB.AuditTest do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       {:ok, user} =
-        User.update_without_password(user, %{
-          email: "test@mail.com",
+        User.update(user, %{
+          username: "test_username",
           originator: %System{}
         })
 
@@ -44,8 +44,8 @@ defmodule EWalletDB.AuditTest do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       {:ok, user} =
-        User.update_without_password(user, %{
-          email: "test@mail.com",
+        User.update(user, %{
+          username: "test_username",
           originator: %System{}
         })
 
@@ -64,8 +64,8 @@ defmodule EWalletDB.AuditTest do
       {:ok, user} = :user |> params_for() |> User.insert()
 
       {:ok, user} =
-        User.update_without_password(user, %{
-          email: "test@mail.com",
+        User.update(user, %{
+          username: "test_username",
           originator: %System{}
         })
 
@@ -85,8 +85,8 @@ defmodule EWalletDB.AuditTest do
       {:ok, user} = :user |> params_for(%{originator: initial_originator}) |> User.insert()
 
       {:ok, user} =
-        User.update_without_password(user, %{
-          email: "test@mail.com",
+        User.update(user, %{
+          username: "test_username",
           originator: %System{}
         })
 
@@ -107,8 +107,8 @@ defmodule EWalletDB.AuditTest do
       {:ok, user} = :user |> params_for(%{originator: initial_originator}) |> User.insert()
 
       {:ok, user} =
-        User.update_without_password(user, %{
-          email: "test@mail.com",
+        User.update(user, %{
+          username: "test_username",
           originator: %System{}
         })
 
@@ -165,7 +165,7 @@ defmodule EWalletDB.AuditTest do
       multi =
         Multi.new()
         |> Multi.run(:wow_user, fn %{record: _record} ->
-          {:ok, insert(:user, email: "wow@mail.com")}
+          {:ok, insert(:user, username: "test_username")}
         end)
 
       {res, %{audit: audit, record: record, wow_user: wow_user}} =
@@ -180,7 +180,7 @@ defmodule EWalletDB.AuditTest do
       assert audit.target_uuid == record.uuid
 
       assert wow_user != nil
-      assert wow_user.email == "wow@mail.com"
+      assert wow_user.username == "test_username"
 
       assert record |> Audit.all_for_target() |> length() == 1
     end
@@ -193,7 +193,7 @@ defmodule EWalletDB.AuditTest do
 
       params =
         params_for(:user, %{
-          email: "cool@mail.com",
+          username: "test_username",
           originator: admin
         })
 
@@ -219,7 +219,7 @@ defmodule EWalletDB.AuditTest do
 
       params =
         params_for(:user, %{
-          email: "cool@mail.com",
+          username: "test_username",
           originator: admin
         })
 
@@ -228,7 +228,7 @@ defmodule EWalletDB.AuditTest do
       multi =
         Multi.new()
         |> Multi.run(:wow_user, fn %{record: _record} ->
-          {:ok, insert(:user, email: "wow@mail.com")}
+          {:ok, insert(:user, username: "test_another_username")}
         end)
 
       {res, %{audit: audit, record: record, wow_user: _}} =

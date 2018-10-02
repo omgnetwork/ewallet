@@ -75,10 +75,14 @@ defmodule AdminAPI.V1.ResetPasswordController do
          "password" => password,
          "password_confirmation" => password_confirmation
        }) do
-    User.update(request.user, %{
-      password: password,
-      password_confirmation: password_confirmation,
-      originator: request
-    })
+    User.update_password(
+      request.user,
+      %{
+        password: password,
+        password_confirmation: password_confirmation,
+        originator: request
+      },
+      ignore_current: true
+    )
   end
 end
