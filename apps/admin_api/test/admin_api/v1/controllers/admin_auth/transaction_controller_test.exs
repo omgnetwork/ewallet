@@ -203,6 +203,30 @@ defmodule AdminAPI.V1.AdminAuth.TransactionControllerTest do
       assert transaction_1["id"] == meta.mint.transaction.id
       assert transaction_2["id"] == meta.init_transaction_1.id
     end
+
+    test "returns filtered transactions", meta do
+      response =
+        admin_user_request("/transaction.all", %{
+          "match_all" => [
+            %{
+              "field" => "from_wallet.address",
+              "comparator" => "eq",
+              "value" => meta.wallet_4.address
+            }
+          ]
+        })
+
+      transactions = response["data"]["data"]
+
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_1.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_2.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_3.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_4.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_5.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_6.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_7.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_8.id end)
+    end
   end
 
   describe "/account.get_transactions" do
