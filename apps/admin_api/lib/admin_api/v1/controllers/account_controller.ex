@@ -3,30 +3,8 @@ defmodule AdminAPI.V1.AccountController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.AccountPolicy
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, AccountOverlay, Paginator, Preloader}
   alias EWalletDB.Account
-
-  # The field names to be mapped into DB column names.
-  # The keys and values must be strings as this is mapped early before
-  # any operations are done on the field names. For example:
-  # `"request_field_name" => "db_column_name"`
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-
-  # The fields that should be preloaded.
-  # Note that these values *must be in the schema associations*.
-  @preload_fields [:categories]
-
-  # The fields that are allowed to be searched.
-  # Note that these values here *must be the DB column names*
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @search_fields [:id, :name, :description]
-
-  # The fields that are allowed to be sorted.
-  # Note that the values here *must be the DB column names*.
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of accounts based on current account for users.
@@ -38,10 +16,7 @@ defmodule AdminAPI.V1.AccountController do
       # Get all the accounts the current accessor has access to
       Account
       |> Account.where_in(account_uuids)
-      |> Preloader.to_query(@preload_fields)
-      |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
+      |> Orchestrator.to_query(attrs, AccountOverlay)
       |> respond(conn)
     else
       error -> respond(error, conn)
@@ -56,9 +31,7 @@ defmodule AdminAPI.V1.AccountController do
       # Get all users since everyone can access them
       Account
       |> Account.where_in(descendant_uuids)
-      |> SearchParser.to_query(attrs, @search_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
+      |> Orchestrator.to_query(attrs, AccountOverlay)
       |> respond(conn)
     else
       error -> respond(error, conn)
@@ -74,7 +47,7 @@ defmodule AdminAPI.V1.AccountController do
   def get(conn, %{"id" => id}) do
     with %Account{} = account <- Account.get_by(id: id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, account.id),
-         {:ok, account} <- Preloader.preload_one(account, @preload_fields) do
+         {:ok, account} <- Preloader.preload_one(account, AccountOverlay.preload_assocs) do
       render(conn, :account, %{account: account})
     else
       {:error, code} ->
@@ -102,7 +75,7 @@ defmodule AdminAPI.V1.AccountController do
     with :ok <- permit(:create, conn.assigns, parent.id),
          attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
          {:ok, account} <- Account.insert(attrs),
-         {:ok, account} <- Preloader.preload_one(account, @preload_fields) do
+         {:ok, account} <- Preloader.preload_one(account, AccountOverlay.preload_assocs) do
       render(conn, :account, %{account: account})
     else
       {:error, %{} = changeset} ->
@@ -123,7 +96,7 @@ defmodule AdminAPI.V1.AccountController do
     with %Account{} = original <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, original.id),
          {:ok, updated} <- Account.update(original, attrs),
-         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
+         {:ok, updated} <- Preloader.preload_one(updated, AccountOverlay.preload_assocs) do
       render(conn, :account, %{account: updated})
     else
       {:error, %{} = changeset} ->
@@ -144,7 +117,7 @@ defmodule AdminAPI.V1.AccountController do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, account.id),
          %{} = saved <- Account.store_avatar(account, attrs),
-         {:ok, saved} <- Preloader.preload_one(saved, @preload_fields) do
+         {:ok, saved} <- Preloader.preload_one(saved, AccountOverlay.preload_assocs) do
       render(conn, :account, %{account: saved})
     else
       nil ->

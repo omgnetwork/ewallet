@@ -15,10 +15,6 @@ defmodule EWallet.Web.V1.WalletSerializer do
   alias EWalletDB.Wallet
   alias EWalletDB.Helpers.{Assoc, Preloader}
 
-  @default_preload_fields [:user, :account]
-  @preload_from_serializers [UserSerializer, AccountSerializer]
-  def default_preload_fields, do: @default_preload_fields
-
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
