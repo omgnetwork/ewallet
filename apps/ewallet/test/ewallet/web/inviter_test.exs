@@ -1,9 +1,7 @@
 defmodule EWallet.Web.InviterTest do
   use AdminAPI.ConnCase
   use Bamboo.Test
-  alias AdminAPI.InviteEmail
-  alias EWallet.Web.{Inviter, Preloader}
-  alias EWalletAPI.VerificationEmail
+  alias EWallet.Web.{Inviter, MockInviteEmail, Preloader}
   alias EWalletDB.{Account, Invite, Membership, User}
 
   @user_redirect_url "http://localhost:4000/some_redirect_url?email={email}&token={token}"
@@ -18,7 +16,7 @@ defmodule EWallet.Web.InviterTest do
           "password",
           @user_redirect_url,
           @user_success_url,
-          &VerificationEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       assert res == :ok
@@ -32,7 +30,7 @@ defmodule EWallet.Web.InviterTest do
           "password",
           @user_redirect_url,
           @user_success_url,
-          &VerificationEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       {:ok, invite} = Preloader.preload_one(invite, :user)
@@ -50,12 +48,12 @@ defmodule EWallet.Web.InviterTest do
           "password",
           @user_redirect_url,
           @user_success_url,
-          &VerificationEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       assert res == :ok
       assert %Invite{} = invite
-      assert_delivered_email(VerificationEmail.create(invite, @user_redirect_url))
+      assert_delivered_email(MockInviteEmail.create(invite, @user_redirect_url))
 
       {:ok, invite} = Preloader.preload_one(invite, :user)
       assert invite.user.uuid == user.uuid
@@ -70,7 +68,7 @@ defmodule EWallet.Web.InviterTest do
           "password",
           @user_redirect_url,
           @user_success_url,
-          &VerificationEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       assert res == :error
@@ -91,12 +89,12 @@ defmodule EWallet.Web.InviterTest do
           role,
           @admin_redirect_url,
           user,
-          &InviteEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       assert res == :ok
       assert %Invite{} = invite
-      assert_delivered_email(InviteEmail.create(invite, @admin_redirect_url))
+      assert_delivered_email(MockInviteEmail.create(invite, @admin_redirect_url))
     end
 
     test "sends a new invite if this email has been invited before" do
@@ -111,7 +109,7 @@ defmodule EWallet.Web.InviterTest do
           role,
           @admin_redirect_url,
           user,
-          &InviteEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       {:ok, invite2} =
@@ -121,11 +119,11 @@ defmodule EWallet.Web.InviterTest do
           role,
           @admin_redirect_url,
           user,
-          &InviteEmail.create/2
+          &MockInviteEmail.create/2
         )
 
-      assert_delivered_email(InviteEmail.create(invite1, @admin_redirect_url))
-      assert_delivered_email(InviteEmail.create(invite2, @admin_redirect_url))
+      assert_delivered_email(MockInviteEmail.create(invite1, @admin_redirect_url))
+      assert_delivered_email(MockInviteEmail.create(invite2, @admin_redirect_url))
     end
 
     test "assigns the user to account and role" do
@@ -140,7 +138,7 @@ defmodule EWallet.Web.InviterTest do
           role,
           @admin_redirect_url,
           user,
-          &InviteEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       memberships = Membership.all_by_user(invite.user)
@@ -163,7 +161,7 @@ defmodule EWallet.Web.InviterTest do
           role,
           @admin_redirect_url,
           user,
-          &InviteEmail.create/2
+          &MockInviteEmail.create/2
         )
 
       assert res == :error
@@ -176,10 +174,10 @@ defmodule EWallet.Web.InviterTest do
       {:ok, user} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(user)
 
-      {res, _} = Inviter.send_email(invite, @admin_redirect_url, &InviteEmail.create/2)
+      {res, _} = Inviter.send_email(invite, @admin_redirect_url, &MockInviteEmail.create/2)
 
       assert res == :ok
-      assert_delivered_email(InviteEmail.create(invite, @admin_redirect_url))
+      assert_delivered_email(MockInviteEmail.create(invite, @admin_redirect_url))
     end
   end
 end
