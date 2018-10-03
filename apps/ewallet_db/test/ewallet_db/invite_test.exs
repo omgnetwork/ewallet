@@ -125,7 +125,7 @@ defmodule EWalletDB.InviteTest do
 
       assert User.get_status(user) == :pending_confirmation
 
-      {:ok, _invite} = Invite.accept(invite, "some_password")
+      {:ok, _invite} = Invite.accept(invite, "some_password", "some_password")
 
       user = User.get(user.id)
       assert User.get_status(user) == :active
@@ -135,7 +135,7 @@ defmodule EWalletDB.InviteTest do
       {:ok, admin} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(admin)
 
-      {res, _invite} = Invite.accept(invite, "some_password")
+      {res, _invite} = Invite.accept(invite, "some_password", "some_password")
       admin = User.get(admin.id)
 
       assert res == :ok
@@ -146,7 +146,7 @@ defmodule EWalletDB.InviteTest do
       {:ok, admin} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(admin)
 
-      {res, _invite} = Invite.accept(invite, "some_password")
+      {res, _invite} = Invite.accept(invite, "some_password", "some_password")
 
       assert res == :ok
       assert User.get(admin.id).invite_uuid == nil
@@ -156,10 +156,25 @@ defmodule EWalletDB.InviteTest do
       {:ok, admin} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(admin)
 
-      {res, invite} = Invite.accept(invite, "some_password")
+      {res, invite} = Invite.accept(invite, "some_password", "some_password")
 
       assert res == :ok
       assert invite.verified_at != nil
+    end
+
+    test "returns an {:error, changeset} tuple if passwords do not match" do
+      {:ok, admin} = :admin |> params_for() |> User.insert()
+      {:ok, invite} = Invite.generate(admin)
+
+      {res, changeset} = Invite.accept(invite, "some_password", "a_different_password")
+
+      assert res == :error
+      refute changeset.valid?
+
+      assert Enum.member?(
+               changeset.errors,
+               {:password_confirmation, {"does not match password", [validation: :confirmation]}}
+             )
     end
   end
 end

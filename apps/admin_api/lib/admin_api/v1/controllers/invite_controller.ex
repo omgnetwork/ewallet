@@ -16,9 +16,8 @@ defmodule AdminAPI.V1.InviteController do
         "password_confirmation" => password_confirmation
       }) do
     with %Invite{} = invite <- Invite.get(email, token) || {:error, :invite_not_found},
-         true <- password == password_confirmation || {:error, :passwords_mismatch},
          {:ok, invite} <- Preloader.preload_one(invite, :user),
-         {:ok, _} <- Invite.accept(invite, password),
+         {:ok, _} <- Invite.accept(invite, password, password_confirmation),
          {:ok, _} <- User.set_admin(invite.user, true) do
       render(conn, UserView, :user, %{user: invite.user})
     else

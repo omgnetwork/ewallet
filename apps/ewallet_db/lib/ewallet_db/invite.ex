@@ -154,12 +154,12 @@ defmodule EWalletDB.Invite do
   @doc """
   Accepts an invitation and sets the given password to the user.
   """
-  @spec accept(%Invite{}, String.t()) :: {:ok, struct()} | {:error, any()}
-  def accept(invite, password) do
+  @spec accept(%Invite{}, String.t(), String.t()) :: {:ok, struct()} | {:error, any()}
+  def accept(invite, password, password_confirmation) do
     with invite <- Repo.preload(invite, :user),
          password_attrs <- %{
            password: password,
-           password_confirmation: password,
+           password_confirmation: password_confirmation,
            originator: :self
          },
          {:ok, user} <- User.update_password(invite.user, password_attrs, ignore_current: true),

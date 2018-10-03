@@ -71,18 +71,6 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
                "There is no invite corresponding to the provided email and token."
     end
 
-    test "returns :passwords_mismatch error if the passwords do not match" do
-      {:ok, user} = :admin |> params_for() |> User.insert()
-      {:ok, invite} = Invite.generate(user)
-
-      response = request(user.email, invite.token, "some_password", "mismatch_password")
-
-      refute response["success"]
-      assert response["data"]["object"] == "error"
-      assert response["data"]["code"] == "user:passwords_mismatch"
-      assert response["data"]["description"] == "The provided passwords do not match."
-    end
-
     test "returns client:invalid_parameter error if the password has less than 8 characters" do
       {:ok, user} = :admin |> params_for() |> User.insert()
       {:ok, invite} = Invite.generate(user)
