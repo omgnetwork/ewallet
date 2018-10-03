@@ -103,7 +103,7 @@ defmodule EWalletDB.Factory do
       email: nil,
       username: sequence("johndoe"),
       full_name: sequence("John Doe"),
-      display_name: sequence("John"),
+      calling_name: sequence("John"),
       provider_user_id: sequence("provider_id"),
       originator: insert(:admin),
       metadata: %{

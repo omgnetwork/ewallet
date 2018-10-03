@@ -14,7 +14,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
         socket_topic: "user:#{user.id}",
         username: user.username,
         full_name: user.full_name,
-        display_name: user.display_name,
+        calling_name: user.calling_name,
         provider_user_id: user.provider_user_id,
         email: user.email,
         avatar: %{
@@ -66,7 +66,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
             socket_topic: "user:#{user1.id}",
             username: user1.username,
             full_name: user1.full_name,
-            display_name: user1.display_name,
+            calling_name: user1.calling_name,
             provider_user_id: user1.provider_user_id,
             email: user1.email,
             avatar: %{
@@ -89,7 +89,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
             socket_topic: "user:#{user2.id}",
             username: user2.username,
             full_name: user2.full_name,
-            display_name: user2.display_name,
+            calling_name: user2.calling_name,
             provider_user_id: user2.provider_user_id,
             email: user2.email,
             avatar: %{

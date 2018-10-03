@@ -10,7 +10,7 @@ defmodule EWalletAPI.V1.UserViewTest do
         id: UUID.generate(),
         username: "johndoe",
         full_name: "John Doe",
-        display_name: "John",
+        calling_name: "John",
         provider_user_id: "provider_id_9999",
         metadata: %{
           first_name: "John",
@@ -28,7 +28,7 @@ defmodule EWalletAPI.V1.UserViewTest do
           provider_user_id: user.provider_user_id,
           username: user.username,
           full_name: user.full_name,
-          display_name: user.display_name,
+          calling_name: user.calling_name,
           email: user.email,
           avatar: %{
             original: nil,

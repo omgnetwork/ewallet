@@ -33,7 +33,7 @@ defmodule EWalletDB.User do
     field(:is_admin, :boolean, default: false)
     field(:username, :string)
     field(:full_name, :string)
-    field(:display_name, :string)
+    field(:calling_name, :string)
     field(:email, :string)
     field(:password, :string, virtual: true)
     field(:password_confirmation, :string, virtual: true)
@@ -96,7 +96,7 @@ defmodule EWalletDB.User do
       :is_admin,
       :username,
       :full_name,
-      :display_name,
+      :calling_name,
       :provider_user_id,
       :email,
       :password,
@@ -129,7 +129,7 @@ defmodule EWalletDB.User do
     |> cast(attrs, [
       :email,
       :full_name,
-      :display_name,
+      :calling_name,
       :metadata,
       :encrypted_metadata,
       :invite_uuid,

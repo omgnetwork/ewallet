@@ -451,7 +451,7 @@ components:
               provider_user_id: "wijf-fbancomw-dqwjudb"
               username: "johndoe"
               full_name: "John Doe"
-              display_name: "John"
+              calling_name: "John"
               email: "johndoe@omise.co"
               metadata: {"first_name": "John", "last_name": "Doe"}
               encrypted_metadata: {"something": "secret"}
@@ -473,7 +473,7 @@ components:
           type: string
         full_name:
           type: string
-        display_name:
+        calling_name:
           type: string
         provider_user_id:
           type: string
@@ -503,7 +503,7 @@ components:
         provider_user_id: "wijf-fbancomw-dqwjudb"
         username: "johndoe"
         full_name: "John Doe"
-        display_name: "John"
+        calling_name: "John"
         email: "johndoe@omise.co"
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {}
@@ -528,7 +528,7 @@ components:
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "johndoe"
             full_name: "John Doe"
-            display_name: "John"
+            calling_name: "John"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {}

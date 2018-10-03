@@ -26,7 +26,7 @@ defmodule AdminAPI.V1.AdminAuth.InviteControllerTest do
         "provider_user_id" => nil,
         "username" => nil,
         "full_name" => nil,
-        "display_name" => nil,
+        "calling_name" => nil,
         "email" => invite.user.email,
         "avatar" => %{"original" => nil, "large" => nil, "small" => nil, "thumb" => nil},
         "metadata" => %{

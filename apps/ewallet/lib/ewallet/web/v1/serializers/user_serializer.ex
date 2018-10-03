@@ -18,7 +18,7 @@ defmodule EWallet.Web.V1.UserSerializer do
       socket_topic: "user:#{user.id}",
       username: user.username,
       full_name: user.full_name,
-      display_name: user.display_name,
+      calling_name: user.calling_name,
       provider_user_id: user.provider_user_id,
       email: user.email,
       metadata: user.metadata || %{},
