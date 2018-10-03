@@ -87,9 +87,9 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
         })
 
       assert response["success"] == false
-      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["code"] == "user:invalid_old_password"
 
-      assert response["data"]["description"] == "The provided current password is invalid."
+      assert response["data"]["description"] == "The provided old password is invalid."
     end
 
     test "returns error if the passwords do not match" do
@@ -119,7 +119,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `password` must be 8 characters or more"
+               "Invalid parameter provided. `password` must be 8 characters or more."
     end
   end
 
