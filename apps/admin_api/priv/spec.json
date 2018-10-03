@@ -1660,6 +1660,41 @@
         } ]
       }
     },
+    "/me.update_password" : {
+      "post" : {
+        "tags" : [ "Admin" ],
+        "summary" : "Update the user's password with the provided parameters",
+        "operationId" : "me_update_password",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AdminUpdatePasswordBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single user",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/me.upload_avatar" : {
       "post" : {
         "tags" : [ "Admin" ],
@@ -6924,6 +6959,35 @@
                 "email" : "example@omise.co",
                 "metadata" : { },
                 "encrypted_metadata" : { }
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "AdminUpdatePasswordBody" : {
+        "description" : "The parameters to use for updating a user's password",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "properties" : {
+                "current_password" : {
+                  "type" : "string",
+                  "format" : "password"
+                },
+                "password" : {
+                  "type" : "string",
+                  "format" : "password"
+                },
+                "password_confirmation" : {
+                  "type" : "string",
+                  "format" : "password"
+                }
+              },
+              "example" : {
+                "current_password" : "old_password",
+                "password" : "new_password",
+                "password_confirmation" : "new_password"
               }
             }
           }
