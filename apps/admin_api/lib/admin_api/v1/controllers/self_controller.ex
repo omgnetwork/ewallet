@@ -130,7 +130,8 @@ defmodule AdminAPI.V1.SelfController do
     handle_error(conn, :user_id_not_found)
   end
 
-  @spec permit(:get | :update | :update_password, map()) :: {:ok, %User{}} | :access_key_unauthorized
+  @spec permit(:get | :update | :update_password, map()) ::
+          {:ok, %User{}} | :access_key_unauthorized
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end
