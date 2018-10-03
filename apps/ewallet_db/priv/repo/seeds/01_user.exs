@@ -1,5 +1,5 @@
 defmodule EWalletDB.Repo.Seeds.UserSeed do
-  alias EWalletDB.{Account, AccountUser, Helpers.Crypto, User}
+  alias EWalletDB.{Account, AccountUser, Helpers.Crypto, System, User}
 
   @argsline_desc """
   This email and password combination is required for logging into the admin panel.
@@ -25,7 +25,8 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       password: args[:admin_password],
       metadata: %{},
       account_uuid: Account.get_master_account().uuid,
-      is_admin: true
+      is_admin: true,
+      originator: %System{}
     }
 
     case User.get_by_email(data.email) do
