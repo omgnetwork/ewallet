@@ -96,7 +96,7 @@ defmodule EWalletDB.UserTest do
 
       {res, updated} =
         User.update(user, %{
-          current_password: user.password,
+          old_password: user.password,
           password: "new_password",
           password_confirmation: "new_password",
           originator: user
@@ -114,7 +114,7 @@ defmodule EWalletDB.UserTest do
 
       {res, updated} =
         User.update_password(user, %{
-          current_password: user.password,
+          old_password: user.password,
           password: "new_password",
           password_confirmation: "new_password",
           originator: user
@@ -124,13 +124,13 @@ defmodule EWalletDB.UserTest do
       assert Crypto.verify_password("new_password", updated.password_hash)
     end
 
-    test "allows initial password setting without current_password" do
+    test "allows initial password setting without old_password" do
       user = insert(:user)
       assert user.password_hash == nil
 
       {res, updated} =
         User.update_password(user, %{
-          # current_password: user.password,
+          # old_password: user.password,
           password: "new_password",
           password_confirmation: "new_password",
           originator: user
@@ -145,14 +145,14 @@ defmodule EWalletDB.UserTest do
 
       {res, code} =
         User.update_password(user, %{
-          # current_password: user.password,
+          # old_password: user.password,
           password: "new_password",
           password_confirmation: "new_password",
           originator: user
         })
 
       assert res == :error
-      assert code == :invalid_current_password
+      assert code == :invalid_old_password
     end
 
     test "prevents removing the password" do
@@ -160,7 +160,7 @@ defmodule EWalletDB.UserTest do
 
       {res, changeset} =
         User.update_password(user, %{
-          current_password: user.password,
+          old_password: user.password,
           password: nil,
           password_confirmation: nil,
           originator: user
@@ -175,7 +175,7 @@ defmodule EWalletDB.UserTest do
 
       {res, changeset} =
         User.update_password(user, %{
-          current_password: user.password,
+          old_password: user.password,
           password: "new_password",
           password_confirmation: "a_different_password",
           originator: user
@@ -190,7 +190,7 @@ defmodule EWalletDB.UserTest do
 
       {res, changeset} =
         User.update_password(user, %{
-          current_password: user.password,
+          old_password: user.password,
           password: "short",
           password_confirmation: "short",
           originator: user

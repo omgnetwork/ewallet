@@ -4381,7 +4381,7 @@ components:
         application/vnd.omisego.v1+json:
           schema:
             properties:
-              current_password:
+              old_password:
                 type: string
                 format: password
               password:
@@ -4391,7 +4391,7 @@ components:
                 type: string
                 format: password
             example:
-              current_password: "old_password"
+              old_password: "old_password"
               password: "new_password"
               password_confirmation: "new_password"
     AdminUploadBody:

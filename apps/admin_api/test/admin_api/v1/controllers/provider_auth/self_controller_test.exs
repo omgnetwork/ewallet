@@ -30,7 +30,7 @@ defmodule AdminAPI.V1.ProviderAuth.SelfControllerTest do
     test "gets access_key:unauthorized back" do
       response =
         provider_request("/me.update_password", %{
-          current_password: "current_password",
+          old_password: @password,
           password: "password",
           password_confirmation: "password"
         })

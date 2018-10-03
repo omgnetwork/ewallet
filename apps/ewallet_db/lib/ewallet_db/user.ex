@@ -358,20 +358,20 @@ defmodule EWalletDB.User do
   end
 
   defp do_verify_and_update_password(user, attrs) do
-    current_password = attrs[:current_password] || attrs["current_password"]
+    old_password = attrs[:old_password] || attrs["old_password"]
 
     cond do
-      current_password == nil && user.password_hash == nil ->
+      old_password == nil && user.password_hash == nil ->
         do_update_password(user, attrs)
 
-      current_password == nil && user.password_hash != nil ->
-        {:error, :invalid_current_password}
+      old_password == nil && user.password_hash != nil ->
+        {:error, :invalid_old_password}
 
-      Crypto.verify_password(current_password, user.password_hash) ->
+      Crypto.verify_password(old_password, user.password_hash) ->
         do_update_password(user, attrs)
 
       true ->
-        {:error, :invalid_current_password}
+        {:error, :invalid_old_password}
     end
   end
 

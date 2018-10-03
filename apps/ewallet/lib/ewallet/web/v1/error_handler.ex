@@ -102,9 +102,9 @@ defmodule EWallet.Web.V1.ErrorHandler do
       code: "user:passwords_mismatch",
       description: "The provided passwords do not match."
     },
-    invalid_current_password: %{
-      code: "user:invalid_current_password",
-      description: "The provided current password is invalid."
+    invalid_old_password: %{
+      code: "user:invalid_old_password",
+      description: "The provided old password is invalid."
     },
     account_not_found: %{
       code: "account:not_found",

@@ -65,7 +65,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
     test "update the current user's password" do
       response =
         admin_user_request("/me.update_password", %{
-          current_password: @password,
+          old_password: @password,
           password: "the_new_password",
           password_confirmation: "the_new_password"
         })
@@ -81,7 +81,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
     test "returns error if the current password is invalid" do
       response =
         admin_user_request("/me.update_password", %{
-          current_password: "wrong_current_password",
+          old_password: "wrong_old_password",
           password: "the_new_password",
           password_confirmation: "the_new_password"
         })
@@ -95,7 +95,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
     test "returns error if the passwords do not match" do
       response =
         admin_user_request("/me.update_password", %{
-          current_password: @password,
+          old_password: @password,
           password: "a_password",
           password_confirmation: "another_password"
         })
@@ -110,7 +110,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
     test "returns error if the password does not pass the requirements" do
       response =
         admin_user_request("/me.update_password", %{
-          current_password: @password,
+          old_password: @password,
           password: "short",
           password_confirmation: "short"
         })
