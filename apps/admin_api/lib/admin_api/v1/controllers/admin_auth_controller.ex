@@ -3,6 +3,7 @@ defmodule AdminAPI.V1.AdminAuthController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AdminUserAuthenticator
   alias EWallet.AccountPolicy
+  alias EWallet.Web.{Orchestrator, V1.AuthTokenOverlay}
   alias EWalletDB.{Account, AuthToken, User}
 
   @doc """
@@ -15,7 +16,8 @@ defmodule AdminAPI.V1.AdminAuthController do
          conn <- AdminUserAuthenticator.authenticate(conn, attrs["email"], attrs["password"]),
          true <- conn.assigns.authenticated || {:error, :invalid_login_credentials},
          true <- User.get_status(conn.assigns.admin_user) == :active || {:error, :invite_pending},
-         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api) do
+         {:ok, auth_token} = AuthToken.generate(conn.assigns.admin_user, :admin_api),
+         {:ok, auth_token} <- Orchestrator.one(auth_token, AuthTokenOverlay, attrs) do
       render_token(conn, auth_token)
     else
       {:error, code} when is_atom(code) ->
@@ -23,14 +25,15 @@ defmodule AdminAPI.V1.AdminAuthController do
     end
   end
 
-  def switch_account(conn, %{"account_id" => account_id}) do
+  def switch_account(conn, %{"account_id" => account_id} = attrs) do
     with {:ok, _current_user} <- permit(:get, conn.assigns),
          %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit_account(:get, conn.assigns, account.id),
          token <- conn.private.auth_auth_token,
          %AuthToken{} = token <-
            AuthToken.get_by_token(token, :admin_api) || {:error, :auth_token_not_found},
-         {:ok, token} <- AuthToken.switch_account(token, account) do
+         {:ok, token} <- AuthToken.switch_account(token, account),
+         {:ok, token} <- Orchestrator.one(token, AuthTokenOverlay, attrs) do
       render_token(conn, token)
     else
       {:error, code} when is_atom(code) ->

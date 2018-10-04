@@ -1,26 +1,21 @@
 defmodule EWallet.Web.V1.AuthTokenOverlay do
-  alias EWalletDB.Category
-
   def preload_assocs,
     do: [
-      categories: Category
+      :user,
+      :account
+    ]
+
+  def default_preload_assocs,
+    do: [
+      :user,
+      :account
     ]
 
   def search_fields,
-    do: [
-      :id,
-      :name,
-      :description
-    ]
+    do: []
 
   def sort_fields,
-    do: [
-      :id,
-      :name,
-      :description,
-      :inserted_at,
-      :updated_at
-    ]
+    do: []
 
   def self_filter_fields, do: []
   def filter_fields, do: []
