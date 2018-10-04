@@ -11,7 +11,7 @@ defmodule EWalletAPI.Mixfile do
       lockfile: "../../mix.lock",
       elixir: "~> 1.4",
       elixirc_paths: elixirc_paths(Mix.env),
-      elixirc_options: [warnings_as_errors: true],
+      elixirc_options: [warnings_as_errors: Mix.env != :test],
       compilers: [:phoenix] ++ Mix.compilers,
       start_permanent: Mix.env == :prod,
       test_coverage: [tool: ExCoveralls],
