@@ -10,6 +10,20 @@ defmodule EWallet.Web.Orchestrator do
     |> Paginator.paginate_attrs(attrs)
   end
 
+  def all(records, overlay, attrs \\ nil)
+
+  def all(records, _overlay, %{"preload" => preload}) when is_map(preload) do
+    Preloader.preload_all(records, preload)
+  end
+
+  def all(records, _overlay, %{"preload" => preload}) when is_list(preload) do
+    Preloader.preload_all(records, preload)
+  end
+
+  def all(records, overlay, _attrs) do
+    Preloader.preload_all(records, overlay.default_preload_assocs())
+  end
+
   def one(record, overlay, attrs \\ nil)
 
   def one(record, _overlay, %{"preload" => preload}) when is_map(preload) do
