@@ -36,25 +36,18 @@ defmodule AdminAPI.V1.KeyController do
   Creates a new key. Currently keys are assigned to the master account only.
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def create(conn, _attrs) do
-    with :ok <- permit(:create, conn.assigns, nil) do
-      %{}
-      |> Key.insert()
-      |> respond_single(conn)
+  def create(conn, attrs) do
+    with :ok <- permit(:create, conn.assigns, nil),
+         {:ok, key} <- Key.insert(%{}),
+         {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
+      render(conn, :key, %{key: key})
     else
       {:error, code} ->
         handle_error(conn, code)
+
+      {:error, changeset} ->
+        handle_error(conn, :invalid_parameter, changeset)
     end
-  end
-
-  # Respond when the key is saved successfully
-  defp respond_single({:ok, key}, conn) do
-    render(conn, :key, %{key: key})
-  end
-
-  # Responds when the key is saved unsucessfully
-  defp respond_single({:error, changeset}, conn) do
-    handle_error(conn, :invalid_parameter, changeset)
   end
 
   @doc """
@@ -63,7 +56,8 @@ defmodule AdminAPI.V1.KeyController do
   @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def update(conn, %{"id" => id} = attrs) do
     with %Key{} = key <- Key.get(id) || {:error, :key_not_found},
-         {:ok, key} <- Key.update(key, attrs) do
+         {:ok, key} <- Key.update(key, attrs),
+         {:ok, key} <- Orchestrator.one(key, KeyOverlay, attrs) do
       render(conn, :key, %{key: key})
     else
       {:error, code} when is_atom(code) ->
