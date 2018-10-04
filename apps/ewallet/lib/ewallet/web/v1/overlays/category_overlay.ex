@@ -1,5 +1,6 @@
 defmodule EWallet.Web.V1.CategoryOverlay do
   @behaviour EWallet.Web.V1.Overlay
+  alias EWallet.Web.V1.AccountOverlay
 
   def preload_assocs, do: [:accounts]
 
@@ -24,7 +25,24 @@ defmodule EWallet.Web.V1.CategoryOverlay do
       :updated_at
     ]
 
-  def self_filter_fields, do: []
+  def self_filter_fields,
+    do: [
+      :id,
+      :name,
+      :description,
+      :inserted_at,
+      :updated_at,
+      :deleted_at
+    ]
 
-  def filter_fields, do: []
+  def filter_fields,
+    do: [
+      id: nil,
+      name: nil,
+      description: nil,
+      inserted_at: nil,
+      updated_at: nil,
+      deleted_at: nil,
+      accounts: AccountOverlay.self_filter_fields()
+    ]
 end
