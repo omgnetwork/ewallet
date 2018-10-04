@@ -177,5 +177,24 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionCalculationControllerTest do
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "either `from_amount` or `to_amount` is required"
     end
+
+    test "returns an error when the exchange pair does not exist", context do
+      other_token = insert(:token)
+
+      response =
+        admin_user_request("/transaction.calculate", %{
+          "from_amount" => 100,
+          "from_token_id" => context.eth.id,
+          "to_amount" => 100 * context.pair.rate,
+          "to_token_id" => other_token.id
+        })
+
+      assert response["success"] == false
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "exchange:pair_not_found"
+
+      assert response["data"]["description"] ==
+               "There is no exchange pair corresponding to the provided tokens."
+    end
   end
 end

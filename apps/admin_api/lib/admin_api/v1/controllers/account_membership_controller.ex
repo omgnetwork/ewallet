@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AccountMembershipController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.{InviteEmail, V1.MembershipOverlay}
   alias EWallet.{AccountMembershipPolicy, EmailValidator}
-  alias EWallet.Web.{Inviter, UrlValidator}
+  alias EWallet.Web.{Inviter, Originator, UrlValidator}
   alias EWalletDB.{Account, Membership, Role, User}
 
   @doc """
@@ -35,7 +35,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
          {:ok, user_or_email} <- get_user_or_email(attrs),
          %Role{} = role <- Role.get_by_name(attrs["role_name"]) || {:error, :role_name_not_found},
          {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]),
-         {:ok, _} <- assign_or_invite(user_or_email, account, role, redirect_url) do
+         originator <- Originator.extract(conn.assigns),
+         {:ok, _} <- assign_or_invite(user_or_email, account, role, redirect_url, originator) do
       render(conn, :empty, %{success: true})
     else
       {true, :user_id_not_found} ->
@@ -89,22 +90,29 @@ defmodule AdminAPI.V1.AccountMembershipController do
     end
   end
 
-  defp assign_or_invite(email, account, role, redirect_url) when is_binary(email) do
+  defp assign_or_invite(email, account, role, redirect_url, originator) when is_binary(email) do
     case EmailValidator.validate(email) do
       {:ok, email} ->
-        Inviter.invite_admin(email, account, role, redirect_url, &InviteEmail.create/2)
+        Inviter.invite_admin(
+          email,
+          account,
+          role,
+          redirect_url,
+          originator,
+          &InviteEmail.create/2
+        )
 
       error ->
         error
     end
   end
 
-  defp assign_or_invite(user, account, role, redirect_url) do
+  defp assign_or_invite(user, account, role, redirect_url, _originator) do
     case User.get_status(user) do
       :pending_confirmation ->
         user
         |> User.get_invite()
-        |> Inviter.send_email(redirect_url, InviteEmail)
+        |> Inviter.send_email(redirect_url, &InviteEmail.create/2)
 
       :active ->
         Membership.assign(user, account, role)

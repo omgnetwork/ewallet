@@ -18,6 +18,9 @@ defmodule AdminAPI.V1.TransactionCalculationController do
       {:ok, calculation} ->
         render(conn, :calculation, %{calculation: calculation})
 
+      {:error, code} ->
+        handle_error(conn, code)
+
       {:error, code, description} ->
         handle_error(conn, code, description)
     end

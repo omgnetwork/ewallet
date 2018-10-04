@@ -11,7 +11,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
       master = Account.get_master_account()
       admin = get_test_admin()
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
       _ = insert(:membership, %{account: account, user: user, role: role})
 
@@ -26,6 +26,8 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
                "id" => user.id,
                "socket_topic" => "user:#{user.id}",
                "username" => user.username,
+               "full_name" => user.full_name,
+               "calling_name" => user.calling_name,
                "provider_user_id" => user.provider_user_id,
                "email" => user.email,
                "metadata" => user.metadata,
@@ -63,6 +65,8 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
                "id" => admin.id,
                "socket_topic" => "user:#{admin.id}",
                "username" => admin.username,
+               "full_name" => admin.full_name,
+               "calling_name" => admin.calling_name,
                "provider_user_id" => admin.provider_user_id,
                "email" => admin.email,
                "metadata" => admin.metadata,
@@ -113,6 +117,8 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
                        "id" => admin.id,
                        "socket_topic" => "user:#{admin.id}",
                        "username" => admin.username,
+                       "full_name" => admin.full_name,
+                       "calling_name" => admin.calling_name,
                        "provider_user_id" => admin.provider_user_id,
                        "email" => admin.email,
                        "metadata" => admin.metadata,
@@ -187,9 +193,11 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
 
   describe "/account.assign_user" do
     test "returns empty success if assigned with user_id successfully" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         admin_user_request("/account.assign_user", %{
-          user_id: insert(:user).id,
+          user_id: user.id,
           account_id: insert(:account).id,
           role_name: insert(:role).name,
           redirect_url: @redirect_url
@@ -208,6 +216,37 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
           redirect_url: @redirect_url
         })
 
+      assert response["success"] == true
+      assert response["data"] == %{}
+    end
+
+    test "returns empty success if the user has a pending confirmation" do
+      email = "user_pending_confirmation@example.com"
+      account = insert(:account)
+      role = insert(:role)
+
+      response =
+        admin_user_request("/account.assign_user", %{
+          email: email,
+          account_id: account.id,
+          role_name: role.name,
+          redirect_url: @redirect_url
+        })
+
+      # Make sure that the first attemps created the user with pending_confirmation status
+      assert response["success"] == true
+      user = User.get_by(email: email)
+      assert User.get_status(user) == :pending_confirmation
+
+      response =
+        admin_user_request("/account.assign_user", %{
+          email: email,
+          account_id: account.id,
+          role_name: role.name,
+          redirect_url: @redirect_url
+        })
+
+      # The second attempt should also be successful
       assert response["success"] == true
       assert response["data"] == %{}
     end
@@ -278,9 +317,11 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the given account id does not exist" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         admin_user_request("/account.assign_user", %{
-          user_id: insert(:user).id,
+          user_id: user.id,
           account_id: "acc_12345678901234567890123456",
           role_name: insert(:role).name,
           redirect_url: @redirect_url
@@ -295,9 +336,11 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the given role does not exist" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         admin_user_request("/account.assign_user", %{
-          user_id: insert(:user).id,
+          user_id: user.id,
           account_id: insert(:account).id,
           role_name: "invalid_role",
           redirect_url: @redirect_url
@@ -315,7 +358,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
   describe "/account.unassign_user" do
     test "returns empty success if unassigned successfully" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       _membership = insert(:membership, %{account: account, user: user})
 
       response =
@@ -329,7 +372,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the user was not previously assigned to the account" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       account = insert(:account)
 
       response =
@@ -362,9 +405,11 @@ defmodule AdminAPI.V1.AdminAuth.AccountMembershipControllerTest do
     end
 
     test "returns an error if the given account id does not exist" do
+      {:ok, user} = :user |> params_for() |> User.insert()
+
       response =
         admin_user_request("/account.unassign_user", %{
-          user_id: insert(:user).id,
+          user_id: user.id,
           account_id: "acc_12345678901234567890123456"
         })
 

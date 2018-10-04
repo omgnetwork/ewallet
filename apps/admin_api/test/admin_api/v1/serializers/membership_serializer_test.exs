@@ -8,7 +8,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
   describe "serialize/1" do
     test "serializes a membership into user json" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
       membership = insert(:membership, %{account: account, user: user, role: role})
       {:ok, membership} = Orchestrator.one(membership, MembershipOverlay)
@@ -18,6 +18,8 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         id: user.id,
         socket_topic: "user:#{user.id}",
         username: user.username,
+        full_name: user.full_name,
+        calling_name: user.calling_name,
         provider_user_id: user.provider_user_id,
         email: user.email,
         metadata: %{
@@ -66,7 +68,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
 
     test "serializes a list of memberships into a list of users json" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
       membership = insert(:membership, %{account: account, user: user, role: role})
       {:ok, membership} = Orchestrator.one(membership, MembershipOverlay)
@@ -75,6 +77,8 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         object: "user",
         id: user.id,
         username: user.username,
+        full_name: user.full_name,
+        calling_name: user.calling_name,
         socket_topic: "user:#{user.id}",
         provider_user_id: user.provider_user_id,
         email: user.email,

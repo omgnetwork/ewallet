@@ -1,6 +1,6 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Account, Invite, User}
+  alias EWalletDB.{Account, Audit, Invite, User}
 
   describe "User factory" do
     test_has_valid_factory(User)
@@ -14,9 +14,18 @@ defmodule EWalletDB.UserTest do
 
       assert user.id == inserted_user.id
       assert user.username == inserted_user.username
+      assert user.full_name == inserted_user.full_name
+      assert user.calling_name == inserted_user.calling_name
       assert user.provider_user_id == inserted_user.provider_user_id
       assert user.metadata["first_name"] == inserted_user.metadata["first_name"]
       assert user.metadata["last_name"] == inserted_user.metadata["last_name"]
+
+      audits = Audit.all_for_target(User, user.uuid)
+      assert length(audits) == 1
+
+      audit = Enum.at(audits, 0)
+      assert audit.originator_uuid != nil
+      assert audit.originator_type == "user"
     end
 
     test_insert_generate_uuid(User, :uuid)
@@ -58,8 +67,12 @@ defmodule EWalletDB.UserTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(User, :username)
-    test_update_field_ok(User, :metadata, %{"field" => "old"}, %{"field" => "new"})
+    test_update_field_ok(User, :username, insert(:admin))
+    test_update_field_ok(User, :full_name, insert(:admin))
+    test_update_field_ok(User, :calling_name, insert(:admin))
+
+    test_update_field_ok(User, :metadata, insert(:admin), %{"field" => "old"}, %{"field" => "new"})
+
     test_update_prevents_changing(User, :provider_user_id)
 
     test "prevents updating an admin without email" do
@@ -96,7 +109,8 @@ defmodule EWalletDB.UserTest do
           email: "test_1337@example.com",
           metadata: %{"key" => "value_1337"},
           encrypted_metadata: %{"key" => "value_1337"},
-          provider_user_id: "test_1337_puid"
+          provider_user_id: "test_1337_puid",
+          originator: insert(:admin)
         })
 
       assert updated_user.email == "test_1337@example.com"
@@ -280,6 +294,24 @@ defmodule EWalletDB.UserTest do
       account = insert(:account, parent: parent)
 
       assert User.get_role(user.id, account.id) == nil
+    end
+  end
+
+  describe "set_admin/2" do
+    test "sets the user to admin status when given true" do
+      user = insert(:user)
+      refute User.admin?(user)
+
+      {:ok, user} = User.set_admin(user, true)
+      assert User.admin?(user)
+    end
+
+    test "sets the user to non-admin status when given false" do
+      user = insert(:admin)
+      assert User.admin?(user)
+
+      {:ok, user} = User.set_admin(user, false)
+      refute User.admin?(user)
     end
   end
 

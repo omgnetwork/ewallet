@@ -24,6 +24,8 @@ defmodule AdminAPI.V1.SelfController do
   """
   def update(conn, attrs) do
     with {:ok, current_user} <- permit(:update, conn.assigns),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator),
          {:ok, user} <- User.update_without_password(current_user, attrs) do
       respond_single(user, conn)
     else
@@ -36,7 +38,9 @@ defmodule AdminAPI.V1.SelfController do
   Uploads an image as avatar for the current user.
   """
   def upload_avatar(conn, %{"avatar" => _} = attrs) do
-    with {:ok, current_user} <- permit(:update, conn.assigns) do
+    with {:ok, current_user} <- permit(:update, conn.assigns),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator) do
       current_user
       |> User.store_avatar(attrs)
       |> respond_single(conn)
@@ -81,6 +85,10 @@ defmodule AdminAPI.V1.SelfController do
   end
 
   # Respond with a single admin
+  defp respond_single({:ok, user}, conn) do
+    render(conn, UserView, :user, %{user: user})
+  end
+
   defp respond_single(%User{} = user, conn) do
     render(conn, UserView, :user, %{user: user})
   end

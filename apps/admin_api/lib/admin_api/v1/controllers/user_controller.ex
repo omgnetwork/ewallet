@@ -4,7 +4,7 @@ defmodule AdminAPI.V1.UserController do
   alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
   alias EWallet.UserPolicy
-  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWallet.Web.{Originator, Paginator, SearchParser, SortParser}
   alias EWalletDB.{Account, AccountUser, User, UserQuery}
 
   # The field names to be mapped into DB column names.
@@ -112,6 +112,8 @@ defmodule AdminAPI.V1.UserController do
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator),
          {:ok, user} <- User.insert(attrs),
          %Account{} = account <- AccountHelper.get_current_account(conn),
          {:ok, _account_user} <- AccountUser.link(account.uuid, user.uuid) do
@@ -136,7 +138,9 @@ defmodule AdminAPI.V1.UserController do
       )
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get(id) || {:error, :unauthorized},
-         :ok <- permit(:update, conn.assigns, user) do
+         :ok <- permit(:update, conn.assigns, user),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator) do
       user
       |> User.update(attrs)
       |> respond_single(conn)
@@ -154,7 +158,9 @@ defmodule AdminAPI.V1.UserController do
       )
       when is_binary(id) and byte_size(id) > 0 do
     with %User{} = user <- User.get_by_provider_user_id(id) || {:error, :unauthorized},
-         :ok <- permit(:update, conn.assigns, user) do
+         :ok <- permit(:update, conn.assigns, user),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator) do
       user
       |> User.update(attrs)
       |> respond_single(conn)

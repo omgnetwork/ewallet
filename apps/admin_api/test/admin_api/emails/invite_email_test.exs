@@ -1,10 +1,10 @@
 defmodule AdminAPI.InviteEmailTest do
   use AdminAPI.ConnCase
   alias AdminAPI.InviteEmail
-  alias EWalletDB.Invite
+  alias EWalletDB.{Invite, User}
 
   defp create_email(email) do
-    admin = insert(:admin, email: email)
+    {:ok, admin} = :admin |> params_for(email: email) |> User.insert()
     {:ok, invite} = Invite.generate(admin)
 
     {InviteEmail.create(invite, "https://invite_url/?email={email}&token={token}"), invite.token}

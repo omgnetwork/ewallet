@@ -40,8 +40,8 @@ defmodule EWalletDB.CategoryTest do
   end
 
   describe "update/1" do
-    test_update_field_ok(Category, :name)
-    test_update_field_ok(Category, :description)
+    test_update_field_ok(Category, :name, insert(:admin))
+    test_update_field_ok(Category, :description, insert(:admin))
   end
 
   describe "update/2 with account_ids" do

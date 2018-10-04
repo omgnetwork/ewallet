@@ -1,20 +1,12 @@
 # Docker setup
 
-You can setup the eWallet server using either Docker Compose or roll your own Docker environment with our pre-built Docker image.
+You can setup the eWallet server using either 1) Docker Compose or 2) roll your own Docker environment with our pre-built Docker image.
 
-## Step 1: Set up the server
+## Option 1: Using Docker Compose
 
-### 1a: Quick start with Docker Compose
+Install [Docker](https://www.docker.com/get-docker) and [Docker Compose](https://docs.docker.com/compose/install/).
 
-_Prerequisite: You will need [Docker](https://www.docker.com/get-docker) and [Docker Compose](https://docs.docker.com/compose/install/) installed._
-
-First, generate secret keys for eWallet and LocalLedger by running:
-
-```
-$ elixir -e "IO.puts 32 |> :crypto.strong_rand_bytes() |> Base.encode64()"
-```
-
-Then, create your `docker-compose.yml` file using the following script:
+Then, create your `docker-compose.yml` file using the following script.
 
 ```yaml
 version: "3"
@@ -40,7 +32,7 @@ services:
       - internal
 
   ewallet:
-    image: omisego/ewallet:latest
+    image: omisego/ewallet:v1.0.0
     restart: always
     networks:
       - internal
@@ -65,21 +57,38 @@ volumes:
   postgres-db:
 ```
 
-Then, run the following command to provision the images:
+Notice that the values for `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are missing. Replace the values with your own generated ones. We recommend that you generate a different secret key for each. The commands below will generate the keys and replace them automatically:
 
-```bash
-$ docker-compose up
+```
+$ sed -i -e "s/<ewallet_secret_key_here>/$(openssl rand -base64 32 | sed 's/\//\\\//g')/" docker-compose.yml
+$ sed -i -e "s/<local_ledger_secret_key_here>/$(openssl rand -base64 32 | sed 's/\//\\\//g')/" docker-compose.yml
 ```
 
-Then, run the following command to setup the databases:
+Once the `EWALLET_SECRET_KEY` and `LOCAL_LEDGER_SECRET_KEY` are replaced, run the following command to create and start the containers:
 
 ```bash
-$ docker exec <container-id> mix do ecto.create, ecto.migrate
+$ docker-compose up -d
 ```
 
-### 1b: Using the pre-built Docker image
+The eWallet should now be running in the background. Create and seed the database using the command below:
 
-Alternatively, to get the Docker image running without docker-compose would be (assuming [PostgreSQL](https://hub.docker.com/_/postgres/) is already setup):
+```bash
+$ docker exec -it $(docker ps --filter ancestor="omisego/ewallet:v1.0.0" --format "{{.Names}}") \
+  env MIX_ENV=prod mix do \
+  local.hex --force, local.rebar --force, \
+  ecto.create, ecto.migrate, seed --sample
+```
+
+You should now be able to access your eWallet server using the available APIs:
+
+```bash
+$ curl http://localhost:4000
+{"status": true}
+```
+
+## Option 2: Using pre-built Docker image
+
+To get the Docker image running without docker-compose would be (assuming [PostgreSQL](https://hub.docker.com/_/postgres/) is already setup):
 
 ```bash
 # Pulls the omisego/ewallet image from https://hub.docker.com/r/omisego/ewallet/
@@ -87,52 +96,28 @@ $ docker run \
     -e DATABASE_URL="postgresql://postgres@127.0.0.1:5432/ewallet" \
     -e LOCAL_LEDGER_DATABASE_URL="postgresql://postgres@127.0.0.1:5432/local_ledger" \
     -p 4000:4000 \
-    omisego/ewallet:latest
+    omisego/ewallet:v1.0.0
 ```
 
-While the command above pulls the latest image, *it is highly recommended to pin the version to specific commit in anything that resembles a production environment.*
+The command above pulls and starts an eWallet server with the v1.0.0 image. If you wish, you can pick [other available tags from the Docker Hub](https://hub.docker.com/r/omisego/ewallet/tags/).
 
-Then, run the following command to setup the database:
+If you see database errors at this step, this is normal. Now run the following command to setup and seed the database:
 
 ```bash
-$ docker exec <container-id> mix do ecto.create, ecto.migrate
+$ docker exec -it $(docker ps --filter ancestor="omisego/ewallet:v1.0.0" --format "{{.Names}}") \
+  env MIX_ENV=prod mix do \
+  local.hex --force, local.rebar --force, \
+  ecto.create, ecto.migrate, seed --sample
 ```
 
-## Step 2: Seed the databases
-
-Some initial data is required to start the server. Either run the seed or the sample seed below:
-
-```bash
-# Option 2a: Run this command to set up the initial data
-$ docker exec -it <container-id> mix seed
-
-# Option 2b: Run this command to set up the initial data and populate the database with more sample data
-$ docker exec -it <container-id> mix seed --sample
-```
-
-## Step 3: Start the server
-
-Start the server using the following command:
-
-```bash
-$ docker exec <container-id> mix omg.server
-```
-
-You should see the following output:
-
-```elixir
-[info] Setting up websockets dispatchers...
-[info] Running UrlDispatcher.Plug with Cowboy http on port 4000
-```
-
-You can now access your eWallet server using the available APIs:
+You should now be able to access your eWallet server using the available APIs:
 
 ```bash
 $ curl http://localhost:4000
 {"status": true}
 ```
 
-### Next step
+## Next step
 
 Read the [Documentation](/README.md/#documentation) to learn more and start using your eWallet!
 

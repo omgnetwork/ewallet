@@ -1508,6 +1508,25 @@ components:
           is_last_page: true
 
     ######################################
+    #     ADVANCED FILTERING SCHEMAS     #
+    ######################################
+    AdvancedFilteringSchema:
+      type: array
+      items:
+        type: object
+        properties:
+          field:
+            type: string
+          comparator:
+            type: string
+          value:
+            type: string
+        required:
+          - field
+          - comparator
+          - value
+
+    ######################################
     #            ERROR SCHEMAS           #
     ######################################
     ErrorSchema:
@@ -1605,6 +1624,8 @@ components:
               id: "usr_01cc02x0v98qcctvycfx4vsk8x"
               provider_user_id: "wijf-fbancomw-dqwjudb"
               username: "johndoe"
+              full_name: "John Doe"
+              calling_name: "John"
               email: "johndoe@omise.co"
               metadata: {"first_name": "John", "last_name": "Doe"}
               encrypted_metadata: {"something": "secret"}
@@ -2234,6 +2255,10 @@ components:
           type: string
         username:
           type: string
+        full_name:
+          type: string
+        calling_name:
+          type: string
         provider_user_id:
           type: string
         email:
@@ -2266,6 +2291,8 @@ components:
         id: "usr_01ce83zf80j542z4q4zqd8qvfx"
         provider_user_id: "wijf-fbancomw-dqwjudb"
         username: "johndoe"
+        full_name: "John Doe"
+        calling_name: "John"
         email: "johndoe@omise.co"
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {"something": "secret"}
@@ -2283,6 +2310,10 @@ components:
         id:
           type: string
         username:
+          type: string
+        full_name:
+          type: string
+        calling_name:
           type: string
         provider_user_id:
           type: string
@@ -2311,6 +2342,8 @@ components:
         id: "usr_01ce83zf80j542z4q4zqd8qvfx"
         provider_user_id: "wijf-fbancomw-dqwjudb"
         username: "johndoe"
+        full_name: "John Doe"
+        calling_name: "John"
         email: "johndoe@omise.co"
         metadata: {"first_name": "John", "last_name": "Doe"}
         encrypted_metadata: {"something": "secret"}
@@ -2334,6 +2367,8 @@ components:
             id: "usr_01ce83zf80j542z4q4zqd8qvfx"
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "johndoe"
+            full_name: "John Doe"
+            calling_name: "John"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {"something": "secret"}
@@ -2367,6 +2402,8 @@ components:
                 id: "usr_01ce83zf80j542z4q4zqd8qvfx"
                 provider_user_id: null
                 username: "johndoe"
+                full_name: "John Doe"
+                calling_name: "John"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
                 encrypted_metadata: {"something": "secret"}
@@ -2407,6 +2444,8 @@ components:
                 id: "usr_01ce83zf80j542z4q4zqd8qvfx"
                 provider_user_id: "wijf-fbancomw-dqwjudb"
                 username: "johndoe"
+                full_name: "John Doe"
+                calling_name: "John"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
                 encrypted_metadata: {"something": "secret"}
@@ -2619,6 +2658,8 @@ components:
             id: "usr_01ce83zf80j542z4q4zqd8qvfx"
             provider_user_id: "wijf-fbancomw-dqwjudb"
             username: "johndoe"
+            full_name: "John Doe"
+            calling_name: "John"
             email: "johndoe@omise.co"
             metadata: {"first_name": "John", "last_name": "Doe"}
             encrypted_metadata: {"something": "secret"}
@@ -2653,6 +2694,8 @@ components:
                 id: "usr_01ce83zf80j542z4q4zqd8qvfx"
                 provider_user_id: "wijf-fbancomw-dqwjudb"
                 username: "johndoe"
+                full_name: "John Doe"
+                calling_name: "John"
                 email: "johndoe@omise.co"
                 metadata: {"first_name": "John", "last_name": "Doe"}
                 encrypted_metadata: {"something": "secret"}
@@ -4412,6 +4455,10 @@ components:
                 type: string
               username:
                 type: string
+              full_name:
+                type: string
+              calling_name:
+                type: string
               metadata:
                 type: object
               encrypted_metadata:
@@ -4422,6 +4469,8 @@ components:
             example:
               provider_user_id: "wijf-fbancomw-dqwjudb"
               username: "thibault@omise.co"
+              full_name: "Thibault Denizet"
+              calling_name: "Thibault"
               metadata: {"first_name": "Thibault", "last_name": "Denizet"}
               encrypted_metadata: {}
     UserIdentifierBody:
@@ -4680,6 +4729,10 @@ components:
                 minimum: 1
               search_term:
                 type: string
+              match_all:
+                $ref: '#/components/schemas/AdvancedFilteringSchema'
+              match_any:
+                $ref: '#/components/schemas/AdvancedFilteringSchema'
               sort_by:
                 type: string
               sort_dir:
@@ -4689,6 +4742,8 @@ components:
               page: 1
               per_page: 10
               search_term: ""
+              match_all: []
+              match_any: []
               sort_by: "created_at"
               sort_dir: "desc"
 

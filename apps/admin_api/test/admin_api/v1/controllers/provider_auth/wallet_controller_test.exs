@@ -416,7 +416,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
     end
 
     test "fails to insert a primary wallet for a user" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         provider_request("/wallet.create", %{
@@ -436,8 +436,8 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
     end
 
     test "inserts two secondary wallets for a user" do
-      user = insert(:user)
-      assert Wallet |> Repo.all() |> length() == 3
+      {:ok, user} = :user |> params_for() |> User.insert()
+      assert Wallet |> Repo.all() |> length() == 4
 
       response_1 =
         provider_request("/wallet.create", %{
@@ -466,7 +466,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
       assert response_2["data"]["name"] == "MyWallet2"
 
       wallets = Repo.all(Wallet)
-      assert length(wallets) == 5
+      assert length(wallets) == 6
 
       assert Enum.any?(wallets, fn wallet ->
                wallet.address == response_1["data"]["address"]
@@ -478,7 +478,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
     end
 
     test "fails to insert a burn wallet for a user" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         provider_request("/wallet.create", %{
@@ -499,7 +499,7 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
     test "fails to insert a new wallet when both user and account are specified" do
       account = insert(:account)
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
 
       response =
         provider_request("/wallet.create", %{

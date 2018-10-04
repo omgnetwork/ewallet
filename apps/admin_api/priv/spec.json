@@ -451,6 +451,43 @@
         } ]
       }
     },
+    "/token.enable_or_disable" : {
+      "post" : {
+        "tags" : [ "Token" ],
+        "summary" : "Enable or disable an existing token",
+        "operationId" : "token_enable_or_disable",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/TokenToggleStatusBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single tokens",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/TokenResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/token.stats" : {
       "post" : {
         "tags" : [ "Token" ],
@@ -2055,6 +2092,43 @@
         } ]
       }
     },
+    "/wallet.enable_or_disable" : {
+      "post" : {
+        "tags" : [ "Wallet" ],
+        "summary" : "Enable or disable a specific wallet",
+        "operationId" : "wallet_enable_or_disable",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/WalletEnableOrDisableBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single wallet",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/WalletResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/transaction.all" : {
       "post" : {
         "tags" : [ "Transaction" ],
@@ -3029,6 +3103,12 @@
           }
         }
       },
+      "AdvancedFilteringSchema" : {
+        "type" : "array",
+        "items" : {
+          "$ref" : "#/components/schemas/AdvancedFilteringSchema_inner"
+        }
+      },
       "ErrorSchema" : {
         "required" : [ "code", "description", "messages", "object" ],
         "type" : "object",
@@ -3134,6 +3214,8 @@
                 "id" : "usr_01cc02x0v98qcctvycfx4vsk8x",
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -3168,7 +3250,7 @@
         } ]
       },
       "TokenSchema" : {
-        "required" : [ "created_at", "id", "name", "object", "subunit_to_unit", "symbol", "updated_at" ],
+        "required" : [ "created_at", "enabled", "id", "name", "object", "subunit_to_unit", "symbol", "updated_at" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -3200,6 +3282,9 @@
           },
           "encrypted_metadata" : {
             "type" : "object"
+          },
+          "enabled" : {
+            "type" : "boolean"
           }
         },
         "description" : "The object schema for a token"
@@ -3226,7 +3311,8 @@
               "name" : "ABC Point",
               "subunit_to_unit" : 100,
               "created_at" : "2018-01-01T00:00:00Z",
-              "updated_at" : "2018-01-01T10:00:00Z"
+              "updated_at" : "2018-01-01T10:00:00Z",
+              "enabled" : true
             }
           }
         } ]
@@ -3268,7 +3354,8 @@
                 "name" : "ABC Point",
                 "subunit_to_unit" : 100,
                 "created_at" : "2018-01-01T00:00:00Z",
-                "updated_at" : "2018-01-01T10:00:00Z"
+                "updated_at" : "2018-01-01T10:00:00Z",
+                "enabled" : true
               } ],
               "pagination" : {
                 "per_page" : 10,
@@ -3878,6 +3965,12 @@
           "username" : {
             "type" : "string"
           },
+          "full_name" : {
+            "type" : "string"
+          },
+          "calling_name" : {
+            "type" : "string"
+          },
           "provider_user_id" : {
             "type" : "string"
           },
@@ -3915,6 +4008,8 @@
           "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
           "provider_user_id" : "wijf-fbancomw-dqwjudb",
           "username" : "johndoe",
+          "full_name" : "John Doe",
+          "calling_name" : "John",
           "email" : "johndoe@omise.co",
           "metadata" : {
             "first_name" : "John",
@@ -3943,6 +4038,12 @@
             "type" : "string"
           },
           "username" : {
+            "type" : "string"
+          },
+          "full_name" : {
+            "type" : "string"
+          },
+          "calling_name" : {
             "type" : "string"
           },
           "provider_user_id" : {
@@ -3976,6 +4077,8 @@
           "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
           "provider_user_id" : "wijf-fbancomw-dqwjudb",
           "username" : "johndoe",
+          "full_name" : "John Doe",
+          "calling_name" : "John",
           "email" : "johndoe@omise.co",
           "metadata" : {
             "first_name" : "John",
@@ -4009,6 +4112,8 @@
               "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
               "provider_user_id" : "wijf-fbancomw-dqwjudb",
               "username" : "johndoe",
+              "full_name" : "John Doe",
+              "calling_name" : "John",
               "email" : "johndoe@omise.co",
               "metadata" : {
                 "first_name" : "John",
@@ -4058,6 +4163,8 @@
                 "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
                 "provider_user_id" : null,
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -4116,6 +4223,8 @@
                 "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -4138,7 +4247,7 @@
         } ]
       },
       "WalletSchema" : {
-        "required" : [ "account", "account_id", "address", "balances", "encrypted_metadata", "identifier", "metadata", "name", "object", "socket_topic", "user", "user_id" ],
+        "required" : [ "account", "account_id", "address", "balances", "enabled", "encrypted_metadata", "identifier", "metadata", "name", "object", "socket_topic", "user", "user_id" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -4161,6 +4270,9 @@
           },
           "encrypted_metadata" : {
             "type" : "object"
+          },
+          "enabled" : {
+            "type" : "boolean"
           },
           "user_id" : {
             "type" : "string"
@@ -4191,6 +4303,7 @@
             "identifier" : "primary",
             "metadata" : { },
             "encrypted_metadata" : { },
+            "enabled" : true,
             "user_id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
             "user" : { },
             "account_id" : null,
@@ -4256,6 +4369,7 @@
               "identifier" : "primary",
               "metadata" : { },
               "encrypted_metadata" : { },
+              "enabled" : true,
               "user_id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
               "user" : { },
               "account_id" : null,
@@ -4312,6 +4426,7 @@
                 "identifier" : "primary",
                 "metadata" : { },
                 "encrypted_metadata" : { },
+                "enabled" : true,
                 "user_id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
                 "user" : { },
                 "account_id" : null,
@@ -4355,6 +4470,8 @@
               "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
               "provider_user_id" : "wijf-fbancomw-dqwjudb",
               "username" : "johndoe",
+              "full_name" : "John Doe",
+              "calling_name" : "John",
               "email" : "johndoe@omise.co",
               "metadata" : {
                 "first_name" : "John",
@@ -4407,6 +4524,8 @@
                 "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -5343,6 +5462,19 @@
           }
         } ]
       },
+      "AdvancedFilteringSchema_inner" : {
+        "properties" : {
+          "field" : {
+            "type" : "string"
+          },
+          "comparator" : {
+            "type" : "string"
+          },
+          "value" : {
+            "type" : "string"
+          }
+        }
+      },
       "TransactionSchema_from" : {
         "properties" : {
           "object" : {
@@ -6004,6 +6136,29 @@
                 "id" : "tok_ABC_01ce846km1syzwezxfmgdn7dt7",
                 "name" : "Bitcoin v2",
                 "description" : "an awesome updated description"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "TokenToggleStatusBody" : {
+        "description" : "The parameters to enable/disable a token. Send enabled=true to enable, enabled=false to disable.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "enabled", "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "enabled" : {
+                  "type" : "boolean"
+                }
+              },
+              "example" : {
+                "id" : "tok_ABC_01ce846km1syzwezxfmgdn7dt7",
+                "enabled" : false
               }
             }
           }
@@ -6898,6 +7053,12 @@
                 "username" : {
                   "type" : "string"
                 },
+                "full_name" : {
+                  "type" : "string"
+                },
+                "calling_name" : {
+                  "type" : "string"
+                },
                 "metadata" : {
                   "type" : "object"
                 },
@@ -6908,6 +7069,8 @@
               "example" : {
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "thibault@omise.co",
+                "full_name" : "Thibault Denizet",
+                "calling_name" : "Thibault",
                 "metadata" : {
                   "first_name" : "Thibault",
                   "last_name" : "Denizet"
@@ -7167,6 +7330,29 @@
         },
         "required" : true
       },
+      "WalletEnableOrDisableBody" : {
+        "description" : "The parameters to use to enable or disable a wallet.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "address", "enabled" ],
+              "properties" : {
+                "address" : {
+                  "type" : "string"
+                },
+                "enabled" : {
+                  "type" : "boolean"
+                }
+              },
+              "example" : {
+                "address" : "ce3982f5-4a27-498d-a91b-7bb2e2a8d3d1",
+                "enabled" : false
+              }
+            }
+          }
+        },
+        "required" : true
+      },
       "WalletCreateBody" : {
         "description" : "The parameters to use for creating a wallet",
         "content" : {
@@ -7244,6 +7430,12 @@
                 "search_term" : {
                   "type" : "string"
                 },
+                "match_all" : {
+                  "$ref" : "#/components/schemas/AdvancedFilteringSchema"
+                },
+                "match_any" : {
+                  "$ref" : "#/components/schemas/AdvancedFilteringSchema"
+                },
                 "sort_by" : {
                   "type" : "string"
                 },
@@ -7256,6 +7448,8 @@
                 "page" : 1,
                 "per_page" : 10,
                 "search_term" : "",
+                "match_all" : [ ],
+                "match_any" : [ ],
                 "sort_by" : "created_at",
                 "sort_dir" : "desc"
               }

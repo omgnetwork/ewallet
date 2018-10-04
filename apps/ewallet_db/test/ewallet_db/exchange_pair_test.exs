@@ -88,7 +88,7 @@ defmodule EWalletDB.ExchangePairTest do
   end
 
   describe "update/2" do
-    test_update_field_ok(ExchangePair, :rate, 2.00, 9.99)
+    test_update_field_ok(ExchangePair, :rate, insert(:admin), 2.00, 9.99)
 
     test_update_prevents_changing(
       ExchangePair,

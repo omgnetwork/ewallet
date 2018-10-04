@@ -691,6 +691,8 @@
                 "id" : "usr_01cc02x0v98qcctvycfx4vsk8x",
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -717,6 +719,12 @@
             "type" : "string"
           },
           "username" : {
+            "type" : "string"
+          },
+          "full_name" : {
+            "type" : "string"
+          },
+          "calling_name" : {
             "type" : "string"
           },
           "provider_user_id" : {
@@ -750,6 +758,8 @@
           "id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
           "provider_user_id" : "wijf-fbancomw-dqwjudb",
           "username" : "johndoe",
+          "full_name" : "John Doe",
+          "calling_name" : "John",
           "email" : "johndoe@omise.co",
           "metadata" : {
             "first_name" : "John",
@@ -781,6 +791,8 @@
               "id" : "usr_01cbfg6v9thrc3sd9m1v4gazjv",
               "provider_user_id" : "wijf-fbancomw-dqwjudb",
               "username" : "johndoe",
+              "full_name" : "John Doe",
+              "calling_name" : "John",
               "email" : "johndoe@omise.co",
               "metadata" : {
                 "first_name" : "John",
@@ -1047,7 +1059,7 @@
         "description" : "The object schema for an account"
       },
       "TokenSchema" : {
-        "required" : [ "name", "object", "subunit_to_unit", "symbol" ],
+        "required" : [ "enabled", "name", "object", "subunit_to_unit", "symbol" ],
         "type" : "object",
         "properties" : {
           "object" : {
@@ -1070,6 +1082,9 @@
           },
           "encrypted_metadata" : {
             "type" : "object"
+          },
+          "enabled" : {
+            "type" : "boolean"
           }
         },
         "description" : "The object schema for a token",
@@ -1080,7 +1095,8 @@
           "name" : "Mint",
           "subunit_to_unit" : 100000000000000000,
           "metadata" : { },
-          "encrypted_metadata" : { }
+          "encrypted_metadata" : { },
+          "enabled" : true
         }
       },
       "TransactionSchema" : {

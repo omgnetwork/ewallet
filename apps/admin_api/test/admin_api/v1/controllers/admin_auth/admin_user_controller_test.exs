@@ -1,6 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
+  alias EWalletDB.User
 
   describe "/admin.all" do
     test "returns a list of admins and pagination data" do
@@ -64,7 +65,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
     end
 
     test "returns 'user:id_not_found' if the given ID is not an admin" do
-      user = insert(:user)
+      {:ok, user} = :user |> params_for() |> User.insert()
       response = admin_user_request("/admin.get", %{"id" => user.id})
 
       refute response["success"]

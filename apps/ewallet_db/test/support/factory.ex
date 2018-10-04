@@ -9,6 +9,7 @@ defmodule EWalletDB.Factory do
     Account,
     AccountUser,
     APIKey,
+    Audit,
     AuthToken,
     Category,
     ExchangePair,
@@ -19,6 +20,7 @@ defmodule EWalletDB.Factory do
     Membership,
     Mint,
     Role,
+    System,
     Token,
     Transaction,
     TransactionConsumption,
@@ -100,7 +102,10 @@ defmodule EWalletDB.Factory do
       is_admin: false,
       email: nil,
       username: sequence("johndoe"),
+      full_name: sequence("John Doe"),
+      calling_name: sequence("John"),
       provider_user_id: sequence("provider_id"),
+      originator: insert(:admin),
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
@@ -117,6 +122,7 @@ defmodule EWalletDB.Factory do
       email: sequence("johndoe") <> "@example.com",
       password: password,
       password_hash: Crypto.hash_password(password),
+      originator: :self,
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
@@ -134,10 +140,41 @@ defmodule EWalletDB.Factory do
       password: password,
       password_hash: Crypto.hash_password(password),
       invite: nil,
+      originator: %System{},
       metadata: %{
         "first_name" => sequence("John"),
         "last_name" => sequence("Doe")
       }
+    }
+  end
+
+  def audit_factory do
+    params = params_for(:user)
+    user = insert(:user, params)
+    originator = insert(:admin)
+
+    %Audit{
+      action: "insert",
+      target_type: Audit.get_type(User),
+      target_uuid: user.uuid,
+      target_changes: params,
+      originator_uuid: originator.uuid,
+      originator_type: Audit.get_type(Admin)
+    }
+  end
+
+  def sytem_audit_factory do
+    params = params_for(:admin)
+    admin = insert(params)
+    originator = %System{}
+
+    %Audit{
+      action: "insert",
+      target_type: Audit.get_type(admin.__struct__),
+      target_uuid: admin.uuid,
+      target_changes: params,
+      originator_uuid: originator.uuid,
+      originator_type: Audit.get_type(originator.__struct__)
     }
   end
 
@@ -146,7 +183,8 @@ defmodule EWalletDB.Factory do
       user: nil,
       token: Crypto.generate_base64_key(32),
       success_url: nil,
-      verified_at: nil
+      verified_at: nil,
+      originator: insert(:admin)
     }
   end
 

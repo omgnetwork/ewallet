@@ -12,6 +12,7 @@ defmodule EWalletDB.ForgetPasswordRequest do
 
   schema "forget_password_request" do
     field(:token, :string)
+    field(:enabled, :boolean)
 
     belongs_to(
       :user,
@@ -32,12 +33,23 @@ defmodule EWalletDB.ForgetPasswordRequest do
   end
 
   @doc """
+  Retrieves all active requests.
+  """
+  def all_active do
+    ForgetPasswordRequest
+    |> where([c], c.enabled == true)
+    |> order_by([c], desc: c.inserted_at)
+    |> Repo.all()
+  end
+
+  @doc """
   Retrieves a specific invite by its token.
   """
   def get(user, token) do
     request =
       ForgetPasswordRequest
       |> where([c], c.user_uuid == ^user.uuid)
+      |> where([c], c.enabled == true)
       |> order_by([c], desc: c.inserted_at)
       |> limit(1)
       |> Repo.one()
@@ -55,10 +67,10 @@ defmodule EWalletDB.ForgetPasswordRequest do
   @doc """
   Deletes all the current requests for a user.
   """
-  def delete_all(user) do
+  def disable_all_for(user) do
     ForgetPasswordRequest
     |> where([f], f.user_uuid == ^user.uuid)
-    |> Repo.delete_all()
+    |> Repo.update_all(set: [enabled: false])
   end
 
   @doc """
