@@ -1,32 +1,28 @@
-defmodule EWallet.Web.V1.MembershipOverlay do
+defmodule EWallet.Web.V1.RoleOverlay do
   @behaviour EWallet.Web.V1.Overlay
-  alias EWallet.Web.V1.{AccountOverlay, UserOverlay, RoleOverlay}
+  alias EWallet.Web.V1.{UserOverlay}
 
   def preload_assocs,
     do: [
-      :role,
-      :user,
-      :account
+      :users
     ]
 
   def default_preload_assocs,
-    do: [
-      :role,
-      :user,
-      account: [
-        :parent,
-        :categories
-      ]
-    ]
+    do: []
 
   def search_fields,
     do: [
-      :id
+      :id,
+      :name,
+      :display_name
     ]
 
   def sort_fields,
     do: [
       :id,
+      :name,
+      :display_name,
+      :priority,
       :inserted_at,
       :updated_at
     ]
@@ -34,6 +30,9 @@ defmodule EWallet.Web.V1.MembershipOverlay do
   def self_filter_fields,
     do: [
       :id,
+      :name,
+      :display_name,
+      :priority,
       :inserted_at,
       :updated_at
     ]
@@ -41,10 +40,11 @@ defmodule EWallet.Web.V1.MembershipOverlay do
   def filter_fields,
     do: [
       id: nil,
+      name: nil,
+      display_name: nil,
+      priority: nil,
       inserted_at: nil,
       updated_at: nil,
-      user: UserOverlay.self_filter_fields(),
-      account: AccountOverlay.self_filter_fields(),
-      role: RoleOverlay.self_filter_fields()
+      users: UserOverlay.self_filter_fields()
     ]
 end

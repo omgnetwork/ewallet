@@ -69,7 +69,7 @@ defmodule EWalletDB.Membership do
   end
 
   def all_by_account_uuids(account_uuids, preload \\ []) do
-    Repo.all(from(m in Membership, where: m.account_uuid in ^account_uuids, preload: ^preload))
+    from(m in Membership, where: m.account_uuid in ^account_uuids, preload: ^preload)
   end
 
   def distinct_by_role(memberships) do

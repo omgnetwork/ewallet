@@ -3,11 +3,16 @@ defmodule EWallet.Web.Orchestrator do
 
   def query(query, overlay, attrs \\ nil) do
     query
+    |> build_query(overlay, attrs)
+    |> Paginator.paginate_attrs(attrs)
+  end
+
+  def build_query(query, overlay, attrs \\ nil) do
+    query
     |> preload_to_query(overlay, attrs)
     |> MatchAllParser.to_query(attrs, overlay.filter_fields())
     |> SearchParser.to_query(attrs, overlay.search_fields, default_mapped_fields())
     |> SortParser.to_query(attrs, overlay.sort_fields, default_mapped_fields())
-    |> Paginator.paginate_attrs(attrs)
   end
 
   def all(records, overlay, attrs \\ nil)
