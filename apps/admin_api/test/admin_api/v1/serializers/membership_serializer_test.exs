@@ -1,8 +1,8 @@
 defmodule AdminAPI.V1.MembershipSerializerTest do
   use EWallet.Web.SerializerCase, :v1
-  alias AdminAPI.V1.{MembershipOverlay, MembershipSerializer}
+  alias AdminAPI.V1.MembershipSerializer
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Orchestrator}
+  alias EWallet.Web.{Date, Orchestrator, V1.MembershipOverlay}
   alias EWalletDB.User
 
   describe "serialize/1" do

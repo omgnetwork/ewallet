@@ -13,26 +13,26 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
       {:ok, account} = Orchestrator.one(account, AccountOverlay)
 
       assert AccountSerializer.serialize(account) == %{
-        object: "account",
-        id: account.id,
-        socket_topic: "account:#{account.id}",
-        parent_id: master.id,
-        name: account.name,
-        description: account.description,
-        master: Account.master?(account),
-        category_ids: CategorySerializer.serialize(account.categories, :id),
-        categories: CategorySerializer.serialize(account.categories),
-        metadata: %{},
-        encrypted_metadata: %{},
-        avatar: %{
-          original: nil,
-          large: nil,
-          small: nil,
-          thumb: nil
-        },
-        created_at: Date.to_iso8601(account.inserted_at),
-        updated_at: Date.to_iso8601(account.updated_at)
-      }
+               object: "account",
+               id: account.id,
+               socket_topic: "account:#{account.id}",
+               parent_id: master.id,
+               name: account.name,
+               description: account.description,
+               master: Account.master?(account),
+               category_ids: CategorySerializer.serialize(account.categories, :id),
+               categories: CategorySerializer.serialize(account.categories),
+               metadata: %{},
+               encrypted_metadata: %{},
+               avatar: %{
+                 original: nil,
+                 large: nil,
+                 small: nil,
+                 thumb: nil
+               },
+               created_at: Date.to_iso8601(account.inserted_at),
+               updated_at: Date.to_iso8601(account.updated_at)
+             }
     end
 
     test "serializes an account paginator into a list object" do

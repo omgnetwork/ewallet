@@ -1,9 +1,10 @@
 defmodule EWallet.Web.Orchestrator do
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{MatchAllParser, Paginator, Preloader, SearchParser, SortParser}
 
   def query(query, overlay, attrs \\ nil) do
     query
     |> preload_to_query(overlay, attrs)
+    |> MatchAllParser.to_query(attrs, overlay.filter_fields())
     |> SearchParser.to_query(attrs, overlay.search_fields, default_mapped_fields())
     |> SortParser.to_query(attrs, overlay.sort_fields, default_mapped_fields())
     |> Paginator.paginate_attrs(attrs)

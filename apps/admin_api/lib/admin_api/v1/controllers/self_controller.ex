@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.SelfController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
   alias Ecto.Changeset
-  alias EWallet.Web.Orchestrator
+  alias EWallet.Web.{Orchestrator, Originator}
   alias EWallet.Web.V1.AccountOverlay
   alias EWalletDB.{Account, User}
 
