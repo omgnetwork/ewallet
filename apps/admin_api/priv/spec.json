@@ -3249,6 +3249,8 @@
                 "id" : "usr_01cc02x0v98qcctvycfx4vsk8x",
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -3998,6 +4000,12 @@
           "username" : {
             "type" : "string"
           },
+          "full_name" : {
+            "type" : "string"
+          },
+          "calling_name" : {
+            "type" : "string"
+          },
           "provider_user_id" : {
             "type" : "string"
           },
@@ -4035,6 +4043,8 @@
           "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
           "provider_user_id" : "wijf-fbancomw-dqwjudb",
           "username" : "johndoe",
+          "full_name" : "John Doe",
+          "calling_name" : "John",
           "email" : "johndoe@omise.co",
           "metadata" : {
             "first_name" : "John",
@@ -4063,6 +4073,12 @@
             "type" : "string"
           },
           "username" : {
+            "type" : "string"
+          },
+          "full_name" : {
+            "type" : "string"
+          },
+          "calling_name" : {
             "type" : "string"
           },
           "provider_user_id" : {
@@ -4096,6 +4112,8 @@
           "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
           "provider_user_id" : "wijf-fbancomw-dqwjudb",
           "username" : "johndoe",
+          "full_name" : "John Doe",
+          "calling_name" : "John",
           "email" : "johndoe@omise.co",
           "metadata" : {
             "first_name" : "John",
@@ -4129,6 +4147,8 @@
               "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
               "provider_user_id" : "wijf-fbancomw-dqwjudb",
               "username" : "johndoe",
+              "full_name" : "John Doe",
+              "calling_name" : "John",
               "email" : "johndoe@omise.co",
               "metadata" : {
                 "first_name" : "John",
@@ -4178,6 +4198,8 @@
                 "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
                 "provider_user_id" : null,
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -4236,6 +4258,8 @@
                 "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -4481,6 +4505,8 @@
               "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
               "provider_user_id" : "wijf-fbancomw-dqwjudb",
               "username" : "johndoe",
+              "full_name" : "John Doe",
+              "calling_name" : "John",
               "email" : "johndoe@omise.co",
               "metadata" : {
                 "first_name" : "John",
@@ -4533,6 +4559,8 @@
                 "id" : "usr_01ce83zf80j542z4q4zqd8qvfx",
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "johndoe",
+                "full_name" : "John Doe",
+                "calling_name" : "John",
                 "email" : "johndoe@omise.co",
                 "metadata" : {
                   "first_name" : "John",
@@ -7089,6 +7117,12 @@
                 "username" : {
                   "type" : "string"
                 },
+                "full_name" : {
+                  "type" : "string"
+                },
+                "calling_name" : {
+                  "type" : "string"
+                },
                 "metadata" : {
                   "type" : "object"
                 },
@@ -7099,6 +7133,8 @@
               "example" : {
                 "provider_user_id" : "wijf-fbancomw-dqwjudb",
                 "username" : "thibault@omise.co",
+                "full_name" : "Thibault Denizet",
+                "calling_name" : "Thibault",
                 "metadata" : {
                   "first_name" : "Thibault",
                   "last_name" : "Denizet"
