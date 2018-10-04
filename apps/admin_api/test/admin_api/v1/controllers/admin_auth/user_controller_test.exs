@@ -220,6 +220,8 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           "socket_topic" => "user:#{inserted_user.id}",
           "provider_user_id" => inserted_user.provider_user_id,
           "username" => inserted_user.username,
+          "full_name" => inserted_user.full_name,
+          "calling_name" => inserted_user.calling_name,
           "metadata" => %{
             "first_name" => inserted_user.metadata["first_name"],
             "last_name" => inserted_user.metadata["last_name"]
