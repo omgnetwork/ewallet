@@ -1,5 +1,16 @@
 defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
   @behaviour EWallet.Web.V1.Overlay
+  alias EWallet.Web.V1.{
+    TransactionOverlay,
+    ExchangePairOverlay,
+    UserOverlay,
+    AccountOverlay,
+    TransactionRequestOverlay,
+    TokenOverlay,
+    WalletOverlay,
+    AccountOverlay,
+    WalletOverlay
+  }
 
   def preload_assocs, do: default_preload_assocs()
 
@@ -61,7 +72,52 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
       :expired_at
     ]
 
-  def self_filter_fields, do: []
+  def self_filter_fields, do: [
+    :id,
+    :amount,
+    :estimated_consumption_amount,
+    :estimated_request_amount,
+    :estimated_rate,
+    :correlation_id,
+    :idempotency_token,
+    :status,
+    :approved_at,
+    :rejected_at,
+    :confirmed_at,
+    :failed_at,
+    :expired_at,
+    :estimated_at,
+    :error_code,
+    :error_description,
+    :expiration_date,
+  ]
 
-  def filter_fields, do: []
+  def filter_fields, do: [
+    :id,
+    :amount,
+    :estimated_consumption_amount,
+    :estimated_request_amount,
+    :estimated_rate,
+    :correlation_id,
+    :idempotency_token,
+    :status,
+    :approved_at,
+    :rejected_at,
+    :confirmed_at,
+    :failed_at,
+    :expired_at,
+    :estimated_at,
+    :error_code,
+    :error_description,
+    :expiration_date,
+    transaction: TransactionOverlay.self_filter_fields(),
+    exchange_pair: ExchangePairOverlay.self_filter_fields(),
+    user: UserOverlay.self_filter_fields(),
+    account: AccountOverlay.self_filter_fields(),
+    transaction_request: TransactionRequestOverlay.self_filter_fields(),
+    token: TokenOverlay.self_filter_fields(),
+    wallet: WalletOverlay.self_filter_fields(),
+    exchange_account: AccountOverlay.self_filter_fields(),
+    exchange_wallet: WalletOverlay.self_filter_fields()
+  ]
 end
