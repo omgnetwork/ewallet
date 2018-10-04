@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.InviteEmail
+  alias AdminAPI.{InviteEmail, V1.MembershipOverlay}
   alias EWallet.{AccountMembershipPolicy, EmailValidator}
   alias EWallet.Web.{Inviter, UrlValidator}
   alias EWalletDB.{Account, Membership, Role, User}
@@ -15,7 +15,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
              {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, account.id),
          ancestor_uuids <- Account.get_all_ancestors_uuids(account),
-         memberships <- Membership.all_by_account_uuids(ancestor_uuids, [:role, :account, :user]),
+         preload <- MembershipOverlay.default_preload_assocs(),
+         memberships <- Membership.all_by_account_uuids(ancestor_uuids, preload),
          memberships <- Membership.distinct_by_role(memberships) do
       render(conn, :memberships, %{memberships: memberships})
     else

@@ -23,18 +23,4 @@ defmodule EWalletDB.Helpers.Preloader do
   def preload(struct, assocs) do
     Repo.preload(struct, assocs)
   end
-
-  def get_unpreloaded_assocs(record, associations) do
-    Enum.reduce(associations, [], fn {assoc, _schema}, acc ->
-      actual_assoc = Map.get(record, assoc)
-
-      case is_loaded?(actual_assoc) do
-        true -> acc
-        false -> [actual_assoc.__field__ | acc]
-      end
-    end)
-  end
-
-  def is_loaded?(%Ecto.Association.NotLoaded{} = _), do: false
-  def is_loaded?(_), do: true
 end

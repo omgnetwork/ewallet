@@ -1,8 +1,8 @@
 defmodule EWallet.Web.V1.AccountSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.V1.{AccountSerializer, CategorySerializer}
+  alias EWallet.Web.{Date, Orchestrator, Paginator}
+  alias EWallet.Web.V1.{AccountOverlay, AccountSerializer, CategorySerializer}
   alias EWalletDB.Account
 
   describe "AccountSerializer.serialize/1" do
@@ -10,9 +10,9 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
       master = :account |> insert()
       category = :category |> insert()
       {:ok, account} = :account |> insert() |> Account.add_category(category)
-      account = Repo.preload(account, [:parent, :categories])
+      {:ok, account} = Orchestrator.one(account, AccountOverlay)
 
-      expected = %{
+      assert AccountSerializer.serialize(account) == %{
         object: "account",
         id: account.id,
         socket_topic: "account:#{account.id}",
@@ -33,8 +33,6 @@ defmodule EWallet.Web.V1.AccountSerializerTest do
         created_at: Date.to_iso8601(account.inserted_at),
         updated_at: Date.to_iso8601(account.updated_at)
       }
-
-      assert AccountSerializer.serialize(account) == expected
     end
 
     test "serializes an account paginator into a list object" do

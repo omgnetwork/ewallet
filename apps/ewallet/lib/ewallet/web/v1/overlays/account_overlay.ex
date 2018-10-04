@@ -1,8 +1,14 @@
-defmodule EWallet.Web.AccountOverlay do
-  alias EWalletDB.Category
-  
+defmodule EWallet.Web.V1.AccountOverlay do
+  @behaviour EWallet.Web.V1.Overlay
+
   def preload_assocs, do: [
-    categories: Category
+    :parent,
+    :categories
+  ]
+
+  def default_preload_assocs, do: [
+    :parent,
+    :categories
   ]
 
   def search_fields, do: [

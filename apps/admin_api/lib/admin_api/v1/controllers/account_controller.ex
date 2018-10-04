@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.AccountController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.AccountPolicy
-  alias EWallet.Web.{Orchestrator, AccountOverlay, Paginator, Preloader}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.AccountOverlay}
   alias EWalletDB.Account
 
   @doc """
@@ -16,7 +16,7 @@ defmodule AdminAPI.V1.AccountController do
       # Get all the accounts the current accessor has access to
       Account
       |> Account.where_in(account_uuids)
-      |> Orchestrator.to_query(attrs, AccountOverlay)
+      |> Orchestrator.query(AccountOverlay, attrs)
       |> respond(conn)
     else
       error -> respond(error, conn)
@@ -31,7 +31,7 @@ defmodule AdminAPI.V1.AccountController do
       # Get all users since everyone can access them
       Account
       |> Account.where_in(descendant_uuids)
-      |> Orchestrator.to_query(attrs, AccountOverlay)
+      |> Orchestrator.query(AccountOverlay, attrs)
       |> respond(conn)
     else
       error -> respond(error, conn)
@@ -44,10 +44,10 @@ defmodule AdminAPI.V1.AccountController do
   Retrieves a specific account by its id.
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def get(conn, %{"id" => id}) do
+  def get(conn, %{"id" => id} = attrs) do
     with %Account{} = account <- Account.get_by(id: id) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, account.id),
-         {:ok, account} <- Preloader.preload_one(account, AccountOverlay.preload_assocs) do
+         {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
       render(conn, :account, %{account: account})
     else
       {:error, code} ->
@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.AccountController do
     with :ok <- permit(:create, conn.assigns, parent.id),
          attrs <- Map.put(attrs, "parent_uuid", parent.uuid),
          {:ok, account} <- Account.insert(attrs),
-         {:ok, account} <- Preloader.preload_one(account, AccountOverlay.preload_assocs) do
+         {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
       render(conn, :account, %{account: account})
     else
       {:error, %{} = changeset} ->
@@ -96,7 +96,7 @@ defmodule AdminAPI.V1.AccountController do
     with %Account{} = original <- Account.get(account_id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, original.id),
          {:ok, updated} <- Account.update(original, attrs),
-         {:ok, updated} <- Preloader.preload_one(updated, AccountOverlay.preload_assocs) do
+         {:ok, updated} <- Orchestrator.one(updated, AccountOverlay, attrs) do
       render(conn, :account, %{account: updated})
     else
       {:error, %{} = changeset} ->
@@ -117,7 +117,7 @@ defmodule AdminAPI.V1.AccountController do
     with %Account{} = account <- Account.get(id) || {:error, :unauthorized},
          :ok <- permit(:update, conn.assigns, account.id),
          %{} = saved <- Account.store_avatar(account, attrs),
-         {:ok, saved} <- Preloader.preload_one(saved, AccountOverlay.preload_assocs) do
+         {:ok, saved} <- Orchestrator.one(saved, AccountOverlay, attrs) do
       render(conn, :account, %{account: saved})
     else
       nil ->
