@@ -2,14 +2,15 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   @moduledoc """
   This module represents the transaction_consumption_confirmation event and how to build it.
   """
-  alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer}
+  alias EWallet.Web.Orchestrator
+  alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer, TransactionConsumptionOverlay}
   alias EWalletDB.Helpers.{Assoc, Preloader}
   alias EWalletDB.TransactionConsumption
 
   @spec broadcast(atom(), %{:consumption => %TransactionConsumption{}}) ::
           :ok | {:error, :unhandled_event}
   def broadcast(:transaction_consumption_request, %{consumption: consumption}) do
-    consumption = Preloader.preload(consumption, transaction_request: [:account, :user])
+    {:ok, consumption} = Orchestrator.one(consumption, TransactionConsumptionOverlay)
 
     topics =
       []
@@ -35,8 +36,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   def broadcast(_, _), do: {:error, :unhandled_event}
 
   defp broadcast_change(event, consumption) do
-    consumption = Preloader.preload(consumption, [:account, :transaction_request, :user])
-    transaction_request = Preloader.preload(consumption.transaction_request, [:account, :user])
+    {:ok, consumption} = Orchestrator.one(consumption, TransactionConsumptionOverlay)
+    transaction_request = consumption.transaction_request
     request_user_id = Assoc.get(transaction_request, [:user, :id])
     consumption_user_id = Assoc.get(consumption, [:user, :id])
     request_account_id = Assoc.get(transaction_request, [:account, :id])
