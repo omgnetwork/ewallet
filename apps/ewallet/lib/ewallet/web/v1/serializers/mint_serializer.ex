@@ -27,8 +27,6 @@ defmodule EWallet.Web.V1.MintSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Mint{} = mint) do
-    mint = Repo.preload(mint, [:token])
-
     %{
       object: "mint",
       id: mint.id,

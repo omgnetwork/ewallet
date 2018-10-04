@@ -6,15 +6,9 @@ defmodule AdminAPI.V1.MintController do
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
   alias EWallet.{MintGate, MintPolicy}
-  alias EWallet.Web.{Paginator, Preloader, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.MintOverlay}
   alias EWalletDB.{Mint, Token}
   alias Plug.Conn
-
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-  @sort_fields [:id, :description, :amount, :confirmed, :inserted_at, :updated_at]
-  @preload_fields [:token, :account, :transaction]
 
   @doc """
   Retrieves a list of mints.
@@ -22,16 +16,12 @@ defmodule AdminAPI.V1.MintController do
   @spec all_for_token(Conn.t(), map() | nil) :: Conn.t()
   def all_for_token(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:all, conn.assigns, nil),
-         %Token{} = token <- Token.get(id) || :token_not_found do
-      token
-      |> Mint.query_by_token()
-      |> Preloader.to_query(@preload_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
-      |> respond_multiple(conn)
+         %Token{} = token <- Token.get(id) || :token_not_found,
+         mints <- Mint.query_by_token(token),
+         %Paginator{} = paged_mints <- Orchestrator.query(mints, MintOverlay, attrs) do
+      render(conn, :mints, %{mints: paged_mints})
     else
-      {:error, code} -> handle_error(conn, code)
-      error -> handle_error(conn, error)
+      error -> handle_mint_error(conn, error)
     end
   end
 
@@ -49,43 +39,31 @@ defmodule AdminAPI.V1.MintController do
         } = attrs
       ) do
     with :ok <- permit(:create, conn.assigns, token_id),
-         %Token{} = token <- Token.get(token_id) || :token_not_found do
-      token
-      |> MintGate.mint_token(attrs)
-      |> respond_single(conn)
+         %Token{} = token <- Token.get(token_id) || :token_not_found,
+         {:ok, mint, _token} <- MintGate.mint_token(token, attrs),
+         {:ok, mint} <- Orchestrator.one(mint, MintOverlay, attrs) do
+      render(conn, :mint, %{mint: mint})
     else
-      {:error, code, description} -> handle_error(conn, code, description)
-      {:error, code} -> handle_error(conn, code)
-      error -> handle_error(conn, error)
+      error -> handle_mint_error(conn, error)
     end
   end
 
   def mint(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  # Respond with a list of mints
-  defp respond_multiple(%Paginator{} = paged_mints, conn) do
-    render(conn, :mints, %{mints: paged_mints})
-  end
-
-  defp respond_multiple({:error, code, description}, conn) do
+  defp handle_mint_error(conn, {:error, code, description}) do
     handle_error(conn, code, description)
   end
 
-  # Respond with a single mint
-  defp respond_single({:error, code, description}, conn) do
-    handle_error(conn, code, description)
-  end
-
-  defp respond_single({:error, %Changeset{} = changeset}, conn) do
+  defp handle_mint_error(conn, {:error, %Changeset{} = changeset}) do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  defp respond_single({:error, code}, conn) do
+  defp handle_mint_error(conn, {:error, code}) do
     handle_error(conn, code)
   end
 
-  defp respond_single({:ok, mint, _token}, conn) do
-    render(conn, :mint, %{mint: mint})
+  defp handle_mint_error(conn, error) do
+    handle_error(conn, error)
   end
 
   @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
