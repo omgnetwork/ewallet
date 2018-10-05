@@ -1,25 +1,26 @@
 defmodule AdminAPI.V1.UserAuthController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
+  alias EWallet.Web.{Orchestrator, V1.AuthTokenOverlay}
   alias EWalletDB.{AuthToken, User}
 
   @doc """
   Generates a new authentication token for the provider_user_id and returns it.
   """
-  def login(conn, %{"id" => id})
+  def login(conn, %{"id" => id} = attrs)
       when is_binary(id) and byte_size(id) > 0 do
     id
     |> User.get()
     |> generate_token()
-    |> respond(conn)
+    |> respond(conn, attrs)
   end
 
-  def login(conn, %{"provider_user_id" => id})
+  def login(conn, %{"provider_user_id" => id} = attrs)
       when is_binary(id) and byte_size(id) > 0 do
     id
     |> User.get_by_provider_user_id()
     |> generate_token()
-    |> respond(conn)
+    |> respond(conn, attrs)
   end
 
   def login(conn, _attrs), do: handle_error(conn, :invalid_parameter)
@@ -36,7 +37,10 @@ defmodule AdminAPI.V1.UserAuthController do
     respond(conn)
   end
 
-  defp respond({:ok, token}, conn), do: render(conn, :auth_token, %{auth_token: token})
-  defp respond({:error, code}, conn), do: handle_error(conn, code)
+  defp respond({:ok, token}, conn, attrs) do
+    {:ok, token} = Orchestrator.one(token, AuthTokenOverlay, attrs)
+    render(conn, :auth_token, %{auth_token: token})
+  end
+  defp respond({:error, code}, conn, _), do: handle_error(conn, code)
   defp respond(conn), do: render(conn, :empty_response, %{})
 end

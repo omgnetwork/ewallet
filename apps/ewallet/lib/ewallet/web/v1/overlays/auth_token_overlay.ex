@@ -1,9 +1,6 @@
 defmodule EWallet.Web.V1.AuthTokenOverlay do
   def preload_assocs,
-    do: [
-      :user,
-      :account
-    ]
+    do: []
 
   def default_preload_assocs,
     do: [
