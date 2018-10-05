@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.MintOverlay do
+  @moduledoc """
+  Overlay for the Mint schema.
+  """
+
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{AccountOverlay, TokenOverlay, TransactionOverlay}
 

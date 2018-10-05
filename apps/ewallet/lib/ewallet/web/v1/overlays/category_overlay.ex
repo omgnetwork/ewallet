@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.CategoryOverlay do
+  @moduledoc """
+  Overlay for the Category schema.
+  """
+
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.AccountOverlay
 

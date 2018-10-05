@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.ExchangePairOverlay do
+  @moduledoc """
+  Overlay for the ExchangePair schema.
+  """
+
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.TokenOverlay
 

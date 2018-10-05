@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.Overlay do
+  @moduledoc """
+  Behavior definition for overlays.
+  """
+
   # The fields that can be preloaded.
   @callback preload_assocs() :: [Atom.t()]
 

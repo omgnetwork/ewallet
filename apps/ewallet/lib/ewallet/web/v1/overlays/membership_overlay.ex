@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.MembershipOverlay do
+  @moduledoc """
+  Overlay for the Membership schema.
+  """
+
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{AccountOverlay, UserOverlay, RoleOverlay}
 

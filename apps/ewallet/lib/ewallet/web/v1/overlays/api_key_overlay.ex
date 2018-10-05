@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.APIKeyOverlay do
+  @moduledoc """
+  Overlay for the APIKey schema.
+  """
+
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{
     AccountOverlay,

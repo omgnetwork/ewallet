@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.TransactionOverlay do
+  @moduledoc """
+  Overlay for the Transaction schema.
+  """
+
   @behaviour EWallet.Web.V1.Overlay
   alias EWallet.Web.V1.{
     AccountOverlay,

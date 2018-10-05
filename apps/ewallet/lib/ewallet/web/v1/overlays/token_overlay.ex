@@ -1,4 +1,8 @@
 defmodule EWallet.Web.V1.TokenOverlay do
+  @moduledoc """
+  Overlay for the Token schema.
+  """
+
   @behaviour EWallet.Web.V1.Overlay
 
   def preload_assocs, do: []
