@@ -1,8 +1,8 @@
 defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWallet.TestEndpoint
-  alias EWallet.Web.Date
-  alias EWalletDB.{Account, Repo, Transaction, TransactionConsumption, TransactionRequest, User}
+  alias EWallet.Web.{Date, Orchestrator}
+  alias EWalletDB.{Account, Repo, Transaction, TransactionConsumption, User}
   alias Phoenix.Socket.Broadcast
 
   alias EWallet.Web.V1.{
@@ -10,7 +10,7 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
     TransactionRequestSerializer,
     TransactionSerializer,
     UserSerializer,
-    TransactionRequestOverlay
+    TransactionConsumptionOverlay
   }
 
   alias EWalletAPI.V1.Endpoint
@@ -67,12 +67,12 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
-      request =
-        TransactionRequest.get(transaction_request.id,
-          preload: TransactionRequestOverlay.default_preload_assocs()
-        )
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,
@@ -153,12 +153,12 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
-      request =
-        TransactionRequest.get(transaction_request.id,
-          preload: TransactionRequestOverlay.default_preload_assocs()
-        )
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,
@@ -236,12 +236,12 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
-      request =
-        TransactionRequest.get(transaction_request.id,
-          preload: TransactionRequestOverlay.default_preload_assocs()
-        )
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,
@@ -324,12 +324,12 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
 
-      request =
-        TransactionRequest.get(transaction_request.id,
-          preload: TransactionRequestOverlay.default_preload_assocs()
-        )
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,

@@ -15,7 +15,7 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   }
 
   alias EWallet.Web.{Date, Paginator}
-  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.Helpers.Assoc
   alias EWalletDB.Transaction
 
   def serialize(%Paginator{} = paginator) do
@@ -23,19 +23,6 @@ defmodule EWallet.Web.V1.TransactionSerializer do
   end
 
   def serialize(%Transaction{} = transaction) do
-    transaction =
-      Preloader.preload(transaction, [
-        :from_token,
-        :to_token,
-        :from_user,
-        :to_user,
-        :from_account,
-        :to_account,
-        :exchange_pair,
-        :exchange_account,
-        :exchange_wallet
-      ])
-
     error = build_error(transaction)
 
     %{
