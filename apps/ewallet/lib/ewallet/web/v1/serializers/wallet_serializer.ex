@@ -31,7 +31,6 @@ defmodule EWallet.Web.V1.WalletSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Wallet{} = wallet) do
-    wallet = Preloader.preload(wallet, [:user, :account])
     {:ok, wallet} = BalanceFetcher.all(%{"wallet" => wallet})
 
     %{

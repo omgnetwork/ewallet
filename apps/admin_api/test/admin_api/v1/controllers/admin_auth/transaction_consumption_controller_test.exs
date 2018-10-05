@@ -1471,7 +1471,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "fails to consume when wallet is disabled", meta do
       {:ok, wallet} =
         Wallet.insert_secondary_or_burn(%{
-          "user_uuid" => meta.bob.uuid,
+          "account_uuid" => meta.account.uuid,
           "name" => "MySecondary",
           "identifier" => "secondary"
         })
@@ -1497,7 +1497,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
           address: wallet.address,
           metadata: nil,
           token_id: nil,
-          user_id: meta.bob.id
+          account_id: meta.account.id
         })
 
       assert response["success"] == false

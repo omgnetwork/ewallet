@@ -4,27 +4,8 @@ defmodule AdminAPI.V1.AdminUserController do
   alias AdminAPI.V1.AccountHelper
   alias AdminAPI.V1.UserView
   alias EWallet.AdminUserPolicy
-  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.UserOverlay}
   alias EWalletDB.{User, UserQuery}
-
-  # The field names to be mapped into DB column names.
-  # The keys and values must be strings as this is mapped early before
-  # any operations are done on the field names. For example:
-  # `"request_field_name" => "db_column_name"`
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-
-  # The fields that are allowed to be searched.
-  # Note that these values here *must be the DB column names*
-  # Because requests cannot customize which fields to search (yet!),
-  # `@mapped_fields` don't affect them.
-  @search_fields [:id, :email]
-
-  # The fields that are allowed to be sorted.
-  # Note that the values here *must be the DB column names*.
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :email, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of admins that the current user/key has access to.
@@ -35,9 +16,7 @@ defmodule AdminAPI.V1.AdminUserController do
          account_uuids <- AccountHelper.get_accessible_account_uuids(conn.assigns) do
       account_uuids
       |> UserQuery.where_has_membership_in_accounts(User)
-      |> SearchParser.to_query(attrs, @search_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
+      |> Orchestrator.query(UserOverlay, attrs)
       |> respond_multiple(conn)
     else
       {:error, error} -> handle_error(conn, error)

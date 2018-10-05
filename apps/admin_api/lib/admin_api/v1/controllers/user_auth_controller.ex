@@ -41,6 +41,7 @@ defmodule AdminAPI.V1.UserAuthController do
     {:ok, token} = Orchestrator.one(token, AuthTokenOverlay, attrs)
     render(conn, :auth_token, %{auth_token: token})
   end
+
   defp respond({:error, code}, conn, _), do: handle_error(conn, code)
   defp respond(conn), do: render(conn, :empty_response, %{})
 end
