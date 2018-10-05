@@ -3,7 +3,6 @@ defmodule EWallet.Web.Orchestrator do
   This module should be used in every controller to deal with searching, filtering,
   preloading and sorting.
   """
-  
   alias EWallet.Web.{MatchAllParser, Paginator, Preloader, SearchParser, SortParser}
 
   def query(query, overlay, attrs \\ nil) do
