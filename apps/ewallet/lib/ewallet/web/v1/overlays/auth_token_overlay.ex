@@ -12,12 +12,8 @@ defmodule EWallet.Web.V1.AuthTokenOverlay do
       :account
     ]
 
-  def search_fields,
-    do: []
-
-  def sort_fields,
-    do: []
-
+  def search_fields, do: []
+  def sort_fields, do: []
   def self_filter_fields, do: []
   def filter_fields, do: []
 end

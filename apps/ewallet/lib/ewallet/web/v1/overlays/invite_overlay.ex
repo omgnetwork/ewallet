@@ -15,7 +15,13 @@ defmodule EWallet.Web.V1.InviteOverlay do
     do: [:user]
 
   def sort_fields,
-    do: [:id, :token, :verified_at, :inserted_at, :updated_at]
+    do: [
+      :id,
+      :token,
+      :verified_at,
+      :inserted_at,
+      :updated_at
+    ]
 
   def search_fields,
     do: [:id, :token]
