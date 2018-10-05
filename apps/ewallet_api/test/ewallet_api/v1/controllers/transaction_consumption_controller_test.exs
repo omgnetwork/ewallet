@@ -9,7 +9,8 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
     TokenSerializer,
     TransactionRequestSerializer,
     TransactionSerializer,
-    UserSerializer
+    UserSerializer,
+    TransactionRequestOverlay
   }
 
   alias EWalletAPI.V1.Endpoint
@@ -67,7 +68,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      request =
+        TransactionRequest.get(transaction_request.id,
+          preload: TransactionRequestOverlay.default_preload_assocs()
+        )
 
       assert response == %{
                "success" => true,
@@ -149,7 +154,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      request =
+        TransactionRequest.get(transaction_request.id,
+          preload: TransactionRequestOverlay.default_preload_assocs()
+        )
 
       assert response == %{
                "success" => true,
@@ -228,7 +237,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      request =
+        TransactionRequest.get(transaction_request.id,
+          preload: TransactionRequestOverlay.default_preload_assocs()
+        )
 
       assert response == %{
                "success" => true,
@@ -312,7 +325,11 @@ defmodule EWalletAPI.V1.TransactionConsumptionControllerTest do
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
       inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      request =
+        TransactionRequest.get(transaction_request.id,
+          preload: TransactionRequestOverlay.default_preload_assocs()
+        )
 
       assert response == %{
                "success" => true,
