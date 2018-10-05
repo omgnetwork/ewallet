@@ -123,6 +123,8 @@ defmodule EWalletDB.User do
     user
     |> cast(attrs, [
       :username,
+      :full_name,
+      :calling_name,
       :provider_user_id,
       :email,
       :metadata,
