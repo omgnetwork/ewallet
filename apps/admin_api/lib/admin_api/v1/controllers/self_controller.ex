@@ -32,7 +32,22 @@ defmodule AdminAPI.V1.SelfController do
     with {:ok, current_user} <- permit(:update, conn.assigns),
          originator <- Originator.extract(conn.assigns),
          attrs <- Map.put(attrs, "originator", originator),
-         {:ok, user} <- User.update_without_password(current_user, attrs) do
+         {:ok, user} <- User.update(current_user, attrs) do
+      respond_single(user, conn)
+    else
+      error ->
+        respond_single(error, conn)
+    end
+  end
+
+  @doc """
+  Updates the user's password if all required parameters are provided.
+  """
+  def update_password(conn, attrs) do
+    with {:ok, current_user} <- permit(:update_password, conn.assigns),
+         originator <- Originator.extract(conn.assigns),
+         attrs <- Map.put(attrs, "originator", originator),
+         {:ok, user} <- User.update_password(current_user, attrs) do
       respond_single(user, conn)
     else
       error ->
@@ -106,6 +121,10 @@ defmodule AdminAPI.V1.SelfController do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
+  defp respond_single({:error, error_code}, conn) when is_atom(error_code) do
+    handle_error(conn, error_code)
+  end
+
   defp respond_single(error_code, conn) when is_atom(error_code) do
     handle_error(conn, error_code)
   end
@@ -115,7 +134,8 @@ defmodule AdminAPI.V1.SelfController do
     handle_error(conn, :user_id_not_found)
   end
 
-  @spec permit(:get | :update, map()) :: {:ok, %User{}} | :access_key_unauthorized
+  @spec permit(:get | :update | :update_password, map()) ::
+          {:ok, %User{}} | :access_key_unauthorized
   defp permit(_action, %{admin_user: admin_user}) do
     {:ok, admin_user}
   end

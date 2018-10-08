@@ -137,6 +137,7 @@ defmodule AdminAPI.V1.Router do
     post("/me.get_accounts", SelfController, :get_accounts)
     post("/me.get_account", SelfController, :get_account)
     post("/me.update", SelfController, :update)
+    post("/me.update_password", SelfController, :update_password)
     post("/me.upload_avatar", SelfController, :upload_avatar)
 
     post("/me.logout", AdminAuthController, :logout)

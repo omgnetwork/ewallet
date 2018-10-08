@@ -91,6 +91,8 @@ defmodule EWalletDB.User do
   end
 
   defp changeset(changeset, attrs) do
+    password_hash = attrs |> get_attr(:password) |> Crypto.hash_password()
+
     changeset
     |> cast(attrs, [
       :is_admin,
@@ -113,18 +115,33 @@ defmodule EWalletDB.User do
     |> unique_constraint(:provider_user_id)
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
-    |> put_change(:password_hash, Crypto.hash_password(attrs[:password]))
+    |> put_change(:password_hash, password_hash)
     |> validate_by_roles(attrs)
   end
 
-  defp avatar_changeset(changeset, attrs) do
-    changeset
-    |> cast(attrs, [:originator])
-    |> cast_attachments(attrs, [:avatar])
-    |> validate_required([:originator])
+  defp update_user_changeset(user, attrs) do
+    user
+    |> cast(attrs, [
+      :username,
+      :full_name,
+      :calling_name,
+      :provider_user_id,
+      :email,
+      :metadata,
+      :encrypted_metadata,
+      :invite_uuid,
+      :originator
+    ])
+    |> validate_required([:metadata, :encrypted_metadata, :originator])
+    |> validate_immutable(:provider_user_id)
+    |> unique_constraint(:username)
+    |> unique_constraint(:provider_user_id)
+    |> unique_constraint(:email)
+    |> assoc_constraint(:invite)
+    |> validate_by_roles(attrs)
   end
 
-  defp update_changeset(%User{} = user, attrs) do
+  defp update_admin_changeset(user, attrs) do
     user
     |> cast(attrs, [
       :email,
@@ -135,9 +152,36 @@ defmodule EWalletDB.User do
       :invite_uuid,
       :originator
     ])
-    |> validate_required([:email, :originator])
+    |> validate_required([:metadata, :encrypted_metadata, :originator])
     |> unique_constraint(:email)
     |> assoc_constraint(:invite)
+    |> validate_by_roles(attrs)
+  end
+
+  defp avatar_changeset(user, attrs) do
+    user
+    |> cast(attrs, [:originator])
+    |> cast_attachments(attrs, [:avatar])
+    |> validate_required([:originator])
+  end
+
+  defp password_changeset(user, attrs) do
+    password_hash = attrs |> get_attr(:password) |> Crypto.hash_password()
+
+    user
+    |> cast(attrs, [
+      :password,
+      :password_confirmation,
+      :originator
+    ])
+    |> validate_required([:originator])
+    |> validate_confirmation(:password, message: "does not match password")
+    |> validate_password(:password)
+    |> put_change(:password_hash, password_hash)
+  end
+
+  defp get_attr(attrs, atom_field) do
+    attrs[atom_field] || attrs[Atom.to_string(atom_field)]
   end
 
   # Two cases to validate for loginable:
@@ -163,14 +207,30 @@ defmodule EWalletDB.User do
     end
   end
 
+  # The `:password` field, unlike other fields, is nil when fetched from an existing user.
+  # So we need to check with `:password_hash` instead, before applying `validate_required/2`
+  # on the `:password` field.
+  #
+  #   1. If there's already a password hash, no need to require a password,
+  #      it's already loginable.
+  #   2. If there isn't a password hash, require one so the user becomes loginable.
+
   defp do_validate_loginable(changeset, _attrs) do
-    changeset
-    |> validate_required([:email, :password])
-    |> validate_password(:password)
+    case get_field(changeset, :password_hash) do
+      nil ->
+        changeset
+        |> validate_required([:email, :password])
+        |> validate_password(:password)
+
+      _ ->
+        changeset
+        |> validate_required([:email])
+    end
   end
 
   defp do_validate_provider_user(changeset, _attrs) do
-    validate_required(changeset, [:username, :provider_user_id])
+    changeset
+    |> validate_required([:username, :provider_user_id])
   end
 
   @doc """
@@ -282,32 +342,51 @@ defmodule EWalletDB.User do
   """
   @spec update(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
   def update(%User{} = user, attrs) do
-    user
-    |> changeset(attrs)
-    |> Audit.update_record_with_audit()
-    |> case do
-      {:ok, result} ->
-        {:ok, get(result.record.id)}
+    changeset =
+      if User.admin?(user) do
+        update_admin_changeset(user, attrs)
+      else
+        update_user_changeset(user, attrs)
+      end
 
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
-    end
+    update_with_audit(changeset)
   end
 
   @doc """
-  Updates a user with the provided attributes.
+  Updates a user's password with the provided attributes.
   """
-  @spec update_without_password(%User{}, map()) :: {:ok, %User{}} | {:error, Ecto.Changeset.t()}
-  def update_without_password(%User{} = user, attrs) do
-    changeset = update_changeset(user, attrs)
-
-    case Audit.update_record_with_audit(changeset) do
-      {:ok, result} ->
-        {:ok, get(result.record.id)}
-
-      {:error, _failed_operation, changeset, _changes_so_far} ->
-        {:error, changeset}
+  @spec update_password(%User{}, map(), keyword()) ::
+          {:ok, %User{}} | {:error, Ecto.Changeset.t()}
+  def update_password(%User{} = user, attrs, opts \\ []) do
+    if opts[:ignore_current] do
+      do_update_password(user, attrs)
+    else
+      do_verify_and_update_password(user, attrs)
     end
+  end
+
+  defp do_verify_and_update_password(user, attrs) do
+    old_password = attrs[:old_password] || attrs["old_password"]
+
+    cond do
+      old_password == nil && user.password_hash == nil ->
+        do_update_password(user, attrs)
+
+      old_password == nil && user.password_hash != nil ->
+        {:error, :invalid_old_password}
+
+      Crypto.verify_password(old_password, user.password_hash) ->
+        do_update_password(user, attrs)
+
+      true ->
+        {:error, :invalid_old_password}
+    end
+  end
+
+  defp do_update_password(user, attrs) do
+    user
+    |> password_changeset(attrs)
+    |> update_with_audit()
   end
 
   @doc """
@@ -323,9 +402,16 @@ defmodule EWalletDB.User do
       end
 
     updated_attrs = Map.put(updated_attrs, :originator, attrs["originator"])
-    changeset = avatar_changeset(user, updated_attrs)
 
-    case Audit.update_record_with_audit(changeset) do
+    user
+    |> avatar_changeset(updated_attrs)
+    |> update_with_audit()
+  end
+
+  defp update_with_audit(changeset) do
+    changeset
+    |> Audit.update_record_with_audit()
+    |> case do
       {:ok, result} ->
         {:ok, get(result.record.id)}
 
