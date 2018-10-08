@@ -1,13 +1,43 @@
 defmodule EWalletDB.Repo.Seeds.AdminPanelUserSampleSeed do
   import EWalletDB.Helpers.Crypto, only: [generate_base64_key: 1]
-  alias EWalletDB.User
+  alias EWalletDB.{System, User}
 
   @seed_data [
-    %{email: "admin_brand1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
-    %{email: "admin_branch1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
-    %{email: "viewer_master@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
-    %{email: "viewer_brand1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
-    %{email: "viewer_branch1@example.com", password: generate_base64_key(16), metadata: %{}, is_admin: true},
+    %{
+      email: "admin_brand1@example.com",
+      password: generate_base64_key(16),
+      metadata: %{},
+      is_admin: true,
+      originator: %System{}
+    },
+    %{
+      email: "admin_branch1@example.com",
+      password: generate_base64_key(16),
+      metadata: %{},
+      is_admin: true,
+      originator: %System{}
+    },
+    %{
+      email: "viewer_master@example.com",
+      password: generate_base64_key(16),
+      metadata: %{},
+      is_admin: true,
+      originator: %System{}
+    },
+    %{
+      email: "viewer_brand1@example.com",
+      password: generate_base64_key(16),
+      metadata: %{},
+      is_admin: true,
+      originator: %System{}
+    },
+    %{
+      email: "viewer_branch1@example.com",
+      password: generate_base64_key(16),
+      metadata: %{},
+      is_admin: true,
+      originator: %System{}
+    }
   ]
 
   def seed do

@@ -92,7 +92,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       {:ok, _user} =
         [email: @user_email]
         |> User.get_by()
-        |> User.update_without_password(%{
+        |> User.update(%{
           invite_uuid: insert(:invite).uuid,
           originator: %System{}
         })

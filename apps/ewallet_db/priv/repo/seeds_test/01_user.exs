@@ -1,5 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.UserSeed do
   alias EWalletDB.{Account, AccountUser, User}
+  # credo:disable-for-next-line Credo.Check.Readability.AliasOrder
+  alias EWalletDB.System, as: OriginatorSystem
 
   @seed_data [
     %{
@@ -7,14 +9,16 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       password: System.get_env("E2E_TEST_ADMIN_PASSWORD") || "password",
       metadata: %{},
       account_name: "master_account",
-      is_admin: true
+      is_admin: true,
+      originator: %OriginatorSystem{}
     },
     %{
       email: System.get_env("E2E_TEST_ADMIN_1_EMAIL") || "test_admin_1@example.com",
       password: System.get_env("E2E_TEST_ADMIN_1_PASSWORD") || "password",
       metadata: %{},
       account_name: "master_account",
-      is_admin: true
+      is_admin: true,
+      originator: %OriginatorSystem{}
     },
   ]
 

@@ -1,6 +1,6 @@
 defmodule EWalletDB.UserTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.{Account, Audit, Invite, User}
+  alias EWalletDB.{Account, Audit, Helpers.Crypto, Invite, User}
 
   describe "User factory" do
     test_has_valid_factory(User)
@@ -73,50 +73,135 @@ defmodule EWalletDB.UserTest do
 
     test_update_field_ok(User, :metadata, insert(:admin), %{"field" => "old"}, %{"field" => "new"})
 
+    test_update_field_ok(User, :encrypted_metadata, insert(:admin), %{"field" => "old"}, %{
+      "field" => "new"
+    })
+
     test_update_prevents_changing(User, :provider_user_id)
 
-    test "prevents updating an admin without email" do
-      user = prepare_admin_user()
-      {res, changeset} = User.update(user, %{email: nil})
+    test "updates email successfully" do
+      user = insert(:standalone_user)
+      {res, user} = User.update(user, %{email: "new_email@example.com", originator: user})
+
+      assert res == :ok
+      assert user.email == "new_email@example.com"
+    end
+
+    test "prevents removal of admin's email" do
+      user = insert(:admin)
+      {res, changeset} = User.update(user, %{email: nil, originator: user})
 
       assert res == :error
       refute changeset.valid?
     end
 
-    test "prevents updating an admin without password" do
-      user = prepare_admin_user()
-      {res, changeset} = User.update(user, %{password: nil})
+    test "does not update the user's password" do
+      user = insert(:standalone_user)
 
-      assert res == :error
-      refute changeset.valid?
-    end
+      {res, updated} =
+        User.update(user, %{
+          old_password: user.password,
+          password: "new_password",
+          password_confirmation: "new_password",
+          originator: user
+        })
 
-    test "prevents updating an admin password that does not pass requirements" do
-      user = prepare_admin_user()
-      {res, changeset} = User.update(user, %{password: "short"})
-
-      assert res == :error
-      refute changeset.valid?
+      assert res == :ok
+      assert updated.password_hash == user.password_hash
     end
   end
 
-  describe "update_without_password/2" do
-    test "updates only email, metadata, encrypted_metadata" do
-      user = prepare_admin_user()
+  describe "update_password/2" do
+    test "updates the password" do
+      user = insert(:standalone_user)
+      refute Crypto.verify_password("new_password", user.password_hash)
 
-      {:ok, updated_user} =
-        User.update_without_password(user, %{
-          email: "test_1337@example.com",
-          metadata: %{"key" => "value_1337"},
-          encrypted_metadata: %{"key" => "value_1337"},
-          provider_user_id: "test_1337_puid",
-          originator: insert(:admin)
+      {res, updated} =
+        User.update_password(user, %{
+          old_password: user.password,
+          password: "new_password",
+          password_confirmation: "new_password",
+          originator: user
         })
 
-      assert updated_user.email == "test_1337@example.com"
-      assert updated_user.metadata == %{"key" => "value_1337"}
-      assert updated_user.encrypted_metadata == %{"key" => "value_1337"}
-      assert updated_user.provider_user_id == user.provider_user_id
+      assert res == :ok
+      assert Crypto.verify_password("new_password", updated.password_hash)
+    end
+
+    test "allows initial password setting without old_password" do
+      user = insert(:user)
+      assert user.password_hash == nil
+
+      {res, updated} =
+        User.update_password(user, %{
+          # old_password: user.password,
+          password: "new_password",
+          password_confirmation: "new_password",
+          originator: user
+        })
+
+      assert res == :ok
+      assert Crypto.verify_password("new_password", updated.password_hash)
+    end
+
+    test "prevents the password update without giving the current password" do
+      user = insert(:standalone_user)
+
+      {res, code} =
+        User.update_password(user, %{
+          # old_password: user.password,
+          password: "new_password",
+          password_confirmation: "new_password",
+          originator: user
+        })
+
+      assert res == :error
+      assert code == :invalid_old_password
+    end
+
+    test "prevents removing the password" do
+      user = insert(:standalone_user)
+
+      {res, changeset} =
+        User.update_password(user, %{
+          old_password: user.password,
+          password: nil,
+          password_confirmation: nil,
+          originator: user
+        })
+
+      assert res == :error
+      refute changeset.valid?
+    end
+
+    test "prevents updating the password that doesn't match the confirmation" do
+      user = insert(:standalone_user)
+
+      {res, changeset} =
+        User.update_password(user, %{
+          old_password: user.password,
+          password: "new_password",
+          password_confirmation: "a_different_password",
+          originator: user
+        })
+
+      assert res == :error
+      refute changeset.valid?
+    end
+
+    test "prevents updating the password that does not pass requirements" do
+      user = insert(:standalone_user)
+
+      {res, changeset} =
+        User.update_password(user, %{
+          old_password: user.password,
+          password: "short",
+          password_confirmation: "short",
+          originator: user
+        })
+
+      assert res == :error
+      refute changeset.valid?
     end
   end
 
