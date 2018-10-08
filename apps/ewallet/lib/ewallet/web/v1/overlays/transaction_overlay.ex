@@ -23,9 +23,12 @@ defmodule EWallet.Web.V1.TransactionOverlay do
       :to_wallet,
       :to_account,
       :to_user,
-      :exchange_pair,
       :exchange_account,
-      :exchange_wallet
+      :exchange_wallet,
+      exchange_pair: [
+        :from_token,
+        :to_token
+      ]
     ]
 
   def search_fields,
