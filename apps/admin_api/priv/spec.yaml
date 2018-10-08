@@ -801,6 +801,21 @@ paths:
           $ref: "#/components/responses/UserResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
+  /me.update_password:
+    post:
+      tags:
+        - Admin
+      summary: Update the user's password with the provided parameters
+      operationId: me_update_password
+      security:
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/AdminUpdatePasswordBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/UserResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
   /me.upload_avatar:
     post:
       tags:
@@ -4383,6 +4398,26 @@ components:
               email: "example@omise.co"
               metadata: {}
               encrypted_metadata: {}
+    AdminUpdatePasswordBody:
+      description: The parameters to use for updating a user's password
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              old_password:
+                type: string
+                format: password
+              password:
+                type: string
+                format: password
+              password_confirmation:
+                type: string
+                format: password
+            example:
+              old_password: "old_password"
+              password: "new_password"
+              password_confirmation: "new_password"
     AdminUploadBody:
       description: The parameters to use for uploading an admin's avatar. Only supports .jpg, .jpeg, .gif and .png.
       required: true
