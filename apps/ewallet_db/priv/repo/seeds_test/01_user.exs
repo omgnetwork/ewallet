@@ -7,14 +7,16 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       password: System.get_env("E2E_TEST_ADMIN_PASSWORD") || "password",
       metadata: %{},
       account_name: "master_account",
-      is_admin: true
+      is_admin: true,
+      originator: %EWalletDB.System{}
     },
     %{
       email: System.get_env("E2E_TEST_ADMIN_1_EMAIL") || "test_admin_1@example.com",
       password: System.get_env("E2E_TEST_ADMIN_1_PASSWORD") || "password",
       metadata: %{},
       account_name: "master_account",
-      is_admin: true
+      is_admin: true,
+      originator: %EWalletDB.System{}
     },
   ]
 

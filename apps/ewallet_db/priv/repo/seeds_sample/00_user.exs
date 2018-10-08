@@ -45,11 +45,11 @@ defmodule EWalletDB.Repo.Seeds.UserSampleSeed do
             """)
 
           {:error, changeset} ->
-            writer.error("  eWallet user #{data.email} could not be inserted:")
+            writer.error("  eWallet user #{data.username} could not be inserted:")
             writer.print_errors(changeset)
 
           _ ->
-            writer.error("  eWallet user #{data.email} could not be inserted:")
+            writer.error("  eWallet user #{data.username} could not be inserted:")
             writer.error("  Unknown error.")
         end
 

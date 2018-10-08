@@ -25,7 +25,8 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       password: args[:admin_password],
       metadata: %{},
       account_uuid: Account.get_master_account().uuid,
-      is_admin: true
+      is_admin: true,
+      originator: %EWalletDB.System{}
     }
 
     case User.get_by_email(data.email) do
