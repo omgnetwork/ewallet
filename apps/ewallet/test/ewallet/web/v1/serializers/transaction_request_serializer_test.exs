@@ -18,7 +18,8 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
       request = insert(:transaction_request)
 
       transaction_request =
-        TransactionRequest.get(request.id,
+        TransactionRequest.get(
+          request.id,
           preload: TransactionRequestOverlay.default_preload_assocs()
         )
 
