@@ -62,7 +62,7 @@ class LoginForm extends Component {
     e.preventDefault()
     const emailError = this.validateEmail(this.state.email)
     const passwordError = this.validatePassword(this.state.password)
-    const submitted = true
+    const submitted = !emailError && !passwordError
     this.setState({ emailError, passwordError, submitted })
     if (submitted) {
       try {
