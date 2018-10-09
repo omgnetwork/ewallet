@@ -1,7 +1,7 @@
 import createReducer from '../reducer/createReducer'
 export const currentUserReducer = createReducer({}, {
   'SESSION/LOGIN/SUCCESS': (state, { data }) => {
-    return data
+    return data.user
   },
   'CURRENT_USER/REQUEST/SUCCESS': (state, { data }) => {
     return data
