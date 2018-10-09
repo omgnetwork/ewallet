@@ -25,6 +25,5 @@ defmodule LoadTester.Scenarios.Login do
   def store_auth_token(session, result) do
     session
     |> update_assign(auth_token: fn _ -> result.data.authentication_token end)
-    |> IO.inspect()
   end
 end
