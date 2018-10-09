@@ -79,6 +79,9 @@ export const alertsReducer = createReducer([], {
   'PASSWORD/UPDATE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
+  'CURRENT_USER/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
+  },
   'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
