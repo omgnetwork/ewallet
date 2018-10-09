@@ -71,12 +71,12 @@ class LoginForm extends Component {
           password: this.state.password,
           rememberMe: this.state.rememberMe
         })
-        if (result.data.success) {
+        if (result.data) {
           this.setState({ error: null })
           const redirectUrl = _.get(this.props, 'location.state.from.pathname')
-          this.props.history.push(redirectUrl || `/${result.data.data.account_id}/dashboard`)
+          this.props.history.push(redirectUrl || `/${result.data.account_id}/dashboard`)
         } else {
-          this.setState({ error: result.data.data.description, submitted: false })
+          this.setState({ error: result.data.description, submitted: false })
         }
       } catch (error) {
         this.setState({ error: 'Something went wrong :(', submitted: false })

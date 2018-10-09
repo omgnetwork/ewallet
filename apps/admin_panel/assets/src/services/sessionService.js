@@ -56,7 +56,7 @@ export function updatePasswordWithResetToken ({ resetToken, password, passwordCo
 }
 
 export function updatePassword ({ oldPassword, password, passwordConfirmation }) {
-  return unAuthenticatedRequest({
+  return authenticatedRequest({
     path: '/me.update_password',
     data: {
       old_password: oldPassword,

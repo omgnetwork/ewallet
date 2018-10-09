@@ -1,80 +1,62 @@
 import * as sessionService from '../services/sessionService'
-export const login = ({ email, password, rememberMe }) => async dispatch => {
-  try {
+import { createActionCreator } from '../utils/createActionCreator'
+export const login = ({ email, password, rememberMe }) => createActionCreator({actionName: 'SESSION',
+  action: 'LOGIN',
+  service: async () => {
     const sessionResult = await sessionService.login({ email, password })
     const account = sessionService.getCurrentAccountFromLocalStorage()
     if (sessionResult.data.success) {
       sessionService.setAccessToken(sessionResult.data.data)
       if (!account) sessionService.setCurrentAccount(sessionResult.data.data.account)
-      dispatch({
-        type: 'LOGIN/SUCCESS',
-        currentUser: sessionResult.data.data.user,
-        currentAccount: sessionResult.data.data.account
-      })
-    } else {
-      dispatch({ type: 'LOGIN/FAILED' })
+      return sessionResult
     }
-    return sessionResult
-  } catch (error) {
-    console.log(error)
-    dispatch({ type: 'LOGIN/FAILED' })
   }
-}
+})
 
-export const logout = () => async dispatch => {
-  try {
-    const sessionResult = await sessionService.logout()
-    if (sessionResult.data.success) {
-      sessionService.removeAccessDataFromLocalStorage()
-      dispatch({
-        type: 'LOGOUT/SUCCESS'
+export const logout = () =>
+  createActionCreator({
+    actionName: 'SESSION',
+    action: 'LOGOUT',
+    service: () => sessionService.logout()
+  })
+
+export const sendResetPasswordEmail = ({ email, redirectUrl }) =>
+  createActionCreator({
+    actionName: 'PASSWORD',
+    action: 'RESET',
+    service: () =>
+      sessionService.resetPassword({
+        email,
+        redirectUrl: `${redirectUrl}?token={token}&email={email}`
       })
-    } else {
-      dispatch({ type: 'LOGOUT/FAILED' })
-    }
-    return sessionResult
-  } catch (error) {
-    console.log(error)
-    dispatch({ type: 'LOGOUT/FAILED' })
-  }
-}
-export const sendResetPasswordEmail = ({ email, redirectUrl }) => async dispatch => {
-  try {
-    const result = await sessionService.resetPassword({
-      email,
-      redirectUrl: `${redirectUrl}?token={token}&email={email}`
-    })
-    if (result.data.success) {
-      dispatch({ type: 'RESET_PASSWORD/SUCCESS' })
-    } else {
-      dispatch({ type: 'RESET_PASSWORD/FAILED' })
-    }
-    return result
-  } catch (error) {
-    dispatch({ type: 'RESET_PASSWORD/FAILED' })
-  }
-}
+  })
 
 export const updatePasswordWithResetToken = ({
   resetToken,
   password,
   passwordConfirmation,
   email
-}) => async dispatch => {
-  try {
-    const result = await sessionService.updatePasswordWithResetToken({
-      resetToken,
-      password,
-      passwordConfirmation,
-      email
-    })
-    if (result.data.success) {
-      dispatch({ type: 'UPDATE_PASSWORD/SUCCESS' })
-    } else {
-      dispatch({ type: 'UPDATE_PASSWORD/FAILED' })
-    }
-    return result
-  } catch (error) {
-    dispatch({ type: 'UPDATE_PASSWORD/FAILED' })
-  }
-}
+}) =>
+  createActionCreator({
+    actionName: 'PASSWORD_TOKEN',
+    action: 'UPDATE',
+    service: () =>
+      sessionService.updatePasswordWithResetToken({
+        resetToken,
+        password,
+        passwordConfirmation,
+        email
+      })
+  })
+
+export const updatePassword = ({ password, passwordConfirmation, oldPassword }) =>
+  createActionCreator({
+    actionName: 'PASSWORD',
+    action: 'UPDATE',
+    service: () =>
+      sessionService.updatePassword({
+        oldPassword,
+        password,
+        passwordConfirmation
+      })
+  })

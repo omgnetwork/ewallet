@@ -5,6 +5,7 @@ import ImageUploaderAvatar from '../omg-uploader/ImageUploaderAvatar'
 import { currentUserProviderHoc } from '../omg-user-current/currentUserProvider'
 import { withRouter } from 'react-router-dom'
 import { updateCurrentUser } from '../omg-user-current/action'
+import { updatePassword } from '../omg-session/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
 import PropTypes from 'prop-types'
@@ -48,7 +49,7 @@ const enhance = compose(
   currentUserProviderHoc,
   connect(
     null,
-    { updateCurrentUser }
+    { updateCurrentUser, updatePassword }
   ),
   withRouter
 )
@@ -56,6 +57,7 @@ const enhance = compose(
 class UserSettingPage extends Component {
   static propTypes = {
     match: PropTypes.object,
+    updatePassword: PropTypes.func.isRequired,
     updateCurrentUser: PropTypes.func.isRequired,
     loadingStatus: PropTypes.string,
     currentUser: PropTypes.object
@@ -92,6 +94,9 @@ class UserSettingPage extends Component {
   onChangeNewPassword = e => {
     this.setState({ newPassword: e.target.value })
   }
+  onChangeNewPasswordConfirmation = e => {
+    this.setState({ newPasswordConfirmation: e.target.value })
+  }
   onClickUpdateAccount = async e => {
     e.preventDefault()
     try {
@@ -100,8 +105,17 @@ class UserSettingPage extends Component {
         email: this.state.email,
         avatar: this.state.image
       })
-      if (result.success) {
-        this.setState({ submitStatus: 'SUBMITTED' })
+      if (result.data) {
+        const updatePassworldResult = await this.props.updatePassword({
+          oldPassword: this.state.oldPassword,
+          password: this.state.newPassword,
+          passwordConfirmation: this.state.newPasswordConfirmation
+        })
+        if (updatePassworldResult.success) {
+          this.setState({ submitStatus: 'SUBMITTED' })
+        } else {
+          this.setState({ submitStatus: 'FAILED' })
+        }
       } else {
         this.setState({ submitStatus: 'FAILED' })
       }
@@ -145,7 +159,13 @@ class UserSettingPage extends Component {
                     <StyledInput
                       normalPlaceholder={'New Password'}
                       value={this.state.newPassword}
-                      onChange={this.onChangeOldNewPassword}
+                      onChange={this.onChangeNewPassword}
+                      type='password'
+                    />
+                    <StyledInput
+                      normalPlaceholder={'New Password Confirmation'}
+                      value={this.state.newPasswordConfirmation}
+                      onChange={this.onChangeNewPasswordConfirmation}
                       type='password'
                     />
                   </ChangePasswordFormCointainer>
