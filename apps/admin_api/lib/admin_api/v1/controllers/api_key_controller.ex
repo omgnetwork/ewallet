@@ -3,27 +3,8 @@ defmodule AdminAPI.V1.APIKeyController do
   import AdminAPI.V1.ErrorHandler
   alias Ecto.Changeset
   alias EWallet.APIKeyPolicy
-  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.APIKeyOverlay}
   alias EWalletDB.APIKey
-
-  # The field names to be mapped into DB column names.
-  # The keys and values must be strings as this is mapped early before
-  # any operations are done on the field names. For example:
-  # `"request_field_name" => "db_column_name"`
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-
-  # The fields that are allowed to be searched.
-  # Note that these values here *must be the DB column names*
-  # Because requests cannot customize which fields to search (yet!),
-  # `@mapped_fields` don't affect them.
-  @search_fields [:id, :key]
-
-  # The fields that are allowed to be sorted.
-  # Note that the values here *must be the DB column names*.
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :key, :owner_app, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of API keys including soft-deleted.
@@ -32,9 +13,7 @@ defmodule AdminAPI.V1.APIKeyController do
   def all(conn, attrs) do
     with :ok <- permit(:all, conn.assigns, nil) do
       APIKey
-      |> SearchParser.to_query(attrs, @search_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
+      |> Orchestrator.query(APIKeyOverlay, attrs)
       |> respond_multiple(conn)
     else
       {:error, code} -> handle_error(conn, code)
@@ -54,12 +33,12 @@ defmodule AdminAPI.V1.APIKeyController do
   Creates a new API key. Currently API keys are assigned to the master account only.
   """
   @spec create(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def create(conn, _attrs) do
-    with :ok <- permit(:create, conn.assigns, nil) do
-      # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
-      %{owner_app: "ewallet_api"}
-      |> APIKey.insert()
-      |> respond_single(conn)
+  def create(conn, attrs) do
+    with :ok <- permit(:create, conn.assigns, nil),
+         # Admin API doesn't use API Keys anymore. Defaulting to "ewallet_api".
+         {:ok, api_key} <- APIKey.insert(%{owner_app: "ewallet_api"}),
+         {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
+      render(conn, :api_key, %{api_key: api_key})
     else
       {:error, code} ->
         handle_error(conn, code)
@@ -73,7 +52,8 @@ defmodule AdminAPI.V1.APIKeyController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          %APIKey{} = api_key <- APIKey.get(id) || :api_key_not_found,
-         {:ok, api_key} <- APIKey.update(api_key, attrs) do
+         {:ok, api_key} <- APIKey.update(api_key, attrs),
+         {:ok, api_key} <- Orchestrator.one(api_key, APIKeyOverlay, attrs) do
       render(conn, :api_key, %{api_key: api_key})
     else
       error when is_atom(error) ->
@@ -89,16 +69,6 @@ defmodule AdminAPI.V1.APIKeyController do
 
   def update(conn, _attrs) do
     handle_error(conn, :invalid_parameter)
-  end
-
-  # Respond when the API key is saved successfully
-  defp respond_single({:ok, api_key}, conn) do
-    render(conn, :api_key, %{api_key: api_key})
-  end
-
-  # Responds when the API key is saved unsucessfully
-  defp respond_single({:error, changeset}, conn) do
-    handle_error(conn, :invalid_parameter, changeset)
   end
 
   @doc """

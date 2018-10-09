@@ -3,7 +3,7 @@ defmodule EWallet.Web.V1.KeySerializer do
   Serializes key(s) into V1 JSON response format.
   """
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.{Date, Paginator, Preloader}
+  alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.Key
 
@@ -12,8 +12,6 @@ defmodule EWallet.Web.V1.KeySerializer do
   end
 
   def serialize(%Key{} = key) do
-    {:ok, key} = Preloader.preload_one(key, :account)
-
     %{
       object: "key",
       id: key.id,

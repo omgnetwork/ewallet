@@ -4,27 +4,8 @@ defmodule AdminAPI.V1.UserController do
   alias AdminAPI.V1.AccountHelper
   alias Ecto.Changeset
   alias EWallet.UserPolicy
-  alias EWallet.Web.{Originator, Paginator, SearchParser, SortParser}
+  alias EWallet.Web.{Originator, Orchestrator, Paginator, V1.UserOverlay}
   alias EWalletDB.{Account, AccountUser, User, UserQuery}
-
-  # The field names to be mapped into DB column names.
-  # The keys and values must be strings as this is mapped early before
-  # any operations are done on the field names. For example:
-  # `"request_field_name" => "db_column_name"`
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-
-  # The fields that are allowed to be searched.
-  # Note that these values here *must be the DB column names*
-  # Because requests cannot customize which fields to search (yet!),
-  # `@mapped_fields` don't affect them.
-  @search_fields [:id, :username, :provider_user_id]
-
-  # The fields that are allowed to be sorted.
-  # Note that the values here *must be the DB column names*.
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :username, :provider_user_id, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of users.
@@ -72,9 +53,7 @@ defmodule AdminAPI.V1.UserController do
   @spec do_all(Ecto.Queryable.t(), map(), Plug.Conn.t()) :: Plug.Conn.t()
   defp do_all(query, attrs, conn) do
     query
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
+    |> Orchestrator.query(UserOverlay, attrs)
     |> respond_multiple(conn)
   end
 

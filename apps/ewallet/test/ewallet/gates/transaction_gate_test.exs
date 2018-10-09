@@ -243,11 +243,12 @@ defmodule EWallet.TransactionGateTest do
 
     test "fails to create the transaction when the from_wallet is disabled" do
       idempotency_token = UUID.generate()
-      {wallet1, wallet2, token} = insert_addresses_records()
+      {_wallet1, wallet2, token} = insert_addresses_records()
+      account = Account.get_master_account()
 
       {:ok, wallet3} =
         Wallet.insert_secondary_or_burn(%{
-          "user_uuid" => wallet1.user_uuid,
+          "account_uuid" => account.uuid,
           "name" => "MySecondary",
           "identifier" => "secondary"
         })
@@ -265,10 +266,11 @@ defmodule EWallet.TransactionGateTest do
     test "fails to create the transaction when the to_wallet is disabled" do
       idempotency_token = UUID.generate()
       {wallet1, _wallet2, token} = insert_addresses_records()
+      account = Account.get_master_account()
 
       {:ok, wallet3} =
         Wallet.insert_secondary_or_burn(%{
-          "user_uuid" => wallet1.user_uuid,
+          "account_uuid" => account.uuid,
           "name" => "MySecondary",
           "identifier" => "secondary"
         })

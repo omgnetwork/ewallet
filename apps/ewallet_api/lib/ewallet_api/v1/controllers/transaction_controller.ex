@@ -2,13 +2,9 @@ defmodule EWalletAPI.V1.TransactionController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
   alias EWallet.{TransactionGate, WalletFetcher}
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionOverlay}
   alias EWalletDB.{Repo, Transaction, User}
 
-  @preload_fields [:from_token, :to_token]
-  @mapped_fields %{"created_at" => "inserted_at"}
-  @search_fields [:id, :idempotency_token, :status, :from, :to]
-  @sort_fields [:id, :status, :from, :to, :inserted_at, :updated_at]
   @allowed_fields [
     "idempotency_token",
     "from_address",
@@ -83,12 +79,22 @@ defmodule EWalletAPI.V1.TransactionController do
   end
 
   def create(conn, attrs) do
-    attrs
-    |> Enum.filter(fn {k, _v} -> Enum.member?(@allowed_fields, k) end)
-    |> Enum.into(%{})
-    |> Map.put("from_user_id", conn.assigns.user.id)
-    |> TransactionGate.create()
-    |> respond(conn)
+    res =
+      attrs
+      |> Enum.filter(fn {k, _v} -> Enum.member?(@allowed_fields, k) end)
+      |> Enum.into(%{})
+      |> Map.put("from_user_id", conn.assigns.user.id)
+      |> TransactionGate.create()
+
+    case res do
+      {:ok, transaction} ->
+        transaction
+        |> Orchestrator.one(TransactionOverlay, attrs)
+        |> respond(conn)
+
+      res ->
+        respond(res, conn)
+    end
   end
 
   defp clean_address_search_terms(user, %{"search_terms" => terms} = attrs) do
@@ -127,10 +133,7 @@ defmodule EWalletAPI.V1.TransactionController do
 
   defp query_records_and_respond(query, attrs, conn) do
     query
-    |> Preloader.to_query(@preload_fields)
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
+    |> Orchestrator.query(TransactionOverlay, attrs)
     |> respond_multiple(conn)
   end
 

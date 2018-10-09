@@ -459,7 +459,7 @@ defmodule EWallet.TransactionRequestGateTest do
     test "receives an error when the wallet is disabled", meta do
       {:ok, wallet} =
         Wallet.insert_secondary_or_burn(%{
-          "user_uuid" => meta.user.uuid,
+          "account_uuid" => meta.account.uuid,
           "name" => "MySecondary",
           "identifier" => "secondary"
         })

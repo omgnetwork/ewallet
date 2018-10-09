@@ -3,11 +3,9 @@ defmodule EWallet.Web.V1.UserAuthTokenSerializer do
   Serializes auth token data into V1 JSON response format.
   """
   alias EWallet.Web.V1.UserSerializer
-  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.Helpers.Assoc
 
   def serialize(auth_token) do
-    auth_token = Preloader.preload(auth_token, [:user])
-
     %{
       object: "authentication_token",
       authentication_token: auth_token.token,

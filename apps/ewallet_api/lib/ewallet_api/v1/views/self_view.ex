@@ -15,8 +15,8 @@ defmodule EWalletAPI.V1.SelfView do
     |> ResponseSerializer.serialize(success: true)
   end
 
-  def render("wallets.json", %{addresses: addresses}) do
-    addresses
+  def render("wallets.json", %{wallets: wallets}) do
+    wallets
     |> Enum.map(&WalletSerializer.serialize/1)
     |> ListSerializer.serialize()
     |> ResponseSerializer.serialize(success: true)

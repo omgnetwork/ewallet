@@ -15,7 +15,7 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
     WalletSerializer
   }
 
-  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.Helpers.Assoc
   alias EWalletDB.TransactionConsumption
 
   def serialize(%Paginator{} = paginator) do
@@ -23,17 +23,6 @@ defmodule EWallet.Web.V1.TransactionConsumptionSerializer do
   end
 
   def serialize(%TransactionConsumption{} = consumption) do
-    consumption =
-      Preloader.preload(consumption, [
-        :account,
-        :token,
-        :transaction_request,
-        :transaction,
-        :user,
-        :exchange_account,
-        :exchange_wallet
-      ])
-
     final_consumption_amount = TransactionConsumption.get_final_amount(consumption)
     final_request_amount = get_final_request_amount(consumption, final_consumption_amount)
 

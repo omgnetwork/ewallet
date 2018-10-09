@@ -4,7 +4,6 @@ defmodule EWallet.Web.V1.MintSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
-  alias EWalletDB.Repo
 
   alias EWallet.Web.V1.{
     AccountSerializer,
@@ -27,8 +26,6 @@ defmodule EWallet.Web.V1.MintSerializer do
   def serialize(nil), do: nil
 
   def serialize(%Mint{} = mint) do
-    mint = Repo.preload(mint, [:token])
-
     %{
       object: "mint",
       id: mint.id,

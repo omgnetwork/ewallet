@@ -429,52 +429,11 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
 
       assert response["data"] == %{
                "code" => "client:invalid_parameter",
-               "description" => "Invalid parameter provided. `identifier` has invalid format.",
-               "messages" => %{"identifier" => ["format"]},
-               "object" => "error"
+               "object" => "error",
+               "description" =>
+                 "Invalid parameter provided. `identifier` has invalid format. `account_id` can't be blank.",
+               "messages" => %{"identifier" => ["format"], "account_id" => ["required"]}
              }
-    end
-
-    test "inserts two secondary wallets for a user" do
-      {:ok, user} = :user |> params_for() |> User.insert()
-      assert Wallet |> Repo.all() |> length() == 4
-
-      response_1 =
-        provider_request("/wallet.create", %{
-          name: "MyWallet",
-          identifier: "secondary",
-          user_id: user.id
-        })
-
-      assert response_1["success"]
-      assert response_1["data"]["object"] == "wallet"
-      assert response_1["data"]["user_id"] == user.id
-      assert "secondary_" <> _ = response_1["data"]["identifier"]
-      assert response_1["data"]["name"] == "MyWallet"
-
-      response_2 =
-        provider_request("/wallet.create", %{
-          name: "MyWallet2",
-          identifier: "secondary",
-          user_id: user.id
-        })
-
-      assert response_2["success"]
-      assert response_2["data"]["object"] == "wallet"
-      assert response_2["data"]["user_id"] == user.id
-      assert "secondary_" <> _ = response_2["data"]["identifier"]
-      assert response_2["data"]["name"] == "MyWallet2"
-
-      wallets = Repo.all(Wallet)
-      assert length(wallets) == 6
-
-      assert Enum.any?(wallets, fn wallet ->
-               wallet.address == response_1["data"]["address"]
-             end)
-
-      assert Enum.any?(wallets, fn wallet ->
-               wallet.address == response_2["data"]["address"]
-             end)
     end
 
     test "fails to insert a burn wallet for a user" do
@@ -493,29 +452,6 @@ defmodule AdminAPI.V1.ProviderAuth.WalletControllerTest do
                "code" => "client:invalid_parameter",
                "description" => "Invalid parameter provided. `account_id` can't be blank.",
                "messages" => %{"account_id" => ["required"]},
-               "object" => "error"
-             }
-    end
-
-    test "fails to insert a new wallet when both user and account are specified" do
-      account = insert(:account)
-      {:ok, user} = :user |> params_for() |> User.insert()
-
-      response =
-        provider_request("/wallet.create", %{
-          name: "MyWallet",
-          identifier: "secondary",
-          account_id: account.id,
-          user_id: user.id
-        })
-
-      assert response["success"] == false
-
-      assert response["data"] == %{
-               "code" => "client:invalid_parameter",
-               "description" =>
-                 "Invalid parameter provided. `account_id`, `user_id` only one must be present.",
-               "messages" => %{"account_id, user_id" => ["only_one_required"]},
                "object" => "error"
              }
     end

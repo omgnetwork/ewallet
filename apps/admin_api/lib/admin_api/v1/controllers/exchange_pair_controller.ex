@@ -2,52 +2,21 @@ defmodule AdminAPI.V1.ExchangePairController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.{ExchangePairGate, ExchangePairPolicy}
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.ExchangePairOverlay}
   alias EWalletDB.ExchangePair
-
-  # The field names to be mapped into DB column names.
-  # The keys and values must be strings as this is mapped early before
-  # any operations are done on the field names. For example:
-  # `"request_field_name" => "db_column_name"`
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-
-  # The fields that should be preloaded.
-  # Note that these values *must be in the schema associations*.
-  @preload_fields [:from_token, :to_token]
-
-  # The fields that are allowed to be searched.
-  # Note that these values here *must be the DB column names*
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @search_fields [:id]
-
-  # The fields that are allowed to be sorted.
-  # Note that the values here *must be the DB column names*.
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of exchange pairs.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil) do
-      pairs =
-        ExchangePair
-        |> Preloader.to_query(@preload_fields)
-        |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
-        |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-        |> Paginator.paginate_attrs(attrs)
-
-      case pairs do
-        %Paginator{} = paginator ->
-          render(conn, :exchange_pairs, %{exchange_pairs: paginator})
-
-        {:error, code, description} ->
-          handle_error(conn, code, description)
-      end
+    with :ok <- permit(:all, conn.assigns, nil),
+         %Paginator{} = paginator <- Orchestrator.query(ExchangePair, ExchangePairOverlay, attrs) do
+      render(conn, :exchange_pairs, %{exchange_pairs: paginator})
     else
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+
       {:error, code} ->
         handle_error(conn, code)
     end
@@ -60,7 +29,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   def get(conn, %{"id" => id}) do
     with :ok <- permit(:get, conn.assigns, id),
          %ExchangePair{} = pair <- ExchangePair.get_by(id: id),
-         {:ok, pair} <- Preloader.preload_one(pair, @preload_fields) do
+         {:ok, pair} <- Orchestrator.one(pair, ExchangePairOverlay) do
       render(conn, :exchange_pair, %{exchange_pair: pair})
     else
       {:error, code} ->
@@ -78,7 +47,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          {:ok, pairs} <- ExchangePairGate.insert(attrs),
-         {:ok, pairs} <- Preloader.preload_all(pairs, @preload_fields) do
+         {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
       render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
       {:error, %{} = changeset} ->
@@ -96,7 +65,7 @@ defmodule AdminAPI.V1.ExchangePairController do
   def update(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:update, conn.assigns, id),
          {:ok, pairs} <- ExchangePairGate.update(id, attrs),
-         {:ok, pairs} <- Preloader.preload_all(pairs, @preload_fields) do
+         {:ok, pairs} <- Orchestrator.all(pairs, ExchangePairOverlay) do
       render(conn, :exchange_pairs, %{exchange_pairs: pairs})
     else
       {:error, %{} = changeset} ->
@@ -115,9 +84,9 @@ defmodule AdminAPI.V1.ExchangePairController do
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:delete, conn.assigns, id),
-         {:ok, deleted} <- ExchangePairGate.delete(id, attrs),
-         {:ok, deleted} <- Preloader.preload_all(deleted, @preload_fields) do
-      render(conn, :exchange_pairs, %{exchange_pairs: deleted})
+         {:ok, deleted_pairs} <- ExchangePairGate.delete(id, attrs),
+         {:ok, deleted_pairs} <- Orchestrator.all(deleted_pairs, ExchangePairOverlay) do
+      render(conn, :exchange_pairs, %{exchange_pairs: deleted_pairs})
     else
       {:error, %{} = changeset} ->
         handle_error(conn, :invalid_parameter, changeset)
