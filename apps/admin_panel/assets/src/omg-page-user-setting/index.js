@@ -101,13 +101,14 @@ class UserSettingPage extends Component {
   onClickUpdateAccount = async e => {
     e.preventDefault()
     try {
-      this.setState({ submitStatus: 'SUBMITTING' })
-      const result = await this.props.updateCurrentUser({
-        email: this.state.email,
-        avatar: this.state.image
-      })
+      if (this.state.email !== this.props.currentUser.email) {
+        this.setState({ submitStatus: 'SUBMITTING' })
+        this.props.updateCurrentUser({
+          email: this.state.email,
+          avatar: this.state.image
+        })
+      }
       if (
-        result.data &&
         this.state.changingPassword &&
         this.state.newPassword === this.state.newPasswordConfirmation &&
         this.state.newPassword &&
