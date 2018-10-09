@@ -3,7 +3,7 @@ defmodule LoadTester.Scenarios.Login do
 
   def init(session) do
     session
-    |> assign(rate: 1, interval: seconds(1), auth_token: nil)
+    |> assign(rate: 1, interval: seconds(5), auth_token: nil)
     |> ok()
   end
 
@@ -25,5 +25,6 @@ defmodule LoadTester.Scenarios.Login do
   def store_auth_token(session, result) do
     session
     |> update_assign(auth_token: fn _ -> result.data.authentication_token end)
+    |> update_assign(user_id: fn _ -> result.data.user_id end)
   end
 end

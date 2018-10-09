@@ -3,7 +3,7 @@
 Run:
 
 ```ex
-Chaperon.run_load_test(LoadTester.Runner, print_results: true)
+Chaperon.run_load_test(LoadTester.Runner); nil
 ```
 
 ## What I wished Chaperon (or I) could do
