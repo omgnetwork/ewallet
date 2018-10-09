@@ -1,4 +1,4 @@
-defmodule LoadTester.Scenarios.Login do
+defmodule LoadTester.Scenarios.AdminLogin do
   use Chaperon.Scenario
 
   def init(session) do
@@ -26,5 +26,6 @@ defmodule LoadTester.Scenarios.Login do
     session
     |> update_assign(auth_token: fn _ -> result.data.authentication_token end)
     |> update_assign(user_id: fn _ -> result.data.user_id end)
+    |> update_assign(user: fn _ -> result.data.user end)
   end
 end
