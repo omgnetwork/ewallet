@@ -1,8 +1,12 @@
 defmodule EWallet.Web.Orchestrator do
   @moduledoc """
-  This module should be used in every controller to deal with searching, filtering,
-  preloading and sorting.
+    This module orchestrates the request attributes into search, filter, preload and sort queries,
+    so that this set of features can be easily and consistently applied to controllers.
+
+    This module should be used in every controller to deal with searching, filtering,
+    preloading and sorting.
   """
+
   alias EWallet.Web.{MatchAllParser, Paginator, Preloader, SearchParser, SortParser}
 
   def query(query, overlay, attrs \\ nil) do
