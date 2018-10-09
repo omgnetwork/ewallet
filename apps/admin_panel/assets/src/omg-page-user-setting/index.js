@@ -45,6 +45,7 @@ const ChangePasswordContainer = styled.div`
 const ChangePasswordFormCointainer = styled.div`
   margin-top: 20px;
 `
+
 const enhance = compose(
   currentUserProviderHoc,
   connect(
@@ -105,13 +106,20 @@ class UserSettingPage extends Component {
         email: this.state.email,
         avatar: this.state.image
       })
-      if (result.data) {
+      if (
+        result.data &&
+        this.state.changingPassword &&
+        this.state.newPassword === this.state.newPasswordConfirmation &&
+        this.state.newPassword &&
+        this.state.newPasswordConfirmation
+      ) {
+        this.setState({ submitStatus: 'SUBMITTING' })
         const updatePassworldResult = await this.props.updatePassword({
           oldPassword: this.state.oldPassword,
           password: this.state.newPassword,
           passwordConfirmation: this.state.newPasswordConfirmation
         })
-        if (updatePassworldResult.success) {
+        if (updatePassworldResult.data) {
           this.setState({ submitStatus: 'SUBMITTED' })
         } else {
           this.setState({ submitStatus: 'FAILED' })
@@ -177,6 +185,12 @@ class UserSettingPage extends Component {
                 size='small'
                 type='submit'
                 key={'save'}
+                disabled={
+                  this.state.email === this.props.currentUser.email &&
+                  (this.state.newPassword !== this.state.newPasswordConfirmation ||
+                    !this.state.newPassword ||
+                    !this.state.newPasswordConfirmation)
+                }
                 loading={this.state.submitStatus === 'SUBMITTING'}
               >
                 Save Change

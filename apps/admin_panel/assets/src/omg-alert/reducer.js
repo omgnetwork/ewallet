@@ -61,6 +61,9 @@ export const alertsReducer = createReducer([], {
   'CURRENT_USER/UPDATE/SUCCESS': (state, { user }) => {
     return [...state, createAlertState(`Updated user setting successfully.`, 'success')]
   },
+  'PASSWORD/UPDATE/SUCCESS': (state, { user }) => {
+    return [...state, createAlertState(`Updated password successfully.`, 'success')]
+  },
   'TRANSACTION/CREATE/SUCCESS': (state, { transaction }) => {
     return [...state, createAlertState(`Transferred successfully.`, 'success')]
   },
@@ -72,6 +75,9 @@ export const alertsReducer = createReducer([], {
       return [...state, createAlertState(`Consumed transaction request.`, 'success')]
     }
     return state
+  },
+  'PASSWORD/UPDATE/FAILED': (state, { error }) => {
+    return [...state, createAlertState(`${error.description || error}`, 'error')]
   },
   'CONSUMPTION/APPROVE/FAILED': (state, { error }) => {
     return [...state, createAlertState(`${error.description || error}`, 'error')]
