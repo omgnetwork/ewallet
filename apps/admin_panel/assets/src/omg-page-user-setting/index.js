@@ -15,7 +15,7 @@ const UserSettingContainer = styled.div`
   }
 `
 const StyledInput = styled(Input)`
-  margin-bottom: 40px;
+  margin-bottom: 30px;
 `
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
@@ -33,12 +33,16 @@ const AvatarContainer = styled.div`
   margin-right: 50px;
 `
 const ChangePasswordContainer = styled.div`
+  margin-bottom: 30px;
   > div {
     color: ${props => props.theme.colors.B100};
   }
   a {
     color: ${props => props.theme.colors.BL400};
   }
+`
+const ChangePasswordFormCointainer = styled.div`
+  margin-top: 20px;
 `
 const enhance = compose(
   currentUserProviderHoc,
@@ -58,7 +62,8 @@ class UserSettingPage extends Component {
   }
   state = {
     email: '',
-    submitStatus: 'DEFAULT'
+    submitStatus: 'DEFAULT',
+    changingPassword: false
   }
   componentWillReceiveProps = props => {
     this.setInitialCurrentUserState()
@@ -81,22 +86,31 @@ class UserSettingPage extends Component {
   onChangeEmail = e => {
     this.setState({ email: e.target.value })
   }
+  onChangeOldPassword = e => {
+    this.setState({ oldPassword: e.target.value })
+  }
+  onChangeNewPassword = e => {
+    this.setState({ newPassword: e.target.value })
+  }
   onClickUpdateAccount = async e => {
     e.preventDefault()
     try {
-      this.setState({submitStatus: 'SUBMITTING'})
+      this.setState({ submitStatus: 'SUBMITTING' })
       const result = await this.props.updateCurrentUser({
         email: this.state.email,
         avatar: this.state.image
       })
       if (result.success) {
-        this.setState({submitStatus: 'SUBMITTED'})
+        this.setState({ submitStatus: 'SUBMITTED' })
       } else {
-        this.setState({submitStatus: 'FAILED'})
+        this.setState({ submitStatus: 'FAILED' })
       }
     } catch (error) {
-      this.setState({submitStatus: 'FAILED'})
+      this.setState({ submitStatus: 'FAILED' })
     }
+  }
+  onClickChangePassword = e => {
+    this.setState({ changingPassword: true })
   }
   render () {
     return (
@@ -118,11 +132,33 @@ class UserSettingPage extends Component {
                 prefill
                 onChange={this.onChangeEmail}
               />
-              {/* <ChangePasswordContainer>
+              <ChangePasswordContainer>
                 <div>Password</div>
-                <a>Change password</a>
-              </ChangePasswordContainer> */}
-              <Button size='small' type='submit' key={'save'} loading={this.state.submitStatus === 'SUBMITTING'}>
+                {this.state.changingPassword ? (
+                  <ChangePasswordFormCointainer>
+                    <StyledInput
+                      normalPlaceholder={'Old Password'}
+                      value={this.state.oldPassword}
+                      onChange={this.onChangeOldPassword}
+                      type='password'
+                    />
+                    <StyledInput
+                      normalPlaceholder={'New Password'}
+                      value={this.state.newPassword}
+                      onChange={this.onChangeOldNewPassword}
+                      type='password'
+                    />
+                  </ChangePasswordFormCointainer>
+                ) : (
+                  <a onClick={this.onClickChangePassword}>Change password</a>
+                )}
+              </ChangePasswordContainer>
+              <Button
+                size='small'
+                type='submit'
+                key={'save'}
+                loading={this.state.submitStatus === 'SUBMITTING'}
+              >
                 Save Change
               </Button>
             </InputsContainer>

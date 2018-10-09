@@ -43,12 +43,23 @@ export function resetPassword ({ email, redirectUrl }) {
   })
 }
 
-export function updatePassword ({ resetToken, password, passwordConfirmation, email }) {
+export function updatePasswordWithResetToken ({ resetToken, password, passwordConfirmation, email }) {
   return unAuthenticatedRequest({
     path: '/admin.update_password',
     data: {
       email,
       token: resetToken,
+      password,
+      password_confirmation: passwordConfirmation
+    }
+  })
+}
+
+export function updatePassword ({ oldPassword, password, passwordConfirmation }) {
+  return unAuthenticatedRequest({
+    path: '/me.update_password',
+    data: {
+      old_password: oldPassword,
       password,
       password_confirmation: passwordConfirmation
     }

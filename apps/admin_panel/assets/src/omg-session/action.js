@@ -55,14 +55,14 @@ export const sendResetPasswordEmail = ({ email, redirectUrl }) => async dispatch
   }
 }
 
-export const updatePassword = ({
+export const updatePasswordWithResetToken = ({
   resetToken,
   password,
   passwordConfirmation,
   email
 }) => async dispatch => {
   try {
-    const result = await sessionService.updatePassword({
+    const result = await sessionService.updatePasswordWithResetToken({
       resetToken,
       password,
       passwordConfirmation,
