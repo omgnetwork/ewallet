@@ -4,6 +4,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
   alias EWalletDB.TransactionRequest
 
   alias EWallet.Web.V1.{
+    TransactionRequestOverlay,
     AccountSerializer,
     TokenSerializer,
     TransactionRequestSerializer,
@@ -16,10 +17,11 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
     test "serializes into correct V1 transaction_request format" do
       request = insert(:transaction_request)
 
-      transaction_request = TransactionRequest.get(request.id, preload: [:token, :account, :user])
-
-      insert(:transaction_consumption, transaction_request_uuid: request.uuid)
-      insert(:transaction_consumption, transaction_request_uuid: request.uuid)
+      transaction_request =
+        TransactionRequest.get(
+          request.id,
+          preload: TransactionRequestOverlay.default_preload_assocs()
+        )
 
       expected = %{
         object: "transaction_request",
@@ -51,7 +53,7 @@ defmodule EWallet.Web.V1.TransactionRequestSerializerTest do
         expired_at: nil,
         max_consumptions: nil,
         max_consumptions_per_user: nil,
-        current_consumptions_count: 2,
+        current_consumptions_count: 0,
         created_at: Date.to_iso8601(transaction_request.inserted_at),
         updated_at: Date.to_iso8601(transaction_request.updated_at)
       }

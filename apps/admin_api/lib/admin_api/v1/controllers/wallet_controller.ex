@@ -6,14 +6,8 @@ defmodule AdminAPI.V1.WalletController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.{UUIDFetcher, WalletPolicy}
-  alias EWallet.Web.{Paginator, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.WalletOverlay}
   alias EWalletDB.{Account, User, Wallet}
-
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-  @search_fields [:id, :address, :name, :identifier]
-  @sort_fields [:id, :address, :name, :identifier, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of all wallets the accessor has access to (all accessible
@@ -90,17 +84,15 @@ defmodule AdminAPI.V1.WalletController do
 
   defp do_all(query, attrs, conn) do
     query
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
+    |> Orchestrator.query(WalletOverlay, attrs)
     |> respond_multiple(conn)
   end
 
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def get(conn, %{"address" => address}) do
+  def get(conn, %{"address" => address} = attrs) do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          :ok <- permit(:get, conn.assigns, wallet) do
-      respond_single(wallet, conn)
+      respond_single(wallet, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
     end
@@ -114,7 +106,7 @@ defmodule AdminAPI.V1.WalletController do
       attrs
       |> UUIDFetcher.replace_external_ids()
       |> Wallet.insert_secondary_or_burn()
-      |> respond_single(conn)
+      |> respond_single(conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
     end
@@ -128,7 +120,7 @@ defmodule AdminAPI.V1.WalletController do
     with %Wallet{} = wallet <- Wallet.get(address) || {:error, :unauthorized},
          :ok <- permit(:enable_or_disable, conn.assigns, wallet),
          {:ok, updated} <- Wallet.enable_or_disable(wallet, attrs) do
-      respond_single(updated, conn)
+      respond_single(updated, conn, attrs)
     else
       {:error, error} -> handle_error(conn, error)
     end
@@ -148,16 +140,17 @@ defmodule AdminAPI.V1.WalletController do
   end
 
   # Respond with a single wallet
-  defp respond_single({:error, changeset}, conn) do
+  defp respond_single({:error, changeset}, conn, _attrs) do
     handle_error(conn, :invalid_parameter, changeset)
   end
 
-  defp respond_single({:ok, wallet}, conn) do
+  defp respond_single({:ok, wallet}, conn, attrs) do
+    {:ok, wallet} = Orchestrator.one(wallet, WalletOverlay, attrs)
     render(conn, :wallet, %{wallet: wallet})
   end
 
-  defp respond_single(%Wallet{} = wallet, conn) do
-    render(conn, :wallet, %{wallet: wallet})
+  defp respond_single(%Wallet{} = wallet, conn, attrs) do
+    respond_single({:ok, wallet}, conn, attrs)
   end
 
   @spec permit(:all | :create | :get | :update, map(), %Account{} | %User{} | %Wallet{} | nil) ::

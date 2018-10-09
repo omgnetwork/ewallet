@@ -7,19 +7,19 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
     Repo,
     Transaction,
     TransactionConsumption,
-    TransactionRequest,
     User
   }
 
   alias EWallet.{BalanceFetcher, TestEndpoint}
-  alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
+  alias EWallet.Web.{Date, Orchestrator, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
 
   alias EWallet.Web.V1.{
     AccountSerializer,
     TokenSerializer,
     TransactionRequestSerializer,
-    TransactionSerializer
+    TransactionSerializer,
+    TransactionConsumptionOverlay
   }
 
   alias AdminAPI.V1.Endpoint
@@ -757,8 +757,12 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,
@@ -881,8 +885,12 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,

@@ -1,6 +1,7 @@
 defmodule EWalletAPI.V1.SelfController do
   use EWalletAPI, :controller
   import EWalletAPI.V1.ErrorHandler
+  alias EWallet.Web.{Orchestrator, V1.WalletOverlay}
   alias EWallet.BalanceFetcher
   alias EWalletDB.Token
 
@@ -13,15 +14,12 @@ defmodule EWalletAPI.V1.SelfController do
     render(conn, :settings, settings)
   end
 
-  def get_wallets(conn, _attrs) do
-    %{"user_id" => conn.assigns.user.id}
-    |> BalanceFetcher.all()
-    |> respond(conn)
+  def get_wallets(conn, attrs) do
+    with {:ok, wallet} <- BalanceFetcher.all(%{"user_id" => conn.assigns.user.id}) do
+      {:ok, wallets} = Orchestrator.all([wallet], WalletOverlay, attrs)
+      render(conn, :wallets, %{wallets: wallets})
+    else
+      {:error, code} -> handle_error(conn, code)
+    end
   end
-
-  defp respond({:ok, addresses}, conn) do
-    render(conn, :wallets, %{addresses: [addresses]})
-  end
-
-  defp respond({:error, code}, conn), do: handle_error(conn, code)
 end

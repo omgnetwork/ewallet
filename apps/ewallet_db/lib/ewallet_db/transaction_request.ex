@@ -38,6 +38,7 @@ defmodule EWalletDB.TransactionRequest do
     field(:correlation_id, :string)
 
     field(:require_confirmation, :boolean, default: false)
+    field(:consumptions_count, :integer)
     # nil -> unlimited
     field(:max_consumptions, :integer)
     field(:max_consumptions_per_user, :integer)
@@ -145,6 +146,12 @@ defmodule EWalletDB.TransactionRequest do
     |> assoc_constraint(:wallet)
     |> assoc_constraint(:exchange_account)
     |> assoc_constraint(:exchange_wallet)
+  end
+
+  defp consumptions_count_changeset(%TransactionRequest{} = transaction_request, attrs) do
+    transaction_request
+    |> cast(attrs, [:consumptions_count])
+    |> validate_required([:consumptions_count])
   end
 
   defp expire_changeset(%TransactionRequest{} = transaction_request, attrs) do
@@ -335,11 +342,35 @@ defmodule EWalletDB.TransactionRequest do
           | {:error, map()}
   def expire_if_max_consumption(request) do
     consumptions = TransactionConsumption.all_active_for_request(request.uuid)
+    request = update_consumptions_count(request, consumptions)
 
     case max_consumptions_reached?(request, consumptions) do
       true -> expire(request, "max_consumptions_reached")
       false -> touch(request)
     end
+  end
+
+  @spec load_consumptions_count(%TransactionRequest{}) :: Integer.t()
+  def load_consumptions_count(request) do
+    case request.consumptions_count do
+      nil ->
+        consumptions = TransactionConsumption.all_active_for_request(request.uuid)
+        update_consumptions_count(request, consumptions)
+
+      _count ->
+        request
+    end
+  end
+
+  @spec update_consumptions_count(%TransactionRequest{}, list(%TransactionConsumption{})) ::
+          %TransactionRequest{}
+  defp update_consumptions_count(request, consumptions) do
+    {:ok, request} =
+      request
+      |> consumptions_count_changeset(%{consumptions_count: length(consumptions)})
+      |> Repo.update()
+
+    request
   end
 
   @spec max_consumptions_reached?(%TransactionRequest{}, list(%TransactionConsumption{})) ::

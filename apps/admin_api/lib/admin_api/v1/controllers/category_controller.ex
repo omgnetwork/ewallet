@@ -2,50 +2,21 @@ defmodule AdminAPI.V1.CategoryController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias EWallet.CategoryPolicy
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.CategoryOverlay}
   alias EWalletDB.Category
-
-  # The field names to be mapped into DB column names.
-  # The keys and values must be strings as this is mapped early before
-  # any operations are done on the field names. For example:
-  # `"request_field_name" => "db_column_name"`
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-
-  # The fields that should be preloaded.
-  # Note that these values *must be in the schema associations*.
-  @preload_fields [:accounts]
-
-  # The fields that are allowed to be searched.
-  # Note that these values here *must be the DB column names*
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @search_fields [:id, :name, :description]
-
-  # The fields that are allowed to be sorted.
-  # Note that the values here *must be the DB column names*.
-  # If the request provides different names, map it via `@mapped_fields` first.
-  @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   @doc """
   Retrieves a list of categories.
   """
   @spec all(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def all(conn, attrs) do
-    with :ok <- permit(:all, conn.assigns, nil) do
-      Category
-      |> Preloader.to_query(@preload_fields)
-      |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
-      |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-      |> Paginator.paginate_attrs(attrs)
-      |> case do
-        %Paginator{} = paginator ->
-          render(conn, :categories, %{categories: paginator})
-
-        {:error, code, description} ->
-          handle_error(conn, code, description)
-      end
+    with :ok <- permit(:all, conn.assigns, nil),
+         %Paginator{} = paginator <- Orchestrator.query(Category, CategoryOverlay, attrs) do
+      render(conn, :categories, %{categories: paginator})
     else
+      {:error, code, description} ->
+        handle_error(conn, code, description)
+
       {:error, code} ->
         handle_error(conn, code)
     end
@@ -55,10 +26,10 @@ defmodule AdminAPI.V1.CategoryController do
   Retrieves a specific category by its id.
   """
   @spec get(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def get(conn, %{"id" => id}) do
+  def get(conn, %{"id" => id} = attrs) do
     with :ok <- permit(:get, conn.assigns, id),
          %Category{} = category <- Category.get_by(id: id),
-         {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
+         {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
       render(conn, :category, %{category: category})
     else
       {:error, code} ->
@@ -76,7 +47,7 @@ defmodule AdminAPI.V1.CategoryController do
   def create(conn, attrs) do
     with :ok <- permit(:create, conn.assigns, nil),
          {:ok, category} <- Category.insert(attrs),
-         {:ok, category} <- Preloader.preload_one(category, @preload_fields) do
+         {:ok, category} <- Orchestrator.one(category, CategoryOverlay, attrs) do
       render(conn, :category, %{category: category})
     else
       {:error, %{} = changeset} ->
@@ -95,7 +66,7 @@ defmodule AdminAPI.V1.CategoryController do
     with :ok <- permit(:update, conn.assigns, id),
          %Category{} = original <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, updated} <- Category.update(original, attrs),
-         {:ok, updated} <- Preloader.preload_one(updated, @preload_fields) do
+         {:ok, updated} <- Orchestrator.one(updated, CategoryOverlay, attrs) do
       render(conn, :category, %{category: updated})
     else
       {:error, %{} = changeset} ->
@@ -112,10 +83,10 @@ defmodule AdminAPI.V1.CategoryController do
   Soft-deletes an existing category by its id.
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def delete(conn, %{"id" => id}) do
+  def delete(conn, %{"id" => id} = attrs) do
     with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, deleted} <- Category.delete(category),
-         {:ok, deleted} <- Preloader.preload_one(deleted, @preload_fields) do
+         {:ok, deleted} <- Orchestrator.one(deleted, CategoryOverlay, attrs) do
       render(conn, :category, %{category: deleted})
     else
       {:error, %{} = changeset} ->
