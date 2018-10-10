@@ -1,12 +1,6 @@
 defmodule LoadTester.Scenarios.AccountGetWallets do
   use Chaperon.Scenario
 
-  def init(session) do
-    session
-    |> assign(rate: 1, interval: seconds(5))
-    |> ok()
-  end
-
   def run(session) do
     session
     |> post("/api/admin/account.get_wallets",

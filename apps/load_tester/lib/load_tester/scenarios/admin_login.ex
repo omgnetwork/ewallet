@@ -1,12 +1,6 @@
 defmodule LoadTester.Scenarios.AdminLogin do
   use Chaperon.Scenario
 
-  def init(session) do
-    session
-    |> assign(rate: 1, interval: seconds(5), auth_token: nil)
-    |> ok()
-  end
-
   def run(session) do
     session
     |> post("/api/admin/admin.login",

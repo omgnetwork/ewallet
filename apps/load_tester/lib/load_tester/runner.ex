@@ -4,13 +4,15 @@ defmodule LoadTester.Runner do
     AccountAll,
     AccountGetWallets,
     AdminLogin,
+    Index,
     TokenAll,
     TransactionCreate,
     UserGetWallets
   }
 
-  @iterations 10
-  @steps [
+  @concurrency 1
+  @sequence [
+    Index,
     AdminLogin,
     UserGetWallets,
     TokenAll,
@@ -20,11 +22,10 @@ defmodule LoadTester.Runner do
   ]
 
   def default_config, do: %{
-    base_url: "https://ewallet.staging.omisego.io"
-    # base_url: "http://localhost:4000"
+    base_url: "http://localhost:4000"
   }
 
   def scenarios, do: [
-    {{@iterations, @steps}, %{}}
+    {{@concurrency, @sequence}, %{}}
   ]
 end
