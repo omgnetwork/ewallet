@@ -7,6 +7,7 @@ defmodule EWalletDB.Setting do
   users never need to know that - all they need to care is the "value"
   field.
   """
+  import Ecto.Query
   alias EWalletDB.{Repo, StoredSetting, Setting}
   alias Ecto.Changeset
 
@@ -28,6 +29,17 @@ defmodule EWalletDB.Setting do
 
   @spec types() :: [String.t()]
   def types, do: StoredSetting.types()
+
+  @doc """
+  Retrieves all settings.
+  """
+  @spec all() :: [%Setting{}]
+  def all do
+    StoredSetting
+    |> order_by(desc: :inserted_at)
+    |> Repo.all()
+    |> Enum.map(&build/1)
+  end
 
   @doc """
   Retrieves a setting by its string name.

@@ -6,6 +6,27 @@ defmodule EWalletDB.SettingTest do
     %{key: "my_key", value: "test", type: "array"}
   end
 
+  describe "all/0" do
+    test "returns all settings" do
+      {:ok, _} = Setting.insert(%{key: "k1", value: "v", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "k2", value: "v", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "k3", value: "v", type: "string"})
+    end
+  end
+
+  describe "get/1" do
+    test "returns nil when given nil" do
+      assert Setting.get(nil) == nil
+    end
+
+    test "returns the setting" do
+      {:ok, inserted_setting} = Setting.insert(get_attrs())
+      setting = Setting.get("my_key")
+
+      assert inserted_setting.uuid == setting.uuid
+    end
+  end
+
   describe "insert/1" do
     test "inserts a setting with a UUID" do
       {res, setting} = Setting.insert(get_attrs())
@@ -103,19 +124,6 @@ defmodule EWalletDB.SettingTest do
       assert changeset.valid? == false
       assert changeset.action == :insert
       assert changeset.data == %Setting{}
-    end
-  end
-
-  describe "get/1" do
-    test "returns nil when given nil" do
-      assert Setting.get(nil) == nil
-    end
-
-    test "returns the setting" do
-      {:ok, inserted_setting} = Setting.insert(get_attrs())
-      setting = Setting.get("my_key")
-
-      assert inserted_setting.uuid == setting.uuid
     end
   end
 end
