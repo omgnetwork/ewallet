@@ -12,7 +12,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
     %{key: "enable_standalone", value: false, type: "boolean"},
     %{key: "max_per_page", value: 100, type: "integer"},
     %{key: "min_password_length", value: 8, type: "integer"},
-    %{key: "sentry_dsn", value: nil},
+    %{key: "sentry_dsn", value: nil, type: "string"},
     %{key: "redirect_url_prefixes", value: [], type: "array"},
 
     # Email Settings
@@ -31,7 +31,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
 
     # File Storage: GCS Settings
     %{key: "gcs_bucket", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "gcs"},
-    %{key: "gcs_credentials", value: nil, secret: true, type: "json", parent: "file_storage_adapter", parent_value: "gcs"},
+    %{key: "gcs_credentials", value: nil, secret: true, type: "string", parent: "file_storage_adapter", parent_value: "gcs"},
 
     # File Storage: AWS Settings
     %{key: "aws_bucket", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "aws"},
@@ -52,17 +52,21 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   def run(writer, args) do
-    seed_data = [%{key: "base_url", value: args[:base_url], type: "string"} | @seed_data]
-    seed_data = [%{key: "redirect_url_prefixes", value: [args[:base_url]], type: "array"} | seed_data]
+    seed_data = [%{key: "redirect_url_prefixes", value: [args[:base_url]], type: "array"} | @seed_data]
+    seed_data = [%{key: "base_url", value: args[:base_url], type: "string"} | seed_data]
 
-    Enum.each seed_data, fn data ->
-      run_with(writer, data)
-    end
+    seed_data
+    |> Enum.with_index(1)
+    |> Enum.each(fn {data, index} ->
+      run_with(writer, data, index)
+    end)
   end
 
-  defp run_with(writer, data) do
+  defp run_with(writer, data, index) do
     case Setting.get(data.key) do
       nil ->
+        data = Map.put(data, :position, index)
+
         case Setting.insert(data) do
           {:ok, setting} ->
             writer.success("""
@@ -73,7 +77,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
             writer.error("  The setting could not be inserted:")
             writer.print_errors(changeset)
           _ ->
-                writer.error("  The setting could not be inserted:")
+            writer.error("  The setting could not be inserted:")
             writer.error("  Unknown error.")
         end
       %Setting{} = setting ->
