@@ -24,7 +24,6 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
 
     # Balance Caching Settings
     %{key: "balance_caching_strategy", value: "since_beginning", type: "select", options: ["since_beginning", "since_last_cached"]},
-    %{key: "balance_caching_schedule", value: "* * * * *", type: "string"},
 
     # File Storage settings
     %{key: "file_storage_adapter", value: "local", type: "select", options: ["local", "gcs", "aws"]},
@@ -43,12 +42,21 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   def seed do
     [
       run_banner: "Seeding the settings",
-      argsline: [
-        {:title, "Enter the base URL for this instance of the ewallet (e.g. https://myewallet.com)."},
-        {:text, @argsline_desc},
-        {:input, {:text, :base_url, "Base URL", System.get_env("BASE_URL") || "http://localhost:4000"}}
-      ]
+      argsline: get_argsline()
     ]
+  end
+
+  defp get_argsline do
+    case Setting.get("base_url") do
+      nil ->
+        [
+          {:title, "Enter the base URL for this instance of the ewallet (e.g. https://myewallet.com)."},
+          {:text, @argsline_desc},
+          {:input, {:text, :base_url, "Base URL", System.get_env("BASE_URL") || "http://localhost:4000"}}
+        ]
+      _setting ->
+        []
+    end
   end
 
   def run(writer, args) do

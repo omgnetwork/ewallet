@@ -41,7 +41,7 @@ defmodule EWallet.Seeder.CLI do
     args =
       mods
       |> Seeder.argsline_for()
-      |> process_argsline()
+      |> process_argsline(assume_yes)
 
     _ =
       unless assume_yes do
@@ -78,28 +78,41 @@ defmodule EWallet.Seeder.CLI do
   # Argsline processing
   #
 
-  defp process_argsline(argsline), do: process_argsline(argsline, [])
-  defp process_argsline([], acc), do: acc
+  defp process_argsline(argsline, assume_yes), do: process_argsline(argsline, [], assume_yes)
+  defp process_argsline([], acc, _), do: acc
 
-  defp process_argsline([{:title, title} | t], acc) do
+  defp process_argsline([{:title, _title} | t], acc, true) do
+    process_argsline(t, acc, true)
+  end
+
+  defp process_argsline([{:title, title} | t], acc, assume_yes) do
+    CLI.print(".")
     CLI.print("## #{title}\n")
-    process_argsline(t, acc)
+    process_argsline(t, acc, assume_yes)
   end
 
-  defp process_argsline([{:text, text} | t], acc) do
+  defp process_argsline([{:text, _text} | t], acc, true) do
+    process_argsline(t, acc, true)
+  end
+
+  defp process_argsline([{:text, text} | t], acc, assume_yes) do
     CLI.print(text)
-    process_argsline(t, acc)
+    process_argsline(t, acc, assume_yes)
   end
 
-  defp process_argsline([{:input, input} | t], acc) do
+  defp process_argsline([{:input, {_, name, _prompt, default}} | t], acc, true) do
+    process_argsline(t, acc ++ [{name, process_default(default)}], true)
+  end
+
+  defp process_argsline([{:input, input} | t], acc, false) do
     case process_input(input) do
-      nil -> process_argsline(t, acc)
-      {_, _} = a -> process_argsline(t, acc ++ [a])
+      nil -> process_argsline(t, acc, false)
+      {_, _} = a -> process_argsline(t, acc ++ [a], false)
     end
   end
 
-  defp process_argsline([_ | t], acc) do
-    process_argsline(t, acc)
+  defp process_argsline([_ | t], acc, assume_yes) do
+    process_argsline(t, acc, assume_yes)
   end
 
   #
