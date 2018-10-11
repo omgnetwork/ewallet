@@ -9,34 +9,34 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
 
   @seed_data [
     # Global Settings
-    %{key: "enable_standalone", value: false, type: "boolean"},
-    %{key: "max_per_page", value: 100, type: "integer"},
-    %{key: "min_password_length", value: 8, type: "integer"},
-    %{key: "sentry_dsn", value: nil, type: "string"},
-    %{key: "redirect_url_prefixes", value: [], type: "array"},
+    %{key: "enable_standalone", value: false, type: "boolean", description: "Enables the /user.signup endpoint in the client API, allowing users to sign up directly."},
+    %{key: "max_per_page", value: 100, type: "integer", description: "The maximum number of records that can be returned for a list."},
+    %{key: "min_password_length", value: 8, type: "integer", description: "The minimum length for passwords."},
+    %{key: "sentry_dsn", value: nil, type: "string", description: "A Sentry DSN to send errors to."},
+    %{key: "redirect_url_prefixes", value: [], type: "array", description: "A list of URLs that can be used in redirect flows (confirm email, etc.)"},
 
     # Email Settings
-    %{key: "sender_email", value: "admin@localhost", type: "string"},
-    %{key: "smtp_host", value: nil, type: "string"},
-    %{key: "smtp_port", value: nil, type: "string"},
-    %{key: "smtp_username", value: nil, type: "string"},
-    %{key: "smtp_password", value: nil, type: "string"},
+    %{key: "sender_email", value: "admin@localhost", type: "string", description: "The address from which system emails will be sent."},
+    %{key: "smtp_host", value: nil, type: "string", description: "The SMTP host to use to send emails."},
+    %{key: "smtp_port", value: nil, type: "string", description: "The SMTP port to use to send emails."},
+    %{key: "smtp_username", value: nil, type: "string", description: "The SMTP username to use to send emails."},
+    %{key: "smtp_password", value: nil, type: "string", description: "The SMTP password to use to send emails."},
 
     # Balance Caching Settings
-    %{key: "balance_caching_strategy", value: "since_beginning", type: "select", options: ["since_beginning", "since_last_cached"]},
+    %{key: "balance_caching_strategy", value: "since_beginning", type: "select", options: ["since_beginning", "since_last_cached"], description: "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."},
 
     # File Storage settings
-    %{key: "file_storage_adapter", value: "local", type: "select", options: ["local", "gcs", "aws"]},
+    %{key: "file_storage_adapter", value: "local", type: "select", options: ["local", "gcs", "aws"], description: "The type of storage to use for images and files."},
 
     # File Storage: GCS Settings
-    %{key: "gcs_bucket", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "gcs"},
-    %{key: "gcs_credentials", value: nil, secret: true, type: "string", parent: "file_storage_adapter", parent_value: "gcs"},
+    %{key: "gcs_bucket", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "gcs", description: "The name of the GCS bucket."},
+    %{key: "gcs_credentials", value: nil, secret: true, type: "string", parent: "file_storage_adapter", parent_value: "gcs", description: "The credentials of the Google Cloud account."},
 
     # File Storage: AWS Settings
-    %{key: "aws_bucket", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "aws"},
-    %{key: "aws_region", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "aws"},
-    %{key: "aws_access_key_id", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "aws"},
-    %{key: "aws_secret_access_key", value: nil, secret: true, type: "string", parent: "file_storage_adapter", parent_value: "aws"}
+    %{key: "aws_bucket", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "aws", description: "The name of the AWS bucket."},
+    %{key: "aws_region", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "aws", description: "The AWS region where your bucket lives."},
+    %{key: "aws_access_key_id", value: nil, type: "string", parent: "file_storage_adapter", parent_value: "aws", description: "An AWS access key having access to the specified bucket."},
+    %{key: "aws_secret_access_key", value: nil, secret: true, type: "string", parent: "file_storage_adapter", parent_value: "aws", description: "An AWS secret having access to the specified bucket."}
   ]
 
   def seed do

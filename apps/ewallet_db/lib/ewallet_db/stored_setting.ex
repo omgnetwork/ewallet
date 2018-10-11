@@ -27,6 +27,7 @@ defmodule EWalletDB.StoredSetting do
     field(:data, :map)
     field(:encrypted_data, EWalletDB.Encrypted.Map)
     field(:type, :string)
+    field(:description, :string)
     field(:options, :string)
     field(:parent, :string)
     field(:parent_value, :string)
@@ -43,6 +44,7 @@ defmodule EWalletDB.StoredSetting do
       :data,
       :encrypted_data,
       :type,
+      :description,
       :parent,
       :parent_value,
       :options,

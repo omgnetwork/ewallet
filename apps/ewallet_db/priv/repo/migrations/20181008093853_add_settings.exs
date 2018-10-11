@@ -10,6 +10,7 @@ defmodule EWalletDB.Repo.Migrations.AddSettings do
       add :data, :map
       add :encrypted_data, :binary
       add :type, :string, null: false
+      add :description, :string
       add :options, :string
       add :parent, :string
       add :parent_value, :string

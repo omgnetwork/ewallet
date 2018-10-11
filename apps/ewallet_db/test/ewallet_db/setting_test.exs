@@ -3,7 +3,7 @@ defmodule EWalletDB.SettingTest do
   alias EWalletDB.Setting
 
   def get_attrs do
-    %{key: "my_key", value: "test", type: "array"}
+    %{key: "my_key", value: "test", type: "string"}
   end
 
   describe "all/0" do
@@ -41,6 +41,13 @@ defmodule EWalletDB.SettingTest do
       assert res == :ok
       assert String.starts_with?(setting.id, "stg_")
       assert String.length(setting.id) == String.length("stg_") + 26
+    end
+
+    test "inserts a setting with a description" do
+      {res, setting} = Setting.insert(%{key: "my_key", value: "test", type: "string", description: "My Description"})
+
+      assert res == :ok
+      assert setting.description == "My Description"
     end
 
     test "inserts a setting with a position" do
