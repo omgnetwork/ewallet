@@ -30,7 +30,6 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
       transaction: [
         :from_token,
         :to_token,
-        :exchange_pair,
         :to_wallet,
         :from_wallet,
         :from_account,
@@ -41,6 +40,10 @@ defmodule EWallet.Web.V1.TransactionConsumptionOverlay do
         :exchange_wallet,
         :from_account,
         :to_account,
+        exchange_pair: [
+          :to_token,
+          :from_token
+        ],
         exchange_account: []
       ],
       transaction_request: [
