@@ -23,6 +23,7 @@ defmodule EWalletDB.Setting do
     :parent,
     :parent_value,
     :secret,
+    :position,
     :inserted_at,
     :updated_at
   ]
@@ -36,7 +37,7 @@ defmodule EWalletDB.Setting do
   @spec all() :: [%Setting{}]
   def all do
     StoredSetting
-    |> order_by(desc: :inserted_at)
+    |> order_by(asc: :position)
     |> Repo.all()
     |> Enum.map(&build/1)
   end
@@ -46,9 +47,10 @@ defmodule EWalletDB.Setting do
   """
   @spec get(String.t()) :: %Setting{}
   def get(key) when is_binary(key) do
-    StoredSetting
-    |> Repo.get_by(key: key)
-    |> build()
+    case Repo.get_by(StoredSetting, key: key) do
+      nil -> nil
+      stored_setting -> build(stored_setting)
+    end
   end
 
   @spec get(any()) :: nil
@@ -59,7 +61,11 @@ defmodule EWalletDB.Setting do
   """
   @spec insert(Map.t()) :: {:ok, %Setting{}} | {:error, %Changeset{}}
   def insert(attrs) do
-    attrs = attrs |> cast_value() |> cast_options()
+    attrs =
+      attrs
+      |> cast_value()
+      |> cast_options()
+      |> add_position()
 
     %StoredSetting{}
     |> StoredSetting.changeset(attrs)
@@ -67,23 +73,29 @@ defmodule EWalletDB.Setting do
     |> case do
       {:ok, stored_setting} ->
         {:ok, build(stored_setting)}
+
       {:error, changeset} ->
-        {:error, %Changeset{
-          action: changeset.action,
-          changes: clean_changes(changeset.changes),
-          errors: changeset.errors,
-          data: %Setting{},
-          valid?: changeset.valid?
-        }}
+        {:error,
+         %Changeset{
+           action: changeset.action,
+           changes: clean_changes(changeset.changes),
+           errors: changeset.errors,
+           data: %Setting{},
+           valid?: changeset.valid?
+         }}
     end
   end
 
-  defp clean_changes(changes) do
-    value = changes.data[:value]
+  defp clean_changes(%{encrypted_data: data} = changes) do
+    changes
+    |> Map.delete(:encrypted_data)
+    |> Map.put(:value, data[:value])
+  end
 
+  defp clean_changes(%{data: data} = changes) do
     changes
     |> Map.delete(:data)
-    |> Map.put(:value, value)
+    |> Map.put(:value, data[:value])
   end
 
   defp build(stored_setting) do
@@ -97,6 +109,7 @@ defmodule EWalletDB.Setting do
       parent: stored_setting.parent,
       parent_value: stored_setting.parent_value,
       secret: stored_setting.secret,
+      position: stored_setting.position,
       inserted_at: stored_setting.inserted_at,
       updated_at: stored_setting.updated_at
     }
@@ -133,4 +146,24 @@ defmodule EWalletDB.Setting do
   end
 
   defp cast_options(attrs), do: attrs
+
+  defp add_position(%{position: position} = attrs) when not is_nil(position) and is_integer(position) do
+    attrs
+  end
+
+  defp add_position(attrs) do
+    case get_last_setting() do
+      nil ->
+        Map.put(attrs, :position, 0)
+      latest_setting ->
+        Map.put(attrs, :position, latest_setting.position + 1)
+    end
+  end
+
+  defp get_last_setting do
+    StoredSetting
+    |> order_by(desc: :position)
+    |> limit(1)
+    |> Repo.one()
+  end
 end

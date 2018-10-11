@@ -14,10 +14,13 @@ defmodule EWalletDB.Repo.Migrations.AddSettings do
       add :parent, :string
       add :parent_value, :string
       add :secret, :boolean, null: false, default: false
+      add :position, :integer, null: false, unique: true
 
       timestamps()
     end
 
+    create unique_index(:setting, [:id])
     create unique_index(:setting, [:key])
+    create unique_index(:setting, [:position])
   end
 end

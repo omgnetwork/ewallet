@@ -31,14 +31,25 @@ defmodule EWalletDB.StoredSetting do
     field(:parent, :string)
     field(:parent_value, :string)
     field(:secret, :boolean, default: false)
+    field(:position, :integer)
 
     timestamps()
   end
 
   def changeset(%StoredSetting{} = setting, attrs) do
     setting
-    |> cast(attrs, [:key, :data, :encrypted_data, :type, :parent, :parent_value, :options, :secret])
-    |> validate_required([:key, :type])
+    |> cast(attrs, [
+      :key,
+      :data,
+      :encrypted_data,
+      :type,
+      :parent,
+      :parent_value,
+      :options,
+      :secret,
+      :position
+    ])
+    |> validate_required([:key, :type, :position])
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive([:data, :encrypted_data])
     |> unique_constraint(:key)
