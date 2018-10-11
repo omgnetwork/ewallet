@@ -20,7 +20,6 @@ defmodule EWalletDB.Factory do
     Membership,
     Mint,
     Role,
-    Setting,
     System,
     Token,
     Transaction,
@@ -309,13 +308,6 @@ defmodule EWalletDB.Factory do
       wallet_address: insert(:wallet).address,
       amount: 100,
       transaction_request_uuid: insert(:transaction_request).uuid
-    }
-  end
-
-  def setting_factory do
-    %Setting{
-      key: "base_url",
-      value: "example.com"
     }
   end
 end

@@ -7,7 +7,13 @@ defmodule EWalletDB.Repo.Migrations.AddSettings do
       add :id, :string, null: false
 
       add :key, :string, null: false
-      add :value, :string
+      add :data, :map
+      add :encrypted_data, :binary
+      add :type, :string, null: false
+      add :options, :string
+      add :parent, :string
+      add :parent_value, :string
+      add :secret, :boolean, null: false, default: false
 
       timestamps()
     end
