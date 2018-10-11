@@ -6,14 +6,13 @@ defmodule EWallet.TransactionRequestFetcher do
   All functions here are only meant to load and format data related to
   transaction requests.
   """
+  alias EWallet.Web.V1.TransactionRequestOverlay
   alias EWalletDB.TransactionRequest
 
   @spec get(String.t()) :: {:ok, %TransactionRequest{}} | {:error, :transaction_request_not_found}
   def get(transaction_request_id) do
     transaction_request_id
-    |> TransactionRequest.get(
-      preload: [:token, :user, :wallet, :exchange_account, :exchange_wallet]
-    )
+    |> TransactionRequest.get(preload: TransactionRequestOverlay.default_preload_assocs())
     |> handle_request_existence()
   end
 
@@ -25,13 +24,10 @@ defmodule EWallet.TransactionRequestFetcher do
           | {:error, :transaction_request_not_found}
   def get_with_lock(transaction_request_id) do
     request =
-      TransactionRequest.get_with_lock(transaction_request_id, [
-        :token,
-        :user,
-        :wallet,
-        :exchange_account,
-        :exchange_wallet
-      ])
+      TransactionRequest.get_with_lock(
+        transaction_request_id,
+        TransactionRequestOverlay.default_preload_assocs()
+      )
 
     case request do
       nil -> {:error, :transaction_request_not_found}

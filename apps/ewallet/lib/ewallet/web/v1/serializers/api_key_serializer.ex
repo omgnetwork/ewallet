@@ -6,15 +6,12 @@ defmodule EWallet.Web.V1.APIKeySerializer do
   alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.APIKey
-  alias EWalletDB.Helpers.Preloader
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
   end
 
   def serialize(%APIKey{} = api_key) do
-    api_key = Preloader.preload(api_key, :account)
-
     %{
       object: "api_key",
       id: api_key.id,

@@ -6,7 +6,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
   alias EWalletDB.Account
-  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.Helpers.Assoc
   alias EWalletDB.Uploaders.Avatar
 
   def serialize(%Paginator{} = paginator) do
@@ -21,8 +21,6 @@ defmodule EWallet.Web.V1.AccountSerializer do
   end
 
   def serialize(%Account{} = account) do
-    account = Preloader.preload(account, [:parent, :categories])
-
     %{
       object: "account",
       id: account.id,
@@ -50,5 +48,6 @@ defmodule EWallet.Web.V1.AccountSerializer do
     Enum.map(accounts, fn account -> account.id end)
   end
 
+  def serialize(%NotLoaded{}, _), do: nil
   def serialize(nil, _), do: nil
 end

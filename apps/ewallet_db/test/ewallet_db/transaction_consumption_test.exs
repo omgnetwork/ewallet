@@ -144,6 +144,21 @@ defmodule EWalletDB.TransactionConsumptionTest do
 
       assert inserted.status == "pending"
     end
+
+    test "fails with a duplicated correlation ID" do
+      {:ok, _consumption_1} =
+        :transaction_consumption
+        |> params_for(correlation_id: "123")
+        |> TransactionConsumption.insert()
+
+      {res, changeset} =
+        :transaction_consumption
+        |> params_for(correlation_id: "123")
+        |> TransactionConsumption.insert()
+
+      assert res == :error
+      assert changeset.errors == [correlation_id: {"has already been taken", []}]
+    end
   end
 
   describe "approve/1" do
