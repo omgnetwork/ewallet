@@ -52,6 +52,10 @@ defmodule Mix.Tasks.Omg.Seed do
     [{:ewallet_db, :seeds}]
   end
 
+  defp seed_spec(["--settings" | _t]) do
+    [{:ewallet_db, :seeds_settings}]
+  end
+
   defp seed_spec(["--sample" | t]) do
     seed_spec(t) ++ [{:ewallet_db, :seeds_sample}]
   end

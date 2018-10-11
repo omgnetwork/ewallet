@@ -108,6 +108,27 @@ defmodule EWallet.Seeder.CLI do
 
   defp process_input({type, name, prompt}), do: process_input({type, name, prompt, nil})
 
+  defp process_input({:text, name, prompt, default} = input) do
+    prompt_text = prompt_for(prompt, default)
+
+    val =
+      prompt_text
+      |> IO.gets()
+      |> String.trim()
+
+    cond do
+      byte_size(val) == 0 ->
+        {name, process_default(default)}
+
+      length(val) > 0 ->
+        {name, val}
+
+      true ->
+        IO.puts("#{prompt} is invalid. Please try again.")
+        process_input(input)
+    end
+  end
+
   defp process_input({:email, name, prompt, default} = input) do
     prompt_text = prompt_for(prompt, default)
 
