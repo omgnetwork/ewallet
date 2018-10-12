@@ -22,7 +22,10 @@ defmodule LoadTester.Runner do
   ]
 
   def default_config, do: %{
-    base_url: "http://localhost:4000"
+    base_url:
+      "http://"
+      <> Application.get_env(:load_tester, :loadtest_host)
+      <> ":" <> Application.get_env(:load_tester, :loadtest_port)
   }
 
   def scenarios, do: [

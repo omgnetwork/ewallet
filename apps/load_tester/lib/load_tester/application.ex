@@ -6,6 +6,8 @@ defmodule LoadTester.Application do
   use Application
 
   def start(_type, _args) do
+    DeferredConfig.populate(:load_tester)
+
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: LoadTester.Worker.start_link(arg)
