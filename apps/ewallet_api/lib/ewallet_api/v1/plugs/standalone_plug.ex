@@ -15,6 +15,7 @@ defmodule EWalletAPI.V1.StandalonePlug do
     case Setting.get("enable_standalone") do
       nil ->
         false
+
       setting ->
         setting.value == true
     end

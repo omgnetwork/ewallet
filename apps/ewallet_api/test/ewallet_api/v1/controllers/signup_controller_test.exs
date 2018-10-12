@@ -6,11 +6,6 @@ defmodule EWalletAPI.V1.SignupControllerTest do
   alias EWalletAPI.VerificationEmail
   alias EWalletDB.{Invite, User, Setting}
 
-  setup do
-    {:ok, _} = Setting.insert(%{key: "enable_standalone", value: true, type: "boolean"})
-    :ok
-  end
-
   describe "/user.signup" do
     test "returns success with an empty response" do
       response =

@@ -5,12 +5,9 @@ defmodule EWalletAPI.ConfigTest do
 
   describe "ewallet_api.enable_standalone" do
     test "allows /user.signup when configured to true" do
-      {:ok, _} = Setting.insert(%{key: "enable_standalone", value: true, type: "boolean"})
+      {:ok, _} = Setting.update("enable_standalone", %{value: true})
 
-      response =
-        run_with(:enable_standalone, true, fn ->
-          client_request("/user.signup")
-        end)
+      response = client_request("/user.signup")
 
       # Asserting `user:invalid_email` is good enough to verify
       # that the endpoint is accessible and being processed.
@@ -18,10 +15,9 @@ defmodule EWalletAPI.ConfigTest do
     end
 
     test "prohibits /user.signup when configured to false" do
-      response =
-        run_with(:enable_standalone, false, fn ->
-          client_request("/user.signup")
-        end)
+      {:ok, _} = Setting.update("enable_standalone", %{value: false})
+
+      response = client_request("/user.signup")
 
       assert response["data"]["code"] == "client:endpoint_not_found"
     end

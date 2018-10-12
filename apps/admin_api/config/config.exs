@@ -8,8 +8,7 @@ use Mix.Config
 # General application configuration
 config :admin_api,
   namespace: AdminAPI,
-  ecto_repos: [],
-  base_url: {:system, "BASE_URL", "http://localhost:4000"}
+  ecto_repos: []
 
 # Configs for the endpoint
 config :admin_api, AdminAPI.Endpoint,

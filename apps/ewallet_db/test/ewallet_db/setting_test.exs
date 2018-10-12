@@ -44,7 +44,13 @@ defmodule EWalletDB.SettingTest do
     end
 
     test "inserts a setting with a description" do
-      {res, setting} = Setting.insert(%{key: "my_key", value: "test", type: "string", description: "My Description"})
+      {res, setting} =
+        Setting.insert(%{
+          key: "my_key",
+          value: "test",
+          type: "string",
+          description: "My Description"
+        })
 
       assert res == :ok
       assert setting.description == "My Description"
@@ -138,11 +144,13 @@ defmodule EWalletDB.SettingTest do
       {res, changeset} = Setting.insert(attrs)
 
       assert res == :error
+
       assert changeset.changes == %{
-        type: "string",
-        value: "abc",
-        position: 0
-      }
+               type: "string",
+               value: "abc",
+               position: 0
+             }
+
       assert changeset.errors == [key: {"can't be blank", [validation: :required]}]
     end
 
@@ -151,12 +159,14 @@ defmodule EWalletDB.SettingTest do
       {res, changeset} = Setting.insert(attrs)
 
       assert res == :error
+
       assert changeset.changes == %{
-        key: "my_key",
-        type: "fake",
-        value: true,
-        position: 0
-      }
+               key: "my_key",
+               type: "fake",
+               value: true,
+               position: 0
+             }
+
       assert changeset.errors == [type: {"is invalid", [validation: :inclusion]}]
       assert changeset.valid? == false
       assert changeset.action == :insert

@@ -1,6 +1,8 @@
 defmodule EWalletDB.Repo.Reporters.SeedsReporter do
+  alias EWalletDB.SettingFetcher
+
   def run(writer, args) do
-    base_url = Application.get_env(:ewallet_db, :base_url) || "https://example.com"
+    base_url = SettingFetcher.get_base_url("https://example.com")
     admin_panel_url = base_url <> "/admin"
     admin_api_url = base_url <> "/api/admin"
     admin_api_swagger_ui_url = base_url <> "/api/admin/docs"

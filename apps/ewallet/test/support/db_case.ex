@@ -11,10 +11,15 @@ defmodule EWallet.DBCase do
       import EWallet.DBCase
       import EWalletDB.Factory
       alias Ecto.Adapters.SQL.Sandbox
-      alias EWalletDB.Repo
+      alias EWalletDB.{Repo, Setting}
 
       setup do
         :ok = Sandbox.checkout(Repo)
+
+        Setting.insert_all_defaults(%{
+          "enable_standalone" => true,
+          "base_url" => "http://localhost:4000"
+        })
       end
     end
   end

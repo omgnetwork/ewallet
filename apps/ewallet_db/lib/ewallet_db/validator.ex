@@ -3,9 +3,20 @@ defmodule EWalletDB.Validator do
   Custom validators that extend Ecto.Changeset's list of built-in validators.
   """
   alias Ecto.Changeset
-  alias EWalletDB.Wallet
+  alias EWalletDB.{Wallet, Setting}
 
-  @min_password_length Application.get_env(:ewallet_db, :min_password_length, 8)
+  @doc """
+  Gets the minimum password length from settings.
+  """
+  def min_password_length do
+    case Setting.get("min_password_length") do
+      nil ->
+        8
+
+      setting ->
+        setting.value
+    end
+  end
 
   @doc """
   Validates that only one out of the provided fields can have value.
@@ -109,13 +120,15 @@ defmodule EWalletDB.Validator do
   Validates the given string with the password requirements.
   """
   def validate_password(nil),
-    do: {:error, :password_too_short, [min_length: @min_password_length]}
+    do: {:error, :password_too_short, [min_length: min_password_length()]}
 
   def validate_password(password) do
-    with len when len >= @min_password_length <- String.length(password) do
+    min_length = min_password_length()
+
+    with len when len >= min_length <- String.length(password) do
       {:ok, password}
     else
-      _ -> {:error, :password_too_short, [min_length: @min_password_length]}
+      _ -> {:error, :password_too_short, [min_length: min_length]}
     end
   end
 

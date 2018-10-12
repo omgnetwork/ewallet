@@ -45,12 +45,10 @@ defmodule EWallet.Web.PaginatorTest do
     end
 
     test "returns per_page but never greater than the system's _defined_ maximum" do
-      {:ok, _setting} = Setting.insert(%{key: "max_per_page", value: 20, type: "integer"})
+      {:ok, _setting} = Setting.update("max_per_page", %{value: 20})
 
       paginator = Paginator.paginate_attrs(Account, %{"per_page" => 100})
       assert paginator.pagination.per_page == 20
-
-      Application.delete_env(:ewallet, :max_per_page)
     end
 
     test "returns :error if given attrs.page is a negative integer" do

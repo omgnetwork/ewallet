@@ -1,8 +1,9 @@
 alias EWallet.CLI
+alias EWalletDB.SettingFetcher
 
 # :prod environment does not have a default :base_url value and should not have one.
 # But we have a fallback value here so we can generate a friendly output message for seeding.
-base_url = Application.get_env(:ewallet_db, :base_url) || "https://example.com"
+base_url = SettingFetcher.get_base_url("https://example.com")
 
 # eWallet API
 ewallet_swagger_ui_url = base_url <> "/api/client/docs"

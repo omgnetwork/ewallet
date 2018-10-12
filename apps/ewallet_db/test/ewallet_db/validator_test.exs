@@ -1,5 +1,5 @@
 defmodule EWalletDB.ValidatorTest do
-  use ExUnit.Case
+  use EWalletDB.SchemaCase
   import Ecto.Changeset
   import EWalletDB.Validator
 

@@ -1,10 +1,13 @@
 defmodule EWallet.Web.UrlValidatorTest do
-  use ExUnit.Case
+  use EWallet.DBCase
   alias EWallet.Web.UrlValidator
+  alias EWalletDB.Setting
 
   describe "allowed_redirect_url?/1" do
     test "returns true if the given url has the whitelisted prefix" do
-      Application.put_env(:ewallet, :redirect_url_prefixes, "http://test_redirect_prefix")
+      {:ok, _setting} =
+        Setting.update("redirect_url_prefixes", %{value: ["http://test_redirect_prefix"]})
+
       assert UrlValidator.allowed_redirect_url?("http://test_redirect_prefix/allowed")
     end
 

@@ -3,11 +3,6 @@ defmodule EWalletAPI.V1.AuthControllerTest do
   alias EWalletDB.Helpers.Crypto
   alias EWalletDB.{User, Setting}
 
-  setup do
-    {:ok, _} = Setting.insert(%{key: "enable_standalone", value: true, type: "boolean"})
-    :ok
-  end
-
   describe "/user.login" do
     setup do
       email = "test_user_login@example.com"

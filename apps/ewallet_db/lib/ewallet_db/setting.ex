@@ -12,6 +12,135 @@ defmodule EWalletDB.Setting do
   alias Ecto.Changeset
 
   @split_char ":|:"
+  @default_settings %{
+    # Global Settings
+    "base_url" => %{key: "base_url", value: "", type: "string"},
+    "redirect_url_prefixes" => %{key: "redirect_url_prefixes", value: [], type: "array"},
+    "enable_standalone" => %{
+      key: "enable_standalone",
+      value: false,
+      type: "boolean",
+      description:
+        "Enables the /user.signup endpoint in the client API, allowing users to sign up directly."
+    },
+    "max_per_page" => %{
+      key: "max_per_page",
+      value: 100,
+      type: "integer",
+      description: "The maximum number of records that can be returned for a list."
+    },
+    "min_password_length" => %{
+      key: "min_password_length",
+      value: 8,
+      type: "integer",
+      description: "The minimum length for passwords."
+    },
+
+    # Email Settings
+    "sender_email" => %{
+      key: "sender_email",
+      value: "admin@localhost",
+      type: "string",
+      description: "The address from which system emails will be sent."
+    },
+    "smtp_host" => %{
+      key: "smtp_host",
+      value: nil,
+      type: "string",
+      description: "The SMTP host to use to send emails."
+    },
+    "smtp_port" => %{
+      key: "smtp_port",
+      value: nil,
+      type: "string",
+      description: "The SMTP port to use to send emails."
+    },
+    "smtp_username" => %{
+      key: "smtp_username",
+      value: nil,
+      type: "string",
+      description: "The SMTP username to use to send emails."
+    },
+    "smtp_password" => %{
+      key: "smtp_password",
+      value: nil,
+      type: "string",
+      description: "The SMTP password to use to send emails."
+    },
+
+    # Balance Caching Settings
+    "balance_caching_strategy" => %{
+      key: "balance_caching_strategy",
+      value: "since_beginning",
+      type: "select",
+      options: ["since_beginning", "since_last_cached"],
+      description:
+        "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
+    },
+
+    # File Storage settings
+    "file_storage_adapter" => %{
+      key: "file_storage_adapter",
+      value: "local",
+      type: "select",
+      options: ["local", "gcs", "aws"],
+      description: "The type of storage to use for images and files."
+    },
+
+    # File Storage: GCS Settings
+    "gcs_bucket" => %{
+      key: "gcs_bucket",
+      value: nil,
+      type: "string",
+      parent: "file_storage_adapter",
+      parent_value: "gcs",
+      description: "The name of the GCS bucket."
+    },
+    "gcs_credentials" => %{
+      key: "gcs_credentials",
+      value: nil,
+      secret: true,
+      type: "string",
+      parent: "file_storage_adapter",
+      parent_value: "gcs",
+      description: "The credentials of the Google Cloud account."
+    },
+
+    # File Storage: AWS Settings
+    "aws_bucket" => %{
+      key: "aws_bucket",
+      value: nil,
+      type: "string",
+      parent: "file_storage_adapter",
+      parent_value: "aws",
+      description: "The name of the AWS bucket."
+    },
+    "aws_region" => %{
+      key: "aws_region",
+      value: nil,
+      type: "string",
+      parent: "file_storage_adapter",
+      parent_value: "aws",
+      description: "The AWS region where your bucket lives."
+    },
+    "aws_access_key_id" => %{
+      key: "aws_access_key_id",
+      value: nil,
+      type: "string",
+      parent: "file_storage_adapter",
+      parent_value: "aws",
+      description: "An AWS access key having access to the specified bucket."
+    },
+    "aws_secret_access_key" => %{
+      key: "aws_secret_access_key",
+      value: nil,
+      secret: true,
+      type: "string",
+      parent: "file_storage_adapter",
+      parent_value: "aws",
+      description: "An AWS secret having access to the specified bucket."
+    }
+  }
 
   defstruct [
     :uuid,
@@ -28,6 +157,9 @@ defmodule EWalletDB.Setting do
     :inserted_at,
     :updated_at
   ]
+
+  @spec get_default_settings() :: [Map.t()]
+  def get_default_settings, do: @default_settings
 
   @spec types() :: [String.t()]
   def types, do: StoredSetting.types()
@@ -54,8 +186,19 @@ defmodule EWalletDB.Setting do
     end
   end
 
-  @spec get(any()) :: nil
   def get(_), do: nil
+
+  @spec get(String.t()) :: any()
+  def get_value(key, default \\ nil)
+
+  def get_value(key, default) when is_binary(key) do
+    case Repo.get_by(StoredSetting, key: key) do
+      nil -> default
+      stored_setting -> stored_setting.data["value"]
+    end
+  end
+
+  def get_value(nil, _), do: nil
 
   @doc """
   Creates a new setting with the passed attributes.
@@ -73,13 +216,33 @@ defmodule EWalletDB.Setting do
 
       {:error, changeset} ->
         {:error, build_changeset(changeset)}
-      end
+    end
   end
 
-  def update(key, attrs) when is_binary(key) do
+  @doc """
+  Inserts all the default settings.
+  """
+  @spec insert_all_defaults(Map.t()) :: [{:ok, %Setting{}}] | [{:error, %Changeset{}}]
+  def insert_all_defaults(overrides) do
+    @default_settings
+    |> Enum.map(fn {key, data} ->
+      case overrides[key] do
+        nil ->
+          insert(data)
+
+        override ->
+          data
+          |> Map.put(:value, override)
+          |> insert()
+      end
+    end)
+  end
+
+  def update(key, attrs) when is_binary(key) and is_map(attrs) do
     case Repo.get_by(StoredSetting, %{key: key}) do
       nil ->
         {:error, :setting_not_found}
+
       setting ->
         attrs = cast_attrs(attrs)
 
@@ -132,7 +295,7 @@ defmodule EWalletDB.Setting do
       uuid: stored_setting.uuid,
       id: stored_setting.id,
       key: stored_setting.key,
-      value: get_value(stored_setting),
+      value: extract_value(stored_setting),
       type: stored_setting.type,
       description: stored_setting.description,
       options: get_options(stored_setting),
@@ -145,11 +308,11 @@ defmodule EWalletDB.Setting do
     }
   end
 
-  defp get_value(%{secret: true, encrypted_data: data}) do
+  defp extract_value(%{secret: true, encrypted_data: data}) do
     Map.get(data, :value) || Map.get(data, "value")
   end
 
-  defp get_value(%{secret: false, data: data}) do
+  defp extract_value(%{secret: false, data: data}) do
     Map.get(data, :value) || Map.get(data, "value")
   end
 
@@ -177,7 +340,8 @@ defmodule EWalletDB.Setting do
 
   defp cast_options(attrs), do: attrs
 
-  defp add_position(%{position: position} = attrs) when not is_nil(position) and is_integer(position) do
+  defp add_position(%{position: position} = attrs)
+       when not is_nil(position) and is_integer(position) do
     attrs
   end
 
@@ -185,6 +349,7 @@ defmodule EWalletDB.Setting do
     case get_last_setting() do
       nil ->
         Map.put(attrs, :position, 0)
+
       latest_setting ->
         Map.put(attrs, :position, latest_setting.position + 1)
     end

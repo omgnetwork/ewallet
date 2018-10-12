@@ -4,7 +4,6 @@ use Mix.Config
 
 config :ewallet,
   ecto_repos: [],
-  base_url: {:system, "BASE_URL", "http://localhost:4000"},
   sender_email: {:system, "SENDER_EMAIL", "admin@localhost"},
   redirect_url_prefixes: {:system, "REDIRECT_URL_PREFIXES", ""}
 

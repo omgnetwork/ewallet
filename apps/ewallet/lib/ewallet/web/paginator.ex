@@ -72,6 +72,7 @@ defmodule EWallet.Web.Paginator do
       case Setting.get("max_per_page") do
         nil ->
           @default_max_per_page
+
         setting ->
           case setting.value do
             "" -> @default_max_per_page
