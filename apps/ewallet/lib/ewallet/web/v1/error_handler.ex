@@ -328,7 +328,11 @@ defmodule EWallet.Web.V1.ErrorHandler do
     amount_is_zero: %{
       code: "transaction:amount_is_zero",
       description: "Amount cannot be zero."
-    }
+    },
+    setting_not_found: %{
+      code: "setting:not_found",
+      description: "There is no setting corresponding to the provided key."
+    },
   }
 
   # Used for mapping any Ecto.changeset validation

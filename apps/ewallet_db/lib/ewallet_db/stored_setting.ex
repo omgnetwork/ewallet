@@ -52,6 +52,7 @@ defmodule EWalletDB.StoredSetting do
       :position
     ])
     |> validate_required([:key, :type, :position])
+    |> validate_immutable(:key)
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive([:data, :encrypted_data])
     |> unique_constraint(:key)

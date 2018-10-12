@@ -2,7 +2,7 @@ defmodule EWallet.Web.PaginatorTest do
   use EWallet.DBCase
   import Ecto.Query
   alias EWallet.Web.Paginator
-  alias EWalletDB.{Account, Repo}
+  alias EWalletDB.{Account, Repo, Setting}
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
     test "paginates with default values if attrs not given" do
@@ -45,23 +45,12 @@ defmodule EWallet.Web.PaginatorTest do
     end
 
     test "returns per_page but never greater than the system's _defined_ maximum" do
-      Application.put_env(:ewallet, :max_per_page, 20)
+      {:ok, _setting} = Setting.insert(%{key: "max_per_page", value: 20, type: "integer"})
 
       paginator = Paginator.paginate_attrs(Account, %{"per_page" => 100})
       assert paginator.pagination.per_page == 20
 
       Application.delete_env(:ewallet, :max_per_page)
-    end
-
-    test "returns per_page if max_per_page is configured as a system tuple" do
-      System.put_env("_TMP_MAX_PER_PAGE", "20")
-      Application.put_env(:ewallet, :max_per_page, {:system, "_TMP_MAX_PER_PAGE"})
-
-      paginator = Paginator.paginate_attrs(Account, %{"per_page" => 100})
-      assert paginator.pagination.per_page == 20
-
-      Application.delete_env(:ewallet, :max_per_page)
-      System.delete_env("_TMP_MAX_PER_PAGE")
     end
 
     test "returns :error if given attrs.page is a negative integer" do

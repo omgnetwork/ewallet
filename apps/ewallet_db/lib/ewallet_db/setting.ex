@@ -62,11 +62,7 @@ defmodule EWalletDB.Setting do
   """
   @spec insert(Map.t()) :: {:ok, %Setting{}} | {:error, %Changeset{}}
   def insert(attrs) do
-    attrs =
-      attrs
-      |> cast_value()
-      |> cast_options()
-      |> add_position()
+    attrs = cast_attrs(attrs)
 
     %StoredSetting{}
     |> StoredSetting.changeset(attrs)
@@ -76,15 +72,47 @@ defmodule EWalletDB.Setting do
         {:ok, build(stored_setting)}
 
       {:error, changeset} ->
-        {:error,
-         %Changeset{
-           action: changeset.action,
-           changes: clean_changes(changeset.changes),
-           errors: changeset.errors,
-           data: %Setting{},
-           valid?: changeset.valid?
-         }}
+        {:error, build_changeset(changeset)}
+      end
+  end
+
+  def update(key, attrs) when is_binary(key) do
+    case Repo.get_by(StoredSetting, %{key: key}) do
+      nil ->
+        {:error, :setting_not_found}
+      setting ->
+        attrs = cast_attrs(attrs)
+
+        setting
+        |> StoredSetting.changeset(attrs)
+        |> Repo.update()
+        |> case do
+          {:ok, stored_setting} ->
+            {:ok, build(stored_setting)}
+
+          {:error, changeset} ->
+            {:error, build_changeset(changeset)}
+        end
     end
+  end
+
+  def update(nil, _), do: {:error, :setting_not_found}
+
+  def cast_attrs(attrs) do
+    attrs
+    |> cast_value()
+    |> cast_options()
+    |> add_position()
+  end
+
+  defp build_changeset(changeset) do
+    %Changeset{
+      action: changeset.action,
+      changes: clean_changes(changeset.changes),
+      errors: changeset.errors,
+      data: %Setting{},
+      valid?: changeset.valid?
+    }
   end
 
   defp clean_changes(%{encrypted_data: data} = changes) do

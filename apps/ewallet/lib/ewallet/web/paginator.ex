@@ -4,7 +4,7 @@ defmodule EWallet.Web.Paginator do
   then selectively query only records that are within the given page's scope.
   """
   import Ecto.Query
-  alias EWalletDB.Repo
+  alias EWalletDB.{Repo, Setting}
 
   @default_per_page 10
   @default_max_per_page 100
@@ -69,16 +69,16 @@ defmodule EWallet.Web.Paginator do
     per_page = Map.get(attrs, "per_page", @default_per_page)
 
     max_per_page =
-      case Application.get_env(:ewallet, :max_per_page, @default_max_per_page) do
-        {:system, env_var} ->
-          case System.get_env(env_var) do
+      case Setting.get("max_per_page") do
+        nil ->
+          @default_max_per_page
+        setting ->
+          case setting.value do
             "" -> @default_max_per_page
             nil -> @default_max_per_page
             value when is_binary(value) -> String.to_integer(value)
+            value when is_integer(value) -> value
           end
-
-        value ->
-          value
       end
 
     case per_page do

@@ -1,7 +1,12 @@
 defmodule EWalletAPI.V1.AuthControllerTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletDB.Helpers.Crypto
-  alias EWalletDB.User
+  alias EWalletDB.{User, Setting}
+
+  setup do
+    {:ok, _} = Setting.insert(%{key: "enable_standalone", value: true, type: "boolean"})
+    :ok
+  end
 
   describe "/user.login" do
     setup do

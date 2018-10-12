@@ -2,23 +2,20 @@ defmodule EWalletAPI.V1.StandalonePlugTest do
   # not async because we're using `Application.put_env/3`
   use EWalletAPI.ConnCase, async: false
   alias EWalletAPI.V1.StandalonePlug
+  alias EWalletDB.Setting
 
   describe "call/2" do
     test "does not halt if ewallet_api.enable_standalone is true" do
-      conn =
-        run_with(:enable_standalone, true, fn ->
-          StandalonePlug.call(build_conn(), [])
-        end)
+      {:ok, _} = Setting.insert(%{key: "enable_standalone", value: true, type: "boolean"})
 
+      conn = StandalonePlug.call(build_conn(), [])
       refute conn.halted
     end
 
     test "halts if ewallet_api.enable_standalone is false" do
-      conn =
-        run_with(:enable_standalone, false, fn ->
-          StandalonePlug.call(build_conn(), [])
-        end)
+      {:ok, _} = Setting.insert(%{key: "enable_standalone", value: false, type: "boolean"})
 
+      conn = StandalonePlug.call(build_conn(), [])
       assert conn.halted
     end
   end

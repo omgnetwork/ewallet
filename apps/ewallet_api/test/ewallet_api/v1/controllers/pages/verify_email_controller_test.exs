@@ -1,6 +1,11 @@
 defmodule EWalletAPI.V1.VerifyEmailControllerTest do
   use EWalletAPI.ConnCase, async: true
-  alias EWalletDB.{Invite, User}
+  alias EWalletDB.{Invite, User, Setting}
+
+  setup do
+    {:ok, _} = Setting.insert(%{key: "enable_standalone", value: true, type: "boolean"})
+    :ok
+  end
 
   describe "verify/2" do
     defp verify_email(email, token) do

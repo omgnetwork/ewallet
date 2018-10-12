@@ -12,7 +12,6 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
     %{key: "enable_standalone", value: false, type: "boolean", description: "Enables the /user.signup endpoint in the client API, allowing users to sign up directly."},
     %{key: "max_per_page", value: 100, type: "integer", description: "The maximum number of records that can be returned for a list."},
     %{key: "min_password_length", value: 8, type: "integer", description: "The minimum length for passwords."},
-    %{key: "sentry_dsn", value: nil, type: "string", description: "A Sentry DSN to send errors to."},
     %{key: "redirect_url_prefixes", value: [], type: "array", description: "A list of URLs that can be used in redirect flows (confirm email, etc.)"},
 
     # Email Settings
