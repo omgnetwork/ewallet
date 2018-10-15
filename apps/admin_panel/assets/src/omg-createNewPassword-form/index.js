@@ -5,7 +5,7 @@ import { Link, withRouter } from 'react-router-dom'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import { connect } from 'react-redux'
-import { updatePassword } from '../omg-session/action'
+import { updatePasswordWithResetToken } from '../omg-session/action'
 import { compose } from 'recompose'
 const Form = styled.form`
   text-align: left;
@@ -37,11 +37,11 @@ const Error = styled.div`
   transition: 0.5s ease max-height, 0.3s ease opacity;
 `
 
-const enhance = compose(withRouter, connect(null, { updatePassword }))
+const enhance = compose(withRouter, connect(null, { updatePasswordWithResetToken }))
 class ForgetPasswordForm extends Component {
   static propTypes = {
     location: PropTypes.object.isRequired,
-    updatePassword: PropTypes.func.isRequired
+    updatePasswordWithResetToken: PropTypes.func.isRequired
   }
   state = {
     newPassword: '',
@@ -71,7 +71,7 @@ class ForgetPasswordForm extends Component {
       submitStatus: !newPasswordError && !reEnteredNewPasswordError ? 'SUBMITTED' : null
     })
     if (!newPasswordError && !reEnteredNewPasswordError) {
-      const result = await this.props.updatePassword({
+      const result = await this.props.updatePasswordWithResetToken({
         email,
         resetToken: token,
         password: this.state.newPassword,
