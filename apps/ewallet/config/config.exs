@@ -3,11 +3,6 @@
 use Mix.Config
 
 config :ewallet,
-  ecto_repos: [],
-  sender_email: {:system, "SENDER_EMAIL", "admin@localhost"},
-  redirect_url_prefixes: {:system, "REDIRECT_URL_PREFIXES", ""}
-
-# Configs for Bamboo emailing library
-config :ewallet, EWallet.Mailer, adapter: Bamboo.LocalAdapter
+  ecto_repos: []
 
 import_config "#{Mix.env()}.exs"

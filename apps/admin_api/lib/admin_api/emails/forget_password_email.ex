@@ -3,9 +3,10 @@ defmodule AdminAPI.ForgetPasswordEmail do
   The module that generates password reset email templates.
   """
   import Bamboo.Email
+  alias EWalletDB.Setting
 
   def create(request, redirect_url) do
-    sender = Application.get_env(:ewallet, :sender_email)
+    sender = Setting.get_value("sender_email")
 
     link =
       redirect_url

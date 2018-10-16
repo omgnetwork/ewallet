@@ -4,9 +4,10 @@ defmodule EWalletAPI.VerificationEmail do
   """
   import Bamboo.Email
   alias EWallet.Web.Preloader
+  alias EWalletDB.Setting
 
   def create(invite, redirect_url) do
-    sender = Application.get_env(:ewallet, :sender_email)
+    sender = Setting.get_value("sender_email")
     {:ok, invite} = Preloader.preload_one(invite, [:user])
 
     link =

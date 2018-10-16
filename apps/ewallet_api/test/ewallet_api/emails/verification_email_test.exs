@@ -16,7 +16,7 @@ defmodule EWalletAPI.VerificationEmailTest do
       {email, _token} = create_email("test@example.com")
 
       # `from` should be the one set in the config
-      assert email.from == Application.get_env(:ewallet, :sender_email)
+      assert email.from == Setting.get_value("sender_email")
 
       # `to` should be the user's email
       assert email.to == "test@example.com"

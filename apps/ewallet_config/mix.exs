@@ -1,18 +1,18 @@
-defmodule EWalletDB.Mixfile do
+defmodule EWalletConfig.MixProject do
   use Mix.Project
 
   def project do
     [
-      app: :ewallet_db,
-      version: "0.1.0-beta",
+      app: :ewallet_config,
+      version: "0.1.0",
       build_path: "../../_build",
       config_path: "../../config/config.exs",
       deps_path: "../../deps",
       lockfile: "../../mix.lock",
-      elixir: "~> 1.4",
+      elixir: "~> 1.6",
       elixirc_paths: elixirc_paths(Mix.env),
       elixirc_options: [warnings_as_errors: Mix.env != :test],
-      start_permanent: Mix.env == :prod,
+      start_permanent: Mix.env() == :prod,
       test_coverage: [tool: ExCoveralls],
       preferred_cli_env: [
         coveralls: :test,
@@ -25,47 +25,31 @@ defmodule EWalletDB.Mixfile do
     ]
   end
 
-  # Configuration for the OTP application.
-  #
-  # Type `mix help compile.app` for more information.
-  def application do
-    [
-      mod: {EWalletDB.Application, []},
-      extra_applications: [:logger, :runtime_tools]
-    ]
-  end
-
   # Specifies which paths to compile per environment.
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_),     do: ["lib"]
 
-  # Specifies your project dependencies.
-  #
-  # Type `mix help deps` for examples and options.
+  # Run "mix help compile.app" to learn about applications.
+  def application do
+    [
+      extra_applications: [:logger],
+      mod: {EWalletConfig.Application, []}
+    ]
+  end
+
+  # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1.6"},
-      {:ex_machina, "~> 2.2", only: :test},
-
       {:poison, "~> 3.1"},
-      {:bcrypt_elixir, "~> 1.0"},
+      {:deferred_config, "~> 0.1.0"},
       {:cloak, "~> 0.7.0-alpha"},
-      {:plug, "~> 1.0"},
       {:arc, "~> 0.8.0"},
       {:arc_ecto, "~> 0.7.0"},
-      {:deferred_config, "~> 0.1.0"},
-
-      # arc GCS dependencies
-      {:arc_gcs, "~> 0.0.3", runtime: false},
-
-      # arc AWS dependencies
-      {:ex_aws, "~> 1.1"},
-      {:hackney, "~> 1.6"},
-      {:sweet_xml, "~> 0.6"},
-
-      {:ewallet_utils, in_umbrella: true},
-      {:ewallet_config, in_umbrella: true}
+      {:bcrypt_elixir, "~> 1.0"},
+      {:ex_ulid, github: "omisego/ex_ulid"},
+      {:plug, "~> 1.0"}
     ]
   end
 

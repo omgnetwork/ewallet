@@ -2,7 +2,6 @@ defmodule EWallet.Web.UrlValidator do
   @moduledoc """
   This module validates a url.
   """
-  alias EWallet.Config
   alias EWalletDB.Setting
 
   @doc """
