@@ -42,7 +42,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
       nil ->
         data = Map.put(data, :position, index)
 
-        case Setting.insert(data) do
+        case Config.insert(data) do
           {:ok, setting} ->
             writer.success("""
               Key   : #{setting.key}
@@ -55,7 +55,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
             writer.error("  The setting could not be inserted:")
             writer.error("  Unknown error.")
         end
-      %Setting{} = setting ->
+      setting ->
         writer.warn("""
           Key   : #{setting.key}
           Value : #{setting.value}

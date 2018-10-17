@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.StandalonePlug do
   This plug enables the endpoint only if `enable_standalone` is true.
   """
   import EWalletAPI.V1.ErrorHandler
-  alias EWalletDB.Setting
+  alias EWalletConfig.Config
 
   def init(opts), do: opts
 
@@ -12,13 +12,7 @@ defmodule EWalletAPI.V1.StandalonePlug do
   end
 
   defp standalone? do
-    case Setting.get("enable_standalone") do
-      nil ->
-        false
-
-      setting ->
-        setting.value == true
-    end
+    Config.get("enable_standalone") == true
   end
 
   defp continue(conn, true), do: conn

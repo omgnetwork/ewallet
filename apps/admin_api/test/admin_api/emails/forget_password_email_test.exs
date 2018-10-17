@@ -17,7 +17,7 @@ defmodule AdminAPI.ForgetPasswordEmailTest do
       email = create_email("forgetpassword@example.com", "the_token")
 
       # `from` should be the one set in the config
-      assert email.from == Setting.get_value("sender_email")
+      assert email.from == Config.get("sender_email")
 
       # `to` should be the user's email
       assert email.to == "forgetpassword@example.com"

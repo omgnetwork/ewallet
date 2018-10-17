@@ -18,7 +18,8 @@ defmodule EWalletAPI.ConnCase do
   alias Ecto.Adapters.SQL.Sandbox
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
-  alias EWalletDB.{Account, Repo, User, Setting}
+  alias EWalletConfig.Config
+  alias EWalletDB.{Account, Repo, User}
   use Phoenix.ConnTest
 
   # Attributes required by Phoenix.ConnTest
@@ -59,10 +60,12 @@ defmodule EWalletAPI.ConnCase do
   end
 
   setup do
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
-    Setting.insert_all_defaults(%{
+    IO.inspect(Config.settings())
+    Config.insert_all_defaults(%{
       "enable_standalone" => true,
       "base_url" => "http://localhost:4000"
     })

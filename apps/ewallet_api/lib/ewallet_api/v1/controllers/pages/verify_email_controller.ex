@@ -6,14 +6,14 @@ defmodule EWalletAPI.V1.VerifyEmailController do
   import EWalletAPI.V1.PageRouter.Helpers, only: [verify_email_path: 2]
   alias EWallet.SignupGate
   alias EWallet.Web.V1.ErrorHandler
-  alias EWalletDB.Setting
+  alias EWalletConfig.Config
 
   def verify_url, do: build_url("/pages/client/v1/verify_email?email={email}&token={token}")
 
   def success_url, do: build_url("/pages/client/v1/verify_email/success")
 
   defp build_url(path) do
-    Setting.get_value("base_url") <> path
+    Config.get("base_url") <> path
   end
 
   @doc """

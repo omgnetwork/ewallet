@@ -29,9 +29,11 @@ defmodule EWalletAPI.ChannelCase do
   end
 
   setup do
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
+    Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
     Sandbox.mode(EWalletDB.Repo, {:shared, self()})
     Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
 

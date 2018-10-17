@@ -1,5 +1,5 @@
 alias EWallet.CLI
-alias EWalletDB.SettingFetcher
+alias EWalletConfig.ConfigFetcher
 
 # :prod environment does not have a default :base_url value and should not have one.
 # But we have a fallback value here so we can generate a friendly output message for seeding.

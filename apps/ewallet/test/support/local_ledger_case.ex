@@ -16,6 +16,7 @@ defmodule EWallet.LocalLedgerCase do
       alias EWalletDB.Account
 
       setup do
+        :ok = Sandbox.checkout(EWalletConfig.Repo)
         :ok = Sandbox.checkout(EWalletDB.Repo)
         :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 

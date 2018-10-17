@@ -2,7 +2,7 @@ defmodule EWalletAPI.V1.StandalonePlugTest do
   # not async because we're using `Application.put_env/3`
   use EWalletAPI.ConnCase, async: false
   alias EWalletAPI.V1.StandalonePlug
-  alias EWalletDB.Setting
+  alias EWalletConfig.Config
 
   describe "call/2" do
     test "does not halt if ewallet_api.enable_standalone is true" do

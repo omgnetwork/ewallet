@@ -1,5 +1,5 @@
 defmodule EWallet.Web.InviterTest do
-  use AdminAPI.ConnCase
+  use EWallet.DBCase
   use Bamboo.Test
   alias EWallet.Web.{Inviter, MockInviteEmail, Preloader}
   alias EWalletDB.{Account, Invite, Membership, User}

@@ -12,7 +12,8 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
     Logger.warn(~s([File Storage Configuration]: Setting hasn't been generated.))
   end
 
-  defp load_file_storage("aws") do
+  defp load_file_storage(%{value: "aws"}) do
+    Logger.info(~s([File Storage Configuration]: Starting with "aws" storage.))
     aws_bucket = Setting.get("aws_bucket")
     aws_region = Setting.get("aws_region")
     aws_access_key_id = Setting.get("aws_access_key_id")
@@ -31,7 +32,9 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
     Application.put_env(:arc, :asset_host, "https://#{aws_domain}/#{aws_bucket}")
   end
 
-  defp load_file_storage("gcs") do
+  defp load_file_storage(%{value: "gcs"}) do
+    Logger.info(~s([File Storage Configuration]: Starting with "gcs" storage.))
+
     gcs_bucket = Setting.get("gcs_bucket")
     gcs_credentials = Setting.get("gcs_credentials")
 
@@ -40,8 +43,8 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
     Application.put_env(:goth, :json, gcs_credentials)
   end
 
-  defp load_file_storage("local") do
-
+  defp load_file_storage(%{value: "local"}) do
+    Logger.info(~s([File Storage Configuration]: Starting with "local" storage.))
     Application.put_env(:arc, :storage, EWalletConfig.Storage.Local)
   end
 

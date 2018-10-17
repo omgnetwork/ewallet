@@ -1,7 +1,7 @@
 defmodule EWalletAPI.ConfigTest do
   # `async: false` because `Application.put_env/3` have side effects
   use EWalletAPI.ConnCase, async: false
-  alias EWalletDB.Setting
+  alias EWalletConfig.Config
 
   describe "ewallet_api.enable_standalone" do
     test "allows /user.signup when configured to true" do
