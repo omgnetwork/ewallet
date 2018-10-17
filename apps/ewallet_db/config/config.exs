@@ -1,7 +1,7 @@
 use Mix.Config
 
 audits = %{
-  EWalletDB.System => "system",
+  EWalletConfig.System => "system",
   EWalletDB.User => "user",
   EWalletDB.Invite => "invite",
   EWalletDB.Key => "key",

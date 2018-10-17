@@ -1,6 +1,6 @@
-defmodule EWalletDB.Types.ExternalIDTest do
+defmodule EWalletConfig.Types.ExternalIDTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.Types.ExternalID
+  alias EWalletConfig.Types.ExternalID
 
   describe "cast/1" do
     test "casts input to lower case" do

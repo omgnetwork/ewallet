@@ -1,6 +1,6 @@
-defmodule EWalletDB.Types.WalletAddressTest do
+defmodule EWalletConfig.Types.WalletAddressTest do
   use EWalletDB.SchemaCase
-  alias EWalletDB.Types.WalletAddress
+  alias EWalletConfig.Types.WalletAddress
   alias EWalletDB.Wallet
 
   describe "cast/1" do

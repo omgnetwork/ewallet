@@ -1,8 +1,8 @@
-defmodule EWalletConfig.Helpers.Preloader do
+defmodule EWalletDB.Helpers.Preloader do
   @moduledoc """
   A helper module that helps with preloading records.
   """
-  alias EWalletConfig.Repo
+  alias EWalletDB.Repo
 
   @doc """
   Takes the provided `:preload` option (if any) and preloads those associations.

@@ -1,7 +1,7 @@
 defmodule EWalletDB.ValidatorTest do
   use EWalletDB.SchemaCase
   import Ecto.Changeset
-  import EWalletDB.Validator
+  import EWalletConfig.Validator
 
   defmodule SampleStruct do
     use Ecto.Schema

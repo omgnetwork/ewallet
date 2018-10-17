@@ -31,7 +31,7 @@ defmodule EWalletConfig.Storage.Local do
   end
 
   def url(definition, version, file_and_scope, _options \\ []) do
-    base_url = Setting.get_value("base_url")
+    base_url = Setting.get("base_url")
     local_path = build_local_path(definition, version, file_and_scope)
 
     url =

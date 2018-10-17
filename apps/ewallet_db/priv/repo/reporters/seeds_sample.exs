@@ -1,6 +1,6 @@
 defmodule EWalletDB.Repo.Reporters.SeedsSampleReporter do
   def run(writer, args) do
-    base_url = Setting.get_value("base_url", "https://example.com")
+    base_url = Config.get("base_url", "https://example.com")
     admin_api_swagger_ui_url = base_url <> "/api/admin/docs"
     ewallet_api_swagger_ui_url = base_url <> "/api/client/docs"
 

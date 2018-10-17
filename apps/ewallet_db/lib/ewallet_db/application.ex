@@ -6,7 +6,7 @@ defmodule EWalletDB.Application do
   """
   use Application
   alias EWalletConfig.Config
-  alias EWalletDB.Setting
+  alias EWalletConfig.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
@@ -19,7 +19,7 @@ defmodule EWalletDB.Application do
     ]
 
     children =
-      case Setting.get_value("file_storage_adapter") do
+      case Config.get("file_storage_adapter") do
         "gcs" -> children ++ [supervisor(Goth.Supervisor, [])]
         _ -> children
       end

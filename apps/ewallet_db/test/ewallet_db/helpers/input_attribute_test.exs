@@ -1,6 +1,6 @@
-defmodule EWalletDB.Helpers.InputAttributeTest do
+defmodule EWalletConfig.Helpers.InputAttributeTest do
   use ExUnit.Case
-  alias EWalletDB.Helpers.InputAttribute
+  alias EWalletConfig.Helpers.InputAttribute
 
   describe "get/2" do
     test "returns the value if the map key is atom and argument is atom" do

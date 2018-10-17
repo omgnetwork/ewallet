@@ -3,10 +3,10 @@ defmodule EWalletDB.Token do
   Ecto Schema representing tokens.
   """
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletDB.Validator
+  import EWalletConfig.Validator
   alias Ecto.UUID
   alias EWalletDB.{Account, Repo, Token}
   alias ExULID.ULID
@@ -30,7 +30,7 @@ defmodule EWalletDB.Token do
     # "Cent"
     field(:subunit, :string)
     # 100
-    field(:subunit_to_unit, EWalletDB.Types.Integer)
+    field(:subunit_to_unit, EWalletConfig.Types.Integer)
     # true
     field(:symbol_first, :boolean)
     # "&#x20AC;"
@@ -42,7 +42,7 @@ defmodule EWalletDB.Token do
     # false
     field(:locked, :boolean)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 
     field(:enabled, :boolean)
 

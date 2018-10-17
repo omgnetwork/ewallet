@@ -1,17 +1,22 @@
 defmodule EWalletConfig.FileStorageSettingsLoader do
+  require Logger
   alias EWalletConfig.Setting
 
   def load(_app) do
     "file_storage_adapter"
-    |> Setting.get_value()
+    |> Setting.get()
     |> load_file_storage()
   end
 
+  defp load_file_storage(nil) do
+    Logger.warn(~s([File Storage Configuration]: Setting hasn't been generated.))
+  end
+
   defp load_file_storage("aws") do
-    aws_bucket = Setting.get_value("aws_bucket")
-    aws_region = Setting.get_value("aws_region")
-    aws_access_key_id = Setting.get_value("aws_access_key_id")
-    aws_secret_access_key = Setting.get_value("aws_secret_access_key")
+    aws_bucket = Setting.get("aws_bucket")
+    aws_region = Setting.get("aws_region")
+    aws_access_key_id = Setting.get("aws_access_key_id")
+    aws_secret_access_key = Setting.get("aws_secret_access_key")
     aws_domain = "s3-#{aws_region}.amazonaws.com"
 
     Application.put_env(:ex_aws, :access_key_id, [aws_access_key_id, :instance_role])
@@ -27,8 +32,8 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage("gcs") do
-    gcs_bucket = Setting.get_value("gcs_bucket")
-    gcs_credentials = Setting.get_value("gcs_credentials")
+    gcs_bucket = Setting.get("gcs_bucket")
+    gcs_credentials = Setting.get("gcs_credentials")
 
     Application.put_env(:arc, :storage, Arc.Storage.GCS)
     Application.put_env(:arc, :bucket, gcs_bucket)
@@ -36,6 +41,11 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage("local") do
+
     Application.put_env(:arc, :storage, EWalletConfig.Storage.Local)
+  end
+
+  defp load_file_storage(storage) do
+    Logger.warn(~s([File Storage Configuration]: Unknown option: "#{storage}"))
   end
 end

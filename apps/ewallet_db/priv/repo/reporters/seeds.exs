@@ -1,5 +1,5 @@
 defmodule EWalletDB.Repo.Reporters.SeedsReporter do
-  alias EWalletDB.SettingFetcher
+  alias EWalletConfig.ConfigFetcher
 
   def run(writer, args) do
     base_url = SettingFetcher.get_base_url("https://example.com")

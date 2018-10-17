@@ -1,4 +1,6 @@
 defmodule EWalletConfig.EmailSettingsLoader do
+  alias EWalletConfig.Setting
+
   def load(app, mailer) do
     load_email_setting(app, mailer)
   end
@@ -6,7 +8,7 @@ defmodule EWalletConfig.EmailSettingsLoader do
   def load_email_setting(app, mailer) do
     settings =
       "smtp_adapter"
-      |> EWalletConfig.Setting.get_value()
+      |> Setting.get()
       |> build_email_setting()
 
     Application.put_env(app, mailer, settings)
@@ -15,10 +17,10 @@ defmodule EWalletConfig.EmailSettingsLoader do
   defp build_email_setting("smtp") do
     %{
       adapter: Bamboo.SMTPAdapter,
-      server: EWalletConfig.Setting.get_value("smtp_host"),
-      port: EWalletConfig.Setting.get_value("smtp_port"),
-      username: EWalletConfig.Setting.get_value("smtp_username"),
-      password: EWalletConfig.Setting.get_value("smtp_password")
+      server: Setting.get("smtp_host"),
+      port: Setting.get("smtp_port"),
+      username: Setting.get("smtp_username"),
+      password: Setting.get("smtp_password")
     }
   end
 

@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule EWalletDB.Repo.Seeds.SettingSeed do
-  alias EWalletDB.Setting
+  alias EWalletConfig.Config
 
   @argsline_desc """
   The base URL is needed for various operators in the eWallet. It will be saved in the
@@ -15,7 +15,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   defp get_argsline do
-    case Setting.get("base_url") do
+    case Config.get("base_url") do
       nil ->
         [
           {:title, "Enter the base URL for this instance of the ewallet (e.g. https://myewallet.com)."},
@@ -28,7 +28,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   def run(writer, args) do
-    Setting.get_default_settings()
+    Config.get_default_settings()
     |> Map.put_in(seed_data, ["base_url", :value], args[:base_url])
     |> Map.put_in(seed_data, ["redirect_url_prefixes", :value], [args[:base_url]])
     |> Enum.with_index(1)
@@ -38,7 +38,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   defp run_with(writer, {key, data}, index) do
-    case Setting.get(key) do
+    case Config.get(key) do
       nil ->
         data = Map.put(data, :position, index)
 

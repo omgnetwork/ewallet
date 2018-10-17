@@ -3,11 +3,12 @@ defmodule EWalletDB.AuthToken do
   Ecto Schema representing an authentication token.
   """
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.Changeset
   import Ecto.Query, only: [from: 2]
   alias Ecto.UUID
-  alias EWalletDB.{Account, AuthToken, Helpers.Crypto, Repo, User}
+  alias EWalletConfig.Helpers.Crypto
+  alias EWalletDB.{Account, AuthToken, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @key_length 32

@@ -3,8 +3,9 @@ defmodule EWalletDB.Transaction do
   Ecto Schema representing transactions.
   """
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
+  import EWalletConfig.Validator
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Account, ExchangePair, Repo, Token, Transaction, User, Wallet}
@@ -29,14 +30,14 @@ defmodule EWalletDB.Transaction do
     external_id(prefix: "txn_")
 
     field(:idempotency_token, :string)
-    field(:from_amount, EWalletDB.Types.Integer)
-    field(:to_amount, EWalletDB.Types.Integer)
+    field(:from_amount, EWalletConfig.Types.Integer)
+    field(:to_amount, EWalletConfig.Types.Integer)
     # pending -> confirmed
     field(:status, :string, default: @pending)
     # internal / external
     field(:type, :string, default: @internal)
     # Payload received from client
-    field(:payload, EWalletDB.Encrypted.Map)
+    field(:payload, EWalletConfig.Encrypted.Map)
     # Response returned by ledger
     field(:local_ledger_uuid, :string)
     field(:error_code, :string)
@@ -47,7 +48,7 @@ defmodule EWalletDB.Transaction do
     field(:calculated_at, :naive_datetime)
 
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 
     belongs_to(
       :from_token,

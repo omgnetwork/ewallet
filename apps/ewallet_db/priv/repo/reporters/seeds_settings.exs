@@ -1,5 +1,5 @@
 defmodule EWalletDB.Repo.Reporters.SeedsSettingsReporter do
-  alias EWalletDB.Setting
+  alias EWalletConfig.Config
 
   def run(writer, _args) do
     writer.heading("eWallet Settings")

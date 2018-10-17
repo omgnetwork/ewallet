@@ -16,12 +16,12 @@ defmodule EWalletConfig.SettingTest do
 
   describe "get/1" do
     test "returns nil when given nil" do
-      assert Setting.get(nil) == nil
+      assert Config.get(nil) == nil
     end
 
     test "returns the setting" do
       {:ok, inserted_setting} = Setting.insert(get_attrs())
-      setting = Setting.get("my_key")
+      setting = Config.get("my_key")
 
       assert inserted_setting.uuid == setting.uuid
     end
