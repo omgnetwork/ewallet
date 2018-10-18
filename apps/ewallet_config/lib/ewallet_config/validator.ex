@@ -13,8 +13,8 @@ defmodule EWalletConfig.Validator do
       nil ->
         8
 
-      setting ->
-        setting.value
+      value ->
+        value
     end
   end
 
