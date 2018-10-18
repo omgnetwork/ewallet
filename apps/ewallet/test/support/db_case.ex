@@ -4,6 +4,7 @@ defmodule EWallet.DBCase do
   """
   import EWalletDB.Factory
   alias EWalletDB.Repo
+  alias EWalletConfig.ConfigTestHelper
 
   defmacro __using__(_opts) do
     quote do
@@ -11,28 +12,26 @@ defmodule EWallet.DBCase do
       import EWallet.DBCase
       import EWalletDB.Factory
       alias Ecto.Adapters.SQL.Sandbox
-      alias EWalletConfig.Config
       alias EWalletDB.Repo
+      alias EWalletDB.Account
 
       setup tags do
         :ok = Sandbox.checkout(EWalletConfig.Repo)
         :ok = Sandbox.checkout(EWalletDB.Repo)
 
         unless tags[:async] do
-          Ecto.Adapters.SQL.Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+          Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+          Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+          Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
         end
 
-        :ok = Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
-        {:ok, _} = Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
-
-        settings = Application.get_env(:ewallet, :settings)
-        Config.register_and_load(:ewallet, settings)
-
-        Config.insert_all_defaults(%{
+        ConfigTestHelper.restart_config_genserver([:ewallet_db, :ewallet], %{
           "enable_standalone" => false,
           "base_url" => "http://localhost:4000",
           "email_adapter" => "test"
         })
+
+        {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 
         :ok
       end

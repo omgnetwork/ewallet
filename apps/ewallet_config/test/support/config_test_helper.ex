@@ -1,4 +1,4 @@
-defmodule EWalletConfig.ConfigTest do
+defmodule EWalletConfig.ConfigTestHelper do
   alias EWalletConfig.Config
 
   def restart_config_genserver(apps, attrs) do

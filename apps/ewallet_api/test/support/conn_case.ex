@@ -20,7 +20,7 @@ defmodule EWalletAPI.ConnCase do
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletConfig.Config
   alias EWalletDB.{Account, Repo, User}
-  alias EWalletConfig.ConfigTest
+  alias EWalletConfig.ConfigTestHelper
   use Phoenix.ConnTest
 
   # Attributes required by Phoenix.ConnTest
@@ -71,7 +71,7 @@ defmodule EWalletAPI.ConnCase do
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
     end
 
-    ConfigTest.restart_config_genserver([:ewallet_db, :ewallet, :ewallet_api], %{
+    ConfigTestHelper.restart_config_genserver([:ewallet_db, :ewallet, :ewallet_api], %{
       "enable_standalone" => true,
       "base_url" => "http://localhost:4000",
       "email_adapter" => "test"

@@ -2,7 +2,8 @@ defmodule EWallet.Web.PaginatorTest do
   use EWallet.DBCase
   import Ecto.Query
   alias EWallet.Web.Paginator
-  alias EWalletDB.{Account, Repo, Setting}
+  alias EWalletConfig.Config
+  alias EWalletDB.{Account, Repo}
 
   describe "EWallet.Web.Paginator.paginate_attrs/2" do
     test "paginates with default values if attrs not given" do
@@ -45,7 +46,7 @@ defmodule EWallet.Web.PaginatorTest do
     end
 
     test "returns per_page but never greater than the system's _defined_ maximum" do
-      {:ok, _setting} = Setting.update("max_per_page", %{value: 20})
+      {:ok, _setting} = Config.update("max_per_page", %{value: 20})
 
       paginator = Paginator.paginate_attrs(Account, %{"per_page" => 100})
       assert paginator.pagination.per_page == 20

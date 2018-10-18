@@ -15,7 +15,7 @@ defmodule EWalletAPI.ChannelCase do
 
   use ExUnit.CaseTemplate, async: false
   alias Ecto.Adapters.SQL.Sandbox
-  alias EWalletConfig.ConfigTest
+  alias EWalletConfig.ConfigTestHelper
 
   using do
     quote do
@@ -40,7 +40,7 @@ defmodule EWalletAPI.ChannelCase do
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
     end
 
-    ConfigTest.restart_config_genserver([:ewallet_db, :ewallet, :ewallet_api], %{
+    ConfigTestHelper.restart_config_genserver([:ewallet_db, :ewallet, :ewallet_api], %{
       "enable_standalone" => true,
       "base_url" => "http://localhost:4000",
       "email_adapter" => "test"

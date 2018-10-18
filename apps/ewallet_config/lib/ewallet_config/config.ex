@@ -58,8 +58,8 @@ defmodule EWalletConfig.Config do
     Setting.all()
   end
 
-  def get(key) do
-    Setting.get_value(key)
+  def get(key, default_value \\ nil) do
+    Setting.get_value(key) || default_value
   end
 
   def get_default_settings, do: Setting.get_default_settings()
@@ -70,7 +70,7 @@ defmodule EWalletConfig.Config do
   end
 
   def insert(attrs), do: Setting.insert(attrs)
-  
+
   def update(key, attrs) do
     case Setting.update(key, attrs) do
       success = {:ok, _} ->
