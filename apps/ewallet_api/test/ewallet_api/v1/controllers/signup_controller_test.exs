@@ -1,10 +1,10 @@
 defmodule EWalletAPI.V1.SignupControllerTest do
-  use EWalletAPI.ConnCase, async: true
+  use EWalletAPI.ConnCase, async: false
   import Bamboo.Test, only: [assert_delivered_email: 1]
   alias EWallet.Web.Preloader
   alias EWalletAPI.V1.VerifyEmailController
   alias EWalletAPI.VerificationEmail
-  alias EWalletDB.{Invite, User, Setting}
+  alias EWalletDB.{Invite, User}
 
   describe "/user.signup" do
     test "returns success with an empty response" do

@@ -13,7 +13,7 @@ defmodule EWalletConfig.Setting do
 
   @split_char ":|:"
   @setting_mappings %{
-    "smtp_adapter" => %{
+    "email_adapter" => %{
       "smtp"  => Bamboo.SMTPAdapter,
       "local" => Bamboo.Bamboo.LocalAdapter,
       "test"  => Bamboo.TestAdapter,

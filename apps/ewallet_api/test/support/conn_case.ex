@@ -20,6 +20,7 @@ defmodule EWalletAPI.ConnCase do
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletConfig.Config
   alias EWalletDB.{Account, Repo, User}
+  alias EWalletConfig.ConfigTest
   use Phoenix.ConnTest
 
   # Attributes required by Phoenix.ConnTest
@@ -59,15 +60,21 @@ defmodule EWalletAPI.ConnCase do
     end
   end
 
-  setup do
+  setup tags do
     :ok = Sandbox.checkout(EWalletConfig.Repo)
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
-    IO.inspect(Config.settings())
-    Config.insert_all_defaults(%{
+    unless tags[:async] do
+      Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+      Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+      Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+    end
+
+    ConfigTest.restart_config_genserver([:ewallet_db, :ewallet, :ewallet_api], %{
       "enable_standalone" => true,
-      "base_url" => "http://localhost:4000"
+      "base_url" => "http://localhost:4000",
+      "email_adapter" => "test"
     })
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.

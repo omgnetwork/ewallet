@@ -87,8 +87,9 @@ defmodule AdminAPI.ConnCase do
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
 
     Config.insert_all_defaults(%{
-      "enable_standalone" => true,
-      "base_url" => "http://localhost:4000"
+      "enable_standalone" => false,
+      "base_url" => "http://localhost:4000",
+      "email_adapter" => "test"
     })
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.

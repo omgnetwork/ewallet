@@ -1,6 +1,6 @@
-defmodule EWallet.ConfigTest do
+defmodule EWalletConfig.ConfigTest do
   use ExUnit.Case, async: true
-  alias EWallet.Config
+  alias EWalletConfig.Config
 
   describe "get_boolean/2" do
     test "returns true when value is true" do
