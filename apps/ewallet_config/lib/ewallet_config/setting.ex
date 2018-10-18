@@ -12,6 +12,14 @@ defmodule EWalletConfig.Setting do
   alias Ecto.Changeset
 
   @split_char ":|:"
+  @setting_mappings %{
+    "smtp_adapter" => %{
+      "smtp"  => Bamboo.SMTPAdapter,
+      "local" => Bamboo.Bamboo.LocalAdapter,
+      "test"  => Bamboo.TestAdapter,
+      "_"     => Bamboo.Bamboo.LocalAdapter
+    }
+  }
   @default_settings %{
     # Global Settings
     "base_url" => %{key: "base_url", value: "", type: "string"},
@@ -172,6 +180,9 @@ defmodule EWalletConfig.Setting do
     :updated_at
   ]
 
+  @spec get_setting_mappings() :: [Map.t()]
+  def get_setting_mappings, do: @setting_mappings
+
   @spec get_default_settings() :: [Map.t()]
   def get_default_settings, do: @default_settings
 
@@ -193,6 +204,10 @@ defmodule EWalletConfig.Setting do
   Retrieves a setting by its string name.
   """
   @spec get(String.t()) :: %Setting{}
+  def get(key) when is_atom(key) do
+    get(Atom.to_string(key))
+  end
+
   def get(key) when is_binary(key) do
     case Repo.get_by(StoredSetting, key: key) do
       nil -> nil

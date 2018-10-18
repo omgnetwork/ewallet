@@ -1,7 +1,12 @@
 defmodule EWalletConfig.Config do
   use GenServer
   require Logger
-  alias EWalletConfig.{FileStorageSettingsLoader, EmailSettingsLoader, Setting}
+  alias EWalletConfig.{
+    FileStorageSettingsLoader,
+    EmailSettingsLoader,
+    Setting,
+    SettingLoader
+  }
 
   def start_link(registered_apps \\ []) do
     GenServer.start_link(__MODULE__, registered_apps, name: __MODULE__)
@@ -20,32 +25,16 @@ defmodule EWalletConfig.Config do
   end
 
   def handle_call({:register_and_load, app, settings}, _from, registered_apps) do
-    load_settings(app, settings)
+    SettingLoader.load_settings(app, settings)
     {:reply, :ok, [{app, settings} | registered_apps]}
   end
 
   def handle_call(:reload, _from, registered_apps) do
     Enum.each(registered_apps, fn {app, settings} ->
-      load_settings(app, settings)
+      SettingLoader.load_settings(app, settings)
     end)
 
     {:reply, :ok, registered_apps}
-  end
-
-  def load_settings(app, settings) do
-    Enum.each(settings, fn key ->
-      case Setting.get(key) do
-        nil ->
-          if Mix.env != :test, do: warn(app, key)
-          Application.put_env(app, key, nil)
-        setting ->
-          Application.put_env(app, key, setting.value)
-      end
-    end)
-  end
-
-  def warn(app, key) do
-    Logger.warn(~s([Configuration] Setting "#{key}" used by "#{app}" not found.))
   end
 
   def load(app, name, opts \\ nil)
