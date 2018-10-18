@@ -11,7 +11,8 @@ defmodule EWallet.Application do
     DeferredConfig.populate(:ewallet)
 
     set_decimal_context()
-    Config.load(:ewallet, :emails, %{mailer: EWallet.Mailer})
+    settings = Application.get_env(:ewallet, :settings)
+    Config.register_and_load(:ewallet, settings)
 
     # List all child processes to be supervised
     children = [

@@ -13,12 +13,24 @@ defmodule EWallet.LocalLedgerCase do
       import EWalletDB.Factory
       import EWallet.LocalLedgerCase
       alias Ecto.Adapters.SQL.Sandbox
+      alias EWalletConfig.Config
       alias EWalletDB.Account
 
-      setup do
+      setup tags do
         :ok = Sandbox.checkout(EWalletConfig.Repo)
         :ok = Sandbox.checkout(EWalletDB.Repo)
         :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+
+
+        unless tags[:async] do
+          Ecto.Adapters.SQL.Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+        end
+
+        :ok = Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+        {:ok, _} = Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
+        settings = Application.get_env(:ewallet, :settings)
+        Config.register_and_load(:ewallet, settings)
 
         {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 

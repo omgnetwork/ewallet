@@ -3,6 +3,20 @@
 use Mix.Config
 
 config :ewallet,
-  ecto_repos: []
+  ecto_repos: [],
+
+  settings: [
+    :base_url,
+    :sender_email,
+    :max_per_page,
+    :redirect_url_prefixes,
+    "EWallet.Mailer": [
+      {:smtp_adapter, :adapter},
+      {:smtp_host, :server},
+      {:smtp_port, :port},
+      {:smtp_username, :username},
+      {:smtp_password, :password}
+    ]
+  ]
 
 import_config "#{Mix.env()}.exs"

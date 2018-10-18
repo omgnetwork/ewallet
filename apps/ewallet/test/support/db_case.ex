@@ -14,14 +14,27 @@ defmodule EWallet.DBCase do
       alias EWalletConfig.Config
       alias EWalletDB.Repo
 
-      setup do
+      setup tags do
         :ok = Sandbox.checkout(EWalletConfig.Repo)
         :ok = Sandbox.checkout(EWalletDB.Repo)
 
+        unless tags[:async] do
+          Ecto.Adapters.SQL.Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+        end
+
+        :ok = Supervisor.terminate_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+        {:ok, _} = Supervisor.restart_child(EWalletConfig.Supervisor, EWalletConfig.Config)
+
+        settings = Application.get_env(:ewallet, :settings)
+        Config.register_and_load(:ewallet, settings)
+
         Config.insert_all_defaults(%{
-          "enable_standalone" => true,
-          "base_url" => "http://localhost:4000"
+          "enable_standalone" => false,
+          "base_url" => "http://localhost:4000",
+          "email_adapter" => "test"
         })
+
+        :ok
       end
     end
   end
