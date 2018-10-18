@@ -15,7 +15,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   defp get_argsline do
-    case Config.get("base_url") do
+    case Appliction.get_env(:ewallet_db, "base_url") do
       nil ->
         [
           {:title, "Enter the base URL for this instance of the ewallet (e.g. https://myewallet.com)."},

@@ -6,12 +6,13 @@ defmodule EWalletDB.Application do
   """
   use Application
   alias EWalletConfig.Config
-  alias EWalletConfig.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:ewallet_db)
-    Config.load(:ewallet_db, :file_storage)
+
+    settings = Application.get_env(:ewallet_db, :settings)
+    Config.register_and_load(:ewallet_db, settings)
 
     # List all child processes to be supervised
     children = [
@@ -19,7 +20,7 @@ defmodule EWalletDB.Application do
     ]
 
     children =
-      case Config.get("file_storage_adapter") do
+      case Application.get_env(:ewallet_db, "file_storage_adapter") do
         "gcs" -> children ++ [supervisor(Goth.Supervisor, [])]
         _ -> children
       end
