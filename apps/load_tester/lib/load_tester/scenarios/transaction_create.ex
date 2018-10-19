@@ -22,7 +22,7 @@ defmodule LoadTester.Scenarios.TransactionCreate do
   def do_run(session) do
     from_account = get_master_account(session)
     to_account = get_non_master_account(session)
-    token = Map.get(config(session, :tokens), "OMG")
+    token = config(session, :token)
 
     session
     |> post("/api/admin/transaction.create",
