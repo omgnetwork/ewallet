@@ -16,7 +16,7 @@ defmodule LoadTester.Scenarios.TransactionCreate do
     |> cc_spread(
       :do_run,
       session.assigned.rate,
-      session.assigned.interval
+      session.assigned.interval * 1000
     )
   end
 
