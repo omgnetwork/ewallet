@@ -7,5 +7,6 @@ use Mix.Config
 
 config :load_tester,
   namespace: LoadTester,
+  loadtest_protocol: {:system, "LOADTEST_PROTOCOL", "https"},
   loadtest_host: {:system, "LOADTEST_HOST", "localhost"},
   loadtest_port: {:system, "LOADTEST_PORT", "4000"}
