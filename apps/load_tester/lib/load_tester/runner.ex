@@ -7,6 +7,7 @@ defmodule LoadTester.Runner do
     AdminLogin,
     Index,
     TokenAll,
+    TokenCreate,
     TransactionCreate,
     UserGetWallets
   }
