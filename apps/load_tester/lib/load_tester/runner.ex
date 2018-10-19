@@ -27,9 +27,9 @@ defmodule LoadTester.Runner do
 
   def default_config, do: %{
     base_url:
-      Application.get_env(:load_tester, :loadtest_protocol)
-      <> "://" <> Application.get_env(:load_tester, :loadtest_host)
-      <> ":" <> Application.get_env(:load_tester, :loadtest_port)
+      Application.get_env(:load_tester, :protocol)
+      <> "://" <> Application.get_env(:load_tester, :host)
+      <> ":" <> Application.get_env(:load_tester, :port)
   }
 
   def scenarios, do: [
