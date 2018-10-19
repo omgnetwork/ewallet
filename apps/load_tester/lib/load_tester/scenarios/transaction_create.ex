@@ -2,9 +2,12 @@ defmodule LoadTester.Scenarios.TransactionCreate do
   use Chaperon.Scenario
 
   def init(session) do
+    rate = :load_tester |> Application.get_env(:total_requests) |> String.to_integer()
+    interval = :load_tester |> Application.get_env(:duration) |> String.to_integer()
+
     session
-    |> assign(rate: Application.get_env(:load_tester, :total_requests))
-    |> assign(interval: Application.get_env(:load_tester, :duration))
+    |> assign(rate: rate)
+    |> assign(interval: interval)
     |> ok()
   end
 
