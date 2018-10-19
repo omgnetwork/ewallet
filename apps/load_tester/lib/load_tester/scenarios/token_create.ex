@@ -5,7 +5,7 @@ defmodule LoadTester.Scenarios.TokenCreate do
     date = DateTime.to_iso8601(DateTime.utc_now())
 
     session
-    |> post("/api/admin/account.create",
+    |> post("/api/admin/token.create",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json",
         "Authorization" => auth_header_content(session)
