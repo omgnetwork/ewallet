@@ -14,13 +14,15 @@ defmodule EWalletDB.Application do
     settings = Application.get_env(:ewallet_db, :settings)
     Config.register_and_load(:ewallet_db, settings)
 
+    # Config.configure_file_storage()
+
     # List all child processes to be supervised
     children = [
       supervisor(EWalletDB.Repo, [])
     ]
 
     children =
-      case Application.get_env(:ewallet_db, "file_storage_adapter") do
+      case Application.get_env(:ewallet_db, :file_storage_adapter) do
         "gcs" -> children ++ [supervisor(Goth.Supervisor, [])]
         _ -> children
       end

@@ -15,7 +15,7 @@ defmodule AdminAPI.InviteEmailTest do
       {email, _token} = create_email("test@example.com")
 
       # `from` should be the one set in the config
-      assert email.from == Config.get("sender_email")
+      assert email.from == Application.get_env(:admin_api, :sender_email)
 
       # `to` should be the user's email
       assert email.to == "test@example.com"

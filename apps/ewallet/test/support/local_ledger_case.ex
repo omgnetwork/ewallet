@@ -27,11 +27,16 @@ defmodule EWallet.LocalLedgerCase do
           Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
         end
 
-        ConfigTestHelper.restart_config_genserver([:ewallet_db, :ewallet], %{
-          "enable_standalone" => false,
-          "base_url" => "http://localhost:4000",
-          "email_adapter" => "test"
-        })
+        ConfigTestHelper.restart_config_genserver(
+          self(),
+          EWalletConfig.Repo,
+          [:ewallet_db, :ewallet],
+          %{
+            "enable_standalone" => false,
+            "base_url" => "http://localhost:4000",
+            "email_adapter" => "test"
+          }
+        )
 
         {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 

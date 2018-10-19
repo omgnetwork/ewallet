@@ -8,7 +8,7 @@ defmodule EWalletDB.Wallet do
   import EWalletConfig.Validator
   alias Ecto.UUID
   alias EWalletConfig.Types.WalletAddress
-  alias EWalletDB.{Account, Repo,  User, Wallet}
+  alias EWalletDB.{Account, Repo, User, Wallet}
   alias ExULID.ULID
 
   @genesis "genesis"

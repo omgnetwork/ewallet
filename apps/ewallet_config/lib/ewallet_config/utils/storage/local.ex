@@ -6,7 +6,7 @@ defmodule EWalletConfig.Storage.Local do
   Original: https://github.com/stavro/arc/blob/master/lib/arc/storage/local.ex
   """
   alias Arc.Definition.Versioning
-  alias EWalletConfig.Setting
+  alias EWalletConfig.Config
 
   def put(definition, version, {file, scope}) do
     destination_dir = definition.storage_dir(version, {file, scope})
@@ -31,7 +31,7 @@ defmodule EWalletConfig.Storage.Local do
   end
 
   def url(definition, version, file_and_scope, _options \\ []) do
-    base_url = Setting.get("base_url")
+    base_url = Config.get("base_url")
     local_path = build_local_path(definition, version, file_and_scope)
 
     url =

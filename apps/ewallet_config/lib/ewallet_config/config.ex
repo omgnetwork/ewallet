@@ -7,27 +7,51 @@ defmodule EWalletConfig.Config do
 
   use GenServer
   require Logger
+
   alias EWalletConfig.{
     FileStorageSettingsLoader,
-    EmailSettingsLoader,
     Setting,
     SettingLoader
   }
 
-  def start_link(registered_apps \\ []) do
-    GenServer.start_link(__MODULE__, registered_apps, name: __MODULE__)
+  def start_link(named: true) do
+    GenServer.start_link(__MODULE__, [], name: __MODULE__)
+  end
+
+  def start_link do
+    GenServer.start_link(__MODULE__, [])
+  end
+
+  def stop(pid \\ __MODULE__) do
+    GenServer.stop(pid)
   end
 
   def init(_args) do
     {:ok, []}
   end
 
-  def register_and_load(app, settings) do
-    GenServer.call(__MODULE__, {:register_and_load, app, settings})
+  def register_and_load(app, settings, pid \\ __MODULE__) do
+    GenServer.call(pid, {:register_and_load, app, settings})
   end
 
-  def reload_config do
-    GenServer.call(__MODULE__, :reload)
+  def reload_config(pid \\ __MODULE__) do
+    GenServer.call(pid, :reload)
+  end
+
+  def update(key, attrs, pid \\ __MODULE__) do
+    case Setting.update(key, attrs) do
+      success = {:ok, _} ->
+        reload_config(pid)
+        success
+
+      error ->
+        error
+    end
+  end
+
+  def insert_all_defaults(opts \\ %{}, pid \\ __MODULE__) do
+    :ok = Setting.insert_all_defaults(opts)
+    reload_config(pid)
   end
 
   def handle_call({:register_and_load, app, settings}, _from, registered_apps) do
@@ -44,14 +68,10 @@ defmodule EWalletConfig.Config do
   end
 
   def load(app, name, opts \\ nil)
+
   def load(app, :file_storage, _opts) do
     ensure_settings_existence()
     FileStorageSettingsLoader.load(app)
-  end
-
-  def load(app, :emails, %{mailer: mailer}) do
-    ensure_settings_existence()
-    EmailSettingsLoader.load(app, mailer)
   end
 
   def settings do
@@ -64,22 +84,7 @@ defmodule EWalletConfig.Config do
 
   def get_default_settings, do: Setting.get_default_settings()
 
-  def insert_all_defaults(opts \\ %{}) do
-    :ok = Setting.insert_all_defaults(opts)
-    reload_config()
-  end
-
   def insert(attrs), do: Setting.insert(attrs)
-
-  def update(key, attrs) do
-    case Setting.update(key, attrs) do
-      success = {:ok, _} ->
-        reload_config()
-        success
-      error ->
-        error
-    end
-  end
 
   @doc """
   Gets the application's environment config as a boolean.
@@ -123,7 +128,7 @@ defmodule EWalletConfig.Config do
   end
 
   defp ensure_settings_existence do
-    unless Mix.env == :test || length(Setting.all()) > 0 do
+    unless Mix.env() == :test || length(Setting.all()) > 0 do
       raise ~s(Setting seeds have not been ran. You can run them with "mix seed" or "mix seed --settings".)
     end
   end

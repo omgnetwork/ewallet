@@ -1,5 +1,5 @@
 defmodule EWalletAPI.V1.VerifyEmailControllerTest do
-  use EWalletAPI.ConnCase, async: false
+  use EWalletAPI.ConnCase, async: true
   alias EWalletDB.{Invite, User}
 
   describe "verify/2" do

@@ -1,5 +1,5 @@
 defmodule EWalletAPI.V1.SignupControllerTest do
-  use EWalletAPI.ConnCase, async: false
+  use EWalletAPI.ConnCase, async: true
   import Bamboo.Test, only: [assert_delivered_email: 1]
   alias EWallet.Web.Preloader
   alias EWalletAPI.V1.VerifyEmailController

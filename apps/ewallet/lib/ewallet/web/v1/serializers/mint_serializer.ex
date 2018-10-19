@@ -11,6 +11,7 @@ defmodule EWallet.Web.V1.MintSerializer do
     TokenSerializer,
     TransactionSerializer
   }
+
   alias EWalletConfig.Helpers.Assoc
   alias EWalletDB.Mint
 

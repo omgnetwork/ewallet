@@ -12,6 +12,7 @@ defmodule EWalletDB.User do
   alias EWalletConfig.Helpers.Crypto
 
   alias EWalletConfig.Types.VirtualStruct
+
   alias EWalletDB.{
     Account,
     AccountUser,

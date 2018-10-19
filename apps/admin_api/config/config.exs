@@ -8,7 +8,10 @@ use Mix.Config
 # General application configuration
 config :admin_api,
   namespace: AdminAPI,
-  ecto_repos: []
+  ecto_repos: [],
+  settings: [
+    :sender_email
+  ]
 
 # Configs for the endpoint
 config :admin_api, AdminAPI.Endpoint,

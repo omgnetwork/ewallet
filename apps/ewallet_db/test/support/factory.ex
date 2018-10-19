@@ -6,6 +6,7 @@ defmodule EWalletDB.Factory do
   alias ExMachina.Strategy
   alias EWalletConfig.{Types.WalletAddress, Helpers.Crypto}
   alias EWalletConfig.System
+
   alias EWalletDB.{
     Account,
     AccountUser,

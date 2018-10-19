@@ -422,6 +422,7 @@ defmodule EWalletDB.AccountTest do
         :account
         |> insert(categories: [cat1])
         |> Preloader.preload(:categories)
+
       assert account.categories == [cat1]
 
       {:ok, account} = Account.add_category(account, cat2)

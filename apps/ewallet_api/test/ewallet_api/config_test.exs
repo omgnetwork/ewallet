@@ -1,11 +1,10 @@
 defmodule EWalletAPI.ConfigTest do
-  # `async: false` because `Application.put_env/3` have side effects
-  use EWalletAPI.ConnCase, async: false
+  use EWalletAPI.ConnCase, async: true
   alias EWalletConfig.Config
 
   describe "ewallet_api.enable_standalone" do
-    test "allows /user.signup when configured to true" do
-      {:ok, _} = Config.update("enable_standalone", %{value: true})
+    test "allows /user.signup when configured to true", meta do
+      {:ok, _} = Config.update("enable_standalone", %{value: true}, meta[:config_pid])
 
       response = client_request("/user.signup")
 
@@ -14,8 +13,8 @@ defmodule EWalletAPI.ConfigTest do
       assert response["data"]["code"] == "user:invalid_email"
     end
 
-    test "prohibits /user.signup when configured to false" do
-      {:ok, _} = Config.update("enable_standalone", %{value: false})
+    test "prohibits /user.signup when configured to false", meta do
+      {:ok, _} = Config.update("enable_standalone", %{value: false}, meta[:config_pid])
 
       response = client_request("/user.signup")
 

@@ -16,8 +16,9 @@ defmodule EWallet.DBCase do
       alias EWalletDB.Account
 
       setup tags do
-        :ok = Sandbox.checkout(EWalletConfig.Repo)
         :ok = Sandbox.checkout(EWalletDB.Repo)
+        :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+        :ok = Sandbox.checkout(EWalletConfig.Repo)
 
         unless tags[:async] do
           Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
@@ -25,15 +26,19 @@ defmodule EWallet.DBCase do
           Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
         end
 
-        ConfigTestHelper.restart_config_genserver([:ewallet_db, :ewallet], %{
-          "enable_standalone" => false,
-          "base_url" => "http://localhost:4000",
-          "email_adapter" => "test"
-        })
+        pid =
+          ConfigTestHelper.restart_config_genserver(
+            self(),
+            EWalletConfig.Repo,
+            [:ewallet_db, :ewallet],
+            %{
+              "enable_standalone" => false,
+              "base_url" => "http://localhost:4000",
+              "email_adapter" => "test"
+            }
+          )
 
-        {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
-
-        :ok
+        %{config_pid: pid}
       end
     end
   end

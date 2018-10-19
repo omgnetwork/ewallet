@@ -7,12 +7,13 @@ defmodule EWalletConfig.Application do
 
   def start(_type, _args) do
     import Supervisor.Spec
+    DeferredConfig.populate(:ewallet_config)
 
     # List all child processes to be supervised
     children = [
       # Starts a worker by calling: EWalletConfig.Worker.start_link(arg)
       supervisor(EWalletConfig.Repo, []),
-      supervisor(EWalletConfig.Config, [])
+      supervisor(EWalletConfig.Config, [[named: true]])
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html

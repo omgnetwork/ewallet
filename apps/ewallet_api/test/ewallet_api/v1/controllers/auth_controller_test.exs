@@ -1,5 +1,5 @@
 defmodule EWalletAPI.V1.AuthControllerTest do
-  use EWalletAPI.ConnCase, async: false
+  use EWalletAPI.ConnCase, async: true
   alias EWalletConfig.Helpers.Crypto
   alias EWalletDB.User
 

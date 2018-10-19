@@ -14,10 +14,10 @@ defmodule EWalletConfig.Setting do
   @split_char ":|:"
   @setting_mappings %{
     "email_adapter" => %{
-      "smtp"  => Bamboo.SMTPAdapter,
+      "smtp" => Bamboo.SMTPAdapter,
       "local" => Bamboo.Bamboo.LocalAdapter,
-      "test"  => Bamboo.TestAdapter,
-      "_"     => Bamboo.Bamboo.LocalAdapter
+      "test" => Bamboo.TestAdapter,
+      "_" => Bamboo.Bamboo.LocalAdapter
     }
   }
   @default_settings %{
@@ -55,7 +55,8 @@ defmodule EWalletConfig.Setting do
       value: false,
       type: "select",
       options: ["smtp", "local", "test"],
-      description: "When set to local, a local email adapter will be used. Perfect for testing and development.",
+      description:
+        "When set to local, a local email adapter will be used. Perfect for testing and development."
     },
     "smtp_host" => %{
       key: "smtp_host",
@@ -268,7 +269,7 @@ defmodule EWalletConfig.Setting do
     |> Enum.all?(fn res ->
       case res do
         {:ok, _} -> true
-        _ ->        false
+        _ -> false
       end
     end)
     |> return_insert_result()

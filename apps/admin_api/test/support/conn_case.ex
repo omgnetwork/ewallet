@@ -20,7 +20,7 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
   alias EWallet.Web.Date
-  alias EWalletConfig.{Config, Helpers.Crypto, Types.ExternalID}
+  alias EWalletConfig.{ConfigTestHelper, Helpers.Crypto, Types.ExternalID}
   alias EWalletDB.{Account, Key, Repo, User}
 
   # Attributes required by Phoenix.ConnTest
@@ -81,16 +81,28 @@ defmodule AdminAPI.ConnCase do
     end
   end
 
-  setup do
-    :ok = Sandbox.checkout(EWalletConfig.Repo)
+  setup tags do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
 
-    Config.insert_all_defaults(%{
-      "enable_standalone" => false,
-      "base_url" => "http://localhost:4000",
-      "email_adapter" => "test"
-    })
+    unless tags[:async] do
+      Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+      Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+      Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+    end
+
+    pid =
+      ConfigTestHelper.restart_config_genserver(
+        self(),
+        EWalletConfig.Repo,
+        [:ewallet_db, :ewallet, :admin_api],
+        %{
+          "base_url" => "http://localhost:4000",
+          "email_adapter" => "test",
+          "sender_email" => "admin@example.com"
+        }
+      )
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
@@ -135,7 +147,7 @@ defmodule AdminAPI.ConnCase do
     # by returning {:ok, context_map}. But it would make the code
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
-    :ok
+    %{config_pid: pid}
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do

@@ -45,8 +45,8 @@ defmodule EWallet.Web.PaginatorTest do
       assert paginator.pagination.per_page == 100
     end
 
-    test "returns per_page but never greater than the system's _defined_ maximum" do
-      {:ok, _setting} = Config.update("max_per_page", %{value: 20})
+    test "returns per_page but never greater than the system's _defined_ maximum", meta do
+      {:ok, _setting} = Config.update("max_per_page", %{value: 20}, meta[:config_pid])
 
       paginator = Paginator.paginate_attrs(Account, %{"per_page" => 100})
       assert paginator.pagination.per_page == 20

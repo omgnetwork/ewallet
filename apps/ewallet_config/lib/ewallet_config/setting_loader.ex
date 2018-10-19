@@ -1,11 +1,15 @@
 defmodule EWalletConfig.SettingLoader do
   require Logger
-  alias EWalletConfig.Setting
-  
+  alias EWalletConfig.{Setting, FileStorageSettingsLoader}
+
   def load_settings(app, settings) do
     Enum.each(settings, fn key ->
       load_setting(app, key)
     end)
+
+    if Enum.member?(settings, :file_storage_adapter) do
+      FileStorageSettingsLoader.load(app)
+    end
   end
 
   def load_setting(app, {setting, keys}) do
@@ -22,7 +26,8 @@ defmodule EWalletConfig.SettingLoader do
     |> Enum.into(%{})
   end
 
-  defp handle_mapped_keys(app, {db_setting_name, app_setting_name}) when is_atom(app_setting_name) do
+  defp handle_mapped_keys(app, {db_setting_name, app_setting_name})
+       when is_atom(app_setting_name) do
     {app_setting_name, fetch_value(app, db_setting_name)}
   end
 
@@ -33,8 +38,9 @@ defmodule EWalletConfig.SettingLoader do
   defp fetch_value(app, key) do
     case Setting.get(key) do
       nil ->
-        if Mix.env != :test, do: warn(app, key)
+        if Mix.env() != :test, do: warn(app, key)
         nil
+
       setting ->
         map_value(key, setting.value)
     end
@@ -51,9 +57,10 @@ defmodule EWalletConfig.SettingLoader do
     case Map.get(mappings, key) do
       nil ->
         value
+
       mapping ->
         case Map.get(mapping, value) do
-          nil  -> mapping["_"]
+          nil -> mapping["_"]
           mapped_value -> mapped_value
         end
     end

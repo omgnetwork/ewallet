@@ -40,11 +40,16 @@ defmodule EWalletAPI.ChannelCase do
       Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
     end
 
-    ConfigTestHelper.restart_config_genserver([:ewallet_db, :ewallet, :ewallet_api], %{
-      "enable_standalone" => true,
-      "base_url" => "http://localhost:4000",
-      "email_adapter" => "test"
-    })
+    ConfigTestHelper.restart_config_genserver(
+      self(),
+      EWalletConfig.Repo,
+      [:ewallet_db, :ewallet, :ewallet_api],
+      %{
+        "enable_standalone" => true,
+        "base_url" => "http://localhost:4000",
+        "email_adapter" => "test"
+      }
+    )
 
     :ok
   end

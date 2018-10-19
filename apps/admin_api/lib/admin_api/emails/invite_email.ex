@@ -4,10 +4,9 @@ defmodule AdminAPI.InviteEmail do
   """
   import Bamboo.Email
   alias EWallet.Web.Preloader
-  alias EWalletConfig.Config
 
   def create(invite, redirect_url) do
-    sender = Config.get("sender_email")
+    sender = Application.get_env(:admin_api, :sender_email)
     {:ok, invite} = Preloader.preload_one(invite, :user)
 
     link =
