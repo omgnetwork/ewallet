@@ -50,9 +50,6 @@ defmodule LoadTester.Scenarios.TransactionCreate do
   end
 
   defp get_non_master_account(session) do
-    session
-    |> config(:accounts)
-    |> Map.values()
-    |> Enum.find(fn account -> !account.master end)
+    config(session, :non_master_account)
   end
 end

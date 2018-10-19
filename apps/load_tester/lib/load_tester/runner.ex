@@ -2,6 +2,7 @@ defmodule LoadTester.Runner do
   use Chaperon.LoadTest
   alias LoadTester.Scenarios.{
     AccountAll,
+    AccountCreate,
     AccountGetWallets,
     AdminLogin,
     Index,
@@ -18,6 +19,7 @@ defmodule LoadTester.Runner do
     TokenAll,
     AccountAll,
     AccountGetWallets,
+    AccountCreate,
     TransactionCreate
   ]
 
