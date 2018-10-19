@@ -11,7 +11,7 @@ defmodule LoadTester.Scenarios.AccountCreate do
         "Authorization" => auth_header_content(session)
       },
       json: %{
-        "name": "Load Test Account " <> :rand.uniform(9999999),
+        "name": "Load Test Account " <> random_string(8),
         "description": "A load test account generated on #{date}",
         "parent_id": get_master_account(session).id,
       },
@@ -22,6 +22,13 @@ defmodule LoadTester.Scenarios.AccountCreate do
 
   defp auth_header_content(session) do
     "OMGAdmin " <> Base.url_encode64(session.config.user_id <> ":" <> session.config.auth_token)
+  end
+
+  defp random_string(length) do
+    length
+    |> :crypto.strong_rand_bytes()
+    |> Base.encode64()
+    |> binary_part(0, length)
   end
 
   defp get_master_account(session) do
