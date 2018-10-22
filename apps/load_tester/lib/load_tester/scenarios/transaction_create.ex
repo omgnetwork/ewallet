@@ -41,7 +41,7 @@ defmodule LoadTester.Scenarios.TransactionCreate do
         from_account_id: from_account.id,
         to_account_id: to_account.id,
         token_id: token.id,
-        amount: ,
+        amount: mint_amount,
         metadata: %{}
       }
     )
