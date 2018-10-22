@@ -3,12 +3,10 @@ defmodule AdminAPI.V1.AuthTokenSerializer do
   Serializes authentication token data into V1 response format.
   """
   alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
-  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.Helpers.Assoc
   alias EWalletDB.User
 
   def serialize(auth_token) do
-    auth_token = Preloader.preload(auth_token, [:user, :account])
-
     %{
       object: "authentication_token",
       authentication_token: auth_token.token,

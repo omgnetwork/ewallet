@@ -3,15 +3,9 @@ defmodule AdminAPI.V1.SelfController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.{AccountHelper, AccountView, UserView}
   alias Ecto.Changeset
-  alias EWallet.Web.{Originator, Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Originator}
+  alias EWallet.Web.V1.AccountOverlay
   alias EWalletDB.{Account, User}
-
-  @mapped_fields %{
-    "created_at" => "inserted_at"
-  }
-  @preload_fields [:categories]
-  @search_fields [:id, :name, :description]
-  @sort_fields [:id, :name, :description, :inserted_at, :updated_at]
 
   @doc """
   Retrieves the currently authenticated user.
@@ -76,10 +70,11 @@ defmodule AdminAPI.V1.SelfController do
   @doc """
   Retrieves the upper-most account that the given user has membership in.
   """
-  def get_account(conn, _attrs) do
+  def get_account(conn, attrs) do
     with {:ok, current_user} <- permit(:update, conn.assigns),
-         %Account{} = acc <- User.get_account(current_user) || :user_account_not_found do
-      render(conn, AccountView, :account, %{account: acc})
+         %Account{} = account <- User.get_account(current_user) || :user_account_not_found,
+         {:ok, account} <- Orchestrator.one(account, AccountOverlay, attrs) do
+      render(conn, AccountView, :account, %{account: account})
     else
       error ->
         respond_single(error, conn)
@@ -95,10 +90,7 @@ defmodule AdminAPI.V1.SelfController do
       accounts =
         Account
         |> Account.where_in(account_uuids)
-        |> Preloader.to_query(@preload_fields)
-        |> SearchParser.to_query(attrs, @search_fields, @mapped_fields)
-        |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-        |> Paginator.paginate_attrs(attrs)
+        |> Orchestrator.query(AccountOverlay, attrs)
 
       render(conn, AccountView, :accounts, %{accounts: accounts})
     else

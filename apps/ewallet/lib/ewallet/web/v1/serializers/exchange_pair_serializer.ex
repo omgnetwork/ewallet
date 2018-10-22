@@ -6,7 +6,7 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
   alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.{PaginatorSerializer, TokenSerializer}
   alias EWalletDB.ExchangePair
-  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.Helpers.Assoc
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)
@@ -20,8 +20,6 @@ defmodule EWallet.Web.V1.ExchangePairSerializer do
   end
 
   def serialize(%ExchangePair{} = exchange_pair) do
-    exchange_pair = Preloader.preload(exchange_pair, [:from_token, :to_token])
-
     %{
       object: "exchange_pair",
       id: exchange_pair.id,

@@ -296,7 +296,8 @@ defmodule EWalletDB.Factory do
       correlation_id: sequence("correlation"),
       token_uuid: insert(:token).uuid,
       user_uuid: insert(:user).uuid,
-      wallet: insert(:wallet)
+      wallet: insert(:wallet),
+      consumptions_count: 0
     }
   end
 

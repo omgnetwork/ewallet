@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionRequestPolicy
-  alias EWallet.Web.{Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionRequestOverlay}
 
   alias EWallet.{
     TransactionRequestFetcher,
@@ -11,11 +11,6 @@ defmodule AdminAPI.V1.TransactionRequestController do
   }
 
   alias EWalletDB.{Account, TransactionRequest}
-
-  @mapped_fields %{"created_at" => "inserted_at"}
-  @preload_fields [:user, :account, :token, :wallet]
-  @search_fields [:id, :status, :type, :correlation_id, :expiration_reason]
-  @sort_fields [:id, :status, :type, :correlation_id, :inserted_at, :expired_at]
 
   @spec all(Plug.Conn.t(), map) :: Plug.Conn.t()
   def all(conn, attrs) do
@@ -66,10 +61,7 @@ defmodule AdminAPI.V1.TransactionRequestController do
   @spec do_all(Ecto.Queryable.t(), map(), Plug.Conn.t()) :: Plug.Conn.t()
   defp do_all(query, attrs, conn) do
     query
-    |> Preloader.to_query(@preload_fields)
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
+    |> Orchestrator.query(TransactionRequestOverlay, attrs)
     |> respond_multiple(conn)
   end
 

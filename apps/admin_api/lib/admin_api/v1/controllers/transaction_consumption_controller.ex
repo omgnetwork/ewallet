@@ -1,10 +1,9 @@
 defmodule AdminAPI.V1.TransactionConsumptionController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  @behaviour EWallet.Web.Embedder
   alias AdminAPI.V1.AccountHelper
   alias EWallet.TransactionConsumptionPolicy
-  alias EWallet.Web.{Embedder, Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{Orchestrator, Paginator, V1.TransactionConsumptionOverlay}
 
   alias EWallet.{
     TransactionConsumptionConfirmerGate,
@@ -15,63 +14,6 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   }
 
   alias EWalletDB.{Account, TransactionConsumption, TransactionRequest, User, Wallet}
-
-  # The fields that are allowed to be embedded.
-  # These fields must be one of the schema's association names.
-  def embeddable, do: [:account, :token, :transaction, :transaction_request, :user]
-
-  # The fields returned by `embeddable/0` are embedded regardless of the request.
-  # These fields must be one of the schema's association names.
-  def always_embed, do: [:token]
-
-  @mapped_fields %{"created_at" => "inserted_at"}
-  @preload_fields [
-    :account,
-    :user,
-    :wallet,
-    :token,
-    :exchange_account,
-    account: [:categories],
-    exchange_account: [:categories],
-    transaction: [
-      :from_token,
-      :to_token,
-      :exchange_pair,
-      :to_wallet,
-      :from_wallet,
-      :from_account,
-      :to_account,
-      :from_user,
-      :to_user,
-      :exchange_account,
-      :exchange_wallet,
-      from_account: [:categories],
-      to_account: [:categories],
-      exchange_account: [:categories]
-    ],
-    transaction_request: [
-      :consumptions,
-      :token,
-      :user,
-      :exchange_wallet,
-      account: [:categories],
-      exchange_account: [:categories]
-    ]
-  ]
-  @search_fields [:id, :status, :correlation_id, :idempotency_token]
-  @sort_fields [
-    :id,
-    :status,
-    :correlation_id,
-    :idempotency_token,
-    :inserted_at,
-    :updated_at,
-    :approved_at,
-    :rejected_at,
-    :confirmed_at,
-    :failed_at,
-    :expired_at
-  ]
 
   def all_for_account(conn, %{"id" => account_id, "owned" => true} = attrs) do
     with %Account{} = account <- Account.get(account_id) || {:error, :unauthorized},
@@ -177,20 +119,16 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   defp do_all(query, attrs, conn) do
     query
-    |> Preloader.to_query(@preload_fields)
-    |> SearchParser.to_query(attrs, @search_fields)
-    |> SortParser.to_query(attrs, @sort_fields, @mapped_fields)
-    |> Paginator.paginate_attrs(attrs)
+    |> Orchestrator.query(TransactionConsumptionOverlay, attrs)
     |> respond_multiple(conn)
   end
 
-  def get(conn, %{"id" => id}) do
+  def get(conn, %{"id" => id} = attrs) do
     with {:ok, consumption} <- TransactionConsumptionFetcher.get(id),
          :ok <- permit(:get, conn.assigns, consumption) do
-      render(conn, :transaction_consumption, %{
-        transaction_consumption:
-          Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
-      })
+      consumption
+      |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
+      |> respond(conn, false)
     else
       error ->
         respond(error, conn, false)
@@ -199,9 +137,14 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   def consume(conn, %{"idempotency_token" => idempotency_token} = attrs)
       when idempotency_token != nil do
-    attrs
-    |> TransactionConsumptionConsumerGate.consume()
-    |> respond(conn, true)
+    with {:ok, consumption} <- TransactionConsumptionConsumerGate.consume(attrs) do
+      consumption
+      |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
+      |> respond(conn, true)
+    else
+      error ->
+        respond(error, conn, true)
+    end
   end
 
   def consume(conn, _) do
@@ -211,10 +154,12 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
   def approve(conn, attrs), do: confirm(conn, conn.assigns, attrs, true)
   def reject(conn, attrs), do: confirm(conn, conn.assigns, attrs, false)
 
-  defp confirm(conn, confirmer, %{"id" => id}, approved) do
+  defp confirm(conn, confirmer, %{"id" => id} = attrs, approved) do
     case TransactionConsumptionConfirmerGate.confirm(id, approved, confirmer) do
       {:ok, consumption} ->
-        respond({:ok, consumption}, conn, true)
+        consumption
+        |> Orchestrator.one(TransactionConsumptionOverlay, attrs)
+        |> respond(conn, true)
 
       error ->
         respond(error, conn, true)
@@ -262,7 +207,7 @@ defmodule AdminAPI.V1.TransactionConsumptionController do
 
   defp respond({:ok, consumption}, conn, false) do
     render(conn, :transaction_consumption, %{
-      transaction_consumption: Embedder.embed(__MODULE__, consumption, conn.body_params["embed"])
+      transaction_consumption: consumption
     })
   end
 

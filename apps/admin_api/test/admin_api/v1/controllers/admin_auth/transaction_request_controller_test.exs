@@ -466,7 +466,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionRequestControllerTest do
 
       {:ok, wallet} =
         Wallet.insert_secondary_or_burn(%{
-          "user_uuid" => user.uuid,
+          "account_uuid" => account.uuid,
           "name" => "MySecondary",
           "identifier" => "secondary"
         })

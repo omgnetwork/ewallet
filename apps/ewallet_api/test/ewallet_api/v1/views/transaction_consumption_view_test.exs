@@ -1,12 +1,14 @@
 defmodule EWalletAPI.V1.TransactionConsumptionViewTest do
   use EWalletAPI.ViewCase, :v1
   alias EWalletAPI.V1.TransactionConsumptionView
-  alias EWalletDB.TransactionConsumption
+  alias EWallet.Web.{Orchestrator, V1.TransactionConsumptionOverlay}
 
   describe "EWalletAPI.V1.TransactionConsumptionView.render/2" do
     test "renders transaction_consumption.json with correct structure" do
-      request = insert(:transaction_consumption)
-      consumption = TransactionConsumption.get(request.id, preload: [:token])
+      {:ok, consumption} =
+        :transaction_consumption
+        |> insert()
+        |> Orchestrator.one(TransactionConsumptionOverlay)
 
       result =
         render(

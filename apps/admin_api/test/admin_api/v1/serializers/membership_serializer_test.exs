@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias AdminAPI.V1.MembershipSerializer
   alias Ecto.Association.NotLoaded
-  alias EWallet.Web.Date
+  alias EWallet.Web.{Date, Orchestrator, V1.MembershipOverlay}
   alias EWalletDB.User
 
   describe "serialize/1" do
@@ -11,6 +11,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
       {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
       membership = insert(:membership, %{account: account, user: user, role: role})
+      {:ok, membership} = Orchestrator.one(membership, MembershipOverlay)
 
       expected = %{
         object: "user",
@@ -70,6 +71,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
       {:ok, user} = :user |> params_for() |> User.insert()
       role = insert(:role)
       membership = insert(:membership, %{account: account, user: user, role: role})
+      {:ok, membership} = Orchestrator.one(membership, MembershipOverlay)
 
       expected = %{
         object: "user",

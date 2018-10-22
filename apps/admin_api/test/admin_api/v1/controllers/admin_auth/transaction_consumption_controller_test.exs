@@ -8,20 +8,20 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     Token,
     Transaction,
     TransactionConsumption,
-    TransactionRequest,
     User,
     Wallet
   }
 
   alias EWallet.{BalanceFetcher, TestEndpoint}
-  alias EWallet.Web.{Date, V1.WebsocketResponseSerializer}
+  alias EWallet.Web.{Date, Orchestrator, V1.WebsocketResponseSerializer}
   alias Phoenix.Socket.Broadcast
 
   alias EWallet.Web.V1.{
     AccountSerializer,
     TokenSerializer,
     TransactionRequestSerializer,
-    TransactionSerializer
+    TransactionSerializer,
+    TransactionConsumptionOverlay
   }
 
   alias AdminAPI.V1.Endpoint
@@ -777,8 +777,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,
@@ -901,8 +905,12 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
         })
 
       inserted_consumption = TransactionConsumption |> Repo.all() |> Enum.at(0)
-      inserted_transaction = Repo.get(Transaction, inserted_consumption.transaction_uuid)
-      request = TransactionRequest.get(transaction_request.id, preload: [:token])
+
+      {:ok, inserted_consumption} =
+        Orchestrator.one(inserted_consumption, TransactionConsumptionOverlay)
+
+      request = inserted_consumption.transaction_request
+      inserted_transaction = inserted_consumption.transaction
 
       assert response == %{
                "success" => true,
@@ -1013,6 +1021,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["transaction_request"]["token_id"] == meta.token.id
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
+
+      assert response["data"]["transaction"] != nil
+      assert response["data"]["transaction"]["exchange"]["exchange_pair"]["to_token_id"] != nil
+      assert response["data"]["transaction"]["exchange"]["exchange_pair"]["from_token_id"] != nil
 
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.from_token_uuid == meta.token.uuid
@@ -1463,7 +1475,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
     test "fails to consume when wallet is disabled", meta do
       {:ok, wallet} =
         Wallet.insert_secondary_or_burn(%{
-          "user_uuid" => meta.bob.uuid,
+          "account_uuid" => meta.account.uuid,
           "name" => "MySecondary",
           "identifier" => "secondary"
         })
@@ -1489,7 +1501,7 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
           address: wallet.address,
           metadata: nil,
           token_id: nil,
-          user_id: meta.bob.id
+          account_id: meta.account.id
         })
 
       assert response["success"] == false
