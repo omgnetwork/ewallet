@@ -1,4 +1,7 @@
 defmodule LoadTester.Scenarios.AdminLogin do
+  @moduledoc """
+  Test scenario for `/api/admin/admin.login`.
+  """
   use Chaperon.Scenario
 
   def run(session) do

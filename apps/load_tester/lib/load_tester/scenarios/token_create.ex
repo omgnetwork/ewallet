@@ -1,4 +1,7 @@
 defmodule LoadTester.Scenarios.TokenCreate do
+  @moduledoc """
+  Test scenario for `/api/admin/token.create`.
+  """
   use Chaperon.Scenario
 
   def run(session) do

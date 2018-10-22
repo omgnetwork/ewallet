@@ -1,4 +1,7 @@
 defmodule LoadTester.Scenarios.UserGetWallets do
+  @moduledoc """
+  Test scenario for `/api/admin/user.get_wallets`.
+  """
   use Chaperon.Scenario
 
   def run(session) do

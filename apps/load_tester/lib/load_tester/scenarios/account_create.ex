@@ -1,4 +1,7 @@
 defmodule LoadTester.Scenarios.AccountCreate do
+  @moduledoc """
+  Test scenario for `/api/admin/account.create`.
+  """
   use Chaperon.Scenario
 
   def run(session) do

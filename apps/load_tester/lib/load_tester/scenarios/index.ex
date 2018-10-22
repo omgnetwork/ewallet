@@ -1,4 +1,7 @@
 defmodule LoadTester.Scenarios.Index do
+  @moduledoc """
+  Test scenario for the root endpoint.
+  """
   use Chaperon.Scenario
 
   def run(session) do

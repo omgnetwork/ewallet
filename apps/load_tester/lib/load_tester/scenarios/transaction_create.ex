@@ -1,4 +1,7 @@
 defmodule LoadTester.Scenarios.TransactionCreate do
+  @moduledoc """
+  Test scenario for `/api/admin/transaction.create`.
+  """
   use Chaperon.Scenario
 
   def init(session) do
@@ -24,6 +27,7 @@ defmodule LoadTester.Scenarios.TransactionCreate do
     from_account = get_master_account(session)
     to_account = get_non_master_account(session)
     token = config(session, :token)
+    mint_amount = round(:rand.uniform() * token.subunit_to_unit)
 
     session
     |> post(
@@ -33,11 +37,11 @@ defmodule LoadTester.Scenarios.TransactionCreate do
         "Authorization" => auth_header_content(session)
       },
       json: %{
-        idempotency_token: :rand.uniform(9_999_999) |> to_string(),
+        idempotency_token: 9_999_999 |> :rand.uniform() |> to_string(),
         from_account_id: from_account.id,
         to_account_id: to_account.id,
         token_id: token.id,
-        amount: (:rand.uniform() * token.subunit_to_unit) |> round(),
+        amount: ,
         metadata: %{}
       }
     )
