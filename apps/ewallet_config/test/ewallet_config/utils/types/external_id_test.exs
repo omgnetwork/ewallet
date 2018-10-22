@@ -1,5 +1,5 @@
 defmodule EWalletConfig.Types.ExternalIDTest do
-  use EWalletDB.SchemaCase
+  use ExUnit.Case, async: true
   alias EWalletConfig.Types.ExternalID
 
   describe "cast/1" do

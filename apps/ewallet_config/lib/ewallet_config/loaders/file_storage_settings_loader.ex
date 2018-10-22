@@ -14,10 +14,10 @@ defmodule EWalletConfig.FileStorageSettingsLoader do
   end
 
   defp load_file_storage("aws", app) do
-    aws_bucket = Application.get_env(app, "aws_bucket")
-    aws_region = Application.get_env(app, "aws_region")
-    aws_access_key_id = Application.get_env(app, "aws_access_key_id")
-    aws_secret_access_key = Application.get_env(app, "aws_secret_access_key")
+    aws_bucket = Application.get_env(app, :aws_bucket)
+    aws_region = Application.get_env(app, :aws_region)
+    aws_access_key_id = Application.get_env(app, :aws_access_key_id)
+    aws_secret_access_key = Application.get_env(app, :aws_secret_access_key)
     aws_domain = "s3-#{aws_region}.amazonaws.com"
 
     Application.put_env(:ex_aws, :access_key_id, [aws_access_key_id, :instance_role])

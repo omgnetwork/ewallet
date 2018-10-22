@@ -2,7 +2,7 @@ defmodule EWalletConfig.SettingLoader do
   require Logger
   alias EWalletConfig.{Setting, FileStorageSettingsLoader}
 
-  def load_settings(app, settings) do
+  def load_settings(app, settings) when is_atom(app) and is_list(settings) do
     Enum.each(settings, fn key ->
       load_setting(app, key)
     end)
@@ -11,6 +11,8 @@ defmodule EWalletConfig.SettingLoader do
       FileStorageSettingsLoader.load(app)
     end
   end
+
+  def load_settings(_, _), do: nil
 
   def load_setting(app, {setting, keys}) do
     Application.put_env(app, setting, build_values_map(app, keys))
