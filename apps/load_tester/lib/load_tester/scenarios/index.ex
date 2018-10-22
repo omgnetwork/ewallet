@@ -3,7 +3,8 @@ defmodule LoadTester.Scenarios.Index do
 
   def run(session) do
     session
-    |> get("/",
+    |> get(
+      "/",
       decode: :json,
       with_result: &log_output(&1, &2)
     )
@@ -11,6 +12,6 @@ defmodule LoadTester.Scenarios.Index do
 
   defp log_output(session, result) do
     session
-    |> log_info("Calling / returns: #{inspect result}")
+    |> log_info("Calling / returns: #{inspect(result)}")
   end
 end

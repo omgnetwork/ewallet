@@ -26,17 +26,18 @@ defmodule LoadTester.Scenarios.TransactionCreate do
     token = config(session, :token)
 
     session
-    |> post("/api/admin/transaction.create",
+    |> post(
+      "/api/admin/transaction.create",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json",
         "Authorization" => auth_header_content(session)
       },
       json: %{
-        idempotency_token: :rand.uniform(9999999) |> to_string(),
+        idempotency_token: :rand.uniform(9_999_999) |> to_string(),
         from_account_id: from_account.id,
         to_account_id: to_account.id,
         token_id: token.id,
-        amount: :rand.uniform() * token.subunit_to_unit |> round(),
+        amount: (:rand.uniform() * token.subunit_to_unit) |> round(),
         metadata: %{}
       }
     )

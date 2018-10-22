@@ -5,17 +5,18 @@ defmodule LoadTester.Scenarios.TokenCreate do
     date = DateTime.to_iso8601(DateTime.utc_now())
 
     session
-    |> post("/api/admin/token.create",
+    |> post(
+      "/api/admin/token.create",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json",
         "Authorization" => auth_header_content(session)
       },
       json: %{
-        "symbol": "LOAD" <> random_string(4),
-        "name": "A load test coin generated on #{date}",
-        "description": "desc",
-        "subunit_to_unit": 1_000_000_000_000_000_000,
-        "amount": 1_000_000 * 1_000_000_000_000_000_000
+        symbol: "LOAD" <> random_string(4),
+        name: "A load test coin generated on #{date}",
+        description: "desc",
+        subunit_to_unit: 1_000_000_000_000_000_000,
+        amount: 1_000_000 * 1_000_000_000_000_000_000
       },
       decode: :json,
       with_result: &store_token(&1, &2)

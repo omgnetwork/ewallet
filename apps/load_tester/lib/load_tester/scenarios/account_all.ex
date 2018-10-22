@@ -3,7 +3,8 @@ defmodule LoadTester.Scenarios.AccountAll do
 
   def run(session) do
     session
-    |> post("/api/admin/account.all",
+    |> post(
+      "/api/admin/account.all",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json",
         "Authorization" => auth_header_content(session)

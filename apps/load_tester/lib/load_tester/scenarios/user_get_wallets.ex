@@ -3,13 +3,14 @@ defmodule LoadTester.Scenarios.UserGetWallets do
 
   def run(session) do
     session
-    |> post("/api/admin/user.get_wallets",
+    |> post(
+      "/api/admin/user.get_wallets",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json",
         "Authorization" => auth_header_content(session)
       },
       json: %{
-        "id": config(session, :user).id
+        id: config(session, :user).id
       },
       decode: :json,
       with_result: &store_user_wallets(&1, &2)

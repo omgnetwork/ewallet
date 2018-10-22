@@ -1,5 +1,6 @@
 defmodule LoadTester.Runner do
   use Chaperon.LoadTest
+
   alias LoadTester.Scenarios.{
     AccountAll,
     AccountCreate,
@@ -25,14 +26,17 @@ defmodule LoadTester.Runner do
     TransactionCreate
   ]
 
-  def default_config, do: %{
-    base_url:
-      Application.get_env(:load_tester, :protocol)
-      <> "://" <> Application.get_env(:load_tester, :host)
-      <> ":" <> Application.get_env(:load_tester, :port)
-  }
+  def default_config,
+    do: %{
+      base_url:
+        Application.get_env(:load_tester, :protocol) <>
+          "://" <>
+          Application.get_env(:load_tester, :host) <>
+          ":" <> Application.get_env(:load_tester, :port)
+    }
 
-  def scenarios, do: [
-    {{@concurrency, @sequence}, %{}}
-  ]
+  def scenarios,
+    do: [
+      {{@concurrency, @sequence}, %{}}
+    ]
 end

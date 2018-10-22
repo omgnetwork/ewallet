@@ -3,7 +3,8 @@ defmodule LoadTester.Scenarios.TokenAll do
 
   def run(session) do
     session
-    |> post("/api/admin/token.all",
+    |> post(
+      "/api/admin/token.all",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json",
         "Authorization" => auth_header_content(session)

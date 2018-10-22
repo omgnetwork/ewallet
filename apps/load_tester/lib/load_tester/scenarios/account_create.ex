@@ -5,15 +5,16 @@ defmodule LoadTester.Scenarios.AccountCreate do
     date = DateTime.to_iso8601(DateTime.utc_now())
 
     session
-    |> post("/api/admin/account.create",
+    |> post(
+      "/api/admin/account.create",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json",
         "Authorization" => auth_header_content(session)
       },
       json: %{
-        "name": "Load Test Account " <> random_string(8),
-        "description": "A load test account generated on #{date}",
-        "parent_id": get_master_account(session).id,
+        name: "Load Test Account " <> random_string(8),
+        description: "A load test account generated on #{date}",
+        parent_id: get_master_account(session).id
       },
       decode: :json,
       with_result: &store_non_master_account(&1, &2)

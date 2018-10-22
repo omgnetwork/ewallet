@@ -3,7 +3,8 @@ defmodule LoadTester.Scenarios.AdminLogin do
 
   def run(session) do
     session
-    |> post("/api/admin/admin.login",
+    |> post(
+      "/api/admin/admin.login",
       headers: %{
         "Accept" => "application/vnd.omisego.v1+json"
       },
