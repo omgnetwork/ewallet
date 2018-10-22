@@ -1,4 +1,7 @@
 defmodule LoadTester.Runner do
+  @moduledoc """
+  Defines the running sequence for the scenarios.
+  """
   use Chaperon.LoadTest
 
   alias LoadTester.Scenarios.{
