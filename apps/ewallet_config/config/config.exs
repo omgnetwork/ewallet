@@ -112,7 +112,7 @@ config :ewallet_config,
     "gcs_credentials" => %{
       key: "gcs_credentials",
       value: nil,
-      secret: "true",
+      secret: true,
       type: "string",
       parent: "file_storage_adapter",
       parent_value: "gcs",

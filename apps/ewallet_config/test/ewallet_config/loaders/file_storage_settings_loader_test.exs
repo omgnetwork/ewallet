@@ -1,4 +1,5 @@
 defmodule EWalletConfig.FileStorageSettingsLoaderTest do
+  import ExUnit.CaptureLog
   use EWalletConfig.SchemaCase, async: true
   alias EWalletConfig.{ConfigTestHelper, FileStorageSettingsLoader}
 
@@ -67,8 +68,11 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
     end
 
     test "Warns when the storage option is not recognized" do
+      func = fn ->
+        init(%{"file_storage_adapter" => "fake"})
+      end
 
+      assert capture_log(func) =~ ~s([File Storage Configuration]: Unknown option: "fake")
     end
   end
-
 end

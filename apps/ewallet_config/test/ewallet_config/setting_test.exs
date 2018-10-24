@@ -1,6 +1,6 @@
 defmodule EWalletConfig.SettingTest do
   use EWalletConfig.SchemaCase
-  alias EWalletConfig.Setting
+  alias EWalletConfig.{Repo, Setting, StoredSetting}
 
   def get_attrs do
     %{key: "my_key", value: "test", type: "string"}
@@ -128,6 +128,18 @@ defmodule EWalletConfig.SettingTest do
       assert res == :ok
       assert setting.uuid != nil
       assert setting.value == "cool"
+    end
+
+    test "inserts a setting with an encrypted json" do
+      attrs = %{key: "my_key", value: %{key: "value"}, secret: true, type: "map"}
+      {:ok, setting} = Setting.insert(attrs)
+      stored_setting = Repo.get_by(StoredSetting, key: "my_key")
+
+      assert setting.secret == true
+      assert Setting.get_value("my_key") == %{"key" => "value"}
+      assert stored_setting.secret == true
+      assert stored_setting.data == nil
+      assert stored_setting.encrypted_data == %{"value" => %{"key" => "value"}}
     end
 
     test "inserts a setting with an integer value" do
