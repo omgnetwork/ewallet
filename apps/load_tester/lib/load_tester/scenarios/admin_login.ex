@@ -12,7 +12,7 @@ defmodule LoadTester.Scenarios.AdminLogin do
         "Accept" => "application/vnd.omisego.v1+json"
       },
       json: %{
-        "email" => "unnawut+load@omise.co",
+        "email" => "ewallet-loadtesting@omise.co",
         "password" => "loadtesting"
       },
       decode: :json,
