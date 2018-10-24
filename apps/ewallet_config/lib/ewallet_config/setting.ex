@@ -12,158 +12,6 @@ defmodule EWalletConfig.Setting do
   alias Ecto.Changeset
 
   @split_char ":|:"
-  @setting_mappings %{
-    "email_adapter" => %{
-      "smtp" => Bamboo.SMTPAdapter,
-      "local" => Bamboo.Bamboo.LocalAdapter,
-      "test" => Bamboo.TestAdapter,
-      "_" => Bamboo.Bamboo.LocalAdapter
-    }
-  }
-  @default_settings %{
-    # Global Settings
-    "base_url" => %{key: "base_url", value: "", type: "string"},
-    "redirect_url_prefixes" => %{key: "redirect_url_prefixes", value: [], type: "array"},
-    "enable_standalone" => %{
-      key: "enable_standalone",
-      value: false,
-      type: "boolean",
-      description:
-        "Enables the /user.signup endpoint in the client API, allowing users to sign up directly."
-    },
-    "max_per_page" => %{
-      key: "max_per_page",
-      value: 100,
-      type: "integer",
-      description: "The maximum number of records that can be returned for a list."
-    },
-    "min_password_length" => %{
-      key: "min_password_length",
-      value: 8,
-      type: "integer",
-      description: "The minimum length for passwords."
-    },
-    # Email Settings
-    "sender_email" => %{
-      key: "sender_email",
-      value: "admin@localhost",
-      type: "string",
-      description: "The address from which system emails will be sent."
-    },
-    "email_adapter" => %{
-      key: "email_adapter",
-      value: false,
-      type: "select",
-      options: ["smtp", "local", "test"],
-      description:
-        "When set to local, a local email adapter will be used. Perfect for testing and development."
-    },
-    "smtp_host" => %{
-      key: "smtp_host",
-      value: nil,
-      type: "string",
-      description: "The SMTP host to use to send emails.",
-      parent: "email_adapter",
-      parent_value: "smtp"
-    },
-    "smtp_port" => %{
-      key: "smtp_port",
-      value: nil,
-      type: "string",
-      description: "The SMTP port to use to send emails.",
-      parent: "email_adapter",
-      parent_value: "smtp"
-    },
-    "smtp_username" => %{
-      key: "smtp_username",
-      value: nil,
-      type: "string",
-      description: "The SMTP username to use to send emails.",
-      parent: "email_adapter",
-      parent_value: "smtp"
-    },
-    "smtp_password" => %{
-      key: "smtp_password",
-      value: nil,
-      type: "string",
-      description: "The SMTP password to use to send emails.",
-      parent: "email_adapter",
-      parent_value: "smtp"
-    },
-
-    # Balance Caching Settings
-    "balance_caching_strategy" => %{
-      key: "balance_caching_strategy",
-      value: "since_beginning",
-      type: "select",
-      options: ["since_beginning", "since_last_cached"],
-      description:
-        "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
-    },
-
-    # File Storage settings
-    "file_storage_adapter" => %{
-      key: "file_storage_adapter",
-      value: "local",
-      type: "select",
-      options: ["local", "gcs", "aws"],
-      description: "The type of storage to use for images and files."
-    },
-
-    # File Storage: GCS Settings
-    "gcs_bucket" => %{
-      key: "gcs_bucket",
-      value: nil,
-      type: "string",
-      parent: "file_storage_adapter",
-      parent_value: "gcs",
-      description: "The name of the GCS bucket."
-    },
-    "gcs_credentials" => %{
-      key: "gcs_credentials",
-      value: nil,
-      secret: "true",
-      type: "string",
-      parent: "file_storage_adapter",
-      parent_value: "gcs",
-      description: "The credentials of the Google Cloud account."
-    },
-
-    # File Storage: AWS Settings
-    "aws_bucket" => %{
-      key: "aws_bucket",
-      value: nil,
-      type: "string",
-      parent: "file_storage_adapter",
-      parent_value: "aws",
-      description: "The name of the AWS bucket."
-    },
-    "aws_region" => %{
-      key: "aws_region",
-      value: nil,
-      type: "string",
-      parent: "file_storage_adapter",
-      parent_value: "aws",
-      description: "The AWS region where your bucket lives."
-    },
-    "aws_access_key_id" => %{
-      key: "aws_access_key_id",
-      value: nil,
-      type: "string",
-      parent: "file_storage_adapter",
-      parent_value: "aws",
-      description: "An AWS access key having access to the specified bucket."
-    },
-    "aws_secret_access_key" => %{
-      key: "aws_secret_access_key",
-      value: nil,
-      secret: true,
-      type: "string",
-      parent: "file_storage_adapter",
-      parent_value: "aws",
-      description: "An AWS secret having access to the specified bucket."
-    }
-  }
 
   defstruct [
     :uuid,
@@ -182,10 +30,10 @@ defmodule EWalletConfig.Setting do
   ]
 
   @spec get_setting_mappings() :: [Map.t()]
-  def get_setting_mappings, do: @setting_mappings
+  def get_setting_mappings, do: Application.get_env(:ewallet_config, :settings_mappings)
 
   @spec get_default_settings() :: [Map.t()]
-  def get_default_settings, do: @default_settings
+  def get_default_settings, do: Application.get_env(:ewallet_config, :default_settings)
 
   @spec types() :: [String.t()]
   def types, do: StoredSetting.types()
@@ -224,7 +72,7 @@ defmodule EWalletConfig.Setting do
   def get_value(key, default) when is_binary(key) do
     case Repo.get_by(StoredSetting, key: key) do
       nil -> default
-      stored_setting -> stored_setting.data["value"]
+      stored_setting -> extract_value(stored_setting)
     end
   end
 
@@ -253,8 +101,8 @@ defmodule EWalletConfig.Setting do
   Inserts all the default settings.
   """
   @spec insert_all_defaults(Map.t()) :: [{:ok, %Setting{}}] | [{:error, %Changeset{}}]
-  def insert_all_defaults(overrides) do
-    @default_settings
+  def insert_all_defaults(overrides \\ %{}) do
+    get_default_settings()
     |> Enum.map(fn {key, data} ->
       case overrides[key] do
         nil ->
@@ -278,6 +126,10 @@ defmodule EWalletConfig.Setting do
   defp return_insert_result(true), do: :ok
   defp return_insert_result(false), do: :error
 
+
+  @spec update(String.t(), Map.t()) :: {:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}
+  def update(nil, _), do: {:error, :setting_not_found}
+
   def update(key, attrs) when is_binary(key) and is_map(attrs) do
     case Repo.get_by(StoredSetting, %{key: key}) do
       nil ->
@@ -291,8 +143,6 @@ defmodule EWalletConfig.Setting do
         |> Repo.update()
         |> case do
           {:ok, stored_setting} ->
-            # Reload
-
             {:ok, build(stored_setting)}
 
           {:error, changeset} ->
@@ -301,31 +151,33 @@ defmodule EWalletConfig.Setting do
     end
   end
 
-  # TODO
-  # def update_all(attrs) when is_map(attrs) do
-  #   case Repo.get_by(StoredSetting, %{key: key}) do
-  #     nil ->
-  #       {:error, :setting_not_found}
-  #
-  #     setting ->
-  #       attrs = cast_attrs(attrs)
-  #
-  #       setting
-  #       |> StoredSetting.changeset(attrs)
-  #       |> Repo.update()
-  #       |> case do
-  #         {:ok, stored_setting} ->
-  #           {:ok, build(stored_setting)}
-  #
-  #         {:error, changeset} ->
-  #           {:error, build_changeset(changeset)}
-  #       end
-  #   end
-  # end
+  @spec update_all(List.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
+  def update_all(attrs_list) when is_list(attrs_list) do
+    Enum.map(attrs_list, fn attrs ->
+      key = attrs["key"] || attrs[:key]
 
-  def update(nil, _), do: {:error, :setting_not_found}
+      case Repo.get_by(StoredSetting, %{key: key}) do
+        nil ->
+          {:error, :setting_not_found}
 
-  def cast_attrs(attrs) do
+        setting ->
+          attrs = cast_attrs(attrs)
+
+          setting
+          |> StoredSetting.changeset(attrs)
+          |> Repo.update()
+          |> case do
+            {:ok, stored_setting} ->
+              {:ok, build(stored_setting)}
+
+            {:error, changeset} ->
+              {:error, build_changeset(changeset)}
+          end
+      end
+    end)
+  end
+
+  defp cast_attrs(attrs) do
     attrs
     |> cast_value()
     |> cast_options()
@@ -401,6 +253,8 @@ defmodule EWalletConfig.Setting do
   defp cast_value(attrs) do
     Map.put(attrs, :data, %{value: nil})
   end
+
+  defp cast_options(%{options: nil} = attrs), do: attrs
 
   defp cast_options(%{options: options} = attrs) do
     Map.put(attrs, :options, Enum.join(options, @split_char))

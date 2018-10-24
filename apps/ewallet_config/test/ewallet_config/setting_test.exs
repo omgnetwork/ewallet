@@ -11,6 +11,11 @@ defmodule EWalletConfig.SettingTest do
       {:ok, _} = Setting.insert(%{key: "k1", value: "v", type: "string"})
       {:ok, _} = Setting.insert(%{key: "k2", value: "v", type: "string"})
       {:ok, _} = Setting.insert(%{key: "k3", value: "v", type: "string"})
+
+      settings = Setting.all() |> Enum.map(fn s -> {s.key, s.value} end)
+      assert Enum.member?(settings, {"k1", "v"})
+      assert Enum.member?(settings, {"k2", "v"})
+      assert Enum.member?(settings, {"k3", "v"})
     end
   end
 
@@ -24,6 +29,28 @@ defmodule EWalletConfig.SettingTest do
       setting = Setting.get("my_key")
 
       assert inserted_setting.uuid == setting.uuid
+    end
+  end
+
+  describe "get_value/2" do
+    test "it returns the setting value" do
+      {:ok, _} = Setting.insert(get_attrs())
+      assert Setting.get_value("my_key") == "test"
+    end
+
+    test "it returns the setting encrypted_value" do
+      {:ok, _} = Setting.insert(
+        %{key: "my_key", value: "test", type: "string", secret: true}
+      )
+      assert Setting.get_value("my_key") == "test"
+    end
+
+    test "it returns the setting default value given as param" do
+      assert Setting.get_value("my_key", "something_else") == "something_else"
+    end
+
+    test "it returns nil when the given key is nil" do
+      assert Setting.get_value(nil) == nil
     end
   end
 
@@ -171,6 +198,93 @@ defmodule EWalletConfig.SettingTest do
       assert changeset.valid? == false
       assert changeset.action == :insert
       assert changeset.data == %Setting{}
+    end
+  end
+
+  describe "update/2" do
+    test "updates a setting" do
+      {:ok, setting} = Setting.insert(get_attrs())
+      {res, updated_setting} = Setting.update("my_key", %{value: "new_value"})
+
+      assert res == :ok
+      assert setting.uuid == updated_setting.uuid
+      assert updated_setting.value == "new_value"
+      assert NaiveDateTime.compare(
+               setting.updated_at,
+               updated_setting.updated_at
+             ) == :lt
+    end
+
+    test "fails to update when the data are not valid" do
+      {:ok, _} = Setting.insert(get_attrs())
+      {res, changeset} = Setting.update("my_key", %{type: nil})
+
+      assert res == :error
+      assert changeset.errors == [type: {"can't be blank", [validation: :required]}]
+    end
+
+    test "fails to update when the setting is not found" do
+      {res, error} = Setting.update("fake", %{value: "new_value"})
+
+      assert res == :error
+      assert error == :setting_not_found
+    end
+  end
+
+  describe "updated_all/1" do
+    test "updates all the given settings" do
+      {:ok, _} = Setting.insert(%{key: "my_key_1", value: "test_1", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_2", value: "test_2", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_3", value: "test_3", type: "string"})
+
+      res = Setting.update_all([
+        %{key: "my_key_1", value: "new_value_1"},
+        %{key: "my_key_3", value: "new_value_3"}
+      ])
+
+      {res1, s1} = Enum.at(res, 0)
+      {res2, s2} = Enum.at(res, 1)
+
+      assert res1 == :ok
+      assert s1.value == "new_value_1"
+
+      assert res2 == :ok
+      assert s2.value == "new_value_3"
+    end
+
+    test "fails to update some of the settings" do
+      {:ok, _} = Setting.insert(%{key: "my_key_1", value: "test_1", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_2", value: "test_2", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_3", value: "test_3", type: "string"})
+
+      res = Setting.update_all([
+        %{key: "my_key_1", value: "new_value_1"},
+        %{key: "my_key_3z", value: "new_value_3"}
+      ])
+
+      {res1, s1} = Enum.at(res, 0)
+      {res2, error} = Enum.at(res, 1)
+
+      assert res1 == :ok
+      assert s1.value == "new_value_1"
+
+      assert res2 == :error
+      assert error == :setting_not_found
+    end
+  end
+
+  describe "insert_all_defaults/1" do
+    test "insert all defaults without overrides" do
+      assert Setting.insert_all_defaults() == :ok
+      assert length(Setting.all()) == 19
+    end
+
+    test "insert all defaults with overrides" do
+      assert Setting.insert_all_defaults(%{
+        "base_url" => "fake_url"
+      }) == :ok
+      assert length(Setting.all()) == 19
+      assert Setting.get_value("base_url") == "fake_url"
     end
   end
 end
