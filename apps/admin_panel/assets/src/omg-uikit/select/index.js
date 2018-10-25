@@ -15,7 +15,7 @@ const OptionsContainer = styled.div`
   box-shadow: 0 4px 12px 0 rgba(4, 7, 13, 0.1);
   background-color: white;
   right: 0;
-  max-height: ${props => props.optionBoxHeight ? props.optionBoxHeight : '150px'};
+  max-height: ${props => (props.optionBoxHeight ? props.optionBoxHeight : '150px')};
   overflow: auto;
   min-width: 100%;
 `
@@ -35,12 +35,14 @@ export default class Select extends PureComponent {
     onFocus: PropTypes.func,
     onBlur: PropTypes.func,
     optionBoxHeight: PropTypes.string,
-    className: PropTypes.string
+    className: PropTypes.string,
+    filterByKey: PropTypes.bool
   }
   static defaultProps = {
     onSelectItem: _.noop,
     onFocus: _.noop,
-    onBlur: _.noop
+    onBlur: _.noop,
+    filterByKey: false
   }
   state = {
     active: false
@@ -63,21 +65,15 @@ export default class Select extends PureComponent {
     })
   }
   render () {
-    const filteredOption = this.props.options.filter(option => {
-      return fuzzySearch(this.props.value, option.key)
-    })
+    const filteredOption = this.props.filterByKey
+      ? this.props.options.filter(option => {
+        return fuzzySearch(this.props.value, option.key)
+      })
+      : this.props.options
 
     return (
       <SelectContainer className={this.props.className}>
-        <Input
-          {...this.props}
-          onFocus={this.onFocus}
-          onBlur={this.onBlur}
-          onChange={this.props.onChange}
-          value={this.props.value}
-          registerRef={this.registerRef}
-          suffix={this.state.active ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
-        />
+        <Input {...this.props} onFocus={this.onFocus} onBlur={this.onBlur} onChange={this.props.onChange} value={this.props.value} registerRef={this.registerRef} suffix={this.state.active ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />} />
         {this.state.active &&
           filteredOption.length > 0 && (
             <OptionsContainer optionBoxHeight={this.props.optionBoxHeight}>

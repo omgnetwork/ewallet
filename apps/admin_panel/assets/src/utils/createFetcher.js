@@ -26,11 +26,9 @@ export const createFetcher = (entity, reducer, selectors) => {
           search: PropTypes.string
         }),
         onFetchComplete: PropTypes.func,
-        loadingStatus: PropTypes.string,
         cacheKey: PropTypes.string,
         data: PropTypes.array,
-        pagination: PropTypes.object,
-        optimistic: PropTypes.bool
+        pagination: PropTypes.object
       }
       static defaultProps = {
         onFetchComplete: _.noop
@@ -71,14 +69,12 @@ export const createFetcher = (entity, reducer, selectors) => {
         return { page: 1, perPage: 10, ...this.props.query }
       }
       fetch = async () => {
-        try {
-          this.setState(oldState => ({
-            loadingStatus:
-              oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED
-                ? CONSTANT.LOADING_STATUS.INITIATED
-                : CONSTANT.LOADING_STATUS.PENDING
-          }))
-          this.props.dispatcher({ ...this.props, ...this.getQuery() }).then(result => {
+        this.setState(oldState => ({
+          loadingStatus: oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED ? CONSTANT.LOADING_STATUS.INITIATED : CONSTANT.LOADING_STATUS.PENDING
+        }))
+        this.props
+          .dispatcher({ ...this.props, ...this.getQuery() })
+          .then(result => {
             this.fetched[this.props.cacheKey] = true
             if (result.data) {
               this.setState({
@@ -91,12 +87,37 @@ export const createFetcher = (entity, reducer, selectors) => {
               this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
             }
           })
-        } catch (error) {
-          this.setState({
-            loadingStatus: CONSTANT.LOADING_STATUS.FAILED,
-            data: this.props.data,
-            pagination: this.props.pagination
+          .catch(() => {
+            this.setState({ loadingStatus: CONSTANT.LOADING_STATUS.FAILED })
           })
+      }
+
+      getData () {
+        switch (this.state.loadingStatus) {
+          case CONSTANT.LOADING_STATUS.SUCCESS:
+            return this.props.data
+          case CONSTANT.LOADING_STATUS.PENDING:
+            return this.state.data
+          case CONSTANT.LOADING_STATUS.INITIATED:
+            return this.state.data
+          case CONSTANT.LOADING_STATUS.FAILED:
+            return []
+          default:
+            return []
+        }
+      }
+      getPagination () {
+        switch (this.state.loadingStatus) {
+          case CONSTANT.LOADING_STATUS.SUCCESS:
+            return this.props.pagination
+          case CONSTANT.LOADING_STATUS.PENDING:
+            return this.state.pagination
+          case CONSTANT.LOADING_STATUS.INITIATED:
+            return this.state.pagination
+          case CONSTANT.LOADING_STATUS.FAILED:
+            return []
+          default:
+            return []
         }
       }
 
@@ -106,16 +127,8 @@ export const createFetcher = (entity, reducer, selectors) => {
           ...this.getQuery(),
           individualLoadingStatus: this.state.loadingStatus,
           fetch: this.fetch,
-          data: this.props.optimistic
-            ? this.props.data
-            : this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
-              ? this.props.data
-              : this.state.data,
-          pagination: this.props.optimistic
-            ? this.props.data
-            : this.state.loadingStatus === CONSTANT.LOADING_STATUS.SUCCESS
-              ? this.props.pagination
-              : this.state.pagination
+          data: this.getData(),
+          pagination: this.getPagination()
         })
       }
     }
