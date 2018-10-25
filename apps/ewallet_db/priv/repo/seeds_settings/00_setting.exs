@@ -15,7 +15,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   defp get_argsline do
-    case Appliction.get_env(:ewallet_db, "base_url") do
+    case Application.get_env(:ewallet_db, "base_url") do
       nil ->
         [
           {:title, "Enter the base URL for this instance of the ewallet (e.g. https://myewallet.com)."},
@@ -29,8 +29,8 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
 
   def run(writer, args) do
     Config.get_default_settings()
-    |> Map.put_in(seed_data, ["base_url", :value], args[:base_url])
-    |> Map.put_in(seed_data, ["redirect_url_prefixes", :value], [args[:base_url]])
+    |> put_in(["base_url", :value], args[:base_url])
+    |> put_in(["redirect_url_prefixes", :value], [args[:base_url]])
     |> Enum.with_index(1)
     |> Enum.each(fn {data, index} ->
       run_with(writer, data, index)
@@ -38,7 +38,7 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
   end
 
   defp run_with(writer, {key, data}, index) do
-    case Config.get(key) do
+    case Config.get_setting(key) do
       nil ->
         data = Map.put(data, :position, index)
 

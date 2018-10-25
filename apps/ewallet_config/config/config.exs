@@ -42,7 +42,7 @@ config :ewallet_config,
     },
     "email_adapter" => %{
       key: "email_adapter",
-      value: false,
+      value: nil,
       type: "select",
       options: ["smtp", "local", "test"],
       description:

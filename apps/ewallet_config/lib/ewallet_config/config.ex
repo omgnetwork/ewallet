@@ -112,6 +112,12 @@ defmodule EWalletConfig.Config do
     Setting.all()
   end
 
+  @spec get_setting(String.t()) :: %Setting{}
+  def get_setting(key) do
+    Setting.get(key)
+  end
+
+  @spec get(String.t(), any()) :: any()
   def get(key, default_value \\ nil) do
     Setting.get_value(key) || default_value
   end

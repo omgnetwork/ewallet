@@ -8,7 +8,7 @@ defmodule EWalletDB.Repo.Reporters.SeedsSettingsReporter do
 
     """)
 
-    Enum.each(Setting.all(), fn setting ->
+    Enum.each(Config.settings(), fn setting ->
       writer.print("""
         #{setting.position}. #{setting.key} (#{setting.type}): #{inspect_value(setting)}
       """)
