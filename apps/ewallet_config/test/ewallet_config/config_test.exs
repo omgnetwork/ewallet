@@ -1,6 +1,6 @@
 defmodule EWalletConfig.ConfigTest do
   use EWalletConfig.SchemaCase, async: true
-  alias EWalletConfig.{Config, Repo, Setting}
+  alias EWalletConfig.{Config, Repo, Setting, ConfigTestHelper}
 
   describe "start_link/0" do
     test "starts a new GenServer config" do
@@ -42,10 +42,6 @@ defmodule EWalletConfig.ConfigTest do
 
       :ok = Config.reload_config(pid)
       assert Application.get_env(:my_app, :my_setting) == "new_value"
-    end
-
-    test "reloads all settings for all nodes" do
-
     end
   end
 

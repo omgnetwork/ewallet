@@ -9,7 +9,6 @@ defmodule EWalletConfig.Config do
   require Logger
 
   alias EWalletConfig.{
-    FileStorageSettingsLoader,
     Setting,
     SettingLoader
   }
@@ -46,7 +45,11 @@ defmodule EWalletConfig.Config do
     {:reply, :ok, [{app, settings} | registered_apps]}
   end
 
-  @spec handle_call(:reloads, Atom.t(), [Atom.t()]) :: :ok
+  def handle_call(:foo, _from, registered_apps) do
+    {:reply, Application.get_all_env(:my_app), registered_apps}
+  end
+
+  @spec handle_call(:reload, Atom.t(), [Atom.t()]) :: :ok
   def handle_call(:reload, _from, registered_apps) do
     Enum.each(registered_apps, fn {app, settings} ->
       SettingLoader.load_settings(app, settings)
@@ -61,18 +64,23 @@ defmodule EWalletConfig.Config do
   end
 
   @spec register_and_load(Atom.t(), [Atom.t()]) :: [{Atom.t(), [Atom.t]}]
-  def register_and_load(app, settings, pid \\ __MODULE__) do
+  def register_and_load(app, settings, pid \\ __MODULE__)
+
+  def register_and_load(app, settings, {name, node}) do
+    GenServer.call({name, node}, {:register_and_load, app, settings})
+  end
+
+  def register_and_load(app, settings, pid) do
     GenServer.call(pid, {:register_and_load, app, settings})
   end
 
   @spec reload_config(Atom.t()) :: :ok
   def reload_config(pid \\ __MODULE__) do
-    case Node.list() do
-      [] ->
-        GenServer.call(pid, :reload)
-      _nodes ->
-        GenServer.multi_call(pid, :reload)
-    end
+    GenServer.call(pid, :reload)
+
+    Enum.each(Node.list(), fn node ->
+      GenServer.call({pid, node}, :reload)
+    end)
   end
 
   @spec update(String.t(), Map.t(), Atom.t()) :: {:ok, %Setting{}} | {:error, Atom.t()}
@@ -152,11 +160,5 @@ defmodule EWalletConfig.Config do
     |> String.split(",")
     |> Enum.map(&String.trim/1)
     |> Enum.reject(fn string -> string == "" end)
-  end
-
-  defp ensure_settings_existence do
-    unless Mix.env() == :test || length(Setting.all()) > 0 do
-      raise ~s(Setting seeds have not been ran. You can run them with "mix seed" or "mix seed --settings".)
-    end
   end
 end
