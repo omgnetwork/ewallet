@@ -68,10 +68,10 @@ class ForgetPasswordForm extends Component {
           '/create-new-password/'
         )
       })
-      if (result.data.success) {
+      if (result.data) {
         this.setState({ submitStatus: 'SUCCESS' })
       } else {
-        this.setState({ submitStatus: 'FAILED', submitErrorText: result.data.data.description })
+        this.setState({ submitStatus: 'FAILED', submitErrorText: result.error.description })
       }
     }
   }

@@ -1022,6 +1022,10 @@ defmodule AdminAPI.V1.AdminAuth.TransactionConsumptionControllerTest do
       assert response["data"]["transaction_request"]["address"] == meta.alice_wallet.address
       assert response["data"]["transaction_request"]["user_id"] == meta.alice.id
 
+      assert response["data"]["transaction"] != nil
+      assert response["data"]["transaction"]["exchange"]["exchange_pair"]["to_token_id"] != nil
+      assert response["data"]["transaction"]["exchange"]["exchange_pair"]["from_token_id"] != nil
+
       assert inserted_transaction.from_amount == 100_000 * meta.token.subunit_to_unit
       assert inserted_transaction.from_token_uuid == meta.token.uuid
       assert inserted_transaction.to_amount == 200_000 * token_2.subunit_to_unit
