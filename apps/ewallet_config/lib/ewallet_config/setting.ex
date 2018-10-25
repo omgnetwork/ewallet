@@ -88,13 +88,7 @@ defmodule EWalletConfig.Setting do
     %StoredSetting{}
     |> StoredSetting.changeset(attrs)
     |> Repo.insert()
-    |> case do
-      {:ok, stored_setting} ->
-        {:ok, build(stored_setting)}
-
-      {:error, changeset} ->
-        {:error, build_changeset(changeset)}
-    end
+    |> return_from_change()
   end
 
   @doc """
@@ -126,8 +120,8 @@ defmodule EWalletConfig.Setting do
   defp return_insert_result(true), do: :ok
   defp return_insert_result(false), do: :error
 
-
-  @spec update(String.t(), Map.t()) :: {:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}
+  @spec update(String.t(), Map.t()) ::
+          {:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}
   def update(nil, _), do: {:error, :setting_not_found}
 
   def update(key, attrs) when is_binary(key) and is_map(attrs) do
@@ -141,13 +135,7 @@ defmodule EWalletConfig.Setting do
         setting
         |> StoredSetting.changeset(attrs)
         |> Repo.update()
-        |> case do
-          {:ok, stored_setting} ->
-            {:ok, build(stored_setting)}
-
-          {:error, changeset} ->
-            {:error, build_changeset(changeset)}
-        end
+        |> return_from_change()
     end
   end
 
@@ -166,15 +154,17 @@ defmodule EWalletConfig.Setting do
           setting
           |> StoredSetting.changeset(attrs)
           |> Repo.update()
-          |> case do
-            {:ok, stored_setting} ->
-              {:ok, build(stored_setting)}
-
-            {:error, changeset} ->
-              {:error, build_changeset(changeset)}
-          end
+          |> return_from_change()
       end
     end)
+  end
+
+  defp return_from_change({:ok, stored_setting}) do
+    {:ok, build(stored_setting)}
+  end
+
+  defp return_from_change({:error, changeset}) do
+    {:error, build_changeset(changeset)}
   end
 
   defp cast_attrs(attrs) do

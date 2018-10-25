@@ -39,6 +39,5 @@ defmodule EWalletConfig.SettingLoaderTest do
 
       assert Application.get_env(:my_app, :email_adapter) == Bamboo.SMTPAdapter
     end
-
   end
 end

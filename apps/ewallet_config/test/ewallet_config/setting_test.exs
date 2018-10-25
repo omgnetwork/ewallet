@@ -39,9 +39,7 @@ defmodule EWalletConfig.SettingTest do
     end
 
     test "it returns the setting encrypted_value" do
-      {:ok, _} = Setting.insert(
-        %{key: "my_key", value: "test", type: "string", secret: true}
-      )
+      {:ok, _} = Setting.insert(%{key: "my_key", value: "test", type: "string", secret: true})
       assert Setting.get_value("my_key") == "test"
     end
 
@@ -221,6 +219,7 @@ defmodule EWalletConfig.SettingTest do
       assert res == :ok
       assert setting.uuid == updated_setting.uuid
       assert updated_setting.value == "new_value"
+
       assert NaiveDateTime.compare(
                setting.updated_at,
                updated_setting.updated_at
@@ -249,10 +248,11 @@ defmodule EWalletConfig.SettingTest do
       {:ok, _} = Setting.insert(%{key: "my_key_2", value: "test_2", type: "string"})
       {:ok, _} = Setting.insert(%{key: "my_key_3", value: "test_3", type: "string"})
 
-      res = Setting.update_all([
-        %{key: "my_key_1", value: "new_value_1"},
-        %{key: "my_key_3", value: "new_value_3"}
-      ])
+      res =
+        Setting.update_all([
+          %{key: "my_key_1", value: "new_value_1"},
+          %{key: "my_key_3", value: "new_value_3"}
+        ])
 
       {res1, s1} = Enum.at(res, 0)
       {res2, s2} = Enum.at(res, 1)
@@ -269,10 +269,11 @@ defmodule EWalletConfig.SettingTest do
       {:ok, _} = Setting.insert(%{key: "my_key_2", value: "test_2", type: "string"})
       {:ok, _} = Setting.insert(%{key: "my_key_3", value: "test_3", type: "string"})
 
-      res = Setting.update_all([
-        %{key: "my_key_1", value: "new_value_1"},
-        %{key: "my_key_3z", value: "new_value_3"}
-      ])
+      res =
+        Setting.update_all([
+          %{key: "my_key_1", value: "new_value_1"},
+          %{key: "my_key_3z", value: "new_value_3"}
+        ])
 
       {res1, s1} = Enum.at(res, 0)
       {res2, error} = Enum.at(res, 1)
@@ -293,8 +294,9 @@ defmodule EWalletConfig.SettingTest do
 
     test "insert all defaults with overrides" do
       assert Setting.insert_all_defaults(%{
-        "base_url" => "fake_url"
-      }) == :ok
+               "base_url" => "fake_url"
+             }) == :ok
+
       assert length(Setting.all()) == 19
       assert Setting.get_value("base_url") == "fake_url"
     end

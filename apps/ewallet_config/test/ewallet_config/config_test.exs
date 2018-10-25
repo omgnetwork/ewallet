@@ -1,6 +1,7 @@
 defmodule EWalletConfig.ConfigTest do
   use EWalletConfig.SchemaCase, async: true
   alias EWalletConfig.{Config, Repo, Setting}
+  alias Ecto.Adapters.SQL.Sandbox
 
   describe "start_link/0" do
     test "starts a new GenServer config" do
@@ -19,7 +20,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "register_and_load/3" do
     test "handles the registration of an app" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
 
       assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
@@ -31,7 +32,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "reload_config/1" do
     test "reloads all settings" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
 
       assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
@@ -48,7 +49,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "update/3" do
     test "updates a setting and reload" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
       assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
       assert Application.get_env(:my_app, :my_setting) == "some_value"
@@ -61,7 +62,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "update_all/3" do
     test "updates all settings and reload" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
       assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
       assert Application.get_env(:my_app, :my_setting) == "some_value"
@@ -75,7 +76,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "insert_all_defaults/2" do
     test "insert all default settings" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       :ok = Config.insert_all_defaults(%{}, pid)
 
       assert length(Config.settings()) == 19
@@ -85,7 +86,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "settings/0" do
     test "gets all the settings" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
 
       assert length(Config.settings()) == 1
@@ -95,7 +96,7 @@ defmodule EWalletConfig.ConfigTest do
   describe "get/2" do
     test "gets a setting by key" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
 
       value = Config.get("my_setting")
@@ -104,7 +105,7 @@ defmodule EWalletConfig.ConfigTest do
 
     test "returns the default value when setting value is nil" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
       {:ok, _} = Config.insert(%{key: "my_setting", value: nil, type: "string"})
 
       value = Config.get("my_setting", "default_value")
@@ -113,7 +114,7 @@ defmodule EWalletConfig.ConfigTest do
 
     test "returns the default value when setting does not exist" do
       {:ok, pid} = Config.start_link()
-      Ecto.Adapters.SQL.Sandbox.allow(Repo, self(), pid)
+      Sandbox.allow(Repo, self(), pid)
 
       value = Config.get("my_setting", "default_value")
       assert value == "default_value"

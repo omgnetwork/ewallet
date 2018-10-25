@@ -1,4 +1,7 @@
 defmodule EWalletConfig.FileStorageSettingsLoader do
+  @moduledoc """
+  Maps the DB settings to the configuration needed for ARC and its dependencies.
+  """
   require Logger
 
   def load(app) do

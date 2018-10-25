@@ -1,4 +1,7 @@
 defmodule EWalletConfig.SettingLoader do
+  @moduledoc """
+  Load the settings from the database into the application envs.
+  """
   require Logger
   alias EWalletConfig.{Setting, FileStorageSettingsLoader}
 
@@ -23,9 +26,7 @@ defmodule EWalletConfig.SettingLoader do
   end
 
   defp build_values_map(app, keys) do
-    keys
-    |> Enum.map(fn key -> handle_mapped_keys(app, key) end)
-    |> Enum.into(%{})
+    Enum.into(keys, %{}, fn key -> handle_mapped_keys(app, key) end)
   end
 
   defp handle_mapped_keys(app, {db_setting_name, app_setting_name})

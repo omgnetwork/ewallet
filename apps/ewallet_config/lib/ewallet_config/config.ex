@@ -13,7 +13,6 @@ defmodule EWalletConfig.Config do
     SettingLoader
   }
 
-
   @spec start_link(Map.t()) :: {:ok, pid()} | {:error, Atom.t()}
   def start_link(named: true) do
     GenServer.start_link(__MODULE__, [], name: __MODULE__)
@@ -34,7 +33,7 @@ defmodule EWalletConfig.Config do
     {:ok, []}
   end
 
-  @spec handle_call(:get_registered_apps, Atom.t(), [Atom.t()]) :: [{Atom.t(), [Atom.t]}]
+  @spec handle_call(:get_registered_apps, Atom.t(), [Atom.t()]) :: [{Atom.t(), [Atom.t()]}]
   def handle_call(:get_registered_apps, _from, registered_apps) do
     {:reply, registered_apps, registered_apps}
   end
@@ -58,12 +57,12 @@ defmodule EWalletConfig.Config do
     {:reply, :ok, registered_apps}
   end
 
-  @spec get_registered_apps(pid()) :: [{Atom.t(), [Atom.t]}]
+  @spec get_registered_apps(pid()) :: [{Atom.t(), [Atom.t()]}]
   def get_registered_apps(pid \\ __MODULE__) do
     GenServer.call(pid, :get_registered_apps)
   end
 
-  @spec register_and_load(Atom.t(), [Atom.t()]) :: [{Atom.t(), [Atom.t]}]
+  @spec register_and_load(Atom.t(), [Atom.t()]) :: [{Atom.t(), [Atom.t()]}]
   def register_and_load(app, settings, pid \\ __MODULE__)
 
   def register_and_load(app, settings, {name, node}) do

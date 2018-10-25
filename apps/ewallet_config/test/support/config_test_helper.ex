@@ -1,9 +1,13 @@
 defmodule EWalletConfig.ConfigTestHelper do
+  @moduledoc """
+  Contains helper methods to make testing configuration
+  """
   alias EWalletConfig.Config
+  alias Ecto.Adapters.SQL.Sandbox
 
   def restart_config_genserver(parent, repo, apps, attrs) do
     {:ok, pid} = Config.start_link()
-    Ecto.Adapters.SQL.Sandbox.allow(repo, parent, pid)
+    Sandbox.allow(repo, parent, pid)
 
     Config.insert_all_defaults(attrs, pid)
 
@@ -21,7 +25,7 @@ defmodule EWalletConfig.ConfigTestHelper do
 
     # Allow spawned nodes to fetch all code from this node
     :erl_boot_server.start([])
-    allow_boot to_charlist("127.0.0.1")
+    allow_boot(to_charlist("127.0.0.1"))
 
     nodes
     |> Enum.map(&Task.async(fn -> spawn_node(&1) end))
@@ -55,7 +59,7 @@ defmodule EWalletConfig.ConfigTestHelper do
   end
 
   defp transfer_configuration(node) do
-    for {app_name, _, _} <- Application.loaded_applications do
+    for {app_name, _, _} <- Application.loaded_applications() do
       for {key, val} <- Application.get_all_env(app_name) do
         rpc(node, Application, :put_env, [app_name, key, val])
       end
@@ -65,7 +69,8 @@ defmodule EWalletConfig.ConfigTestHelper do
   defp ensure_applications_started(node) do
     rpc(node, Application, :ensure_all_started, [:mix])
     rpc(node, Mix, :env, [Mix.env()])
-    for {app_name, _, _} <- Application.loaded_applications do
+
+    for {app_name, _, _} <- Application.loaded_applications() do
       rpc(node, Application, :ensure_all_started, [app_name])
     end
   end
@@ -75,6 +80,6 @@ defmodule EWalletConfig.ConfigTestHelper do
     |> to_string
     |> String.split("@")
     |> Enum.at(0)
-    |> String.to_atom
+    |> String.to_atom()
   end
 end

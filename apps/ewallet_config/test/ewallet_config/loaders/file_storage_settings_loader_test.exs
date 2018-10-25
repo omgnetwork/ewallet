@@ -39,7 +39,7 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
         "aws_bucket" => "bucket",
         "aws_region" => "azeroth",
         "aws_access_key_id" => "123",
-        "aws_secret_access_key" => "456",
+        "aws_secret_access_key" => "456"
       })
 
       assert Application.get_env(:arc, :storage) == Arc.Storage.S3
@@ -47,7 +47,15 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
       assert Application.get_env(:ex_aws, :access_key_id, ["123", :instance_role])
       assert Application.get_env(:ex_aws, :secret_access_key, ["456", :instance_role])
       assert Application.get_env(:ex_aws, :region, "azeroth")
-      assert Application.get_env(:ex_aws, :s3, scheme: "https://", host: "s3-azeroth.amazonaws.com", region: "azeroth")
+
+      assert Application.get_env(
+               :ex_aws,
+               :s3,
+               scheme: "https://",
+               host: "s3-azeroth.amazonaws.com",
+               region: "azeroth"
+             )
+
       assert Application.get_env(:ex_aws, :debug_requests, true)
       assert Application.get_env(:ex_aws, :recv_timeout, 60_000)
       assert Application.get_env(:ex_aws, :hackney, recv_timeout: 60_000, pool: false)

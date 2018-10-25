@@ -155,5 +155,4 @@ config :ewallet_config,
     }
   }
 
-
 import_config "#{Mix.env()}.exs"

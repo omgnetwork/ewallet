@@ -42,6 +42,7 @@ defmodule EWalletConfig.Types.WalletAddressTest do
       assert WalletAddress.dump("abcd123456789012") == {:ok, "abcd123456789012"}
     end
   end
+
   #
   # describe "wallet_address/2" do
   #   test "populates the schema with a valid wallet address" do

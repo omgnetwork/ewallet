@@ -37,7 +37,6 @@ defmodule EWalletConfig.StoredSetting do
     timestamps()
   end
 
-  # TODO: Validate inclusion for select type
   def changeset(%StoredSetting{} = setting, attrs) do
     setting
     |> cast(attrs, [
