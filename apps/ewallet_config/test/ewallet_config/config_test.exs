@@ -1,6 +1,6 @@
 defmodule EWalletConfig.ConfigTest do
   use EWalletConfig.SchemaCase, async: true
-  alias EWalletConfig.{Config, Repo, Setting, ConfigTestHelper}
+  alias EWalletConfig.{Config, Repo, Setting}
 
   describe "start_link/0" do
     test "starts a new GenServer config" do
