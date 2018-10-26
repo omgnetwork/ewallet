@@ -116,6 +116,10 @@ defmodule EWalletConfig.Config do
     Setting.all()
   end
 
+  def query_settings do
+    Setting.query()
+  end
+
   @spec get_setting(String.t()) :: %Setting{}
   def get_setting(key) do
     Setting.get(key)

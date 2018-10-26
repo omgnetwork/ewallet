@@ -63,6 +63,10 @@ defmodule EWalletConfig.Setting do
     |> Enum.map(&build/1)
   end
 
+  def query do
+    StoredSetting
+  end
+
   @doc """
   Retrieves a setting by its string name.
   """
@@ -210,6 +214,24 @@ defmodule EWalletConfig.Setting do
     |> Repo.all()
   end
 
+  def build(stored_setting) do
+    %Setting{
+      uuid: stored_setting.uuid,
+      id: stored_setting.id,
+      key: stored_setting.key,
+      value: extract_value(stored_setting),
+      type: stored_setting.type,
+      description: stored_setting.description,
+      options: get_options(stored_setting),
+      parent: stored_setting.parent,
+      parent_value: stored_setting.parent_value,
+      secret: stored_setting.secret,
+      position: stored_setting.position,
+      inserted_at: stored_setting.inserted_at,
+      updated_at: stored_setting.updated_at
+    }
+  end
+
   defp return_from_change({:ok, stored_setting}) do
     {:ok, build(stored_setting)}
   end
@@ -245,24 +267,6 @@ defmodule EWalletConfig.Setting do
     changes
     |> Map.delete(:data)
     |> Map.put(:value, data[:value])
-  end
-
-  defp build(stored_setting) do
-    %Setting{
-      uuid: stored_setting.uuid,
-      id: stored_setting.id,
-      key: stored_setting.key,
-      value: extract_value(stored_setting),
-      type: stored_setting.type,
-      description: stored_setting.description,
-      options: get_options(stored_setting),
-      parent: stored_setting.parent,
-      parent_value: stored_setting.parent_value,
-      secret: stored_setting.secret,
-      position: stored_setting.position,
-      inserted_at: stored_setting.inserted_at,
-      updated_at: stored_setting.updated_at
-    }
   end
 
   defp extract_value(%{secret: true, encrypted_data: nil}), do: nil
