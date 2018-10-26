@@ -389,7 +389,12 @@ defmodule EWalletConfig.SettingTest do
   describe "insert_all_defaults/1" do
     test "insert all defaults without overrides" do
       assert Setting.insert_all_defaults() == :ok
-      assert length(Setting.all()) == 19
+      settings = Setting.all()
+
+      assert length(settings) == 19
+
+      first_setting = Enum.at(settings, 0)
+      assert first_setting.key == "base_url"
     end
 
     test "insert all defaults with overrides" do

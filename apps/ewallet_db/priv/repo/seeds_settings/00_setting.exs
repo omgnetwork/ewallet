@@ -31,17 +31,14 @@ defmodule EWalletDB.Repo.Seeds.SettingSeed do
     Config.get_default_settings()
     |> put_in(["base_url", :value], args[:base_url])
     |> put_in(["redirect_url_prefixes", :value], [args[:base_url]])
-    |> Enum.with_index(1)
-    |> Enum.each(fn {data, index} ->
-      run_with(writer, data, index)
+    |> Enum.each(fn data->
+      run_with(writer, data)
     end)
   end
 
-  defp run_with(writer, {key, data}, index) do
+  defp run_with(writer, {key, data}) do
     case Config.get_setting(key) do
       nil ->
-        data = Map.put(data, :position, index)
-
         case Config.insert(data) do
           {:ok, setting} ->
             writer.success("""

@@ -1,5 +1,4 @@
 defmodule EWalletConfig.FileStorageSettingsLoaderTest do
-  import ExUnit.CaptureLog
   use EWalletConfig.SchemaCase, async: true
   alias EWalletConfig.{ConfigTestHelper, FileStorageSettingsLoader}
 
