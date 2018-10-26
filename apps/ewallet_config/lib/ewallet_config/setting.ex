@@ -7,11 +7,9 @@ defmodule EWalletConfig.Setting do
   users never need to know that - all they need to care is the "value"
   field.
   """
-  import Ecto.Query
+  require Ecto.Query
   alias EWalletConfig.{Repo, StoredSetting, Setting}
-  alias Ecto.Changeset
-
-  @split_char ":|:"
+  alias Ecto.{Changeset, Query}
 
   defstruct [
     :uuid,
@@ -44,7 +42,7 @@ defmodule EWalletConfig.Setting do
   @spec all() :: [%Setting{}]
   def all do
     StoredSetting
-    |> order_by(asc: :position)
+    |> Query.order_by(asc: :position)
     |> Repo.all()
     |> Enum.map(&build/1)
   end
@@ -133,7 +131,7 @@ defmodule EWalletConfig.Setting do
         attrs = cast_attrs(attrs)
 
         setting
-        |> StoredSetting.changeset(attrs)
+        |> StoredSetting.update_changeset(attrs)
         |> Repo.update()
         |> return_from_change()
     end
@@ -142,20 +140,7 @@ defmodule EWalletConfig.Setting do
   @spec update_all(List.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
   def update_all(attrs_list) when is_list(attrs_list) do
     Enum.map(attrs_list, fn attrs ->
-      key = attrs["key"] || attrs[:key]
-
-      case Repo.get_by(StoredSetting, %{key: key}) do
-        nil ->
-          {:error, :setting_not_found}
-
-        setting ->
-          attrs = cast_attrs(attrs)
-
-          setting
-          |> StoredSetting.changeset(attrs)
-          |> Repo.update()
-          |> return_from_change()
-      end
+      update(attrs["key"] || attrs[:key], attrs)
     end)
   end
 
@@ -229,7 +214,7 @@ defmodule EWalletConfig.Setting do
   defp get_options(%{options: nil}), do: nil
 
   defp get_options(%{options: options}) do
-    String.split(options, @split_char)
+    Map.get(options, :array) || Map.get(options, "array")
   end
 
   defp cast_value(%{secret: true, value: value} = attrs) do
@@ -247,7 +232,7 @@ defmodule EWalletConfig.Setting do
   defp cast_options(%{options: nil} = attrs), do: attrs
 
   defp cast_options(%{options: options} = attrs) do
-    Map.put(attrs, :options, Enum.join(options, @split_char))
+    Map.put(attrs, :options, %{array: options})
   end
 
   defp cast_options(attrs), do: attrs
@@ -269,8 +254,8 @@ defmodule EWalletConfig.Setting do
 
   defp get_last_setting do
     StoredSetting
-    |> order_by(desc: :position)
-    |> limit(1)
+    |> Query.order_by(desc: :position)
+    |> Query.limit(1)
     |> Repo.one()
   end
 end

@@ -74,13 +74,5 @@ defmodule EWalletConfig.FileStorageSettingsLoaderTest do
       assert Application.get_env(:arc, :bucket) == "bucket"
       assert Application.get_env(:goth, :json) == "123"
     end
-
-    test "Warns when the storage option is not recognized" do
-      func = fn ->
-        init(%{"file_storage_adapter" => "fake"})
-      end
-
-      assert capture_log(func) =~ ~s([File Storage Configuration]: Unknown option: "fake")
-    end
   end
 end

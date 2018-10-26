@@ -11,7 +11,7 @@ defmodule EWalletConfig.Repo.Migrations.AddSettings do
       add :encrypted_data, :binary
       add :type, :string, null: false
       add :description, :string
-      add :options, :string
+      add :options, :map
       add :parent, :string
       add :parent_value, :string
       add :secret, :boolean, null: false, default: false

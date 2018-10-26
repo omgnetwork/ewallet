@@ -87,7 +87,7 @@ defmodule EWalletConfig.SettingTest do
       assert res == :ok
       assert setting.position == 0
 
-      {res, setting} = Setting.insert(%{key: "my_key_2", value: "test", type: "array"})
+      {res, setting} = Setting.insert(%{key: "my_key_2", value: "test", type: "string"})
 
       assert res == :ok
       assert setting.position == 1
@@ -120,12 +120,32 @@ defmodule EWalletConfig.SettingTest do
     end
 
     test "inserts a setting with a string value" do
-      attrs = %{key: "my_key", value: "cool", type: "array"}
+      attrs = %{key: "my_key", value: "cool", type: "string"}
       {res, setting} = Setting.insert(attrs)
 
       assert res == :ok
       assert setting.uuid != nil
       assert setting.value == "cool"
+    end
+
+    test "inserts a setting with a string value and options" do
+      attrs = %{key: "my_key", value: "def", type: "string", options: ["abc", "def"]}
+      {res, setting} = Setting.insert(attrs)
+
+      assert res == :ok
+      assert setting.uuid != nil
+      assert setting.value == "def"
+    end
+
+    test "fails to insert a setting with an invalid value and options" do
+      attrs = %{key: "my_key", value: "xyz", type: "string", options: ["abc", "def"]}
+      {res, changeset} = Setting.insert(attrs)
+
+      assert res == :error
+
+      assert changeset.errors == [
+               value: {"must be one of 'abc', 'def'", [validation: :value_not_allowed]}
+             ]
     end
 
     test "inserts a setting with an encrypted json" do
@@ -141,7 +161,7 @@ defmodule EWalletConfig.SettingTest do
     end
 
     test "inserts a setting with an integer value" do
-      attrs = %{key: "my_key", value: 5, type: "array"}
+      attrs = %{key: "my_key", value: 5, type: "integer"}
       {res, setting} = Setting.insert(attrs)
 
       assert res == :ok
@@ -150,7 +170,7 @@ defmodule EWalletConfig.SettingTest do
     end
 
     test "inserts a setting with a map value" do
-      attrs = %{key: "my_key", value: %{a: "b"}, type: "array"}
+      attrs = %{key: "my_key", value: %{a: "b"}, type: "map"}
       {res, setting} = Setting.insert(attrs)
 
       assert res == :ok
@@ -159,7 +179,7 @@ defmodule EWalletConfig.SettingTest do
     end
 
     test "inserts a setting with a boolean value" do
-      attrs = %{key: "my_key", value: true, type: "array"}
+      attrs = %{key: "my_key", value: true, type: "boolean"}
       {res, setting} = Setting.insert(attrs)
 
       assert res == :ok
@@ -226,19 +246,99 @@ defmodule EWalletConfig.SettingTest do
              ) == :lt
     end
 
-    test "fails to update when the data are not valid" do
-      {:ok, _} = Setting.insert(get_attrs())
-      {res, changeset} = Setting.update("my_key", %{type: nil})
-
-      assert res == :error
-      assert changeset.errors == [type: {"can't be blank", [validation: :required]}]
-    end
-
     test "fails to update when the setting is not found" do
       {res, error} = Setting.update("fake", %{value: "new_value"})
 
       assert res == :error
       assert error == :setting_not_found
+    end
+
+    test "updates a select setting when the value is valid" do
+      {:ok, _} =
+        Setting.insert(%{
+          key: "my_key",
+          value: "abc",
+          type: "string",
+          options: ["abc", "def", "xyz"]
+        })
+
+      {res, setting} = Setting.update("my_key", %{value: "xyz"})
+
+      assert res == :ok
+      assert setting.value == "xyz"
+    end
+
+    test "fails to update a select setting when the value is invalid" do
+      {:ok, _} =
+        Setting.insert(%{
+          key: "my_key",
+          value: "abc",
+          type: "string",
+          options: ["abc", "def", "xyz"]
+        })
+
+      {res, changeset} = Setting.update("my_key", %{value: "something_else"})
+
+      assert res == :error
+
+      assert changeset.errors == [
+               value: {"must be one of 'abc', 'def', 'xyz'", [validation: :value_not_allowed]}
+             ]
+    end
+
+    test "fails to update a setting when the value is not of the right type (string)" do
+      {:ok, _} = Setting.insert(%{key: "my_key", value: "abc", type: "string"})
+      {res, changeset} = Setting.update("my_key", %{value: 123})
+
+      assert res == :error
+
+      assert changeset.errors == [
+               value: {"must be of type 'string'", [validation: :invalid_type_for_value]}
+             ]
+    end
+
+    test "fails to update a setting when the value is not of the right type (integer)" do
+      {:ok, _} = Setting.insert(%{key: "my_key", value: 123, type: "integer"})
+      {res, changeset} = Setting.update("my_key", %{value: "some_string"})
+
+      assert res == :error
+
+      assert changeset.errors == [
+               value: {"must be of type 'integer'", [validation: :invalid_type_for_value]}
+             ]
+    end
+
+    test "fails to update a setting when the value is not of the right type (map)" do
+      {:ok, _} = Setting.insert(%{key: "my_key", value: %{key: "value"}, type: "map"})
+      {res, changeset} = Setting.update("my_key", %{value: "some_string"})
+
+      assert res == :error
+
+      assert changeset.errors == [
+               value: {"must be of type 'map'", [validation: :invalid_type_for_value]}
+             ]
+    end
+
+    test "fails to update a setting when the value is not of the right type (array)" do
+      {:ok, _} = Setting.insert(%{key: "my_key", value: [1, 2, 3], type: "array"})
+      {res, changeset} = Setting.update("my_key", %{value: "some_string"})
+
+      assert res == :error
+
+      assert changeset.errors == [
+               value: {"must be of type 'array'", [validation: :invalid_type_for_value]}
+             ]
+    end
+
+    test "fails to update a setting when the value is not of the right type (boolean)" do
+      {:ok, _} = Setting.insert(%{key: "my_key", value: true, type: "boolean"})
+      {res, changeset} = Setting.update("my_key", %{value: "some_string"})
+
+      assert res == :error
+
+      assert changeset.errors == [
+               value: {"must be of type 'boolean'", [validation: :invalid_type_for_value]}
+             ]
     end
   end
 

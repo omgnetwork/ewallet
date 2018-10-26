@@ -5,7 +5,7 @@ defmodule EWalletConfig.StoredSetting do
   use Ecto.Schema
   use EWalletConfig.Types.ExternalID
   import Ecto.Changeset
-  import EWalletConfig.Validator
+  import EWalletConfig.{Validator, SettingValidator}
   alias Ecto.UUID
   alias EWalletConfig.StoredSetting
 
@@ -15,8 +15,7 @@ defmodule EWalletConfig.StoredSetting do
     "integer",
     "map",
     "boolean",
-    "array",
-    "select"
+    "array"
   ]
   def types, do: @types
 
@@ -28,7 +27,7 @@ defmodule EWalletConfig.StoredSetting do
     field(:encrypted_data, EWalletConfig.Encrypted.Map)
     field(:type, :string)
     field(:description, :string)
-    field(:options, :string)
+    field(:options, :map)
     field(:parent, :string)
     field(:parent_value, :string)
     field(:secret, :boolean, default: false)
@@ -56,5 +55,19 @@ defmodule EWalletConfig.StoredSetting do
     |> validate_inclusion(:type, @types)
     |> validate_required_exclusive([:data, :encrypted_data])
     |> unique_constraint(:key)
+    |> validate_type()
+    |> validate_with_options()
+  end
+
+  def update_changeset(%StoredSetting{} = setting, attrs) do
+    setting
+    |> cast(attrs, [
+      :data,
+      :encrypted_data,
+      :description
+    ])
+    |> validate_required_exclusive([:data, :encrypted_data])
+    |> validate_type(setting)
+    |> validate_with_options(setting)
   end
 end

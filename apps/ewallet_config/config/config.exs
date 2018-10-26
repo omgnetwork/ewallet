@@ -43,7 +43,7 @@ config :ewallet_config,
     "email_adapter" => %{
       key: "email_adapter",
       value: nil,
-      type: "select",
+      type: "string",
       options: ["smtp", "local", "test"],
       description:
         "When set to local, a local email adapter will be used. Perfect for testing and development."
@@ -85,7 +85,7 @@ config :ewallet_config,
     "balance_caching_strategy" => %{
       key: "balance_caching_strategy",
       value: "since_beginning",
-      type: "select",
+      type: "string",
       options: ["since_beginning", "since_last_cached"],
       description:
         "The strategy to use for balance caching. It will either re-calculate from the beginning or from the last caching point."
@@ -95,7 +95,7 @@ config :ewallet_config,
     "file_storage_adapter" => %{
       key: "file_storage_adapter",
       value: "local",
-      type: "select",
+      type: "string",
       options: ["local", "gcs", "aws"],
       description: "The type of storage to use for images and files."
     },
