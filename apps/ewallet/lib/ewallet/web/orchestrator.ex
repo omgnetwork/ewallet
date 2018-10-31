@@ -52,6 +52,8 @@ defmodule EWallet.Web.Orchestrator do
     Preloader.preload_one(record, overlay.default_preload_assocs())
   end
 
+  def preload_to_query(record, overlay, attrs \\ %{})
+
   def preload_to_query(query, _overlay, %{"preload" => preload}) when is_map(preload) do
     Preloader.to_query(query, preload)
   end

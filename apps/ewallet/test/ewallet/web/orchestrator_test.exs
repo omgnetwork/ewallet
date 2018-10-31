@@ -136,14 +136,104 @@ defmodule EWallet.Web.OrchestratorTest do
   end
 
   describe "all/3" do
+    test "preloads with the overlay's default preloads when 'preload' attribute is not given" do
+      _account = insert(:account)
 
+      {:ok, result} =
+        Account
+        |> Repo.all()
+        |> Orchestrator.all(MockOverlay)
+
+      # Preloaded fields must no longer be `%NotLoaded{}`
+      assert Enum.all?(result, fn acc ->
+        acc.parent == nil || acc.parent.__struct__ != NotLoaded
+      end)
+
+      # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
+      assert Enum.all?(result, fn acc -> acc.categories.__struct__ == NotLoaded end)
+    end
+
+    test "preloads with the given 'preload' attribute when given" do
+      _account = insert(:account)
+
+      {:ok, result} =
+        Account
+        |> Repo.all()
+        |> Orchestrator.all(MockOverlay, %{"preload" => [:categories]})
+
+      # Preloaded categories must be a list
+      assert Enum.all?(result, fn acc -> is_list(acc.categories) end)
+
+      # `parent` is no longer preloaded because the "preload" attribute is specified
+      assert Enum.all?(result, fn acc -> acc.parent.__struct__ == NotLoaded end)
+    end
   end
 
   describe "one/3" do
+    test "preloads with the overlay's default preloads when 'preload' attribute is not given" do
+      _account = insert(:account)
 
+      {:ok, result} =
+        Account
+        |> Repo.all()
+        |> List.first()
+        |> Orchestrator.one(MockOverlay)
+
+      # Preloaded fields must no longer be `%NotLoaded{}`
+      assert result.parent == nil || result.parent.__struct__ != NotLoaded
+
+      # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
+      assert result.categories.__struct__ == NotLoaded
+    end
+
+    test "preloads with the given 'preload' attribute when given" do
+      _account = insert(:account)
+
+      {:ok, result} =
+        Account
+        |> Repo.all()
+        |> List.first()
+        |> Orchestrator.one(MockOverlay, %{"preload" => [:categories]})
+
+      # Preloaded categories must be a list
+      assert is_list(result.categories)
+
+      # `parent` is no longer preloaded because the "preload" attribute is specified
+      assert result.parent.__struct__ == NotLoaded
+    end
   end
 
   describe "preload_to_query/3" do
+    test "preloads with the overlay's default preloads when 'preload' attribute is not given" do
+      _account = insert(:account)
 
+      result =
+        Account
+        |> Orchestrator.preload_to_query(MockOverlay)
+        |> Repo.all()
+
+      # Preloaded fields must no longer be `%NotLoaded{}`
+      assert Enum.all?(result, fn acc ->
+        acc.parent == nil || acc.parent.__struct__ != NotLoaded
+      end)
+
+      # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
+      assert Enum.all?(result, fn acc -> acc.categories.__struct__ == NotLoaded end)
+    end
+
+    test "preloads with the given 'preload' attribute when given" do
+      _account = insert(:account)
+
+      result =
+        Account
+        |> Orchestrator.preload_to_query(MockOverlay, %{"preload" => [:categories]})
+        |> Repo.all()
+
+      # Preloaded categories must be a list
+      assert Enum.all?(result, fn acc -> is_list(acc.categories) end)
+
+      # `parent` is no longer preloaded because the "preload" attribute is specified
+      assert Enum.all?(result, fn acc -> acc.parent.__struct__ == NotLoaded end)
+    end
   end
 end
