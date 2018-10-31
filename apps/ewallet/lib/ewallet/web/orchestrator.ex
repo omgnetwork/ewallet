@@ -9,13 +9,13 @@ defmodule EWallet.Web.Orchestrator do
 
   alias EWallet.Web.{MatchAllParser, MatchAnyParser, Paginator, Preloader, SearchParser, SortParser}
 
-  def query(query, overlay, attrs \\ nil) do
+  def query(query, overlay, attrs \\ %{}) do
     query
     |> build_query(overlay, attrs)
     |> Paginator.paginate_attrs(attrs)
   end
 
-  def build_query(query, overlay, attrs \\ nil) do
+  def build_query(query, overlay, attrs \\ %{}) do
     query
     |> preload_to_query(overlay, attrs)
     |> MatchAllParser.to_query(attrs, overlay.filter_fields())
@@ -24,7 +24,7 @@ defmodule EWallet.Web.Orchestrator do
     |> SortParser.to_query(attrs, overlay.sort_fields, default_mapped_fields())
   end
 
-  def all(records, overlay, attrs \\ nil)
+  def all(records, overlay, attrs \\ %{})
 
   def all(records, _overlay, %{"preload" => preload}) when is_map(preload) do
     Preloader.preload_all(records, preload)
@@ -38,7 +38,7 @@ defmodule EWallet.Web.Orchestrator do
     Preloader.preload_all(records, overlay.default_preload_assocs())
   end
 
-  def one(record, overlay, attrs \\ nil)
+  def one(record, overlay, attrs \\ %{})
 
   def one(record, _overlay, %{"preload" => preload}) when is_map(preload) do
     Preloader.preload_one(record, preload)
