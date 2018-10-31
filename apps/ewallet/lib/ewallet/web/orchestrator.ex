@@ -7,7 +7,14 @@ defmodule EWallet.Web.Orchestrator do
     preloading and sorting.
   """
 
-  alias EWallet.Web.{MatchAllParser, MatchAnyParser, Paginator, Preloader, SearchParser, SortParser}
+  alias EWallet.Web.{
+    MatchAllParser,
+    MatchAnyParser,
+    Paginator,
+    Preloader,
+    SearchParser,
+    SortParser
+  }
 
   def query(query, overlay, attrs \\ %{}) do
     query

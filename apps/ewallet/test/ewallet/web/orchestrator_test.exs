@@ -37,8 +37,8 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Preloaded fields must no longer be `%NotLoaded{}`
       assert Enum.all?(result, fn acc ->
-        acc.parent == nil || acc.parent.__struct__ != NotLoaded
-      end)
+               acc.parent == nil || acc.parent.__struct__ != NotLoaded
+             end)
 
       # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
       assert Enum.all?(result, fn acc -> acc.categories.__struct__ == NotLoaded end)
@@ -64,21 +64,20 @@ defmodule EWallet.Web.OrchestratorTest do
       account2 = insert(:account, name: "Name Unmatched 2", description: "Description 2")
       account3 = insert(:account, name: "Name Matched 3", description: "Description 3")
 
-      attrs =
-        %{
-          "match_all" => [
-            %{
-              "field" => "name",
-              "comparator" => "contains",
-              "value" => "Name Matched"
-            },
-            %{
-              "field" => "description",
-              "comparator" => "neq",
-              "value" => "Description 1"
-            }
-          ]
-        }
+      attrs = %{
+        "match_all" => [
+          %{
+            "field" => "name",
+            "comparator" => "contains",
+            "value" => "Name Matched"
+          },
+          %{
+            "field" => "description",
+            "comparator" => "neq",
+            "value" => "Description 1"
+          }
+        ]
+      }
 
       result =
         Account
@@ -95,21 +94,20 @@ defmodule EWallet.Web.OrchestratorTest do
       account2 = insert(:account, name: "Name Unmatched 2", description: "Description 2")
       account3 = insert(:account, name: "Name Matched 3", description: "Description 3")
 
-      attrs =
-        %{
-          "match_any" => [
-            %{
-              "field" => "name",
-              "comparator" => "contains",
-              "value" => "Matched 2"
-            },
-            %{
-              "field" => "description",
-              "comparator" => "contains",
-              "value" => "Description 3"
-            }
-          ]
-        }
+      attrs = %{
+        "match_any" => [
+          %{
+            "field" => "name",
+            "comparator" => "contains",
+            "value" => "Matched 2"
+          },
+          %{
+            "field" => "description",
+            "comparator" => "contains",
+            "value" => "Description 3"
+          }
+        ]
+      }
 
       result =
         Account
@@ -127,7 +125,7 @@ defmodule EWallet.Web.OrchestratorTest do
       _account3 = insert(:account)
 
       # The 3rd param should match `MockOverlay.search_fields/0`
-      result = Orchestrator.query(Account, MockOverlay, %{"search_term" => account2.id })
+      result = Orchestrator.query(Account, MockOverlay, %{"search_term" => account2.id})
 
       assert %EWallet.Web.Paginator{} = result
       assert Enum.count(result.data) == 1
@@ -146,8 +144,8 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Preloaded fields must no longer be `%NotLoaded{}`
       assert Enum.all?(result, fn acc ->
-        acc.parent == nil || acc.parent.__struct__ != NotLoaded
-      end)
+               acc.parent == nil || acc.parent.__struct__ != NotLoaded
+             end)
 
       # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
       assert Enum.all?(result, fn acc -> acc.categories.__struct__ == NotLoaded end)
@@ -214,8 +212,8 @@ defmodule EWallet.Web.OrchestratorTest do
 
       # Preloaded fields must no longer be `%NotLoaded{}`
       assert Enum.all?(result, fn acc ->
-        acc.parent == nil || acc.parent.__struct__ != NotLoaded
-      end)
+               acc.parent == nil || acc.parent.__struct__ != NotLoaded
+             end)
 
       # `categories` fields are not preloaded and so they should be `%NotLoaded{}`
       assert Enum.all?(result, fn acc -> acc.categories.__struct__ == NotLoaded end)
