@@ -11,7 +11,8 @@ defmodule EWallet.Web.V1.ErrorHandler do
   @errors %{
     query_field_not_allowed: %{
       code: "client:invalid_parameter",
-      template: "Invalid parameter provided. The queried field is not allowed. Given: '%{field_name}'."
+      template:
+        "Invalid parameter provided. The queried field is not allowed. Given: '%{field_name}'."
     },
     missing_master_account: %{
       code: "account:missing_master_account",
