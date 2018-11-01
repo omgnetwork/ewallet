@@ -17,9 +17,13 @@ defmodule EWallet.Web.Orchestrator do
   }
 
   def query(query, overlay, attrs \\ %{}) do
-    query
-    |> build_query(overlay, attrs)
-    |> Paginator.paginate_attrs(attrs)
+    with %Ecto.Query{} = query <- build_query(query, overlay, attrs),
+         paginated <- Paginator.paginate_attrs(query, attrs) do
+      paginated
+    else
+      {:error, :not_allowed, field} ->
+        {:error, :query_field_not_allowed, field_name: field}
+    end
   end
 
   def build_query(query, overlay, attrs \\ %{}) do
