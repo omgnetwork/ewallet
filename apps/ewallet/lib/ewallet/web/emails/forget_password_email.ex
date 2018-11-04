@@ -1,4 +1,4 @@
-defmodule AdminAPI.ForgetPasswordEmail do
+defmodule EWallet.ForgetPasswordEmail do
   @moduledoc """
   The module that generates password reset email templates.
   """

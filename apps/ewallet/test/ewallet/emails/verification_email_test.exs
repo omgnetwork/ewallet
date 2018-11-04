@@ -1,6 +1,6 @@
-defmodule EWalletAPI.VerificationEmailTest do
-  use EWalletAPI.ConnCase
-  alias EWalletAPI.VerificationEmail
+defmodule EWallet.VerificationEmailTest do
+  use EWallet.DBCase, async: true
+  alias EWallet.VerificationEmail
   alias EWalletDB.{Invite, User}
 
   defp create_email(email) do
@@ -16,7 +16,7 @@ defmodule EWalletAPI.VerificationEmailTest do
       {email, _token} = create_email("test@example.com")
 
       # `from` should be the one set in the config
-      assert email.from == Application.get_env(:ewallet_api, :sender_email)
+      assert email.from == Application.get_env(:ewallet, :sender_email)
 
       # `to` should be the user's email
       assert email.to == "test@example.com"

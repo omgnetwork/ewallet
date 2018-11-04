@@ -1,6 +1,6 @@
-defmodule AdminAPI.InviteEmailTest do
-  use AdminAPI.ConnCase
-  alias AdminAPI.InviteEmail
+defmodule EWallet.InviteEmailTest do
+  use EWallet.DBCase
+  alias EWallet.InviteEmail
   alias EWalletDB.{Invite, User}
 
   defp create_email(email) do

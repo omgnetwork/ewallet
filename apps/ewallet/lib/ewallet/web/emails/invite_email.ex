@@ -1,4 +1,4 @@
-defmodule AdminAPI.InviteEmail do
+defmodule EWallet.InviteEmail do
   @moduledoc """
   The module that generates invite email templates.
   """

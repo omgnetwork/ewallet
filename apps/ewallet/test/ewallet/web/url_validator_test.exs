@@ -6,7 +6,11 @@ defmodule EWallet.Web.UrlValidatorTest do
   describe "allowed_redirect_url?/1" do
     test "returns true if the given url has the whitelisted prefix", meta do
       {:ok, _setting} =
-        Config.update("redirect_url_prefixes", %{value: ["http://test_redirect_prefix"]}, meta[:config_pid])
+        Config.update(
+          "redirect_url_prefixes",
+          %{value: ["http://test_redirect_prefix"]},
+          meta[:config_pid]
+        )
 
       assert UrlValidator.allowed_redirect_url?("http://test_redirect_prefix/allowed")
     end

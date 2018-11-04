@@ -1,6 +1,6 @@
-defmodule AdminAPI.ForgetPasswordEmailTest do
-  use AdminAPI.ConnCase
-  alias AdminAPI.ForgetPasswordEmail
+defmodule EWallet.ForgetPasswordEmailTest do
+  use EWallet.DBCase
+  alias EWallet.ForgetPasswordEmail
   alias EWalletDB.ForgetPasswordRequest
 
   defp create_email(email, token) do

@@ -1,4 +1,4 @@
-defmodule EWalletAPI.VerificationEmail do
+defmodule EWallet.VerificationEmail do
   @moduledoc """
   The module that generates invite email templates.
   """
@@ -6,7 +6,7 @@ defmodule EWalletAPI.VerificationEmail do
   alias EWallet.Web.Preloader
 
   def create(invite, redirect_url) do
-    sender = Application.get_env(:ewallet_api, :sender_email)
+    sender = Application.get_env(:ewallet, :sender_email)
     {:ok, invite} = Preloader.preload_one(invite, [:user])
 
     link =

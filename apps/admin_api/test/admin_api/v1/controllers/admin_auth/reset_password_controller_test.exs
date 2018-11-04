@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.ResetPasswordControllerTest do
   use AdminAPI.ConnCase, async: true
   use Bamboo.Test
-  alias AdminAPI.ForgetPasswordEmail
+  alias EWallet.ForgetPasswordEmail
   alias EWalletConfig.Helpers.Crypto
   alias EWalletDB.{ForgetPasswordRequest, Repo, User}
 
