@@ -43,27 +43,6 @@ defmodule EWalletConfig.Types.WalletAddressTest do
     end
   end
 
-  #
-  # describe "wallet_address/2" do
-  #   test "populates the schema with a valid wallet address" do
-  #     {:ok, wallet} =
-  #       :wallet
-  #       |> params_for(address: nil)
-  #       |> Wallet.insert()
-  #
-  #     assert String.match?(wallet.address, ~r/^[a-z]{4}[0-9]{12}$/)
-  #   end
-  #
-  #   test "uses the given wallet address if provided" do
-  #     {:ok, wallet} =
-  #       :wallet
-  #       |> params_for(address: "test-1234-5678-9012")
-  #       |> Wallet.insert()
-  #
-  #     assert wallet.address == "test123456789012"
-  #   end
-  # end
-
   describe "generate/1" do
     test "returns {:ok, address}" do
       {:ok, address} = WalletAddress.generate()

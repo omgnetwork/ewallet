@@ -64,8 +64,17 @@ defmodule EWalletConfig.Setting do
 
   def get(_), do: nil
 
-  @spec get(String.t()) :: any()
+  @doc """
+  Retrieves a setting's value by its string name.
+  """
+  @spec get_value(String.t() | Atom.t()) :: any()
   def get_value(key, default \\ nil)
+
+  def get_value(key, default) when is_atom(key) do
+    key
+    |> Atom.to_string()
+    |> get_value(default)
+  end
 
   def get_value(key, default) when is_binary(key) do
     case Repo.get_by(StoredSetting, key: key) do
@@ -94,29 +103,36 @@ defmodule EWalletConfig.Setting do
   """
   @spec insert_all_defaults(Map.t()) :: [{:ok, %Setting{}}] | [{:error, %Changeset{}}]
   def insert_all_defaults(overrides \\ %{}) do
-    get_default_settings()
-    |> Enum.map(fn {key, data} ->
-      case overrides[key] do
-        nil ->
-          insert(data)
+    Repo.transaction(fn ->
+      get_default_settings()
+      |> Enum.map(fn {key, data} ->
+        case overrides[key] do
+          nil ->
+            insert(data)
 
-        override ->
-          data
-          |> Map.put(:value, override)
-          |> insert()
-      end
+          override ->
+            data
+            |> Map.put(:value, override)
+            |> insert()
+        end
+      end)
+      |> Enum.all?(fn res ->
+        case res do
+          {:ok, _} -> true
+          _ -> false
+        end
+      end)
+      |> return_insert_result()
     end)
-    |> Enum.all?(fn res ->
-      case res do
-        {:ok, _} -> true
-        _ -> false
-      end
-    end)
-    |> return_insert_result()
+    |> return_tx_result()
   end
 
   defp return_insert_result(true), do: :ok
   defp return_insert_result(false), do: :error
+
+  defp return_tx_result({:ok, :ok}), do: :ok
+  defp return_tx_result({:ok, :error}), do: :error
+  defp return_tx_result({:error, _}), do: {:error, :setting_insert_failed}
 
   @spec update(String.t(), Map.t()) ::
           {:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}

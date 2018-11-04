@@ -44,10 +44,6 @@ defmodule EWalletConfig.Config do
     {:reply, :ok, [{app, settings} | registered_apps]}
   end
 
-  def handle_call(:foo, _from, registered_apps) do
-    {:reply, Application.get_all_env(:my_app), registered_apps}
-  end
-
   @spec handle_call(:reload, Atom.t(), [Atom.t()]) :: :ok
   def handle_call(:reload, _from, registered_apps) do
     Enum.each(registered_apps, fn {app, settings} ->

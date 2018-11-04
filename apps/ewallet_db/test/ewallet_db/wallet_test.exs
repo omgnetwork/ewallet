@@ -13,14 +13,22 @@ defmodule EWalletDB.WalletTest do
     test_insert_generate_uuid(Wallet, :uuid)
     test_insert_generate_timestamps(Wallet)
 
-    test "generates a wallet address if not given" do
-      {res, wallet} =
+    test "populates the schema with a valid wallet address" do
+      {:ok, wallet} =
         :wallet
         |> params_for(address: nil)
         |> Wallet.insert()
 
-      assert res == :ok
-      assert String.length(wallet.address) > 0
+      assert String.match?(wallet.address, ~r/^[a-z]{4}[0-9]{12}$/)
+    end
+
+    test "uses the given wallet address if provided" do
+      {:ok, wallet} =
+        :wallet
+        |> params_for(address: "test-1234-5678-9012")
+        |> Wallet.insert()
+
+      assert wallet.address == "test123456789012"
     end
 
     test_insert_ok(Wallet, :address, "abcd999999999999")

@@ -1,5 +1,4 @@
 defmodule EWalletAPI.V1.StandalonePlugTest do
-  # not async because we're using `Application.put_env/3`
   use EWalletAPI.ConnCase, async: true
   alias EWalletAPI.V1.StandalonePlug
   alias EWalletConfig.Config

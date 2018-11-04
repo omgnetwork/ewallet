@@ -15,7 +15,7 @@ defmodule EWalletConfig.Repo.Migrations.AddSettings do
       add :parent, :string
       add :parent_value, :string
       add :secret, :boolean, null: false, default: false
-      add :position, :integer, null: false, unique: true
+      add :position, :integer, null: false
 
       timestamps()
     end
