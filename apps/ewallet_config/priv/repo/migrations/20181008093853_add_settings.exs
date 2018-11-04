@@ -22,6 +22,5 @@ defmodule EWalletConfig.Repo.Migrations.AddSettings do
 
     create unique_index(:setting, [:id])
     create unique_index(:setting, [:key])
-    create unique_index(:setting, [:position])
   end
 end
