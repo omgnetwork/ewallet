@@ -105,33 +105,35 @@ defmodule EWalletConfig.Setting do
   def insert_all_defaults(overrides \\ %{}) do
     Repo.transaction(fn ->
       get_default_settings()
-      |> Enum.map(fn {key, data} ->
-        case overrides[key] do
-          nil ->
-            insert(data)
-
-          override ->
-            data
-            |> Map.put(:value, override)
-            |> insert()
-        end
-      end)
-      |> Enum.all?(fn res ->
-        case res do
-          {:ok, _} -> true
-          _ -> false
-        end
-      end)
-      |> return_insert_result()
+      |> Enum.map(fn data -> insert_default(data, overrides) end)
+      |> all_defaults_inserted?()
     end)
     |> return_tx_result()
   end
 
-  defp return_insert_result(true), do: :ok
-  defp return_insert_result(false), do: :error
+  defp insert_default({key, data}, overrides) do
+    case overrides[key] do
+      nil ->
+        insert(data)
 
-  defp return_tx_result({:ok, :ok}), do: :ok
-  defp return_tx_result({:ok, :error}), do: :error
+      override ->
+        data
+        |> Map.put(:value, override)
+        |> insert()
+    end
+  end
+
+  def all_defaults_inserted?(list) do
+    Enum.all?(list, fn res ->
+      case res do
+        {:ok, _} -> true
+        _ -> false
+      end
+    end)
+  end
+
+  defp return_tx_result({:ok, true}), do: :ok
+  defp return_tx_result({:ok, false}), do: :error
   defp return_tx_result({:error, _}), do: {:error, :setting_insert_failed}
 
   @spec update(String.t(), Map.t()) ::
