@@ -8,6 +8,7 @@ defmodule EWalletDB.User do
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletConfig.Validator
+  import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
   alias EWalletConfig.Helpers.Crypto
 

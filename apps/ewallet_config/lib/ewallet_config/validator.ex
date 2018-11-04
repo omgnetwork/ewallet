@@ -6,19 +6,6 @@ defmodule EWalletConfig.Validator do
   alias EWalletConfig.Config
 
   @doc """
-  Gets the minimum password length from settings.
-  """
-  def min_password_length do
-    case Config.get("min_password_length") do
-      nil ->
-        8
-
-      value ->
-        value
-    end
-  end
-
-  @doc """
   Validates that only one out of the provided fields can have value.
   """
   def validate_required_exclusive(changeset, attrs) when is_map(attrs) or is_list(attrs) do
@@ -87,6 +74,19 @@ defmodule EWalletConfig.Validator do
     end
   end
 
+  @doc """
+  Validates that the value cannot be changed after it has been set.
+  """
+  def validate_immutable(changeset, key) do
+    changed = Changeset.get_field(changeset, key)
+
+    case Map.get(changeset.data, key) do
+      nil -> changeset
+      ^changed -> changeset
+      _ -> Changeset.add_error(changeset, key, "can't be changed")
+    end
+  end
+
   def count_fields_present(changeset, attrs) do
     Enum.count(attrs, fn attr -> field_present?(changeset, attr) end)
   end
@@ -101,70 +101,5 @@ defmodule EWalletConfig.Validator do
   def field_present?(changeset, {attr, attr_value}) do
     value = Changeset.get_field(changeset, attr)
     value && value != "" && value == attr_value
-  end
-
-  @doc """
-  Validates that the value cannot be changed after it has been set.
-  """
-  def validate_immutable(changeset, key) do
-    changed = Changeset.get_field(changeset, key)
-
-    case Map.get(changeset.data, key) do
-      nil -> changeset
-      ^changed -> changeset
-      _ -> Changeset.add_error(changeset, key, "can't be changed")
-    end
-  end
-
-  @doc """
-  Validates the given string with the password requirements.
-  """
-  def validate_password(nil),
-    do: {:error, :password_too_short, [min_length: min_password_length()]}
-
-  def validate_password(password) do
-    min_length = min_password_length()
-
-    with len when len >= min_length <- String.length(password) do
-      {:ok, password}
-    else
-      _ -> {:error, :password_too_short, [min_length: min_length]}
-    end
-  end
-
-  @doc """
-  Validates password requirements on the given changeset and key.
-  """
-  def validate_password(changeset, key) do
-    password = Changeset.get_field(changeset, key)
-
-    case validate_password(password) do
-      {:ok, _} ->
-        changeset
-
-      {:error, :password_too_short, data} ->
-        Changeset.add_error(changeset, key, "must be #{data[:min_length]} characters or more")
-    end
-  end
-
-  @doc """
-  Validates that the values are different.
-  """
-  def validate_different_values(changeset, key_1, key_2) do
-    value_1 = Changeset.get_field(changeset, key_1)
-    value_2 = Changeset.get_field(changeset, key_2)
-
-    case value_1 == value_2 do
-      true ->
-        Changeset.add_error(
-          changeset,
-          key_2,
-          "can't have the same value as `#{key_1}`",
-          validation: :different_values
-        )
-
-      false ->
-        changeset
-    end
   end
 end
