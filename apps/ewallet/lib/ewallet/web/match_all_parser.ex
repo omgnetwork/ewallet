@@ -5,55 +5,72 @@ defmodule EWallet.Web.MatchAllParser do
   then builds those attributes into a filtering query on top of the given `Ecto.Queryable`.
   """
   import Ecto.Query
+  import EWallet.Web.MatchAllParserHelper
+
+  # Steps:
+  # 1. Parse the list of `%{"field" => _, "comparator" => _, "value" => _}`
+  #    into a list of `{field, subfield, type, comparator, value}` filter rules.
+  # 2. Join the original queryable with the assocs needed to query for the parsed_input.
+  #    Also build a map of positional reference of the joined assocs.
+  # 3. Condition the joined queryable by the parsed_input.
 
   @spec to_query(Ecto.Queryable.t(), map(), [atom()]) :: Ecto.Queryable.t()
-  def to_query(queryable, %{"match_all" => filters}, whitelist) do
-    parse_many(queryable, filters, whitelist)
+  def to_query(queryable, %{"match_all" => inputs}, whitelist) do
+    with rules when is_list(rules) <- parse_rules(inputs, whitelist),
+         {queryable, assoc_positions} <- join_assocs(queryable, rules),
+         true <- Enum.count(assoc_positions) <= 5 || {:error, :too_many_associations},
+         queryable <- filter(queryable, assoc_positions, rules),
+         queryable <- distinct(queryable, true) do
+      queryable
+    else
+      error -> error
+    end
   end
 
   def to_query(queryable, _, _), do: queryable
 
-  # ------------------------------
-  # Parses all the filter inputs
-  # ------------------------------
+  # Parses a list of arbitary `%{"field" => _, "comparator" => _, "value" => _}`
+  # into a list of `{field, subfield, type, comparator, value}`.
+  defp parse_rules(inputs, whitelist) do
+    Enum.reduce_while(inputs, [], fn input, accumulator ->
+      case parse_rule(input, whitelist) do
+        {:error, _} = error ->
+          {:halt, error}
 
-  defp parse_many({:error, _, _} = error, _, _), do: error
+        {:error, _, _} = error ->
+          {:halt, error}
 
-  defp parse_many(queryable, [filter | remaining], whitelist) do
-    queryable
-    |> parse_one(filter, whitelist)
-    |> parse_many(remaining, whitelist)
+        parsed ->
+          {:cont, [parsed | accumulator]}
+      end
+    end)
   end
-
-  defp parse_many(queryable, [], _), do: queryable
 
   # ------------------------------
   # Parses a single filter
   # ------------------------------
-
-  defp parse_one(
-         queryable,
+  defp parse_rule(
          %{"field" => field, "comparator" => comparator, "value" => value},
          whitelist
        ) do
-    parsed = parse_field(field)
+    fieldset = parse_fieldset(field)
 
-    case find_field_definition(parsed, whitelist) do
+    case find_field_definition(fieldset, whitelist) do
       nil ->
         {:error, :not_allowed, field}
 
       field_definition ->
-        build_query(queryable, field_definition, comparator, value)
+        {field_definition, comparator, value}
     end
   end
 
-  defp parse_one(_queryable, params, _) do
+  defp parse_rule(params, _) do
     {:error, :missing_filter_param, params}
   end
 
-  @spec parse_field(String.t()) ::
+  @spec parse_fieldset(String.t()) ::
           atom() | {atom(), atom()} | {:error, :not_supported, String.t()}
-  defp parse_field(field) do
+  defp parse_fieldset(field) do
     splitted = String.split(field, ".")
 
     # Avoid unneccessarily counting deeply nested values by taking out only 3 items.
@@ -68,7 +85,9 @@ defmodule EWallet.Web.MatchAllParser do
         {:error, :not_supported, field}
     end
   rescue
-    _ in ArgumentError -> {:error, :not_allowed, field}
+    # Handles non-existing atom
+    _ in ArgumentError ->
+      {:error, :not_allowed, field}
   end
 
   # Find the field definition from the whitelist.
@@ -104,111 +123,46 @@ defmodule EWallet.Web.MatchAllParser do
   # Returns nil if the field does not match
   defp get_field_definition(_, _), do: nil
 
-  # ------------------------------
-  # Build the query from the parsed filter
-  # ------------------------------
+  defp join_assocs(queryable, rules) do
+    {queryable, joined_assocs} =
+      Enum.reduce(rules, {queryable, []}, fn rule, {queryable, joined_assocs} ->
+        {field_definition, _comparator, _value} = rule
 
-  # is equal to
-  defp build_query(queryable, {field, subfield, nil}, "eq", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], field(assoc, ^subfield) == ^value)
+        case field_definition do
+          {_field, _type} ->
+            {queryable, joined_assocs}
+
+          {field, _subfield, _type} ->
+            queryable = join(queryable, :inner, [q], assoc in assoc(q, ^field))
+            joined_assocs = [field | joined_assocs]
+
+            {queryable, joined_assocs}
+        end
+      end)
+
+    joined_assocs =
+      joined_assocs
+      |> Enum.reverse()
+      |> Enum.with_index()
+
+    {queryable, joined_assocs}
   end
 
-  defp build_query(queryable, {field, :uuid}, "eq", value) do
-    queryable |> where([q], fragment("?::text", field(q, ^field)) == ^value)
-  end
+  def filter(queryable, assoc_positions, rules) do
+    dynamic =
+      Enum.reduce(rules, true, fn rule, dynamic ->
+        {field_definition, comparator, value} = rule
 
-  defp build_query(queryable, {field, nil}, "eq", value) do
-    queryable |> where([q], field(q, ^field) == ^value)
-  end
+        case field_definition do
+          {field, type} ->
+            do_filter(dynamic, field, type, comparator, value)
 
-  # is not equal to
-  defp build_query(queryable, {field, subfield, nil}, "neq", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], field(assoc, ^subfield) != ^value)
-  end
+          {field, subfield, type} ->
+            position = assoc_positions[field]
+            do_filter_assoc(dynamic, position, subfield, type, comparator, value)
+        end
+      end)
 
-  defp build_query(queryable, {field, :uuid}, "neq", value) do
-    queryable |> where([q], fragment("?::text", field(q, ^field)) != ^value)
-  end
-
-  defp build_query(queryable, {field, nil}, "neq", value) do
-    queryable |> where([q], field(q, ^field) != ^value)
-  end
-
-  # is greater than
-  defp build_query(queryable, {field, subfield, nil}, "gt", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], field(assoc, ^subfield) > ^value)
-  end
-
-  defp build_query(queryable, {field, nil}, "gt", value) do
-    queryable |> where([q], field(q, ^field) > ^value)
-  end
-
-  # is greater or equal to
-  defp build_query(queryable, {field, subfield, nil}, "gte", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], field(assoc, ^subfield) >= ^value)
-  end
-
-  defp build_query(queryable, {field, nil}, "gte", value) do
-    queryable |> where([q], field(q, ^field) >= ^value)
-  end
-
-  # is less than
-  defp build_query(queryable, {field, subfield, nil}, "lt", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], field(assoc, ^subfield) < ^value)
-  end
-
-  defp build_query(queryable, {field, nil}, "lt", value) do
-    queryable |> where([q], field(q, ^field) < ^value)
-  end
-
-  # is less than or equal to
-  defp build_query(queryable, {field, subfield, nil}, "lte", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], field(assoc, ^subfield) <= ^value)
-  end
-
-  defp build_query(queryable, {field, nil}, "lte", value) do
-    queryable |> where([q], field(q, ^field) <= ^value)
-  end
-
-  # contains
-  defp build_query(queryable, {field, subfield, nil}, "contains", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], ilike(field(assoc, ^subfield), ^"%#{value}%"))
-  end
-
-  defp build_query(queryable, {field, :uuid}, "contains", value) do
-    queryable |> where([q], ilike(fragment("?::text", field(q, ^field)), ^"%#{value}%"))
-  end
-
-  defp build_query(queryable, {field, nil}, "contains", value) do
-    queryable |> where([q], ilike(field(q, ^field), ^"%#{value}%"))
-  end
-
-  # starts with
-  defp build_query(queryable, {field, subfield, nil}, "starts_with", value) do
-    queryable
-    |> join(:inner, [q], assoc in assoc(q, ^field))
-    |> where([q, assoc], ilike(field(assoc, ^subfield), ^"#{value}%"))
-  end
-
-  defp build_query(queryable, {field, :uuid}, "starts_with", value) do
-    queryable |> where([q], ilike(fragment("?::text", field(q, ^field)), ^"#{value}%"))
-  end
-
-  defp build_query(queryable, {field, nil}, "starts_with", value) do
-    queryable |> where([q], ilike(field(q, ^field), ^"#{value}%"))
+    from(queryable, where: ^dynamic)
   end
 end
