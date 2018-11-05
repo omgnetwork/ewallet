@@ -76,14 +76,29 @@ defmodule EWallet.Web.MatchAllParserHelper do
 
   def do_filter_assoc(dynamic, 3, field, nil, comparator, value) do
     case comparator do
-      "eq" -> dynamic([q, _, _, _, a], field(a, ^field) == ^value and ^dynamic)
-      "neq" -> dynamic([q, _, _, _, a], field(a, ^field) != ^value and ^dynamic)
-      "gt" -> dynamic([q, _, _, _, a], field(a, ^field) > ^value and ^dynamic)
-      "gte" -> dynamic([q, _, _, _, a], field(a, ^field) >= ^value and ^dynamic)
-      "lt" -> dynamic([q, _, _, _, a], field(a, ^field) < ^value and ^dynamic)
-      "lte" -> dynamic([q, _, _, _, a], field(a, ^field) <= ^value and ^dynamic)
-      "contains" -> dynamic([q, _, _, _, a], ilike(field(a, ^field), ^"%#{value}%") and ^dynamic)
-      "starts_with" -> dynamic([q, _, _, _, a], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
+      "eq" ->
+        dynamic([q, _, _, _, a], field(a, ^field) == ^value and ^dynamic)
+
+      "neq" ->
+        dynamic([q, _, _, _, a], field(a, ^field) != ^value and ^dynamic)
+
+      "gt" ->
+        dynamic([q, _, _, _, a], field(a, ^field) > ^value and ^dynamic)
+
+      "gte" ->
+        dynamic([q, _, _, _, a], field(a, ^field) >= ^value and ^dynamic)
+
+      "lt" ->
+        dynamic([q, _, _, _, a], field(a, ^field) < ^value and ^dynamic)
+
+      "lte" ->
+        dynamic([q, _, _, _, a], field(a, ^field) <= ^value and ^dynamic)
+
+      "contains" ->
+        dynamic([q, _, _, _, a], ilike(field(a, ^field), ^"%#{value}%") and ^dynamic)
+
+      "starts_with" ->
+        dynamic([q, _, _, _, a], ilike(field(a, ^field), ^"#{value}%") and ^dynamic)
     end
   end
 

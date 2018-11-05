@@ -27,7 +27,7 @@ defmodule EWallet.Web.MatchAllParserTest do
         ]
       }
 
-      query = MatchAllParser.to_query(Account, attrs, [tokens: [:symbol], keys: [:access_key]])
+      query = MatchAllParser.to_query(Account, attrs, tokens: [:symbol], keys: [:access_key])
       result = Repo.all(query)
 
       assert Enum.count(result) == 1
