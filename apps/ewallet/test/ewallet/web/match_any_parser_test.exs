@@ -5,6 +5,48 @@ defmodule EWallet.Web.MatchAnyParserTest do
   alias EWalletDB.{Account, Repo, Transaction, User}
 
   describe "to_query/3" do
+    test "returns distinct records in a *-many filter" do
+      account_1 = insert(:account)
+      account_2 = insert(:account)
+
+      token_1 = insert(:token, account: account_1)
+      token_2 = insert(:token, account: account_1)
+      token_3 = insert(:token, account: account_2)
+      token_4 = insert(:token, account: account_2)
+
+      attrs = %{
+        "match_any" => [
+          %{
+            "field" => "tokens.symbol",
+            "comparator" => "eq",
+            "value" => token_1.symbol
+          },
+          %{
+            "field" => "tokens.symbol",
+            "comparator" => "eq",
+            "value" => token_2.symbol
+          },
+          %{
+            "field" => "tokens.symbol",
+            "comparator" => "eq",
+            "value" => token_3.symbol
+          },
+          %{
+            "field" => "tokens.symbol",
+            "comparator" => "eq",
+            "value" => token_4.symbol
+          }
+        ]
+      }
+
+      query = MatchAnyParser.to_query(Account, attrs, [tokens: [:symbol]])
+      result = Repo.all(query)
+
+      assert Enum.count(result) == 2
+      assert Enum.any?(result, fn account -> account.id == account_1.id end)
+      assert Enum.any?(result, fn account -> account.id == account_2.id end)
+    end
+
     test "filter for boolean true when given 'true' as value" do
       user_1 = insert(:user, is_admin: false)
       user_2 = insert(:user, is_admin: false)
