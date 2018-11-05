@@ -3,7 +3,6 @@ defmodule EWalletConfig.Validator do
   Custom validators that extend Ecto.Changeset's list of built-in validators.
   """
   alias Ecto.Changeset
-  alias EWalletConfig.Config
 
   @doc """
   Validates that only one out of the provided fields can have value.
