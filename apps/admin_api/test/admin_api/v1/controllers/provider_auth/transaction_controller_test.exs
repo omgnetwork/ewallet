@@ -204,10 +204,44 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       assert transaction_2["id"] == meta.init_transaction_1.id
     end
 
-    test "returns filtered transactions", meta do
+    test "returns match_all filtered transactions", meta do
       response =
         provider_request("/transaction.all", %{
           "match_all" => [
+            %{
+              "field" => "from_wallet.address",
+              "comparator" => "eq",
+              "value" => meta.wallet_4.address
+            },
+            %{
+              "field" => "status",
+              "comparator" => "eq",
+              "value" => "confirmed"
+            }
+          ]
+        })
+
+      transactions = response["data"]["data"]
+
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_1.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_2.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_3.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_4.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_5.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_6.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_7.id end)
+      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_8.id end)
+    end
+
+    test "returns match_any filtered transactions", meta do
+      response =
+        provider_request("/transaction.all", %{
+          "match_any" => [
+            %{
+              "field" => "from_wallet.address",
+              "comparator" => "eq",
+              "value" => meta.wallet_2.address
+            },
             %{
               "field" => "from_wallet.address",
               "comparator" => "eq",
@@ -219,7 +253,7 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionControllerTest do
       transactions = response["data"]["data"]
 
       refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_1.id end)
-      refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_2.id end)
+      assert Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_2.id end)
       refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_3.id end)
       refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_4.id end)
       refute Enum.any?(transactions, fn txn -> txn["id"] == meta.transaction_5.id end)
