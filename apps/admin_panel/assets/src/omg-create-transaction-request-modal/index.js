@@ -68,6 +68,7 @@ const InputLabelContainer = styled.div`
   margin: 20px 20px 0 20px;
   text-align: left;
   position: relative;
+  vertical-align: top;
 `
 const ButtonContainer = styled.div`
   text-align: center;
@@ -92,12 +93,13 @@ const InputLabel = styled.div`
 `
 const Collapsable = styled.div`
   background-color: ${props => props.theme.colors.S100};
-  padding: 15px;
   text-align: left;
   border-radius: 6px;
   margin-top: 20px;
+  padding-bottom: 50px;
 `
 const CollapsableHeader = styled.div`
+  padding: 15px;
   display: flex;
   align-items: center;
   > i {
