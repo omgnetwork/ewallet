@@ -121,7 +121,7 @@ class CreateTransactionRequest extends Component {
         tokenId: _.get(this.state, 'selectedToken.id'),
         address: this.state.address || _.get(this.props, 'primaryWallet.address'),
         accountId: _.get(this.state, 'selectedWallet.account_id'),
-        expirationDate: this.state.expirationDate ? moment(this.state.expirationDate).toISOString() : null
+        expirationDate: this.state.expirationDate && moment(this.state.expirationDate).toISOString()
       })
       if (result.data) {
         this.props.onRequestClose()
