@@ -6,6 +6,22 @@ defmodule EWalletConfig.Setting do
   in a map to allow any type to be saved, but is for simplicity, the
   users never need to know that - all they need to care is the "value"
   field.
+
+  Here are some explanations about some of the fields of the settings:
+
+    - position
+
+     Position is used to have a constant order for settings that we define.
+    It cannot be updated and is only set at creation. We can add more settings
+    in the seeds later and fix their positions.
+
+    - parent and parent_value
+
+    Those are used to link settings together in a very simple way. No logic is
+    actually implemented for those, it's mostly intended to be used by clients
+    (like the admin panel) to show settings in a logical way. So if someone
+    selects gcs for file_storage, you can show all settings that have file_storage
+    as a parent were parent_value=gcs.
   """
   require Ecto.Query
   alias EWalletConfig.{Repo, StoredSetting, Setting}
@@ -140,7 +156,13 @@ defmodule EWalletConfig.Setting do
           {:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}
   def update(nil, _), do: {:error, :setting_not_found}
 
-  def update(key, attrs) when is_binary(key) and is_map(attrs) do
+  def update(key, attrs) when is_atom(key) and is_map(attrs) do
+    key
+    |> Atom.to_string()
+    |> update(attrs)
+  end
+
+  def update(key, attrs) when is_binary(key) do
     case Repo.get_by(StoredSetting, %{key: key}) do
       nil ->
         {:error, :setting_not_found}
@@ -156,10 +178,36 @@ defmodule EWalletConfig.Setting do
   end
 
   @spec update_all(List.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
-  def update_all(attrs_list) when is_list(attrs_list) do
-    Enum.map(attrs_list, fn attrs ->
-      update(attrs["key"] || attrs[:key], attrs)
+  def update_all(attrs) when is_list(attrs) do
+    Enum.map(attrs, fn data ->
+      case data do
+        {key, value} ->
+          update(key, %{value: value})
+
+        data ->
+          update(data[:key] || data["key"], data)
+      end
     end)
+  end
+
+  @spec update_all(Map.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
+  def update_all(attrs) do
+    Enum.map(attrs, fn {key, value} ->
+      update(key, %{value: value})
+    end)
+  end
+
+  def lock_all do
+    StoredSetting
+    |> Query.lock("FOR UPDATE")
+    |> Repo.all()
+  end
+
+  def lock(keys) do
+    StoredSetting
+    |> Query.lock("FOR UPDATE")
+    |> Query.where([s], s.key in ^keys)
+    |> Repo.all()
   end
 
   defp return_from_change({:ok, stored_setting}) do

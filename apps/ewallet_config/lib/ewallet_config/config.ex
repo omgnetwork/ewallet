@@ -8,6 +8,8 @@ defmodule EWalletConfig.Config do
   use GenServer
   require Logger
 
+  alias EWalletConfig.Repo
+
   alias EWalletConfig.{
     Setting,
     SettingLoader
@@ -44,12 +46,23 @@ defmodule EWalletConfig.Config do
     {:reply, :ok, [{app, settings} | registered_apps]}
   end
 
+  def handle_call({:update_and_reload, attrs}, _from, registered_apps) do
+    res =
+      Repo.transaction(fn ->
+        _settings = Setting.lock_all()
+        settings = Setting.update_all(attrs)
+        reload_registered_apps(registered_apps)
+        trigger_nodes_reload()
+
+        settings
+      end)
+
+    {:reply, res, registered_apps}
+  end
+
   @spec handle_call(:reload, Atom.t(), [Atom.t()]) :: :ok
   def handle_call(:reload, _from, registered_apps) do
-    Enum.each(registered_apps, fn {app, settings} ->
-      SettingLoader.load_settings(app, settings)
-    end)
-
+    reload_registered_apps(registered_apps)
     {:reply, :ok, registered_apps}
   end
 
@@ -72,29 +85,24 @@ defmodule EWalletConfig.Config do
   @spec reload_config(Atom.t()) :: :ok
   def reload_config(pid \\ __MODULE__) do
     GenServer.call(pid, :reload)
+    trigger_nodes_reload()
+  end
 
-    Enum.each(Node.list(), fn node ->
-      GenServer.call({pid, node}, :reload)
+  defp reload_registered_apps(registered_apps) do
+    Enum.each(registered_apps, fn {app, settings} ->
+      SettingLoader.load_settings(app, settings)
     end)
   end
 
-  @spec update(String.t(), Map.t(), Atom.t()) :: {:ok, %Setting{}} | {:error, Atom.t()}
-  def update(key, attrs, pid \\ __MODULE__) do
-    case Setting.update(key, attrs) do
-      success = {:ok, _} ->
-        reload_config(pid)
-        success
-
-      error ->
-        error
-    end
+  defp trigger_nodes_reload do
+    Enum.each(Node.list(), fn node ->
+      GenServer.call({__MODULE__, node}, :reload)
+    end)
   end
 
-  @spec update_all(Map.t(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
-  def update_all(attrs, pid \\ __MODULE__) do
-    res = Setting.update_all(attrs)
-    reload_config(pid)
-    res
+  @spec update(Map.t(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
+  def update(attrs, pid \\ __MODULE__) do
+    GenServer.call(pid, {:update_and_reload, attrs})
   end
 
   @spec insert_all_defaults(Map.t(), Atom.t()) :: :ok

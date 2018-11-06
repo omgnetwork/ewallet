@@ -3,6 +3,29 @@ defmodule EWalletConfig.ConfigTest do
   alias EWalletConfig.{Config, Repo, Setting}
   alias Ecto.Adapters.SQL.Sandbox
 
+  def default_loading do
+    {:ok, pid} = Config.start_link()
+    Sandbox.allow(Repo, self(), pid)
+    {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
+    assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
+    assert Application.get_env(:my_app, :my_setting) == "some_value"
+
+    pid
+  end
+
+  defp start_task(pid, callback, value, event) do
+    {:ok, pid} =
+      Task.start_link(fn ->
+        Sandbox.allow(Repo, pid, self())
+        assert_receive :select_for_update, 5000
+        _res = callback.(value)
+
+        send(pid, event)
+      end)
+
+    pid
+  end
+
   describe "start_link/0" do
     test "starts a new GenServer config" do
       {res, _pid} = Config.start_link()
@@ -19,9 +42,7 @@ defmodule EWalletConfig.ConfigTest do
 
   describe "register_and_load/3" do
     test "handles the registration of an app" do
-      {:ok, pid} = Config.start_link()
-      Sandbox.allow(Repo, self(), pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
+      pid = default_loading()
 
       assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
       assert Enum.member?(Config.get_registered_apps(pid), {:my_app, [:my_setting]})
@@ -31,9 +52,7 @@ defmodule EWalletConfig.ConfigTest do
 
   describe "reload_config/1" do
     test "reloads all settings" do
-      {:ok, pid} = Config.start_link()
-      Sandbox.allow(Repo, self(), pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
+      pid = default_loading()
 
       assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
       assert Application.get_env(:my_app, :my_setting) == "some_value"
@@ -46,30 +65,42 @@ defmodule EWalletConfig.ConfigTest do
     end
   end
 
-  describe "update/3" do
-    test "updates a setting and reload" do
-      {:ok, pid} = Config.start_link()
-      Sandbox.allow(Repo, self(), pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
-      assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
-      assert Application.get_env(:my_app, :my_setting) == "some_value"
-
-      {:ok, _} = Config.update("my_setting", %{value: "new_value"}, pid)
-      assert Application.get_env(:my_app, :my_setting) == "new_value"
-    end
-  end
-
   describe "update_all/3" do
     test "updates all settings and reload" do
-      {:ok, pid} = Config.start_link()
-      Sandbox.allow(Repo, self(), pid)
-      {:ok, _} = Config.insert(%{key: "my_setting", value: "some_value", type: "string"})
-      assert Config.register_and_load(:my_app, [:my_setting], pid) == :ok
-      assert Application.get_env(:my_app, :my_setting) == "some_value"
+      pid = default_loading()
+      {:ok, settings} = Config.update([my_setting: "new_value"], pid)
 
-      res = Config.update_all([%{key: "my_setting", value: "new_value"}], pid)
-      assert {:ok, _} = Enum.at(res, 0)
+      assert {:ok, _} = Enum.at(settings, 0)
       assert Application.get_env(:my_app, :my_setting) == "new_value"
+    end
+
+    test "updates all settings and reload with multiple sources" do
+      pid = self()
+
+      {:ok, config_pid} = Config.start_link()
+      Sandbox.allow(Repo, self(), config_pid)
+      {:ok, _} = Config.insert(%{key: "my_setting", value: "value_0", type: "string"})
+      assert Config.register_and_load(:my_app, [:my_setting], config_pid) == :ok
+      assert Application.get_env(:my_app, :my_setting) == "value_0"
+
+      callback = fn value ->
+        Process.sleep(:rand.uniform(520))
+        Config.update(%{my_setting: value}, config_pid)
+      end
+
+      task1 = start_task(pid, callback, "value_1", :task1)
+      task2 = start_task(pid, callback, "value_2", :task2)
+      task3 = start_task(pid, callback, "value_3", :task3)
+
+      send(task1, :select_for_update)
+      send(task2, :select_for_update)
+      send(task3, :select_for_update)
+
+      assert_receive :task1, 5000
+      assert_receive :task2, 5000
+      assert_receive :task3, 5000
+
+      assert Config.get(:my_setting) == Application.get_env(:my_app, :my_setting)
     end
   end
 

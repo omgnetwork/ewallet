@@ -343,7 +343,7 @@ defmodule EWalletConfig.SettingTest do
   end
 
   describe "updated_all/1" do
-    test "updates all the given settings" do
+    test "updates all the given settings with list" do
       {:ok, _} = Setting.insert(%{key: "my_key_1", value: "test_1", type: "string"})
       {:ok, _} = Setting.insert(%{key: "my_key_2", value: "test_2", type: "string"})
       {:ok, _} = Setting.insert(%{key: "my_key_3", value: "test_3", type: "string"})
@@ -353,6 +353,48 @@ defmodule EWalletConfig.SettingTest do
           %{key: "my_key_1", value: "new_value_1"},
           %{key: "my_key_3", value: "new_value_3"}
         ])
+
+      {res1, s1} = Enum.at(res, 0)
+      {res2, s2} = Enum.at(res, 1)
+
+      assert res1 == :ok
+      assert s1.value == "new_value_1"
+
+      assert res2 == :ok
+      assert s2.value == "new_value_3"
+    end
+
+    test "updates all the given settings with map" do
+      {:ok, _} = Setting.insert(%{key: "my_key_1", value: "test_1", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_2", value: "test_2", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_3", value: "test_3", type: "string"})
+
+      res =
+        Setting.update_all(%{
+          my_key_1: "new_value_1",
+          my_key_3: "new_value_3"
+        })
+
+      {res1, s1} = Enum.at(res, 0)
+      {res2, s2} = Enum.at(res, 1)
+
+      assert res1 == :ok
+      assert s1.value == "new_value_1"
+
+      assert res2 == :ok
+      assert s2.value == "new_value_3"
+    end
+
+    test "updates all the given settings with keyword list" do
+      {:ok, _} = Setting.insert(%{key: "my_key_1", value: "test_1", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_2", value: "test_2", type: "string"})
+      {:ok, _} = Setting.insert(%{key: "my_key_3", value: "test_3", type: "string"})
+
+      res =
+        Setting.update_all(
+          my_key_1: "new_value_1",
+          my_key_3: "new_value_3"
+        )
 
       {res1, s1} = Enum.at(res, 0)
       {res2, s2} = Enum.at(res, 1)

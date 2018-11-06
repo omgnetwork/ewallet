@@ -4,7 +4,7 @@ defmodule EWalletAPI.ConfigTest do
 
   describe "ewallet_api.enable_standalone" do
     test "allows /user.signup when configured to true", meta do
-      {:ok, _} = Config.update("enable_standalone", %{value: true}, meta[:config_pid])
+      {:ok, _} = Config.update(%{enable_standalone: true}, meta[:config_pid])
 
       response = client_request("/user.signup")
 
@@ -14,7 +14,7 @@ defmodule EWalletAPI.ConfigTest do
     end
 
     test "prohibits /user.signup when configured to false", meta do
-      {:ok, _} = Config.update("enable_standalone", %{value: false}, meta[:config_pid])
+      {:ok, _} = Config.update(%{enable_standalone: false}, meta[:config_pid])
 
       response = client_request("/user.signup")
 
