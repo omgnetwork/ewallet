@@ -228,16 +228,18 @@ class CreateTransactionRequest extends Component {
         <Collapsable>
           <CollapsableHeader><span>Advanced setting (Optional)</span> <Icon name='Chevron-Down' /></CollapsableHeader>
           <div>
-            <InputLabelContainer>
-              <InputLabel>Require Confirmation</InputLabel>
-              <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(false)} label='No' checked={!this.state.requireConfirmation} />
-              <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(true)} label='Yes' checked={this.state.requireConfirmation} />
-            </InputLabelContainer>
-            <InputLabelContainer>
-              <InputLabel>Allow Amount Overide</InputLabel>
-              <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(false)} label='No' checked={!this.state.allowAmountOverride} />
-              <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
-            </InputLabelContainer>
+            <div>
+              <InputLabelContainer>
+                <InputLabel>Require Confirmation</InputLabel>
+                <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(false)} label='No' checked={!this.state.requireConfirmation} />
+                <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(true)} label='Yes' checked={this.state.requireConfirmation} />
+              </InputLabelContainer>
+              <InputLabelContainer>
+                <InputLabel>Allow Amount Overide</InputLabel>
+                <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(false)} label='No' checked={!this.state.allowAmountOverride} />
+                <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
+              </InputLabelContainer>
+            </div>
             <InputLabelContainer>
               <InputLabel>
                 Wallet Address <span>( Optional )</span>
