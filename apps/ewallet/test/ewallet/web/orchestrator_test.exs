@@ -20,6 +20,24 @@ defmodule EWallet.Web.OrchestratorTest do
     test "returns an `EWallet.Web.Paginator`" do
       assert %EWallet.Web.Paginator{} = Orchestrator.query(Account, MockOverlay)
     end
+
+    test "returns :query_field_not_allowed error if the field is not in the allowed list" do
+      attrs = %{
+        "match_all" => [
+          %{
+            "field" => "status",
+            "comparator" => "eq",
+            "value" => "pending"
+          }
+        ]
+      }
+
+      {res, error, params} = Orchestrator.query(Account, MockOverlay, attrs)
+
+      assert res == :error
+      assert error == :query_field_not_allowed
+      assert params == [field_name: "status"]
+    end
   end
 
   describe "build_query/3" do
