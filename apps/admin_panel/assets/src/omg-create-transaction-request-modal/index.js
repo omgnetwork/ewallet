@@ -198,6 +198,137 @@ class CreateTransactionRequest extends Component {
       </InputLabelContainer>
     )
   }
+  renderTokenAmount () {
+    return (
+      <InputLabelContainer>
+        <InputLabel>Amount {this.state.allowAmountOverride && <span>( Optional )</span>}</InputLabel>
+        <StyledInput normalPlaceholder='1000' autofocus value={this.state.amount} type='amount' onChange={this.onChange('amount')} />
+      </InputLabelContainer>
+    )
+  }
+  renderAdvanceOption () {
+    return (
+      <div>
+        <InputLabelContainer>
+          <InputLabel>Require Confirmation</InputLabel>
+          <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(false)} label='No' checked={!this.state.requireConfirmation} />
+          <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(true)} label='Yes' checked={this.state.requireConfirmation} />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>Allow Amount Overide</InputLabel>
+          <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(false)} label='No' checked={!this.state.allowAmountOverride} />
+          <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Wallet Address <span>( Optional )</span>
+          </InputLabel>
+          <WalletsFetcher
+            accountId={this.props.match.params.accountId}
+            query={{ search: this.state.address }}
+            owned={false}
+            render={({ data }) => {
+              return (
+                <StyledSelect
+                  normalPlaceholder='0x00000000'
+                  value={this.state.address}
+                  onSelectItem={this.onSelectWallet}
+                  onChange={this.onChange('address')}
+                  options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
+                    key: wallet.address,
+                    value: <WalletSelect wallet={wallet} />,
+                    ...wallet
+                  }))}
+                />
+              )
+            }}
+          />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Correlation Id <span>( Optional )</span>
+          </InputLabel>
+          <StyledInput normalPlaceholder='0x00000000' autofocus value={this.state.correlationId} onChange={this.onChange('correlationId')} />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            MaxConsumptions <span>( Optional )</span>
+          </InputLabel>
+          <StyledInput normalPlaceholder='0' autofocus type='number' step={1} value={this.state.maxConsumption} onChange={this.onChange('maxConsumption')} />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Consumption Lifetime <span>( Optional )</span>
+          </InputLabel>
+          <StyledInput normalPlaceholder='Lifetime of consumption is ms' autofocus type='number' value={this.state.consumptionLifetime} onChange={this.onChange('consumptionLifetime')} />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Max Consumption Per User <span>( Optional )</span>
+          </InputLabel>
+          <StyledInput normalPlaceholder='1' autofocus type='number' value={this.state.maxConsumptionPerUser} onChange={this.onChange('maxConsumptionPerUser')} />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Exchange Address <span>( Optional )</span>
+          </InputLabel>
+          <WalletsFetcher
+            accountId={this.props.match.params.accountId}
+            query={{ search: this.state.exchangeAddress }}
+            owned={false}
+            render={({ data }) => {
+              return (
+                <StyledSelect
+                  normalPlaceholder='0x00000000'
+                  value={this.state.exchangeAddress}
+                  onSelectItem={this.onSelectExchangeWallet}
+                  onChange={this.onChange('exchangeAddress')}
+                  options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
+                    key: wallet.address,
+                    value: <WalletSelect wallet={wallet} />,
+                    ...wallet
+                  }))}
+                />
+              )
+            }}
+          />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Expiration Date <span>( Optional )</span>
+          </InputLabel>
+          <DateTime
+            onChange={this.onDateTimeChange}
+            renderInput={(props, openCalendar, closeCalendar) => {
+              return <StyledInput {...props} normalPlaceholder='Expiry date' value={this.state.expirationDate} onFocus={this.onDateTimeFocus} />
+            }}
+          />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Metadata <span>( Optional )</span>
+          </InputLabel>
+          <StyledInput normalPlaceholder='Token name' autofocus value={this.state.metadata} onChange={this.onChange('metadata')} />
+        </InputLabelContainer>
+        <InputLabelContainer>
+          <InputLabel>
+            Encrypted Metadata <span>( Optional )</span>
+          </InputLabel>
+          <StyledInput normalPlaceholder='meta data' autofocus value={this.state.encryptedMetadata} onChange={this.onChange('encryptedMetadata')} />
+        </InputLabelContainer>
+      </div>
+    )
+  }
+  renderSubmitButton () {
+    return (
+      <ButtonContainer>
+        <Button size='small' type='submit' loading={this.state.submitting}>
+          Create Request
+        </Button>
+      </ButtonContainer>
+    )
+  }
+
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
@@ -206,128 +337,16 @@ class CreateTransactionRequest extends Component {
           <h4>Create Transaction Request</h4>
           {this.renderRequestType()}
           {this.renderTokenSelect()}
-          <InputLabelContainer>
-            <InputLabel>Amount {this.state.allowAmountOverride && <span>( Optional )</span>}</InputLabel>
-            <StyledInput normalPlaceholder='1000' autofocus value={this.state.amount} type='amount' onChange={this.onChange('amount')} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>Require Confirmation</InputLabel>
-            <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(false)} label='No' checked={!this.state.requireConfirmation} />
-            <StyledRadioButton onClick={this.onRadioChange('requireConfirmation')(true)} label='Yes' checked={this.state.requireConfirmation} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>Allow Amount Overide</InputLabel>
-            <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(false)} label='No' checked={!this.state.allowAmountOverride} />
-            <StyledRadioButton onClick={this.onRadioChange('allowAmountOverride')(true)} label='Yes' checked={this.state.allowAmountOverride} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Wallet Address <span>( Optional )</span>
-            </InputLabel>
-            <WalletsFetcher
-              accountId={this.props.match.params.accountId}
-              query={{ search: this.state.address }}
-              owned={false}
-              render={({ data }) => {
-                return (
-                  <StyledSelect
-                    normalPlaceholder='0x00000000'
-                    value={this.state.address}
-                    onSelectItem={this.onSelectWallet}
-                    onChange={this.onChange('address')}
-                    options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
-                      key: wallet.address,
-                      value: <WalletSelect wallet={wallet} />,
-                      ...wallet
-                    }))}
-                  />
-                )
-              }}
-            />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Correlation Id <span>( Optional )</span>
-            </InputLabel>
-            <StyledInput normalPlaceholder='0x00000000' autofocus value={this.state.correlationId} onChange={this.onChange('correlationId')} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              MaxConsumptions <span>( Optional )</span>
-            </InputLabel>
-            <StyledInput normalPlaceholder='0' autofocus type='number' step={1} value={this.state.maxConsumption} onChange={this.onChange('maxConsumption')} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Consumption Lifetime <span>( Optional )</span>
-            </InputLabel>
-            <StyledInput normalPlaceholder='Lifetime of consumption is ms' autofocus type='number' value={this.state.consumptionLifetime} onChange={this.onChange('consumptionLifetime')} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Max Consumption Per User <span>( Optional )</span>
-            </InputLabel>
-            <StyledInput normalPlaceholder='1' autofocus type='number' value={this.state.maxConsumptionPerUser} onChange={this.onChange('maxConsumptionPerUser')} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Exchange Address <span>( Optional )</span>
-            </InputLabel>
-            <WalletsFetcher
-              accountId={this.props.match.params.accountId}
-              query={{ search: this.state.exchangeAddress }}
-              owned={false}
-              render={({ data }) => {
-                return (
-                  <StyledSelect
-                    normalPlaceholder='0x00000000'
-                    value={this.state.exchangeAddress}
-                    onSelectItem={this.onSelectExchangeWallet}
-                    onChange={this.onChange('exchangeAddress')}
-                    options={data.filter(w => w.identifier !== 'burn').map(wallet => ({
-                      key: wallet.address,
-                      value: <WalletSelect wallet={wallet} />,
-                      ...wallet
-                    }))}
-                  />
-                )
-              }}
-            />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Expiration Date <span>( Optional )</span>
-            </InputLabel>
-            <DateTime
-              onChange={this.onDateTimeChange}
-              renderInput={(props, openCalendar, closeCalendar) => {
-                return <StyledInput {...props} normalPlaceholder='Expiry date' value={this.state.expirationDate} onFocus={this.onDateTimeFocus} />
-              }}
-            />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Metadata <span>( Optional )</span>
-            </InputLabel>
-            <StyledInput normalPlaceholder='Token name' autofocus value={this.state.metadata} onChange={this.onChange('metadata')} />
-          </InputLabelContainer>
-          <InputLabelContainer>
-            <InputLabel>
-              Encrypted Metadata <span>( Optional )</span>
-            </InputLabel>
-            <StyledInput normalPlaceholder='meta data' autofocus value={this.state.encryptedMetadata} onChange={this.onChange('encryptedMetadata')} />
-          </InputLabelContainer>
-          <ButtonContainer>
-            <Button size='small' type='submit' loading={this.state.submitting}>
-              Create Request
-            </Button>
-          </ButtonContainer>
+          {this.renderTokenAmount()}
+          {this.renderAdvanceOption()}
+          {this.renderSubmitButton()}
           <Error error={this.state.error}>{this.state.error}</Error>
         </InnerContainer>
       </Form>
     )
   }
 }
+
 const EnhancedCreateTransactionRequest = enhance(CreateTransactionRequest)
 export default class CreateTransactionRequestModal extends Component {
   static propTypes = {

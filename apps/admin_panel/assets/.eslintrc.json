@@ -12,7 +12,8 @@
     "react/jsx-closing-bracket-location": 2,
     "react/no-unused-prop-types": 1,
     "react/sort-comp": 1,
-    "quotes": ["error", "single"]
+    "quotes": ["error", "single"],
+    "space-before-function-paren": ["error", "always"]
   },
   "env": {
     "jquery": true,
