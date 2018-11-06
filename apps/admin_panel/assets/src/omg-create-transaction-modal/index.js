@@ -226,7 +226,6 @@ class CreateTransaction extends Component {
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
           render={({ data, individualLoadingStatus }) => {
-            console.log(individualLoadingStatus, data.length, this.state.fromAddress)
             return (
               <Select
                 normalPlaceholder='acc_0x000000000000000'
