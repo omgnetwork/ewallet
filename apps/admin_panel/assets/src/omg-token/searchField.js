@@ -1,4 +1,4 @@
-export function createSearchAddressQuery (value = '') {
+export function createSearchTokenQuery (value = '') {
   const matchValue = value.trim()
   return {
     matchAny: [
