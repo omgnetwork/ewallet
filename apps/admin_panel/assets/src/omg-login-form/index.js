@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { Input, Button, Checkbox } from '../omg-uikit'
+import { Input, Button } from '../omg-uikit'
 import { Link, withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { compose } from 'recompose'
@@ -76,7 +76,7 @@ class LoginForm extends Component {
           const redirectUrl = _.get(this.props, 'location.state.from.pathname')
           this.props.history.push(redirectUrl || `/${result.data.account_id}/dashboard`)
         } else {
-          this.setState({ error: result.data.description, submitted: false })
+          this.setState({ error: result.error.description || result.error.message, submitted: false })
         }
       } catch (error) {
         this.setState({ error: 'Something went wrong :(', submitted: false })
@@ -100,25 +100,8 @@ class LoginForm extends Component {
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
-        <Input
-          placeholder='Email'
-          error={this.state.emailError}
-          errorText='Invalid email'
-          onChange={this.onEmailInputChange}
-          value={this.state.email}
-          disabled={this.state.submitted}
-          name='email'
-        />
-        <Input
-          placeholder='Password'
-          type='password'
-          error={this.state.passwordError}
-          errorText='Field is required'
-          onChange={this.onPasswordInputChange}
-          value={this.state.password}
-          disabled={this.state.submitted}
-          name='password'
-        />
+        <Input placeholder='Email' error={this.state.emailError} errorText='Invalid email' onChange={this.onEmailInputChange} value={this.state.email} disabled={this.state.submitted} name='email' />
+        <Input placeholder='Password' type='password' error={this.state.passwordError} errorText='Field is required' onChange={this.onPasswordInputChange} value={this.state.password} disabled={this.state.submitted} name='password' />
         <OptionRowContainer>
           <OptionItem align='right'>
             <Link to='/forget-password/'>Forget Password ?</Link>
@@ -133,6 +116,12 @@ class LoginForm extends Component {
   }
 }
 
-const enhance = compose(connect(null, { login }), withRouter)
+const enhance = compose(
+  connect(
+    null,
+    { login }
+  ),
+  withRouter
+)
 
 export default enhance(LoginForm)
