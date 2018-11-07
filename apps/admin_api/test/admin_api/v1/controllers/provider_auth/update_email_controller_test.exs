@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.ProviderAuth.SelfUpdateEmailControllerTest do
+defmodule AdminAPI.V1.ProviderAuth.UpdateEmailControllerTest do
   use AdminAPI.ConnCase, async: true
 
   @redirect_url "http://localhost:4000/update_email?email={email}&token={token}"

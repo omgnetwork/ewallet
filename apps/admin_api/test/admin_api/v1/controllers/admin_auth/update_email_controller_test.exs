@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.AdminAuth.SelfUpdateEmailControllerTest do
+defmodule AdminAPI.V1.AdminAuth.UpdateEmailControllerTest do
   use AdminAPI.ConnCase, async: true
   use Bamboo.Test
   alias AdminAPI.UpdateEmailEmail

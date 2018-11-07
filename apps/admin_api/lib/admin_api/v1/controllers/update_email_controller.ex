@@ -1,4 +1,4 @@
-defmodule AdminAPI.V1.SelfUpdateEmailController do
+defmodule AdminAPI.V1.UpdateEmailController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.UpdateEmailEmail
@@ -12,8 +12,8 @@ defmodule AdminAPI.V1.SelfUpdateEmailController do
   @doc """
   Creates the user's change email request.
   """
-  @spec update(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def update(conn, %{"email" => email, "redirect_url" => redirect_url})
+  @spec self_update(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def self_update(conn, %{"email" => email, "redirect_url" => redirect_url})
       when not is_nil(email) and not is_nil(redirect_url) do
     with {:ok, redirect_url} <- validate_redirect_url(redirect_url),
          {:ok, user} <- permit(:update_email, conn.assigns),
@@ -32,7 +32,7 @@ defmodule AdminAPI.V1.SelfUpdateEmailController do
     end
   end
 
-  def update(conn, _), do: handle_error(conn, :invalid_parameter)
+  def self_update(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp validate_email_unused(email) do
     case User.get_by(email: email) do
@@ -55,8 +55,8 @@ defmodule AdminAPI.V1.SelfUpdateEmailController do
   @doc """
   Verifies the user's change email request
   """
-  @spec verify(Plug.Conn.t(), map()) :: Plug.Conn.t()
-  def verify(
+  @spec self_verify(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def self_verify(
         conn,
         %{
           "email" => email,
@@ -76,7 +76,7 @@ defmodule AdminAPI.V1.SelfUpdateEmailController do
     end
   end
 
-  def verify(conn, _), do: handle_error(conn, :invalid_parameter)
+  def self_verify(conn, _), do: handle_error(conn, :invalid_parameter)
 
   defp get_request(email, token) do
     UpdateEmailRequest.get(email, token) || {:error, :invalid_email_update_token}
