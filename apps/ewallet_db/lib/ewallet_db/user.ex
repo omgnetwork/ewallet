@@ -45,6 +45,7 @@ defmodule EWalletDB.User do
     field(:metadata, :map, default: %{})
     field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
+    field(:enabled, :boolean, default: true)
 
     belongs_to(
       :invite,
@@ -180,6 +181,12 @@ defmodule EWalletDB.User do
     |> validate_confirmation(:password, message: "does not match password")
     |> validate_password(:password)
     |> put_change(:password_hash, password_hash)
+  end
+
+  defp enable_changeset(%User{} = user, attrs) do
+    user
+    |> cast(attrs, [:enabled])
+    |> validate_required([:enabled])
   end
 
   defp get_attr(attrs, atom_field) do
@@ -575,6 +582,12 @@ defmodule EWalletDB.User do
   def admin?(user), do: user.is_admin == true
 
   @doc """
+  Checks if the user is enabled.
+  """
+  @spec enabled?(String.t() | %User{}) :: boolean()
+  def enabled?(user), do: user.enabled == true
+
+  @doc """
   Checks if the user is an admin on the top-level account.
   """
   @spec master_admin?(%User{} | String.t()) :: boolean()
@@ -654,4 +667,14 @@ defmodule EWalletDB.User do
       select: %{a | relative_depth: child.depth}
     )
   end
+
+  @doc """
+  Enables or disables a user.
+  """
+  def enable_or_disable(user, attrs) do
+    user
+    |> enable_changeset(attrs)
+    |> Repo.update()
+  end
+
 end

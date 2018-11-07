@@ -8,8 +8,14 @@ defmodule EWalletAPI.V1.EndUserAuthenticator do
   alias EWalletDB.{AuthToken, User}
 
   def authenticate(conn, email, password) when is_binary(email) do
-    user = User.get_by_email(email)
-    authenticate(conn, user, password)
+    with %User{} = user <- User.get_by_email(email) || :user_email_not_found,
+         true <- User.enabled?(user) || :user_disabled do
+        authenticate(conn, user, password)
+    else
+      _ ->
+        Crypto.fake_verify()
+        handle_fail_auth(conn, :invalid_login_credentials)
+    end
   end
 
   def authenticate(conn, %{password_hash: password_hash} = user, password)

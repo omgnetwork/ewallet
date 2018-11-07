@@ -173,6 +173,16 @@ defmodule EWalletDB.AuthToken do
     update(token, %{expired: true})
   end
 
+  def expire_for_user(%{enabled: true}), do: :ok
+  def expire_for_user(user) do
+    from(
+      a in AuthToken,
+      where: a.user_uuid == ^user.uuid
+    )
+    |> Repo.update_all(set: [expired: true])
+    :ok
+  end
+
   # `update/2` is private to prohibit direct auth token updates,
   # if expiring the token, please use `expire/2` instead.
   defp update(%AuthToken{} = token, attrs) do

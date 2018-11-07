@@ -3,9 +3,9 @@ defmodule AdminAPI.V1.AdminUserController do
   import AdminAPI.V1.ErrorHandler
   alias AdminAPI.V1.AccountHelper
   alias AdminAPI.V1.UserView
-  alias EWallet.AdminUserPolicy
+  alias EWallet.{AdminUserPolicy, UserFetcher}
   alias EWallet.Web.{Orchestrator, Paginator, V1.UserOverlay}
-  alias EWalletDB.{User, UserQuery}
+  alias EWalletDB.{User, UserQuery, AuthToken}
 
   @doc """
   Retrieves a list of admins that the current user/key has access to.
@@ -35,6 +35,29 @@ defmodule AdminAPI.V1.AdminUserController do
       {:error, error} -> handle_error(conn, error)
     end
   end
+
+  @doc """
+  Enable or disable a user.
+  """
+  @spec enable_or_disable(Plug.Conn.t(), map()) :: Plug.Conn.t()
+  def enable_or_disable(conn, attrs) do
+    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
+         :ok <- permit(:enable_or_disable, conn.assigns, user),
+         {:ok, updated} <- User.enable_or_disable(user, attrs),
+         :ok <- AuthToken.expire_for_user(updated)
+    do
+      respond_single(updated, conn)
+    else
+      {:error, :invalid_parameter = error} ->
+        handle_error(
+          conn,
+          error,
+          "Invalid parameter provided. `id` is required."
+        )
+      {:error, error} -> handle_error(conn, error)
+    end
+  end
+
 
   # Respond with a list of admins
   defp respond_multiple(%Paginator{} = paged_users, conn) do

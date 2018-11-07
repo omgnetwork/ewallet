@@ -102,6 +102,7 @@ defmodule AdminAPI.V1.Router do
     post("/user.get_wallets", WalletController, :all_for_user)
     post("/user.get_transactions", TransactionController, :all_for_user)
     post("/user.get_transaction_consumptions", TransactionConsumptionController, :all_for_user)
+    post("/user.enable_or_disable", UserController, :enable_or_disable)
 
     # Wallet endpoints
     post("/wallet.all", WalletController, :all)
@@ -118,6 +119,7 @@ defmodule AdminAPI.V1.Router do
     # Admin endpoints
     post("/admin.all", AdminUserController, :all)
     post("/admin.get", AdminUserController, :get)
+    post("/admin.enable_or_disable", AdminUserController, :enable_or_disable)
 
     # API Access endpoints
     post("/access_key.all", KeyController, :all)
