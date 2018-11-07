@@ -17,14 +17,12 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
     test "update the current user with the given parameters" do
       response =
         admin_user_request("/me.update", %{
-          email: "test_1337@example.com",
           metadata: %{"key" => "value_1337"},
           encrypted_metadata: %{"key" => "value_1337"}
         })
 
       assert response["success"] == true
       assert response["data"]["object"] == "user"
-      assert response["data"]["email"] == "test_1337@example.com"
       assert response["data"]["metadata"] == %{"key" => "value_1337"}
       assert response["data"]["encrypted_metadata"] == %{"key" => "value_1337"}
     end
@@ -35,7 +33,6 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
 
       assert response["success"] == true
       assert response["data"]["object"] == "user"
-      assert response["data"]["email"] == user.email
       assert response["data"]["metadata"] == user.metadata
       assert response["data"]["encrypted_metadata"] == user.encrypted_metadata
     end
@@ -50,14 +47,13 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
     end
 
     test "raise an error if the update is not valid" do
-      insert(:user, %{email: "user1@example.com"})
-      response = admin_user_request("/me.update", %{email: "user1@example.com"})
+      response = admin_user_request("/me.update", %{metadata: "1234"})
 
       assert response["success"] == false
       assert response["data"]["code"] == "client:invalid_parameter"
 
       assert response["data"]["description"] ==
-               "Invalid parameter provided. `email` has already been taken."
+               "Invalid parameter provided. `metadata` is invalid."
     end
   end
 

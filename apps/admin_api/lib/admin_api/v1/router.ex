@@ -138,6 +138,7 @@ defmodule AdminAPI.V1.Router do
     post("/me.get_account", SelfController, :get_account)
     post("/me.update", SelfController, :update)
     post("/me.update_password", SelfController, :update_password)
+    post("/me.update_email", SelfUpdateEmailController, :update)
     post("/me.upload_avatar", SelfController, :upload_avatar)
 
     post("/me.logout", AdminAuthController, :logout)
@@ -155,6 +156,10 @@ defmodule AdminAPI.V1.Router do
     # Forget Password endpoints
     post("/admin.reset_password", ResetPasswordController, :reset)
     post("/admin.update_password", ResetPasswordController, :update)
+
+    # Verifying email update request is unauthenticated, because the user
+    # may be opening and verifying the email from a different device.
+    post("/admin.verify_email_update", SelfUpdateEmailController, :verify)
 
     post("/status", StatusController, :index)
     post("/status.server_error", StatusController, :server_error)

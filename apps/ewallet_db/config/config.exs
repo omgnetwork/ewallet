@@ -5,7 +5,8 @@ audits = %{
   EWalletDB.User => "user",
   EWalletDB.Invite => "invite",
   EWalletDB.Key => "key",
-  EWalletDB.ForgetPasswordRequest => "forget_password_request"
+  EWalletDB.ForgetPasswordRequest => "forget_password_request",
+  EWalletDB.UpdateEmailRequest => "update_email_request"
 }
 
 config :ewallet_db,
