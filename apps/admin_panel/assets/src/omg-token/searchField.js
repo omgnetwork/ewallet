@@ -3,12 +3,17 @@ export function createSearchTokenQuery (value = '') {
   return {
     matchAny: [
       {
-        field: 'address',
+        field: 'id',
         comparator: 'contains',
         value: matchValue
       },
       {
-        field: 'account.name',
+        field: 'symbol',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
+        field: 'symbol',
         comparator: 'contains',
         value: matchValue
       }

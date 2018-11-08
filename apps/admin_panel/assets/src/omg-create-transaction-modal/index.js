@@ -207,14 +207,18 @@ class CreateTransaction extends Component {
       this.setState({ error: JSON.stringify(e.message) })
     }
   }
+
   onRequestClose = () => {
     this.props.onRequestClose()
     this.setState({ submitting: false })
   }
 
   getBalanceOfSelectedToken = type => {
-    return this.state[`${type}Selected`] ? formatReceiveAmountToTotal(_.get(this.state[`${type}Selected`], 'amount'), _.get(this.state[`${type}Selected`], 'token.subunit_to_unit')) : '-'
+    return this.state[`${type}Selected`]
+      ? formatReceiveAmountToTotal(_.get(this.state[`${type}Selected`], 'amount'), _.get(this.state[`${type}Selected`], 'token.subunit_to_unit'))
+      : '-'
   }
+
   renderFromSection () {
     const fromWallet = this.props.selectWalletById(this.state.fromAddress.trim())
     return (
@@ -296,7 +300,10 @@ class CreateTransaction extends Component {
           }}
         />
         <div>
-          <OptionalExplanation>The fields below are optional and should only be used if you want to perform an exchange. Leave the amount blank to let the server use the default exchange rate.</OptionalExplanation>
+          <OptionalExplanation>
+            The fields below are optional and should only be used if you want to perform an exchange. Leave the amount blank to let the server use the
+            default exchange rate.
+          </OptionalExplanation>
           <InputGroupContainer>
             <div>
               <InputLabel>Token</InputLabel>
@@ -382,7 +389,11 @@ export default class CreateTransactionModal extends Component {
   render = () => {
     return (
       <Modal isOpen={this.props.open} onRequestClose={this.props.onRequestClose} contentLabel='create transaction modal' overlayClassName='dummy2'>
-        <EnhancedCreateTransaction onRequestClose={this.props.onRequestClose} onCreateTransaction={this.props.onCreateTransaction} fromAddress={this.props.fromAddress} />
+        <EnhancedCreateTransaction
+          onRequestClose={this.props.onRequestClose}
+          onCreateTransaction={this.props.onCreateTransaction}
+          fromAddress={this.props.fromAddress}
+        />
       </Modal>
     )
   }

@@ -3,12 +3,17 @@ export function createSearchUsersQuery (value = '') {
   return {
     matchAny: [
       {
-        field: 'address',
+        field: 'id',
         comparator: 'contains',
         value: matchValue
       },
       {
-        field: 'account.name',
+        field: 'email',
+        comparator: 'contains',
+        value: matchValue
+      },
+      {
+        field: 'username',
         comparator: 'contains',
         value: matchValue
       }
