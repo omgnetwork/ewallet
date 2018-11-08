@@ -134,10 +134,7 @@ class LoginForm extends Component {
 }
 
 const enhance = compose(
-  connect(
-    null,
-    { login }
-  ),
+  connect(null, { login }),
   withRouter
 )
 
