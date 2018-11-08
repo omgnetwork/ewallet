@@ -211,96 +211,6 @@ defmodule EWallet.Web.MatchAllParserTest do
       assert Enum.any?(result, fn acc -> acc.id == account_2.id end)
       refute Enum.any?(result, fn acc -> acc.id == account_3.id end)
     end
-
-    test "returns error if a filter param is missing" do
-      _txn = insert(:transaction, from_amount: 100)
-
-      attrs = %{
-        "match_all" => [
-          %{
-            "field" => "from_amount",
-            "comparator" => "eq"
-            # "value" => txn.from_amount
-          }
-        ]
-      }
-
-      {res, code, params} = MatchAllParser.to_query(Transaction, attrs, [])
-
-      assert res == :error
-      assert code == :missing_filter_param
-      assert params == %{"comparator" => "eq", "field" => "from_amount"}
-    end
-
-    test "returns error if filtering is not allowed on the field" do
-      txn = insert(:transaction, from_amount: 100)
-
-      attrs = %{
-        "match_all" => [
-          %{
-            "field" => "from_amount",
-            "comparator" => "eq",
-            "value" => txn.from_amount
-          }
-        ]
-      }
-
-      result = MatchAllParser.to_query(Transaction, attrs, [])
-
-      assert result == {:error, :not_allowed, "from_amount"}
-    end
-  end
-
-  describe "to_query/3 with field definitions" do
-    test "supports field tuples in the whitelist" do
-      whitelist = [uuid: :uuid]
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      attrs = %{
-        "match_all" => [
-          %{
-            "field" => "uuid",
-            "comparator" => "eq",
-            "value" => account_2.uuid
-          }
-        ]
-      }
-
-      query = MatchAllParser.to_query(Account, attrs, whitelist)
-      result = Repo.all(query)
-
-      refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
-      assert Enum.any?(result, fn acc -> acc.id == account_2.id end)
-      refute Enum.any?(result, fn acc -> acc.id == account_3.id end)
-    end
-
-    test "supports filtering using 'contains' with a field tuple" do
-      whitelist = [uuid: :uuid]
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      attrs = %{
-        "match_all" => [
-          %{
-            "field" => "uuid",
-            "comparator" => "contains",
-            "value" => account_3.uuid |> String.split("-") |> Enum.at(2)
-          }
-        ]
-      }
-
-      query = MatchAllParser.to_query(Account, attrs, whitelist)
-      result = Repo.all(query)
-
-      refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
-      refute Enum.any?(result, fn acc -> acc.id == account_2.id end)
-      assert Enum.any?(result, fn acc -> acc.id == account_3.id end)
-    end
   end
 
   describe "to_query/3 with nested fields" do
@@ -542,32 +452,6 @@ defmodule EWallet.Web.MatchAllParserTest do
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
       refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
       assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
-    end
-
-    test "returns error if filtering is not allowed on the field" do
-      whitelist = [from_token: [:email]]
-
-      _txn_1 = insert(:transaction)
-      txn_2 = insert(:transaction)
-      _txn_3 = insert(:transaction)
-
-      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_token)
-
-      attrs = %{
-        "match_all" => [
-          %{
-            "field" => "from_token.name",
-            "comparator" => "eq",
-            "value" => txn_2.from_token.name
-          }
-        ]
-      }
-
-      {res, code, params} = MatchAllParser.to_query(Transaction, attrs, whitelist)
-
-      assert res == :error
-      assert code == :not_allowed
-      assert params == "from_token.name"
     end
   end
 
