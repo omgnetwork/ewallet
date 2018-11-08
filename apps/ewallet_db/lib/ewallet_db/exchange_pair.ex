@@ -24,7 +24,7 @@ defmodule EWalletDB.ExchangePair do
   use EWalletConfig.Types.ExternalID
   import Ecto.Changeset
   import EWalletDB.Helpers.Preloader
-  import EWalletConfig.Validator
+  import EWalletDB.Validator
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Token}

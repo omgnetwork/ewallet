@@ -7,7 +7,7 @@ defmodule EWalletDB.User do
   use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletConfig.Validator
+  import EWalletDB.Validator
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
   alias EWalletConfig.Helpers.Crypto

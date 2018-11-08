@@ -5,7 +5,7 @@ defmodule EWalletDB.Transaction do
   use Ecto.Schema
   use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
-  import EWalletConfig.Validator
+  import EWalletDB.Validator
   import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
   alias EWalletDB.{Account, ExchangePair, Repo, Token, Transaction, User, Wallet}

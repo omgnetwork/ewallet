@@ -5,7 +5,7 @@ defmodule EWalletDB.Wallet do
   use Ecto.Schema
   use EWalletConfig.Types.WalletAddress
   import Ecto.{Changeset, Query}
-  import EWalletConfig.Validator
+  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletConfig.Types.WalletAddress
   alias EWalletDB.{Account, Repo, User, Wallet}

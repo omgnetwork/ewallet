@@ -6,7 +6,7 @@ defmodule EWalletDB.Token do
   use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
-  import EWalletConfig.Validator
+  import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Account, Repo, Token}
   alias ExULID.ULID
