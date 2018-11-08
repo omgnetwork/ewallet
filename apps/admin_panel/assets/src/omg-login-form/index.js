@@ -100,8 +100,25 @@ class LoginForm extends Component {
   render () {
     return (
       <Form onSubmit={this.onSubmit} noValidate>
-        <Input placeholder='Email' error={this.state.emailError} errorText='Invalid email' onChange={this.onEmailInputChange} value={this.state.email} disabled={this.state.submitted} name='email' />
-        <Input placeholder='Password' type='password' error={this.state.passwordError} errorText='Field is required' onChange={this.onPasswordInputChange} value={this.state.password} disabled={this.state.submitted} name='password' />
+        <Input
+          placeholder='Email'
+          error={this.state.emailError}
+          errorText='Invalid email'
+          onChange={this.onEmailInputChange}
+          value={this.state.email}
+          disabled={this.state.submitted}
+          name='email'
+        />
+        <Input
+          placeholder='Password'
+          type='password'
+          error={this.state.passwordError}
+          errorText='Field is required'
+          onChange={this.onPasswordInputChange}
+          value={this.state.password}
+          disabled={this.state.submitted}
+          name='password'
+        />
         <OptionRowContainer>
           <OptionItem align='right'>
             <Link to='/forget-password/'>Forget Password ?</Link>
