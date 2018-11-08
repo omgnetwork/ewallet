@@ -229,7 +229,7 @@ class CreateTransaction extends Component {
           accountId={this.props.match.params.accountId}
           owned={false}
           query={createSearchAddressQuery(this.state.fromAddress)}
-          render={({ data, individualLoadingStatus }) => {
+          render={({ data }) => {
             return (
               <Select
                 normalPlaceholder='acc_0x000000000000000'
