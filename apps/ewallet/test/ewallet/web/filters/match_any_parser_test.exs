@@ -5,48 +5,6 @@ defmodule EWallet.Web.MatchAnyParserTest do
   alias EWalletDB.{Account, Repo, Transaction, User}
 
   describe "to_query/3" do
-    test "returns distinct records in a *-many filter" do
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-
-      token_1 = insert(:token, account: account_1)
-      token_2 = insert(:token, account: account_1)
-      token_3 = insert(:token, account: account_2)
-      token_4 = insert(:token, account: account_2)
-
-      attrs = %{
-        "match_any" => [
-          %{
-            "field" => "tokens.symbol",
-            "comparator" => "eq",
-            "value" => token_1.symbol
-          },
-          %{
-            "field" => "tokens.symbol",
-            "comparator" => "eq",
-            "value" => token_2.symbol
-          },
-          %{
-            "field" => "tokens.symbol",
-            "comparator" => "eq",
-            "value" => token_3.symbol
-          },
-          %{
-            "field" => "tokens.symbol",
-            "comparator" => "eq",
-            "value" => token_4.symbol
-          }
-        ]
-      }
-
-      query = MatchAnyParser.to_query(Account, attrs, tokens: [:symbol])
-      result = Repo.all(query)
-
-      assert Enum.count(result) == 2
-      assert Enum.any?(result, fn account -> account.id == account_1.id end)
-      assert Enum.any?(result, fn account -> account.id == account_2.id end)
-    end
-
     test "filter for boolean true when given 'true' as value" do
       user_1 = insert(:user, is_admin: false)
       user_2 = insert(:user, is_admin: false)
@@ -253,147 +211,9 @@ defmodule EWallet.Web.MatchAnyParserTest do
       assert Enum.any?(result, fn acc -> acc.id == account_2.id end)
       refute Enum.any?(result, fn acc -> acc.id == account_3.id end)
     end
-
-    test "returns error if a filter param is missing" do
-      _txn = insert(:transaction, from_amount: 100)
-
-      attrs = %{
-        "match_any" => [
-          %{
-            "field" => "from_amount",
-            "comparator" => "eq"
-            # "value" => txn.from_amount
-          }
-        ]
-      }
-
-      {res, code, params} = MatchAnyParser.to_query(Transaction, attrs, [])
-
-      assert res == :error
-      assert code == :missing_filter_param
-      assert params == %{"comparator" => "eq", "field" => "from_amount"}
-    end
-
-    test "returns error if filtering is not allowed on the field" do
-      txn = insert(:transaction, from_amount: 100)
-
-      attrs = %{
-        "match_any" => [
-          %{
-            "field" => "from_amount",
-            "comparator" => "eq",
-            "value" => txn.from_amount
-          }
-        ]
-      }
-
-      result = MatchAnyParser.to_query(Transaction, attrs, [])
-
-      assert result == {:error, :not_allowed, "from_amount"}
-    end
-  end
-
-  describe "to_query/3 with field definitions" do
-    test "supports field tuples in the whitelist" do
-      whitelist = [uuid: :uuid]
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      attrs = %{
-        "match_any" => [
-          %{
-            "field" => "uuid",
-            "comparator" => "eq",
-            "value" => account_2.uuid
-          }
-        ]
-      }
-
-      query = MatchAnyParser.to_query(Account, attrs, whitelist)
-      result = Repo.all(query)
-
-      refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
-      assert Enum.any?(result, fn acc -> acc.id == account_2.id end)
-      refute Enum.any?(result, fn acc -> acc.id == account_3.id end)
-    end
-
-    test "supports filtering using 'contains' with a field tuple" do
-      whitelist = [uuid: :uuid]
-
-      account_1 = insert(:account)
-      account_2 = insert(:account)
-      account_3 = insert(:account)
-
-      attrs = %{
-        "match_any" => [
-          %{
-            "field" => "uuid",
-            "comparator" => "contains",
-            "value" => account_3.uuid |> String.split("-") |> Enum.at(2)
-          }
-        ]
-      }
-
-      query = MatchAnyParser.to_query(Account, attrs, whitelist)
-      result = Repo.all(query)
-
-      refute Enum.any?(result, fn acc -> acc.id == account_1.id end)
-      refute Enum.any?(result, fn acc -> acc.id == account_2.id end)
-      assert Enum.any?(result, fn acc -> acc.id == account_3.id end)
-    end
   end
 
   describe "to_query/3 with nested fields" do
-    test "supports up to 5 different associations" do
-      whitelist = [
-        from_user: [:id],
-        to_user: [:id],
-        from_token: [:id],
-        to_token: [:id],
-        from_wallet: [:id],
-        to_wallet: [:id]
-      ]
-
-      attrs = %{
-        "match_any" => [
-          %{"field" => "from_user.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "to_user.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "from_token.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "to_token.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "from_wallet.id", "comparator" => "eq", "value" => 1234}
-        ]
-      }
-
-      assert %Ecto.Query{} = MatchAnyParser.to_query(Transaction, attrs, whitelist)
-    end
-
-    test "returns error if more than 5 associations are referenced" do
-      whitelist = [
-        from_user: [:id],
-        to_user: [:id],
-        from_token: [:id],
-        to_token: [:id],
-        from_wallet: [:id],
-        to_wallet: [:id]
-      ]
-
-      attrs = %{
-        "match_any" => [
-          %{"field" => "from_user.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "to_user.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "from_token.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "to_token.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "from_wallet.id", "comparator" => "eq", "value" => 1234},
-          %{"field" => "to_wallet.id", "comparator" => "eq", "value" => 1234}
-        ]
-      }
-
-      result = MatchAnyParser.to_query(Transaction, attrs, whitelist)
-      assert result == {:error, :too_many_associations}
-    end
-
     test "filter for boolean true when given 'true' as value" do
       whitelist = [from_user: [:is_admin]]
 
@@ -632,32 +452,6 @@ defmodule EWallet.Web.MatchAnyParserTest do
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
       refute Enum.any?(result, fn txn -> txn.id == txn_2.id end)
       assert Enum.any?(result, fn txn -> txn.id == txn_3.id end)
-    end
-
-    test "returns error if filtering is not allowed on the field" do
-      whitelist = [from_token: [:email]]
-
-      _txn_1 = insert(:transaction)
-      txn_2 = insert(:transaction)
-      _txn_3 = insert(:transaction)
-
-      {:ok, txn_2} = Preloader.preload_one(txn_2, :from_token)
-
-      attrs = %{
-        "match_any" => [
-          %{
-            "field" => "from_token.name",
-            "comparator" => "eq",
-            "value" => txn_2.from_token.name
-          }
-        ]
-      }
-
-      {res, code, params} = MatchAnyParser.to_query(Transaction, attrs, whitelist)
-
-      assert res == :error
-      assert code == :not_allowed
-      assert params == "from_token.name"
     end
   end
 

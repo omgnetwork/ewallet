@@ -1,11 +1,10 @@
-defmodule EWallet.Web.MatchAnyParser do
+defmodule EWallet.Web.MatchParser do
   @moduledoc """
   This module allows parsing of arbitrary attributes into a filtering query.
   It takes in a request's attributes, parses only the attributes needed for filtering,
   then builds those attributes into a filtering query on top of the given `Ecto.Queryable`.
   """
   import Ecto.Query
-  import EWallet.Web.MatchAnyParserHelper
 
   # Steps:
   # 1. Parse the list of `%{"field" => _, "comparator" => _, "value" => _}`
@@ -14,20 +13,18 @@ defmodule EWallet.Web.MatchAnyParser do
   #    Also build a map of positional reference of the joined assocs.
   # 3. Condition the joined queryable by the parsed_input.
 
-  @spec to_query(Ecto.Queryable.t(), map(), [atom()]) :: Ecto.Queryable.t()
-  def to_query(queryable, %{"match_any" => inputs}, whitelist) do
+  @spec build_query(Ecto.Queryable.t(), map(), [atom()], boolean(), atom()) :: Ecto.Queryable.t()
+  def build_query(queryable, inputs, whitelist, initial_dynamic, query_module) do
     with rules when is_list(rules) <- parse_rules(inputs, whitelist),
          {queryable, assoc_positions} <- join_assocs(queryable, rules),
          true <- Enum.count(assoc_positions) <= 5 || {:error, :too_many_associations},
-         queryable <- filter(queryable, assoc_positions, rules),
+         queryable <- filter(queryable, assoc_positions, rules, initial_dynamic, query_module),
          queryable <- distinct(queryable, true) do
       queryable
     else
       error -> error
     end
   end
-
-  def to_query(queryable, _, _), do: queryable
 
   # Parses a list of arbitary `%{"field" => _, "comparator" => _, "value" => _}`
   # into a list of `{field, subfield, type, comparator, value}`.
@@ -148,18 +145,18 @@ defmodule EWallet.Web.MatchAnyParser do
     {queryable, joined_assocs}
   end
 
-  def filter(queryable, assoc_positions, rules) do
+  defp filter(queryable, assoc_positions, rules, initial_dynamic, query_module) do
     dynamic =
-      Enum.reduce(rules, false, fn rule, dynamic ->
+      Enum.reduce(rules, initial_dynamic, fn rule, dynamic ->
         {field_definition, comparator, value} = rule
 
         case field_definition do
           {field, type} ->
-            do_filter(dynamic, field, type, comparator, value)
+            query_module.do_filter(dynamic, field, type, comparator, value)
 
           {field, subfield, type} ->
             position = assoc_positions[field]
-            do_filter_assoc(dynamic, position, subfield, type, comparator, value)
+            query_module.do_filter_assoc(dynamic, position, subfield, type, comparator, value)
         end
       end)
 

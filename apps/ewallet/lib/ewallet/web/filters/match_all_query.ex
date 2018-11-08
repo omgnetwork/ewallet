@@ -1,6 +1,6 @@
 # Skipping cyclomatic complexity check for this file as the query conditions are unavoidable.
 # credo:disable-for-this-file Credo.Check.Refactor.CyclomaticComplexity
-defmodule EWallet.Web.MatchAllParserHelper do
+defmodule EWallet.Web.MatchAllQuery do
   @moduledoc """
   Functions to build the actual query elements.
   """
