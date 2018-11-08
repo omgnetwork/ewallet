@@ -80,7 +80,10 @@ describe('transaction actions', () => {
     sessionService.updatePasswordWithResetToken.mockImplementation(() => {
       return Promise.resolve({ data: { success: true, data: 'wow' } })
     })
-    const expectedActions = [{ type: 'PASSWORD_TOKEN/UPDATE/INITIATED' }, { type: 'PASSWORD_TOKEN/UPDATE/SUCCESS', data: 'wow' }]
+    const expectedActions = [
+      { type: 'PASSWORD_TOKEN/UPDATE/INITIATED' },
+      { type: 'PASSWORD_TOKEN/UPDATE/SUCCESS', data: 'wow' }
+    ]
     return store
       .dispatch(
         updatePasswordWithResetToken({
