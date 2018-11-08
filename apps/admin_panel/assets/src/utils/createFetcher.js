@@ -70,7 +70,10 @@ export const createFetcher = (entity, reducer, selectors) => {
       }
       fetch = async () => {
         this.setState(oldState => ({
-          loadingStatus: oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED ? CONSTANT.LOADING_STATUS.INITIATED : CONSTANT.LOADING_STATUS.PENDING
+          loadingStatus:
+            oldState.loadingStatus === CONSTANT.LOADING_STATUS.INITIATED
+              ? CONSTANT.LOADING_STATUS.INITIATED
+              : CONSTANT.LOADING_STATUS.PENDING
         }))
         this.props
           .dispatcher({ ...this.props, ...this.getQuery() })
