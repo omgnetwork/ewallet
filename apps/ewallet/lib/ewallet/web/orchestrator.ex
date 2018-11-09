@@ -6,6 +6,7 @@ defmodule EWallet.Web.Orchestrator do
     This module should be used in every controller to deal with searching, filtering,
     preloading and sorting.
   """
+  alias Ecto.Query
 
   alias EWallet.Web.{
     MatchAllParser,
@@ -17,7 +18,7 @@ defmodule EWallet.Web.Orchestrator do
   }
 
   def query(query, overlay, attrs \\ %{}) do
-    with %Ecto.Query{} = query <- build_query(query, overlay, attrs),
+    with %Query{} = query <- build_query(query, overlay, attrs),
          paginated <- Paginator.paginate_attrs(query, attrs) do
       paginated
     else
@@ -27,12 +28,15 @@ defmodule EWallet.Web.Orchestrator do
   end
 
   def build_query(query, overlay, attrs \\ %{}) do
-    query
-    |> preload_to_query(overlay, attrs)
-    |> MatchAllParser.to_query(attrs, overlay.filter_fields())
-    |> MatchAnyParser.to_query(attrs, overlay.filter_fields())
-    |> SearchParser.to_query(attrs, overlay.search_fields, default_mapped_fields())
-    |> SortParser.to_query(attrs, overlay.sort_fields, default_mapped_fields())
+    with %Query{} = query <- preload_to_query(query, overlay, attrs),
+         %Query{} = query <- MatchAllParser.to_query(query, attrs, overlay.filter_fields()),
+         %Query{} = query <- MatchAnyParser.to_query(query, attrs, overlay.filter_fields()),
+         %Query{} = query <- SearchParser.to_query(query, attrs, overlay.search_fields, default_mapped_fields()),
+         %Query{} = query <- SortParser.to_query(query, attrs, overlay.sort_fields, default_mapped_fields()) do
+      query
+    else
+      error -> error
+    end
   end
 
   def all(records, overlay, attrs \\ %{})
