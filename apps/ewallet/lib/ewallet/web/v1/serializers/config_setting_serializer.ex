@@ -79,8 +79,11 @@ defmodule EWallet.Web.V1.ConfigSettingSerializer do
   end
 
   def serialize({key, {:error, %Changeset{} = changeset}}, data) do
-    error = ErrorHandler.build_error(:invalid_parameter, changeset, ErrorHandler.errors())
-    Map.put(data, key, Map.put(error, :object, "configuration_setting_error"))
+    Map.put(
+      data,
+      key,
+      ErrorHandler.build_error(:invalid_parameter, changeset, ErrorHandler.errors())
+    )
   end
 
   def serialize({key, {:error, code}}, data) do

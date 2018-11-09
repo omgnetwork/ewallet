@@ -102,12 +102,7 @@ defmodule EWalletConfig.Config do
 
   @spec update(Map.t(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
   def update(attrs, pid \\ __MODULE__) do
-    config_pid = attrs[:config_pid] || attrs["config_pid"]
-
-    attrs =
-      attrs
-      |> Map.delete(:config_pid)
-      |> Map.delete("config_pid")
+    {config_pid, attrs} = get_config_pid(attrs)
 
     case Mix.env() == :test do
       true ->
@@ -117,6 +112,17 @@ defmodule EWalletConfig.Config do
         GenServer.call(__MODULE__, {:update_and_reload, attrs})
     end
   end
+
+  defp get_config_pid(%{config_pid: config_pid} = attrs),
+    do: {config_pid, Map.delete(attrs, :config_pid)}
+
+  defp get_config_pid(%{"config_pid" => config_pid} = attrs),
+    do: {config_pid, Map.delete(attrs, "config_pid")}
+
+  defp get_config_pid([{:config_pid, config_pid}] = attrs),
+    do: {config_pid, Keyword.delete(attrs, :configpid)}
+
+  defp get_config_pid(attrs), do: {nil, attrs}
 
   @spec insert_all_defaults(Map.t(), Atom.t()) :: :ok
   def insert_all_defaults(opts \\ %{}, pid \\ __MODULE__) do

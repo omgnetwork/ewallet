@@ -79,7 +79,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
                "description" =>
                  "Invalid parameter provided. `value` must be one of 'smtp', 'local', 'test'.",
                "messages" => %{"value" => ["value_not_allowed"]},
-               "object" => "configuration_setting_error"
+               "object" => "error"
              }
 
       assert data["fake_setting"] == %{
@@ -92,7 +92,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
                "code" => "client:invalid_parameter",
                "description" => "Invalid parameter provided. `value` must be of type 'integer'.",
                "messages" => %{"value" => ["invalid_type_for_value"]},
-               "object" => "configuration_setting_error"
+               "object" => "error"
              }
     end
 

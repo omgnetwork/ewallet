@@ -15,6 +15,7 @@ defmodule EWallet.Web.Orchestrator do
     SearchParser,
     SortParser
   }
+
   alias EWalletDB.Repo
 
   def query(query, overlay, attrs \\ %{}, repo \\ Repo) do

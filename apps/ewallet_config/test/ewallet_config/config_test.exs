@@ -70,7 +70,7 @@ defmodule EWalletConfig.ConfigTest do
       pid = default_loading()
       {:ok, settings} = Config.update([my_setting: "new_value"], pid)
 
-      assert {:ok, _} = Enum.at(settings, 0)
+      assert {:my_setting, {:ok, _}} = Enum.at(settings, 0)
       assert Application.get_env(:my_app, :my_setting) == "new_value"
     end
 

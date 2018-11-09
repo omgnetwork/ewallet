@@ -252,7 +252,8 @@ defmodule AdminAPI.V1.AdminAuth.WalletControllerTest do
                    "current_page" => 1,
                    "is_first_page" => true,
                    "is_last_page" => true,
-                   "per_page" => 10
+                   "per_page" => 10,
+                   "count" => 1
                  },
                  "data" => [
                    %{
