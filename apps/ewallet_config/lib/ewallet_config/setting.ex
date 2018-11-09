@@ -248,28 +248,6 @@ defmodule EWalletConfig.Setting do
     |> add_position()
   end
 
-  defp build_changeset(changeset) do
-    %Changeset{
-      action: changeset.action,
-      changes: clean_changes(changeset.changes),
-      errors: changeset.errors,
-      data: %Setting{},
-      valid?: changeset.valid?
-    }
-  end
-
-  defp clean_changes(%{encrypted_data: data} = changes) do
-    changes
-    |> Map.delete(:encrypted_data)
-    |> Map.put(:value, data[:value])
-  end
-
-  defp clean_changes(%{data: data} = changes) do
-    changes
-    |> Map.delete(:data)
-    |> Map.put(:value, data[:value])
-  end
-
   defp extract_value(%{secret: true, encrypted_data: nil}), do: nil
 
   defp extract_value(%{secret: true, encrypted_data: data}) do

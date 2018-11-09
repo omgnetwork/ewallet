@@ -3,7 +3,7 @@ defmodule AdminAPI.V1.ConfigurationController do
   import AdminAPI.V1.ErrorHandler
 
   alias EWallet.Web.{Orchestrator, V1.SettingOverlay}
-  alias EWalletConfig.{Config, Setting, Repo}
+  alias EWalletConfig.{Config, Repo}
 
   def get(conn, attrs) do
     settings =
