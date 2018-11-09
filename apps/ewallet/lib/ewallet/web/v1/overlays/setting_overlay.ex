@@ -15,7 +15,7 @@ defmodule EWallet.Web.V1.SettingOverlay do
       :id,
       :key
     ]
-    
+
   def sort_fields,
     do: [
       :id,

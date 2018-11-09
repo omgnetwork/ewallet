@@ -19,19 +19,93 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
     end
 
     test "returns a list of settings" do
-      response = admin_user_request("/configuration.get", %{
-        per_page: 100,
-        sort_by: "position",
-        sort_dir: "asc"
-      })
+      response =
+        admin_user_request("/configuration.get", %{
+          per_page: 100,
+          sort_by: "position",
+          sort_dir: "asc"
+        })
 
       assert response["success"] == true
       assert length(response["data"]["data"]) == 19
       assert response["data"]["pagination"]["count"] == 19
 
-      setting = Enum.at(response["data"]["data"], 0)
-      assert setting["key"] == "aws_access_key_id"
-      assert setting["position"] == 0
+      first_setting = Enum.at(response["data"]["data"], 0)
+      last_setting = Enum.at(response["data"]["data"], -1)
+
+      assert first_setting["key"] == "base_url"
+      assert first_setting["position"] == 1
+
+      assert last_setting["key"] == "aws_secret_access_key"
+      assert last_setting["position"] == 19
+    end
+  end
+
+  describe "/configuration.update" do
+    test "updates one setting", meta do
+      response =
+        admin_user_request("/configuration.update", %{
+          base_url: "new_base_url.example",
+          config_pid: meta[:config_pid]
+        })
+
+      assert response["success"] == true
+      assert response["data"]["data"]["base_url"] != nil
+      assert response["data"]["data"]["base_url"]["value"] == "new_base_url.example"
+    end
+
+    test "updates a list of settings with failures", meta do
+      response =
+        admin_user_request("/configuration.update", %{
+          base_url: "new_base_url.example",
+          redirect_url_prefixes: ["new_base_url.example", "something.else"],
+          fake_setting: "my_value",
+          max_per_page: true,
+          email_adapter: "fake",
+          config_pid: meta[:config_pid]
+        })
+
+      assert response["success"] == true
+      data = response["data"]["data"]
+
+      assert data["base_url"] != nil
+      assert data["base_url"]["value"] == "new_base_url.example"
+
+      assert data["redirect_url_prefixes"] != nil
+      assert data["redirect_url_prefixes"]["value"] == ["new_base_url.example", "something.else"]
+
+      assert data["email_adapter"] == %{
+               "code" => "client:invalid_parameter",
+               "description" =>
+                 "Invalid parameter provided. `value` must be one of 'smtp', 'local', 'test'.",
+               "messages" => %{"value" => ["value_not_allowed"]},
+               "object" => "configuration_setting_error"
+             }
+
+      assert data["fake_setting"] == %{
+               "code" => "setting_not_found",
+               "key" => "fake_setting",
+               "object" => "configuration_setting_error"
+             }
+
+      assert data["max_per_page"] == %{
+               "code" => "client:invalid_parameter",
+               "description" => "Invalid parameter provided. `value` must be of type 'integer'.",
+               "messages" => %{"value" => ["invalid_type_for_value"]},
+               "object" => "configuration_setting_error"
+             }
+    end
+
+    test "reloads app env", meta do
+      response =
+        admin_user_request("/configuration.update", %{
+          base_url: "new_base_url.example",
+          config_pid: meta[:config_pid]
+        })
+
+      assert response["success"] == true
+
+      assert Application.get_env(:admin_api, :base_url, "new_base_url.example")
     end
   end
 end

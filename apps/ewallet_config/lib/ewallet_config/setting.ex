@@ -186,10 +186,11 @@ defmodule EWalletConfig.Setting do
     Enum.map(attrs, fn data ->
       case data do
         {key, value} ->
-          update(key, %{value: value})
+          {key, update(key, %{value: value})}
 
         data ->
-          update(data[:key] || data["key"], data)
+          key = data[:key] || data["key"]
+          {key, update(key, data)}
       end
     end)
   end
@@ -197,7 +198,7 @@ defmodule EWalletConfig.Setting do
   @spec update_all(Map.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()} | {:error, Changeset.t()}]
   def update_all(attrs) do
     Enum.map(attrs, fn {key, value} ->
-      update(key, %{value: value})
+      {key, update(key, %{value: value})}
     end)
   end
 
@@ -237,7 +238,7 @@ defmodule EWalletConfig.Setting do
   end
 
   defp return_from_change({:error, changeset}) do
-    {:error, build_changeset(changeset)}
+    {:error, changeset}
   end
 
   defp cast_attrs(attrs) do

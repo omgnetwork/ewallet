@@ -44,7 +44,8 @@ defmodule EWallet.Web.Paginator do
     parse_string_param(queryable, attrs, "per_page", per_page, repo)
   end
 
-  def paginate_attrs(_, %{"per_page" => per_page}, _repo) when is_integer(per_page) and per_page < 1 do
+  def paginate_attrs(_, %{"per_page" => per_page}, _repo)
+      when is_integer(per_page) and per_page < 1 do
     {:error, :invalid_parameter, "`per_page` must be non-negative, non-zero integer"}
   end
 

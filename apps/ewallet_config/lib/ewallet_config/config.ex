@@ -102,7 +102,20 @@ defmodule EWalletConfig.Config do
 
   @spec update(Map.t(), Atom.t()) :: [{:ok, %Setting{}} | {:error, Atom.t()}]
   def update(attrs, pid \\ __MODULE__) do
-    GenServer.call(pid, {:update_and_reload, attrs})
+    config_pid = attrs[:config_pid] || attrs["config_pid"]
+
+    attrs =
+      attrs
+      |> Map.delete(:config_pid)
+      |> Map.delete("config_pid")
+
+    case Mix.env() == :test do
+      true ->
+        GenServer.call(config_pid || pid, {:update_and_reload, attrs})
+
+      false ->
+        GenServer.call(__MODULE__, {:update_and_reload, attrs})
+    end
   end
 
   @spec insert_all_defaults(Map.t(), Atom.t()) :: :ok
