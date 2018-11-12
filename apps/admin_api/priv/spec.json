@@ -1561,6 +1561,43 @@
         } ]
       }
     },
+    "/admin.enable_or_disable" : {
+      "post" : {
+        "tags" : [ "Admin" ],
+        "summary" : "Enable or disable an existing admin.",
+        "operationId" : "admin_user_enable_or_disable",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/AdminToggleStatusBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single user",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
     "/invite.accept" : {
       "post" : {
         "tags" : [ "Admin" ],
@@ -1994,6 +2031,43 @@
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
                   "$ref" : "#/components/schemas/TransactionsResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/user.enable_or_disable" : {
+      "post" : {
+        "tags" : [ "User" ],
+        "summary" : "Enable or disable an existing user.",
+        "operationId" : "user_enable_or_disable",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/UserToggleStatusBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single user",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/UserResponseSchema"
                 }
               }
             }
@@ -4013,6 +4087,9 @@
             "type" : "string",
             "format" : "email"
           },
+          "enabled" : {
+            "type" : "boolean"
+          },
           "metadata" : {
             "type" : "object"
           },
@@ -4046,6 +4123,7 @@
           "full_name" : "John Doe",
           "calling_name" : "John",
           "email" : "johndoe@omise.co",
+          "enabled" : true,
           "metadata" : {
             "first_name" : "John",
             "last_name" : "Doe"
@@ -4088,6 +4166,9 @@
             "type" : "string",
             "format" : "email"
           },
+          "enabled" : {
+            "type" : "boolean"
+          },
           "metadata" : {
             "type" : "object"
           },
@@ -4115,6 +4196,7 @@
           "full_name" : "John Doe",
           "calling_name" : "John",
           "email" : "johndoe@omise.co",
+          "enabled" : true,
           "metadata" : {
             "first_name" : "John",
             "last_name" : "Doe"
@@ -4150,6 +4232,7 @@
               "full_name" : "John Doe",
               "calling_name" : "John",
               "email" : "johndoe@omise.co",
+              "enabled" : true,
               "metadata" : {
                 "first_name" : "John",
                 "last_name" : "Doe"
@@ -4205,6 +4288,7 @@
                   "first_name" : "John",
                   "last_name" : "Doe"
                 },
+                "enabled" : true,
                 "encrypted_metadata" : {
                   "something" : "secret"
                 },
@@ -4261,6 +4345,7 @@
                 "full_name" : "John Doe",
                 "calling_name" : "John",
                 "email" : "johndoe@omise.co",
+                "enabled" : true,
                 "metadata" : {
                   "first_name" : "John",
                   "last_name" : "Doe"
@@ -4508,6 +4593,7 @@
               "full_name" : "John Doe",
               "calling_name" : "John",
               "email" : "johndoe@omise.co",
+              "enabled" : true,
               "metadata" : {
                 "first_name" : "John",
                 "last_name" : "Doe"
@@ -6993,6 +7079,29 @@
         },
         "required" : true
       },
+      "AdminToggleStatusBody" : {
+        "description" : "The parameters to enable/disable an admin. Send enabled=true to enable, enabled=false to disable.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "enabled", "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "enabled" : {
+                  "type" : "boolean"
+                }
+              },
+              "example" : {
+                "id" : "usr_01ct2zjh20fj210bzz078948f6",
+                "enabled" : false
+              }
+            }
+          }
+        },
+        "required" : true
+      },
       "AdminUpdatePasswordBody" : {
         "description" : "The parameters to use for updating a user's password",
         "content" : {
@@ -7254,6 +7363,41 @@
               "example" : {
                 "auth_token" : "atk_01ce83q2zw7zk1dqr79t22zr1v"
               }
+            }
+          }
+        },
+        "required" : true
+      },
+      "UserToggleStatusBody" : {
+        "description" : "The parameters to enable/disable a user. Send enabled=true to enable, enabled=false to disable.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "example" : {
+                "id" : "usr_01ct2zjh20fj210bzz078948f6",
+                "enabled" : false
+              },
+              "oneOf" : [ {
+                "required" : [ "enabled", "id" ],
+                "properties" : {
+                  "id" : {
+                    "type" : "string"
+                  },
+                  "enabled" : {
+                    "type" : "boolean"
+                  }
+                }
+              }, {
+                "required" : [ "enabled", "provider_user_id" ],
+                "properties" : {
+                  "provider_user_id" : {
+                    "type" : "string"
+                  },
+                  "enabled" : {
+                    "type" : "boolean"
+                  }
+                }
+              } ]
             }
           }
         },
