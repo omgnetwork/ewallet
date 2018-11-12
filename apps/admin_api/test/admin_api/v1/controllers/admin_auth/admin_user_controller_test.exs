@@ -1,7 +1,9 @@
 defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
-  alias EWalletDB.User
+  alias EWalletDB.{User, Account, AuthToken}
+
+  @owner_app :some_app
 
   describe "/admin.all" do
     test "returns a list of admins and pagination data" do
@@ -90,6 +92,55 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
 
       assert response["data"]["description"] ==
                "You are not allowed to perform the requested operation."
+    end
+  end
+
+  describe "/user.enable_or_disable" do
+    test "disable an admin succeed and disable his tokens" do
+      account = Account.get_master_account()
+      role = insert(:role, %{name: "some_role"})
+      admin = insert(:admin, %{email: "admin@omise.co"})
+      _membership = insert(:membership, %{user: admin, account: account, role: role})
+
+      {:ok, token} = AuthToken.generate(admin, @owner_app)
+      token_string = token.token
+      # Ensure tokens is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
+
+      response =
+        admin_user_request("/admin.enable_or_disable", %{
+          id: admin.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["enabled"] == false
+      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "disable an admin that doesn't exist raises an error" do
+      response =
+        admin_user_request("/admin.enable_or_disable", %{
+          id: "invalid_id",
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:id_not_found"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided id."
+    end
+
+    test "disable an admin with missing params raises an error" do
+      response =
+        admin_user_request("/admin.enable_or_disable", %{
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+      assert response["data"]["description"] == "Invalid parameter provided. `id` is required."
     end
   end
 end
