@@ -105,6 +105,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
           "username" => inserted_user.username,
           "full_name" => inserted_user.full_name,
           "calling_name" => inserted_user.calling_name,
+          "enabled" => inserted_user.enabled,
           "metadata" => %{
             "first_name" => inserted_user.metadata["first_name"],
             "last_name" => inserted_user.metadata["last_name"]

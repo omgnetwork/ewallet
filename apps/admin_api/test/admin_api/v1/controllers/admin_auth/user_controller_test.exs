@@ -230,6 +230,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
           "created_at" => Date.to_iso8601(inserted_user.inserted_at),
           "updated_at" => Date.to_iso8601(inserted_user.updated_at),
           "email" => nil,
+          "enabled" => inserted_user.enabled,
           "avatar" => %{
             "large" => nil,
             "original" => nil,

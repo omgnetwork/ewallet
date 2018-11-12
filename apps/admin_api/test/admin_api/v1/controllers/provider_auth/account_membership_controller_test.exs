@@ -36,6 +36,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "updated_at" => Date.to_iso8601(user.updated_at),
                "account_role" => role.name,
                "status" => to_string(User.get_status(user)),
+               "enabled" => user.enabled,
                "avatar" => %{
                  "original" => nil,
                  "large" => nil,
@@ -75,6 +76,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                "updated_at" => Date.to_iso8601(admin.updated_at),
                "account_role" => "admin",
                "status" => to_string(User.get_status(admin)),
+               "enabled" => admin.enabled,
                "avatar" => %{
                  "original" => nil,
                  "large" => nil,
@@ -127,6 +129,7 @@ defmodule AdminAPI.V1.ProviderAuth.AccountMembershipControllerTest do
                        "updated_at" => Date.to_iso8601(admin.updated_at),
                        "account_role" => "admin",
                        "status" => to_string(User.get_status(admin)),
+                       "enabled" => admin.enabled,
                        "avatar" => %{
                          "original" => nil,
                          "large" => nil,

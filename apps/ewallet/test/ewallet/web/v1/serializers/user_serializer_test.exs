@@ -17,6 +17,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
         calling_name: user.calling_name,
         provider_user_id: user.provider_user_id,
         email: user.email,
+        enabled: user.enabled,
         avatar: %{
           original: nil,
           large: nil,
@@ -75,6 +76,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               small: nil,
               thumb: nil
             },
+            enabled: user1.enabled,
             metadata: %{
               "first_name" => user1.metadata["first_name"],
               "last_name" => user1.metadata["last_name"]
@@ -98,6 +100,7 @@ defmodule EWallet.Web.V1.UserSerializerTest do
               small: nil,
               thumb: nil
             },
+            enabled: user2.enabled,
             metadata: %{
               "first_name" => user2.metadata["first_name"],
               "last_name" => user2.metadata["last_name"]

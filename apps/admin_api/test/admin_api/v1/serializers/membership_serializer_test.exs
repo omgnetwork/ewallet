@@ -22,6 +22,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         calling_name: user.calling_name,
         provider_user_id: user.provider_user_id,
         email: user.email,
+        enabled: user.enabled,
         metadata: %{
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]
@@ -82,6 +83,7 @@ defmodule AdminAPI.V1.MembershipSerializerTest do
         socket_topic: "user:#{user.id}",
         provider_user_id: user.provider_user_id,
         email: user.email,
+        enabled: user.enabled,
         metadata: %{
           "first_name" => user.metadata["first_name"],
           "last_name" => user.metadata["last_name"]

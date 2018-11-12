@@ -53,8 +53,8 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
         "success" => false,
         "data" => %{
           "object" => "error",
-          "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided.",
+          "code" => "user:provider_user_id_not_found",
+          "description" => "There is no user corresponding to the provided provider_user_id.",
           "messages" => nil
         }
       }
@@ -71,7 +71,7 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
         "data" => %{
           "object" => "error",
           "code" => "client:invalid_parameter",
-          "description" => "Invalid parameter provided.",
+          "description" => "Invalid parameter provided. `id` or `provider_user_id` is required.",
           "messages" => nil
         }
       }
