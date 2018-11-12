@@ -50,6 +50,13 @@ defmodule AdminAPI.Web.V1.AdminUserAuthenticatorTest do
       conn = AdminUserAuthenticator.authenticate(build_conn(), nil, nil)
       assert_error(conn)
     end
+
+    test "returns authenticated:false if user is disabled" do
+      admin = get_test_admin()
+      User.enable_or_disable(admin, %{enabled: false})
+      conn = AdminUserAuthenticator.authenticate(build_conn(), @user_email, @password)
+      assert_error(conn)
+    end
   end
 
   defp assert_success(conn) do
