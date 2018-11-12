@@ -31,8 +31,10 @@ defmodule EWallet.Web.Orchestrator do
     with %Query{} = query <- preload_to_query(query, overlay, attrs),
          %Query{} = query <- MatchAllParser.to_query(query, attrs, overlay.filter_fields()),
          %Query{} = query <- MatchAnyParser.to_query(query, attrs, overlay.filter_fields()),
-         %Query{} = query <- SearchParser.to_query(query, attrs, overlay.search_fields, default_mapped_fields()),
-         %Query{} = query <- SortParser.to_query(query, attrs, overlay.sort_fields, default_mapped_fields()) do
+         %Query{} = query <-
+           SearchParser.to_query(query, attrs, overlay.search_fields, default_mapped_fields()),
+         %Query{} = query <-
+           SortParser.to_query(query, attrs, overlay.sort_fields, default_mapped_fields()) do
       query
     else
       error -> error
