@@ -5,7 +5,6 @@ import styled from 'styled-components'
 import moment from 'moment'
 import Link from '../omg-links'
 const InformationItem = styled.div`
-
   color: ${props => props.theme.colors.B200};
   :not(:last-child) {
     margin-bottom: 10px;
@@ -73,7 +72,10 @@ export default class TransactionRequestDetail extends Component {
         <InformationItem>
           <b>Exchange Account Name: </b>{' '}
           {_.get(tq, 'exchange_account.id') ? (
-            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}`}> {_.get(tq, 'exchange_account.name')} </Link>
+            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}`}>
+              {' '}
+              {_.get(tq, 'exchange_account.name')}{' '}
+            </Link>
           ) : (
             '-'
           )}
@@ -81,7 +83,10 @@ export default class TransactionRequestDetail extends Component {
         <InformationItem>
           <b>Exchange Account ID: </b>{' '}
           {_.get(tq, 'exchange_account.id') ? (
-            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}`}> {_.get(tq, 'exchange_account.id')} </Link>
+            <Link to={`/accounts/${_.get(tq, 'exchange_account.id')}`}>
+              {' '}
+              {_.get(tq, 'exchange_account.id')}{' '}
+            </Link>
           ) : (
             '-'
           )}
@@ -89,7 +94,10 @@ export default class TransactionRequestDetail extends Component {
         <InformationItem>
           <b>Exchange Wallet Address</b>{' '}
           {_.get(tq, 'exchange_wallet') ? (
-            <Link to={`/wallets/${_.get(tq, 'exchange_wallet.address')}`}> {_.get(tq, 'exchange_wallet.address')} </Link>
+            <Link to={`/wallets/${_.get(tq, 'exchange_wallet.address')}`}>
+              {' '}
+              {_.get(tq, 'exchange_wallet.address')}{' '}
+            </Link>
           ) : (
             '-'
           )}
@@ -116,11 +124,7 @@ export default class TransactionRequestDetail extends Component {
         </InformationItem>
         <InformationItem>
           <b>Expiry Date : </b>{' '}
-          {tq.expiration_date
-            ? moment(this.props.transactionRequests.expiration_date).format(
-                'ddd, DD/MM/YYYY hh:mm:ss'
-              )
-            : '-'}
+          {tq.expiration_date ? moment(tq.expiration_date).format('ddd, DD/MM/YYYY hh:mm:ss') : '-'}
         </InformationItem>
         <InformationItem>
           <b>Allow Amount Override : </b> {tq.allow_amount_override ? 'Yes' : 'No'}
