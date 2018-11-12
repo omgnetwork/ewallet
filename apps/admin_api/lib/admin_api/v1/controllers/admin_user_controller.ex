@@ -44,8 +44,7 @@ defmodule AdminAPI.V1.AdminUserController do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          :ok <- permit(:enable_or_disable, conn.assigns, user),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
-         :ok <- AuthToken.expire_for_user(updated)
-    do
+         :ok <- AuthToken.expire_for_user(updated) do
       respond_single(updated, conn)
     else
       {:error, :invalid_parameter = error} ->
@@ -54,10 +53,11 @@ defmodule AdminAPI.V1.AdminUserController do
           error,
           "Invalid parameter provided. `id` is required."
         )
-      {:error, error} -> handle_error(conn, error)
+
+      {:error, error} ->
+        handle_error(conn, error)
     end
   end
-
 
   # Respond with a list of admins
   defp respond_multiple(%Paginator{} = paged_users, conn) do

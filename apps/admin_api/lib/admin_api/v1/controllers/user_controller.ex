@@ -158,8 +158,7 @@ defmodule AdminAPI.V1.UserController do
     with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
          :ok <- permit(:enable_or_disable, conn.assigns, user),
          {:ok, updated} <- User.enable_or_disable(user, attrs),
-         :ok <- AuthToken.expire_for_user(updated)
-    do
+         :ok <- AuthToken.expire_for_user(updated) do
       respond_single(updated, conn)
     else
       {:error, :invalid_parameter = error} ->
@@ -168,7 +167,9 @@ defmodule AdminAPI.V1.UserController do
           error,
           "Invalid parameter provided. `id` or `provider_user_id` is required."
         )
-      {:error, error} -> handle_error(conn, error)
+
+      {:error, error} ->
+        handle_error(conn, error)
     end
   end
 

@@ -676,5 +676,4 @@ defmodule EWalletDB.User do
     |> enable_changeset(attrs)
     |> Repo.update()
   end
-
 end

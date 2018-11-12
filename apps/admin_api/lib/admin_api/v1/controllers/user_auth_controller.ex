@@ -9,21 +9,22 @@ defmodule AdminAPI.V1.UserAuthController do
   Generates a new authentication token for the provider_user_id or id and returns it.
   """
   def login(conn, attrs) do
-      with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
-           true <- User.enabled?(user) || {:error, :user_disabled},
-           {:ok, token} = AuthToken.generate(user, :ewallet_api),
-           {:ok, token} = Orchestrator.one(token, AuthTokenOverlay, attrs)
-            do
-             render(conn, :auth_token, %{auth_token: token})
-      else
-        {:error, :invalid_parameter} ->
-          handle_error(
-            conn,
-            :invalid_parameter,
-            "Invalid parameter provided. `id` or `provider_user_id` is required."
-          )
-        {:error, error} -> handle_error(conn, error)
-      end
+    with {:ok, %User{} = user} <- UserFetcher.fetch(attrs),
+         true <- User.enabled?(user) || {:error, :user_disabled},
+         {:ok, token} = AuthToken.generate(user, :ewallet_api),
+         {:ok, token} = Orchestrator.one(token, AuthTokenOverlay, attrs) do
+      render(conn, :auth_token, %{auth_token: token})
+    else
+      {:error, :invalid_parameter} ->
+        handle_error(
+          conn,
+          :invalid_parameter,
+          "Invalid parameter provided. `id` or `provider_user_id` is required."
+        )
+
+      {:error, error} ->
+        handle_error(conn, error)
+    end
   end
 
   @doc """

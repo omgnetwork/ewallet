@@ -10,7 +10,7 @@ defmodule EWalletAPI.V1.EndUserAuthenticator do
   def authenticate(conn, email, password) when is_binary(email) do
     with %User{} = user <- User.get_by_email(email) || :user_email_not_found,
          true <- User.enabled?(user) || :user_disabled do
-        authenticate(conn, user, password)
+      authenticate(conn, user, password)
     else
       _ ->
         Crypto.fake_verify()
