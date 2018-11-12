@@ -176,11 +176,13 @@ defmodule EWalletDB.AuthToken do
   def expire_for_user(%{enabled: true}), do: :ok
 
   def expire_for_user(user) do
-    from(
-      a in AuthToken,
-      where: a.user_uuid == ^user.uuid
+    Repo.update_all(
+      from(
+        a in AuthToken,
+        where: a.user_uuid == ^user.uuid
+      ),
+      set: [expired: true]
     )
-    |> Repo.update_all(set: [expired: true])
 
     :ok
   end
