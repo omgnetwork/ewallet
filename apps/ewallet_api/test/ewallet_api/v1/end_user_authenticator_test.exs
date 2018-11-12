@@ -6,7 +6,9 @@ defmodule EWalletAPI.Web.V1.EndUserAuthenticatorTest do
   setup do
     email = "end_user_auth@example.com"
     password = "some_password"
-    user = insert(:user, %{email: email, password_hash: Crypto.hash_password(password)})
+
+    user =
+      insert(:user, %{email: email, password_hash: Crypto.hash_password(password), enabled: true})
 
     %{
       email: email,
@@ -54,6 +56,12 @@ defmodule EWalletAPI.Web.V1.EndUserAuthenticatorTest do
 
     test "returns conn with authenticated:false both email and password are missing", _context do
       conn = EndUserAuthenticator.authenticate(build_conn(), nil, nil)
+      assert_error(conn)
+    end
+
+    test "returns conn with authenticated:false if user is disabled", context do
+      User.enable_or_disable(context.user, %{enabled: false})
+      conn = EndUserAuthenticator.authenticate(build_conn(), context.email, context.password)
       assert_error(conn)
     end
   end
