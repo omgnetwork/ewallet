@@ -1,7 +1,9 @@
 defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, AccountUser, User}
+  alias EWalletDB.{Account, AccountUser, User, AuthToken}
+
+  @owner_app :some_app
 
   describe "/user.all" do
     test "returns a list of users and pagination data" do
@@ -520,6 +522,56 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["data"]["object"] == "error"
       assert response["data"]["code"] == "client:invalid_parameter"
       assert response["data"]["description"] == "Invalid parameter provided."
+    end
+  end
+
+  describe "/user.enable_or_disable" do
+    test "disable a user succeed and disable his tokens" do
+      user = insert(:user, %{enabled: true})
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      {:ok, token} = AuthToken.generate(user, @owner_app)
+      token_string = token.token
+      # Ensure tokens is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
+
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          id: user.id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["enabled"] == false
+      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "disable a user that doesn't exist raises an error" do
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          id: "invalid_id",
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "user:id_not_found"
+
+      assert response["data"]["description"] ==
+               "There is no user corresponding to the provided id."
+    end
+
+    test "disable a user with missing params raises an error" do
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          enabled: false
+        })
+
+      assert response["data"]["object"] == "error"
+      assert response["data"]["code"] == "client:invalid_parameter"
+
+      assert response["data"]["description"] ==
+               "Invalid parameter provided. `id` or `provider_user_id` is required."
     end
   end
 end
