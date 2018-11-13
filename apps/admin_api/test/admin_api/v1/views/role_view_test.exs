@@ -11,10 +11,10 @@ defmodule AdminAPI.V1.RoleViewTest do
       expected = %{
         version: @expected_version,
         success: true,
-        data: CategorySerializer.serialize(role)
+        data: RoleSerializer.serialize(role)
       }
 
-      assert CategoryView.render("role.json", %{role: role}) == expected
+      assert RoleView.render("role.json", %{role: role}) == expected
     end
 
     test "renders roles.json with correct response structure" do

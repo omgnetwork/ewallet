@@ -213,7 +213,7 @@ defmodule AdminAPI.V1.AdminAuth.CategoryControllerTest do
 
     test "responds with an error if the user is not authorized to delete the category" do
       category = insert(:category)
-      auth_token = insert(:auth_token,owner_app: "admin_api")
+      auth_token = insert(:auth_token, owner_app: "admin_api")
 
       attrs = %{id: category.id}
       opts = [user_id: auth_token.user.id, auth_token: auth_token.token]

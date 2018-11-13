@@ -6,7 +6,7 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
 
   describe "serialize/1" do
     test "serializes a role into V1 response format" do
-      role = :role |> insert() |> Repo.preload([:accounts])
+      role = :role |> insert() |> Repo.preload([:users])
 
       expected = %{
         object: "role",
@@ -54,7 +54,7 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
           %{
             object: "role",
             id: role2.id,
-            name: role.name,
+            name: role2.name,
             priority: role2.priority,
             display_name: role2.display_name,
             user_ids: UserSerializer.serialize(role2.users, :id),
@@ -65,9 +65,9 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
         ],
         pagination: %{
           current_page: 9,
-          per_page: 7,
           is_first_page: false,
-          is_last_page: true
+          is_last_page: true,
+          per_page: 7
         }
       }
 

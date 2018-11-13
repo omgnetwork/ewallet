@@ -200,5 +200,26 @@ defmodule AdminAPI.V1.AdminAuth.APIKeyControllerTest do
                }
              }
     end
+
+    test "responds with an error if the user is not authorized to delete the API key" do
+      api_key = insert(:api_key)
+      auth_token = insert(:auth_token, owner_app: "admin_api")
+
+      attrs = %{id: api_key.id}
+      opts = [user_id: auth_token.user.id, auth_token: auth_token.token]
+      response = admin_user_request("/api_key.delete", attrs, opts)
+
+      assert response ==
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
+    end
   end
 end

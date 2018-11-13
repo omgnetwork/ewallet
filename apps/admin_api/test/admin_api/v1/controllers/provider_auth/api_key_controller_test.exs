@@ -200,5 +200,26 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                }
              }
     end
+
+    test "responds with an error if the user is not authorized to delete the API key" do
+      api_key = insert(:api_key)
+      key = insert(:key)
+
+      attrs = %{id: api_key.id}
+      opts = [access_key: key.access_key, secret_key: key.secret_key]
+      response = provider_request("/api_key.delete", attrs, opts)
+
+      assert response ==
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
+    end
   end
 end
