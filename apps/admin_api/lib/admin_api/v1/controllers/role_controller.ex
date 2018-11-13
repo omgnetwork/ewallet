@@ -84,7 +84,8 @@ defmodule AdminAPI.V1.RoleController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
-    with %Role{} = role <- Role.get(id) || {:error, :role_id_not_found},
+    with :ok <- permit(:delete, conn.assigns, id),
+         %Role{} = role <- Role.get(id) || {:error, :role_id_not_found},
          {:ok, deleted} <- Role.delete(role),
          {:ok, deleted} <- Orchestrator.one(deleted, RoleOverlay, attrs) do
       render(conn, :role, %{role: deleted})
@@ -99,7 +100,7 @@ defmodule AdminAPI.V1.RoleController do
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, role_id) do
     Bodyguard.permit(RolePolicy, action, params, role_id)

@@ -84,7 +84,8 @@ defmodule AdminAPI.V1.CategoryController do
   """
   @spec delete(Plug.Conn.t(), map()) :: Plug.Conn.t()
   def delete(conn, %{"id" => id} = attrs) do
-    with %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
+    with :ok <- permit(:delete, conn.assigns, id),
+         %Category{} = category <- Category.get(id) || {:error, :category_id_not_found},
          {:ok, deleted} <- Category.delete(category),
          {:ok, deleted} <- Orchestrator.one(deleted, CategoryOverlay, attrs) do
       render(conn, :category, %{category: deleted})
@@ -99,7 +100,7 @@ defmodule AdminAPI.V1.CategoryController do
 
   def delete(conn, _), do: handle_error(conn, :invalid_parameter)
 
-  @spec permit(:all | :create | :get | :update, map(), String.t() | nil) ::
+  @spec permit(:all | :create | :get | :update | :delete, map(), String.t() | nil) ::
           :ok | {:error, any()} | no_return()
   defp permit(action, params, account_id) do
     Bodyguard.permit(CategoryPolicy, action, params, account_id)

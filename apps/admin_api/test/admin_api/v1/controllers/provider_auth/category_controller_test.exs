@@ -210,5 +210,26 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
                  }
                }
     end
+
+    test "responds with an error if the user is not authorized to delete the category" do
+      category = insert(:category)
+      key = insert(:key)
+
+      attrs = %{id: category.id}
+      opts = [access_key: key.access_key, secret_key: key.secret_key]
+      response = provider_request("/category.delete", attrs, opts)
+
+      assert response ==
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
+    end
   end
 end
