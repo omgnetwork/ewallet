@@ -12,7 +12,7 @@ defmodule EWallet.Web.OrchestratorTest do
     def default_preload_assocs, do: [:parent]
     def sort_fields, do: [:id]
     def search_fields, do: [:id]
-    def self_filter_fields, do: []
+    def self_filter_fields, do: [:id, :name, :description]
     def filter_fields, do: [:id, :name, :description]
   end
 
