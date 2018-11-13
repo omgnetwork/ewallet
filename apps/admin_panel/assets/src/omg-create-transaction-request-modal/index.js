@@ -203,7 +203,7 @@ class CreateTransactionRequest extends Component {
   onDateTimeChange = date => {
     if (date.format) this.setState({ expirationDate: date })
   }
-  onClickAdvnaceSetting = e => {
+  onClickAdvanceSetting = e => {
     this.setState(oldState => ({ advanceSettingOpen: !oldState.advanceSettingOpen }))
   }
   onBlurExpirationInput = e => {
@@ -445,7 +445,7 @@ class CreateTransactionRequest extends Component {
   renderAdvanceOption () {
     return (
       <Collapsable>
-        <CollapsableHeader onClick={this.onClickAdvnaceSetting}>
+        <CollapsableHeader onClick={this.onClickAdvanceSetting}>
           <span>Advanced setting (Optional)</span>{' '}
           {this.state.advanceSettingOpen ? (
             <Icon name='Chevron-Up' />
