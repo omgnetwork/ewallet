@@ -86,7 +86,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "eq", true)
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "eq", true)
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -99,7 +99,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "eq", "false")
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "eq", "false")
         |> on_all(User)
 
       assert contains?(result, user_1)
@@ -112,7 +112,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "eq", "user_two")
+        |> MatchAnyQuery.do_filter(:username, nil, "eq", "user_two")
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -121,11 +121,11 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
     test "matches a numeric field with a numeric value" do
       token_1 = insert(:token, subunit_to_unit: 100)
-      token_2 = insert(:token, subunit_to_unit: 100000)
+      token_2 = insert(:token, subunit_to_unit: 100_000)
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:subunit_to_unit, :nil, "eq", 100000)
+        |> MatchAnyQuery.do_filter(:subunit_to_unit, nil, "eq", 100_000)
         |> on_all(Token)
 
       refute contains?(result, token_1)
@@ -140,7 +140,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "neq", true)
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "neq", true)
         |> on_all(User)
 
       assert contains?(result, user_1)
@@ -153,7 +153,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "neq", "false")
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "neq", "false")
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -166,7 +166,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "neq", "user_two")
+        |> MatchAnyQuery.do_filter(:username, nil, "neq", "user_two")
         |> on_all(User)
 
       assert contains?(result, user_1)
@@ -175,11 +175,11 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
     test "matches a numeric field with a numeric value" do
       token_1 = insert(:token, subunit_to_unit: 100)
-      token_2 = insert(:token, subunit_to_unit: 100000)
+      token_2 = insert(:token, subunit_to_unit: 100_000)
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:subunit_to_unit, :nil, "neq", 100000)
+        |> MatchAnyQuery.do_filter(:subunit_to_unit, nil, "neq", 100_000)
         |> on_all(Token)
 
       assert contains?(result, token_1)
@@ -194,7 +194,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "gt", false)
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "gt", false)
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -207,7 +207,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "gt", "aaaaa")
+        |> MatchAnyQuery.do_filter(:username, nil, "gt", "aaaaa")
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -216,11 +216,11 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
     test "matches a numeric field with a numeric value" do
       token_1 = insert(:token, subunit_to_unit: 100)
-      token_2 = insert(:token, subunit_to_unit: 100000)
+      token_2 = insert(:token, subunit_to_unit: 100_000)
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:subunit_to_unit, :nil, "gt", 100)
+        |> MatchAnyQuery.do_filter(:subunit_to_unit, nil, "gt", 100)
         |> on_all(Token)
 
       refute contains?(result, token_1)
@@ -235,7 +235,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "gte", true)
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "gte", true)
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -248,7 +248,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "gte", "bbbbb")
+        |> MatchAnyQuery.do_filter(:username, nil, "gte", "bbbbb")
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -257,11 +257,11 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
     test "matches a numeric field with a numeric value" do
       token_1 = insert(:token, subunit_to_unit: 100)
-      token_2 = insert(:token, subunit_to_unit: 100000)
+      token_2 = insert(:token, subunit_to_unit: 100_000)
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:subunit_to_unit, :nil, "gte", 100000)
+        |> MatchAnyQuery.do_filter(:subunit_to_unit, nil, "gte", 100_000)
         |> on_all(Token)
 
       refute contains?(result, token_1)
@@ -276,7 +276,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "lt", true)
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "lt", true)
         |> on_all(User)
 
       assert contains?(result, user_1)
@@ -289,7 +289,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "lt", "bbbbb")
+        |> MatchAnyQuery.do_filter(:username, nil, "lt", "bbbbb")
         |> on_all(User)
 
       assert contains?(result, user_1)
@@ -298,11 +298,11 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
     test "matches a numeric field with a numeric value" do
       token_1 = insert(:token, subunit_to_unit: 100)
-      token_2 = insert(:token, subunit_to_unit: 100000)
+      token_2 = insert(:token, subunit_to_unit: 100_000)
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:subunit_to_unit, :nil, "lt", 100000)
+        |> MatchAnyQuery.do_filter(:subunit_to_unit, nil, "lt", 100_000)
         |> on_all(Token)
 
       assert contains?(result, token_1)
@@ -317,7 +317,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:is_admin, :nil, "lte", false)
+        |> MatchAnyQuery.do_filter(:is_admin, nil, "lte", false)
         |> on_all(User)
 
       assert contains?(result, user_1)
@@ -330,7 +330,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "lte", "aaaaa")
+        |> MatchAnyQuery.do_filter(:username, nil, "lte", "aaaaa")
         |> on_all(User)
 
       assert contains?(result, user_1)
@@ -339,11 +339,11 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
     test "matches a numeric field with a numeric value" do
       token_1 = insert(:token, subunit_to_unit: 100)
-      token_2 = insert(:token, subunit_to_unit: 100000)
+      token_2 = insert(:token, subunit_to_unit: 100_000)
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:subunit_to_unit, :nil, "lte", 100)
+        |> MatchAnyQuery.do_filter(:subunit_to_unit, nil, "lte", 100)
         |> on_all(Token)
 
       assert contains?(result, token_1)
@@ -358,7 +358,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "contains", "ba")
+        |> MatchAnyQuery.do_filter(:username, nil, "contains", "ba")
         |> on_all(User)
 
       refute contains?(result, user_1)
@@ -373,7 +373,7 @@ defmodule EWallet.Web.MatchAnyQueryTest do
 
       result =
         false
-        |> MatchAnyQuery.do_filter(:username, :nil, "starts_with", "bbb")
+        |> MatchAnyQuery.do_filter(:username, nil, "starts_with", "bbb")
         |> on_all(User)
 
       refute contains?(result, user_1)
