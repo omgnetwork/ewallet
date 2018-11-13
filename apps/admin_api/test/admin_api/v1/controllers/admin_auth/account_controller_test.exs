@@ -47,7 +47,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       user = get_test_admin()
       {:ok, _m} = Membership.unassign(user, master)
 
-      role = Role.get_by_name("admin")
+      role = Role.get_by(name: "admin")
 
       acc_1 = insert(:account, parent: master, name: "Account 1")
       acc_2 = insert(:account, parent: acc_1, name: "Account 2")
@@ -75,7 +75,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       user = get_test_admin()
       {:ok, _m} = Membership.unassign(user, master)
 
-      role = Role.get_by_name("admin")
+      role = Role.get_by(name: "admin")
 
       acc_1 = insert(:account, parent: master, name: "Account 1")
       acc_2 = insert(:account, parent: acc_1, name: "Account 2")
@@ -175,7 +175,7 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
           a direct membership" do
       master = Account.get_master_account()
       user = get_test_admin()
-      role = Role.get_by_name("admin")
+      role = Role.get_by(name: "admin")
 
       {:ok, _m} = Membership.unassign(user, master)
       accounts = insert_list(3, :account)

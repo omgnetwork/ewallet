@@ -31,4 +31,13 @@ defmodule EWallet.Web.V1.UserSerializer do
 
   def serialize(%NotLoaded{}), do: nil
   def serialize(nil), do: nil
+
+  def serialize(%NotLoaded{}, _), do: nil
+
+  def serialize(users, :id) when is_list(users) do
+    Enum.map(users, fn user -> user.id end)
+  end
+
+  def serialize(%NotLoaded{}, _), do: nil
+  def serialize(nil, _), do: nil
 end

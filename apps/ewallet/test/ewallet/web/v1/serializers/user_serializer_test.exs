@@ -118,4 +118,11 @@ defmodule EWallet.Web.V1.UserSerializerTest do
       assert UserSerializer.serialize(paginator) == expected
     end
   end
+
+  describe "serialize/2" do
+    test "serializes users to ids" do
+      users = [user1, user2] = insert_list(2, :user)
+      assert UserSerializer.serialize(users, :id) == [user1.id, user2.id]
+    end
+  end
 end

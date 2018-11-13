@@ -25,8 +25,8 @@ defmodule EWalletDB.Repo.Seeds.MembershipSampleSeed do
 
   defp run_with(writer, data) do
     account = Account.get_by(name: data.account_name)
-    user = User.get_by_email(data.email)
-    role = Role.get_by_name(data.role_name)
+    user = User.get_by(email: data.email)
+    role = Role.get_by(name: data.role_name)
 
     case Membership.get_by_user_and_account(user, account) do
       nil ->
