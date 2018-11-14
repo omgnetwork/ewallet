@@ -16,6 +16,8 @@ The eWallet is an umbrella Elixir application containing the following sub-appli
 
   - [local_ledger_db](/apps/local_ledger_db): Sub-application containing all the database schemas and migrations.
 
+- [ewallet_config](/apps/ewallet_config): Sub-application used to handle the settings and application environments.
+
   - [url_dispatcher](/apps/url_dispatcher): Sub-application dealing with dispatching each HTTP request to the appropriate sub-application.
 
 ## Sub-applications planned

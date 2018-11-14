@@ -19,6 +19,7 @@ defmodule EWalletAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.{Account, Repo, User}
+  alias EWalletConfig.ConfigTestHelper
   use Phoenix.ConnTest
 
   # Attributes required by Phoenix.ConnTest
@@ -58,9 +59,28 @@ defmodule EWalletAPI.ConnCase do
     end
   end
 
-  setup do
+  setup tags do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+      Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+      Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+    end
+
+    pid =
+      ConfigTestHelper.restart_config_genserver(
+        self(),
+        EWalletConfig.Repo,
+        [:ewallet_db, :ewallet, :ewallet_api],
+        %{
+          "enable_standalone" => true,
+          "base_url" => "http://localhost:4000",
+          "email_adapter" => "test"
+        }
+      )
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
@@ -85,7 +105,7 @@ defmodule EWalletAPI.ConnCase do
     # by returning {:ok, context_map}. But it would make the code
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
-    :ok
+    %{config_pid: pid}
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do

@@ -3,7 +3,7 @@ defmodule EWalletAPI.V1.SignupControllerTest do
   import Bamboo.Test, only: [assert_delivered_email: 1]
   alias EWallet.Web.Preloader
   alias EWalletAPI.V1.VerifyEmailController
-  alias EWalletAPI.VerificationEmail
+  alias EWallet.VerificationEmail
   alias EWalletDB.{Invite, User}
 
   describe "/user.signup" do

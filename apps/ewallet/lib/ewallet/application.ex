@@ -1,6 +1,7 @@
 defmodule EWallet.Application do
   @moduledoc false
   use Application
+  alias EWalletConfig.Config
 
   @decimal_precision 38
   @decimal_rounding :half_even
@@ -10,6 +11,9 @@ defmodule EWallet.Application do
     DeferredConfig.populate(:ewallet)
 
     set_decimal_context()
+    settings = Application.get_env(:ewallet, :settings)
+    Config.register_and_load(:ewallet, settings)
+
     # List all child processes to be supervised
     children = [
       worker(EWallet.Scheduler, [])

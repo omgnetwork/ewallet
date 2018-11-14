@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.ResetPasswordController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.ForgetPasswordEmail
+  alias EWallet.ForgetPasswordEmail
   alias Bamboo.Email
   alias EWallet.Mailer
   alias EWallet.Web.UrlValidator

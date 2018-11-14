@@ -4,8 +4,8 @@ defmodule EWallet.Web.V1.TransactionConsumptionEventHandler do
   """
   alias EWallet.Web.Orchestrator
   alias EWallet.Web.V1.{Event, TransactionConsumptionSerializer, TransactionConsumptionOverlay}
-  alias EWalletDB.Helpers.{Assoc, Preloader}
-  alias EWalletDB.TransactionConsumption
+  alias EWalletConfig.Helpers.Assoc
+  alias EWalletDB.{Helpers.Preloader, TransactionConsumption}
 
   @spec broadcast(atom(), %{:consumption => %TransactionConsumption{}}) ::
           :ok | {:error, :unhandled_event}

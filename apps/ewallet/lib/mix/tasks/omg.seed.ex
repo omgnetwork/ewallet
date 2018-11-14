@@ -49,7 +49,11 @@ defmodule Mix.Tasks.Omg.Seed do
   #
 
   defp seed_spec([]) do
-    [{:ewallet_db, :seeds}]
+    [{:ewallet_db, :seeds}] ++ seed_spec(["--settings"])
+  end
+
+  defp seed_spec(["--settings" | _t]) do
+    [{:ewallet_db, :seeds_settings}]
   end
 
   defp seed_spec(["--sample" | t]) do
@@ -61,7 +65,7 @@ defmodule Mix.Tasks.Omg.Seed do
 
     case Regex.match?(~r/^(t(rue)?|y(es)?|on|1)$/, e2e_enabled) do
       true ->
-        [{:ewallet_db, :seeds_test}]
+        seed_spec(["--settings"]) ++ [{:ewallet_db, :seeds_test}]
 
       false ->
         IO.puts(@e2e_disabled_warning)
