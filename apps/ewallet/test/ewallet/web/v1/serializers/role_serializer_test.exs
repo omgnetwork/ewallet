@@ -2,7 +2,7 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
   use EWallet.Web.SerializerCase, :v1
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.V1.{RoleSerializer, UserSerializer}
+  alias EWallet.Web.V1.RoleSerializer
 
   describe "serialize/1" do
     test "serializes a role into V1 response format" do
