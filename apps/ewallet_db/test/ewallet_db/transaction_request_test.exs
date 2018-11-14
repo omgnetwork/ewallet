@@ -28,6 +28,7 @@ defmodule EWalletDB.TransactionRequestTest do
     test "preloads the specified association" do
       inserted = insert(:transaction_request)
       request = TransactionRequest.get(inserted.id, preload: [:token])
+
       assert request.id == inserted.id
       assert request.token.id != nil
     end

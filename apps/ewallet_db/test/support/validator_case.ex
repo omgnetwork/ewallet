@@ -9,10 +9,12 @@ defmodule EWalletDB.ValidatorCase do
       import Ecto.Changeset
       import EWalletDB.Factory
       alias Ecto.Adapters.SQL.Sandbox
-      alias EWalletDB.Repo
 
       setup do
-        :ok = Sandbox.checkout(Repo)
+        :ok = Sandbox.checkout(EWalletDB.Repo)
+        :ok = Sandbox.checkout(EWalletConfig.Repo)
+
+        :ok
       end
     end
   end

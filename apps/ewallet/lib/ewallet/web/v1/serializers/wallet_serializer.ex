@@ -14,8 +14,8 @@ defmodule EWallet.Web.V1.WalletSerializer do
   }
 
   alias EWallet.BalanceFetcher
-  alias EWalletDB.Wallet
-  alias EWalletDB.Helpers.{Assoc, Preloader}
+  alias EWalletDB.{Wallet, Helpers.Preloader}
+  alias EWalletConfig.Helpers.Assoc
 
   def serialize(%Paginator{} = paginator) do
     PaginatorSerializer.serialize(paginator, &serialize/1)

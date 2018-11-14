@@ -3,7 +3,7 @@ defmodule EWallet.Web.V1.UserAuthTokenSerializer do
   Serializes auth token data into V1 JSON response format.
   """
   alias EWallet.Web.V1.UserSerializer
-  alias EWalletDB.Helpers.Assoc
+  alias EWalletConfig.Helpers.Assoc
 
   def serialize(auth_token) do
     %{
