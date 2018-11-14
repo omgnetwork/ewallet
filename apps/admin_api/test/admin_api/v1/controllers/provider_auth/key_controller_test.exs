@@ -23,6 +23,9 @@ defmodule AdminAPI.V1.ProviderAuth.KeyControllerTest do
                key["access_key"] == key_2.access_key
              end)
     end
+
+    test_supports_match_any("/access_key.all", :provider_auth, :key, :access_key)
+    test_supports_match_all("/access_key.all", :provider_auth, :key, :access_key)
   end
 
   describe "/access_key.create" do

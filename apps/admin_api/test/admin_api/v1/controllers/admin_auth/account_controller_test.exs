@@ -42,6 +42,9 @@ defmodule AdminAPI.V1.AdminAuth.AccountControllerTest do
       assert Enum.at(accounts, 2)["name"] == "Matched 1"
     end
 
+    test_supports_match_any("/account.all", :admin_auth, :account, :name)
+    test_supports_match_all("/account.all", :admin_auth, :account, :name)
+
     test "returns a list of accounts that the current user can access" do
       master = Account.get_master_account()
       user = get_test_admin()

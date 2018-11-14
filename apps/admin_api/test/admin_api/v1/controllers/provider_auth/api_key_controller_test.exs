@@ -87,6 +87,9 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                  }
                }
     end
+
+    test_supports_match_any("/api_key.all", :provider_auth, :api_key, :key)
+    test_supports_match_all("/api_key.all", :provider_auth, :api_key, :key)
   end
 
   describe "/api_key.create" do

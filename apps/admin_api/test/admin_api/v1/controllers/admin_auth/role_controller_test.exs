@@ -41,6 +41,9 @@ defmodule AdminAPI.V1.AdminAuth.RoleControllerTest do
       assert Enum.at(roles, 1)["name"] == "matched_2"
       assert Enum.at(roles, 2)["name"] == "matched_1"
     end
+
+    test_supports_match_any("/role.all", :admin_auth, :role, :name)
+    test_supports_match_all("/role.all", :admin_auth, :role, :name)
   end
 
   describe "/role.get" do

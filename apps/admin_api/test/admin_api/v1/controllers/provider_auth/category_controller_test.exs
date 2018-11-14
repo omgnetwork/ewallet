@@ -42,6 +42,9 @@ defmodule AdminAPI.V1.ProviderAuth.CategoryControllerTest do
       assert Enum.at(categories, 1)["name"] == "Matched 2"
       assert Enum.at(categories, 2)["name"] == "Matched 1"
     end
+
+    test_supports_match_any("/category.all", :provider_auth, :category, :name)
+    test_supports_match_all("/category.all", :provider_auth, :category, :name)
   end
 
   describe "/category.get" do

@@ -48,6 +48,9 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
       assert Enum.at(admins, 1)["email"] == "admin2@omise.co"
       assert Enum.at(admins, 2)["email"] == "admin1@omise.co"
     end
+
+    test_supports_match_any("/admin.all", :admin_auth, :admin, :username)
+    test_supports_match_all("/admin.all", :admin_auth, :admin, :username)
   end
 
   describe "/admin.get" do

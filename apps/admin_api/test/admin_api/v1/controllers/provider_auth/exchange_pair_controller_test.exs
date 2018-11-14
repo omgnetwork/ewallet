@@ -41,6 +41,9 @@ defmodule AdminAPI.V1.ProviderAuth.ExchangePairControllerTest do
       assert Enum.at(exchange_pairs, 1)["id"] == "exg_aaaaa222222222222222222222"
       assert Enum.at(exchange_pairs, 2)["id"] == "exg_aaaaa111111111111111111111"
     end
+
+    test_supports_match_any("/exchange_pair.all", :provider_auth, :exchange_pair, :id)
+    test_supports_match_all("/exchange_pair.all", :provider_auth, :exchange_pair, :id)
   end
 
   describe "/exchange_pair.get" do

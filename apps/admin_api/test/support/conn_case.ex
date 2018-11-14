@@ -295,4 +295,105 @@ defmodule AdminAPI.ConnCase do
     insert_list(num_remaining, factory_name, attrs)
     Repo.all(schema)
   end
+
+  @doc """
+  Tests that the specified endpoint supports 'match_any' filtering.
+  """
+  defmacro test_supports_match_any(endpoint, auth_type, factory, field, opts \\ []) do
+    quote do
+      test "supports match_any filtering" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        factory = unquote(factory)
+        field = unquote(field)
+        opts = unquote(opts)
+        field_name = Atom.to_string(field)
+
+        factory_attrs = Keyword.get(opts, :factory_attrs, %{})
+
+        _ = insert(factory, Map.merge(%{field => "value_1"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_2"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_3"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_4"}, factory_attrs))
+
+        attrs = %{
+          "match_any" => [
+            %{
+              "field" => field_name,
+              "comparator" => "eq",
+              "value" => "value_2"
+            },
+            %{
+              "field" => field_name,
+              "comparator" => "eq",
+              "value" => "value_4"
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_2" end)
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
+        assert Enum.count(records) == 2
+      end
+    end
+  end
+
+  @doc """
+  Tests that the specified endpoint supports 'match_all' filtering.
+  """
+  defmacro test_supports_match_all(endpoint, auth_type, factory, field, opts \\ []) do
+    quote do
+      test "supports match_all filtering" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        factory = unquote(factory)
+        field = unquote(field)
+        opts = unquote(opts)
+        field_name = Atom.to_string(field)
+
+        factory_attrs = Keyword.get(opts, :factory_attrs, %{})
+
+        _ = insert(factory, Map.merge(%{field => "this_should_almost_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "this_should_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "should_not_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "also_should_not_match"}, factory_attrs))
+
+        attrs = %{
+          "match_all" => [
+            %{
+              "field" => field_name,
+              "comparator" => "starts_with",
+              "value" => "this_should"
+            },
+            %{
+              "field" => field_name,
+              "comparator" => "contains",
+              "value" => "should_match"
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
+        assert Enum.count(records) == 1
+      end
+    end
+  end
 end

@@ -143,6 +143,26 @@ defmodule AdminAPI.V1.ProviderAuth.TransactionConsumptionControllerTest do
                meta.tc_2.id
              ]
     end
+
+    # The endpoint will scope the result to the consumptions associated with the requester,
+    # hence the customized factory attrs to make sure the results will be found.
+    test_supports_match_any(
+      "/transaction_consumption.all",
+      :provider_auth,
+      :transaction_consumption,
+      :correlation_id,
+      factory_attrs: %{user_uuid: nil, account_uuid: Account.get_master_account().uuid}
+    )
+
+    # The endpoint will scope the result to the consumptions associated with the requester,
+    # hence the customized factory attrs to make sure the results will be found.
+    test_supports_match_all(
+      "/transaction_consumption.all",
+      :provider_auth,
+      :transaction_consumption,
+      :correlation_id,
+      factory_attrs: %{user_uuid: nil, account_uuid: Account.get_master_account().uuid}
+    )
   end
 
   describe "/account.get_transaction_consumptions" do
