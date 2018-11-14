@@ -87,11 +87,11 @@ defmodule EWallet.Web.V1.ConfigSettingSerializer do
   end
 
   def serialize({key, {:error, code}}, data) do
-    Map.put(data, key, %{
-      object: "configuration_setting_error",
-      code: code,
-      key: key
-    })
+    Map.put(
+      data,
+      key,
+      ErrorHandler.build_error(code, "The setting could not be inserted.", ErrorHandler.errors())
+    )
   end
 
   def serialize(%NotLoaded{}, _), do: nil

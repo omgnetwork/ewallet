@@ -2,7 +2,7 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
   use AdminAPI.ConnCase, async: true
 
   describe "/configuration.get" do
-    test "returns a list of accounts and pagination data" do
+    test "returns a list of settings and pagination data" do
       response = admin_user_request("/configuration.get", %{})
 
       # Asserts return data
@@ -83,10 +83,11 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
              }
 
       assert data["fake_setting"] == %{
-               "code" => "setting_not_found",
-               "key" => "fake_setting",
-               "object" => "configuration_setting_error"
-             }
+        "code" => "setting:not_found",
+        "object" => "error",
+        "description" => "The setting could not be inserted.",
+        "messages" => nil
+      }
 
       assert data["max_per_page"] == %{
                "code" => "client:invalid_parameter",
