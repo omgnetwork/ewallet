@@ -14,6 +14,10 @@ import { compose } from 'recompose'
 import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import moment from 'moment'
+import Link from '../omg-links'
+
+import TabsManager from '../omg-tabs'
+
 const columns = [
   { key: 'account_role', title: 'ROLE', sort: true },
   { key: 'username', title: 'MEMBER NAME', sort: true },
@@ -27,6 +31,11 @@ const AccountSettingContainer = styled.div`
   }
   td:nth-child(3) {
     width: 40%;
+  }
+  a {
+    color: inherit;
+    padding-bottom: 5px;
+    display: block;
   }
 `
 const ProfileSection = styled.div`
@@ -161,7 +170,73 @@ class AccountSettingPage extends Component {
     }
     return data
   }
+  renderAccountSettingTab () {
+    return (
+      <ProfileSection>
+        {this.props.loadingStatus === 'SUCCESS' && (
+          <form onSubmit={this.onClickUpdateAccount} noValidate>
+            <Avatar
+              onChangeImage={this.onChangeImage}
+              size='180px'
+              placeholder={this.state.avatar}
+            />
+            <Input
+              prefill
+              placeholder={'Name'}
+              value={this.state.name}
+              onChange={this.onChangeName}
+            />
+            <Input
+              placeholder={'Description'}
+              value={this.state.description}
+              onChange={this.onChangeDescription}
+              prefill
+            />
+            {/* <Input prefill placeholder={'Group'} value={this.state.group} /> */}
+            <Button
+              size='small'
+              type='submit'
+              key={'save'}
+              disabled={
+                this.props.currentAccount.name === this.state.name &&
+                this.props.currentAccount.description === this.state.description &&
+                !this.state.image
+              }
+              loading={this.state.submitStatus === 'SUBMITTING'}
+            >
+              <span>Save Change</span>
+            </Button>
+          </form>
+        )}
+      </ProfileSection>
+    )
+  }
+  renderMemberTab () {
+    return (
+      <TableSection>
+        <InviteListProvider
+          render={({ inviteList, loadingStatus }) => {
+            return (
+              <SortableTable
+                rows={inviteList}
+                columns={columns}
+                perPage={99999}
+                loadingStatus={loadingStatus}
+                loadingRowNumber={7}
+                rowRenderer={this.rowRenderer}
+                navigation={false}
+              />
+            )
+          }}
+        />
+      </TableSection>
+    )
+  }
   render () {
+    const tabIndex = {
+      account: 0,
+      members: 1
+    }
     return (
       <AccountSettingContainer>
         <TopNavigation
@@ -170,62 +245,20 @@ class AccountSettingPage extends Component {
           secondaryAction={false}
           types={false}
         />
-        <ContentContainer>
-          <ProfileSection>
-            {this.props.loadingStatus === 'SUCCESS' && (
-              <form onSubmit={this.onClickUpdateAccount} noValidate>
-                <Avatar
-                  onChangeImage={this.onChangeImage}
-                  size='180px'
-                  placeholder={this.state.avatar}
-                />
-                <Input
-                  prefill
-                  placeholder={'Name'}
-                  value={this.state.name}
-                  onChange={this.onChangeName}
-                />
-                <Input
-                  placeholder={'Description'}
-                  value={this.state.description}
-                  onChange={this.onChangeDescription}
-                  prefill
-                />
-                {/* <Input prefill placeholder={'Group'} value={this.state.group} /> */}
-                <Button
-                  size='small'
-                  type='submit'
-                  key={'save'}
-                  disabled={
-                    this.props.currentAccount.name === this.state.name &&
-                    this.props.currentAccount.description === this.state.description &&
-                    !this.state.image
-                  }
-                  loading={this.state.submitStatus === 'SUBMITTING'}
-                >
-                  <span>Save Change</span>
-                </Button>
-              </form>
-            )}
-          </ProfileSection>
-          <TableSection>
-            <InviteListProvider
-              render={({ inviteList, loadingStatus }) => {
-                return (
-                  <SortableTable
-                    rows={inviteList}
-                    columns={columns}
-                    perPage={99999}
-                    loadingStatus={loadingStatus}
-                    loadingRowNumber={7}
-                    rowRenderer={this.rowRenderer}
-                    navigation={false}
-                  />
-                )
-              }}
-            />
-          </TableSection>
-        </ContentContainer>
+        <TabsManager
+          onClickTab={this.onClickTab}
+          activeIndex={tabIndex[this.props.match.params.state]}
+          tabs={[
+            {
+              title: <Link to={'/setting/account'}>ACCOUNT</Link>,
+              content: this.renderAccountSettingTab()
+            },
+            {
+              title: <Link to={'/setting/members'}>MEMBERS</Link>,
+              content: this.renderMemberTab()
+            }
+          ]}
+        />
         <InviteModal open={this.state.inviteModalOpen} onRequestClose={this.onRequestClose} />
       </AccountSettingContainer>
     )
