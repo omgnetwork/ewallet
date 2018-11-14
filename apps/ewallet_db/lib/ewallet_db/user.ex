@@ -4,23 +4,25 @@ defmodule EWalletDB.User do
   """
   use Arc.Ecto.Schema
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   import EWalletDB.Validator
+  import EWalletDB.Validator
   alias Ecto.{Multi, UUID}
+  alias EWalletConfig.Helpers.Crypto
+
+  alias EWalletConfig.Types.VirtualStruct
 
   alias EWalletDB.{
     Account,
     AccountUser,
     Audit,
     AuthToken,
-    Helpers.Crypto,
     Invite,
     Membership,
     Repo,
     Role,
-    Types.VirtualStruct,
     User,
     Wallet
   }
@@ -41,7 +43,7 @@ defmodule EWalletDB.User do
     field(:provider_user_id, :string)
     field(:originator, VirtualStruct, virtual: true)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
 
     belongs_to(

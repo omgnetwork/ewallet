@@ -4,10 +4,11 @@ defmodule EWalletDB.APIKey do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.Changeset
   alias Ecto.UUID
-  alias EWalletDB.{Account, APIKey, Helpers.Crypto, Repo}
+  alias EWalletConfig.Helpers.Crypto
+  alias EWalletDB.{Account, APIKey, Repo}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   # String length = ceil(key_bytes / 3 * 4)

@@ -3,7 +3,7 @@ defmodule EWallet.AmountFetcher do
   Handles retrieval of amount from params for transactions.
   """
   alias EWallet.{Exchange, Helper}
-  alias EWalletDB.Helpers.Assoc
+  alias EWalletConfig.Helpers.Assoc
 
   #
   # Handles same-token transaction format

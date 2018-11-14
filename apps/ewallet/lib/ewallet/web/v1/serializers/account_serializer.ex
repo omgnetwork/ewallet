@@ -6,7 +6,7 @@ defmodule EWallet.Web.V1.AccountSerializer do
   alias EWallet.Web.{Date, Paginator}
   alias EWallet.Web.V1.{CategorySerializer, PaginatorSerializer}
   alias EWalletDB.Account
-  alias EWalletDB.Helpers.Assoc
+  alias EWalletConfig.Helpers.Assoc
   alias EWalletDB.Uploaders.Avatar
 
   def serialize(%Paginator{} = paginator) do
