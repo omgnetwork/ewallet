@@ -139,7 +139,7 @@ class TransactionPage extends Component {
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        [`show-transaction-tab`]: data.id
+        ['show-transaction-tab']: data.id
       })
     })
   }
@@ -214,6 +214,7 @@ class TransactionPage extends Component {
     return data
   }
   renderTransactionPage = ({ data: transactions, individualLoadingStatus, pagination, fetch }) => {
+    const activeIndexKey = queryString.parse(this.props.location.search)['show-transaction-tab']
     return (
       <TransactionPageContainer>
         <TopNavigation title={'Transaction'} buttons={[this.renderCreateTransactionButton()]} />
@@ -227,6 +228,7 @@ class TransactionPage extends Component {
           isLastPage={pagination.is_last_page}
           navigation
           onClickRow={this.onClickRow}
+          activeIndexKey={activeIndexKey}
         />
         <CreateTransactionModal
           onRequestClose={this.onRequestCloseCreateTransaction}

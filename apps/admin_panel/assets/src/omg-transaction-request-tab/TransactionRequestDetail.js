@@ -42,6 +42,9 @@ export default class TransactionRequestDetail extends Component {
       <AdditionalRequestDataContainer>
         <h5>ADDITIONAL REQUEST DETAILS</h5>
         <InformationItem>
+          <b>Id :</b> {tq.id}
+        </InformationItem>
+        <InformationItem>
           <b>Type :</b> {tq.type}
         </InformationItem>
         <InformationItem>

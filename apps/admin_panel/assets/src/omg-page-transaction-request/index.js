@@ -142,7 +142,7 @@ class TransactionRequestsPage extends Component {
     pagination,
     fetch
   }) => {
-    const activeRowKey = queryString.parse(this.props.location.search)['show-request-tab']
+    const activeIndexKey = queryString.parse(this.props.location.search)['show-request-tab']
     return (
       <TransactionRequestsPageContainer>
         <TopNavigation
@@ -163,7 +163,7 @@ class TransactionRequestsPage extends Component {
             isLastPage={pagination.is_last_page}
             navigation
             onClickLoadMore={this.onClickLoadMore}
-            activeIndexKey={activeRowKey}
+            activeIndexKey={activeIndexKey}
           />
         </SortableTableContainer>
         <CreateTransactionRequestModal
