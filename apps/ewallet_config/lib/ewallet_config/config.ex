@@ -119,8 +119,14 @@ defmodule EWalletConfig.Config do
   defp get_config_pid(%{"config_pid" => config_pid} = attrs),
     do: {config_pid, Map.delete(attrs, "config_pid")}
 
-  defp get_config_pid([{:config_pid, config_pid}] = attrs),
-    do: {config_pid, Keyword.delete(attrs, :configpid)}
+  defp get_config_pid(attrs) when is_list(attrs) do
+    case Keyword.fetch(attrs, :config_pid) do
+      :error ->
+        {nil, attrs}
+      {:ok, config_pid} ->
+        {config_pid, Keyword.delete(attrs, :config_pid)}
+    end
+  end
 
   defp get_config_pid(attrs), do: {nil, attrs}
 
