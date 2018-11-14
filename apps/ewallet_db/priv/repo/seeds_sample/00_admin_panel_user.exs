@@ -1,5 +1,5 @@
 defmodule EWalletDB.Repo.Seeds.AdminPanelUserSampleSeed do
-  import EWalletDB.Helpers.Crypto, only: [generate_base64_key: 1]
+  import EWalletConfig.Helpers.Crypto, only: [generate_base64_key: 1]
   alias EWalletDB.{System, User}
 
   @seed_data [

@@ -5,7 +5,9 @@ use Mix.Config
 # since_last_cached
 config :local_ledger,
   ecto_repos: [],
-  balance_caching_strategy: {:system, "BALANCE_CACHING_STRATEGY", "since_beginning"}
+  settings: [
+    :balance_caching_strategy
+  ]
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

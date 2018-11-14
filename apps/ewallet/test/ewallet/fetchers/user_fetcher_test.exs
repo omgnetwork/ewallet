@@ -1,7 +1,7 @@
 defmodule EWallet.UserFetcherTest do
   use EWallet.LocalLedgerCase, async: true
   alias EWallet.UserFetcher
-  alias EWalletDB.{User}
+  alias EWalletDB.User
 
   setup do
     {:ok, user} = :user |> params_for() |> User.insert()

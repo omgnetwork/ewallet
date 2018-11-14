@@ -3,8 +3,9 @@ defmodule EWallet.SignupGate do
   Handles signups of new users.
   """
   alias EWallet.EmailValidator
+  alias EWalletDB.Validator
   alias EWallet.Web.{Inviter, UrlValidator}
-  alias EWalletDB.{Invite, Validator}
+  alias EWalletDB.Invite
 
   @doc """
   Signs up new users.

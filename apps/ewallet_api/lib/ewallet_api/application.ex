@@ -9,6 +9,10 @@ defmodule EWalletAPI.Application do
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:ewallet_api)
+
+    settings = Application.get_env(:ewallet_api, :settings)
+    EWalletConfig.Config.register_and_load(:ewallet_api, settings)
+
     Config.configure_cors_plug()
 
     # Define workers and child supervisors to be supervised
