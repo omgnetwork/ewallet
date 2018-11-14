@@ -42,7 +42,8 @@ export default class Select extends PureComponent {
     onSelectItem: _.noop,
     onFocus: _.noop,
     onBlur: _.noop,
-    filterByKey: false
+    filterByKey: false,
+    value: ''
   }
   state = {
     active: false
@@ -73,19 +74,26 @@ export default class Select extends PureComponent {
 
     return (
       <SelectContainer className={this.props.className}>
-        <Input {...this.props} onFocus={this.onFocus} onBlur={this.onBlur} onChange={this.props.onChange} value={this.props.value} registerRef={this.registerRef} suffix={this.state.active ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />} />
-        {this.state.active &&
-          filteredOption.length > 0 && (
-            <OptionsContainer optionBoxHeight={this.props.optionBoxHeight}>
-              {filteredOption.map(option => {
-                return (
-                  <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
-                    {option.value}
-                  </OptionItem>
-                )
-              })}
-            </OptionsContainer>
-          )}
+        <Input
+          {...this.props}
+          onFocus={this.onFocus}
+          onBlur={this.onBlur}
+          onChange={this.props.onChange}
+          value={this.props.value}
+          registerRef={this.registerRef}
+          suffix={this.state.active ? <Icon name='Chevron-Up' /> : <Icon name='Chevron-Down' />}
+        />
+        {this.state.active && filteredOption.length > 0 && (
+          <OptionsContainer optionBoxHeight={this.props.optionBoxHeight}>
+            {filteredOption.map(option => {
+              return (
+                <OptionItem onMouseDown={this.onClickItem(option)} key={option.key}>
+                  {option.value}
+                </OptionItem>
+              )
+            })}
+          </OptionsContainer>
+        )}
       </SelectContainer>
     )
   }
