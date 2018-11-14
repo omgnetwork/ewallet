@@ -14,8 +14,6 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
         name: role.name,
         priority: role.priority,
         display_name: role.display_name,
-        user_ids: UserSerializer.serialize(role.users, :id),
-        users: UserSerializer.serialize(role.users),
         created_at: Date.to_iso8601(role.inserted_at),
         updated_at: Date.to_iso8601(role.updated_at)
       }
@@ -46,8 +44,6 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
             name: role1.name,
             priority: role1.priority,
             display_name: role1.display_name,
-            user_ids: UserSerializer.serialize(role1.users, :id),
-            users: UserSerializer.serialize(role1.users),
             created_at: Date.to_iso8601(role1.inserted_at),
             updated_at: Date.to_iso8601(role1.updated_at)
           },
@@ -57,8 +53,6 @@ defmodule EWallet.Web.V1.RoleSerializerTest do
             name: role2.name,
             priority: role2.priority,
             display_name: role2.display_name,
-            user_ids: UserSerializer.serialize(role2.users, :id),
-            users: UserSerializer.serialize(role2.users),
             created_at: Date.to_iso8601(role2.inserted_at),
             updated_at: Date.to_iso8601(role2.updated_at)
           }

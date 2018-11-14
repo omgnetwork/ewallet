@@ -4,7 +4,7 @@ defmodule EWallet.Web.V1.RoleSerializer do
   """
   alias Ecto.Association.NotLoaded
   alias EWallet.Web.{Date, Paginator}
-  alias EWallet.Web.V1.{PaginatorSerializer, UserSerializer}
+  alias EWallet.Web.V1.PaginatorSerializer
   alias EWalletDB.Role
 
   def serialize(%Paginator{} = paginator) do
@@ -25,8 +25,6 @@ defmodule EWallet.Web.V1.RoleSerializer do
       name: role.name,
       priority: role.priority,
       display_name: role.display_name,
-      user_ids: UserSerializer.serialize(role.users, :id),
-      users: UserSerializer.serialize(role.users),
       created_at: Date.to_iso8601(role.inserted_at),
       updated_at: Date.to_iso8601(role.updated_at)
     }
