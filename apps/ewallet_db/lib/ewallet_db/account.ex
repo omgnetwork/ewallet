@@ -4,9 +4,11 @@ defmodule EWalletDB.Account do
   """
   use Ecto.Schema
   use Arc.Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
-  import EWalletDB.{AccountValidator, Helpers.Preloader}
+  import EWalletDB.Helpers.Preloader
+  import EWalletDB.AccountValidator
+  alias EWalletConfig.{Intersecter, Helpers.InputAttribute}
   alias Ecto.{Multi, UUID}
 
   alias EWalletDB.{
@@ -14,7 +16,6 @@ defmodule EWalletDB.Account do
     AccountUser,
     APIKey,
     Category,
-    Intersecter,
     Key,
     Membership,
     Repo,
@@ -22,8 +23,6 @@ defmodule EWalletDB.Account do
     User,
     Wallet
   }
-
-  alias EWalletDB.Helpers.InputAttribute
 
   @primary_key {:uuid, UUID, autogenerate: true}
 
@@ -44,7 +43,7 @@ defmodule EWalletDB.Account do
     field(:relative_depth, :integer, virtual: true)
     field(:avatar, EWalletDB.Uploaders.Avatar.Type)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 
     many_to_many(
       :categories,

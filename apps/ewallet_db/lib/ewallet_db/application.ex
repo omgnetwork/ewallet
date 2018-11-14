@@ -5,12 +5,16 @@ defmodule EWalletDB.Application do
   Kebura's data store lives in this application.
   """
   use Application
-  alias EWalletDB.Config
+  alias EWalletConfig.Config
 
   def start(_type, _args) do
     import Supervisor.Spec
     DeferredConfig.populate(:ewallet_db)
-    Config.configure_file_storage()
+
+    settings = Application.get_env(:ewallet_db, :settings)
+    Config.register_and_load(:ewallet_db, settings)
+
+    # Config.configure_file_storage()
 
     # List all child processes to be supervised
     children = [
@@ -18,7 +22,7 @@ defmodule EWalletDB.Application do
     ]
 
     children =
-      case System.get_env("FILE_STORAGE_ADAPTER") do
+      case Application.get_env(:ewallet_db, :file_storage_adapter) do
         "gcs" -> children ++ [supervisor(Goth.Supervisor, [])]
         _ -> children
       end

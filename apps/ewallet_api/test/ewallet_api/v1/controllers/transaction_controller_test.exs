@@ -1,5 +1,5 @@
 defmodule EWalletAPI.V1.TransactionControllerTest do
-  use EWalletAPI.ConnCase, async: false
+  use EWalletAPI.ConnCase, async: true
   alias Ecto.UUID
   alias EWallet.BalanceFetcher
   alias EWalletDB.{Account, Transaction, User}

@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AccountMembershipController do
   use AdminAPI, :controller
   import AdminAPI.V1.ErrorHandler
-  alias AdminAPI.InviteEmail
+  alias EWallet.InviteEmail
   alias EWallet.{AccountMembershipPolicy, EmailValidator}
   alias EWallet.Web.{Inviter, Orchestrator, Originator, UrlValidator, V1.MembershipOverlay}
   alias EWalletDB.{Account, Membership, Repo, Role, User}

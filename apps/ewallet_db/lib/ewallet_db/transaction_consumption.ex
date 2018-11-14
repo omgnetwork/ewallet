@@ -3,7 +3,7 @@ defmodule EWalletDB.TransactionConsumption do
   Ecto Schema representing transaction request consumptions.
   """
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
 
@@ -19,7 +19,7 @@ defmodule EWalletDB.TransactionConsumption do
     Wallet
   }
 
-  alias EWalletDB.Helpers.Assoc
+  alias EWalletConfig.Helpers.Assoc
 
   @pending "pending"
   @confirmed "confirmed"
@@ -34,9 +34,9 @@ defmodule EWalletDB.TransactionConsumption do
   schema "transaction_consumption" do
     external_id(prefix: "txc_")
 
-    field(:amount, EWalletDB.Types.Integer)
-    field(:estimated_consumption_amount, EWalletDB.Types.Integer)
-    field(:estimated_request_amount, EWalletDB.Types.Integer)
+    field(:amount, EWalletConfig.Types.Integer)
+    field(:estimated_consumption_amount, EWalletConfig.Types.Integer)
+    field(:estimated_request_amount, EWalletConfig.Types.Integer)
     field(:estimated_rate, :float)
     field(:correlation_id, :string)
     field(:idempotency_token, :string)
@@ -55,7 +55,7 @@ defmodule EWalletDB.TransactionConsumption do
 
     field(:expiration_date, :naive_datetime)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 
     belongs_to(
       :transaction,
