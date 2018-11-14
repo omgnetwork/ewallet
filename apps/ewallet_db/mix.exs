@@ -47,7 +47,7 @@ defmodule EWalletDB.Mixfile do
       {:postgrex, ">= 0.0.0"},
       {:ecto, "~> 2.1.6"},
       {:ex_machina, "~> 2.2", only: :test},
-      {:ex_ulid, github: "omisego/ex_ulid"},
+
       {:poison, "~> 3.1"},
       {:bcrypt_elixir, "~> 1.0"},
       {:cloak, "~> 0.7.0-alpha"},
@@ -62,7 +62,9 @@ defmodule EWalletDB.Mixfile do
       # arc AWS dependencies
       {:ex_aws, "~> 1.1"},
       {:hackney, "~> 1.6"},
-      {:sweet_xml, "~> 0.6"}
+      {:sweet_xml, "~> 0.6"},
+
+      {:ewallet_config, in_umbrella: true}
     ]
   end
 

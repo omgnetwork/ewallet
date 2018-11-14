@@ -4,11 +4,12 @@ defmodule EWalletDB.Category do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
-  alias EWalletDB.{Account, Helpers.InputAttribute, Repo}
+  alias EWalletConfig.Helpers.InputAttribute
+  alias EWalletDB.{Account, Repo}
 
   @primary_key {:uuid, UUID, autogenerate: true}
 

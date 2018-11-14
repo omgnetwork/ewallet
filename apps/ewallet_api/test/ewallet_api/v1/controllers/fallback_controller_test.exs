@@ -1,5 +1,5 @@
 defmodule EWalletAPI.V1.FallbackControllerTest do
-  use EWalletAPI.ConnCase, async: true
+  use EWalletAPI.ConnCase, async: false
 
   describe "/not_found" do
     test "returns correct error response format and error message" do

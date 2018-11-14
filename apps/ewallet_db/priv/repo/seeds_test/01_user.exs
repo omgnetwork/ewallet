@@ -1,7 +1,7 @@
 defmodule EWalletDB.Repo.Seeds.UserSeed do
   alias EWalletDB.{Account, AccountUser, User}
   # credo:disable-for-next-line Credo.Check.Readability.AliasOrder
-  alias EWalletDB.System, as: OriginatorSystem
+  alias EWalletConfig.System, as: OriginatorSystem
 
   @seed_data [
     %{

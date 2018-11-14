@@ -1,7 +1,7 @@
 defmodule EWalletAPI.Web.V1.EndUserAuthenticatorTest do
   use EWalletAPI.ConnCase, async: true
   alias EWalletAPI.V1.EndUserAuthenticator
-  alias EWalletDB.Helpers.Crypto
+  alias EWalletConfig.Helpers.Crypto
 
   setup do
     email = "end_user_auth@example.com"
