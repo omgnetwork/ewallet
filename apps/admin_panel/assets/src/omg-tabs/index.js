@@ -3,18 +3,19 @@ import PropTypes from 'prop-types'
 import styled from 'styled-components'
 
 const TabManagerContainer = styled.div`
-
+  margin-top: 10px;
 `
 
 const TabTitle = styled.div`
   border-bottom: 3px solid ${props => (props.active ? props.theme.colors.BL400 : 'transparent')};
   display: inline-block;
   font-weight: 600;
+  font-size: 12px;
   cursor: pointer;
   :not(:last-child) {
-    margin-right: 25px;
+    margin-right: 30px;
   }
-  color: ${props => props.active ? props.theme.colors.B400 : props.theme.colors.S500};
+  color: ${props => (props.active ? props.theme.colors.B400 : props.theme.colors.S500)};
 `
 const TabTitleContainer = styled.div`
   border-bottom: 1px solid ${props => props.theme.colors.S500};

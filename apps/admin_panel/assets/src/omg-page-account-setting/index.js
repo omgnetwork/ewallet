@@ -39,20 +39,27 @@ const AccountSettingContainer = styled.div`
   }
 `
 const ProfileSection = styled.div`
-  min-width: 250px;
-  max-width: 30%;
-  flex: 1 1 auto;
-  padding-right: 100px;
   input {
     margin-top: 40px;
   }
   button {
     margin-top: 40px;
   }
+  form {
+    display: flex;
+    > div {
+      display: inline-block;
+    }
+    > div:first-child {
+      margin-right: 40px;
+    }
+    > div:nth-child(2) {
+      max-width: 300px;
+      width: 100%;
+    }
+  }
 `
-const ContentContainer = styled.div`
-  display: flex;
-`
+
 const TableSection = styled.div`
   flex: 1 1 auto;
 `
@@ -180,32 +187,34 @@ class AccountSettingPage extends Component {
               size='180px'
               placeholder={this.state.avatar}
             />
-            <Input
-              prefill
-              placeholder={'Name'}
-              value={this.state.name}
-              onChange={this.onChangeName}
-            />
-            <Input
-              placeholder={'Description'}
-              value={this.state.description}
-              onChange={this.onChangeDescription}
-              prefill
-            />
-            {/* <Input prefill placeholder={'Group'} value={this.state.group} /> */}
-            <Button
-              size='small'
-              type='submit'
-              key={'save'}
-              disabled={
-                this.props.currentAccount.name === this.state.name &&
-                this.props.currentAccount.description === this.state.description &&
-                !this.state.image
-              }
-              loading={this.state.submitStatus === 'SUBMITTING'}
-            >
-              <span>Save Change</span>
-            </Button>
+            <div>
+              <Input
+                prefill
+                placeholder={'Name'}
+                value={this.state.name}
+                onChange={this.onChangeName}
+              />
+              <Input
+                placeholder={'Description'}
+                value={this.state.description}
+                onChange={this.onChangeDescription}
+                prefill
+              />
+              {/* <Input prefill placeholder={'Group'} value={this.state.group} /> */}
+              <Button
+                size='small'
+                type='submit'
+                key={'save'}
+                disabled={
+                  this.props.currentAccount.name === this.state.name &&
+                  this.props.currentAccount.description === this.state.description &&
+                  !this.state.image
+                }
+                loading={this.state.submitStatus === 'SUBMITTING'}
+              >
+                <span>Save Change</span>
+              </Button>
+            </div>
           </form>
         )}
       </ProfileSection>
