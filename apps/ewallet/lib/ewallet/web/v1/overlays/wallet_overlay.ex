@@ -55,7 +55,7 @@ defmodule EWallet.Web.V1.WalletOverlay do
       enabled: nil,
       inserted_at: nil,
       created_at: nil,
-      user: UserOverlay.default_preload_assocs(),
-      account: AccountOverlay.default_preload_assocs()
+      user: UserOverlay.self_filter_fields(),
+      account: AccountOverlay.self_filter_fields()
     ]
 end
