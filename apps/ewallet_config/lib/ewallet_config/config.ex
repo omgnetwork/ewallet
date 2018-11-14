@@ -123,6 +123,7 @@ defmodule EWalletConfig.Config do
     case Keyword.fetch(attrs, :config_pid) do
       :error ->
         {nil, attrs}
+
       {:ok, config_pid} ->
         {config_pid, Keyword.delete(attrs, :config_pid)}
     end

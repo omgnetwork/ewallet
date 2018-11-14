@@ -70,7 +70,7 @@ defmodule EWalletConfig.ConfigTest do
       pid = default_loading()
       {:ok, settings} = Config.update([my_setting: "new_value"], pid)
 
-      assert {:my_setting, {:ok, _}} = Enum.at(settings, 0)
+      assert {_key, {:ok, _}} = Enum.at(settings, 0)
       assert Application.get_env(:my_app, :my_setting) == "new_value"
     end
 
@@ -106,34 +106,43 @@ defmodule EWalletConfig.ConfigTest do
     test "removes 'config_pid' from the attrs keyword list" do
       pid = default_loading()
 
-      assert Config.update([
-        my_fake_setting: true,
-        config_pid: pid
-      ]) == {:ok, [
-        my_fake_setting: {:error, :setting_not_found}
-      ]}
+      assert Config.update(
+               my_fake_setting: true,
+               config_pid: pid
+             ) ==
+               {:ok,
+                [
+                  my_fake_setting: {:error, :setting_not_found}
+                ]}
     end
 
     test "removes 'config_pid' from the attrs string map" do
       pid = default_loading()
 
       assert Config.update(%{
-        "my_fake_setting" => true,
-        "config_pid" => pid
-      }) == {:ok, [{
-        "my_fake_setting", {:error, :setting_not_found}
-      }]}
+               "my_fake_setting" => true,
+               "config_pid" => pid
+             }) ==
+               {:ok,
+                [
+                  {
+                    "my_fake_setting",
+                    {:error, :setting_not_found}
+                  }
+                ]}
     end
 
     test "removes 'config_pid' from the attrs atom map" do
       pid = default_loading()
 
       assert Config.update(%{
-        my_fake_setting: true,
-        config_pid: pid
-      }) == {:ok, [
-        my_fake_setting: {:error, :setting_not_found}
-      ]}
+               my_fake_setting: true,
+               config_pid: pid
+             }) ==
+               {:ok,
+                [
+                  my_fake_setting: {:error, :setting_not_found}
+                ]}
     end
   end
 

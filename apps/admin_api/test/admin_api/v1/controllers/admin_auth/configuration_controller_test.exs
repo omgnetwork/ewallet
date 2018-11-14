@@ -83,11 +83,11 @@ defmodule AdminAPI.V1.AdminAuth.ConfigurationControllerTest do
              }
 
       assert data["fake_setting"] == %{
-        "code" => "setting:not_found",
-        "object" => "error",
-        "description" => "The setting could not be inserted.",
-        "messages" => nil
-      }
+               "code" => "setting:not_found",
+               "object" => "error",
+               "description" => "The setting could not be inserted.",
+               "messages" => nil
+             }
 
       assert data["max_per_page"] == %{
                "code" => "client:invalid_parameter",

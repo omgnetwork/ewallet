@@ -233,19 +233,19 @@ defmodule EWalletConfig.Setting do
     }
   end
 
+  defp cast_attrs(attrs) do
+    attrs
+    |> cast_value()
+    |> cast_options()
+    |> add_position()
+  end
+
   defp return_from_change({:ok, stored_setting}) do
     {:ok, build(stored_setting)}
   end
 
   defp return_from_change({:error, changeset}) do
     {:error, changeset}
-  end
-
-  defp cast_attrs(attrs) do
-    attrs
-    |> cast_value()
-    |> cast_options()
-    |> add_position()
   end
 
   defp extract_value(%{secret: true, encrypted_data: nil}), do: nil

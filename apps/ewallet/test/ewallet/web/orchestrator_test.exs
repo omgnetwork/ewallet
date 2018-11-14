@@ -21,6 +21,19 @@ defmodule EWallet.Web.OrchestratorTest do
       assert %EWallet.Web.Paginator{} = Orchestrator.query(Account, MockOverlay)
     end
 
+    test "performs search with the given overlay and attributes" do
+      _account1 = insert(:account)
+      account2 = insert(:account)
+      _account3 = insert(:account)
+
+      # The 3rd param should match `MockOverlay.search_fields/0`
+      result = Orchestrator.query(Account, MockOverlay, %{"search_term" => account2.id})
+
+      assert %EWallet.Web.Paginator{} = result
+      assert Enum.count(result.data) == 1
+      assert List.first(result.data).id == account2.id
+    end
+
     test "returns :query_field_not_allowed error if the field is not in the allowed list" do
       attrs = %{
         "match_all" => [
@@ -137,17 +150,24 @@ defmodule EWallet.Web.OrchestratorTest do
       assert Enum.any?(result, fn account -> account.id == account3.id end)
     end
 
-    test "performs search with the given overlay and attributes" do
-      _account1 = insert(:account)
-      account2 = insert(:account)
-      _account3 = insert(:account)
+    test "handles :not_allowed error mid-way" do
+      # This assumes that the order of `Orchestrator.build_query/3`
+      # calls `MatchAnyParser.to_query/3` mid way.
+      attrs = %{
+        "match_any" => [
+          %{
+            "field" => "unallowed_field",
+            "comparator" => "eq",
+            "value" => "pending"
+          }
+        ]
+      }
 
-      # The 3rd param should match `MockOverlay.search_fields/0`
-      result = Orchestrator.query(Account, MockOverlay, %{"search_term" => account2.id})
+      {res, error, params} = Orchestrator.build_query(Account, MockOverlay, attrs)
 
-      assert %EWallet.Web.Paginator{} = result
-      assert Enum.count(result.data) == 1
-      assert List.first(result.data).id == account2.id
+      assert res == :error
+      assert error == :not_allowed
+      assert params == "unallowed_field"
     end
   end
 
