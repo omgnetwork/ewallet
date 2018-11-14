@@ -11,7 +11,9 @@ defmodule EWalletAPI.V1.VerifyEmailController do
 
   def success_url, do: build_url("/pages/client/v1/verify_email/success")
 
-  defp build_url(path), do: Application.get_env(:ewallet, :base_url) <> path
+  defp build_url(path) do
+    Application.get_env(:ewallet_api, :base_url) <> path
+  end
 
   @doc """
   Renders the landing page to start the email verification steps.

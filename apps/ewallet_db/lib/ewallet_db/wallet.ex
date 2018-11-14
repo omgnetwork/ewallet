@@ -3,11 +3,12 @@ defmodule EWalletDB.Wallet do
   Ecto Schema representing wallet.
   """
   use Ecto.Schema
-  use EWalletDB.Types.WalletAddress
+  use EWalletConfig.Types.WalletAddress
   import Ecto.{Changeset, Query}
   import EWalletDB.Validator
   alias Ecto.UUID
-  alias EWalletDB.{Account, Repo, Types.WalletAddress, User, Wallet}
+  alias EWalletConfig.Types.WalletAddress
+  alias EWalletDB.{Account, Repo, User, Wallet}
   alias ExULID.ULID
 
   @genesis "genesis"
@@ -42,7 +43,7 @@ defmodule EWalletDB.Wallet do
     field(:name, :string)
     field(:identifier, :string)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
     field(:enabled, :boolean)
 
     belongs_to(

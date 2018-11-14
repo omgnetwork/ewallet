@@ -1,7 +1,8 @@
 defmodule EWalletDB.AuditTest do
   use EWalletDB.SchemaCase
   alias Ecto.{Changeset, Multi}
-  alias EWalletDB.{Audit, Repo, System, User}
+  alias EWalletConfig.System
+  alias EWalletDB.{Audit, User}
 
   describe "Audit.get_schema/1" do
     test "gets the schema from a type" do

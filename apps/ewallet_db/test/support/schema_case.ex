@@ -48,8 +48,10 @@ defmodule EWalletDB.SchemaCase do
       alias EWalletDB.Repo
 
       setup do
-        :ok = Sandbox.checkout(Repo)
+        :ok = Sandbox.checkout(EWalletDB.Repo)
+        :ok = Sandbox.checkout(EWalletConfig.Repo)
         %{} = get_or_insert_master_account()
+
         :ok
       end
     end
