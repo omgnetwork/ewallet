@@ -1,10 +1,10 @@
 defmodule EWallet.Web.MatchParserTest do
   use EWallet.DBCase
   import EWalletDB.Factory
-  alias EWallet.Web.{MatchParser, MatchAllQuery, Preloader}
+  alias EWallet.Web.{MatchParser, MatchAllQuery, MatchAnyQuery, Preloader}
   alias EWalletDB.{Account, Repo, Transaction}
 
-  describe "to_query/3" do
+  describe "build_query/3" do
     test "returns distinct records in a *-many filter" do
       account_1 = insert(:account)
       account_2 = insert(:account)
@@ -76,7 +76,7 @@ defmodule EWallet.Web.MatchParserTest do
     end
   end
 
-  describe "to_query/3 with field definitions" do
+  describe "build_query/3 with field definitions" do
     test "supports field tuples in the whitelist" do
       whitelist = [uuid: :uuid]
 
@@ -101,7 +101,7 @@ defmodule EWallet.Web.MatchParserTest do
     end
   end
 
-  describe "to_query/3 with nested fields" do
+  describe "build_query/3 with nested fields" do
     test "supports up to 5 different associations" do
       whitelist = [
         from_user: [:id],
@@ -173,7 +173,7 @@ defmodule EWallet.Web.MatchParserTest do
     end
   end
 
-  describe "to_query/3 with multiple conditions" do
+  describe "build_query/3 with multiple conditions" do
     test "returns only records that match all conditions" do
       txn_1 = insert(:transaction, status: "pending", type: "internal")
       txn_2 = insert(:transaction, status: "confirmed", type: "internal")
@@ -195,6 +195,39 @@ defmodule EWallet.Web.MatchParserTest do
 
       query = MatchParser.build_query(Transaction, attrs, [:status, :type], true, MatchAllQuery)
       result = Repo.all(query)
+
+      refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
+      assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_3.id end)
+      refute Enum.any?(result, fn txn -> txn.id == txn_4.id end)
+    end
+  end
+
+  describe "build_query/3 one after another" do
+    test "does not throw an error about 'only distinct expression is allowed'" do
+      txn_1 = insert(:transaction, status: "pending", type: "internal")
+      txn_2 = insert(:transaction, status: "confirmed", type: "internal")
+      txn_3 = insert(:transaction, status: "pending", type: "external")
+      txn_4 = insert(:transaction, status: "confirmed", type: "external")
+
+      attrs = [
+        %{
+          "field" => "status",
+          "comparator" => "eq",
+          "value" => "confirmed"
+        },
+        %{
+          "field" => "type",
+          "comparator" => "eq",
+          "value" => "internal"
+        }
+      ]
+
+      result =
+        Transaction
+        |> MatchParser.build_query(attrs, [:status, :type], true, MatchAllQuery)
+        |> MatchParser.build_query(attrs, [:status, :type], false, MatchAnyQuery)
+        |> Repo.all()
 
       refute Enum.any?(result, fn txn -> txn.id == txn_1.id end)
       assert Enum.any?(result, fn txn -> txn.id == txn_2.id end)
