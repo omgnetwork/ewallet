@@ -64,7 +64,7 @@ export function createTransactionRequest ({
       max_consumptions_per_user: Number(maxConsumptionPerUser) || undefined,
       expiration_date: expirationDate,
       allow_amount_override: allowAmountOverride,
-      consumption_lifetime: Number(consumptionLifetime),
+      consumption_lifetime: Number(consumptionLifetime) || undefined,
       exchange_wallet_address: exchangeAddress
     }
   })
