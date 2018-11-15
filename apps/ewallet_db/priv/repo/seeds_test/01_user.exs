@@ -20,11 +20,19 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
       is_admin: true,
       originator: %OriginatorSystem{}
     },
+    %{
+      email: System.get_env("E2E_TEST_USER_EMAIL") || "test_user@example.com",
+      password: System.get_env("E2E_TEST_USER_PASSWORD") || "password",
+      metadata: %{},
+      account_name: "master_account",
+      is_admin: false,
+      originator: %OriginatorSystem{}
+    },
   ]
 
   def seed do
     [
-      run_banner: "Seeding the 2 test admins",
+      run_banner: "Seeding the 2 test admins and the test user",
       argsline: [],
     ]
   end
@@ -50,11 +58,11 @@ defmodule EWalletDB.Repo.Seeds.UserSeed do
             """)
 
           {:error, changeset} ->
-            writer.error("  Admin Panel user #{data.email} could not be inserted:")
+            writer.error("  User #{data.email} could not be inserted:")
             writer.print_errors(changeset)
 
           _ ->
-            writer.error("  Admin Panel user #{data.email} could not be inserted:")
+            writer.error("  User #{data.email} could not be inserted:")
             writer.error("  Unknown error.")
         end
 
