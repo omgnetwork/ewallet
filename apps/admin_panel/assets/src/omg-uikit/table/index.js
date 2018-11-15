@@ -25,7 +25,8 @@ const EmptyStageContainer = styled.div`
   }
 `
 const Tr = styled.tr`
-  background-color: ${props => (props.new ? '#fffef2' : 'transparent')};
+  background-color: ${props => (props.active ? props.theme.colors.S200 : 'transparent')};
+
 `
 class Table extends Component {
   static propTypes = {
@@ -40,7 +41,8 @@ class Table extends Component {
     loading: PropTypes.bool,
     page: PropTypes.number,
     pagination: PropTypes.bool,
-    perPage: PropTypes.number
+    perPage: PropTypes.number,
+    activeIndexKey: PropTypes.string
   }
   static defaultProps = {
     columns: [],
@@ -103,7 +105,7 @@ class Table extends Component {
           key={d.id}
           ref={row => (this.row = row)}
           onClick={this.props.onClickRow(d, i)}
-          new={d.new}
+          active={this.props.activeIndexKey === d.id}
         >
           {this.props.columns
             .filter(c => !c.hide)

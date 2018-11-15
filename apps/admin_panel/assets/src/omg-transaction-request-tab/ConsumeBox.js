@@ -278,7 +278,7 @@ class ConsumeBox extends Component {
     }
   }
 
-  render = () => {
+  render () {
     const valid = this.props.transactionRequest.status === 'valid'
     const transactionRequestId = queryString.parse(this.props.location.search)['show-request-tab']
     const transactionRequest = this.props.selectTransactionRequestById(transactionRequestId)
