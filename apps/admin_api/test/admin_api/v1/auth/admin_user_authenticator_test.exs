@@ -2,6 +2,7 @@ defmodule AdminAPI.Web.V1.AdminUserAuthenticatorTest do
   use AdminAPI.ConnCase, async: true
   alias AdminAPI.V1.AdminUserAuthenticator
   alias EWalletConfig.Helpers.Crypto
+  alias EWalletDB.User
 
   describe "authenticate/3" do
     test "returns authenticated:true if email and password are valid" do
