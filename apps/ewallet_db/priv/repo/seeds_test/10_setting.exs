@@ -1,6 +1,6 @@
 # credo:disable-for-this-file
 defmodule EWalletDB.Repo.Seeds.SettingsSeed do
-  alias EWalletConfig.Config
+  alias EWalletConfig.{Config, Setting}
 
   def seed do
     [
@@ -10,13 +10,12 @@ defmodule EWalletDB.Repo.Seeds.SettingsSeed do
   end
 
   def run(writer, _args) do
-    Config.update(%{
+    {:ok, [ok: %Setting{}]} = Config.update(%{
       enable_standalone: true
     })
 
     writer.warn("""
-      Settings updated.
-      Enable standalone is now: #{Config.get(:enable_standalone)}
+      Enable standalone : #{Config.get(:enable_standalone)}
     """)
   end
 end
