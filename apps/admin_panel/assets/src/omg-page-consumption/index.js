@@ -95,7 +95,7 @@ class ConsumptionPage extends Component {
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        [`show-consumption-tab`]: data.id
+        'show-consumption-tab': data.id
       })
     })
   }
@@ -128,6 +128,8 @@ class ConsumptionPage extends Component {
     return data
   }
   renderConsumptionPage = ({ data: consumptions, individualLoadingStatus, pagination, fetch }) => {
+    const activeIndexKey = queryString.parse(this.props.location.search)['show-consumption-tab']
+    console.log(activeIndexKey)
     return (
       <ConsumptionPageContainer>
         <TopNavigation title={'Transaction Consumptions'} buttons={[]} />
@@ -142,6 +144,7 @@ class ConsumptionPage extends Component {
             isLastPage={pagination.is_last_page}
             navigation
             onClickLoadMore={this.onClickLoadMore}
+            activeIndexKey={activeIndexKey}
           />
         </SortableTableContainer>
         <CreateAccountModal
