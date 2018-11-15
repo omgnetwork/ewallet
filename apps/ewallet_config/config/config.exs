@@ -5,9 +5,9 @@ config :ewallet_config,
   settings_mappings: %{
     "email_adapter" => %{
       "smtp" => Bamboo.SMTPAdapter,
-      "local" => Bamboo.Bamboo.LocalAdapter,
+      "local" => Bamboo.LocalAdapter,
       "test" => Bamboo.TestAdapter,
-      "_" => Bamboo.Bamboo.LocalAdapter
+      "_" => Bamboo.LocalAdapter
     }
   },
   default_settings: %{
@@ -51,7 +51,7 @@ config :ewallet_config,
     },
     "email_adapter" => %{
       key: "email_adapter",
-      value: nil,
+      value: "local",
       type: "string",
       position: 7,
       options: ["smtp", "local", "test"],

@@ -109,3 +109,5 @@ Nothing else to set, files will be stored at the root of the project in `public/
 - `E2E_TEST_ADMIN_PASSWORD`: The password of the first test admin
 - `E2E_TEST_ADMIN_1_EMAIL`: The email of the second test admin
 - `E2E_TEST_ADMIN_1_PASSWORD`: The password of the second test admin
+- `E2E_TEST_USER_EMAIL`: The email of the test user (non-admin)
+- `E2E_TEST_USER_PASSWORD`: The password of the test user (non-admin)
