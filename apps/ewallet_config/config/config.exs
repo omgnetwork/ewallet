@@ -51,7 +51,7 @@ config :ewallet_config,
     },
     "email_adapter" => %{
       key: "email_adapter",
-      value: nil,
+      value: "local",
       type: "string",
       position: 7,
       options: ["smtp", "local", "test"],
