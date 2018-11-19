@@ -34,7 +34,8 @@ defmodule AdminAPI.V1.AccountMembershipController do
     with %Account{} = account <- Account.get(attrs["account_id"]) || {:error, :unauthorized},
          :ok <- permit(:create, conn.assigns, account.id),
          {:ok, user_or_email} <- get_user_or_email(attrs),
-         %Role{} = role <- Role.get_by_name(attrs["role_name"]) || {:error, :role_name_not_found},
+         %Role{} = role <-
+           Role.get_by(name: attrs["role_name"]) || {:error, :role_name_not_found},
          {:ok, redirect_url} <- validate_redirect_url(attrs["redirect_url"]),
          originator <- Originator.extract(conn.assigns),
          {:ok, _} <- assign_or_invite(user_or_email, account, role, redirect_url, originator) do
