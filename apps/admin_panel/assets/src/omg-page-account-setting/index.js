@@ -237,15 +237,16 @@ class AccountSettingPage extends Component {
           query={{
             page: queryString.parse(this.props.location.search).page,
             accountId: this.props.match.params.accountId,
+            perPage: 10,
             ...createSearchInviteQuery(queryString.parse(this.props.location.search).search)
           }}
-          render={({ data, individualLoadingStatus }) => {
+          render={({ data, loadingStatus }) => {
             return (
               <SortableTable
                 rows={data}
                 columns={columns}
-                perPage={99999}
-                loadingStatus={individualLoadingStatus}
+                perPage={10}
+                loadingStatus={loadingStatus}
                 loadingRowNumber={7}
                 rowRenderer={this.rowRenderer}
                 navigation={false}
