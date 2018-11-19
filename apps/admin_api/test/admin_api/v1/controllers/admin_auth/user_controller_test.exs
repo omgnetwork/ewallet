@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, AccountUser, User, AuthToken}
+  alias EWalletDB.{Account, AccountUser, User, AuthToken, Role, Membership}
 
   @owner_app :some_app
 
@@ -529,7 +529,7 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
   end
 
   describe "/user.enable_or_disable" do
-    test "disable a user succeed and disable his tokens" do
+    test "disable a user succeed and disable his tokens given his id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
       {:ok, _} = AccountUser.link(account.uuid, user.uuid)
@@ -548,6 +548,50 @@ defmodule AdminAPI.V1.AdminAuth.UserControllerTest do
       assert response["success"] == true
       assert response["data"]["enabled"] == false
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "disable a user succeed and disable his tokens given his provider user id" do
+      user = insert(:user, %{enabled: true})
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      {:ok, token} = AuthToken.generate(user, @owner_app)
+      token_string = token.token
+      # Ensure tokens is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
+
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          provider_user_id: user.provider_user_id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["enabled"] == false
+      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "can't disable a user in an account above the current one" do
+      master = Account.get_master_account()
+      role = Role.get_by(name: "admin")
+
+      admin = get_test_admin()
+      {:ok, _m} = Membership.unassign(admin, master)
+
+      user = insert(:user, %{enabled: true})
+      {:ok, _} = AccountUser.link(master.uuid, user.uuid)
+
+      sub_acc = insert(:account, parent: master, name: "Account 1")
+      {:ok, _m} = Membership.assign(admin, sub_acc, role)
+
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          id: user.id,
+          enabled: false
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "disable a user that doesn't exist raises an error" do

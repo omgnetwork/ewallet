@@ -79,7 +79,7 @@ defmodule AdminAPI.V1.AdminAuth.UserAuthControllerTest do
       assert response == expected
     end
 
-    test "returns :user_disabled if the user is disabled" do
+    test "returns user:disabled if the user is disabled" do
       user = insert(:user, %{enabled: false})
       response = admin_user_request("/user.login", %{id: user.id})
 

@@ -410,7 +410,7 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
   end
 
   describe "/user.enable_or_disable" do
-    test "disable a user succeed and disable his tokens" do
+    test "disable a user succeed and disable his tokens given his id" do
       user = insert(:user, %{enabled: true})
       account = Account.get_master_account()
       {:ok, _} = AccountUser.link(account.uuid, user.uuid)
@@ -429,6 +429,51 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       assert response["success"] == true
       assert response["data"]["enabled"] == false
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "disable a user succeed and disable his tokens given his provider user id" do
+      user = insert(:user, %{enabled: true})
+      account = Account.get_master_account()
+      {:ok, _} = AccountUser.link(account.uuid, user.uuid)
+
+      {:ok, token} = AuthToken.generate(user, @owner_app)
+      token_string = token.token
+      # Ensure tokens is usable.
+      assert AuthToken.authenticate(token_string, @owner_app)
+
+      response =
+        provider_request("/user.enable_or_disable", %{
+          provider_user_id: user.provider_user_id,
+          enabled: false
+        })
+
+      assert response["success"] == true
+      assert response["data"]["enabled"] == false
+      assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "can't disable a user in an account above the current one" do
+      master = Account.get_master_account()
+
+      user = insert(:user, %{enabled: true})
+      {:ok, _} = AccountUser.link(master.uuid, user.uuid)
+
+      sub_acc = insert(:account, parent: master, name: "Account 1")
+      key = insert(:key, %{account: sub_acc})
+
+      response =
+        provider_request(
+          "/user.enable_or_disable",
+          %{
+            id: user.id,
+            enabled: false
+          },
+          access_key: key.access_key,
+          secret_key: key.secret_key
+        )
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "disable a user that doesn't exist raises an error" do

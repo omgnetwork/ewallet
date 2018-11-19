@@ -191,6 +191,29 @@ defmodule AdminAPI.V1.ProviderAuth.AdminControllerTest do
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
     end
 
+    test "can't disable an admin in an account above the current one" do
+      master = Account.get_master_account()
+
+      admin = get_test_admin()
+
+      sub_acc = insert(:account, parent: master, name: "Account 1")
+      key = insert(:key, %{account: sub_acc})
+
+      response =
+        provider_request(
+          "/user.enable_or_disable",
+          %{
+            id: admin.id,
+            enabled: false
+          },
+          access_key: key.access_key,
+          secret_key: key.secret_key
+        )
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
+    end
+
     test "disable an admin that doesn't exist raises an error" do
       response =
         provider_request("/admin.enable_or_disable", %{

@@ -1,7 +1,7 @@
 defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
   use AdminAPI.ConnCase, async: true
   alias Ecto.UUID
-  alias EWalletDB.{User, Account, AuthToken}
+  alias EWalletDB.{User, Account, AuthToken, Role, Membership}
 
   @owner_app :some_app
 
@@ -191,6 +191,29 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
       assert response["success"] == true
       assert response["data"]["enabled"] == false
       assert AuthToken.authenticate(token_string, @owner_app) == :token_expired
+    end
+
+    test "can't disable an admin in an account above the current one" do
+      master = Account.get_master_account()
+      role = Role.get_by(name: "admin")
+
+      admin = get_test_admin()
+      {:ok, _m} = Membership.unassign(admin, master)
+
+      master_admin = insert(:admin, %{email: "admin@omise.co"})
+      _membership = insert(:membership, %{user: master_admin, account: master, role: role})
+
+      sub_acc = insert(:account, parent: master, name: "Account 1")
+      {:ok, _m} = Membership.assign(admin, sub_acc, role)
+
+      response =
+        admin_user_request("/user.enable_or_disable", %{
+          id: master_admin.id,
+          enabled: false
+        })
+
+      assert response["success"] == false
+      assert response["data"]["code"] == "unauthorized"
     end
 
     test "disable an admin that doesn't exist raises an error" do
