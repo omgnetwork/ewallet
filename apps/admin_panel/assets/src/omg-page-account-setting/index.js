@@ -7,7 +7,7 @@ import { currentAccountProviderHoc } from '../omg-account-current/currentAccount
 import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import InviteModal from '../omg-invite-modal'
-import InviteListProvider from '../omg-invite/inviteListProvider'
+import InviteFetcher from '../omg-invite/InviteFetcher'
 import { updateCurrentAccount } from '../omg-account-current/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
@@ -15,23 +15,19 @@ import queryString from 'query-string'
 import PropTypes from 'prop-types'
 import moment from 'moment'
 import Link from '../omg-links'
-
+import SearchInput from '../omg-page-layout/SearchGroup'
+import { createSearchInviteQuery } from '../omg-invite/searchField'
 import TabsManager from '../omg-tabs'
 
 const columns = [
   { key: 'account_role', title: 'ROLE', sort: true },
   { key: 'username', title: 'MEMBER NAME', sort: true },
   { key: 'email', title: 'EMAIL', sort: true },
+  { key: 'id', title: 'ID', sort: true },
   { key: 'updated_at', title: 'LAST UPDATED', sort: true },
   { key: 'status', title: 'STATUS', sort: true }
 ]
 const AccountSettingContainer = styled.div`
-  td:first-child {
-    width: 10%;
-  }
-  td:nth-child(3) {
-    width: 40%;
-  }
   a {
     color: inherit;
     padding-bottom: 5px;
@@ -39,6 +35,7 @@ const AccountSettingContainer = styled.div`
   }
 `
 const ProfileSection = styled.div`
+  padding-top: 40px;
   input {
     margin-top: 40px;
   }
@@ -62,6 +59,18 @@ const ProfileSection = styled.div`
 
 const TableSection = styled.div`
   flex: 1 1 auto;
+  text-align: right;
+  margin-top: -26px;
+  table {
+    padding-top: 0;
+    text-align: left;
+    thead tr {
+      border-top: none;
+    }
+  }
+  i:hover {
+    background-color: transparent;
+  }
 `
 const Avatar = styled(ImageUploaderAvatar)`
   margin: 0;
@@ -223,14 +232,20 @@ class AccountSettingPage extends Component {
   renderMemberTab () {
     return (
       <TableSection>
-        <InviteListProvider
-          render={({ inviteList, loadingStatus }) => {
+        <SearchInput />
+        <InviteFetcher
+          query={{
+            page: queryString.parse(this.props.location.search).page,
+            accountId: this.props.match.params.accountId,
+            ...createSearchInviteQuery(queryString.parse(this.props.location.search).search)
+          }}
+          render={({ data, individualLoadingStatus }) => {
             return (
               <SortableTable
-                rows={inviteList}
+                rows={data}
                 columns={columns}
                 perPage={99999}
-                loadingStatus={loadingStatus}
+                loadingStatus={individualLoadingStatus}
                 loadingRowNumber={7}
                 rowRenderer={this.rowRenderer}
                 navigation={false}

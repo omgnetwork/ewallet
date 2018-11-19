@@ -21,7 +21,6 @@ const TabTitleContainer = styled.div`
   border-bottom: 1px solid ${props => props.theme.colors.S500};
 `
 const TabContent = styled.div`
-  padding-top: 40px;
 `
 export default class TabManager extends Component {
   static propTypes = {
@@ -38,7 +37,7 @@ export default class TabManager extends Component {
       <TabManagerContainer>
         <TabTitleContainer>
           {this.props.tabs.map((tab, i) => (
-            <TabTitle active={this.props.activeIndex === i}>{tab.title}</TabTitle>
+            <TabTitle active={this.props.activeIndex === i} key={i}>{tab.title}</TabTitle>
           ))}
         </TabTitleContainer>
         <TabContent>{this.props.tabs[this.props.activeIndex].content}</TabContent>

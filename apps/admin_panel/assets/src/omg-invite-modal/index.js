@@ -102,6 +102,7 @@ class InviteModal extends Component {
         if (result.data.success) {
           this.props.getListMembers(accountId)
           this.setState({ submitStatus: 'SUCCESS' })
+          this.props.history.push(`/${this.props.match.params.accountId}/setting/members`)
           this.onRequestClose()
         } else {
           this.setState({ submitStatus: 'FAILED' })
