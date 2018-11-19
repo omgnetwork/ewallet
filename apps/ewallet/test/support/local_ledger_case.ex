@@ -6,6 +6,7 @@ defmodule EWallet.LocalLedgerCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
   alias EWalletDB.Account
+  alias EWalletConfig.ConfigTestHelper
 
   defmacro __using__(_opts) do
     quote do
@@ -15,9 +16,27 @@ defmodule EWallet.LocalLedgerCase do
       alias Ecto.Adapters.SQL.Sandbox
       alias EWalletDB.Account
 
-      setup do
+      setup tags do
+        :ok = Sandbox.checkout(EWalletConfig.Repo)
         :ok = Sandbox.checkout(EWalletDB.Repo)
         :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+
+        unless tags[:async] do
+          Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+          Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+          Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+        end
+
+        ConfigTestHelper.restart_config_genserver(
+          self(),
+          EWalletConfig.Repo,
+          [:ewallet_db, :ewallet],
+          %{
+            "enable_standalone" => false,
+            "base_url" => "http://localhost:4000",
+            "email_adapter" => "test"
+          }
+        )
 
         {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
 

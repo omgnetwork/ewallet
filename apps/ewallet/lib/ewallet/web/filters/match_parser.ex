@@ -19,7 +19,7 @@ defmodule EWallet.Web.MatchParser do
          {queryable, assoc_positions} <- join_assocs(queryable, rules),
          true <- Enum.count(assoc_positions) <= 5 || {:error, :too_many_associations},
          queryable <- filter(queryable, assoc_positions, rules, initial_dynamic, query_module),
-         queryable <- distinct(queryable, true) do
+         queryable <- add_distinct(queryable) do
       queryable
     else
       error -> error
@@ -162,4 +162,10 @@ defmodule EWallet.Web.MatchParser do
 
     from(queryable, where: ^dynamic)
   end
+
+  defp add_distinct(%Ecto.Query{distinct: nil} = queryable) do
+    distinct(queryable, true)
+  end
+
+  defp add_distinct(queryable), do: queryable
 end

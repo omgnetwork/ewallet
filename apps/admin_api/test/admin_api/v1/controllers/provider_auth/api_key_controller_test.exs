@@ -1,7 +1,8 @@
 defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, APIKey, Helpers.Preloader, Repo}
+  alias EWalletDB.Helpers.Preloader
+  alias EWalletDB.{Account, APIKey, Repo}
 
   describe "/api_key.all" do
     test "responds with a list of api keys when no params are given" do
@@ -87,6 +88,9 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                  }
                }
     end
+
+    test_supports_match_any("/api_key.all", :provider_auth, :api_key, :key)
+    test_supports_match_all("/api_key.all", :provider_auth, :api_key, :key)
   end
 
   describe "/api_key.create" do
@@ -199,6 +203,27 @@ defmodule AdminAPI.V1.ProviderAuth.APIKeyControllerTest do
                  "object" => "error"
                }
              }
+    end
+
+    test "responds with an error if the user is not authorized to delete the API key" do
+      api_key = insert(:api_key)
+      key = insert(:key)
+
+      attrs = %{id: api_key.id}
+      opts = [access_key: key.access_key, secret_key: key.secret_key]
+      response = provider_request("/api_key.delete", attrs, opts)
+
+      assert response ==
+               %{
+                 "version" => "1",
+                 "success" => false,
+                 "data" => %{
+                   "code" => "unauthorized",
+                   "description" => "You are not allowed to perform the requested operation.",
+                   "messages" => nil,
+                   "object" => "error"
+                 }
+               }
     end
   end
 end

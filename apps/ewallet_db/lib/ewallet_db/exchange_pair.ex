@@ -21,9 +21,10 @@ defmodule EWalletDB.ExchangePair do
   """
   use Ecto.Schema
   use EWalletDB.SoftDelete
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.Changeset
   import EWalletDB.Helpers.Preloader
+  import EWalletDB.Validator
   import EWalletDB.Validator
   alias Ecto.UUID
   alias EWalletDB.{Repo, Token}

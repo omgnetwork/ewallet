@@ -5,7 +5,8 @@ defmodule EWalletDB.ForgetPasswordRequest do
   use Ecto.Schema
   import Ecto.{Changeset, Query}
   alias Ecto.UUID
-  alias EWalletDB.{ForgetPasswordRequest, Helpers.Crypto, Repo, User}
+  alias EWalletConfig.Helpers.Crypto
+  alias EWalletDB.{ForgetPasswordRequest, Repo, User}
 
   @primary_key {:uuid, UUID, autogenerate: true}
   @token_length 32

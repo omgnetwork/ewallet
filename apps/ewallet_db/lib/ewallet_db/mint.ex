@@ -3,7 +3,7 @@ defmodule EWalletDB.Mint do
   Ecto Schema representing mints.
   """
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Query, Changeset}
   import EWalletDB.Helpers.Preloader
   alias Ecto.UUID
@@ -15,7 +15,7 @@ defmodule EWalletDB.Mint do
     external_id(prefix: "mnt_")
 
     field(:description, :string)
-    field(:amount, EWalletDB.Types.Integer)
+    field(:amount, EWalletConfig.Types.Integer)
     field(:confirmed, :boolean, default: false)
 
     belongs_to(
@@ -78,7 +78,7 @@ defmodule EWalletDB.Mint do
     |> where([m], m.token_uuid == ^token.uuid)
     |> select([m], sum(m.amount))
     |> Repo.one()
-    |> EWalletDB.Types.Integer.load!()
+    |> EWalletConfig.Types.Integer.load!()
   end
 
   @doc """

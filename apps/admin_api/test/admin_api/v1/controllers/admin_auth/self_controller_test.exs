@@ -4,7 +4,9 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
   import Ecto.Query
   alias AdminAPI.UpdateEmailAddressEmail
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, Helpers.Assoc, Helpers.Crypto, Membership, Repo, UpdateEmailRequest, User}
+  alias EWalletConfig.Helpers.{Crypto, Assoc}
+  alias EWalletDB.{Account, Membership, Repo, User}
+  alias EWalletDB.{Account, Membership, Repo, UpdateEmailRequest, User}
 
   @update_email_url "http://localhost:4000/update_email?email={email}&token={token}"
 

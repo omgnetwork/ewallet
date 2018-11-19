@@ -4,7 +4,7 @@ defmodule EWalletDB.Audit do
   """
   use Arc.Ecto.Schema
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   alias Ecto.{Changeset, Multi, UUID}
 
@@ -23,7 +23,7 @@ defmodule EWalletDB.Audit do
     field(:target_type, :string)
     field(:target_uuid, UUID)
     field(:target_changes, :map)
-    field(:target_encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:target_encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 
     field(:originator_uuid, UUID)
     field(:originator_type, :string)
@@ -103,8 +103,8 @@ defmodule EWalletDB.Audit do
     originator_schema = Audit.get_schema(audit.originator_type)
 
     case originator_schema do
-      EWalletDB.System ->
-        %EWalletDB.System{uuid: audit.originator_uuid}
+      EWalletConfig.System ->
+        %EWalletConfig.System{uuid: audit.originator_uuid}
 
       schema ->
         Repo.get(schema, audit.originator_uuid)

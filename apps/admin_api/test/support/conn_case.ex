@@ -20,7 +20,8 @@ defmodule AdminAPI.ConnCase do
   alias Ecto.UUID
   alias EWallet.{MintGate, TransactionGate}
   alias EWallet.Web.Date
-  alias EWalletDB.{Account, Helpers.Crypto, Key, Repo, Types.ExternalID, User}
+  alias EWalletConfig.{ConfigTestHelper, Helpers.Crypto, Types.ExternalID}
+  alias EWalletDB.{Account, Key, Repo, User}
 
   # Attributes required by Phoenix.ConnTest
   @endpoint AdminAPI.Endpoint
@@ -80,9 +81,28 @@ defmodule AdminAPI.ConnCase do
     end
   end
 
-  setup do
+  setup tags do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
+
+    unless tags[:async] do
+      Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+      Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+      Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+    end
+
+    pid =
+      ConfigTestHelper.restart_config_genserver(
+        self(),
+        EWalletConfig.Repo,
+        [:ewallet_db, :ewallet, :admin_api],
+        %{
+          "base_url" => "http://localhost:4000",
+          "email_adapter" => "test",
+          "sender_email" => "admin@example.com"
+        }
+      )
 
     # Insert account via `Account.insert/1` instead of the test factory to initialize wallets, etc.
     {:ok, account} = :account |> params_for(parent: nil) |> Account.insert()
@@ -127,7 +147,7 @@ defmodule AdminAPI.ConnCase do
     # by returning {:ok, context_map}. But it would make the code
     # much less readable, i.e. `test "my test name", context do`,
     # and access using `context[:attribute]`.
-    :ok
+    %{config_pid: pid}
   end
 
   def stringify_keys(%NaiveDateTime{} = value) do
@@ -229,13 +249,19 @@ defmodule AdminAPI.ConnCase do
   def provider_request(path, data \\ %{}, opts \\ [])
       when is_binary(path) and byte_size(path) > 0 do
     {status, _opts} = Keyword.pop(opts, :status, :ok)
-    secret_key = Base.url_encode64(@secret_key)
 
     build_conn()
     |> put_req_header("accept", @header_accept)
-    |> put_auth_header("OMGProvider", @access_key, secret_key)
+    |> put_auth_header("OMGProvider", provider_auth_header(opts))
     |> post(@base_dir <> path, data)
     |> json_response(status)
+  end
+
+  defp provider_auth_header(opts) do
+    access_key = Keyword.get(opts, :access_key, @access_key)
+    secret_key = Keyword.get(opts, :secret_key, Base.url_encode64(@secret_key))
+
+    [access_key, secret_key]
   end
 
   @doc """
@@ -288,5 +314,106 @@ defmodule AdminAPI.ConnCase do
 
     insert_list(num_remaining, factory_name, attrs)
     Repo.all(schema)
+  end
+
+  @doc """
+  Tests that the specified endpoint supports 'match_any' filtering.
+  """
+  defmacro test_supports_match_any(endpoint, auth_type, factory, field, opts \\ []) do
+    quote do
+      test "supports match_any filtering" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        factory = unquote(factory)
+        field = unquote(field)
+        opts = unquote(opts)
+        field_name = Atom.to_string(field)
+
+        factory_attrs = Keyword.get(opts, :factory_attrs, %{})
+
+        _ = insert(factory, Map.merge(%{field => "value_1"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_2"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_3"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "value_4"}, factory_attrs))
+
+        attrs = %{
+          "match_any" => [
+            %{
+              "field" => field_name,
+              "comparator" => "eq",
+              "value" => "value_2"
+            },
+            %{
+              "field" => field_name,
+              "comparator" => "eq",
+              "value" => "value_4"
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_2" end)
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "value_4" end)
+        assert Enum.count(records) == 2
+      end
+    end
+  end
+
+  @doc """
+  Tests that the specified endpoint supports 'match_all' filtering.
+  """
+  defmacro test_supports_match_all(endpoint, auth_type, factory, field, opts \\ []) do
+    quote do
+      test "supports match_all filtering" do
+        endpoint = unquote(endpoint)
+        auth_type = unquote(auth_type)
+        factory = unquote(factory)
+        field = unquote(field)
+        opts = unquote(opts)
+        field_name = Atom.to_string(field)
+
+        factory_attrs = Keyword.get(opts, :factory_attrs, %{})
+
+        _ = insert(factory, Map.merge(%{field => "this_should_almost_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "this_should_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "should_not_match"}, factory_attrs))
+        _ = insert(factory, Map.merge(%{field => "also_should_not_match"}, factory_attrs))
+
+        attrs = %{
+          "match_all" => [
+            %{
+              "field" => field_name,
+              "comparator" => "starts_with",
+              "value" => "this_should"
+            },
+            %{
+              "field" => field_name,
+              "comparator" => "contains",
+              "value" => "should_match"
+            }
+          ]
+        }
+
+        response =
+          case auth_type do
+            :admin_auth -> admin_user_request(endpoint, attrs)
+            :provider_auth -> provider_request(endpoint, attrs)
+          end
+
+        assert response["success"]
+
+        records = response["data"]["data"]
+        assert Enum.any?(records, fn r -> Map.get(r, field_name) == "this_should_match" end)
+        assert Enum.count(records) == 1
+      end
+    end
   end
 end

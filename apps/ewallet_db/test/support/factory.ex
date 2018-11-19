@@ -4,6 +4,8 @@ defmodule EWalletDB.Factory do
   """
   use ExMachina.Ecto, repo: EWalletDB.Repo
   alias ExMachina.Strategy
+  alias EWalletConfig.{Types.WalletAddress, Helpers.Crypto}
+  alias EWalletConfig.System
 
   alias EWalletDB.{
     Account,
@@ -14,18 +16,15 @@ defmodule EWalletDB.Factory do
     Category,
     ExchangePair,
     ForgetPasswordRequest,
-    Helpers.Crypto,
     Invite,
     Key,
     Membership,
     Mint,
     Role,
-    System,
     Token,
     Transaction,
     TransactionConsumption,
     TransactionRequest,
-    Types.WalletAddress,
     UpdateEmailRequest,
     User,
     Wallet

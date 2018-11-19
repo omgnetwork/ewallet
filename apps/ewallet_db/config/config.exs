@@ -1,7 +1,7 @@
 use Mix.Config
 
 audits = %{
-  EWalletDB.System => "system",
+  EWalletConfig.System => "system",
   EWalletDB.User => "user",
   EWalletDB.Invite => "invite",
   EWalletDB.Key => "key",
@@ -12,9 +12,18 @@ audits = %{
 config :ewallet_db,
   ecto_repos: [EWalletDB.Repo],
   env: Mix.env(),
-  base_url: {:system, "BASE_URL", "http://localhost:4000"},
-  min_password_length: 8,
   schemas_to_audit_types: audits,
-  audit_types_to_schemas: Enum.into(audits, %{}, fn {key, value} -> {value, key} end)
+  audit_types_to_schemas: Enum.into(audits, %{}, fn {key, value} -> {value, key} end),
+  settings: [
+    :base_url,
+    :min_password_length,
+    :file_storage_adapter,
+    :aws_bucket,
+    :aws_region,
+    :aws_access_key_id,
+    :aws_secret_access_key,
+    :gcs_bucket,
+    :gcs_credentials
+  ]
 
 import_config "#{Mix.env()}.exs"

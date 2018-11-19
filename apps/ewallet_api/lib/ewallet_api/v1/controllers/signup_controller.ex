@@ -4,7 +4,7 @@ defmodule EWalletAPI.V1.SignupController do
   alias EWallet.{SignupGate, UserPolicy}
   alias EWallet.Web.Preloader
   alias EWalletAPI.V1.VerifyEmailController
-  alias EWalletAPI.VerificationEmail
+  alias EWallet.VerificationEmail
 
   @doc """
   Signs up a new user.
