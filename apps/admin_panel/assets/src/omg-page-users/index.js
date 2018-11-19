@@ -10,6 +10,7 @@ import PropTypes from 'prop-types'
 import moment from 'moment'
 import queryString from 'query-string'
 import Copy from '../omg-copy'
+import { createSearchUsersQuery } from '../omg-users/searchField'
 const UserPageContainer = styled.div`
   position: relative;
   display: flex;
@@ -28,7 +29,7 @@ const UserPageContainer = styled.div`
       }
     }
   }
-  i[name="Copy"] {
+  i[name='Copy'] {
     margin-left: 5px;
     cursor: pointer;
     visibility: hidden;
@@ -155,8 +156,8 @@ class UsersPage extends Component {
         query={{
           page: queryString.parse(this.props.location.search).page,
           perPage: 15,
-          search: queryString.parse(this.props.location.search).search,
-          accountId: this.props.match.params.accountId
+          accountId: this.props.match.params.accountId,
+          ...createSearchUsersQuery(queryString.parse(this.props.location.search).search)
         }}
         onFetchComplete={this.props.scrollTopContentContainer}
       />

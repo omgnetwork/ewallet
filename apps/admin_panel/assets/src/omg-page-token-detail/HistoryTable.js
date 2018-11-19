@@ -90,8 +90,7 @@ export default withRouter(
           query={{
             page: queryString.parse(this.props.location.search).page,
             perPage: 10,
-            tokenId: this.props.tokenId,
-            search: queryString.parse(this.props.location.search).search
+            tokenId: this.props.tokenId
           }}
         />
       )

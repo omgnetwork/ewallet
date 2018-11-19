@@ -33,7 +33,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       user = get_test_admin() |> Repo.preload([:accounts])
       {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
       account = insert(:account)
-      role = Role.get_by_name("admin")
+      role = Role.get_by(name: "admin")
       _membership = insert(:membership, %{user: user, role: role, account: account})
 
       response =

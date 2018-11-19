@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import styled from 'styled-components'
-import { Input, Button, Checkbox } from '../omg-uikit'
+import { Input, Button } from '../omg-uikit'
 import { Link, withRouter } from 'react-router-dom'
 import PropTypes from 'prop-types'
 import { compose } from 'recompose'
@@ -76,7 +76,7 @@ class LoginForm extends Component {
           const redirectUrl = _.get(this.props, 'location.state.from.pathname')
           this.props.history.push(redirectUrl || `/${result.data.account_id}/dashboard`)
         } else {
-          this.setState({ error: result.data.description, submitted: false })
+          this.setState({ error: result.error.description || result.error.message, submitted: false })
         }
       } catch (error) {
         this.setState({ error: 'Something went wrong :(', submitted: false })
@@ -133,6 +133,9 @@ class LoginForm extends Component {
   }
 }
 
-const enhance = compose(connect(null, { login }), withRouter)
+const enhance = compose(
+  connect(null, { login }),
+  withRouter
+)
 
 export default enhance(LoginForm)

@@ -35,6 +35,9 @@ defmodule AdminAPI.V1.AdminAuth.TransactionCalculationControllerTest do
 
       assert response["data"]["exchange_pair"]["object"] == "exchange_pair"
       assert response["data"]["exchange_pair"]["id"] == context.pair.id
+
+      assert response["data"]["exchange_pair"]["from_token"]["id"] == context.eth.id
+      assert response["data"]["exchange_pair"]["to_token"]["id"] == context.omg.id
     end
 
     test "accepts integer strings", context do

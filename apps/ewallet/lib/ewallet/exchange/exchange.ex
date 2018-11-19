@@ -18,7 +18,11 @@ defmodule EWallet.Exchange do
   @spec get_rate(from_token :: %Token{}, to_token :: %Token{}) ::
           {:ok, Decimal.t(), %ExchangePair{}} | {:error, atom()}
   def get_rate(from_token, to_token) do
-    case ExchangePair.fetch_exchangable_pair(from_token, to_token) do
+    case ExchangePair.fetch_exchangable_pair(
+           from_token,
+           to_token,
+           preload: [:from_token, :to_token]
+         ) do
       {:ok, pair} ->
         rate = Decimal.new(pair.rate)
         subunit_scale = Decimal.div(to_token.subunit_to_unit, from_token.subunit_to_unit)
