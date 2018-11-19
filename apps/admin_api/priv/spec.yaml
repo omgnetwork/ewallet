@@ -41,6 +41,8 @@ info:
 tags:
   - name: AdminSession
     description: Resources related to admin session tokens.
+  - name: Role
+    description: Resources related to roles.
   - name: Admin
     description: Resources related to admin users.
   - name: UserSession
@@ -52,7 +54,7 @@ tags:
   - name: ExchangePair
     description: Resources related to exchange pairs.
   - name: Category
-    description: Resources related to categories.
+    description: Resources related to roles.
   - name: Account
     description: Resources related to accounts.
   - name: Wallet
@@ -147,6 +149,92 @@ paths:
       responses:
         '200':
           $ref: "#/components/responses/EmptyResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+
+  ######################################
+  #            ROLE ENDPOINTS          #
+  ######################################
+  /role.all:
+    post:
+      tags:
+        - Role
+      summary: Get the list of tokens
+      operationId: role_all
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RoleAllBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/RolesResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /role.get:
+    post:
+      tags:
+        - Role
+      summary: Get a specific role
+      operationId: token_get
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RoleGetBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/RoleResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to create a new role
+  /role.create:
+    post:
+      tags:
+        - Role
+      summary: Create a new role
+      operationId: role_create
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RoleCreateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/RoleResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  # Endpoint to update a role
+  /role.update:
+    post:
+      tags:
+        - Role
+      summary: Update an existing role
+      operationId: role_update
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RoleUpdateBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/RoleResponse"
+        '500':
+          $ref: "#/components/responses/InternalServerError"
+  /role.delete:
+    post:
+      tags:
+        - Role
+      summary: Delete a role by its id
+      operationId: role_delete
+      security:
+        - ProviderAuth: []
+        - AdminAuth: []
+      requestBody:
+        $ref: '#/components/requestBodies/RoleDeleteBody'
+      responses:
+        '200':
+          $ref: "#/components/responses/RoleResponse"
         '500':
           $ref: "#/components/responses/InternalServerError"
 
@@ -415,7 +503,7 @@ paths:
     post:
       tags:
         - Category
-      summary: Get the list of categories
+      summary: Get the list of roles
       operationId: category_all
       security:
         - ProviderAuth: []
@@ -1661,6 +1749,107 @@ components:
               updated_at: "2018-01-01T10:00:00Z"
             master_admin: true
             role: 'admin'
+
+    ######################################
+    #            ROLE SCHEMAS            #
+    ######################################
+    RoleSchema:
+      description: "The object schema for a role"
+      type: object
+      properties:
+        object:
+          type: string
+        id:
+          type: string
+        name:
+          type: string
+        display_name:
+          type: string
+        user_ids:
+          type: array
+          items:
+            type: string
+        users:
+          type: object
+          allOf:
+            - $ref: '#/components/schemas/UnpaginatedListSchema'
+            - type: object
+              properties:
+                data:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/UserSchema'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+      required:
+        - object
+        - id
+        - name
+        - display_name
+        - user_ids
+        - created_at
+        - updated_at
+    RoleResponseSchema:
+      description: "The response schema for a role"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            $ref: '#/components/schemas/RoleSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "role"
+            id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+            name: "role_name"
+            display_name: "The role's display name"
+            created_at: "2018-01-01T00:00:00Z"
+            updated_at: "2018-01-01T10:00:00Z"
+    RolesResponseSchema:
+      description: "The response schema for a list of roles"
+      allOf:
+      - $ref: '#/components/schemas/BaseResponseSchema'
+      - type: object
+        properties:
+          data:
+            type: object
+            allOf:
+              - $ref: '#/components/schemas/PaginatedListSchema'
+              - type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/RoleSchema'
+        required:
+          - data
+        example:
+          version: "1"
+          success: true
+          data:
+            object: "list"
+            data:
+              - object: "role"
+                id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+                name: "Role Name"
+                display_name: "The role's display name"
+                created_at: "2018-01-01T00:00:00Z"
+                updated_at: "2018-01-01T10:00:00Z"
+            pagination:
+              per_page: 10
+              current_page: 1
+              is_first_page: true
+              is_last_page: true
+
     ######################################
     #         TOKEN SCHEMAS       #
     ######################################
@@ -2094,7 +2283,7 @@ components:
             created_at: "2018-01-01T00:00:00Z"
             updated_at: "2018-01-01T10:00:00Z"
     CategoriesResponseSchema:
-      description: "The response schema for a list of categories"
+      description: "The response schema for a list of roles"
       allOf:
       - $ref: '#/components/schemas/BaseResponseSchema'
       - type: object
@@ -2156,7 +2345,7 @@ components:
           type: array
           items:
             type: string
-        categories:
+        roles:
           type: object
           allOf:
             - $ref: '#/components/schemas/UnpaginatedListSchema'
@@ -2208,7 +2397,7 @@ components:
             description: "The account description"
             master: true
             category_ids: []
-            categories: []
+            roles: []
             metadata: {}
             encrypted_metadata: {}
             avatar: {"original": "file_url"}
@@ -2245,7 +2434,7 @@ components:
                 description: "The account description"
                 master: true
                 category_ids: []
-                categories: []
+                roles: []
                 metadata: {}
                 encrypted_metadata: {}
                 avatar: {"original": "file_url"}
@@ -3660,6 +3849,98 @@ components:
               password: "nZi9Enc5$l#"
               password_confirmation: "nZi9Enc5$l#"
 
+    ###########################################
+    #         ROLE REQUEST BODIES         #
+    ###########################################
+    RoleAllBody:
+      description: The parameters to use for listing the roles
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              page:
+                type: integer
+                minimum: 1
+              per_page:
+                type: integer
+                minimum: 1
+              search_term:
+                type: string
+              sort_by:
+                type: string
+              sort_dir:
+                type: string
+                enum: ["asc", "desc"]
+            example:
+              page: 1
+              per_page: 10
+              search_term: ""
+              sort_by: "field_name"
+              sort_dir: "asc"
+    RoleGetBody:
+      description: The parameters to use for retrieving a specific role
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+    RoleCreateBody:
+      description: The parameters to use for creating a new role.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              name:
+                type: string
+              display_name:
+                type: string
+            required:
+              - name
+              - display_name
+            example:
+              name: "role_name"
+              display_name: "The role's display name"
+    RoleUpdateBody:
+      description: The parameters to use for updating a role. Only the provided fields are updated.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+              name:
+                type: string
+              display_name:
+                type: string
+            required:
+              - id
+            example:
+              id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+              name: "Name to Update"
+              display_name: "New role's display name"
+    RoleDeleteBody:
+      description: The parameters to use for deleting an role.
+      required: true
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            properties:
+              id:
+                type: string
+            required:
+              - id
+            example:
+              id: "rol_01cw625zm2xmny5ee3mwt9j8ky"
+
     ######################################
     #               TOKEN BODIES         #
     ######################################
@@ -3964,7 +4245,7 @@ components:
     #         CATEGORY REQUEST BODIES         #
     ###########################################
     CategoryAllBody:
-      description: The parameters to use for listing the categories
+      description: The parameters to use for listing the roles
       required: true
       content:
         application/vnd.omisego.v1+json:
@@ -5366,6 +5647,22 @@ components:
             $ref: '#/components/schemas/AuthenticationTokenResponseSchema'
 
     ######################################
+    #            ROLE RESPONSES          #
+    ######################################
+    RoleResponse:
+      description: "Returns a single role"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/RoleResponseSchema'
+    RolesResponse:
+      description: "Returns a list of roles"
+      content:
+        application/vnd.omisego.v1+json:
+          schema:
+            $ref: '#/components/schemas/RolesResponseSchema'
+
+    ######################################
     #           TOKEN RESPONSES          #
     ######################################
     TokenResponse:
@@ -5423,7 +5720,7 @@ components:
           schema:
             $ref: '#/components/schemas/CategoryResponseSchema'
     CategoriesResponse:
-      description: "Returns a list of categories"
+      description: "Returns a list of roles"
       content:
         application/vnd.omisego.v1+json:
           schema:

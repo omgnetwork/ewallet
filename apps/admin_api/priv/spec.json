@@ -20,6 +20,9 @@
     "name" : "AdminSession",
     "description" : "Resources related to admin session tokens."
   }, {
+    "name" : "Role",
+    "description" : "Resources related to roles."
+  }, {
     "name" : "Admin",
     "description" : "Resources related to admin users."
   }, {
@@ -36,7 +39,7 @@
     "description" : "Resources related to exchange pairs."
   }, {
     "name" : "Category",
-    "description" : "Resources related to categories."
+    "description" : "Resources related to roles."
   }, {
     "name" : "Account",
     "description" : "Resources related to accounts."
@@ -226,6 +229,191 @@
         },
         "security" : [ {
           "ClientAuth" : [ ]
+        } ]
+      }
+    },
+    "/role.all" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "Get the list of tokens",
+        "operationId" : "role_all",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/RoleAllBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a list of roles",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RolesResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/role.get" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "Get a specific role",
+        "operationId" : "token_get",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/RoleGetBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single role",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/role.create" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "Create a new role",
+        "operationId" : "role_create",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/RoleCreateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single role",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/role.update" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "Update an existing role",
+        "operationId" : "role_update",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/RoleUpdateBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single role",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
+        } ]
+      }
+    },
+    "/role.delete" : {
+      "post" : {
+        "tags" : [ "Role" ],
+        "summary" : "Delete a role by its id",
+        "operationId" : "role_delete",
+        "requestBody" : {
+          "$ref" : "#/components/requestBodies/RoleDeleteBody"
+        },
+        "responses" : {
+          "200" : {
+            "description" : "Returns a single role",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/RoleResponseSchema"
+                }
+              }
+            }
+          },
+          "500" : {
+            "description" : "Returns an internal server error",
+            "content" : {
+              "application/vnd.omisego.v1+json" : {
+                "schema" : {
+                  "$ref" : "#/components/schemas/ErrorResponseSchema"
+                }
+              }
+            }
+          }
+        },
+        "security" : [ {
+          "ProviderAuth" : [ ]
+        }, {
+          "AdminAuth" : [ ]
         } ]
       }
     },
@@ -787,14 +975,14 @@
     "/category.all" : {
       "post" : {
         "tags" : [ "Category" ],
-        "summary" : "Get the list of categories",
+        "summary" : "Get the list of roles",
         "operationId" : "category_all",
         "requestBody" : {
           "$ref" : "#/components/requestBodies/CategoryAllBody"
         },
         "responses" : {
           "200" : {
-            "description" : "Returns a list of categories",
+            "description" : "Returns a list of roles",
             "content" : {
               "application/vnd.omisego.v1+json" : {
                 "schema" : {
@@ -3284,6 +3472,129 @@
           }
         } ]
       },
+      "RoleSchema" : {
+        "required" : [ "created_at", "display_name", "id", "name", "object", "updated_at", "user_ids" ],
+        "type" : "object",
+        "properties" : {
+          "object" : {
+            "type" : "string"
+          },
+          "id" : {
+            "type" : "string"
+          },
+          "name" : {
+            "type" : "string"
+          },
+          "display_name" : {
+            "type" : "string"
+          },
+          "user_ids" : {
+            "type" : "array",
+            "items" : {
+              "type" : "string"
+            }
+          },
+          "users" : {
+            "type" : "object",
+            "allOf" : [ {
+              "$ref" : "#/components/schemas/UnpaginatedListSchema"
+            }, {
+              "type" : "object",
+              "properties" : {
+                "data" : {
+                  "type" : "array",
+                  "items" : {
+                    "$ref" : "#/components/schemas/UserSchema"
+                  }
+                }
+              }
+            } ]
+          },
+          "created_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          },
+          "updated_at" : {
+            "type" : "string",
+            "format" : "date-time"
+          }
+        },
+        "description" : "The object schema for a role"
+      },
+      "RoleResponseSchema" : {
+        "description" : "The response schema for a role",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "$ref" : "#/components/schemas/RoleSchema"
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "role",
+              "id" : "rol_01cw625zm2xmny5ee3mwt9j8ky",
+              "name" : "role_name",
+              "display_name" : "The role's display name",
+              "created_at" : "2018-01-01T00:00:00Z",
+              "updated_at" : "2018-01-01T10:00:00Z"
+            }
+          }
+        } ]
+      },
+      "RolesResponseSchema" : {
+        "description" : "The response schema for a list of roles",
+        "allOf" : [ {
+          "$ref" : "#/components/schemas/BaseResponseSchema"
+        }, {
+          "required" : [ "data" ],
+          "type" : "object",
+          "properties" : {
+            "data" : {
+              "type" : "object",
+              "allOf" : [ {
+                "$ref" : "#/components/schemas/PaginatedListSchema"
+              }, {
+                "type" : "object",
+                "properties" : {
+                  "data" : {
+                    "type" : "array",
+                    "items" : {
+                      "$ref" : "#/components/schemas/RoleSchema"
+                    }
+                  }
+                }
+              } ]
+            }
+          },
+          "example" : {
+            "version" : "1",
+            "success" : true,
+            "data" : {
+              "object" : "list",
+              "data" : [ {
+                "object" : "role",
+                "id" : "rol_01cw625zm2xmny5ee3mwt9j8ky",
+                "name" : "Role Name",
+                "display_name" : "The role's display name",
+                "created_at" : "2018-01-01T00:00:00Z",
+                "updated_at" : "2018-01-01T10:00:00Z"
+              } ],
+              "pagination" : {
+                "per_page" : 10,
+                "current_page" : 1,
+                "is_first_page" : true,
+                "is_last_page" : true
+              }
+            }
+          }
+        } ]
+      },
       "TokenSchema" : {
         "required" : [ "created_at", "enabled", "id", "name", "object", "subunit_to_unit", "symbol", "updated_at" ],
         "type" : "object",
@@ -3782,7 +4093,7 @@
         } ]
       },
       "CategoriesResponseSchema" : {
-        "description" : "The response schema for a list of categories",
+        "description" : "The response schema for a list of roles",
         "allOf" : [ {
           "$ref" : "#/components/schemas/BaseResponseSchema"
         }, {
@@ -3862,7 +4173,7 @@
               "type" : "string"
             }
           },
-          "categories" : {
+          "roles" : {
             "type" : "object",
             "allOf" : [ {
               "$ref" : "#/components/schemas/UnpaginatedListSchema"
@@ -3918,7 +4229,7 @@
               "description" : "The account description",
               "master" : true,
               "category_ids" : [ ],
-              "categories" : [ ],
+              "roles" : [ ],
               "metadata" : { },
               "encrypted_metadata" : { },
               "avatar" : {
@@ -3968,7 +4279,7 @@
                 "description" : "The account description",
                 "master" : true,
                 "category_ids" : [ ],
-                "categories" : [ ],
+                "roles" : [ ],
                 "metadata" : { },
                 "encrypted_metadata" : { },
                 "avatar" : {
@@ -5561,6 +5872,26 @@
           }
         }
       },
+      "RoleResponse" : {
+        "description" : "Returns a single role",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/RoleResponseSchema"
+            }
+          }
+        }
+      },
+      "RolesResponse" : {
+        "description" : "Returns a list of roles",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "$ref" : "#/components/schemas/RolesResponseSchema"
+            }
+          }
+        }
+      },
       "TokenResponse" : {
         "description" : "Returns a single tokens",
         "content" : {
@@ -5632,7 +5963,7 @@
         }
       },
       "CategoriesResponse" : {
-        "description" : "Returns a list of categories",
+        "description" : "Returns a list of roles",
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {
@@ -5982,6 +6313,133 @@
                 "token" : "26736ca1-43a0-442b-803e-76220cd3cb1d",
                 "password" : "nZi9Enc5$l#",
                 "password_confirmation" : "nZi9Enc5$l#"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "RoleAllBody" : {
+        "description" : "The parameters to use for listing the roles",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "properties" : {
+                "page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "per_page" : {
+                  "minimum" : 1,
+                  "type" : "integer",
+                  "format" : "int32"
+                },
+                "search_term" : {
+                  "type" : "string"
+                },
+                "sort_by" : {
+                  "type" : "string"
+                },
+                "sort_dir" : {
+                  "type" : "string",
+                  "enum" : [ "asc", "desc" ]
+                }
+              },
+              "example" : {
+                "page" : 1,
+                "per_page" : 10,
+                "search_term" : "",
+                "sort_by" : "field_name",
+                "sort_dir" : "asc"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "RoleGetBody" : {
+        "description" : "The parameters to use for retrieving a specific role",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "id" : "rol_01cw625zm2xmny5ee3mwt9j8ky"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "RoleCreateBody" : {
+        "description" : "The parameters to use for creating a new role.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "display_name", "name" ],
+              "properties" : {
+                "name" : {
+                  "type" : "string"
+                },
+                "display_name" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "name" : "role_name",
+                "display_name" : "The role's display name"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "RoleUpdateBody" : {
+        "description" : "The parameters to use for updating a role. Only the provided fields are updated.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                },
+                "name" : {
+                  "type" : "string"
+                },
+                "display_name" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "id" : "rol_01cw625zm2xmny5ee3mwt9j8ky",
+                "name" : "Name to Update",
+                "display_name" : "New role's display name"
+              }
+            }
+          }
+        },
+        "required" : true
+      },
+      "RoleDeleteBody" : {
+        "description" : "The parameters to use for deleting an role.",
+        "content" : {
+          "application/vnd.omisego.v1+json" : {
+            "schema" : {
+              "required" : [ "id" ],
+              "properties" : {
+                "id" : {
+                  "type" : "string"
+                }
+              },
+              "example" : {
+                "id" : "rol_01cw625zm2xmny5ee3mwt9j8ky"
               }
             }
           }
@@ -6399,7 +6857,7 @@
         "required" : true
       },
       "CategoryAllBody" : {
-        "description" : "The parameters to use for listing the categories",
+        "description" : "The parameters to use for listing the roles",
         "content" : {
           "application/vnd.omisego.v1+json" : {
             "schema" : {

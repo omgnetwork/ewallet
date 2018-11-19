@@ -93,8 +93,8 @@ defmodule EWalletDB.Membership do
   @doc """
   Assigns the user to the given account and role.
   """
-  def assign(user, account, role) when is_binary(role) do
-    case Role.get_by_name(role) do
+  def assign(user, account, role_name) when is_binary(role_name) do
+    case Role.get_by(name: role_name) do
       nil ->
         {:error, :role_not_found}
 
