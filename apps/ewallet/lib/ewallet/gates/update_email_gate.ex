@@ -1,4 +1,7 @@
 defmodule EWallet.UpdateEmailGate do
+  @moduledoc """
+  Handles a user's email update.
+  """
   alias EWalletDB.{UpdateEmailRequest, User}
 
   def update(user, email_address) do
