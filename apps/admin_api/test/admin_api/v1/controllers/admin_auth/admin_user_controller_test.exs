@@ -90,16 +90,15 @@ defmodule AdminAPI.V1.AdminAuth.AdminUserControllerTest do
     # This is a variation of `ConnCase.test_supports_match_all/5` that inserts
     # an admin and a membership in order for the inserted admin to appear in the result.
     test "supports match_all filtering" do
-      account = Account.get_master_account()
       admin_1 = insert(:admin, %{username: "this_should_almost_match"})
       admin_2 = insert(:admin, %{username: "this_should_match"})
       admin_3 = insert(:admin, %{username: "should_not_match"})
       admin_4 = insert(:admin, %{username: "also_should_not_match"})
 
-      _ = insert(:membership, %{user: admin_1, account: account})
-      _ = insert(:membership, %{user: admin_2, account: account})
-      _ = insert(:membership, %{user: admin_3, account: account})
-      _ = insert(:membership, %{user: admin_4, account: account})
+      _ = insert(:membership, %{user: admin_1})
+      _ = insert(:membership, %{user: admin_2})
+      _ = insert(:membership, %{user: admin_3})
+      _ = insert(:membership, %{user: admin_4})
 
       attrs = %{
         "match_all" => [
