@@ -3,7 +3,7 @@ defmodule EWalletDB.TransactionRequest do
   Ecto Schema representing transaction requests.
   """
   use Ecto.Schema
-  use EWalletDB.Types.ExternalID
+  use EWalletConfig.Types.ExternalID
   import Ecto.{Changeset, Query}
   import EWalletDB.Helpers.Preloader
   alias Ecto.{Changeset, Query, UUID}
@@ -32,7 +32,7 @@ defmodule EWalletDB.TransactionRequest do
     external_id(prefix: "txr_")
 
     field(:type, :string)
-    field(:amount, EWalletDB.Types.Integer)
+    field(:amount, EWalletConfig.Types.Integer)
     # valid -> expired
     field(:status, :string, default: @valid)
     field(:correlation_id, :string)
@@ -49,7 +49,7 @@ defmodule EWalletDB.TransactionRequest do
     field(:expiration_reason, :string)
     field(:allow_amount_override, :boolean, default: true)
     field(:metadata, :map, default: %{})
-    field(:encrypted_metadata, EWalletDB.Encrypted.Map, default: %{})
+    field(:encrypted_metadata, EWalletConfig.Encrypted.Map, default: %{})
 
     has_many(
       :consumptions,

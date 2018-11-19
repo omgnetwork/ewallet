@@ -1,24 +1,22 @@
 defmodule EWalletAPI.ConfigTest do
-  # `async: false` because `Application.put_env/3` have side effects
-  use EWalletAPI.ConnCase, async: false
+  use EWalletAPI.ConnCase, async: true
+  alias EWalletConfig.Config
 
   describe "ewallet_api.enable_standalone" do
-    test "allows /user.signup when configured to true" do
-      response =
-        run_with(:enable_standalone, true, fn ->
-          client_request("/user.signup")
-        end)
+    test "allows /user.signup when configured to true", meta do
+      {:ok, _} = Config.update(%{enable_standalone: true}, meta[:config_pid])
+
+      response = client_request("/user.signup")
 
       # Asserting `user:invalid_email` is good enough to verify
       # that the endpoint is accessible and being processed.
       assert response["data"]["code"] == "user:invalid_email"
     end
 
-    test "prohibits /user.signup when configured to false" do
-      response =
-        run_with(:enable_standalone, false, fn ->
-          client_request("/user.signup")
-        end)
+    test "prohibits /user.signup when configured to false", meta do
+      {:ok, _} = Config.update(%{enable_standalone: false}, meta[:config_pid])
+
+      response = client_request("/user.signup")
 
       assert response["data"]["code"] == "client:endpoint_not_found"
     end

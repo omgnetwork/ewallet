@@ -2,11 +2,12 @@ defmodule EWallet.PolicyHelper do
   @moduledoc """
   A policy helper containing the actual authorization.
   """
-  alias EWalletDB.{Account, Intersecter, Membership, Role}
+  alias EWalletConfig.Intersecter
+  alias EWalletDB.{Account, Membership, Role}
 
   def admin_authorize(user, account_id_or_uuids) do
     # admin is required to create
-    role = Role.get_by_name("admin")
+    role = Role.get_by(name: "admin")
 
     user
     |> Membership.all_by_user_and_role(role)

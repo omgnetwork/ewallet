@@ -97,7 +97,7 @@ class TransactionRequestsPage extends Component {
     this.props.history.push({
       search: queryString.stringify({
         ...searchObject,
-        [`show-request-tab`]: data.id
+        'show-request-tab': data.id
       })
     })
   }
@@ -135,12 +135,14 @@ class TransactionRequestsPage extends Component {
     }
     return data
   }
+
   renderTransactionRequestsPage = ({
     data: transactionRequests,
     individualLoadingStatus,
     pagination,
     fetch
   }) => {
+    const activeIndexKey = queryString.parse(this.props.location.search)['show-request-tab']
     return (
       <TransactionRequestsPageContainer>
         <TopNavigation
@@ -161,6 +163,7 @@ class TransactionRequestsPage extends Component {
             isLastPage={pagination.is_last_page}
             navigation
             onClickLoadMore={this.onClickLoadMore}
+            activeIndexKey={activeIndexKey}
           />
         </SortableTableContainer>
         <CreateTransactionRequestModal

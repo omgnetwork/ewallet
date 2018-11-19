@@ -50,6 +50,7 @@ defmodule EWallet.Mixfile do
       {:decimal, "~> 1.0"},
       {:deferred_config, "~> 0.1.0"},
       {:ewallet_db, in_umbrella: true},
+      {:ewallet_config, in_umbrella: true},
       {:local_ledger, in_umbrella: true},
       {:local_ledger_db, in_umbrella: true}
     ]

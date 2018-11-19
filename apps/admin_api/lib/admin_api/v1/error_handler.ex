@@ -40,9 +40,17 @@ defmodule AdminAPI.V1.ErrorHandler do
       code: "transaction:id_not_found",
       description: "There is no transaction corresponding to the provided id."
     },
+    role_id_not_found: %{
+      code: "role:id_not_found",
+      description: "There is no role corresponding to the provided id."
+    },
     role_name_not_found: %{
       code: "role:name_not_found",
       description: "There is no role corresponding to the provided name."
+    },
+    role_not_empty: %{
+      code: "role:not_empty",
+      description: "The role has one or more users associated."
     },
     membership_not_found: %{
       code: "membership:not_found",

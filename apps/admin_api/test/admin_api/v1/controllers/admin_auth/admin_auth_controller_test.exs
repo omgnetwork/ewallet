@@ -1,7 +1,8 @@
 defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
   use AdminAPI.ConnCase, async: true
   alias EWallet.Web.V1.{AccountSerializer, UserSerializer}
-  alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, System, User}
+  alias EWalletConfig.System
+  alias EWalletDB.{Account, AuthToken, Membership, Repo, Role, User}
 
   describe "/admin.login" do
     test "responds with a new auth token if the given email and password are valid" do
@@ -32,7 +33,7 @@ defmodule AdminAPI.V1.AdminAuth.AdminAuthControllerTest do
       user = get_test_admin() |> Repo.preload([:accounts])
       {:ok, _} = Membership.unassign(user, Enum.at(user.accounts, 0))
       account = insert(:account)
-      role = Role.get_by_name("admin")
+      role = Role.get_by(name: "admin")
       _membership = insert(:membership, %{user: user, role: role, account: account})
 
       response =

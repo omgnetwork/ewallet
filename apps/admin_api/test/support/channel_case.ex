@@ -15,6 +15,7 @@ defmodule AdminAPI.ChannelCase do
 
   use ExUnit.CaseTemplate, async: false
   alias Ecto.Adapters.SQL.Sandbox
+  alias EWalletConfig.ConfigTestHelper
 
   using do
     quote do
@@ -28,13 +29,29 @@ defmodule AdminAPI.ChannelCase do
     end
   end
 
-  setup do
+  setup tags do
     :ok = Sandbox.checkout(EWalletDB.Repo)
     :ok = Sandbox.checkout(LocalLedgerDB.Repo)
+    :ok = Sandbox.checkout(EWalletConfig.Repo)
 
-    Sandbox.mode(EWalletDB.Repo, {:shared, self()})
-    Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+    unless tags[:async] do
+      Sandbox.mode(EWalletConfig.Repo, {:shared, self()})
+      Sandbox.mode(EWalletDB.Repo, {:shared, self()})
+      Sandbox.mode(LocalLedgerDB.Repo, {:shared, self()})
+    end
 
-    :ok
+    pid =
+      ConfigTestHelper.restart_config_genserver(
+        self(),
+        EWalletConfig.Repo,
+        [:ewallet_db, :ewallet, :admin_api],
+        %{
+          "base_url" => "http://localhost:4000",
+          "email_adapter" => "test",
+          "sender_email" => "admin@example.com"
+        }
+      )
+
+    %{config_pid: pid}
   end
 end
