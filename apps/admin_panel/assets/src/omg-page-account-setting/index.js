@@ -22,7 +22,7 @@ const columns = [
   { key: 'account_role', title: 'ROLE', sort: true },
   { key: 'username', title: 'MEMBER NAME', sort: true },
   { key: 'email', title: 'EMAIL', sort: true },
-  { key: 'since', title: 'LAST UPDATED', sort: true },
+  { key: 'updated_at', title: 'LAST UPDATED', sort: true },
   { key: 'status', title: 'STATUS', sort: true }
 ]
 const AccountSettingContainer = styled.div`
@@ -161,12 +161,12 @@ class AccountSettingPage extends Component {
   renderInviteButton = () => {
     return (
       <InviteButton size='small' onClick={this.onClickInviteButton} key={'create'}>
-        <Icon name='Plus' /> <span>Invite</span>
+        <Icon name='Plus' /> <span>Invite Member</span>
       </InviteButton>
     )
   }
   rowRenderer = (key, data, rows) => {
-    if (key === 'since') {
+    if (key === 'updated_at') {
       return moment(data).format('DD/MM/YYYY hh:mm:ss')
     }
     if (key === 'username') {
