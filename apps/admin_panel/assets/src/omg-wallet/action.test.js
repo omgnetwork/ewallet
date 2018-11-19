@@ -47,14 +47,15 @@ describe('wallet actions', () => {
       }
     ]
     return store
-      .dispatch(getWallets({ page: 1, perPage: 10, cacheKey: 'key', search: 'search' }))
+      .dispatch(getWallets({ page: 1, perPage: 10, cacheKey: 'key', matchAll: [], matchAny: [] }))
       .then(() => {
         expect(walletService.getWallets).toBeCalledWith(
           expect.objectContaining({
             page: 1,
             perPage: 10,
-            search: 'search',
-            sort: { by: 'created_at', dir: 'desc' }
+            sort: { by: 'created_at', dir: 'desc' },
+            matchAll: [],
+            matchAny: []
           })
         )
         expect(store.getActions()).toEqual(expectedActions)

@@ -71,7 +71,7 @@ class AccountDetailPage extends Component {
       <Section title='WALLETS'>
         <WalletsFetcherByAccountId
           query={{ accountId: this.props.match.params.viewAccountId }}
-          render={({ data, individualLoadingStatus }) => {
+          render={({ data }) => {
             return data.map(wallet => {
               return (
                 <WalletCointainter>

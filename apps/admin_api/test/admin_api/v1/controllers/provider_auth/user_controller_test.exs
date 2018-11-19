@@ -48,6 +48,9 @@ defmodule AdminAPI.V1.ProviderAuth.UserControllerTest do
       assert Enum.at(users, 1)["username"] == "match_user2"
       assert Enum.at(users, 2)["username"] == "match_user1"
     end
+
+    test_supports_match_any("/user.all", :provider_auth, :user, :username)
+    test_supports_match_all("/user.all", :provider_auth, :user, :username)
   end
 
   describe "/user.get" do

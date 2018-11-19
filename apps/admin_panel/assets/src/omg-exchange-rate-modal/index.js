@@ -10,6 +10,7 @@ import { withRouter } from 'react-router-dom'
 import TokensFetcher from '../omg-token/tokensFetcher'
 import { selectGetTokenById } from '../omg-token/selector'
 import TokenSelect from '../omg-token-select'
+import { createSearchTokenQuery } from '../omg-token/searchField'
 const Form = styled.form`
   padding: 50px;
   width: 400px;
@@ -138,7 +139,7 @@ class CreateExchangeRateModal extends Component {
         <Icon name='Close' onClick={this.props.onRequestClose} />
         <h4>Create Exchange Pair</h4>
         <TokensFetcher
-          query={{ search: this.state.fromTokenSearch }}
+          query={createSearchTokenQuery(this.state.fromTokenSearch)}
           render={({ data }) => {
             return (
               <Fragment>
@@ -173,7 +174,7 @@ class CreateExchangeRateModal extends Component {
           }}
         />
         <TokensFetcher
-          query={{ search: this.state.toTokenSearch }}
+          query={createSearchTokenQuery(this.state.toTokenSearch)}
           render={({ data }) => {
             return (
               <Fragment>

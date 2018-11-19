@@ -8,8 +8,8 @@ export const login = ({ email, password, rememberMe }) => createActionCreator({a
     if (sessionResult.data.success) {
       sessionService.setAccessToken(sessionResult.data.data)
       if (!account) sessionService.setCurrentAccount(sessionResult.data.data.account)
-      return sessionResult
     }
+    return sessionResult
   }
 })
 
