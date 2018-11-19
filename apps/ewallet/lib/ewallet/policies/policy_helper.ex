@@ -7,7 +7,7 @@ defmodule EWallet.PolicyHelper do
 
   def admin_authorize(user, account_id_or_uuids) do
     # admin is required to create
-    role = Role.get_by_name("admin")
+    role = Role.get_by(name: "admin")
 
     user
     |> Membership.all_by_user_and_role(role)
