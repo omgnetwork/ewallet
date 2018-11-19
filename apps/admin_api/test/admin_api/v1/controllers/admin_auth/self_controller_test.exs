@@ -158,7 +158,7 @@ defmodule AdminAPI.V1.AdminAuth.SelfControllerTest do
       assert_delivered_email(UpdateEmailAddressEmail.create(request, @update_email_url))
     end
 
-    test "returns an error when sending email = nil" do
+    test "returns an error when given email as nil" do
       response =
         admin_user_request("/me.update_email", %{
           "email" => nil,

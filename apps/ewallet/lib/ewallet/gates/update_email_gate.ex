@@ -1,18 +1,11 @@
 defmodule EWallet.UpdateEmailGate do
-  alias AdminAPI.UpdateEmailAddressEmail
-  alias Bamboo.Email
-  alias EWallet.Mailer
-  alias EWallet.Web.UrlValidator
   alias EWalletDB.{UpdateEmailRequest, User}
 
-  def update(user, email_address, redirect_url) do
-    with {:ok, redirect_url} <- validate_redirect_url(redirect_url),
-         {:ok, email_address} <- validate_email_unused(email_address),
+  def update(user, email_address) do
+    with {:ok, email_address} <- validate_email_unused(email_address),
          {_, _} <- UpdateEmailRequest.disable_all_for(user),
-         %UpdateEmailRequest{} = request <- UpdateEmailRequest.generate(user, email_address),
-         %Email{} = email <- UpdateEmailAddressEmail.create(request, redirect_url),
-         %Email{} = email <- Mailer.deliver_now(email) do
-      {:ok, user, email}
+         %UpdateEmailRequest{} = request <- UpdateEmailRequest.generate(user, email_address) do
+      {:ok, request}
     else
       error -> error
     end
@@ -25,14 +18,6 @@ defmodule EWallet.UpdateEmailGate do
 
       nil ->
         {:ok, email}
-    end
-  end
-
-  defp validate_redirect_url(url) do
-    if UrlValidator.allowed_redirect_url?(url) do
-      {:ok, url}
-    else
-      {:error, :prohibited_url, param_name: "redirect_url", url: url}
     end
   end
 

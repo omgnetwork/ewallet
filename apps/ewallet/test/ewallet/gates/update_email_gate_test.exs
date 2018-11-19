@@ -1,23 +1,18 @@
 defmodule EWallet.UpdateEmailGateTest do
   use EWallet.DBCase, async: true
-  use Bamboo.Test
-  alias Bamboo.Email
   alias EWallet.UpdateEmailGate
-  alias EWalletDB.{Repo, UpdateEmailRequest, User}
-  alias AdminAPI.UpdateEmailAddressEmail
-
-  @redirect_url "http://localhost:4000/update_email?email={email}&token={token}"
+  alias EWalletDB.{UpdateEmailRequest, User}
 
   describe "update/3" do
-    test "returns {:ok, user, email} with the user's email unchanged" do
+    test "returns {:ok, request} with the user's email unchanged" do
       admin = insert(:admin, email: "test.update.email.gate@example.com")
 
-      {res, user, email} =
-        UpdateEmailGate.update(admin, "test.update.email.gate2@example.com", @redirect_url)
+      {res, request} =
+        UpdateEmailGate.update(admin, "test.update.email.gate2@example.com")
 
       assert res == :ok
-      assert user.id == admin.id
-      assert %Email{} = email
+      assert %UpdateEmailRequest{} = request
+      assert User.get(admin.id).email == admin.email
     end
 
     test "disables all pending update requests" do
@@ -31,38 +26,12 @@ defmodule EWallet.UpdateEmailGateTest do
       assert UpdateEmailRequest.get(request_2.email, request_2.token).enabled
       assert UpdateEmailRequest.get(request_3.email, request_3.token).enabled
 
-      {:ok, _user, _email} =
-        UpdateEmailGate.update(admin, "test.update.email.gate2@example.com", @redirect_url)
+      {:ok, _request} =
+        UpdateEmailGate.update(admin, "test.update.email.gate2@example.com")
 
       assert UpdateEmailRequest.get(request_1.email, request_1.token) == nil
       assert UpdateEmailRequest.get(request_2.email, request_2.token) != nil
       assert UpdateEmailRequest.get(request_3.email, request_3.token) == nil
-    end
-
-    test "sends a verification email" do
-      admin = insert(:admin)
-
-      {:ok, _, _} =
-        UpdateEmailGate.update(admin, "test.sends.verification@example.com", @redirect_url)
-
-      request =
-        UpdateEmailRequest
-        |> Repo.get_by(user_uuid: admin.uuid)
-        |> Repo.preload(:user)
-
-      assert_delivered_email(UpdateEmailAddressEmail.create(request, @redirect_url))
-    end
-
-    test "returns client:invalid_parameter error if the redirect_url is not allowed" do
-      admin = insert(:admin)
-      redirect_url = "http://unknown-url.com/update_email?email={email}&token={token}"
-
-      {res, code, meta} =
-        UpdateEmailGate.update(admin, "test.redirect_url.not.provided@example.com", redirect_url)
-
-        assert res == :error
-        assert code == :prohibited_url
-        assert meta == [param_name: "redirect_url", url: redirect_url]
     end
 
     test "returns an error if there is already a user with the associated email" do
@@ -70,7 +39,7 @@ defmodule EWallet.UpdateEmailGateTest do
       another_admin = insert(:admin)
 
       {res, code} =
-        UpdateEmailGate.update(admin, another_admin.email, @redirect_url)
+        UpdateEmailGate.update(admin, another_admin.email)
 
       assert res == :error
       assert code == :email_already_exists
@@ -108,6 +77,18 @@ defmodule EWallet.UpdateEmailGateTest do
       {:ok, _} = UpdateEmailGate.verify(request.email, request.token)
 
       assert UpdateEmailRequest.get(request.email, request.token) == nil
+    end
+
+    test "prevents updating to an email address that's already used" do
+      admin = insert(:admin)
+      another_admin = insert(:admin)
+      request = insert(:update_email_request, user_uuid: admin.uuid, email: another_admin.email)
+
+      {res, changeset} = UpdateEmailGate.verify(request.email, request.token)
+
+      assert res == :error
+      assert changeset.valid? == false
+      assert changeset.errors == [email: {"has already been taken", []}]
     end
 
     test "returns :invalid_email_update_token error if the email does not match the token" do
