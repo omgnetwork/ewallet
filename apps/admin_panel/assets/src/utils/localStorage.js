@@ -1,8 +1,8 @@
 export default {
   set: (key, payload) => {
     try {
-      const StringifiedPayload = JSON.stringify(payload)
-      window.localStorage.setItem(key, StringifiedPayload)
+      const stringifiedPayload = JSON.stringify(payload)
+      window.localStorage.setItem(key, stringifiedPayload)
       return true
     } catch (error) {
       throw new Error(`cannot stringify json from localStorage module with payload ${payload}`)
