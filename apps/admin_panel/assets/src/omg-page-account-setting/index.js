@@ -7,7 +7,7 @@ import { currentAccountProviderHoc } from '../omg-account-current/currentAccount
 import SortableTable from '../omg-table'
 import { withRouter } from 'react-router-dom'
 import InviteModal from '../omg-invite-modal'
-import InviteFetcher from '../omg-invite/InviteFetcher'
+import InviteFetcher from '../omg-invite/inviteFetcher'
 import { updateCurrentAccount } from '../omg-account-current/action'
 import { connect } from 'react-redux'
 import { compose } from 'recompose'
