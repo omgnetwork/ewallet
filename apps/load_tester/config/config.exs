@@ -11,4 +11,6 @@ config :load_tester,
   host: {:system, "LOADTEST_HOST", "localhost"},
   port: {:system, "LOADTEST_PORT", "4000"},
   total_requests: {:system, "LOADTEST_TOTAL_REQUESTS", "60"},
-  duration: {:system, "LOADTEST_DURATION_SECONDS", "60"}
+  duration: {:system, "LOADTEST_DURATION_SECONDS", "60"},
+  email: {:system, "LOADTEST_EMAIL", "ewallet-loadtesting@omise.co"},
+  password: {:system, "LOADTEST_PASSWORD", "loadtesting"}

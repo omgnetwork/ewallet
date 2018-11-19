@@ -12,8 +12,8 @@ defmodule LoadTester.Scenarios.AdminLogin do
         "Accept" => "application/vnd.omisego.v1+json"
       },
       json: %{
-        "email" => "ewallet-loadtesting@omise.co",
-        "password" => "loadtesting"
+        "email" => Application.get_env(:load_tester, :email),
+        "password" => Application.get_env(:load_tester, :password),
       },
       decode: :json,
       with_result: &store_auth_token(&1, &2)
